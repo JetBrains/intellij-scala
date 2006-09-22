@@ -1,0 +1,13 @@
+<!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
+<idea-plugin>
+  <name>Plugin name here</name>
+  <description>Plugin for scala language</description>
+  <version>1.0</version>
+  <vendor>YourCompany</vendor>
+  <idea-version since-build="3000"/>
+    <application-components>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.ScalaLoader</implementation-class>
+        </component>
+    </application-components>
+</idea-plugin>

@@ -1,0 +1,41 @@
+package org.jetbrains.plugins.scala;
+
+import com.intellij.openapi.fileTypes.LanguageFileType;
+import com.intellij.openapi.util.IconLoader;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.NonNls;
+
+import javax.swing.*;
+
+/**
+ * Author: Ilya Sergey
+ * Date: 20.09.2006
+ * Time: 16:25:12
+ */
+public class ScalaFileType extends LanguageFileType {
+
+    public ScalaFileType(){
+        super(new ScalaLanguage());
+    }
+
+    @NotNull
+    @NonNls
+    public String getName() {
+        return "Scala";
+    }
+
+    @NotNull
+    public String getDescription() {
+        return "Scala files";
+    }
+
+    @NotNull
+    @NonNls
+    public String getDefaultExtension() {
+        return "scala";
+    }
+
+    public Icon getIcon() {
+        return IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_logo.png");
+    }
+}
