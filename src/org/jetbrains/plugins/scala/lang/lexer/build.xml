@@ -1,0 +1,17 @@
+<project name="generate scala lexer from scala.flex" default="generate">
+    <property name="lexer.file" value="ScalaLexer.java"/>
+    <property name="lexer.log" value="jflex.log"/>
+    <property name="lexer.source" value="scala.flex"/>
+
+    <target name="jflex" description="Produces Jflex based lexer">
+        <delete file="${lexer.file}"/>
+        <delete file="${lexer.log}"/>
+
+        <java jar="JFlex.jar" output="jflex.log" fork="true">
+            <arg value="${lexer.source}"/>
+        </java>
+    </target>
+
+    <target name="generate" depends="jflex" description="generate lexer"/>
+
+</project>
