@@ -16,9 +16,7 @@
     <option name="USER" value="" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Scala.iws" afterPath="$PROJECT_DIR$/Scala.iws" />
-    </list>
+    <list default="true" name="Default" comment="" />
   </component>
   <component name="ChangeListSynchronizer" />
   <component name="ChangesViewManager" flattened_view="true" />
@@ -145,7 +143,7 @@
       <file leaf-file-name="ScalaFileType.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/ScalaFileType.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="24" selection-start="500" selection-end="500" vertical-scroll-proportion="0.32240438">
+            <state line="19" column="24" selection-start="500" selection-end="500" vertical-scroll-proportion="0.3831554">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -156,7 +154,7 @@
       <file leaf-file-name="ScalaLoader.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/ScalaLoader.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="20" column="78" selection-start="615" selection-end="615" vertical-scroll-proportion="0.63670415">
+            <state line="20" column="78" selection-start="615" selection-end="615" vertical-scroll-proportion="0.41062802">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -167,7 +165,7 @@
       <file leaf-file-name="ScalaParserDefinition.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/ScalaParserDefinition.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="13" selection-start="551" selection-end="572" vertical-scroll-proportion="0.1928839">
+            <state line="19" column="13" selection-start="551" selection-end="572" vertical-scroll-proportion="0.12439614">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -178,7 +176,7 @@
       <file leaf-file-name="_ScalaLexer.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/_ScalaLexer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="490" column="31" selection-start="13345" selection-end="13345" vertical-scroll-proportion="0.49362478">
+            <state line="490" column="31" selection-start="13345" selection-end="13345" vertical-scroll-proportion="0.32147095">
               <folding />
             </state>
           </provider>
@@ -527,7 +525,7 @@
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18167073" order="3" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.326062" order="7" />
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22465532" order="0" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32837528" order="1" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32837528" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32265446" order="8" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="6" />
@@ -693,7 +691,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/ScalaLoader.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="78" selection-start="615" selection-end="615" vertical-scroll-proportion="0.63670415">
+        <state line="20" column="78" selection-start="615" selection-end="615" vertical-scroll-proportion="0.41062802">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -702,7 +700,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/ScalaParserDefinition.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="13" selection-start="551" selection-end="572" vertical-scroll-proportion="0.1928839">
+        <state line="19" column="13" selection-start="551" selection-end="572" vertical-scroll-proportion="0.12439614">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -711,7 +709,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/_ScalaLexer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="490" column="31" selection-start="13345" selection-end="13345" vertical-scroll-proportion="0.49362478">
+        <state line="490" column="31" selection-start="13345" selection-end="13345" vertical-scroll-proportion="0.32147095">
           <folding />
         </state>
       </provider>
@@ -739,7 +737,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/ScalaFileType.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="24" selection-start="500" selection-end="500" vertical-scroll-proportion="0.32240438">
+        <state line="19" column="24" selection-start="500" selection-end="500" vertical-scroll-proportion="0.3831554">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
