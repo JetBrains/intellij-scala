@@ -178,51 +178,51 @@ WHITESPACES = {WHITE_SPACE_CHAR}+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 "abstract"                              {   return process(kABSTRACT); }
-"case"                                   {   return process(kCASE); }
+"case"                                  {   return process(kCASE); }
 "catch"                                 {   return process(kCATCH); }
 "class"                                 {   return process(kCLASS); }
 
 "def"                                   {   return process(kDEF); }
-"do"                                 {   return process(kDO); }
-"else"                                 {   return process(kELSE); }
-"extends"                                  {   return process(kEXTENDS); }
+"do"                                    {   return process(kDO); }
+"else"                                  {   return process(kELSE); }
+"extends"                               {   return process(kEXTENDS); }
 "false"                                 {   return process(kFALSE); }
 "final"                                 {   return process(kFINAL); }
-"finally"                                 {   return process(kFINALLY); }
+"finally"                               {   return process(kFINALLY); }
 "for"                                   {   return process(kFOR); }
-"if"                                   {   return process(kIF); }
-"implicit"                                   {   return process(kIMPLICIT); }
-"import"                                   {   return process(kIMPORT); }
-"match"                                   {   return process(kMATCH); }
+"if"                                    {   return process(kIF); }
+"implicit"                              {   return process(kIMPLICIT); }
+"import"                                {   return process(kIMPORT); }
+"match"                                 {   return process(kMATCH); }
 "new"                                   {   return process(kNEW); }
-"null"                                   {   return process(kNULL); }
-"object"                                   {   return process(kOBJECT); }
-"override"                                   {   return process(kOVERRIDE); }
-"package"                                   {   return process(kPACKAGE); }
-"private"                                   {   return process(kPRIVATE); }
-"protected"                                   {   return process(kPROTECTED); }
-"requires"                                   {   return process(kREQUIRES); }
+"null"                                  {   return process(kNULL); }
+"object"                                {   return process(kOBJECT); }
+"override"                              {   return process(kOVERRIDE); }
+"package"                               {   return process(kPACKAGE); }
+"private"                               {   return process(kPRIVATE); }
+"protected"                             {   return process(kPROTECTED); }
+"requires"                              {   return process(kREQUIRES); }
 "return"                                {   return process(kRETURN); }
 "sealed"                                {   return process(kSEALED); }
-"super"                                {   return process(kSUPER); }
-"this"                                {   return process(kTHIS); }
-"this"                                {   return process(kTHIS); }
-"throw"                                {   return process(kTHROW); }
-"trait"                                {   return process(kTRAIT); }
-"try"                                {   return process(kTRY); }
+"super"                                 {   return process(kSUPER); }
+"this"                                  {   return process(kTHIS); }
+"this"                                  {   return process(kTHIS); }
+"throw"                                 {   return process(kTHROW); }
+"trait"                                 {   return process(kTRAIT); }
+"try"                                   {   return process(kTRY); }
 "true"                                  {   return process(kTRUE); }
 "type"                                  {   return process(kTYPE); }
-"val"                                  {   return process(kVAL); }
-"var"                                  {   return process(kVAR); }
-"while"                                  {   return process(kWHILE); }
-"whith"                                  {   return process(kWHITH); }
+"val"                                   {   return process(kVAL); }
+"var"                                   {   return process(kVAR); }
+"while"                                 {   return process(kWHILE); }
+"whith"                                 {   return process(kWHITH); }
 "yield"                                 {   return process(kYIELD); }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////// Variables  /////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-{id}                            {   return tID; }
+{id}                                    {   return tID; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////// Literals /////////////////////////////////////////////////////////////////////////////////////////
