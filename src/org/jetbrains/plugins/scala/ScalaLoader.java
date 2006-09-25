@@ -12,8 +12,6 @@ import com.intellij.openapi.application.ApplicationManager;
  */
 public class ScalaLoader implements ApplicationComponent {
 
-    public static final LanguageFileType SCALA = new ScalaFileType();
-
     public ScalaLoader() {
     }
 
@@ -21,7 +19,7 @@ public class ScalaLoader implements ApplicationComponent {
         ApplicationManager.getApplication().runWriteAction(
             new Runnable() {
                 public void run() {
-                    FileTypeManager.getInstance().registerFileType(SCALA, new String[] {"scala"});
+                    FileTypeManager.getInstance().registerFileType(ScalaFileType.SCALA_FILE_TYPE, new String[] {"scala"});
                 }
             }
         );
