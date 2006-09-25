@@ -16,7 +16,9 @@
     <option name="USER" value="" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" name="Default" comment="" />
+    <list default="true" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Scala.iws" afterPath="$PROJECT_DIR$/Scala.iws" />
+    </list>
   </component>
   <component name="ChangeListSynchronizer" />
   <component name="ChangesViewManager" flattened_view="true" />
@@ -140,21 +142,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="ScalaFileType.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/ScalaFileType.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="24" selection-start="500" selection-end="500" vertical-scroll-proportion="0.3831554">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="ScalaLoader.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/ScalaLoader.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="20" column="78" selection-start="615" selection-end="615" vertical-scroll-proportion="0.41062802">
+            <state line="20" column="78" selection-start="615" selection-end="615" vertical-scroll-proportion="0.6732673">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -162,13 +153,20 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ScalaParserDefinition.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/ScalaParserDefinition.java">
+      <file leaf-file-name="build.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/build.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="13" selection-start="551" selection-end="572" vertical-scroll-proportion="0.12439614">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state line="14" column="30" selection-start="691" selection-end="691" vertical-scroll-proportion="0.4576923">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ScalaLexer.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/ScalaLexer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="11" column="13" selection-start="195" selection-end="195" vertical-scroll-proportion="0.29423076">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -176,8 +174,19 @@
       <file leaf-file-name="_ScalaLexer.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/_ScalaLexer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="490" column="31" selection-start="13345" selection-end="13345" vertical-scroll-proportion="0.32147095">
+            <state line="17" column="13" selection-start="481" selection-end="481" vertical-scroll-proportion="0.425">
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ScalaParserDefinition.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/ScalaParserDefinition.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="19" column="13" selection-start="551" selection-end="572" vertical-scroll-proportion="0.23960397">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -309,6 +318,36 @@
           <option name="myItemId" value="PsiDirectory:C:\Work\Scala\src" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:C:\Work\Scala\src\org\jetbrains\plugins\scala" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="Scala.ipr" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="Scala" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:C:\Work\Scala" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:C:\Work\Scala\src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:C:\Work\Scala\src\org\jetbrains\plugins\scala" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:C:\Work\Scala\src\org\jetbrains\plugins\scala\lang\lexer" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
       </PATH>
       <PATH>
         <PATH_ELEMENT>
@@ -327,6 +366,10 @@
           <option name="myItemId" value="PsiDirectory:C:\Work\Scala\resources" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:C:\Work\Scala\resources\org\jetbrains\plugins\scala" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
       </PATH>
     </subPane>
   </component>
@@ -339,9 +382,9 @@
       <showMembers />
       <showModules />
       <showLibraryContents />
-      <hideEmptyPackages ProjectPane="false" />
+      <hideEmptyPackages ProjectPane="true" />
       <abbreviatePackageNames />
-      <showStructure Favorites="false" Scope="false" PackagesPane="false" ProjectPane="false" />
+      <showStructure PackagesPane="false" Scope="false" Favorites="false" ProjectPane="false" />
       <autoscrollToSource />
       <autoscrollFromSource />
       <sortByType />
@@ -371,6 +414,16 @@
       <module name="Scala" />
       <option name="VM_PARAMETERS" />
       <option name="PROGRAM_PARAMETERS" />
+    </configuration>
+    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
+      <option name="MAIN_CLASS_NAME" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <module name="" />
     </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <module name="" />
@@ -402,16 +455,6 @@
       <option name="VM_PARAMETERS" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
-    </configuration>
-    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
-      <option name="MAIN_CLASS_NAME" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <module name="" />
     </configuration>
     <configuration default="true" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
@@ -522,9 +565,9 @@
     <layout>
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
-      <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18167073" order="3" />
+      <window_info id="IDEtalk" active="true" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18167073" order="3" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.326062" order="7" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22465532" order="0" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22465532" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32837528" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32265446" order="8" />
@@ -539,7 +582,7 @@
       <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3993135" order="4" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="0" />
-      <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.35935706" order="8" />
+      <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.35935706" order="8" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33524027" order="8" />
       <window_info id="SVN Repositories" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32379863" order="8" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="0" />
@@ -635,30 +678,9 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/test.flex">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="84" column="13" selection-start="3772" selection-end="3772" vertical-scroll-proportion="0.07272727">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/ScalaTokenTypes.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="19" selection-start="2447" selection-end="2447" vertical-scroll-proportion="0.72">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/highlighter/DefaultHighlighter.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="30" column="75" selection-start="1612" selection-end="1612" vertical-scroll-proportion="0.5876543">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/ScalaLexer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="11" column="13" selection-start="195" selection-end="195" vertical-scroll-proportion="0.18149467">
           <folding />
         </state>
       </provider>
@@ -685,31 +707,6 @@
     <entry file="file://$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins/scala/ScalaLanguage.class">
       <provider selected="true" editor-type-id="text-editor">
         <state line="11" column="11" selection-start="435" selection-end="435" vertical-scroll-proportion="0.33333334">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/ScalaLoader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="78" selection-start="615" selection-end="615" vertical-scroll-proportion="0.41062802">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/ScalaParserDefinition.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="13" selection-start="551" selection-end="572" vertical-scroll-proportion="0.12439614">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/_ScalaLexer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="490" column="31" selection-start="13345" selection-end="13345" vertical-scroll-proportion="0.32147095">
           <folding />
         </state>
       </provider>
@@ -741,6 +738,45 @@
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/ScalaLoader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="78" selection-start="615" selection-end="615" vertical-scroll-proportion="0.6732673">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/ScalaParserDefinition.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="19" column="13" selection-start="551" selection-end="572" vertical-scroll-proportion="0.23960397">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/ScalaLexer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="13" selection-start="195" selection-end="195" vertical-scroll-proportion="0.29423076">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/_ScalaLexer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="17" column="13" selection-start="481" selection-end="481" vertical-scroll-proportion="0.425">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="14" column="30" selection-start="691" selection-end="691" vertical-scroll-proportion="0.4576923">
+          <folding />
         </state>
       </provider>
     </entry>
