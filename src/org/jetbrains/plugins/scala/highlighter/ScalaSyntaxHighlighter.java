@@ -7,6 +7,7 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.lexer.Lexer;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -20,20 +21,57 @@ import java.util.HashMap;
 public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
     static final TokenSet kRESWORDS = TokenSet.create(
-            ScalaTokenTypes.kPRINT
+            ScalaTokenTypes.kABSTRACT,
+            ScalaTokenTypes.kCASE,
+            ScalaTokenTypes.kCATCH,
+            ScalaTokenTypes.kCLASS,
+            ScalaTokenTypes.kDEF,
+            ScalaTokenTypes.kDO,
+            ScalaTokenTypes.kELSE,
+            ScalaTokenTypes.kEXTENDS,
+            ScalaTokenTypes.kFALSE,
+            ScalaTokenTypes.kFINAL,
+            ScalaTokenTypes.kFINALLY,
+            ScalaTokenTypes.kFOR,
+            ScalaTokenTypes.kIF,
+            ScalaTokenTypes.kIMPLICIT,
+            ScalaTokenTypes.kIMPORT,
+            ScalaTokenTypes.kMATCH,
+            ScalaTokenTypes.kNEW,
+            ScalaTokenTypes.kNULL,
+            ScalaTokenTypes.kOBJECT,
+            ScalaTokenTypes.kOVERRIDE,
+            ScalaTokenTypes.kPACKAGE,
+            ScalaTokenTypes.kPRIVATE,
+            ScalaTokenTypes.kPROTECTED,
+            ScalaTokenTypes.kREQUIRES,
+            ScalaTokenTypes.kRETURN,
+            ScalaTokenTypes.kSEALED,
+            ScalaTokenTypes.kSUPER,
+            ScalaTokenTypes.kTHIS,
+            ScalaTokenTypes.kTHROW,
+            ScalaTokenTypes.kTRAIT,
+            ScalaTokenTypes.kTRY,
+            ScalaTokenTypes.kTRUE,
+            ScalaTokenTypes.kTYPE,
+            ScalaTokenTypes.kVAL,
+            ScalaTokenTypes.kVAR,
+            ScalaTokenTypes.kWHILE,
+            ScalaTokenTypes.kWHITH,
+            ScalaTokenTypes.kYIELD
     );
 
     static final TokenSet tNUMBERS = TokenSet.create(
-            ScalaTokenTypes.tINTEGER
+            ScalaTokenTypes.tINTEGERLITERAL
     );
 
     static final TokenSet tVARIABLES = TokenSet.create(
-            ScalaTokenTypes.tIDENTIFIER
+            ScalaTokenTypes.tID
     );
 
     static final TokenSet tOPS = TokenSet.create(
             ScalaTokenTypes.tASSGN,
-            ScalaTokenTypes.tDIV,
+            ScalaTokenTypes.tDIV,       
             ScalaTokenTypes.tMINUS,
             ScalaTokenTypes.tPLUS,
             ScalaTokenTypes.tSTAR
@@ -41,8 +79,11 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
     static final TokenSet tBRACES = TokenSet.create(
             ScalaTokenTypes.tLBRACKET,
-            ScalaTokenTypes.tOPEN_PARENTHIS,
-            ScalaTokenTypes.tRBRACKET
+            ScalaTokenTypes.tRBRACKET,
+            ScalaTokenTypes.tLPARENTHIS,
+            ScalaTokenTypes.tRPARENTHIS,
+            ScalaTokenTypes.tLBRACE,
+            ScalaTokenTypes.tRBRACE
     );
 
 
@@ -54,7 +95,6 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
         fillMap(ATTRIBUTES, tVARIABLES, DefaultHighlighter.VARIABLES);
         fillMap(ATTRIBUTES, tOPS, DefaultHighlighter.OPERATION_SIGN);
         fillMap(ATTRIBUTES, tBRACES, DefaultHighlighter.BRACKETS);
-
 
 //        ATTRIBUTES.put(ScalaTokenTypes.tBAD_CHARACTER, DefaultHighliter.BAD_CHARACTER);
 
