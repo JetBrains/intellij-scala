@@ -2,147 +2,18 @@
     <property name="lexer.file" value="_ScalaLexer.java"/>
     <property name="lexer.log" value="jflex.log"/>
     <property name="lexer.source" value="test.flex"/>
+    <property name="jflex.skeleton" value="idea-flex.skeleton"/>
 
-    <target name="jflex" description="Produces Jflex based lexer">
+    <target name="generate" description="Builds lexer via advanced library">
         <delete file="${lexer.file}"/>
         <delete file="${lexer.log}"/>
-
         <java jar="JFlex.jar" output="jflex.log" fork="true">
+            <arg value="--charat"/>
+            <arg value="-skel"/>
+            <arg value="${jflex.skeleton}"/>
             <arg value="${lexer.source}"/>
         </java>
     </target>
 
-    <target name="edit" description="edit _RubyLexer.java" depends="jflex">
-
-	<replace
-		file="${lexer.file}" >
-		<replacefilter
-			token="private char zzBuffer[] = new char[ZZ_BUFFERSIZE];"
-			value='private CharSequence zzBuffer = "";'
-		/>
-
-		<replacefilter
-			token="char [] zzBufferL = zzBuffer;"
-			value="CharSequence zzBufferL = zzBuffer;"
-		/>
-
-		<replacefilter
-			token="zzBufferL[zzMarkedPosL-1]"
-			value="zzBufferL.charAt(zzMarkedPosL-1)"
-		/>
-
-		<replacefilter
-			token="zzBufferL[zzMarkedPosL]"
-			value="zzBufferL.charAt(zzMarkedPosL)"
-		/>
-
-		<replacefilter
-			token="zzBufferL[zzCurrentPosL++]"
-			value="zzBufferL.charAt(zzCurrentPosL++)"
-		/>
-
-		<replacefilter
-			token="zzBufferL[zzCurrentPosL++]"
-			value="zzBufferL(zzCurrentPosL++)"
-		/>
-	</replace>
-
-
-
-<!-- Replaces zzRefill  -->
-	<replace file="${lexer.file}">
-		<replacetoken><![CDATA[private boolean zzRefill() throws java.io.IOException {
-
-    /* first: make room (if you can) */
-    if (zzStartRead > 0) {
-      System.arraycopy(zzBuffer, zzStartRead,
-                       zzBuffer, 0,
-                       zzEndRead-zzStartRead);
-
-      /* translate stored positions */
-      zzEndRead-= zzStartRead;
-      zzCurrentPos-= zzStartRead;
-      zzMarkedPos-= zzStartRead;
-      zzPushbackPos-= zzStartRead;
-      zzStartRead = 0;
-    }
-
-    /* is the buffer big enough? */
-    if (zzCurrentPos >= zzBuffer.length) {
-      /* if not: blow it up */
-      char newBuffer[] = new char[zzCurrentPos*2];
-      System.arraycopy(zzBuffer, 0, newBuffer, 0, zzBuffer.length);
-      zzBuffer = newBuffer;
-    }
-
-    /* finally: fill the buffer with new input */
-    int numRead = zzReader.read(zzBuffer, zzEndRead,
-                                            zzBuffer.length-zzEndRead);
-
-    if (numRead < 0) {
-      return true;
-    }
-    else {
-      zzEndRead+= numRead;
-      return false;
-    }
-  }
-]]></replacetoken>
-
-
-		<replacevalue><![CDATA[private boolean zzRefill() throws java.io.IOException {
-      return true;
-  }
-]]></replacevalue>
-	</replace>
-
-
-
-
-
-	<replace file="${lexer.file}">
-  		<replacetoken><![CDATA[public final String yytext() {
-    return new String( zzBuffer, zzStartRead, zzMarkedPos-zzStartRead );
-  }
-]]></replacetoken>
-  		<replacevalue><![CDATA[public final CharSequence yytext() {
-      return zzBuffer.subSequence(zzStartRead, zzMarkedPos);
-  }
-]]></replacevalue>
-
-	</replace>
-
-
-
-	<replace file="${lexer.file}">
-  		<replacetoken><![CDATA[public final char yycharat(int pos) {
-    return zzBuffer[zzStartRead+pos];
-  }
-]]></replacetoken>
-  		<replacevalue><![CDATA[public final char yycharat(int pos) {
-        return zzBuffer.charAt(zzStartRead+pos);
-  }
-]]></replacevalue>
-
-	</replace>
-
-
-	<replace file="${lexer.file}">
-  		<replacetoken><![CDATA[  private void zzScanError(int errorCode) {
-]]></replacetoken>
-  		<replacevalue><![CDATA[  private void zzScanError(int errorCode) {
-  	//System.out.println("Current state: " + statesManager.getStateName());
-    System.out.println("Line: "+ yyline);
-    System.out.println("Column: "+yycolumn);
-    //System.out.println("Text: " + contentManager.safeReadAt(0));
-]]></replacevalue>
-    </replace>
-
-	</target>
-
-	<target name="generate" depends="jflex, edit" description="main target"/>
-
-
-
-
+ 
 </project>
