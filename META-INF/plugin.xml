@@ -10,4 +10,11 @@
             <implementation-class>org.jetbrains.plugins.scala.ScalaLoader</implementation-class>
         </component>
     </application-components>
+    <actions>
+        <action id="NewScalaFile" class="org.jetbrains.plugins.scala.actions.NewScalaFileCreate" text="Scala file"
+                description="Create new Scala file">
+            <!--keyboard-shortcut keymap="$default" first-keystroke="ctrl alt SLASH"/  !-->
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
+        </action>
+    </actions>
 </idea-plugin>
