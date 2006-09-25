@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala;
 
 import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.application.ApplicationManager;
 
