@@ -1,3 +1,7 @@
+Reading "scala.flex"
 
-Sorry, couldn't open "scala.flex"
+Error in file "scala.flex" (line 25): 
+Unexpected character 
+floatingPointLiteral ::= digit {digit} ‘.’ {digit} [exponentPart] [floatType]
+                     ^
 1 error, 0 warnings.
