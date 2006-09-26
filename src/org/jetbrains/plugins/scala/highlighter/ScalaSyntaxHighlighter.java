@@ -35,6 +35,11 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
             ScalaTokenTypes.tFLOAT
     );
 
+    // Strings
+    static final TokenSet tSTRINGS = TokenSet.create(
+            ScalaTokenTypes.tSTRING
+    );
+
     // Keywords
     static final TokenSet kRESWORDS = TokenSet.create(
             ScalaTokenTypes.kABSTRACT,
@@ -101,6 +106,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
         fillMap(ATTRIBUTES, tCOMMENTS, DefaultHighlighter.LINE_COMMENT);
         fillMap(ATTRIBUTES, kRESWORDS, DefaultHighlighter.KEYWORD);
         fillMap(ATTRIBUTES, tNUMBERS, DefaultHighlighter.NUMBER);
+        fillMap(ATTRIBUTES, tSTRINGS, DefaultHighlighter.STRING);
         
         fillMap(ATTRIBUTES, tOPS, DefaultHighlighter.OPERATION_SIGN);
         fillMap(ATTRIBUTES, tBRACES, DefaultHighlighter.BRACKETS);
