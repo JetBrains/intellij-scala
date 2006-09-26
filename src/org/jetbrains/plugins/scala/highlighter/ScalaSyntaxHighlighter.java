@@ -7,7 +7,6 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.lexer.Lexer;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -23,6 +22,10 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     // Comments
     static final TokenSet tCOMMENTS = TokenSet.create(
             ScalaTokenTypes.tCOMMENT
+    );
+
+    static final TokenSet tVARIABLES = TokenSet.create(
+            ScalaTokenTypes.tIDENTIFIER
     );
 
     static final TokenSet kRESWORDS = TokenSet.create(
@@ -70,10 +73,6 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
             ScalaTokenTypes.tINTEGERLITERAL
     );
 
-    static final TokenSet tVARIABLES = TokenSet.create(
-            ScalaTokenTypes.tID
-    );
-
     static final TokenSet tOPS = TokenSet.create(
             ScalaTokenTypes.tASSGN,
             ScalaTokenTypes.tDIV,       
@@ -99,7 +98,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
         fillMap(ATTRIBUTES, kRESWORDS, DefaultHighlighter.KEYWORD);
         fillMap(ATTRIBUTES, tNUMBERS, DefaultHighlighter.NUMBER);
-        fillMap(ATTRIBUTES, tVARIABLES, DefaultHighlighter.VARIABLES);
+        fillMap(ATTRIBUTES, tVARIABLES, DefaultHighlighter.NUMBER);
         fillMap(ATTRIBUTES, tOPS, DefaultHighlighter.OPERATION_SIGN);
         fillMap(ATTRIBUTES, tBRACES, DefaultHighlighter.BRACKETS);
 
