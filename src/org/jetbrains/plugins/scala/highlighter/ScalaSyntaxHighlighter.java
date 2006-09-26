@@ -24,8 +24,15 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
             ScalaTokenTypes.tCOMMENT
     );
 
+    // Variables
     static final TokenSet tVARIABLES = TokenSet.create(
             ScalaTokenTypes.tIDENTIFIER
+    );
+
+    // Numbers
+    static final TokenSet tNUMBERS = TokenSet.create(
+            ScalaTokenTypes.tINTEGER,
+            ScalaTokenTypes.tFLOAT
     );
 
     // Keywords
@@ -68,10 +75,6 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
             ScalaTokenTypes.kWHILE,
             ScalaTokenTypes.kWHITH,
             ScalaTokenTypes.kYIELD
-    );
-
-    static final TokenSet tNUMBERS = TokenSet.create(
-            ScalaTokenTypes.tINTEGER
     );
 
     static final TokenSet tOPS = TokenSet.create(

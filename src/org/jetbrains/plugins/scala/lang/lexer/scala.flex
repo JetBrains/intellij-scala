@@ -56,7 +56,13 @@ nonZeroDigit = [1-9]
 octalDigit = [0-7]
 hexDigit = [0-9A-Fa-f]
 
-
+floatingPointLiteral =
+        {digit}+ . {digit}* {exponentPart}? {floatType}?
+    | . {digit}+ {exponentPart}? {floatType}?
+    | {digit}+ {exponentPart} {floatType}?
+    | {digit}+ {exponentPart}? {floatType}
+exponentPart = (E | e) ("+" | "-")?{digit}+
+floatType = F | f | D | d
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -164,7 +170,8 @@ booleanLiteral = true | false
 ////////////////////// Identifier /////////////////////////////////////////
 
 {Identifier}                            {   return process(tIDENTIFIER); }
-{integerLiteral}                        {   return process(tINTEGER); }
+{integerLiteral}                        {   return process(tINTEGER);  }
+{floatingPointLiteral}                  {   return process(tFLOAT);  }
 
 
 ////////////////////// STUB ///////////////////////////////////////////////
