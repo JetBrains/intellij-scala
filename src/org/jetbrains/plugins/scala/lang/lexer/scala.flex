@@ -59,8 +59,8 @@ octalDigit = '0' | . . . | '7'
 /////////////////////      identifiers      ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Identifier = [:jletter:] [:jletterdigit:]*
-
+//Identifier = :jletter:*[:jletterdigit:]*
+Identifier = [a-zA-Z]+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Common symbols //////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ booleanLiteral = true | false
 %state IN_BLOCK_COMMENT_STATE
 // In block comment
 %state IN_LINE_COMMENT_STATE
-// In block comment
+// In line comment
 
 %%
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,11 +107,12 @@ booleanLiteral = true | false
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 "/*"                                    {   yybegin(IN_BLOCK_COMMENT_STATE);
-                                            return tCOMMENT;
+                                            return process(tCOMMENT);
                                         }
 "//"                                    {   yybegin(IN_LINE_COMMENT_STATE);
-                                            return tCOMMENT;
+                                            return process(tCOMMENT);
                                         }
+{integerLiteral}                        {   return process(tCOMMENT); }                
 
 
 
@@ -160,6 +161,10 @@ booleanLiteral = true | false
 "whith"                                 {   return process(kWHITH); }
 "yield"                                 {   return process(kYIELD); }
 
+////////////////////// Identifier /////////////////////////////////////////
+
+{Identifier}                              {  System.out.println("ID found!");
+                                             return process(tIDENTIFIER); }
 
 ////////////////////// STUB ///////////////////////////////////////////////
 .|{LineTerminator}                      {   return tSTUB; }
@@ -172,10 +177,10 @@ booleanLiteral = true | false
 <IN_BLOCK_COMMENT_STATE>{
 
 "*/"                                    {   yybegin(YYINITIAL);
-                                            return tCOMMENT;
+                                            return process(tCOMMENT);
                                         }
 
-.|{LineTerminator}                      {   return tCOMMENT; }
+.|{LineTerminator}                      {   return process(tCOMMENT); }
 
 }
 
@@ -185,9 +190,9 @@ booleanLiteral = true | false
 <IN_LINE_COMMENT_STATE>{
 
 {LineTerminator}                        {   yybegin(YYINITIAL);
-                                            return tCOMMENT;
+                                            return process(tCOMMENT);
                                         }
 
-.                                       {   return tCOMMENT; }
+.                                       {   return process(tCOMMENT); }
 
 }
