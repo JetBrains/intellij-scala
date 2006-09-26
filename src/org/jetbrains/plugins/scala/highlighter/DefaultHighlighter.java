@@ -19,7 +19,6 @@ public class DefaultHighlighter {
     @NonNls private static final String OPERATION_SIGN_ID = "SCALA_OPERATION_SIGN";
     @NonNls private static final String BRACKETS_ID = "SCALA_BRACKETS";
     @NonNls private static final String BAD_CHARACTER_ID = "SCALA_BAD_CHARACTER";
-    @NonNls private static final String VARIABLE_ID = "SCALA_VARIABLE";
 
 
 // Registering TextAttributes
