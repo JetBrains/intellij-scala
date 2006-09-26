@@ -20,6 +20,16 @@ import java.util.HashMap;
  */
 public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
+    // Comments
+    static final TokenSet tLINE_COMMENTS = TokenSet.create(
+            ScalaTokenTypes.tLINE_COMMENT
+    );
+
+    static final TokenSet tBLOCK_COMMENTS = TokenSet.create(
+           ScalaTokenTypes.tBLOCK_COMMENT
+    );
+
+
     static final TokenSet kRESWORDS = TokenSet.create(
             ScalaTokenTypes.kABSTRACT,
             ScalaTokenTypes.kCASE,
@@ -90,6 +100,9 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     private static final Map<IElementType, TextAttributesKey> ATTRIBUTES = new HashMap<IElementType, TextAttributesKey>();
 
     static {
+        fillMap(ATTRIBUTES, tLINE_COMMENTS, DefaultHighlighter.LINE_COMMENT);
+        fillMap(ATTRIBUTES, tBLOCK_COMMENTS, DefaultHighlighter.BLOCK_COMMENT);
+
         fillMap(ATTRIBUTES, kRESWORDS, DefaultHighlighter.KEYWORD);
         fillMap(ATTRIBUTES, tNUMBERS, DefaultHighlighter.NUMBER);
         fillMap(ATTRIBUTES, tVARIABLES, DefaultHighlighter.VARIABLES);
