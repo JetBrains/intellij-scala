@@ -1,6 +1,5 @@
-object
-package
- object
+package a.b.c;
+
  object  Summator {
 
   var поросёнок: List[int] = Nil

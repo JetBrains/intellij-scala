@@ -48,7 +48,8 @@ public class SimpleLexerTest extends TestCase {
 
         IElementType elem;
         while ( (elem = scalaLexer.getTokenType()) != null){
-            if ( !"stub".equals(elem.toString()) ) {
+            if ( !"stub".equals(elem.toString()) &&
+                    !"white space in line".equals(elem.toString())) {
                 System.out.println(elem.toString());
             }
             scalaLexer.advance();
