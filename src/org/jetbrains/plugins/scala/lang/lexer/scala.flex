@@ -72,7 +72,7 @@ floatType = F | f | D | d
 //identifier = [a-zA-Z_]+[a-zA-Z0-9]*
 identifier = {plainid} | "'" {stringLiteral} "'"
 
-charEscapeSeq = "\\" "\\" "u" {hexDigit} {hexDigit} {hexDigit} {hexDigit}
+charEscapeSeq = "\\" "u" {hexDigit} {hexDigit} {hexDigit} {hexDigit}
 
 
 upper = [A-Z_]
