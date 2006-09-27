@@ -94,10 +94,11 @@ plainid = ({upper} {idrest})
 
 idrest = ({letter} | {digit})* ("_" op)?
 
+//stringLiteral = ("\"" {stringElement}* "\"")
+stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 charNoDoubleQuote = [^"\""]
 stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 stringLiteral = {stringElement}*
-
 identifier = {plainid} | "'" {stringLiteral} "'"
 
 
