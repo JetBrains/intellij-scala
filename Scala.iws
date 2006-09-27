@@ -17,19 +17,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/scala.flex" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/scala.flex" />
       <change type="DELETED" beforePath="C:\Work\Scala\classes\test" afterPath="" />
       <change type="DELETED" beforePath="C:\Work\Scala\classes\production\Scala\org\jetbrains" afterPath="" />
       <change type="DELETED" beforePath="C:\Work\Scala\classes\production\Scala\org\jetbrains\plugins\scala\ScalaLoader$1.class" afterPath="" />
       <change type="DELETED" beforePath="C:\Work\Scala\classes\production\Scala" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Scala.iws" afterPath="$PROJECT_DIR$/Scala.iws" />
-      <change type="DELETED" beforePath="C:\Work\Scala\classes\production\Scala\org\jetbrains\plugins\scala\ScalaFileType.class" afterPath="" />
       <change type="DELETED" beforePath="C:\Work\Scala\classes\production\Scala\org\jetbrains\plugins\scala\images\scala_logo.png" afterPath="" />
-      <change type="DELETED" beforePath="C:\Work\Scala\classes\test\Scala" afterPath="" />
+      <change type="DELETED" beforePath="C:\Work\Scala\classes\production\Scala\org\jetbrains\plugins\scala\ScalaFileType.class" afterPath="" />
       <change type="DELETED" beforePath="C:\Work\Scala\classes\production\Scala\org" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/ScalaLexer.java" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/ScalaLexer.java" />
-      <change type="DELETED" beforePath="C:\Work\Scala\classes\production\Scala\org\jetbrains\plugins\scala" afterPath="" />
+      <change type="DELETED" beforePath="C:\Work\Scala\classes\test\Scala" afterPath="" />
       <change type="DELETED" beforePath="C:\Work\Scala\classes\production" afterPath="" />
+      <change type="DELETED" beforePath="C:\Work\Scala\classes\production\Scala\org\jetbrains\plugins\scala" afterPath="" />
       <change type="DELETED" beforePath="C:\Work\Scala\classes\production\Scala\org\jetbrains\plugins\scala\ScalaLoader.class" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes" afterPath="" />
       <change type="DELETED" beforePath="C:\Work\Scala\classes\production\Scala\org\jetbrains\plugins" afterPath="" />
@@ -850,7 +848,7 @@
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="PUT_FOCUS_INTO_COMMENT" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="simple xml support" />
+    <option name="LAST_COMMIT_MESSAGE" value="" />
     <option name="SAVE_LAST_COMMIT_MESSAGE" value="true" />
     <option name="CHECKIN_DIALOG_SPLITTER_PROPORTION" value="0.8" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
