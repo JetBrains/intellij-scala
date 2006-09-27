@@ -69,15 +69,43 @@ floatType = F | f | D | d
 /////////////////////      identifiers      ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Identifier = [a-zA-Z_]+[a-zA-Z0-9]*
+//Identifier = [a-zA-Z_]+[a-zA-Z0-9]*
+
+charEscapeSeq = \{\\}u{u} hexDigit hexDigit hexDigit hexDigit
+
+upper = [A-Z_]
+lower = [a-z]
+letter = upper | lower
+digit = [0-9]
+
+//parentheses = '{' | '}' | '(' | ')' | '[' | ']'
+delimiters = ''' | '\"' | '.' | ';' | ','
+special = [^ '0'| '1'| '2'| '3'| '4'| '5'| '6'| '7'| '8'| '9'| ''' | '\"' | '.' | ';' | ',']
+//special = [^ ([0-9]) |''' | '\"' | '.' | ';' | ',']
+
+op = {special}+
+varid = lower idrest
+plainid = upper idrest
+        | varid
+        | op
+
+identifier = plainid | '\"' stringLiteral '\"'
+idrest = (letter | digit)* ['_' op]
+
+stringLiteral = '"' {stringElement}* '"'
+stringElement = charNoDoubleQuote | charEscapeSeq
+charNoDoubleQuote = [^'\"']
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Common symbols //////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-LineTerminator = \r|\n|\r\n
-InputCharacter = [^\r\n]
-WhiteSpace = {LineTerminator} | [ \t\f]
+LineTerminator = \r|\n|\f|\r\n
+InLineTerminator = [ \t\f]
+InputCharacter = [^\r\n\f]
+
+WhiteSpaceInLine = {InLineTerminator}
+WhiteSpaceLineTerminate = {LineTerminator}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Comments ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,11 +129,15 @@ booleanLiteral = true | false
 
 %state IN_BLOCK_COMMENT_STATE
 // In block comment
+
 %state IN_LINE_COMMENT_STATE
 // In line comment
+
 %state IN_STRING_STATE
 // Inside the string... Boo!
 
+%state IN_XML_STATE
+//the scala expression between xml tags
 %%
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////// rules declarations ////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +172,6 @@ booleanLiteral = true | false
 "case"                                  {   return process(kCASE); }
 "catch"                                 {   return process(kCATCH); }
 "class"                                 {   return process(kCLASS); }
-
 "def"                                   {   return process(kDEF); }
 "do"                                    {   return process(kDO); }
 "else"                                  {   return process(kELSE); }
@@ -179,15 +210,19 @@ booleanLiteral = true | false
 
 ////////////////////// Identifier /////////////////////////////////////////
 
-{Identifier}                            {   return process(tIDENTIFIER); }
+{identifier}                            {   return process(tIDENTIFIER); }
 {integerLiteral}                        {   return process(tINTEGER);  }
 {floatingPointLiteral}                  {   return process(tFLOAT);  }
 
+
+////////////////////// white spaces in line ///////////////////////////////////////////////
+{WhiteSpaceInLine}                      {   return tWH_SP_IN_LINE;  }
 
 ////////////////////// STUB ///////////////////////////////////////////////
 .|{LineTerminator}                      {   return tSTUB; }
 
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// In block comment /////////////////////////////////////////////////////////////////////////////
@@ -221,10 +256,6 @@ booleanLiteral = true | false
 <IN_STRING_STATE>{
 
 "\""                                    {   yybegin(YYINITIAL);
-                                            return process(tSTRING);
-                                        }
-
-{LineTerminator}                        {   yybegin(YYINITIAL);
                                             return process(tSTRING);
                                         }
 
