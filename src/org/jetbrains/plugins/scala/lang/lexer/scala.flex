@@ -91,7 +91,11 @@ plainid = ({upper} {idrest})
         | {varid}
         | {op}
 
+identifier = {plainid} | ("\"" {stringLiteral} "\"")
+idrest = ({letter} | {digit})* ("_" op)?
 
+stringLiteral = ("\"" {stringElement}* "\"")
+stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 charNoDoubleQuote = [^"\""]
 stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 stringLiteral = ("\"" {stringElement}* "\"")
@@ -106,7 +110,7 @@ identifier = {plainid} | "\"" {stringLiteral} "\""
 LineTerminator = \r|\n|\f|\r\n
 InLineTerminator = [ \t\f]
 InputCharacter = [^\r\n\f]
-                                    
+
 WhiteSpaceInLine = {InLineTerminator}
 WhiteSpaceLineTerminate = {LineTerminator}
 
