@@ -69,7 +69,8 @@ floatType = F | f | D | d
 /////////////////////      identifiers      ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//identifier = [a-zA-Z_]+[a-zA-Z0-9]*
+identifier = [a-zA-Z_]+[a-zA-Z0-9]*
+//identifier = {plainid} | "'" {stringLiteral} "'"
 
 charEscapeSeq = "\\" "\\" "u" {hexDigit} {hexDigit} {hexDigit} {hexDigit}
 
@@ -95,7 +96,7 @@ idrest = ({letter} | {digit})* ("_" op)?
 charNoDoubleQuote = [^"\""]
 stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 stringLiteral = {stringElement}*
-identifier = {plainid} | "'" {stringLiteral} "'"
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
