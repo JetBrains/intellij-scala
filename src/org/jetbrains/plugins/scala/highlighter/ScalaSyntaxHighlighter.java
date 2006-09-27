@@ -24,6 +24,11 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
             ScalaTokenTypes.tCOMMENT
     );
 
+    // XML tags
+    static final TokenSet tXML_TAGS = TokenSet.create(
+            ScalaTokenTypes.tOPENXMLTAG
+    );
+
     // Variables
     static final TokenSet tVARIABLES = TokenSet.create(
             ScalaTokenTypes.tIDENTIFIER
@@ -41,8 +46,8 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
             ScalaTokenTypes.tRBRACE,
             ScalaTokenTypes.tLPARENTHIS,
             ScalaTokenTypes.tRPARENTHIS,
-            ScalaTokenTypes.tLBRACKET,
-            ScalaTokenTypes.tRBRACKET
+            ScalaTokenTypes.tLSQBRACKET,
+            ScalaTokenTypes.tRSQBRACKET
     );
 
     // Strings
@@ -110,6 +115,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
         fillMap(ATTRIBUTES, tBRACES, DefaultHighlighter.BRACKETS);
 
         fillMap(ATTRIBUTES, tOPS, DefaultHighlighter.OPERATION_SIGN);
+        fillMap(ATTRIBUTES, tXML_TAGS, DefaultHighlighter.OPERATION_SIGN);
 
 
 //        ATTRIBUTES.put(ScalaTokenTypes.tBAD_CHARACTER, DefaultHighliter.BAD_CHARACTER);
