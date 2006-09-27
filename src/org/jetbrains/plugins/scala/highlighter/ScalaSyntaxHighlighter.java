@@ -39,11 +39,10 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     static final TokenSet tBRACES = TokenSet.create(
             ScalaTokenTypes.tLBRACE,
             ScalaTokenTypes.tRBRACE,
-            ScalaTokenTypes.tLBRACKET,
-            ScalaTokenTypes.tRBRACKET,
-            ScalaTokenTypes.tLBRACKET,
             ScalaTokenTypes.tLPARENTHIS,
-            ScalaTokenTypes.tRBRACKET
+            ScalaTokenTypes.tRPARENTHIS,
+            ScalaTokenTypes.tLSQBRACKET,
+            ScalaTokenTypes.tRSQBRACKET
     );
 
     // Strings
