@@ -5,7 +5,6 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lexer.Lexer;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
 import org.jetbrains.annotations.NotNull;
 
