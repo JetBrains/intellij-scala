@@ -228,14 +228,25 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "val"                                   {   return process(kVAL); }
 "var"                                   {   return process(kVAR); }
 "while"                                 {   return process(kWHILE); }
-"whith"                                 {   return process(kWHITH); }
+"with"                                  {   return process(kWHITH); }
 "yield"                                 {   return process(kYIELD); }
+
+///////////////////// Reserved shorthands //////////////////////////////////////////
+//"_"                                     {   return process(kUNDER);  }
+//":"                                     {   return process(kCOLON);  }
+//"="                                     {   return process(kASSIGN);  }
+//"=>"                                    {   return process(kFUNTYPE); }
+//"<-"                                    {   return process(k); }
+
 
 ////////////////////// Identifier /////////////////////////////////////////
 
 {identifier}                            {   return process(tIDENTIFIER); }
 {integerLiteral}                        {   return process(tINTEGER);  }
 {floatingPointLiteral}                  {   return process(tFLOAT);      }
+
+///////////////////// Operators //////////////////////////////////////////
+
 
 ////////////////////// XML /////////////////////////////////////////
 
@@ -313,6 +324,6 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
                                             return process(tCLOSEXMLTAG);
                                         }
 
-.                                       {   return process(tSTRING); }
+.|{LineTerminator}                                       {   return process(tSTRING); }
 
 }
