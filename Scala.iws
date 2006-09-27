@@ -21,13 +21,14 @@
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins/scala/ScalaLoader$1.class" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Scala.iws" afterPath="$PROJECT_DIR$/Scala.iws" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins/scala/images/scala_logo.png" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins/scala/ScalaFileType.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/classes/test/Scala" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins/scala/images/scala_logo.png" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins/scala" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/classes/test/Scala" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins/scala" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins/scala/ScalaLoader.class" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins/scala/ScalaLanguage.class" afterPath="" />
@@ -159,7 +160,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="scala.flex" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="scala.flex" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/scala.flex">
           <provider selected="true" editor-type-id="text-editor">
             <state line="59" column="20" selection-start="2426" selection-end="2426" vertical-scroll-proportion="-2.5863378">
@@ -204,10 +205,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ScalaTokenTypes.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="ScalaTokenTypes.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/ScalaTokenTypes.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="9" column="17" selection-start="179" selection-end="179" vertical-scroll-proportion="-0.7636719">
+            <state line="68" column="2" selection-start="4311" selection-end="4311" vertical-scroll-proportion="0.5683594">
               <folding />
             </state>
           </provider>
@@ -803,7 +804,7 @@
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18167073" order="3" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3249428" order="6" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22465532" order="0" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22465532" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32837528" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24979724" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32379863" order="9" />
@@ -819,7 +820,7 @@
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3043478" order="3" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="0" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.35935706" order="12" />
-      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33295193" order="13" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33295193" order="13" />
       <window_info id="SVN Repositories" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32379863" order="14" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="0" />
       <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="2" />
@@ -999,13 +1000,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/ScalaTokenTypes.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="17" selection-start="179" selection-end="179" vertical-scroll-proportion="-0.7636719">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/org/jetbrains/plugins/scala/lang/lexer/firstTest.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="578" vertical-scroll-proportion="0.0">
@@ -1023,6 +1017,13 @@
     <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/scala.flex">
       <provider selected="true" editor-type-id="text-editor">
         <state line="59" column="20" selection-start="2426" selection-end="2426" vertical-scroll-proportion="-2.5863378">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/ScalaTokenTypes.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="68" column="2" selection-start="4311" selection-end="4311" vertical-scroll-proportion="0.5683594">
           <folding />
         </state>
       </provider>
