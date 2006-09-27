@@ -68,8 +68,8 @@ public interface ScalaTokenTypes {
 ///////////////////////// Braces ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    IElementType tLBRACKET = new ScalaElementType("[");
-    IElementType tRBRACKET = new ScalaElementType("]");
+    IElementType tLSQBRACKET = new ScalaElementType("[");
+    IElementType tRSQBRACKET = new ScalaElementType("]");
     IElementType tLBRACE = new ScalaElementType("{");
     IElementType tRBRACE = new ScalaElementType("}");
     IElementType tLPARENTHIS = new ScalaElementType("(");
