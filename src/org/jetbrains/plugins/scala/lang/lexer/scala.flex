@@ -79,8 +79,6 @@ lower = [a-z]
 letter = {upper} | {lower}
 digit = [0-9]
 
-//parentheses = "{" | "}" | "(" | ")" | "[" | "]"
-//delimiters = "'" | "\"" | "." | ";" | ","
 special = [^ ("0"| "1"| "2"| "3"| "4"| "5"| "6"| "7"| "8"| "9"| "'" | "\"" | "." | ";" | ",")]
 
 op = {special}+
@@ -94,8 +92,6 @@ plainid = ({upper} {idrest})
 
 idrest = ({letter} | {digit})* ("_" op)?
 
-//stringLiteral = ("\"" {stringElement}* "\"")
-stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 charNoDoubleQuote = [^"\""]
 stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 stringLiteral = {stringElement}*
@@ -290,7 +286,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
                                             return process(tSTRING);
                                         }
 
-.                                       {   return process(tSTRING); }
+.|{LineTerminator}                      {   return process(tSTRING); }
 
 }
 
