@@ -75,7 +75,7 @@ charEscapeSeq = \{\\}u{u} hexDigit hexDigit hexDigit hexDigit
 
 upper = [A-Z_]
 lower = [a-z]
-letter = upper | lower
+letter = {upper} | {lower}
 digit = [0-9]
 
 parentheses = '{' | '}' | '(' | ')' | '[' | ']'
@@ -84,15 +84,15 @@ special = [^ ('0'| '1'| '2'| '3'| '4'| '5'| '6'| '7'| '8'| '9'| ''' | '\"' | '.'
 //special = [^ ([0-9] |''' | '\"' | '.' | ';' | ',')]
 
 op = {special}+
-varid = {lower} {idrest}
-plainid = {upper} {idrest}
+varid = ({lower} {idrest})
+plainid = ({upper} {idrest})
         | {varid}
         | {op}
 
-identifier = {plainid} | '\"' {stringLiteral} '\"'
-idrest = ({letter} | {digit})* {'_' op}?
+identifier = {plainid} | ('\"' {stringLiteral} '\"')
+idrest = ({letter} | {digit})* ('_' op)?
 
-stringLiteral = '"' {stringElement}* '"'
+stringLiteral = ('"' {stringElement}* '"')
 stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 charNoDoubleQuote = [^'\"']
 
