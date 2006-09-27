@@ -313,8 +313,8 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
                                             return process(tOPENXMLTAG);
                                         }
 
-{closeXmlTag}                           {   yybegin(IN_XML_STATE);
-                                            return process(tOPENXMLTAG);
+{closeXmlTag}                           {   yybegin(YYINITIAL);
+                                            return process(tCLOSEXMLTAG);
                                         }
 
 .                                       {   return process(tSTRING); }
