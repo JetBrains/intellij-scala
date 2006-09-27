@@ -212,7 +212,7 @@ booleanLiteral = true | false
 
 {identifier}                            {   return process(tIDENTIFIER); }
 {integerLiteral}                        {   return process(tINTEGER);  }
-{floatingPointLiteral}                  {   return process(tFLOAT);  }
+{floatingPointLiteral}                  {   return process(tFLOAT);      }
 
 
 ////////////////////// white spaces in line ///////////////////////////////////////////////
