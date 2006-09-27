@@ -122,6 +122,8 @@ public interface ScalaTokenTypes {
     IElementType tIDENTIFIER = new ScalaElementType("identifier");
 
     ////////////////////////// xml tag /////////////////////////////////////////////////////////////////////////////////////
-    IElementType tXML_TAG = new ScalaElementType("xml tag");
-
+    IElementType tOPENXML_TAG = new ScalaElementType("opened xml tag");
+    IElementType tCLOSEXML_TAG = new ScalaElementType("closed xml tag");
+    IElementType tBEGINSCALAEXPR = new ScalaElementType("begin of scala expression");
+    IElementType tENDSCALAEXPR = new ScalaElementType("end of scala expression");
 }
