@@ -53,25 +53,6 @@ public class SimpleLexerTest extends TestCase {
             }
             scalaLexer.advance();
         }
-
-        
-
-
-
-
-        
-
-//        try {
-//            while ( (elem = (ScalaElementType)scalaLexer.advance()) != null ){
-//                System.out.println("step...");
-//                System.out.println(elem.toString());
-//
-//        }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-        //inputFile.close();
     }
 
 }
