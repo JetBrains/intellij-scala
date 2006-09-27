@@ -57,11 +57,11 @@ octalDigit = [0-7]
 hexDigit = [0-9A-Fa-f]
 
 floatingPointLiteral =
-        {digit}+ . {digit}* {exponentPart}? {floatType}?
-    | . {digit}+ {exponentPart}? {floatType}?
+        {digit}+ "." {digit}* {exponentPart}? {floatType}?
+    | "." {digit}+ {exponentPart}? {floatType}?
     | {digit}+ {exponentPart} {floatType}?
     | {digit}+ {exponentPart}? {floatType}
-exponentPart = (E | e) ("+" | "-")?{digit}+
+exponentPart = (E | e) ("+" | "-")? {digit}+
 floatType = F | f | D | d
 
 
@@ -227,9 +227,9 @@ booleanLiteral = "true" | "false"
 
 ////////////////////// Identifier /////////////////////////////////////////
 
+{identifier}                            {   return process(tIDENTIFIER); }
 {integerLiteral}                        {   return process(tINTEGER);  }
 {floatingPointLiteral}                  {   return process(tFLOAT);      }
-{identifier}                            {   return process(tIDENTIFIER); }
 
 ////////////////////// white spaces in line ///////////////////////////////////////////////
 {WhiteSpaceInLine}                      {   return tWHITE_SPACE_IN_LINE;  }
