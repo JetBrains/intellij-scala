@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
  * Time: 14:23:22
  */
 public class ScalaParserDefinition implements ParserDefinition {
-    @NotNull
+    @NotNull                 
     public Lexer createLexer(Project project) {
         throw new UnsupportedOperationException("createLexer not implemented in org.jetbrains.plugins.scala.ScalaParserDefinition");
     }
