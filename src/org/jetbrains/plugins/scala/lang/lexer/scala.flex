@@ -216,7 +216,7 @@ booleanLiteral = true | false
 
 
 ////////////////////// white spaces in line ///////////////////////////////////////////////
-{WhiteSpaceInLine}                      {   return tWH_SP_IN_LINE;  }
+{WhiteSpaceInLine}                      {   return tWHITE_SPACE_IN_LINE;  }
 
 ////////////////////// STUB ///////////////////////////////////////////////
 .|{LineTerminator}                      {   return tSTUB; }
