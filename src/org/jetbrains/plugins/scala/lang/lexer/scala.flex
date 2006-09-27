@@ -220,10 +220,9 @@ booleanLiteral = "true" | "false"
 
 ////////////////////// Identifier /////////////////////////////////////////
 
-{identifier}                            {   return process(tIDENTIFIER); }
 {integerLiteral}                        {   return process(tINTEGER);  }
 {floatingPointLiteral}                  {   return process(tFLOAT);      }
-
+{identifier}                            {   return process(tIDENTIFIER); }
 
 ////////////////////// white spaces in line ///////////////////////////////////////////////
 {WhiteSpaceInLine}                      {   return tWHITE_SPACE_IN_LINE;  }
