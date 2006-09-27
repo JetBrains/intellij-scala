@@ -22,9 +22,6 @@
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins/scala/ScalaLoader$1.class" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Scala.iws" afterPath="$PROJECT_DIR$/Scala.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/highlighter/ScalaSyntaxHighlighter.java" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/highlighter/ScalaSyntaxHighlighter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/_ScalaLexer.java" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/_ScalaLexer.java" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins/scala/images/scala_logo.png" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins/scala/ScalaFileType.class" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/test/Scala" afterPath="" />
@@ -34,8 +31,6 @@
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins/scala/ScalaLoader.class" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins/scala/ScalaLanguage.class" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/org/jetbrains/plugins/scala/lang/lexer/SimpleLexerTest.java" afterPath="$PROJECT_DIR$/test/org/jetbrains/plugins/scala/lang/lexer/SimpleLexerTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/highlighter/DefaultHighlighter.java" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/highlighter/DefaultHighlighter.java" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/classes/production/Scala/org/jetbrains/plugins/scala/images" afterPath="" />
     </list>
     <list name="Failed commit: Default" comment="Simple Lexer Test added.">
@@ -852,7 +847,7 @@
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
     <option name="FILE_HISTORY_DIALOG_COMMENTS_SPLITTER_PROPORTION" value="0.8" />
     <option name="FILE_HISTORY_DIALOG_SPLITTER_PROPORTION" value="0.5" />
-    <option name="ERROR_OCCURED" value="true" />
+    <option name="ERROR_OCCURED" value="false" />
     <option name="ACTIVE_VCS_NAME" value="" />
     <option name="UPDATE_GROUP_BY_PACKAGES" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
