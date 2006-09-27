@@ -35,6 +35,18 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
             ScalaTokenTypes.tFLOAT
     );
 
+    // Braces
+    static final TokenSet tBRACES = TokenSet.create(
+            ScalaTokenTypes.tLBRACE,
+            ScalaTokenTypes.tRBRACE,
+            ScalaTokenTypes.tLSQBRACKET,
+            ScalaTokenTypes.tOPEN_AREF,
+            ScalaTokenTypes.tRSQBRACKET,
+            ScalaTokenTypes.tLBRACKET,
+            ScalaTokenTypes.tOPEN_PARENTHIS,
+            ScalaTokenTypes.tRBRACKET
+    );
+
     // Strings
     static final TokenSet tSTRINGS = TokenSet.create(
             ScalaTokenTypes.tSTRING
@@ -90,16 +102,6 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
             ScalaTokenTypes.tSTAR
     );
 
-    static final TokenSet tBRACES = TokenSet.create(
-            ScalaTokenTypes.tLBRACKET,
-            ScalaTokenTypes.tRBRACKET,
-            ScalaTokenTypes.tLPARENTHIS,
-            ScalaTokenTypes.tRPARENTHIS,
-            ScalaTokenTypes.tLBRACE,
-            ScalaTokenTypes.tRBRACE
-    );
-
-
     private static final Map<IElementType, TextAttributesKey> ATTRIBUTES = new HashMap<IElementType, TextAttributesKey>();
 
     static {
@@ -107,9 +109,10 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
         fillMap(ATTRIBUTES, kRESWORDS, DefaultHighlighter.KEYWORD);
         fillMap(ATTRIBUTES, tNUMBERS, DefaultHighlighter.NUMBER);
         fillMap(ATTRIBUTES, tSTRINGS, DefaultHighlighter.STRING);
-        
-        fillMap(ATTRIBUTES, tOPS, DefaultHighlighter.OPERATION_SIGN);
         fillMap(ATTRIBUTES, tBRACES, DefaultHighlighter.BRACKETS);
+
+        fillMap(ATTRIBUTES, tOPS, DefaultHighlighter.OPERATION_SIGN);
+
 
 //        ATTRIBUTES.put(ScalaTokenTypes.tBAD_CHARACTER, DefaultHighliter.BAD_CHARACTER);
 
