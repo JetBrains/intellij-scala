@@ -69,32 +69,35 @@ floatType = F | f | D | d
 /////////////////////      identifiers      ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//Identifier = [a-zA-Z_]+[a-zA-Z0-9]*
+identifier = [a-zA-Z_]+[a-zA-Z0-9]*
 
-charEscapeSeq = \{\\}u{u} hexDigit hexDigit hexDigit hexDigit
+charEscapeSeq = "\\" "\\"  "u" {hexDigit} {hexDigit} {hexDigit} {hexDigit}
+
 
 upper = [A-Z_]
 lower = [a-z]
 letter = {upper} | {lower}
 digit = [0-9]
 
-parentheses = "{" | "}" | "(" | ")" | "[" | "]"
-delimiters = "\"" | "'" | "." | ";" | ","
-special = [^ ("0"| "1"| "2"| "3"| "4"| "5"| "6"| "7"| "8"| "9"| "\"" | "\"" | "." | ";" | ",")]
-//special = [^ ([0-9] |"\"" | "\"" | "." | ";" | ",")]
+//parentheses = "{" | "}" | "(" | ")" | "[" | "]"
+//delimiters = "'" | "\"" | "." | ";" | ","
+special = [^ ("0"| "1"| "2"| "3"| "4"| "5"| "6"| "7"| "8"| "9"| "'" | "\"" | "." | ";" | ",")]
 
 op = {special}+
+idrest = ({letter} | {digit})* ("_" op)?
+
 varid = ({lower} {idrest})
 plainid = ({upper} {idrest})
         | {varid}
         | {op}
 
-identifier = {plainid} | ("\"" {stringLiteral} "\"")
-idrest = ({letter} | {digit})* ("_" op)?
 
-stringLiteral = ("\"" {stringElement}* "\"")
-stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 charNoDoubleQuote = [^"\""]
+stringElement = {charNoDoubleQuote} | {charEscapeSeq}
+stringLiteral = ("\"" {stringElement}* "\"")
+
+identifier = {plainid} | "\"" {stringLiteral} "\""
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Common symbols //////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,7 +106,7 @@ charNoDoubleQuote = [^"\""]
 LineTerminator = \r|\n|\f|\r\n
 InLineTerminator = [ \t\f]
 InputCharacter = [^\r\n\f]
-
+                                    
 WhiteSpaceInLine = {InLineTerminator}
 WhiteSpaceLineTerminate = {LineTerminator}
 
