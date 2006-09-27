@@ -181,8 +181,8 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// braces ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-"["                                     {   return process(tLBRACKET); }
-"]"                                     {   return process(tRBRACKET); }
+"["                                     {   return process(tLSQBRACKET); }
+"]"                                     {   return process(tRSQBRACKET); }
 
 "{"                                     {   return process(tLBRACE); }
 "}"                                     {   return process(tRBRACE); }
