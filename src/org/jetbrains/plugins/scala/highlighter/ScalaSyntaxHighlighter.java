@@ -41,8 +41,8 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
             ScalaTokenTypes.tRBRACE,
             ScalaTokenTypes.tLPARENTHIS,
             ScalaTokenTypes.tRPARENTHIS,
-            ScalaTokenTypes.tLSQBRACKET,
-            ScalaTokenTypes.tRSQBRACKET
+            ScalaTokenTypes.tLBRACKET,
+            ScalaTokenTypes.tRBRACKET
     );
 
     // Strings
