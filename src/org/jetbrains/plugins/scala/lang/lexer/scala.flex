@@ -71,7 +71,7 @@ floatType = F | f | D | d
 
 //identifier = [a-zA-Z_]+[a-zA-Z0-9]*
 
-charEscapeSeq = "\\" "\\"  "u" {hexDigit} {hexDigit} {hexDigit} {hexDigit}
+charEscapeSeq = "\\" "\\" "u" {hexDigit} {hexDigit} {hexDigit} {hexDigit}
 
 
 upper = [A-Z_]
@@ -91,16 +91,14 @@ plainid = ({upper} {idrest})
         | {varid}
         | {op}
 
-identifier = {plainid} | ("\"" {stringLiteral} "\"")
+
 idrest = ({letter} | {digit})* ("_" op)?
 
-stringLiteral = ("\"" {stringElement}* "\"")
-stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 charNoDoubleQuote = [^"\""]
 stringElement = {charNoDoubleQuote} | {charEscapeSeq}
-stringLiteral = ("\"" {stringElement}* "\"")
+stringLiteral = {stringElement}*
 
-identifier = {plainid} | "\"" {stringLiteral} "\""
+identifier = {plainid} | "'" {stringLiteral} "'"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
