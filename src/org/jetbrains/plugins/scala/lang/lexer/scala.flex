@@ -69,7 +69,7 @@ floatType = F | f | D | d
 /////////////////////      identifiers      ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-identifier = [a-zA-Z_]+[a-zA-Z0-9]*
+//identifier = [a-zA-Z_]+[a-zA-Z0-9]*
 
 charEscapeSeq = "\\" "\\"  "u" {hexDigit} {hexDigit} {hexDigit} {hexDigit}
 
@@ -131,6 +131,16 @@ CommentContent = ( [^*] | \*+ [^/*] )*
 booleanLiteral = "true" | "false"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////  xml tag  /////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+openXmlBracket = "<"
+closeXmlBracket = ">"
+
+openXmlTag = {openXmlBracket} {stringLiteral} {closeXmlBracket}
+closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////  states ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -172,14 +182,14 @@ booleanLiteral = "true" | "false"
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// braces ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-"["                                     {   return process(tLSQBRACKET); }
-"]"                                     {   return process(tRSQBRACKET); }
+"["                                     {   return process(tLBRACKET); }
+"]"                                     {   return process(tRBRACKET); }
 
 "{"                                     {   return process(tLBRACE); }
 "}"                                     {   return process(tRBRACE); }
 
-"("                                     {   return process(tLBRACKET); }
-")"                                     {   return process(tRBRACKET); }
+"("                                     {   return process(tLPARENTHIS); }
+")"                                     {   return process(tRPARENTHIS); }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////
@@ -231,6 +241,11 @@ booleanLiteral = "true" | "false"
 {integerLiteral}                        {   return process(tINTEGER);  }
 {floatingPointLiteral}                  {   return process(tFLOAT);      }
 
+////////////////////// XML /////////////////////////////////////////
+
+{openXmlTag}                                {   yybegin(IN_XML_STATE);
+                                            return process(tOPENXMLTAG); }
+
 ////////////////////// white spaces in line ///////////////////////////////////////////////
 {WhiteSpaceInLine}                      {   return tWHITE_SPACE_IN_LINE;  }
 
@@ -238,6 +253,7 @@ booleanLiteral = "true" | "false"
 .|{LineTerminator}                      {   return tSTUB; }
 
 }
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -273,6 +289,32 @@ booleanLiteral = "true" | "false"
 
 "\""                                    {   yybegin(YYINITIAL);
                                             return process(tSTRING);
+                                        }
+
+.                                       {   return process(tSTRING); }
+
+}
+
+//todo: it is nesseccary organize stack of statements to control opened and corresponding closed tags
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////// Inside a xml  /////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+<IN_XML_STATE>{
+
+"{"                                     {   yybegin(YYINITIAL);
+                                            return process(tBEGINSCALAEXPR);
+                                        }
+
+"}"                                     {   yybegin(IN_XML_STATE);
+                                            return process(tENDSCALAEXPR);
+                                        }
+
+{openXmlTag}                            {   yybegin(IN_XML_STATE);
+                                            return process(tOPENXMLTAG);
+                                        }
+
+{closeXmlTag}                           {   yybegin(IN_XML_STATE);
+                                            return process(tOPENXMLTAG);
                                         }
 
 .                                       {   return process(tSTRING); }
