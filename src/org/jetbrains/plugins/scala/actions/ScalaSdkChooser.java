@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.actions;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import java.awt.event.KeyListener;
 
 /**
  * User: Dmitry.Krasilschikov
@@ -13,48 +10,49 @@ import java.awt.event.ActionEvent;
  * Time: 15:13:03
  */
 public class ScalaSdkChooser extends JPanel {
-    String sdkGlobalPath = "default scala sdk path";
+    String sdkGlobalPath = "";
 
     public ScalaSdkChooser() {
         this.setName("choosing scala sdk");
-
         this.addKeyListener(new SdkKeyListener());
+
+        this.add(new JLabel("specify scala sdk"));
+
+        JTextField scalaSdkfield = new JTextField();
+        scalaSdkfield.setColumns(40);
+
+        SdkKeyListener sdkKeyListener = new SdkKeyListener();
+
+        scalaSdkfield.addKeyListener(sdkKeyListener);
+        this.add(scalaSdkfield);
+        System.out.println(sdkGlobalPath);
+
+        sdkGlobalPath = sdkKeyListener.getInputString();
     }
 
     class SdkKeyListener implements KeyListener {
-        String sdkGlobalPath;
+        String sdkGlobalPathOnPanel = "";
 
         public void keyTyped(KeyEvent keyEvent) {
+            if (keyEvent.getKeyCode() == KeyEvent.VK_BACK_SPACE){
+                sdkGlobalPathOnPanel = sdkGlobalPathOnPanel.substring(0, sdkGlobalPathOnPanel.length() - 1);
+                return;
+            }
+
+            sdkGlobalPathOnPanel += keyEvent.getKeyChar();
+            System.out.println("sdk path:" + sdkGlobalPathOnPanel);
         }
 
         public void keyPressed(KeyEvent keyEvent) {
         }
 
         public void keyReleased(KeyEvent keyEvent) {
-            if (KeyEvent.VK_ENTER == keyEvent.getKeyCode()) {
-                sdkGlobalPath += keyEvent.getKeyChar();
-            }
         }
 
-        public String getSdkGlobalPath() {
-            return sdkGlobalPath;
+        public String getInputString() {
+            return sdkGlobalPathOnPanel;
         }
     }
-
-    public void addSdkDialog() {
-        this.add(new JLabel("specify scala sdk"));
-
-        JTextField scalaSdkfield = new JTextField();
-        scalaSdkfield.setColumns(50);
-
-        SdkKeyListener sdkKeyListener = new SdkKeyListener();
-
-        scalaSdkfield.addKeyListener(sdkKeyListener);
-        this.add(scalaSdkfield);
-                
-        sdkGlobalPath = sdkKeyListener.getSdkGlobalPath();
-    }
-
 
     public String getSdkGlobalPath() {
         return sdkGlobalPath;
