@@ -7,9 +7,10 @@
   <idea-version since-build="3000"/>
     <application-components>
         <component>
-            <implementation-class>org.jetbrains.plugins.scala.ScalaLoader</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.module.ScalaLoader</implementation-class>
         </component>
     </application-components>
+    
     <actions>
         <action id="NewScalaFile" class="org.jetbrains.plugins.scala.actions.NewScalaFileCreate" text="Scala file"
                 description="Create new Scala file">
