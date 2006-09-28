@@ -232,11 +232,16 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "yield"                                 {   return process(kYIELD); }
 
 ///////////////////// Reserved shorthands //////////////////////////////////////////
-//"_"                                     {   return process(kUNDER);  }
-//":"                                     {   return process(kCOLON);  }
-//"="                                     {   return process(kASSIGN);  }
-//"=>"                                    {   return process(kFUNTYPE); }
-//"<-"                                    {   return process(k); }
+"_"                                     {   return process(kUNDER);  }
+":"                                     {   return process(kCOLON);  }
+"="                                     {   return process(kASSIGN);  }
+"=>"                                    {   return process(kFUNTYPE); }
+"'\u21D2'"                              {   return process(kFUNTYPE_ASCII); }
+"<-"                                    {   return process(kCHOOSE); }
+"<:"                                    {   return process(kLOWER_BOUND); }
+">:"                                    {   return process(kUPPER_BOUND); }
+"#"                                     {   return process(kINNER_CLASS); }
+"@"                                     {   return process(kAT);}
 
 
 ////////////////////// Identifier /////////////////////////////////////////
@@ -250,8 +255,8 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 
 ////////////////////// XML /////////////////////////////////////////
 
-{openXmlTag}                                {   yybegin(IN_XML_STATE);
-                                            return process(tOPENXMLTAG); }
+//{openXmlTag}                                {   yybegin(IN_XML_STATE);
+//                                            return process(tOPENXMLTAG); }
 
 ////////////////////// white spaces in line ///////////////////////////////////////////////
 {WhiteSpaceInLine}                      {   return tWHITE_SPACE_IN_LINE;  }
