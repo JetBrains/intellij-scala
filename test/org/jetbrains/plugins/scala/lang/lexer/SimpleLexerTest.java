@@ -50,7 +50,7 @@ public class SimpleLexerTest extends TestCase {
         while ( (elem = scalaLexer.getTokenType()) != null){
             if ( !"stub".equals(elem.toString()) &&
                     !"white space in line".equals(elem.toString())) {
-                System.out.println(elem.toString());
+                System.out.println(elem);
             }
             scalaLexer.advance();
         }
