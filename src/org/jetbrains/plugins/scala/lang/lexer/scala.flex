@@ -78,15 +78,15 @@ charEscapeSeq = "\\" "u" {hexDigit} {hexDigit} {hexDigit} {hexDigit}
 upper = [A-Z_]
 lower = [a-z]
 letter = {upper} | {lower}
-digit = [0-9]
+digit = "0"| "1"| "2"| "3"| "4"| "5"| "6"| "7"| "8"| "9"
 
-special = [^ ("0"| "1"| "2"| "3"| "4"| "5"| "6"| "7"| "8"| "9"| "'" | "\"" | "." | ";" | ",")]
+special = [^("0"| "1"| "2"| "3"| "4"| "5"| "6"| "7"| "8"| "9"| "'" | "\"" | "." | ";" | "," | "\r" | "\n" | "\r\n")]
 
 op = {special}+
 idrest = ({letter} | {digit})* ("_" op)?
 
-varid = ({lower} {idrest})
-plainid = ({upper} {idrest})
+varid = {lower} {idrest}
+plainid = {upper} {idrest}
         | {varid}
         | {op}
 
@@ -103,8 +103,8 @@ stringLiteral = {stringElement}*
 ////////// Common symbols //////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-LineTerminator = \r|\n|\f|\r\n
-InLineTerminator = [ \t\f]
+LineTerminator = \r | \n | \r\n | "\\u0085"|  "\\u2028" | "\\\u2029"
+InLineTerminator = " " | "\t" | "\f" | "\r" | "\13"
 InputCharacter = [^\r\n\f]
 
 WhiteSpaceInLine = {InLineTerminator}
