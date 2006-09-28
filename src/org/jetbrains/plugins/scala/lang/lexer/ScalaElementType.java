@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.ScalaLoader;
 
 /**
  * Author: Ilya Sergey
