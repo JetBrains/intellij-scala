@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala;
 
 import com.intellij.lang.Language;
-import com.intellij.lang.ParserDefinition;
 import com.intellij.lang.PairedBraceMatcher;
 import com.intellij.lang.Commenter;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
