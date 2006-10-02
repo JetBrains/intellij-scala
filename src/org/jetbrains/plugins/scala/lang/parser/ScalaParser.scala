@@ -15,6 +15,7 @@ public class ScalaParser extends PsiParser {
 
     @NotNull
     public ASTNode parse(IElementType root, PsiBuilder builder) {
+        PROGRAM.parse(builder);
         return builder.getTreeBuilt();
     }
 }
