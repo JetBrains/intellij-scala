@@ -10,7 +10,6 @@ import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.FileViewProvider;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
 
 /**
@@ -19,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
  * Time: 14:23:22
  */
 public class ScalaParserDefinition implements ParserDefinition {
-    @NotNull                 
+
     public Lexer createLexer(Project project) {
         return new ScalaLexer();
     }
@@ -32,17 +31,17 @@ public class ScalaParserDefinition implements ParserDefinition {
         throw new UnsupportedOperationException("getFileNodeType not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
 
-    @NotNull
+
     public TokenSet getWhitespaceTokens() {
         throw new UnsupportedOperationException("getWhitespaceTokens not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
 
-    @NotNull
+
     public TokenSet getCommentTokens() {
         throw new UnsupportedOperationException("getCommentTokens not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
 
-    @NotNull
+
     public PsiElement createElement(ASTNode astNode) {
         throw new UnsupportedOperationException("createElement not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
