@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing;
+package org.jetbrains.plugins.scala.lang.parser.parsing
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
-import org.jetbrains.annotations.NotNull;
-import com.intellij.lang.PsiBuilder;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
+import com.intellij.lang.PsiBuilder
 
 /**
  * User: Dmitry.Krasilschikov
@@ -11,7 +11,15 @@ import com.intellij.lang.PsiBuilder;
  */
 
 class PROGRAM extends ScalaTokenTypes {
-    public static void parse(@NotNull final PsiBuilder builder) {
-        
+    def parse(builder: PsiBuilder): Unit = {
+        var marker = builder.mark()
+
+        while( !builder.eof() ){
+            if(builder.getTokenType().toString == "class") {
+                marker.drop()
+            }
+
+        }
+        marker.done(new ScalaElementType("class"));
     }
 }
