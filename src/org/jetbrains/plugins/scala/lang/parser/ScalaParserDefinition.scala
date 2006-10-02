@@ -19,38 +19,39 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
  */
 class ScalaParserDefinition extends ParserDefinition {
 
-    public Lexer createLexer(Project project) {
-        return new ScalaLexer();
+    def createLexer(project: Project) : Lexer = {
+        new ScalaLexer()
     }
 
-    public PsiParser createParser(Project project) {
+    def createParser(project: Project ) : PsiParser = {
         return new ScalaParser();
     }
      
-    public IFileElementType getFileNodeType() {
+    def getFileNodeType() : IFileElementType  = {
         throw new UnsupportedOperationException("getFileNodeType not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
 
 
-    public TokenSet getWhitespaceTokens() {
+    def getWhitespaceTokens() : TokenSet = {
         throw new UnsupportedOperationException("getWhitespaceTokens not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
 
 
-    public TokenSet getCommentTokens() {
+    def getCommentTokens() : TokenSet = {
         throw new UnsupportedOperationException("getCommentTokens not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
 
 
-    public PsiElement createElement(ASTNode astNode) {
+    def createElement( astNode : ASTNode ) : PsiElement = {
         throw new UnsupportedOperationException("createElement not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
 
-    public PsiFile createFile(FileViewProvider fileViewProvider) {
+    def createFile(fileViewProvider : FileViewProvider) : PsiFile = {
         throw new UnsupportedOperationException("createFile not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
 
-    public SpaceRequirements spaceExistanceTypeBetweenTokens(ASTNode astNode, ASTNode astNode1) {
+    def spaceExistanceTypeBetweenTokens(astNode : ASTNode, astNode1 : ASTNode)  : ParserDefinition.SpaceRequirements = {
         throw new UnsupportedOperationException("spaceExistanceTypeBetweenTokens not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
+
 }
