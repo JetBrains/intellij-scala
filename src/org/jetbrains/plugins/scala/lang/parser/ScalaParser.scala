@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  * Date: 02.10.2006
  * Time: 13:18:27
  */
-public class ScalaParser implements PsiParser {
+public class ScalaParser extends PsiParser {
 
     @NotNull
     public ASTNode parse(IElementType root, PsiBuilder builder) {
