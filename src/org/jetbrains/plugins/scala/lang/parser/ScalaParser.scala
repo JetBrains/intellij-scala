@@ -6,12 +6,10 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 
 
-class ScalaParser /* extends PsiParser */ {
+class ScalaParser extends PsiParser {
 
-    /*
     public ASTNode parse(IElementType root, PsiBuilder builder) {
         (new PROGRAM()).parse(builder);
         return builder.getTreeBuilt();
     }
-    */
 }

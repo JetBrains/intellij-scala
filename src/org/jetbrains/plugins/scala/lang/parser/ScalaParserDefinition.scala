@@ -26,7 +26,7 @@ class ScalaParserDefinition extends ParserDefinition {
     public PsiParser createParser(Project project) {
         return new ScalaParser();
     }
-
+     
     public IFileElementType getFileNodeType() {
         throw new UnsupportedOperationException("getFileNodeType not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
