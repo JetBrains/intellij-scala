@@ -1,6 +1,5 @@
 <project>
     <property name="scala.home" value="%SCALA_HOME%"/>
-    <property name="scala.home" value="${user.home}/sbaz"/>
     <property name="scala.lib.dir" value="${scala.home}/lib"/>
     <property name="scala.lib.jar" value="${scala.lib.dir}/scala-library.jar"/>
 
