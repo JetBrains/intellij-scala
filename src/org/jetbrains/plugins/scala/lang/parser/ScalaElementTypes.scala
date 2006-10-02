@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage;
  * Date: 02.10.2006
  * Time: 12:53:26
  */
-public abstract ScalaElementTypes {
+abstract ScalaElementTypes {
 
     IFileElementType FILE = new IFileElementType(Language.findInstance(ScalaLanguage.getClass()));
 
@@ -58,7 +58,6 @@ public abstract ScalaElementTypes {
    IElementType VAL = new ScalaElementType("unchangable variable");
 
    IElementType IDENTIFIER = new ScalaElementType("identifier");
-
 
 //if else stmts
    IElementType IF_STMT = new ScalaElementType("if statement");
