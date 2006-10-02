@@ -2,6 +2,14 @@
     <property name="scala.home" value="C:/Program Files/Scala"/>
     <property name="idea.lib" value="C:/Program Files/JetBrains/IntelliJ IDEA 6.0/lib"/>
 
+    <path id="base.path">
+        <pathelement location="${scala.home}/lib/scala-library.jar"/>
+        <fileset dir="${idea.lib}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+
     <target name="clear" description="clears old results">
     </target>
 
@@ -12,18 +20,11 @@
         </classpath>
     </taskdef>
 
-    
 
     <target name="build.all" description="" depends="clear">
         <scalac srcdir="."
                 force="changed">
-            <classpath>
-                <pathelement location="${scala.home}/lib/scala-library.jar"/>
-                <!--pathelement location="C:/Program Files/JetBrains/IntelliJ IDEA 6.0/lib/idea.jar"/-->
-                <dirset dir="${idea.lib}">
-                    <include name="**/*.jar"/>
-                </dirset>
-            </classpath>
+            <classpath refid="base.path"/>
             <include name="**/ScalaParser.scala"/>
         </scalac>
 
