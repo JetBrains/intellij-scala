@@ -11,9 +11,9 @@ import org.jetbrains.plugins.scala.ScalaLanguage;
  * Date: 02.10.2006
  * Time: 12:53:26
  */
-public interface ScalaElementTypes {
+public abstract ScalaElementTypes {
 
-    IFileElementType FILE = new IFileElementType(Language.findInstance(ScalaLanguage.class));
+    IFileElementType FILE = new IFileElementType(Language.findInstance(ScalaLanguage.getClass()));
 
     IElementType EXPRESSION = new ScalaElementType("expression");
 
