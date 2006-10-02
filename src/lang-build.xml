@@ -23,6 +23,7 @@
 
     <target name="build.all" description="" depends="clear">
         <scalac srcdir="."
+                destdir = ".."
                 force="changed">
             <classpath refid="base.path"/>
             <include name="**/ScalaParser.scala"/>
