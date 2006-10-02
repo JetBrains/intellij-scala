@@ -1,5 +1,5 @@
 <project name="Generate various scala packages for parser needs" default="build.all">
-    <property name="scala.home" value="SCALA_HOME"/>
+    <property name="scala.home" value="C:/Program Files/Scala"/>
 
     <target name="clear" description="clears old results">
     </target>
@@ -11,15 +11,19 @@
         </classpath>
     </taskdef>
 
-    <target name="build.all" description="" depends="clear">
+    
 
+    <target name="build.all" description="" depends="clear">
         <scalac srcdir="."
                 force="changed">
             <classpath>
                 <pathelement location="${scala.home}/lib/scala-library.jar"/>
-                <pathelement location="C:\Program Files\JetBrains\IntelliJ IDEA 6.0\lib\idea.jar"/>
+                <!--pathelement location="C:/Program Files/JetBrains/IntelliJ IDEA 6.0/lib/idea.jar"/-->
+                <dirset dir="C:/Program Files/JetBrains/IntelliJ IDEA 6.0/lib">
+                    <include name="**/*.jar"/>
+                </dirset>
             </classpath>
-            <include name="**/*.scala"/>
+            <include name="**/*Type.scala"/>
         </scalac>
 
     </target>
