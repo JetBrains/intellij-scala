@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
  * Date: 25.09.2006
  * Time: 14:23:22
  */
-public class ScalaParserDefinition implements ParserDefinition {
+class ScalaParserDefinition extends ParserDefinition {
 
     public Lexer createLexer(Project project) {
         return new ScalaLexer();
