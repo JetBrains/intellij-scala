@@ -1,4 +1,4 @@
-<project name="generate scala lexer from scala.flex" default="generate">
+<project name="generate scala lexer from scala.flex" default="lexer.generate">
     <property name="lexer.file" value="_ScalaLexer.java"/>
     <property name="lexer.log" value="jflex.log"/>
     <property name="lexer.source" value="scala.flex"/>
@@ -9,7 +9,7 @@
         <delete file="${lexer.log}"/>
     </target>
 
-    <target name="generate" description="Builds lexer via advanced library" depends="clear">
+    <target name="lexer.generate" description="Builds lexer via advanced library" depends="clear">
         <java jar="JFlex.jar" output="jflex.log" fork="true">
             <arg value="--charat"/>
             <arg value="-skel"/>
@@ -17,10 +17,4 @@
             <arg value="${lexer.source}"/>
         </java>
     </target>
-
-    
-
-
-
-
 </project>
