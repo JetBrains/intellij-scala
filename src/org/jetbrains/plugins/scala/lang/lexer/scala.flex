@@ -69,8 +69,8 @@ floatType = F | f | D | d
 /////////////////////      identifiers      ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//identifier = [a-zA-Z_]+[a-zA-Z0-9]*
-identifier = {plainid} | "'" {stringLiteral} "'"
+identifier = [a-zA-Z_]+[a-zA-Z0-9]*
+//identifier = {plainid} | "'" {stringLiteral} "'"
 
 charEscapeSeq = "\\" "u" {hexDigit} {hexDigit} {hexDigit} {hexDigit}
 
@@ -83,12 +83,12 @@ digit = "0"| "1"| "2"| "3"| "4"| "5"| "6"| "7"| "8"| "9"
 special = [^("0"| "1"| "2"| "3"| "4"| "5"| "6"| "7"| "8"| "9"| "'" | "\"" | "." | ";" | "," | "\r" | "\n" | "\r\n")]
 
 op = {special}+
-idrest = ({letter} | {digit})* ("_" op)?
+idrest = ({letter} | {digit})* //("_" op)?
 
 varid = {lower} {idrest}
 plainid = {upper} {idrest}
         | {varid}
-        | {op}
+//        | {op}
 
 
 idrest = ({letter} | {digit})* ("_" op)?

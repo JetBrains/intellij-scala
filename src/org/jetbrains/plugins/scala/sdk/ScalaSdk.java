@@ -9,7 +9,7 @@ import com.intellij.openapi.roots.OrderRootType;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.idea.devkit.DevKitBundle;
+//import org.jetbrains.idea.devkit.DevKitBundle;
 import org.jdom.Element;
 
 import java.util.ArrayList;
