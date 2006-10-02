@@ -11,6 +11,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.FileViewProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
 
 /**
  * Author: Ilya Sergey
@@ -20,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 public class ScalaParserDefinition implements ParserDefinition {
     @NotNull                 
     public Lexer createLexer(Project project) {
-        throw new UnsupportedOperationException("createLexer not implemented in org.jetbrains.plugins.scala.parser.ScalaParserDefinition");
+        return new ScalaLexer();
     }
 
     public PsiParser createParser(Project project) {
