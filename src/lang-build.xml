@@ -36,6 +36,6 @@
             <classpath refid="base.path"/>
             <include name="**/*.scala"/>
         </scalac>
-
     </target>
+    
 </project>
