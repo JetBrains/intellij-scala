@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.compiler;
 import com.intellij.openapi.compiler.TranslatingCompiler;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
-import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import org.jetbrains.annotations.NotNull;
