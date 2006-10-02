@@ -1,0 +1,31 @@
+<project name="Generate various scala packages for parser needs" default="build.all">
+    <property name="scala.home" value="SCALA_HOME"/>
+
+
+
+    <target name="clear" description="clears old results">
+    </target>
+    
+
+
+
+
+    <target name="build.all" description="" depends="clear">
+
+    <taskdef resource="scala/tools/ant/antlib.xml">
+        <classpath>
+            <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
+            <pathelement location="${scala.home}/lib/scala-library.jar"/>
+        </classpath>
+    </taskdef>
+
+    <scalac srcdir="."
+          force="changed">
+        <classpath>
+          <pathelement location="${scala.home}/lib/scala-library.jar"/>
+          <pathelement location="C:\Program Files\JetBrains\IntelliJ IDEA 6.0\lib\idea.jar"/>
+        </classpath>
+        <include name="**/*.scala"/>
+    </scalac>
+    </target>
+</project>
