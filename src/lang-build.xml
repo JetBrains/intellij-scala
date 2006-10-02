@@ -21,13 +21,17 @@
     </path>
 
 
-    <target name="clear" description="clears old results">
+    <target name="clear" description="clears old scala results">
+        <delete>
+            <fileset dir="${project.lib}/org/jetbrains/plugins/scala/lang/parser"
+                     includes="**/*.class"/>
+        </delete>
     </target>
 
 
     <target name="build.all" description="" depends="clear">
         <scalac srcdir="."
-                destdir = "../classes/production/Scala"
+                destdir="../classes/production/Scala"
                 force="changed">
             <classpath refid="base.path"/>
             <include name="**/*.scala"/>
