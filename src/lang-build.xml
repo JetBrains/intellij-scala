@@ -1,6 +1,7 @@
 <project name="Generate various scala packages for parser needs" default="build.all">
     <property name="scala.home" value="C:/Program Files/Scala"/>
     <property name="idea.lib" value="C:/Program Files/JetBrains/IntelliJ IDEA 6.0/lib"/>
+    <property name="project.lib" value="../classes/production/Scala"/>
 
     <taskdef resource="scala/tools/ant/antlib.xml">
         <classpath>
@@ -14,6 +15,9 @@
         <fileset dir="${idea.lib}">
             <include name="**/*.jar"/>
         </fileset>
+        <fileset dir="${project.lib}">
+            <include name="**/*.class"/>
+        </fileset>
     </path>
 
 
@@ -26,7 +30,7 @@
                 destdir = "../classes/production/Scala"
                 force="changed">
             <classpath refid="base.path"/>
-            <include name="**/ScalaParser.scala"/>
+            <include name="**/*.scala"/>
         </scalac>
 
     </target>
