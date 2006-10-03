@@ -1,41 +1,61 @@
-<project name="Generate various scala packages for parser needs" default="build.all">
-    <property name="scala.home" value="C:/Program Files/Scala"/>
-    <property name="idea.lib" value="C:/Program Files/JetBrains/IntelliJ IDEA 6.0/lib"/>
-    <property name="project.lib" value="../classes/production/Scala"/>
+<project name="Generate various scala packages for parser needs" default="build.parser">
+  <property name="scala.home" value="C:/Program Files/Scala"/>
+  <property name="idea.lib" value="C:/Program Files/JetBrains/IntelliJ IDEA 6.0/lib"/>
+  <property name="project.lib" value="../classes/production/Scala"/>
 
-    <taskdef resource="scala/tools/ant/antlib.xml">
-        <classpath>
-            <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
-            <pathelement location="${scala.home}/lib/scala-library.jar"/>
-        </classpath>
-    </taskdef>
+  <taskdef resource="scala/tools/ant/antlib.xml">
+    <classpath>
+      <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
+      <pathelement location="${scala.home}/lib/scala-library.jar"/>
+    </classpath>
+  </taskdef>
 
-    <path id="base.path">
-        <pathelement location="${scala.home}/lib/scala-library.jar"/>
-        <fileset dir="${idea.lib}">
-            <include name="**/*.jar"/>
-        </fileset>
-        <fileset dir="${project.lib}">
-            <include name="**/*.class"/>
-        </fileset>
-    </path>
+  <path id="base.path">
+    <pathelement location="${scala.home}/lib/scala-library.jar"/>
+    <fileset dir="${idea.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${project.lib}">
+      <include name="**/*.class"/>
+    </fileset>
+  </path>
 
-
-    <target name="clear" description="clears old scala results">
-        <delete>
-            <fileset dir="${project.lib}/org/jetbrains/plugins/scala/lang/parser"
-                     includes="**/*.class"/>
-        </delete>
-    </target>
+  <path id="test.path">
+    <pathelement location="${scala.home}/lib/scala-library.jar"/>
+    <pathelement location="${idea.lib}/junit-4.0.jar"/>
+  </path>
 
 
-    <target name="build.all" description="" depends="clear">
-        <scalac srcdir="."
-                destdir="../classes/production/Scala"
-                force="changed">
-            <classpath refid="base.path"/>
-            <include name="**/*.scala"/>
-        </scalac>
-    </target>
-    
+  <target name="clear" description="clears old scala results">
+    <delete>
+      <fileset dir="${project.lib}/org/jetbrains/plugins/scala/lang/parser"
+               includes="**/*.class"/>
+    </delete>
+  </target>
+
+
+  <target name="build.parser" description="Builds parser" depends="clear">
+    <scalac srcdir="."
+            destdir="../classes/production/Scala"
+            force="changed">
+      <classpath refid="base.path"/>
+      <include name="**/*.scala"/>
+      <!--exclude name="**/*ition.scala"/-->
+    </scalac>
+  </target>
+
+  <target name="build.tests" description="builds teset">
+    <delete>
+      <fileset dir="${project.lib}/tests"
+               includes="*"/>
+    </delete>
+    <scalac srcdir="../test"
+            destdir="../classes/production/Scala"
+            force="changed">
+      <classpath refid="base.path"/>
+      <include name="**/*.scala"/>
+    </scalac>
+  </target>
+
+
 </project>
