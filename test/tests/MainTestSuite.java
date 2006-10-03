@@ -3,7 +3,6 @@ package tests;
 import junit.framework.TestSuite;
 import junit.framework.Test;
 import tests.examples.TestExample;
-import tests.examples.SimpleTest;
 
 /**
  * Author: Ilya Sergey
@@ -26,7 +25,5 @@ public class MainTestSuite {
     public static void main(String[] args) {
         junit.textui.TestRunner.run(suite());
     }
-
-  
   
 }
