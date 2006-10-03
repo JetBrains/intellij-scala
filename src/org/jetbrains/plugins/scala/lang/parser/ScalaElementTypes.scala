@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage;
  * Date: 02.10.2006
  * Time: 12:53:26
  */
-abstract class ScalaElementTypes {
+object ScalaElementTypes {
 
   val FILE = new IFileElementType(Language.findInstance(new ScalaLanguage().getClass()))
 
