@@ -38,10 +38,10 @@ public class ScalaCompiler implements TranslatingCompiler{
 
     @NotNull
     public String getDescription() {
-        return null;  
+        return "";  
     }
 
     public boolean validateConfiguration(CompileScope compileScope) {
-        return false;
+        return true;
     }
 }
