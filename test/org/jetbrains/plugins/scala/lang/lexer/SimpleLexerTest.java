@@ -3,10 +3,8 @@ package org.jetbrains.plugins.scala.lang.lexer;
 import junit.framework.*;
 
 import java.io.*;
-import java.nio.CharBuffer;
 
 import org.jetbrains.annotations.NonNls;
-import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 
 /**
