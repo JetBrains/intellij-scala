@@ -9,7 +9,7 @@ import com.intellij.lang.PsiBuilder
 
 class ListOfExpression {
 
-  def parse(builder : PsiBuilder) = {
+  def parse(builder : PsiBuilder) : Unit = {
 
     var marker = builder.mark();
       (new Package()).parse(builder);

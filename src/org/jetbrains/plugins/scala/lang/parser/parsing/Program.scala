@@ -18,8 +18,7 @@ class Program extends ScalaTokenTypes {
 
         marker.drop();
         while( !builder.eof() ){
-
-            builder.advanceLexer()
+            (new ListOfExpression()).parse(builder);
         }
         marker.done(ScalaElementTypes.FILE)
     }

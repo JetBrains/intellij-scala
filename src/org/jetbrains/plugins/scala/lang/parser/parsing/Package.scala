@@ -8,7 +8,7 @@ import com.intellij.lang.PsiBuilder
  */
 
 class Package {
-  def parse(builder : PsiBuilder) = {
+  def parse(builder : PsiBuilder) : Unit = {
         
   }
 }
