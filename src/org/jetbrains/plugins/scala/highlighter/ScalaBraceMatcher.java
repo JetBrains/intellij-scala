@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.highlighter;
 
 import com.intellij.lang.PairedBraceMatcher;
 import com.intellij.lang.BracePair;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
+import tests.lexer.ScalaTokenTypes;
 
 /**
  * Author: Ilya Sergey
