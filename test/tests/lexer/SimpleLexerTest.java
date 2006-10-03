@@ -5,6 +5,7 @@ import junit.framework.*;
 import java.io.*;
 
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
 import com.intellij.psi.tree.IElementType;
 
 /**
