@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing
 
+
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import com.intellij.lang.PsiBuilder
@@ -10,7 +11,7 @@ import com.intellij.lang.PsiBuilder
  * Time: 12:53:26
  */
 
-class PROGRAM extends ScalaTokenTypes {
+class Program extends ScalaTokenTypes {
     def parse(builder: PsiBuilder): Unit = {
         var marker = builder.mark()
 
