@@ -4,12 +4,12 @@ import com.intellij.lang.PsiParser
 import com.intellij.lang.ASTNode
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.parser.parsing.PROGRAM;
+import org.jetbrains.plugins.scala.lang.parser.parsing.Program;
 
 class ScalaParser extends PsiParser {
 
     def parse(root : IElementType, builder : PsiBuilder ) : ASTNode = {
-        (new PROGRAM()).parse(builder);
+        (new Program()).parse(builder);
         return builder.getTreeBuilt();
     }
 }
