@@ -15,12 +15,10 @@ class Program extends ScalaTokenTypes {
     def parse(builder: PsiBuilder): Unit = {
         var marker = builder.mark()
 
+        marker.drop();
         while( !builder.eof() ){
-            if(builder.getTokenType().toString == "class") {
-                marker.drop()
-            }
-
+            builder.advanceLexer()
         }
-        marker.done(new ScalaElementType("class"));
+        marker.done(new ScalaElementType(""))
     }
 }
