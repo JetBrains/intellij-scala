@@ -28,7 +28,7 @@ class ScalaParserDefinition extends ParserDefinition {
     }
      
     def getFileNodeType() : IFileElementType  = {
-        throw new UnsupportedOperationException("getFileNodeType not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
+        ScalaElementTypes.FILE
     }
 
     def getWhitespaceTokens() : TokenSet = {
