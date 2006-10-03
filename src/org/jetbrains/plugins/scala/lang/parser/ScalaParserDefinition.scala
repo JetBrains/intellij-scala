@@ -31,16 +31,13 @@ class ScalaParserDefinition extends ParserDefinition {
         throw new UnsupportedOperationException("getFileNodeType not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
 
-
     def getWhitespaceTokens() : TokenSet = {
         throw new UnsupportedOperationException("getWhitespaceTokens not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
 
-
     def getCommentTokens() : TokenSet = {
         throw new UnsupportedOperationException("getCommentTokens not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
-
 
     def createElement( astNode : ASTNode ) : PsiElement = {
         throw new UnsupportedOperationException("createElement not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");

@@ -13,54 +13,62 @@ import org.jetbrains.plugins.scala.ScalaLanguage;
  */
 abstract class ScalaElementTypes {
 
-    //val FILE = new IFileElementType(Language.findInstance(ScalaLanguage.class));
+  val FILE = new IFileElementType(Language.findInstance(new ScalaLanguage().getClass()))
 
-    val EXPRESSION = new ScalaElementType("expression");
+//integer, floating, boolean, character, string, symbol
+  val LITERAL = new ScalaElementType("literal")
 
-//math expressions
-    val MATH_BINBIARY_EXPR = new ScalaElementType("mathematic binary expression");
-    val MATH_UNARY_EXPR = new ScalaElementType("negative unary expression");
+//ordinary identifier
+  val STABLE_ID = new ScalaElementType("stable id")
 
-//  bool
-    val BOOL_BINBIARY_EXPR = new ScalaElementType("boolean binary expression");
-    val BOOL_UNARY_EXPR = new ScalaElementType("negative unary expression");
+//types
+  val SIMPLE_TYPE = new ScalaElementType("simple type")
+  val TYPE = new ScalaElementType("one type")
+  val TYPES = new ScalaElementType("types")
+  val TYPE_ARGS = new ScalaElementType("type arguments")
 
-//assignment
-    val ASSIGNMENT_EXPR = new ScalaElementType("assignment expression");
+  val COMPOSITE_TYPE = new ScalaElementType("type with =>")
 
-// string
-    val STRING = new ScalaElementType("string in double quotes");
-    val SYMBOL = new ScalaElementType("symbol in quotes");
+  val TYPE_WITH_TYPES = new ScalaElementType("type WITH types")
+  val REFINEMENT = new ScalaElementType("refinement")
 
-//numbers
-    val INTEGER = new ScalaElementType("integer number");
-    val FLOAT = new ScalaElementType("float number");
+//epressions
+  val SIMPLE_EXPR = new ScalaElementType("simple expression")
+  val COMPOSITE_EXPR = new ScalaElementType("expression with =>")
+  val EXPRESSION = new ScalaElementType("expression")
+  val EXPRESSIONS_LIST = new ScalaElementType("list of expressions")
 
-//regexp
-    val REG_EXPR = new ScalaElementType("regular expression");
+  val POSTFIX_EXPR = new ScalaElementType("postfix definition")
+  val INFIX_EXPR = new ScalaElementType("infix definition")
+  val PREFIX_EXPR = new ScalaElementType("prefix definition")
 
-//classes and objects
+//other
+  val IF_STMT = new ScalaElementType("only if statement")
 
-    val CLASS = new ScalaElementType("class");
-    val CLASS_PARAM = new ScalaElementType("paramertrize class");
+  val TRY_STMT = new ScalaElementType("try statament")
 
-    val OBJECT = new ScalaElementType("object");
+  val WHILE_STMT = new ScalaElementType("while statement")
+  val DO_WHILE_STMT = new ScalaElementType("do-while construction")
 
-//method
-    val METHOD = new ScalaElementType("method");
+  val FOR_STMT = new ScalaElementType("for statament")
 
-//case
-   val CASE_ClASS = new ScalaElementType("case in subclass definition");
-   val CASE_MATCH = new ScalaElementType("case in matching");
+  val THROW = new ScalaElementType("throw")
 
-//variables
-   val VAR = new ScalaElementType("changable variable");
-   val VAL = new ScalaElementType("unchangable variable");
+  val RETURN = new ScalaElementType("return")
 
-   val IDENTIFIER = new ScalaElementType("identifier");
+  val ASSIGNMENT = new ScalaElementType("assignment")
 
-//if else stmts
-   val IF_STMT = new ScalaElementType("if statement");
-   val IF_ELSE = new ScalaElementType("else statement")
+  val MATCH = new ScalaElementType("match construction")
 
+  //method closure - ?
+
+  //infix
+
+  val ARGUMENT_EXPR = new ScalaElementType("argument expr")
+
+  val CASE_CLAUSES = new ScalaElementType("argument expr")
+
+  val BLOCK = new ScalaElementType("block")
+
+  //todo: supplement elements
 }
