@@ -15,8 +15,6 @@ import com.intellij.lang.PsiBuilder
 class Program extends ScalaTokenTypes {
     def parse(builder: PsiBuilder): Unit = {
         var marker = builder.mark()
-
-        marker.drop();
         while( !builder.eof() ){
             (new ListOfExpression()).parse(builder);
         }
