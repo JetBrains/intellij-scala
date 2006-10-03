@@ -6,5 +6,5 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaPsiElement
  * Date: 03.10.2006
  * Time: 20:11:49
  */
-class ScClass extends ScalaPsiElement {
+abstract class ScClass extends ScalaPsiElement {
 }
