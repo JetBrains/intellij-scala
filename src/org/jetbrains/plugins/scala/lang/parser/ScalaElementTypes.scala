@@ -68,5 +68,10 @@ object ScalaElementTypes {
 
   val BLOCK = new ScalaElementType("block")
 
+  val PACKAGE = new ScalaElementType("package")
+
+  val IMPORT = new ScalaElementType("import")
+
+  val QUAL_ID = new ScalaElementType("identifiers with dots")
   //todo: supplement elements
 }
