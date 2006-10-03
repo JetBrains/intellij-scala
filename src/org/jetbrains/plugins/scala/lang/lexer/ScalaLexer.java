@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2000-2006 JetBrains s.r.o. All Rights Reserved.
- */
-
 package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.lexer.FlexAdapter;
