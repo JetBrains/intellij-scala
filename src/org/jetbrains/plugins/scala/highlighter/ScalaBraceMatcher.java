@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.highlighter;
 
 import com.intellij.lang.PairedBraceMatcher;
 import com.intellij.lang.BracePair;
-import tests.lexer.ScalaTokenTypes;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 /**
  * Author: Ilya Sergey
@@ -12,7 +12,7 @@ import tests.lexer.ScalaTokenTypes;
 public class ScalaBraceMatcher implements PairedBraceMatcher {
 
     private static final BracePair[] PAIRS = new BracePair[] {
-       new BracePair('(', ScalaTokenTypes.tLPARENTHIS, ')', ScalaTokenTypes.tRPARENTHIS, false), 
+       new BracePair('(', ScalaTokenTypes.tLPARENTHIS, ')', ScalaTokenTypes.tRPARENTHIS, false),
        new BracePair('[',ScalaTokenTypes.tLSQBRACKET, ']', ScalaTokenTypes.tRSQBRACKET, false),
        new BracePair('{',ScalaTokenTypes.tLBRACE, '}', ScalaTokenTypes.tRBRACE, true)
      };
