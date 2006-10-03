@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl;
 
+import org.jetbrains.plugins.scala.lang.parser.ScalaParser 
+
 /**
  * User: Dmitry.Krasilschikov
  * Date: 03.10.2006
