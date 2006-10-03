@@ -62,8 +62,6 @@ abstract class ScalaElementTypes {
 
   //method closure - ?
 
-  //infix
-
   val ARGUMENT_EXPR = new ScalaElementType("argument expr")
 
   val CASE_CLAUSES = new ScalaElementType("argument expr")
