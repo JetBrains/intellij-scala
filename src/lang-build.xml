@@ -30,6 +30,8 @@
     <delete>
       <fileset dir="${project.lib}/org/jetbrains/plugins/scala/lang/parser"
                includes="**/*.class"/>
+      <fileset dir="${project.lib}/org/jetbrains/plugins/scala/lang/psi"
+               includes="**/*.class"/>
     </delete>
   </target>
 
