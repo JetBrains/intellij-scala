@@ -34,7 +34,7 @@
   </target>
 
 
-  <target name="build.parser" description="Builds parser" depends="clear">
+  <target name="build.parser"  description="Builds parser" depends="clear">
     <scalac srcdir="."
             destdir="../classes/production/Scala"
             force="changed">
