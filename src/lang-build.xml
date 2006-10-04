@@ -3,7 +3,10 @@
   <property name="idea.lib" value="C:/Program Files/JetBrains/IntelliJ IDEA 6.0/lib"/>
   <property name="project.lib" value="../classes/production/Scala"/>
 
-  <taskdef resource="scala/tools/ant/antlib.xml">
+  <!--taskdef resource="scala/tools/ant/antlib.xml"-->
+  <taskdef name="scalac"
+           classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
+           classpath="${project.lib}">
     <classpath>
       <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
       <pathelement location="${scala.home}/lib/scala-library.jar"/>
@@ -36,7 +39,7 @@
   </target>
 
 
-  <target name="build.parser"  description="Builds parser">
+  <target name="build.parser" description="Builds parser">
     <scalac srcdir="."
             destdir="../classes/production/Scala"
             force="changed">
