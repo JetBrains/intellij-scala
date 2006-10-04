@@ -1,24 +1,25 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
-
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
+import com.intellij.psi.tree.IElementType
 import com.intellij.lang.PsiBuilder
 
-class Package extends ScalaTokenTypes {
+class Package {
 
   def parse(builder: PsiBuilder): Unit = {
 
-    var marker = builder.mark()
+    var marker = builder.mark() //Open marker for package
 
-    while ( !builder.eof())
-    {
-        builder.advanceLexer()
+    builder.advanceLexer //New node: "package"
+
+    builder.getTokenType match {
+      case ScalaTokenTypes.tIDENTIFIER => new QualId parse(builder) //QualID found
+      case _ => builder.error("Wrong package name!")
     }
-    new Package().parse(builder)
 
-    //marker.done(ScalaElementTypes.PACKAGE)
+    marker.done(ScalaElementTypes.PACKAGE) //Close marker for package
   }
 }
