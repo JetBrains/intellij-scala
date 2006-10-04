@@ -40,7 +40,8 @@ class ScalaParserDefinition extends ParserDefinition {
     }
 
     def createElement( astNode : ASTNode ) : PsiElement = {
-        throw new UnsupportedOperationException("createElement not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
+       //ScalPsiCreator.createElement(astNode)
+        throw new UnsupportedOperationException("createFile not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
 
     def createFile(fileViewProvider : FileViewProvider) : PsiFile = {

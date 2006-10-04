@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.parser;
+package org.jetbrains.plugins.scala.lang.parser
 
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.IFileElementType;
@@ -73,5 +73,7 @@ object ScalaElementTypes {
   val IMPORT = new ScalaElementType("import")
 
   val QUAL_ID = new ScalaElementType("identifiers with dots")
+
+  
   //todo: supplement elements
 }

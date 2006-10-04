@@ -1,3 +1,6 @@
-class ClassDeclarationImpl extends BaseClassDeclaration with ASTWrapperTreeElement(
+
+
+class ClassDeclarationImpl /*extends BaseClassDeclaration with ASTWrapperTreeElement(
   findChildrenAsPsiElement
-) {}
+)*/ 
+{}
