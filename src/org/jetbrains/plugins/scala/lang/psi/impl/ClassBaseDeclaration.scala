@@ -1,7 +1,8 @@
-case class ClassBaseDeclaration (
-  methods : => Seq[Method]
-  variables : => Seq[Variable]
-) extends TypeDeclaration {
+abstract class ClassBaseDeclaration /*(
+  methods : ( _ => Seq[ScMethod])
+  variables : => Seq[ScVariable]
+) extends TypeDeclaration
+*/
+{
 
-
-  }
+}
