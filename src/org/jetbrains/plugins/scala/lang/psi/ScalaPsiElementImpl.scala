@@ -20,11 +20,11 @@ class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement( node )
     node
   }
 
-  override def getUserData[T]( key : Key[T] ) : T = {
+  override def getUserData[T <: java.lang.Object]( key : Key[T] ) : T = {
     return null;
   }
 
-  override def putUserData[T]( key : Key[T] , value : T) : Unit = {
+  override def putUserData[T <: java.lang.Object]( key : Key[T] , value : T) : Unit = {
   }
 
   override def getIcon(flags : Int) : Icon = {
