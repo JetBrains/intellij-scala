@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser
 
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.tree.IFileElementType;
-import com.intellij.lang.Language;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType;
-import org.jetbrains.plugins.scala.ScalaLanguage;
+import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.IFileElementType
+import com.intellij.lang.Language
+import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
+import org.jetbrains.plugins.scala.ScalaLanguage
 
 /**
  * User: Dmitry.Krasilschikov
@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage;
  */
 object ScalaElementTypes {
 
-  val FILE = new IFileElementType(Language.findInstance(new ScalaLanguage().getClass()))
+  val FILE = new IFileElementType(Language.findInstance(new Class[ScalaLanguage]))
 
 //integer, floating, boolean, character, string, symbol
   val LITERAL = new ScalaElementType("literal")
@@ -72,7 +72,7 @@ object ScalaElementTypes {
 
   val IMPORT = new ScalaElementType("import")
 
-  val QUAL_ID = new ScalaElementType("identifiers with dots")
+  val QUALID = new ScalaElementType("identifiers with dots")
 
   
   //todo: supplement elements
