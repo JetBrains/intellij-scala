@@ -14,14 +14,15 @@ import com.intellij.lang.PsiBuilder
 
 class Top extends ScalaTokenTypes {
   def parse(builder: PsiBuilder): Unit = {
-    var marker = builder.mark()
+    //var marker = builder.mark()
 
 //sTUB have to be changed to LineTerminator+Line_IN_term
+    /*
     while ( !builder.eof() && builder.getTokenType().equals( new ScalaTokenTypes().sTUB ) ) {
         builder.advanceLexer()
     }
     new Package().parse(builder)
-
+    */
     //marker.done(ScalaElementTypes.PACKAGE)
   }
 }
