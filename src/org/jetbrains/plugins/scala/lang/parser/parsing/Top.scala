@@ -8,25 +8,20 @@ import com.intellij.lang.PsiBuilder
 
 /**
  * User: Dmitry.Krasilschikov
- * Date: 02.10.2006
- * Time: 12:53:26
+ * Date: 04.10.2006
+ * Time: 18:08:23
  */
 
-class Program extends ScalaTokenTypes {
+class Top extends ScalaTokenTypes {
   def parse(builder: PsiBuilder): Unit = {
     var marker = builder.mark()
-    marker.drop()
 
-//handle top level - package, import
-    if ( !builder.eof() ){
-      new Top().parse(builder);
+//sTUB have to be changed to LineTerminator+Line_IN_term
+    while ( !builder.eof() && builder.getTokenType().equals( new ScalaTokenTypes().sTUB ) ) {
+        builder.advanceLexer()
     }
+    new Package().parse(builder)
 
-//skip other content in source file
-    while ( !builder.eof() ){
-      builder.advanceLexer()
-    }
-
-    marker.done(ScalaElementTypes.FILE)
+    //marker.done(ScalaElementTypes.PACKAGE)
   }
 }

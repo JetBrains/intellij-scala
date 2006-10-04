@@ -1,16 +1,18 @@
-package org.jetbrains.plugins.scala.lang.parser;
+package org.jetbrains.plugins.scala.lang.parser
 
-import com.intellij.lang.ParserDefinition;
-import com.intellij.lang.PsiParser;
-import com.intellij.lang.ASTNode;
-import com.intellij.lexer.Lexer;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.tree.IFileElementType;
-import com.intellij.psi.tree.TokenSet;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.FileViewProvider;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
+import com.intellij.lang.ParserDefinition
+import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator
+import com.intellij.lang.PsiParser
+import com.intellij.lang.ASTNode
+import com.intellij.lexer.Lexer
+import com.intellij.openapi.project.Project
+import com.intellij.psi.tree.IFileElementType
+import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
+import com.intellij.psi.FileViewProvider
+import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
+
 
 /**
  * Author: Ilya Sergey
@@ -40,8 +42,7 @@ class ScalaParserDefinition extends ParserDefinition {
     }
 
     def createElement( astNode : ASTNode ) : PsiElement = {
-       //ScalPsiCreator.createElement(astNode)
-        throw new UnsupportedOperationException("createFile not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
+       new ScalaPsiCreator().createElement( astNode )
     }
 
     def createFile(fileViewProvider : FileViewProvider) : PsiFile = {

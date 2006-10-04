@@ -7,6 +7,6 @@ import com.intellij.lang.ASTNode
  * Date: 03.10.2006
  * Time: 20:11:49
  */
-abstract class ScClass( node : ASTNode ) extends ScalaPsiElement ( node ){
+class ScClass( node : ASTNode ) extends ScalaPsiElement ( node ){
 
 }
