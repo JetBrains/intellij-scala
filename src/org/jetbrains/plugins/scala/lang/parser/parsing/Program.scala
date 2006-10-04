@@ -18,28 +18,19 @@ class Program extends ScalaTokenTypes {
 
     var marker = builder.mark()
 
-//handle top level - package, import
-
     if ( !builder.eof() ){
 
-      builder getTokenType match {
-        case kPACKAGE => new Package parse(builder)
-      }
+//handle top level - package, import
+      new Top parse(builder)
+
 
     }
 
-//other content in source file
-/*
     while ( !builder.eof() ){
-
-      builder getTokenType match {
-        case kCLASS => Console.println("Class, odnako...")
-      }
-
-
-      builder.advanceLexer()
+       builder.advanceLexer()
     }
-*/
+
+    
     marker.done(ScalaElementTypes.FILE)
   }
 }
