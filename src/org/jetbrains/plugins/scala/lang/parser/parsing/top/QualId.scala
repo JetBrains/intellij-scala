@@ -13,6 +13,7 @@ class QualId {
   def parse(builder : PsiBuilder) : Unit = {
 
     val marker = builder.mark()   // new marker for qualifier id
+    Console.println("qualid!")
     builder.advanceLexer
 
     builder.getTokenType match {

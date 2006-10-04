@@ -55,7 +55,7 @@ class ScalaParserDefinition extends ParserDefinition {
     }
 
     def createFile(fileViewProvider : FileViewProvider) : PsiFile = {
-        throw new UnsupportedOperationException("createFile not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
+        return null;
     }
 
     def spaceExistanceTypeBetweenTokens(astNode : ASTNode, astNode1 : ASTNode)  : ParserDefinition.SpaceRequirements = {
