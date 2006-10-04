@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser
 
 import com.intellij.lang.ParserDefinition
-import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator
 import com.intellij.lang.PsiParser
 import com.intellij.lang.ASTNode
 import com.intellij.lexer.Lexer
@@ -11,7 +10,12 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.FileViewProvider
+import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.tree.IElementType
+
+import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 
 /**
@@ -34,7 +38,11 @@ class ScalaParserDefinition extends ParserDefinition {
     }
 
     def getWhitespaceTokens() : TokenSet = {
-        throw new UnsupportedOperationException("getWhitespaceTokens not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
+        var tokens = new Array[IElementType](2)
+        tokens.update(0, ScalaTokenTypes.tWHITE_SPACE)
+        tokens.update(1, ScalaTokenTypes.tCOMMENT)
+        val tBARAHLO = TokenSet create( new Array[IElementType](2) )
+        tBARAHLO
     }
 
     def getCommentTokens() : TokenSet = {
