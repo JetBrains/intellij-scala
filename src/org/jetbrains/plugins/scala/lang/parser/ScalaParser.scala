@@ -12,7 +12,7 @@ class ScalaParser extends PsiParser {
 
         var rootMarker = builder.mark()
 
-        System.println("It Works!!!");
+        Console.println("It works!")
 
 
         new Program parse(builder)
