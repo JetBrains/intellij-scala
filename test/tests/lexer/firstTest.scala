@@ -1,2 +1,2 @@
-object MatchTest2 extends java.lang.Object{ /*abc*/
+object firstTest extends java.lang.Object{ /*abc*/
 }
