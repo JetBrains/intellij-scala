@@ -17,7 +17,7 @@ public class SimpleLexerTest extends TestCase {
 
     protected FileReader inputFile;
     @NonNls
-    private static final String PATH = "test/org/jetbrains/plugins/scala/lang/lexer/";
+    private static final String PATH = "test/tests/lexer/";
     protected ScalaLexer scalaLexer;
     protected String file = "";
 
@@ -47,8 +47,9 @@ public class SimpleLexerTest extends TestCase {
 
         IElementType elem;
         while ( (elem = scalaLexer.getTokenType()) != null){
-            if ( !"stub".equals(elem.toString()) &&
-                    !"white space in line".equals(elem.toString())) {
+            if ( /*!"stub".equals(elem.toString()) &&
+                    !"white space in line".equals(elem.toString())*/
+                true) {
                 System.out.println(elem);
             }
             scalaLexer.advance();
