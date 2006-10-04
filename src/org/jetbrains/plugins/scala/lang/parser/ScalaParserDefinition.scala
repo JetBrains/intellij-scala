@@ -30,7 +30,7 @@ class ScalaParserDefinition extends ParserDefinition {
     }
 
     def createParser(project: Project ) : PsiParser = {
-        return new ScalaParser();
+        new ScalaParser()
     }
      
     def getFileNodeType() : IFileElementType  = {

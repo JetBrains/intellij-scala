@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala;
 import com.intellij.lang.Language;
 import com.intellij.lang.PairedBraceMatcher;
 import com.intellij.lang.Commenter;
+import com.intellij.lang.ParserDefinition;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter;
 import org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher;
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter;
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition;
 
 /**
  * Author: Ilya Sergey
@@ -29,11 +31,11 @@ public class ScalaLanguage extends Language {
     public ScalaLanguage() {
         super("Scala");
     }
-/*
+
     public ParserDefinition getParserDefinition(){
         return new ScalaParserDefinition();
     }
-*/
+
 
     @NotNull
     public SyntaxHighlighter getSyntaxHighlighter(Project project, final VirtualFile virtualFile) {
