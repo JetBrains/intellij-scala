@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 class QualId {
   def parse(builder : PsiBuilder) : Unit = {
-
+    /*
     val marker = builder.mark();
     marker.drop();
 
@@ -21,5 +21,6 @@ class QualId {
     }
 
     marker.done(new ScalaElementTypes().QUALID);
+    */
   }
 }
