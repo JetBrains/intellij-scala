@@ -14,11 +14,12 @@ import com.intellij.psi.PsiElement
  */
 object ScalaPsiCreator {
   def create (node : ASTNode) : PsiElement = {
+
     val elType = node.getElementType()
     /*
     if (elType.equals(ScalaElementTypes.TYPE))
       new ScClass(node)
     */
-    return null  
+    return null
   }
 }

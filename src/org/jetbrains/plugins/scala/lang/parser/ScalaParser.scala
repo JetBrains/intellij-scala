@@ -9,7 +9,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.Program;
 class ScalaParser extends PsiParser {
 
     def parse(root : IElementType, builder : PsiBuilder ) : ASTNode = {
-        (new Program()).parse(builder);
-        return builder.getTreeBuilt();
+
+        var rootMarker = builder.mark()
+
+        new Program parse(builder)
+
+        rootMarker.done(root)
+
+        builder.getTreeBuilt()
     }
 }
