@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang.psi.impl
+package org.jetbrains.plugins.scala.lang.psi
+.impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.lang.ASTNode
@@ -13,8 +14,11 @@ import javax.swing.Icon
  * Time: 21:33:21
  */
 
-class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement(node) {
-  def getASTNode() : ASTNode = { node }
+class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement( node ) {
+  def getASTNode() : ASTNode = {
+    //val key : Key[Int] = new Key("foo")
+    node
+  }
 
   override def getUserData[T]( key : Key[T] ) : T = {
     return null;
