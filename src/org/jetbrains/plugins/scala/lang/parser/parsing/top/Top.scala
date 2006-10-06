@@ -15,10 +15,16 @@ import com.intellij.lang.PsiBuilder
 class Top {
   def parse(builder: PsiBuilder): Unit = {
 
-    if ( builder.getTokenType == ScalaTokenTypes.kPACKAGE)
-    {
-        new Package().parse(builder)
-        builder.advanceLexer()
+//handle PACKAGE
+    if ( builder.getTokenType == ScalaTokenTypes.kPACKAGE) {
+      new Package().parse(builder)
+      builder.advanceLexer()
+    }
+
+//handle IMPORT
+    while ( builder.getTokenType == ScalaTokenTypes.kIMPORT) {
+      new Import().parse(builder)
+      builder.advanceLexer()
     }
     
   }

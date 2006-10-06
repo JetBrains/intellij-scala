@@ -128,6 +128,7 @@ public interface ScalaTokenTypes {
 
 
     IElementType tDOT = new ScalaElementType(".");
+    IElementType tCOMMA = new ScalaElementType(",");
     IElementType tENDCOMMAND = new ScalaElementType(";");
 
 

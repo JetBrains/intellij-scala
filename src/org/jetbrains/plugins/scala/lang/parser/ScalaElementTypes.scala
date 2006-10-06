@@ -13,7 +13,10 @@ import org.jetbrains.plugins.scala.ScalaLanguage
  */
 object ScalaElementTypes {
 
-  val FILE = new IFileElementType(Language.findInstance(new Class[ScalaLanguage]))
+  //val FILE = new IFileElementType(Language.findInstance(classOf[ScalaLanguage]))
+  
+  val FILE = new IFileElementType(Language.findInstance(new Class[ScalaLanguage] ))
+
 
 //integer, floating, boolean, character, string, symbol
   val LITERAL = new ScalaElementType("literal")
@@ -73,7 +76,7 @@ object ScalaElementTypes {
   val IMPORT = new ScalaElementType("import")
 
   val QUALID = new ScalaElementType("identifiers with dots")
-
-  
+     
+    
   //todo: supplement elements
 }

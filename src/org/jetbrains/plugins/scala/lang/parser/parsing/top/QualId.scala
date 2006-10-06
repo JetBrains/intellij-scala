@@ -20,6 +20,7 @@ class QualId {
         builder.advanceLexer
         new QualId parse(builder)        
       }
+
       case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => builder.advanceLexer
       case ScalaTokenTypes.tENDCOMMAND => builder.advanceLexer
       case _ => builder.error("Wrong package name declaration!");
