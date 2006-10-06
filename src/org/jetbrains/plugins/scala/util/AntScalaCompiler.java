@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.util;
 
-import scala.tools.ant.*;
+import scala.tools.ant.Scalac;
 
 /**
  * Author: Ilya Sergey

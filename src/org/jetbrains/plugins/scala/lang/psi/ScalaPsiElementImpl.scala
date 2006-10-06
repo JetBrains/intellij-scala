@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi
-.impl
+package org.jetbrains.plugins.scala.lang.psi.impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.lang.ASTNode

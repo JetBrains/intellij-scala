@@ -4,6 +4,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.Top
 
 import com.intellij.lang.PsiBuilder
 
@@ -22,14 +23,11 @@ class Program extends ScalaTokenTypes {
 
 //handle top level - package, import
       new Top parse(builder)
-
-
     }
 
     while ( !builder.eof() ){
        builder.advanceLexer()
     }
-
     
     marker.done(ScalaElementTypes.FILE)
   }

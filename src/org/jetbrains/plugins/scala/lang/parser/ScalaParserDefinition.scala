@@ -16,7 +16,8 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-
+import org.jetbrains.plugins.scala.lang.psi.ScalaFile
+import org.jetbrains.plugins.scala.ScalaFileType
 
 /**
  * Author: Ilya Sergey
@@ -50,12 +51,12 @@ class ScalaParserDefinition extends ParserDefinition {
     }
 
     def createElement( astNode : ASTNode ) : PsiElement = {
-       //new ScalaPsiCreator().createElement( astNode )
-       throw new UnsupportedOperationException("createFile not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
+       ScalaPsiCreator.createElement( astNode )
+       //throw new UnsupportedOperationException("createFile not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
 
     def createFile(fileViewProvider : FileViewProvider) : PsiFile = {
-        return null;
+        return new ScalaFile(fileViewProvider);
     }
 
     def spaceExistanceTypeBetweenTokens(astNode : ASTNode, astNode1 : ASTNode)  : ParserDefinition.SpaceRequirements = {
