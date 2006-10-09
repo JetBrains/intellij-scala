@@ -11,9 +11,11 @@ class Package {
 
   def parse(builder: PsiBuilder): Unit = {
 
-    var marker = builder.mark() //Open marker for package
+    var marker = builder.mark() //Open marker for package group
 
+    val packMarker = builder.mark()
     builder.advanceLexer //New node: "package"
+    packMarker.done(ScalaElementTypes.PACKAGE_GROUP)
 
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
