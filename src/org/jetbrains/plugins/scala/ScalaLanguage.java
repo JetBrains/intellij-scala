@@ -38,7 +38,6 @@ public class ScalaLanguage extends Language {
 
     }
 
-
     @NotNull
     public SyntaxHighlighter getSyntaxHighlighter(Project project, final VirtualFile virtualFile) {
         return new ScalaSyntaxHighlighter();
