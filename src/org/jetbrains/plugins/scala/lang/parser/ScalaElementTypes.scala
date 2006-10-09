@@ -16,8 +16,7 @@ object ScalaElementTypes {
 
 
   val FILE = new IFileElementType(Language.findInstance(new ClassOf().cast[Class[ScalaLanguage]]( classOf[ScalaLanguage] )))
-  //val FILE = new IFileElementType(Language.findInstance[ScalaLanguage](Class.forName("org.jetbrains.plugins.scala.ScalaLanguage")))
-
+  
   /*************************************************************************************/
   /*********************************** IDENTIFIER **************************************/
   /*************************************************************************************/
@@ -32,6 +31,7 @@ object ScalaElementTypes {
   //Package
   val PACKAGE_GROUP = new ScalaElementType("package group")
   val PACKAGE = new ScalaElementType("package token")
+  val QUALID = new ScalaElementType("Qualification identifier")
   
 
 
@@ -91,11 +91,6 @@ object ScalaElementTypes {
 
   val IMPORT = new ScalaElementType("import")
 
-  val QUALID = new ScalaElementType("identifiers with dots")
 
-
-
-
-    
   //todo: supplement elements
 }
