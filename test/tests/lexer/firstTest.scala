@@ -1,2 +1,2 @@
-object firstTest extends java.lang.Object{ /*abc*/
+object firstTest extends Application {
 }

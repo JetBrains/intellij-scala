@@ -61,7 +61,6 @@ public interface ScalaTokenTypes {
     IElementType tMINUS = new ScalaElementType("-");
     IElementType tSTAR = new ScalaElementType("*");
     IElementType tDIV = new ScalaElementType("/");
-    IElementType tWHITE_SPACE = new ScalaElementType(" ");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// Braces ///////////////////////////////////////////////////////////////////////////////////////
@@ -129,7 +128,7 @@ public interface ScalaTokenTypes {
 
     IElementType tDOT = new ScalaElementType(".");
     IElementType tCOMMA = new ScalaElementType(",");
-    IElementType tENDCOMMAND = new ScalaElementType(";");
+    IElementType tSEMICOLON = new ScalaElementType(";");
 
 
     IElementType kUNDER = new ScalaElementType("_");
