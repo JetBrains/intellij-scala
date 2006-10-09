@@ -34,6 +34,7 @@ public class ScalaLanguage extends Language {
 
     public ParserDefinition getParserDefinition(){
         return new ScalaParserDefinition();
+//        return null;
 
     }
 
