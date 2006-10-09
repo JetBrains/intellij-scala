@@ -78,7 +78,11 @@ object ScalaElementTypes {
   val IMPORT = new ScalaElementType("import")
 
   val QUALID = new ScalaElementType("identifiers with dots")
-     
+
+  val IDENTIFIER = new ScalaElementType("identifier")
+
+  /** Primitives **/
+  val DOT = new ScalaElementType("DOT")
     
   //todo: supplement elements
 }
