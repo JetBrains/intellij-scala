@@ -5,6 +5,7 @@ import com.intellij.psi.tree.IFileElementType
 import com.intellij.lang.Language
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.util.ClassOf
 
 /**
  * User: Dmitry.Krasilschikov
@@ -13,9 +14,10 @@ import org.jetbrains.plugins.scala.ScalaLanguage
  */
 object ScalaElementTypes {
 
-  //val FILE = new IFileElementType(Language.findInstance(classOf[ScalaLanguage]))
-  
-  val FILE = new IFileElementType(Language.findInstance(new Class[ScalaLanguage] ))
+
+  val FILE = new IFileElementType(Language.findInstance(new ClassOf().cast[Class[ScalaLanguage]]( classOf[ScalaLanguage] )))
+  //val FILE = new IFileElementType(Language.findInstance[ScalaLanguage](Class.forName("org.jetbrains.plugins.scala.ScalaLanguage")))
+
 
 
 //integer, floating, boolean, character, string, symbol

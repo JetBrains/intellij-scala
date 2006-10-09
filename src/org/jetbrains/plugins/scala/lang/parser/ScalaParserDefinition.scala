@@ -39,15 +39,18 @@ class ScalaParserDefinition extends ParserDefinition {
     }
 
     def getWhitespaceTokens() : TokenSet = {
-        var tokens = new Array[IElementType](2)
-        tokens.update(0, ScalaTokenTypes.tWHITE_SPACE)
-        tokens.update(1, ScalaTokenTypes.tCOMMENT)
-        val tBARAHLO = TokenSet create( new Array[IElementType](2) )
-        tBARAHLO
+        var whiteSpaces = new Array[IElementType](1)
+        whiteSpaces.update(0, ScalaTokenTypes.tWHITE_SPACE)
+        val whiteSpaceTokens = TokenSet create( whiteSpaces )
+        whiteSpaceTokens
     }
 
     def getCommentTokens() : TokenSet = {
-        throw new UnsupportedOperationException("getCommentTokens not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
+        var comments = new Array[IElementType](1)
+        comments.update(0, ScalaTokenTypes.tCOMMENT)
+        val commentTokens = TokenSet create( comments )
+        commentTokens
+        //throw new UnsupportedOperationException("getCommentTokens not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
 
     def createElement( astNode : ASTNode ) : PsiElement = {
