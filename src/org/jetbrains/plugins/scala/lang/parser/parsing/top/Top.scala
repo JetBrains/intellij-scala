@@ -17,7 +17,7 @@ class Top {
 //handle PACKAGE
     if ( builder.getTokenType == ScalaTokenTypes.kPACKAGE) {
       new Package().parse(builder)
-      //builder.advanceLexer()
+      builder.advanceLexer()
     }
 
 //handle IMPORT
