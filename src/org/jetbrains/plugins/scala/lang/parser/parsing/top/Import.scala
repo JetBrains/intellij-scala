@@ -17,17 +17,22 @@ class Import {
 
 //Open marker for handle import
     var marker = builder.mark()
+    
 
 //node - IMPORT
     builder.advanceLexer
 
     Console.println("token in import : " + builder.getTokenType)
     builder.getTokenType match {
+
       case ScalaTokenTypes.tCOMMA => {
         builder.advanceLexer
         new Import parse(builder)
       }
+    }
 
+    builder.getTokenType match {
+      
       //handle full class name
       case ScalaTokenTypes.tIDENTIFIER => new StableId parse(builder)
 
