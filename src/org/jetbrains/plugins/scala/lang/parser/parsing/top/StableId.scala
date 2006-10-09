@@ -22,6 +22,10 @@ class StableId {
         new StableId parse(builder)
       }
 
+     /* case ScalaTokenTypes.tCOMMA => {
+        new Import parse(builder)
+      }*/
+
       case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => builder.advanceLexer
       case ScalaTokenTypes.tSEMICOLON => builder.advanceLexer
       case _ => builder.error("error in stableID");

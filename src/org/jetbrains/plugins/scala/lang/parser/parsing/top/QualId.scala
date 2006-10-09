@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
-import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 /**
  * User: Dmitry.Krasilschikov
@@ -23,7 +22,7 @@ class QualId {
 
       case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => builder.advanceLexer
       case ScalaTokenTypes.tSEMICOLON => builder.advanceLexer
-      case _ => builder.error("Wrong import name declaration");
+      case _ => builder.error("Wrong package name declaration");
     }
 
     marker.done(ScalaElementTypes.QUALID); // Close marker for qualID

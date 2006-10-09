@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
-
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -24,7 +23,7 @@ class Top {
 //handle IMPORT
     while ( builder.getTokenType == ScalaTokenTypes.kIMPORT) {
       new Import().parse(builder)
-      //builder.advanceLexer()
+      builder.advanceLexer()
     }
     
   }
