@@ -69,12 +69,6 @@
       <include name="**/*.scala"/>
     </scalac>
 
-    <javac srcdir="."
-           destdir="../classes/production/Scala">
-      <classpath refid="base.path"/>
-    </javac>
-
-
   </target>
 
   
