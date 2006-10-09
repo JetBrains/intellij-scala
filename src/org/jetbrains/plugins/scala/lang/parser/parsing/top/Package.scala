@@ -15,10 +15,10 @@ class Package {
 
     builder.advanceLexer //New node: "package"
 
-  Console.println("token : " + builder.getTokenType)
+    Console.println("token in package : " + builder.getTokenType)
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => new QualId parse(builder) //QualID found
-      case _ => builder.error("Wrong package name!")
+      case _ => builder.error("Wrong package name")
     }
 
     marker.done(ScalaElementTypes.PACKAGE) //Close marker for package

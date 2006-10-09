@@ -15,13 +15,14 @@ class QualId {
     val marker = builder.mark()   // new marker for qualifier id
     builder.advanceLexer   // read QualID identifier
 
+
     builder.getTokenType match {
       case ScalaTokenTypes.tDOT => {
         builder.advanceLexer
         new QualId parse(builder)        
       }
+
       case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => builder.advanceLexer
-      case ScalaTokenTypes.tSEMICOLON => builder.advanceLexer
       case _ => builder.error("Wrong import name declaration");
     }
 
