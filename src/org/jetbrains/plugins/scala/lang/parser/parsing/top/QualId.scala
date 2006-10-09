@@ -8,24 +8,31 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
  */
 
 class QualId {
-  def parse(builder : PsiBuilder) : Unit = {
+  def parse(builder : PsiBuilder, marker : PsiBuilder.Marker ) : Unit = {
 
-    val marker = builder.mark()   // new marker for qualifier id
-    builder.advanceLexer   // read QualID identifier
-
+    builder.advanceLexer   // Ate QualID identifier
 
     builder.getTokenType match {
       case ScalaTokenTypes.tDOT => {
-        builder.advanceLexer
-        new QualId parse(builder)        
+        val preMarker = marker.precede()
+        builder.advanceLexer // Ate dot
+        builder.getTokenType match {
+          case ScalaTokenTypes.tIDENTIFIER => (new QualId).parse(builder,preMarker)
+          case _ => builder.error("Wrong package name declaration")
+        }
+        preMarker.done(ScalaElementTypes.QUALID)
       }
 
-      case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => builder.advanceLexer
-      case ScalaTokenTypes.tSEMICOLON => builder.advanceLexer
-      case _ => builder.error("Wrong package name declaration");
+      case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => { //End of package
+        builder.advanceLexer
+      }
+      case ScalaTokenTypes.tSEMICOLON => { //End of package
+        builder.advanceLexer
+      }
+      case _ => builder.error("Wrong package name declaration")
     }
 
-    marker.done(ScalaElementTypes.QUALID); // Close marker for qualID
 
   }
+
 }
