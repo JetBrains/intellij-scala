@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 class QualId {
   def parse(builder : PsiBuilder, marker : PsiBuilder.Marker ) : Unit = {
 
-    //builder.advanceLexer   // Ate QualID identifier
-
     builder.getTokenType match {
       case ScalaTokenTypes.tDOT => {
 
