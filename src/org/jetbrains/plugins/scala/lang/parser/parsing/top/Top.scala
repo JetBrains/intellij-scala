@@ -18,13 +18,13 @@ class Top {
 //handle PACKAGE
     if ( builder.getTokenType == ScalaTokenTypes.kPACKAGE) {
       new Package().parse(builder)
-      builder.advanceLexer()
+      //builder.advanceLexer()
     }
 
 //handle IMPORT
     while ( builder.getTokenType == ScalaTokenTypes.kIMPORT) {
       new Import().parse(builder)
-      builder.advanceLexer()
+      //builder.advanceLexer()
     }
     
   }

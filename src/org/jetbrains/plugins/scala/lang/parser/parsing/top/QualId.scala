@@ -1,5 +1,4 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
-
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
