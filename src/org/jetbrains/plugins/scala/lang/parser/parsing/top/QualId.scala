@@ -23,6 +23,7 @@ class QualId {
       }
 
       case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => builder.advanceLexer
+      case ScalaTokenTypes.tSEMICOLON => builder.advanceLexer
       case _ => builder.error("Wrong import name declaration");
     }
 

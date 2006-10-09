@@ -18,6 +18,7 @@ class Package {
     Console.println("token in package : " + builder.getTokenType)
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => new QualId parse(builder) //QualID found
+      
       case _ => builder.error("Wrong package name")
     }
 
