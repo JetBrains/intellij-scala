@@ -1,23 +1,18 @@
-<project name="Generate various scala packages for parser needs" default="build.parser">
+<project name="Generate various scala packages for parser needs" default="rebuild.all">
   <property name="scala.home" value="C:\Program Files\Scala"/>
   <property name="idea.lib" value="C:\Program Files\JetBrains\IntelliJ IDEA 6.0\lib"/>
-    <property name="project.lib" value="C:\work\Scala\Scala\classes\production\Scala"/>
+  <property name="ant.lib" value="C:\Program Files\JetBrains\IntelliJ IDEA 6.0\lib\ant\lib"/>
+  <property name="project.lib" value="C:\work\Scala\classes\production\Scala"/>
 
-  <!--taskdef resource="scala/tools/ant/antlib.xml"-->
-   
-
-  <taskdef name="scalac"
-           classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
-           classpath="${project.lib}">
-    <classpath>
-      <pathelement location="${scala.home}\lib\scala-compiler.jar"/>
-      <pathelement location="${scala.home}\lib\scala-library.jar"/>
-    </classpath>
-  </taskdef>
 
   <path id="base.path">
-    <pathelement location="${scala.home}\lib\scala-library.jar"/>
+    <fileset dir="${scala.home}\lib">
+      <include name="**/*.jar"/>
+    </fileset>
     <fileset dir="${idea.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${ant.lib}">
       <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${project.lib}">
@@ -25,13 +20,14 @@
     </fileset>
   </path>
 
+
   <path id="test.path">
     <pathelement location="${scala.home}\lib\scala-library.jar"/>
     <pathelement location="${idea.lib}\junit-4.0.jar"/>
   </path>
 
 
-  <target name="clear" description="clears old scala results">
+  <target name="clear.parser" description="clears old scala results">
     <delete>
       <fileset dir="${project.lib}/org/jetbrains/plugins/scala/lang/parser"
                includes="**/*.class"/>
@@ -40,23 +36,83 @@
     </delete>
   </target>
 
-  <target name="build.parser" description="Builds parser">
+
+  <target name="clear.all" description="Clears results">
+    <delete>
+      <fileset dir="${project.lib}"
+               includes="**/*.class"/>
+    </delete>
+  </target>
+
+  <target name="rebuild.all" depends="clear.all" description="Builds all classes">
+
+    <!-- Compiling lexer...-->
+    <javac srcdir="."
+           destdir="../classes/production/Scala">
+      <classpath refid="base.path"/>
+    </javac>
+
+    <!--Scala taskdef-->
+    <taskdef name="scalac"
+             classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
+             classpath="${project.lib}">
+      <classpath>
+        <pathelement location="${scala.home}\lib\scala-compiler.jar"/>
+        <pathelement location="${scala.home}\lib\scala-library.jar"/>
+      </classpath>
+    </taskdef>
+
     <scalac srcdir="."
             destdir="../classes/production/Scala"
             force="changed">
-
       <classpath refid="base.path"/>
       <include name="**/*.scala"/>
+    </scalac>
 
-      <!--exclude name="**/*ition.scala"/-->
+    <javac srcdir="."
+           destdir="../classes/production/Scala">
+      <classpath refid="base.path"/>
+    </javac>
+
+
+  </target>
+
+  
+  <target name="build.parser" description="Builds parser">
+
+    <taskdef name="scalac"
+             classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
+             classpath="${project.lib}">
+      <classpath>
+        <pathelement location="${scala.home}\lib\scala-compiler.jar"/>
+        <pathelement location="${scala.home}\lib\scala-library.jar"/>
+      </classpath>
+    </taskdef>
+
+    <scalac srcdir="."
+            destdir="../classes/production/Scala"
+            force="changed">
+      <classpath refid="base.path"/>
+      <include name="**/*.scala"/>
     </scalac>
   </target>
+
 
   <target name="build.tests" description="builds teset">
     <delete>
       <fileset dir="${project.lib}/tests"
                includes="*"/>
     </delete>
+
+    <taskdef name="scalac"
+             classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
+             classpath="${project.lib}">
+      <classpath>
+        <pathelement location="${scala.home}\lib\scala-compiler.jar"/>
+        <pathelement location="${scala.home}\lib\scala-library.jar"/>
+      </classpath>
+    </taskdef>
+
     <scalac srcdir="../test"
             destdir="../classes/production/Scala"
             force="changed">
