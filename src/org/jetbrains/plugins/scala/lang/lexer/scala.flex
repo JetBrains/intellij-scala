@@ -69,8 +69,8 @@ floatType = F | f | D | d
 /////////////////////      identifiers      ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-identifier = [a-zA-Z_]+[a-zA-Z0-9]*
-//identifier = {plainid} | "'" {stringLiteral} "'"
+//identifier = [a-zA-Z_]+[a-zA-Z0-9]*
+identifier = {plainid} | "'" {stringLiteral} "'"
 
 charEscapeSeq = "\\" "u" {hexDigit} {hexDigit} {hexDigit} {hexDigit}
 
@@ -104,7 +104,7 @@ stringLiteral = {stringElement}*
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 LineTerminator = \r | \n | \r\n | "\\u0085"|  "\\u2028" | "\\\u2029"
-InLineTerminator = " " | "\t" | "\f" | "\r" | "\13"
+InLineTerminator = " " | "\t" | "\f" 
 InputCharacter = [^\r\n\f]
 
 WhiteSpaceInLine = {InLineTerminator}
@@ -244,6 +244,11 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "@"                                     {   return process(kAT);}
 
 
+"."                                     {   return process(tDOT);}
+";"                                     {   return process(tSEMICOLON);}
+
+
+
 ////////////////////// Identifier /////////////////////////////////////////
 
 {identifier}                            {   return process(tIDENTIFIER); }
@@ -259,10 +264,13 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 //                                            return process(tOPENXMLTAG); }
 
 ////////////////////// white spaces in line ///////////////////////////////////////////////
-{WhiteSpaceInLine}                      {   return tWHITE_SPACE_IN_LINE;  }
+{WhiteSpaceInLine}                            {   return tWHITE_SPACE_IN_LINE;  }
+
+////////////////////// white spaces line terminator ///////////////////////////////////////////////
+{LineTerminator}                              {   return tWHITE_SPACE_LINE_TERMINATE; }
 
 ////////////////////// STUB ///////////////////////////////////////////////
-.|{LineTerminator}                      {   return tSTUB; }
+.                                             {   return tSTUB; }
 
 }
 
