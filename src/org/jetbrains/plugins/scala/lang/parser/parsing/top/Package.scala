@@ -19,7 +19,6 @@ class Package {
       case ScalaTokenTypes.tIDENTIFIER => {
         val marker = builder.mark()
         (new QualId).parse( builder , marker )  //QualID found
-        //marker.done(ScalaElementTypes.QUALID)
       }
       case _ => builder.error("Wrong package name")
     }

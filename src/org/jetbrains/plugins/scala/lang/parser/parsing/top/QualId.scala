@@ -22,7 +22,6 @@ class QualId {
           case ScalaTokenTypes.tIDENTIFIER => (new QualId).parse(builder,preMarker)
           case _ => builder.error("Wrong package name declaration")
         }
-        //preMarker.done(ScalaElementTypes.QUALID)
       }
 
       case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => { //End of package
