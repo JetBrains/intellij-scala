@@ -15,7 +15,7 @@ class Package {
 
     val packMarker = builder.mark()
     builder.advanceLexer //New node: "package"
-    packMarker.done(ScalaElementTypes.PACKAGE_GROUP)
+    packMarker.done(ScalaElementTypes.PACKAGE)
 
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
