@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile
-import org.jetbrains.plugins.scala.ScalaFileType
+//import org.jetbrains.plugins.scala.ScalaFileType
 
 /**
  * Author: Ilya Sergey
