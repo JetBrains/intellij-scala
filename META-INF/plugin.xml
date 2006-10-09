@@ -6,6 +6,10 @@
   <vendor>YourCompany</vendor>
   <idea-version since-build="3000"/>
     <application-components>
+      <component>
+        <interface-class>org.jetbrains.plugins.scala.util.ScalaParserDefinitionFactory</interface-class>
+        <implementation-class>org.jetbrains.plugins.scala.util.ScalaParserDefinitionFactoryImpl</implementation-class>
+      </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.ScalaLoader</implementation-class>
         </component>
