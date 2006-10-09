@@ -41,7 +41,6 @@ class ScalaParserDefinition extends ParserDefinition {
         var whiteSpaces = new Array[IElementType](1)
         whiteSpaces.update(0, ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
         val whiteSpaceTokens = TokenSet create( whiteSpaces )
-        Console.print("getWhiteSpace done")
         whiteSpaceTokens
     }
 
