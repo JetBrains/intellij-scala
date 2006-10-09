@@ -11,7 +11,7 @@ class Package {
 
   def parse(builder: PsiBuilder): Unit = {
 
-    var marker = builder.mark() //Open marker for package group
+    var pgMarker = builder.mark() //Open marker for package group
 
     val packMarker = builder.mark()
     builder.advanceLexer //New node: "package"
@@ -25,6 +25,6 @@ class Package {
       }
       case _ => builder.error("Wrong package name")
     }
-    marker.done(ScalaElementTypes.PACKAGE_GROUP) //Close marker for package
+    pgMarker.done(ScalaElementTypes.PACKAGE_GROUP) //Close marker for package
   }
 }
