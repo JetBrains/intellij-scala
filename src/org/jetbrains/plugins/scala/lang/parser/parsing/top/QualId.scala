@@ -14,19 +14,23 @@ class QualId {
 
     builder.getTokenType match {
       case ScalaTokenTypes.tDOT => {
+
         val preMarker = marker.precede()
+        marker.done(ScalaElementTypes.QUALID)
         builder.advanceLexer // Ate dot
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER => (new QualId).parse(builder,preMarker)
           case _ => builder.error("Wrong package name declaration")
         }
-        preMarker.done(ScalaElementTypes.QUALID)
+        //preMarker.done(ScalaElementTypes.QUALID)
       }
 
       case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => { //End of package
+        marker.done(ScalaElementTypes.QUALID)
         builder.advanceLexer
       }
       case ScalaTokenTypes.tSEMICOLON => { //End of package
+        marker.done(ScalaElementTypes.QUALID)
         builder.advanceLexer
       }
       case _ => builder.error("Wrong package name declaration")
