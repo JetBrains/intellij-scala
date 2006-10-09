@@ -19,9 +19,9 @@ class Package {
 
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
-        val marker = builder.mark()
+        val qualIDmarker = builder.mark()
         builder.advanceLexer   // Ate QualID identifier
-        (new QualId).parse( builder , marker )  //QualID found
+        (new QualId).parse( builder , qualIDmarker )  //QualID found
       }
       case _ => builder.error("Wrong package name")
     }
