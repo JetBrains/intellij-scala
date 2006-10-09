@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter;
 import org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher;
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter;
-import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition;
+import org.jetbrains.plugins.scala.util.ScalaParserDefinitionFactory;
 
 /**
  * Author: Ilya Sergey
@@ -33,7 +33,7 @@ public class ScalaLanguage extends Language {
     }
 
     public ParserDefinition getParserDefinition(){
-        return new ScalaParserDefinition();
+        return ScalaParserDefinitionFactory.getInstance().createScalaParserDefinition();
 //        return null;
 
     }
