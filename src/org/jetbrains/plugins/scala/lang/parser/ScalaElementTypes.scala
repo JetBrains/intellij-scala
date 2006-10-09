@@ -18,6 +18,22 @@ object ScalaElementTypes {
   val FILE = new IFileElementType(Language.findInstance(new ClassOf().cast[Class[ScalaLanguage]]( classOf[ScalaLanguage] )))
   //val FILE = new IFileElementType(Language.findInstance[ScalaLanguage](Class.forName("org.jetbrains.plugins.scala.ScalaLanguage")))
 
+  /*************************************************************************************/
+  /*********************************** IDENTIFIER **************************************/
+  /*************************************************************************************/
+  val IDENTIFIER = new ScalaElementType("identifier")
+
+  /*************************************************************************************/
+  /********************************* PACKAGE GROUP *************************************/
+  /*************************************************************************************/
+  // Primitives
+  val DOT = new ScalaElementType("DOT")
+  val SEMICOLON = new ScalaElementType("SEMICOLON")
+  //Package
+  val PACKAGE_GROUP = new ScalaElementType("package group")
+  val PACKAGE = new ScalaElementType("package token")
+  
+
 
 
 //integer, floating, boolean, character, string, symbol
@@ -73,16 +89,13 @@ object ScalaElementTypes {
 
   val BLOCK = new ScalaElementType("block")
 
-  val PACKAGE = new ScalaElementType("package")
-
   val IMPORT = new ScalaElementType("import")
 
   val QUALID = new ScalaElementType("identifiers with dots")
 
-  val IDENTIFIER = new ScalaElementType("identifier")
 
-  /** Primitives **/
-  val DOT = new ScalaElementType("DOT")
+
+
     
   //todo: supplement elements
 }
