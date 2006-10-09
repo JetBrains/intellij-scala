@@ -18,10 +18,11 @@ class Package {
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
         val marker = builder.mark()
+        builder.advanceLexer   // Ate QualID identifier
         (new QualId).parse( builder , marker )  //QualID found
       }
       case _ => builder.error("Wrong package name")
     }
-    marker.done(ScalaElementTypes.PACKAGE) //Close marker for package
+    marker.done(ScalaElementTypes.PACKAGE_GROUP) //Close marker for package
   }
 }
