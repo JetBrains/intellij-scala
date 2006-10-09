@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser
 
-import com.intellij.lang.ParserDefinition
-import com.intellij.lang.PsiParser
+import com.intellij.lang.ParserDefinition, com.intellij.lang.PsiParser
 import com.intellij.lang.ASTNode
 import com.intellij.lexer.Lexer
 import com.intellij.openapi.project.Project
