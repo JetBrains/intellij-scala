@@ -1,0 +1,69 @@
+<project name="Generate various scala packages for parser needs" default="build.parser">
+  <property name="scala.home" value="C:\Program Files\Scala"/>
+  <property name="idea.lib" value="C:\Program Files\JetBrains\IntelliJ IDEA 6.0\lib"/>
+    <property name="project.lib" value="C:\work\Scala\Scala\classes\production\Scala"/>
+
+  <!--taskdef resource="scala/tools/ant/antlib.xml"-->
+   
+
+  <taskdef name="scalac"
+           classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
+           classpath="${project.lib}">
+    <classpath>
+      <pathelement location="${scala.home}\lib\scala-compiler.jar"/>
+      <pathelement location="${scala.home}\lib\scala-library.jar"/>
+    </classpath>
+  </taskdef>
+
+  <path id="base.path">
+    <pathelement location="${scala.home}\lib\scala-library.jar"/>
+    <fileset dir="${idea.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${project.lib}">
+      <include name="**/*.class"/>
+    </fileset>
+  </path>
+
+  <path id="test.path">
+    <pathelement location="${scala.home}\lib\scala-library.jar"/>
+    <pathelement location="${idea.lib}\junit-4.0.jar"/>
+  </path>
+
+
+  <target name="clear" description="clears old scala results">
+    <delete>
+      <fileset dir="${project.lib}/org/jetbrains/plugins/scala/lang/parser"
+               includes="**/*.class"/>
+      <fileset dir="${project.lib}/org/jetbrains/plugins/scala/lang/psi"
+               includes="**/*.class"/>
+    </delete>
+  </target>
+
+  <target name="build.parser" description="Builds parser">
+    <scalac srcdir="."
+            destdir="../classes/production/Scala"
+            force="changed">
+
+      <classpath refid="base.path"/>
+      <include name="**/*.scala"/>
+
+      <!--exclude name="**/*ition.scala"/-->
+    </scalac>
+  </target>
+
+  <target name="build.tests" description="builds teset">
+    <delete>
+      <fileset dir="${project.lib}/tests"
+               includes="*"/>
+    </delete>
+    <scalac srcdir="../test"
+            destdir="../classes/production/Scala"
+            force="changed">
+      <classpath refid="base.path"/>
+      <include name="**/*.scala"/>
+    </scalac>
+  </target>
+
+
+</project>
