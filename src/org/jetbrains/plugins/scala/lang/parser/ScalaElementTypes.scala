@@ -42,6 +42,7 @@ object ScalaElementTypes {
   val INTEGER_LITERAL = new ScalaElementType("Integer Literal")
   val FLOATING_POINT_LITERAL = new ScalaElementType("Floating Point Literal")
   val CHARACTER_LITERAL = new ScalaElementType("Character Literal")
+  val STRING_LITERAL = new ScalaElementType("String Literal")
 
 //ordinary identifier
   val STABLE_ID = new ScalaElementType("stable id")
