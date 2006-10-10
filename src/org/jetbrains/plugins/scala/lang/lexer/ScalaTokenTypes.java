@@ -63,6 +63,8 @@ public interface ScalaTokenTypes {
     IElementType tASSGN = new ScalaElementType("=");
     IElementType tPLUS = new ScalaElementType("+");
     IElementType tMINUS = new ScalaElementType("-");
+    IElementType tTILDA = new ScalaElementType("~");
+    IElementType tNOT = new ScalaElementType("!");
     IElementType tSTAR = new ScalaElementType("*");
     IElementType tDIV = new ScalaElementType("/");
 

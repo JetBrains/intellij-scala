@@ -4,28 +4,20 @@ import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.Scal
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.BNF
 
-object SimpleExpression{
+object PrefixExpression{
 
 /*
-SimpleExpr ::= Literal
-              | Path
-              | ‘(’ [Expr] ‘)’
-              | BlockExpr
-              | new Template
-              | SimpleExpr ‘.’ id
-              | SimpleExpr TypeArgs
-              | SimpleExpr ArgumentExprs
-              | XmlExpr
+PrefixExpr ::= [ ‘-’ | ‘+’ | ‘~’ | ‘!’ ] SimpleExpr
 */
 
   def parse(builder : PsiBuilder) : Unit = {
 
     val marker = builder.mark()
-
+    /*
     if (BNF.tLITERALS.contains(builder.getTokenType)) {
       Literal parse (builder)
     } else builder.error("Wrong expression!")
-
+    */
     marker.done(ScalaElementTypes.SIMPLE_EXPR)
 
 

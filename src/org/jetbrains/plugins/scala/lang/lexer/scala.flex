@@ -255,6 +255,10 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "#"                                     {   return process(kINNER_CLASS); }
 "@"                                     {   return process(kAT);}
 
+"+"                                     {   return process(tPLUS);}
+"-"                                     {   return process(tMINUS);}
+"~"                                     {   return process(tTILDA);}
+"!"                                     {   return process(tNOT);}
 
 "."                                     {   return process(tDOT);}
 ";"                                     {   return process(tSEMICOLON);}
