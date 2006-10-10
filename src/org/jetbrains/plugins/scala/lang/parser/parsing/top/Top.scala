@@ -22,10 +22,7 @@ class Top {
 
 //handle IMPORT
 
-    while ( builder.getTokenType == ScalaTokenTypes.kIMPORT) {
-      new Import().parse(builder)
-      //builder.advanceLexer()
-    }
+    
     
   }
 }

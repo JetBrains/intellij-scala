@@ -17,16 +17,19 @@ class ImportList {
 
   def parse(builder: PsiBuilder): Unit = {
 
- /* while ( builder.getTokenType == ScalaTokenTypes.kIMPORT) {
-      builder.mark().done(ScalaElementTypes.IMPORT)
-      new ImportList().parse(builder)
-      //builder.advanceLexer()
-    }
-   */
-//Open marker for handle import
-    var marker = builder.mark()
+  Console.print("importList token: " + builder.getTokenType)
 
-    new ListOfStableIDs parse(builder)
+  while ( builder.getTokenType == ScalaTokenTypes.kIMPORT ) {
+      builder.advanceLexer
+      builder.mark().done( ScalaElementTypes.IMPORT_LIST )
+
+
+      new Import() parse(builder)
+      builder.advanceLexer()
+    }
+
+//Open marker for handle import
+
 
 //node - IMPORT
     //builder.advanceLexer
@@ -50,6 +53,6 @@ class ImportList {
       case _ => builder.error("Wrong import")
     } */
 
-    marker.done(ScalaElementTypes.IMPORT) //Close marker for import
+
   }
 }
