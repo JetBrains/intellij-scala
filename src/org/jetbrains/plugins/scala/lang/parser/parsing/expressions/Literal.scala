@@ -7,22 +7,22 @@ object Literal {
 
 /*
 Literal ::= integerLiteral
-          | floatingPointLiteral
-          | booleanLiteral
-          | characterLiteral
-          | stringLiteral
-          | symbolLiteral
-          | true
-          | false
-          | null
+            | floatingPointLiteral
+            | booleanLiteral
+            | characterLiteral
+            | stringLiteral
+            | symbolLiteral
+            | true
+            | false
+            | null
 */
 
   def parse(builder : PsiBuilder) : Unit = {
 
     val marker = builder.mark()
 
-    builder.getTokenType match{ // Integer literal
-      case ScalaTokenTypes.tINTEGER => {
+    builder.getTokenType match{
+      case ScalaTokenTypes.tINTEGER => { // Integer literal
         builder.advanceLexer()
         marker.done(ScalaElementTypes.INTEGER_LITERAL)
       }
