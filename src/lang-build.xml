@@ -3,7 +3,7 @@
 
 
   <path id="base.path">
-    <fileset dir="${scala.home}\lib">
+    <fileset dir="${scala.home}/lib">
       <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${idea.lib}">

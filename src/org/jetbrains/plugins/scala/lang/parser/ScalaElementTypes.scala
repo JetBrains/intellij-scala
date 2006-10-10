@@ -14,7 +14,9 @@ import org.jetbrains.plugins.scala.util.ClassOf
  */
 object ScalaElementTypes {
 
-
+  /*************************************************************************************/
+  /************************************** FILE *****************************************/
+  /*************************************************************************************/
   val FILE = new IFileElementType(Language.findInstance(new ClassOf().cast[Class[ScalaLanguage]]( classOf[ScalaLanguage] )))
   
   /*************************************************************************************/
@@ -32,12 +34,14 @@ object ScalaElementTypes {
   val PACKAGE_GROUP = new ScalaElementType("package group")
   val PACKAGE = new ScalaElementType("package token")
   val QUALID = new ScalaElementType("Qualification identifier")
-  
 
-
-
-//integer, floating, boolean, character, string, symbol
-  val LITERAL = new ScalaElementType("literal")
+  /*************************************************************************************/
+  /************************************** LITERALS *************************************/
+  /*************************************************************************************/
+  val LITERAL = new ScalaElementType("Literal")
+  val INTEGER_LITERAL = new ScalaElementType("Integer Literal")
+  val FLOATING_POINT_LITERAL = new ScalaElementType("Floating Point Literal")
+  val CHARACTER_LITERAL = new ScalaElementType("Character Literal")
 
 //ordinary identifier
   val STABLE_ID = new ScalaElementType("stable id")

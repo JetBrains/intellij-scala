@@ -52,7 +52,10 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
     // Strings
     static final TokenSet tSTRINGS = TokenSet.create(
-            ScalaTokenTypes.tSTRING
+            ScalaTokenTypes.tSTRING,
+            ScalaTokenTypes.tSTRING_BEGIN,
+            ScalaTokenTypes.tSTRING_END,
+            ScalaTokenTypes.tCHAR
     );
 
     // Keywords

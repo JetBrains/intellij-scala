@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 %{
     private IElementType process(IElementType type){
+        //System.out.println(type.toString());
         return type;
     }
 
@@ -93,9 +94,16 @@ plainid = {upper} {idrest}
 
 idrest = ({letter} | {digit})* ("_" op)?
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////// String & chars //////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 charNoDoubleQuote = [^"\""]
 stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 stringLiteral = {stringElement}*
+characterLiteral = "\'" {charEscapeSeq} "\'"
+                   | "\'" [^"\'"] "\'" 
 
 
 
@@ -173,8 +181,10 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 "\""                                    {   yybegin(IN_STRING_STATE);
-                                            return process(tSTRING);
+                                            return process(tSTRING_BEGIN);
                                         }
+{characterLiteral}                      {   return process(tCHAR);  }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// braces ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -185,6 +195,8 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "}"                                     {   return process(tRBRACE); }
 
 "("                                     {   return process(tLPARENTHIS); }
+")"                                     {   return process(tRPARENTHIS); }
+
 ")"                                     {   return process(tRPARENTHIS); }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -264,13 +276,13 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 //                                            return process(tOPENXMLTAG); }
 
 ////////////////////// white spaces in line ///////////////////////////////////////////////
-{WhiteSpaceInLine}                            {   return tWHITE_SPACE_IN_LINE;  }
+{WhiteSpaceInLine}                            {   return process(tWHITE_SPACE_IN_LINE);  }
 
 ////////////////////// white spaces line terminator ///////////////////////////////////////////////
-{LineTerminator}                              {   return tWHITE_SPACE_LINE_TERMINATE; }
+{LineTerminator}                              {   return process(tWHITE_SPACE_LINE_TERMINATE); }
 
 ////////////////////// STUB ///////////////////////////////////////////////
-.                                             {   return tSTUB; }
+.                                             {   return process(tSTUB); }
 
 }
 
@@ -308,10 +320,12 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 <IN_STRING_STATE>{
 
 "\""                                    {   yybegin(YYINITIAL);
-                                            return process(tSTRING);
+                                            return process(tSTRING_END);
                                         }
 
-.|{LineTerminator}                      {   return process(tSTRING); }
+{stringLiteral}                         {   return process(tSTRING); }
+
+.|{LineTerminator}                      {   return process(tSTUB); }
 
 }
 
@@ -337,6 +351,6 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
                                             return process(tCLOSEXMLTAG);
                                         }
 
-.|{LineTerminator}                                       {   return process(tSTRING); }
+.|{LineTerminator}                      {   return process(tSTRING); }
 
 }
