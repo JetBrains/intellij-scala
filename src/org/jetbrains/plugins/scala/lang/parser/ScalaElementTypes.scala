@@ -27,13 +27,21 @@ object ScalaElementTypes {
   /*************************************************************************************/
   /********************************* PACKAGE GROUP *************************************/
   /*************************************************************************************/
-  // Primitives
-  val DOT = new ScalaElementType("DOT")
-  val SEMICOLON = new ScalaElementType("SEMICOLON")
+
   //Package
   val PACKAGE_GROUP = new ScalaElementType("package group")
   val PACKAGE = new ScalaElementType("package token")
   val QUALID = new ScalaElementType("Qualification identifier")
+
+  /*************************************************************************************/
+  /********************************* IMPORT GROUP *************************************/
+  /*************************************************************************************/
+
+  val IMPORT_GROUP = new ScalaElementType("import group")
+  val IMPORT_LIST = new ScalaElementType("import list")
+  val IMPORT = new ScalaElementType("import")
+  val STABLE_ID = new ScalaElementType("stable id")
+  val STABLE_ID_LIST = new ScalaElementType("stable id list")
 
   /*************************************************************************************/
   /************************************** LITERALS *************************************/
@@ -44,8 +52,12 @@ object ScalaElementTypes {
   val CHARACTER_LITERAL = new ScalaElementType("Character Literal")
   val STRING_LITERAL = new ScalaElementType("String Literal")
 
+  // Primitives
+  val DOT = new ScalaElementType("DOT")
+  val SEMICOLON = new ScalaElementType("SEMICOLON")
+
 //ordinary identifier
-  val STABLE_ID = new ScalaElementType("stable id")
+
 
 //types
   val SIMPLE_TYPE = new ScalaElementType("simple type")
@@ -94,7 +106,7 @@ object ScalaElementTypes {
 
   val BLOCK = new ScalaElementType("block")
 
-  val IMPORT = new ScalaElementType("import")
+
 
 
   //todo: supplement elements
