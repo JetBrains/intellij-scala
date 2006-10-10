@@ -18,7 +18,7 @@ import com.intellij.lang.PsiBuilder
 class Program extends ScalaTokenTypes {
   def parse(builder: PsiBuilder): Unit = {
 
-    var flag = true
+    var flag = true  
     
     def rollForward : Unit = {
       while ( !builder.eof() && flag){
