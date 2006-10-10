@@ -1,11 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
+
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-/**
- * User: Dmitry.Krasilschikov
- * Date: 03.10.2006
- * Time: 18:15:12
- */
 
 class QualId {
   def parse(builder : PsiBuilder, marker : PsiBuilder.Marker ) : Unit = {
