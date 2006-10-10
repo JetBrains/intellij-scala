@@ -1,8 +1,5 @@
 <project name="Generate various scala packages for parser needs" default="rebuild.all">
-  <property name="scala.home" value="C:\Program Files\Scala"/>
-  <property name="idea.lib" value="C:\Program Files\JetBrains\IntelliJ IDEA 6.0\lib"/>
-  <property name="ant.lib" value="C:\Program Files\JetBrains\IntelliJ IDEA 6.0\lib\ant\lib"/>
-  <property name="project.lib" value="C:\work\Scala\classes\production\Scala"/>
+ <property file="scala.properties"/>
 
 
   <path id="base.path">
