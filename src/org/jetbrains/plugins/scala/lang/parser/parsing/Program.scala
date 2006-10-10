@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing
 
-
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Top
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Literal
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.SimpleExpression
 
 import com.intellij.lang.PsiBuilder
 
@@ -34,22 +34,11 @@ class Program extends ScalaTokenTypes {
     def parseNext : Unit = {
       while ( !builder.eof() ) {
          rollForward
-         builder.getTokenType match{
-             case ScalaTokenTypes.tINTEGER
-             | ScalaTokenTypes.tFLOAT
-             | ScalaTokenTypes.kTRUE
-             | ScalaTokenTypes.kFALSE
-             | ScalaTokenTypes.tCHAR
-             | ScalaTokenTypes.kNULL
-             | ScalaTokenTypes.tSTRING_BEGIN
-                    => Literal parse(builder)
-             case _ => builder advanceLexer
-           }
+         if (BNF.tLITERALS.contains(builder.getTokenType)) {
+           SimpleExpression parse (builder)
+         } else builder advanceLexer
       }
     }
-
-
-
 
     var marker = builder.mark()
     rollForward

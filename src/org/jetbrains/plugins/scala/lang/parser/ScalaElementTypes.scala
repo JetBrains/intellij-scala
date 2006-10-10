@@ -62,6 +62,20 @@ object ScalaElementTypes {
   //null
   val NULL = new ScalaElementType("null")
 
+  /*************************************************************************************/
+  /************************************** EXPRESSIONS **********************************/
+  /*************************************************************************************/
+  val SIMPLE_EXPR = new ScalaElementType("simple expression")
+  val COMPOSITE_EXPR = new ScalaElementType("expression with =>")
+  val EXPRESSION = new ScalaElementType("expression")
+  val EXPRESSIONS_LIST = new ScalaElementType("list of expressions")
+
+  val POSTFIX_EXPR = new ScalaElementType("postfix definition")
+  val INFIX_EXPR = new ScalaElementType("infix definition")
+  val PREFIX_EXPR = new ScalaElementType("prefix definition")
+
+
+
   // Primitives
   val DOT = new ScalaElementType("DOT")
   val SEMICOLON = new ScalaElementType("SEMICOLON")
@@ -79,16 +93,6 @@ object ScalaElementTypes {
 
   val TYPE_WITH_TYPES = new ScalaElementType("type WITH types")
   val REFINEMENT = new ScalaElementType("refinement")
-
-//epressions
-  val SIMPLE_EXPR = new ScalaElementType("simple expression")
-  val COMPOSITE_EXPR = new ScalaElementType("expression with =>")
-  val EXPRESSION = new ScalaElementType("expression")
-  val EXPRESSIONS_LIST = new ScalaElementType("list of expressions")
-
-  val POSTFIX_EXPR = new ScalaElementType("postfix definition")
-  val INFIX_EXPR = new ScalaElementType("infix definition")
-  val PREFIX_EXPR = new ScalaElementType("prefix definition")
 
 //other
   val IF_STMT = new ScalaElementType("only if statement")
