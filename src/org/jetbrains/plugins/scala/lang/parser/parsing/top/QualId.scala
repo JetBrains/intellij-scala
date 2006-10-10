@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
-class QualId {
+class QualId{
   def parse(builder : PsiBuilder, marker : PsiBuilder.Marker ) : Unit = {
 
     builder.getTokenType match {
@@ -25,7 +25,10 @@ class QualId {
 
             (new QualId).parse(builder,preMarker)
           }
-          case _ => builder.error("Wrong package name declaration")
+          case _ => {
+            builder.error("Wrong package name declaration")
+            preMarker.done(ScalaElementTypes.QUALID)
+          }
         }
       }
 
@@ -39,7 +42,10 @@ class QualId {
         builder.advanceLexer
         semMarker.done(ScalaElementTypes.SEMICOLON)
       }
-      case _ => builder.error("Wrong package name declaration")
+      case _ => {
+        builder.error("Wrong package name declaration")
+        marker.done(ScalaElementTypes.QUALID)
+      }
     }
 
 
