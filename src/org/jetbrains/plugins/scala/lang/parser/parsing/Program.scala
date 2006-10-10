@@ -18,11 +18,8 @@ class Program extends ScalaTokenTypes {
   def parse(builder: PsiBuilder): Unit = {
 
     var marker = builder.mark()
-
     if ( !builder.eof() ){
-
-//handle top level - package, import
-      new Top parse(builder)
+      new Top parse(builder) //handle top level - package, import
     }
 
     while ( !builder.eof() ){

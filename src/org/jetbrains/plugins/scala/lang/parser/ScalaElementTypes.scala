@@ -50,7 +50,17 @@ object ScalaElementTypes {
   val INTEGER_LITERAL = new ScalaElementType("Integer Literal")
   val FLOATING_POINT_LITERAL = new ScalaElementType("Floating Point Literal")
   val CHARACTER_LITERAL = new ScalaElementType("Character Literal")
+  //  String literals
   val STRING_LITERAL = new ScalaElementType("String Literal")
+  val STRING_CONTENT = new ScalaElementType("String content")
+  val STRING_BEGIN = new ScalaElementType("String begin")
+  val STRING_END = new ScalaElementType("String end")
+  // Boolean literals
+  val BOOLEAN_LITERAL = new ScalaElementType("Boolean Literal")
+  val TRUE = new ScalaElementType("true")
+  val FALSE = new ScalaElementType("false")
+  //null
+  val NULL = new ScalaElementType("null")
 
   // Primitives
   val DOT = new ScalaElementType("DOT")
