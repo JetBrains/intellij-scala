@@ -11,7 +11,7 @@ import com.intellij.lang.PsiBuilder
  * Time: 18:08:23
  */
 
-class Top {
+class Top extends ScalaTokenTypes{
   def parse(builder: PsiBuilder): Unit = {
 
 //handle PACKAGE
