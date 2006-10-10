@@ -3,7 +3,19 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
-class Literal {
+object Literal {
+
+/*
+Literal ::= integerLiteral
+          | floatingPointLiteral
+          | booleanLiteral
+          | characterLiteral
+          | stringLiteral
+          | symbolLiteral
+          | true
+          | false
+          | null
+*/
 
   def parse(builder : PsiBuilder) : Unit = {
 
@@ -18,7 +30,7 @@ class Literal {
         builder.advanceLexer()
         marker.done(ScalaElementTypes.FLOATING_POINT_LITERAL)
       }
-      case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kTRUE => { //Boolean Literal
+      case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => { //Boolean Literal
         val boolMarker = builder.mark()
         builder.getTokenType match {
           case ScalaTokenTypes.kTRUE => boolMarker.done(ScalaElementTypes.TRUE)
@@ -36,27 +48,22 @@ class Literal {
         marker.done(ScalaElementTypes.NULL)
       }
       case ScalaTokenTypes.tSTRING_BEGIN => { //String literal
-        val strMarker = builder.mark();
         val beginMarker = builder.mark();
         builder.advanceLexer()
         beginMarker.done(ScalaElementTypes.STRING_BEGIN)
 
         val strContentMarker = builder.mark()
         builder.getTokenType match {
-          case ScalaTokenTypes.tSTRING => {
-            builder.advanceLexer()
-            strContentMarker.done(ScalaElementTypes.STRING_CONTENT)            
-          }
+          case ScalaTokenTypes.tSTRING => builder.advanceLexer()
           case _ => builder.error("Wrong string literal!")
         }
+        strContentMarker.done(ScalaElementTypes.STRING_CONTENT)
         val endMarker = builder.mark()
         builder.getTokenType match {
-          case ScalaTokenTypes.tSTRING_END => {
-            builder.advanceLexer()
-            endMarker.done(ScalaElementTypes.STRING_END)
-          }
+          case ScalaTokenTypes.tSTRING_END => builder.advanceLexer()
           case _ => builder.error("Wrong string end")
         }
+        endMarker.done(ScalaElementTypes.STRING_END)
         marker.done(ScalaElementTypes.STRING_LITERAL)
       }
     }

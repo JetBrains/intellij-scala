@@ -19,18 +19,7 @@ class Program extends ScalaTokenTypes {
   def parse(builder: PsiBuilder): Unit = {
 
     var flag = true
-
-    var marker = builder.mark()
-    rollForward
-
-    if ( !builder.eof() ){
-      new Top parse(builder) //handle top level - package, import
-    }
-
-    parseNext
-
-    marker.done(ScalaElementTypes.FILE)
-
+    
     def rollForward : Unit = {
       while ( !builder.eof() && flag){
          builder.getTokenType match{
@@ -43,7 +32,7 @@ class Program extends ScalaTokenTypes {
     }
 
     def parseNext : Unit = {
-      while ( !builder.eof() ){
+      while ( !builder.eof() ) {
          rollForward
          builder.getTokenType match{
              case ScalaTokenTypes.tINTEGER
@@ -53,11 +42,25 @@ class Program extends ScalaTokenTypes {
              | ScalaTokenTypes.tCHAR
              | ScalaTokenTypes.kNULL
              | ScalaTokenTypes.tSTRING_BEGIN
-                    => new Literal parse(builder)
+                    => Literal parse(builder)
              case _ => builder advanceLexer
            }
       }
     }
+
+
+
+
+    var marker = builder.mark()
+    rollForward
+
+    if ( !builder.eof() ){
+      new Top parse(builder) //handle top level - package, import
+    }
+
+    parseNext
+    marker.done(ScalaElementTypes.FILE)
+
 
   }
 
