@@ -20,9 +20,14 @@ class Top extends ScalaTokenTypes{
       builder.advanceLexer()
     }
 
-//handle IMPORT
+//handle IMPORT LIST
+    if ( builder.getTokenType == ScalaTokenTypes.kIMPORT) {
+      val importListMarker = builder.mark()
+      importListMarker.done( ScalaElementTypes.IMPORT_LIST )
 
-    
+      new ImportList().parse(builder)
+      //builder.advanceLexer()
+    }    
     
   }
 }

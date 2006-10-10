@@ -17,12 +17,13 @@ class ImportList {
 
   def parse(builder: PsiBuilder): Unit = {
 
-  Console.print("importList token: " + builder.getTokenType)
+  Console.println("importList token: " + builder.getTokenType)
 
   while ( builder.getTokenType == ScalaTokenTypes.kIMPORT ) {
-      builder.advanceLexer
-      builder.mark().done( ScalaElementTypes.IMPORT_LIST )
 
+      val imMarker = builder.mark()
+      builder.advanceLexer //New node: "import"
+      imMarker.done( ScalaElementTypes.IMPORT )
 
       new Import() parse(builder)
       builder.advanceLexer()

@@ -13,7 +13,7 @@ class ListOfStableIDs {
 
  def parse(builder : PsiBuilder, listMarker : PsiBuilder.Marker) : Unit = {
 
-    Console.print("ListOfStableIDs token: " + builder.getTokenType)
+    Console.println("ListOfStableIDs token: " + builder.getTokenType)
     val marker = builder.mark()
     builder.advanceLexer
     marker.done(ScalaElementTypes.STABLE_ID_LIST)
