@@ -20,6 +20,17 @@ class Program extends ScalaTokenTypes {
 
     var flag = true
 
+    var marker = builder.mark()
+    rollForward
+
+    if ( !builder.eof() ){
+      new Top parse(builder) //handle top level - package, import
+    }
+
+    parseNext
+
+    marker.done(ScalaElementTypes.FILE)
+
     def rollForward : Unit = {
       while ( !builder.eof() && flag){
          builder.getTokenType match{
@@ -48,19 +59,6 @@ class Program extends ScalaTokenTypes {
       }
     }
 
-    var marker = builder.mark()
-    rollForward
-
-    if ( !builder.eof() ){
-      new Top parse(builder) //handle top level - package, import
-    }
-
-    parseNext
-
-    marker.done(ScalaElementTypes.FILE)
   }
-
-
-
 
 }
