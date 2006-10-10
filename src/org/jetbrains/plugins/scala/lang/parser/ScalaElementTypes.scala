@@ -66,13 +66,16 @@ object ScalaElementTypes {
   /************************************** EXPRESSIONS **********************************/
   /*************************************************************************************/
   val SIMPLE_EXPR = new ScalaElementType("simple expression")
+  val PREFIX_EXPR = new ScalaElementType("prefix definition")
+  //Various prefixes
+  val MINUS = new ScalaElementType("minus")
+
   val COMPOSITE_EXPR = new ScalaElementType("expression with =>")
   val EXPRESSION = new ScalaElementType("expression")
   val EXPRESSIONS_LIST = new ScalaElementType("list of expressions")
 
   val POSTFIX_EXPR = new ScalaElementType("postfix definition")
   val INFIX_EXPR = new ScalaElementType("infix definition")
-  val PREFIX_EXPR = new ScalaElementType("prefix definition")
 
 
 
