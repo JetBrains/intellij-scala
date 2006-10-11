@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.ListOfStableIDs
  * Time: 22:04:16
  */
 class ImportList {
-
+/*
   def parse(builder: PsiBuilder): Unit = {
 
   Console.println("importList token: " + builder.getTokenType)
@@ -28,7 +28,7 @@ class ImportList {
       new Import() parse(builder)
       builder.advanceLexer()
     }
-
+*/
 //Open marker for handle import
 
 
@@ -52,8 +52,9 @@ class ImportList {
       case ScalaTokenTypes.tIDENTIFIER => new StableId parse(builder)
 
       case _ => builder.error("Wrong import")
-    } */
+    }
 
 
   }
+*/
 }

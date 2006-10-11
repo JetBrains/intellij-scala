@@ -17,9 +17,8 @@ class Top extends ScalaTokenTypes{
 //handle PACKAGE
     if ( builder.getTokenType == ScalaTokenTypes.kPACKAGE) {
       new Package().parse(builder)
-      builder.advanceLexer()
     }
-
+/*
 //handle IMPORT LIST
     if ( builder.getTokenType == ScalaTokenTypes.kIMPORT) {
       val importListMarker = builder.mark()
@@ -30,4 +29,5 @@ class Top extends ScalaTokenTypes{
     }    
     
   }
+*/
 }
