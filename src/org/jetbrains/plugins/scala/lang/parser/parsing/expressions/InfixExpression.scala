@@ -17,12 +17,8 @@ InfixExpr ::= PrefixExpr
 ***********************************************
 
 Realized grammar:
-InfixExpr   ::= PrefixExpr InfixExpr1
-
------------------------------------------------
-
-InfixExpr1  ::= id [NewLine] PrefixExpr InfixExpr1
-               | Epsilon
+InfixExpr ::= PrefixExpr
+          | InfixExpr id [NewLine] PrefixExpr
 
 ***********************************************
 
@@ -44,32 +40,25 @@ FIRST(InfixExpression) =  ScalaTokenTypes.tIDENTIFIER
 
     if (PrefixExpression.FIRST.contains(builder getTokenType)){
       PrefixExpression parse (builder)
-      new InfixExpr1 parse (builder)
+      subParse (builder)
     } else builder.error("Wrong infix expression!")
 
     marker.done(ScalaElementTypes.INFIX_EXPR)
   }
 
-  class InfixExpr1{
-
-    def parse(builder : PsiBuilder) : Unit = {
-
-      builder.getTokenType() match {
-        case ScalaTokenTypes.tIDENTIFIER => {
-            val idMarker = builder.mark()
-            builder.advanceLexer()
-            idMarker.done(ScalaElementTypes.IDENTIFIER)
-            ParserUtils.rollForward(builder)
-            if (PrefixExpression.FIRST.contains(builder.getTokenType())){
-              PrefixExpression parse (builder)
-              new InfixExpr1 parse (builder)                            
-            } else builder.error("Wrong inner infix expression!")
-        }
-        case _ =>
+  def subParse(builder : PsiBuilder) : Unit = {
+    builder.getTokenType match {
+      case ScalaTokenTypes.tIDENTIFIER => {
+        val idMarker = builder.mark()
+        builder.advanceLexer()
+        idMarker.done(ScalaElementTypes.DOT)
+        ParserUtils.rollForward(builder)
+        PrefixExpression.parse(builder)
+        subParse(builder)
       }
+      case _ =>
     }
   }
-
 
 
 }

@@ -49,7 +49,6 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
 
   }
 
-
   def subParse(builder : PsiBuilder) : Unit = {
     builder.getTokenType match {
       case ScalaTokenTypes.tDOT => {

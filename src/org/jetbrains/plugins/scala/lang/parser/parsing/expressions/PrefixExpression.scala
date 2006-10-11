@@ -42,7 +42,7 @@ FIRST(PrefixExpression) = ScalaTokenTypes.tPLUS
              prefixMarker.done(ScalaElementTypes.PREFIX)
              if (SimpleExpression.FIRST.contains(builder.getTokenType)) {
                SimpleExpression parse (builder)
-             } else builder.error("Wrong expression!")
+             } else builder.error("Wrong prefix expression!")
            }
       case _ => SimpleExpression parse (builder)
     }
