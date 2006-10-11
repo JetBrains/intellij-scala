@@ -66,6 +66,13 @@
       <include name="**/*.scala"/>
     </scalac>
 
+    <scalac srcdir="../test"
+            destdir="../classes/production/Scala"
+            force="changed">
+      <classpath refid="base.path"/>
+      <include name="**/*.scala"/>
+    </scalac>
+
   </target>
 
   
