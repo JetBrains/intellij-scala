@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Top
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Literal
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.PrefixExpression
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.SimpleExpression
 
 import com.intellij.lang.PsiBuilder
@@ -19,7 +20,7 @@ class Program extends ScalaTokenTypes {
   def parse(builder: PsiBuilder): Unit = {
 
     var flag = true  
-    
+
     def rollForward : Unit = {
       while ( !builder.eof() && flag){
          builder.getTokenType match{
@@ -34,8 +35,9 @@ class Program extends ScalaTokenTypes {
     def parseNext : Unit = {
       while ( !builder.eof() ) {
          rollForward
-         if (BNF.tLITERALS.contains(builder.getTokenType)) {
-           SimpleExpression parse (builder)
+
+         if (PrefixExpression.FIRST.contains(builder.getTokenType)) {
+           PrefixExpression parse (builder)
          } else builder advanceLexer
       }
     }
