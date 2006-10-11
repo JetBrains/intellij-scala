@@ -4,6 +4,7 @@ import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.Scal
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.PrefixExpression
 import org.jetbrains.plugins.scala.lang.parser.util._
        

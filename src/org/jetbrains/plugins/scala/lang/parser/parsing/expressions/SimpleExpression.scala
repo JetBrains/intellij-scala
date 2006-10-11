@@ -4,6 +4,7 @@ import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.Scal
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.tree.IElementType
 
 object SimpleExpression{
 
@@ -27,8 +28,6 @@ SimpleExpr ::= Literal
 
 *******************************************
 
-*******************************************
-
 FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
            ScalaTokenTypes.tFLOAT,
            ScalaTokenTypes.kTRUE,
@@ -40,16 +39,18 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
 */
   val FIRST = BNF.tLITERALS
 
-  def parse(builder : PsiBuilder) : Unit = {
+  def parse(builder : PsiBuilder) : IElementType = {
 
     if (BNF.tLITERALS.contains(builder.getTokenType)) {
       Literal parse (builder) // Ate literal
       subParse(builder)
-    } else builder.error("Wrong simple expression")
-
+    } else {
+      builder.error("Wrong simple expression")
+      ScalaElementTypes.WRONGWAY
+    }
   }
 
-  def subParse(builder : PsiBuilder) : Unit = {
+  def subParse(builder : PsiBuilder) : IElementType = {
     builder.getTokenType match {
       case ScalaTokenTypes.tDOT => {
         val dotMarker = builder.mark()
@@ -62,10 +63,13 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
             idMarker.done(ScalaElementTypes.IDENTIFIER)
             subParse(builder)
           }
-          case _ => builder.error("Identifier expected")
+          case _ => {
+            builder.error("Identifier expected")
+            ScalaElementTypes.WRONGWAY
+          }
         }
       }
-      case _ => 
+      case _ => ScalaElementTypes.PARSED 
     }
   }
 
