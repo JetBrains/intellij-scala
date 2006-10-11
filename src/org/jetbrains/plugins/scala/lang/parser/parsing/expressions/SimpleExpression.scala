@@ -22,12 +22,10 @@ SimpleExpr ::= Literal
 *******************************************
 
 Realized grammar:
-SimpleExpression  ::= Literal SimpleExpr1
+SimpleExpr ::= Literal
+              | SimpleExpr ‘.’ id
 
--------------------------------------------
-
-SimpleExpr1 ::= '.' id SimpleExpr1
-                | Epsilon
+*******************************************
 
 *******************************************
 
@@ -44,37 +42,31 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
 
   def parse(builder : PsiBuilder) : Unit = {
 
-    //val marker = builder.mark()
-
     if (BNF.tLITERALS.contains(builder.getTokenType)) {
-      Literal parse (builder)
-      new SimpleExpr1 parse (builder)
-    } else builder.error("Wrong expression!")
-
-    //marker done (ScalaElementTypes.SIMPLE_EXPR)
+      Literal parse (builder) // Ate literal
+      subParse(builder)
+    } else builder.error("Wrong simple expression")
 
   }
 
-  class SimpleExpr1{
 
-    def parse(builder : PsiBuilder) : Unit = {
-      builder.getTokenType() match {
-        case ScalaTokenTypes.tDOT => {
-          val dotMarker = builder.mark()
-          builder.advanceLexer()
-          dotMarker.done(ScalaElementTypes.DOT)
-          builder.getTokenType() match {
-            case ScalaTokenTypes.tIDENTIFIER => {
-              val idMarker = builder.mark()
-              builder.advanceLexer()
-              idMarker.done(ScalaElementTypes.IDENTIFIER)
-              new SimpleExpr1 parse (builder)
-            }
-            case _ => builder.error("Wrong expression!")
+  def subParse(builder : PsiBuilder) : Unit = {
+    builder.getTokenType match {
+      case ScalaTokenTypes.tDOT => {
+        val dotMarker = builder.mark()
+        builder.advanceLexer()
+        dotMarker.done(ScalaElementTypes.DOT)
+        builder.getTokenType match {
+          case ScalaTokenTypes.tIDENTIFIER => {
+            val idMarker = builder.mark()
+            builder.advanceLexer()
+            idMarker.done(ScalaElementTypes.IDENTIFIER)
+            subParse(builder)
           }
+          case _ => builder.error("Identifier expected")
         }
-        case _ => 
       }
+      case _ => 
     }
   }
 
