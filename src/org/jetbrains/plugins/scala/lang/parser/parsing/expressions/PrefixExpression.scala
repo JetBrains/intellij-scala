@@ -44,9 +44,7 @@ FIRST(PrefixExpression) = ScalaTokenTypes.tPLUS
                SimpleExpression parse (builder)
              } else builder.error("Wrong expression!")
            }
-      case _ => {
-        SimpleExpression parse (builder)
-      }
+      case _ => SimpleExpression parse (builder)
     }
     marker.done(ScalaElementTypes.PREFIX_EXPR)
   }

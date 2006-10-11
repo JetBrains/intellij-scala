@@ -31,8 +31,8 @@ class Program extends ScalaTokenTypes {
       while ( !builder.eof() ) {
          rollForward
 
-         if (InfixExpression.FIRST.contains(builder.getTokenType)) {
-           InfixExpression parse (builder)
+         if (PrefixExpression.FIRST.contains(builder.getTokenType)) {
+           PrefixExpression parse (builder)
          } else builder advanceLexer
       }
     }
