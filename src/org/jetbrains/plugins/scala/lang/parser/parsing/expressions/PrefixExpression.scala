@@ -29,10 +29,10 @@ FIRST(PrefixExpression) = ScalaTokenTypes.tPLUS
 
   val FIRST = TokenSet.orSet(Array(SimpleExpression.FIRST, BNF.tPREFIXES ))
 
-  def parse(builder : PsiBuilder) : IElementType = {
+  def parse(builder : PsiBuilder) : Boolean = {
 
     val marker = builder.mark()
-    var result : IElementType = ScalaElementTypes.WRONGWAY
+    var result = false
     
     builder getTokenType match {
       case ScalaTokenTypes.tPLUS
@@ -46,7 +46,7 @@ FIRST(PrefixExpression) = ScalaTokenTypes.tPLUS
                result = SimpleExpression parse (builder)
              } else {
               builder.error("Wrong prefix expression!")
-              result = ScalaElementTypes.WRONGWAY
+              result = false
              }
            }
       case _ => result = SimpleExpression parse (builder)
