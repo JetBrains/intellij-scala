@@ -2,7 +2,8 @@ package tests;
 
 import junit.framework.TestSuite;
 import junit.framework.Test;
-//import tests.examples.TestExample;
+import tests.examples.TestExample;
+import tests.examples.TestFIRST;
 
 /**
  * Author: Ilya Sergey
@@ -14,7 +15,8 @@ public class MainTestSuite {
     public static Test suite() {
         TestSuite suite = new TestSuite();
 
-        //suite.addTestSuite(TestExample.class);
+        suite.addTestSuite(TestExample.class);
+        suite.addTestSuite(TestFIRST.class);
       
         return suite;
     }
