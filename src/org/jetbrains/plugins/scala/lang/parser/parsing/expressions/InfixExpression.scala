@@ -35,29 +35,38 @@ FIRST(InfixExpression) =  ScalaTokenTypes.tIDENTIFIER
       )
     )
 
-  def parse(builder : PsiBuilder) : Unit = {
+  def parse(builder : PsiBuilder) : Boolean = {
 
     val marker = builder.mark()
+    var result = false
 
     if (PrefixExpression.FIRST.contains(builder getTokenType)){
-      PrefixExpression parse (builder)
-      subParse (builder)
-    } else builder.error("Wrong infix expression!")
-
+      if (PrefixExpression parse (builder)){
+        subParse (builder)
+      } else  result = false
+    } else {
+      builder.error("Wrong infix expression!")
+      result = false
+    }
     marker.done(ScalaElementTypes.INFIX_EXPR)
+    result
   }
 
-  def subParse(builder : PsiBuilder) : Unit = {
+  def subParse(builder : PsiBuilder) : Boolean = {
+
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
+
         val idMarker = builder.mark()
         builder.advanceLexer()
         idMarker.done(ScalaElementTypes.DOT)
+
         ParserUtils.rollForward(builder)
-        PrefixExpression.parse(builder)
-        subParse(builder)
+        if (PrefixExpression.parse(builder)) {
+          subParse(builder)
+        } else false
       }
-      case _ =>
+      case _ => true
     }
   }
 
