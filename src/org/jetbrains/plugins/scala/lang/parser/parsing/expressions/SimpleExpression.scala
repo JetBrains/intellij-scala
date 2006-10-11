@@ -24,7 +24,7 @@ SimpleExpr ::= Literal
 Realized grammar:
 SimpleExpression  ::= Literal SimpleExpr1
 
-*******************************************
+-------------------------------------------
 
 SimpleExpr1 ::= '.' id SimpleExpr1
                 | Epsilon
@@ -76,7 +76,6 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
         case _ => 
       }
     }
-
   }
 
 }
