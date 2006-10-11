@@ -31,7 +31,7 @@ FIRST(InfixExpression) =  ScalaTokenTypes.tIDENTIFIER
 
 */
 
-  val FIRST = TokenSet.orSet(
+  val FIRST = TokenSet.orSet (
       Array(
         PrefixExpression.FIRST,
         TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER))
@@ -53,19 +53,6 @@ FIRST(InfixExpression) =  ScalaTokenTypes.tIDENTIFIER
   class InfixExpr1{
 
     def parse(builder : PsiBuilder) : Unit = {
-
-      /*
-      var flag = true
-      def rollForward : Unit = {
-        while ( !builder.eof() && flag){
-           builder.getTokenType match{
-             case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => builder.advanceLexer
-             case _ => flag = false
-           }
-        }
-        flag = true
-      }
-      */
 
       builder.getTokenType() match {
         case ScalaTokenTypes.tIDENTIFIER => {
