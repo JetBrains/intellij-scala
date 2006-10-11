@@ -42,8 +42,11 @@ FIRST(InfixExpression) =  ScalaTokenTypes.tIDENTIFIER
 
     if (PrefixExpression.FIRST.contains(builder getTokenType)){
       if (PrefixExpression parse (builder)){
-        subParse (builder)
-      } else  result = false
+        result = subParse (builder)
+      } else  {
+        builder.error("Wrong infix expression!")
+        result = false
+      }
     } else {
       builder.error("Wrong infix expression!")
       result = false
@@ -64,7 +67,10 @@ FIRST(InfixExpression) =  ScalaTokenTypes.tIDENTIFIER
         ParserUtils.rollForward(builder)
         if (PrefixExpression.parse(builder)) {
           subParse(builder)
-        } else false
+        } else {
+          builder.error("Wrong infix expression!")
+          false
+        }
       }
       case _ => true
     }
