@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Literal
 import org.jetbrains.plugins.scala.lang.parser.util._
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixExpression
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.PrefixExpression
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.SimpleExpression
 
 import com.intellij.lang.PsiBuilder
 
@@ -30,7 +31,6 @@ class Program extends ScalaTokenTypes {
     def parseNext : Unit = {
       while ( !builder.eof() ) {
          rollForward
-
          if (PrefixExpression.FIRST.contains(builder.getTokenType)) {
            PrefixExpression parse (builder)
          } else builder advanceLexer

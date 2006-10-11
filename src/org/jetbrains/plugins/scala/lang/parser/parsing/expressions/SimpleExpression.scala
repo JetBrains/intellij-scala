@@ -39,18 +39,18 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
 */
   val FIRST = BNF.tLITERALS
 
-  def parse(builder : PsiBuilder) : IElementType = {
+  def parse(builder : PsiBuilder) : Boolean = {
 
     if (BNF.tLITERALS.contains(builder.getTokenType)) {
       Literal parse (builder) // Ate literal
       subParse(builder)
     } else {
       builder.error("Wrong simple expression")
-      ScalaElementTypes.WRONGWAY
+      false
     }
   }
 
-  def subParse(builder : PsiBuilder) : IElementType = {
+  def subParse(builder : PsiBuilder) : Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.tDOT => {
         val dotMarker = builder.mark()
@@ -65,11 +65,11 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
           }
           case _ => {
             builder.error("Identifier expected")
-            ScalaElementTypes.WRONGWAY
+            false
           }
         }
       }
-      case _ => ScalaElementTypes.PARSED 
+      case _ => true 
     }
   }
 
