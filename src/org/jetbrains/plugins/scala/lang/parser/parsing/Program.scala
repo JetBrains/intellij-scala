@@ -5,16 +5,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Top
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Literal
+import org.jetbrains.plugins.scala.lang.parser.util._
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixExpression
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.PrefixExpression
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.SimpleExpression
 
 import com.intellij.lang.PsiBuilder
-
-/**
- * User: Dmitry.Krasilschikov
- * Date: 02.10.2006
- * Time: 12:53:26
- */
 
 class Program extends ScalaTokenTypes {
   def parse(builder: PsiBuilder): Unit = {
@@ -36,8 +31,8 @@ class Program extends ScalaTokenTypes {
       while ( !builder.eof() ) {
          rollForward
 
-         if (PrefixExpression.FIRST.contains(builder.getTokenType)) {
-           PrefixExpression parse (builder)
+         if (InfixExpression.FIRST.contains(builder.getTokenType)) {
+           InfixExpression parse (builder)
          } else builder advanceLexer
       }
     }
