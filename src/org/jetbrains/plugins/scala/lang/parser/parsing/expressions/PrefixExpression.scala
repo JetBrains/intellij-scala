@@ -9,9 +9,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.SimpleExpress
 object PrefixExpression{
 
 /*
+Default grammar
 PrefixExpr ::= [ ‘-’ | ‘+’ | ‘~’ | ‘!’ ] SimpleExpr
 
 ***********************************************
+
+Realized grammar:
+PrefixExpr ::= [ ‘-’ | ‘+’ | ‘~’ | ‘!’ ] SimpleExpr
+
+*******************************************
 
 FIRST(PrefixExpression) = ScalaTokenTypes.tPLUS
                           ScalaTokenTypes.tMINUS
