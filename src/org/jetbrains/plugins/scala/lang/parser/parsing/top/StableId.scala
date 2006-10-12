@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top;
 
-import com.intellij.lang.PsiBuilder
+import com.intellij.lang.PsiBuilder;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
@@ -14,58 +14,97 @@ class StableId {
 
   def parse(builder : PsiBuilder, marker : PsiBuilder.Marker ) : Unit = {
 
+    Console.println("       token in stableID : " + builder.getTokenType)
 
-    Console.println("token in stableID : " + builder.getTokenType)
-     builder.getTokenType match {
+         builder.getTokenType match {
+           case ScalaTokenTypes.tDOT => {
 
-     case ScalaTokenTypes.tDOT => {
+             Console.println("      precede do ")
+             val preMarker = marker.precede()
 
-       val marker = builder.mark()
-       builder.advanceLexer
+             Console.println("      idMarker done ")
+             marker.done( ScalaElementTypes.IDENTIFIER )
 
-       val preMarker = marker.precede()
-       marker.done(ScalaElementTypes.STABLE_ID)
+            //dot node
+            Console.println("        dotMarker do ")
+             val dotMarker = builder.mark();
+             builder.advanceLexer // Ate dot
 
-       val dotMarker = builder.mark();
-       builder.advanceLexer
-       dotMarker.done(ScalaElementTypes.DOT)
+             Console.println("        dotMarker done ")
+             dotMarker.done( ScalaTokenTypes.tDOT )
 
-       builder.getTokenType match {
-         case ScalaTokenTypes.tIDENTIFIER => {
 
-           val idMarker = builder.mark()
-           builder.advanceLexer
-           idMarker.done(ScalaElementTypes.IDENTIFIER)
+             builder.getTokenType match {
+               case ScalaTokenTypes.tIDENTIFIER => {
 
-           (new StableId).parse(builder, preMarker)
+                Console.println("        idMarker do ")
+                //identifier node
+                 val idMarker = builder.mark()
+                 builder.advanceLexer
+
+                 idMarker.done(ScalaElementTypes.IDENTIFIER)
+                 Console.println("        idMarker done ")
+
+                 (new StableId).parse(builder, preMarker)
+               }
+
+               case ScalaTokenTypes.tUNDER => {
+
+                Console.println("        underMarker do ")
+
+                 val underMarker = builder.mark()
+                 builder.advanceLexer
+
+                 underMarker.done(ScalaTokenTypes.tUNDER)
+                 Console.println("        underMarker done ")
+
+                 preMarker.done(ScalaElementTypes.STABLE_ID)
+               }
+              
+               case _ => {
+                  builder.error("Wrong import ")
+                  preMarker.done(ScalaElementTypes.STABLE_ID)
+               }
+
+             }
+           }
+
+           case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => {
+             Console.println("        marker in whsps will be do ")
+             marker.done(ScalaElementTypes.STABLE_ID)
+             Console.println("        marker in whsps done ")
+             //builder.advanceLexer
+           }
+
+           case ScalaTokenTypes.tSEMICOLON => {
+
+              marker.done(ScalaElementTypes.STABLE_ID)
+              Console.println("       marker in semicolon done ")
+              
+             /* val semiMarker = builder.mark()
+              //builder.advanceLexer
+              semiMarker.done(ScalaElementTypes.SEMICOLON)
+            */
+             // builder.advanceLexer
+              //new Import() parse(builder)
+           }
+
+           case ScalaTokenTypes.tCOMMA => {
+              marker.done(ScalaElementTypes.STABLE_ID)
+
+            /*  val commaMarker = builder.mark()
+              commaMarker.done( ScalaTokenTypes.tCOMMA ) //new node: COMMA
+              */
+//              val marker = builder.mark()
+
+             // (new ListOfStableIDs).parse(builder)
+          }
+
+           case _ => {
+            marker.drop()
+            builder.error("Wrong import : StableID")
+           }
          }
-          case _ => builder.error("Wrong import name")
-
-       }
-     }
-
-      case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => {
-        //marker.done(ScalaElementTypes.STABLE_ID)
-        builder.advanceLexer
-      }
-
-      case ScalaTokenTypes.tSEMICOLON => {
-        //marker.done(ScalaElementTypes.STABLE_ID)
-        val marker = builder.mark()
-        builder.advanceLexer
-        marker.done(ScalaElementTypes.SEMICOLON)
-      }
-
-      case ScalaTokenTypes.tCOMMA => {
-
-        (new ListOfStableIDs).parse (builder, builder.mark())
-      }
-
-      case _ => builder.error("Wrong import name")
-    }
-
 
     }
-
   }
-

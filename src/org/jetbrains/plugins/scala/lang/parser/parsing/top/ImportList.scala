@@ -2,59 +2,77 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top;
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
 
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.PsiBuilder
 
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.ListOfStableIDs
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.Top
 /**
  * User: Dmitry.Krasilschikov
  * Date: 06.10.2006
  * Time: 22:04:16
  */
 class ImportList {
-/*
-  def parse(builder: PsiBuilder): Unit = {
 
-  Console.println("importList token: " + builder.getTokenType)
+  def parse( builder: PsiBuilder ): Unit = {
 
-  while ( builder.getTokenType == ScalaTokenTypes.kIMPORT ) {
+    def getNumberOfImport : Int = {
+      var count : Int = 0;
+      val top = new Top()
 
-      val imMarker = builder.mark()
-      builder.advanceLexer //New node: "import"
-      imMarker.done( ScalaElementTypes.IMPORT )
-
-      new Import() parse(builder)
-      builder.advanceLexer()
-    }
-*/
-//Open marker for handle import
-
-
-//node - IMPORT
-    //builder.advanceLexer
-
-    /*Console.println("token in import : " + builder.getTokenType)
-    builder.getTokenType match {
-
-
-
-      case ScalaTokenTypes.tCOMMA => {
-        builder.advanceLexer
-        new Import parse(builder)
+      top.skipLineTerminators(builder)
+      while (! builder.eof())  {
+        if (ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)){
+          count = count + 1
+        }
+         builder.advanceLexer
       }
+      count
     }
 
-    builder.getTokenType match {
-      
-      //handle full class name
-      case ScalaTokenTypes.tIDENTIFIER => new StableId parse(builder)
+  //counting number of import statements
+    val initImportMarker = builder.mark()
+    val num = getNumberOfImport
+    initImportMarker.rollbackTo()
 
-      case _ => builder.error("Wrong import")
+
+    Console.println("  importListMarker do ")
+    val importListMarker = builder.mark()
+
+
+    Console.println("  num = " + num)
+
+
+    var i = 1;
+    while ( ScalaTokenTypes.kIMPORT.equals(builder.getTokenType) && (i <= num ) ) {
+      Console.println("i = " + i)
+      Console.println("  handle single import")
+
+      Console.println("  imMarker do ")
+      val imStMarker = builder.mark()
+
+      val importMarker = builder.mark()
+      builder.advanceLexer //New node: "import"
+
+      importMarker.done( ScalaElementTypes.IMPORT )
+
+      (new Import).parse(builder)
+
+      imStMarker.done( ScalaElementTypes.IMPORT_STMT )
+      Console.println("  imMarker done ")
+
+      if (i != num ) {
+        new Top() skipLineTerminators( builder )
+      }
+
+      Console.println("  expect _import_ token: " + builder.getTokenType)
+      i = i + 1
     }
 
+   importListMarker.done(ScalaElementTypes.IMPORT_LIST)
 
+   Console.println("  importListMarker done ")
   }
-*/
 }
