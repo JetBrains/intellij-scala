@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
-import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._;
+import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 class QualId{
