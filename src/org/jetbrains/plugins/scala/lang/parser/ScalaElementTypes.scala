@@ -92,6 +92,7 @@ object ScalaElementTypes {
 
   // Primitives
   val DOT = new ScalaElementType("DOT")
+  val COMMA = new ScalaElementType("COMMA")
   val SEMICOLON = new ScalaElementType("SEMICOLON")
 
 //ordinary identifier

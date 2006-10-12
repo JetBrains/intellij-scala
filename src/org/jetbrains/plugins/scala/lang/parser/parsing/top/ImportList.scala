@@ -44,7 +44,6 @@ class ImportList {
 
     Console.println("  num = " + num)
 
-
     var i = 1;
     while ( ScalaTokenTypes.kIMPORT.equals(builder.getTokenType) && (i <= num ) ) {
       Console.println("i = " + i)
@@ -67,7 +66,6 @@ class ImportList {
         new Top() skipLineTerminators( builder )
       }
 
-      Console.println("  expect _import_ token: " + builder.getTokenType)
       i = i + 1
     }
 
