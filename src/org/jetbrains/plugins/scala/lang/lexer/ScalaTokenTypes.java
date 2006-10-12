@@ -137,16 +137,15 @@ public interface ScalaTokenTypes {
     IElementType tSEMICOLON = new ScalaElementType(";");
 
 
-    IElementType kUNDER = new ScalaElementType("_");
-    IElementType kCOLON = new ScalaElementType(":");
-    IElementType kASSIGN = new ScalaElementType("=");
-    IElementType kFUNTYPE = new ScalaElementType("=>");
-    IElementType kFUNTYPE_ASCII = new ScalaElementType(Character.toString('\u21D2'));
-    IElementType kCHOOSE = new ScalaElementType("<%");
-    IElementType kLOWER_BOUND = new ScalaElementType(">:");
-    IElementType kUPPER_BOUND = new ScalaElementType("<:");
-    IElementType kINNER_CLASS = new ScalaElementType("#");
-    IElementType kAT = new ScalaElementType("@");
+    IElementType tUNDER = new ScalaElementType("_");
+    IElementType tCOLON = new ScalaElementType(":");
+    IElementType tASSIGN = new ScalaElementType("=");
+    IElementType tFUNTYPE = new ScalaElementType("=>");
+    IElementType tFUNTYPE_ASCII = new ScalaElementType(Character.toString('\u21D2'));
+    IElementType tCHOOSE = new ScalaElementType("<%");
+    IElementType tLOWER_BOUND = new ScalaElementType(">:");
+    IElementType tUPPER_BOUND = new ScalaElementType("<:");
+    IElementType tINNER_CLASS = new ScalaElementType("#");
+    IElementType tAT = new ScalaElementType("@");
     
-
 }

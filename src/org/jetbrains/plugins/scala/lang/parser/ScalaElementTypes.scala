@@ -45,9 +45,12 @@ object ScalaElementTypes {
 
   val IMPORT_GROUP = new ScalaElementType("import group")
   val IMPORT_LIST = new ScalaElementType("import list")
+  val IMPORT_STMT = new ScalaElementType("import statement")
   val IMPORT = new ScalaElementType("import")
   val STABLE_ID = new ScalaElementType("stable id")
   val STABLE_ID_LIST = new ScalaElementType("stable id list")
+  val UNDER = new ScalaElementType("underline")
+
 
   /*************************************************************************************/
   /************************************** LITERALS *************************************/

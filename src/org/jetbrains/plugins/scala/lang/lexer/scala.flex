@@ -244,16 +244,16 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "yield"                                 {   return process(kYIELD); }
 
 ///////////////////// Reserved shorthands //////////////////////////////////////////
-"_"                                     {   return process(kUNDER);  }
-":"                                     {   return process(kCOLON);  }
-"="                                     {   return process(kASSIGN);  }
-"=>"                                    {   return process(kFUNTYPE); }
-"'\u21D2'"                              {   return process(kFUNTYPE_ASCII); }
-"<-"                                    {   return process(kCHOOSE); }
-"<:"                                    {   return process(kLOWER_BOUND); }
-">:"                                    {   return process(kUPPER_BOUND); }
-"#"                                     {   return process(kINNER_CLASS); }
-"@"                                     {   return process(kAT);}
+"_"                                     {   return process(tUNDER);  }
+":"                                     {   return process(tCOLON);  }
+"="                                     {   return process(tASSIGN);  }
+"=>"                                    {   return process(tFUNTYPE); }
+"'\u21D2'"                              {   return process(tFUNTYPE_ASCII); }
+"<-"                                    {   return process(tCHOOSE); }
+"<:"                                    {   return process(tLOWER_BOUND); }
+">:"                                    {   return process(tUPPER_BOUND); }
+"#"                                     {   return process(tINNER_CLASS); }
+"@"                                     {   return process(tAT);}
 
 "+"                                     {   return process(tPLUS);}
 "-"                                     {   return process(tMINUS);}
@@ -262,8 +262,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 
 "."                                     {   return process(tDOT);}
 ";"                                     {   return process(tSEMICOLON);}
-
-
+","                                     {   return process(tCOMMA);}
 
 ////////////////////// Identifier /////////////////////////////////////////
 

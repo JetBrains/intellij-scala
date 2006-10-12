@@ -15,7 +15,7 @@ import com.intellij.lang.PsiBuilder
 class Program extends ScalaTokenTypes {
   def parse(builder: PsiBuilder): Unit = {
 
-    var flag = true  
+    var flag = true
 
     def rollForward : Unit = {
       while ( !builder.eof() && flag){
@@ -37,12 +37,19 @@ class Program extends ScalaTokenTypes {
       }
     }
 
+    
     var marker = builder.mark()
     rollForward
 
     if ( !builder.eof() ){
       new Top parse(builder) //handle top level - package, import
+
     }
+
+    /*while ( !builder.eof() ){
+      builder.advanceLexer
+    } */
+
 
     parseNext
     marker.done(ScalaElementTypes.FILE)
