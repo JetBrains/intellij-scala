@@ -17,19 +17,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/scala.flex" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/scala.flex" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Scala.iml" afterPath="$PROJECT_DIR$/Scala.iml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scala.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/tests/MainTestSuite.java" afterPath="$PROJECT_DIR$/test/tests/MainTestSuite.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/ScalaTokenTypes.java" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/ScalaTokenTypes.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Scala.ipr" afterPath="$PROJECT_DIR$/Scala.ipr" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/_ScalaLexer.java" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/_ScalaLexer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/StableId.scala" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/StableId.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/Top.scala" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/Top.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/QualId.scala" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/QualId.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/Import.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/ImportList.scala" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/ImportList.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Scala.iws" afterPath="$PROJECT_DIR$/Scala.iws" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/ListOfStableIDs.scala" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/ListOfStableIDs.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/ScalaElementTypes.scala" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/ScalaElementTypes.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/Program.scala" afterPath="$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/Program.scala" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -154,10 +147,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Import.scala" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Import.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/Import.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="5" column="44" selection-start="278" selection-end="278" vertical-scroll-proportion="-0.21915285">
+            <state line="41" column="43" selection-start="1251" selection-end="1251" vertical-scroll-proportion="1.2302026">
               <folding />
             </state>
           </provider>
@@ -166,16 +159,16 @@
       <file leaf-file-name="ImportList.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/ImportList.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="60" column="33" selection-start="1655" selection-end="1655" vertical-scroll-proportion="0.7605893">
+            <state line="68" column="6" selection-start="1841" selection-end="1841" vertical-scroll-proportion="2.1289134">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ListOfStableIDs.scala" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="ListOfStableIDs.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/ListOfStableIDs.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="43" column="48" selection-start="1350" selection-end="1350" vertical-scroll-proportion="1.3462247">
+            <state line="42" column="30" selection-start="1331" selection-end="1331" vertical-scroll-proportion="0.8858195">
               <folding />
             </state>
           </provider>
@@ -184,7 +177,7 @@
       <file leaf-file-name="StableId.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/StableId.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="71" column="63" selection-start="2241" selection-end="2241" vertical-scroll-proportion="0.1344383">
+            <state line="52" column="58" selection-start="1688" selection-end="1688" vertical-scroll-proportion="0.8508287">
               <folding />
             </state>
           </provider>
@@ -202,7 +195,7 @@
       <file leaf-file-name="ScalaElementTypes.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/ScalaElementTypes.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="51" column="18" selection-start="2609" selection-end="2625" vertical-scroll-proportion="0.57954544">
+            <state line="94" column="41" selection-start="4600" selection-end="4600" vertical-scroll-proportion="0.3655303">
               <folding />
             </state>
           </provider>
@@ -220,7 +213,7 @@
       <file leaf-file-name="QualId.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/QualId.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="35" column="43" selection-start="1160" selection-end="1160" vertical-scroll-proportion="1.0957643">
+            <state line="16" column="23" selection-start="573" selection-end="573" vertical-scroll-proportion="0.32412523">
               <folding />
             </state>
           </provider>
@@ -852,7 +845,7 @@
       <window_info id="Module Dependencies" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.09894566" order="1" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.11678832" order="1" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2860412" order="8" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.31006864" order="2" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="2" />
@@ -881,7 +874,7 @@
     <option name="PERFORM_COMMIT_IN_BACKGROUND" value="false" />
     <option name="PUT_FOCUS_INTO_COMMENT" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" />
+    <option name="LAST_COMMIT_MESSAGE" value="" />
     <option name="SAVE_LAST_COMMIT_MESSAGE" value="true" />
     <option name="CHECKIN_DIALOG_SPLITTER_PROPORTION" value="0.8" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
@@ -1014,13 +1007,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/ScalaElementTypes.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="51" column="18" selection-start="2609" selection-end="2625" vertical-scroll-proportion="0.57954544">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/scala.flex">
       <provider selected="true" editor-type-id="text-editor">
         <state line="264" column="60" selection-start="13968" selection-end="13968" vertical-scroll-proportion="0.33333334">
@@ -1035,13 +1021,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/QualId.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="43" selection-start="1160" selection-end="1160" vertical-scroll-proportion="1.0957643">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/ScalaTokenTypes.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="135" column="38" selection-start="8437" selection-end="8437" vertical-scroll-proportion="0.8503788">
@@ -1049,30 +1028,44 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/StableId.scala">
+    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/Import.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="71" column="63" selection-start="2241" selection-end="2241" vertical-scroll-proportion="0.1344383">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/ListOfStableIDs.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="48" selection-start="1350" selection-end="1350" vertical-scroll-proportion="1.3462247">
+        <state line="41" column="43" selection-start="1251" selection-end="1251" vertical-scroll-proportion="1.2302026">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/ImportList.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="60" column="33" selection-start="1655" selection-end="1655" vertical-scroll-proportion="0.7605893">
+        <state line="68" column="6" selection-start="1841" selection-end="1841" vertical-scroll-proportion="2.1289134">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/Import.scala">
+    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/QualId.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="44" selection-start="278" selection-end="278" vertical-scroll-proportion="-0.21915285">
+        <state line="16" column="23" selection-start="573" selection-end="573" vertical-scroll-proportion="0.32412523">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/StableId.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="52" column="58" selection-start="1688" selection-end="1688" vertical-scroll-proportion="0.8508287">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/ScalaElementTypes.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="94" column="41" selection-start="4600" selection-end="4600" vertical-scroll-proportion="0.3655303">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/parser/parsing/top/ListOfStableIDs.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="42" column="30" selection-start="1331" selection-end="1331" vertical-scroll-proportion="0.8858195">
           <folding />
         </state>
       </provider>

@@ -40,16 +40,9 @@ class ListOfStableIDs {
               Console.println("      token after StableID" + builder.getTokenType)
 
               val commaMarker = builder.mark()
-
               commaMarker.done( ScalaTokenTypes.tCOMMA ) //new node: COMMA
 
               builder.advanceLexer
-
-
-              //val idMarker = builder.mark()
-
-              //(new StableId).parse(builder, idMarker)
-              //idMarker.drop()
 
               if ( !ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType) ){
                 builder.error("expected idetifier")
