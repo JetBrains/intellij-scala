@@ -13,6 +13,10 @@ import org.jetbrains.plugins.scala.ScalaFileType
 class ScalaFile ( viewProvider : FileViewProvider )
   extends PsiFileBase ( viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage() ) {
 
+  override def getViewProvider() = {
+    viewProvider
+  }
+
   def getFileType() = {
     ScalaFileType.SCALA_FILE_TYPE
   }
