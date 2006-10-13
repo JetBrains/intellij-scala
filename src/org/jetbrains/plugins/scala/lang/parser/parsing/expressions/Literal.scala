@@ -47,23 +47,35 @@ Literal ::= integerLiteral
         builder.advanceLexer()
         marker.done(ScalaElementTypes.NULL)
       }
+
+
       case ScalaTokenTypes.tSTRING_BEGIN => { //String literal
         val beginMarker = builder.mark();
         builder.advanceLexer()
         beginMarker.done(ScalaElementTypes.STRING_BEGIN)
-
-        val strContentMarker = builder.mark()
         builder.getTokenType match {
-          case ScalaTokenTypes.tSTRING => builder.advanceLexer()
-          case _ => builder.error("Wrong string literal!")
+          case ScalaTokenTypes.tSTRING_END => {
+            val strContentMarker = builder.mark()
+            strContentMarker.done(ScalaElementTypes.STRING_CONTENT)
+            val endMarker = builder.mark()
+            builder.advanceLexer()
+            endMarker.done(ScalaElementTypes.STRING_END)
+          }
+          case ScalaTokenTypes.tSTRING => {
+            val strContentMarker = builder.mark()
+            builder.advanceLexer()
+            strContentMarker.done(ScalaElementTypes.STRING_CONTENT)
+            builder.getTokenType match {
+              case ScalaTokenTypes.tSTRING_END => {
+                val endMarker = builder.mark()
+                builder.advanceLexer()
+                endMarker.done(ScalaElementTypes.STRING_END)
+              }
+              case _ => builder.error("Wrong string completion")
+            }
+          }
+          case _ => builder.error("Wrong string declaration")
         }
-        strContentMarker.done(ScalaElementTypes.STRING_CONTENT)
-        val endMarker = builder.mark()
-        builder.getTokenType match {
-          case ScalaTokenTypes.tSTRING_END => builder.advanceLexer()
-          case _ => builder.error("Wrong string end")
-        }
-        endMarker.done(ScalaElementTypes.STRING_END)
         marker.done(ScalaElementTypes.STRING_LITERAL)
       }
     }
