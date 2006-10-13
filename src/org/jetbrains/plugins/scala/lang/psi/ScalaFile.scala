@@ -17,7 +17,7 @@ class ScalaFile ( viewProvider : FileViewProvider )
     viewProvider
   }
 
-  def getFileType() = {
+  override def getFileType() = {
     ScalaFileType.SCALA_FILE_TYPE
   }
 }
