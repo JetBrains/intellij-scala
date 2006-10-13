@@ -76,7 +76,7 @@ Literal ::= integerLiteral
           }
           case _ => builder.error("Wrong string declaration")
         }
-        marker.done(ScalaElementTypes.STRING_LITERAL)
+        marker.done(ScalaElementTypes.STRING_LITERAL) 
       }
     }
   }
