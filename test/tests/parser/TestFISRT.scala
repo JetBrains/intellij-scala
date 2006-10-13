@@ -2,7 +2,6 @@ package tests.examples
 
 import junit.framework._
 import Assert._
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.PrefixExpression
 import org.jetbrains.plugins.scala.lang.parser.bnf._
 import org.jetbrains.plugins.scala.lang.lexer._
 import com.intellij.psi.tree.TokenSet, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
