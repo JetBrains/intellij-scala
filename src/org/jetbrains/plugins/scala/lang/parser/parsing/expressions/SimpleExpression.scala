@@ -45,7 +45,7 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
       Literal parse (builder) // Ate literal
       subParse(builder)
     } else {
-      builder.error("Wrong simple expression")
+      builder.error("Wrong expression!")
       false
     }
   }
