@@ -15,7 +15,6 @@ class Top extends ScalaTokenTypes{
 
   def skipLineTerminators (builder : PsiBuilder) : Unit = {
     while ( (!builder.eof()) && ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE.equals(builder.getTokenType)){
-      Console.println("skipping one line terminator")
       builder.advanceLexer
     }
   }
@@ -29,32 +28,8 @@ class Top extends ScalaTokenTypes{
   }
 
   if (builder.getTokenType.equals(ScalaTokenTypes.kIMPORT)) {
-    
-      //Console println("in import : " + builder.getTokenType)
-      Console.println("handling import list do ")
       new ImportList().parse(builder)
-      Console.println("handling import list done ")
-
-
-
-    //  builder.advanceLexer()
-
   }
 
-   /* if ( builder.getTokenType == ScalaTokenTypes.kPACKAGE) {
-      new Package().parse(builder)
-      builder.advanceLexer()
-    }
-
-//handle IMPORT LIST
-    if ( builder.getTokenType == ScalaTokenTypes.kIMPORT) {
-      val importListMarker = builder.mark()
-
-      new ImportList().parse(builder)
-      
-      importListMarker.done( ScalaElementTypes.IMPORT_LIST )
-      builder.advanceLexer()
-    }    
-     */
   }
 }
