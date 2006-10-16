@@ -139,7 +139,6 @@ InfixExpr ::= PrefixExpr
 FIRST(InfixExpression) =  PrefixExpression.FIRST
 
 */
-
   val INFIX_FIRST = PREFIX_FIRST
 
   def parseInfixExpr(builder : PsiBuilder) : Boolean = {
@@ -159,7 +158,6 @@ FIRST(InfixExpression) =  PrefixExpression.FIRST
             subParseInfixExpr()
           } else {
             rollbackMarker.rollbackTo()
-            //builder.error("Wrong infix expression!")
             true
           }
         }
