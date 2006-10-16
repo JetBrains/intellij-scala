@@ -98,11 +98,17 @@ object ScalaElementTypes {
   val EXPRESSION = new ScalaElementType("expression")
   val EXPRESSIONS_LIST = new ScalaElementType("list of expressions")
 
-
+  /*************************************************************************************/
+  /************************************** KEYWORDS *************************************/
+  /*************************************************************************************/
+  val THIS = new ScalaElementType("this")
+  val SUPER = new ScalaElementType("super")
   // Primitives
   val DOT = new ScalaElementType("DOT")
   val COMMA = new ScalaElementType("COMMA")
   val SEMICOLON = new ScalaElementType("SEMICOLON")
+  val LSQBRACKET = new ScalaElementType("LSQBRACKET")
+  val RSQBRACKET = new ScalaElementType("RSQBRACKET")
 
 //ordinary identifier
 

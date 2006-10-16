@@ -19,4 +19,18 @@ object ParserUtils {
     }
   }
 
+  //Write element node
+  def eatElement(builder: PsiBuilder, elem: ScalaElementType): Unit = {
+    val marker = builder.mark()
+    builder.advanceLexer // Ate DOT
+    marker.done(elem)
+  }
+
+  //Write element node
+  def errorToken(builder: PsiBuilder, marker: PsiBuilder.Marker , msg: String, elem: ScalaElementType): Boolean = {
+    builder.error(msg)
+    marker.done(elem)
+    false
+  }
+
 }
