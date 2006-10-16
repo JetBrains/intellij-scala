@@ -37,19 +37,10 @@ class ImportList {
     val num = getNumberOfImport
     initImportMarker.rollbackTo()
 
-
-    Console.println("  importListMarker do ")
     val importListMarker = builder.mark()
-
-
-    Console.println("  num = " + num)
 
     var i = 1;
     while ( ScalaTokenTypes.kIMPORT.equals(builder.getTokenType) && (i <= num ) ) {
-      Console.println("i = " + i)
-      Console.println("  handle single import")
-
-      Console.println("  imMarker do ")
       val imStMarker = builder.mark()
 
       val importMarker = builder.mark()
@@ -60,7 +51,6 @@ class ImportList {
       (new Import).parse(builder)
 
       imStMarker.done( ScalaElementTypes.IMPORT_STMT )
-      Console.println("  imMarker done ")
 
       if (i != num ) {
         new Top() skipLineTerminators( builder )
@@ -70,7 +60,5 @@ class ImportList {
     }
 
    importListMarker.done(ScalaElementTypes.IMPORT_LIST)
-
-   Console.println("  importListMarker done ")
   }
 }
