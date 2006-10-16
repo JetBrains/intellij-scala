@@ -20,12 +20,6 @@ object ScalaElementTypes {
   val FILE = new IFileElementType(Language.findInstance(new ClassOf().cast[Class[ScalaLanguage]]( classOf[ScalaLanguage] )))
 
   /*************************************************************************************/
-  /*********************************** WRONG WAY ***************************************/
-  /*************************************************************************************/
-  val WRONGWAY = new ScalaElementType("WrongWay")
-  val PARSED = new ScalaElementType("Parsed")
-
-  /*************************************************************************************/
   /*********************************** IDENTIFIER **************************************/
   /*************************************************************************************/
   val IDENTIFIER = new ScalaElementType("identifier")
