@@ -45,6 +45,24 @@ object ScalaElementTypes {
   val STABLE_ID_LIST = new ScalaElementType("stable id list")
   val UNDER = new ScalaElementType("underline")
 
+  /*************************************************************************************/
+  /************************************** TYPE DECLARATION *************************************/
+  /*************************************************************************************/
+  val TMPL_DEF = new ScalaElementType("tmpl definition")
+
+  val OBJECT = new ScalaElementType("object")
+  val OBJECT_STMT = new ScalaElementType("object statement")
+  val OBJECT_DEF = new ScalaElementType("object definition")
+
+  val CLASS = new ScalaElementType("class")
+  val CLASS_STMT = new ScalaElementType("class statement")
+  val CLASS_DEF = new ScalaElementType("class definition")
+
+  val TRAIT = new ScalaElementType("trait")
+  val TRAIT_STMT = new ScalaElementType("trait statement")
+  val TRAIT_DEF = new ScalaElementType("trait definition")
+
+  val CASE = new ScalaElementType("case")
 
   /*************************************************************************************/
   /************************************** LITERALS *************************************/
@@ -81,9 +99,6 @@ object ScalaElementTypes {
   val EXPRESSIONS_LIST = new ScalaElementType("list of expressions")
 
 
-
-
-
   // Primitives
   val DOT = new ScalaElementType("DOT")
   val COMMA = new ScalaElementType("COMMA")
@@ -91,6 +106,7 @@ object ScalaElementTypes {
 
 //ordinary identifier
 
+//type declaration
 
 //types
   val SIMPLE_TYPE = new ScalaElementType("simple type")

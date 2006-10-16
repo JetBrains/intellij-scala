@@ -22,6 +22,7 @@ object ScalaPsiCreator {
      case ScalaTokenTypes.kCLASS => new ScClass( node )
      case ScalaTokenTypes.kOBJECT => new ScObject( node )
      case ScalaTokenTypes.kTRAIT => new ScTrait( node )
+     case ScalaTokenTypes.kIMPORT => new ScImport( node )
      case _ => new ScalaPsiElementImpl( node )
    }
          

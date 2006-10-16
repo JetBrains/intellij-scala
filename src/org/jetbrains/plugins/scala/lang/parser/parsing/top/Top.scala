@@ -31,5 +31,14 @@ class Top extends ScalaTokenTypes{
         new ImportList().parse(builder)
     }
 
+    skipLineTerminators( builder )
+
+    if (builder.getTokenType.equals(ScalaTokenTypes.kOBJECT)
+      || builder.getTokenType.equals(ScalaTokenTypes.kCLASS)
+      || builder.getTokenType.equals(ScalaTokenTypes.kTRAIT)){
+
+      TmplDef.parse(builder)
+    }
+
   }
 }
