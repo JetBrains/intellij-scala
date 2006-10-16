@@ -29,8 +29,8 @@ class Program extends ScalaTokenTypes {
     def parseNext : Unit = {
       while ( !builder.eof() ) {
          rollForward
-         if (Expression.INFIX_FIRST.contains(builder.getTokenType)) {
-           Expression parseInfixExpr (builder)
+         if (Expression.POSTFIX_FIRST.contains(builder.getTokenType)) {
+           Expression parsePostfixExpr (builder)
          } else builder advanceLexer
       }
     }
