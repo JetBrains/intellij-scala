@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Top
 import org.jetbrains.plugins.scala.lang.parser.util._
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expression
+import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
 
 import com.intellij.lang.PsiBuilder
@@ -29,6 +30,12 @@ class Program extends ScalaTokenTypes {
     def parseNext : Unit = {
       while ( !builder.eof() ) {
          rollForward
+
+         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType) ||
+              ScalaTokenTypes.kTHIS.equals(builder.getTokenType)) {
+           Types parseStableId (builder)
+         } else
+
          if (Expression.POSTFIX_FIRST.contains(builder.getTokenType)) {
            Expression parsePostfixExpr (builder)
          } else builder advanceLexer
