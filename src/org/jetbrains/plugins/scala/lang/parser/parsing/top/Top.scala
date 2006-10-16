@@ -21,15 +21,15 @@ class Top extends ScalaTokenTypes{
 
   def parse(builder: PsiBuilder): Unit = {
 
-  if (builder.getTokenType.equals(ScalaTokenTypes.kPACKAGE)) {
-      new Package().parse(builder)
+    if (builder.getTokenType.equals(ScalaTokenTypes.kPACKAGE)) {
+        new Package().parse(builder)
 
-      skipLineTerminators(builder)
-  }
+        skipLineTerminators(builder)
+    }
 
-  if (builder.getTokenType.equals(ScalaTokenTypes.kIMPORT)) {
-      new ImportList().parse(builder)
-  }
+    if (builder.getTokenType.equals(ScalaTokenTypes.kIMPORT)) {
+        new ImportList().parse(builder)
+    }
 
   }
 }
