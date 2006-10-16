@@ -24,7 +24,6 @@ class Import {
          (new ListOfStableIDs).parse(builder)
          
          listImport.done(ScalaElementTypes.STABLE_ID_LIST) //new node: StableID list
-         
 
           builder.getTokenType match {
             case ScalaTokenTypes.tSEMICOLON => {
@@ -35,10 +34,7 @@ class Import {
 
             case _ => {}
           }
-
       }
-              
-
       case _ => builder.error("Wrong import")
     }
   }
