@@ -136,8 +136,7 @@ InfixExpr ::= PrefixExpr
 
 ***********************************************
 
-FIRST(InfixExpression) =  ScalaTokenTypes.tIDENTIFIER
-     union                PrefixExpression.FIRST
+FIRST(InfixExpression) =  PrefixExpression.FIRST
 
 */
 
@@ -146,8 +145,30 @@ FIRST(InfixExpression) =  ScalaTokenTypes.tIDENTIFIER
   def parseInfixExpr(builder : PsiBuilder) : Boolean = {
     val marker = builder.mark()
     var result = parsePrefixExpr(builder)
+
+    def subParseInfixExpr() : Boolean = {
+      builder.getTokenType match {
+        case ScalaTokenTypes.tIDENTIFIER => {
+          val rollbackMarker = builder.mark() //for rollback
+          val idMarker = builder.mark()
+          builder.advanceLexer()
+          idMarker.done(ScalaElementTypes.IDENTIFIER)
+          ParserUtils.rollForward(builder)
+          if (parsePrefixExpr(builder)) {
+            rollbackMarker.drop()
+            subParseInfixExpr()
+          } else {
+            rollbackMarker.rollbackTo()
+            //builder.error("Wrong infix expression!")
+            true
+          }
+        }
+        case _ => true
+      }
+    }
+
     if (result) {
-      result = subParseInfixExpr (builder)
+      result = subParseInfixExpr ()
       marker.done(ScalaElementTypes.INFIX_EXPR)
       result
     }
@@ -158,26 +179,47 @@ FIRST(InfixExpression) =  ScalaTokenTypes.tIDENTIFIER
     }
   }
 
-  def subParseInfixExpr(builder : PsiBuilder) : Boolean = {
+/*
+POSTFIX EXPRESSION
+Default grammar:
+PostfixExpr ::= InfixExpr [id [NewLine]]
 
-    builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
+***********************************************
 
-        val idMarker = builder.mark()
-        builder.advanceLexer()
-        idMarker.done(ScalaElementTypes.IDENTIFIER)
+Realized grammar:                                             
+PostfixExpr ::= InfixExpr [id [NewLine]]
 
-        ParserUtils.rollForward(builder)
-        if (parsePrefixExpr(builder)) {
-          subParseInfixExpr(builder)
-        } else {
-          builder.error("Wrong infix expression!")
-          false
+***********************************************
+
+FIRST(PostfixExpression) =  InffixExpression.FIRST
+*/
+
+  val POSTFIX_FIRST = INFIX_FIRST
+
+  def parsePostfixExpr(builder : PsiBuilder) : Boolean = {
+    val marker = builder.mark()
+    var result = parseInfixExpr(builder)
+    if (result) {
+      builder.getTokenType match {
+        case ScalaTokenTypes.tIDENTIFIER => {
+          val idMarker = builder.mark()
+          builder.advanceLexer()
+          idMarker.done(ScalaElementTypes.IDENTIFIER)
+          ParserUtils.rollForward(builder)
         }
+        case _ =>
       }
-      case _ => true
+      marker.done(ScalaElementTypes.POSTFIX_EXPR)
+      result
+    }
+    else {
+      builder.error("Wrong postfix expression!")
+      marker.done(ScalaElementTypes.POSTFIX_EXPR)
+      result
     }
   }
+  
+
 
 
 }
