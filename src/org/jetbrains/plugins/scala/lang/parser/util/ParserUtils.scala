@@ -27,10 +27,13 @@ object ParserUtils {
   }
 
   //Write element node
-  def errorToken(builder: PsiBuilder, marker: PsiBuilder.Marker , msg: String, elem: ScalaElementType): Boolean = {
+  def errorToken(builder: PsiBuilder,
+                 marker: PsiBuilder.Marker ,
+                 msg: String,
+                 elem: ScalaElementType): ScalaElementType = {
     builder.error(msg)
     marker.done(elem)
-    false
+    ScalaElementTypes.WRONGWAY
   }
 
 }
