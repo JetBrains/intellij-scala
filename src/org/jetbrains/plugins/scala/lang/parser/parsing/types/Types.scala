@@ -1,4 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types {
+  /**
+  Parsing various types with its names and declarations
+  */
 
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -6,15 +9,15 @@ import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util._
-
-  /**
-  Parsing various types with its names and declarations
-  */
-  object StableId {
+import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 
   /*
-  STABLE ID & PATH
+  Class for StableId representation and parsing
+  */
+  object StableId{
 
+  /*
+  STABLE ID
   Default grammar:
 
   StableId ::= id
@@ -24,21 +27,14 @@ import org.jetbrains.plugins.scala.lang.parser.util._
 
   *******************************************
 
-  Path ::= StableId
-          | [id ‘.’] this
-          | [id ’.’] super [‘[’ id ‘]’]‘.’ id
-
-  *******************************************
-
   FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
-  union             FIRST(Path)
-
-  FIRST(Path) = ScalaTokenTypes.tIIDENTIFIER,
-                ScalaTokenTypes.kTHIS,
-                ScalaTokenTypes.kSUPER
   */
-    // Parses StableId
-    def parse(builder : PsiBuilder) : Boolean = {
+    /** Parses StableId
+    * @return ScalaElementTypes.STABLE_ID if really StableId parsed,
+    * ScalaElementTypes.PATH if ONLY Path parsed,
+    * ScalaElementTypes.WRONGWAY else
+    */
+    def parse(builder : PsiBuilder) : ScalaElementType = {
 
       /** processing [‘[’ id ‘]’] statement**/
       def parseGeneric(currentMarker: PsiBuilder.Marker): Boolean = {
@@ -53,15 +49,15 @@ import org.jetbrains.plugins.scala.lang.parser.util._
       }
 
       /** "super" keyword processing **/
-      def afterSuper(currentMarker: PsiBuilder.Marker): Boolean = {
+      def afterSuper(currentMarker: PsiBuilder.Marker): ScalaElementType = {
         val nextMarker = currentMarker.precede()
-        currentMarker.done(ScalaElementTypes.STABLE_ID)
+        currentMarker.drop()
         ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
           if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)) {
             val nextMarker1 = nextMarker.precede()
-            nextMarker.done(ScalaElementTypes.STABLE_ID)
+            nextMarker.drop()
             ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
               if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
                 ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
@@ -74,16 +70,19 @@ import org.jetbrains.plugins.scala.lang.parser.util._
                   }
                   case _ => {
                     nextMarker1.done(ScalaElementTypes.STABLE_ID)
-                    true
+                    ScalaElementTypes.STABLE_ID
                   }
                 }
               } else ParserUtils.errorToken(builder, nextMarker1, "Wrong id declaration", ScalaElementTypes.STABLE_ID)
-          } else ParserUtils.errorToken(builder, nextMarker, "Wrong id declaration", ScalaElementTypes.STABLE_ID)
+          } else {
+            nextMarker.done(ScalaElementTypes.PATH)
+            ScalaElementTypes.PATH
+          }
         } else ParserUtils.errorToken(builder, nextMarker, "Wrong id declaration", ScalaElementTypes.STABLE_ID)
       }
 
       /** sequence like  {'.' id } processing **/
-      def leftRecursion (currentMarker: PsiBuilder.Marker): Boolean = {
+      def leftRecursion (currentMarker: PsiBuilder.Marker): ScalaElementType = {
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER => {
             ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
@@ -96,7 +95,7 @@ import org.jetbrains.plugins.scala.lang.parser.util._
               }
               case _ => {
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
-                true
+                ScalaElementTypes.STABLE_ID
               }
             }
           }
@@ -104,15 +103,15 @@ import org.jetbrains.plugins.scala.lang.parser.util._
         }
       }
 
-      def afterDotParse(currentMarker: PsiBuilder.Marker): Boolean = {
+      def afterDotParse(currentMarker: PsiBuilder.Marker): ScalaElementType = {
         builder.getTokenType match {
           /************** THIS ***************/
           case ScalaTokenTypes.kTHIS => {
             ParserUtils.eatElement(builder, ScalaElementTypes.THIS)
-            val newMarker = currentMarker.precede()
-            currentMarker.done(ScalaElementTypes.STABLE_ID)
-
             if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)){
+              val newMarker = currentMarker.precede()
+              //currentMarker.done(ScalaElementTypes.STABLE_ID)
+              currentMarker.drop()
               ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
               if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
                 ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
@@ -125,11 +124,14 @@ import org.jetbrains.plugins.scala.lang.parser.util._
                   }
                   case _ => {
                     newMarker.done(ScalaElementTypes.STABLE_ID)
-                    true
+                    ScalaElementTypes.STABLE_ID
                   }
                 }
               } else ParserUtils.errorToken(builder, newMarker, "Wrong id declaration", ScalaElementTypes.STABLE_ID)
-            } else ParserUtils.errorToken(builder, newMarker, "Wrong id declaration", ScalaElementTypes.STABLE_ID)
+            } else { 
+              currentMarker.done(ScalaElementTypes.PATH)
+              ScalaElementTypes.PATH
+            }
           }
           /***************** SUPER ****************/
           case ScalaTokenTypes.kSUPER => {
@@ -154,7 +156,7 @@ import org.jetbrains.plugins.scala.lang.parser.util._
               }
               case _ => {
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
-                true
+                ScalaElementTypes.STABLE_ID
               }
             }
           }
@@ -163,7 +165,7 @@ import org.jetbrains.plugins.scala.lang.parser.util._
         }
       }
 
-      def stableIdSubParse(currentMarker: PsiBuilder.Marker) : Boolean = {
+      def stableIdSubParse(currentMarker: PsiBuilder.Marker) : ScalaElementType = {
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER => {
             ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
@@ -176,7 +178,7 @@ import org.jetbrains.plugins.scala.lang.parser.util._
               }
               case _ => {
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
-                true
+                ScalaElementTypes.STABLE_ID
               }
             }
           }
@@ -190,8 +192,32 @@ import org.jetbrains.plugins.scala.lang.parser.util._
       val stableMarker = builder.mark()
       var result = stableIdSubParse(stableMarker)
       result
-
     }
+  }
+
+  object Path {
+
+  /*
+  PATH
+  Default grammar:
+  Path ::= StableId
+          | [id ‘.’] this
+          | [id ’.’] super [‘[’ id ‘]’]‘.’ id
+
+  *******************************************
+  */
+
+    /** Parses Path
+    * @return ScalaElementTypes.PATH if Path or StableId parsed,
+    * ScalaElementTypes.WRONGWAY else
+    */
+    def parse(builder : PsiBuilder) : ScalaElementType = {
+      var result = StableId.parse(builder)
+      if (result.equals(ScalaElementTypes.STABLE_ID))
+        ScalaElementTypes.PATH
+      else result
+    }
+
   }
 
 }
