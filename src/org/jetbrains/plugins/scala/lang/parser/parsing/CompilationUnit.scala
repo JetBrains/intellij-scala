@@ -34,10 +34,16 @@ object CompilationUnit {
       //possible package statement
       case ScalaTokenTypes.kPACKAGE => {
         val packageStmtMarker = builder.mark()
+        Console.println("top level package handle")
         Package.parse(builder)
+        Console.println("top level package handled")
         packageStmtMarker.done(ScalaElementTypes.PACKAGE_STMT)
       }
 
+      case _=> {}
+    }
+
+    builder.getTokenType() match {
       case ScalaTokenTypes.tLSQBRACKET
          | ScalaTokenTypes.kABSTRACT
          | ScalaTokenTypes.kFINAL
@@ -52,9 +58,11 @@ object CompilationUnit {
          | ScalaTokenTypes.kTRAIT
          | ScalaTokenTypes.kIMPORT
          | ScalaTokenTypes.kPACKAGE
+         | _
          => {
-
+        Console.println("TopStatSeq invoke ")
         TopStatSeq.parse(builder)
+        Console.println("TopStatSeq invoked ")
       }
 
       case _ => {builder.error("wrong top declaration")}
@@ -65,6 +73,7 @@ object CompilationUnit {
 
   object TopStatSeq {
     def parse(builder: PsiBuilder): Unit = {
+
       val topStatMarker = builder.mark()
       TopStat.parse(builder)
       topStatMarker.done(ScalaElementTypes.TOP_STAT)
@@ -85,6 +94,7 @@ object CompilationUnit {
 
   object TopStat {
     def parse(builder: PsiBuilder): Unit = {
+    
       builder.getTokenType() match {
         case ScalaTokenTypes.tLSQBRACKET => {
           val attributeClauseMarker = builder.mark()
@@ -123,8 +133,9 @@ object CompilationUnit {
 
         case ScalaTokenTypes.kPACKAGE => {
            val packageMarker = builder.mark()
+           //todo: packaging
            Package.parse(builder)
-           packageMarker.done(ScalaElementTypes.PACKAGE)
+           packageMarker.done(ScalaElementTypes.PACKAGE_STMT)
         }
 
         case _ => {builder.error("wrong top stat")}
