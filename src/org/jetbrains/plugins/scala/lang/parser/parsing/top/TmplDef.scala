@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing.top;
+package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 
 object TmplDef {
   abstract class TypeDef {
-
       def getKeyword : ScalaElementType
 
       def getDef :  ScalaElementType
@@ -112,7 +111,7 @@ object TmplDef {
         }
     }
 
-    val tmplDefMarker = builder.mark()
+//    val tmplDefMarker = builder.mark()
 
     builder.getTokenType() match {
       case ScalaTokenTypes.kCASE => {
@@ -140,7 +139,7 @@ object TmplDef {
 
     }
 
-    tmplDefMarker.done(ScalaElementTypes.TMPL_DEF)
+//    tmplDefMarker.done(ScalaElementTypes.TMPL_DEF)
     //Console.println("tmplDefMareker done ")
   }
 }
