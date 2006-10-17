@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.ListOfStableIDs
  * Date: 06.10.2006
  * Time: 22:13:17
  */
-class StableId {
+/*object StableId {
 
   def parse(builder : PsiBuilder, marker : PsiBuilder.Marker ) : Unit = {
 
@@ -58,7 +58,7 @@ class StableId {
              }
            }
 
-           case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => {
+           case ScalaTokenTypes.tLINE_TERMINATOR => {
              marker.done(ScalaElementTypes.STABLE_ID)
            }
 
@@ -77,4 +77,4 @@ class StableId {
          }
 
     }
-  }
+  }*/

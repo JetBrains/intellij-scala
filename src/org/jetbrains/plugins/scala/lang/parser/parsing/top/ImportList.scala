@@ -48,7 +48,7 @@ class ImportList {
 
       importMarker.done( ScalaElementTypes.IMPORT )
 
-      (new Import).parse(builder)
+      Import.parse(builder)
 
       imStMarker.done( ScalaElementTypes.IMPORT_STMT )
 

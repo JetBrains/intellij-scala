@@ -14,14 +14,14 @@ import com.intellij.lang.PsiBuilder
 class Top extends ScalaTokenTypes{
 
   def skipLineTerminators (builder : PsiBuilder) : Unit = {
-    while ( (!builder.eof()) && ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE.equals(builder.getTokenType)){
+    while ( (!builder.eof()) && ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)){
       builder.advanceLexer
     }
   }
 
   def parse(builder: PsiBuilder): Unit = {
 
-    if (builder.getTokenType.equals(ScalaTokenTypes.kPACKAGE)) {
+  /*  if (builder.getTokenType.equals(ScalaTokenTypes.kPACKAGE)) {
         new Package().parse(builder)
 
         skipLineTerminators(builder)
@@ -30,7 +30,7 @@ class Top extends ScalaTokenTypes{
     if (builder.getTokenType.equals(ScalaTokenTypes.kIMPORT)) {
         new ImportList().parse(builder)
     }
-
+    */
     skipLineTerminators( builder )
 
     if (builder.getTokenType.equals(ScalaTokenTypes.kOBJECT)

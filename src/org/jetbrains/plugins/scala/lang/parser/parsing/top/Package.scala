@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.psi.tree.IElementType
 import com.intellij.lang.PsiBuilder
 
-class Package {
+object Package {
 
   def parse(builder: PsiBuilder): Unit = {
 
