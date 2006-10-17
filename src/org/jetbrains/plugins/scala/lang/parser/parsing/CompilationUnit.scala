@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.AttributeClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.base._
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 
 
@@ -101,6 +102,8 @@ object CompilationUnit {
         StatementSeparator.parse(builder)
         Console.println("statement separator handled")
         statamentSeparatorMarker.done(ScalaElementTypes.STATEMENT_SEPARATOR)
+
+        ParserUtils.rollForward(builder)
 
         val topStatMarker = builder.mark()
         Console.println("sungle top stat handle")

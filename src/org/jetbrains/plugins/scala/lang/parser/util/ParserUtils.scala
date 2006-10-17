@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Top
+import com.intellij.psi.tree.IElementType
 
 import com.intellij.lang.PsiBuilder
 
@@ -20,7 +21,7 @@ object ParserUtils {
   }
 
   //Write element node
-  def eatElement(builder: PsiBuilder, elem: ScalaElementType): Unit = {
+  def eatElement(builder: PsiBuilder, elem: IElementType): Unit = {
     val marker = builder.mark()
     builder.advanceLexer // Ate DOT
     marker.done(elem)

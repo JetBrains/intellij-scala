@@ -50,8 +50,9 @@ object ScalaElementTypes {
   /********************************* IMPORT GROUP **************************************/
   /*************************************************************************************/
 
-  val IMPORT_GROUP = new ScalaElementType("import group")
-  val IMPORT_LIST = new ScalaElementType("import list")
+  val IMPORT_SELECTORS = new ScalaElementType("import selectors")
+  val IMPORT_SELECTOR = new ScalaElementType("import selector")
+  val IMPORT_EXPR = new ScalaElementType("import selector")
   val IMPORT_STMT = new ScalaElementType("import statement")
   val IMPORT = new ScalaElementType("import")
   val STABLE_ID_LIST = new ScalaElementType("stable id list")

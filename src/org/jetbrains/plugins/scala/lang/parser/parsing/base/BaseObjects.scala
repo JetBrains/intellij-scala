@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Package
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Exprs
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 /**
  * User: Dmitry.Krasilschikov
  * Date: 17.10.2006
@@ -322,7 +323,7 @@ object Constr {
             case _ => { builder.error("expected identifier") }
           }
 
-          if ( !builder.getTokenType().equals(ScalaElementTypes.LSQBRACKET) ){
+          if ( !builder.getTokenType().equals(ScalaElementTypes.RSQBRACKET) ){
             builder.error("expected ']'")
           }
         }
@@ -345,6 +346,170 @@ object Constr {
              localModifierMarker.done(ScalaElementTypes.LOCAL_MODIFIER)
            }
        }
+    }
+  }
+
+  object Import {
+    def parse(builder: PsiBuilder): Unit = {
+      builder.getTokenType() match {
+        case ScalaTokenTypes.kIMPORT => {
+          ParserUtils.eatElement(builder, ScalaElementTypes.IMPORT)
+
+          builder.getTokenType() match {
+            case ScalaTokenTypes.tIDENTIFIER => {
+              val importExprMarker = builder.mark()
+              ImportExpr.parse(builder)
+              importExprMarker.done(ScalaElementTypes.IMPORT_EXPR)
+
+              while (builder.getTokenType().equals(ScalaTokenTypes.tCOMMA)){
+                val importExprMarker = builder.mark()
+                ImportExpr.parse(builder)
+                importExprMarker.done(ScalaElementTypes.IMPORT_EXPR)
+              }
+            }
+            case _ => { builder.error("expected identifier") }
+
+          }
+        }
+
+        case _ => { builder.error("expected 'import'") }
+      }
+    }
+  }
+
+  object ImportExpr {
+    def parse(builder: PsiBuilder): Unit = {
+      builder.getTokenType() match {
+        case ScalaTokenTypes.tIDENTIFIER => {
+          val stableIdMarker = builder.mark()
+          StableId.parse(builder)
+          stableIdMarker.done(ScalaElementTypes.STABLE_ID)
+
+          if (builder.getTokenType().equals(ScalaTokenTypes.tDOT)){
+            builder.getTokenType() match {
+              case ScalaTokenTypes.tIDENTIFIER => {
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+              }
+
+              case ScalaTokenTypes.tUNDER => {
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
+              }
+
+              case ScalaTokenTypes.tLBRACE => {
+                var importSelectorsMarker = builder.mark()
+                ImportSelectors.parse(builder)
+                importSelectorsMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
+              }
+            }
+
+          } else {
+            builder.error("expected '.'")
+          }
+        }
+
+        case _ => { builder.error("expected identifier") }
+      }
+    }
+  }
+
+  object ImportSelectors {
+    def parse(builder: PsiBuilder): Unit = {
+      builder.getTokenType() match {
+        case ScalaTokenTypes.tLBRACE => {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
+
+          var endImportSelectors = false
+          while(builder.getTokenType().equals(ScalaTokenTypes.tIDENTIFIER) && !endImportSelectors) {
+
+            val importSelectorMarker = builder.mark()
+            ImportSelector.parse(builder)
+            importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTOR)
+
+            builder.getTokenType() match {
+              case ScalaTokenTypes.tCOMMA => {
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+
+                val preMarker = builder.mark()
+
+                //check for (ImportSelector | '_')
+                builder.getTokenType() match {
+                  case ScalaTokenTypes.tIDENTIFIER => {
+                    //todo: optimize
+                    val importSelectorMarker = builder.mark()
+                    ImportSelector.parse(builder)
+                    importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTOR)
+
+                    builder.getTokenType() match {
+                      case ScalaTokenTypes.tRBRACE => {
+                        endImportSelectors = true
+                      }
+
+                      case ScalaTokenTypes.tCOMMA => {
+                        preMarker.rollbackTo()
+                        endImportSelectors = true
+
+                        builder.error("expected '}'")
+                      }
+
+                      case _ => {
+                        builder.error("expected '}' or ','")
+                      }
+                    }
+                  }
+
+                  case ScalaTokenTypes.tUNDER => {
+                    ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
+                  }
+
+                }
+
+              }
+
+              case _ => { builder.error("expected ','")}
+            }
+          }
+
+          if ( !builder.getTokenType().equals(ScalaTokenTypes.tRBRACE) ){
+            builder.error("expected '}'")
+          } else {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+          }
+        }
+      }
+    }
+  }
+
+  object ImportSelector {
+    def parse(builder: PsiBuilder): Unit = {
+      builder.getTokenType() match {
+        case ScalaTokenTypes.tIDENTIFIER => {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+
+        builder.getTokenType() match {
+          case ScalaTokenTypes.tFUNTYPE => {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
+
+            builder.getTokenType() match {
+              case ScalaTokenTypes.tIDENTIFIER => {
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+              }
+
+              case ScalaTokenTypes.tUNDER => {
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
+              }
+
+              case _ => { builder.error("expected identifier or '_'") }
+            }
+  
+          }
+
+          case _ => {}
+        }
+
+        }
+
+        case _ => { builder.error("expected identifier") }
+      }
     }
   }
 

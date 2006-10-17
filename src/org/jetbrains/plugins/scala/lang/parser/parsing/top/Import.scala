@@ -18,7 +18,6 @@ object Import {
 
   ParserUtils.eatElement(builder, ScalaElementTypes.IMPORT)
 
-
     builder.getTokenType match {
 
       case ScalaTokenTypes.tIDENTIFIER => {

@@ -37,7 +37,7 @@ class ImportList {
     val num = getNumberOfImport
     initImportMarker.rollbackTo()
 
-    val importListMarker = builder.mark()
+   // val importListMarker = builder.mark()
 
     var i = 1;
     while ( ScalaTokenTypes.kIMPORT.equals(builder.getTokenType) && (i <= num ) ) {
@@ -59,6 +59,6 @@ class ImportList {
       i = i + 1
     }
 
-   importListMarker.done(ScalaElementTypes.IMPORT_LIST)
+   //importListMarker.done(ScalaElementTypes.IMPORT_LIST)
   }
 }
