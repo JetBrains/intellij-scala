@@ -139,7 +139,6 @@ object ScalaElementTypes {
   val TOP_STAT = new ScalaElementType("top stat")
 
 //types
-  val SIMPLE_TYPE = new ScalaElementType("simple type")
   val TYPE = new ScalaElementType("one type")
   val TYPES = new ScalaElementType("types")
   val TYPE_ARGS = new ScalaElementType("type arguments")
