@@ -19,7 +19,7 @@ class Program extends ScalaTokenTypes {
     def rollForward : Unit = {
       while ( !builder.eof() && flag){
          builder.getTokenType match{
-           case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE
+           case ScalaTokenTypes.tLINE_TERMINATOR
            | ScalaTokenTypes.tSEMICOLON => builder.advanceLexer
            case _ => flag = false
          }
@@ -48,8 +48,8 @@ class Program extends ScalaTokenTypes {
     rollForward
 
     if ( !builder.eof() ){
-      new Top parse(builder) //handle top level - package, import
-
+      //new Top parse(builder) //handle top level - package, import
+      CompilationUnit.parse(builder)
     }
 
     /*while ( !builder.eof() ){
