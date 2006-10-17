@@ -3,7 +3,7 @@ package  org.jetbrains.plugins.scala.lang.parser.parsing.top;
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.StableId
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 /**
  * User: Dmitry.Krasilschikov
  * Date: 09.10.2006
@@ -18,8 +18,9 @@ class ListOfStableIDs {
         val idMarker = builder.mark()
         builder.advanceLexer  //have to be tDOT or tCOMMA, or tEND_OF_LINE, or COLON
 
-        (new StableId).parse( builder, idMarker )
-
+        //StableId.parse( builder, idMarker )
+        /*StableId.parse( builder )
+          */
          builder.getTokenType match {
 
             case ScalaTokenTypes.tCOMMA => {

@@ -32,7 +32,7 @@ class QualId{
         }
       }
 
-      case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => { //End of package
+      case ScalaTokenTypes.tLINE_TERMINATOR => { //End of package
         marker.done(ScalaElementTypes.QUALID)
         builder.advanceLexer
       }

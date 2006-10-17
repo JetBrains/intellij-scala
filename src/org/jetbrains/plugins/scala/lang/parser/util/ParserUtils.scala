@@ -13,7 +13,7 @@ object ParserUtils {
     var flag = true
     while ( !builder.eof() && flag){
        builder.getTokenType match{
-         case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => builder.advanceLexer
+         case ScalaTokenTypes.tLINE_TERMINATOR => builder.advanceLexer
          case _ => flag = false
        }
     }

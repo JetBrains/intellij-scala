@@ -1,5 +1,13 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.base {
 
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import com.intellij.lang.PsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing._
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.Package
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
+
 /**
  * User: Dmitry.Krasilschikov
  * Date: 17.10.2006
@@ -20,14 +28,14 @@ object StatementSeparator {
         val semicolonMarker = builder.mark()
         builder.advanceLexer
 
-        semicolon.done(ScalaTokenTypes.tSEMICOLON)
+        semicolonMarker.done(ScalaTokenTypes.tSEMICOLON)
       }
 
-      case ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE => {
+      case ScalaTokenTypes.tLINE_TERMINATOR => {
         val lineTerminatorMarker = builder.mark()
         builder.advanceLexer
 
-        lineTerminator.done(ScalaTokenTypes.tWHITE_SPACE_LINE_TERMINATE)
+        lineTerminatorMarker.done(ScalaTokenTypes.tLINE_TERMINATOR)
       }
 
       case _ => { builder.error("wrong statement separator")}
@@ -78,13 +86,13 @@ object AttributeClause {
 
         builder.getTokenType() match {
           //possible line terminator
-          case ScalaTokenTypes.tLineTerminator => {
+          case ScalaTokenTypes.tLINE_TERMINATOR => {
             val lineTerminatorMarker = builder.mark()
             builder.advanceLexer
             lineTerminatorMarker.done(ScalaTokenTypes.tLINE_TERMINATOR)
           }
 
-          case => {}
+          case _ => {}
         }
       }
 
@@ -113,12 +121,13 @@ object Constr {
   def parse(builder: PsiBuilder): Unit = {
     builder.getTokenType() match {
       case ScalaTokenTypes.tIDENTIFIER => {
-        val stableIDMarker = builder.mark()
+        val stableIdMarker = builder.mark()
 
         //parse stable identifier
-        StableID.parse(builder)
+        //todo
+        StableId.parse(builder)
 
-        stableIDMarker.done(ScalaElementTypes.STABLE_ID)
+        stableIdMarker.done(ScalaElementTypes.STABLE_ID)
 
         builder.getTokenType() match {
           case ScalaTokenTypes.tLSQBRACKET => {
@@ -135,11 +144,8 @@ object Constr {
 
              //possible left parenthis - begining of list epression
             while (builder.getTokenType().equals(ScalaTokenTypes.tLPARENTHIS)) {
-                val exprInParenthisMarker = builder.mark()
 
                 ExprInParenthis.parse(builder)
-
-                exprInParenthisMarker.done(ScalaElementTypes.EXPESSION_LIST)
 
                 if ( !builder.getTokenType().equals(ScalaTokenTypes.tRPARENTHIS) ) {
                   builder.error("expected ')'")
@@ -185,9 +191,9 @@ object Constr {
                val exprsMarker = builder.mark()
 
                //parse expression list
-               Exprs.parse()
+               Exprs.parse(builder)
 
-               exprsMarker.done(ScalaElementTypes.EXPRESSION_LIST)
+               exprsMarker.done(ScalaElementTypes.EXPRESSIONS_LIST)
             }
 
             case _ => { builder.error("expected expression") }
@@ -270,13 +276,15 @@ object Constr {
            | ScalaTokenTypes.tIDENTIFIER
            => {
            val exprMarker = builder.mark()
-           Expr.parse(builder)
+
+           //todo: expr
+           //Expr.parse(builder)
            exprMarker.done(ScalaElementTypes.EXPRESSION)
 
            while (builder.getTokenType().equals(ScalaTokenTypes.tCOMMA)){
              val commaMarker = builder.mark()
-             bilder.advanceLexer
-             commaMarker.done(scalaElementTypes.COMMA)
+             builder.advanceLexer
+             commaMarker.done(ScalaElementTypes.COMMA)
 
            //todo: add first(expression)
              builder.getTokenType() match {
@@ -296,7 +304,9 @@ object Constr {
                   | ScalaTokenTypes.kTRY
                   => {
                   val exprMarker = builder.mark()
-                  Expr.parse(builder)
+
+                 //todo
+                  //Expr.parse(builder)
                   exprMarker.done(ScalaElementTypes.EXPRESSION)
              }
 
@@ -321,6 +331,7 @@ object Constr {
 
     }
   }
+}
 
 /*
     Modifier ::= LocalModifier
@@ -331,7 +342,7 @@ object Constr {
 
   object Modifier {
     def parse(builder: PsiBuilder): Unit = {
-      builder.getTokenTypes() match {
+      builder.getTokenType() match {
          case ScalaTokenTypes.kABSTRACT
             | ScalaTokenTypes.kFINAL
             | ScalaTokenTypes.kSEALED
@@ -351,9 +362,9 @@ object Constr {
         case ScalaTokenTypes.kPRIVATE
            | ScalaTokenTypes.kPROTECTED
            => {
-           val accessModifierMarker = bilder.mark()
+           val accessModifierMarker = builder.mark()
            AccessModifier.parse(builder)
-           accessModifierMarker.done(ScalaElementtypes.MODIFIER_ACCESS)
+           accessModifierMarker.done(ScalaElementTypes.MODIFIER_ACCESS)
         }
       }
     }
@@ -361,13 +372,13 @@ object Constr {
 
   object AccessModifier {
     def parse(builder: PsiBuilder): Unit = {
-      builder.getTokenTypes() match {
+      builder.getTokenType() match {
         case ScalaTokenTypes.tLSQBRACKET => {
           val lsqbracketMarker = builder.mark()
           builder.advanceLexer
           lsqbracketMarker.done(ScalaElementTypes.LSQBRACKET)
 
-          builder.getTokenTypes() match {
+          builder.getTokenType() match {
             case ScalaTokenTypes.tIDENTIFIER => {
               val idMarker = builder.mark()
               builder.advanceLexer
@@ -377,7 +388,7 @@ object Constr {
             case _ => { builder.error("expected identifier") }
           }
 
-          if ( !builder.getTokenTypes().equals(ScalaElementTypes.LSQBRACKET) ){
+          if ( !builder.getTokenType().equals(ScalaElementTypes.LSQBRACKET) ){
             builder.error("expected ']'")
           }
         }
@@ -388,17 +399,18 @@ object Constr {
 
   object LocalModifier {
     def parse(builder: PsiBuilder): Unit = {
-      case ScalaTokenTypes.kABSTRACT
-         | ScalaTokenTypes.kFINAL
-         | ScalaTokenTypes.kSEALED
-         | ScalaTokenTypes.kIMPLICIT
-         => {
-           val localModifierMarker = builder.mark()
-           builder.advanceLexer
-           localModifierMarker.done(ScalaElementtypes.LOCAL_MODIFIER)
-         }
+      builder.getTokenType() match {
+        case ScalaTokenTypes.kABSTRACT
+           | ScalaTokenTypes.kFINAL
+           | ScalaTokenTypes.kSEALED
+           | ScalaTokenTypes.kIMPLICIT
+           => {
+             val localModifierMarker = builder.mark()
+             builder.advanceLexer
+             localModifierMarker.done(ScalaElementTypes.LOCAL_MODIFIER)
+           }
+       }
     }
   }
 
-}
 }

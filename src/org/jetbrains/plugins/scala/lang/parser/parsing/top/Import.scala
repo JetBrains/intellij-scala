@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.parser._;
  * Date: 10.10.2006
  * Time: 15:41:15
  */
-class Import {
+object Import {
   def parse ( builder : PsiBuilder) : Unit = {
 
   builder.advanceLexer

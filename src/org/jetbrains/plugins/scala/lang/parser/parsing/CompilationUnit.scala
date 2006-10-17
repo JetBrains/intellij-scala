@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.lang.PsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.top._
 import org.jetbrains.plugins.scala.lang.parser.parsing.base._
 
 /**
@@ -31,9 +32,9 @@ object CompilationUnit {
 
     builder.getTokenType() match {
       //possible package statement
-      case ScalaTokenTypes.tPACKAGE => {
+      case ScalaTokenTypes.kPACKAGE => {
         val packageStmtMarker = builder.mark()
-        new Package().parse(builder)
+        Package.parse(builder)
         packageStmtMarker.done(ScalaElementTypes.PACKAGE_STMT)
       }
 
@@ -64,18 +65,18 @@ object CompilationUnit {
 
   object TopStatSeq {
     def parse(builder: PsiBuilder): Unit = {
-      val topStatMarker = bilder.mark()
+      val topStatMarker = builder.mark()
       TopStat.parse(builder)
       topStatMarker.done(ScalaElementTypes.TOP_STAT)
 
-      while (builder.getTokenTypes().equals(ScalaTokenTypes.tSEMICOLON)
-          || builder.getTokenTypes().equals(ScalaTokenTypes.tLINE_TERMINATOR)){
+      while (builder.getTokenType().equals(ScalaTokenTypes.tSEMICOLON)
+          || builder.getTokenType().equals(ScalaTokenTypes.tLINE_TERMINATOR)){
 
         val statamentSeparatorMarker = builder.mark()
         StatementSeparator.parse(builder)
         statamentSeparatorMarker.done(ScalaElementTypes.STATEMENT_SEPARATOR)
 
-        val topStatMarker = bilder.mark()
+        val topStatMarker = builder.mark()
         TopStat.parse(builder)
         topStatMarker.done(ScalaElementTypes.TOP_STAT)
       }
@@ -84,7 +85,7 @@ object CompilationUnit {
 
   object TopStat {
     def parse(builder: PsiBuilder): Unit = {
-      builder.getTokenTypes() match {
+      builder.getTokenType() match {
         case ScalaTokenTypes.tLSQBRACKET => {
           val attributeClauseMarker = builder.mark()
           AttributeClause.parse(builder)

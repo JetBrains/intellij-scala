@@ -31,6 +31,7 @@ object ScalaElementTypes {
   //Package
   val PACKAGE_GROUP = new ScalaElementType("package group")
   val PACKAGE = new ScalaElementType("package token")
+  val PACKAGE_STMT = new ScalaElementType("package statement")
   val QUALID = new ScalaElementType("Qualification identifier")
 
   /*************************************************************************************/
@@ -119,7 +120,7 @@ object ScalaElementTypes {
 
 //Modifiers
   val MODIFIER = new ScalaElementType("modifier")
-  val LOCAL_MODIFIER = = new ScalaElementType("local modifier")
+  val LOCAL_MODIFIER = new ScalaElementType("local modifier")
   val MODIFIER_ACCESS = new ScalaElementType("access control modifier : public and private")
   val OVERRIDE = new ScalaElementType("override")
 
