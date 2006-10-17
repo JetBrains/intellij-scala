@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.parser.util._
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 object Expression{
 
@@ -223,6 +223,7 @@ FIRST(PostfixExpression) =  InffixExpression.FIRST
 */
   object Exprs {
     def parse(builder: PsiBuilder): Unit = {
+      Console.println("token type : " + builder.getTokenType())
       builder.getTokenType() match {
         case ScalaTokenTypes.tINTEGER
            | ScalaTokenTypes.tFLOAT
@@ -249,6 +250,7 @@ FIRST(PostfixExpression) =  InffixExpression.FIRST
              commaMarker.done(ScalaElementTypes.COMMA)
 
            //todo: add first(expression)
+             Console.println("token type : " + builder.getTokenType())
              builder.getTokenType() match {
                case ScalaTokenTypes.tINTEGER
                   | ScalaTokenTypes.tFLOAT
@@ -276,6 +278,7 @@ FIRST(PostfixExpression) =  InffixExpression.FIRST
            }
         }
 
+        Console.println("token type : " + builder.getTokenType())
         builder.getTokenType() match {
           case ScalaTokenTypes.tCOLON
              | ScalaTokenTypes.tUNDER

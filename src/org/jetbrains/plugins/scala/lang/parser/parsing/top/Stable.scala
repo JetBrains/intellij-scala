@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.ListOfStableIDs
  * Date: 06.10.2006
  * Time: 22:13:17
  */
-/*object StableId {
-
+object Stable {
+             /*
   def parse(builder : PsiBuilder, marker : PsiBuilder.Marker ) : Unit = {
 
          builder.getTokenType match {
@@ -77,4 +77,5 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.ListOfStableIDs
          }
 
     }
-  }*/
+    */
+  }
