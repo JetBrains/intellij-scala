@@ -32,8 +32,9 @@ class Program extends ScalaTokenTypes {
          rollForward
 
          if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType) ||
-              ScalaTokenTypes.kTHIS.equals(builder.getTokenType)) {
-           Types parseStableId (builder)
+              ScalaTokenTypes.kTHIS.equals(builder.getTokenType) ||
+              ScalaTokenTypes.kSUPER.equals(builder.getTokenType)) {
+           StableId parse (builder)
          } else
 
          if (Expression.POSTFIX_FIRST.contains(builder.getTokenType)) {
