@@ -20,6 +20,12 @@ object ScalaElementTypes {
   val FILE = new IFileElementType(Language.findInstance(new ClassOf().cast[Class[ScalaLanguage]]( classOf[ScalaLanguage] )))
 
   /*************************************************************************************/
+  /************************************** FILE *****************************************/
+  /*************************************************************************************/
+  val WRONGWAY = new ScalaElementType("Wrong way!")
+
+
+  /*************************************************************************************/
   /*********************************** IDENTIFIER **************************************/
   /*************************************************************************************/
   val IDENTIFIER = new ScalaElementType("identifier")
@@ -33,9 +39,9 @@ object ScalaElementTypes {
   val PACKAGE = new ScalaElementType("package token")
   val PACKAGE_STMT = new ScalaElementType("package statement")
   val QUALID = new ScalaElementType("Qualification identifier")
-
+        
   /*************************************************************************************/
-  /********************************* IMPORT GROUP *************************************/
+  /********************************* IMPORT GROUP **************************************/
   /*************************************************************************************/
 
   val IMPORT_GROUP = new ScalaElementType("import group")
@@ -43,11 +49,12 @@ object ScalaElementTypes {
   val IMPORT_STMT = new ScalaElementType("import statement")
   val IMPORT = new ScalaElementType("import")
   val STABLE_ID = new ScalaElementType("stable id")
+  val PATH = new ScalaElementType("path")
   val STABLE_ID_LIST = new ScalaElementType("stable id list")
   val UNDER = new ScalaElementType("underline")
 
   /*************************************************************************************/
-  /************************************** TYPE DECLARATION *************************************/
+  /************************************** TYPE DECLARATION *****************************/
   /*************************************************************************************/
   val TMPL_DEF = new ScalaElementType("tmpl definition")
 
