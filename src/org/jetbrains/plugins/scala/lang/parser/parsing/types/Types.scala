@@ -193,7 +193,12 @@ FIRST(Path) = ScalaTokenTypes.tIIDENTIFIER,
 
   }
 
+  // Parses Path
+  /*
+  def parseStableId(builder : PsiBuilder) : Boolean = {
 
+  }
+  */
 
 
 
