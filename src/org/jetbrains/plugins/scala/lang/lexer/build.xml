@@ -1,4 +1,4 @@
-<project name="generate lexer from ruby.flex" default="generate.lexer">
+<project name="generate lexer from scala.flex" default="generate.lexer">
   <property name="lexer.file" value="_ScalaLexer.java"/>
   <property name="lexer.log" value="jflex.log"/>
   <property name="lexer.source" value="scala.flex"/>
