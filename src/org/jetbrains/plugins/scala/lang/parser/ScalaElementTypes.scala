@@ -20,10 +20,16 @@ object ScalaElementTypes {
   val FILE = new IFileElementType(Language.findInstance(new ClassOf().cast[Class[ScalaLanguage]]( classOf[ScalaLanguage] )))
 
   /*************************************************************************************/
-  /************************************** FILE *****************************************/
+  /************************************** ERROR ****************************************/
   /*************************************************************************************/
   val WRONGWAY = new ScalaElementType("Wrong way!")
 
+  /*************************************************************************************/
+  /************************************** TYPES ****************************************/
+  /*************************************************************************************/
+  val STABLE_ID = new ScalaElementType("stable id")
+  val PATH = new ScalaElementType("path")
+  val SIMPLE_TYPE = new ScalaElementType("simple type")
 
   /*************************************************************************************/
   /*********************************** IDENTIFIER **************************************/
@@ -48,8 +54,6 @@ object ScalaElementTypes {
   val IMPORT_LIST = new ScalaElementType("import list")
   val IMPORT_STMT = new ScalaElementType("import statement")
   val IMPORT = new ScalaElementType("import")
-  val STABLE_ID = new ScalaElementType("stable id")
-  val PATH = new ScalaElementType("path")
   val STABLE_ID_LIST = new ScalaElementType("stable id list")
   val UNDER = new ScalaElementType("underline")
 

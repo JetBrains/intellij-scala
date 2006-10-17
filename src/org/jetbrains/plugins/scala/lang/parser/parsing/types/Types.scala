@@ -204,7 +204,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
   Path ::= StableId
           | [id ‘.’] this
           | [id ’.’] super [‘[’ id ‘]’]‘.’ id
-
   *******************************************
   */
 
@@ -218,7 +217,39 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
         ScalaElementTypes.PATH
       else result
     }
-
   }
+
+  object SimpleType {
+
+  /*
+  SimpleType
+  Default grammar:
+  SimpleType ::= SimpleType TypeArgs
+            | SimpleType ‘#’ id
+            | StableId
+            | Path ‘.’ type
+            | ‘(’ Type ’)’
+  *******************************************
+  */
+
+    /** Parses Simple Type
+    * @return ScalaElementTypes.SimpleType if Simple Type,
+    * ScalaElementTypes.WRONGWAY else
+    */
+    def parse(builder : PsiBuilder) : ScalaElementType = {
+      val simpleMarker = builder.mark()
+      // If it is plain Stable Id
+      var result = StableId.parse(builder)
+      if (result.equals(ScalaElementTypes.STABLE_ID)){
+        simpleMarker.done(ScalaElementTypes.SIMPLE_TYPE)
+        ScalaElementTypes.SIMPLE_TYPE
+      } else if (result.equals(ScalaElementTypes.PATH)) {
+          
+      }
+
+      ScalaElementTypes.WRONGWAY
+    }
+  }
+
 
 }
