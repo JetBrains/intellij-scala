@@ -4,10 +4,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing._
+import org.jetbrains.plugins.scala.lang.parser.parsing
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Package
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
-
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Exprs
 /**
  * User: Dmitry.Krasilschikov
  * Date: 17.10.2006
@@ -21,7 +21,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 object StatementSeparator {
   def parse(builder: PsiBuilder): Unit = {
 
-    builder.getTokenType() match {
+    Console.println("token type : " + builder.getTokenType())
+     builder.getTokenType() match {
       case ScalaTokenTypes.tSEMICOLON => {
         val semicolonMarker = builder.mark()
         builder.advanceLexer
@@ -49,7 +50,8 @@ object StatementSeparator {
 object AttributeClause {
   def parse(builder: PsiBuilder): Unit = {
 
-    builder.getTokenType() match {
+    Console.println("token type : " + builder.getTokenType())
+        builder.getTokenType() match {
       //expected left square brace
       case ScalaTokenTypes.tLSQBRACKET => {
         val lsqbracketMarker = builder.mark()
@@ -82,6 +84,7 @@ object AttributeClause {
           builder.error("expected ']'")
         }
 
+        Console.println("token type : " + builder.getTokenType())
         builder.getTokenType() match {
           //possible line terminator
           case ScalaTokenTypes.tLINE_TERMINATOR => {
@@ -117,6 +120,7 @@ object Attribute {
 
 object Constr {
   def parse(builder: PsiBuilder): Unit = {
+    Console.println("token type : " + builder.getTokenType())
     builder.getTokenType() match {
       case ScalaTokenTypes.tIDENTIFIER => {
         val stableIdMarker = builder.mark()
@@ -127,6 +131,7 @@ object Constr {
 
         stableIdMarker.done(ScalaElementTypes.STABLE_ID)
 
+        Console.println("token type : " + builder.getTokenType())
         builder.getTokenType() match {
           case ScalaTokenTypes.tLSQBRACKET => {
             val typeArgsMarker = builder.mark()
@@ -166,12 +171,14 @@ object Constr {
   object ExprInParenthis {
     def parse(builder: PsiBuilder): Unit = {
 
+      Console.println("token type : " + builder.getTokenType())
       builder.getTokenType() match {
         case ScalaTokenTypes.tLPARENTHIS => {
           val lparenthisMarker = builder.mark()
           builder.advanceLexer
           lparenthisMarker.done(ScalaTokenTypes.tLPARENTHIS)
 
+          Console.println("token type : " + builder.getTokenType())
           builder.getTokenType() match {
             case ScalaTokenTypes.tINTEGER
                | ScalaTokenTypes.tFLOAT
@@ -220,6 +227,7 @@ object Constr {
   object TypeArgs {
 
     def parse(builder: PsiBuilder): Unit = {
+      Console.println("token type : " + builder.getTokenType())
       builder.getTokenType() match {
         case ScalaTokenTypes.tLSQBRACKET => {
           val lsqbracketMarker = builder.mark()
@@ -265,6 +273,7 @@ object Constr {
 
   object Modifier {
     def parse(builder: PsiBuilder): Unit = {
+      Console.println("token type : " + builder.getTokenType())
       builder.getTokenType() match {
          case ScalaTokenTypes.kABSTRACT
             | ScalaTokenTypes.kFINAL
@@ -295,12 +304,14 @@ object Constr {
 
   object AccessModifier {
     def parse(builder: PsiBuilder): Unit = {
+      Console.println("token type : " + builder.getTokenType())
       builder.getTokenType() match {
         case ScalaTokenTypes.tLSQBRACKET => {
           val lsqbracketMarker = builder.mark()
           builder.advanceLexer
           lsqbracketMarker.done(ScalaElementTypes.LSQBRACKET)
 
+          Console.println("token type : " + builder.getTokenType())
           builder.getTokenType() match {
             case ScalaTokenTypes.tIDENTIFIER => {
               val idMarker = builder.mark()
@@ -322,6 +333,7 @@ object Constr {
 
   object LocalModifier {
     def parse(builder: PsiBuilder): Unit = {
+      Console.println("token type : " + builder.getTokenType())
       builder.getTokenType() match {
         case ScalaTokenTypes.kABSTRACT
            | ScalaTokenTypes.kFINAL

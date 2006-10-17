@@ -3,7 +3,11 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser._;
+import org.jetbrains.plugins.scala.lang.parser
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.parsing.base
+
+
 /**
  * User: Dmitry.Krasilschikov
  * Date: 10.10.2006
@@ -12,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser._;
 object Import {
   def parse ( builder : PsiBuilder) : Unit = {
 
-  builder.advanceLexer
+  ParserUtils.eatElement(builder, ScalaElementTypes.IMPORT)
 
 
     builder.getTokenType match {
@@ -21,11 +25,15 @@ object Import {
 
          val listImport = builder.mark();
 
-         (new ListOfStableIDs).parse(builder)
+         Console.println("ListOfStableIDs handle")
+         ListOfStableIDs.parse(builder)
+         Console.println("ListOfStableIDs handled")
          
          listImport.done(ScalaElementTypes.STABLE_ID_LIST) //new node: StableID list
 
+          Console.println("token type : " + builder.getTokenType)
           builder.getTokenType match {
+
             case ScalaTokenTypes.tSEMICOLON => {
               val semiMarker = builder.mark()
               builder.advanceLexer
@@ -34,6 +42,7 @@ object Import {
 
             case _ => {}
           }
+          //StatementSeparator.parse(builder)
       }
       case _ => builder.error("Wrong import")
     }

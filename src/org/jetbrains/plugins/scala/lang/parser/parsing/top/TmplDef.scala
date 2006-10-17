@@ -89,6 +89,7 @@ object TmplDef {
 
   def parse(builder : PsiBuilder) : Unit = {
     def parseInst ( builder : PsiBuilder ) : Unit = {
+        Console.println("token type : " + builder.getTokenType())
         builder.getTokenType() match {
           case ScalaTokenTypes.kCLASS => {
             val classStmtMarker = builder.mark()
@@ -113,6 +114,7 @@ object TmplDef {
 
 //    val tmplDefMarker = builder.mark()
 
+    Console.println("token type : " + builder.getTokenType())
     builder.getTokenType() match {
       case ScalaTokenTypes.kCASE => {
         val caseMarker = builder.mark();

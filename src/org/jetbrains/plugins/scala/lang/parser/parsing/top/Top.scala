@@ -38,6 +38,7 @@ class Top extends ScalaTokenTypes{
       || builder.getTokenType.equals(ScalaTokenTypes.kTRAIT)){
 
       TmplDef.parse(builder)
+
     }
 
   }

@@ -49,9 +49,9 @@ class Program extends ScalaTokenTypes {
 
     if ( !builder.eof() ){
       //new Top parse(builder) //handle top level - package, import
-     // Console.println("CompilationUnit invoke ")
-     // CompilationUnit.parse(builder)
-     // Console.println("CompilationUnit invoked ")
+      Console.println("CompilationUnit invoke ")
+      CompilationUnit.parse(builder)
+      Console.println("CompilationUnit invoked ")
     }
 
     /*while ( !builder.eof() ){
