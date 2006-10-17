@@ -14,8 +14,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
  * Time: 11:38:56
  */
 
-
-
 /*
     StatementSeparator ::= NewLine | ‘;’
 */
@@ -256,82 +254,7 @@ object Constr {
     }
   }
 
-/*
-  Exprs ::= Expr {‘,’ Expr} [‘:’ ‘_’ ‘*’]
-*/
-  object Exprs {
-    def parse(builder: PsiBuilder): Unit = {
-      builder.getTokenType() match {
-        case ScalaTokenTypes.tINTEGER
-           | ScalaTokenTypes.tFLOAT
-           | ScalaTokenTypes.kTRUE
-           | ScalaTokenTypes.kFALSE
-           | ScalaTokenTypes.tCHAR
-           | ScalaTokenTypes.kNULL
-           | ScalaTokenTypes.tSTRING_BEGIN
-           | ScalaTokenTypes.tPLUS
-           | ScalaTokenTypes.tMINUS
-           | ScalaTokenTypes.tTILDA
-           | ScalaTokenTypes.tNOT
-           | ScalaTokenTypes.tIDENTIFIER
-           => {
-           val exprMarker = builder.mark()
 
-           //todo: expr
-           //Expr.parse(builder)
-           exprMarker.done(ScalaElementTypes.EXPRESSION)
-
-           while (builder.getTokenType().equals(ScalaTokenTypes.tCOMMA)){
-             val commaMarker = builder.mark()
-             builder.advanceLexer
-             commaMarker.done(ScalaElementTypes.COMMA)
-
-           //todo: add first(expression)
-             builder.getTokenType() match {
-               case ScalaTokenTypes.tINTEGER
-                  | ScalaTokenTypes.tFLOAT
-                  | ScalaTokenTypes.kTRUE
-                  | ScalaTokenTypes.kFALSE
-                  | ScalaTokenTypes.tCHAR
-                  | ScalaTokenTypes.kNULL
-                  | ScalaTokenTypes.tSTRING_BEGIN
-                  | ScalaTokenTypes.tPLUS
-                  | ScalaTokenTypes.tMINUS
-                  | ScalaTokenTypes.tTILDA
-                  | ScalaTokenTypes.tNOT
-                  | ScalaTokenTypes.tIDENTIFIER
-                  | ScalaTokenTypes.kIF
-                  | ScalaTokenTypes.kTRY
-                  => {
-                  val exprMarker = builder.mark()
-
-                 //todo
-                  //Expr.parse(builder)
-                  exprMarker.done(ScalaElementTypes.EXPRESSION)
-             }
-
-             case _ => { builder.error("expected expression") }
-           }
-        }
-
-        builder.getTokenType() match {
-          case ScalaTokenTypes.tCOLON
-             | ScalaTokenTypes.tUNDER
-             | ScalaTokenTypes.tSTAR
-             => {
-             //todo
-            }
-
-         case _ => {}
-        }
-
-      }
-
-      case _ => { builder.error("expected expression") }
-
-    }
-  }
-}
 
 /*
     Modifier ::= LocalModifier
