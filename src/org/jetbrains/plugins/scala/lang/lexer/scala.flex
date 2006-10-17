@@ -244,6 +244,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "yield"                                 {   return process(kYIELD); }
 
 ///////////////////// Reserved shorthands //////////////////////////////////////////
+"*"                                     {   return process(tSTAR);  }
 "_"                                     {   return process(tUNDER);  }
 ":"                                     {   return process(tCOLON);  }
 "="                                     {   return process(tASSIGN);  }
@@ -282,7 +283,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 {WhiteSpaceInLine}                            {   return process(tWHITE_SPACE_IN_LINE);  }
 
 ////////////////////// white spaces line terminator ///////////////////////////////////////////////
-{LineTerminator}                              {   return process(tWHITE_SPACE_LINE_TERMINATE); }
+{LineTerminator}                              {   return process(tLINE_TERMINATOR); }
 
 ////////////////////// STUB ///////////////////////////////////////////////
 .                                             {   return process(tSTUB); }

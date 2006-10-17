@@ -109,10 +109,22 @@ object ScalaElementTypes {
   val SEMICOLON = new ScalaElementType("SEMICOLON")
   val LSQBRACKET = new ScalaElementType("LSQBRACKET")
   val RSQBRACKET = new ScalaElementType("RSQBRACKET")
+  val STATEMENT_SEPARATOR = new ScalaElementType("statement separator")
 
 //ordinary identifier
 
-//type declaration
+//Attributes
+  val ATTRIBUTE_CLAUSE = new ScalaElementType("attribute clause")
+  val ATTRIBUTE = new ScalaElementType("attribute")
+
+//Modifiers
+  val MODIFIER = new ScalaElementType("modifier")
+  val LOCAL_MODIFIER = = new ScalaElementType("local modifier")
+  val MODIFIER_ACCESS = new ScalaElementType("access control modifier : public and private")
+  val OVERRIDE = new ScalaElementType("override")
+
+//top
+  val TOP_STAT = new ScalaElementType("top stat")
 
 //types
   val SIMPLE_TYPE = new ScalaElementType("simple type")
