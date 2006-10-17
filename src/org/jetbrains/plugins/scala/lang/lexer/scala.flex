@@ -42,7 +42,7 @@ KEYWORDS  =   "abstract" | "case"    | "catch"     | "class"      | "def"
             | "package"  | "private" | "protected" | "requires"   | "return"
             | "sealed"   | "super"   | "this"      | "throw"      | "trait"
             | "try"      | "true"    | "type"      | "val"        | "var"
-            | " while"   | "with"    | "yield"
+            | "while"    | "with"    | "yield"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////      integers and floats     /////////////////////////////////////////////////////////////////////
