@@ -118,6 +118,7 @@ object ScalaElementTypes {
   val SUPER = new ScalaElementType("super")
   // Primitives
   val DOT = new ScalaElementType("DOT")
+  val INNER_CLASS = new ScalaElementType("#")
   val COMMA = new ScalaElementType("COMMA")
   val SEMICOLON = new ScalaElementType("SEMICOLON")
   val LSQBRACKET = new ScalaElementType("LSQBRACKET")

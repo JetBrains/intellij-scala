@@ -287,34 +287,66 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
     * @return ScalaElementTypes.SimpleType if Simple Type,
     * ScalaElementTypes.WRONGWAY else
     */
-    def parse(builder : PsiBuilder) : ScalaElementType = {
-      val simpleMarker = builder.mark()
-      var result = StableId.parse(builder)
 
-      if (!result.equals(ScalaElementTypes.WRONGWAY)){
-        builder.getTokenType match {
-          case ScalaTokenTypes.tDOT => {
-            ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
-            builder.getTokenType match {
-              case ScalaTokenTypes.kTYPE => {
-                ParserUtils.eatElement(builder, ScalaElementTypes.KEY_TYPE)
-                simpleMarker.done(ScalaElementTypes.SIMPLE_TYPE)
-                ScalaElementTypes.SIMPLE_TYPE
+    def parse(builder : PsiBuilder) : ScalaElementType = {
+
+      /*
+      Parsing alternatives:
+      SimpleType ::= StableId
+                    | Path ‘.’ type
+      */
+      def simpleTypeSubParse(currentMarker : PsiBuilder.Marker) : ScalaElementType = {
+        var result = StableId.parse(builder)
+
+        if (!result.equals(ScalaElementTypes.WRONGWAY)){
+          builder.getTokenType match {
+            case ScalaTokenTypes.tDOT => {
+              ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
+              builder.getTokenType match {
+                case ScalaTokenTypes.kTYPE => {
+                  ParserUtils.eatElement(builder, ScalaElementTypes.KEY_TYPE)
+                  //currentMarker.done(ScalaElementTypes.SIMPLE_TYPE)
+                  ScalaElementTypes.SIMPLE_TYPE
+                }
+                case _ => ParserUtils.errorToken(builder, currentMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
               }
-              case _ => ParserUtils.errorToken(builder, simpleMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
+            }
+            case _ => {
+              if (result.equals(ScalaElementTypes.STABLE_ID)){
+                //currentMarker.done(ScalaElementTypes.SIMPLE_TYPE)
+                ScalaElementTypes.SIMPLE_TYPE
+              } else ParserUtils.errorToken(builder, currentMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
+            }
+          }
+        } else ParserUtils.errorToken(builder, currentMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
+      }
+
+      def leftRecursion(currentMarker : PsiBuilder.Marker) : ScalaElementType = {
+        builder.getTokenType match {
+          case ScalaTokenTypes.tINNER_CLASS => {
+            val nextMarker = currentMarker.precede()
+            currentMarker.done(ScalaElementTypes.SIMPLE_TYPE)
+            ParserUtils.eatElement(builder, ScalaElementTypes.INNER_CLASS)
+            builder.getTokenType match {
+              case ScalaTokenTypes.tIDENTIFIER => {
+                ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+                leftRecursion(nextMarker)
+              }
+              case _ => ParserUtils.errorToken(builder, nextMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
             }
           }
           case _ => {
-            if (result.equals(ScalaElementTypes.STABLE_ID)){
-              simpleMarker.done(ScalaElementTypes.SIMPLE_TYPE)
-              ScalaElementTypes.SIMPLE_TYPE
-            } else ParserUtils.errorToken(builder, simpleMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
+            currentMarker.done(ScalaElementTypes.SIMPLE_TYPE)
+            ScalaElementTypes.SIMPLE_TYPE
           }
         }
-      // TODO: Other cases
-      } else ParserUtils.errorToken(builder, simpleMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
+      }
 
-
+      val simpleMarker = builder.mark()
+      var res = simpleTypeSubParse(simpleMarker)
+      if (!res.equals(ScalaElementTypes.WRONGWAY)){
+        leftRecursion(simpleMarker)
+      } else res 
     }
 
   }
