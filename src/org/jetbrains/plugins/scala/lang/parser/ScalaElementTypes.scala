@@ -55,6 +55,7 @@ object ScalaElementTypes {
   val IMPORT_SELECTOR = new ScalaElementType("import selector")
   val IMPORT_EXPR = new ScalaElementType("import selector")
   val IMPORT_STMT = new ScalaElementType("import statement")
+  val IMPORT_LIST = new ScalaElementType("import list")
   val IMPORT = new ScalaElementType("import")
   val STABLE_ID_LIST = new ScalaElementType("stable id list")
   val UNDER = new ScalaElementType("underline")
