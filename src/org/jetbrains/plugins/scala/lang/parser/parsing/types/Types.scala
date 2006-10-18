@@ -297,7 +297,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
             ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
             builder.getTokenType match {
               case ScalaTokenTypes.kTYPE => {
-                ParserUtils.eatElement(builder, ScalaElementTypes.TYPE)
+                ParserUtils.eatElement(builder, ScalaElementTypes.KEY_TYPE)
                 simpleMarker.done(ScalaElementTypes.SIMPLE_TYPE)
                 ScalaElementTypes.SIMPLE_TYPE
               }

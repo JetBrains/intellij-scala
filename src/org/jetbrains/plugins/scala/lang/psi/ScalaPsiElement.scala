@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi.impl
+package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType

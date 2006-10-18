@@ -31,12 +31,6 @@ Literal ::= integerLiteral
         marker.done(ScalaElementTypes.FLOATING_POINT_LITERAL)
       }
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => { //Boolean Literal
-        val boolMarker = builder.mark()
-        builder.getTokenType match {
-          case ScalaTokenTypes.kTRUE => boolMarker.done(ScalaElementTypes.TRUE)
-          case ScalaTokenTypes.kFALSE => boolMarker.done(ScalaElementTypes.FALSE)
-        }
-        builder.advanceLexer()
         marker.done(ScalaElementTypes.BOOLEAN_LITERAL)
       }
       case ScalaTokenTypes.tCHAR => { //Character literal
@@ -47,8 +41,6 @@ Literal ::= integerLiteral
         builder.advanceLexer()
         marker.done(ScalaElementTypes.NULL)
       }
-
-
       case ScalaTokenTypes.tSTRING_BEGIN => { //String literal
         val beginMarker = builder.mark();
         builder.advanceLexer()
