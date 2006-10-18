@@ -58,8 +58,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)) {
             val nextMarker1 = nextMarker.precede()
             nextMarker.drop()
-            ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
+            // If keyWord type encountered
+            val dotMarker = builder.mark()
+            builder.advanceLexer // Ate DOT
               if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+                dotMarker.done(ScalaElementTypes.DOT)
                 ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
                 Console.println("token type : " + builder.getTokenType())
                 builder.getTokenType() match {
@@ -74,12 +77,21 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                     ScalaElementTypes.STABLE_ID
                   }
                 }
-              } else ParserUtils.errorToken(builder, nextMarker1, "Wrong id declaration", ScalaElementTypes.STABLE_ID)
+              } else {
+                if (ScalaTokenTypes.kTYPE.equals(builder.getTokenType)){
+                  dotMarker.rollbackTo()
+                  nextMarker1.done(ScalaElementTypes.PATH)
+                  ScalaElementTypes.PATH
+                } else {
+                  dotMarker.rollbackTo()
+                  ParserUtils.errorToken(builder, nextMarker1, "Wrong id declaration", ScalaElementTypes.STABLE_ID)
+                }
+              }
           } else {
             nextMarker.done(ScalaElementTypes.PATH)
             ScalaElementTypes.PATH
           }
-        } else ParserUtils.errorToken(builder, nextMarker, "Wrong id declaration", ScalaElementTypes.STABLE_ID)
+        } else ParserUtils.errorToken(builder, nextMarker, "Wrong id declaration", ScalaElementTypes.PATH)
       }
 
       /** sequence like  {'.' id } processing **/
@@ -91,8 +103,16 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
               case ScalaTokenTypes.tDOT => {
                 val nextMarker = currentMarker.precede()
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
-                ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
-                leftRecursion(nextMarker)
+                val dotMarker = builder.mark()
+                builder.advanceLexer //Ate DOT
+                if (ScalaTokenTypes.kTYPE.equals(builder.getTokenType)){
+                  dotMarker.rollbackTo()
+                  nextMarker.drop()
+                  ScalaElementTypes.STABLE_ID
+                } else {
+                  dotMarker.done(ScalaElementTypes.DOT)
+                  leftRecursion(nextMarker)
+                }
               }
               case _ => {
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
@@ -110,11 +130,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           case ScalaTokenTypes.kTHIS => {
             ParserUtils.eatElement(builder, ScalaElementTypes.THIS)
             if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)){
-              val newMarker = currentMarker.precede()
-              //currentMarker.done(ScalaElementTypes.STABLE_ID)
-              currentMarker.drop()
-              ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
+              val dotMarker = builder.mark()
+              builder.advanceLexer // Ate DOT
               if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
+                val newMarker = currentMarker.precede()
+                currentMarker.drop()
+                dotMarker.done(ScalaElementTypes.DOT)
                 ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
                 builder.getTokenType match {
                   case ScalaTokenTypes.tDOT => {
@@ -128,7 +149,16 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                     ScalaElementTypes.STABLE_ID
                   }
                 }
-              } else ParserUtils.errorToken(builder, newMarker, "Wrong id declaration", ScalaElementTypes.STABLE_ID)
+              } else{
+                if (ScalaTokenTypes.kTYPE.equals(builder.getTokenType)){
+                  dotMarker.rollbackTo()
+                  currentMarker.done(ScalaElementTypes.PATH)
+                  ScalaElementTypes.PATH
+                } else {
+                  dotMarker.rollbackTo()
+                  ParserUtils.errorToken(builder, currentMarker, "Wrong id declaration", ScalaElementTypes.STABLE_ID)
+                }
+              }
             } else { 
               currentMarker.done(ScalaElementTypes.PATH)
               ScalaElementTypes.PATH
@@ -152,8 +182,16 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
               case ScalaTokenTypes.tDOT => {
                 val nextMarker = currentMarker.precede()
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
-                ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
-                leftRecursion(nextMarker)
+                val dotMarker = builder.mark()
+                builder.advanceLexer //Ate DOT
+                if (ScalaTokenTypes.kTYPE.equals(builder.getTokenType)){
+                  dotMarker.rollbackTo()
+                  nextMarker.drop()
+                  ScalaElementTypes.STABLE_ID
+                } else {
+                  dotMarker.done(ScalaElementTypes.DOT)
+                  leftRecursion(nextMarker)
+                }
               }
               case _ => {
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
@@ -174,8 +212,16 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
               case ScalaTokenTypes.tDOT => {
                 val nextMarker = currentMarker.precede()
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
-                ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
-                afterDotParse(nextMarker)
+                val dotMarker = builder.mark()
+                builder.advanceLexer //Ate DOT
+                if (ScalaTokenTypes.kTYPE.equals(builder.getTokenType)){
+                  dotMarker.rollbackTo() 
+                  nextMarker.drop()
+                  ScalaElementTypes.STABLE_ID
+                } else {
+                  dotMarker.done(ScalaElementTypes.DOT)
+                  afterDotParse(nextMarker)
+                }
               }
               case _ => {
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
@@ -238,17 +284,34 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
     */
     def parse(builder : PsiBuilder) : ScalaElementType = {
       val simpleMarker = builder.mark()
-      // If it is plain Stable Id
       var result = StableId.parse(builder)
-      if (result.equals(ScalaElementTypes.STABLE_ID)){
-        simpleMarker.done(ScalaElementTypes.SIMPLE_TYPE)
-        ScalaElementTypes.SIMPLE_TYPE
-      } else if (result.equals(ScalaElementTypes.PATH)) {
-          
-      }
 
-      ScalaElementTypes.WRONGWAY
+      if (!result.equals(ScalaElementTypes.WRONGWAY)){
+        builder.getTokenType match {
+          case ScalaTokenTypes.tDOT => {
+            ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
+            builder.getTokenType match {
+              case ScalaTokenTypes.kTYPE => {
+                ParserUtils.eatElement(builder, ScalaElementTypes.TYPE)
+                simpleMarker.done(ScalaElementTypes.SIMPLE_TYPE)
+                ScalaElementTypes.SIMPLE_TYPE
+              }
+              case _ => ParserUtils.errorToken(builder, simpleMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
+            }
+          }
+          case _ => {
+            if (result.equals(ScalaElementTypes.STABLE_ID)){
+              simpleMarker.done(ScalaElementTypes.SIMPLE_TYPE)
+              ScalaElementTypes.SIMPLE_TYPE
+            } else ParserUtils.errorToken(builder, simpleMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
+          }
+        }
+      // TODO: Other cases
+      } else ParserUtils.errorToken(builder, simpleMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
+
+
     }
+
   }
 
 
