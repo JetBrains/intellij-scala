@@ -7,13 +7,9 @@ import com.intellij.openapi.util.Key
 
 import javax.swing.Icon
 
-/**
- * User: Dmitry.Krasilschikov
- * Date: 03.10.2006
- * Time: 21:33:21
- */
+class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement( node )
+  with ScalaPsiElement {
 
-class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement( node ) {
   def getASTNode() : ASTNode = {
     //val key : Key[Int] = new Key("foo")
     node

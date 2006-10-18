@@ -34,7 +34,30 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
     * ScalaElementTypes.PATH if ONLY Path parsed,
     * ScalaElementTypes.WRONGWAY else
     */
+
     def parse(builder : PsiBuilder) : ScalaElementType = {
+
+      /**
+      * Process keyword "type" encountering 
+      */
+      def typeProcessing( dotMarker: PsiBuilder.Marker,
+                          nextMarker: PsiBuilder.Marker,
+                          doneOrDrop: Boolean,
+                          elem: ScalaElementType,
+                          processFunction: PsiBuilder.Marker => ScalaElementType,
+                          doWithMarker: Boolean
+                        ): ScalaElementType = {
+        if (ScalaTokenTypes.kTYPE.equals(builder.getTokenType)){
+          dotMarker.rollbackTo()
+          if (doneOrDrop) nextMarker.done(elem)
+          else nextMarker.drop()
+          elem
+        } else {
+        if (doWithMarker) dotMarker.done(ScalaElementTypes.DOT)
+        else dotMarker.drop()
+        processFunction(nextMarker)
+        }
+      }
 
       /** processing [‘[’ id ‘]’] statement**/
       def parseGeneric(currentMarker: PsiBuilder.Marker): Boolean = {
@@ -71,13 +94,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                     nextMarker1.done(ScalaElementTypes.STABLE_ID)
                     val dotMarker1 = builder.mark()
                     builder.advanceLexer // Ate DOT
-                    if (ScalaTokenTypes.kTYPE.equals(builder.getTokenType)){
-                      dotMarker1.rollbackTo()
-                      nextMarker2.drop()
-                      ScalaElementTypes.STABLE_ID
-                    } else {
-                    leftRecursion(nextMarker2)
-                    }
+                    typeProcessing(dotMarker1, nextMarker2, false, ScalaElementTypes.STABLE_ID, leftRecursion, true)
                   }
                   case _ => {
                     nextMarker1.done(ScalaElementTypes.STABLE_ID)
@@ -85,14 +102,15 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                   }
                 }
               } else {
-                if (ScalaTokenTypes.kTYPE.equals(builder.getTokenType)){
-                  dotMarker.rollbackTo()
-                  nextMarker1.done(ScalaElementTypes.PATH)
-                  ScalaElementTypes.PATH
-                } else {
-                  dotMarker.rollbackTo()
-                  ParserUtils.errorToken(builder, nextMarker1, "Wrong id declaration", ScalaElementTypes.STABLE_ID)
-                }
+                typeProcessing(dotMarker,
+                               nextMarker1,
+                               true,
+                               ScalaElementTypes.PATH,
+                               (marker1: PsiBuilder.Marker) => ParserUtils.errorToken(builder,
+                                                                                    marker1,
+                                                                                    "Wrong id declaration",
+                                                                                    ScalaElementTypes.STABLE_ID),
+                               false)
               }
           } else {
             nextMarker.done(ScalaElementTypes.PATH)
@@ -112,14 +130,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
                 val dotMarker = builder.mark()
                 builder.advanceLexer //Ate DOT
-                if (ScalaTokenTypes.kTYPE.equals(builder.getTokenType)){
-                  dotMarker.rollbackTo()
-                  nextMarker.drop()
-                  ScalaElementTypes.STABLE_ID
-                } else {
-                  dotMarker.done(ScalaElementTypes.DOT)
-                  leftRecursion(nextMarker)
-                }
+                typeProcessing(dotMarker, nextMarker, false, ScalaElementTypes.STABLE_ID, leftRecursion, true)
               }
               case _ => {
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
@@ -157,14 +168,15 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                   }
                 }
               } else{
-                if (ScalaTokenTypes.kTYPE.equals(builder.getTokenType)){
-                  dotMarker.rollbackTo()
-                  currentMarker.done(ScalaElementTypes.PATH)
-                  ScalaElementTypes.PATH
-                } else {
-                  dotMarker.rollbackTo()
-                  ParserUtils.errorToken(builder, currentMarker, "Wrong id declaration", ScalaElementTypes.STABLE_ID)
-                }
+                typeProcessing(dotMarker,
+                               currentMarker,
+                               true,
+                               ScalaElementTypes.PATH,
+                               (marker1: PsiBuilder.Marker) => ParserUtils.errorToken(builder,
+                                                                                    marker1,
+                                                                                    "Wrong id declaration",
+                                                                                    ScalaElementTypes.STABLE_ID),
+                               false)
               }
             } else { 
               currentMarker.done(ScalaElementTypes.PATH)
@@ -191,14 +203,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
                 val dotMarker = builder.mark()
                 builder.advanceLexer //Ate DOT
-                if (ScalaTokenTypes.kTYPE.equals(builder.getTokenType)){
-                  dotMarker.rollbackTo()
-                  nextMarker.drop()
-                  ScalaElementTypes.STABLE_ID
-                } else {
-                  dotMarker.done(ScalaElementTypes.DOT)
-                  leftRecursion(nextMarker)
-                }
+                typeProcessing(dotMarker, nextMarker, false, ScalaElementTypes.STABLE_ID, leftRecursion, true)
               }
               case _ => {
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
@@ -221,14 +226,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
                 val dotMarker = builder.mark()
                 builder.advanceLexer //Ate DOT
-                if (ScalaTokenTypes.kTYPE.equals(builder.getTokenType)){
-                  dotMarker.rollbackTo() 
-                  nextMarker.drop()
-                  ScalaElementTypes.STABLE_ID
-                } else {
-                  dotMarker.done(ScalaElementTypes.DOT)
-                  afterDotParse(nextMarker)
-                }
+                typeProcessing(dotMarker, nextMarker, false, ScalaElementTypes.STABLE_ID, afterDotParse, true)
               }
               case _ => {
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
