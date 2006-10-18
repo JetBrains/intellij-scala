@@ -23,7 +23,7 @@ object ParserUtils {
   //Write element node
   def eatElement(builder: PsiBuilder, elem: IElementType): Unit = {
     val marker = builder.mark()
-    builder.advanceLexer // Ate DOT
+    builder.advanceLexer // Ate something
     marker.done(elem)
   }
 
