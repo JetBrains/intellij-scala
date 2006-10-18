@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType 
 
   /*
   Class for StableId representation and parsing
