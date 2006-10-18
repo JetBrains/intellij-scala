@@ -30,7 +30,7 @@ object ScalaElementTypes {
   val STABLE_ID = new ScalaElementType("stable id")
   val PATH = new ScalaElementType("path")
   val SIMPLE_TYPE = new ScalaElementType("simple type")
-  val TYPE = new ScalaElementType("one type")
+  val KEY_TYPE = new ScalaElementType("one type")
 
   /*************************************************************************************/
   /*********************************** IDENTIFIER **************************************/
@@ -93,8 +93,6 @@ object ScalaElementTypes {
   val STRING_END = new ScalaElementType("String end")
   // Boolean literals
   val BOOLEAN_LITERAL = new ScalaElementType("Boolean Literal")
-  val TRUE = new ScalaElementType("true")
-  val FALSE = new ScalaElementType("false")
   //null
   val NULL = new ScalaElementType("null")
 
