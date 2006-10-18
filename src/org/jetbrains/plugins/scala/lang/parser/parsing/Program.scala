@@ -34,7 +34,8 @@ class Program extends ScalaTokenTypes {
          if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType) ||
               ScalaTokenTypes.kTHIS.equals(builder.getTokenType) ||
               ScalaTokenTypes.kSUPER.equals(builder.getTokenType)) {
-           SimpleType parse (builder)
+           //SimpleType parse (builder)
+           Type1 parse (builder)
          } else
 
          if (Expression.POSTFIX_FIRST.contains(builder.getTokenType)) {

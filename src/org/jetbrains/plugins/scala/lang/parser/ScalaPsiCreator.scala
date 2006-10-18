@@ -37,6 +37,7 @@ object ScalaPsiCreator {
 
     case ScalaElementTypes.IDENTIFIER => new ScIdentifierImpl(node)
     case ScalaElementTypes.THIS => new ScThisImpl(node)
+    case ScalaElementTypes.WITH => new ScWithImpl(node)
     case ScalaElementTypes.SUPER => new ScSuperImpl(node)
     case ScalaElementTypes.DOT => new ScDotImpl(node)
     case ScalaElementTypes.LSQBRACKET => new ScLsqbracketImpl(node)

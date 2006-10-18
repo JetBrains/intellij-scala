@@ -30,6 +30,7 @@ object ScalaElementTypes {
   val STABLE_ID = new ScalaElementType("stable id")
   val PATH = new ScalaElementType("path")
   val SIMPLE_TYPE = new ScalaElementType("simple type")
+  val TYPE1 = new ScalaElementType("type1")
   val KEY_TYPE = new ScalaElementType("one type")
 
   /*************************************************************************************/
@@ -115,6 +116,7 @@ object ScalaElementTypes {
   /************************************** KEYWORDS *************************************/
   /*************************************************************************************/
   val THIS = new ScalaElementType("this")
+  val WITH = new ScalaElementType("with")
   val SUPER = new ScalaElementType("super")
   // Primitives
   val DOT = new ScalaElementType("DOT")

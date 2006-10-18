@@ -351,5 +351,43 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 
   }
 
+  object Type1 {
+
+  /*
+  Type1
+  Default grammar:
+  Type1 ::= SimpleType {with SimpleType} [Refinement]
+  *******************************************
+  */
+
+    def parse(builder : PsiBuilder) : ScalaElementType = {
+
+      def subParse : ScalaElementType = {
+        var result = SimpleType parse(builder)
+        result match {
+          case ScalaElementTypes.SIMPLE_TYPE => {
+            builder.getTokenType match {
+              case ScalaTokenTypes.kWITH => {
+                ParserUtils.eatElement(builder, ScalaElementTypes.WITH)
+                subParse
+              }
+              case _ => {
+                ScalaElementTypes.TYPE1
+              }
+            }
+          }
+          case _ => result
+        }
+      }
+
+      //val type1Marker = builder.mark()
+      var res = subParse
+      //type1Marker.done(ScalaElementTypes.TYPE1)
+      res
+    }
+
+  }
+
+
 
 }
