@@ -69,8 +69,15 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                   case ScalaTokenTypes.tDOT => {
                     val nextMarker2 = nextMarker1.precede()
                     nextMarker1.done(ScalaElementTypes.STABLE_ID)
-                    ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
+                    val dotMarker1 = builder.mark()
+                    builder.advanceLexer // Ate DOT
+                    if (ScalaTokenTypes.kTYPE.equals(builder.getTokenType)){
+                      dotMarker1.rollbackTo()
+                      nextMarker2.drop()
+                      ScalaElementTypes.STABLE_ID
+                    } else {
                     leftRecursion(nextMarker2)
+                    }
                   }
                   case _ => {
                     nextMarker1.done(ScalaElementTypes.STABLE_ID)
