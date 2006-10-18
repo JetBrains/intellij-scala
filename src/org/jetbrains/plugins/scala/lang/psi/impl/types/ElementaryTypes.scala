@@ -34,6 +34,10 @@ import org.jetbrains.plugins.scala.lang.psi._
       override def toString: String = "Keyword: type"
   }
 
+  case class ScSharpImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Separator: #"
+  }
+
   
 
 }

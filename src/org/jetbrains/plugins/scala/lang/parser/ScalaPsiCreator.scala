@@ -13,15 +13,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.types._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
-/**
- * User: Dmitry.Krasilschikov
- * Date: 03.10.2006
- * Time: 19:28:50
- */
 object ScalaPsiCreator {
   def createElement (node : ASTNode) : PsiElement = {
 
    node.getElementType() match {
+     /******************* THE WHOLE FILE ******************/
+     
+
+
      /******************* LITERALS ***********************/
 
      case ScalaElementTypes.INTEGER_LITERAL  => new ScIntegerImpl(node)
@@ -43,9 +42,11 @@ object ScalaPsiCreator {
     case ScalaElementTypes.LSQBRACKET => new ScLsqbracketImpl(node)
     case ScalaElementTypes.RSQBRACKET => new ScRsqbracketImpl(node)
     case ScalaElementTypes.KEY_TYPE => new ScTypeImpl(node)
+    case ScalaElementTypes.INNER_CLASS => new ScSharpImpl(node)
 
     case ScalaElementTypes.STABLE_ID => new ScStableIdImpl(node)
     case ScalaElementTypes.PATH => new ScPathImpl(node)
+    case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeImpl(node)
 
 
      /*
