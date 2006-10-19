@@ -10,7 +10,7 @@ class QualId{
       case ScalaTokenTypes.tDOT => {
 
         val preMarker = marker.precede()
-        marker.done(ScalaElementTypes.QUALID)
+        marker.done(ScalaElementTypes.QUAL_ID)
 
         val dotMarker = builder.mark();
         builder.advanceLexer // Ate dot
@@ -27,24 +27,24 @@ class QualId{
           }
           case _ => {
             builder.error("Wrong package name declaration")
-            preMarker.done(ScalaElementTypes.QUALID)
+            preMarker.done(ScalaElementTypes.QUAL_ID)
           }
         }
       }
 
       case ScalaTokenTypes.tLINE_TERMINATOR => { //End of package
-        marker.done(ScalaElementTypes.QUALID)
+        marker.done(ScalaElementTypes.QUAL_ID)
         builder.advanceLexer
       }
       case ScalaTokenTypes.tSEMICOLON => { //End of package
-        marker.done(ScalaElementTypes.QUALID)
+        marker.done(ScalaElementTypes.QUAL_ID)
         val semMarker = builder.mark()
         builder.advanceLexer
         semMarker.done(ScalaElementTypes.SEMICOLON)
       }
       case _ => {
         builder.error("Wrong package name declaration")
-        marker.done(ScalaElementTypes.QUALID)
+        marker.done(ScalaElementTypes.QUAL_ID)
       }
     }
 

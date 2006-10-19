@@ -46,8 +46,8 @@ class Program extends ScalaTokenTypes {
 
     
     var marker = builder.mark()
-    rollForward
-
+  //  rollForward
+    ParserUtils.rollForward(builder)
     if ( !builder.eof() ){
       //new Top parse(builder) //handle top level - package, import
       Console.println("CompilationUnit invoke ")
@@ -60,7 +60,8 @@ class Program extends ScalaTokenTypes {
     } */
 
 
-    parseNext
+    //parseNext
+    ParserUtils.rollForward(builder)
     marker.done(ScalaElementTypes.FILE)
 
 

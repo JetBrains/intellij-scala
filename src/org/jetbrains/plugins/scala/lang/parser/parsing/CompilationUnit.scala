@@ -3,17 +3,16 @@ package org.jetbrains.plugins.scala.lang.parser.parsing
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.Package
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.Import
-import org.jetbrains.plugins.scala.lang.parser.parsing.base
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.AttributeClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
-import org.jetbrains.plugins.scala.lang.parser.parsing.base._
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
+//import org.jetbrains.plugins.scala.lang.parser.parsing.base._
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
+import com.intellij.psi.tree.IElementType
+import com.intellij.lang.PsiBuilder
 
 
 /**
@@ -35,26 +34,25 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 *                         | Packaging
 *                         |
 *         Packaging   ::=   package QualId ‘{’ TopStatSeq ‘}’
- */
-object CompilationUnit {
-  def parse(builder: PsiBuilder): Unit = {
+*/
+
+object CompilationUnit extends Constr{
+  override def parse (builder : PsiBuilder) : Unit = {
 
     Console.println("token type : " + builder.getTokenType())
            builder.getTokenType() match {
       //possible package statement
       case ScalaTokenTypes.kPACKAGE => {
-        val packageStmtMarker = builder.mark()
         Console.println("top level package handle")
-        Package.parse(builder)
+        ParserUtils.eatConstr(builder, Package, ScalaElementTypes.PACKAGE_STMT)
         Console.println("top level package handled")
-        packageStmtMarker.done(ScalaElementTypes.PACKAGE_STMT)
       }
 
       case _=> {}
     }
 
     Console.println("token type : " + builder.getTokenType())   
-        builder.getTokenType() match {
+    builder.getTokenType() match {
       case ScalaTokenTypes.tLSQBRACKET
          | ScalaTokenTypes.kABSTRACT
          | ScalaTokenTypes.kFINAL
@@ -74,6 +72,7 @@ object CompilationUnit {
         Console.println("TopStatSeq invoke ")
         TopStatSeq.parse(builder)
         Console.println("TopStatSeq invoked ")
+
       }
 
       case _ => {builder.error("wrong top declaration")}
@@ -82,8 +81,8 @@ object CompilationUnit {
   }
 
 
-  object TopStatSeq {
-    def parse(builder: PsiBuilder): Unit = {
+  object TopStatSeq extends Constr{
+    override def parse(builder: PsiBuilder): Unit = {
 
       val topStatMarker = builder.mark()
 
@@ -97,34 +96,30 @@ object CompilationUnit {
       while (builder.getTokenType().equals(ScalaTokenTypes.tSEMICOLON)
           || builder.getTokenType().equals(ScalaTokenTypes.tLINE_TERMINATOR)){
 
-        val statamentSeparatorMarker = builder.mark()
         Console.println("statement separator handle")
-        StatementSeparator.parse(builder)
+        ParserUtils.eatConstr(builder, StatementSeparator, ScalaElementTypes.STATEMENT_SEPARATOR)
         Console.println("statement separator handled")
-        statamentSeparatorMarker.done(ScalaElementTypes.STATEMENT_SEPARATOR)
 
         ParserUtils.rollForward(builder)
 
-        val topStatMarker = builder.mark()
         Console.println("sungle top stat handle")
-        TopStat.parse(builder)
+        ParserUtils.eatConstr(builder, TopStat, ScalaElementTypes.TOP_STAT)
         Console.println("sungle top stat handled")
-        topStatMarker.done(ScalaElementTypes.TOP_STAT)
       }
+
+
     }
   }
 
-  object TopStat {
-    def parse(builder: PsiBuilder): Unit = {
+  object TopStat extends Constr {
+    override def parse(builder: PsiBuilder): Unit = {
 
       Console.println("token type : " + builder.getTokenType())
        builder.getTokenType() match {
         case ScalaTokenTypes.tLSQBRACKET => {
-          val attributeClauseMarker = builder.mark()
           Console.println("attribute clause handle")
-          AttributeClause.parse(builder)
+          ParserUtils.eatConstr(builder, AttributeClause, ScalaElementTypes.ATTRIBUTE_CLAUSE)
           Console.println("attribute clause handled")
-          attributeClauseMarker.done(ScalaElementTypes.ATTRIBUTE_CLAUSE)
         }
 
         case ScalaTokenTypes.kABSTRACT
@@ -135,11 +130,9 @@ object CompilationUnit {
            | ScalaTokenTypes.kPRIVATE
            | ScalaTokenTypes.kPROTECTED
            => {
-           val modifierMarker = builder.mark()
            Console.println("modifier handle")
-           Modifier.parse(builder)
+           ParserUtils.eatConstr(builder, Modifier, ScalaElementTypes.MODIFIER)
            Console.println("modifier handled")
-           modifierMarker.done(ScalaElementTypes.MODIFIER)  
         }
 
         case ScalaTokenTypes.kCASE
@@ -149,30 +142,90 @@ object CompilationUnit {
            => {
            val tmplDefMarker = builder.mark()
            Console.println("tmpl handle")
-           TmplDef.parse(builder)
+           ParserUtils.eatConstr(builder, TmplDef, ScalaElementTypes.TMPL_DEF)
+           ParserUtils.rollForward(builder)
            Console.println("tmpl handled")
-           tmplDefMarker.done(ScalaElementTypes.TMPL_DEF)
         }
 
         case ScalaTokenTypes.kIMPORT => {
-           val importMarker = builder.mark()
-           Console.println("import handle")
-           Import.parse(builder)
            Console.println("import handled")
-           importMarker.done(ScalaElementTypes.IMPORT_STMT)
+           ParserUtils.eatConstr(builder, Import, ScalaElementTypes.IMPORT_STMT)
+           ParserUtils.rollForward(builder)
+           Console.println("import handle")
         }
 
         case ScalaTokenTypes.kPACKAGE => {
-           val packageMarker = builder.mark()
            //todo: packaging
-           Console.println("package handle")
-           Package.parse(builder)
-           Console.println("package handled")
-           packageMarker.done(ScalaElementTypes.PACKAGE_STMT)
+           Console.println("packaging handle")
+           ParserUtils.eatConstr(builder, Packaging, ScalaElementTypes.PACKAGE_STMT)
+           ParserUtils.rollForward(builder)
+           Console.println("packaging handled")
         }
 
-        case _ => {builder.error("wrong top stat")}
+        case _ => {
+          /*ParserUtils.rollForward(builder)
+
+          if (!builder.eof()) builder.error("expected end of file")
+          */
+        }
       }
     }
   }
+ 
+
+    object Package extends Constr {
+      override def parse(builder: PsiBuilder): Unit = {
+
+        builder.getTokenType() match {
+          case ScalaTokenTypes.kPACKAGE => {
+            ParserUtils.eatElement(builder, ScalaElementTypes.PACKAGE)
+
+            builder.getTokenType() match {
+              case ScalaTokenTypes.tIDENTIFIER => {
+                val qualIdMarker = builder.mark()
+                //ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+                ParserUtils.eatConstr(builder, QualId, ScalaElementTypes.QUAL_ID)
+                qualIdMarker.done(ScalaElementTypes.QUAL_ID)
+              }
+
+              case _ => builder.error("Wrong package name")
+            }
+          }
+
+          case _ => { builder.error("expected token 'package'") }
+        }
+    }
+  }
+
+    object Packaging extends Constr {
+      override def parse(builder: PsiBuilder) : Unit = {
+        builder.getTokenType() match {
+          case ScalaTokenTypes.kPACKAGE => {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.kPACKAGE)
+
+            ParserUtils.eatConstr(builder, QualId, ScalaElementTypes.QUAL_ID)
+
+              if ( ScalaTokenTypes.tLBRACE.equals(builder.getTokenType()) ){
+
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
+                ParserUtils.eatConstr(builder, TopStatSeq, ScalaElementTypes.TOP_STAT_SEQ)
+
+              } else builder.error("expected '{'")
+
+              if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType())) {
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+              } else builder.error("expected '}'")
+          }
+
+          case _ => { builder.error("expected 'package") }
+        }
+      }
+    }
+
+    object QualId extends Constr {
+      override def parse(builder : PsiBuilder) : Unit = {
+       //todo: change to simple qualID
+       StableId.parse(builder)
+      }
+    }
 }

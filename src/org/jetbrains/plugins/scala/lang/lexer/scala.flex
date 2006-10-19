@@ -240,7 +240,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "val"                                   {   return process(kVAL); }
 "var"                                   {   return process(kVAR); }
 "while"                                 {   return process(kWHILE); }
-"with"                                  {   return process(kWHITH); }
+"with"                                  {   return process(kWITH); }
 "yield"                                 {   return process(kYIELD); }
 
 ///////////////////// Reserved shorthands //////////////////////////////////////////

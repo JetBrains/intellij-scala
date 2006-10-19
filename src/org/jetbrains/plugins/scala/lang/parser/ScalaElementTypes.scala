@@ -20,9 +20,10 @@ object ScalaElementTypes {
   val FILE = new IFileElementType(Language.findInstance(new ClassOf().cast[Class[ScalaLanguage]]( classOf[ScalaLanguage] )))
 
   /*************************************************************************************/
-  /************************************** ERROR ****************************************/
+  /************************************** OTHER ****************************************/
   /*************************************************************************************/
   val WRONGWAY = new ScalaElementType("Wrong way!")
+  val EMPTY = new ScalaElementType("empty")
 
   /*************************************************************************************/
   /************************************** TYPES ****************************************/
@@ -46,7 +47,7 @@ object ScalaElementTypes {
   val PACKAGE_GROUP = new ScalaElementType("package group")
   val PACKAGE = new ScalaElementType("package token")
   val PACKAGE_STMT = new ScalaElementType("package statement")
-  val QUALID = new ScalaElementType("Qualification identifier")
+  val QUAL_ID = new ScalaElementType("Qualification identifier")
         
   /*************************************************************************************/
   /********************************* IMPORT GROUP **************************************/
@@ -141,6 +142,7 @@ object ScalaElementTypes {
 
 //top
   val TOP_STAT = new ScalaElementType("top stat")
+  val TOP_STAT_SEQ = new ScalaElementType("top stat sequence")
 
 //types
   val TYPES = new ScalaElementType("types")

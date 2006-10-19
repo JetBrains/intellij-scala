@@ -118,7 +118,7 @@ public interface ScalaTokenTypes {
     IElementType kVAL = new ScalaElementType("val");
     IElementType kVAR = new ScalaElementType("var");
     IElementType kWHILE = new ScalaElementType("while");
-    IElementType kWHITH = new ScalaElementType("whith");
+    IElementType kWITH = new ScalaElementType("whith");
     IElementType kYIELD = new ScalaElementType("yield");
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////// variables and constants //////////////////////////////////////////////////////////////////////

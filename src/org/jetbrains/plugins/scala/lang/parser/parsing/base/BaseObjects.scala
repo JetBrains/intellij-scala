@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.Package
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Exprs
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 /**
  * User: Dmitry.Krasilschikov
  * Date: 17.10.2006
@@ -19,8 +20,8 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
     StatementSeparator ::= NewLine | ‘;’
 */
 
-object StatementSeparator {
-  def parse(builder: PsiBuilder): Unit = {
+object StatementSeparator extends Constr{
+  override def parse(builder: PsiBuilder): Unit = {
 
     Console.println("token type : " + builder.getTokenType())
      builder.getTokenType() match {
@@ -48,8 +49,8 @@ object StatementSeparator {
     AttributeClause ::= ‘[’ Attribute {‘,’ Attribute} ‘]’ [NewLine]
 */
 
-object AttributeClause {
-  def parse(builder: PsiBuilder): Unit = {
+object AttributeClause extends Constr{
+  override def parse(builder: PsiBuilder): Unit = {
 
     Console.println("token type : " + builder.getTokenType())
         builder.getTokenType() match {
@@ -109,9 +110,9 @@ object AttributeClause {
     Attribute ::= Constr
 */
 
-object Attribute {
-  def parse(builder: PsiBuilder): Unit = {
-    Constr.parse(builder)
+object Attribute extends Constr{
+  override def parse(builder: PsiBuilder): Unit = {
+    Construction.parse(builder)
   }
 }
 
@@ -119,8 +120,8 @@ object Attribute {
     Constr ::= StableId [TypeArgs] {‘(’ [Exprs] ‘)’}
 */
 
-object Constr {
-  def parse(builder: PsiBuilder): Unit = {
+object Construction extends Constr{
+  override def parse(builder: PsiBuilder): Unit = {
     Console.println("token type : " + builder.getTokenType())
     builder.getTokenType() match {
       case ScalaTokenTypes.tIDENTIFIER => {
@@ -169,8 +170,8 @@ object Constr {
     ExprInParenthis :== '(' [exprs] ')'
 */
 
-  object ExprInParenthis {
-    def parse(builder: PsiBuilder): Unit = {
+  object ExprInParenthis extends Constr{
+    override def parse(builder: PsiBuilder): Unit = {
 
       Console.println("token type : " + builder.getTokenType())
       builder.getTokenType() match {
@@ -225,9 +226,9 @@ object Constr {
     TypeArgs :== '[' Types']'
  */
 
-  object TypeArgs {
+  object TypeArgs extends Constr{
 
-    def parse(builder: PsiBuilder): Unit = {
+    override def parse(builder: PsiBuilder): Unit = {
       Console.println("token type : " + builder.getTokenType())
       builder.getTokenType() match {
         case ScalaTokenTypes.tLSQBRACKET => {
@@ -257,8 +258,8 @@ object Constr {
     types :== Type {',' Type}
 */
   
-  object Types {
-    def parse(builder: PsiBuilder): Unit = {
+  object Types extends Constr{
+    override def parse(builder: PsiBuilder): Unit = {
 
     }
   }
@@ -272,8 +273,8 @@ object Constr {
     | protected [ "[" id "]" ]
 */
 
-  object Modifier {
-    def parse(builder: PsiBuilder): Unit = {
+  object Modifier extends Constr{
+    override def parse(builder: PsiBuilder): Unit = {
       Console.println("token type : " + builder.getTokenType())
       builder.getTokenType() match {
          case ScalaTokenTypes.kABSTRACT
@@ -303,8 +304,8 @@ object Constr {
     }
   }
 
-  object AccessModifier {
-    def parse(builder: PsiBuilder): Unit = {
+  object AccessModifier extends Constr{
+    override def parse(builder: PsiBuilder): Unit = {
       Console.println("token type : " + builder.getTokenType())
       builder.getTokenType() match {
         case ScalaTokenTypes.tLSQBRACKET => {
@@ -332,8 +333,8 @@ object Constr {
   }
 
 
-  object LocalModifier {
-    def parse(builder: PsiBuilder): Unit = {
+  object LocalModifier extends Constr{
+    override def parse(builder: PsiBuilder): Unit = {
       Console.println("token type : " + builder.getTokenType())
       builder.getTokenType() match {
         case ScalaTokenTypes.kABSTRACT
@@ -349,8 +350,8 @@ object Constr {
     }
   }
 
-  object Import {
-    def parse(builder: PsiBuilder): Unit = {
+  object Import extends Constr{
+    override def parse(builder: PsiBuilder): Unit = {
       builder.getTokenType() match {
         case ScalaTokenTypes.kIMPORT => {
           ParserUtils.eatElement(builder, ScalaElementTypes.IMPORT)
@@ -377,8 +378,8 @@ object Constr {
     }
   }
 
-  object ImportExpr {
-    def parse(builder: PsiBuilder): Unit = {
+  object ImportExpr extends Constr{
+    override def parse(builder: PsiBuilder): Unit = {
       builder.getTokenType() match {
         case ScalaTokenTypes.tIDENTIFIER => {
           val stableIdMarker = builder.mark()
@@ -412,8 +413,8 @@ object Constr {
     }
   }
 
-  object ImportSelectors {
-    def parse(builder: PsiBuilder): Unit = {
+  object ImportSelectors extends Constr{
+    override def parse(builder: PsiBuilder): Unit = {
       builder.getTokenType() match {
         case ScalaTokenTypes.tLBRACE => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
@@ -479,8 +480,8 @@ object Constr {
     }
   }
 
-  object ImportSelector {
-    def parse(builder: PsiBuilder): Unit = {
+  object ImportSelector extends Constr{
+    override def parse(builder: PsiBuilder): Unit = {
       builder.getTokenType() match {
         case ScalaTokenTypes.tIDENTIFIER => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
@@ -511,6 +512,6 @@ object Constr {
         case _ => { builder.error("expected identifier") }
       }
     }
-  }
+ }
 
 }

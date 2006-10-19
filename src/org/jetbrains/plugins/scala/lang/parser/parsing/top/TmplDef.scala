@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 
 */
 
-object TmplDef {
+object TmplDef extends Constr{
   abstract class TypeDef {
       def getKeyword : ScalaElementType
 
@@ -49,7 +49,7 @@ object TmplDef {
 
   abstract class InstanceDef extends TypeDef
 
-  case class ObjectDef extends InstanceDef {
+  case object ObjectDef extends InstanceDef {
     def getKeyword = ScalaElementTypes.OBJECT
 
     def getDef : ScalaElementType = ScalaElementTypes.OBJECT_DEF
@@ -87,7 +87,7 @@ object TmplDef {
     }
   }
 
-  def parse(builder : PsiBuilder) : Unit = {
+  override def parse(builder : PsiBuilder) : Unit = {
     def parseInst ( builder : PsiBuilder ) : Unit = {
         Console.println("token type : " + builder.getTokenType())
         builder.getTokenType() match {
@@ -131,7 +131,7 @@ object TmplDef {
 
       case ScalaTokenTypes.kTRAIT => {
         val traitStmtMarker = builder.mark();
-       
+
         TraitDef.parse( builder )
 
         traitStmtMarker.done(ScalaElementTypes.TRAIT_STMT);

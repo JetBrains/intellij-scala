@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Top
+import org.jetbrains.plugins.scala.lang.parser.parsing.Constr
 import com.intellij.psi.tree.IElementType
 
 import com.intellij.lang.PsiBuilder
@@ -23,8 +24,19 @@ object ParserUtils {
   //Write element node
   def eatElement(builder: PsiBuilder, elem: IElementType): Unit = {
     val marker = builder.mark()
+    Console.println("eaten token : " + builder.getTokenType())
     builder.advanceLexer // Ate something
     marker.done(elem)
+  }
+
+  //wants make class Constr(builder) and it's memebers: var builder and def parse
+  def eatConstr(builder : PsiBuilder, constr: Constr, element : IElementType) : IElementType = {
+    val marker = builder.mark()
+    Console.println("before parsing " + constr + " : " + builder.getTokenType())
+    constr.parse(builder)
+    Console.println("after parsing " + constr + " : " + builder.getTokenType())
+    marker.done(element)
+    element
   }
 
   //Write element node

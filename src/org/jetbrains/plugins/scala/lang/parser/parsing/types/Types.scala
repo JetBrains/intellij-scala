@@ -14,7 +14,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
   /*
   Class for StableId representation and parsing
   */
-  object StableId{
+
+  //object StableId extends Constr{
+  object StableId {
 
   /*
   STABLE ID
@@ -34,6 +36,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
     * ScalaElementTypes.PATH if ONLY Path parsed,
     * ScalaElementTypes.WRONGWAY else
     */
+
+//*******************************************************
+//please, rewrite it so, that parse(builder : PsiBuilder return Unit)
+//for example, make method parseStableId and use it, as need//and so, we 'll extend StableId by Constr
+//*******************************************************
 
     def parse(builder : PsiBuilder) : ScalaElementType = {
 
@@ -387,7 +394,5 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
     }
 
   }
-
-
 
 }
