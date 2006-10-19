@@ -96,7 +96,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
             ScalaTokenTypes.kVAL,
             ScalaTokenTypes.kVAR,
             ScalaTokenTypes.kWHILE,
-            ScalaTokenTypes.kWHITH,
+            ScalaTokenTypes.kWITH,
             ScalaTokenTypes.kYIELD
     );
 

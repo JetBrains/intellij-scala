@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.lang.psi.impl.literals._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
+import org.jetbrains.plugins.scala.lang.psi.impl.top._
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -49,14 +50,14 @@ object ScalaPsiCreator {
     case ScalaElementTypes.PATH => new ScPathImpl(node)
     case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeImpl(node)
 
+    /********************** TOP ************************/
 
-     /*
      case ScalaTokenTypes.kPACKAGE => new ScPackage( node )
      case ScalaTokenTypes.kCLASS => new ScClass( node )
      case ScalaTokenTypes.kOBJECT => new ScObject( node )
      case ScalaTokenTypes.kTRAIT => new ScTrait( node )
      case ScalaTokenTypes.kIMPORT => new ScImport( node )
-     */
+
      case _ => new ScalaPsiElementImpl( node )
 
    }

@@ -7,28 +7,40 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.psi.tree.IElementType
 import com.intellij.lang.PsiBuilder
 
-object Package {
+import org.jetbrains.plugins.scala.lang.parser.parsing.CompilationUnit.QualId
+import org.jetbrains.plugins.scala.lang.parser.parsing.Constr
+/*
+object Package extends Constr {
 
-  def parse(builder: PsiBuilder): Unit = {
+  override def parse(builder: PsiBuilder): Unit = {
 
-    var pgMarker = builder.mark() //Open marker for package group
+      builder.getTokenType() match {
+        case ScalaTokenTypes.kPACKAGE => {
+          val packMarker = builder.mark()
+          Console.println("expected token 'package' " + builder.getTokenType())
+          builder.advanceLexer //New node: "package"
+          packMarker.done(ScalaElementTypes.PACKAGE)
 
-    val packMarker = builder.mark()
-    builder.advanceLexer //New node: "package"
-    packMarker.done(ScalaElementTypes.PACKAGE)
+          builder.getTokenType() match {
+            case ScalaTokenTypes.tIDENTIFIER => {
+            Console.println("expected token 'identifier' " + builder.getTokenType())
+              val qualIDmarker = builder.mark()
 
-    builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
-        val qualIDmarker = builder.mark()
+              val idMarker = builder.mark()
+              builder.advanceLexer // Ate QualID identifier
+              idMarker.done(ScalaElementTypes.IDENTIFIER)
 
-        val idMarker = builder.mark()
-        builder.advanceLexer // Ate QualID identifier
-        idMarker.done(ScalaElementTypes.IDENTIFIER)
+              QualId.parse( builder )  //QualID found
+              qualIDmarker.done(ScalaElementTypes.QUAL_ID)
 
-        (new QualId).parse( builder , qualIDmarker )  //QualID found
+            }
+            case _ => builder.error("Wrong package name")
+          }
+        }
+
+        case _ => { builder.error("expected token 'package'") }
       }
-      case _ => builder.error("Wrong package name")
-    }
-    pgMarker.done(ScalaElementTypes.PACKAGE_GROUP) //Close marker for package
+
+
   }
-}
+}  */
