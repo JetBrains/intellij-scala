@@ -40,7 +40,7 @@ object CompilationUnit extends Constr{
   override def parse (builder : PsiBuilder) : Unit = {
 
     Console.println("token type : " + builder.getTokenType())
-           builder.getTokenType() match {
+    builder.getTokenType() match {
       //possible package statement
       case ScalaTokenTypes.kPACKAGE => {
         Console.println("top level package handle")
@@ -84,13 +84,9 @@ object CompilationUnit extends Constr{
   object TopStatSeq extends Constr{
     override def parse(builder: PsiBuilder): Unit = {
 
-      val topStatMarker = builder.mark()
-
       Console.println("single top stat handle")
-      TopStat.parse(builder)
+      ParserUtils.eatConstr(builder, TopStat, ScalaElementTypes.TOP_STAT)
       Console.println("single top stat handled")
-
-      topStatMarker.done(ScalaElementTypes.TOP_STAT)
 
       Console.println("token type " + builder.getTokenType())
       while (builder.getTokenType().equals(ScalaTokenTypes.tSEMICOLON)
@@ -163,8 +159,8 @@ object CompilationUnit extends Constr{
         }
 
         case _ => {
-          /*ParserUtils.rollForward(builder)
-
+          //ParserUtils.rollForward(builder)
+           /*
           if (!builder.eof()) builder.error("expected end of file")
           */
         }
@@ -182,10 +178,10 @@ object CompilationUnit extends Constr{
 
             builder.getTokenType() match {
               case ScalaTokenTypes.tIDENTIFIER => {
-                val qualIdMarker = builder.mark()
+                //val qualIdMarker = builder.mark()
                 //ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
                 ParserUtils.eatConstr(builder, QualId, ScalaElementTypes.QUAL_ID)
-                qualIdMarker.done(ScalaElementTypes.QUAL_ID)
+                //qualIdMarker.done(ScalaElementTypes.QUAL_ID)
               }
 
               case _ => builder.error("Wrong package name")
@@ -205,6 +201,7 @@ object CompilationUnit extends Constr{
 
             ParserUtils.eatConstr(builder, QualId, ScalaElementTypes.QUAL_ID)
 
+              Console.println("expected { : " + builder.getTokenType())
               if ( ScalaTokenTypes.tLBRACE.equals(builder.getTokenType()) ){
 
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
