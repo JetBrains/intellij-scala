@@ -41,8 +41,11 @@ object ScalaPsiCreator {
     case ScalaElementTypes.WITH => new ScWithImpl(node)
     case ScalaElementTypes.SUPER => new ScSuperImpl(node)
     case ScalaElementTypes.DOT => new ScDotImpl(node)
+    case ScalaElementTypes.COMMA => new ScCommaImpl(node)
     case ScalaElementTypes.LSQBRACKET => new ScLsqbracketImpl(node)
     case ScalaElementTypes.RSQBRACKET => new ScRsqbracketImpl(node)
+    case ScalaElementTypes.LPARENTHIS => new ScLParentImpl(node)
+    case ScalaElementTypes.RPARENTHIS => new ScRParentImpl(node)
     case ScalaElementTypes.KEY_TYPE => new ScKeyTypeImpl(node)
     case ScalaElementTypes.INNER_CLASS => new ScSharpImpl(node)
 

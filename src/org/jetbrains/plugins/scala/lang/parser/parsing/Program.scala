@@ -35,7 +35,10 @@ class Program extends ScalaTokenTypes {
               ScalaTokenTypes.kTHIS.equals(builder.getTokenType) ||
               ScalaTokenTypes.kSUPER.equals(builder.getTokenType) ||
               ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) {
-           Type parse (builder)
+           Console.println("Before type parsing " + builder.getTokenText())
+           var res = Type parse (builder)
+           Console.println("after type parsing " + builder.getTokenText())
+           if (res.equals(ScalaElementTypes.WRONGWAY)) builder advanceLexer
          } else
 
          if (Expression.POSTFIX_FIRST.contains(builder.getTokenType)) {
@@ -50,9 +53,9 @@ class Program extends ScalaTokenTypes {
     ParserUtils.rollForward(builder)
     if ( !builder.eof() ){
       //new Top parse(builder) //handle top level - package, import
-      Console.println("CompilationUnit invoke ")
+      //Console.println("CompilationUnit invoke ")
      // CompilationUnit.parse(builder)
-      Console.println("CompilationUnit invoked ")
+      //Console.println("CompilationUnit invoked ")
     }
 
     /*while ( !builder.eof() ){

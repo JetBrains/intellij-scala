@@ -24,7 +24,7 @@ object ParserUtils {
   //Write element node
   def eatElement(builder: PsiBuilder, elem: IElementType): Unit = {
     val marker = builder.mark()
-    Console.println("eaten token : " + builder.getTokenType())
+    //Console.println("eaten token : " + builder.getTokenType())
     builder.advanceLexer // Ate something
     marker.done(elem)
   }
@@ -32,9 +32,9 @@ object ParserUtils {
   //wants make class Constr(builder) and it's memebers: var builder and def parse
   def eatConstr(builder : PsiBuilder, constr: Constr, element : IElementType) : IElementType = {
     val marker = builder.mark()
-    Console.println("before parsing " + constr + " : " + builder.getTokenType())
+    //Console.println("before parsing " + constr + " : " + builder.getTokenType())
     constr.parse(builder)
-    Console.println("after parsing " + constr + " : " + builder.getTokenType())
+    //Console.println("after parsing " + constr + " : " + builder.getTokenType())
     marker.done(element)
     element
   }
@@ -45,7 +45,8 @@ object ParserUtils {
                  msg: String,
                  elem: ScalaElementType): ScalaElementType = {
     builder.error(msg)
-    marker.done(elem)
+    //marker.done(elem)
+    marker.rollbackTo()
     ScalaElementTypes.WRONGWAY
   }
 

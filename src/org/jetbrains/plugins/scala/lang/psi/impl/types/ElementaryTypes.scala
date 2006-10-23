@@ -46,6 +46,17 @@ import org.jetbrains.plugins.scala.lang.psi._
       override def toString: String = "Function type: =>"
   }
 
+  case class ScLParentImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Symbol: ("
+  }
+
+  case class ScRParentImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Symbol: )"
+  }
+
+  case class ScCommaImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Separator: comma"
+  }
   
 
 }

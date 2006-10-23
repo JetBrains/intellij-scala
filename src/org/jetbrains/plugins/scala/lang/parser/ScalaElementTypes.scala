@@ -34,7 +34,8 @@ object ScalaElementTypes {
   val TYPE1 = new ScalaElementType("type1")
   val TYPE = new ScalaElementType("common type")
   val FUN_TYPE = new ScalaElementType("function type") 
-  val KEY_TYPE = new ScalaElementType("one type")
+  val KEY_TYPE = new ScalaElementType("type keyword")
+  val TYPEARGS = new ScalaElementType("type arguments")
 
   /*************************************************************************************/
   /*********************************** IDENTIFIER **************************************/
@@ -127,6 +128,8 @@ object ScalaElementTypes {
   val COMMA = new ScalaElementType("COMMA")
   val SEMICOLON = new ScalaElementType("SEMICOLON")
   val LSQBRACKET = new ScalaElementType("LSQBRACKET")
+  val LPARENTHIS = new ScalaElementType("LPARENTHIS")
+  val RPARENTHIS = new ScalaElementType("RPARENTHIS")
   val RSQBRACKET = new ScalaElementType("RSQBRACKET")
   val STATEMENT_SEPARATOR = new ScalaElementType("statement separator")
 
