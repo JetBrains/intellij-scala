@@ -580,7 +580,4 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
     }
   }
 
-
-
-
 }
