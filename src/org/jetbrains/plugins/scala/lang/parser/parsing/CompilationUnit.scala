@@ -70,7 +70,8 @@ object CompilationUnit extends Constr{
          | _
          => {
         Console.println("TopStatSeq invoke ")
-        TopStatSeq.parse(builder)
+        ParserUtils.eatConstr(builder, TopStatSeq, ScalaElementTypes.TOP_STAT_SEQ)
+        
         Console.println("TopStatSeq invoked ")
 
       }
@@ -81,16 +82,16 @@ object CompilationUnit extends Constr{
   }
 
 
-  object TopStatSeq extends Constr{
+  object TopStatSeq extends Constr {
     override def parse(builder: PsiBuilder): Unit = {
 
       Console.println("single top stat handle")
       ParserUtils.eatConstr(builder, TopStat, ScalaElementTypes.TOP_STAT)
       Console.println("single top stat handled")
 
-      ParserUtils.rollForward(builder)
+    //  ParserUtils.rollForward(builder)
 
-      Console.println("token type " + builder.getTokenType())
+      Console.println("token type, semi or lt " + builder.getTokenType())
       while (builder.getTokenType().equals(ScalaTokenTypes.tSEMICOLON)
           || builder.getTokenType().equals(ScalaTokenTypes.tLINE_TERMINATOR)){
 
@@ -98,13 +99,14 @@ object CompilationUnit extends Constr{
         ParserUtils.eatConstr(builder, StatementSeparator, ScalaElementTypes.STATEMENT_SEPARATOR)
         Console.println("statement separator handled")
 
-        ParserUtils.rollForward(builder)
+     //   ParserUtils.rollForward(builder)
 
-        Console.println("sungle top stat handle")
+        Console.println("single top stat handle")
         ParserUtils.eatConstr(builder, TopStat, ScalaElementTypes.TOP_STAT)
-        Console.println("sungle top stat handled")
-      }
+        Console.println("single top stat handled")
 
+        Console.println("after topStat token is " + builder.getTokenType())
+      }
 
     }
   }
@@ -141,14 +143,14 @@ object CompilationUnit extends Constr{
            val tmplDefMarker = builder.mark()
            Console.println("tmpl handle")
            ParserUtils.eatConstr(builder, TmplDef, ScalaElementTypes.TMPL_DEF)
-           ParserUtils.rollForward(builder)
+           //ParserUtils.rollForward(builder)
            Console.println("tmpl handled")
         }
 
         case ScalaTokenTypes.kIMPORT => {
            Console.println("import handled")
            ParserUtils.eatConstr(builder, Import, ScalaElementTypes.IMPORT_STMT)
-           ParserUtils.rollForward(builder)
+           //ParserUtils.rollForward(builder)
            Console.println("import handle")
         }
 
@@ -156,11 +158,12 @@ object CompilationUnit extends Constr{
            //todo: packaging
            Console.println("packaging handle")
            ParserUtils.eatConstr(builder, Packaging, ScalaElementTypes.PACKAGE_STMT)
-           ParserUtils.rollForward(builder)
+           //ParserUtils.rollForward(builder)
            Console.println("packaging handled")
         }
 
         case _ => {
+          Console.println("do nothing in topSeq")
           //ParserUtils.rollForward(builder)
            /*
           if (!builder.eof()) builder.error("expected end of file")
@@ -181,9 +184,11 @@ object CompilationUnit extends Constr{
             builder.getTokenType() match {
               case ScalaTokenTypes.tIDENTIFIER => {
                 //val qualIdMarker = builder.mark()
-                //ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+                //ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
                 ParserUtils.eatConstr(builder, QualId, ScalaElementTypes.QUAL_ID)
                 //qualIdMarker.done(ScalaElementTypes.QUAL_ID)
+
+                ParserUtils.eatConstr(builder, StatementSeparator, ScalaElementTypes.STATEMENT_SEPARATOR)
               }
 
               case _ => builder.error("Wrong package name")

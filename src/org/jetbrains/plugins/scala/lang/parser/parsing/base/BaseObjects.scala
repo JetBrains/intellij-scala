@@ -7,6 +7,7 @@ import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Package
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableIdInImport
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Exprs
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
@@ -311,20 +312,20 @@ object Construction extends Constr{
         case ScalaTokenTypes.tLSQBRACKET => {
           val lsqbracketMarker = builder.mark()
           builder.advanceLexer
-          lsqbracketMarker.done(ScalaElementTypes.LSQBRACKET)
+          lsqbracketMarker.done(ScalaTokenTypes.tLSQBRACKET)
 
           Console.println("token type : " + builder.getTokenType())
           builder.getTokenType() match {
             case ScalaTokenTypes.tIDENTIFIER => {
               val idMarker = builder.mark()
               builder.advanceLexer
-              idMarker.done(ScalaElementTypes.IDENTIFIER)
+              idMarker.done(ScalaTokenTypes.tIDENTIFIER)
             }
 
             case _ => { builder.error("expected identifier") }
           }
 
-          if ( !builder.getTokenType().equals(ScalaElementTypes.RSQBRACKET) ){
+          if ( !builder.getTokenType().equals(ScalaTokenTypes.tRSQBRACKET) ){
             builder.error("expected ']'")
           }
         }
@@ -354,7 +355,7 @@ object Construction extends Constr{
     override def parse(builder: PsiBuilder): Unit = {
       builder.getTokenType() match {
         case ScalaTokenTypes.kIMPORT => {
-          ParserUtils.eatElement(builder, ScalaElementTypes.IMPORT)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.kIMPORT)
 
           builder.getTokenType() match {
             case ScalaTokenTypes.tIDENTIFIER => {
@@ -383,10 +384,16 @@ object Construction extends Constr{
       builder.getTokenType() match {
         case ScalaTokenTypes.tIDENTIFIER => {
           val stableIdMarker = builder.mark()
-          StableId.parse(builder)
+          StableIdInImport.parse(builder)
+         // StableId.parse(builder)
+
           stableIdMarker.done(ScalaElementTypes.STABLE_ID)
 
+          Console.println("expect '.' " + builder.getTokenType())
+
           if (builder.getTokenType().equals(ScalaTokenTypes.tDOT)){
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
+
             builder.getTokenType() match {
               case ScalaTokenTypes.tIDENTIFIER => {
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
@@ -401,6 +408,8 @@ object Construction extends Constr{
                 ImportSelectors.parse(builder)
                 importSelectorsMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
               }
+
+              case _ => { builder.error("expected '.'") }
             }
 
           } else {

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.psi.tree.IElementType
 import com.intellij.lang.PsiBuilder
 
-import org.jetbrains.plugins.scala.lang.parser.parsing.CompilationUnit.QualId
+//import org.jetbrains.plugins.scala.lang.parser.parsing.CompilationUnit.QualId
 import org.jetbrains.plugins.scala.lang.parser.parsing.Constr
 /*
 object Package extends Constr {
@@ -28,7 +28,7 @@ object Package extends Constr {
 
               val idMarker = builder.mark()
               builder.advanceLexer // Ate QualID identifier
-              idMarker.done(ScalaElementTypes.IDENTIFIER)
+              idMarker.done(ScalaTokenTypes.tIDENTIFIER)
 
               QualId.parse( builder )  //QualID found
               qualIDmarker.done(ScalaElementTypes.QUAL_ID)
