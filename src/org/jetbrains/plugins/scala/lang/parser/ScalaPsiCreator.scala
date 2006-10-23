@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.lang.psi.impl.literals._
+import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.top._
 
@@ -56,6 +57,13 @@ object ScalaPsiCreator {
     case ScalaElementTypes.TYPE => new ScTypeImpl(node)
     case ScalaElementTypes.TYPES => new ScTypesImpl(node)
     case ScalaElementTypes.TYPEARGS => new ScTypeArgsImpl(node)
+
+    /******************* EXPRESSIONS*********************/
+
+    case ScalaElementTypes.PREFIX_EXPR => new ScPrefixExprImpl(node)
+    case ScalaElementTypes.PREFIX => new ScPrefixImpl(node)
+    case ScalaElementTypes.INFIX_EXPR => new ScInfixExprImpl(node)
+    case ScalaElementTypes.POSTFIX_EXPR => new ScPostfixExprImpl(node)
 
     /********************** TOP ************************/
 
