@@ -395,4 +395,45 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 
   }
 
+
+  object Type {
+
+  /*
+  Type
+  Default grammar:
+  Type ::= Type1 ‘=>’ Type
+           | ‘(’ [Types] ‘)’ ‘=>’ Type
+           | Type1
+  *******************************************
+  */
+
+    def parse(builder : PsiBuilder) : ScalaElementType = {
+
+      def subParse : ScalaElementType = {
+        var result = Type1 parse(builder)
+        result match {
+          case ScalaElementTypes.TYPE1 => {
+            builder.getTokenType match {
+              case ScalaTokenTypes.tFUNTYPE => {
+                ParserUtils.eatElement(builder, ScalaElementTypes.FUN_TYPE)
+                parse(builder)
+              }
+              case _ => {
+                ScalaElementTypes.TYPE1
+              }
+            }
+          }
+          case _ => result
+        }
+      }
+
+      val typeMarker = builder.mark()
+      var res = subParse
+      typeMarker.done(ScalaElementTypes.TYPE)
+      res
+    }
+  }
+
+
+
 }

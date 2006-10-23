@@ -32,6 +32,8 @@ object ScalaElementTypes {
   val PATH = new ScalaElementType("path")
   val SIMPLE_TYPE = new ScalaElementType("simple type")
   val TYPE1 = new ScalaElementType("type1")
+  val TYPE = new ScalaElementType("common type")
+  val FUN_TYPE = new ScalaElementType("function type") 
   val KEY_TYPE = new ScalaElementType("one type")
 
   /*************************************************************************************/

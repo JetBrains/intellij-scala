@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi._
       override def toString: String = "Right square bracket"
   }
 
-  case class ScTypeImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+  case class ScKeyTypeImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "Keyword: type"
   }
 
@@ -40,6 +40,10 @@ import org.jetbrains.plugins.scala.lang.psi._
 
   case class ScSharpImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "Separator: #"
+  }
+
+  case class ScFunTypeImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Function type: =>"
   }
 
   
