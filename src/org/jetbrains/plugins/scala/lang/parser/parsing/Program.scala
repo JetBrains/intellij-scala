@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Top
 import org.jetbrains.plugins.scala.lang.parser.util._
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expression
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
 
@@ -39,8 +39,8 @@ class Program extends ScalaTokenTypes {
            if (res.equals(ScalaElementTypes.WRONGWAY)) builder advanceLexer
          } else
 
-         if (Expression.POSTFIX_FIRST.contains(builder.getTokenType)) {
-           Expression parsePostfixExpr (builder)
+         if (PostfixExpr.POSTFIX_FIRST.contains(builder.getTokenType)) {
+           PostfixExpr parse (builder)
          } else builder advanceLexer
       }
     }
