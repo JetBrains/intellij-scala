@@ -88,6 +88,8 @@ object CompilationUnit extends Constr{
       ParserUtils.eatConstr(builder, TopStat, ScalaElementTypes.TOP_STAT)
       Console.println("single top stat handled")
 
+      ParserUtil.rollForward(builder)
+
       Console.println("token type " + builder.getTokenType())
       while (builder.getTokenType().equals(ScalaTokenTypes.tSEMICOLON)
           || builder.getTokenType().equals(ScalaTokenTypes.tLINE_TERMINATOR)){
