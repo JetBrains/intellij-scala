@@ -324,7 +324,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
               } else ParserUtils.errorToken(builder, currentMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
             }
           }
-        } else if (builder.getTokenType.equals(ScalaTokenTypes.tLPARENTHIS)) { // Try to parse '(' Type ')' statement
+        }
+        /* | ‘(’ Type ’)’ */
+        else if (builder.getTokenType.equals(ScalaTokenTypes.tLPARENTHIS)) { // Try to parse '(' Type ')' statement
           ParserUtils.eatElement(builder, ScalaElementTypes.LPARENTHIS)
           var res1 = Type parse (builder)
           if (res1.equals(ScalaElementTypes.TYPE)) {
@@ -341,6 +343,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
         }  else ParserUtils.errorToken(builder, currentMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
       }
 
+      /*
+      * Left recursion for statements like:
+      *   SimpleType TypeArgs
+      *   | SimpleType ‘#’ id
+      */
       def leftRecursion(currentMarker : PsiBuilder.Marker) : ScalaElementType = {
         builder.getTokenType match {
           case ScalaTokenTypes.tINNER_CLASS => {
@@ -355,6 +362,16 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
               case _ => ParserUtils.errorToken(builder, nextMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
             }
           }
+          case ScalaTokenTypes.tLSQBRACKET => {
+            val nextMarker = currentMarker.precede()
+            currentMarker.done(ScalaElementTypes.SIMPLE_TYPE)
+            val res2 = TypeArgs parse(builder)
+            if (res2.equals(ScalaElementTypes.TYPEARGS)) leftRecursion(nextMarker)
+            else {
+              nextMarker.rollbackTo()
+              ScalaElementTypes.WRONGWAY  
+            }
+          }
           case _ => {
             currentMarker.done(ScalaElementTypes.SIMPLE_TYPE)
             ScalaElementTypes.SIMPLE_TYPE
@@ -363,7 +380,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
       }
 
       val simpleMarker = builder.mark()
-      var res = simpleTypeSubParse(simpleMarker)
+      var res = simpleTypeSubParse(simpleMarker) // Parsed base for recursion
       if (!res.equals(ScalaElementTypes.WRONGWAY)){
         leftRecursion(simpleMarker)
       } else res 
@@ -379,7 +396,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
   Type1 ::= SimpleType {with SimpleType} [Refinement]
   *******************************************
   */
-
     def parse(builder : PsiBuilder) : ScalaElementType = {
 
       def subParse : ScalaElementType = {
@@ -517,7 +533,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 
       val typesMarker = builder.mark()
       val  res = subParse
-      typesMarker.done(ScalaElementTypes.TYPES)
+      if (res.equals(ScalaElementTypes.TYPES)) typesMarker.done(ScalaElementTypes.TYPES)
+        else typesMarker.rollbackTo() 
       res
     }
   }
@@ -542,7 +559,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
         if (res.equals(ScalaElementTypes.TYPES)) {
           builder.getTokenType match {
             case ScalaTokenTypes.tRSQBRACKET => {
-              ParserUtils.eatElement(builder, ScalaElementTypes.LSQBRACKET)
+              ParserUtils.eatElement(builder, ScalaElementTypes.RSQBRACKET)
               result = ScalaElementTypes.TYPEARGS
             }
             case _ => {
