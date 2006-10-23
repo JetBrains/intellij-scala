@@ -60,7 +60,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           else nextMarker.drop()
           elem
         } else {
-        if (doWithMarker) dotMarker.done(ScalaElementTypes.DOT)
+        if (doWithMarker) dotMarker.done(ScalaTokenTypes.tDOT)
         else dotMarker.drop()
         processFunction(nextMarker)
         }
@@ -68,11 +68,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 
       /** processing [‘[’ id ‘]’] statement**/
       def parseGeneric(currentMarker: PsiBuilder.Marker): Boolean = {
-        ParserUtils.eatElement(builder, ScalaElementTypes.LSQBRACKET)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
           if (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType)) {
-            ParserUtils.eatElement(builder, ScalaElementTypes.RSQBRACKET)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
             true
           } else false
         } else false
@@ -82,9 +82,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
       def afterSuper(currentMarker: PsiBuilder.Marker): ScalaElementType = {
         val nextMarker = currentMarker.precede()
         currentMarker.drop()
-        ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
           if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)) {
             val nextMarker1 = nextMarker.precede()
             nextMarker.drop()
@@ -92,8 +92,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
             val dotMarker = builder.mark()
             builder.advanceLexer // Ate DOT
               if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-                dotMarker.done(ScalaElementTypes.DOT)
-                ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+                dotMarker.done(ScalaTokenTypes.tDOT)
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
                 Console.println("token type : " + builder.getTokenType())
                 builder.getTokenType() match {
                   case ScalaTokenTypes.tDOT => {
@@ -130,7 +130,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
       def leftRecursion (currentMarker: PsiBuilder.Marker): ScalaElementType = {
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER => {
-            ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
             builder.getTokenType match {
               case ScalaTokenTypes.tDOT => {
                 val nextMarker = currentMarker.precede()
@@ -153,20 +153,20 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
         builder.getTokenType match {
           /************** THIS ***************/
           case ScalaTokenTypes.kTHIS => {
-            ParserUtils.eatElement(builder, ScalaElementTypes.THIS)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.kTHIS)
             if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)){
               val dotMarker = builder.mark()
               builder.advanceLexer // Ate DOT
               if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
                 val newMarker = currentMarker.precede()
                 currentMarker.drop()
-                dotMarker.done(ScalaElementTypes.DOT)
-                ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+                dotMarker.done(ScalaTokenTypes.tDOT)
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
                 builder.getTokenType match {
                   case ScalaTokenTypes.tDOT => {
                     val nextMarker = newMarker.precede()
                     newMarker.done(ScalaElementTypes.STABLE_ID)
-                    ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
+                    ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
                     leftRecursion(nextMarker)
                   }
                   case _ => {
@@ -192,7 +192,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           }
           /***************** SUPER ****************/
           case ScalaTokenTypes.kSUPER => {
-            ParserUtils.eatElement(builder, ScalaElementTypes.SUPER)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.kSUPER)
             var res = true
             if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)) {
               res = parseGeneric(currentMarker)
@@ -203,7 +203,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           }
           /***************** IDENTIFIER ****************/
           case ScalaTokenTypes.tIDENTIFIER => {
-            ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
             builder.getTokenType match {
               case ScalaTokenTypes.tDOT => {
                 val nextMarker = currentMarker.precede()
@@ -226,7 +226,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
       def stableIdSubParse(currentMarker: PsiBuilder.Marker) : ScalaElementType = {
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER => {
-            ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
             builder.getTokenType match {
               case ScalaTokenTypes.tDOT => {
                 val nextMarker = currentMarker.precede()
@@ -309,7 +309,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
         if (!result.equals(ScalaElementTypes.WRONGWAY)){
           builder.getTokenType match {
             case ScalaTokenTypes.tDOT => {
-              ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
               builder.getTokenType match {
                 case ScalaTokenTypes.kTYPE => {
                   ParserUtils.eatElement(builder, ScalaElementTypes.KEY_TYPE)
@@ -327,12 +327,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
         }
         /* | ‘(’ Type ’)’ */
         else if (builder.getTokenType.equals(ScalaTokenTypes.tLPARENTHIS)) { // Try to parse '(' Type ')' statement
-          ParserUtils.eatElement(builder, ScalaElementTypes.LPARENTHIS)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
           var res1 = Type parse (builder)
           if (res1.equals(ScalaElementTypes.TYPE)) {
             builder.getTokenType match {
               case ScalaTokenTypes.tRPARENTHIS => {
-                ParserUtils.eatElement(builder, ScalaElementTypes.RPARENTHIS)
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
                 ScalaElementTypes.SIMPLE_TYPE
               }
               case _ => ParserUtils.errorToken(builder, currentMarker, ") expected", ScalaElementTypes.SIMPLE_TYPE)
@@ -356,7 +356,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
             ParserUtils.eatElement(builder, ScalaElementTypes.INNER_CLASS)
             builder.getTokenType match {
               case ScalaTokenTypes.tIDENTIFIER => {
-                ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
                 leftRecursion(nextMarker)
               }
               case _ => ParserUtils.errorToken(builder, nextMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
@@ -404,7 +404,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           case ScalaElementTypes.SIMPLE_TYPE => {
             builder.getTokenType match {
               case ScalaTokenTypes.kWITH => {
-                ParserUtils.eatElement(builder, ScalaElementTypes.WITH)
+                ParserUtils.eatElement(builder, ScalaTokenTypes.kWITH)
                 subParse
               }
               case _ => {
@@ -440,9 +440,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 
       // If ')' symbol - the end of list of parameter list encountered
       def rightBraceProcessing : ScalaElementType = {
-        ParserUtils.eatElement(builder, ScalaElementTypes.RPARENTHIS)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
         if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType)){
-          ParserUtils.eatElement(builder, ScalaElementTypes.FUN_TYPE)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
           parse(builder)
         } else {
           builder.error(" => expected")
@@ -457,7 +457,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           case ScalaElementTypes.TYPE1 => {
             builder.getTokenType match {
               case ScalaTokenTypes.tFUNTYPE => {
-                ParserUtils.eatElement(builder, ScalaElementTypes.FUN_TYPE)
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
                 parse(builder)
               }
               case _ => {
@@ -468,7 +468,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           case _ => {
             // Suppose, that it is statement that begins form ([Types])
             if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
-              ParserUtils.eatElement(builder, ScalaElementTypes.LPARENTHIS)
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
               if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
                 rightBraceProcessing
               } else {
@@ -519,7 +519,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           case ScalaElementTypes.TYPE => {
             builder.getTokenType match {
               case ScalaTokenTypes.tCOMMA=> {
-                ParserUtils.eatElement(builder, ScalaElementTypes.COMMA)
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
                 subParse
               }
               case _ => {
@@ -554,12 +554,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
       var result = ScalaElementTypes.TYPEARGS
       val typeArgsMarker = builder.mark()
       if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)){
-        ParserUtils.eatElement(builder, ScalaElementTypes.LSQBRACKET)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
         var res = Types parse(builder)
         if (res.equals(ScalaElementTypes.TYPES)) {
           builder.getTokenType match {
             case ScalaTokenTypes.tRSQBRACKET => {
-              ParserUtils.eatElement(builder, ScalaElementTypes.RSQBRACKET)
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
               result = ScalaElementTypes.TYPEARGS
             }
             case _ => {

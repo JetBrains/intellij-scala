@@ -39,7 +39,7 @@ Literal ::= integerLiteral
       }
       case ScalaTokenTypes.kNULL => { //null literal
         builder.advanceLexer()
-        marker.done(ScalaElementTypes.NULL)
+        marker.done(ScalaTokenTypes.kNULL)
       }
       case ScalaTokenTypes.tSTRING_BEGIN => { //String literal
         val beginMarker = builder.mark();

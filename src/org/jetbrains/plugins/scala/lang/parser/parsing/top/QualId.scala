@@ -15,14 +15,14 @@ object QualId{
 
         val dotMarker = builder.mark();
         builder.advanceLexer // Ate dot
-        dotMarker.done(ScalaElementTypes.DOT)
+        dotMarker.done(ScalaTokenTypes.tDOT)
 
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER => {
 
             val idMarker = builder.mark()
             builder.advanceLexer
-            idMarker.done(ScalaElementTypes.IDENTIFIER)
+            idMarker.done(ScalaTokenTypes.tIDENTIFIER)
 
             (new QualId).parse(builder,preMarker)
           }

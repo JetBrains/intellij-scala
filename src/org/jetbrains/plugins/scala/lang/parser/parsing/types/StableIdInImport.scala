@@ -68,7 +68,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
         builder.advanceLexer
         if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)) { //continue parse StableId
           mileMarker.rollbackTo()
-          if (doWithMarker) dotMarker.done(ScalaElementTypes.DOT)
+          if (doWithMarker) dotMarker.done(ScalaTokenTypes.tDOT)
           else dotMarker.drop()
           processFunction(nextMarker)
         } else { // If it was the last identifier
@@ -79,7 +79,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
           elem
         }
       } else {
-        if (doWithMarker) dotMarker.done(ScalaElementTypes.DOT)
+        if (doWithMarker) dotMarker.done(ScalaTokenTypes.tDOT)
         else dotMarker.drop()
         processFunction(nextMarker)
       }
@@ -88,11 +88,11 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
 
     /** processing [‘[’ id ‘]’] statement**/
     def parseGeneric(currentMarker: PsiBuilder.Marker): Boolean = {
-      ParserUtils.eatElement(builder, ScalaElementTypes.LSQBRACKET)
+      ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         if (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder, ScalaElementTypes.RSQBRACKET)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
           true
         } else false
       } else false
@@ -102,9 +102,9 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
     def afterSuper(currentMarker: PsiBuilder.Marker): ScalaElementType = {
       val nextMarker = currentMarker.precede()
       currentMarker.drop()
-      ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
+      ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)) {
           val nextMarker1 = nextMarker.precede()
           nextMarker.drop()
@@ -112,8 +112,8 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
           val dotMarker = builder.mark()
           builder.advanceLexer // Ate DOT
             if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-              dotMarker.done(ScalaElementTypes.DOT)
-              ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+              dotMarker.done(ScalaTokenTypes.tDOT)
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
               Console.println("token type : " + builder.getTokenType())
               builder.getTokenType() match {
                 case ScalaTokenTypes.tDOT => {
@@ -150,7 +150,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
     def leftRecursion (currentMarker: PsiBuilder.Marker): ScalaElementType = {
       builder.getTokenType match {
         case ScalaTokenTypes.tIDENTIFIER => {
-          ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
           builder.getTokenType match {
             case ScalaTokenTypes.tDOT => {
               val nextMarker = currentMarker.precede()
@@ -173,20 +173,20 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
       builder.getTokenType match {
         /************** THIS ***************/
         case ScalaTokenTypes.kTHIS => {
-          ParserUtils.eatElement(builder, ScalaElementTypes.THIS)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.kTHIS)
           if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)){
             val dotMarker = builder.mark()
             builder.advanceLexer // Ate DOT
             if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
               val newMarker = currentMarker.precede()
               currentMarker.drop()
-              dotMarker.done(ScalaElementTypes.DOT)
-              ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+              dotMarker.done(ScalaTokenTypes.tDOT)
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
               builder.getTokenType match {
                 case ScalaTokenTypes.tDOT => {
                   val nextMarker = newMarker.precede()
                   newMarker.done(ScalaElementTypes.STABLE_ID)
-                  ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
+                  ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
                   leftRecursion(nextMarker)
                 }
                 case _ => {
@@ -212,7 +212,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
         }
         /***************** SUPER ****************/
         case ScalaTokenTypes.kSUPER => {
-          ParserUtils.eatElement(builder, ScalaElementTypes.SUPER)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.kSUPER)
           var res = true
           if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)) {
             res = parseGeneric(currentMarker)
@@ -223,7 +223,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
         }
         /***************** IDENTIFIER ****************/
         case ScalaTokenTypes.tIDENTIFIER => {
-          ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
           builder.getTokenType match {
             case ScalaTokenTypes.tDOT => {
               val nextMarker = currentMarker.precede()
@@ -246,7 +246,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
     def stableIdSubParse(currentMarker: PsiBuilder.Marker) : ScalaElementType = {
       builder.getTokenType match {
         case ScalaTokenTypes.tIDENTIFIER => {
-          ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
           builder.getTokenType match {
             case ScalaTokenTypes.tDOT => {
               val nextMarker = currentMarker.precede()

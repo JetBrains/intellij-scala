@@ -19,7 +19,7 @@ object Stable {
 
              val preMarker = marker.precede()
 
-             marker.done( ScalaElementTypes.IDENTIFIER )
+             marker.done( ScalaTokenTypes.tIDENTIFIER )
 
             //dot node
              val dotMarker = builder.mark();
@@ -35,7 +35,7 @@ object Stable {
                  val idMarker = builder.mark()
                  builder.advanceLexer
 
-                 idMarker.done(ScalaElementTypes.IDENTIFIER)
+                 idMarker.done(ScalaTokenTypes.tIDENTIFIER)
 
                  (new StableId).parse(builder, preMarker)
                }

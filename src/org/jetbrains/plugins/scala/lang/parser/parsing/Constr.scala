@@ -7,7 +7,7 @@ import com.intellij.lang.PsiBuilder
  * Time: 17:35:24
  */
 abstract class Constr {
-   def parse (builder : PsiBuilder ): Unit
+   def parse (builder : PsiBuilder ) : Unit
   //def getBuilder = {builder}
 
 }

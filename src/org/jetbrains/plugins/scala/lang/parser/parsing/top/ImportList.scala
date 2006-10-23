@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.Top
  * Time: 22:04:16
  */
 class ImportList {
-
+/*
   def parse( builder: PsiBuilder ): Unit = {
 
     def getNumberOfImport : Int = {
@@ -60,5 +60,5 @@ class ImportList {
     }
 
    //importListMarker.done(ScalaElementTypes.IMPORT_LIST)
-  }
+  }*/
 }

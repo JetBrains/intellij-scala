@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base
  * Time: 15:41:15
  */
 object Import {
-  def parse ( builder : PsiBuilder) : Unit = {
+ /* def parse ( builder : PsiBuilder) : Unit = {
 
   ParserUtils.eatElement(builder, ScalaElementTypes.IMPORT)
 
@@ -45,5 +45,5 @@ object Import {
       }
       case _ => builder.error("Wrong import")
     }
-  }
+  }*/
 }

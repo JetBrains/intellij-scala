@@ -12,23 +12,23 @@ import com.intellij.lang.ASTNode
   trait ClassBaseDeclaration extends TypeDeclaration
 
   case class ScObject( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "Keyword : 'object'"
+    override def toString: String = "'object'"
   }
 
   case class ScTrait ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "Keyword : 'trait'"
+    override def toString: String = "'trait'"
   }
 
   case class ScClass( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "Keyword : 'class'"
+    override def toString: String = "'class'"
   }
 
   case class ScPackage ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "Keyword : 'package'"
+    override def toString: String = "'package'"
   }
 
   class ScImport( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "Keyword : 'import'"
+    override def toString: String = "'import'"
   }
 
 }
