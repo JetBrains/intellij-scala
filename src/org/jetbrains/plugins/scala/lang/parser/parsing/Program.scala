@@ -35,9 +35,7 @@ class Program extends ScalaTokenTypes {
               ScalaTokenTypes.kTHIS.equals(builder.getTokenType) ||
               ScalaTokenTypes.kSUPER.equals(builder.getTokenType) ||
               ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) {
-           Console.println("Before type parsing " + builder.getTokenText())
            var res = Type parse (builder)
-           Console.println("after type parsing " + builder.getTokenText())
            if (res.equals(ScalaElementTypes.WRONGWAY)) builder advanceLexer
          } else
 
