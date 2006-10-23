@@ -33,7 +33,8 @@ class Program extends ScalaTokenTypes {
 
          if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType) ||
               ScalaTokenTypes.kTHIS.equals(builder.getTokenType) ||
-              ScalaTokenTypes.kSUPER.equals(builder.getTokenType)) {
+              ScalaTokenTypes.kSUPER.equals(builder.getTokenType) ||
+              ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) {
            Type parse (builder)
          } else
 
