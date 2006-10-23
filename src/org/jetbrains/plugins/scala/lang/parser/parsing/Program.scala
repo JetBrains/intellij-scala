@@ -34,8 +34,7 @@ class Program extends ScalaTokenTypes {
          if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType) ||
               ScalaTokenTypes.kTHIS.equals(builder.getTokenType) ||
               ScalaTokenTypes.kSUPER.equals(builder.getTokenType)) {
-           //SimpleType parse (builder)
-           Type1 parse (builder)
+           Type parse (builder)
          } else
 
          if (Expression.POSTFIX_FIRST.contains(builder.getTokenType)) {
@@ -46,7 +45,7 @@ class Program extends ScalaTokenTypes {
 
     
     var marker = builder.mark()
-  //  rollForward
+    rollForward
     ParserUtils.rollForward(builder)
     if ( !builder.eof() ){
       //new Top parse(builder) //handle top level - package, import
@@ -60,7 +59,7 @@ class Program extends ScalaTokenTypes {
     } */
 
 
-    //parseNext
+    parseNext
     ParserUtils.rollForward(builder)
     marker.done(ScalaElementTypes.FILE)
 
