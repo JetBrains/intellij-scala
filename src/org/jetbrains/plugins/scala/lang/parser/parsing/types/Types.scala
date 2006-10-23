@@ -406,20 +406,88 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
            | Type1
   *******************************************
   */
+    def parse(builder : PsiBuilder) : ScalaElementType = {
+
+      // If ')' symbol - the end of list of parameter list encountered
+      def rightBraceProcessing : ScalaElementType = {
+        ParserUtils.eatElement(builder, ScalaElementTypes.RPARENTHIS)
+        if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType)){
+          ParserUtils.eatElement(builder, ScalaElementTypes.FUN_TYPE)
+          parse(builder)
+        } else {
+          builder.error(" => expected")
+          ScalaElementTypes.WRONGWAY
+        }
+      }
+
+      def subParse : ScalaElementType = {
+        if (!ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
+          var result = Type1 parse(builder)
+          result match {
+            case ScalaElementTypes.TYPE1 => {
+              builder.getTokenType match {
+                case ScalaTokenTypes.tFUNTYPE => {
+                  ParserUtils.eatElement(builder, ScalaElementTypes.FUN_TYPE)
+                  parse(builder)
+                }
+                case _ => {
+                  ScalaElementTypes.TYPE
+                }
+              }
+            }
+            case _ => result
+          }
+        } else {
+          ParserUtils.eatElement(builder, ScalaElementTypes.LPARENTHIS)
+          if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
+            rightBraceProcessing
+          } else {
+            var res = Types.parse(builder)
+            if (res.equals(ScalaElementTypes.TYPES)) {
+              if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
+                rightBraceProcessing
+              } else {
+                builder.error("Right brace expected")
+                ScalaElementTypes.WRONGWAY
+              }
+            } else {
+              builder.error("Types list expected")
+              ScalaElementTypes.WRONGWAY
+            }
+          }
+        }
+      }
+      val typeMarker = builder.mark()
+      var res = subParse
+      typeMarker.done(ScalaElementTypes.TYPE)
+      res
+    }
+
+
+  }
+
+  object Types {
+
+  /*
+  Types
+  Default grammar:
+  Types ::= Type {‘,’ Type}
+  *******************************************
+  */
 
     def parse(builder : PsiBuilder) : ScalaElementType = {
 
       def subParse : ScalaElementType = {
-        var result = Type1 parse(builder)
+        var result = Type parse(builder)
         result match {
-          case ScalaElementTypes.TYPE1 => {
+          case ScalaElementTypes.TYPE => {
             builder.getTokenType match {
-              case ScalaTokenTypes.tFUNTYPE => {
-                ParserUtils.eatElement(builder, ScalaElementTypes.FUN_TYPE)
-                parse(builder)
+              case ScalaTokenTypes.tCOMMA=> {
+                ParserUtils.eatElement(builder, ScalaElementTypes.COMMA)
+                subParse
               }
               case _ => {
-                ScalaElementTypes.TYPE1
+                ScalaElementTypes.TYPES
               }
             }
           }
@@ -427,9 +495,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
         }
       }
 
-      val typeMarker = builder.mark()
-      var res = subParse
-      typeMarker.done(ScalaElementTypes.TYPE)
+      var res = ScalaElementTypes.TYPES
+      val typesMarker = builder.mark()
+      if (!ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)) {
+        res = subParse
+      }
+      typesMarker.done(ScalaElementTypes.TYPES)
       res
     }
   }

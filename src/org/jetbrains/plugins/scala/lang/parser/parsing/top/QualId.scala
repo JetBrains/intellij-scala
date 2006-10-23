@@ -4,6 +4,7 @@ import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.Scal
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 object QualId{
+/*
   def parse(builder : PsiBuilder, marker : PsiBuilder.Marker ) : Unit = {
 
     builder.getTokenType match {
@@ -50,5 +51,5 @@ object QualId{
 
 
   }
-
+*/
 }
