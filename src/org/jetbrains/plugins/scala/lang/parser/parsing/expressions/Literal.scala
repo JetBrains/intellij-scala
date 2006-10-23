@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 object Literal{
 
@@ -17,7 +20,7 @@ Literal ::= integerLiteral
             | null
 */
 
-  def parse(builder : PsiBuilder) : Unit = {
+  def parse(builder : PsiBuilder) : ScalaElementType = {
 
     val marker = builder.mark()
 
@@ -25,21 +28,26 @@ Literal ::= integerLiteral
       case ScalaTokenTypes.tINTEGER => { // Integer literal
         builder.advanceLexer()
         marker.done(ScalaElementTypes.INTEGER_LITERAL)
+        ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tFLOAT => { //Floating point literal
         builder.advanceLexer()
         marker.done(ScalaElementTypes.FLOATING_POINT_LITERAL)
+        ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => { //Boolean Literal
         marker.done(ScalaElementTypes.BOOLEAN_LITERAL)
+        ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tCHAR => { //Character literal
         builder.advanceLexer()
         marker.done(ScalaElementTypes.CHARACTER_LITERAL)
+        ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.kNULL => { //null literal
         builder.advanceLexer()
         marker.done(ScalaTokenTypes.kNULL)
+        ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tSTRING_BEGIN => { //String literal
         val beginMarker = builder.mark();
@@ -49,26 +57,25 @@ Literal ::= integerLiteral
           case ScalaTokenTypes.tSTRING_END => {
             val strContentMarker = builder.mark()
             strContentMarker.done(ScalaElementTypes.STRING_CONTENT)
-            val endMarker = builder.mark()
-            builder.advanceLexer()
-            endMarker.done(ScalaElementTypes.STRING_END)
+            ParserUtils.eatElement(builder,ScalaElementTypes.STRING_END)
           }
           case ScalaTokenTypes.tSTRING => {
-            val strContentMarker = builder.mark()
-            builder.advanceLexer()
-            strContentMarker.done(ScalaElementTypes.STRING_CONTENT)
+            ParserUtils.eatElement(builder,ScalaElementTypes.STRING_CONTENT)
             builder.getTokenType match {
               case ScalaTokenTypes.tSTRING_END => {
-                val endMarker = builder.mark()
-                builder.advanceLexer()
-                endMarker.done(ScalaElementTypes.STRING_END)
+                ParserUtils.eatElement(builder, ScalaElementTypes.STRING_END)
               }
               case _ => builder.error("Wrong string completion")
             }
           }
           case _ => builder.error("Wrong string declaration")
         }
-        marker.done(ScalaElementTypes.STRING_LITERAL) 
+        marker.done(ScalaElementTypes.STRING_LITERAL)
+        ScalaElementTypes.LITERAL
+      }
+      case _ => {
+        marker.rollbackTo()
+        ScalaElementTypes.WRONGWAY
       }
     }
   }
