@@ -549,7 +549,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
   *******************************************
   */
 
-    def parse(builder : PsiBuilder) : ScalaElementType = {
+    def parse(builder : PsiBuilder) : ScalaElementType = { 
 
       var result = ScalaElementTypes.TYPEARGS
       val typeArgsMarker = builder.mark()
