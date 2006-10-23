@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType
 import com.intellij.psi.tree.IElementType
 /**
  * User: Dmitry.Krasilschikov
@@ -126,39 +127,57 @@ object TmplDef extends Constr{
 
       def parseDef ( builder : PsiBuilder ) : Unit = {
 
+      Console.println("expected identifier " + builder.getTokenType)
         if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
 
           var chooseParsingWay = builder.mark()
 
+          builder.advanceLexer
           val first = builder.getTokenType()
+          Console.println("first " + first)
+
           builder.advanceLexer
           val second = builder.getTokenType()
+          Console.println("second " + second)
 
           if (checkForTypeParamClauses(first, second)) {
             chooseParsingWay.rollbackTo()
+            Console.println("checked for type parameters ")
             TypeParamClause.parse(builder)
           }
 
           ClassParamClauses.parse(builder)
+
+          if (builder.getTokenType.equals(ScalaTokenTypes.kREQUIRES)) {
+            SimpleType.parse(builder)
+          }
         }
       }
 
     object TypeParamClause extends Constr {
       override def parse(builder : PsiBuilder) : Unit = {
-
+        val typeParamClause = builder.mark()
+        typeParamClause.done(ScalaElementTypes.TYPE_PARAM_CLAUSE)
       }
     }
 
     object ClassParamClauses extends Constr{
       override def parse(builder : PsiBuilder) : Unit = {
+        val classParamClausesMarker = builder.mark()
         var chooseParsingWay = builder.mark()
 
         var first = builder.getTokenType()
         builder.advanceLexer
+         Console.println("first " + first)
+
         var second = builder.getTokenType()
         builder.advanceLexer
+        Console.println("second " + second)
+
         var third = builder.getTokenType()
+        builder.advanceLexer
+        Console.println("third " + third)
 
         while (checkForClassParamClause(first, second, third)) {
           chooseParsingWay.rollbackTo()
@@ -172,15 +191,22 @@ object TmplDef extends Constr{
           third = builder.getTokenType()
         }
 
+
         if (checkForImplicit(first, second, third)) {
           chooseParsingWay.rollbackTo()
+          Console.println("check for implicit")
           ImplicitEnd.parse(builder)
         }
+
+        chooseParsingWay.drop()
+
+        classParamClausesMarker.done(ScalaElementTypes.CLASS_PARAM_CLAUSES)
       }
     }
 
     object ClassParamClause extends Constr {
       override def parse(builder : PsiBuilder) : Unit = {
+        val classParamClauseMarker = builder.mark()
         if (builder.getTokenType().equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
         }
@@ -209,6 +235,8 @@ object TmplDef extends Constr{
         if (builder.getTokenType().equals(ScalaTokenTypes.tRPARENTHIS)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
         } else builder.error("expected ')'")
+
+        classParamClauseMarker.done(ScalaElementTypes.CLASS_PARAM_CLAUSE)
       }
     }
 
@@ -239,6 +267,7 @@ object TmplDef extends Constr{
 
     object ClassParams extends Constr {
       override def parse(builder : PsiBuilder) : Unit = {
+        
         builder.getTokenType() match {
           case ScalaTokenTypes.kVAL
              | ScalaTokenTypes.kVAR

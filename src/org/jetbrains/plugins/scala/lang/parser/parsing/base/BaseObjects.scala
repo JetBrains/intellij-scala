@@ -291,7 +291,7 @@ object Construction extends Constr{
         case ScalaTokenTypes.kOVERRIDE => {
           val overrideMarker = builder.mark()
           builder.advanceLexer
-          overrideMarker.done(ScalaElementTypes.OVERRIDE)
+          overrideMarker.done(ScalaTokenTypes.kOVERRIDE)
         }
 
         case ScalaTokenTypes.kPRIVATE

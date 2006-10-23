@@ -179,7 +179,7 @@ object CompilationUnit extends Constr{
 
         builder.getTokenType() match {
           case ScalaTokenTypes.kPACKAGE => {
-            ParserUtils.eatElement(builder, ScalaElementTypes.PACKAGE)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.kPACKAGE)
 
             builder.getTokenType() match {
               case ScalaTokenTypes.tIDENTIFIER => {
