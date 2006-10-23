@@ -55,6 +55,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.FUN_TYPE => new ScFunTypeImpl(node)
     case ScalaElementTypes.TYPE => new ScTypeImpl(node)
     case ScalaElementTypes.TYPES => new ScTypesImpl(node)
+    case ScalaElementTypes.TYPEARGS => new ScTypeArgsImpl(node)
 
     /********************** TOP ************************/
 
