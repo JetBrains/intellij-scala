@@ -1,13 +1,14 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
+package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
-object Expression{
 
 /*
 SIMPLE EXPRESSION
@@ -39,40 +40,42 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
            ScalaTokenTypes.tSTRING_BEGIN
 
 */
+  object SimpleExpr {
+
   val SIMPLE_FIRST = BNF.tLITERALS
 
-  def parseSimpleExpr(builder : PsiBuilder) : Boolean = {
+    def parse(builder : PsiBuilder) : ScalaElementType = {
 
-    if (BNF.tLITERALS.contains(builder.getTokenType)) {
-      Literal parse (builder) // Ate literal
-      subParseSimpleExpr(builder)
-    } else {
-      builder.error("Wrong expression!")
-      false
-    }
-  }
-
-  def subParseSimpleExpr(builder : PsiBuilder) : Boolean = {
-    builder.getTokenType match {
-      case ScalaTokenTypes.tDOT => {
-        val dotMarker = builder.mark()
-        builder.advanceLexer()
-        dotMarker.done(ScalaTokenTypes.tDOT)
+      def subParse: ScalaElementType = {
         builder.getTokenType match {
-          case ScalaTokenTypes.tIDENTIFIER => {
-            val idMarker = builder.mark()
-            builder.advanceLexer()
-            idMarker.done(ScalaTokenTypes.tIDENTIFIER)
-            subParseSimpleExpr(builder)
+          case ScalaTokenTypes.tDOT => {
+            ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
+            builder.getTokenType match {
+              case ScalaTokenTypes.tIDENTIFIER => {
+                ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+                subParse
+              }
+              case _ => {
+                builder.error("Identifier expected")
+                ScalaElementTypes.WRONGWAY
+              }
+            }
           }
-          case _ => {
-            builder.error("Identifier expected")
-            false
-          }
+          case _ => ScalaElementTypes.SIMPLE_EXPR
         }
       }
-      case _ => true
+
+      var flag = false
+      var result = Literal.parse(builder)  // Literal ?
+      if (!result.equals(ScalaElementTypes.WRONGWAY)) flag = true // Yes, it is!
+        else result = StableId.parse(builder) // Path ?
+      if (!flag && result.equals(ScalaElementTypes.PATH)) flag = true
+      // ... other cases
+      if (flag) subParse
+        else ScalaElementTypes.WRONGWAY
     }
+
+
   }
 
 /*
@@ -93,33 +96,34 @@ FIRST(PrefixExpression) = ScalaTokenTypes.tPLUS
                           ScalaTokenTypes.tNOT
      union                SimpleExpression.FIRST
 */
+  object PrefixExpr {
 
-  val PREFIX_FIRST = TokenSet.orSet(Array(SIMPLE_FIRST, BNF.tPREFIXES ))
+    val PREFIX_FIRST = TokenSet.orSet(Array(SimpleExpr.SIMPLE_FIRST, BNF.tPREFIXES ))
 
-  def parsePrefixExpr(builder : PsiBuilder) : Boolean = {
+    def parse(builder : PsiBuilder) : ScalaElementType = {
 
-    val marker = builder.mark()
-    var result = false
+      val marker = builder.mark()
+      var result = ScalaElementTypes.PREFIX_EXPR
 
-    builder getTokenType match {
-      case ScalaTokenTypes.tPLUS
-           | ScalaTokenTypes.tMINUS
-           | ScalaTokenTypes.tTILDA
-           | ScalaTokenTypes.tNOT => {
-             val prefixMarker = builder.mark()
-             builder.advanceLexer()
-             prefixMarker.done(ScalaElementTypes.PREFIX)
-             if (SIMPLE_FIRST.contains(builder.getTokenType)) {
-               result = parseSimpleExpr (builder)
-             } else {
-              builder.error("Wrong prefix expression!")
-              result = false
+      builder getTokenType match {
+        case ScalaTokenTypes.tPLUS
+             | ScalaTokenTypes.tMINUS
+             | ScalaTokenTypes.tTILDA
+             | ScalaTokenTypes.tNOT => {
+               ParserUtils.eatElement(builder, ScalaElementTypes.PREFIX)
+               if (SimpleExpr.SIMPLE_FIRST.contains(builder.getTokenType)) {
+                 result = SimpleExpr  parse(builder)
+               } else {
+                builder.error("Wrong prefix expression!")
+                result = ScalaElementTypes.WRONGWAY
+               }
              }
-           }
-      case _ => result = parseSimpleExpr (builder)
+        case _ => result = SimpleExpr parse(builder)
+      }
+      marker.done(ScalaElementTypes.PREFIX_EXPR)
+      if (result.equals(ScalaElementTypes.SIMPLE_EXPR)) ScalaElementTypes.PREFIX_EXPR
+      else result
     }
-    marker.done(ScalaElementTypes.PREFIX_EXPR)
-    result
   }
 
 /*
@@ -139,44 +143,48 @@ InfixExpr ::= PrefixExpr
 FIRST(InfixExpression) =  PrefixExpression.FIRST
 
 */
-  val INFIX_FIRST = PREFIX_FIRST
+  object InfixExpr {
 
-  def parseInfixExpr(builder : PsiBuilder) : Boolean = {
-    val marker = builder.mark()
-    var result = parsePrefixExpr(builder)
+    val INFIX_FIRST = PrefixExpr.PREFIX_FIRST
 
-    def subParseInfixExpr() : Boolean = {
-      builder.getTokenType match {
-        case ScalaTokenTypes.tIDENTIFIER => {
-          val rollbackMarker = builder.mark() //for rollback
+    def parse(builder : PsiBuilder) : ScalaElementType = {
+      val marker = builder.mark()
+      var result = PrefixExpr parse(builder)
+
+      def subParse : ScalaElementType = {
+        builder.getTokenType match {
+          case ScalaTokenTypes.tIDENTIFIER => {
+            ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+            val rollbackMarker = builder.mark() //for rollback
           val idMarker = builder.mark()
           builder.advanceLexer()
           idMarker.done(ScalaTokenTypes.tIDENTIFIER)
-          ParserUtils.rollForward(builder)
-          if (parsePrefixExpr(builder)) {
-            rollbackMarker.drop()
-            subParseInfixExpr()
-          } else {
-            rollbackMarker.rollbackTo()
-            true
+            ParserUtils.rollForward(builder)
+            var res = PrefixExpr parse(builder)
+            if (res.equals(ScalaElementTypes.PREFIX_EXPR)) {
+              rollbackMarker.drop()
+              subParse
+            } else {
+              rollbackMarker.rollbackTo()
+              ScalaElementTypes.WRONGWAY
+            }
           }
+          case _ => ScalaElementTypes.INFIX_EXPR
         }
-        case _ => true
+      }
+
+      if (result.equals(ScalaElementTypes.PREFIX_EXPR)) {
+        result = subParse
+        marker.done(ScalaElementTypes.INFIX_EXPR)
+        result
+      }
+      else {
+        builder.error("Wrong infix expression!")
+        marker.done(ScalaElementTypes.INFIX_EXPR)
+        result
       }
     }
-
-    if (result) {
-      result = subParseInfixExpr ()
-      marker.done(ScalaElementTypes.INFIX_EXPR)
-      result
-    }
-    else {
-      builder.error("Wrong infix expression!")
-      marker.done(ScalaElementTypes.INFIX_EXPR)
-      result
-    }
   }
-
 /*
 POSTFIX EXPRESSION
 Default grammar:
@@ -191,111 +199,119 @@ PostfixExpr ::= InfixExpr [id [NewLine]]
 
 FIRST(PostfixExpression) =  InffixExpression.FIRST
 */
+  object PostfixExpr {
 
-  val POSTFIX_FIRST = INFIX_FIRST
+    val POSTFIX_FIRST = InfixExpr.INFIX_FIRST
 
-  def parsePostfixExpr(builder : PsiBuilder) : Boolean = {
-    val marker = builder.mark()
-    var result = parseInfixExpr(builder)
-    if (result) {
-      builder.getTokenType match {
-        case ScalaTokenTypes.tIDENTIFIER => {
-          val idMarker = builder.mark()
-          builder.advanceLexer()
-          idMarker.done(ScalaTokenTypes.tIDENTIFIER)
-          ParserUtils.rollForward(builder)
+    def parse(builder : PsiBuilder) : ScalaElementType = {
+      val marker = builder.mark()
+      var result = InfixExpr parse(builder)
+      if (result.equals(ScalaElementTypes.INFIX_EXPR)) {
+        builder.getTokenType match {
+          case ScalaTokenTypes.tIDENTIFIER => {
+            ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+            ParserUtils.rollForward(builder)
+          }
+          case _ =>
         }
-        case _ =>
+        marker.done(ScalaElementTypes.POSTFIX_EXPR)
+        result
       }
-      marker.done(ScalaElementTypes.POSTFIX_EXPR)
-      result
+      else {
+        builder.error("Wrong postfix expression!")
+        marker.done(ScalaElementTypes.POSTFIX_EXPR)
+        result
+      }
     }
-    else {
-      builder.error("Wrong postfix expression!")
-      marker.done(ScalaElementTypes.POSTFIX_EXPR)
-      result
-    }
-  }
 
   }
+
+
+
+
+
+
+
  /*
   Exprs ::= Expr {‘,’ Expr}
 */
-  object Exprs {
-    def parse(builder: PsiBuilder): Unit = {
-      Console.println("token type : " + builder.getTokenType())
-      builder.getTokenType() match {
-        case ScalaTokenTypes.tINTEGER
-           | ScalaTokenTypes.tFLOAT
-           | ScalaTokenTypes.kTRUE
-           | ScalaTokenTypes.kFALSE
-           | ScalaTokenTypes.tCHAR
-           | ScalaTokenTypes.kNULL
-           | ScalaTokenTypes.tSTRING_BEGIN
-           | ScalaTokenTypes.tPLUS
-           | ScalaTokenTypes.tMINUS
-           | ScalaTokenTypes.tTILDA
-           | ScalaTokenTypes.tNOT
-           | ScalaTokenTypes.tIDENTIFIER
-           => {
-           val exprMarker = builder.mark()
 
-           //todo: expr
-           //Expr.parse(builder)
-           exprMarker.done(ScalaElementTypes.EXPRESSION)
-
-           while (builder.getTokenType().equals(ScalaTokenTypes.tCOMMA)){
-             val commaMarker = builder.mark()
-             builder.advanceLexer
-             commaMarker.done(ScalaTokenTypes.tCOMMA)
-
-           //todo: add first(expression)
-             Console.println("token type : " + builder.getTokenType())
-             builder.getTokenType() match {
-               case ScalaTokenTypes.tINTEGER
-                  | ScalaTokenTypes.tFLOAT
-                  | ScalaTokenTypes.kTRUE
-                  | ScalaTokenTypes.kFALSE
-                  | ScalaTokenTypes.tCHAR
-                  | ScalaTokenTypes.kNULL
-                  | ScalaTokenTypes.tSTRING_BEGIN
-                  | ScalaTokenTypes.tPLUS
-                  | ScalaTokenTypes.tMINUS
-                  | ScalaTokenTypes.tTILDA
-                  | ScalaTokenTypes.tNOT
-                  | ScalaTokenTypes.tIDENTIFIER
-                  | ScalaTokenTypes.kIF
-                  | ScalaTokenTypes.kTRY
-                  => {
-                  val exprMarker = builder.mark()
-
-                 //todo
-                  //Expr.parse(builder)
-                  exprMarker.done(ScalaElementTypes.EXPRESSION)
-             }
-
-             case _ => { builder.error("expected expression") }
-           }
-        }
-
+    object Exprs {
+      def parse(builder: PsiBuilder): Unit = {
         Console.println("token type : " + builder.getTokenType())
         builder.getTokenType() match {
-          case ScalaTokenTypes.tCOLON
-             | ScalaTokenTypes.tUNDER
-             | ScalaTokenTypes.tSTAR
+          case ScalaTokenTypes.tINTEGER
+             | ScalaTokenTypes.tFLOAT
+             | ScalaTokenTypes.kTRUE
+             | ScalaTokenTypes.kFALSE
+             | ScalaTokenTypes.tCHAR
+             | ScalaTokenTypes.kNULL
+             | ScalaTokenTypes.tSTRING_BEGIN
+             | ScalaTokenTypes.tPLUS
+             | ScalaTokenTypes.tMINUS
+             | ScalaTokenTypes.tTILDA
+             | ScalaTokenTypes.tNOT
+             | ScalaTokenTypes.tIDENTIFIER
              => {
-             //todo
-            }
+             val exprMarker = builder.mark()
 
-         case _ => {}
+             //todo: expr
+             //Expr.parse(builder)
+             exprMarker.done(ScalaElementTypes.EXPRESSION)
+
+             while (builder.getTokenType().equals(ScalaTokenTypes.tCOMMA)){
+               val commaMarker = builder.mark()
+               builder.advanceLexer
+               commaMarker.done(ScalaElementTypes.COMMA)
+
+             //todo: add first(expression)
+               Console.println("token type : " + builder.getTokenType())
+               builder.getTokenType() match {
+                 case ScalaTokenTypes.tINTEGER
+                    | ScalaTokenTypes.tFLOAT
+                    | ScalaTokenTypes.kTRUE
+                    | ScalaTokenTypes.kFALSE
+                    | ScalaTokenTypes.tCHAR
+                    | ScalaTokenTypes.kNULL
+                    | ScalaTokenTypes.tSTRING_BEGIN
+                    | ScalaTokenTypes.tPLUS
+                    | ScalaTokenTypes.tMINUS
+                    | ScalaTokenTypes.tTILDA
+                    | ScalaTokenTypes.tNOT
+                    | ScalaTokenTypes.tIDENTIFIER
+                    | ScalaTokenTypes.kIF
+                    | ScalaTokenTypes.kTRY
+                    => {
+                    val exprMarker = builder.mark()
+
+                   //todo
+                    //Expr.parse(builder)
+                    exprMarker.done(ScalaElementTypes.EXPRESSION)
+               }
+
+               case _ => { builder.error("expected expression") }
+             }
+          }
+
+          Console.println("token type : " + builder.getTokenType())
+          builder.getTokenType() match {
+            case ScalaTokenTypes.tCOLON
+               | ScalaTokenTypes.tUNDER
+               | ScalaTokenTypes.tSTAR
+               => {
+               //todo
+              }
+
+           case _ => {}
+          }
+
         }
 
+        case _ => { builder.error("expected expression") }
+
       }
-
-      case _ => { builder.error("expected expression") }
-
     }
   }
-}
 
+}
 
