@@ -37,6 +37,29 @@ object ScalaPsiCreator {
 
     /********************** TYPES ************************/
 
+    case ScalaElementTypes.IDENTIFIER => new ScIdentifierImpl(node)
+    case ScalaElementTypes.THIS => new ScThisImpl(node)
+    case ScalaElementTypes.WITH => new ScWithImpl(node)
+    case ScalaElementTypes.SUPER => new ScSuperImpl(node)
+    case ScalaElementTypes.DOT => new ScDotImpl(node)
+    case ScalaElementTypes.COMMA => new ScCommaImpl(node)
+    case ScalaElementTypes.LSQBRACKET => new ScLsqbracketImpl(node)
+    case ScalaElementTypes.RSQBRACKET => new ScRsqbracketImpl(node)
+    case ScalaElementTypes.LPARENTHIS => new ScLParentImpl(node)
+    case ScalaElementTypes.RPARENTHIS => new ScRParentImpl(node)
+    case ScalaElementTypes.KEY_TYPE => new ScKeyTypeImpl(node)
+    case ScalaElementTypes.INNER_CLASS => new ScSharpImpl(node)
+
+    case ScalaElementTypes.STABLE_ID => new ScStableIdImpl(node)
+    case ScalaElementTypes.PATH => new ScPathImpl(node)
+    case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeImpl(node)
+    case ScalaElementTypes.FUN_TYPE => new ScFunTypeImpl(node)
+    case ScalaElementTypes.TYPE => new ScTypeImpl(node)
+    case ScalaElementTypes.TYPES => new ScTypesImpl(node)
+    case ScalaElementTypes.TYPEARGS => new ScTypeArgsImpl(node)
+
+    /********************** "TYPES" ************************/
+
     case ScalaTokenTypes.tIDENTIFIER => new ScIdentifierImpl(node)
     case ScalaTokenTypes.kTHIS => new ScThisImpl(node)
     case ScalaTokenTypes.kWITH => new ScWithImpl(node)
@@ -47,17 +70,20 @@ object ScalaPsiCreator {
     case ScalaTokenTypes.tRSQBRACKET => new ScRsqbracketImpl(node)
     case ScalaTokenTypes.tLPARENTHIS => new ScLParentImpl(node)
     case ScalaTokenTypes.tRPARENTHIS => new ScRParentImpl(node)
+    /*
     case ScalaElementTypes.KEY_TYPE => new ScKeyTypeImpl(node)
     case ScalaElementTypes.INNER_CLASS => new ScSharpImpl(node)
 
     case ScalaElementTypes.STABLE_ID => new ScStableIdImpl(node)
     case ScalaElementTypes.PATH => new ScPathImpl(node)
     case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeImpl(node)
+    */
     case ScalaTokenTypes.tFUNTYPE => new ScFunTypeImpl(node)
+    /*
     case ScalaElementTypes.TYPE => new ScTypeImpl(node)
     case ScalaElementTypes.TYPES => new ScTypesImpl(node)
     case ScalaElementTypes.TYPEARGS => new ScTypeArgsImpl(node)
-
+    */
     /******************* EXPRESSIONS*********************/
 
     case ScalaElementTypes.PREFIX_EXPR => new ScPrefixExprImpl(node)
