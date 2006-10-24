@@ -151,31 +151,35 @@ FIRST(InfixExpression) =  PrefixExpression.FIRST
       val marker = builder.mark()
       var result = PrefixExpr parse(builder)
 
-      def subParse : ScalaElementType = {
+      def subParse(currentMarker: PsiBuilder.Marker) : ScalaElementType = {
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER => {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
             val rollbackMarker = builder.mark() //for rollback
-          val idMarker = builder.mark()
-          builder.advanceLexer()
-          idMarker.done(ScalaTokenTypes.tIDENTIFIER)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
             ParserUtils.rollForward(builder)
             var res = PrefixExpr parse(builder)
             if (res.equals(ScalaElementTypes.PREFIX_EXPR)) {
               rollbackMarker.drop()
-              subParse
+              val nextMarker = currentMarker.precede()
+              currentMarker.done(ScalaElementTypes.INFIX_EXPR)
+              subParse(nextMarker)
             } else {
               rollbackMarker.rollbackTo()
-              ScalaElementTypes.WRONGWAY
+              currentMarker.drop()
+              ScalaElementTypes.INFIX_EXPR
             }
           }
-          case _ => ScalaElementTypes.INFIX_EXPR
+          case _ => {
+            currentMarker.drop()
+            ScalaElementTypes.INFIX_EXPR
+          }
         }
       }
 
       if (result.equals(ScalaElementTypes.PREFIX_EXPR)) {
-        result = subParse
+        val nextMarker = marker.precede()
         marker.done(ScalaElementTypes.INFIX_EXPR)
+        result = subParse(nextMarker)
         result
       }
       else {
