@@ -439,8 +439,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
     def parse(builder : PsiBuilder) : ScalaElementType = {
 
       // If ')' symbol - the end of list of parameter list encountered
-      def rightBraceProcessing : ScalaElementType = {
+      def rightBraceProcessing(typesMarker: PsiBuilder.Marker) : ScalaElementType = {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+        typesMarker.done(ScalaElementTypes.TYPES)
         if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
           parse(builder)
@@ -468,15 +469,17 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           case _ => {
             // Suppose, that it is statement that begins form ([Types])
             if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
+              val typesMarker = builder.mark() // Eat types of parameters
               ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
               if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
-                rightBraceProcessing
+                rightBraceProcessing(typesMarker)
               } else {
                 var res = Types.parse(builder)
                 if (res.equals(ScalaElementTypes.TYPES)) {
                   if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
-                    rightBraceProcessing
+                    rightBraceProcessing(typesMarker)
                   } else {
+                    typesMarker.rollbackTo()
                     builder.error("Right brace expected")
                     ScalaElementTypes.WRONGWAY
                   }
@@ -531,10 +534,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
         }
       }
 
-      val typesMarker = builder.mark()
+      //val typesMarker = builder.mark()
       val  res = subParse
-      if (res.equals(ScalaElementTypes.TYPES)) typesMarker.done(ScalaElementTypes.TYPES)
-        else typesMarker.rollbackTo() 
+      //if (res.equals(ScalaElementTypes.TYPES)) typesMarker.done(ScalaElementTypes.TYPES)
+      //  else typesMarker.rollbackTo() 
       res
     }
   }
