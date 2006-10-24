@@ -126,13 +126,13 @@ object Construction extends Constr{
     Console.println("token type : " + builder.getTokenType())
     builder.getTokenType() match {
       case ScalaTokenTypes.tIDENTIFIER => {
-        val stableIdMarker = builder.mark()
+        //val stableIdMarker = builder.mark()
 
         //parse stable identifier
         //todo
         StableId.parse(builder)
 
-        stableIdMarker.done(ScalaElementTypes.STABLE_ID)
+        //stableIdMarker.done(ScalaElementTypes.STABLE_ID)
 
         Console.println("token type : " + builder.getTokenType())
         builder.getTokenType() match {
@@ -148,14 +148,14 @@ object Construction extends Constr{
               builder.error("epected ']'")
             }
 
+          }
+
+          case ScalaTokenTypes.tLPARENTHIS => {
              //possible left parenthis - begining of list epression
             while (builder.getTokenType().equals(ScalaTokenTypes.tLPARENTHIS)) {
 
                 ExprInParenthis.parse(builder)
-
-                if ( !builder.getTokenType().equals(ScalaTokenTypes.tRPARENTHIS) ) {
-                  builder.error("expected ')'")
-                }
+             
             }
           }
 
@@ -171,17 +171,17 @@ object Construction extends Constr{
     ExprInParenthis :== '(' [exprs] ')'
 */
 
-  object ExprInParenthis extends Constr{
+  object ExprInParenthis extends Constr {
     override def parse(builder: PsiBuilder): Unit = {
 
-      Console.println("token type : " + builder.getTokenType())
+      Console.println("token type in expr in par: " + builder.getTokenType())
       builder.getTokenType() match {
         case ScalaTokenTypes.tLPARENTHIS => {
           val lparenthisMarker = builder.mark()
           builder.advanceLexer
           lparenthisMarker.done(ScalaTokenTypes.tLPARENTHIS)
 
-          Console.println("token type : " + builder.getTokenType())
+          Console.println("token type in expr in par 2: " + builder.getTokenType())
           builder.getTokenType() match {
             case ScalaTokenTypes.tINTEGER
                | ScalaTokenTypes.tFLOAT
@@ -199,7 +199,9 @@ object Construction extends Constr{
                val exprsMarker = builder.mark()
 
                //parse expression list
-               Exprs.parse(builder)
+               val res = Exprs.parse(builder)
+
+               Console.println("res exprs" + res.toString())
 
                exprsMarker.done(ScalaElementTypes.EXPRS)
             }
@@ -208,9 +210,7 @@ object Construction extends Constr{
           }
 
           if (builder.getTokenType().equals(ScalaTokenTypes.tRPARENTHIS)) {
-            val rparenthisMarker = builder.mark()
-            builder.advanceLexer
-            rparenthisMarker.done(ScalaTokenTypes.tRPARENTHIS)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
 
           } else {
             builder.error("expected ')'")

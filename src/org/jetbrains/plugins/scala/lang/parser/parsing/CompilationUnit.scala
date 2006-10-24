@@ -43,9 +43,43 @@ object CompilationUnit extends Constr{
     builder.getTokenType() match {
       //possible package statement
       case ScalaTokenTypes.kPACKAGE => {
-        Console.println("top level package handle")
-        ParserUtils.eatConstr(builder, Package, ScalaElementTypes.PACKAGE_STMT)
-        Console.println("top level package handled")
+        //Console.println("top level package handle")
+        //ParserUtils.eatConstr(builder, Package, ScalaElementTypes.PACKAGE_STMT)
+        val packChooseMarker = builder.mark()
+        Console.println("exp package " + builder.getTokenType)
+        builder.advanceLexer //Ate package
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
+          QualId.parse(builder)
+        }
+
+        packChooseMarker.rollbackTo()
+
+        Console.println("terinator or semicolon " + builder.getTokenType)
+        builder.getTokenType match {
+          case ScalaTokenTypes.tLINE_TERMINATOR
+             | ScalaTokenTypes.tSEMICOLON
+             => {
+            Console.println("package parse")
+            Package.parse(builder)
+
+            builder.getTokenType match {
+              case ScalaTokenTypes.tLINE_TERMINATOR => {
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
+              }
+
+              case ScalaTokenTypes.tSEMICOLON => {
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tSEMICOLON)
+              }
+
+              case _ => { builder.error("expected ';' or line terminator")}
+            }
+
+          }
+
+          case _ => {}
+        }
+        //Console.println("top level package handled")
       }
 
       case _=> {}
@@ -70,8 +104,9 @@ object CompilationUnit extends Constr{
          | _
          => {
         Console.println("TopStatSeq invoke ")
-        ParserUtils.eatConstr(builder, TopStatSeq, ScalaElementTypes.TOP_STAT_SEQ)
-        
+        //ParserUtils.eatConstr(builder, TopStatSeq, ScalaElementTypes.TOP_STAT_SEQ)
+        TopStatSeq.parse(builder)
+
         Console.println("TopStatSeq invoked ")
 
       }
@@ -84,35 +119,34 @@ object CompilationUnit extends Constr{
 
   object TopStatSeq extends Constr {
     override def parse(builder: PsiBuilder): Unit = {
+      val topStatSeq = builder.mark()
 
       Console.println("single top stat handle")
-      ParserUtils.eatConstr(builder, TopStat, ScalaElementTypes.TOP_STAT)
+      TopStat.parse(builder)
       Console.println("single top stat handled")
 
-    //  ParserUtils.rollForward(builder)
 
-      Console.println("token type, semi or lt " + builder.getTokenType())
-      while (builder.getTokenType().equals(ScalaTokenTypes.tSEMICOLON)
-          || builder.getTokenType().equals(ScalaTokenTypes.tLINE_TERMINATOR)){
+      //Console.println("token type, semi or lt " + builder.getTokenType())
+      while (!builder.eof() && (builder.getTokenType().equals(ScalaTokenTypes.tSEMICOLON)
+          || builder.getTokenType().equals(ScalaTokenTypes.tLINE_TERMINATOR))) {
 
         Console.println("statement separator handle")
         ParserUtils.eatConstr(builder, StatementSeparator, ScalaElementTypes.STATEMENT_SEPARATOR)
         Console.println("statement separator handled")
 
-     //   ParserUtils.rollForward(builder)
-
         Console.println("single top stat handle")
-        ParserUtils.eatConstr(builder, TopStat, ScalaElementTypes.TOP_STAT)
+        TopStat.parse(builder)
         Console.println("single top stat handled")
 
-        Console.println("after topStat token is " + builder.getTokenType())
+       // Console.println("after topStat token is " + builder.getTokenType())
       }
-
+     topStatSeq.done(ScalaElementTypes.TOP_STAT_SEQ)
     }
   }
 
   object TopStat extends Constr {
     override def parse(builder: PsiBuilder): Unit = {
+      val topStatMarker = builder.mark()
 
       Console.println("token type : " + builder.getTokenType())
        builder.getTokenType() match {
@@ -140,7 +174,7 @@ object CompilationUnit extends Constr{
            | ScalaTokenTypes.kOBJECT
            | ScalaTokenTypes.kTRAIT
            => {
-           val tmplDefMarker = builder.mark()
+           //val tmplDefMarker = builder.mark()
            Console.println("tmpl handle")
            ParserUtils.eatConstr(builder, TmplDef, ScalaElementTypes.TMPL_DEF)
            //ParserUtils.rollForward(builder)
@@ -170,6 +204,9 @@ object CompilationUnit extends Constr{
           */
         }
       }
+
+      Console.println("top stat done")
+      topStatMarker.done(ScalaElementTypes.TOP_STAT)
     }
   }
  

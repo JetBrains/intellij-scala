@@ -7,7 +7,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.Construction
 import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.IChameleonElementType
 /**
  * User: Dmitry.Krasilschikov
  * Date: 16.10.2006
@@ -31,6 +33,7 @@ object TmplDef extends Constr{
 
       def parse ( builder : PsiBuilder ) = {
 
+        val tmplDefMarker = builder.mark()
         //node : keyword
         val keywordMarker = builder.mark()
         builder.advanceLexer
@@ -47,6 +50,7 @@ object TmplDef extends Constr{
         parseBody ( builder )
         bodyMarker.done( getBody )
           */
+        tmplDefMarker.done(ScalaElementTypes.TMPL_DEF)
       }
   }
 
@@ -78,10 +82,12 @@ object TmplDef extends Constr{
       var b = second
 
       if (a.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
-      a = b
+        a = b
       }
 
-      a.equals(ScalaTokenTypes.tLPARENTHIS)
+      if (a.equals(ScalaTokenTypes.tLPARENTHIS)) true
+
+      false
     }
 
     def checkForClassParamClause(first : IElementType, second : IElementType, third : IElementType) : Boolean = {
@@ -93,8 +99,7 @@ object TmplDef extends Constr{
         b = c
       }
 
-      a.equals(ScalaTokenTypes.tLPARENTHIS) && 
-        (b.equals(ScalaTokenTypes.kVAL)
+      a.equals(ScalaTokenTypes.tLPARENTHIS) && (b.equals(ScalaTokenTypes.kVAL)
          || b.equals(ScalaTokenTypes.kVAR       )
          || b.equals(ScalaTokenTypes.kABSTRACT  )
          || b.equals(ScalaTokenTypes.kFINAL     )
@@ -104,6 +109,8 @@ object TmplDef extends Constr{
          || b.equals(ScalaTokenTypes.kSEALED    )
          || b.equals(ScalaTokenTypes.tIDENTIFIER)
          )
+
+
     }
 
     def checkForImplicit(first : IElementType, second : IElementType, third : IElementType) : Boolean = {
@@ -126,8 +133,9 @@ object TmplDef extends Constr{
       def getDef = ScalaElementTypes.CLASS_DEF
 
       def parseDef ( builder : PsiBuilder ) : Unit = {
+        val classDefMarker = builder.mark()
 
-      Console.println("expected identifier " + builder.getTokenType)
+        Console.println("expected identifier " + builder.getTokenType)
         if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
 
@@ -141,26 +149,228 @@ object TmplDef extends Constr{
           val second = builder.getTokenType()
           Console.println("second " + second)
 
+          chooseParsingWay.rollbackTo()
+
           if (checkForTypeParamClauses(first, second)) {
-            chooseParsingWay.rollbackTo()
             Console.println("checked for type parameters ")
             TypeParamClause.parse(builder)
           }
 
-          ClassParamClauses.parse(builder)
+          //if (checkForClassParamClauses(first, second)){
+            ClassParamClauses.parse(builder)
+          //}
 
           if (builder.getTokenType.equals(ScalaTokenTypes.kREQUIRES)) {
+          //todo check
             SimpleType.parse(builder)
           }
+          Console.println("cltemple expect " + builder.getTokenType)
+          builder.getTokenType match {
+            case ScalaTokenTypes.kEXTENDS
+               | ScalaTokenTypes.tLINE_TERMINATOR
+               | ScalaTokenTypes.tLBRACE
+              => {
+               ClassTemplate.parse(builder)
+            }
+          }
         }
+
+        classDefMarker.done(ScalaElementType.CLASS_STMT)
       }
+
+    object ClassTemplate extends Constr {
+      override def parse(builder : PsiBuilder) : Unit = {
+        val classTemplateMarker = builder.mark()
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.kEXTENDS)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.kEXTENDS)
+
+          if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)){
+            TemplateParents.parse(builder)
+          } else builder.error("expected identifier")
+        }
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)){
+            TemplateBody.parse(builder)
+        } else if (builder.getTokenType.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.kEXTENDS)
+
+          if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)){
+            TemplateBody.parse(builder)
+          } else builder.error("expected '{'")
+        }
+
+        classTemplateMarker.done(ScalaElementTypes.CLASS_TEMPLATE)
+      }
+    }
+
+    object TemplateParents extends Constr {
+      override def parse(builder : PsiBuilder) : Unit = {
+        val templateParents = builder.mark()
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
+          Construction.parse(builder)
+        } else builder.error("expected identifier")
+
+        while (builder.getTokenType.equals(ScalaTokenTypes.kWITH)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.kWITH)
+
+          //todo check
+          SimpleType.parse(builder)
+        }
+
+        templateParents.done(ScalaElementTypes.TEMPLATE_PARENTS)
+      }
+    }
+
+    object TemplateBody extends Constr {
+      override def parse(builder : PsiBuilder) : Unit = {
+        val templateBody = builder.mark()
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)) {
+          //ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
+         //todo
+          var counter = 1
+          var lastRBrace = false
+
+          while ( !builder.eof() && !lastRBrace){
+            builder.advanceLexer
+            val token = builder.getTokenType
+            if (token.equals(ScalaTokenTypes.tLBRACE)) {
+            Console.println("ate '{'")
+              counter = counter + 1
+            }
+
+
+            if (token.equals(ScalaTokenTypes.tRBRACE)) {
+            Console.println("ate '}'")
+              counter = counter - 1
+            }
+
+            if (counter == 0) {
+              lastRBrace = true
+              builder.advanceLexer
+            }
+          }
+         //
+
+        }
+
+        templateBody.done(ScalaElementTypes.TEMPLATE_BODY)
+      }
+
+   /*   override def isParsible(CharSequence buffer, val Project project) = {
+
+      }
+     */
+
+    }
+
 
     object TypeParamClause extends Constr {
       override def parse(builder : PsiBuilder) : Unit = {
         val typeParamClause = builder.mark()
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
+        }
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.tLSQBRACKET)) {
+          builder.getTokenType match {
+            case ScalaTokenTypes.tPLUS
+               | ScalaTokenTypes.tMINUS
+               | ScalaTokenTypes.tIDENTIFIER
+               => {
+              VariantTypeParams.parse(builder)
+           }
+        }
+
+        } else builder.error("expected '[")
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.tRSQBRACKET)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
+        } else builder.error("expected ']")
+
         typeParamClause.done(ScalaElementTypes.TYPE_PARAM_CLAUSE)
       }
     }
+
+    object VariantTypeParams extends Constr {
+      override def parse(builder : PsiBuilder) : Unit = {
+        val varTypeParamsClause = builder.mark()
+
+        builder.getTokenType match {
+          case ScalaTokenTypes.tPLUS
+             | ScalaTokenTypes.tMINUS
+             | ScalaTokenTypes.tIDENTIFIER
+             => {
+            VariantTypeParam.parse(builder)
+          }
+        }
+
+        while (builder.getTokenType.equals(ScalaTokenTypes.tCOMMA)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+
+          VariantTypeParam.parse(builder)
+        }
+
+        varTypeParamsClause.done(ScalaElementTypes.VARIANT_TYPE_PARAMS)
+      }
+    }
+
+    object VariantTypeParam extends Constr {
+      override def parse(builder : PsiBuilder) : Unit = {
+        val varTypeParamClause = builder.mark()
+
+        if (!builder.getTokenType.equals(ScalaTokenTypes.tPLUS)
+            && !builder.getTokenType.equals(ScalaTokenTypes.tMINUS)
+            && !builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)){
+          builder.error("expected '+', '-' or identifier")
+        }
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.tPLUS)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tPLUS)
+        }
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.tMINUS)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tMINUS)
+        }
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
+          TypeParam.parse(builder)
+        }
+
+        varTypeParamClause.done(ScalaElementTypes.VARIANT_TYPE_PARAM)
+      }
+    }
+
+    object TypeParam extends Constr {
+      override def parse(builder : PsiBuilder) : Unit = {
+        val typeParamClause = builder.mark()
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+        } else builder.error("expected identifier")
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.tLOWER_BOUND)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLOWER_BOUND)
+          Type.parse(builder)
+        }
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.tUPPER_BOUND)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tUPPER_BOUND)
+          Type.parse(builder)
+        }
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.tVIEW)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tVIEW)
+          Type.parse(builder)
+        }
+
+        typeParamClause.done(ScalaElementTypes.TYPE_PARAM)
+      }
+    }
+
 
     object ClassParamClauses extends Constr{
       override def parse(builder : PsiBuilder) : Unit = {
@@ -169,15 +379,15 @@ object TmplDef extends Constr{
 
         var first = builder.getTokenType()
         builder.advanceLexer
-         Console.println("first " + first)
+        Console.println("first in class param clause " + first)
 
         var second = builder.getTokenType()
         builder.advanceLexer
-        Console.println("second " + second)
+        Console.println("second in class param clause " + second)
 
         var third = builder.getTokenType()
         builder.advanceLexer
-        Console.println("third " + third)
+        Console.println("third in class param clause " + third)
 
         while (checkForClassParamClause(first, second, third)) {
           chooseParsingWay.rollbackTo()
@@ -198,7 +408,8 @@ object TmplDef extends Constr{
           ImplicitEnd.parse(builder)
         }
 
-        chooseParsingWay.drop()
+        chooseParsingWay.rollbackTo()
+        //chooseParsingWay.drop()
 
         classParamClausesMarker.done(ScalaElementTypes.CLASS_PARAM_CLAUSES)
       }
@@ -408,13 +619,13 @@ object TmplDef extends Constr{
         Console.println("expected class or object : " + builder.getTokenType())
         builder.getTokenType() match {
           case ScalaTokenTypes.kCLASS => {
-            val classStmtMarker = builder.mark()
+//            val classStmtMarker = builder.mark()
 
           //  builder.advanceLexer
 
             ClassDef.parse(builder)
 
-            classStmtMarker.done(ScalaElementTypes.CLASS_STMT)
+//            classStmtMarker.done(ScalaElementTypes.CLASS_STMT)
           }
 
           case ScalaTokenTypes.kOBJECT => {
@@ -433,10 +644,7 @@ object TmplDef extends Constr{
     Console.println("token type : " + builder.getTokenType())
     builder.getTokenType() match {
       case ScalaTokenTypes.kCASE => {
-        val caseMarker = builder.mark();
-        builder.advanceLexer //Ate case
-
-        caseMarker.done(ScalaTokenTypes.kCASE);
+        ParserUtils.eatElement(ScalaTokenTypes.kCASE)
 
         parseInst( builder ) //handle class and object
       }
