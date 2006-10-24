@@ -15,6 +15,15 @@ object BNF {
            ScalaTokenTypes.tSTRING_BEGIN
     )
   )
+  
+  val tSIMPLE_FIRST: TokenSet = TokenSet.create(
+    Array( ScalaTokenTypes.tIDENTIFIER,
+           ScalaTokenTypes.kTHIS,
+           ScalaTokenTypes.kSUPER,
+           ScalaTokenTypes.tLPARENTHIS,
+           ScalaTokenTypes.kNEW
+    )
+  )
 
   val tPREFIXES: TokenSet = TokenSet.create(
     Array(

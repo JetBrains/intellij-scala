@@ -42,7 +42,7 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
 */
   object SimpleExpr {
 
-  val SIMPLE_FIRST = BNF.tLITERALS
+  val SIMPLE_FIRST = TokenSet.orSet(Array(BNF.tLITERALS.tSIMPLE_FIRST, BNF.tLITERALS ))
 
     def parse(builder : PsiBuilder) : ScalaElementType = {
 
@@ -242,6 +242,7 @@ FIRST(PostfixExpression) =  InffixExpression.FIRST
 
     object Exprs {
       def parse(builder: PsiBuilder): Unit = {
+      /*
         Console.println("token type : " + builder.getTokenType())
         builder.getTokenType() match {
           case ScalaTokenTypes.tINTEGER
@@ -313,7 +314,7 @@ FIRST(PostfixExpression) =  InffixExpression.FIRST
 
         case _ => { builder.error("expected expression") }
 
-      }
+      }*/
     }
   }
 
