@@ -31,17 +31,22 @@ class Program extends ScalaTokenTypes {
       while ( !builder.eof() ) {
          rollForward
 
+         // Expression functionality testing
+         if (PostfixExpr.POSTFIX_FIRST.contains(builder.getTokenType)) {
+           PostfixExpr parse (builder)
+         } else builder advanceLexer
+
+         // Types functionality testing
+         /*
          if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType) ||
               ScalaTokenTypes.kTHIS.equals(builder.getTokenType) ||
               ScalaTokenTypes.kSUPER.equals(builder.getTokenType) ||
               ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) {
            var res = Type parse (builder)
            if (res.equals(ScalaElementTypes.WRONGWAY)) builder advanceLexer
-         } else
-
-         if (PostfixExpr.POSTFIX_FIRST.contains(builder.getTokenType)) {
-           PostfixExpr parse (builder)
          } else builder advanceLexer
+         */
+
       }
     }
 
