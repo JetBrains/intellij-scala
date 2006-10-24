@@ -30,8 +30,19 @@ object ScalaElementTypes {
   /*************************************************************************************/
   val CLASS_PARAMS = new ScalaElementType("class parameters")
   val CLASS_PARAM = new ScalaElementType("class parameter")
+  val CLASS_PARAM_CLAUSE = new ScalaElementType("class parameter clause")
+  val CLASS_PARAM_CLAUSES = new ScalaElementType("class parameter clauses")
+
+  val CLASS_TEMPLATE = new ScalaElementType("class template")
+  val TEMPLATE_BODY = new ScalaElementType("template body")
+  val TEMPLATE_PARENTS = new ScalaElementType("template parents")
+
+  val TYPE_PARAM_CLAUSE = new ScalaElementType("type parameter clause")
   val PARAM = new ScalaElementType("parameter")
   val PARAM_TYPE = new ScalaElementType("parameter type")
+  val VARIANT_TYPE_PARAMS = new ScalaElementType("variant parameters of type")
+  val VARIANT_TYPE_PARAM = new ScalaElementType("variant parameter of type")
+  val TYPE_PARAM = new ScalaElementType("parameter of type")
 
   /*************************************************************************************/
   /************************************** TYPES ****************************************/
@@ -111,8 +122,8 @@ object ScalaElementTypes {
   val MINUS = new ScalaElementType("minus")
 
   val COMPOSITE_EXPR = new ScalaElementType("expression with =>")
-  val EXPRESSION = new ScalaElementType("expression")
-  val EXPRESSIONS_LIST = new ScalaElementType("list of expressions")
+  val EXPR = new ScalaElementType("expression")
+  val EXPRS = new ScalaElementType("list of expressions")
 
   /*************************************************************************************/
   /************************************** KEYWORDS *************************************/
