@@ -201,7 +201,7 @@ object Construction extends Constr{
                //parse expression list
                Exprs.parse(builder)
 
-               exprsMarker.done(ScalaElementTypes.EXPRESSIONS_LIST)
+               exprsMarker.done(ScalaElementTypes.EXPRS)
             }
 
             case _ => { builder.error("expected expression") }
