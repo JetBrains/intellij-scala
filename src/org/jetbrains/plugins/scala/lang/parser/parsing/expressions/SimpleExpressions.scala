@@ -71,7 +71,7 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
       var result = Literal.parse(builder)  // Literal ?
       if (!result.equals(ScalaElementTypes.WRONGWAY)) flag = true // Yes, it is!
         else result = StableId.parse(builder) // Path ?
-      if (!flag && result.equals(ScalaElementTypes.PATH)) flag = true
+      if (!flag && (result.equals(ScalaElementTypes.PATH) || result.equals(ScalaElementTypes.STABLE_ID))) flag = true
       // ... other cases
       if (flag) subParse
         else ScalaElementTypes.WRONGWAY
