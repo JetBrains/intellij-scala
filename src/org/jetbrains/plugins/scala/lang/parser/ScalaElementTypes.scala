@@ -17,13 +17,21 @@ object ScalaElementTypes {
   /*************************************************************************************/
   /************************************** FILE *****************************************/
   /*************************************************************************************/
-  val FILE = new IFileElementType(Language.findInstance(new ClassOf().cast[Class[ScalaLanguage]]( classOf[ScalaLanguage] )))
+  val FILE = new IFileElementType(Language.findInstance(new ClassOf().cast[Class[ScalaLanguage]](classOf[ScalaLanguage])))
 
   /*************************************************************************************/
   /************************************** OTHER ****************************************/
   /*************************************************************************************/
   val WRONGWAY = new ScalaElementType("Wrong way!")
   val EMPTY = new ScalaElementType("empty")
+
+  /*************************************************************************************/
+  /************************************** CLASS ****************************************/
+  /*************************************************************************************/
+  val CLASS_PARAMS = new ScalaElementType("class parameters")
+  val CLASS_PARAM = new ScalaElementType("class parameter")
+  val PARAM = new ScalaElementType("parameter")
+  val PARAM_TYPE = new ScalaElementType("parameter type")
 
   /*************************************************************************************/
   /************************************** TYPES ****************************************/
@@ -35,11 +43,6 @@ object ScalaElementTypes {
   val TYPE = new ScalaElementType("common type")
   val KEY_TYPE = new ScalaElementType("type keyword")
   val TYPEARGS = new ScalaElementType("type arguments")
-
-  /*************************************************************************************/
-  /*********************************** IDENTIFIER **************************************/
-  /*************************************************************************************/
-  val IDENTIFIER = new ScalaElementType("identifier")
 
   /*************************************************************************************/
   /********************************* PACKAGE GROUP *************************************/
@@ -83,9 +86,6 @@ object ScalaElementTypes {
   /************************************** LITERALS *************************************/
   /*************************************************************************************/
   val LITERAL = new ScalaElementType("Literal")
-  val INTEGER_LITERAL = new ScalaElementType("Integer Literal")
-  val FLOATING_POINT_LITERAL = new ScalaElementType("Floating Point Literal")
-  val CHARACTER_LITERAL = new ScalaElementType("Character Literal")
   //  String literals
   val STRING_LITERAL = new ScalaElementType("String Literal")
   val STRING_CONTENT = new ScalaElementType("String content")

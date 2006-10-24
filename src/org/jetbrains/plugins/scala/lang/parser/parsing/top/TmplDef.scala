@@ -267,7 +267,7 @@ object TmplDef extends Constr{
 
     object ClassParams extends Constr {
       override def parse(builder : PsiBuilder) : Unit = {
-        
+        val classParamsMarker = builder.mark()
         builder.getTokenType() match {
           case ScalaTokenTypes.kVAL
              | ScalaTokenTypes.kVAR
@@ -303,10 +303,14 @@ object TmplDef extends Constr{
           }
         }
       }
+
+      classParamsMarker.done(ScalaElementTypes.CLASS_PARAMS)
     }
 
     object ClassParam extends Constr {
       override def parse(builder : PsiBuilder) : Unit = {
+        val classParamMarker = builder.mark()
+
         builder.getTokenType() match {
           case ScalaTokenTypes.kABSTRACT => { ParserUtils.eatElement(builder, ScalaTokenTypes.kABSTRACT) }
           case ScalaTokenTypes.kFINAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kFINAL) }
@@ -326,6 +330,8 @@ object TmplDef extends Constr{
         if (builder.getTokenType().equals(ScalaTokenTypes.tIDENTIFIER)) {
           Param.parse(builder)
         } else builder.error("expected identifier")
+
+        classParamMarker.done(ScalaElementTypes.CLASS_PARAM)
       }
     }
   }
@@ -333,6 +339,8 @@ object TmplDef extends Constr{
 
     object Param extends Constr {
       override def parse(builder : PsiBuilder) : Unit = {
+        val paramsMarker = builder.mark()
+
         if (builder.getTokenType().equals(ScalaTokenTypes.tIDENTIFIER)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         } else builder.error("expected identifier")
@@ -351,11 +359,15 @@ object TmplDef extends Constr{
              ParamType.parse(builder)
           }
         }
+
+       paramsMarker.done(ScalaElementTypes.PARAM)
       }
     }
 
     object ParamType extends Constr {
       override def parse(builder : PsiBuilder) : Unit = {
+        val paramTypeMarker = builder.mark()
+
         if (builder.getTokenType().equals(ScalaTokenTypes.tFUNTYPE)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
         }
@@ -373,6 +385,8 @@ object TmplDef extends Constr{
         if (builder.getTokenType().equals(ScalaTokenTypes.tSTAR)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tSTAR)
         }
+
+        paramTypeMarker.done(ScalaElementTypes.PARAM_TYPE)
       }
     }
 
