@@ -57,6 +57,10 @@ import org.jetbrains.plugins.scala.lang.psi._
   case class ScCommaImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "Separator: comma"
   }
+
+  case class ScColonImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Symbol: colon"
+  }
   
 
 }
