@@ -36,6 +36,7 @@ Literal ::= integerLiteral
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => { //Boolean Literal
+        builder.advanceLexer()        
         marker.done(ScalaElementTypes.BOOLEAN_LITERAL)
         ScalaElementTypes.LITERAL
       }
