@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi._
   /**
   * Implementation of integer literals
   */
-  case class ScIntegerImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+  case class ScIntegerImpl( node : ASTNode ) extends ScalaPsiElementImpl ( node ){
       override def toString: String = "Integer Literal: "+ getText
   }
 
