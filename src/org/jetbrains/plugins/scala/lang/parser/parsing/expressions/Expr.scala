@@ -49,7 +49,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
         def subParse: ScalaElementType = {
           builder getTokenType match {
-            case ScalaTokenTypes.tCOLON => {
+            case ScalaTokenTypes.tCOMMA => {
               ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
               val res1 = Expr.parse(builder)
               if (res1.equals(ScalaElementTypes.EXPR)) {
