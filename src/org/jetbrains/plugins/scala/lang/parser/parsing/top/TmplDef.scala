@@ -62,7 +62,24 @@ object TmplDef extends Constr{
     def getDef : ScalaElementType = ScalaElementTypes.OBJECT_DEF
 
     def parseDef ( builder : PsiBuilder ) : Unit = {
+      val objectDefMarker = builder.mark()
 
+      if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+      } else builder.error("expected identifier")
+
+      builder.getTokenType match {
+        case ScalaTokenTypes.kEXTENDS
+           | ScalaTokenTypes.tLINE_TERMINATOR
+           | ScalaTokenTypes.tLBRACE
+          => {
+           ClassTemplate.parse(builder)
+        }
+        
+        case _ => {}
+      }
+
+      objectDefMarker.done(ScalaElementTypes.OBJECT_STMT)
     }
   }
 
@@ -172,11 +189,13 @@ object TmplDef extends Constr{
               => {
                ClassTemplate.parse(builder)
             }
+            case _ => {}
           }
         }
 
         classDefMarker.done(ScalaElementTypes.CLASS_STMT)
       }
+   }
 
     object ClassTemplate extends Constr {
       override def parse(builder : PsiBuilder) : Unit = {
@@ -546,7 +565,8 @@ object TmplDef extends Constr{
       }
     }
   }
-}
+
+
 
     object Param extends Constr {
       override def parse(builder : PsiBuilder) : Unit = {
@@ -669,3 +689,4 @@ object TmplDef extends Constr{
     //Console.println("tmplDefMareker done ")
   }
 }
+
