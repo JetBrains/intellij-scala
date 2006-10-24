@@ -121,7 +121,7 @@ object ScalaElementTypes {
   //Various prefixes
   val MINUS = new ScalaElementType("minus")
 
-  val COMPOSITE_EXPR = new ScalaElementType("expression with =>")
+  val EXPR1 = new ScalaElementType("compositte expression ")
   val EXPR = new ScalaElementType("expression")
   val EXPRS = new ScalaElementType("list of expressions")
 
