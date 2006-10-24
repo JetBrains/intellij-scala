@@ -221,7 +221,7 @@ FIRST(PostfixExpression) =  InffixExpression.FIRST
           case _ =>
         }
         marker.done(ScalaElementTypes.POSTFIX_EXPR)
-        result
+        ScalaElementTypes.POSTFIX_EXPR
       }
       else {
         builder.error("Wrong postfix expression!")
@@ -241,7 +241,7 @@ FIRST(PostfixExpression) =  InffixExpression.FIRST
  /*
   Exprs ::= Expr {‘,’ Expr}
 */
-
+/*
     object Exprs {
       def parse(builder: PsiBuilder): Unit = {
       /*
@@ -319,6 +319,6 @@ FIRST(PostfixExpression) =  InffixExpression.FIRST
       }*/
     }
   }
-
+*/
 }
 
