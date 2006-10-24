@@ -175,7 +175,7 @@ object TmplDef extends Constr{
           }
         }
 
-        classDefMarker.done(ScalaElementType.CLASS_STMT)
+        classDefMarker.done(ScalaElementTypes.CLASS_STMT)
       }
 
     object ClassTemplate extends Constr {
@@ -644,7 +644,7 @@ object TmplDef extends Constr{
     Console.println("token type : " + builder.getTokenType())
     builder.getTokenType() match {
       case ScalaTokenTypes.kCASE => {
-        ParserUtils.eatElement(ScalaTokenTypes.kCASE)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kCASE)
 
         parseInst( builder ) //handle class and object
       }
