@@ -42,7 +42,7 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
 */
   object SimpleExpr {
 
-  val SIMPLE_FIRST = TokenSet.orSet(Array(BNF.tLITERALS.tSIMPLE_FIRST, BNF.tLITERALS ))
+  val SIMPLE_FIRST = TokenSet.orSet(Array(BNF.tSIMPLE_FIRST, BNF.tLITERALS ))
 
     def parse(builder : PsiBuilder) : ScalaElementType = {
 
