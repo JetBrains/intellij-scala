@@ -41,8 +41,12 @@ object ScalaElementTypes {
   val SIMPLE_TYPE = new ScalaElementType("simple type")
   val TYPE1 = new ScalaElementType("type1")
   val TYPE = new ScalaElementType("common type")
-  val KEY_TYPE = new ScalaElementType("type keyword")
   val TYPEARGS = new ScalaElementType("type arguments")
+
+  /*************************************************************************************/
+  /*********************************** IDENTIFIER **************************************/
+  /*************************************************************************************/
+  val IDENTIFIER = new ScalaElementType("identifier")
 
   /*************************************************************************************/
   /********************************* PACKAGE GROUP *************************************/
@@ -50,9 +54,10 @@ object ScalaElementTypes {
 
   //Package
   val PACKAGE_GROUP = new ScalaElementType("package group")
+  val PACKAGE = new ScalaElementType("package token")
   val PACKAGE_STMT = new ScalaElementType("package statement")
   val QUAL_ID = new ScalaElementType("Qualification identifier")
-        
+
   /*************************************************************************************/
   /********************************* IMPORT GROUP **************************************/
   /*************************************************************************************/
@@ -62,25 +67,28 @@ object ScalaElementTypes {
   val IMPORT_EXPR = new ScalaElementType("import selector")
   val IMPORT_STMT = new ScalaElementType("import statement")
   val IMPORT_LIST = new ScalaElementType("import list")
+  val IMPORT = new ScalaElementType("import")
   val STABLE_ID_LIST = new ScalaElementType("stable id list")
+  val UNDER = new ScalaElementType("underline")
 
   /*************************************************************************************/
   /************************************** TYPE DECLARATION *****************************/
   /*************************************************************************************/
   val TMPL_DEF = new ScalaElementType("tmpl definition")
 
+  val OBJECT = new ScalaElementType("object")
   val OBJECT_STMT = new ScalaElementType("object statement")
   val OBJECT_DEF = new ScalaElementType("object definition")
 
+  val CLASS = new ScalaElementType("class")
   val CLASS_STMT = new ScalaElementType("class statement")
   val CLASS_DEF = new ScalaElementType("class definition")
 
+  val TRAIT = new ScalaElementType("trait")
   val TRAIT_STMT = new ScalaElementType("trait statement")
   val TRAIT_DEF = new ScalaElementType("trait definition")
 
-  val TYPE_PARAM_CLAUSE = new ScalaElementType("type parameters clause")
-  val CLASS_PARAM_CLAUSES = new ScalaElementType("class parameters clauses")
-  val CLASS_PARAM_CLAUSE = new ScalaElementType("class parameters clause")
+  val CASE = new ScalaElementType("case")
 
   /*************************************************************************************/
   /************************************** LITERALS *************************************/
@@ -88,9 +96,6 @@ object ScalaElementTypes {
   val LITERAL = new ScalaElementType("Literal")
   //  String literals
   val STRING_LITERAL = new ScalaElementType("String Literal")
-  val STRING_CONTENT = new ScalaElementType("String content")
-  val STRING_BEGIN = new ScalaElementType("String begin")
-  val STRING_END = new ScalaElementType("String end")
   // Boolean literals
   val BOOLEAN_LITERAL = new ScalaElementType("Boolean Literal")
 
@@ -103,6 +108,7 @@ object ScalaElementTypes {
   val INFIX_EXPR = new ScalaElementType("infix expression")
   val SIMPLE_EXPR = new ScalaElementType("simple expression")
   //Various prefixes
+  val MINUS = new ScalaElementType("minus")
 
   val COMPOSITE_EXPR = new ScalaElementType("expression with =>")
   val EXPRESSION = new ScalaElementType("expression")
@@ -111,8 +117,18 @@ object ScalaElementTypes {
   /*************************************************************************************/
   /************************************** KEYWORDS *************************************/
   /*************************************************************************************/
+  val THIS = new ScalaElementType("this")
+  val WITH = new ScalaElementType("with")
+  val SUPER = new ScalaElementType("super")
   // Primitives
+  val DOT = new ScalaElementType("DOT")
   val INNER_CLASS = new ScalaElementType("#")
+  val COMMA = new ScalaElementType("COMMA")
+  val SEMICOLON = new ScalaElementType("SEMICOLON")
+  val LSQBRACKET = new ScalaElementType("LSQBRACKET")
+  val LPARENTHIS = new ScalaElementType("LPARENTHIS")
+  val RPARENTHIS = new ScalaElementType("RPARENTHIS")
+  val RSQBRACKET = new ScalaElementType("RSQBRACKET")
   val STATEMENT_SEPARATOR = new ScalaElementType("statement separator")
 
 //ordinary identifier
@@ -125,6 +141,7 @@ object ScalaElementTypes {
   val MODIFIER = new ScalaElementType("modifier")
   val LOCAL_MODIFIER = new ScalaElementType("local modifier")
   val MODIFIER_ACCESS = new ScalaElementType("access control modifier : public and private")
+  val OVERRIDE = new ScalaElementType("override")
 
 //top
   val TOP_STAT = new ScalaElementType("top stat")
