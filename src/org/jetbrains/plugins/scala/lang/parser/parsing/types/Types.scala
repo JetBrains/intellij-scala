@@ -312,7 +312,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
               ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
               builder.getTokenType match {
                 case ScalaTokenTypes.kTYPE => {
-                  ParserUtils.eatElement(builder, ScalaElementTypes.KEY_TYPE)
+                  ParserUtils.eatElement(builder, ScalaTokenTypes.kTYPE)
                   ScalaElementTypes.SIMPLE_TYPE
                 }
                 case _ => ParserUtils.errorToken(builder, currentMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
@@ -353,7 +353,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           case ScalaTokenTypes.tINNER_CLASS => {
             val nextMarker = currentMarker.precede()
             currentMarker.done(ScalaElementTypes.SIMPLE_TYPE)
-            ParserUtils.eatElement(builder, ScalaElementTypes.INNER_CLASS)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tINNER_CLASS)
             builder.getTokenType match {
               case ScalaTokenTypes.tIDENTIFIER => {
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
