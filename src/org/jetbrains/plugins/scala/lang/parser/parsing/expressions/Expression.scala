@@ -49,10 +49,10 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
       def subParse: ScalaElementType = {
         builder.getTokenType match {
           case ScalaTokenTypes.tDOT => {
-            ParserUtils.eatElement(builder, ScalaElementTypes.DOT)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
             builder.getTokenType match {
               case ScalaTokenTypes.tIDENTIFIER => {
-                ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
                 subParse
               }
               case _ => {
@@ -154,7 +154,7 @@ FIRST(InfixExpression) =  PrefixExpression.FIRST
       def subParse : ScalaElementType = {
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER => {
-            ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
             val rollbackMarker = builder.mark() //for rollback
           val idMarker = builder.mark()
           builder.advanceLexer()
@@ -209,7 +209,7 @@ FIRST(PostfixExpression) =  InffixExpression.FIRST
       if (result.equals(ScalaElementTypes.INFIX_EXPR)) {
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER => {
-            ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
             ParserUtils.rollForward(builder)
           }
           case _ =>
@@ -262,7 +262,7 @@ FIRST(PostfixExpression) =  InffixExpression.FIRST
              while (builder.getTokenType().equals(ScalaTokenTypes.tCOMMA)){
                val commaMarker = builder.mark()
                builder.advanceLexer
-               commaMarker.done(ScalaElementTypes.COMMA)
+               commaMarker.done(ScalaTokenTypes.tCOMMA)
 
              //todo: add first(expression)
                Console.println("token type : " + builder.getTokenType())

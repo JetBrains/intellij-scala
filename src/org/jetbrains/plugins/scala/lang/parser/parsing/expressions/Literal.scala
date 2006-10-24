@@ -27,12 +27,12 @@ Literal ::= integerLiteral
     builder.getTokenType match{
       case ScalaTokenTypes.tINTEGER => { // Integer literal
         builder.advanceLexer()
-        marker.done(ScalaElementTypes.INTEGER_LITERAL)
+        marker.done(ScalaTokenTypes.tINTEGER)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tFLOAT => { //Floating point literal
         builder.advanceLexer()
-        marker.done(ScalaElementTypes.FLOATING_POINT_LITERAL)
+        marker.done(ScalaTokenTypes.tFLOAT)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => { //Boolean Literal
@@ -41,7 +41,7 @@ Literal ::= integerLiteral
       }
       case ScalaTokenTypes.tCHAR => { //Character literal
         builder.advanceLexer()
-        marker.done(ScalaElementTypes.CHARACTER_LITERAL)
+        marker.done(ScalaTokenTypes.tCHAR)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.kNULL => { //null literal
@@ -52,18 +52,18 @@ Literal ::= integerLiteral
       case ScalaTokenTypes.tSTRING_BEGIN => { //String literal
         val beginMarker = builder.mark();
         builder.advanceLexer()
-        beginMarker.done(ScalaElementTypes.STRING_BEGIN)
+        beginMarker.done(ScalaTokenTypes.tSTRING_BEGIN)
         builder.getTokenType match {
           case ScalaTokenTypes.tSTRING_END => {
             val strContentMarker = builder.mark()
-            strContentMarker.done(ScalaElementTypes.STRING_CONTENT)
-            ParserUtils.eatElement(builder,ScalaElementTypes.STRING_END)
+            strContentMarker.done(ScalaTokenTypes.tSTRING)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tSTRING_END)
           }
           case ScalaTokenTypes.tSTRING => {
-            ParserUtils.eatElement(builder,ScalaElementTypes.STRING_CONTENT)
+            ParserUtils.eatElement(builder,ScalaTokenTypes.tSTRING)
             builder.getTokenType match {
               case ScalaTokenTypes.tSTRING_END => {
-                ParserUtils.eatElement(builder, ScalaElementTypes.STRING_END)
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tSTRING_END)
               }
               case _ => builder.error("Wrong string completion")
             }
