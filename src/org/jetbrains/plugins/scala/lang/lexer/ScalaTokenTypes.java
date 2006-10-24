@@ -142,9 +142,10 @@ public interface ScalaTokenTypes {
     IElementType tASSIGN = new ScalaElementType("=");
     IElementType tFUNTYPE = new ScalaElementType("=>");
     IElementType tFUNTYPE_ASCII = new ScalaElementType(Character.toString('\u21D2'));
-    IElementType tCHOOSE = new ScalaElementType("<%");
+    IElementType tCHOOSE = new ScalaElementType("<-");
     IElementType tLOWER_BOUND = new ScalaElementType(">:");
     IElementType tUPPER_BOUND = new ScalaElementType("<:");
+    IElementType tVIEW = new ScalaElementType("<%");
     IElementType tINNER_CLASS = new ScalaElementType("#");
     IElementType tAT = new ScalaElementType("@");
     
