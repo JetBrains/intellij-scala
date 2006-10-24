@@ -19,71 +19,58 @@ object ScalaPsiCreator {
   def createElement (node : ASTNode) : PsiElement = {
 
    node.getElementType() match {
-     /******************* THE WHOLE FILE ******************/
-     
+     /********************** TOKENS **********************/
 
+       /********************* LITERALS *********************/
+       //case ScalaElementTypes.INTEGER_LITERAL  => new ScIntegerImpl(node)
+       case ScalaTokenTypes.tINTEGER  => new ScIntegerImpl(node)
 
-     /******************* LITERALS ***********************/
+       //case ScalaElementTypes.FLOATING_POINT_LITERAL  => new ScFloatImpl(node)
+       case ScalaTokenTypes.tFLOAT  => new ScFloatImpl(node)
 
-     case ScalaElementTypes.INTEGER_LITERAL  => new ScIntegerImpl(node)
-     case ScalaElementTypes.FLOATING_POINT_LITERAL  => new ScFloatImpl(node)
-     case ScalaElementTypes.BOOLEAN_LITERAL  => new ScBooleanImpl(node)
-     case ScalaElementTypes.CHARACTER_LITERAL  => new ScCharacterImpl(node)
-     case ScalaElementTypes.STRING_LITERAL => new ScStringImpl(node)
-     case ScalaElementTypes.STRING_BEGIN => new ScStringBeginImpl(node)
-     case ScalaElementTypes.STRING_CONTENT => new ScStringContentImpl(node)
-     case ScalaElementTypes.STRING_END => new ScStringEndImpl(node)
-     case ScalaTokenTypes.kNULL => new ScNullImpl(node)
+       case ScalaElementTypes.BOOLEAN_LITERAL  => new ScBooleanImpl(node)
+
+       //case ScalaElementTypes.CHARACTER_LITERAL  => new ScCharacterImpl(node)
+       case ScalaTokenTypes.tCHAR => new ScCharacterImpl(node)
+
+       case ScalaElementTypes.STRING_LITERAL => new ScStringImpl(node)
+         //case ScalaElementTypes.STRING_BEGIN => new ScStringBeginImpl(node)
+         case ScalaTokenTypes.tSTRING_BEGIN => new ScStringBeginImpl(node)
+         //case ScalaElementTypes.STRING_CONTENT => new ScStringContentImpl(node)
+         case ScalaTokenTypes.tSTRING => new ScStringContentImpl(node)
+         //case ScalaElementTypes.STRING_END => new ScStringEndImpl(node)
+         case ScalaTokenTypes.tSTRING_END => new ScStringEndImpl(node)
+
+       case ScalaTokenTypes.kNULL => new ScNullImpl(node)
+
+      /********************** KEYWORDS *********************/
+      //case ScalaElementTypes.IDENTIFIER => new ScIdentifierImpl(node)
+      case ScalaTokenTypes.tIDENTIFIER => new ScIdentifierImpl(node)
+
+      case ScalaTokenTypes.kTHIS => new ScThisImpl(node)
+      case ScalaTokenTypes.kWITH => new ScWithImpl(node)
+      case ScalaTokenTypes.kSUPER => new ScSuperImpl(node)
+      case ScalaTokenTypes.tDOT => new ScDotImpl(node)
+      case ScalaTokenTypes.tCOMMA => new ScCommaImpl(node)
+      case ScalaTokenTypes.tLSQBRACKET => new ScLsqbracketImpl(node)
+      case ScalaTokenTypes.tRSQBRACKET => new ScRsqbracketImpl(node)
+      case ScalaTokenTypes.tLPARENTHIS => new ScLParentImpl(node)
+      case ScalaTokenTypes.tRPARENTHIS => new ScRParentImpl(node)
+      //case ScalaElementTypes.KEY_TYPE => new ScKeyTypeImpl(node)
+      case ScalaTokenTypes.kTYPE => new ScKeyTypeImpl(node)
+      case ScalaTokenTypes.tINNER_CLASS => new ScSharpImpl(node)
+      //case ScalaElementTypes.FUN_TYPE => new ScFunTypeImpl(node)
+      case ScalaTokenTypes.tFUNTYPE => new ScFunTypeImpl(node)
 
     /********************** TYPES ************************/
 
-    case ScalaElementTypes.IDENTIFIER => new ScIdentifierImpl(node)
-    case ScalaElementTypes.THIS => new ScThisImpl(node)
-    case ScalaElementTypes.WITH => new ScWithImpl(node)
-    case ScalaElementTypes.SUPER => new ScSuperImpl(node)
-    case ScalaElementTypes.DOT => new ScDotImpl(node)
-    case ScalaElementTypes.COMMA => new ScCommaImpl(node)
-    case ScalaElementTypes.LSQBRACKET => new ScLsqbracketImpl(node)
-    case ScalaElementTypes.RSQBRACKET => new ScRsqbracketImpl(node)
-    case ScalaElementTypes.LPARENTHIS => new ScLParentImpl(node)
-    case ScalaElementTypes.RPARENTHIS => new ScRParentImpl(node)
-    case ScalaElementTypes.KEY_TYPE => new ScKeyTypeImpl(node)
-    case ScalaElementTypes.INNER_CLASS => new ScSharpImpl(node)
-
     case ScalaElementTypes.STABLE_ID => new ScStableIdImpl(node)
     case ScalaElementTypes.PATH => new ScPathImpl(node)
     case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeImpl(node)
-    case ScalaElementTypes.FUN_TYPE => new ScFunTypeImpl(node)
     case ScalaElementTypes.TYPE => new ScTypeImpl(node)
     case ScalaElementTypes.TYPES => new ScTypesImpl(node)
     case ScalaElementTypes.TYPEARGS => new ScTypeArgsImpl(node)
 
-    /********************** "TYPES" ************************/
-
-    case ScalaTokenTypes.tIDENTIFIER => new ScIdentifierImpl(node)
-    case ScalaTokenTypes.kTHIS => new ScThisImpl(node)
-    case ScalaTokenTypes.kWITH => new ScWithImpl(node)
-    case ScalaTokenTypes.kSUPER => new ScSuperImpl(node)
-    case ScalaTokenTypes.tDOT => new ScDotImpl(node)
-    case ScalaTokenTypes.tCOMMA => new ScCommaImpl(node)
-    case ScalaTokenTypes.tLSQBRACKET => new ScLsqbracketImpl(node)
-    case ScalaTokenTypes.tRSQBRACKET => new ScRsqbracketImpl(node)
-    case ScalaTokenTypes.tLPARENTHIS => new ScLParentImpl(node)
-    case ScalaTokenTypes.tRPARENTHIS => new ScRParentImpl(node)
-    /*
-    case ScalaElementTypes.KEY_TYPE => new ScKeyTypeImpl(node)
-    case ScalaElementTypes.INNER_CLASS => new ScSharpImpl(node)
-
-    case ScalaElementTypes.STABLE_ID => new ScStableIdImpl(node)
-    case ScalaElementTypes.PATH => new ScPathImpl(node)
-    case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeImpl(node)
-    */
-    case ScalaTokenTypes.tFUNTYPE => new ScFunTypeImpl(node)
-    /*
-    case ScalaElementTypes.TYPE => new ScTypeImpl(node)
-    case ScalaElementTypes.TYPES => new ScTypesImpl(node)
-    case ScalaElementTypes.TYPEARGS => new ScTypeArgsImpl(node)
-    */
     /******************* EXPRESSIONS*********************/
 
     case ScalaElementTypes.PREFIX_EXPR => new ScPrefixExprImpl(node)
