@@ -22,29 +22,19 @@ object ScalaPsiCreator {
      /********************** TOKENS **********************/
 
        /********************* LITERALS *********************/
-       //case ScalaElementTypes.INTEGER_LITERAL  => new ScIntegerImpl(node)
        case ScalaTokenTypes.tINTEGER  => new ScIntegerImpl(node)
-
-       //case ScalaElementTypes.FLOATING_POINT_LITERAL  => new ScFloatImpl(node)
        case ScalaTokenTypes.tFLOAT  => new ScFloatImpl(node)
-
        case ScalaElementTypes.BOOLEAN_LITERAL  => new ScBooleanImpl(node)
-
-       //case ScalaElementTypes.CHARACTER_LITERAL  => new ScCharacterImpl(node)
        case ScalaTokenTypes.tCHAR => new ScCharacterImpl(node)
 
        case ScalaElementTypes.STRING_LITERAL => new ScStringImpl(node)
-         //case ScalaElementTypes.STRING_BEGIN => new ScStringBeginImpl(node)
          case ScalaTokenTypes.tSTRING_BEGIN => new ScStringBeginImpl(node)
-         //case ScalaElementTypes.STRING_CONTENT => new ScStringContentImpl(node)
          case ScalaTokenTypes.tSTRING => new ScStringContentImpl(node)
-         //case ScalaElementTypes.STRING_END => new ScStringEndImpl(node)
          case ScalaTokenTypes.tSTRING_END => new ScStringEndImpl(node)
 
        case ScalaTokenTypes.kNULL => new ScNullImpl(node)
 
       /********************** KEYWORDS *********************/
-      //case ScalaElementTypes.IDENTIFIER => new ScIdentifierImpl(node)
       case ScalaTokenTypes.tIDENTIFIER => new ScIdentifierImpl(node)
 
       case ScalaTokenTypes.kTHIS => new ScThisImpl(node)
@@ -56,10 +46,9 @@ object ScalaPsiCreator {
       case ScalaTokenTypes.tRSQBRACKET => new ScRsqbracketImpl(node)
       case ScalaTokenTypes.tLPARENTHIS => new ScLParentImpl(node)
       case ScalaTokenTypes.tRPARENTHIS => new ScRParentImpl(node)
-      //case ScalaElementTypes.KEY_TYPE => new ScKeyTypeImpl(node)
       case ScalaTokenTypes.kTYPE => new ScKeyTypeImpl(node)
       case ScalaTokenTypes.tINNER_CLASS => new ScSharpImpl(node)
-      //case ScalaElementTypes.FUN_TYPE => new ScFunTypeImpl(node)
+      case ScalaTokenTypes.tCOLON => new ScColonImpl(node)
       case ScalaTokenTypes.tFUNTYPE => new ScFunTypeImpl(node)
 
     /********************** TYPES ************************/
@@ -77,6 +66,8 @@ object ScalaPsiCreator {
     case ScalaElementTypes.PREFIX => new ScPrefixImpl(node)
     case ScalaElementTypes.INFIX_EXPR => new ScInfixExprImpl(node)
     case ScalaElementTypes.POSTFIX_EXPR => new ScPostfixExprImpl(node)
+    case ScalaElementTypes.EXPR1 => new ScCompositeExprImpl(node)
+    case ScalaElementTypes.EXPR => new ScExprImpl(node)
 
     /********************** TOP ************************/
 
