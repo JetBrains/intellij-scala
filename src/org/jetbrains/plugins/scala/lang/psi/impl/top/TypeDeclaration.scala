@@ -6,7 +6,13 @@ import com.intellij.lang.ASTNode
  * Date: 03.10.2006
  * Time: 19:43:50
  */
-class TypeDeclaration{
-     
-}
 
+  case class ScTmplDefIMpl ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    //todo
+    override def toString: String = ""
+  }
+
+  abstract class ScTypeDefImpl ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    def getDefStr : String = getParent.getFirstChild.getText
+    override def toString : String = getDefStr + " :" + getFirstChild
+  }    

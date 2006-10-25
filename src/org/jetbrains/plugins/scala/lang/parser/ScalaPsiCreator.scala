@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.lang.psi.impl.literals._
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
-import org.jetbrains.plugins.scala.lang.psi.impl.top._
+import org.jetbrains.plugins.scala.lang.psi.impl.top._, org.jetbrains.plugins.scala.lang.psi.impl.primitives._
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -45,16 +45,9 @@ object ScalaPsiCreator {
       case ScalaTokenTypes.kTHROW => new ScThrowImpl(node)
       case ScalaTokenTypes.kWITH => new ScWithImpl(node)
       case ScalaTokenTypes.kSUPER => new ScSuperImpl(node)
-      case ScalaTokenTypes.tDOT => new ScDotImpl(node)
       case ScalaTokenTypes.tASSIGN => new ScAssignImpl(node)
-      case ScalaTokenTypes.tCOMMA => new ScCommaImpl(node)
-      case ScalaTokenTypes.tLSQBRACKET => new ScLsqbracketImpl(node)
-      case ScalaTokenTypes.tRSQBRACKET => new ScRsqbracketImpl(node)
-      case ScalaTokenTypes.tLPARENTHIS => new ScLParentImpl(node)
-      case ScalaTokenTypes.tRPARENTHIS => new ScRParentImpl(node)
       case ScalaTokenTypes.kTYPE => new ScKeyTypeImpl(node)
       case ScalaTokenTypes.tINNER_CLASS => new ScSharpImpl(node)
-      case ScalaTokenTypes.tCOLON => new ScColonImpl(node)
       case ScalaTokenTypes.tFUNTYPE => new ScFunTypeImpl(node)
 
     /********************** TYPES ************************/
@@ -77,7 +70,30 @@ object ScalaPsiCreator {
     case ScalaElementTypes.EXPRS => new ScExprsImpl(node)
     case ScalaElementTypes.ARG_EXPRS => new ScArgumentExprsImpl(node)
 
-    /********************** TOP ************************/
+    /*****************************************************/
+    /********************** PRIMITIVES ********************/
+    /*****************************************************/
+    case ScalaTokenTypes.tDOT => new ScDotImpl( node )
+    case ScalaTokenTypes.tCOLON => new ScColonImpl( node )
+    case ScalaTokenTypes.tCOMMA => new ScCommaImpl( node )
+    case ScalaTokenTypes.tSEMICOLON => new ScSemicolonImpl( node )
+    case ScalaElementTypes.STATEMENT_SEPARATOR => new ScStatementSeparatorImpl(node)
+    case ScalaTokenTypes.tLINE_TERMINATOR => new ScLineTerminatorImpl(node)
+
+    /*****************************************************/
+    /********************** BRACKETS *********************/
+    /*****************************************************/
+
+    case ScalaTokenTypes.tLSQBRACKET => new ScLSQBracketImpl(node)
+    case ScalaTokenTypes.tRSQBRACKET => new ScRSQBracketImpl(node)
+    case ScalaTokenTypes.tLPARENTHIS => new ScLParenthisImpl(node)
+    case ScalaTokenTypes.tRPARENTHIS => new ScRParenthisImpl(node)
+    case ScalaTokenTypes.tLBRACE => new ScLBraceImpl(node)
+    case ScalaTokenTypes.tRBRACE => new ScRBraceImpl(node)
+
+    /*****************************************************/
+    /********************** TOP **************************/
+    /*****************************************************/
 
      case ScalaElementTypes.PACKAGING => new ScPackaging( node )
      case ScalaElementTypes.QUAL_ID => new ScQualId( node )
@@ -85,7 +101,10 @@ object ScalaPsiCreator {
      case ScalaElementTypes.TOP_STAT_SEQ => new ScTopStatSeq( node )
      case ScalaElementTypes.TOP_STAT => new ScTopStat( node )
 
+     /***************************************************/
      /********************* IMPORT **********************/
+     /***************************************************/
+
      case ScalaTokenTypes.kIMPORT => new ScImport( node )
      case ScalaElementTypes.IMPORT_STMT => new ScImportStmt( node )
      case ScalaElementTypes.IMPORT_EXPR => new ScImportExpr( node )

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.AttributeClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
-//import org.jetbrains.plugins.scala.lang.parser.parsing.base._
+import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import com.intellij.psi.tree.IElementType
@@ -133,10 +133,13 @@ object CompilationUnit extends Constr{
 
         Console.println("statement separator handle")
         ParserUtils.eatConstr(builder, StatementSeparator, ScalaElementTypes.STATEMENT_SEPARATOR)
+
         Console.println("statement separator handled")
 
         Console.println("single top stat handle")
+
         TopStat.parse(builder)
+
         Console.println("single top stat handled")
 
        // Console.println("after topStat token is " + builder.getTokenType())
@@ -149,65 +152,55 @@ object CompilationUnit extends Constr{
     override def parse(builder: PsiBuilder): Unit = {
       val topStatMarker = builder.mark()
 
-      Console.println("token type : " + builder.getTokenType())
-       builder.getTokenType() match {
-        case ScalaTokenTypes.tLSQBRACKET => {
-          Console.println("attribute clause handle")
-          ParserUtils.eatConstr(builder, AttributeClause, ScalaElementTypes.ATTRIBUTE_CLAUSE)
-          Console.println("attribute clause handled")
-        }
-
-        case ScalaTokenTypes.kABSTRACT
-           | ScalaTokenTypes.kFINAL
-           | ScalaTokenTypes.kSEALED
-           | ScalaTokenTypes.kIMPLICIT
-           | ScalaTokenTypes.kOVERRIDE
-           | ScalaTokenTypes.kPRIVATE
-           | ScalaTokenTypes.kPROTECTED
-           => {
-           Console.println("modifier handle")
-           ParserUtils.eatConstr(builder, Modifier, ScalaElementTypes.MODIFIER)
-           Console.println("modifier handled")
-        }
-
-        case ScalaTokenTypes.kCASE
-           | ScalaTokenTypes.kCLASS
-           | ScalaTokenTypes.kOBJECT
-           | ScalaTokenTypes.kTRAIT
-           => {
-           //val tmplDefMarker = builder.mark()
-           Console.println("tmpl handle")
-           ParserUtils.eatConstr(builder, TmplDef, ScalaElementTypes.TMPL_DEF)
-           //ParserUtils.rollForward(builder)
-           Console.println("tmpl handled")
-        }
-
-        case ScalaTokenTypes.kIMPORT => {
-           Console.println("import handled")
-           ParserUtils.eatConstr(builder, Import, ScalaElementTypes.IMPORT_STMT)
-           //ParserUtils.rollForward(builder)
-           Console.println("import handle")
-        }
-
-        case ScalaTokenTypes.kPACKAGE => {
-           //todo: packaging
-           Console.println("packaging handle")
-           //ParserUtils.eatConstr(builder, Packaging, ScalaElementTypes.PACKAGE_STMT)
-           Packaging.parse(builder)
-           //ParserUtils.rollForward(builder)
-           Console.println("packaging handled")
-        }
-
-        case _ => {
-          Console.println("do nothing in topSeq")
-          //ParserUtils.rollForward(builder)
-           /*
-          if (!builder.eof()) builder.error("expected end of file")
-          */
-        }
+      //Console.println("token type : " + builder.getTokenType())
+      if (builder.eof) {
+        topStatMarker.done(ScalaElementTypes.TOP_STAT)
+        return
       }
 
-      Console.println("top stat done")
+      if (builder.getTokenType.equals(ScalaTokenTypes.kIMPORT)){
+        Console.println("parse import")
+        Import.parse(builder)
+        topStatMarker.done(ScalaElementTypes.TOP_STAT)
+        return
+      }
+
+      if (builder.getTokenType.equals(ScalaTokenTypes.kPACKAGE)){
+        Console.println("parse packaging")
+        Packaging.parse(builder)
+        topStatMarker.done(ScalaElementTypes.TOP_STAT)
+        return
+      }
+
+      var isTmpl = false
+
+      while (builder.getTokenType.equals(ScalaTokenTypes.tLSQBRACKET)) {
+        Console.println("parse attribute clause")
+        isTmpl = true
+        AttributeClause.parse(builder)
+      }
+
+      while (BNF.tMODIFIERS.contains(builder.getTokenType)) {
+        Console.println("parse modifier")
+        isTmpl = true
+        Modifier.parse(builder)
+      }
+
+      if (isTmpl && !(builder.getTokenType.equals(ScalaTokenTypes.kCASE) || BNF.tTMPLDEF.contains(builder.getTokenType))) {
+        builder.error("wrong type declaration")
+        topStatMarker.done(ScalaElementTypes.TOP_STAT)
+        return
+      }
+
+      if (builder.getTokenType.equals(ScalaTokenTypes.kCASE) || BNF.tTMPLDEF.contains(builder.getTokenType)) {
+        Console.println("parse tmplDef")
+        TmplDef.parse(builder)
+        topStatMarker.done(ScalaElementTypes.TOP_STAT)
+        return
+      }
+    
+
+      //if parse nothing
       topStatMarker.done(ScalaElementTypes.TOP_STAT)
     }
   }

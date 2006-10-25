@@ -63,7 +63,6 @@ object TmplDef extends Constr{
     def getDef : ScalaElementType = ScalaElementTypes.OBJECT_DEF
 
     def parseDef ( builder : PsiBuilder ) : Unit = {
-      val objectDefMarker = builder.mark()
 
       if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
@@ -79,8 +78,6 @@ object TmplDef extends Constr{
         
         case _ => {}
       }
-
-      objectDefMarker.done(ScalaElementTypes.OBJECT_STMT)
     }
   }
 
@@ -151,8 +148,7 @@ object TmplDef extends Constr{
       def getDef = ScalaElementTypes.CLASS_DEF
 
       def parseDef ( builder : PsiBuilder ) : Unit = {
-        val classDefMarker = builder.mark()
-
+        
         Console.println("expected identifier " + builder.getTokenType)
         if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
@@ -174,9 +170,7 @@ object TmplDef extends Constr{
             TypeParamClause.parse(builder)
           }
 
-          //if (checkForClassParamClauses(first, second)){
-            ClassParamClauses.parse(builder)
-          //}
+          ClassParamClauses.parse(builder)
 
           if (builder.getTokenType.equals(ScalaTokenTypes.kREQUIRES)) {
           //todo check
@@ -194,7 +188,7 @@ object TmplDef extends Constr{
           }
         }
 
-        classDefMarker.done(ScalaElementTypes.CLASS_STMT)
+
       }
    }
 
@@ -213,7 +207,7 @@ object TmplDef extends Constr{
         if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)){
             TemplateBody.parse(builder)
         } else if (builder.getTokenType.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.kEXTENDS)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
 
           if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)){
             TemplateBody.parse(builder)
@@ -642,27 +636,14 @@ object TmplDef extends Constr{
         Console.println("expected class or object : " + builder.getTokenType())
         builder.getTokenType() match {
           case ScalaTokenTypes.kCLASS => {
-//            val classStmtMarker = builder.mark()
-
-          //  builder.advanceLexer
-
             ClassDef.parse(builder)
-
-//            classStmtMarker.done(ScalaElementTypes.CLASS_STMT)
           }
 
           case ScalaTokenTypes.kOBJECT => {
-              val objectStmtMarker = builder.mark()
-          //    builder.advanceLexer
-
-              ObjectDef.parse( builder )
-
-              objectStmtMarker.done(ScalaElementTypes.OBJECT_STMT)
+              ObjectDef.parse(builder)
           }
         }
     }
-
-//    val tmplDefMarker = builder.mark()
 
     Console.println("token type : " + builder.getTokenType())
     builder.getTokenType() match {

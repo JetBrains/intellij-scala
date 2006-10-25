@@ -34,14 +34,24 @@ object BNF {
     )
   )
 
+  //fix problem with implicit
   val tMODIFIERS: TokenSet = TokenSet.create(
     Array(
         ScalaTokenTypes.kABSTRACT ,
         ScalaTokenTypes.kFINAL    ,
+        ScalaTokenTypes.kIMPLICIT,
         ScalaTokenTypes.kOVERRIDE ,
         ScalaTokenTypes.kPRIVATE  ,
         ScalaTokenTypes.kPROTECTED,
         ScalaTokenTypes.kSEALED
+    )
+  )
+
+  val tTMPLDEF: TokenSet = TokenSet.create(
+    Array(
+        ScalaTokenTypes.kCLASS,
+        ScalaTokenTypes.kOBJECT,
+        ScalaTokenTypes.kTRAIT
     )
   )
 
