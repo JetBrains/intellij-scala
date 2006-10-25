@@ -312,7 +312,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 <IN_LINE_COMMENT_STATE>{
 
 {LineTerminator}                        {   yybegin(YYINITIAL);
-                                            return process(tCOMMENT);
+                                            return process(tLINE_TERMINATOR);
                                         }
 
 .                                       {   return process(tCOMMENT); }
