@@ -32,6 +32,19 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
   def parse(builder : PsiBuilder) : ScalaElementType = {
     val compMarker = builder.mark()
 
+    /* Error processing */
+    def errorDoneMain(rollbackMarker: PsiBuilder.Marker) = {
+      def errorDone (msg: String): ScalaElementType = {
+        rollbackMarker.drop()
+        builder.error(msg)
+        compMarker.done(ScalaElementTypes.EXPR1)
+        ScalaElementTypes.EXPR1
+      }
+      (msg:String) => errorDone(msg)
+    }
+
+
+
     /***********************/
     /**** Various cases ****/
     /***********************/
@@ -133,13 +146,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       val rollbackMarker = builder.mark() // marker to rollback
 
       /* for mistakes processing */
-      def errorDone(msg: String): ScalaElementType = {
-        rollbackMarker.drop()
-        builder.error(msg)
-        compMarker.done(ScalaElementTypes.EXPR1)
-        ScalaElementTypes.EXPR1
-      }
-
+      def errorDone = errorDoneMain(rollbackMarker)
       def elseProcessing: ScalaElementType = {
         if (builder.getTokenType.eq(ScalaTokenTypes.tSEMICOLON)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tSEMICOLON)
@@ -197,13 +204,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       val rollbackMarker = builder.mark() // marker to rollback
 
       /* for mistakes processing */
-      def errorDone(msg: String): ScalaElementType = {
-        rollbackMarker.drop()
-        builder.error(msg)
-        compMarker.done(ScalaElementTypes.EXPR1)
-        ScalaElementTypes.EXPR1
-      }
-
+      def errorDone = errorDoneMain(rollbackMarker)
       if (builder.getTokenType.eq(ScalaTokenTypes.kWHILE)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kWHILE)
         ParserUtils.rollForward(builder)
@@ -233,6 +234,43 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       }
     }
 
+    /** case (throw) **/
+    def throwCase: ScalaElementType = {
+      val rollbackMarker = builder.mark() // marker to rollback
+
+      /* for mistakes processing */
+      def errorDone = errorDoneMain(rollbackMarker)
+      if (builder.getTokenType.eq(ScalaTokenTypes.kTHROW)){
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kTHROW)
+        ParserUtils.rollForward(builder)
+        val res = Expr parse(builder)
+        if (res.eq(ScalaElementTypes.EXPR)){
+          rollbackMarker.drop()
+          compMarker.done(ScalaElementTypes.EXPR1)
+          ScalaElementTypes.EXPR1
+        } else errorDone("Wrong expression")
+      } else {
+        rollbackMarker.rollbackTo()
+        ScalaElementTypes.WRONGWAY
+      }
+    }
+
+    /** case (return) **/
+    def returnCase: ScalaElementType = {
+      val rollbackMarker = builder.mark() // marker to rollback
+      /* for mistakes processing */
+      def errorDone = errorDoneMain(rollbackMarker)
+      if (builder.getTokenType.eq(ScalaTokenTypes.kRETURN)){
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kRETURN)
+        ParserUtils.rollForward(builder)
+        val res = Expr parse(builder)
+        ScalaElementTypes.EXPR1
+      } else {
+        rollbackMarker.rollbackTo()
+        ScalaElementTypes.WRONGWAY
+      }
+    }
+
     var result = ScalaElementTypes.WRONGWAY
 
     /* Various variants of parsing */
@@ -242,8 +280,13 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
     }
 
     /* Parsing function body */
+
+    /* case (throw) */
+    if (variants(throwCase)) result
+    /* case (return) */
+    else if (variants(returnCase)) result
     /* case (if) */
-    if (variants(ifCase)) result
+    else if (variants(ifCase)) result
     /* case (while) */
     else if (variants(whileCase)) result
     /* cases (b1), (b2) */
