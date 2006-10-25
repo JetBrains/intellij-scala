@@ -90,6 +90,24 @@ Expr1 ::= if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]
         }
       }
 
+      def processSimpleExpr: ScalaElementType = {
+        ParserUtils.rollForward(builder)
+        var res = SimpleExpr.parse(builder)
+        if (res.parsed.eq(ScalaElementTypes.SIMPLE_EXPR) &&
+            ( res.endness.eq("argexprs") || res.endness.eq(".id") ) ) {
+          ParserUtils.rollForward(builder)
+          if (builder.getTokenType.eq(ScalaTokenTypes.tASSIGN)) {
+          assignProcess
+          } else {
+            rollbackMarker.rollbackTo()
+            ScalaElementTypes.WRONGWAY
+          }
+        } else {
+          rollbackMarker.rollbackTo()
+          ScalaElementTypes.WRONGWAY
+        }
+      }
+
       if (builder.getTokenType.eq(ScalaTokenTypes.tIDENTIFIER)) {
         ParserUtils.eatElement(builder , ScalaTokenTypes.tIDENTIFIER)
         if (builder.getTokenType.eq(ScalaTokenTypes.tASSIGN)) {
@@ -98,22 +116,11 @@ Expr1 ::= if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]
         } else {
           rollbackMarker.rollbackTo()
           rollbackMarker = builder.mark()
-          ParserUtils.rollForward(builder)
-          var res = SimpleExpr.parse(builder)
-          if (res.parsed.eq(ScalaElementTypes.SIMPLE_EXPR) &&
-              ( res.endness.eq("argexprs") || res.endness.eq(".id") ) ) {
-            ParserUtils.rollForward(builder)
-            if (builder.getTokenType.eq(ScalaTokenTypes.tASSIGN)) {
-            assignProcess
-            } else {
-              rollbackMarker.rollbackTo()
-              ScalaElementTypes.WRONGWAY
-            }
-          } else {
-            rollbackMarker.rollbackTo()
-            ScalaElementTypes.WRONGWAY
-          }
+          processSimpleExpr
         }
+      } else if (builder.getTokenType.eq(ScalaTokenTypes.kTHIS) ||
+                 builder.getTokenType.eq(ScalaTokenTypes.kSUPER)){
+        processSimpleExpr
       } else {
         rollbackMarker.rollbackTo()
         ScalaElementTypes.WRONGWAY
