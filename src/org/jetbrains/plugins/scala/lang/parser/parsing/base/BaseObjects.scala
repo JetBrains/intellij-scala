@@ -23,26 +23,22 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 
 object StatementSeparator extends Constr{
   override def parse(builder: PsiBuilder): Unit = {
+    var statementSeparatorMarker = builder.mark()
 
     Console.println("token type : " + builder.getTokenType())
      builder.getTokenType() match {
       case ScalaTokenTypes.tSEMICOLON => {
-        val semicolonMarker = builder.mark()
-        builder.advanceLexer
-
-        semicolonMarker.done(ScalaTokenTypes.tSEMICOLON)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tSEMICOLON)
       }
 
       case ScalaTokenTypes.tLINE_TERMINATOR => {
-        val lineTerminatorMarker = builder.mark()
-        builder.advanceLexer
-
-        lineTerminatorMarker.done(ScalaTokenTypes.tLINE_TERMINATOR)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
       }
 
       case _ => { builder.error("wrong statement separator")}
     }
 
+   statementSeparatorMarker.done(ScalaElementTypes.STATEMENT_SEPARATOR)
   }
 }
 
@@ -52,6 +48,7 @@ object StatementSeparator extends Constr{
 
 object AttributeClause extends Constr{
   override def parse(builder: PsiBuilder): Unit = {
+    val attributeClauseMarker = builder.mark()
 
     Console.println("token type : " + builder.getTokenType())
         builder.getTokenType() match {
@@ -103,6 +100,7 @@ object AttributeClause extends Constr{
       case _ => { builder.error("wrong statement separator")}
     }
 
+     attributeClauseMarker.done(ScalaElementTypes.ATTRIBUTE_CLAUSE)
   }
 
 }
@@ -123,6 +121,8 @@ object Attribute extends Constr{
 
 object Construction extends Constr{
   override def parse(builder: PsiBuilder): Unit = {
+    val constrMarker = builder.mark()
+
     Console.println("token type : " + builder.getTokenType())
     builder.getTokenType() match {
       case ScalaTokenTypes.tIDENTIFIER => {
@@ -165,6 +165,7 @@ object Construction extends Constr{
 
       case _ => {builder.error("expected identifier")}
     }
+    constrMarker.done(ScalaElementTypes.CONSTRUCTION)
   }
 
 /*
@@ -274,8 +275,10 @@ object Construction extends Constr{
     | protected [ "[" id "]" ]
 */
 
-  object Modifier extends Constr{
+  object Modifier extends Constr { 
     override def parse(builder: PsiBuilder): Unit = {
+      val modifierMarker = builder.mark()
+
       Console.println("token type : " + builder.getTokenType())
       builder.getTokenType() match {
          case ScalaTokenTypes.kABSTRACT
@@ -302,6 +305,8 @@ object Construction extends Constr{
            accessModifierMarker.done(ScalaElementTypes.MODIFIER_ACCESS)
         }
       }
+
+      modifierMarker.done(ScalaElementTypes.MODIFIER)
     }
   }
 
@@ -353,6 +358,7 @@ object Construction extends Constr{
 
   object Import extends Constr {
     override def parse(builder: PsiBuilder): Unit = {
+      val importMarker = builder.mark()
 
       builder.getTokenType() match {
         case ScalaTokenTypes.kIMPORT => {
@@ -378,6 +384,8 @@ object Construction extends Constr{
 
         case _ => { builder.error("expected 'import'") }
       }
+
+      importMarker.done(ScalaElementTypes.IMPORT)
     }
 
 
