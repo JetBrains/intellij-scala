@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.Package
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableIdInImport
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Exprs

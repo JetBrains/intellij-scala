@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.parser.util
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.Top
 import org.jetbrains.plugins.scala.lang.parser.parsing.Constr
 import com.intellij.psi.tree.IElementType
 

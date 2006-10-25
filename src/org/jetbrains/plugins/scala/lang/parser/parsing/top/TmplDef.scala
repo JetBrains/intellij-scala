@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Construction
+import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.IChameleonElementType
 /**
@@ -541,20 +542,22 @@ object TmplDef extends Constr{
       override def parse(builder : PsiBuilder) : Unit = {
         val classParamMarker = builder.mark()
 
-        builder.getTokenType() match {
-          case ScalaTokenTypes.kABSTRACT => { ParserUtils.eatElement(builder, ScalaTokenTypes.kABSTRACT) }
-          case ScalaTokenTypes.kFINAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kFINAL) }
-          case ScalaTokenTypes.kOVERRIDE => { ParserUtils.eatElement(builder, ScalaTokenTypes.kOVERRIDE) }
-          case ScalaTokenTypes.kPRIVATE => { ParserUtils.eatElement(builder, ScalaTokenTypes.kPRIVATE) }
-          case ScalaTokenTypes.kPROTECTED => { ParserUtils.eatElement(builder, ScalaTokenTypes.kPROTECTED) }
-          case ScalaTokenTypes.kSEALED => { ParserUtils.eatElement(builder, ScalaTokenTypes.kSEALED) }
-          case _ => {}
-        }
+        if (BNF.tMODIFIERS.contains(builder.getTokenType)) {
+          builder.getTokenType() match {
+            case ScalaTokenTypes.kABSTRACT => { ParserUtils.eatElement(builder, ScalaTokenTypes.kABSTRACT) }
+            case ScalaTokenTypes.kFINAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kFINAL) }
+            case ScalaTokenTypes.kOVERRIDE => { ParserUtils.eatElement(builder, ScalaTokenTypes.kOVERRIDE) }
+            case ScalaTokenTypes.kPRIVATE => { ParserUtils.eatElement(builder, ScalaTokenTypes.kPRIVATE) }
+            case ScalaTokenTypes.kPROTECTED => { ParserUtils.eatElement(builder, ScalaTokenTypes.kPROTECTED) }
+            case ScalaTokenTypes.kSEALED => { ParserUtils.eatElement(builder, ScalaTokenTypes.kSEALED) }
+          }
 
-        builder.getTokenType() match {
-          case ScalaTokenTypes.kVAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL) }
-          case ScalaTokenTypes.kVAR => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAR) }
-          case _ => { builder.error("expected 'val' or 'var'") }
+          builder.getTokenType() match {
+            case ScalaTokenTypes.kVAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL) }
+            case ScalaTokenTypes.kVAR => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAR) }
+            case _ => { builder.error("expected 'val' or 'var'") }
+          }
+
         }
 
         if (builder.getTokenType().equals(ScalaTokenTypes.tIDENTIFIER)) {

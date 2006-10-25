@@ -8,27 +8,30 @@ import com.intellij.lang.ASTNode
  * Date: 06.10.2006
  * Time: 19:13:02
  */
-
-  trait ClassBaseDeclaration extends TypeDeclaration
-
-  case class ScObject( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "'object'"
-  }
-
-  case class ScTrait ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "'trait'"
-  }
-
-  case class ScClass( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "'class'"
-  }
-
   case class ScPackage ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "'package'"
   }
 
-  class ScImport( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "'import'"
+  case class ScPackaging ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "Packaging"
+
+    def getPackageBlock : ScTopStatSeq = {
+      return new ScTopStatSeq( node )
+    }
   }
 
+  case class ScQualId ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    //todo
+    override def toString: String = "Qualified identifier: " + getText
+  }
+
+  case class ScTopStat ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    //todo
+    override def toString: String = "Top statement"
+  }
+
+  case class ScTopStatSeq ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    //todo
+    override def toString: String = "Top statement sequence"
+  }
 }

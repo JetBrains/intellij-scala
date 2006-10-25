@@ -28,9 +28,9 @@ object ScalaPsiCreator {
        case ScalaTokenTypes.tCHAR => new ScCharacterImpl(node)
 
        case ScalaElementTypes.STRING_LITERAL => new ScStringImpl(node)
-         case ScalaTokenTypes.tSTRING_BEGIN => new ScStringBeginImpl(node)
-         case ScalaTokenTypes.tSTRING => new ScStringContentImpl(node)
-         case ScalaTokenTypes.tSTRING_END => new ScStringEndImpl(node)
+       case ScalaTokenTypes.tSTRING_BEGIN => new ScStringBeginImpl(node)
+       case ScalaTokenTypes.tSTRING => new ScStringContentImpl(node)
+       case ScalaTokenTypes.tSTRING_END => new ScStringEndImpl(node)
 
        case ScalaTokenTypes.kNULL => new ScNullImpl(node)
 
@@ -74,11 +74,23 @@ object ScalaPsiCreator {
 
     /********************** TOP ************************/
 
+     case ScalaElementTypes.PACKAGING => new ScPackaging( node )
+     case ScalaElementTypes.QUAL_ID => new ScQualId( node )
+
+     case ScalaElementTypes.TOP_STAT_SEQ => new ScTopStatSeq( node )
+     case ScalaElementTypes.TOP_STAT => new ScTopStat( node )
+
+     /********************* IMPORT **********************/
+     case ScalaTokenTypes.kIMPORT => new ScImport( node )
+     case ScalaElementTypes.IMPORT_STMT => new ScImportStmt( node )
+     case ScalaElementTypes.IMPORT_EXPR => new ScImportExpr( node )
+     case ScalaElementTypes.IMPORT_EXPRS => new ScImportExprs( node )
+
+
      case ScalaTokenTypes.kPACKAGE => new ScPackage( node )
      case ScalaTokenTypes.kCLASS => new ScClass( node )
      case ScalaTokenTypes.kOBJECT => new ScObject( node )
      case ScalaTokenTypes.kTRAIT => new ScTrait( node )
-     case ScalaTokenTypes.kIMPORT => new ScImport( node )
 
      case _ => new ScalaPsiElementImpl( node )
 

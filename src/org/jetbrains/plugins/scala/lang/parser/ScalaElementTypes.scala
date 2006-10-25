@@ -79,7 +79,6 @@ object ScalaElementTypes {
   val IMPORT_EXPR = new ScalaElementType("import expression")
   val IMPORT_EXPRS = new ScalaElementType("import expressions")
   val IMPORT_STMT = new ScalaElementType("import statement")
-  val IMPORT_LIST = new ScalaElementType("import list")
   val IMPORT = new ScalaElementType("import")
   val STABLE_ID_LIST = new ScalaElementType("stable id list")
   val UNDER = new ScalaElementType("underline")
@@ -87,6 +86,8 @@ object ScalaElementTypes {
   /*************************************************************************************/
   /************************************** TYPE DECLARATION *****************************/
   /*************************************************************************************/
+  val PACKAGING = new ScalaElementType("packaging")
+
   val TMPL_DEF = new ScalaElementType("tmpl definition")
 
   val OBJECT = new ScalaElementType("object")
