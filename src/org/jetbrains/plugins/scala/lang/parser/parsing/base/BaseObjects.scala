@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.lang.PsiBuilder
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Package
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
@@ -351,23 +352,25 @@ object Construction extends Constr{
     }
   }
 
-  object Import extends Constr{
+  object Import extends Constr {
     override def parse(builder: PsiBuilder): Unit = {
+
       builder.getTokenType() match {
         case ScalaTokenTypes.kIMPORT => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kIMPORT)
 
           builder.getTokenType() match {
             case ScalaTokenTypes.tIDENTIFIER => {
-              val importExprMarker = builder.mark()
-              ImportExpr.parse(builder)
-              importExprMarker.done(ScalaElementTypes.IMPORT_EXPR)
+              val importExprsMarker = builder.mark()
 
+              ImportExpr.parse(builder)
               while (builder.getTokenType().equals(ScalaTokenTypes.tCOMMA)){
-                val importExprMarker = builder.mark()
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+                Console.println("comma in importExpr")
                 ImportExpr.parse(builder)
-                importExprMarker.done(ScalaElementTypes.IMPORT_EXPR)
               }
+
+              importExprsMarker.done(ScalaElementTypes.IMPORT_EXPRS)
             }
             case _ => { builder.error("expected identifier") }
 
@@ -377,10 +380,12 @@ object Construction extends Constr{
         case _ => { builder.error("expected 'import'") }
       }
     }
-  }
 
-  object ImportExpr extends Constr{
+
+  object ImportExpr extends Constr {
     override def parse(builder: PsiBuilder): Unit = {
+      val importExprMarker = builder.mark()
+
       builder.getTokenType() match {
         case ScalaTokenTypes.tIDENTIFIER => {
           val stableIdMarker = builder.mark()
@@ -391,22 +396,28 @@ object Construction extends Constr{
 
           Console.println("expect '.' " + builder.getTokenType())
 
-          if (builder.getTokenType().equals(ScalaTokenTypes.tDOT)){
+          if (builder.getTokenType().equals(ScalaTokenTypes.tDOT)) {
+            Console.println("ate dot " + builder.getTokenType)
             ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
 
+            Console.println("after dot " + builder.getTokenType)
             builder.getTokenType() match {
               case ScalaTokenTypes.tIDENTIFIER => {
+                Console.println("identifier " + builder.getTokenText())
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
               }
 
               case ScalaTokenTypes.tUNDER => {
+              Console.println("under " + builder.getTokenText())
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
               }
 
               case ScalaTokenTypes.tLBRACE => {
-                var importSelectorsMarker = builder.mark()
+                Console.println("import selectors handle")
+
                 ImportSelectors.parse(builder)
-                importSelectorsMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
+
+                Console.println("import selectors handled")
               }
 
               case _ => { builder.error("expected '.'") }
@@ -419,78 +430,87 @@ object Construction extends Constr{
 
         case _ => { builder.error("expected identifier") }
       }
+
+      importExprMarker.done(ScalaElementTypes.IMPORT_EXPR)
     }
   }
 
   object ImportSelectors extends Constr{
     override def parse(builder: PsiBuilder): Unit = {
+
+     def checkForImportSelectors (first : IElementType, second : IElementType, third : IElementType, fourth : IElementType) : Boolean = {
+      if (!first.equals(ScalaTokenTypes.tIDENTIFIER))
+        return false
+
+      if (second.equals(ScalaTokenTypes.tCOMMA))
+        return true
+
+       if (second.equals(ScalaTokenTypes.tFUNTYPE))
+         if (third.equals(ScalaTokenTypes.tIDENTIFIER) || third.equals(ScalaTokenTypes.tUNDER))
+           if (fourth.equals(ScalaTokenTypes.tCOMMA))
+             return true
+
+       return false
+    }
+
+      var importSelectorsMarker = builder.mark()
+
       builder.getTokenType() match {
         case ScalaTokenTypes.tLBRACE => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
 
-          var endImportSelectors = false
-          while(builder.getTokenType().equals(ScalaTokenTypes.tIDENTIFIER) && !endImportSelectors) {
+          val chooseImportSelectorsWay = builder.mark()
+          val first =  builder.getTokenType; builder.advanceLexer
+          val second = builder.getTokenType; builder.advanceLexer
+          val third = builder.getTokenType; builder.advanceLexer
+          val fourth = builder.getTokenType; builder.advanceLexer
 
-            val importSelectorMarker = builder.mark()
-            ImportSelector.parse(builder)
-            importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTOR)
+          chooseImportSelectorsWay.rollbackTo()
+          val importSelectorsMarker = builder.mark()
+          var isImportSelectors : Boolean = false
 
-            builder.getTokenType() match {
-              case ScalaTokenTypes.tCOMMA => {
+          while (checkForImportSelectors(first, second, third, fourth)) {
+            isImportSelectors = true
+
+            if (isImportSelectors) {
+              ImportSelector.parse(builder)
+
+              if (builder.getTokenType().equals(ScalaTokenTypes.tCOMMA)) {
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
-
-                val preMarker = builder.mark()
-
-                //check for (ImportSelector | '_')
-                builder.getTokenType() match {
-                  case ScalaTokenTypes.tIDENTIFIER => {
-                    //todo: optimize
-                    val importSelectorMarker = builder.mark()
-                    ImportSelector.parse(builder)
-                    importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTOR)
-
-                    builder.getTokenType() match {
-                      case ScalaTokenTypes.tRBRACE => {
-                        endImportSelectors = true
-                      }
-
-                      case ScalaTokenTypes.tCOMMA => {
-                        preMarker.rollbackTo()
-                        endImportSelectors = true
-
-                        builder.error("expected '}'")
-                      }
-
-                      case _ => {
-                        builder.error("expected '}' or ','")
-                      }
-                    }
-                  }
-
-                  case ScalaTokenTypes.tUNDER => {
-                    ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
-                  }
-
-                }
-
-              }
-
-              case _ => { builder.error("expected ','")}
+              } else builder.error("expected ','")
             }
           }
 
-          if ( !builder.getTokenType().equals(ScalaTokenTypes.tRBRACE) ){
-            builder.error("expected '}'")
-          } else {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+          if (isImportSelectors) importSelectorsMarker.done(ScalaElementTypes.IMPORT_SELECTOR_LIST)
+          else importSelectorsMarker.drop()
+
+          builder.getTokenType() match {
+            case ScalaTokenTypes.tIDENTIFIER => {
+              ImportSelector.parse(builder)
+            }
+
+            case ScalaTokenTypes.tUNDER => {
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
+            }
+
+            case _ => { builder.error("expected identifier or '_'")}
           }
+
+          if ( !builder.getTokenType().equals(ScalaTokenTypes.tRBRACE) )
+            builder.error("expected '}'")
         }
+
+        case _ => { builder.error("expected '{'")}
       }
+
+      importSelectorsMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
     }
   }
 
   object ImportSelector extends Constr{
     override def parse(builder: PsiBuilder): Unit = {
+      val importSelectorMarker = builder.mark()
+
       builder.getTokenType() match {
         case ScalaTokenTypes.tIDENTIFIER => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
@@ -520,7 +540,10 @@ object Construction extends Constr{
 
         case _ => { builder.error("expected identifier") }
       }
+
+      importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTOR)
     }
+  }
  }
 
 }
