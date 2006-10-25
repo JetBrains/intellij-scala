@@ -68,6 +68,8 @@ object ScalaPsiCreator {
     case ScalaElementTypes.POSTFIX_EXPR => new ScPostfixExprImpl(node)
     case ScalaElementTypes.EXPR1 => new ScCompositeExprImpl(node)
     case ScalaElementTypes.EXPR => new ScExprImpl(node)
+    case ScalaElementTypes.EXPRS => new ScExprsImpl(node)
+    case ScalaElementTypes.ARG_EXPRS => new ScArgumentExprsImpl(node)
 
     /********************** TOP ************************/
 

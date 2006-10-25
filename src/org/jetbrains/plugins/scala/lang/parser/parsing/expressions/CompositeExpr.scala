@@ -32,7 +32,11 @@ Expr1 ::= if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]
   def parse(builder : PsiBuilder) : ScalaElementType = {
       val compMarker = builder.mark()
 
+      /***********************/
       /**** Various cases ****/
+      /***********************/
+
+      /****** case (a) *******/
       def aCase: ScalaElementType = {
         val rollbackMarker = builder.mark() // marker to rollback
         var result = PostfixExpr.parse(builder)
@@ -66,8 +70,10 @@ Expr1 ::= if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]
         }
       }
 
+
+
       /* Parsing function body */
-      /* Case (a) */
+      /* case (a) */
       var result = aCase
       if (result.equals(ScalaElementTypes.EXPR1)) result
       else {

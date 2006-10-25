@@ -574,7 +574,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           result = ScalaElementTypes.WRONGWAY
         }
       } else {
-        builder.error ("{ expected")
+        builder.error ("[ expected")
         result = ScalaElementTypes.WRONGWAY
       }
       if (result.equals(ScalaElementTypes.TYPEARGS)) typeArgsMarker.done(ScalaElementTypes.TYPEARGS)
