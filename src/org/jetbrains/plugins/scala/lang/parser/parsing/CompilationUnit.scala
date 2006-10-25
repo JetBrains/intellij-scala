@@ -53,14 +53,15 @@ object CompilationUnit extends Constr{
           QualId.parse(builder)
         }
 
-        packChooseMarker.rollbackTo()
+        //
 
-        Console.println("terinator or semicolon " + builder.getTokenType)
+        Console.println("terminator or semicolon " + builder.getTokenType)
         builder.getTokenType match {
           case ScalaTokenTypes.tLINE_TERMINATOR
              | ScalaTokenTypes.tSEMICOLON
              => {
             Console.println("package parse")
+            packChooseMarker.rollbackTo()
             Package.parse(builder)
 
             builder.getTokenType match {
@@ -77,7 +78,7 @@ object CompilationUnit extends Constr{
 
           }
 
-          case _ => {}
+          case _ => { packChooseMarker.rollbackTo() }
         }
         //Console.println("top level package handled")
       }
@@ -191,7 +192,8 @@ object CompilationUnit extends Constr{
         case ScalaTokenTypes.kPACKAGE => {
            //todo: packaging
            Console.println("packaging handle")
-           ParserUtils.eatConstr(builder, Packaging, ScalaElementTypes.PACKAGE_STMT)
+           //ParserUtils.eatConstr(builder, Packaging, ScalaElementTypes.PACKAGE_STMT)
+           Packaging.parse(builder)
            //ParserUtils.rollForward(builder)
            Console.println("packaging handled")
         }
@@ -239,6 +241,8 @@ object CompilationUnit extends Constr{
 
     object Packaging extends Constr {
       override def parse(builder: PsiBuilder) : Unit = {
+      val packagingMarker = builder.mark()
+
         builder.getTokenType() match {
           case ScalaTokenTypes.kPACKAGE => {
             ParserUtils.eatElement(builder, ScalaTokenTypes.kPACKAGE)
@@ -260,6 +264,8 @@ object CompilationUnit extends Constr{
 
           case _ => { builder.error("expected 'package") }
         }
+
+        packagingMarker.done(ScalaElementTypes.PACKAGING)
       }
     }
 

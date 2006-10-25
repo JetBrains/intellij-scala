@@ -34,4 +34,15 @@ object BNF {
     )
   )
 
+  val tMODIFIERS: TokenSet = TokenSet.create(
+    Array(
+        ScalaTokenTypes.kABSTRACT ,
+        ScalaTokenTypes.kFINAL    ,
+        ScalaTokenTypes.kOVERRIDE ,
+        ScalaTokenTypes.kPRIVATE  ,
+        ScalaTokenTypes.kPROTECTED,
+        ScalaTokenTypes.kSEALED
+    )
+  )
+
 }
