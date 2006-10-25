@@ -48,15 +48,18 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         val exprsMarker = builder.mark()
 
         def subParse: ScalaElementType = {
+          ParserUtils.rollForward(builder)
           builder getTokenType match {
             case ScalaTokenTypes.tCOMMA => {
               ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
+              ParserUtils.rollForward(builder)
               val res1 = Expr.parse(builder)
               if (res1.equals(ScalaElementTypes.EXPR)) {
                 subParse
               } else {
-                exprsMarker.rollbackTo()
-                ScalaElementTypes.WRONGWAY
+                builder.error("Argument expected")
+                exprsMarker.done(ScalaElementTypes.EXPRS)
+                ScalaElementTypes.EXPRS
               }
             }
             case _ => {
@@ -72,8 +75,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
           subParse
         }
         else {
-          exprsMarker.rollbackTo()
-          ScalaElementTypes.WRONGWAY
+          builder.error("Argument expected")
+          exprsMarker.done(ScalaElementTypes.EXPRS)
+          ScalaElementTypes.EXPRS
+        //  exprsMarker.rollbackTo()
+        //  ScalaElementTypes.WRONGWAY
         }
       }
   }

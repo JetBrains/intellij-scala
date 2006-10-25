@@ -11,18 +11,26 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
+/*
+* Simple expression result
+* Structure, that defines, what result Simple Expression parsing returned
+* an it's endness ('.' id or ArgumentList)
+* It is very useful for Composite Expression parsing
+*/
+class SimpleExprResult(val parsed: ScalaElementType, val endness: String)
+
 
 /*
 SIMPLE EXPRESSION
 Default grammar:
-SimpleExpr ::= Literal
-              | Path
-              | ‘(’ [Expr] ‘)’
+SimpleExpr ::= Literal                     (d)
+              | Path                       (e) 
+              | ‘(’ [Expr] ‘)’               (f)
               | BlockExpr
               | new Template
-              | SimpleExpr ‘.’ id
-              | SimpleExpr TypeArgs
-              | SimpleExpr ArgumentExprs
+              | SimpleExpr ‘.’ id           (a)
+              | SimpleExpr TypeArgs        (b)
+              | SimpleExpr ArgumentExprs   (c)
               | XmlExpr
 
 *******************************************
@@ -46,35 +54,80 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
 
   val SIMPLE_FIRST = TokenSet.orSet(Array(BNF.tSIMPLE_FIRST, BNF.tLITERALS ))
 
-    def parse(builder : PsiBuilder) : ScalaElementType = {
+    def parse(builder : PsiBuilder) : SimpleExprResult = {
 
-      def subParse: ScalaElementType = {
-        builder.getTokenType match {
-          case ScalaTokenTypes.tDOT => {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
-            builder.getTokenType match {
-              case ScalaTokenTypes.tIDENTIFIER => {
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-                subParse
-              }
-              case _ => {
-                builder.error("Identifier expected")
-                ScalaElementTypes.WRONGWAY
-              }
+      def closeParent: SimpleExprResult = {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+          new SimpleExprResult(ScalaElementTypes.SIMPLE_EXPR, "plain")
+      }
+
+      def subParse(stringRes: String): SimpleExprResult = {
+        /* case (a) */
+        if (builder.getTokenType.eq(ScalaTokenTypes.tDOT))  {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
+          builder.getTokenType match {
+            case ScalaTokenTypes.tIDENTIFIER => {
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+              subParse(".id")
+            }
+            case _ => {
+              builder.error("Identifier expected")
+              new SimpleExprResult(ScalaElementTypes.WRONGWAY, "wrong")
             }
           }
-          case _ => ScalaElementTypes.SIMPLE_EXPR
-        }
+        /* case (b) */
+        } else if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS) ||
+                   builder.getTokenType.eq(ScalaTokenTypes.tLBRACE)) {
+          var res = ArgumentExprs.parse(builder)
+          if (res.eq(ScalaElementTypes.ARG_EXPRS)) subParse ("argexprs")
+          else {
+            builder.error("Arguments expected")
+            new SimpleExprResult(ScalaElementTypes.WRONGWAY, "wrong")
+          }
+        /* case (c) */ 
+        } else if (builder.getTokenType.eq(ScalaTokenTypes.tLSQBRACKET)) {
+          var res = TypeArgs.parse(builder)
+          if (res.eq(ScalaElementTypes.TYPEARGS)) subParse("typeargs")
+          else {
+            builder.error("Type argument expected")
+            new SimpleExprResult(ScalaElementTypes.WRONGWAY, "wrong")
+          }
+        } else new SimpleExprResult(ScalaElementTypes.SIMPLE_EXPR, stringRes)
       }
 
       var flag = false
-      var result = Literal.parse(builder)  // Literal ?
-      if (!result.equals(ScalaElementTypes.WRONGWAY)) flag = true // Yes, it is!
-        else result = StableId.parse(builder) // Path ?
-      if (!flag && (result.equals(ScalaElementTypes.PATH) || result.equals(ScalaElementTypes.STABLE_ID))) flag = true
-      // ... other cases
-      if (flag) subParse
-        else ScalaElementTypes.WRONGWAY
+
+      /* case (f) */
+      if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)) {
+        ParserUtils.eatElement(builder,ScalaTokenTypes.tLPARENTHIS)
+        ParserUtils.rollForward(builder)
+        if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)) {
+          closeParent
+          flag = true
+        } else {
+          var res = Expr.parse(builder)
+          if (res.eq(ScalaElementTypes.EXPR)) {
+            ParserUtils.rollForward(builder)
+            if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)) {
+              closeParent
+              flag = true
+            } else {
+              builder.error(" ) expected")
+              flag = false
+            }
+          } else flag = false
+        }
+      } else {
+        /* case (d) */
+        var result = Literal.parse(builder)  // Literal ?
+        if (!result.eq(ScalaElementTypes.WRONGWAY)) flag = true // Yes, it is!
+        /* case (e) */
+          else result = StableId.parse(builder) // Path ?
+        if (!flag && (result.equals(ScalaElementTypes.PATH) || result.equals(ScalaElementTypes.STABLE_ID))) flag = true
+        // ... other cases
+      }
+      if (flag) subParse("plain")
+        else new SimpleExprResult(ScalaElementTypes.WRONGWAY , "wrong")
     }
 
 
@@ -114,13 +167,13 @@ FIRST(PrefixExpression) = ScalaTokenTypes.tPLUS
              | ScalaTokenTypes.tNOT => {
                ParserUtils.eatElement(builder, ScalaElementTypes.PREFIX)
                if (SimpleExpr.SIMPLE_FIRST.contains(builder.getTokenType)) {
-                 result = SimpleExpr  parse(builder)
+                 result = (SimpleExpr  parse(builder)).parsed
                } else {
                 builder.error("Wrong prefix expression!")
                 result = ScalaElementTypes.WRONGWAY
                }
              }
-        case _ => result = SimpleExpr parse(builder)
+        case _ => result = (SimpleExpr parse(builder)).parsed
       }
       marker.done(ScalaElementTypes.PREFIX_EXPR)
       if (result.equals(ScalaElementTypes.SIMPLE_EXPR)) ScalaElementTypes.PREFIX_EXPR
