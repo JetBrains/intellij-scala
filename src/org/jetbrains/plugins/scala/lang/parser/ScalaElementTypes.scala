@@ -101,6 +101,7 @@ object ScalaElementTypes {
   val TRAIT_DEF = new ScalaElementType("trait definition")
 
   val CASE = new ScalaElementType("case")
+  val CONSTRUCTION = new ScalaElementType("construction")
 
   /*************************************************************************************/
   /************************************** LITERALS *************************************/
