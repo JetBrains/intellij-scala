@@ -163,8 +163,8 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
         if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
           ParserUtils.rollForward(builder)
-          val res = CompositeExpr parse(builder)
-          if (res.eq(ScalaElementTypes.EXPR1)){
+          val res = Expr parse(builder)
+          if (res.eq(ScalaElementTypes.EXPR)){
             ParserUtils.rollForward(builder)
             if (builder.getTokenType.eq (ScalaTokenTypes.tRPARENTHIS)){
               ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
@@ -191,18 +191,61 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       }
     }
 
+
+    /** case (while) **/
+    def whileCase: ScalaElementType = {
+      val rollbackMarker = builder.mark() // marker to rollback
+
+      /* for mistakes processing */
+      def errorDone(msg: String): ScalaElementType = {
+        rollbackMarker.drop()
+        builder.error(msg)
+        compMarker.done(ScalaElementTypes.EXPR1)
+        ScalaElementTypes.EXPR1
+      }
+
+      if (builder.getTokenType.eq(ScalaTokenTypes.kWHILE)){
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kWHILE)
+        ParserUtils.rollForward(builder)
+        if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+          ParserUtils.rollForward(builder)
+          val res = Expr parse(builder)
+          if (res.eq(ScalaElementTypes.EXPR)){
+            ParserUtils.rollForward(builder)
+            if (builder.getTokenType.eq (ScalaTokenTypes.tRPARENTHIS)){
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+              ParserUtils.rollForward(builder)
+              val res1 = Expr.parse(builder)
+              if (res1.eq(ScalaElementTypes.EXPR)){
+                ParserUtils.rollForward(builder)
+                rollbackMarker.drop()
+                compMarker.done(ScalaElementTypes.EXPR1)
+                ScalaElementTypes.EXPR1
+              } else errorDone("Wrong expression")
+            } else errorDone(" ) expected")
+          } else errorDone("Wrong expression")
+        } else errorDone("( expected")
+
+      } else {
+        rollbackMarker.rollbackTo()
+        ScalaElementTypes.WRONGWAY
+      }
+    }
+
     var result = ScalaElementTypes.WRONGWAY
+
     /* Various variants of parsing */
     def variants(variantProcessing: => ScalaElementType) : Boolean = {
       result = variantProcessing
       result.equals(ScalaElementTypes.EXPR1)
     }
 
-
-
     /* Parsing function body */
     /* case (if) */
     if (variants(ifCase)) result
+    /* case (while) */
+    else if (variants(whileCase)) result
     /* cases (b1), (b2) */
     else if (variants(bCase)) result
     /* case (a) */
