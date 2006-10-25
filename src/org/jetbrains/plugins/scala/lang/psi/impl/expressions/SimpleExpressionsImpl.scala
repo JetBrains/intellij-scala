@@ -25,4 +25,17 @@ import org.jetbrains.plugins.scala.lang.psi._
       override def toString: String = "Operator: assign"
   }
 
+  case class ScIfImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Keyword: if"
+  }
+
+  case class ScElseImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Keyword: else"
+  }
+
+  case class ScWhileImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Keyword: while"
+  }
+
+
 }
