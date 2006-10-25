@@ -264,6 +264,8 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
         ParserUtils.eatElement(builder, ScalaTokenTypes.kRETURN)
         ParserUtils.rollForward(builder)
         val res = Expr parse(builder)
+        rollbackMarker.drop()
+        compMarker.done(ScalaElementTypes.EXPR1)
         ScalaElementTypes.EXPR1
       } else {
         rollbackMarker.rollbackTo()
