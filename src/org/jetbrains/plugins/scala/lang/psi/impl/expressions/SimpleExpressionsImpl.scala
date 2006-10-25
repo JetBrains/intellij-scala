@@ -37,5 +37,13 @@ import org.jetbrains.plugins.scala.lang.psi._
       override def toString: String = "Keyword: while"
   }
 
+  case class ScReturnImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Keyword: return"
+  }
+
+  case class ScThrowImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Keyword: throw"
+  }
+
 
 }

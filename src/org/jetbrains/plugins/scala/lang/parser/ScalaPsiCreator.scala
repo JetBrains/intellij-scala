@@ -41,6 +41,8 @@ object ScalaPsiCreator {
       case ScalaTokenTypes.kIF => new ScIfImpl(node)
       case ScalaTokenTypes.kELSE => new ScElseImpl(node)
       case ScalaTokenTypes.kWHILE => new ScWhileImpl(node)
+      case ScalaTokenTypes.kRETURN => new ScReturnImpl(node)
+      case ScalaTokenTypes.kTHROW => new ScThrowImpl(node)
       case ScalaTokenTypes.kWITH => new ScWithImpl(node)
       case ScalaTokenTypes.kSUPER => new ScSuperImpl(node)
       case ScalaTokenTypes.tDOT => new ScDotImpl(node)
