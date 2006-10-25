@@ -41,6 +41,7 @@ object ScalaPsiCreator {
       case ScalaTokenTypes.kWITH => new ScWithImpl(node)
       case ScalaTokenTypes.kSUPER => new ScSuperImpl(node)
       case ScalaTokenTypes.tDOT => new ScDotImpl(node)
+      case ScalaTokenTypes.tASSIGN => new ScAssignImpl(node)
       case ScalaTokenTypes.tCOMMA => new ScCommaImpl(node)
       case ScalaTokenTypes.tLSQBRACKET => new ScLsqbracketImpl(node)
       case ScalaTokenTypes.tRSQBRACKET => new ScRsqbracketImpl(node)

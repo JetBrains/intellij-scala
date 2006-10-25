@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi._
       override def toString: String = "Postfix expression "+ getText
   }
 
-
+  case class ScAssignImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Operator: assign"
+  }
 
 }

@@ -96,6 +96,7 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
       }
 
       var flag = false
+      var endness = "wrong"
 
       /* case (f) */
       if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)) {
@@ -105,7 +106,7 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
           closeParent
           flag = true
         } else {
-          var res = Expr.parse(builder)
+          var res = Expr parse builder 
           if (res.eq(ScalaElementTypes.EXPR)) {
             ParserUtils.rollForward(builder)
             if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)) {
@@ -120,13 +121,24 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
       } else {
         /* case (d) */
         var result = Literal.parse(builder)  // Literal ?
-        if (!result.eq(ScalaElementTypes.WRONGWAY)) flag = true // Yes, it is!
+        if (!result.eq(ScalaElementTypes.WRONGWAY)) {
+          flag = true // Yes, it is!
+          endness = "plain"
+        }
         /* case (e) */
-          else result = StableId.parse(builder) // Path ?
-        if (!flag && (result.equals(ScalaElementTypes.PATH) || result.equals(ScalaElementTypes.STABLE_ID))) flag = true
-        // ... other cases
+        else { result = StableId.parse(builder) // Path ?
+          if (!flag && result.equals(ScalaElementTypes.PATH)) {
+            flag = true
+            endness = "plain"
+          }
+          if (!flag && result.equals(ScalaElementTypes.STABLE_ID)) {
+            flag = true
+            endness = ".id"
+          }
+          // ... other cases
+        }
       }
-      if (flag) subParse("plain")
+      if (flag) subParse(endness)
         else new SimpleExprResult(ScalaElementTypes.WRONGWAY , "wrong")
     }
 
