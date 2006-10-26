@@ -1,48 +1,115 @@
 package org.jetbrains.plugins.scala.sdk;
 
-import com.intellij.openapi.projectRoots.AdditionalDataConfigurable;
-import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.*;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.ui.TextFieldWithStoredHistory;
+import com.intellij.openapi.util.Comparing;
+import com.intellij.ui.IdeBorderFactory;
 
 import javax.swing.*;
+import java.util.List;
+import java.util.ArrayList;
 import java.awt.*;
 
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.ScalaBundle;
-
 /**
- * User: Dmitry.Krasilschikov
- * Date: 28.09.2006
- * Time: 19:45:42
+ * @author ven
  */
 public class ScalaSdkConfigurable implements AdditionalDataConfigurable {
-    private Sdk scalaSdk;
-    @NonNls private static final String SANDBOX_HISTORY = "SCALA_SANDBOX_HISTORY";
 
-    private JLabel mySandboxHomeLabel = new JLabel(ScalaBundle.message("sandbox.home.label"));
-    private TextFieldWithStoredHistory mySandboxHome = new TextFieldWithStoredHistory(SANDBOX_HISTORY);
+  JComboBox myJavaSdkCbx;
 
-    public void setSdk(Sdk sdk) {
-        scalaSdk = sdk;
+  private Sdk myScalaSdk;
+  private SdkModel mySdkModel;
+  private SdkModificator mySdkModificator;
+
+  public ScalaSdkConfigurable(SdkModel sdkModel, SdkModificator sdkModificator) {
+    mySdkModel = sdkModel;
+    mySdkModificator = sdkModificator;
+    myJavaSdkCbx = new JComboBox();
+    DefaultComboBoxModel model = new DefaultComboBoxModel(getJavaSdks(sdkModel));
+    myJavaSdkCbx.setModel(model);
+    myJavaSdkCbx.setRenderer(new DefaultListCellRenderer(){
+      public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        final Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index, isSelected,
+                                                                                       cellHasFocus);
+        if (value instanceof ProjectJdk) {
+          setText(((ProjectJdk)value).getName());
+        }
+        return listCellRendererComponent;
+      }
+    });
+  }
+
+  private Sdk[] getJavaSdks(SdkModel sdkModel) {
+    Sdk[] sdks = sdkModel.getSdks();
+    List<Sdk> result = new ArrayList<Sdk>();
+    for (Sdk sdk : sdks) {
+      SdkType sdkType = sdk.getSdkType();
+      if (Comparing.equal(sdkType, JavaSdk.getInstance())) {
+        result.add(sdk);
+      }
     }
 
-    public JComponent createComponent() {
-        JPanel panel = new JPanel(new GridLayout());
+    return result.toArray(new Sdk[result.size()]);
+  }
 
-        return panel;
+  public void setSdk(Sdk sdk) {
+    myScalaSdk = sdk;
+  }
+
+  public JComponent createComponent() {
+    JPanel panel = new JPanel();
+    panel.add(myJavaSdkCbx);
+    panel.setBorder(IdeBorderFactory.createTitledBorder("Select Java SDK"));
+    return panel;
+  }
+
+  public boolean isModified() {
+    MyAdditionalData additionalData = (MyAdditionalData) myScalaSdk.getSdkAdditionalData();
+    return additionalData == null || !Comparing.equal(myJavaSdkCbx.getSelectedItem(), additionalData.getJavaSdkName());
+  }
+
+  public void apply() throws ConfigurationException {
+    mySdkModificator.setSdkAdditionalData(new MyAdditionalData(((Sdk) myJavaSdkCbx.getSelectedItem()).getName()));
+    myScalaSdk.getSdkType().setupSdkPaths(myScalaSdk);
+  }
+
+  public void reset() {
+    SdkAdditionalData sdkAdditionalData = myScalaSdk.getSdkAdditionalData();
+    if (sdkAdditionalData != null) {
+      Sdk selected = findJavaSdkByName(((MyAdditionalData) sdkAdditionalData).getJavaSdkName());
+      myJavaSdkCbx.setSelectedItem(selected);
+    }
+  }
+
+  public void disposeUIResources() {
+  }
+
+  private class MyAdditionalData implements SdkAdditionalData {
+    String myJavaSdkName;
+    
+    public MyAdditionalData(String javaSdkName) {
+      myJavaSdkName = javaSdkName;
     }
 
-    public boolean isModified() {
-        return false;
+
+    public String getJavaSdkName() {
+      return myJavaSdkName;
     }
 
-    public void apply() throws ConfigurationException {
+    public MyAdditionalData clone() throws CloneNotSupportedException {
+      return (MyAdditionalData) super.clone();
     }
 
-    public void reset() {
+    public void checkValid(SdkModel sdkModel) throws ConfigurationException {
+      if (myJavaSdkName == null) throw new ConfigurationException("No java sdk configured");
+      if (findJavaSdkByName(myJavaSdkName) == null) throw new ConfigurationException("Cannot find jdk");
     }
+  }
 
-    public void disposeUIResources() {
+  private Sdk findJavaSdkByName(String sdkName) {
+    for (Sdk sdk : mySdkModel.getSdks()) {
+      if (sdk.getName().equals(sdkName)) return sdk;
     }
+    return null;
+  }
 }

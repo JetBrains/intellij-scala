@@ -1,0 +1,205 @@
+package org.jetbrains.plugins.scala.sdk;
+
+import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.openapi.projectRoots.*;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.JarFileSystem;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.util.SystemInfo;
+import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
+
+/**
+ * @author ven
+ */
+public class ScalaSdkType extends SdkType implements ApplicationComponent {
+  @NonNls private static final String BIN_DIR_NAME = "bin";
+
+  @NonNls private static final String LIB_DIR_NAME = "lib";
+
+  @NonNls private static final String SCALA_EXE_NAME = "scala";
+  private Sdk myJavaSdk;
+
+  public ScalaSdkType() {
+    super("scala sdk");
+  }
+
+  public String suggestHomePath() {
+    return null;
+  }
+
+  public boolean isValidSdkHome(String path) {
+    final File home = new File(path);
+    final File binDir = new File(home, BIN_DIR_NAME);
+    if (!binDir.exists()) return false;
+    final File[] files = binDir.listFiles();
+    for (final File file : files) {
+      if (file.getName().startsWith("scalac")) return true;
+    }
+    return false;
+  }
+
+  @Nullable
+  public String getVersionString(String sdkHome) {
+    return null;
+  }
+
+  @Nullable
+  public String suggestSdkName(String currentSdkName, String sdkHome) {
+    final int i = sdkHome.lastIndexOf('/');
+    return i > 0 ? sdkHome.substring(i + 1) : sdkHome;
+  }
+
+  public void setupSdkPaths(Sdk sdk) {
+    final SdkModificator sdkModificator = sdk.getSdkModificator();
+    String dirPath = getLibraryDirPath(sdk);
+    dirPath = dirPath.replace(File.separator, "/");
+    VirtualFile libraryDir = LocalFileSystem.getInstance().findFileByPath(dirPath);
+    assert libraryDir != null;
+    VirtualFile[] files = libraryDir.getChildren();
+    for (VirtualFile file : files) {
+      if (file.getName().endsWith(".jar")) {
+        sdkModificator.addRoot(file, ProjectRootType.CLASS);
+      }
+    }
+
+    addClassesForJava(sdkModificator);
+    addSourcesForJava(sdkModificator);
+    addDocsForJava(sdkModificator);
+    sdkModificator.commitChanges();
+  }
+
+  private void addClassesForJava(SdkModificator sdkModificator) {
+    if (myJavaSdk != null) {
+      addOrderEntriesForJava(OrderRootType.CLASSES, ProjectRootType.CLASS, myJavaSdk, sdkModificator);
+    }
+  }
+
+  private void addDocsForJava(SdkModificator sdkModificator) {
+    if (myJavaSdk != null && !addOrderEntriesForJava(OrderRootType.JAVADOC, ProjectRootType.JAVADOC, myJavaSdk, sdkModificator) &&
+        SystemInfo.isMac){
+      ProjectJdk [] jdks = ProjectJdkTable.getInstance().getAllJdks();
+      for (ProjectJdk jdk : jdks) {
+        if (jdk.getSdkType() instanceof JavaSdk) {
+          addOrderEntriesForJava(OrderRootType.JAVADOC, ProjectRootType.JAVADOC, jdk, sdkModificator);
+          break;
+        }
+      }
+    }
+  }
+
+  private void addSourcesForJava(SdkModificator sdkModificator) {
+    if (myJavaSdk != null) {
+      if (!addOrderEntriesForJava(OrderRootType.SOURCES, ProjectRootType.SOURCE, myJavaSdk, sdkModificator)){
+        if (SystemInfo.isMac) {
+          ProjectJdk [] jdks = ProjectJdkTable.getInstance().getAllJdks();
+          for (ProjectJdk jdk : jdks) {
+            if (jdk.getSdkType() instanceof JavaSdk) {
+              addOrderEntriesForJava(OrderRootType.SOURCES, ProjectRootType.SOURCE, jdk, sdkModificator);
+              break;
+            }
+          }
+        }
+        else {
+          final File jdkHome = new File(myJavaSdk.getHomePath()).getParentFile();
+          @NonNls final String srcZip = "src.zip";
+          final File jarFile = new File(jdkHome, srcZip);
+          if (jarFile.exists()){
+            JarFileSystem jarFileSystem = JarFileSystem.getInstance();
+            String path = jarFile.getAbsolutePath().replace(File.separatorChar, '/') + JarFileSystem.JAR_SEPARATOR;
+            jarFileSystem.setNoCopyJarForPath(path);
+            sdkModificator.addRoot(jarFileSystem.findFileByPath(path), ProjectRootType.SOURCE);
+          }
+        }
+      }
+    }
+  }
+
+  private boolean addOrderEntriesForJava(OrderRootType orderRootType,
+                                         ProjectRootType projectRootType,
+                                         Sdk sdk,
+                                         SdkModificator toModificator){
+    boolean wasSmthAdded = false;
+    final String[] entries = sdk.getRootProvider().getUrls(orderRootType);
+    for (String entry : entries) {
+      VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl(entry);
+      toModificator.addRoot(virtualFile, projectRootType);
+      wasSmthAdded = true;
+    }
+    return wasSmthAdded;
+  }
+
+
+  public AdditionalDataConfigurable createAdditionalDataConfigurable(SdkModel sdkModel, SdkModificator sdkModificator) {
+    return new ScalaSdkConfigurable(sdkModel, sdkModificator);
+  }
+
+  private static String getConvertedHomePath(Sdk sdk) {
+    String path = sdk.getHomePath().replace('/', File.separatorChar);
+    if (!path.endsWith(File.separator)) {
+      path += File.separator;
+    }
+    return path;
+  }
+
+  @Nullable
+  public String getBinPath(Sdk sdk) {
+    return getConvertedHomePath(sdk) + BIN_DIR_NAME;
+  }
+
+  @Nullable
+  public String getToolsPath(Sdk sdk) {
+    return null;
+  }
+
+  @Nullable
+  public String getVMExecutablePath(Sdk sdk) {
+    return getBinPath(sdk) + File.separatorChar + SCALA_EXE_NAME;
+  }
+
+  @Nullable
+  public String getRtLibraryPath(Sdk sdk) {
+    return getLibraryDirPath(sdk) + File.separatorChar + "scala-library.jar";
+  }
+
+  private String getLibraryDirPath(Sdk sdk) {
+    return getConvertedHomePath(sdk) + LIB_DIR_NAME;
+  }
+
+  public void saveAdditionalData(SdkAdditionalData additionalData, Element additional) {
+  }
+
+  public SdkAdditionalData loadAdditionalData(Element additional) {
+    return null;
+  }
+
+  public String getPresentableName() {
+    return "Scala SDK";
+  }
+
+  @NonNls
+  @NotNull
+  public String getComponentName() {
+    return "scala sdk";
+  }
+
+  public void initComponent() {
+  }
+
+  public void disposeComponent() {
+  }
+
+  public Sdk getJavaSdk() {
+    return myJavaSdk;
+  }
+
+  public void setJavaSdk(Sdk javaSdk) {
+    myJavaSdk = javaSdk;
+  }
+}
