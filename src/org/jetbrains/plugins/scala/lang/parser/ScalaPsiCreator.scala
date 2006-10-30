@@ -57,7 +57,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeImpl(node)
     case ScalaElementTypes.TYPE => new ScTypeImpl(node)
     case ScalaElementTypes.TYPES => new ScTypesImpl(node)
-    case ScalaElementTypes.TYPEARGS => new ScTypeArgsImpl(node)
+    case ScalaElementTypes.TYPE_ARGS => new ScTypeArgsImpl(node)
 
     /******************* EXPRESSIONS*********************/
 

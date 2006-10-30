@@ -52,12 +52,14 @@ object ScalaElementTypes {
   val SIMPLE_TYPE = new ScalaElementType("simple type")
   val TYPE1 = new ScalaElementType("type1")
   val TYPE = new ScalaElementType("common type")
-  val TYPEARGS = new ScalaElementType("type arguments")
+  val TYPES = new ScalaElementType("types")
+  val TYPE_ARGS = new ScalaElementType("type arguments")
 
   /*************************************************************************************/
   /*********************************** IDENTIFIER **************************************/
   /*************************************************************************************/
   val IDENTIFIER = new ScalaElementType("identifier")
+  val IDENTIFIER_LIST = new ScalaElementType("list of identifiers")
 
   /*************************************************************************************/
   /********************************* PACKAGE GROUP *************************************/
@@ -86,6 +88,8 @@ object ScalaElementTypes {
   /*************************************************************************************/
   /************************************** TYPE DECLARATION *****************************/
   /*************************************************************************************/
+  val COMPILATION_UNIT = new ScalaElementType("compilation unit")
+
   val PACKAGING = new ScalaElementType("packaging")
 
   val TMPL_DEF = new ScalaElementType("tmpl definition")
@@ -108,9 +112,19 @@ object ScalaElementTypes {
   /*************************************************************************************/
   val TEMPLATE_STAT_LIST = new ScalaElementType("template statements list")
 
-  val DEFINITION = new ScalaElementType("defifnition")
-
+  /*************** DECLARATION *********************/
   val DECLARATION = new ScalaElementType("declaration")
+  val VAL_DCL = new ScalaElementType("declaration of value")
+  val VAR_DCL = new ScalaElementType("declaration of variable")
+  val FUN_DCL = new ScalaElementType("declaration of function")
+  val TYPE_DCL = new ScalaElementType("declaration of type")
+
+  /**************** DEFINITION *********************/
+  val DEFINITION = new ScalaElementType("defifnition")
+  val VAL_DEF = new ScalaElementType("definition of value")
+  val VAR_DEF = new ScalaElementType("definition of variable")
+  val FUN_DEF = new ScalaElementType("definition of function")
+  val TYPE_DEF = new ScalaElementType("definition of type")
 
   /*************************************************************************************/
   /************************************** LITERALS *************************************/
@@ -142,7 +156,7 @@ object ScalaElementTypes {
   /*************************************************************************************/
   /************************************** KEYWORDS *************************************/
   /*************************************************************************************/
-  val THIS = new ScalaElementType("this")
+  /*val THIS = new ScalaElementType("this")
   val WITH = new ScalaElementType("with")
   val SUPER = new ScalaElementType("super")
   // Primitives
@@ -153,7 +167,7 @@ object ScalaElementTypes {
   val LSQBRACKET = new ScalaElementType("LSQBRACKET")
   val LPARENTHIS = new ScalaElementType("LPARENTHIS")
   val RPARENTHIS = new ScalaElementType("RPARENTHIS")
-  val RSQBRACKET = new ScalaElementType("RSQBRACKET")
+  val RSQBRACKET = new ScalaElementType("RSQBRACKET") */
   val STATEMENT_SEPARATOR = new ScalaElementType("statement separator")
 
 //ordinary identifier
@@ -165,7 +179,7 @@ object ScalaElementTypes {
 //Modifiers
   val MODIFIER = new ScalaElementType("modifier")
   val LOCAL_MODIFIER = new ScalaElementType("local modifier")
-  val MODIFIER_ACCESS = new ScalaElementType("access control modifier : public and private")
+  val ACCESS_MODIFIER = new ScalaElementType("access control modifier : public and private")
   val OVERRIDE = new ScalaElementType("override")
 
 //top
@@ -173,8 +187,7 @@ object ScalaElementTypes {
   val TOP_STAT_SEQ = new ScalaElementType("top stat sequence")
 
 //types
-  val TYPES = new ScalaElementType("types")
-  val TYPE_ARGS = new ScalaElementType("type arguments")
+
 
   val COMPOSITE_TYPE = new ScalaElementType("type with =>")
 

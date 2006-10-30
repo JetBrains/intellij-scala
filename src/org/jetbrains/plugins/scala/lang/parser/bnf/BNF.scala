@@ -60,16 +60,27 @@ object BNF {
     Array (templateStatKeywords, firstTmplDef)
   )
 
+  val firstLocalModifier = TokenSet.create(
+    Array (
+      ScalaTokenTypes.kABSTRACT,
+      ScalaTokenTypes.kFINAL,
+      ScalaTokenTypes.kIMPLICIT,
+      ScalaTokenTypes.kSEALED
+    )
+  )
+
+  val firstAccessModifier = TokenSet.create(
+    Array (
+      ScalaTokenTypes.kPRIVATE  ,
+      ScalaTokenTypes.kPROTECTED
+    )
+  )
   //fix problem with implicit
-  val firstModifier: TokenSet = TokenSet.create(
-    Array(
-        ScalaTokenTypes.kABSTRACT ,
-        ScalaTokenTypes.kFINAL    ,
-        ScalaTokenTypes.kIMPLICIT,
-        ScalaTokenTypes.kOVERRIDE ,
-        ScalaTokenTypes.kPRIVATE  ,
-        ScalaTokenTypes.kPROTECTED,
-        ScalaTokenTypes.kSEALED
+  val firstModifier: TokenSet = TokenSet.orSet(
+    Array (
+        TokenSet.create(Array(ScalaTokenTypes.kOVERRIDE)),
+        firstAccessModifier,
+        firstLocalModifier
     )
   )
 
@@ -87,16 +98,39 @@ object BNF {
     )
   )
 
-    //add firstExpr
   val firstTemplateStat : TokenSet = TokenSet.orSet(
-    Array (firstImport, firstAttributeClause, firstModifier, firstDef, firstDcl)
+    Array (
+      firstImport,
+      firstAttributeClause,
+      firstModifier,
+      firstDef,
+      firstDcl,
+      firstExpr)
   )
+
 
   //todo: add first(Expression)
   val firstExpr : TokenSet = TokenSet.create(
     Array (
-      ScalaTokenTypes.tIDENTIFIER,
-      ScalaTokenTypes.tINTEGER
+       ScalaTokenTypes.tINTEGER      ,
+       ScalaTokenTypes.tFLOAT        ,
+       ScalaTokenTypes.kTRUE         ,
+       ScalaTokenTypes.kFALSE        ,
+       ScalaTokenTypes.tCHAR         ,
+       ScalaTokenTypes.kNULL         ,
+       ScalaTokenTypes.tSTRING_BEGIN ,
+       ScalaTokenTypes.tPLUS         ,
+       ScalaTokenTypes.tMINUS        ,
+       ScalaTokenTypes.tTILDA        ,
+       ScalaTokenTypes.tNOT          ,
+       ScalaTokenTypes.tIDENTIFIER
+    )
+  )
+
+  //todo: add first(Type)
+  val firstType : TokenSet = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tIDENTIFIER
     )
   )
 }
