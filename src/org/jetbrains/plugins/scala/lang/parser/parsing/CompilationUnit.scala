@@ -177,13 +177,16 @@ object CompilationUnit extends Constr {
 
       var isTmpl = false
 
-      while (builder.getTokenType.equals(ScalaTokenTypes.tLSQBRACKET)) {
+       /*Console.println("token : " + builder.getTokenType())
+       Console.println("token : " + BNF.firstAttributeClause)
+       Console.println("token : " + BNF.firstAttributeClause.contains(builder.getTokenType()))*/
+      while (BNF.firstAttributeClause.contains(builder.getTokenType())) {
         Console.println("parse attribute clause")
         isTmpl = true
         AttributeClause.parse(builder)
       }
 
-      while (BNF.firstModifier.contains(builder.getTokenType)) {
+      while (BNF.firstModifier.contains(builder.getTokenType())) {
         Console.println("parse modifier")
         isTmpl = true
         Modifier.parse(builder)
@@ -191,7 +194,7 @@ object CompilationUnit extends Constr {
 
       if (isTmpl && !(builder.getTokenType.equals(ScalaTokenTypes.kCASE) || BNF.firstTmplDef.contains(builder.getTokenType))) {
         builder.error("wrong type declaration")
-        topStatMarker.done(ScalaElementTypes.TOP_STAT)
+        topStatMarker.drop()
         return
       }
 

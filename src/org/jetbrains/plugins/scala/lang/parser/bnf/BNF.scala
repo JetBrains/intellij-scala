@@ -38,7 +38,7 @@ object BNF {
   /********************************************************/
   /*********************** FIRSTS *************************/
   /********************************************************/
-  private val templateStatKeywords = TokenSet.create(
+  val templateStatKeywords = TokenSet.create(
     Array(
       ScalaTokenTypes.kVAL,
       ScalaTokenTypes.kVAR,
@@ -69,14 +69,14 @@ object BNF {
     )
   )
 
-  val firstAccessModifier = TokenSet.create(
+  val firstAccessModifier : TokenSet = TokenSet.create(
     Array (
-      ScalaTokenTypes.kPRIVATE  ,
+      ScalaTokenTypes.kPRIVATE,
       ScalaTokenTypes.kPROTECTED
     )
   )
   //fix problem with implicit
-  val firstModifier: TokenSet = TokenSet.orSet(
+  val firstModifier : TokenSet = TokenSet.orSet(
     Array (
         TokenSet.create(Array(ScalaTokenTypes.kOVERRIDE)),
         firstAccessModifier,
@@ -84,7 +84,7 @@ object BNF {
     )
   )
 
-  val firstAttributeClause = TokenSet.create(
+  val firstAttributeClause : TokenSet = TokenSet.create(
     Array(
       ScalaTokenTypes.tLSQBRACKET
     )
@@ -98,6 +98,26 @@ object BNF {
     )
   )
 
+
+
+  //todo: add first(Expression)
+  val firstExpr : TokenSet = TokenSet.create(
+    Array (
+       ScalaTokenTypes.tINTEGER,
+       ScalaTokenTypes.tFLOAT,
+       ScalaTokenTypes.kTRUE,
+       ScalaTokenTypes.kFALSE,
+       ScalaTokenTypes.tCHAR,
+       ScalaTokenTypes.kNULL,
+       ScalaTokenTypes.tSTRING_BEGIN,
+       ScalaTokenTypes.tPLUS,
+       ScalaTokenTypes.tMINUS,
+       ScalaTokenTypes.tTILDA,
+       ScalaTokenTypes.tNOT,
+       ScalaTokenTypes.tIDENTIFIER
+    )
+  )
+
   val firstTemplateStat : TokenSet = TokenSet.orSet(
     Array (
       firstImport,
@@ -106,25 +126,6 @@ object BNF {
       firstDef,
       firstDcl,
       firstExpr)
-  )
-
-
-  //todo: add first(Expression)
-  val firstExpr : TokenSet = TokenSet.create(
-    Array (
-       ScalaTokenTypes.tINTEGER      ,
-       ScalaTokenTypes.tFLOAT        ,
-       ScalaTokenTypes.kTRUE         ,
-       ScalaTokenTypes.kFALSE        ,
-       ScalaTokenTypes.tCHAR         ,
-       ScalaTokenTypes.kNULL         ,
-       ScalaTokenTypes.tSTRING_BEGIN ,
-       ScalaTokenTypes.tPLUS         ,
-       ScalaTokenTypes.tMINUS        ,
-       ScalaTokenTypes.tTILDA        ,
-       ScalaTokenTypes.tNOT          ,
-       ScalaTokenTypes.tIDENTIFIER
-    )
   )
 
   //todo: add first(Type)
