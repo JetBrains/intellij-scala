@@ -70,7 +70,6 @@ floatType = F | f | D | d
 /////////////////////      identifiers      ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//identifier = [a-zA-Z_]+[a-zA-Z0-9]*
 identifier = {plainid} | "'" "\"" {stringLiteral} "\"" "'"
 
 charEscapeSeq = "\\" "u" {hexDigit} {hexDigit} {hexDigit} {hexDigit}
@@ -88,8 +87,7 @@ special =   \u0021 | \u0023
           | \u003A
           | [\u003C-\u0040]
           | \u007C | \u007E
-          | \u2044 | \u005C
-          | \u002F
+          | \u005C | \u002F     //slashes
 
 op = {special}+
 
@@ -98,9 +96,8 @@ idrest = ({letter} | {digit})* ("_" {op} | "_" {idrest1} )?
 
 varid = {lower} {idrest}
 plainid = {upper} {idrest}
-        | {varid}
-        | {op}
-
+          | {varid}
+          | {op}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// String & chars //////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,16 +122,6 @@ InputCharacter = [^\r\n\f]
 
 WhiteSpaceInLine = {InLineTerminator}
 WhiteSpaceLineTerminate = {LineTerminator}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////// Comments ////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-Comment = {TraditionalComment} | {EndOfLineComment} | {DocumentationComment}
-TraditionalComment = "/*".*~"*/"
-EndOfLineComment = "//" {InputCharacter}* {LineTerminator}
-DocumentationComment = "/**" {CommentContent} "*"+ "/"
-CommentContent = ( [^*] | \*+ [^/*] )*
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////  boolean values ///////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +164,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 
 "//" ~ {LineTerminator}                   {   return process(tCOMMENT);  }
 
-"/*"                                      {   yybegin(IN_BLOCK_COMMENT_STATE);
+"/*" {special}*                    {   yybegin(IN_BLOCK_COMMENT_STATE);
                                               return process(tCOMMENT);
                                           }
 
