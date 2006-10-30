@@ -248,6 +248,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "<%"                                    {   return process(tVIEW); }
 "#"                                     {   return process(tINNER_CLASS); }
 "@"                                     {   return process(tAT);}
+"&"                                     {   return process(tAND);}
 
 "+"                                     {   return process(tPLUS);}
 "-"                                     {   return process(tMINUS);}
