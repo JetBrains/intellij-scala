@@ -366,7 +366,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
             val nextMarker = currentMarker.precede()
             currentMarker.done(ScalaElementTypes.SIMPLE_TYPE)
             val res2 = TypeArgs parse(builder)
-            if (res2.equals(ScalaElementTypes.TYPEARGS)) leftRecursion(nextMarker)
+            if (res2.equals(ScalaElementTypes.TYPE_ARGS)) leftRecursion(nextMarker)
             else {
               nextMarker.rollbackTo()
               ScalaElementTypes.WRONGWAY  
@@ -554,7 +554,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 
     def parse(builder : PsiBuilder) : ScalaElementType = { 
 
-      var result = ScalaElementTypes.TYPEARGS
+      var result = ScalaElementTypes.TYPE_ARGS
       val typeArgsMarker = builder.mark()
       if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
@@ -563,7 +563,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           builder.getTokenType match {
             case ScalaTokenTypes.tRSQBRACKET => {
               ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
-              result = ScalaElementTypes.TYPEARGS
+              result = ScalaElementTypes.TYPE_ARGS
             }
             case _ => {
               builder.error("] expected")
@@ -577,7 +577,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
         builder.error ("[ expected")
         result = ScalaElementTypes.WRONGWAY
       }
-      if (result.equals(ScalaElementTypes.TYPEARGS)) typeArgsMarker.done(ScalaElementTypes.TYPEARGS)
+      if (result.equals(ScalaElementTypes.TYPE_ARGS)) typeArgsMarker.done(ScalaElementTypes.TYPE_ARGS)
         else typeArgsMarker.rollbackTo()
       result
     }

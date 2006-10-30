@@ -17,15 +17,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
  * Date: 30.10.2006
  * Time: 15:04:19
  */
-object Template extends Constr{
-  override def parse (builder : PsiBuilder) : Unit = {
+/*object Template extends Constr{
+  override def getElementType = ScalaElementTypes.TEMPLATE
+
+  override def parseBody(builder : PsiBuilder) : Unit = {
 
   }
-}
+} */
 
   object TemplateParents extends Constr {
-    override def parse(builder : PsiBuilder) : Unit = {
-      val templateParents = builder.mark()
+    override def getElementType = ScalaElementTypes.TEMPLATE_PARENTS
+
+    override def parseBody(builder : PsiBuilder) : Unit = {
+
 
       if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
         Construction.parse(builder)
@@ -37,14 +41,13 @@ object Template extends Constr{
         //todo check
         SimpleType.parse(builder)
       }
-
-      templateParents.done(ScalaElementTypes.TEMPLATE_PARENTS)
     }
   }
 
   object TemplateBody extends Constr {
-    override def parse(builder : PsiBuilder) : Unit = {
-      val templateBody = builder.mark()
+    override def getElementType = ScalaElementTypes.TEMPLATE_BODY
+
+    override def parseBody(builder : PsiBuilder) : Unit = {
 
       if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)) {
         //ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
@@ -85,8 +88,6 @@ object Template extends Constr{
        
 
       }
-
-      templateBody.done(ScalaElementTypes.TEMPLATE_BODY)
     }
 
  /*   override def isParsible(CharSequence buffer, val Project project) = {
@@ -97,16 +98,9 @@ object Template extends Constr{
   }
 
   object TemplateStatList extends Constr {
-    def getElementType : IElementType = ScalaElementTypes.TEMPLATE_STAT_LIST
+    override def getElementType : IElementType = ScalaElementTypes.TEMPLATE_STAT_LIST
 
-    override def parse(builder : PsiBuilder) : Unit = {
-      val marker = builder.mark()
-      parseBody(builder)
-      marker.done(getElementType)
-    }
-
-
-    def parseBody(builder : PsiBuilder) : Unit = {
+    override def parseBody(builder : PsiBuilder) : Unit = {
       if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
 
         if(ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)) {
@@ -151,29 +145,17 @@ object Template extends Constr{
   }
 
   object Def extends Constr {
-    def getElementType : IElementType = ScalaElementTypes.DEFINITION
+    override def getElementType : IElementType = ScalaElementTypes.DEFINITION
 
-    override def parse(builder : PsiBuilder) : Unit = {
-      val marker = builder.mark()
-      parseBody(builder)
-      marker.done(getElementType)
-    }
-
-    def parseBody(builder : PsiBuilder) : Unit = {
+    override def parseBody(builder : PsiBuilder) : Unit = {
 
     }
   }
 
   object Dcl extends Constr {
-    def getElementType : IElementType = ScalaElementTypes.DECLARATION
+    override def getElementType : IElementType = ScalaElementTypes.DECLARATION
 
-    override def parse(builder : PsiBuilder) : Unit = {
-      val marker = builder.mark()
-      parseBody(builder)
-      marker.done(getElementType)
-    }
-
-    def parseBody(builder : PsiBuilder) : Unit = {
+    override def parseBody(builder : PsiBuilder) : Unit = {
       builder.getTokenType match {
         case ScalaTokenTypes.kVAL => {
           ValAndVarDcl parse builder
@@ -197,15 +179,9 @@ object Template extends Constr{
   }
 
   object ValAndVarDcl extends Constr {
-    def getElementType : IElementType = ScalaElementTypes.VAL_DCL
+    override def getElementType : IElementType = ScalaElementTypes.VAL_DCL
 
-    override def parse(builder : PsiBuilder) : Unit = {
-      val marker = builder.mark()
-      parseBody(builder)
-      marker.done(getElementType)
-    }
-
-    def parseBody(builder : PsiBuilder) : Unit = {
+    override def parseBody(builder : PsiBuilder) : Unit = {
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         Ids parse builder
       } else builder error "expected idnetifier"
@@ -221,29 +197,17 @@ object Template extends Constr{
   }
 
   object FunDcl extends Constr {
-    def getElementType : IElementType = ScalaElementTypes.FUN_DCL
+    override def getElementType : IElementType = ScalaElementTypes.FUN_DCL
 
-    override def parse(builder : PsiBuilder) : Unit = {
-      val marker = builder.mark()
-      parseBody(builder)
-      marker.done(getElementType)
-    }
-
-    def parseBody(builder : PsiBuilder) : Unit = {
+    override def parseBody(builder : PsiBuilder) : Unit = {
 
     }
   }
 
   object TypeDcl extends Constr {
-    def getElementType : IElementType = ScalaElementTypes.TYPE_DCL
+    override def getElementType : IElementType = ScalaElementTypes.TYPE_DCL
 
-    override def parse(builder : PsiBuilder) : Unit = {
-      val marker = builder.mark()
-      parseBody(builder)
-      marker.done(getElementType)
-    }
-
-    def parseBody(builder : PsiBuilder) : Unit = {
+    override def parseBody(builder : PsiBuilder) : Unit = {
 
     }
   }

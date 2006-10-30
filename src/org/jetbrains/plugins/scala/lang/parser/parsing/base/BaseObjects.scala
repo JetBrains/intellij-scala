@@ -24,7 +24,7 @@ import com.intellij.psi.tree.IElementType
 */
 
 object StatementSeparator extends Constr{
-  override def getElement = ScalaElementTypes.STATEMENT_SEPARATOR
+  override def getElementType = ScalaElementTypes.STATEMENT_SEPARATOR
 
   override def parseBody(builder: PsiBuilder): Unit = {
     Console.println("token type : " + builder.getTokenType())
@@ -478,7 +478,7 @@ object Construction extends Constr{
   }
 
   object ImportSelector extends Constr{
-    override def getElementtype = ScalaElementTypes.IMPORT_SELECTOR
+    override def getElementType = ScalaElementTypes.IMPORT_SELECTOR
 
     override def parseBody(builder: PsiBuilder): Unit = {
       builder.getTokenType() match {

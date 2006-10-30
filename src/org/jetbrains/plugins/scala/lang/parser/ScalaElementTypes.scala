@@ -36,6 +36,7 @@ object ScalaElementTypes {
   val CLASS_TEMPLATE = new ScalaElementType("class template")
   val TEMPLATE_BODY = new ScalaElementType("template body")
   val TEMPLATE_PARENTS = new ScalaElementType("template parents")
+  val TEMPLATE = new ScalaElementType("template")
 
   val TYPE_PARAM_CLAUSE = new ScalaElementType("type parameter clause")
   val PARAM = new ScalaElementType("parameter")
@@ -187,6 +188,8 @@ object ScalaElementTypes {
   val TOP_STAT_SEQ = new ScalaElementType("top stat sequence")
 
 //types
+
+  val IMPLICIT_END = new ScalaElementType("implicit end")
 
 
   val COMPOSITE_TYPE = new ScalaElementType("type with =>")
