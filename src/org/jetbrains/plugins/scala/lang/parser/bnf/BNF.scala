@@ -34,8 +34,34 @@ object BNF {
     )
   )
 
+
+  /********************************************************/
+  /*********************** FIRSTS *************************/
+  /********************************************************/
+  private val templateStatKeywords = TokenSet.create(
+    Array(
+      ScalaTokenTypes.kVAL,
+      ScalaTokenTypes.kVAR,
+      ScalaTokenTypes.kDEF,
+      ScalaTokenTypes.kTYPE
+    )
+  )
+
+  val firstTmplDef = TokenSet.create(
+    Array(
+      ScalaTokenTypes.kCASE,
+      ScalaTokenTypes.kCLASS,
+      ScalaTokenTypes.kOBJECT,
+      ScalaTokenTypes.kTRAIT
+    )
+  )
+
+  val firstDef = TokenSet.orSet(
+    Array (templateStatKeywords, firstTmplDef)
+  )
+
   //fix problem with implicit
-  val tMODIFIERS: TokenSet = TokenSet.create(
+  val firstModifier: TokenSet = TokenSet.create(
     Array(
         ScalaTokenTypes.kABSTRACT ,
         ScalaTokenTypes.kFINAL    ,
@@ -47,12 +73,22 @@ object BNF {
     )
   )
 
-  val tTMPLDEF: TokenSet = TokenSet.create(
+  val firstAttributeClause = TokenSet.create(
     Array(
-        ScalaTokenTypes.kCLASS,
-        ScalaTokenTypes.kOBJECT,
-        ScalaTokenTypes.kTRAIT
+      ScalaTokenTypes.tLSQBRACKET
     )
   )
 
+  val firstDcl = templateStatKeywords
+
+  val firstImport = TokenSet.create(
+    Array(
+      ScalaTokenTypes.kIMPORT
+    )
+  )
+
+    //add firstExpr
+  val firstTemplateStat : TokenSet = TokenSet.orSet(
+    Array (firstImport, firstAttributeClause, firstModifier, firstDef, firstDcl)
+  )
 }
