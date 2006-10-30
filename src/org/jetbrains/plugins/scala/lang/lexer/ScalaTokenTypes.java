@@ -140,6 +140,7 @@ public interface ScalaTokenTypes {
     IElementType tUNDER = new ScalaElementType("_");
     IElementType tCOLON = new ScalaElementType(":");
     IElementType tASSIGN = new ScalaElementType("=");
+    IElementType tAND = new ScalaElementType("&");
     IElementType tFUNTYPE = new ScalaElementType("=>");
     IElementType tFUNTYPE_ASCII = new ScalaElementType(Character.toString('\u21D2'));
     IElementType tCHOOSE = new ScalaElementType("<-");
