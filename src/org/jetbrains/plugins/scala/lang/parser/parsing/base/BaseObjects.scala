@@ -440,6 +440,7 @@ object Construction extends Constr{
           val importSelectorsMarker = builder.mark()
           var isImportSelectors : Boolean = false
 
+          //todo: import selectors are cyclic
           while (checkForImportSelectors(first, second, third, fourth)) {
             isImportSelectors = true
 

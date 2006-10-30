@@ -574,25 +574,31 @@ object TmplDef extends Constr {
 
     Console.println("token type : " + builder.getTokenType())
 
-    builder.getTokenType() match {
-      case ScalaTokenTypes.kCASE => {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.kCASE)
+    var isCase = false
 
-        if (ScalaTokenTypes.kCLASS.equals(builder.getTokenType())
-          || ScalaTokenTypes.kOBJECT.equals(builder.getTokenType())) {
-          parseInst( builder ) //handle class and object
-        } else builder error "expected 'class' or 'object'"
-
-      }
-
-      case ScalaTokenTypes.kTRAIT => {
-       TraitDef.parse( builder )
-      }
-
-      case _ => builder.error("wrong type definition")
-
+    if (ScalaTokenTypes.kCASE.equals(builder.getTokenType())){
+      ParserUtils.eatElement(builder, ScalaTokenTypes.kCASE)
+      isCase = true;
     }
 
+    if (isCase && !(ScalaTokenTypes.kCLASS.equals(builder.getTokenType())
+                    || ScalaTokenTypes.kOBJECT.equals(builder.getTokenType()))) {
+      builder error "expected class or object declaration"
+      return
+    }
+
+    if (ScalaTokenTypes.kCLASS.equals(builder.getTokenType())
+     || ScalaTokenTypes.kOBJECT.equals(builder.getTokenType())) {
+     
+        parseInst(builder) //handle class and object
+        return
+    }
+
+    if (ScalaTokenTypes.kTRAIT.equals(builder.getTokenType)) {
+       TraitDef.parse(builder)
+       return
+    }
+        
 //    tmplDefMarker.done(ScalaElementTypes.TMPL_DEF)
     //Console.println("tmplDefMareker done ")
   }

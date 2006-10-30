@@ -17,13 +17,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
  * Date: 30.10.2006
  * Time: 15:04:19
  */
-/*object Template extends Constr{
+object Template extends Constr{
   override def getElementType = ScalaElementTypes.TEMPLATE
 
   override def parseBody(builder : PsiBuilder) : Unit = {
 
   }
-} */
+} 
 
   object TemplateParents extends Constr {
     override def getElementType = ScalaElementTypes.TEMPLATE_PARENTS
@@ -61,10 +61,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
           TemplateStatList parse builder
         }
        */
+       if (!builder.eof()) {
+         builder.advanceLexer
+       }
 
         while ( !builder.eof() && !lastRBrace){
-          builder.advanceLexer
           val token = builder.getTokenType
+
           if (token.equals(ScalaTokenTypes.tLBRACE)) {
           Console.println("ate '{'")
             counter = counter + 1
@@ -80,12 +83,16 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
             lastRBrace = true
            // builder.advanceLexer
           }
-        }
 
+          if (!lastRBrace) {
+            builder.advanceLexer
+          }
+        }
+     /*
           if (builder.getTokenType.equals(ScalaTokenTypes.tRBRACE)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
         } else builder error "expected '}'"
-       
+       */
 
       }
     }
