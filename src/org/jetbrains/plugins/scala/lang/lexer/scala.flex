@@ -71,7 +71,7 @@ floatType = F | f | D | d
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //identifier = [a-zA-Z_]+[a-zA-Z0-9]*
-identifier = {plainid} | "'" {stringLiteral} "'"
+identifier = {plainid} | "'" "\"" {stringLiteral} "\"" "'"
 
 charEscapeSeq = "\\" "u" {hexDigit} {hexDigit} {hexDigit} {hexDigit}
 
@@ -81,8 +81,8 @@ lower = [a-z]
 letter = {upper} | {lower}
 digit = [0-9]
 
-special =   [\u0021-\u0023]
-          | [\u0025-\u0027]
+special =   \u0021 | \u0023
+          | [\u0025-\u0026]
           | [\u002A-\u002B]
           | \u002D | \u005E
           | \u003A
