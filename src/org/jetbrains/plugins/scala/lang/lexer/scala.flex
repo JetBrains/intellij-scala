@@ -76,23 +76,29 @@ identifier = {plainid} | "'" {stringLiteral} "'"
 charEscapeSeq = "\\" "u" {hexDigit} {hexDigit} {hexDigit} {hexDigit}
 
 
-upper = [A-Z_]
+upper = [A-Z_] | "$"
 lower = [a-z]
 letter = {upper} | {lower}
-digit = "0"| "1"| "2"| "3"| "4"| "5"| "6"| "7"| "8"| "9"
+digit = [0-9]
 
-special = [^("0"| "1"| "2"| "3"| "4"| "5"| "6"| "7"| "8"| "9"| "'" | "\"" | "." | ";" | "," | "\r" | "\n" | "\r\n")]
+special =   [\u0021-\u0023]
+          | [\u0025-\u0027]
+          | [\u002A-\u002B]
+          | \u002D | \u005E
+          | \u003A
+          | [\u003C-\u0040]
+          | \u007C | \u007E
 
 op = {special}+
-idrest = ({letter} | {digit})* //("_" op)?
+
+idrest1 = ({letter} | {digit})* ("_" {op})?
+idrest = ({letter} | {digit})* ("_" {op} | "_" {idrest1} )?
 
 varid = {lower} {idrest}
 plainid = {upper} {idrest}
         | {varid}
-//        | {op}
+        | {op}
 
-
-idrest = ({letter} | {digit})* ("_" op)?
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// String & chars //////////////////////////////////////////////////////////////////////////////////////////////
@@ -151,9 +157,6 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 %state IN_BLOCK_COMMENT_STATE
 // In block comment
 
-%state IN_LINE_COMMENT_STATE
-// In line comment
-
 %state IN_STRING_STATE
 // Inside the string... Boo!
 
@@ -169,12 +172,12 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 /////////////////////// comments ///////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-"/*"                                    {   yybegin(IN_BLOCK_COMMENT_STATE);
-                                            return process(tCOMMENT);
-                                        }
-"//"                                    {   yybegin(IN_LINE_COMMENT_STATE);
-                                            return process(tCOMMENT);
-                                        }
+
+"//" ~ {LineTerminator}                   {   return process(tCOMMENT);  }
+
+"/*"                                      {   yybegin(IN_BLOCK_COMMENT_STATE);
+                                              return process(tCOMMENT);
+                                          }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Strings /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -303,19 +306,6 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
                                         }
 
 .|{LineTerminator}                      {   return process(tCOMMENT); }
-
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////// In line comment //////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<IN_LINE_COMMENT_STATE>{
-
-{LineTerminator}                        {   yybegin(YYINITIAL);
-                                            return process(tLINE_TERMINATOR);
-                                        }
-
-.                                       {   return process(tCOMMENT); }
 
 }
 
