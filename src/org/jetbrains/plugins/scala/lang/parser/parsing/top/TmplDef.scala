@@ -194,9 +194,9 @@ object TmplDef extends Constr {
    }
 
     object ClassTemplate extends Constr {
-      override def parse(builder : PsiBuilder) : Unit = {
-        val classTemplateMarker = builder.mark()
+      override def getElementType = ScalaElementTypes.CLASS_TEMPLATE
 
+      override def parseBody(builder : PsiBuilder) : Unit = {
         if (builder.getTokenType.equals(ScalaTokenTypes.kEXTENDS)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.kEXTENDS)
 
@@ -214,15 +214,14 @@ object TmplDef extends Constr {
             TemplateBody.parse(builder)
           } else builder.error("expected '{'")
         }
-
-        classTemplateMarker.done(ScalaElementTypes.CLASS_TEMPLATE)
       }
     }
 
 
     object TypeParamClause extends Constr {
-      override def parse(builder : PsiBuilder) : Unit = {
-        val typeParamClause = builder.mark()
+      override def getElementType = ScalaElementTypes.TYPE_PARAM_CLAUSE
+
+      override def parseBody(builder : PsiBuilder) : Unit = {
 
         if (builder.getTokenType.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
@@ -243,15 +242,13 @@ object TmplDef extends Constr {
         if (builder.getTokenType.equals(ScalaTokenTypes.tRSQBRACKET)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
         } else builder.error("expected ']")
-
-        typeParamClause.done(ScalaElementTypes.TYPE_PARAM_CLAUSE)
       }
     }
 
     object VariantTypeParams extends Constr {
-      override def parse(builder : PsiBuilder) : Unit = {
-        val varTypeParamsClause = builder.mark()
+      override def getElementType = ScalaElementTypes.VARIANT_TYPE_PARAMS
 
+      override def parseBody(builder : PsiBuilder) : Unit = {
         builder.getTokenType match {
           case ScalaTokenTypes.tPLUS
              | ScalaTokenTypes.tMINUS
@@ -266,15 +263,13 @@ object TmplDef extends Constr {
 
           VariantTypeParam.parse(builder)
         }
-
-        varTypeParamsClause.done(ScalaElementTypes.VARIANT_TYPE_PARAMS)
       }
     }
 
     object VariantTypeParam extends Constr {
-      override def parse(builder : PsiBuilder) : Unit = {
-        val varTypeParamClause = builder.mark()
+      override def getElementType = ScalaElementTypes.VARIANT_TYPE_PARAM
 
+      override def parseBody(builder : PsiBuilder) : Unit = {
         if (!builder.getTokenType.equals(ScalaTokenTypes.tPLUS)
             && !builder.getTokenType.equals(ScalaTokenTypes.tMINUS)
             && !builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)){
@@ -292,15 +287,13 @@ object TmplDef extends Constr {
         if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
           TypeParam.parse(builder)
         }
-
-        varTypeParamClause.done(ScalaElementTypes.VARIANT_TYPE_PARAM)
       }
     }
 
     object TypeParam extends Constr {
-      override def parse(builder : PsiBuilder) : Unit = {
-        val typeParamClause = builder.mark()
+      override def getElementType = ScalaElementTypes.TYPE_PARAM
 
+      override def parseBody(builder : PsiBuilder) : Unit = {
         if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         } else builder.error("expected identifier")
@@ -319,15 +312,14 @@ object TmplDef extends Constr {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tVIEW)
           Type.parse(builder)
         }
-
-        typeParamClause.done(ScalaElementTypes.TYPE_PARAM)
       }
     }
 
 
     object ClassParamClauses extends Constr{
-      override def parse(builder : PsiBuilder) : Unit = {
-        val classParamClausesMarker = builder.mark()
+      override def getElementType = ScalaElementTypes.CLASS_PARAM_CLAUSES
+
+      override def parseBody(builder : PsiBuilder) : Unit = {
         var chooseParsingWay = builder.mark()
 
         var first = builder.getTokenType()
@@ -363,14 +355,13 @@ object TmplDef extends Constr {
 
         chooseParsingWay.rollbackTo()
         //chooseParsingWay.drop()
-
-        classParamClausesMarker.done(ScalaElementTypes.CLASS_PARAM_CLAUSES)
       }
     }
 
     object ClassParamClause extends Constr {
-      override def parse(builder : PsiBuilder) : Unit = {
-        val classParamClauseMarker = builder.mark()
+      override def getElementType = ScalaElementTypes.CLASS_PARAM_CLAUSE
+
+      override def parseBody(builder : PsiBuilder) : Unit = {
         if (builder.getTokenType().equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
         }
@@ -399,13 +390,13 @@ object TmplDef extends Constr {
         if (builder.getTokenType().equals(ScalaTokenTypes.tRPARENTHIS)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
         } else builder.error("expected ')'")
-
-        classParamClauseMarker.done(ScalaElementTypes.CLASS_PARAM_CLAUSE)
       }
     }
 
     object ImplicitEnd extends Constr {
-      override def parse(builder : PsiBuilder) : Unit = {
+      override def getElementType = ScalaElementTypes.IMPLICIT_END
+
+      override def parseBody(builder : PsiBuilder) : Unit = {
          if (builder.getTokenType().equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
         }
@@ -430,8 +421,9 @@ object TmplDef extends Constr {
     }
 
     object ClassParams extends Constr {
-      override def parse(builder : PsiBuilder) : Unit = {
-        val classParamsMarker = builder.mark()
+      override def getElementType = ScalaElementTypes.CLASS_PARAMS
+
+      override def parseBody(builder : PsiBuilder) : Unit = {
         builder.getTokenType() match {
           case ScalaTokenTypes.kVAL
              | ScalaTokenTypes.kVAR
@@ -467,13 +459,12 @@ object TmplDef extends Constr {
           }
         }
       }
-
-      classParamsMarker.done(ScalaElementTypes.CLASS_PARAMS)
     }
 
     object ClassParam extends Constr {
-      override def parse(builder : PsiBuilder) : Unit = {
-        val classParamMarker = builder.mark()
+      override def getElementType = ScalaElementTypes.CLASS_PARAM
+
+      override def parseBody(builder : PsiBuilder) : Unit = {
 
         if (BNF.firstModifier.contains(builder.getTokenType)) {
           builder.getTokenType() match {
@@ -496,8 +487,6 @@ object TmplDef extends Constr {
         if (builder.getTokenType().equals(ScalaTokenTypes.tIDENTIFIER)) {
           Param.parse(builder)
         } else builder.error("expected identifier")
-
-        classParamMarker.done(ScalaElementTypes.CLASS_PARAM)
       }
     }
   }
@@ -505,9 +494,9 @@ object TmplDef extends Constr {
 
 
     object Param extends Constr {
-      override def parse(builder : PsiBuilder) : Unit = {
-        val paramsMarker = builder.mark()
+      override def getElementType = ScalaElementTypes.PARAM
 
+      override def parseBody(builder : PsiBuilder) : Unit = {
         if (builder.getTokenType().equals(ScalaTokenTypes.tIDENTIFIER)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         } else builder.error("expected identifier")
@@ -526,15 +515,13 @@ object TmplDef extends Constr {
              ParamType.parse(builder)
           }
         }
-
-       paramsMarker.done(ScalaElementTypes.PARAM)
       }
     }
 
     object ParamType extends Constr {
-      override def parse(builder : PsiBuilder) : Unit = {
-        val paramTypeMarker = builder.mark()
+      override def getElementType = ScalaElementTypes.PARAM_TYPE
 
+      override def parseBody(builder : PsiBuilder) : Unit = {
         if (builder.getTokenType().equals(ScalaTokenTypes.tFUNTYPE)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
         }
@@ -552,8 +539,6 @@ object TmplDef extends Constr {
         if (builder.getTokenType().equals(ScalaTokenTypes.tSTAR)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tSTAR)
         }
-
-        paramTypeMarker.done(ScalaElementTypes.PARAM_TYPE)
       }
     }
 

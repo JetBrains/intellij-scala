@@ -87,7 +87,7 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
         /* case (c) */ 
         } else if (builder.getTokenType.eq(ScalaTokenTypes.tLSQBRACKET)) {
           var res = TypeArgs.parse(builder)
-          if (res.eq(ScalaElementTypes.TYPEARGS)) subParse("typeargs")
+          if (res.eq(ScalaElementTypes.TYPE_ARGS)) subParse("typeargs")
           else {
             builder.error("Type argument expected")
             new SimpleExprResult(ScalaElementTypes.WRONGWAY, "wrong")
