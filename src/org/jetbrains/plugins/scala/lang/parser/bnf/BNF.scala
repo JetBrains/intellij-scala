@@ -91,4 +91,12 @@ object BNF {
   val firstTemplateStat : TokenSet = TokenSet.orSet(
     Array (firstImport, firstAttributeClause, firstModifier, firstDef, firstDcl)
   )
+
+  //todo: add first(Expression)
+  val firstExpr : TokenSet = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tIDENTIFIER,
+      ScalaTokenTypes.tINTEGER
+    )
+  )
 }
