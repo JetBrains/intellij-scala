@@ -536,7 +536,7 @@ object TmplDef extends Constr{
       override def parse(builder : PsiBuilder) : Unit = {
         val classParamMarker = builder.mark()
 
-        if (BNF.tMODIFIERS.contains(builder.getTokenType)) {
+        if (BNF.firstModifier.contains(builder.getTokenType)) {
           builder.getTokenType() match {
             case ScalaTokenTypes.kABSTRACT => { ParserUtils.eatElement(builder, ScalaTokenTypes.kABSTRACT) }
             case ScalaTokenTypes.kFINAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kFINAL) }
