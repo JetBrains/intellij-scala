@@ -24,7 +24,6 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
   @NonNls private static final String LIB_DIR_NAME = "lib";
 
   @NonNls private static final String SCALA_EXE_NAME = "scala";
-  private Sdk myJavaSdk;
 
   public ScalaSdkType() {
     super("scala sdk");
@@ -69,20 +68,24 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
       }
     }
 
-    addClassesForJava(sdkModificator);
-    addSourcesForJava(sdkModificator);
-    addDocsForJava(sdkModificator);
-    sdkModificator.commitChanges();
-  }
-
-  private void addClassesForJava(SdkModificator sdkModificator) {
-    if (myJavaSdk != null) {
-      addOrderEntriesForJava(OrderRootType.CLASSES, ProjectRootType.CLASS, myJavaSdk, sdkModificator);
+    ScalaSdkConfigurable.MyAdditionalData data = (ScalaSdkConfigurable.MyAdditionalData) sdk.getSdkAdditionalData();
+    if (data != null) {
+      Sdk javaSdk = data.findSdk();
+      addClassesForJava(sdkModificator, javaSdk);
+      addSourcesForJava(sdkModificator, javaSdk);
+      addDocsForJava(sdkModificator, javaSdk);
+      sdkModificator.commitChanges();
     }
   }
 
-  private void addDocsForJava(SdkModificator sdkModificator) {
-    if (myJavaSdk != null && !addOrderEntriesForJava(OrderRootType.JAVADOC, ProjectRootType.JAVADOC, myJavaSdk, sdkModificator) &&
+  private void addClassesForJava(SdkModificator sdkModificator, Sdk javaSdk) {
+    if (javaSdk != null) {
+      addOrderEntriesForJava(OrderRootType.CLASSES, ProjectRootType.CLASS, javaSdk, sdkModificator);
+    }
+  }
+
+  private void addDocsForJava(SdkModificator sdkModificator, Sdk javaSdk) {
+    if (javaSdk != null && !addOrderEntriesForJava(OrderRootType.JAVADOC, ProjectRootType.JAVADOC, javaSdk, sdkModificator) &&
         SystemInfo.isMac){
       ProjectJdk [] jdks = ProjectJdkTable.getInstance().getAllJdks();
       for (ProjectJdk jdk : jdks) {
@@ -94,9 +97,9 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
     }
   }
 
-  private void addSourcesForJava(SdkModificator sdkModificator) {
-    if (myJavaSdk != null) {
-      if (!addOrderEntriesForJava(OrderRootType.SOURCES, ProjectRootType.SOURCE, myJavaSdk, sdkModificator)){
+  private void addSourcesForJava(SdkModificator sdkModificator, Sdk javaSdk) {
+    if (javaSdk != null) {
+      if (!addOrderEntriesForJava(OrderRootType.SOURCES, ProjectRootType.SOURCE, javaSdk, sdkModificator)){
         if (SystemInfo.isMac) {
           ProjectJdk [] jdks = ProjectJdkTable.getInstance().getAllJdks();
           for (ProjectJdk jdk : jdks) {
@@ -107,7 +110,7 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
           }
         }
         else {
-          final File jdkHome = new File(myJavaSdk.getHomePath()).getParentFile();
+          final File jdkHome = new File(javaSdk.getHomePath()).getParentFile();
           @NonNls final String srcZip = "src.zip";
           final File jarFile = new File(jdkHome, srcZip);
           if (jarFile.exists()){
@@ -137,7 +140,7 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
 
 
   public AdditionalDataConfigurable createAdditionalDataConfigurable(SdkModel sdkModel, SdkModificator sdkModificator) {
-    return new ScalaSdkConfigurable(sdkModel, sdkModificator);
+    return new ScalaSdkConfigurable(sdkModel);
   }
 
   private static String getConvertedHomePath(Sdk sdk) {
@@ -193,13 +196,5 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
   }
 
   public void disposeComponent() {
-  }
-
-  public Sdk getJavaSdk() {
-    return myJavaSdk;
-  }
-
-  public void setJavaSdk(Sdk javaSdk) {
-    myJavaSdk = javaSdk;
   }
 }

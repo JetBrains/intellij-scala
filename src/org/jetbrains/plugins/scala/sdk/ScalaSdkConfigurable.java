@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.sdk;
 import com.intellij.openapi.projectRoots.*;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.util.Comparing;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.IdeBorderFactory;
 
 import javax.swing.*;
@@ -19,11 +20,9 @@ public class ScalaSdkConfigurable implements AdditionalDataConfigurable {
 
   private Sdk myScalaSdk;
   private SdkModel mySdkModel;
-  private SdkModificator mySdkModificator;
 
-  public ScalaSdkConfigurable(SdkModel sdkModel, SdkModificator sdkModificator) {
+  public ScalaSdkConfigurable(SdkModel sdkModel) {
     mySdkModel = sdkModel;
-    mySdkModificator = sdkModificator;
     myJavaSdkCbx = new JComboBox();
     DefaultComboBoxModel model = new DefaultComboBoxModel(getJavaSdks(sdkModel));
     myJavaSdkCbx.setModel(model);
@@ -69,7 +68,13 @@ public class ScalaSdkConfigurable implements AdditionalDataConfigurable {
   }
 
   public void apply() throws ConfigurationException {
-    mySdkModificator.setSdkAdditionalData(new MyAdditionalData(((Sdk) myJavaSdkCbx.getSelectedItem()).getName()));
+    final SdkModificator modificator = myScalaSdk.getSdkModificator();
+    modificator.setSdkAdditionalData(new MyAdditionalData(((Sdk) myJavaSdkCbx.getSelectedItem()).getName()));
+    ApplicationManager.getApplication().runWriteAction(new Runnable() {
+      public void run() {
+        modificator.commitChanges();
+      }
+    });
     myScalaSdk.getSdkType().setupSdkPaths(myScalaSdk);
   }
 
@@ -84,7 +89,7 @@ public class ScalaSdkConfigurable implements AdditionalDataConfigurable {
   public void disposeUIResources() {
   }
 
-  private class MyAdditionalData implements SdkAdditionalData {
+  class MyAdditionalData implements SdkAdditionalData {
     String myJavaSdkName;
     
     public MyAdditionalData(String javaSdkName) {
@@ -103,6 +108,10 @@ public class ScalaSdkConfigurable implements AdditionalDataConfigurable {
     public void checkValid(SdkModel sdkModel) throws ConfigurationException {
       if (myJavaSdkName == null) throw new ConfigurationException("No java sdk configured");
       if (findJavaSdkByName(myJavaSdkName) == null) throw new ConfigurationException("Cannot find jdk");
+    }
+
+    Sdk findSdk() {
+      return findJavaSdkByName(myJavaSdkName);
     }
   }
 
