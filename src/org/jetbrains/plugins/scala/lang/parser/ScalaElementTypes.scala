@@ -108,6 +108,10 @@ object ScalaElementTypes {
   /*************************************************************************************/
   val TEMPLATE_STAT_LIST = new ScalaElementType("template statements list")
 
+  val DEFINITION = new ScalaElementType("defifnition")
+
+  val DECLARATION = new ScalaElementType("declaration")
+
   /*************************************************************************************/
   /************************************** LITERALS *************************************/
   /*************************************************************************************/

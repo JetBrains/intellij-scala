@@ -11,6 +11,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Construction
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.IChameleonElementType
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateParents
+
 /**
  * User: Dmitry.Krasilschikov
  * Date: 16.10.2006
@@ -216,68 +219,6 @@ object TmplDef extends Constr{
 
         classTemplateMarker.done(ScalaElementTypes.CLASS_TEMPLATE)
       }
-    }
-
-    object TemplateParents extends Constr {
-      override def parse(builder : PsiBuilder) : Unit = {
-        val templateParents = builder.mark()
-
-        if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
-          Construction.parse(builder)
-        } else builder.error("expected identifier")
-
-        while (builder.getTokenType.equals(ScalaTokenTypes.kWITH)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.kWITH)
-
-          //todo check
-          SimpleType.parse(builder)
-        }
-
-        templateParents.done(ScalaElementTypes.TEMPLATE_PARENTS)
-      }
-    }
-
-    object TemplateBody extends Constr {
-      override def parse(builder : PsiBuilder) : Unit = {
-        val templateBody = builder.mark()
-
-        if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)) {
-          //ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
-         //todo
-          var counter = 1
-          var lastRBrace = false
-
-          while ( !builder.eof() && !lastRBrace){
-            builder.advanceLexer
-            val token = builder.getTokenType
-            if (token.equals(ScalaTokenTypes.tLBRACE)) {
-            Console.println("ate '{'")
-              counter = counter + 1
-            }
-
-
-            if (token.equals(ScalaTokenTypes.tRBRACE)) {
-            Console.println("ate '}'")
-              counter = counter - 1
-            }
-
-            if (counter == 0) {
-              lastRBrace = true
-              builder.advanceLexer
-            }
-          }
-         //
-
-        }
-
-        templateBody.done(ScalaElementTypes.TEMPLATE_BODY)
-      }
-
-   /*   override def isParsible(CharSequence buffer, val Project project) = {
-
-      }
-     */
-
     }
 
 
