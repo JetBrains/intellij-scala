@@ -180,19 +180,19 @@ object CompilationUnit extends Constr{
         AttributeClause.parse(builder)
       }
 
-      while (BNF.tMODIFIERS.contains(builder.getTokenType)) {
+      while (BNF.firstModifier.contains(builder.getTokenType)) {
         Console.println("parse modifier")
         isTmpl = true
         Modifier.parse(builder)
       }
 
-      if (isTmpl && !(builder.getTokenType.equals(ScalaTokenTypes.kCASE) || BNF.tTMPLDEF.contains(builder.getTokenType))) {
+      if (isTmpl && !(builder.getTokenType.equals(ScalaTokenTypes.kCASE) || BNF.firstTmplDef.contains(builder.getTokenType))) {
         builder.error("wrong type declaration")
         topStatMarker.done(ScalaElementTypes.TOP_STAT)
         return
       }
 
-      if (builder.getTokenType.equals(ScalaTokenTypes.kCASE) || BNF.tTMPLDEF.contains(builder.getTokenType)) {
+      if (builder.getTokenType.equals(ScalaTokenTypes.kCASE) || BNF.firstTmplDef.contains(builder.getTokenType)) {
         Console.println("parse tmplDef")
         TmplDef.parse(builder)
         topStatMarker.done(ScalaElementTypes.TOP_STAT)
