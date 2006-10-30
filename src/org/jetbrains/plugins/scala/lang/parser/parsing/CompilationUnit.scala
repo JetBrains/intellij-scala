@@ -36,8 +36,9 @@ import com.intellij.lang.PsiBuilder
 *         Packaging   ::=   package QualId ‘{’ TopStatSeq ‘}’
 */
 
-object CompilationUnit extends Constr{
-  override def parse (builder : PsiBuilder) : Unit = {
+object CompilationUnit extends Constr {
+  override def getElementType = ScalaElementTypes.COMPILATION_UNIT
+  override def parseBody (builder : PsiBuilder) : Unit = {
 
     Console.println("token type : " + builder.getTokenType())
     builder.getTokenType() match {
@@ -119,8 +120,10 @@ object CompilationUnit extends Constr{
 
 
   object TopStatSeq extends Constr {
-    override def parse(builder: PsiBuilder): Unit = {
-      val topStatSeq = builder.mark()
+    override def getElementType = ScalaElementTypes.TOP_STAT_SEQ
+
+    override def parseBody (builder: PsiBuilder): Unit = {
+
 
       Console.println("single top stat handle")
       TopStat.parse(builder)
@@ -144,12 +147,12 @@ object CompilationUnit extends Constr{
 
        // Console.println("after topStat token is " + builder.getTokenType())
       }
-     topStatSeq.done(ScalaElementTypes.TOP_STAT_SEQ)
+
     }
   }
 
-  object TopStat extends Constr {
-    override def parse(builder: PsiBuilder): Unit = {
+  object TopStat{
+    def parse(builder: PsiBuilder): Unit = {
       val topStatMarker = builder.mark()
 
       //Console.println("token type : " + builder.getTokenType())
@@ -207,7 +210,9 @@ object CompilationUnit extends Constr{
  
 
     object Package extends Constr {
-      override def parse(builder: PsiBuilder): Unit = {
+      override def getElementType = ScalaElementTypes.PACKAGE
+
+      override def parseBody(builder: PsiBuilder): Unit = {
 
         builder.getTokenType() match {
           case ScalaTokenTypes.kPACKAGE => {
@@ -233,8 +238,9 @@ object CompilationUnit extends Constr{
   }
 
     object Packaging extends Constr {
-      override def parse(builder: PsiBuilder) : Unit = {
-      val packagingMarker = builder.mark()
+      override def getElementType = ScalaElementTypes.PACKAGING
+
+      override def parseBody(builder: PsiBuilder) : Unit = {
 
         builder.getTokenType() match {
           case ScalaTokenTypes.kPACKAGE => {
@@ -258,12 +264,12 @@ object CompilationUnit extends Constr{
           case _ => { builder.error("expected 'package") }
         }
 
-        packagingMarker.done(ScalaElementTypes.PACKAGING)
       }
     }
 
     object QualId extends Constr {
-      override def parse(builder : PsiBuilder) : Unit = {
+      override def getElementType = ScalaElementTypes.QUAL_ID
+      override def parseBody(builder : PsiBuilder) : Unit = {
        //todo: change to simple qualID
        StableId.parse(builder)
       }

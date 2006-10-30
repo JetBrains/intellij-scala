@@ -5,8 +5,9 @@ import com.intellij.psi.tree.IElementType
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Construction, Import, AttributeClause, Modifier}
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Construction, Import, AttributeClause, Modifier, Ids}
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
@@ -165,6 +166,76 @@ object Template extends Constr{
 
   object Dcl extends Constr {
     def getElementType : IElementType = ScalaElementTypes.DECLARATION
+
+    override def parse(builder : PsiBuilder) : Unit = {
+      val marker = builder.mark()
+      parseBody(builder)
+      marker.done(getElementType)
+    }
+
+    def parseBody(builder : PsiBuilder) : Unit = {
+      builder.getTokenType match {
+        case ScalaTokenTypes.kVAL => {
+          ValAndVarDcl parse builder
+        }
+
+        case ScalaTokenTypes.kVAR => {
+          ValAndVarDcl parse builder
+        }
+
+        case ScalaTokenTypes.kDEF => {
+          FunDcl parse builder
+        }
+
+        case ScalaTokenTypes.kTYPE => {
+          TypeDcl parse builder
+        }
+
+        case _ => builder error "wrong declaration"
+      }
+    }
+  }
+
+  object ValAndVarDcl extends Constr {
+    def getElementType : IElementType = ScalaElementTypes.VAL_DCL
+
+    override def parse(builder : PsiBuilder) : Unit = {
+      val marker = builder.mark()
+      parseBody(builder)
+      marker.done(getElementType)
+    }
+
+    def parseBody(builder : PsiBuilder) : Unit = {
+      if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+        Ids parse builder
+      } else builder error "expected idnetifier"
+
+      if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+      } else builder error "expected ','"
+
+      if (BNF.firstType.contains(builder.getTokenType)) {
+        Type parse builder
+      } else builder error "expected type declaration"
+    }
+  }
+
+  object FunDcl extends Constr {
+    def getElementType : IElementType = ScalaElementTypes.FUN_DCL
+
+    override def parse(builder : PsiBuilder) : Unit = {
+      val marker = builder.mark()
+      parseBody(builder)
+      marker.done(getElementType)
+    }
+
+    def parseBody(builder : PsiBuilder) : Unit = {
+
+    }
+  }
+
+  object TypeDcl extends Constr {
+    def getElementType : IElementType = ScalaElementTypes.TYPE_DCL
 
     override def parse(builder : PsiBuilder) : Unit = {
       val marker = builder.mark()

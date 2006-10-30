@@ -27,34 +27,32 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplatePare
 
 */
 
-object TmplDef extends Constr{
-  abstract class TypeDef {
+object TmplDef extends Constr {
+
+  abstract class TypeDef extends Constr {
       def getKeyword : IElementType
+
+      override def getElementType = getDef
 
       def getDef :  IElementType
 
       def parseDef ( builder : PsiBuilder ) : Unit
 
-      def parse ( builder : PsiBuilder ) = {
+      def parseBody ( builder : PsiBuilder ) = {
 
-        val tmplDefMarker = builder.mark()
         //node : keyword
-        val keywordMarker = builder.mark()
-        builder.advanceLexer
-        keywordMarker.done(getKeyword)
+        ParserUtils.eatElement(builder, getKeyword)
 
         //definition of class
-        val defMarker = builder.mark()
-        parseDef ( builder )
-        defMarker.done( getDef )
 
+        parseDef ( builder )
 
         //body of class
         /*val bodyMarker = builder.mark()
         parseBody ( builder )
         bodyMarker.done( getBody )
           */
-        tmplDefMarker.done(ScalaElementTypes.TMPL_DEF)
+
       }
   }
 
@@ -572,38 +570,38 @@ object TmplDef extends Constr{
     }
   }
 
-  override def parse(builder : PsiBuilder) : Unit = {
-    def parseInst ( builder : PsiBuilder ) : Unit = {
-        Console.println("expected class or object : " + builder.getTokenType())
-        builder.getTokenType() match {
-          case ScalaTokenTypes.kCLASS => {
-            ClassDef.parse(builder)
-          }
+  override def getElementType = ScalaElementTypes.TMPL_DEF
 
-          case ScalaTokenTypes.kOBJECT => {
-              ObjectDef.parse(builder)
-          }
+  override def parseBody(builder : PsiBuilder) : Unit = {
+    def parseInst ( builder : PsiBuilder ) : Unit = {
+
+      Console.println("expected class or object : " + builder.getTokenType())
+      builder.getTokenType() match {
+        case ScalaTokenTypes.kCLASS => {
+          ClassDef.parse(builder)
         }
+
+        case ScalaTokenTypes.kOBJECT => {
+          ObjectDef.parse(builder)
+        }
+      }
     }
 
     Console.println("token type : " + builder.getTokenType())
+
     builder.getTokenType() match {
       case ScalaTokenTypes.kCASE => {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kCASE)
 
-        parseInst( builder ) //handle class and object
-      }
+        if (ScalaTokenTypes.kCLASS.equals(builder.getTokenType())
+          || ScalaTokenTypes.kOBJECT.equals(builder.getTokenType())) {
+          parseInst( builder ) //handle class and object
+        } else builder error "expected 'class' or 'object'"
 
-      case ScalaTokenTypes.kOBJECT | ScalaTokenTypes.kCLASS => {
-        parseInst( builder ) //handle class and object
       }
 
       case ScalaTokenTypes.kTRAIT => {
-        val traitStmtMarker = builder.mark();
-
-        TraitDef.parse( builder )
-
-        traitStmtMarker.done(ScalaElementTypes.TRAIT_STMT);
+       TraitDef.parse( builder )
       }
 
       case _ => builder.error("wrong type definition")

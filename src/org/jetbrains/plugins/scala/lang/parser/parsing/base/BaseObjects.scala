@@ -3,14 +3,16 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import com.intellij.lang.PsiBuilder
-import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.parser.parsing
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableIdInImport
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Exprs
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
+import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
+
+import com.intellij.lang.PsiBuilder
+import com.intellij.psi.tree.IElementType
 /**
  * User: Dmitry.Krasilschikov
  * Date: 17.10.2006
@@ -22,9 +24,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 */
 
 object StatementSeparator extends Constr{
-  override def parse(builder: PsiBuilder): Unit = {
-    var statementSeparatorMarker = builder.mark()
+  override def getElement = ScalaElementTypes.STATEMENT_SEPARATOR
 
+  override def parseBody(builder: PsiBuilder): Unit = {
     Console.println("token type : " + builder.getTokenType())
      builder.getTokenType() match {
       case ScalaTokenTypes.tSEMICOLON => {
@@ -37,8 +39,6 @@ object StatementSeparator extends Constr{
 
       case _ => { builder.error("wrong statement separator")}
     }
-
-   statementSeparatorMarker.done(ScalaElementTypes.STATEMENT_SEPARATOR)
   }
 }
 
@@ -47,39 +47,28 @@ object StatementSeparator extends Constr{
 */
 
 object AttributeClause extends Constr{
-  override def parse(builder: PsiBuilder): Unit = {
-    val attributeClauseMarker = builder.mark()
+  override def getElementType = ScalaElementTypes.ATTRIBUTE_CLAUSE;
+
+  override def parseBody(builder: PsiBuilder): Unit = {
 
     Console.println("token type : " + builder.getTokenType())
         builder.getTokenType() match {
       //expected left square brace
       case ScalaTokenTypes.tLSQBRACKET => {
-        val lsqbracketMarker = builder.mark()
-        builder.advanceLexer
-        lsqbracketMarker.done(ScalaTokenTypes.tLSQBRACKET)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
 
-        val attributeMarker = builder.mark()
         Attribute.parse(builder)
-        attributeMarker.done(ScalaElementTypes.ATTRIBUTE)
 
         //possible attributes, separated by comma
         while (builder.getTokenType().equals(ScalaTokenTypes.tCOMMA)){
-          val commaMarker = builder.mark()
-          builder.advanceLexer
-          commaMarker.done(ScalaTokenTypes.tCOMMA)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
-          val attributeMarker = builder.mark()
           Attribute.parse(builder)
-          attributeMarker.done(ScalaElementTypes.ATTRIBUTE)
         }
-
 
         //expected right square brace
         if (builder.getTokenType().equals(ScalaTokenTypes.tRSQBRACKET)) {
-          val rsqbracketMarker = builder.mark()
-          builder.advanceLexer
-          rsqbracketMarker.done(ScalaTokenTypes.tRSQBRACKET)
-
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
         } else {
           builder.error("expected ']'")
         }
@@ -88,9 +77,7 @@ object AttributeClause extends Constr{
         builder.getTokenType() match {
           //possible line terminator
           case ScalaTokenTypes.tLINE_TERMINATOR => {
-            val lineTerminatorMarker = builder.mark()
-            builder.advanceLexer
-            lineTerminatorMarker.done(ScalaTokenTypes.tLINE_TERMINATOR)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
           }
 
           case _ => {}
@@ -99,8 +86,6 @@ object AttributeClause extends Constr{
 
       case _ => { builder.error("wrong statement separator")}
     }
-
-     attributeClauseMarker.done(ScalaElementTypes.ATTRIBUTE_CLAUSE)
   }
 
 }
@@ -110,7 +95,9 @@ object AttributeClause extends Constr{
 */
 
 object Attribute extends Constr{
-  override def parse(builder: PsiBuilder): Unit = {
+  override def getElementType = ScalaElementTypes.ATTRIBUTE
+
+  override def parseBody(builder: PsiBuilder): Unit = {
     Construction.parse(builder)
   }
 }
@@ -120,9 +107,8 @@ object Attribute extends Constr{
 */
 
 object Construction extends Constr{
-  override def parse(builder: PsiBuilder): Unit = {
-    val constrMarker = builder.mark()
-
+  override def getElementType = ScalaElementTypes.CONSTRUCTION
+  override def parseBody(builder: PsiBuilder): Unit = {
     Console.println("token type : " + builder.getTokenType())
     builder.getTokenType() match {
       case ScalaTokenTypes.tIDENTIFIER => {
@@ -165,15 +151,15 @@ object Construction extends Constr{
 
       case _ => {builder.error("expected identifier")}
     }
-    constrMarker.done(ScalaElementTypes.CONSTRUCTION)
   }
 
 /*
     ExprInParenthis :== '(' [exprs] ')'
 */
 
-  object ExprInParenthis extends Constr {
-    override def parse(builder: PsiBuilder): Unit = {
+  object ExprInParenthis {
+
+    def parse(builder: PsiBuilder): Unit = {
 
       Console.println("token type in expr in par: " + builder.getTokenType())
       builder.getTokenType() match {
@@ -183,36 +169,13 @@ object Construction extends Constr{
           lparenthisMarker.done(ScalaTokenTypes.tLPARENTHIS)
 
           Console.println("token type in expr in par 2: " + builder.getTokenType())
-          builder.getTokenType() match {
-            case ScalaTokenTypes.tINTEGER
-               | ScalaTokenTypes.tFLOAT
-               | ScalaTokenTypes.kTRUE
-               | ScalaTokenTypes.kFALSE
-               | ScalaTokenTypes.tCHAR
-               | ScalaTokenTypes.kNULL
-               | ScalaTokenTypes.tSTRING_BEGIN
-               | ScalaTokenTypes.tPLUS
-               | ScalaTokenTypes.tMINUS
-               | ScalaTokenTypes.tTILDA
-               | ScalaTokenTypes.tNOT
-               | ScalaTokenTypes.tIDENTIFIER
-               => {
-               val exprsMarker = builder.mark()
+          if (BNF.firstExpr.contains(builder.getTokenType)) {
+            Exprs.parse(builder)
+          } else builder.error("expected expression")
 
-               //parse expression list
-               val res = Exprs.parse(builder)
-
-               Console.println("res exprs" + res.toString())
-
-               exprsMarker.done(ScalaElementTypes.EXPRS)
-            }
-
-            case _ => { builder.error("expected expression") }
-          }
 
           if (builder.getTokenType().equals(ScalaTokenTypes.tRPARENTHIS)) {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
-
           } else {
             builder.error("expected ')'")
           }
@@ -229,29 +192,21 @@ object Construction extends Constr{
  */
 
   object TypeArgs extends Constr{
+    override def getElementType = ScalaElementTypes.TYPE_ARGS
 
-    override def parse(builder: PsiBuilder): Unit = {
+    override def parseBody(builder: PsiBuilder): Unit = {
       Console.println("token type : " + builder.getTokenType())
-      builder.getTokenType() match {
-        case ScalaTokenTypes.tLSQBRACKET => {
-          val lsqbracketMarker = builder.mark()
-          builder.advanceLexer
-          lsqbracketMarker.done(ScalaTokenTypes.tLSQBRACKET)
 
-          val typesMarker = builder.mark()
-          Types.parse(builder)
-          typesMarker.done(ScalaElementTypes.TYPE_ARGS)
+      if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
 
-          if (builder.getTokenType().equals(ScalaTokenTypes.tRSQBRACKET)) {
-            val rsqbracketMarker = builder.mark()
-            builder.advanceLexer
-            rsqbracketMarker.done(ScalaTokenTypes.tRSQBRACKET)
-          } else {
-            builder.error("expected ']'")
-          }
+        Types.parse(builder)
 
+        if (builder.getTokenType().equals(ScalaTokenTypes.tRSQBRACKET)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
+        } else {
+          builder.error("expected ']'")
         }
-
       }
     }
   }
@@ -261,8 +216,19 @@ object Construction extends Constr{
 */
   
   object Types extends Constr{
-    override def parse(builder: PsiBuilder): Unit = {
+    override def getElementType = ScalaElementTypes.TYPES
+    override def parseBody(builder: PsiBuilder): Unit = {
+      if (BNF.firstType.contains(builder.getTokenType)){
+        Type parse builder
 
+        while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+
+          if (BNF.firstType.contains(builder.getTokenType)) {
+            Type parse builder
+          } else builder error "expected identifier"
+        }
+      }
     }
   }
 
@@ -275,10 +241,10 @@ object Construction extends Constr{
     | protected [ "[" id "]" ]
 */
 
-  object Modifier extends Constr { 
-    override def parse(builder: PsiBuilder): Unit = {
-      val modifierMarker = builder.mark()
+  object Modifier extends Constr {
+    override def getElementType = ScalaElementTypes.MODIFIER
 
+    override def parseBody(builder: PsiBuilder): Unit = {
       Console.println("token type : " + builder.getTokenType())
       builder.getTokenType() match {
          case ScalaTokenTypes.kABSTRACT
@@ -286,80 +252,78 @@ object Construction extends Constr{
             | ScalaTokenTypes.kSEALED
             | ScalaTokenTypes.kIMPLICIT
             => {
-            val localModifierMarker = builder.mark()
             LocalModifier.parse(builder)
-            localModifierMarker.done(ScalaElementTypes.LOCAL_MODIFIER)
          }
 
         case ScalaTokenTypes.kOVERRIDE => {
-          val overrideMarker = builder.mark()
-          builder.advanceLexer
-          overrideMarker.done(ScalaTokenTypes.kOVERRIDE)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.kOVERRIDE)
         }
 
         case ScalaTokenTypes.kPRIVATE
            | ScalaTokenTypes.kPROTECTED
            => {
-           val accessModifierMarker = builder.mark()
            AccessModifier.parse(builder)
-           accessModifierMarker.done(ScalaElementTypes.MODIFIER_ACCESS)
         }
       }
-
-      modifierMarker.done(ScalaElementTypes.MODIFIER)
     }
   }
 
   object AccessModifier extends Constr{
-    override def parse(builder: PsiBuilder): Unit = {
+    override def getElementType = ScalaElementTypes.ACCESS_MODIFIER
+
+    override def parseBody(builder: PsiBuilder): Unit = {
       Console.println("token type : " + builder.getTokenType())
-      builder.getTokenType() match {
-        case ScalaTokenTypes.tLSQBRACKET => {
-          val lsqbracketMarker = builder.mark()
-          builder.advanceLexer
-          lsqbracketMarker.done(ScalaTokenTypes.tLSQBRACKET)
 
-          Console.println("token type : " + builder.getTokenType())
-          builder.getTokenType() match {
-            case ScalaTokenTypes.tIDENTIFIER => {
-              val idMarker = builder.mark()
-              builder.advanceLexer
-              idMarker.done(ScalaTokenTypes.tIDENTIFIER)
-            }
 
-            case _ => { builder.error("expected identifier") }
-          }
+      if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)){
+        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+        } else builder.error("expected identifier")
 
-          if ( !builder.getTokenType().equals(ScalaTokenTypes.tRSQBRACKET) ){
-            builder.error("expected ']'")
-          }
-        }
+        if ( builder.getTokenType.equals(ScalaTokenTypes.tRSQBRACKET) ){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
+        } else builder.error("expected ']'")
       }
     }
   }
 
 
   object LocalModifier extends Constr{
-    override def parse(builder: PsiBuilder): Unit = {
+    override def getElementType = ScalaElementTypes.LOCAL_MODIFIER
+
+    override def parseBody(builder: PsiBuilder): Unit = {
       Console.println("token type : " + builder.getTokenType())
-      builder.getTokenType() match {
-        case ScalaTokenTypes.kABSTRACT
-           | ScalaTokenTypes.kFINAL
-           | ScalaTokenTypes.kSEALED
-           | ScalaTokenTypes.kIMPLICIT
-           => {
-             val localModifierMarker = builder.mark()
-             builder.advanceLexer
-             localModifierMarker.done(ScalaElementTypes.LOCAL_MODIFIER)
-           }
-       }
+
+      if (BNF.firstLocalModifier.contains(builder.getTokenType)) {
+        builder.getTokenType() match {
+          case ScalaTokenTypes.kABSTRACT => {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.kABSTRACT)
+          }
+
+          case ScalaTokenTypes.kFINAL => {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.kFINAL)
+          }
+
+          case ScalaTokenTypes.kSEALED => {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.kSEALED)
+          }
+
+          case ScalaTokenTypes.kIMPLICIT => {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.kIMPLICIT)
+          }
+
+          case _ => builder error "expected local modifier"
+        }
+
+      } else builder error "expected local modifier"
+
     }
   }
 
   object Import extends Constr {
-    override def parse(builder: PsiBuilder): Unit = {
-      val importMarker = builder.mark()
+    override def getElementType = ScalaElementTypes.IMPORT
 
+    override def parseBody(builder: PsiBuilder): Unit = {
       builder.getTokenType() match {
         case ScalaTokenTypes.kIMPORT => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kIMPORT)
@@ -384,14 +348,13 @@ object Construction extends Constr{
 
         case _ => { builder.error("expected 'import'") }
       }
-
-      importMarker.done(ScalaElementTypes.IMPORT)
     }
 
 
   object ImportExpr extends Constr {
-    override def parse(builder: PsiBuilder): Unit = {
-      val importExprMarker = builder.mark()
+    override def getElementType = ScalaElementTypes.IMPORT_EXPR
+
+    override def parseBody(builder: PsiBuilder): Unit = {
 
       builder.getTokenType() match {
         case ScalaTokenTypes.tIDENTIFIER => {
@@ -438,12 +401,13 @@ object Construction extends Constr{
         case _ => { builder.error("expected identifier") }
       }
 
-      importExprMarker.done(ScalaElementTypes.IMPORT_EXPR)
     }
   }
 
   object ImportSelectors extends Constr{
-    override def parse(builder: PsiBuilder): Unit = {
+    override def getElementType = ScalaElementTypes.IMPORT_SELECTORS
+
+    override def parseBody(builder: PsiBuilder): Unit = {
 
      def checkForImportSelectors (first : IElementType, second : IElementType, third : IElementType, fourth : IElementType) : Boolean = {
       if (!first.equals(ScalaTokenTypes.tIDENTIFIER))
@@ -510,14 +474,13 @@ object Construction extends Constr{
         case _ => { builder.error("expected '{'")}
       }
 
-      importSelectorsMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
     }
   }
 
   object ImportSelector extends Constr{
-    override def parse(builder: PsiBuilder): Unit = {
-      val importSelectorMarker = builder.mark()
+    override def getElementtype = ScalaElementTypes.IMPORT_SELECTOR
 
+    override def parseBody(builder: PsiBuilder): Unit = {
       builder.getTokenType() match {
         case ScalaTokenTypes.tIDENTIFIER => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
@@ -547,10 +510,33 @@ object Construction extends Constr{
 
         case _ => { builder.error("expected identifier") }
       }
-
-      importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTOR)
     }
   }
+ }
+
+ object Ids extends Constr {
+  def getElementType : IElementType = ScalaElementTypes.IDENTIFIER_LIST
+
+    override def parse(builder : PsiBuilder) : Unit = {
+      val marker = builder.mark()
+      parseBody(builder)
+      marker.done(getElementType)
+    }
+
+    def parseBody(builder : PsiBuilder) : Unit = {
+
+     if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+      ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+     } else builder error "expected identifier"
+
+     while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
+       ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+
+       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+       } else builder error "expected identifier"
+     }
+   }
  }
 
 }
