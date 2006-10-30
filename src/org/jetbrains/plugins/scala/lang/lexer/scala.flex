@@ -241,7 +241,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ":"                                     {   return process(tCOLON);  }
 "="                                     {   return process(tASSIGN);  }
 "=>"                                    {   return process(tFUNTYPE); }
-"'\u21D2'"                              {   return process(tFUNTYPE_ASCII); }
+\u21D2                                  {   return process(tFUNTYPE_ASCII); }
 "<-"                                    {   return process(tCHOOSE); }
 "<:"                                    {   return process(tLOWER_BOUND); }
 ">:"                                    {   return process(tUPPER_BOUND); }
