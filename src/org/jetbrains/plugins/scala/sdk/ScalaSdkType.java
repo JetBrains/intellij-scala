@@ -71,21 +71,21 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
     ScalaSdkConfigurable.MyAdditionalData data = (ScalaSdkConfigurable.MyAdditionalData) sdk.getSdkAdditionalData();
     if (data != null) {
       Sdk javaSdk = data.findSdk();
-      addClassesForJava(sdkModificator, javaSdk);
-      addSourcesForJava(sdkModificator, javaSdk);
-      addDocsForJava(sdkModificator, javaSdk);
-      sdkModificator.commitChanges();
+      if (javaSdk != null) {
+        addClassesForJava(sdkModificator, javaSdk);
+        addSourcesForJava(sdkModificator, javaSdk);
+        addDocsForJava(sdkModificator, javaSdk);
+      }
     }
+    sdkModificator.commitChanges();
   }
 
-  private void addClassesForJava(SdkModificator sdkModificator, Sdk javaSdk) {
-    if (javaSdk != null) {
-      addOrderEntriesForJava(OrderRootType.CLASSES, ProjectRootType.CLASS, javaSdk, sdkModificator);
-    }
+  private void addClassesForJava(SdkModificator sdkModificator, @NotNull Sdk javaSdk) {
+    addOrderEntriesForJava(OrderRootType.CLASSES, ProjectRootType.CLASS, javaSdk, sdkModificator);
   }
 
-  private void addDocsForJava(SdkModificator sdkModificator, Sdk javaSdk) {
-    if (javaSdk != null && !addOrderEntriesForJava(OrderRootType.JAVADOC, ProjectRootType.JAVADOC, javaSdk, sdkModificator) &&
+  private void addDocsForJava(SdkModificator sdkModificator, @NotNull Sdk javaSdk) {
+    if (!addOrderEntriesForJava(OrderRootType.JAVADOC, ProjectRootType.JAVADOC, javaSdk, sdkModificator) &&
         SystemInfo.isMac){
       ProjectJdk [] jdks = ProjectJdkTable.getInstance().getAllJdks();
       for (ProjectJdk jdk : jdks) {
@@ -97,28 +97,26 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
     }
   }
 
-  private void addSourcesForJava(SdkModificator sdkModificator, Sdk javaSdk) {
-    if (javaSdk != null) {
-      if (!addOrderEntriesForJava(OrderRootType.SOURCES, ProjectRootType.SOURCE, javaSdk, sdkModificator)){
-        if (SystemInfo.isMac) {
-          ProjectJdk [] jdks = ProjectJdkTable.getInstance().getAllJdks();
-          for (ProjectJdk jdk : jdks) {
-            if (jdk.getSdkType() instanceof JavaSdk) {
-              addOrderEntriesForJava(OrderRootType.SOURCES, ProjectRootType.SOURCE, jdk, sdkModificator);
-              break;
-            }
+  private void addSourcesForJava(SdkModificator sdkModificator, @NotNull Sdk javaSdk) {
+    if (!addOrderEntriesForJava(OrderRootType.SOURCES, ProjectRootType.SOURCE, javaSdk, sdkModificator)){
+      if (SystemInfo.isMac) {
+        ProjectJdk [] jdks = ProjectJdkTable.getInstance().getAllJdks();
+        for (ProjectJdk jdk : jdks) {
+          if (jdk.getSdkType() instanceof JavaSdk) {
+            addOrderEntriesForJava(OrderRootType.SOURCES, ProjectRootType.SOURCE, jdk, sdkModificator);
+            break;
           }
         }
-        else {
-          final File jdkHome = new File(javaSdk.getHomePath()).getParentFile();
-          @NonNls final String srcZip = "src.zip";
-          final File jarFile = new File(jdkHome, srcZip);
-          if (jarFile.exists()){
-            JarFileSystem jarFileSystem = JarFileSystem.getInstance();
-            String path = jarFile.getAbsolutePath().replace(File.separatorChar, '/') + JarFileSystem.JAR_SEPARATOR;
-            jarFileSystem.setNoCopyJarForPath(path);
-            sdkModificator.addRoot(jarFileSystem.findFileByPath(path), ProjectRootType.SOURCE);
-          }
+      }
+      else {
+        final File jdkHome = new File(javaSdk.getHomePath()).getParentFile();
+        @NonNls final String srcZip = "src.zip";
+        final File jarFile = new File(jdkHome, srcZip);
+        if (jarFile.exists()){
+          JarFileSystem jarFileSystem = JarFileSystem.getInstance();
+          String path = jarFile.getAbsolutePath().replace(File.separatorChar, '/') + JarFileSystem.JAR_SEPARATOR;
+          jarFileSystem.setNoCopyJarForPath(path);
+          sdkModificator.addRoot(jarFileSystem.findFileByPath(path), ProjectRootType.SOURCE);
         }
       }
     }
