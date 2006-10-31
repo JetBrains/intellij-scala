@@ -149,5 +149,6 @@ public interface ScalaTokenTypes {
     IElementType tVIEW = new ScalaElementType("<%");
     IElementType tINNER_CLASS = new ScalaElementType("#");
     IElementType tAT = new ScalaElementType("@");
+    IElementType tQUESTION = new ScalaElementType("?");
     
 }
