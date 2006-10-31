@@ -143,6 +143,9 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////////////////  states ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+%state IN_LINE_COMMENT_STATE
+// In line comment
+
 %state IN_BLOCK_COMMENT_STATE
 // In block comment
 
@@ -162,9 +165,11 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-"//" ~ {LineTerminator}                   {   return process(tCOMMENT);  }
+"//" {special}*                           {   yybegin(IN_LINE_COMMENT_STATE);
+                                              return process(tCOMMENT);
+                                          }
 
-"/*" {special}*                    {   yybegin(IN_BLOCK_COMMENT_STATE);
+"/*" {special}*                           {   yybegin(IN_BLOCK_COMMENT_STATE);
                                               return process(tCOMMENT);
                                           }
 
@@ -237,6 +242,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 
 ///////////////////// Reserved shorthands //////////////////////////////////////////
 "*"                                     {   return process(tSTAR);  }
+"?"                                     {   return process(tQUESTION);  }
 "_"                                     {   return process(tUNDER);  }
 ":"                                     {   return process(tCOLON);  }
 "="                                     {   return process(tASSIGN);  }
@@ -296,6 +302,19 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
                                         }
 
 .|{LineTerminator}                      {   return process(tCOMMENT); }
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////// In line comment //////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+<IN_LINE_COMMENT_STATE>{
+
+{LineTerminator}                        {   yybegin(YYINITIAL);
+                                            return process(tLINE_TERMINATOR);
+                                        }
+
+.                                       {   return process(tCOMMENT); }
 
 }
 
