@@ -151,7 +151,10 @@ object ScalaElementTypes {
   val EXPR = new ScalaElementType("expression")
   val EXPRS = new ScalaElementType("list of expressions")
 
-  val ARG_EXPRS = new ScalaElementType("arguments of function")  
+  val ARG_EXPRS = new ScalaElementType("arguments of function")
+  val BLOCK_EXPR = new ScalaElementType("block of expressions")
+  val BLOCK = new ScalaElementType("block")
+  val BLOCK_STAT = new ScalaElementType("block statements")
 
 
   /*************************************************************************************/
@@ -221,7 +224,6 @@ object ScalaElementTypes {
 
   val CASE_CLAUSES = new ScalaElementType("argument expr")
 
-  val BLOCK = new ScalaElementType("block")
 
 
 

@@ -11,4 +11,13 @@ import org.jetbrains.plugins.scala.lang.psi._
       override def toString: String = "Argument expressions "+ getText
   }
 
+  case class ScBlockExprImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Block expressions "
+  }
+
+  case class ScBlockStatImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Common block statement"
+  }
+
+
 }

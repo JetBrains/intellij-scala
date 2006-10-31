@@ -78,10 +78,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
       var flag = false
       do {
         rollForward
-//          result = BlockStat.parse(builder)
-//          if (result.eq(ScalaElementTypes.BLOCK_STAT)) {
-        result = CompositeExpr.parse(builder)
-        if (result.eq(ScalaElementTypes.EXPR1)) {
+        result = BlockStat.parse(builder)
+        if (result.eq(ScalaElementTypes.BLOCK_STAT)) {
           rollbackMarker.drop()
           rollForward
           rollbackMarker = builder.mark()
@@ -102,7 +100,30 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         }
       } while (flag)
       result
+    }
+  }
 
+  /**
+  BLOCK STATEMENTS
+  BlockStat ::= Import
+            | [implicit] Def
+            | {LocalModifier} TmplDef
+            | Expr1
+            |
+  **/
+  object BlockStat {
+
+    def parse(builder : PsiBuilder) : ScalaElementType = {
+      val blockStatMarker = builder.mark()
+      var result = CompositeExpr.parse(builder)
+      if (result == ScalaElementTypes.EXPR1) {
+        blockStatMarker.done(ScalaElementTypes.BLOCK_STAT)
+        ScalaElementTypes.BLOCK_STAT
+      }
+      else {
+        blockStatMarker.rollbackTo
+        ScalaElementTypes.WRONGWAY
+      }
     }
 
   }

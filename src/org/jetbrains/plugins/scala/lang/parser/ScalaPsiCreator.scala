@@ -69,6 +69,8 @@ object ScalaPsiCreator {
     case ScalaElementTypes.EXPR => new ScExprImpl(node)
     case ScalaElementTypes.EXPRS => new ScExprsImpl(node)
     case ScalaElementTypes.ARG_EXPRS => new ScArgumentExprsImpl(node)
+    case ScalaElementTypes.BLOCK_EXPR => new ScBlockExprImpl(node)
+    case ScalaElementTypes.BLOCK_STAT => new ScBlockStatImpl(node)
 
     /*****************************************************/
     /********************** PRIMITIVES ********************/
