@@ -43,8 +43,6 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       (msg:String) => errorDone(msg)
     }
 
-
-
     /***********************/
     /**** Various cases ****/
     /***********************/
@@ -178,10 +176,15 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
               ParserUtils.rollForward(builder)
               val res1 = Expr.parse(builder)
               if (res1.eq(ScalaElementTypes.EXPR)){
+                var mileMarker = builder.mark()
                 ParserUtils.rollForward(builder)
                 builder.getTokenType match {
-                  case ScalaTokenTypes.kELSE | ScalaTokenTypes.tSEMICOLON => elseProcessing
+                  case ScalaTokenTypes.kELSE | ScalaTokenTypes.tSEMICOLON => {
+                    mileMarker.drop()
+                    elseProcessing
+                  }
                   case _ => {
+                    mileMarker.rollbackTo()
                     rollbackMarker.drop()
                     compMarker.done(ScalaElementTypes.EXPR1)
                     ScalaElementTypes.EXPR1
@@ -219,7 +222,6 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
               ParserUtils.rollForward(builder)
               val res1 = Expr.parse(builder)
               if (res1.eq(ScalaElementTypes.EXPR)){
-                ParserUtils.rollForward(builder)
                 rollbackMarker.drop()
                 compMarker.done(ScalaElementTypes.EXPR1)
                 ScalaElementTypes.EXPR1
