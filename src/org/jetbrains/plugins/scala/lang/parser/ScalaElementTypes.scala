@@ -36,6 +36,7 @@ object ScalaElementTypes {
   val CLASS_TEMPLATE = new ScalaElementType("class template")
   val TEMPLATE_BODY = new ScalaElementType("template body")
   val TEMPLATE_PARENTS = new ScalaElementType("template parents")
+  val TEMPLATE_STAT = new ScalaElementType("template statement")
   val TEMPLATE = new ScalaElementType("template")
 
   val TYPE_PARAM_CLAUSE = new ScalaElementType("type parameter clause")
@@ -115,6 +116,12 @@ object ScalaElementTypes {
 
   /*************** DECLARATION *********************/
   val DECLARATION = new ScalaElementType("declaration")
+
+  val VALUE_DECLARATION = new ScalaElementType("value declaration")
+  val VARIABLE_DECLARATION = new ScalaElementType("variable declaration")
+  val FUNCTION_DECLARATION = new ScalaElementType("function declaration")
+  val TYPE_DECLARATION = new ScalaElementType("type declaration")
+  
   val VAL_DCL = new ScalaElementType("declaration of value")
   val VAR_DCL = new ScalaElementType("declaration of variable")
   val FUN_DCL = new ScalaElementType("declaration of function")
@@ -122,7 +129,13 @@ object ScalaElementTypes {
 
   /**************** DEFINITION *********************/
   val DEFINITION = new ScalaElementType("defifnition")
-  val VAL_DEF = new ScalaElementType("definition of value")
+
+  val VALUE_DEFINITION = new ScalaElementType("value definition")
+  val VARIABLE_DEFINITION = new ScalaElementType("variable definition")
+  val FUNCTION_DEFINITION = new ScalaElementType("function definition")
+  val TYPE_DEFINITION = new ScalaElementType("type definition")
+
+  val PAT_DEF = new ScalaElementType("pattern definition")
   val VAR_DEF = new ScalaElementType("definition of variable")
   val FUN_DEF = new ScalaElementType("definition of function")
   val TYPE_DEF = new ScalaElementType("definition of type")

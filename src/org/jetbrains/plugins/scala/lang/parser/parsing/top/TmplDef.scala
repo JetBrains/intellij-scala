@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
 import com.intellij.lang.PsiBuilder
+import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.IChameleonElementType
+import com.intellij.psi.tree.TokenSet
+
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
@@ -9,8 +13,6 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Construction
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
-import com.intellij.psi.tree.IElementType
-import com.intellij.psi.tree.IChameleonElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateParents
 
@@ -27,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplatePare
 
 */
 
-object TmplDef extends Constr {
+object TmplDef extends ConstrList {
 
   abstract class TypeDef extends Constr {
       def getKeyword : IElementType
@@ -125,8 +127,6 @@ object TmplDef extends Constr {
          || b.equals(ScalaTokenTypes.kSEALED    )
          || b.equals(ScalaTokenTypes.tIDENTIFIER)
          )
-
-
     }
 
     def checkForImplicit(first : IElementType, second : IElementType, third : IElementType) : Boolean = {
@@ -205,8 +205,9 @@ object TmplDef extends Constr {
           } else builder.error("expected identifier")
         }
 
+        Console.println("before parsing templateBody " + builder.getTokenType)
         if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)){
-            TemplateBody.parse(builder)
+          TemplateBody.parse(builder)
         } else if (builder.getTokenType.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
 
@@ -557,6 +558,15 @@ object TmplDef extends Constr {
 
   override def getElementType = ScalaElementTypes.TMPL_DEF
 
+  override def first = TokenSet.create(
+    Array(
+      ScalaTokenTypes.kCASE,
+      ScalaTokenTypes.kCLASS,
+      ScalaTokenTypes.kOBJECT,
+      ScalaTokenTypes.kTRAIT
+    )
+  )
+  
   override def parseBody(builder : PsiBuilder) : Unit = {
     def parseInst ( builder : PsiBuilder ) : Unit = {
 
@@ -604,3 +614,37 @@ object TmplDef extends Constr {
   }
 }
 
+
+
+//todo: add [funTypeParamClause] and {ParamClause}
+   object FunSig extends Constr {
+    override def getElementType : IElementType = ScalaElementTypes.FUN_DEF
+
+    override def parseBody(builder : PsiBuilder) : Unit = {
+       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+        FunSig parse builder
+
+
+        if (ScalaTokenTypes.tEQUAL.equals(builder.getTokenType)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tEQUAL)
+
+          if (BNF.firstType.contains(builder.getTokenType)) {
+            Type parse builder
+
+          } else {
+            builder error "expected type declaration"
+            return
+          }
+
+        } else {
+          builder error "expected '='"
+          return
+        }
+
+      } else {
+        builder error "expected identifier"
+        return
+      }
+
+    }
+  }

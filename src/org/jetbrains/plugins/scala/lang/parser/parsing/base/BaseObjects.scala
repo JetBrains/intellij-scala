@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 
+import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 /**
@@ -328,7 +329,7 @@ object Construction extends Constr{
         case ScalaTokenTypes.kIMPORT => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kIMPORT)
 
-          builder.getTokenType() match {
+          /*builder.getTokenType() match {
             case ScalaTokenTypes.tIDENTIFIER => {
               val importExprsMarker = builder.mark()
 
@@ -343,7 +344,9 @@ object Construction extends Constr{
             }
             case _ => { builder.error("expected identifier") }
 
-          }
+          } */
+
+          ParserUtils.listOfSmth(builder, ImportExpr, ScalaTokenTypes.tCOMMA, ScalaElementTypes.IMPORT_EXPRS)
         }
 
         case _ => { builder.error("expected 'import'") }
@@ -351,8 +354,14 @@ object Construction extends Constr{
     }
 
 
-  object ImportExpr extends Constr {
+  object ImportExpr extends ConstrList {
     override def getElementType = ScalaElementTypes.IMPORT_EXPR
+
+    override def first = TokenSet.create (
+      Array(
+        ScalaTokenTypes.tIDENTIFIER
+      )
+    )
 
     override def parseBody(builder: PsiBuilder): Unit = {
 
