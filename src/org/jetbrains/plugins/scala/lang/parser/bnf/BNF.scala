@@ -118,6 +118,12 @@ object BNF {
     )
   )
 
+  val firstLineTerminate :  TokenSet = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tLINE_TERMINATOR
+    )
+  )
+
   val firstTemplateStat : TokenSet = TokenSet.orSet(
     Array (
       firstImport,
@@ -125,13 +131,30 @@ object BNF {
       firstModifier,
       firstDef,
       firstDcl,
-      firstExpr)
+      firstExpr,
+      firstLineTerminate
+    )
   )
 
   //todo: add first(Type)
   val firstType : TokenSet = TokenSet.create(
     Array (
       ScalaTokenTypes.tIDENTIFIER
+    )
+  )
+
+  val firstFunSig : TokenSet = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tIDENTIFIER
+    )
+  )
+
+  val firstFunDef = firstFunSig 
+
+  val firstStatementSeparator = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tLINE_TERMINATOR,
+      ScalaTokenTypes.tSEMICOLON
     )
   )
 }

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.TokenSet
 /**
  * User: Dmitry.Krasilschikov
  * Date: 19.10.2006
@@ -17,4 +18,8 @@ abstract class Constr {
    def getElementType : IElementType
    def parseBody (builder : PsiBuilder) : Unit
 
+}
+
+abstract class ConstrList extends Constr{
+   def first : TokenSet
 }

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.parser.util
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrList
 import org.jetbrains.plugins.scala.lang.parser.parsing.Constr
 import com.intellij.psi.tree.IElementType
 
@@ -23,12 +24,73 @@ object ParserUtils {
   //Write element node
   def eatElement(builder: PsiBuilder, elem: IElementType): Unit = {
     val marker = builder.mark()
-    //Console.println("eaten token : " + builder.getTokenType())
     builder.advanceLexer // Ate something
     marker.done(elem)
   }
 
-  //wants make class Constr(builder) and it's memebers: var builder and def parse
+  def listOfSmth(builder: PsiBuilder, itemType : ConstrList, delimiter : IElementType, listType : IElementType) : Unit = {
+    val listMarker = builder.mark()
+
+    if (itemType.first.contains(builder.getTokenType)) {
+      itemType parse builder
+    } else {
+      builder error "wrong item"
+      listMarker.drop()
+      return
+    }
+
+    while (builder.getTokenType.equals(delimiter)) {
+      eatElement(builder, delimiter);
+
+      if (itemType.first.contains(builder.getTokenType)) {
+        itemType parse builder
+      } else {
+        builder error "expected next item"
+        listMarker.drop()
+        return
+      }
+    }
+
+    listMarker.done(listType)
+  }
+
+  /*
+   *   Parse block in breaces
+   *
+   *   smthInBraces parse block between braces : expected pair '{ }', '[ ]', '{ }'
+   *   @param builder - PsiBuilder of parser
+   *   @param constr - The construction in block
+   *   @param leftBrace - The left brace of block
+   *   @param rightBrace - The right brace of block
+   *   @param blockType - The type of block
+   *
+   *   @return parsed block
+   */
+
+  def smthInBraces(builder: PsiBuilder, constr : Constr, leftBrace : IElementType, rightBrace : IElementType, blockType : IElementType) : IElementType= {
+    val blockMarker = builder.mark()
+
+    if (leftBrace.equals(builder.getTokenType)) {
+      eatElement(builder, leftBrace)
+
+      constr parse builder
+
+      if (rightBrace.equals(builder.getTokenType)) {
+        eatElement(builder, rightBrace)
+      } else {
+        builder error "expected right brace"
+        return ScalaElementTypes.WRONGWAY
+      }
+
+    } else {
+      builder error "expected left brace"
+      return ScalaElementTypes.WRONGWAY
+    }
+
+    blockMarker.done(blockType)
+    blockType
+  }
+
   def eatConstr(builder : PsiBuilder, constr: Constr, element : IElementType) : IElementType = {
     val marker = builder.mark()
     //Console.println("before parsing " + constr + " : " + builder.getTokenType())
@@ -37,6 +99,7 @@ object ParserUtils {
     marker.done(element)
     element
   }
+  
 
   //Write element node
   def errorToken(builder: PsiBuilder,
