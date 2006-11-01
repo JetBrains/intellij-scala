@@ -67,7 +67,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         while ( !builder.eof() && flag1){
            builder.getTokenType match{
              case ScalaTokenTypes.tLINE_TERMINATOR
-                | ScalaTokenTypes.tSEMICOLON => builder.advanceLexer
+                | ScalaTokenTypes.tSEMICOLON => {
+                  ParserUtils.eatElement(builder, builder.getTokenType())
+                }
              case _ => flag1 = false
            }
         }
