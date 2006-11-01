@@ -36,14 +36,18 @@
 
   <target name="clear.all" description="Clears results">
     <delete>
-      <fileset dir="${project.lib}"
-               includes="**/*.class"/>
+      <fileset dir="${project.lib}"/>
     </delete>
   </target>
 
   <target name="rebuild.all" depends="clear.all" description="Builds all classes">
 
-    <!-- Compiling lexer...-->
+    <mkdir dir="${project.lib}/META-INF"/>
+
+    <copy todir="${project.lib}/META-INF">
+      <fileset dir="../META-INF"/>
+    </copy>
+
     <javac srcdir="."
            destdir="../classes/production/Scala">
       <classpath refid="base.path"/>
@@ -66,12 +70,12 @@
       <include name="**/*.scala"/>
     </scalac>
 
-    <scalac srcdir="../test"
+    <!--scalac srcdir="../test"
             destdir="../classes/production/Scala"
             force="changed">
       <classpath refid="base.path"/>
       <include name="**/*.scala"/>
-    </scalac>
+    </scalac-->
 
   </target>
 
