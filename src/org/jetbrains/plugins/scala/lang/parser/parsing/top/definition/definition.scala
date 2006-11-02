@@ -13,7 +13,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
 import org.jetbrains.plugins.scala.lang.parser.parsing.Constr
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.FunSig
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParam
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClause
 
 /**
  * User: Dmitry.Krasilschikov
@@ -21,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.FunSig
  * Time: 19:45:50
  */
 
-    object Def extends ConstrList {
+    object Def extends ConstrItem {
       override def getElementType : IElementType = ScalaElementTypes.DEFINITION
 
       override def first : TokenSet = TokenSet.orSet(
@@ -49,24 +50,30 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.FunSig
           defMarker.done(definition)
         }
 
+         Console.println("token : " + builder.getTokenType)
         builder.getTokenType match {
           case ScalaTokenTypes.kVAL => {
+            Console.println("kVAL")
             wrapDef(ScalaElementTypes.VALUE_DEFINITION, ScalaTokenTypes.kVAL, PatDef)
           }
 
           case ScalaTokenTypes.kVAR => {
+            Console.println("kVAR")
             wrapDef(ScalaElementTypes.VARIABLE_DEFINITION, ScalaTokenTypes.kVAR, VarDef)
           }
 
           case ScalaTokenTypes.kDEF => {
+          Console.println("kDEF")
             wrapDef(ScalaElementTypes.FUNCTION_DEFINITION, ScalaTokenTypes.kDEF, FunDef)
           }
 
           case ScalaTokenTypes.kTYPE => {
+          Console.println("kTYPE")
             wrapDef(ScalaElementTypes.TYPE_DEFINITION, ScalaTokenTypes.kTYPE, TypeDef)
           }
 
           case _ => {
+            Console.println("other" + builder.getTokenType)
             if (BNF.firstTmplDef.contains(builder.getTokenType)) {
               TmplDef parse builder
             } else {
@@ -79,7 +86,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.FunSig
     }
 
 
-   object PatDef extends ConstrList {
+   object PatDef extends ConstrItem {
       override def getElementType : IElementType = ScalaElementTypes.PAT_DEF
 
       override def first : TokenSet = TokenSet.create(
@@ -109,8 +116,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.FunSig
           }
         }
 
-        if (ScalaTokenTypes.tEQUAL.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tEQUAL)
+        if (ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
 
           if (BNF.firstExpr.contains(builder.getTokenType)) {
             Expr.parse(builder)
@@ -122,7 +129,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.FunSig
     }
   }
 
-   object VarDef extends ConstrList {
+   object VarDef extends ConstrItem {
         override def getElementType : IElementType = ScalaElementTypes.VAR_DEF
 
         override def first : TokenSet = TokenSet.create(
@@ -150,8 +157,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.FunSig
             }
           }
 
-          if (ScalaTokenTypes.tEQUAL.equals(builder.getTokenType)) {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tEQUAL)
+          if (ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
 
             if (BNF.firstExpr.contains(builder.getTokenType)) {
               Expr.parse(builder)
@@ -168,17 +175,22 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.FunSig
     override def getElementType : IElementType = ScalaElementTypes.FUN_DEF
 
     override def parseBody(builder : PsiBuilder) : Unit = {
+      Console.println("fun sig expected : "+ builder.getTokenType )
       if (BNF.firstFunSig.contains(builder.getTokenType)) {
         FunSig parse builder
 
+        Console.println("colon expected : "+ builder.getTokenType )
         if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
 
+          Console.println("Type expected : "+ builder.getTokenType )
           if (BNF.firstType.contains(builder.getTokenType)) {
             Type parse builder
 
-            if (ScalaTokenTypes.tEQUAL.equals(builder.getTokenType)){
-              ParserUtils.eatElement(builder, ScalaTokenTypes.tEQUAL)
+            Console.println("eq expected : "+ builder.getTokenType )
+            Console.println("is eq : " + ScalaTokenTypes.tASSIGN.equals(builder.getTokenType))
+            if (ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)){
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
 
                if (BNF.firstExpr.contains(builder.getTokenType)){
                  Expr parse builder
@@ -223,5 +235,59 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.FunSig
 
     }
   }
+
+   object FunTypeParamClause extends Constr {
+    override def getElementType : IElementType = ScalaElementTypes.FUN_TYPE_PARAM_CLAUSE
+
+    override def parseBody(builder : PsiBuilder) : Unit = {
+       if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
+         ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
+      }
+
+      if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
+
+        if (BNF.firstTypeParam.contains(builder.getTokenType)){
+          ParserUtils.listOfSmth(builder, TypeParam, ScalaTokenTypes.tCOMMA, ScalaElementTypes.TYPE_PARAM_LIST)
+        } else {
+          builder error "expected type parameter declaration"
+        }
+
+        if (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
+        } else {
+          builder error "expected ']'"
+          return
+        }
+      } else {
+        builder error "expected '['"
+        return
+      }
+    }
+  }
+
+  object FunSig extends Constr {
+      override def getElementType : IElementType = ScalaElementTypes.FUN_SIG
+
+      override def parseBody(builder : PsiBuilder) : Unit = {
+         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+
+          if (BNF.firstTypeParam.contains(builder.getTokenType)) {
+            FunTypeParamClause parse builder
+          }
+
+          while (BNF.firstParamClause.contains(builder.getTokenType)) {
+            ParamClause parse builder
+          }
+
+        } else {
+          builder error "expected identifier"
+          return
+        }
+
+      }
+    }
+
 
 }

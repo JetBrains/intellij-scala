@@ -101,7 +101,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     );
 
     static final TokenSet tOPS = TokenSet.create(
-            ScalaTokenTypes.tASSGN,
+            ScalaTokenTypes.tASSIGN,
             ScalaTokenTypes.tDIV,       
             ScalaTokenTypes.tMINUS,
             ScalaTokenTypes.tPLUS,

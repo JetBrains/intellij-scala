@@ -65,13 +65,13 @@ object Template extends Constr{
     //    ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
 
        Console.println("Template stat parse " + builder.getTokenType)
-       ParserUtils.listOfSmth(builder, TemplateStat, ScalaTokenTypes.tCOMMA,
+       /*ParserUtils.listOfSmth(builder, TemplateStat, ScalaTokenTypes.tCOMMA,
                               ScalaElementTypes.TEMPLATE_STAT_LIST)
-
-        /*if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+         */
+        if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
           Console.println("parse template stat list")
           TemplateStatList parse builder
-        }*/
+        }
        
       /* if (!builder.eof()) {
          builder.advanceLexer
@@ -112,25 +112,27 @@ object Template extends Constr{
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
         } else builder error "expected '}'"
 
-
+        
       }
     }
   }
 
 
- /*
+
   object TemplateStatList extends Constr {
     override def getElementType : IElementType = ScalaElementTypes.TEMPLATE_STAT_LIST
 
     override def parseBody(builder : PsiBuilder) : Unit = {
       if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+        Console.println("single Template Stat " + builder.getTokenType)
         TemplateStat parse builder
 
         while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
-          Console.println("parse StatementSeparator" + builder.getTokenType)
+          Console.println("parse StatementSeparator " + builder.getTokenType)
           StatementSeparator parse builder
 
           if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+            Console.println("parse TemplateStat " + builder.getTokenType)
             TemplateStat parse builder
           } else {
             builder error "wrong template statement"
@@ -139,9 +141,9 @@ object Template extends Constr{
         }
       }
     }
-  }  */
+  }
 
-  object TemplateStat extends ConstrList {
+  object TemplateStat extends ConstrItem {
     override def getElementType : IElementType = ScalaElementTypes.TEMPLATE_STAT
 
     override def first : TokenSet = BNF.firstTemplateStat
