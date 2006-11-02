@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Construction
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateParents
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParam
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
 
 /**
  * User: Dmitry.Krasilschikov
@@ -29,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplatePare
 
 */
 
-object TmplDef extends ConstrList {
+object TmplDef extends ConstrItem {
 
   abstract class TypeDef extends Constr {
       def getKeyword : IElementType
@@ -291,30 +293,7 @@ object TmplDef extends ConstrList {
       }
     }
 
-    object TypeParam extends Constr {
-      override def getElementType = ScalaElementTypes.TYPE_PARAM
-
-      override def parseBody(builder : PsiBuilder) : Unit = {
-        if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-        } else builder.error("expected identifier")
-
-        if (builder.getTokenType.equals(ScalaTokenTypes.tLOWER_BOUND)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLOWER_BOUND)
-          Type.parse(builder)
-        }
-
-        if (builder.getTokenType.equals(ScalaTokenTypes.tUPPER_BOUND)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tUPPER_BOUND)
-          Type.parse(builder)
-        }
-
-        if (builder.getTokenType.equals(ScalaTokenTypes.tVIEW)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tVIEW)
-          Type.parse(builder)
-        }
-      }
-    }
+   
 
 
     object ClassParamClauses extends Constr{
@@ -494,54 +473,8 @@ object TmplDef extends ConstrList {
 
 
 
-    object Param extends Constr {
-      override def getElementType = ScalaElementTypes.PARAM
 
-      override def parseBody(builder : PsiBuilder) : Unit = {
-        if (builder.getTokenType().equals(ScalaTokenTypes.tIDENTIFIER)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-        } else builder.error("expected identifier")
 
-        if (builder.getTokenType().equals(ScalaTokenTypes.tCOLON)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-        } else builder.error("expected ':'")
-
-        builder.getTokenType() match {
-          case ScalaTokenTypes.tIDENTIFIER
-             | ScalaTokenTypes.kTHIS
-             | ScalaTokenTypes.kSUPER
-             | ScalaTokenTypes.tLPARENTHIS
-             | ScalaTokenTypes.tFUNTYPE
-             => {
-             ParamType.parse(builder)
-          }
-        }
-      }
-    }
-
-    object ParamType extends Constr {
-      override def getElementType = ScalaElementTypes.PARAM_TYPE
-
-      override def parseBody(builder : PsiBuilder) : Unit = {
-        if (builder.getTokenType().equals(ScalaTokenTypes.tFUNTYPE)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
-        }
-
-        builder.getTokenType() match {
-          case ScalaTokenTypes.tIDENTIFIER
-             | ScalaTokenTypes.kTHIS
-             | ScalaTokenTypes.kSUPER
-             | ScalaTokenTypes.tLPARENTHIS
-             => {
-             Type.parse(builder)
-          }
-        }
-
-        if (builder.getTokenType().equals(ScalaTokenTypes.tSTAR)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tSTAR)
-        }
-      }
-    }
 
   case class TraitDef extends TypeDef {
     def getKeyword = ScalaTokenTypes.kTRAIT
@@ -613,38 +546,3 @@ object TmplDef extends ConstrList {
     //Console.println("tmplDefMareker done ")
   }
 }
-
-
-
-//todo: add [funTypeParamClause] and {ParamClause}
-   object FunSig extends Constr {
-    override def getElementType : IElementType = ScalaElementTypes.FUN_DEF
-
-    override def parseBody(builder : PsiBuilder) : Unit = {
-       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-        FunSig parse builder
-
-
-        if (ScalaTokenTypes.tEQUAL.equals(builder.getTokenType)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tEQUAL)
-
-          if (BNF.firstType.contains(builder.getTokenType)) {
-            Type parse builder
-
-          } else {
-            builder error "expected type declaration"
-            return
-          }
-
-        } else {
-          builder error "expected '='"
-          return
-        }
-
-      } else {
-        builder error "expected identifier"
-        return
-      }
-
-    }
-  }

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.parser.util
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrList
+import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrItem
 import org.jetbrains.plugins.scala.lang.parser.parsing.Constr
 import com.intellij.psi.tree.IElementType
 
@@ -28,7 +28,7 @@ object ParserUtils {
     marker.done(elem)
   }
 
-  def listOfSmth(builder: PsiBuilder, itemType : ConstrList, delimiter : IElementType, listType : IElementType) : Unit = {
+  def listOfSmth(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType, listType : IElementType) : Unit = {
     val listMarker = builder.mark()
 
     if (itemType.first.contains(builder.getTokenType)) {

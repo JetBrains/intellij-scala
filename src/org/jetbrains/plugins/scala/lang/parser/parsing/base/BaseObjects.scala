@@ -354,7 +354,7 @@ object Construction extends Constr{
     }
 
 
-  object ImportExpr extends ConstrList {
+  object ImportExpr extends ConstrItem {
     override def getElementType = ScalaElementTypes.IMPORT_EXPR
 
     override def first = TokenSet.create (

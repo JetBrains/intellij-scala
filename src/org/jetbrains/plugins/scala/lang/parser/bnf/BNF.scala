@@ -157,4 +157,35 @@ object BNF {
       ScalaTokenTypes.tSEMICOLON
     )
   )
+
+  val firstTypeParam = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tIDENTIFIER
+    )
+  )
+
+  val firstParamClause = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tLINE_TERMINATOR,
+      ScalaTokenTypes.tLPARENTHIS
+    )
+  )
+
+  val firstParamType = TokenSet.orSet(
+    Array (
+      firstType,
+      TokenSet.create(
+        Array (
+          ScalaTokenTypes.tFUNTYPE
+        )
+      )
+    )
+  )
+
+  val firstParam = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tIDENTIFIER
+    )
+  )
+
 }

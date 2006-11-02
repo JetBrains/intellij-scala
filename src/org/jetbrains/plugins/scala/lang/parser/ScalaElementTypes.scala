@@ -114,7 +114,9 @@ object ScalaElementTypes {
   /*************************************************************************************/
   val TEMPLATE_STAT_LIST = new ScalaElementType("template statements list")
 
-  /*************** DECLARATION *********************/
+  /*************************************************************************************/
+  /************************************ DECLARATION ************************************/
+  /*************************************************************************************/
   val DECLARATION = new ScalaElementType("declaration")
 
   val VALUE_DECLARATION = new ScalaElementType("value declaration")
@@ -127,18 +129,30 @@ object ScalaElementTypes {
   val FUN_DCL = new ScalaElementType("declaration of function")
   val TYPE_DCL = new ScalaElementType("declaration of type")
 
-  /**************** DEFINITION *********************/
+  /*************************************************************************************/
+  /************************************ DEFINITION *************************************/
+  /*************************************************************************************/
   val DEFINITION = new ScalaElementType("defifnition")
+
+  /********************************* FUNCTIONS **********************************/
+  val FUNCTION_DEFINITION = new ScalaElementType("function definition")
+  val FUN_DEF = new ScalaElementType("definition of function")
+  val FUN_TYPE_PARAM_CLAUSE = new ScalaElementType("function type parameter clause")
+  val FUN_SIG = new ScalaElementType("function signature")
 
   val VALUE_DEFINITION = new ScalaElementType("value definition")
   val VARIABLE_DEFINITION = new ScalaElementType("variable definition")
-  val FUNCTION_DEFINITION = new ScalaElementType("function definition")
   val TYPE_DEFINITION = new ScalaElementType("type definition")
 
   val PAT_DEF = new ScalaElementType("pattern definition")
   val VAR_DEF = new ScalaElementType("definition of variable")
-  val FUN_DEF = new ScalaElementType("definition of function")
   val TYPE_DEF = new ScalaElementType("definition of type")
+
+  val TYPE_PARAM_LIST = new ScalaElementType("list of type parameters")
+
+  val PARAM_CLAUSE = new ScalaElementType("clause of parameter")
+  val PARAM_LIST = new ScalaElementType("list of parameters")
+
 
   /*************************************************************************************/
   /************************************** LITERALS *************************************/

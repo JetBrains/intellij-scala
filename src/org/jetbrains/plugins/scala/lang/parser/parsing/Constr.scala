@@ -20,6 +20,6 @@ abstract class Constr {
 
 }
 
-abstract class ConstrList extends Constr{
+abstract class ConstrItem extends Constr{
    def first : TokenSet
 }
