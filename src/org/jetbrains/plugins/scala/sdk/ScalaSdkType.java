@@ -24,6 +24,7 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
   @NonNls private static final String LIB_DIR_NAME = "lib";
 
   @NonNls private static final String SCALA_EXE_NAME = "scala";
+  private static final String JAVA_SDK_NAME = "JAVA_SDK_NAME";
 
   public ScalaSdkType() {
     super("scala sdk");
@@ -62,13 +63,22 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
     VirtualFile libraryDir = LocalFileSystem.getInstance().findFileByPath(dirPath);
     assert libraryDir != null;
     VirtualFile[] files = libraryDir.getChildren();
+    JarFileSystem jarFileSystem = JarFileSystem.getInstance();
     for (VirtualFile file : files) {
       if (file.getName().endsWith(".jar")) {
-        sdkModificator.addRoot(file, ProjectRootType.CLASS);
+        VirtualFile inJar = jarFileSystem.findFileByPath(file.getPath() + JarFileSystem.JAR_SEPARATOR);
+        if (inJar != null) {
+          sdkModificator.addRoot(inJar, ProjectRootType.CLASS);
+        }
       }
     }
 
-    ScalaSdkConfigurable.MyAdditionalData data = (ScalaSdkConfigurable.MyAdditionalData) sdk.getSdkAdditionalData();
+    VirtualFile srcZip = jarFileSystem.findFileByPath(getConvertedHomePath(sdk) + "src.zip" + JarFileSystem.JAR_SEPARATOR);
+    if (srcZip != null) {
+      sdkModificator.addRoot(srcZip, ProjectRootType.SOURCE);
+    }
+
+    JavaSdkData data = (JavaSdkData) sdk.getSdkAdditionalData();
     if (data != null) {
       Sdk javaSdk = data.findSdk();
       if (javaSdk != null) {
@@ -174,9 +184,16 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
   }
 
   public void saveAdditionalData(SdkAdditionalData additionalData, Element additional) {
+    if (!(additionalData instanceof JavaSdkData)) return;
+    String sdkName = ((JavaSdkData) additionalData).getJavaSdkName();
+    if (sdkName != null) {
+      additional.setAttribute(JAVA_SDK_NAME, sdkName);
+    }
   }
 
   public SdkAdditionalData loadAdditionalData(Element additional) {
+    String name = additional.getAttributeValue(JAVA_SDK_NAME);
+    if (name != null) return new JavaSdkData(name);
     return null;
   }
 
