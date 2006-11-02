@@ -12,11 +12,10 @@ import com.intellij.lang.PsiBuilder
 object ParserUtils {
 
   def rollForward(builder: PsiBuilder) : Unit = {
-    var flag = true
-    while ( !builder.eof() && flag){
+    while (!builder.eof()){
        builder.getTokenType match{
          case ScalaTokenTypes.tLINE_TERMINATOR => builder.advanceLexer
-         case _ => flag = false
+         case _ => return
        }
     }
   }
