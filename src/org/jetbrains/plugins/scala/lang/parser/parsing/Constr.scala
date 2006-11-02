@@ -23,3 +23,11 @@ abstract class Constr {
 abstract class ConstrItem extends Constr{
    def first : TokenSet
 }
+
+abstract class ConstrUnpredict{
+  def parse (builder : PsiBuilder ) : Unit = {
+     parseBody(builder)
+   } 
+
+   def parseBody (builder : PsiBuilder) : Unit
+}

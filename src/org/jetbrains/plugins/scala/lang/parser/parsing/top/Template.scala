@@ -16,8 +16,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.definition.Def
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.declaration.Dcl
+//import org.jetbrains.plugins.scala.lang.parser.parsing.top.definition.Def
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.declaration.DclDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
 /**
  * User: Dmitry.Krasilschikov
@@ -68,10 +68,10 @@ object Template extends Constr{
        /*ParserUtils.listOfSmth(builder, TemplateStat, ScalaTokenTypes.tCOMMA,
                               ScalaElementTypes.TEMPLATE_STAT_LIST)
          */
-        if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+        //if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
           Console.println("parse template stat list")
           TemplateStatList parse builder
-        }
+        //}
        
       /* if (!builder.eof()) {
          builder.advanceLexer
@@ -117,29 +117,31 @@ object Template extends Constr{
     }
   }
 
-
-
   object TemplateStatList extends Constr {
     override def getElementType : IElementType = ScalaElementTypes.TEMPLATE_STAT_LIST
 
     override def parseBody(builder : PsiBuilder) : Unit = {
-      if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+    //  if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
         Console.println("single Template Stat " + builder.getTokenType)
         TemplateStat parse builder
 
-        while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
+        while (!builder.eof() && BNF.firstStatementSeparator.contains(builder.getTokenType)) {
           Console.println("parse StatementSeparator " + builder.getTokenType)
           StatementSeparator parse builder
 
-          if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+         // if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
             Console.println("parse TemplateStat " + builder.getTokenType)
-            TemplateStat parse builder
-          } else {
+            if (!builder.eof()) {
+              TemplateStat parse builder
+            }
+         // } 
+          /*else {
             builder error "wrong template statement"
             return
-          }
+          }*/
         }
-      }
+        Console.println("single Template Stat done " + builder.getTokenType)
+      //}
     }
   }
 
@@ -149,7 +151,7 @@ object Template extends Constr{
     override def first : TokenSet = BNF.firstTemplateStat
 
     override def parseBody(builder : PsiBuilder) : Unit = {
-      if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+      //if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
         Console.println("in template stat : "+ builder.getTokenType)
 
         if(ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)) {
@@ -173,45 +175,36 @@ object Template extends Constr{
         }
 
         if (isDefOrDcl) {
-          if (BNF.firstDef.contains(builder.getTokenType) || BNF.firstDcl.contains(builder.getTokenType)) {
-
-            if (BNF.firstDef.contains(builder.getTokenType)) {
-              Console.println("def parse")
-              Def parse builder
+          if (BNF.firstDclDef.contains(builder.getTokenType)) {
+              Console.println("dcldef parse" + builder.getTokenType)
+              DclDef parse builder
+              Console.println("dcldef parsed")
               return
-            }
-
-            if (BNF.firstDcl.contains(builder.getTokenType)) {
-              Dcl parse builder
-              return
-            }
-          } else {
+            } else {
             builder error "expected definition or declaration"
+            Console.println("template stat done : "+ builder.getTokenType)
             return
           }
           //error, because def or dcl must be defined after attributeClause or Modifier
         } 
 
-        if (BNF.firstDef.contains(builder.getTokenType)) {
-          Console.println("def parse")
-          Def parse builder
-          return
-        }
-
-        if (BNF.firstDcl.contains(builder.getTokenType)) {
-          Console.println("dcl parse")
-          Dcl parse builder
+        if (BNF.firstDclDef.contains(builder.getTokenType)) {
+          Console.println("dcl parse" + builder.getTokenType)
+          DclDef parse builder
+          Console.println("dcl parsed")
+          Console.println("template stat done : "+ builder.getTokenType)
           return
         }
 
         if (BNF.firstExpr.contains(builder.getTokenType)) {
           Expr parse builder
+          Console.println("template stat done : "+ builder.getTokenType)
           return
         }
-
+        Console.println("template stat done : "+ builder.getTokenType)
         return
 
-      } else builder error "wrong template declaration"
+     // } else builder error "wrong template declaration"
 
     }
   }
