@@ -19,10 +19,8 @@ public class ScalaSdkConfigurable implements AdditionalDataConfigurable {
   JComboBox myJavaSdkCbx;
 
   private Sdk myScalaSdk;
-  private SdkModel mySdkModel;
 
   public ScalaSdkConfigurable(SdkModel sdkModel) {
-    mySdkModel = sdkModel;
     myJavaSdkCbx = new JComboBox();
     DefaultComboBoxModel model = new DefaultComboBoxModel(getJavaSdks(sdkModel));
     myJavaSdkCbx.setModel(model);
@@ -58,18 +56,14 @@ public class ScalaSdkConfigurable implements AdditionalDataConfigurable {
   public JComponent createComponent() {
     JPanel panel = new JPanel();
     panel.add(myJavaSdkCbx);
+    setupPaths();
     panel.setBorder(IdeBorderFactory.createTitledBorder("Select Java SDK"));
     return panel;
   }
 
-  public boolean isModified() {
-    MyAdditionalData additionalData = (MyAdditionalData) myScalaSdk.getSdkAdditionalData();
-    return additionalData == null || !Comparing.equal(myJavaSdkCbx.getSelectedItem(), additionalData.getJavaSdkName());
-  }
-
-  public void apply() throws ConfigurationException {
+  private void setupPaths() {
     final SdkModificator modificator = myScalaSdk.getSdkModificator();
-    modificator.setSdkAdditionalData(new MyAdditionalData(((Sdk) myJavaSdkCbx.getSelectedItem()).getName()));
+    modificator.setSdkAdditionalData(new JavaSdkData(((Sdk) myJavaSdkCbx.getSelectedItem()).getName()));
     ApplicationManager.getApplication().runWriteAction(new Runnable() {
       public void run() {
         modificator.commitChanges();
@@ -78,47 +72,23 @@ public class ScalaSdkConfigurable implements AdditionalDataConfigurable {
     myScalaSdk.getSdkType().setupSdkPaths(myScalaSdk);
   }
 
+  public boolean isModified() {
+    JavaSdkData additionalData = (JavaSdkData) myScalaSdk.getSdkAdditionalData();
+    return additionalData == null || !Comparing.equal(myJavaSdkCbx.getSelectedItem(), additionalData.getJavaSdkName());
+  }
+
+  public void apply() throws ConfigurationException {
+    setupPaths();
+  }
+
   public void reset() {
     SdkAdditionalData sdkAdditionalData = myScalaSdk.getSdkAdditionalData();
     if (sdkAdditionalData != null) {
-      Sdk selected = findJavaSdkByName(((MyAdditionalData) sdkAdditionalData).getJavaSdkName());
+      Sdk selected = JavaSdkData.findJavaSdkByName(((JavaSdkData) sdkAdditionalData).getJavaSdkName());
       myJavaSdkCbx.setSelectedItem(selected);
     }
   }
 
   public void disposeUIResources() {
-  }
-
-  class MyAdditionalData implements SdkAdditionalData {
-    String myJavaSdkName;
-    
-    public MyAdditionalData(String javaSdkName) {
-      myJavaSdkName = javaSdkName;
-    }
-
-
-    public String getJavaSdkName() {
-      return myJavaSdkName;
-    }
-
-    public MyAdditionalData clone() throws CloneNotSupportedException {
-      return (MyAdditionalData) super.clone();
-    }
-
-    public void checkValid(SdkModel sdkModel) throws ConfigurationException {
-      if (myJavaSdkName == null) throw new ConfigurationException("No java sdk configured");
-      if (findJavaSdkByName(myJavaSdkName) == null) throw new ConfigurationException("Cannot find jdk");
-    }
-
-    Sdk findSdk() {
-      return findJavaSdkByName(myJavaSdkName);
-    }
-  }
-
-  private Sdk findJavaSdkByName(String sdkName) {
-    for (Sdk sdk : mySdkModel.getSdks()) {
-      if (sdk.getName().equals(sdkName)) return sdk;
-    }
-    return null;
   }
 }
