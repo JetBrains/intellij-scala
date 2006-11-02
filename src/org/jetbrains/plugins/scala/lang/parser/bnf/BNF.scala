@@ -56,7 +56,7 @@ object BNF {
     )
   )
 
-  val firstDef = TokenSet.orSet(
+  val firstDclDef = TokenSet.orSet(
     Array (templateStatKeywords, firstTmplDef)
   )
 
@@ -90,8 +90,6 @@ object BNF {
     )
   )
 
-  val firstDcl = templateStatKeywords
-
   val firstImport = TokenSet.create(
     Array(
       ScalaTokenTypes.kIMPORT
@@ -114,7 +112,9 @@ object BNF {
        ScalaTokenTypes.tMINUS,
        ScalaTokenTypes.tTILDA,
        ScalaTokenTypes.tNOT,
-       ScalaTokenTypes.tIDENTIFIER
+       ScalaTokenTypes.tIDENTIFIER,
+       ScalaTokenTypes.tLBRACE,
+       ScalaTokenTypes.kNEW
     )
   )
 
@@ -129,10 +129,9 @@ object BNF {
       firstImport,
       firstAttributeClause,
       firstModifier,
-      firstDef,
-      firstDcl,
-      firstExpr,
-      firstLineTerminate
+      firstDclDef,
+      firstExpr
+      //firstLineTerminate
     )
   )
 
@@ -188,4 +187,17 @@ object BNF {
     )
   )
 
+  val firstClassParam = TokenSet.orSet(
+    Array(
+      firstModifier,
+      TokenSet.create(
+        Array (
+          ScalaTokenTypes.tIDENTIFIER,
+          ScalaTokenTypes.kVAR,
+          ScalaTokenTypes.kVAL
+        )
+      ),
+      firstParam
+    )
+  )
 }

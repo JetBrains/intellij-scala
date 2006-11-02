@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateParents
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParam
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
+//import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef.ClassParam
 
 /**
  * User: Dmitry.Krasilschikov
@@ -86,66 +88,68 @@ object TmplDef extends ConstrItem {
     }
   }
 
-    def checkForTypeParamClauses (first : IElementType, second : IElementType) : Boolean = {
-      var a = first
-      var b = second
 
-      if (a.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
-        a = b
-      }
 
-      a.equals(ScalaTokenTypes.tLSQBRACKET)
-    }
+         def checkForTypeParamClauses (first : IElementType, second : IElementType) : Boolean = {
+              var a = first
+              var b = second
 
-    def checkForClassParamClauses(first : IElementType, second : IElementType) : Boolean = {
-      var a = first
-      var b = second
+              if (a.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
+                a = b
+              }
 
-      if (a.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
-        a = b
-      }
+              a.equals(ScalaTokenTypes.tLSQBRACKET)
+            }
 
-      if (a.equals(ScalaTokenTypes.tLPARENTHIS)) true
+            def checkForClassParamClauses(first : IElementType, second : IElementType) : Boolean = {
+              var a = first
+              var b = second
 
-      false
-    }
+              if (a.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
+                a = b
+              }
 
-    def checkForClassParamClause(first : IElementType, second : IElementType, third : IElementType) : Boolean = {
-      var a = first
-      var b = second
-      var c = third
-      if (a.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
-        a = b
-        b = c
-      }
+              if (a.equals(ScalaTokenTypes.tLPARENTHIS)) true
 
-      a.equals(ScalaTokenTypes.tLPARENTHIS) && (b.equals(ScalaTokenTypes.kVAL)
-         || b.equals(ScalaTokenTypes.kVAR       )
-         || b.equals(ScalaTokenTypes.kABSTRACT  )
-         || b.equals(ScalaTokenTypes.kFINAL     )
-         || b.equals(ScalaTokenTypes.kOVERRIDE  )
-         || b.equals(ScalaTokenTypes.kPRIVATE   )
-         || b.equals(ScalaTokenTypes.kPROTECTED )
-         || b.equals(ScalaTokenTypes.kSEALED    )
-         || b.equals(ScalaTokenTypes.tIDENTIFIER)
-         )
-    }
-
-    def checkForImplicit(first : IElementType, second : IElementType, third : IElementType) : Boolean = {
-      var a = first
-      var b = second
-      var c = third
-      if (a.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
-        a = b
-        b = c
-      }
-
-      a.equals(ScalaTokenTypes.tLPARENTHIS) && b.equals(ScalaTokenTypes.kIMPLICIT)
-
-    }
+              false
+            }
+  
 
 
     case class ClassDef extends InstanceDef {
+      class ClassParam extends Param {
+        override def getElementType = ScalaElementTypes.CLASS_PARAM
+
+        override def first = BNF.firstClassParam
+
+        override def parseBody(builder : PsiBuilder) : Unit = {
+
+          if (BNF.firstModifier.contains(builder.getTokenType)) {
+            builder.getTokenType() match {
+              case ScalaTokenTypes.kABSTRACT => { ParserUtils.eatElement(builder, ScalaTokenTypes.kABSTRACT) }
+              case ScalaTokenTypes.kFINAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kFINAL) }
+              case ScalaTokenTypes.kOVERRIDE => { ParserUtils.eatElement(builder, ScalaTokenTypes.kOVERRIDE) }
+              case ScalaTokenTypes.kPRIVATE => { ParserUtils.eatElement(builder, ScalaTokenTypes.kPRIVATE) }
+              case ScalaTokenTypes.kPROTECTED => { ParserUtils.eatElement(builder, ScalaTokenTypes.kPROTECTED) }
+              case ScalaTokenTypes.kSEALED => { ParserUtils.eatElement(builder, ScalaTokenTypes.kSEALED) }
+            }
+
+            builder.getTokenType() match {
+              case ScalaTokenTypes.kVAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL) }
+              case ScalaTokenTypes.kVAR => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAR) }
+              case _ => { builder.error("expected 'val' or 'var'") }
+            }
+
+          }
+
+          if (builder.getTokenType().equals(ScalaTokenTypes.tIDENTIFIER)) {
+            new Param().parse(builder)
+          } else builder.error("expected identifier")
+        }
+      }
+
+      
+
       def getKeyword = ScalaTokenTypes.kCLASS
 
       def getDef = ScalaElementTypes.CLASS_DEF
@@ -173,7 +177,7 @@ object TmplDef extends ConstrItem {
             TypeParamClause.parse(builder)
           }
 
-          ClassParamClauses.parse(builder)
+          (new ParamClauses[ClassParam](new ClassParam)).parse(builder)
 
           if (builder.getTokenType.equals(ScalaTokenTypes.kREQUIRES)) {
           //todo check
@@ -262,6 +266,7 @@ object TmplDef extends ConstrItem {
         }
 
         while (builder.getTokenType.equals(ScalaTokenTypes.tCOMMA)){
+          Console.println("VariantTypeParam parsing " + builder.getTokenType)
           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
           VariantTypeParam.parse(builder)
@@ -294,8 +299,8 @@ object TmplDef extends ConstrItem {
     }
 
    
-
-
+  // object ClassParamClauses extends ParamClauses
+/*
     object ClassParamClauses extends Constr{
       override def getElementType = ScalaElementTypes.CLASS_PARAM_CLAUSES
 
@@ -337,7 +342,9 @@ object TmplDef extends ConstrItem {
         //chooseParsingWay.drop()
       }
     }
-
+             */
+    // object ClassParamClause extends ParamClause
+/*
     object ClassParamClause extends Constr {
       override def getElementType = ScalaElementTypes.CLASS_PARAM_CLAUSE
 
@@ -372,33 +379,10 @@ object TmplDef extends ConstrItem {
         } else builder.error("expected ')'")
       }
     }
+       */
 
-    object ImplicitEnd extends Constr {
-      override def getElementType = ScalaElementTypes.IMPLICIT_END
-
-      override def parseBody(builder : PsiBuilder) : Unit = {
-         if (builder.getTokenType().equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
-        }
-
-        if (builder.getTokenType().equals(ScalaTokenTypes.tLPARENTHIS)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-        } else builder.error("expected '('")
-
-        builder.getTokenType() match {
-          case ScalaTokenTypes.kIMPLICIT => {
-            ClassParams.parse(builder)
-          }
-
-          case _ => {}
-        }
-
-
-        if (builder.getTokenType().equals(ScalaTokenTypes.tRPARENTHIS)) {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
-        } else builder.error("expected ')'")
-      }
-    }
+      // object ClassParams extends Params
+   /*
 
     object ClassParams extends Constr {
       override def getElementType = ScalaElementTypes.CLASS_PARAMS
@@ -440,41 +424,7 @@ object TmplDef extends ConstrItem {
         }
       }
     }
-
-    object ClassParam extends Constr {
-      override def getElementType = ScalaElementTypes.CLASS_PARAM
-
-      override def parseBody(builder : PsiBuilder) : Unit = {
-
-        if (BNF.firstModifier.contains(builder.getTokenType)) {
-          builder.getTokenType() match {
-            case ScalaTokenTypes.kABSTRACT => { ParserUtils.eatElement(builder, ScalaTokenTypes.kABSTRACT) }
-            case ScalaTokenTypes.kFINAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kFINAL) }
-            case ScalaTokenTypes.kOVERRIDE => { ParserUtils.eatElement(builder, ScalaTokenTypes.kOVERRIDE) }
-            case ScalaTokenTypes.kPRIVATE => { ParserUtils.eatElement(builder, ScalaTokenTypes.kPRIVATE) }
-            case ScalaTokenTypes.kPROTECTED => { ParserUtils.eatElement(builder, ScalaTokenTypes.kPROTECTED) }
-            case ScalaTokenTypes.kSEALED => { ParserUtils.eatElement(builder, ScalaTokenTypes.kSEALED) }
-          }
-
-          builder.getTokenType() match {
-            case ScalaTokenTypes.kVAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL) }
-            case ScalaTokenTypes.kVAR => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAR) }
-            case _ => { builder.error("expected 'val' or 'var'") }
-          }
-
-        }
-
-        if (builder.getTokenType().equals(ScalaTokenTypes.tIDENTIFIER)) {
-          Param.parse(builder)
-        } else builder.error("expected identifier")
-      }
-    }
-  }
-
-
-
-
-
+    */
 
   case class TraitDef extends TypeDef {
     def getKeyword = ScalaTokenTypes.kTRAIT

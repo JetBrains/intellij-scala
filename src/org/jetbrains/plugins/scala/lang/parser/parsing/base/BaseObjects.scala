@@ -63,8 +63,10 @@ object AttributeClause extends Constr{
         //possible attributes, separated by comma
         while (builder.getTokenType().equals(ScalaTokenTypes.tCOMMA)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+          Console.println("Attribute parse")
 
           Attribute.parse(builder)
+          Console.println("Attribute parsed")
         }
 
         //expected right square brace
@@ -140,8 +142,9 @@ object Construction extends Constr{
           case ScalaTokenTypes.tLPARENTHIS => {
              //possible left parenthis - begining of list epression
             while (builder.getTokenType().equals(ScalaTokenTypes.tLPARENTHIS)) {
-
+               Console.println("expr in parenthis parse")
                 ExprInParenthis.parse(builder)
+                Console.println("expr in parenthis parsed")
              
             }
           }
@@ -225,6 +228,7 @@ object Construction extends Constr{
         while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
+          Console.println("possible type parse")
           if (BNF.firstType.contains(builder.getTokenType)) {
             Type parse builder
           } else builder error "expected identifier"
@@ -451,6 +455,7 @@ object Construction extends Constr{
 
           //todo: import selectors are cyclic
           while (checkForImportSelectors(first, second, third, fourth)) {
+          Console.println("ImportSel  parse")
             isImportSelectors = true
 
             if (isImportSelectors) {
@@ -541,6 +546,7 @@ object Construction extends Constr{
 
      while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
        ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+       Console.println("Ids parse")
 
        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
