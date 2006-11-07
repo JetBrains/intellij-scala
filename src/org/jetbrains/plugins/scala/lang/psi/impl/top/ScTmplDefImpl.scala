@@ -7,18 +7,42 @@ import com.intellij.lang.ASTNode
  * Date: 25.10.2006
  * Time: 17:54:19
  */
-
-  case class ScObject( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "'object'"
+ /*************** definitions **************/
+  class ScTmplDef( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "template definition"
   }
 
-  case class ScTrait ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "'trait'"
+  case class ScClassDef( node : ASTNode ) extends ScTmplDef ( node ) {
+    override def toString: String = super.toString + ": " + "class"
   }
 
-  case class ScClass( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "'class'"
+  case class ScObjectDef( node : ASTNode ) extends ScTmplDef ( node ) {
+    override def toString: String = super.toString + ": " + "object"
+  }
+
+  case class ScTraitDef( node : ASTNode ) extends ScTmplDef ( node ) {
+    override def toString: String = super.toString + ": " + "trait"
   }
 
 
+ /*************** templates **************/
+  class ScTemplate( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "template"
+  }
+
+  case class ScClassTemplate( node : ASTNode ) extends ScTemplate ( node ) {
+    override def toString: String = "class" + " " + super.toString
+  }
+
+  case class ScTraitTemplate( node : ASTNode ) extends ScTemplate ( node ) {
+    override def toString: String = "trait" + " " + super.toString
+  }
+
+  case class ScTemplateParents( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "template parents"
+  }
+
+  case class ScTemplateBody( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "template body"
+  }
 }

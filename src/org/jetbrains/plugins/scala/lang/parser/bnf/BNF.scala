@@ -39,6 +39,14 @@ object BNF {
   /*********************** FIRSTS *************************/
   /********************************************************/
 
+    val firstStableId : TokenSet = TokenSet.create(
+    Array (
+       ScalaTokenTypes.kTHIS,
+       ScalaTokenTypes.kSUPER,
+       ScalaTokenTypes.tIDENTIFIER
+    )
+  )
+
    val firstExpr : TokenSet = TokenSet.create(
     Array (
        ScalaTokenTypes.tINTEGER,
@@ -213,8 +221,7 @@ object BNF {
       firstImport,
       firstAttributeClause,
       firstModifier,
-      firstDef,
-      firstDcl,
+      firstDclDef,
       firstExpr
     )
   )
@@ -223,6 +230,28 @@ object BNF {
     Array (
       firstStatementSeparator,
       firstTemplateStat
+    )
+  )
+
+  val firstConstr = firstStableId
+
+  val firstTemplateParents = firstConstr
+
+  val firstTemplateBody =  TokenSet.create(
+    Array (
+      ScalaTokenTypes.tLBRACE
+    )
+  )
+
+  val firstClassTemplate = TokenSet.orSet(
+    Array(
+      TokenSet.create(
+        Array (
+          ScalaTokenTypes.kEXTENDS,
+          ScalaTokenTypes.tLINE_TERMINATOR
+        )
+      ),
+      firstTemplateBody
     )
   )
 
