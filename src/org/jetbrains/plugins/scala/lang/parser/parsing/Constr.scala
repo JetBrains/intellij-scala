@@ -10,9 +10,11 @@ import com.intellij.psi.tree.TokenSet
  */
 abstract class Constr {
    def parse (builder : PsiBuilder ) : Unit = {
-     val marker = builder.mark()
-     parseBody(builder)
-     marker.done(getElementType)
+     if (!builder.eof()) {
+       val marker = builder.mark()
+       parseBody(builder)
+       marker.done(getElementType)
+     } else builder error "unexpected end of file"  
    }
 
    def getElementType : IElementType
@@ -24,10 +26,20 @@ abstract class ConstrItem extends Constr{
    def first : TokenSet
 }
 
-abstract class ConstrUnpredict{
+abstract class ConstrUnpredict {
   def parse (builder : PsiBuilder ) : Unit = {
      parseBody(builder)
    } 
+
+   def parseBody (builder : PsiBuilder) : Unit
+
+
+}
+
+abstract class ConstrWithoutNode {
+  def parse (builder : PsiBuilder ) : Unit = {
+     parseBody(builder)
+   }
 
    def parseBody (builder : PsiBuilder) : Unit
 }

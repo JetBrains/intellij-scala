@@ -22,9 +22,11 @@ object ParserUtils {
 
   //Write element node
   def eatElement(builder: PsiBuilder, elem: IElementType): Unit = {
-    val marker = builder.mark()
-    builder.advanceLexer // Ate something
-    marker.done(elem)
+    if (!builder.eof()) {
+      val marker = builder.mark()
+      builder.advanceLexer // Ate something
+      marker.done(elem)
+    } else builder error "unexpected end of file"  
   }
 
   def listOfSmth(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType, listType : IElementType) : Unit = {

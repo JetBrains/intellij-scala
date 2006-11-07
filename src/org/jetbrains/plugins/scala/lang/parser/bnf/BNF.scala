@@ -38,26 +38,48 @@ object BNF {
   /********************************************************/
   /*********************** FIRSTS *************************/
   /********************************************************/
-  val templateStatKeywords = TokenSet.create(
-    Array(
-      ScalaTokenTypes.kVAL,
-      ScalaTokenTypes.kVAR,
-      ScalaTokenTypes.kDEF,
-      ScalaTokenTypes.kTYPE
+
+   val firstExpr : TokenSet = TokenSet.create(
+    Array (
+       ScalaTokenTypes.tINTEGER,
+       ScalaTokenTypes.tFLOAT,
+       ScalaTokenTypes.kTRUE,
+       ScalaTokenTypes.kFALSE,
+       ScalaTokenTypes.tCHAR,
+       ScalaTokenTypes.kNULL,
+       ScalaTokenTypes.tSTRING_BEGIN,
+       ScalaTokenTypes.tPLUS,
+       ScalaTokenTypes.tMINUS,
+       ScalaTokenTypes.tTILDA,
+       ScalaTokenTypes.tNOT,
+       ScalaTokenTypes.tIDENTIFIER,
+       ScalaTokenTypes.tLBRACE,
+       ScalaTokenTypes.kNEW
     )
   )
 
-  val firstTmplDef = TokenSet.create(
-    Array(
-      ScalaTokenTypes.kCASE,
-      ScalaTokenTypes.kCLASS,
-      ScalaTokenTypes.kOBJECT,
-      ScalaTokenTypes.kTRAIT
+   val firstStatementSeparator = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tLINE_TERMINATOR,
+      ScalaTokenTypes.tSEMICOLON
     )
   )
 
-  val firstDclDef = TokenSet.orSet(
-    Array (templateStatKeywords, firstTmplDef)
+  //todo: add first(Type)
+  val firstType : TokenSet = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tIDENTIFIER
+    )
+  )
+
+  /********************************************************************************************/
+  /********************************* Import, Attribute and Modifier ***************************/
+  /********************************************************************************************/
+
+  val firstImport = TokenSet.create(
+    Array(
+      ScalaTokenTypes.kIMPORT
+    )
   )
 
   val firstLocalModifier = TokenSet.create(
@@ -78,9 +100,13 @@ object BNF {
   //fix problem with implicit
   val firstModifier : TokenSet = TokenSet.orSet(
     Array (
-        TokenSet.create(Array(ScalaTokenTypes.kOVERRIDE)),
-        firstAccessModifier,
-        firstLocalModifier
+      TokenSet.create(
+        Array(
+          ScalaTokenTypes.kOVERRIDE
+        )
+      ),
+      firstAccessModifier,
+      firstLocalModifier
     )
   )
 
@@ -90,72 +116,8 @@ object BNF {
     )
   )
 
-  val firstImport = TokenSet.create(
-    Array(
-      ScalaTokenTypes.kIMPORT
-    )
-  )
 
-
-
-  //todo: add first(Expression)
-  val firstExpr : TokenSet = TokenSet.create(
-    Array (
-       ScalaTokenTypes.tINTEGER,
-       ScalaTokenTypes.tFLOAT,
-       ScalaTokenTypes.kTRUE,
-       ScalaTokenTypes.kFALSE,
-       ScalaTokenTypes.tCHAR,
-       ScalaTokenTypes.kNULL,
-       ScalaTokenTypes.tSTRING_BEGIN,
-       ScalaTokenTypes.tPLUS,
-       ScalaTokenTypes.tMINUS,
-       ScalaTokenTypes.tTILDA,
-       ScalaTokenTypes.tNOT,
-       ScalaTokenTypes.tIDENTIFIER,
-       ScalaTokenTypes.tLBRACE,
-       ScalaTokenTypes.kNEW
-    )
-  )
-
-  val firstLineTerminate :  TokenSet = TokenSet.create(
-    Array (
-      ScalaTokenTypes.tLINE_TERMINATOR
-    )
-  )
-
-  val firstTemplateStat : TokenSet = TokenSet.orSet(
-    Array (
-      firstImport,
-      firstAttributeClause,
-      firstModifier,
-      firstDclDef,
-      firstExpr
-      //firstLineTerminate
-    )
-  )
-
-  //todo: add first(Type)
-  val firstType : TokenSet = TokenSet.create(
-    Array (
-      ScalaTokenTypes.tIDENTIFIER
-    )
-  )
-
-  val firstFunSig : TokenSet = TokenSet.create(
-    Array (
-      ScalaTokenTypes.tIDENTIFIER
-    )
-  )
-
-  val firstFunDef = firstFunSig 
-
-  val firstStatementSeparator = TokenSet.create(
-    Array (
-      ScalaTokenTypes.tLINE_TERMINATOR,
-      ScalaTokenTypes.tSEMICOLON
-    )
-  )
+  /************* parameters ***************/
 
   val firstTypeParam = TokenSet.create(
     Array (
@@ -198,6 +160,97 @@ object BNF {
         )
       ),
       firstParam
+    )
+  )
+
+  /*******************************************************************************/
+  /********************************** Def and Dcl ********************************/
+  /*******************************************************************************/
+
+  val firstFunSig : TokenSet = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tIDENTIFIER
+    )
+  )
+
+  val firstFunDef = firstFunSig
+
+   val firstTmplDef = TokenSet.create(
+    Array(
+      ScalaTokenTypes.kCASE,
+      ScalaTokenTypes.kCLASS,
+      ScalaTokenTypes.kOBJECT,
+      ScalaTokenTypes.kTRAIT
+    )
+  )
+
+  val firstDclDefKeywords = TokenSet.create(
+    Array(
+      ScalaTokenTypes.kVAL,
+      ScalaTokenTypes.kVAR,
+      ScalaTokenTypes.kDEF,
+      ScalaTokenTypes.kTYPE
+    )
+  )
+
+  val firstDef = TokenSet.orSet(
+    Array (
+      firstDclDefKeywords,
+      firstTmplDef
+    )
+  )
+
+  /* it uses because of when we parse TemplateStat we don't know beforehand what we parse: dcl or def. If we get '= expr'
+   * this means construction is Definition, else construction is Declaration
+   */
+
+  val firstDclDef = firstDef
+
+  val firstDcl = firstDclDefKeywords
+
+  val firstTemplateStat = TokenSet.orSet(
+    Array (
+      firstImport,
+      firstAttributeClause,
+      firstModifier,
+      firstDef,
+      firstDcl,
+      firstExpr
+    )
+  )
+
+  val firstTemplateStatSeq =  TokenSet.orSet(
+    Array (
+      firstStatementSeparator,
+      firstTemplateStat
+    )
+  )
+
+
+ /********************************************************************************/
+  /********************************** Top Statement ******************************/
+  /*******************************************************************************/
+
+  val firstPackaging = TokenSet.create(
+    Array (
+      ScalaTokenTypes.kPACKAGE
+    )
+  )
+
+  val firstTopStat = TokenSet.orSet(
+    Array(
+      firstAttributeClause,
+      firstModifier,
+      firstTmplDef,
+      firstImport,
+      firstPackaging
+    )
+  )
+
+  val firstTopStatSeq = TokenSet.orSet(
+    Array (
+      firstStatementSeparator,
+      firstTopStat
     )
   )
 }
