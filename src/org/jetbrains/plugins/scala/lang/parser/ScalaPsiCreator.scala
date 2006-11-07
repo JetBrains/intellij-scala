@@ -114,9 +114,15 @@ object ScalaPsiCreator {
 
 
      case ScalaTokenTypes.kPACKAGE => new ScPackage( node )
-     case ScalaTokenTypes.kCLASS => new ScClass( node )
-     case ScalaTokenTypes.kOBJECT => new ScObject( node )
-     case ScalaTokenTypes.kTRAIT => new ScTrait( node )
+     case ScalaElementTypes.CLASS_DEF => new ScClassDef( node )
+     case ScalaElementTypes.OBJECT_DEF => new ScObjectDef( node )
+     case ScalaElementTypes.TRAIT_DEF => new ScTraitDef( node )
+
+     case ScalaElementTypes.CLASS_TEMPLATE => new ScClassTemplate( node )
+     case ScalaElementTypes.TRAIT_TEMPLATE => new ScTraitTemplate( node )
+
+     case ScalaElementTypes.TEMPLATE_PARENTS => new ScTemplateParents( node )
+     case ScalaElementTypes.TEMPLATE_BODY => new ScTemplateBody( node )
 
      case _ => new ScalaPsiElementImpl( node )
 
