@@ -35,18 +35,7 @@ class Program extends ScalaTokenTypes {
            PostfixExpr parse (builder)
          } else builder advanceLexer
 
-         // Types functionality testing
-         /*
-         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType) ||
-              ScalaTokenTypes.kTHIS.equals(builder.getTokenType) ||
-              ScalaTokenTypes.kSUPER.equals(builder.getTokenType) ||
-              ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) {
-           var res = Type parse (builder)
-           if (res.equals(ScalaElementTypes.WRONGWAY)) builder advanceLexer
-         } else builder advanceLexer
-         */
-
-      }
+       }
     }
 
 
@@ -54,16 +43,8 @@ class Program extends ScalaTokenTypes {
     rollForward
     ParserUtils.rollForward(builder)
     if ( !builder.eof() ){
-      //new Top parse(builder) //handle top level - package, import
-      //Console.println("CompilationUnit invoke ")
       CompilationUnit.parse(builder)
-      //Console.println("CompilationUnit invoked ")
     }
-
-    /*while ( !builder.eof() ){
-      builder.advanceLexer
-    } */
-
 
     parseNext
     ParserUtils.rollForward(builder)
