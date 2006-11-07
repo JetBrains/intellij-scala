@@ -10,6 +10,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.template._
 
 /*
 * Simple expression result
@@ -27,7 +28,7 @@ SimpleExpr ::= Literal                     (d)
               | Path                       (e) 
               | ‘(’ [Expr] ‘)’               (f)
               | BlockExpr                  (g)
-              | new Template
+              | new Template               (h)
               | SimpleExpr ‘.’ id           (a)
               | SimpleExpr TypeArgs        (b)
               | SimpleExpr ArgumentExprs   (c)
@@ -119,9 +120,16 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
       var flag = false
       var endness = "wrong"
 
-      // NEW!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      /* case (h) */
+      if (builder.getTokenType.eq(ScalaTokenTypes.kNEW))  {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kNEW)
+        Template.parseBody(builder)
+        endness = "plain"
+        flag = true
+      }
       /* case (g) */      
-      if (builder.getTokenType.eq(ScalaTokenTypes.tLBRACE))  {
+      else if (builder.getTokenType.eq(ScalaTokenTypes.tLBRACE))  {
           val res3 = BlockExpr.parse(builder)
           if (res3.eq(ScalaElementTypes.BLOCK_EXPR)){
             endness = "plain"
@@ -129,9 +137,10 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
           } else {
             flag = false
           }
+      }
       // NEW!!!!!!!!!!!!!!!!!!!!!!!!!
       /* case (f) */
-      } else if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)) {
+      else if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)) {
         ParserUtils.eatElement(builder,ScalaTokenTypes.tLPARENTHIS)
         ParserUtils.rollForward(builder)
         if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)) {
