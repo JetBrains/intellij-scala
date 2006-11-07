@@ -87,34 +87,12 @@ object CompilationUnit extends Constr {
       case _=> {}
     }
 
-    Console.println("token type : " + builder.getTokenType())   
-    builder.getTokenType() match {
-      case ScalaTokenTypes.tLSQBRACKET
-         | ScalaTokenTypes.kABSTRACT
-         | ScalaTokenTypes.kFINAL
-         | ScalaTokenTypes.kSEALED
-         | ScalaTokenTypes.kIMPLICIT
-         | ScalaTokenTypes.kOVERRIDE
-         | ScalaTokenTypes.kPRIVATE
-         | ScalaTokenTypes.kPROTECTED
-         | ScalaTokenTypes.kCASE
-         | ScalaTokenTypes.kCLASS
-         | ScalaTokenTypes.kOBJECT
-         | ScalaTokenTypes.kTRAIT
-         | ScalaTokenTypes.kIMPORT
-         | ScalaTokenTypes.kPACKAGE
-         | _
-         => {
+    Console.println("token type : " + builder.getTokenType())
+
+
         Console.println("TopStatSeq invoke ")
-        //ParserUtils.eatConstr(builder, TopStatSeq, ScalaElementTypes.TOP_STAT_SEQ)
         TopStatSeq.parse(builder)
-
         Console.println("TopStatSeq invoked ")
-
-      }
-
-      case _ => {builder.error("wrong top declaration")}
-    }
 
   }
 
@@ -124,54 +102,47 @@ object CompilationUnit extends Constr {
 
     override def parseBody (builder: PsiBuilder): Unit = {
 
-
-      Console.println("single top stat handle")
-      TopStat.parse(builder)
-      Console.println("single top stat handled")
-
-
-      //Console.println("token type, semi or lt " + builder.getTokenType())
-      while (!builder.eof() && (builder.getTokenType().equals(ScalaTokenTypes.tSEMICOLON)
-          || builder.getTokenType().equals(ScalaTokenTypes.tLINE_TERMINATOR))) {
-
-        Console.println("statement separator handle")
-        ParserUtils.eatConstr(builder, StatementSeparator, ScalaElementTypes.STATEMENT_SEPARATOR)
-
-        Console.println("statement separator handled")
-
+      if (BNF.firstTopStat.contains(builder.getTokenType)) {
         Console.println("single top stat handle")
-
         TopStat.parse(builder)
-
         Console.println("single top stat handled")
-
-       // Console.println("after topStat token is " + builder.getTokenType())
       }
 
+      while (!builder.eof() && (BNF.firstStatementSeparator.contains(builder.getTokenType))) {
+        Console.println("statement separator handle")
+        StatementSeparator parse builder
+        Console.println("statement separator handled")
+
+        if (BNF.firstTopStat.contains(builder.getTokenType)) {
+          Console.println("single top stat handle")
+          TopStat.parse(builder)
+          Console.println("single top stat handled")
+        }
+      }
     }
   }
 
-  object TopStat{
+  object TopStat {
     def parse(builder: PsiBuilder): Unit = {
-      val topStatMarker = builder.mark()
+      //val topStatMarker = builder.mark()
 
       //Console.println("token type : " + builder.getTokenType())
       if (builder.eof) {
-        topStatMarker.done(ScalaElementTypes.TOP_STAT)
+        //topStatMarker.done(ScalaElementTypes.TOP_STAT)
         return
       }
 
       if (builder.getTokenType.equals(ScalaTokenTypes.kIMPORT)){
         Console.println("parse import")
         Import.parse(builder)
-        topStatMarker.done(ScalaElementTypes.TOP_STAT)
+        //topStatMarker.done(ScalaElementTypes.TOP_STAT)
         return
       }
 
       if (builder.getTokenType.equals(ScalaTokenTypes.kPACKAGE)){
         Console.println("parse packaging")
         Packaging.parse(builder)
-        topStatMarker.done(ScalaElementTypes.TOP_STAT)
+        //topStatMarker.done(ScalaElementTypes.TOP_STAT)
         return
       }
 
@@ -194,20 +165,21 @@ object CompilationUnit extends Constr {
 
       if (isTmpl && !(builder.getTokenType.equals(ScalaTokenTypes.kCASE) || BNF.firstTmplDef.contains(builder.getTokenType))) {
         builder.error("wrong type declaration")
-        topStatMarker.drop()
+        //topStatMarker.drop()
         return
       }
 
       if (builder.getTokenType.equals(ScalaTokenTypes.kCASE) || BNF.firstTmplDef.contains(builder.getTokenType)) {
         Console.println("parse tmplDef")
         TmplDef.parse(builder)
-        topStatMarker.done(ScalaElementTypes.TOP_STAT)
+       // topStatMarker.done(ScalaElementTypes.TOP_STAT)
         return
       }
-    
+
+      builder error "wrong top statement declaration"    
 
       //if parse nothing
-      topStatMarker.done(ScalaElementTypes.TOP_STAT)
+     // topStatMarker.done(ScalaElementTypes.TOP_STAT)
     }
   }
  
@@ -228,7 +200,7 @@ object CompilationUnit extends Constr {
                 ParserUtils.eatConstr(builder, QualId, ScalaElementTypes.QUAL_ID)
                 //qualIdMarker.done(ScalaElementTypes.QUAL_ID)
 
-                ParserUtils.eatConstr(builder, StatementSeparator, ScalaElementTypes.STATEMENT_SEPARATOR)
+                StatementSeparator parse builder
               }
 
               case _ => builder.error("Wrong package name")

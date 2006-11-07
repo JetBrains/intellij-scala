@@ -64,14 +64,13 @@ object Template extends Constr{
 
     //    ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
 
-       Console.println("Template stat parse " + builder.getTokenType)
-       /*ParserUtils.listOfSmth(builder, TemplateStat, ScalaTokenTypes.tCOMMA,
-                              ScalaElementTypes.TEMPLATE_STAT_LIST)
-         */
-        //if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+       Console.println("Template stat seq parse " + builder.getTokenType)
+
+        if (BNF.firstTemplateStatSeq.contains(builder.getTokenType)) {
           Console.println("parse template stat list")
-          TemplateStatList parse builder
-        //}
+          TemplateStatSeq parse builder
+          Console.println("parsed template stat list")
+        }
        
       /* if (!builder.eof()) {
          builder.advanceLexer
@@ -117,31 +116,25 @@ object Template extends Constr{
     }
   }
 
-  object TemplateStatList extends Constr {
+  object TemplateStatSeq extends Constr {
     override def getElementType : IElementType = ScalaElementTypes.TEMPLATE_STAT_LIST
 
     override def parseBody(builder : PsiBuilder) : Unit = {
-    //  if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+      if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
         Console.println("single Template Stat " + builder.getTokenType)
         TemplateStat parse builder
+      }
 
         while (!builder.eof() && BNF.firstStatementSeparator.contains(builder.getTokenType)) {
           Console.println("parse StatementSeparator " + builder.getTokenType)
           StatementSeparator parse builder
 
-         // if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+          if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
             Console.println("parse TemplateStat " + builder.getTokenType)
-            if (!builder.eof()) {
-              TemplateStat parse builder
-            }
-         // } 
-          /*else {
-            builder error "wrong template statement"
-            return
-          }*/
+            TemplateStat parse builder
+          } 
         }
         Console.println("single Template Stat done " + builder.getTokenType)
-      //}
     }
   }
 
