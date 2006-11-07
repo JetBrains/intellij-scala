@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.parser.parsing
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-//import org.jetbrains.plugins.scala.lang.parser.parsing.top.Top
 import org.jetbrains.plugins.scala.lang.parser.util._
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
@@ -50,14 +49,14 @@ class Program extends ScalaTokenTypes {
       }
     }
 
-    
+
     var marker = builder.mark()
     rollForward
     ParserUtils.rollForward(builder)
     if ( !builder.eof() ){
       //new Top parse(builder) //handle top level - package, import
       //Console.println("CompilationUnit invoke ")
-     // CompilationUnit.parse(builder)
+      CompilationUnit.parse(builder)
       //Console.println("CompilationUnit invoked ")
     }
 
