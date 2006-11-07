@@ -20,4 +20,8 @@ class ScalaFile ( viewProvider : FileViewProvider )
   override def getFileType() = {
     ScalaFileType.SCALA_FILE_TYPE
   }
+
+  override def toString: String = {
+    "Scala file"
+  }
 }
