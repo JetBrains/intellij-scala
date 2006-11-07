@@ -14,4 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi._
       override def toString: String = "Composite pattern"
   }
 
+  case class ScCaseClauseImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Case Clause"
+  }
+
 }
