@@ -1,0 +1,10 @@
+if ( !builder.eof() ){
+  Top parse(builder) //handle top level - package, import
+  Console.println("CompilationUnit invoke ") ;
+  CompilationUnit parse builder; anything.parse(builder)
+  aa ## bb :: d : 5 ## cc + dd
+  id1 a_: -id2 * d  a_: ~id3
+  while (true) { 5; 5; 5;}
+  Console.println("CompilationUnit invoked ")
+}
+-----
