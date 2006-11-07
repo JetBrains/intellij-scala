@@ -183,6 +183,15 @@ object ScalaElementTypes {
   val BLOCK = new ScalaElementType("block")
   val BLOCK_STAT = new ScalaElementType("block statements")
 
+  /*************************************************************************************/
+  /************************************** PATTERNS *************************************/
+  /*************************************************************************************/
+  val SIMPLE_PATTERN = new ScalaElementType("simple pattern")
+  val PATTERN3 = new ScalaElementType("pattern 3")
+  val PATTERN2 = new ScalaElementType("pattern 2")
+  val PATTERN1 = new ScalaElementType("pattern 1")
+  val PATTERN = new ScalaElementType("pattern")
+  val PATTERNS = new ScalaElementType("patterns")
 
   /*************************************************************************************/
   /************************************** KEYWORDS *************************************/
