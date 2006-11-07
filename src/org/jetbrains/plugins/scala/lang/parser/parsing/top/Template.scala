@@ -26,8 +26,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
 object Template extends Constr{
   override def getElementType = ScalaElementTypes.TEMPLATE
 
-  override def parseBody(builder : PsiBuilder) : Unit = {
+  override def parseBody (builder : PsiBuilder) : Unit = {
+    if (BNF.firstTemplateParents.contains(builder.getTokenType)){
+      TemplateParents parse builder
+    } else builder error "expected template parents"
 
+    if (BNF.firstTemplateBody.contains(builder.getTokenType)){
+      TemplateBody parse builder
+    }
   }
 } 
 
@@ -35,8 +41,6 @@ object Template extends Constr{
     override def getElementType = ScalaElementTypes.TEMPLATE_PARENTS
 
     override def parseBody(builder : PsiBuilder) : Unit = {
-
-
       if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
         Construction.parse(builder)
       } else builder.error("expected identifier")
@@ -115,8 +119,8 @@ object Template extends Constr{
     }
   }
 
-  object TemplateStatSeq extends Constr {
-    override def getElementType : IElementType = ScalaElementTypes.TEMPLATE_STAT_LIST
+  object TemplateStatSeq extends ConstrWithoutNode {
+    //override def getElementType : IElementType = ScalaElementTypes.TEMPLATE_STAT_LIST
 
     override def parseBody(builder : PsiBuilder) : Unit = {
       if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
@@ -128,6 +132,7 @@ object Template extends Constr{
           Console.println("parse StatementSeparator " + builder.getTokenType)
           StatementSeparator parse builder
 
+          Console.println("candidate to TemplateStat " + builder.getTokenType)
           if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
             Console.println("parse TemplateStat " + builder.getTokenType)
             TemplateStat parse builder

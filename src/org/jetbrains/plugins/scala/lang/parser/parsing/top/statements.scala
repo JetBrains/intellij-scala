@@ -181,6 +181,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
           if (BNF.firstExpr.contains(builder.getTokenType)) {
           Console.println("expr do : " + builder.getTokenType)
+          Console.println("expr text do : " + builder.getTokenText)
             Expr parse builder
             Console.println("expr done : " + builder.getTokenType)
           } else {
