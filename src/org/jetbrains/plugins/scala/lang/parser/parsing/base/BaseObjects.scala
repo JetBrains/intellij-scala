@@ -47,7 +47,13 @@ object StatementSeparator extends ConstrWithoutNode {
     AttributeClause ::= ‘[’ Attribute {‘,’ Attribute} ‘]’ [NewLine]
 */
 
-object AttributeClause extends Constr{
+object AttributeClause extends ConstrItem {
+  override def first : TokenSet = TokenSet.create (
+    Array (
+      ScalaTokenTypes.tLSQBRACKET
+    )
+  )
+
   override def getElementType = ScalaElementTypes.ATTRIBUTE_CLAUSE;
 
   override def parseBody(builder: PsiBuilder): Unit = {
@@ -251,30 +257,22 @@ object Construction extends Constr{
 
     override def parseBody(builder: PsiBuilder): Unit = {
       Console.println("token type : " + builder.getTokenType())
-      builder.getTokenType() match {
-         case ScalaTokenTypes.kABSTRACT
-            | ScalaTokenTypes.kFINAL
-            | ScalaTokenTypes.kSEALED
-            | ScalaTokenTypes.kIMPLICIT
-            => {
-            LocalModifier.parse(builder)
-         }
+      if (BNF.firstLocalModifier.contains(builder.getTokenType)) {
+        LocalModifier.parse(builder)
+      }
 
-        case ScalaTokenTypes.kOVERRIDE => {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.kOVERRIDE)
-        }
+      if (ScalaTokenTypes.kOVERRIDE.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kOVERRIDE)
+      }
 
-        case ScalaTokenTypes.kPRIVATE
-           | ScalaTokenTypes.kPROTECTED
-           => {
-           AccessModifier.parse(builder)
-        }
+      if (BNF.firstAccessModifier.contains(builder.getTokenType)) {
+        AccessModifier.parse(builder)
       }
     }
   }
 
-  object AccessModifier extends Constr{
-    override def getElementType = ScalaElementTypes.ACCESS_MODIFIER
+  object AccessModifier extends ConstrWithoutNode {
+    //override def getElementType = ScalaElementTypes.ACCESS_MODIFIER
 
     override def parseBody(builder: PsiBuilder): Unit = {
       Console.println("token type : " + builder.getTokenType())
@@ -293,29 +291,19 @@ object Construction extends Constr{
   }
 
 
-  object LocalModifier extends Constr{
-    override def getElementType = ScalaElementTypes.LOCAL_MODIFIER
-
+  object LocalModifier extends ConstrWithoutNode {
     override def parseBody(builder: PsiBuilder): Unit = {
       Console.println("token type : " + builder.getTokenType())
 
       if (BNF.firstLocalModifier.contains(builder.getTokenType)) {
         builder.getTokenType() match {
-          case ScalaTokenTypes.kABSTRACT => {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.kABSTRACT)
-          }
+          case ScalaTokenTypes.kABSTRACT => ParserUtils.eatElement(builder, ScalaTokenTypes.kABSTRACT)
 
-          case ScalaTokenTypes.kFINAL => {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.kFINAL)
-          }
+          case ScalaTokenTypes.kFINAL => ParserUtils.eatElement(builder, ScalaTokenTypes.kFINAL)
 
-          case ScalaTokenTypes.kSEALED => {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.kSEALED)
-          }
+          case ScalaTokenTypes.kSEALED => ParserUtils.eatElement(builder, ScalaTokenTypes.kSEALED)
 
-          case ScalaTokenTypes.kIMPLICIT => {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.kIMPLICIT)
-          }
+          case ScalaTokenTypes.kIMPLICIT => ParserUtils.eatElement(builder, ScalaTokenTypes.kIMPLICIT)
 
           case _ => builder error "expected local modifier"
         }

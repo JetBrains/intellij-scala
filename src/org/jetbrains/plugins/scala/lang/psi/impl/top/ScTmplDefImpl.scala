@@ -20,4 +20,5 @@ import com.intellij.lang.ASTNode
     override def toString: String = "'class'"
   }
 
+
 }

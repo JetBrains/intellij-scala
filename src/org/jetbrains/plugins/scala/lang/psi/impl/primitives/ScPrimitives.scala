@@ -88,4 +88,19 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl, com.intellij.la
     override def toString : String = "'case'"
   }
 
+  case class ScModifiers ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "Modifiers"
+  }
+
+  case class ScModifier ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "Modifier"
+  }
+
+  case class ScAttributeClauses ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "AttributeClauses"
+  }
+
+  case class ScAttributeClause ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "AttributeClause"
+  }
 }

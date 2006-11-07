@@ -205,13 +205,15 @@ object ScalaElementTypes {
 
 //Attributes
   val ATTRIBUTE_CLAUSE = new ScalaElementType("attribute clause")
+  val ATTRIBUTE_CLAUSES = new ScalaElementType("attribute clauses")
   val ATTRIBUTE = new ScalaElementType("attribute")
 
 //Modifiers
   val MODIFIER = new ScalaElementType("modifier")
-  val LOCAL_MODIFIER = new ScalaElementType("local modifier")
-  val ACCESS_MODIFIER = new ScalaElementType("access control modifier : public and private")
-  val OVERRIDE = new ScalaElementType("override")
+  val MODIFIERS = new ScalaElementType("modifiers")
+  //val LOCAL_MODIFIER = new ScalaElementType("local modifier")
+  //val ACCESS_MODIFIER = new ScalaElementType("access control modifier : public and private")
+  //val OVERRIDE = new ScalaElementType("override")
 
 //top
   val TOP_STAT = new ScalaElementType("top stat")
