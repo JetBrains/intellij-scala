@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter;
 import org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher;
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter;
 import org.jetbrains.plugins.scala.util.ScalaParserDefinitionFactory;
+//import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition;
 
 /**
  * Author: Ilya Sergey
@@ -20,36 +21,35 @@ import org.jetbrains.plugins.scala.util.ScalaParserDefinitionFactory;
  * Time: 15:01:34
  */
 public class ScalaLanguage extends Language {
-    protected ScalaLanguage(String s) {
-        super(s);
-    }
+  protected ScalaLanguage(String s) {
+    super(s);
+  }
 
-    protected ScalaLanguage(String s, String... strings) {
-        super(s, strings);
-    }
+  protected ScalaLanguage(String s, String... strings) {
+    super(s, strings);
+  }
 
-    public ScalaLanguage() {
-        super("Scala");
-    }
+  public ScalaLanguage() {
+    super("Scala");
+  }
 
-    public ParserDefinition getParserDefinition(){
-        return ScalaParserDefinitionFactory.getInstance().createScalaParserDefinition();
-//        return null;
+  public ParserDefinition getParserDefinition() {
+    return ScalaParserDefinitionFactory.getInstance().createScalaParserDefinition();
+    //return new ScalaParserDefinition();
+  }
 
-    }
+  @NotNull
+  public SyntaxHighlighter getSyntaxHighlighter(Project project, final VirtualFile virtualFile) {
+    return new ScalaSyntaxHighlighter();
+  }
 
-    @NotNull
-    public SyntaxHighlighter getSyntaxHighlighter(Project project, final VirtualFile virtualFile) {
-        return new ScalaSyntaxHighlighter();
-    }
+  @Nullable
+  public PairedBraceMatcher getPairedBraceMatcher() {
+    return new ScalaBraceMatcher();
+  }
 
-    @Nullable
-    public PairedBraceMatcher getPairedBraceMatcher(){
-        return new ScalaBraceMatcher();
-    }
-
-    @Nullable
-    public Commenter getCommenter(){
-        return new ScalaCommenter();
-    }
+  @Nullable
+  public Commenter getCommenter() {
+    return new ScalaCommenter();
+  }
 }
