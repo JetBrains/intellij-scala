@@ -86,7 +86,7 @@ special =   \u0021 | \u0023
           | \u002D | \u005E
           | \u003A
           | [\u003C-\u0040]
-          | \u007C | \u007E
+          | \u007E
           | \u005C | \u002F     //slashes
 
 op = {special}+
@@ -143,10 +143,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////////////////  states ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-%state IN_LINE_COMMENT_STATE
-// In line comment
-
-%state IN_BLOCK_COMMENT_STATE
+//%state IN_BLOCK_COMMENT_STATE
 // In block comment
 
 %state IN_STRING_STATE
@@ -165,13 +162,18 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-"//" {special}*                           {   yybegin(IN_LINE_COMMENT_STATE);
-                                              return process(tCOMMENT);
-                                          }
+"//" .*                                    { return process(tCOMMENT); }
 
-"/*" {special}*                           {   yybegin(IN_BLOCK_COMMENT_STATE);
-                                              return process(tCOMMENT);
-                                          }
+
+//"/*" {special}*                           {   yybegin(IN_BLOCK_COMMENT_STATE);
+//                                              return process(tCOMMENT);
+//                                          }
+
+
+"/*" {special}* ~"*/"                     {   return process(tCOMMENT); }
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Strings /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -255,6 +257,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "#"                                     {   return process(tINNER_CLASS); }
 "@"                                     {   return process(tAT);}
 "&"                                     {   return process(tAND);}
+"|"                                     {   return process(tOR);}
 
 "+"                                     {   return process(tPLUS);}
 "-"                                     {   return process(tMINUS);}
@@ -264,6 +267,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "."                                     {   return process(tDOT);}
 ";"                                     {   return process(tSEMICOLON);}
 ","                                     {   return process(tCOMMA);}
+
 
 ////////////////////// Identifier /////////////////////////////////////////
 
@@ -295,28 +299,16 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// In block comment /////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<IN_BLOCK_COMMENT_STATE>{
 
-"*/"                                    {   yybegin(YYINITIAL);
-                                            return process(tCOMMENT);
-                                        }
+//<IN_BLOCK_COMMENT_STATE>{
+//
+//"*/"                                    {   yybegin(YYINITIAL);
+//                                            return process(tCOMMENT);
+//                                        }
 
-.|{LineTerminator}                      {   return process(tCOMMENT); }
+//.|{LineTerminator}                      {   return process(tCOMMENT); }
 
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////// In line comment //////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<IN_LINE_COMMENT_STATE>{
-
-{LineTerminator}                        {   yybegin(YYINITIAL);
-                                            return process(tLINE_TERMINATOR);
-                                        }
-
-.                                       {   return process(tCOMMENT); }
-
-}
+//}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// Inside a string  /////////////////////////////////////////////////////////////////////////////
