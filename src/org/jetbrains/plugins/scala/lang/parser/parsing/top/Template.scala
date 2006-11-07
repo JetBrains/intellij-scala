@@ -16,8 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
-//import org.jetbrains.plugins.scala.lang.parser.parsing.top.definition.Def
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.declaration.DclDef
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
 /**
  * User: Dmitry.Krasilschikov

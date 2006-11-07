@@ -227,7 +227,8 @@ object CompilationUnit extends Constr {
               if ( ScalaTokenTypes.tLBRACE.equals(builder.getTokenType()) ){
 
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
-                ParserUtils.eatConstr(builder, TopStatSeq, ScalaElementTypes.TOP_STAT_SEQ)
+                //ParserUtils.eatConstr(builder, TopStatSeq, ScalaElementTypes.TOP_STAT_SEQ)
+                TopStatSeq parse builder
 
               } else builder.error("expected '{'")
 
