@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.lang.psi.impl.literals._
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
+import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.top._, org.jetbrains.plugins.scala.lang.psi.impl.primitives._
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -71,6 +72,12 @@ object ScalaPsiCreator {
     case ScalaElementTypes.ARG_EXPRS => new ScArgumentExprsImpl(node)
     case ScalaElementTypes.BLOCK_EXPR => new ScBlockExprImpl(node)
     case ScalaElementTypes.BLOCK_STAT => new ScBlockStatImpl(node)
+
+    /******************* PATTERNS *********************/
+    case ScalaElementTypes.PATTERN1 => new ScPattern1Impl(node)
+    case ScalaElementTypes.PATTERN => new ScPatternImpl(node)
+    case ScalaElementTypes.CASE_CLAUSE => new ScCaseClauseImpl(node)
+
 
     /*****************************************************/
     /********************** PRIMITIVES ********************/
