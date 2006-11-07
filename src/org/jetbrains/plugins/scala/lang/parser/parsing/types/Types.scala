@@ -60,7 +60,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           else nextMarker.drop()
           elem
         } else {
-        if (doWithMarker) dotMarker.done(ScalaTokenTypes.tDOT)
+        if (doWithMarker) {
+          //dotMarker.done(ScalaTokenTypes.tDOT)
+          dotMarker.drop()
+        }
         else dotMarker.drop()
         processFunction(nextMarker)
         }

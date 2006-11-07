@@ -23,9 +23,9 @@ object ParserUtils {
   //Write element node
   def eatElement(builder: PsiBuilder, elem: IElementType): Unit = {
     if (!builder.eof()) {
-      val marker = builder.mark()
+//      val marker = builder.mark()
       builder.advanceLexer // Ate something
-      marker.done(elem)
+//      marker.done(elem)
     } else builder error "unexpected end of file"  
   }
 
@@ -112,5 +112,6 @@ object ParserUtils {
     marker.rollbackTo()
     ScalaElementTypes.WRONGWAY
   }
+
 
 }

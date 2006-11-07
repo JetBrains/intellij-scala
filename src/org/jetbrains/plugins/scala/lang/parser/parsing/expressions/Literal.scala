@@ -27,37 +27,42 @@ Literal ::= integerLiteral
     builder.getTokenType match{
       case ScalaTokenTypes.tINTEGER => { // Integer literal
         builder.advanceLexer()
-        marker.done(ScalaTokenTypes.tINTEGER)
+//        marker.done(ScalaTokenTypes.tINTEGER)
+        marker.drop()
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tFLOAT => { //Floating point literal
         builder.advanceLexer()
-        marker.done(ScalaTokenTypes.tFLOAT)
+//        marker.done(ScalaTokenTypes.tFLOAT)
+        marker.drop()
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => { //Boolean Literal
         builder.advanceLexer()        
-        marker.done(ScalaElementTypes.BOOLEAN_LITERAL)
+//        marker.done(ScalaElementTypes.BOOLEAN_LITERAL)
+        marker.drop()
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tCHAR => { //Character literal
         builder.advanceLexer()
-        marker.done(ScalaTokenTypes.tCHAR)
+//        marker.done(ScalaTokenTypes.tCHAR)
+        marker.drop()
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.kNULL => { //null literal
         builder.advanceLexer()
-        marker.done(ScalaTokenTypes.kNULL)
+//        marker.done(ScalaTokenTypes.kNULL)
+        marker.drop()
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tSTRING_BEGIN => { //String literal
-        val beginMarker = builder.mark();
+//        val beginMarker = builder.mark();
         builder.advanceLexer()
-        beginMarker.done(ScalaTokenTypes.tSTRING_BEGIN)
+//        beginMarker.done(ScalaTokenTypes.tSTRING_BEGIN)
         builder.getTokenType match {
           case ScalaTokenTypes.tSTRING_END => {
             val strContentMarker = builder.mark()
-            strContentMarker.done(ScalaTokenTypes.tSTRING)
+//            strContentMarker.done(ScalaTokenTypes.tSTRING)
             ParserUtils.eatElement(builder, ScalaTokenTypes.tSTRING_END)
           }
           case ScalaTokenTypes.tSTRING => {
@@ -71,7 +76,8 @@ Literal ::= integerLiteral
           }
           case _ => builder.error("Wrong string declaration")
         }
-        marker.done(ScalaElementTypes.STRING_LITERAL)
+//        marker.done(ScalaElementTypes.STRING_LITERAL)
+        marker.drop()
         ScalaElementTypes.LITERAL
       }
       case _ => {
