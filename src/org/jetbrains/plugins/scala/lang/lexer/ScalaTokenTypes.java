@@ -37,11 +37,11 @@ public interface ScalaTokenTypes {
 ///////////////////////// Strings & chars //////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    IElementType tSTRING = new ScalaElementType("string content");
-    IElementType tSTRING_BEGIN = new ScalaElementType("begin of string");
-    IElementType tSTRING_END = new ScalaElementType("end of string");
-                                                        
-    IElementType tCHAR = new ScalaElementType("Character");
+  IElementType tSTRING = new ScalaElementType("string content");
+  IElementType tSTRING_BEGIN = new ScalaElementType("begin of string");
+  IElementType tSTRING_END = new ScalaElementType("end of string");
+
+  IElementType tCHAR = new ScalaElementType("Character");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// integer and float literals ///////////////////////////////////////////////////////////////////
@@ -60,12 +60,13 @@ public interface ScalaTokenTypes {
     IElementType tGREATER = new ScalaElementType(">");
     IElementType tGREATEROREQUAL = new ScalaElementType(">=");
 
-    IElementType tPLUS = new ScalaElementType("+");
-    IElementType tMINUS = new ScalaElementType("-");
-    IElementType tTILDA = new ScalaElementType("~");
-    IElementType tNOT = new ScalaElementType("!");
-    IElementType tSTAR = new ScalaElementType("*");
-    IElementType tDIV = new ScalaElementType("/");
+  IElementType tASSGN = new ScalaElementType("=");
+  IElementType tPLUS = new ScalaElementType("+");
+  IElementType tMINUS = new ScalaElementType("-");
+  IElementType tTILDA = new ScalaElementType("~");
+  IElementType tNOT = new ScalaElementType("!");
+  IElementType tSTAR = new ScalaElementType("*");
+  IElementType tDIV = new ScalaElementType("/");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// Braces ///////////////////////////////////////////////////////////////////////////////////////
@@ -140,6 +141,7 @@ public interface ScalaTokenTypes {
     IElementType tCOLON = new ScalaElementType(":");
     IElementType tASSIGN = new ScalaElementType("=");
     IElementType tAND = new ScalaElementType("&");
+    IElementType tOR = new ScalaElementType("|");
     IElementType tFUNTYPE = new ScalaElementType("=>");
     IElementType tFUNTYPE_ASCII = new ScalaElementType(Character.toString('\u21D2'));
     IElementType tCHOOSE = new ScalaElementType("<-");
@@ -149,5 +151,5 @@ public interface ScalaTokenTypes {
     IElementType tINNER_CLASS = new ScalaElementType("#");
     IElementType tAT = new ScalaElementType("@");
     IElementType tQUESTION = new ScalaElementType("?");
-    
+
 }
