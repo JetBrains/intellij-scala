@@ -11,13 +11,13 @@ import com.intellij.openapi.util.IconLoader;
  */
 public class NewScalaFileCreate extends AnAction {
 
-    public NewScalaFileCreate(){
-        super("Scala file",
-              "Create new Scala file", 
-              IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_logo.png"));
-    }
+  public NewScalaFileCreate() {
+    super("Scala file",
+            "Create new Scala file",
+            IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_logo.png"));
+  }
 
-    public void actionPerformed(AnActionEvent e) {
-        
-    }
+  public void actionPerformed(AnActionEvent e) {
+
+  }
 }
