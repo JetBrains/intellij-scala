@@ -76,12 +76,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
       }
 
       var rollbackMarker = builder.mark()
-      var result = ScalaElementTypes.WRONGWAY
+      var result = ScalaElementTypes.BLOCK
       var flag = false
       do {
         rollForward
         result = BlockStat.parse(builder)
-        if (result.eq(ScalaElementTypes.BLOCK_STAT)) {
+        if (result.equals(ScalaElementTypes.BLOCK_STAT)) {
           rollbackMarker.drop()
           rollForward
           rollbackMarker = builder.mark()
@@ -98,7 +98,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         } else {
           flag = false
           rollbackMarker.rollbackTo()
-          result = ScalaElementTypes.WRONGWAY
+          //result = ScalaElementTypes.WRONGWAY
+          result = ScalaElementTypes.BLOCK
         }
       } while (flag)
       result
