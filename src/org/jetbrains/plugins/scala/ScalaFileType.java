@@ -14,30 +14,30 @@ import javax.swing.*;
  */
 public class ScalaFileType extends LanguageFileType {
 
-    public static final ScalaFileType SCALA_FILE_TYPE = new ScalaFileType();
+  public static final ScalaFileType SCALA_FILE_TYPE = new ScalaFileType();
 
-    public ScalaFileType(){
-        super(new ScalaLanguage());
-    }
+  public ScalaFileType() {
+    super(new ScalaLanguage());
+  }
 
-    @NotNull
-    @NonNls
-    public String getName() {
-        return "Scala";
-    }
+  @NotNull
+  @NonNls
+  public String getName() {
+    return "Scala";
+  }
 
-    @NotNull
-    public String getDescription() {
-        return "Scala files";
-    }
+  @NotNull
+  public String getDescription() {
+    return "Scala files";
+  }
 
-    @NotNull
-    @NonNls
-    public String getDefaultExtension() {
-        return "scala";
-    }
+  @NotNull
+  @NonNls
+  public String getDefaultExtension() {
+    return "scala";
+  }
 
-    public Icon getIcon() {
-        return IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_logo.png");
-    }
+  public Icon getIcon() {
+    return IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_logo.png");
+  }
 }

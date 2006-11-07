@@ -3,32 +3,90 @@ package org.jetbrains.plugins.scala;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.module.ModuleTypeManager;
+import com.intellij.openapi.options.SettingsEditorGroup;
+import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.compiler.CompilerManager;
+import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.actions.ScalaSdkChooser;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
 
 /**
  * Author: Ilya Sergey
  * Date: 20.09.2006
  * Time: 16:31:20
  */
-public class ScalaLoader implements ApplicationComponent {
+public class ScalaLoader implements ApplicationComponent, Configurable {
+  private ScalaSdkChooser sdkChooserDialog;
 
-    public void initComponent() {
-        ApplicationManager.getApplication().runWriteAction(
-                new Runnable() {
-                    public void run() {
-                        FileTypeManager.getInstance().registerFileType(ScalaFileType.SCALA_FILE_TYPE, new String[]{"scala"});
-                    }
-                }
-        );
-    }
+  public ScalaLoader() {
+  }
 
-    public void disposeComponent() {
-    }
+  public void initComponent() {
+    loadScala();
+  }
 
-    @NotNull
-    public String getComponentName() {
-        return "Scala Loader";
-    }
+  public static void loadScala() {
+    ApplicationManager.getApplication().runWriteAction(
+            new Runnable() {
+              public void run() {
+                FileTypeManager.getInstance().registerFileType(ScalaFileType.SCALA_FILE_TYPE, new String[]{"scala"});
+              }
+            }
+    );
+
+
+  }
+
+  public void disposeComponent() {
+  }
+
+  @NotNull
+  public String getComponentName() {
+    return "Scala Loader";
+  }
+
+  @Nls
+  public String getDisplayName() {
+    return "Scala options";
+  }
+
+  public Icon getIcon() {
+    return null;
+  }
+
+  @Nullable
+  @NonNls
+  public String getHelpTopic() {
+    return null;
+  }
+
+  public JComponent createComponent() {
+    sdkChooserDialog = new ScalaSdkChooser();
+
+    return sdkChooserDialog;
+  }
+
+  public boolean isModified() {
+    System.out.println("modify: " + sdkChooserDialog.getSdkGlobalPath());
+    return sdkChooserDialog.getSdkGlobalPath() != null && !sdkChooserDialog.getSdkGlobalPath().equals("");
+  }
+
+  public void apply() throws ConfigurationException {
+    System.out.println("apply: " + sdkChooserDialog.getSdkGlobalPath());
+  }
+
+  public void reset() {
+  }
+
+  public void disposeUIResources() {
+  }
 }
