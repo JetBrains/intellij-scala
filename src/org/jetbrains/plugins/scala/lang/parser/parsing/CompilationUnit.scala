@@ -146,22 +146,40 @@ object CompilationUnit extends Constr {
         return
       }
 
-      var isTmpl = false
-
        /*Console.println("token : " + builder.getTokenType())
        Console.println("token : " + BNF.firstAttributeClause)
        Console.println("token : " + BNF.firstAttributeClause.contains(builder.getTokenType()))*/
+      val attributeClausesMarker = builder.mark()
+      var isAttrClauses = false
+
       while (BNF.firstAttributeClause.contains(builder.getTokenType())) {
         Console.println("parse attribute clause")
-        isTmpl = true
-        AttributeClause.parse(builder)
+        isAttrClauses = true
+
+        AttributeClause parse builder
       }
+
+      if (isAttrClauses)
+        attributeClausesMarker.done(ScalaElementTypes.ATTRIBUTE_CLAUSES)
+      else
+        attributeClausesMarker.drop
+
+      val modifierMarker = builder.mark()
+      var isModifiers = false
 
       while (BNF.firstModifier.contains(builder.getTokenType())) {
         Console.println("parse modifier")
-        isTmpl = true
+        isModifiers = true
         Modifier.parse(builder)
       }
+
+      if (isModifiers)
+        modifierMarker.done(ScalaElementTypes.MODIFIERS)
+      else
+        modifierMarker.drop
+
+
+      var isTmpl = isAttrClauses || isModifiers;
 
       if (isTmpl && !(builder.getTokenType.equals(ScalaTokenTypes.kCASE) || BNF.firstTmplDef.contains(builder.getTokenType))) {
         builder.error("wrong type declaration")
