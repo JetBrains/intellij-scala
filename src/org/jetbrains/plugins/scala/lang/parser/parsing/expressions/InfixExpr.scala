@@ -84,7 +84,7 @@ FIRST(InfixExpression) =  PrefixExpression.FIRST
               | ScalaTokenTypes.tMINUS
               | ScalaTokenTypes.tTILDA
               | ScalaTokenTypes.tNOT
-              | ScalaTokenTypes.tAND
+              | ScalaTokenTypes.tOR
               | ScalaTokenTypes.tSTAR
               | ScalaTokenTypes.tCOLON
               | ScalaTokenTypes.tAND

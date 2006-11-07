@@ -138,7 +138,6 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
             flag = false
           }
       }
-      // NEW!!!!!!!!!!!!!!!!!!!!!!!!!
       /* case (f) */
       else if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)) {
         ParserUtils.eatElement(builder,ScalaTokenTypes.tLPARENTHIS)
@@ -213,7 +212,8 @@ FIRST(PrefixExpression) = ScalaTokenTypes.tPLUS
         ScalaTokenTypes.tPLUS,
         ScalaTokenTypes.tMINUS,
         ScalaTokenTypes.tTILDA,
-        ScalaTokenTypes.tNOT
+        ScalaTokenTypes.tNOT,
+        ScalaTokenTypes.tAND
       )
     )
     //val PREFIX_FIRST = TokenSet.orSet(Array(SimpleExpr.SIMPLE_FIRST, BNF.tPREFIXES ))
