@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
 
 */
 
-object TmplDef extends ConstrItem {
+object TmplDef extends ConstrWithoutNode {
 
   abstract class TypeDef extends Constr {
       def getKeyword : IElementType
@@ -439,16 +439,16 @@ object TmplDef extends ConstrItem {
     }
   }
 
-  override def getElementType = ScalaElementTypes.TMPL_DEF
+  //override def getElementType = ScalaElementTypes.TMPL_DEF
 
-  override def first = TokenSet.create(
+  /*override def first = TokenSet.create(
     Array(
       ScalaTokenTypes.kCASE,
       ScalaTokenTypes.kCLASS,
       ScalaTokenTypes.kOBJECT,
       ScalaTokenTypes.kTRAIT
     )
-  )
+  ) */
   
   override def parseBody(builder : PsiBuilder) : Unit = {
     def parseInst ( builder : PsiBuilder ) : Unit = {

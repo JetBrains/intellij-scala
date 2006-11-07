@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing.top.declaration {
+package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
 
 /**
  * User: Dmitry.Krasilschikov
