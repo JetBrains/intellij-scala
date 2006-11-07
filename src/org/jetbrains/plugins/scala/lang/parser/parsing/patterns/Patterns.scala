@@ -56,7 +56,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
             if (!builder.getTokenType.equals(ScalaTokenTypes.tLPARENTHIS) &&
                 !builder.getTokenType.equals(ScalaTokenTypes.tDOT)) {
               spMarker.drop()
-              Console.println("varId!!!")
               ScalaElementTypes.SIMPLE_PATTERN
             } else {
               spMarker.rollbackTo()
@@ -203,7 +202,60 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
     }
   }
 
+  object CaseClause {
+  /*
+    Pattern3 ::=   SimplePattern
+                 | SimplePattern {id SimplePattern}
+  */
 
+    def parse(builder : PsiBuilder) : ScalaElementType = {
+      val caseMarker = builder.mark()
+
+      def negative(st: String): ScalaElementType = {
+        builder.error(st)
+        caseMarker.done(ScalaElementTypes.CASE_CLAUSE)
+        ScalaElementTypes.CASE_CLAUSE
+      }
+      
+
+      if (ScalaTokenTypes.kCASE.equals(builder.getTokenType)){
+        ParserUtils.eatElement(builder,ScalaTokenTypes.kCASE)
+        var res = Pattern parse builder
+        if (res.equals(ScalaElementTypes.PATTERN)) {
+          var flag = true
+          if (ScalaTokenTypes.kIF.equals(builder.getTokenType)) {
+            ParserUtils.eatElement(builder,ScalaTokenTypes.kCASE)
+            var res2 = PostfixExpr parse builder
+            if (res2.equals(ScalaElementTypes.POSTFIX_EXPR)) {
+             // Tres bien!
+            } else {
+             builder.error("Wrong expression")
+             flag = false
+            }
+          }
+          if (builder.getTokenType.equals(ScalaTokenTypes.tFUNTYPE)) {
+            ParserUtils.eatElement(builder,ScalaTokenTypes.tFUNTYPE)
+            var res1 = Block parse builder
+            if (flag && res1.equals(ScalaElementTypes.BLOCK)) {
+              caseMarker.done(ScalaElementTypes.CASE_CLAUSE)
+              ScalaElementTypes.CASE_CLAUSE
+            } else {
+              negative("Wrong expression!")
+            }
+          } else {
+            negative("=> expected")
+          }
+        } else {
+          negative("Pattern expected")
+        }
+      } else {
+        caseMarker.rollbackTo()
+        ScalaElementTypes.WRONGWAY
+      }
+    }
+
+
+  }
 
 
 }
