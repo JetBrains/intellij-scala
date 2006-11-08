@@ -94,7 +94,8 @@ object ScalaElementTypes {
 
   val PACKAGING = new ScalaElementType("packaging")
 
-  val TMPL_DEF = new ScalaElementType("tmpl definition")
+  val TMPL_DEF = new ScalaElementType("template definition")
+  val TOP_TMPL_DEF = new ScalaElementType("top template definition")
 
   val OBJECT = new ScalaElementType("object")
   val OBJECT_DEF = new ScalaElementType("object definition")
@@ -113,6 +114,7 @@ object ScalaElementTypes {
   /********************************* METHODS, VARIABLES and ETC ************************/
   /*************************************************************************************/
   val TEMPLATE_STAT_LIST = new ScalaElementType("template statements list")
+  val STATEMENT_TEMPLATE = new ScalaElementType("template statement")
 
   /*************************************************************************************/
   /************************************ DECLARATION ************************************/

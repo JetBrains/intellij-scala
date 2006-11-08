@@ -133,6 +133,13 @@ object BNF {
     )
   )
 
+  val firstFunTypeParam = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tLINE_TERMINATOR,
+      ScalaTokenTypes.tLSQBRACKET
+    )
+  )
+
   val firstParamClause = TokenSet.create(
     Array (
       ScalaTokenTypes.tLINE_TERMINATOR,
@@ -256,7 +263,7 @@ object BNF {
   )
 
 
- /********************************************************************************/
+  /*******************************************************************************/
   /********************************** Top Statement ******************************/
   /*******************************************************************************/
 

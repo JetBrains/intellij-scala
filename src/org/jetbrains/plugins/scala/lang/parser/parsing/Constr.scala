@@ -32,8 +32,14 @@ abstract class ConstrUnpredict {
    } 
 
    def parseBody (builder : PsiBuilder) : Unit
+}
 
+abstract class ConstrReturned {
+  def parse (builder : PsiBuilder ) : IElementType = {
+     parseBody(builder)
+   }
 
+   def parseBody (builder : PsiBuilder) : IElementType
 }
 
 abstract class ConstrWithoutNode {

@@ -99,7 +99,7 @@ object TmplDef extends ConstrWithoutNode {
 
       if (BNF.firstClassTemplate.contains(builder.getTokenType)){
         ClassTemplate.parse(builder)
-      } else builder error "expected class template declaration"
+      } else builder error "object cannot have constructor"
     }
   }
 

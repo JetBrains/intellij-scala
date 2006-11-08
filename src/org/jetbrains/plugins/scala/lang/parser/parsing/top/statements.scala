@@ -25,15 +25,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
     object DclDef extends ConstrUnpredict {
       override def parseBody(builder : PsiBuilder) : Unit = {
-        /*def wrapDcl (declaration: IElementType, keyword : IElementType, dclConstr : Constr) : Unit = {
-          val dclMarker = builder.mark()
-
-          ParserUtils.eatElement(builder, keyword)
-          dclConstr parse builder
-
-          dclMarker.done(declaration)
-        } */
-
         builder.getTokenType match {
           case ScalaTokenTypes.kVAL => {
             ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL)
@@ -71,6 +62,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             } else builder error "wrong declaration"
           }
 
+        }
+      }
+    }
+
+  //todo: check for return Definition
+    object Def extends ConstrUnpredict {
+      override def parseBody(builder : PsiBuilder) : Unit = {
+        if (BNF.firstDef.contains(builder.getTokenType)){
+          DclDef parse builder
         }
       }
     }
@@ -383,7 +383,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
          if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
 
-          if (BNF.firstTypeParam.contains(builder.getTokenType)) {
+          if (BNF.firstFunTypeParam.contains(builder.getTokenType)) {
             FunTypeParamClause parse builder
           }
 

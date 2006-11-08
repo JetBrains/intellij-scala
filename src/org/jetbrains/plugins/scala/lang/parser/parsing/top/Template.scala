@@ -142,10 +142,10 @@ object Template extends Constr{
     }
   }
 
-  object TemplateStat extends ConstrItem {
-    override def getElementType : IElementType = ScalaElementTypes.TEMPLATE_STAT
+  object TemplateStat extends ConstrUnpredict {
+    //override def getElementType : IElementType = ScalaElementTypes.TEMPLATE_STAT
 
-    override def first : TokenSet = BNF.firstTemplateStat
+    //override def first : TokenSet = BNF.firstTemplateStat
 
     override def parseBody(builder : PsiBuilder) : Unit = {
       //if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
@@ -155,6 +155,8 @@ object Template extends Constr{
          Import parse builder
          return
         }
+
+        var statementDefDclMarker = builder.mark()
 
         var isDefOrDcl = false
         while(BNF.firstAttributeClause.contains(builder.getTokenType)) {
@@ -176,14 +178,16 @@ object Template extends Constr{
               Console.println("dcldef parse" + builder.getTokenType)
               DclDef parse builder
               Console.println("dcldef parsed")
-              return
             } else {
-            builder error "expected definition or declaration"
-            Console.println("template stat done : "+ builder.getTokenType)
-            return
+              builder error "expected definition or declaration"
+              Console.println("template stat done : "+ builder.getTokenType)
           }
+          statementDefDclMarker.done(ScalaElementTypes.STATEMENT_TEMPLATE)
+          return
           //error, because def or dcl must be defined after attributeClause or Modifier
-        } 
+        } else {
+          statementDefDclMarker.drop()
+        }
 
         if (BNF.firstDclDef.contains(builder.getTokenType)) {
           Console.println("dcl parse" + builder.getTokenType)
@@ -198,6 +202,7 @@ object Template extends Constr{
           Console.println("template stat done : "+ builder.getTokenType)
           return
         }
+
         Console.println("template stat done : "+ builder.getTokenType)
         return
 
