@@ -79,28 +79,32 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
   */
     def parse(builder : PsiBuilder, withBrace: Boolean) : ScalaElementType = {
 
-      def rollForward = {
+      def rollForward: Boolean = {
         var flag1 = true
+        var flag2 = false
         while ( !builder.eof() && flag1){
            builder.getTokenType match{
              case ScalaTokenTypes.tLINE_TERMINATOR
                 | ScalaTokenTypes.tSEMICOLON => {
                   ParserUtils.eatElement(builder, builder.getTokenType())
+                  flag2 = true
                 }
              case _ => flag1 = false
            }
         }
+        flag2
       }
 
       var rollbackMarker = builder.mark()
       var result = ScalaElementTypes.BLOCK
       var flag = false
+      var flag2 = true
+      rollForward
       do {
-        rollForward
         result = BlockStat.parse(builder)
-        if (result.equals(ScalaElementTypes.BLOCK_STAT)) {
+        if (flag2 && result.equals(ScalaElementTypes.BLOCK_STAT)) {
           rollbackMarker.drop()
-          rollForward
+          flag2 = rollForward
           rollbackMarker = builder.mark()
           builder.getTokenType match {
             case ScalaTokenTypes.tRBRACE if withBrace => {
