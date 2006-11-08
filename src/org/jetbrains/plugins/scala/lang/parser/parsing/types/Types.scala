@@ -332,7 +332,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           }
         }
         /* | ‘(’ Type ’)’ */
-        else if (builder.getTokenType.equals(ScalaTokenTypes.tLPARENTHIS)) { // Try to parse '(' Type ')' statement
+        else if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) { // Try to parse '(' Type ')' statement
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
           var res1 = Type parse (builder)
           if (res1.equals(ScalaElementTypes.TYPE)) {

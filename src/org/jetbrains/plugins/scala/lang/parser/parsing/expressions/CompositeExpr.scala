@@ -103,10 +103,11 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           }
           case _ => {
             rollbackMarker.drop()
-            compMarker.done (result)
-            //compMarker.drop
+            if (ScalaElementTypes.SIMPLE_EXPR.equals(result)){
+              compMarker.done (ScalaElementTypes.EXPR)
+            }
+            else compMarker.drop
             ScalaElementTypes.EXPR1
-            //result
           }
         }
       } else {

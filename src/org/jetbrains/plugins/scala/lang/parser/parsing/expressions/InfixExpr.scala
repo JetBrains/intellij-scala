@@ -176,7 +176,8 @@ FIRST(InfixExpression) =  PrefixExpression.FIRST
           }
           case _ => {
             markerStack.pop.drop()
-            ScalaElementTypes.INFIX_EXPR
+            //ScalaElementTypes.INFIX_EXPR
+            result
           }
         }
       }

@@ -248,10 +248,7 @@ FIRST(PrefixExpression) = ScalaTokenTypes.tPLUS
         marker.done(ScalaElementTypes.PREFIX_EXPR)
       } else marker.drop()
 
-      if (!result.equals(ScalaElementTypes.WRONGWAY)) {
-        result
-      }
-      else result
+      result
     }
   }
 
@@ -286,9 +283,14 @@ FIRST(PostfixExpression) =  InffixExpression.FIRST
           }
           case _ =>
         }
-        if (isPostfix) marker.done(ScalaElementTypes.POSTFIX_EXPR)
-        else marker.drop()
-        ScalaElementTypes.POSTFIX_EXPR
+        if (isPostfix) {
+          marker.done(ScalaElementTypes.POSTFIX_EXPR)
+          ScalaElementTypes.POSTFIX_EXPR
+        }
+        else {
+          marker.drop()
+          result
+        }
       }
       else {
         builder.error("Wrong postfix expression!")

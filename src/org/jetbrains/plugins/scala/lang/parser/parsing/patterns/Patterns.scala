@@ -225,7 +225,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
           if (ScalaTokenTypes.kIF.equals(builder.getTokenType)) {
             ParserUtils.eatElement(builder,ScalaTokenTypes.kCASE)
             var res2 = PostfixExpr parse builder
-            if (res2.equals(ScalaElementTypes.POSTFIX_EXPR)) {
+            if (!ScalaElementTypes.WRONGWAY.equals(res2)) {
              // Tres bien!
             } else {
              builder.error("Wrong expression")
