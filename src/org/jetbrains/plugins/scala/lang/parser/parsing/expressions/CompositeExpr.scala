@@ -73,7 +73,8 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
             rollbackMarker.drop()
             //compMarker.done (ScalaElementTypes.EXPR1)
             compMarker.drop
-            ScalaElementTypes.EXPR1
+            //ScalaElementTypes.EXPR1
+            result
           }
         }
       } else {
@@ -281,7 +282,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
     /* Various variants of parsing */
     def variants(variantProcessing: => ScalaElementType) : Boolean = {
       result = variantProcessing
-      result.equals(ScalaElementTypes.EXPR1)
+      !result.equals(ScalaElementTypes.WRONGWAY)
     }
 
     /* Parsing function body */
