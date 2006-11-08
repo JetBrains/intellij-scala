@@ -277,6 +277,10 @@ object Construction extends Constr{
     override def parseBody(builder: PsiBuilder): Unit = {
       Console.println("token type : " + builder.getTokenType())
 
+      builder.getTokenType match {
+        case ScalaTokenTypes.kPRIVATE => ParserUtils.eatElement(builder, ScalaTokenTypes.kPRIVATE)
+        case ScalaTokenTypes.kPROTECTED => ParserUtils.eatElement(builder, ScalaTokenTypes.kPROTECTED)
+      }
 
       if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)){
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
