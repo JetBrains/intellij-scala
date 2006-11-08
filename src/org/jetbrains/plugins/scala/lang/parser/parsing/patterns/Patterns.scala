@@ -26,6 +26,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
     def parse(builder : PsiBuilder) : ScalaElementType = {
         var spMarker = builder.mark()
 
+        // Process ")" symbol
+        def closeParent: ScalaElementType = {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+          spMarker.drop()
+          ScalaElementTypes.SIMPLE_PATTERN
+        }
+
         def parseStableId: ScalaElementType = {
           var result = StableId.parse(builder)
           if (ScalaElementTypes.STABLE_ID.equals(result)) {
@@ -43,6 +50,29 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
           ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
           spMarker.drop()
           ScalaElementTypes.SIMPLE_PATTERN
+        // ‘(’ [Pattern] ‘)’
+        } else if (ScalaTokenTypes.tLPARENTHIS.eq(builder getTokenType)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+          ParserUtils.rollForward(builder)
+          if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
+            closeParent
+          } else {
+            var res = Patterns.parse(builder)
+            if (ScalaElementTypes.PATTERNS.equals(res)) {
+              ParserUtils.rollForward(builder)
+              if (ScalaTokenTypes.tRPARENTHIS.equals(builder getTokenType)) {
+                closeParent
+              } else {
+                builder.error(") expected")
+                spMarker.drop()
+                ScalaElementTypes.SIMPLE_PATTERN
+              }
+            } else {
+              builder.error("Wrong patterns")
+              spMarker.drop()
+              ScalaElementTypes.SIMPLE_PATTERN
+            }
+          }
         // Literal
         } else if (Literal.parse(builder) == ScalaElementTypes.LITERAL) {
           spMarker.drop()
