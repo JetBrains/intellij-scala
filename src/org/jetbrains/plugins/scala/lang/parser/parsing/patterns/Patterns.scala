@@ -118,8 +118,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
           ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
           if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-            var res = Type.parse(builder)
-            if (res.equals(ScalaElementTypes.TYPE)) {
+            var res = Type1.parse(builder)
+            if (res.equals(ScalaElementTypes.TYPE1)) {
               p1Marker.done(ScalaElementTypes.PATTERN1)
               ScalaElementTypes.PATTERN1
             } else {
@@ -136,8 +136,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
           if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-            var res = Type.parse(builder)
-            if (res.equals(ScalaElementTypes.TYPE)) {
+            var res = Type1.parse(builder)
+            if (res.equals(ScalaElementTypes.TYPE1)) {
               p1Marker.done(ScalaElementTypes.PATTERN1)
               ScalaElementTypes.PATTERN1
             } else {
@@ -207,7 +207,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
     Pattern3 ::=   SimplePattern
                  | SimplePattern {id SimplePattern}
   */
-
     def parse(builder : PsiBuilder) : ScalaElementType = {
       val caseMarker = builder.mark()
 
@@ -216,7 +215,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
         caseMarker.done(ScalaElementTypes.CASE_CLAUSE)
         ScalaElementTypes.CASE_CLAUSE
       }
-      
 
       if (ScalaTokenTypes.kCASE.equals(builder.getTokenType)){
         ParserUtils.eatElement(builder,ScalaTokenTypes.kCASE)
@@ -233,9 +231,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
              flag = false
             }
           }
-          if (builder.getTokenType.equals(ScalaTokenTypes.tFUNTYPE)) {
+          if (ScalaTokenTypes.tFUNTYPE == builder.getTokenType) {
             ParserUtils.eatElement(builder,ScalaTokenTypes.tFUNTYPE)
-            var res1 = Block parse builder
+            var res1 = Block.parse(builder, false)
             if (flag && res1.equals(ScalaElementTypes.BLOCK)) {
               caseMarker.done(ScalaElementTypes.CASE_CLAUSE)
               ScalaElementTypes.CASE_CLAUSE

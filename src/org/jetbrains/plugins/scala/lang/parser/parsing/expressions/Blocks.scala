@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
           blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
           ScalaElementTypes.BLOCK_EXPR
         } else {
-          var result = Block.parse(builder)
+          var result = Block.parse(builder, true)
           if (result.equals(ScalaElementTypes.BLOCK)) {
             ParserUtils.rollForward(builder)
             if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){
@@ -60,7 +60,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
   Default grammar
   Block ::= {BlockStat StatementSeparator} [ResultExpr]
   */
-    def parse(builder : PsiBuilder) : ScalaElementType = {
+    def parse(builder : PsiBuilder, withBrace: Boolean) : ScalaElementType = {
 
       def rollForward = {
         var flag1 = true
@@ -86,7 +86,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
           rollForward
           rollbackMarker = builder.mark()
           builder.getTokenType match {
-            case ScalaTokenTypes.tRBRACE => {
+            case ScalaTokenTypes.tRBRACE if withBrace => {
               rollbackMarker.drop()
               result = ScalaElementTypes.BLOCK
               flag = false
@@ -95,11 +95,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
               flag = true
             }
           }
+        } else if (!withBrace) {
+          flag = false
+          rollbackMarker.rollbackTo()
+          result = ScalaElementTypes.BLOCK
         } else {
           flag = false
           rollbackMarker.rollbackTo()
-          //result = ScalaElementTypes.WRONGWAY
-          result = ScalaElementTypes.BLOCK
+          result = ScalaElementTypes.WRONGWAY
         }
       } while (flag)
       result
