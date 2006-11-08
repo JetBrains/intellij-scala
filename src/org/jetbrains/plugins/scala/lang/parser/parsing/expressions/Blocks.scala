@@ -10,6 +10,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
+import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 
   object BlockExpr {
   /*
@@ -29,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
           blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
           ScalaElementTypes.BLOCK_EXPR
         } else {
+          /*  ‘{’ Block ‘}’ */
           var result = Block.parse(builder, true)
           if (result.equals(ScalaElementTypes.BLOCK)) {
             ParserUtils.rollForward(builder)
@@ -42,9 +44,24 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
               ScalaElementTypes.BLOCK_EXPR
             }
           } else {
+            /* ‘{’ CaseClauses ‘}’ */
+            result = CaseClauses.parse(builder)
+            if (result.equals(ScalaElementTypes.CASE_CLAUSES)) {
+              ParserUtils.rollForward(builder)
+              if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+                blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
+                ScalaElementTypes.BLOCK_EXPR
+              } else {
+                builder.error("} expected")
+                blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
+                ScalaElementTypes.BLOCK_EXPR
+              }
+            } else{
             builder.error("Wrong inner block statement")
             blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
             ScalaElementTypes.BLOCK_EXPR
+            }
           }
         }
       } else {
