@@ -95,7 +95,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
             val dotMarker = builder.mark()
             builder.advanceLexer // Ate DOT
               if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-                dotMarker.done(ScalaTokenTypes.tDOT)
+                //dotMarker.done(ScalaTokenTypes.tDOT)
+                dotMarker.drop
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
                 Console.println("token type : " + builder.getTokenType())
                 builder.getTokenType() match {
@@ -163,7 +164,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
               if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
                 val newMarker = currentMarker.precede()
                 currentMarker.drop()
-                dotMarker.done(ScalaTokenTypes.tDOT)
+                //dotMarker.done(ScalaTokenTypes.tDOT)
+                dotMarker.drop
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
                 builder.getTokenType match {
                   case ScalaTokenTypes.tDOT => {
@@ -233,13 +235,14 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
             builder.getTokenType match {
               case ScalaTokenTypes.tDOT => {
                 val nextMarker = currentMarker.precede()
-                currentMarker.done(ScalaElementTypes.STABLE_ID)
+                currentMarker.drop //done(ScalaElementTypes.STABLE_ID)
                 val dotMarker = builder.mark()
                 builder.advanceLexer //Ate DOT
                 typeProcessing(dotMarker, nextMarker, false, ScalaElementTypes.STABLE_ID, afterDotParse, true)
               }
               case _ => {
-                currentMarker.done(ScalaElementTypes.STABLE_ID)
+                //currentMarker.done(ScalaElementTypes.STABLE_ID)
+                currentMarker.drop()
                 ScalaElementTypes.STABLE_ID
               }
             }

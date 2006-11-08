@@ -23,9 +23,11 @@ object ParserUtils {
   //Write element node
   def eatElement(builder: PsiBuilder, elem: IElementType): Unit = {
     if (!builder.eof()) {
-//      val marker = builder.mark()
-      builder.advanceLexer // Ate something
-//      marker.done(elem)
+      if (elem.equals(ScalaTokenTypes.tIDENTIFIER)){
+        val marker = builder.mark()
+        builder.advanceLexer // Ate something
+        marker.done(elem)
+      } else builder.advanceLexer
     } else builder error "unexpected end of file"  
   }
 

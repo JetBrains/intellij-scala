@@ -28,31 +28,31 @@ Literal ::= integerLiteral
       case ScalaTokenTypes.tINTEGER => { // Integer literal
         builder.advanceLexer()
 //        marker.done(ScalaTokenTypes.tINTEGER)
-        marker.drop()
+        marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tFLOAT => { //Floating point literal
         builder.advanceLexer()
 //        marker.done(ScalaTokenTypes.tFLOAT)
-        marker.drop()
+        marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => { //Boolean Literal
         builder.advanceLexer()        
 //        marker.done(ScalaElementTypes.BOOLEAN_LITERAL)
-        marker.drop()
+        marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tCHAR => { //Character literal
         builder.advanceLexer()
 //        marker.done(ScalaTokenTypes.tCHAR)
-        marker.drop()
+        marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.kNULL => { //null literal
         builder.advanceLexer()
 //        marker.done(ScalaTokenTypes.kNULL)
-        marker.drop()
+        marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tSTRING_BEGIN => { //String literal
@@ -61,7 +61,7 @@ Literal ::= integerLiteral
 //        beginMarker.done(ScalaTokenTypes.tSTRING_BEGIN)
         builder.getTokenType match {
           case ScalaTokenTypes.tSTRING_END => {
-            val strContentMarker = builder.mark()
+//            val strContentMarker = builder.mark()
 //            strContentMarker.done(ScalaTokenTypes.tSTRING)
             ParserUtils.eatElement(builder, ScalaTokenTypes.tSTRING_END)
           }
@@ -77,7 +77,7 @@ Literal ::= integerLiteral
           case _ => builder.error("Wrong string declaration")
         }
 //        marker.done(ScalaElementTypes.STRING_LITERAL)
-        marker.drop()
+        marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case _ => {

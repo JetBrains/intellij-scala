@@ -76,7 +76,7 @@ FIRST(InfixExpression) =  PrefixExpression.FIRST
       var result = PrefixExpr parse(builder)
 
       // Parsing after second operator encountered
-      def subParse1 : ScalaElementType = {
+      def subParse1() : ScalaElementType = {
         builder.getTokenType match {
           // If an identifier
           case  ScalaTokenTypes.tIDENTIFIER
@@ -96,7 +96,7 @@ FIRST(InfixExpression) =  PrefixExpression.FIRST
             ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
             val res1 = PrefixExpr.parse(builder)
             rbMarker.rollbackTo()
-            if (res1.equals(ScalaElementTypes.PREFIX_EXPR)) {
+            if (!res1.equals(ScalaElementTypes.WRONGWAY)) {
               // Analyze priority of current and las operators
               if ( !opStack.isEmpty && compare(opStack.top, currentOp) >= 0) {
                 markerStack.pop.drop()
@@ -137,9 +137,6 @@ FIRST(InfixExpression) =  PrefixExpression.FIRST
         }
       }
 
-
-
-
       def subParse : ScalaElementType = {
         builder.getTokenType match {
           // If an identifier
@@ -148,6 +145,10 @@ FIRST(InfixExpression) =  PrefixExpression.FIRST
               | ScalaTokenTypes.tMINUS
               | ScalaTokenTypes.tTILDA
               | ScalaTokenTypes.tNOT
+              | ScalaTokenTypes.tOR
+              | ScalaTokenTypes.tSTAR
+              | ScalaTokenTypes.tCOLON
+              | ScalaTokenTypes.tDIV
               | ScalaTokenTypes.tAND=> {
             val rollbackMarker = builder.mark() //for rollback
             opStack += builder.getTokenText // operator text to stack
@@ -158,7 +159,7 @@ FIRST(InfixExpression) =  PrefixExpression.FIRST
             val res = PrefixExpr parse(builder)
 
             // if  PE1 op PE2 ....
-            if (res.equals(ScalaElementTypes.PREFIX_EXPR)) {
+            if (!res.equals(ScalaElementTypes.WRONGWAY)) {
               rollbackMarker.drop()
               markerStack += newMarker
               // May be next operator encountered
@@ -168,18 +169,19 @@ FIRST(InfixExpression) =  PrefixExpression.FIRST
               newMarker.drop()
               rollbackMarker.rollbackTo()
               opStack.pop
-              markerStack.pop.done(ScalaElementTypes.INFIX_EXPR)
+
+              markerStack.pop.drop()
               ScalaElementTypes.INFIX_EXPR
             }
           }
           case _ => {
-            markerStack.pop.done(ScalaElementTypes.INFIX_EXPR)
+            markerStack.pop.drop()
             ScalaElementTypes.INFIX_EXPR
           }
         }
       }
 
-      if (result.equals(ScalaElementTypes.PREFIX_EXPR)) {
+      if (!result.equals(ScalaElementTypes.WRONGWAY)) {
         markerStack += marker
         result = subParse
         result

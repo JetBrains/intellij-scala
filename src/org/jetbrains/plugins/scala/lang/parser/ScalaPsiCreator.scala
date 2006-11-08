@@ -23,6 +23,7 @@ object ScalaPsiCreator {
      /********************** TOKENS **********************/
 
        /********************* LITERALS *********************/
+       case ScalaElementTypes.LITERAL => new ScLiteralImpl(node)       
 //       case ScalaTokenTypes.tINTEGER  => new ScIntegerImpl(node)
 //       case ScalaTokenTypes.tFLOAT  => new ScFloatImpl(node)
 //       case ScalaElementTypes.BOOLEAN_LITERAL  => new ScBooleanImpl(node)
@@ -36,7 +37,7 @@ object ScalaPsiCreator {
 //       case ScalaTokenTypes.kNULL => new ScNullImpl(node)
 
       /********************** KEYWORDS *********************/
-//      case ScalaTokenTypes.tIDENTIFIER => new ScIdentifierImpl(node)
+      case ScalaTokenTypes.tIDENTIFIER => new ScIdentifierImpl(node)
 
 //      case ScalaTokenTypes.kTHIS => new ScThisImpl(node)
 //      case ScalaTokenTypes.kIF => new ScIfImpl(node)
