@@ -203,6 +203,54 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
     }
   }
 
+  object Patterns {
+  /*
+    Patterns ::=    Pattern [‘,’ Patterns]
+                  | ‘_’ ‘*’
+  */
+
+    def parse(builder : PsiBuilder) : ScalaElementType = {
+      var psMarker = builder.mark()
+
+      def subParse: ScalaElementType = {
+        ParserUtils.rollForward(builder)
+        if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+          parseSequence
+        } else {
+          psMarker.drop()
+          ScalaElementTypes.PATTERNS
+        }
+      }
+
+      def parseSequence: ScalaElementType = {
+        var res = Pattern parse builder
+        if (ScalaElementTypes.PATTERN.equals(res)) {
+          subParse
+        } else {
+          builder.error("Wrong parser sequence")
+          psMarker.drop()
+          ScalaElementTypes.WRONGWAY
+        }
+      }
+
+      if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType)){
+        builder.advanceLexer
+        if (ScalaTokenTypes.tSTAR.equals(builder.getTokenType)){
+          builder.advanceLexer
+          psMarker.done(ScalaElementTypes.WILD_PATTERN)
+          ScalaElementTypes.PATTERNS
+        } else {
+          psMarker.rollbackTo()
+          psMarker = builder.mark()
+          parseSequence
+        }
+      } else parseSequence
+    }
+  }
+
+
+
   object CaseClause {
   /*
     Pattern3 ::=   SimplePattern
