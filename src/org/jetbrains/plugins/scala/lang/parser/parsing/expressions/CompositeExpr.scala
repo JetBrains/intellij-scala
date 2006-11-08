@@ -61,7 +61,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
             res match {
               case ScalaElementTypes.TYPE1 => {
                 rollbackMarker.drop()
-                compMarker.done(ScalaElementTypes.EXPR1)
+                compMarker.done(ScalaElementTypes.TYPED_EXPR_STMT)
                 ScalaElementTypes.EXPR1
               }
               case _ => {
@@ -82,18 +82,18 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
                 if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){
                   ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
                   rollbackMarker.drop()
-                  compMarker.done(ScalaElementTypes.EXPR1)
+                  compMarker.done(ScalaElementTypes.MATCH_STMT)
                   ScalaElementTypes.EXPR1
                 } else {
                   builder.error("} expected")
                   rollbackMarker.drop()
-                  compMarker.done(ScalaElementTypes.EXPR1)
+                  compMarker.done(ScalaElementTypes.MATCH_STMT)
                   ScalaElementTypes.EXPR1
                 }
               } else {
                 builder.error("Case clauses expected")
                 rollbackMarker.drop()
-                compMarker.done(ScalaElementTypes.EXPR1)
+                compMarker.done(ScalaElementTypes.MATCH_STMT)
                 ScalaElementTypes.EXPR1
               }
             } else {
@@ -103,10 +103,10 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           }
           case _ => {
             rollbackMarker.drop()
-            //compMarker.done (ScalaElementTypes.EXPR1)
-            compMarker.drop
-            //ScalaElementTypes.EXPR1
-            result
+            compMarker.done (result)
+            //compMarker.drop
+            ScalaElementTypes.EXPR1
+            //result
           }
         }
       } else {
@@ -125,12 +125,12 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
         var res = Expr.parse(builder)
         if (res.eq(ScalaElementTypes.EXPR)) {
           rollbackMarker.drop()
-          compMarker.done (ScalaElementTypes.EXPR1)
+          compMarker.done (ScalaElementTypes.ASSIGN_STMT)
           ScalaElementTypes.EXPR1
         } else {
           rollbackMarker.drop()
           builder.error("Expression expected")
-          compMarker.done (ScalaElementTypes.EXPR1)
+          compMarker.done (ScalaElementTypes.ASSIGN_STMT)
           ScalaElementTypes.EXPR1
         }
       }
@@ -179,6 +179,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
 
       /* for mistakes processing */
       def errorDone = errorDoneMain(rollbackMarker)
+
       def elseProcessing: ScalaElementType = {
         if (builder.getTokenType.eq(ScalaTokenTypes.tSEMICOLON)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tSEMICOLON)
@@ -190,7 +191,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           val res2 = Expr.parse(builder)
           if (res2.eq(ScalaElementTypes.EXPR)){
             rollbackMarker.drop()
-            compMarker.done(ScalaElementTypes.EXPR1)
+            compMarker.done(ScalaElementTypes.IF_STMT)
             ScalaElementTypes.EXPR1
           } else errorDone("Wrong expression")                   
         } else errorDone("else expected")
@@ -220,7 +221,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
                   case _ => {
                     mileMarker.rollbackTo()
                     rollbackMarker.drop()
-                    compMarker.done(ScalaElementTypes.EXPR1)
+                    compMarker.done(ScalaElementTypes.IF_STMT)
                     ScalaElementTypes.EXPR1
                   }
                 }
@@ -257,7 +258,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
               val res1 = Expr.parse(builder)
               if (res1.eq(ScalaElementTypes.EXPR)){
                 rollbackMarker.drop()
-                compMarker.done(ScalaElementTypes.EXPR1)
+                compMarker.done(ScalaElementTypes.WHILE_STMT)
                 ScalaElementTypes.EXPR1
               } else errorDone("Wrong expression")
             } else errorDone(" ) expected")
@@ -282,7 +283,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
         val res = Expr parse(builder)
         if (res.eq(ScalaElementTypes.EXPR)){
           rollbackMarker.drop()
-          compMarker.done(ScalaElementTypes.EXPR1)
+          compMarker.done(ScalaElementTypes.THROW_STMT)
           ScalaElementTypes.EXPR1
         } else errorDone("Wrong expression")
       } else {
@@ -301,7 +302,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
         ParserUtils.rollForward(builder)
         val res = Expr parse(builder)
         rollbackMarker.drop()
-        compMarker.done(ScalaElementTypes.EXPR1)
+        compMarker.done(ScalaElementTypes.RETURN_STMT)
         ScalaElementTypes.EXPR1
       } else {
         rollbackMarker.rollbackTo()
