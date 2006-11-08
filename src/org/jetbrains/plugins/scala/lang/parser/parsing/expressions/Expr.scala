@@ -61,12 +61,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
                 subParse
               } else {
                 builder.error("Argument expected")
-                exprsMarker.done(ScalaElementTypes.EXPRS)
+                //exprsMarker.done(ScalaElementTypes.EXPRS)
+                exprsMarker.drop
                 ScalaElementTypes.EXPRS
               }
             }
             case _ => {
-              exprsMarker.done(ScalaElementTypes.EXPRS)
+              //exprsMarker.done(ScalaElementTypes.EXPRS)
+              exprsMarker.drop
               ScalaElementTypes.EXPRS
             }
           }
@@ -79,7 +81,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         }
         else {
           builder.error("Argument expected")
-          exprsMarker.done(ScalaElementTypes.EXPRS)
+          //exprsMarker.done(ScalaElementTypes.EXPRS)
+          exprsMarker.drop
           ScalaElementTypes.EXPRS
         //  exprsMarker.rollbackTo()
         //  ScalaElementTypes.WRONGWAY
