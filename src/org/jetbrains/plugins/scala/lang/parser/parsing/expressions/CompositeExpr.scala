@@ -10,6 +10,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
+import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 
 object CompositeExpr {
 /*
@@ -25,7 +26,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           | [SimpleExpr ‘.’] id ‘=’ Expr                                               (b2)
           | SimpleExpr ArgumentExprs ‘=’ Expr                                         (b1)
           | PostfixExpr [‘:’ Type1]                                                   (a)
-          | PostfixExpr match ‘{’ CaseClauses ‘}’
+          | PostfixExpr match ‘{’ CaseClauses ‘}’                                      (a1)
           | MethodClosure
 */
 
@@ -47,7 +48,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
     /**** Various cases ****/
     /***********************/
 
-    /****** case (a) *******/
+    /****** case (a), (a1) *******/
     def aCase: ScalaElementType = {
       val rollbackMarker = builder.mark() // marker to rollback
       var result = PostfixExpr.parse(builder)
@@ -67,6 +68,37 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
                 rollbackMarker.rollbackTo()
                 ScalaElementTypes.WRONGWAY
               }
+            }
+          }
+          /* match ‘{’ CaseClauses ‘}’ */
+          case ScalaTokenTypes.kMATCH => {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.kMATCH)
+            if (builder.getTokenType.eq(ScalaTokenTypes.tLBRACE)) {
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
+              ParserUtils.rollForward(builder)
+              var result = CaseClauses.parse(builder)
+              if (ScalaElementTypes.CASE_CLAUSES.equals(result)) {
+                ParserUtils.rollForward(builder)
+                if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){
+                  ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+                  rollbackMarker.drop()
+                  compMarker.done(ScalaElementTypes.EXPR1)
+                  ScalaElementTypes.EXPR1
+                } else {
+                  builder.error("} expected")
+                  rollbackMarker.drop()
+                  compMarker.done(ScalaElementTypes.EXPR1)
+                  ScalaElementTypes.EXPR1
+                }
+              } else {
+                builder.error("Case clauses expected")
+                rollbackMarker.drop()
+                compMarker.done(ScalaElementTypes.EXPR1)
+                ScalaElementTypes.EXPR1
+              }
+            } else {
+               rollbackMarker.rollbackTo()
+               ScalaElementTypes.WRONGWAY
             }
           }
           case _ => {

@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
         def parseStableId: ScalaElementType = {
           var result = StableId.parse(builder)
-          if (result.equals(ScalaElementTypes.STABLE_ID)) {
+          if (ScalaElementTypes.STABLE_ID.equals(result)) {
             spMarker.drop()
             ScalaElementTypes.SIMPLE_PATTERN
           } else {
@@ -80,7 +80,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
     def parse(builder : PsiBuilder) : ScalaElementType = {
       var result = SimplePattern.parse(builder)
-      if (result.equals(ScalaElementTypes.SIMPLE_PATTERN)) {
+      if (ScalaElementTypes.SIMPLE_PATTERN.equals(result)) {
         ScalaElementTypes.PATTERN3
       } else {
         ScalaElementTypes.WRONGWAY
@@ -102,7 +102,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
           p1Marker.rollbackTo()
           p1Marker = builder.mark()
           var result = Pattern3.parse(builder)
-          if (result.equals(ScalaElementTypes.PATTERN3)) {
+          if (ScalaElementTypes.PATTERN3.equals(result)) {
             p1Marker.done(ScalaElementTypes.PATTERN1)
             ScalaElementTypes.PATTERN1
           }
