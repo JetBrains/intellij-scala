@@ -12,6 +12,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
+
 /*
 Argument expressions
 Default grammar:
@@ -32,9 +33,10 @@ ArgumentExprs ::= ‘(’ [Exprs] ’)’
         }
 
         if (ScalaTokenTypes.tLBRACE.eq(builder getTokenType)) {
-          // TODO Parse block expression
-          argsMarker.drop()
-          ScalaElementTypes.WRONGWAY
+          var result = BlockExpr parse builder
+          if (ScalaElementTypes.BLOCK_EXPR.equals(result))
+          argsMarker.done(ScalaElementTypes.ARG_EXPRS)
+          ScalaElementTypes.ARG_EXPRS
         } else if (ScalaTokenTypes.tLPARENTHIS.eq(builder getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
           ParserUtils.rollForward(builder)
