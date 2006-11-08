@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl, com.intellij.la
   /*************************************************************************************/
 
   case class ScIdentifierImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
-      override def toString: String = "Identifier: "+ getText
+      override def toString: String = "Identifier"
   }
 
   /*************************************************************************************/
