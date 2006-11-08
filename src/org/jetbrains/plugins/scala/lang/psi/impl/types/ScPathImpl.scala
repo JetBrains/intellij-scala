@@ -7,5 +7,5 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi._
 
 class ScPathImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
-      override def toString: String = "Path: "
+      override def toString: String = "Path"
 }
