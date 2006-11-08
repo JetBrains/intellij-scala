@@ -192,7 +192,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
           ParserUtils.rollForward(builder)
           subParse
         } else {
-          pMarker.done(ScalaElementTypes.PATTERN)
+          //pMarker.done(ScalaElementTypes.PATTERN)
+          pMarker.drop
           ScalaElementTypes.PATTERN
         }
       } else {
@@ -251,9 +252,21 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
         ScalaElementTypes.WRONGWAY
       }
     }
-
-
   }
 
-
+  object CaseClauses {
+  /*
+    CaseClauses ::= CaseClause { CaseClause }
+  */
+    def parse(builder : PsiBuilder) : ScalaElementType = {
+      var result = CaseClause.parse(builder)
+      if (ScalaElementTypes.CASE_CLAUSE.equals(result)) {
+        while (!builder.eof && ScalaElementTypes.CASE_CLAUSE.equals(result)){
+          ParserUtils rollForward builder
+          result = CaseClause.parse(builder)
+        }
+        ScalaElementTypes.CASE_CLAUSES
+      } else result
+    }
+  }
 }
