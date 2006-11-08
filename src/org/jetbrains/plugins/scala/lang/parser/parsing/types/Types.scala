@@ -359,6 +359,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           case ScalaTokenTypes.tINNER_CLASS => {
             val nextMarker = currentMarker.precede()
             currentMarker.done(ScalaElementTypes.SIMPLE_TYPE)
+            currentMarker.drop
             ParserUtils.eatElement(builder, ScalaTokenTypes.tINNER_CLASS)
             builder.getTokenType match {
               case ScalaTokenTypes.tIDENTIFIER => {
@@ -379,7 +380,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
             }
           }
           case _ => {
-            currentMarker.done(ScalaElementTypes.SIMPLE_TYPE)
+            //currentMarker.done(ScalaElementTypes.SIMPLE_TYPE)
+            currentMarker.drop
             ScalaElementTypes.SIMPLE_TYPE
           }
         }
