@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.types._
 
 class ScStableIdImpl( node : ASTNode ) extends ScPathImpl(node) {
 
-   override def toString: String = "Stable Identifier: " + getText
+   override def toString: String = "Stable Identifier: "
 
    def getPath : ScPathImpl = {
     if (getChildren.length == 1 ) null
