@@ -193,6 +193,7 @@ object ScalaElementTypes {
   val PATTERN = new ScalaElementType("pattern")
   val PATTERNS = new ScalaElementType("patterns")
   val CASE_CLAUSE = new ScalaElementType("case clause")
+  val CASE_CLAUSES = new ScalaElementType("case clauses")
 
   /*************************************************************************************/
   /************************************** KEYWORDS *************************************/
@@ -261,7 +262,6 @@ object ScalaElementTypes {
 
   val ARGUMENT_EXPR = new ScalaElementType("argument expr")
 
-  val CASE_CLAUSES = new ScalaElementType("argument expr")
 
 
 
