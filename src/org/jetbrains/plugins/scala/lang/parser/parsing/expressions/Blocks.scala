@@ -122,8 +122,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
     def parse(builder : PsiBuilder) : ScalaElementType = {
       val blockStatMarker = builder.mark()
       var result = CompositeExpr.parse(builder)
-      if (result == ScalaElementTypes.EXPR1) {
-        blockStatMarker.done(ScalaElementTypes.BLOCK_STAT)
+      if (!(result == ScalaElementTypes.WRONGWAY)) {
+        //blockStatMarker.done(ScalaElementTypes.BLOCK_STAT)
+        blockStatMarker.drop        
         ScalaElementTypes.BLOCK_STAT
       }
       else {
