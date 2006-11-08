@@ -1,3 +1,5 @@
-a : T
-| b : S
+x match{
+case t:T | a => true
+case _ => false
+}
 -----
