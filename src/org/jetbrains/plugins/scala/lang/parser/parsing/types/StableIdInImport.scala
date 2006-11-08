@@ -68,7 +68,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
         builder.advanceLexer
         if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)) { //continue parse StableId
           mileMarker.rollbackTo()
-          if (doWithMarker) dotMarker.done(ScalaTokenTypes.tDOT)
+          if (doWithMarker) dotMarker.drop //done(ScalaTokenTypes.tDOT)
           else dotMarker.drop()
           processFunction(nextMarker)
         } else { // If it was the last identifier
@@ -79,7 +79,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
           elem
         }
       } else {
-        if (doWithMarker) dotMarker.done(ScalaTokenTypes.tDOT)
+        if (doWithMarker) dotMarker.drop //done(ScalaTokenTypes.tDOT)
         else dotMarker.drop()
         processFunction(nextMarker)
       }
@@ -112,7 +112,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
           val dotMarker = builder.mark()
           builder.advanceLexer // Ate DOT
             if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-              dotMarker.done(ScalaTokenTypes.tDOT)
+              dotMarker.drop //done(ScalaTokenTypes.tDOT)
               ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
               Console.println("token type : " + builder.getTokenType())
               builder.getTokenType() match {
@@ -250,13 +250,14 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
           builder.getTokenType match {
             case ScalaTokenTypes.tDOT => {
               val nextMarker = currentMarker.precede()
-              currentMarker.done(ScalaElementTypes.STABLE_ID)
+              currentMarker.drop //done(ScalaElementTypes.STABLE_ID)
               val dotMarker = builder.mark()
               builder.advanceLexer //Ate DOT
               specialProcessing(dotMarker, nextMarker, false, ScalaElementTypes.STABLE_ID, afterDotParse, true)
             }
             case _ => {
-              currentMarker.done(ScalaElementTypes.STABLE_ID)
+              //currentMarker.done(ScalaElementTypes.STABLE_ID)
+              currentMarker.drop()
               ScalaElementTypes.STABLE_ID
             }
           }

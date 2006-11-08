@@ -51,7 +51,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
     def aCase: ScalaElementType = {
       val rollbackMarker = builder.mark() // marker to rollback
       var result = PostfixExpr.parse(builder)
-      if (result.equals(ScalaElementTypes.POSTFIX_EXPR)) {
+      if (!result.equals(ScalaElementTypes.WRONGWAY)) {
         builder getTokenType match {
           /*    [‘:’ Type1]   */
           case ScalaTokenTypes.tCOLON => {
@@ -71,7 +71,8 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           }
           case _ => {
             rollbackMarker.drop()
-            compMarker.done (ScalaElementTypes.EXPR1)
+            //compMarker.done (ScalaElementTypes.EXPR1)
+            compMarker.drop
             ScalaElementTypes.EXPR1
           }
         }

@@ -25,7 +25,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         var result = CompositeExpr.parse(builder)
         /** Case (a) **/
         if (result.equals(ScalaElementTypes.EXPR1)) {
-          exprMarker.done(ScalaElementTypes.EXPR)
+          //exprMarker.done(ScalaElementTypes.EXPR)
+          exprMarker.drop()
           ScalaElementTypes.EXPR
         }
         else {

@@ -6,6 +6,10 @@ import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.psi._
 
+  case class ScLiteralImpl( node : ASTNode ) extends ScalaPsiElementImpl ( node ){
+      override def toString: String = "Literal: "+ getText
+  }
+
   /**
   * Implementation of integer literals
   */
