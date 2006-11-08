@@ -183,6 +183,18 @@ object ScalaElementTypes {
   val BLOCK = new ScalaElementType("block")
   val BLOCK_STAT = new ScalaElementType("block statements")
 
+  /******************************** COMPOSITE EXPRESSIONS *****************************/
+  val IF_STMT = new ScalaElementType("if statement")
+  val WHILE_STMT = new ScalaElementType("while statement")
+  val RETURN_STMT = new ScalaElementType("return statement")
+  val THROW_STMT = new ScalaElementType("throw statement")
+  val ASSIGN_STMT = new ScalaElementType("assign statement")
+  val MATCH_STMT = new ScalaElementType("match statement")
+  val TYPED_EXPR_STMT = new ScalaElementType("typed statement")
+
+
+
+
   /*************************************************************************************/
   /************************************** PATTERNS *************************************/
   /*************************************************************************************/
@@ -239,24 +251,6 @@ object ScalaElementTypes {
 
   val TYPE_WITH_TYPES = new ScalaElementType("type WITH types")
   val REFINEMENT = new ScalaElementType("refinement")
-
-//other
-  val IF_STMT = new ScalaElementType("only if statement")
-
-  val TRY_STMT = new ScalaElementType("try statament")
-
-  val WHILE_STMT = new ScalaElementType("while statement")
-  val DO_WHILE_STMT = new ScalaElementType("do-while construction")
-
-  val FOR_STMT = new ScalaElementType("for statament")
-
-  val THROW = new ScalaElementType("throw")
-
-  val RETURN = new ScalaElementType("return")
-
-  val ASSIGNMENT = new ScalaElementType("assignment")
-
-  val MATCH = new ScalaElementType("match construction")
 
   //method closure - ?
 

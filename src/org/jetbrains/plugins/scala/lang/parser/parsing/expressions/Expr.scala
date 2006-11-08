@@ -24,14 +24,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
         var result = CompositeExpr.parse(builder)
         /** Case (a) **/
-        if (!result.equals(ScalaElementTypes.WRONGWAY)) {
-          if (result.equals(ScalaElementTypes.LITERAL) ||
-              result.equals(ScalaElementTypes.POSTFIX_EXPR)){
-            exprMarker.done(ScalaElementTypes.EXPR)
-          } else exprMarker.drop()
+        if (ScalaElementTypes.EXPR1.equals(result)) {
+          exprMarker.drop()
           ScalaElementTypes.EXPR
-        }
-        else {
+        } else {
           exprMarker.rollbackTo()
           ScalaElementTypes.WRONGWAY
         }

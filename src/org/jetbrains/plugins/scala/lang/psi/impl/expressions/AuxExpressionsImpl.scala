@@ -8,11 +8,11 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi._
 
   case class ScArgumentExprsImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
-      override def toString: String = "Argument expressions "+ getText
+      override def toString: String = "Argument expressions"
   }
 
   case class ScBlockExprImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
-      override def toString: String = "Block expressions "
+      override def toString: String = "Block expressions"
   }
 
   case class ScBlockStatImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {

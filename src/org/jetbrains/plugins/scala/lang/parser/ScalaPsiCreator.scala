@@ -24,33 +24,10 @@ object ScalaPsiCreator {
 
        /********************* LITERALS *********************/
        case ScalaElementTypes.LITERAL => new ScLiteralImpl(node)       
-//       case ScalaTokenTypes.tINTEGER  => new ScIntegerImpl(node)
-//       case ScalaTokenTypes.tFLOAT  => new ScFloatImpl(node)
-//       case ScalaElementTypes.BOOLEAN_LITERAL  => new ScBooleanImpl(node)
-//       case ScalaTokenTypes.tCHAR => new ScCharacterImpl(node)
 
-//       case ScalaElementTypes.STRING_LITERAL => new ScStringImpl(node)
-//       case ScalaTokenTypes.tSTRING_BEGIN => new ScStringBeginImpl(node)
-//       case ScalaTokenTypes.tSTRING => new ScStringContentImpl(node)
-//       case ScalaTokenTypes.tSTRING_END => new ScStringEndImpl(node)
-
-//       case ScalaTokenTypes.kNULL => new ScNullImpl(node)
-
-      /********************** KEYWORDS *********************/
       case ScalaTokenTypes.tIDENTIFIER => new ScIdentifierImpl(node)
 
-//      case ScalaTokenTypes.kTHIS => new ScThisImpl(node)
-//      case ScalaTokenTypes.kIF => new ScIfImpl(node)
-//      case ScalaTokenTypes.kELSE => new ScElseImpl(node)
-//      case ScalaTokenTypes.kWHILE => new ScWhileImpl(node)
-//      case ScalaTokenTypes.kRETURN => new ScReturnImpl(node)
-//      case ScalaTokenTypes.kTHROW => new ScThrowImpl(node)
-//      case ScalaTokenTypes.kWITH => new ScWithImpl(node)
-//      case ScalaTokenTypes.kSUPER => new ScSuperImpl(node)
-//      case ScalaTokenTypes.tASSIGN => new ScAssignImpl(node)
-//      case ScalaTokenTypes.kTYPE => new ScKeyTypeImpl(node)
-//      case ScalaTokenTypes.tINNER_CLASS => new ScSharpImpl(node)
-//      case ScalaTokenTypes.tFUNTYPE => new ScFunTypeImpl(node)
+
 
     /********************** TYPES ************************/
 
@@ -74,32 +51,19 @@ object ScalaPsiCreator {
     case ScalaElementTypes.BLOCK_EXPR => new ScBlockExprImpl(node)
     case ScalaElementTypes.BLOCK_STAT => new ScBlockStatImpl(node)
 
+    case ScalaElementTypes.IF_STMT => new ScIfStmtImpl(node)
+    case ScalaElementTypes.WHILE_STMT => new ScWhileStmtImpl(node)
+    case ScalaElementTypes.RETURN_STMT => new ScReturnStmtImpl(node)
+    case ScalaElementTypes.THROW_STMT => new ScThrowStmtImpl(node)
+    case ScalaElementTypes.ASSIGN_STMT => new ScAssignStmtImpl(node)
+    case ScalaElementTypes.TYPED_EXPR_STMT => new ScTypedStmtImpl(node)
+    case ScalaElementTypes.MATCH_STMT => new ScMatchStmtImpl(node)
+
     /******************* PATTERNS *********************/
     case ScalaElementTypes.PATTERN1 => new ScPattern1Impl(node)
     case ScalaElementTypes.PATTERN => new ScPatternImpl(node)
     case ScalaElementTypes.CASE_CLAUSE => new ScCaseClauseImpl(node)
 
-
-    /*****************************************************/
-    /********************** PRIMITIVES ********************/
-    /*****************************************************/
-//    case ScalaTokenTypes.tDOT => new ScDotImpl( node )
-//    case ScalaTokenTypes.tCOLON => new ScColonImpl( node )
-//    case ScalaTokenTypes.tCOMMA => new ScCommaImpl( node )
-//    case ScalaTokenTypes.tSEMICOLON => new ScSemicolonImpl( node )
-//    case ScalaElementTypes.STATEMENT_SEPARATOR => new ScStatementSeparatorImpl(node)
-//    case ScalaTokenTypes.tLINE_TERMINATOR => new ScLineTerminatorImpl(node)
-
-    /*****************************************************/
-    /********************** BRACKETS *********************/
-    /*****************************************************/
-
-//    case ScalaTokenTypes.tLSQBRACKET => new ScLSQBracketImpl(node)
-//    case ScalaTokenTypes.tRSQBRACKET => new ScRSQBracketImpl(node)
-//    case ScalaTokenTypes.tLPARENTHIS => new ScLParenthisImpl(node)
-//    case ScalaTokenTypes.tRPARENTHIS => new ScRParenthisImpl(node)
-//    case ScalaTokenTypes.tLBRACE => new ScLBraceImpl(node)
-//    case ScalaTokenTypes.tRBRACE => new ScRBraceImpl(node)
 
     /*****************************************************/
     /********************** TOP **************************/
