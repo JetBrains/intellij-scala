@@ -57,8 +57,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
           if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
             closeParent
           } else {
-            var res = Patterns.parse(builder)
-            if (ScalaElementTypes.PATTERNS.equals(res)) {
+            var res = Pattern.parse(builder)
+            if (ScalaElementTypes.PATTERN.equals(res)) {
               ParserUtils.rollForward(builder)
               if (ScalaTokenTypes.tRPARENTHIS.equals(builder getTokenType)) {
                 closeParent
