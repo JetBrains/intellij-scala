@@ -31,6 +31,6 @@ import com.intellij.lang.ASTNode
   }
 
   case class ScTmplDefStatement ( node : ASTNode ) extends ScTemplateStatement ( node ) {
-    override def statementName = "value"
+    override def statementName = "template definition"
   }
 }

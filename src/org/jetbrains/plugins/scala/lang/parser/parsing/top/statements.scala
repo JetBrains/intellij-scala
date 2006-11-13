@@ -29,27 +29,27 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           case ScalaTokenTypes.kVAL => {
             ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL)
             //wrapDcl(ScalaElementTypes.VALUE_DECLARATION, ScalaTokenTypes.kVAL, ValDcl)
-            Console.println("kVAL")
+            //Console.println("kVAL")
             Val parse builder
           }
 
           case ScalaTokenTypes.kVAR => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kVAR)
-          Console.println("kVAR")
+          //Console.println("kVAR")
             //wrapDcl(ScalaElementTypes.VARIABLE_DECLARATION, ScalaTokenTypes.kVAR, VarDcl)
             Var parse builder
           }
 
           case ScalaTokenTypes.kDEF => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kDEF)
-          Console.println("kDEF")
+          //Console.println("kDEF")
             //wrapDcl(ScalaElementTypes.FUNCTION_DECLARATION, ScalaTokenTypes.kDEF, FunDcl)
             Fun parse builder
           }
 
           case ScalaTokenTypes.kTYPE => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kTYPE)
-          Console.println("kTYPE")
+          //Console.println("kTYPE")
             //wrapDcl(ScalaElementTypes.TYPE_DECLARATION, ScalaTokenTypes.kTYPE, TypeDcl)
             TypeDclDef parse builder
           }
@@ -57,7 +57,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           case _
           => {
             if (BNF.firstTmplDef.contains(builder.getTokenType)) {
-              Console.println("TMPL")
+              //Console.println("TMPL")
               TmplDef parse builder
             } else builder error "wrong declaration"
           }
@@ -78,7 +78,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
     object Var extends ConstrUnpredict {
 
       override def parseBody(builder : PsiBuilder) : Unit = {
-      Console.println("val parse")
+      //Console.println("val parse")
         val varMarker = builder.mark()
 
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
@@ -137,13 +137,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
         //change ids to pattern2
       override def parseBody(builder : PsiBuilder) : Unit = {
-        val varMarker = builder.mark()
+        val valMarker = builder.mark()
 
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           Ids parse builder
         } else {
           builder error "expected idnetifier"
-          varMarker.drop()
+          valMarker.drop()
           return
         }
 
@@ -156,7 +156,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             Type parse builder
           } else {
             builder error "expected type declaration"
-            varMarker.drop()
+            valMarker.drop()
             return
           }
 
@@ -164,42 +164,37 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
         }
 
         //if there is no '=' it is mean, that construction is declaration, else definition
-        Console.println("ass : " + builder.getTokenType)
         if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
           if (!hasTypeDcl) {
             builder error "wrong variable declaration"
-            varMarker.drop()
+            valMarker.drop()
             return
           }
-          varMarker.done(ScalaElementTypes.VARIABLE_DECLARATION)
+
+          valMarker.done(ScalaElementTypes.VALUE_DECLARATION)
           return
         } else {
-          Console.println("assign : " + builder.getTokenType)
           ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
 
           if (BNF.firstExpr.contains(builder.getTokenType)) {
-          Console.println("expr do : " + builder.getTokenType)
-          Console.println("expr text do : " + builder.getTokenText)
             Expr parse builder
-            Console.println("expr done : " + builder.getTokenType)
           } else {
             builder error "wrong start of expression"
-            varMarker.drop()
+            valMarker.drop()
             return
           }
 
-          Console.println("var parsed")
-          varMarker.done(ScalaElementTypes.VARIABLE_DEFINITION)
+          valMarker.done(ScalaElementTypes.PATTERN_DEFINITION)
           return
         }
 
-        varMarker.drop()
+        valMarker.drop()
       }
     }
 
       object Fun extends ConstrUnpredict {
         override def parseBody(builder : PsiBuilder) : Unit = {
-        Console.println("fun parse")
+        //Console.println("fun parse")
           val defMarker = builder.mark()
 
          //todo: add parsing constructor
@@ -212,9 +207,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           }*/
 
           if (BNF.firstFunSig.contains(builder.getTokenType)) {
-            Console.println("funSig parse")
+            //Console.println("funSig parse")
             FunSig parse builder
-            Console.println("funSig parsed")
+            //Console.println("funSig parsed")
           } else {
             builder error "expected identifier"
             defMarker.drop()
@@ -226,9 +221,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
 
             if (BNF.firstType.contains(builder.getTokenType)) {
-            Console.println("type parse")
+            //Console.println("type parse")
               Type parse builder
-              Console.println("type parsed")
+              //Console.println("type parsed")
             } else {
               builder error "wrong type declaration"
               defMarker.drop()
@@ -251,16 +246,16 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
 
           if (BNF.firstExpr.contains(builder.getTokenType)) {
-          Console.println("expr in fun parse")
+          //Console.println("expr in fun parse")
             Expr parse builder
-            Console.println("expr in fun parsed")
+            //Console.println("expr in fun parsed")
           } else {
             builder error "wrong start of expression"
             defMarker.drop()
             return
           }
 
-          Console.println("fun parsed")
+          //Console.println("fun parsed")
           defMarker.done(ScalaElementTypes.FUNCTION_DEFINITION)
           return
         }
@@ -271,7 +266,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
       object TypeDclDef extends ConstrUnpredict {
         override def parseBody(builder : PsiBuilder) : Unit = {
-          Console.println("type parse")
+          //Console.println("type parse")
           val typeMarker = builder.mark()
 
           if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
@@ -339,7 +334,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
               return
             }
 
-            Console.println("type parsed")
+            //Console.println("type parsed")
             typeMarker.done(ScalaElementTypes.TYPE_DEFINITION)
             return
           }
@@ -359,7 +354,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
 
         if (BNF.firstTypeParam.contains(builder.getTokenType)){
-          ParserUtils.listOfSmth(builder, TypeParam, ScalaTokenTypes.tCOMMA, ScalaElementTypes.TYPE_PARAM_LIST)
+          ParserUtils.listOfSmthWithoutNode(builder, TypeParam, ScalaTokenTypes.tCOMMA)
         } else {
           builder error "expected type parameter declaration"
         }
@@ -389,9 +384,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           }
 
           if (BNF.firstParamClause.contains(builder.getTokenType)) {
-            Console.println("ParamClauses parsing " + builder.getTokenType)
+            //Console.println("ParamClauses parsing " + builder.getTokenType)
             (new ParamClauses[Param](new Param)).parse(builder)
-            Console.println("ParamClauses parsed " + builder.getTokenType)
+            //Console.println("ParamClauses parsed " + builder.getTokenType)
           }
 
         } else {

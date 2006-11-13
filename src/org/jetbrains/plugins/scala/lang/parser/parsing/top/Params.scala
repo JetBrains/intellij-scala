@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
  object TypeParam extends ConstrItem {
-      override def getElementType = ScalaElementTypes.TYPE_PARAM
+      override def getElementType = ScalaElementTypes.FUN_TYPE_PARAM
 
       override def first = BNF.firstTypeParam
 
@@ -79,15 +79,15 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
         var first = builder.getTokenType()
         builder.advanceLexer
-        Console.println("first in class param clause " + first)
+        //Console.println("first in class param clause " + first)
 
         var second = builder.getTokenType()
         builder.advanceLexer
-        Console.println("second in class param clause " + second)
+        //Console.println("second in class param clause " + second)
 
         var third = builder.getTokenType()
         builder.advanceLexer
-        Console.println("third in class param clause " + third)
+        //Console.println("third in class param clause " + third)
 
         //it is possible to cyclic
         while (checkForParamClause[T](param, first, second, third)) {
@@ -100,13 +100,13 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
           second = builder.getTokenType()
           builder.advanceLexer
           third = builder.getTokenType()
-          Console.println("one param clause " + builder.getTokenType())
+          //Console.println("one param clause " + builder.getTokenType())
         }
 
         if (checkForImplicit(first, second, third)) {
-          Console.println("one implicit end " + builder.getTokenType())
+          //Console.println("one implicit end " + builder.getTokenType())
           chooseParsingWay.rollbackTo()
-          Console.println("check for implicit")
+          //Console.println("check for implicit")
           new ImplicitEnd[T](param).parse(builder)
         }
 
@@ -115,7 +115,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
     }
 
  class ParamClause[T <: Param] (param : T) extends Constr {
-    override def getElementType : IElementType = ScalaElementTypes.PARAM_CLAUSE
+    override def getElementType : IElementType = ScalaElementTypes.FUN_PARAM_CLAUSE
 
     override def parseBody(builder : PsiBuilder) : Unit = {
       if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
@@ -131,7 +131,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
       }
 
       if (param.first.contains(builder.getTokenType)){
-        ParserUtils.listOfSmth(builder, param, ScalaTokenTypes.tCOMMA, ScalaElementTypes.PARAM_LIST)
+        ParserUtils.listOfSmthWithoutNode(builder, param, ScalaTokenTypes.tCOMMA)
       }
 
       if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)) {
@@ -189,6 +189,9 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
       if (BNF.firstParamType.contains(builder.getTokenType)){
         ParamType parse builder
+      } else {
+        builder error "expected type parameter"
+        return
       }
     }
   }

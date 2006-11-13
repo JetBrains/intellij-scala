@@ -40,14 +40,14 @@ object CompilationUnit extends Constr {
   override def getElementType = ScalaElementTypes.COMPILATION_UNIT
   override def parseBody (builder : PsiBuilder) : Unit = {
 
-    Console.println("token type : " + builder.getTokenType())
+    //Console.println("token type : " + builder.getTokenType())
     builder.getTokenType() match {
       //possible package statement
       case ScalaTokenTypes.kPACKAGE => {
-        //Console.println("top level package handle")
+        ////Console.println("top level package handle")
         //ParserUtils.eatConstr(builder, Package, ScalaElementTypes.PACKAGE_STMT)
         val packChooseMarker = builder.mark()
-        Console.println("exp package " + builder.getTokenType)
+        //Console.println("exp package " + builder.getTokenType)
         builder.advanceLexer //Ate package
 
         if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
@@ -56,12 +56,12 @@ object CompilationUnit extends Constr {
 
         //
 
-        Console.println("terminator or semicolon " + builder.getTokenType)
+        //Console.println("terminator or semicolon " + builder.getTokenType)
         builder.getTokenType match {
           case ScalaTokenTypes.tLINE_TERMINATOR
              | ScalaTokenTypes.tSEMICOLON
              => {
-            Console.println("package parse")
+            //Console.println("package parse")
             packChooseMarker.rollbackTo()
             Package.parse(builder)
 
@@ -81,18 +81,18 @@ object CompilationUnit extends Constr {
 
           case _ => { packChooseMarker.rollbackTo() }
         }
-        //Console.println("top level package handled")
+        ////Console.println("top level package handled")
       }
 
       case _=> {}
     }
 
-    Console.println("token type : " + builder.getTokenType())
+    //Console.println("token type : " + builder.getTokenType())
 
 
-        Console.println("TopStatSeq invoke ")
+        //Console.println("TopStatSeq invoke ")
         TopStatSeq.parse(builder)
-        Console.println("TopStatSeq invoked ")
+        //Console.println("TopStatSeq invoked ")
 
   }
 
@@ -103,20 +103,20 @@ object CompilationUnit extends Constr {
     override def parseBody (builder: PsiBuilder): Unit = {
 
       if (BNF.firstTopStat.contains(builder.getTokenType)) {
-        Console.println("single top stat handle")
+        //Console.println("single top stat handle")
         TopStat.parse(builder)
-        Console.println("single top stat handled")
+        //Console.println("single top stat handled")
       }
 
       while (!builder.eof() && (BNF.firstStatementSeparator.contains(builder.getTokenType))) {
-        Console.println("statement separator handle")
+        //Console.println("statement separator handle")
         StatementSeparator parse builder
-        Console.println("statement separator handled")
+        //Console.println("statement separator handled")
 
         if (BNF.firstTopStat.contains(builder.getTokenType)) {
-          Console.println("single top stat handle")
+          //Console.println("single top stat handle")
           TopStat.parse(builder)
-          Console.println("single top stat handled")
+          //Console.println("single top stat handled")
         }
       }
     }
@@ -126,35 +126,35 @@ object CompilationUnit extends Constr {
     def parse(builder: PsiBuilder): Unit = {
       //val topStatMarker = builder.mark()
 
-      //Console.println("token type : " + builder.getTokenType())
+      ////Console.println("token type : " + builder.getTokenType())
       if (builder.eof) {
         //topStatMarker.done(ScalaElementTypes.TOP_STAT)
         return
       }
 
       if (builder.getTokenType.equals(ScalaTokenTypes.kIMPORT)){
-        Console.println("parse import")
+        //Console.println("parse import")
         Import.parse(builder)
         //topStatMarker.done(ScalaElementTypes.TOP_STAT)
         return
       }
 
       if (builder.getTokenType.equals(ScalaTokenTypes.kPACKAGE)){
-        Console.println("parse packaging")
+        //Console.println("parse packaging")
         Packaging.parse(builder)
         //topStatMarker.done(ScalaElementTypes.TOP_STAT)
         return
       }
 
       val topLevelTmplDef = builder.mark()
-       /*Console.println("token : " + builder.getTokenType())
-       Console.println("token : " + BNF.firstAttributeClause)
-       Console.println("token : " + BNF.firstAttributeClause.contains(builder.getTokenType()))*/
+       /*//Console.println("token : " + builder.getTokenType())
+       //Console.println("token : " + BNF.firstAttributeClause)
+       //Console.println("token : " + BNF.firstAttributeClause.contains(builder.getTokenType()))*/
       val attributeClausesMarker = builder.mark()
       var isAttrClauses = false
 
       while (BNF.firstAttributeClause.contains(builder.getTokenType())) {
-        Console.println("parse attribute clause")
+        //Console.println("parse attribute clause")
         isAttrClauses = true
 
         AttributeClause parse builder
@@ -169,7 +169,7 @@ object CompilationUnit extends Constr {
       var isModifiers = false
 
       while (BNF.firstModifier.contains(builder.getTokenType())) {
-        Console.println("parse modifier")
+        //Console.println("parse modifier")
         isModifiers = true
         Modifier.parse(builder)
       }
@@ -190,7 +190,7 @@ object CompilationUnit extends Constr {
       }
 
       if (builder.getTokenType.equals(ScalaTokenTypes.kCASE) || BNF.firstTmplDef.contains(builder.getTokenType)) {
-        Console.println("parse tmplDef")
+        //Console.println("parse tmplDef")
         TmplDef.parse(builder)
 
         if (!isTmpl) {
@@ -249,7 +249,7 @@ object CompilationUnit extends Constr {
 
             ParserUtils.eatConstr(builder, QualId, ScalaElementTypes.QUAL_ID)
 
-              Console.println("expected { : " + builder.getTokenType())
+              //Console.println("expected { : " + builder.getTokenType())
               if ( ScalaTokenTypes.tLBRACE.equals(builder.getTokenType()) ){
 
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)

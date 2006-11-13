@@ -26,25 +26,76 @@ object ScalaElementTypes {
   val EMPTY = new ScalaElementType("empty")
 
   /*************************************************************************************/
-  /************************************** CLASS ****************************************/
+  /************************************** TYPE DECLARATION *****************************/
   /*************************************************************************************/
-  val CLASS_PARAMS = new ScalaElementType("class parameters")
+  val COMPILATION_UNIT = new ScalaElementType("compilation unit")
+
+  val PACKAGING = new ScalaElementType("packaging")
+
+  val TMPL_DEF = new ScalaElementType("template definition")
+  val TOP_TMPL_DEF = new ScalaElementType("top template definition")
+
+  //val CASE = new ScalaElementType("case")
+
+  val TEMPLATE_PARENTS = new ScalaElementType("template parents")
+  val MIXIN_PARENTS = new ScalaElementType("mixin parents")
+  val CONSTRUCTION = new ScalaElementType("construction")
+
+  val TEMPLATE = new ScalaElementType("template")
+  val TEMPLATE_BODY = new ScalaElementType("template body")
+
+  //val TEMPLATE_STAT = new ScalaElementType("template statement")
+
+  /******************* OBJECT ************************/
+  val OBJECT = new ScalaElementType("object")
+  val OBJECT_DEF = new ScalaElementType("object definition")
+  val OBJECT_TEMPLATE = new ScalaElementType("object template")
+
+  /******************* TRAIT ************************/
+  val TRAIT = new ScalaElementType("trait")
+  val TRAIT_DEF = new ScalaElementType("trait definition")
+  val TRAIT_TEMPLATE = new ScalaElementType("trait template")
+
+  /******************* CLASS ************************/
+  val CLASS = new ScalaElementType("class")
+  val CLASS_DEF = new ScalaElementType("class definition")
+
+  val CLASS_TEMPLATE = new ScalaElementType("class template")
+
+  /*************************************************************************************/
+  /************************* PARAMETERS OF CLASS AND FUNCTIONS *************************/
+  /*************************************************************************************/
+
+  val PARAM_TYPE = new ScalaElementType("parameter type")
+  val PARAM = new ScalaElementType("parameter")
+  //val PARAM_LIST = new ScalaElementType("parameters")
+
+  /************ class ***************/
   val CLASS_PARAM = new ScalaElementType("class parameter")
+  //val CLASS_PARAMS = new ScalaElementType("class parameters")
   val CLASS_PARAM_CLAUSE = new ScalaElementType("class parameter clause")
   val CLASS_PARAM_CLAUSES = new ScalaElementType("class parameter clauses")
 
-  val CLASS_TEMPLATE = new ScalaElementType("class template")
-  val TEMPLATE_BODY = new ScalaElementType("template body")
-  val TEMPLATE_PARENTS = new ScalaElementType("template parents")
-  val TEMPLATE_STAT = new ScalaElementType("template statement")
-  val TEMPLATE = new ScalaElementType("template")
+  /************ function *************/
+  val FUN_PARAM = PARAM
+  //val FUN_PARAMS = new ScalaElementType("function parameters")
+  val FUN_PARAM_CLAUSE = new ScalaElementType("function parameter clause")
+  val FUN_PARAM_CLAUSES = new ScalaElementType("function parameter clauses")
 
-  val TYPE_PARAM_CLAUSE = new ScalaElementType("type parameter clause")
-  val PARAM = new ScalaElementType("parameter")
-  val PARAM_TYPE = new ScalaElementType("parameter type")
-  val VARIANT_TYPE_PARAMS = new ScalaElementType("variant parameters of type")
+  /*************************************************************************************/
+  /************************* TYPE PARAMETERS OF CLASS AND FUNCTIONS *************************/
+  /*************************************************************************************/
+
+  /************ class ***************/
+  val TMPL_TYPE_PARAM_CLAUSE = new ScalaElementType("type parameter clause")
+  //val VARIANT_TYPE_PARAMS = new ScalaElementType("variant parameters of type")
   val VARIANT_TYPE_PARAM = new ScalaElementType("variant parameter of type")
-  val TYPE_PARAM = new ScalaElementType("parameter of type")
+
+  /************ function *************/
+  val FUN_TYPE_PARAM_CLAUSE = new ScalaElementType("function type parameter clause")
+  //val FUN_TYPE_PARAMS = new ScalaElementType("parameters of type")
+  val FUN_TYPE_PARAM = new ScalaElementType("parameter of type")
+
 
   /*************************************************************************************/
   /************************************** TYPES ****************************************/
@@ -88,75 +139,29 @@ object ScalaElementTypes {
   val UNDER = new ScalaElementType("underline")
 
   /*************************************************************************************/
-  /************************************** TYPE DECLARATION *****************************/
-  /*************************************************************************************/
-  val COMPILATION_UNIT = new ScalaElementType("compilation unit")
-
-  val PACKAGING = new ScalaElementType("packaging")
-
-  val TMPL_DEF = new ScalaElementType("template definition")
-  val TOP_TMPL_DEF = new ScalaElementType("top template definition")
-
-  val OBJECT = new ScalaElementType("object")
-  val OBJECT_DEF = new ScalaElementType("object definition")
-
-  val CLASS = new ScalaElementType("class")
-  val CLASS_DEF = new ScalaElementType("class definition")
-
-  val TRAIT = new ScalaElementType("trait")
-  val TRAIT_DEF = new ScalaElementType("trait definition")
-  val TRAIT_TEMPLATE = new ScalaElementType("trait template")
-
-  val MIXIN_PARENTS = new ScalaElementType("mixin parents")
-
-  val CASE = new ScalaElementType("case")
-  val CONSTRUCTION = new ScalaElementType("construction")
-
-  /*************************************************************************************/
   /********************************* METHODS, VARIABLES and ETC ************************/
   /*************************************************************************************/
-  val TEMPLATE_STAT_LIST = new ScalaElementType("template statements list")
+  //val TEMPLATE_STAT_LIST = new ScalaElementType("template statements list")
   val STATEMENT_TEMPLATE = new ScalaElementType("template statement")
 
   /*************************************************************************************/
   /************************************ DECLARATION ************************************/
   /*************************************************************************************/
-  val DECLARATION = new ScalaElementType("declaration")
-
   val VALUE_DECLARATION = new ScalaElementType("value declaration")
   val VARIABLE_DECLARATION = new ScalaElementType("variable declaration")
   val FUNCTION_DECLARATION = new ScalaElementType("function declaration")
   val TYPE_DECLARATION = new ScalaElementType("type declaration")
-  
-  val VAL_DCL = new ScalaElementType("declaration of value")
-  val VAR_DCL = new ScalaElementType("declaration of variable")
-  val FUN_DCL = new ScalaElementType("declaration of function")
-  val TYPE_DCL = new ScalaElementType("declaration of type")
 
   /*************************************************************************************/
   /************************************ DEFINITION *************************************/
   /*************************************************************************************/
-  val DEFINITION = new ScalaElementType("defifnition")
-
-  /********************************* FUNCTIONS **********************************/
-  val FUNCTION_DEFINITION = new ScalaElementType("function definition")
-  val FUN_DEF = new ScalaElementType("definition of function")
-  val FUN_TYPE_PARAM_CLAUSE = new ScalaElementType("function type parameter clause")
-  val FUN_SIG = new ScalaElementType("function signature")
-
-  val VALUE_DEFINITION = new ScalaElementType("value definition")
+  val PATTERN_DEFINITION = new ScalaElementType("pattern definition")
   val VARIABLE_DEFINITION = new ScalaElementType("variable definition")
   val TYPE_DEFINITION = new ScalaElementType("type definition")
 
-  val PAT_DEF = new ScalaElementType("pattern definition")
-  val VAR_DEF = new ScalaElementType("definition of variable")
-  val TYPE_DEF = new ScalaElementType("definition of type")
-
-  val TYPE_PARAM_LIST = new ScalaElementType("list of type parameters")
-
-  val PARAM_CLAUSE = new ScalaElementType("clause of parameter")
-  val PARAM_LIST = new ScalaElementType("list of parameters")
-
+  /**************** functions *************************/
+  val FUNCTION_DEFINITION = new ScalaElementType("function definition")
+  val FUN_SIG = new ScalaElementType("function signature")
 
   /*************************************************************************************/
   /************************************** LITERALS *************************************/
@@ -215,18 +220,7 @@ object ScalaElementTypes {
   /*************************************************************************************/
   /************************************** KEYWORDS *************************************/
   /*************************************************************************************/
-  /*val THIS = new ScalaElementType("this")
-  val WITH = new ScalaElementType("with")
-  val SUPER = new ScalaElementType("super")
-  // Primitives
-  val DOT = new ScalaElementType("DOT")
-  val INNER_CLASS = new ScalaElementType("#")
-  val COMMA = new ScalaElementType("COMMA")
-  val SEMICOLON = new ScalaElementType("SEMICOLON")
-  val LSQBRACKET = new ScalaElementType("LSQBRACKET")
-  val LPARENTHIS = new ScalaElementType("LPARENTHIS")
-  val RPARENTHIS = new ScalaElementType("RPARENTHIS")
-  val RSQBRACKET = new ScalaElementType("RSQBRACKET") */
+
   val STATEMENT_SEPARATOR = new ScalaElementType("statement separator")
 
 //ordinary identifier
@@ -237,11 +231,8 @@ object ScalaElementTypes {
   val ATTRIBUTE = new ScalaElementType("attribute")
 
 //Modifiers
-  val MODIFIER = new ScalaElementType("modifier")
+
   val MODIFIERS = new ScalaElementType("modifiers")
-  //val LOCAL_MODIFIER = new ScalaElementType("local modifier")
-  //val ACCESS_MODIFIER = new ScalaElementType("access control modifier : public and private")
-  //val OVERRIDE = new ScalaElementType("override")
 
 //top
   val TOP_STAT = new ScalaElementType("top stat")
@@ -260,10 +251,6 @@ object ScalaElementTypes {
   //method closure - ?
 
   val ARGUMENT_EXPR = new ScalaElementType("argument expr")
-
-
-
-
 
 
   //todo: supplement elements

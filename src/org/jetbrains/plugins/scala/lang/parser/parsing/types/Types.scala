@@ -98,7 +98,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                 //dotMarker.done(ScalaTokenTypes.tDOT)
                 dotMarker.drop
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-                Console.println("token type : " + builder.getTokenType())
+                //Console.println("token type : " + builder.getTokenType())
                 builder.getTokenType() match {
                   case ScalaTokenTypes.tDOT => {
                     val nextMarker2 = nextMarker1.precede()

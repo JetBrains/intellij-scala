@@ -114,7 +114,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
             if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
               dotMarker.drop //done(ScalaTokenTypes.tDOT)
               ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-              Console.println("token type : " + builder.getTokenType())
+              //Console.println("token type : " + builder.getTokenType())
               builder.getTokenType() match {
                 case ScalaTokenTypes.tDOT => {
                   val nextMarker2 = nextMarker1.precede()
