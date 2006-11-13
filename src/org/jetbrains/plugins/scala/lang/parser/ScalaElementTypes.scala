@@ -185,6 +185,9 @@ object ScalaElementTypes {
 
   val EXPR1 = new ScalaElementType("compositte expression ")
   val EXPR = new ScalaElementType("expression")
+  val AN_FUN = new ScalaElementType("anonymous function")
+  val BINDING = new ScalaElementType("binding")
+  val BINDINGS = new ScalaElementType("bindings")
   val EXPRS = new ScalaElementType("list of expressions")
 
   val ARG_EXPRS = new ScalaElementType("arguments of function")

@@ -19,5 +19,12 @@ import org.jetbrains.plugins.scala.lang.psi._
       override def toString: String = "Common block statement"
   }
 
+  case class ScBindingImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Binding"
+  }
+
+  case class ScAnFunImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Anonymous function"
+  }
 
 }
