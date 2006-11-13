@@ -250,14 +250,14 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
           builder.getTokenType match {
             case ScalaTokenTypes.tDOT => {
               val nextMarker = currentMarker.precede()
-              currentMarker.drop //done(ScalaElementTypes.STABLE_ID)
+              currentMarker.done(ScalaElementTypes.STABLE_ID)
               val dotMarker = builder.mark()
               builder.advanceLexer //Ate DOT
               specialProcessing(dotMarker, nextMarker, false, ScalaElementTypes.STABLE_ID, afterDotParse, true)
             }
             case _ => {
-              //currentMarker.done(ScalaElementTypes.STABLE_ID)
-              currentMarker.drop()
+              currentMarker.done(ScalaElementTypes.STABLE_ID)
+              //currentMarker.drop()
               ScalaElementTypes.STABLE_ID
             }
           }
