@@ -83,6 +83,14 @@ object BNF {
     )
   )
 
+  //todo
+  val firstSimpleType : TokenSet = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tIDENTIFIER,
+      ScalaTokenTypes.tLBRACE
+    )
+  )
+
   /********************************************************************************************/
   /********************************* Import, Attribute and Modifier ***************************/
   /********************************************************************************************/
@@ -137,6 +145,13 @@ object BNF {
   )
 
   val firstFunTypeParam = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tLINE_TERMINATOR,
+      ScalaTokenTypes.tLSQBRACKET
+    )
+  )
+
+  val firstTypeParamClause = TokenSet.create(
     Array (
       ScalaTokenTypes.tLINE_TERMINATOR,
       ScalaTokenTypes.tLSQBRACKET
@@ -265,6 +280,9 @@ object BNF {
     )
   )
 
+  val firstTraitTemplate = firstClassTemplate
+
+  val firstMixinParents = firstSimpleType
 
   /*******************************************************************************/
   /********************************** Top Statement ******************************/

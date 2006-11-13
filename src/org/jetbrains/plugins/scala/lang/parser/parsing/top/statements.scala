@@ -124,9 +124,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             varMarker.drop()
             return
           }
-           Console.println("val parsed")
+
           varMarker.done(ScalaElementTypes.VARIABLE_DEFINITION)
+          return
         }
+
         varMarker.drop()
       }
     }
@@ -135,7 +137,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
         //change ids to pattern2
       override def parseBody(builder : PsiBuilder) : Unit = {
-        Console.println("val parsed")
         val varMarker = builder.mark()
 
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
@@ -148,12 +149,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
         var hasTypeDcl = false
 
-        Console.println("exp : " + builder.getTokenType)
         if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
 
           if (BNF.firstType.contains(builder.getTokenType)) {
-          Console.println("type : " + builder.getTokenType)
             Type parse builder
           } else {
             builder error "expected type declaration"
@@ -172,7 +171,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             varMarker.drop()
             return
           }
-          Console.println("decl done : " + builder.getTokenType)
           varMarker.done(ScalaElementTypes.VARIABLE_DECLARATION)
           return
         } else {
@@ -192,7 +190,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
           Console.println("var parsed")
           varMarker.done(ScalaElementTypes.VARIABLE_DEFINITION)
+          return
         }
+
         varMarker.drop()
       }
     }
@@ -341,6 +341,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
             Console.println("type parsed")
             typeMarker.done(ScalaElementTypes.TYPE_DEFINITION)
+            return
           }
           typeMarker.drop()
         }

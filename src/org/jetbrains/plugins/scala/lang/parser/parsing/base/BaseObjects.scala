@@ -117,17 +117,13 @@ object Attribute extends Constr{
 
 object Construction extends Constr{
   override def getElementType = ScalaElementTypes.CONSTRUCTION
+  
   override def parseBody(builder: PsiBuilder): Unit = {
     Console.println("token type : " + builder.getTokenType())
     builder.getTokenType() match {
       case ScalaTokenTypes.tIDENTIFIER => {
-        //val stableIdMarker = builder.mark()
-
-        //parse stable identifier
         //todo
         StableId.parse(builder)
-
-        //stableIdMarker.done(ScalaElementTypes.STABLE_ID)
 
         Console.println("token type : " + builder.getTokenType())
         builder.getTokenType() match {
@@ -146,7 +142,6 @@ object Construction extends Constr{
           }
 
           case ScalaTokenTypes.tLPARENTHIS => {
-             //possible left parenthis - begining of list epression
             while (builder.getTokenType().equals(ScalaTokenTypes.tLPARENTHIS)) {
                Console.println("expr in parenthis parse")
                 ExprInParenthis.parse(builder)
