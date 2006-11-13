@@ -189,7 +189,6 @@ object ScalaElementTypes {
   val BINDING = new ScalaElementType("binding")
   val BINDINGS = new ScalaElementType("bindings")
   val EXPRS = new ScalaElementType("list of expressions")
-
   val ARG_EXPRS = new ScalaElementType("arguments of function")
   val BLOCK_EXPR = new ScalaElementType("block of expressions")
   val BLOCK = new ScalaElementType("block")
