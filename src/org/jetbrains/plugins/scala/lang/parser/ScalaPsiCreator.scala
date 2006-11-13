@@ -117,6 +117,8 @@ object ScalaPsiCreator {
     case ScalaElementTypes.POSTFIX_EXPR => new ScPostfixExprImpl(node)
 //    case ScalaElementTypes.EXPR1 => new ScCompositeExprImpl(node)
     case ScalaElementTypes.EXPR => new ScExprImpl(node)
+    case ScalaElementTypes.BINDING => new ScBindingImpl(node)
+    case ScalaElementTypes.AN_FUN => new ScAnFunImpl(node)
     case ScalaElementTypes.EXPRS => new ScExprsImpl(node)
     case ScalaElementTypes.ARG_EXPRS => new ScArgumentExprsImpl(node)
     case ScalaElementTypes.BLOCK_EXPR => new ScBlockExprImpl(node)
