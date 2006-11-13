@@ -143,7 +143,7 @@ object TmplDef extends ConstrWithoutNode {
           builder error "expected 'class'"
           return
         }
-        
+
         Console.println("expected identifier " + builder.getTokenType)
         if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
