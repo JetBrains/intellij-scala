@@ -15,21 +15,50 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
   /*
   Common expression
   Default grammar
-  Expr ::= Bindings ‘=>’ Expr
+  Expr ::= ( Bindings | Id ) ‘=>’ Expr
           | Expr1               (a)
   */
 
     def parse(builder : PsiBuilder) : ScalaElementType = {
-        val exprMarker = builder.mark()
+        var exprMarker = builder.mark()
+        var result = Bindings.parse(builder)
 
-        var result = CompositeExpr.parse(builder)
-        /** Case (a) **/
-        if (ScalaElementTypes.EXPR1.equals(result)) {
-          exprMarker.drop()
-          ScalaElementTypes.EXPR
+        def parseComposite: ScalaElementType = {
+          result = CompositeExpr.parse(builder)
+          if (ScalaElementTypes.EXPR1.equals(result)) {
+            exprMarker.drop()
+            ScalaElementTypes.EXPR
+          } else {
+            exprMarker.rollbackTo()
+            ScalaElementTypes.WRONGWAY
+          }
+        }
+
+
+        if (ScalaElementTypes.BINDINGS.equals(result)){
+          ParserUtils.rollForward(builder)
+          builder.getTokenType match {
+            case ScalaTokenTypes.tFUNTYPE => {
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
+              ParserUtils.rollForward(builder)
+              var res = parse(builder)
+              if (ScalaElementTypes.EXPR.equals(res)) {
+                exprMarker.done(ScalaElementTypes.AN_FUN)
+                ScalaElementTypes.EXPR
+              } else {
+                builder.error("Expression expected")
+                exprMarker.drop()
+                ScalaElementTypes.EXPR
+              }
+            }
+            case _ => {
+              exprMarker.rollbackTo()
+              exprMarker = builder.mark()
+              parseComposite
+            }
+          }
         } else {
-          exprMarker.rollbackTo()
-          ScalaElementTypes.WRONGWAY
+          parseComposite
         }
       }
 
