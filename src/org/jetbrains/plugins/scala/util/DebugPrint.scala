@@ -8,6 +8,8 @@ object DebugPrint {
   var displayLog = true;
 
   def println(st: String): Unit = {
-    Console.println(st)
+    if (displayLog) {
+      Console.println(st)
+    }
   }
 }
