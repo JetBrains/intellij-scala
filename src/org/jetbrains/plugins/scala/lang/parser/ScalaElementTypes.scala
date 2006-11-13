@@ -107,6 +107,8 @@ object ScalaElementTypes {
   val TRAIT_DEF = new ScalaElementType("trait definition")
   val TRAIT_TEMPLATE = new ScalaElementType("trait template")
 
+  val MIXIN_PARENTS = new ScalaElementType("mixin parents")
+
   val CASE = new ScalaElementType("case")
   val CONSTRUCTION = new ScalaElementType("construction")
 

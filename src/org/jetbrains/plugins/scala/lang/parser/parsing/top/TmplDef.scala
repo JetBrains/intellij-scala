@@ -192,7 +192,9 @@ object TmplDef extends ConstrWithoutNode {
 
         override def parseBody(builder : PsiBuilder) : Unit = {
 
-          if (BNF.firstModifier.contains(builder.getTokenType)) {
+         var isModifier = false
+          while (BNF.firstModifier.contains(builder.getTokenType)) {
+            isModifier = true;
             builder.getTokenType() match {
               case ScalaTokenTypes.kABSTRACT => { ParserUtils.eatElement(builder, ScalaTokenTypes.kABSTRACT) }
               case ScalaTokenTypes.kFINAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kFINAL) }
@@ -200,15 +202,17 @@ object TmplDef extends ConstrWithoutNode {
               case ScalaTokenTypes.kPRIVATE => { ParserUtils.eatElement(builder, ScalaTokenTypes.kPRIVATE) }
               case ScalaTokenTypes.kPROTECTED => { ParserUtils.eatElement(builder, ScalaTokenTypes.kPROTECTED) }
               case ScalaTokenTypes.kSEALED => { ParserUtils.eatElement(builder, ScalaTokenTypes.kSEALED) }
+              case _ => builder error "expected modifier"
             }
-
-            builder.getTokenType() match {
-              case ScalaTokenTypes.kVAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL) }
-              case ScalaTokenTypes.kVAR => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAR) }
-              case _ => { builder.error("expected 'val' or 'var'") }
-            }
-
           }
+
+         if (isModifier){
+           builder.getTokenType() match {
+             case ScalaTokenTypes.kVAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL) }
+             case ScalaTokenTypes.kVAR => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAR) }
+             case _ => { builder.error("expected 'val' or 'var'") }
+           }
+         }
 
           if (builder.getTokenType().equals(ScalaTokenTypes.tIDENTIFIER)) {
             new Param().parse(builder)
@@ -248,10 +252,12 @@ object TmplDef extends ConstrWithoutNode {
       override def parseBody(builder : PsiBuilder) : Unit = {
 
         if (builder.getTokenType.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
         }
 
         if (builder.getTokenType.equals(ScalaTokenTypes.tLSQBRACKET)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
+
           builder.getTokenType match {
             case ScalaTokenTypes.tPLUS
                | ScalaTokenTypes.tMINUS
@@ -259,6 +265,8 @@ object TmplDef extends ConstrWithoutNode {
                => {
               VariantTypeParams.parse(builder)
            }
+
+           case _ => builder error "wrong type paramters"
         }
 
         } else builder.error("expected '[")
@@ -280,6 +288,8 @@ object TmplDef extends ConstrWithoutNode {
              => {
             VariantTypeParam.parse(builder)
           }
+
+          case _=> builder error "wrong variants type parameters"
         }
 
         while (builder.getTokenType.equals(ScalaTokenTypes.tCOMMA)){
@@ -321,138 +331,82 @@ object TmplDef extends ConstrWithoutNode {
 
     override def parseBody ( builder : PsiBuilder ) : Unit = {
 
-      while ( !builder.getTokenType.equals(ScalaTokenTypes.tLBRACE) ){
-        builder.advanceLexer
+      if (ScalaTokenTypes.kTRAIT.equals(builder.getTokenType)){
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kTRAIT)
+      } else {
+        builder error "expected trait declaration"
+        return
+      }
+
+      if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+      } else {
+        builder error "expected identifier"
+        return
+      }
+
+      if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
+        Console.println("type param clause in trait " + builder.getTokenType);
+        TypeParamClause parse builder
+      }
+
+      if (ScalaTokenTypes.kREQUIRES.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kREQUIRES)
+
+        if (BNF.firstSimpleType.contains(builder.getTokenType)){
+          SimpleType parse builder
+        } else builder error "expected simple type"
+      }
+
+      if (BNF.firstTraitTemplate.contains(builder.getTokenType)){
+        TraitTemplate parse builder
+      } else builder error "expected trait template"
+    }
+  }
+
+  object TraitTemplate extends Constr {
+    override def getElementType = ScalaElementTypes.TRAIT_TEMPLATE
+
+    override def parseBody(builder : PsiBuilder) : Unit = {
+      if (ScalaTokenTypes.kEXTENDS.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kEXTENDS)
+
+        if (BNF.firstMixinParents.contains(builder.getTokenType)){
+          MixinParents parse builder
+        } else builder error "expected mixin parents"
+      }
+
+      if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
+
+        if (BNF.firstTemplateBody.contains(builder.getTokenType)){
+          TemplateBody parse builder
+        } else builder error "expected template body"
+      }
+
+      if (BNF.firstTemplateBody.contains(builder.getTokenType)){
+        TemplateBody parse builder
+      }
+    }
+  }
+
+  object MixinParents extends Constr {
+    override def getElementType = ScalaElementTypes.MIXIN_PARENTS
+
+    override def parseBody(builder : PsiBuilder) : Unit = {
+
+      if (BNF.firstSimpleType.contains(builder.getTokenType)){
+          SimpleType parse builder
+      } else builder error "expected simple type"
+
+      if (ScalaTokenTypes.kWITH.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kWITH)
+
+        if (BNF.firstSimpleType.contains(builder.getTokenType)){
+          SimpleType parse builder
+        } else builder error "expected simple type"
       }
     }
   }
 
 }
-
-   
-  // object ClassParamClauses extends ParamClauses
-/*
-    object ClassParamClauses extends Constr{
-      override def getElementType = ScalaElementTypes.CLASS_PARAM_CLAUSES
-
-      override def parseBody(builder : PsiBuilder) : Unit = {
-        var chooseParsingWay = builder.mark()
-
-        var first = builder.getTokenType()
-        builder.advanceLexer
-        Console.println("first in class param clause " + first)
-
-        var second = builder.getTokenType()
-        builder.advanceLexer
-        Console.println("second in class param clause " + second)
-
-        var third = builder.getTokenType()
-        builder.advanceLexer
-        Console.println("third in class param clause " + third)
-
-        while (checkForClassParamClause(first, second, third)) {
-          chooseParsingWay.rollbackTo()
-          ClassParamClause.parse(builder)
-          chooseParsingWay = builder.mark()
-
-          first = builder.getTokenType()
-          builder.advanceLexer
-          second = builder.getTokenType()
-          builder.advanceLexer
-          third = builder.getTokenType()
-        }
-
-
-        if (checkForImplicit(first, second, third)) {
-          chooseParsingWay.rollbackTo()
-          Console.println("check for implicit")
-          ImplicitEnd.parse(builder)
-        }
-
-        chooseParsingWay.rollbackTo()
-        //chooseParsingWay.drop()
-      }
-    }
-             */
-    // object ClassParamClause extends ParamClause
-/*
-    object ClassParamClause extends Constr {
-      override def getElementType = ScalaElementTypes.CLASS_PARAM_CLAUSE
-
-      override def parseBody(builder : PsiBuilder) : Unit = {
-        if (builder.getTokenType().equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
-        }
-
-        if (builder.getTokenType().equals(ScalaTokenTypes.tLPARENTHIS)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-        } else builder.error("expected '('")
-
-        builder.getTokenType() match {
-          case ScalaTokenTypes.kVAL
-             | ScalaTokenTypes.kVAR
-             | ScalaTokenTypes.kABSTRACT
-             | ScalaTokenTypes.kFINAL
-             | ScalaTokenTypes.kOVERRIDE
-             | ScalaTokenTypes.kPRIVATE
-             | ScalaTokenTypes.kPROTECTED
-             | ScalaTokenTypes.kSEALED
-             | ScalaTokenTypes.tIDENTIFIER
-           => {
-            ClassParams.parse(builder)
-          }
-
-          case _ => {}
-        }
-
-        if (builder.getTokenType().equals(ScalaTokenTypes.tRPARENTHIS)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
-        } else builder.error("expected ')'")
-      }
-    }
-       */
-
-      // object ClassParams extends Params
-   /*
-
-    object ClassParams extends Constr {
-      override def getElementType = ScalaElementTypes.CLASS_PARAMS
-
-      override def parseBody(builder : PsiBuilder) : Unit = {
-        builder.getTokenType() match {
-          case ScalaTokenTypes.kVAL
-             | ScalaTokenTypes.kVAR
-             | ScalaTokenTypes.kABSTRACT
-             | ScalaTokenTypes.kFINAL
-             | ScalaTokenTypes.kOVERRIDE
-             | ScalaTokenTypes.kPRIVATE
-             | ScalaTokenTypes.kPROTECTED
-             | ScalaTokenTypes.kSEALED
-             | ScalaTokenTypes.tIDENTIFIER
-           => {
-            ClassParam.parse(builder)
-          }
-
-          case _ => { builder.error("wrong declaration")}
-        }
-
-        while (builder.getTokenType().equals(ScalaTokenTypes.tCOMMA)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
-
-          builder.getTokenType() match {
-          case ScalaTokenTypes.kVAL
-             | ScalaTokenTypes.kVAR
-             | ScalaTokenTypes.kABSTRACT
-             | ScalaTokenTypes.kFINAL
-             | ScalaTokenTypes.kOVERRIDE
-             | ScalaTokenTypes.kPRIVATE
-             | ScalaTokenTypes.kPROTECTED
-             | ScalaTokenTypes.kSEALED
-             | ScalaTokenTypes.tIDENTIFIER
-           => {
-            ClassParam.parse(builder)
-          }
-        }
-      }
-    }
-    */
