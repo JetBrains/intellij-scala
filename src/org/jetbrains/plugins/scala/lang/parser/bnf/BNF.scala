@@ -76,7 +76,10 @@ object BNF {
   //todo: add first(Type)
   val firstType : TokenSet = TokenSet.create(
     Array (
-      ScalaTokenTypes.tIDENTIFIER
+      ScalaTokenTypes.tIDENTIFIER,
+      ScalaTokenTypes.tLPARENTHIS,
+      ScalaTokenTypes.kSUPER,
+      ScalaTokenTypes.kTHIS
     )
   )
 
