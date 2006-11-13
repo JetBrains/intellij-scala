@@ -62,6 +62,7 @@ object ScalaPsiCreator {
     /******************* PATTERNS *********************/
     case ScalaElementTypes.PATTERN1 => new ScPattern1Impl(node)
     case ScalaElementTypes.PATTERN => new ScPatternImpl(node)
+    case ScalaElementTypes.PATTERNS => new ScPatternsImpl(node)
     case ScalaElementTypes.WILD_PATTERN => new ScWildPatternImpl(node)
     case ScalaElementTypes.CASE_CLAUSE => new ScCaseClauseImpl(node)
 

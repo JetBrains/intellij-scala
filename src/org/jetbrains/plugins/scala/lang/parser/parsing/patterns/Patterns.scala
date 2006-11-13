@@ -24,81 +24,127 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
   */
 
     def parse(builder : PsiBuilder) : ScalaElementType = {
-        var spMarker = builder.mark()
+      var spMarker = builder.mark()
+
+      // Process ")" symbol
+      def closeParent: ScalaElementType = {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+        spMarker.drop()
+        ScalaElementTypes.SIMPLE_PATTERN
+      }
+
+      def argsParse : ScalaElementType = {
+        var argsMarker = builder.mark()
 
         // Process ")" symbol
         def closeParent: ScalaElementType = {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
-          spMarker.drop()
-          ScalaElementTypes.SIMPLE_PATTERN
+          argsMarker.done(ScalaElementTypes.PATTERNS)
+          ScalaElementTypes.PATTERNS
         }
 
-        def parseStableId: ScalaElementType = {
-          var result = StableId.parse(builder)
-          if (ScalaElementTypes.STABLE_ID.equals(result)) {
-            spMarker.drop()
-            ScalaElementTypes.SIMPLE_PATTERN
-          } else {
-            spMarker.drop()
-            builder.error("Wrong pattern!")
-            ScalaElementTypes.SIMPLE_PATTERN
-          }
-        }
-
-        //  ‘_’
-        if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
-          spMarker.drop()
-          ScalaElementTypes.SIMPLE_PATTERN
-        // ‘(’ [Pattern] ‘)’
-        } else if (ScalaTokenTypes.tLPARENTHIS.eq(builder getTokenType)){
+        if (ScalaTokenTypes.tLPARENTHIS.equals(builder getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
           ParserUtils.rollForward(builder)
           if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
             closeParent
           } else {
-            var res = Pattern.parse(builder)
-            if (ScalaElementTypes.PATTERN.equals(res)) {
+            var res = Patterns.parse(builder)
+            if (res.equals(ScalaElementTypes.PATTERNS)) {
               ParserUtils.rollForward(builder)
-              if (ScalaTokenTypes.tRPARENTHIS.equals(builder getTokenType)) {
+              if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
                 closeParent
               } else {
                 builder.error(") expected")
-                spMarker.drop()
-                ScalaElementTypes.SIMPLE_PATTERN
+                argsMarker.done(ScalaElementTypes.PATTERNS)
+                ScalaElementTypes.PATTERNS
               }
             } else {
               builder.error("Wrong patterns")
-              spMarker.drop()
-              ScalaElementTypes.SIMPLE_PATTERN
+              argsMarker.done(ScalaElementTypes.PATTERNS)
+              ScalaElementTypes.PATTERNS
             }
           }
-        // Literal
-        } else if (Literal.parse(builder) == ScalaElementTypes.LITERAL) {
-          spMarker.drop()
-          ScalaElementTypes.SIMPLE_PATTERN
-        /*  | varid
-            | StableId [ ‘(’ [Patterns] ‘)’ ] */
-        } else if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER){
-          if (builder.getTokenText.substring(1).toLowerCase ==
-              builder.getTokenText.substring(1)) {// if variable id
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-            if (!builder.getTokenType.equals(ScalaTokenTypes.tLPARENTHIS) &&
-                !builder.getTokenType.equals(ScalaTokenTypes.tDOT)) {
-              spMarker.drop()
-              ScalaElementTypes.SIMPLE_PATTERN
-            } else {
-              spMarker.rollbackTo()
-              spMarker = builder.mark()
-              parseStableId
-            }
-          } else { parseStableId }
         } else {
-          builder.error("Wrong pattern!")
+          argsMarker.rollbackTo()
+          ScalaElementTypes.WRONGWAY
+        }
+      }
+
+      def parseStableId: ScalaElementType = {
+        var result = StableId.parse(builder)
+        if (ScalaElementTypes.STABLE_ID.equals(result)) {
+          if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
+            argsParse
+            spMarker.drop()
+            ScalaElementTypes.SIMPLE_PATTERN
+          } else {
+            spMarker.drop()
+            ScalaElementTypes.SIMPLE_PATTERN
+          }
+        } else {
           spMarker.drop()
+          builder.error("Wrong pattern!")
           ScalaElementTypes.SIMPLE_PATTERN
         }
       }
+
+      //  ‘_’
+      if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
+        spMarker.drop()
+        ScalaElementTypes.SIMPLE_PATTERN
+      // ‘(’ [Pattern] ‘)’
+      } else if (ScalaTokenTypes.tLPARENTHIS.eq(builder getTokenType)){
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+        ParserUtils.rollForward(builder)
+        if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
+          closeParent
+          spMarker.drop()
+          ScalaElementTypes.SIMPLE_PATTERN
+        } else {
+          var res = Pattern.parse(builder)
+          if (ScalaElementTypes.PATTERN.equals(res)) {
+            ParserUtils.rollForward(builder)
+            if (ScalaTokenTypes.tRPARENTHIS.equals(builder getTokenType)) {
+              closeParent
+            } else {
+              builder.error(") expected")
+              spMarker.drop()
+              ScalaElementTypes.SIMPLE_PATTERN
+            }
+          } else {
+            builder.error("Wrong patterns")
+            spMarker.drop()
+            ScalaElementTypes.SIMPLE_PATTERN
+          }
+        }
+      // Literal
+      } else if (Literal.parse(builder) == ScalaElementTypes.LITERAL) {
+        spMarker.drop()
+        ScalaElementTypes.SIMPLE_PATTERN
+      /*  | varid
+          | StableId [ ‘(’ [Patterns] ‘)’ ] */
+      } else if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER){
+        if (builder.getTokenText.substring(1).toLowerCase ==
+            builder.getTokenText.substring(1)) {// if variable id
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+          if (!builder.getTokenType.equals(ScalaTokenTypes.tLPARENTHIS) &&
+              !builder.getTokenType.equals(ScalaTokenTypes.tDOT)) {
+            spMarker.drop()
+            ScalaElementTypes.SIMPLE_PATTERN
+          } else {
+            spMarker.rollbackTo()
+            spMarker = builder.mark()
+            parseStableId
+          }
+        } else { parseStableId }
+      } else {
+        builder.error("Wrong pattern!")
+        spMarker.drop()
+        ScalaElementTypes.SIMPLE_PATTERN
+      }
+    }
   }
 
 
