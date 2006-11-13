@@ -358,11 +358,7 @@ object Construction extends Constr{
 
       builder.getTokenType() match {
         case ScalaTokenTypes.tIDENTIFIER => {
-          val stableIdMarker = builder.mark()
           StableIdInImport.parse(builder)
-         // StableId.parse(builder)
-
-          stableIdMarker.done(ScalaElementTypes.STABLE_ID)
 
           Console.println("expect '.' " + builder.getTokenType())
 
