@@ -31,14 +31,12 @@ object ParserUtils {
     } else builder error "unexpected end of file"  
   }
 
-  def listOfSmth(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType, listType : IElementType) : Unit = {
-    val listMarker = builder.mark()
+  def listOfSmthWithoutNode(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType) : Unit = {
 
     if (itemType.first.contains(builder.getTokenType)) {
       itemType parse builder
     } else {
       builder error "wrong item"
-      listMarker.drop()
       return
     }
 
@@ -49,10 +47,15 @@ object ParserUtils {
         itemType parse builder
       } else {
         builder error "expected next item"
-        listMarker.drop()
         return
       }
     }
+  }
+
+  def listOfSmth(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType, listType : IElementType) : Unit = {
+    val listMarker = builder.mark()
+
+    listOfSmthWithoutNode(builder, itemType, delimiter)
 
     listMarker.done(listType)
   }

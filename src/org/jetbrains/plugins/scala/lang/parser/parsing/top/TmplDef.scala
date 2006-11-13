@@ -36,13 +36,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
 object TmplDef extends ConstrWithoutNode {
 
    override def parseBody(builder : PsiBuilder) : Unit = {
-      Console.println("token in tmplDef " + builder.getTokenType)
+      //Console.println("token in tmplDef " + builder.getTokenType)
       val caseMarker = builder.mark()
 
       if (ScalaTokenTypes.kCASE.equals(builder.getTokenType)){
         builder.advanceLexer //Ate 'case'
 
-         Console.println("token, expected class or object " + builder.getTokenType)
+         //Console.println("token, expected class or object " + builder.getTokenType)
          builder.getTokenType match {
           case ScalaTokenTypes.kCLASS => {
             caseMarker.rollbackTo()
@@ -65,7 +65,7 @@ object TmplDef extends ConstrWithoutNode {
 
       caseMarker.rollbackTo()
 
-      Console.println("token in tmplDef for match " + builder.getTokenType)
+      //Console.println("token in tmplDef for match " + builder.getTokenType)
       builder.getTokenType match {
         case ScalaTokenTypes.kCLASS => ClassDef.parse(builder)
         case ScalaTokenTypes.kOBJECT => ObjectDef.parse(builder)
@@ -78,31 +78,7 @@ object TmplDef extends ConstrWithoutNode {
 
   abstract class InstanceDef extends TypeDef
 
-  case object ObjectDef extends InstanceDef {
-    def getElementType : ScalaElementType = ScalaElementTypes.OBJECT_DEF
-
-    override def parseBody ( builder : PsiBuilder ) : Unit = {
-      if (builder.getTokenType.equals(ScalaTokenTypes.kCASE)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.kCASE)
-      }
-
-      if (builder.getTokenType.equals(ScalaTokenTypes.kOBJECT)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.kOBJECT)
-      } else {
-        builder error "expected 'object'"
-        return
-      }
-
-      if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-      } else builder.error("expected identifier")
-
-      if (BNF.firstClassTemplate.contains(builder.getTokenType)){
-        ClassTemplate.parse(builder)
-      } else builder error "object cannot have constructor"
-    }
-  }
-
+  /************** CLASS ******************/
 
    def checkForTypeParamClauses (first : IElementType, second : IElementType) : Boolean = {
         var a = first
@@ -144,7 +120,7 @@ object TmplDef extends ConstrWithoutNode {
           return
         }
 
-        Console.println("expected identifier " + builder.getTokenType)
+        //Console.println("expected identifier " + builder.getTokenType)
         if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
 
@@ -152,16 +128,16 @@ object TmplDef extends ConstrWithoutNode {
 
           builder.advanceLexer
           val first = builder.getTokenType()
-          Console.println("first " + first)
+          //Console.println("first " + first)
 
           builder.advanceLexer
           val second = builder.getTokenType()
-          Console.println("second " + second)
+          //Console.println("second " + second)
 
           chooseParsingWay.rollbackTo()
 
           if (checkForTypeParamClauses(first, second)) {
-            Console.println("checked for type parameters ")
+            //Console.println("checked for type parameters ")
             TypeParamClause.parse(builder)
           }
 
@@ -171,13 +147,13 @@ object TmplDef extends ConstrWithoutNode {
           //todo check
             SimpleType.parse(builder)
           }
-          Console.println("cltemple expect " + builder.getTokenType)
+          //Console.println("cltemple expect " + builder.getTokenType)
           builder.getTokenType match {
             case ScalaTokenTypes.kEXTENDS
                | ScalaTokenTypes.tLINE_TERMINATOR
                | ScalaTokenTypes.tLBRACE
               => {
-               ClassTemplate.parse(builder)
+               new ClassTemplate parse builder
             }
             case _ => {}
           }
@@ -220,7 +196,7 @@ object TmplDef extends ConstrWithoutNode {
         }
       }
 
-    object ClassTemplate extends Constr {
+    class ClassTemplate extends Constr {
       override def getElementType = ScalaElementTypes.CLASS_TEMPLATE
 
       override def parseBody(builder : PsiBuilder) : Unit = {
@@ -232,22 +208,21 @@ object TmplDef extends ConstrWithoutNode {
           } else builder.error("expected identifier")
         }
 
-        Console.println("before parsing templateBody " + builder.getTokenType)
+        //Console.println("before parsing templateBody " + builder.getTokenType)
+
+        if (builder.getTokenType.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
+        }
+
         if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)){
           TemplateBody.parse(builder)
-        } else if (builder.getTokenType.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
-
-          if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)){
-            TemplateBody.parse(builder)
-          } else builder.error("expected '{'")
-        }
+        } 
       }
     }
 
 
     object TypeParamClause extends Constr {
-      override def getElementType = ScalaElementTypes.TYPE_PARAM_CLAUSE
+      override def getElementType = ScalaElementTypes.TMPL_TYPE_PARAM_CLAUSE
 
       override def parseBody(builder : PsiBuilder) : Unit = {
 
@@ -277,8 +252,8 @@ object TmplDef extends ConstrWithoutNode {
       }
     }
 
-    object VariantTypeParams extends Constr {
-      override def getElementType = ScalaElementTypes.VARIANT_TYPE_PARAMS
+    object VariantTypeParams extends ConstrWithoutNode {
+      //override def getElementType = ScalaElementTypes.VARIANT_TYPE_PARAMS
 
       override def parseBody(builder : PsiBuilder) : Unit = {
         builder.getTokenType match {
@@ -293,7 +268,7 @@ object TmplDef extends ConstrWithoutNode {
         }
 
         while (builder.getTokenType.equals(ScalaTokenTypes.tCOMMA)){
-          Console.println("VariantTypeParam parsing " + builder.getTokenType)
+          //Console.println("VariantTypeParam parsing " + builder.getTokenType)
           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
           VariantTypeParam.parse(builder)
@@ -325,6 +300,43 @@ object TmplDef extends ConstrWithoutNode {
       }
     }
 
+    /************** OBJECT ******************/
+
+   case object ObjectDef extends InstanceDef {
+    def getElementType : ScalaElementType = ScalaElementTypes.OBJECT_DEF
+
+    override def parseBody ( builder : PsiBuilder ) : Unit = {
+      if (builder.getTokenType.equals(ScalaTokenTypes.kCASE)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kCASE)
+      }
+
+      if (builder.getTokenType.equals(ScalaTokenTypes.kOBJECT)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kOBJECT)
+      } else {
+        builder error "expected 'object'"
+        return
+      }
+
+      if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+      } else builder.error("expected identifier")
+
+      if (BNF.firstClassTemplate.contains(builder.getTokenType)){
+        ObjectTemplate.parse(builder)
+      } else builder error "object cannot have constructor"
+    }
+  }
+
+  object ObjectTemplate extends ClassTemplate {
+    override def getElementType : ScalaElementType = ScalaElementTypes.OBJECT_TEMPLATE
+
+    override def parseBody ( builder : PsiBuilder ) : Unit = {
+      super.parseBody(builder)
+    }
+  }
+
+
+  /************** TRAIT ******************/
 
   case class TraitDef extends TypeDef {
     def getElementType = ScalaElementTypes.TRAIT_DEF
@@ -346,7 +358,7 @@ object TmplDef extends ConstrWithoutNode {
       }
 
       if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
-        Console.println("type param clause in trait " + builder.getTokenType);
+        //Console.println("type param clause in trait " + builder.getTokenType);
         TypeParamClause parse builder
       }
 
@@ -399,7 +411,7 @@ object TmplDef extends ConstrWithoutNode {
           SimpleType parse builder
       } else builder error "expected simple type"
 
-      if (ScalaTokenTypes.kWITH.equals(builder.getTokenType)) {
+      while (ScalaTokenTypes.kWITH.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kWITH)
 
         if (BNF.firstSimpleType.contains(builder.getTokenType)){
