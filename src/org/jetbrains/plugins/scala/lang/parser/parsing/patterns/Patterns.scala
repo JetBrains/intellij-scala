@@ -164,6 +164,61 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
     }
   }
 
+
+  object Pattern2 {
+  /*
+    Pattern2 ::=   varid [‘@’ Pattern3]
+                 | Pattern3
+  */
+
+    def parse(builder : PsiBuilder) : ScalaElementType = {
+      var rbMarker = builder.mark()
+
+      def parsePattern3: ScalaElementType = {
+        var result = Pattern3.parse(builder)
+        if (ScalaElementTypes.PATTERN3.equals(result)) {
+          ScalaElementTypes.PATTERN2
+        } else {
+          ScalaElementTypes.WRONGWAY
+        }
+      }
+
+      if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
+             (builder.getTokenText.substring(0,1).toLowerCase ==
+              builder.getTokenText.substring(0,1) ) ){
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+        if (builder.getTokenType == ScalaTokenTypes.tAT) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tAT)
+          rbMarker.drop()
+          var res = Pattern3.parse(builder)
+          if (ScalaElementTypes.PATTERN3.equals(res)){
+            ScalaElementTypes.PATTERN2
+          } else {
+            builder.error("Wrong simple pattern(s)")
+            ScalaElementTypes.WRONGWAY
+          }
+        } else {
+          rbMarker.rollbackTo()
+          rbMarker = builder.mark()
+          var result = parsePattern3
+          if (ScalaElementTypes.PATTERN2.equals(result)) {
+            rbMarker.drop()
+            result
+          }
+          else {
+            rbMarker.rollbackTo()
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+            ScalaElementTypes.PATTERN2
+          }
+        }
+      } else {
+        rbMarker.drop()
+        parsePattern3
+      }
+    }
+  }
+
+
   object Pattern1 {
   /*
   Pattern1 ::=    varid ‘:’ Type1
@@ -177,8 +232,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
         def parsePattern2 : ScalaElementType = {
           p1Marker.rollbackTo()
           p1Marker = builder.mark()
-          var result = Pattern3.parse(builder)
-          if (ScalaElementTypes.PATTERN3.equals(result)) {
+          var result = Pattern2.parse(builder)
+          if (ScalaElementTypes.PATTERN2.equals(result)) {
             p1Marker.done(ScalaElementTypes.PATTERN1)
             ScalaElementTypes.PATTERN1
           }
@@ -187,8 +242,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
             ScalaElementTypes.WRONGWAY
           }
         }
-
-
         //  ‘_’
         if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
