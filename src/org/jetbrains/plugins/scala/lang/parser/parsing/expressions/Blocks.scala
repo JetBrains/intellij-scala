@@ -11,6 +11,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.template._
 
   object BlockExpr {
   /*
@@ -142,15 +143,33 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 
     def parse(builder : PsiBuilder) : ScalaElementType = {
       val blockStatMarker = builder.mark()
-      var result = CompositeExpr.parse(builder)
-      if (!(result == ScalaElementTypes.WRONGWAY)) {
-        //blockStatMarker.done(ScalaElementTypes.BLOCK_STAT)
-        blockStatMarker.drop        
+
+      var rbMarker = builder.mark() 
+      var first = builder.getTokenType
+      builder.advanceLexer
+      var second = builder.getTokenType
+      rbMarker.rollbackTo()
+      if (ScalaTokenTypes.kCASE.equals(first) &&
+          (ScalaTokenTypes.kCLASS.equals(second) || ScalaTokenTypes.kCLASS.equals(second))){
+        Def.parseBody(builder)
+        blockStatMarker.drop
         ScalaElementTypes.BLOCK_STAT
-      }
-      else {
-        blockStatMarker.rollbackTo
-        ScalaElementTypes.WRONGWAY
+      } else if (BNF.firstDef.contains(builder.getTokenType) &&
+                !ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
+        Def.parseBody(builder)
+        blockStatMarker.drop
+        ScalaElementTypes.BLOCK_STAT
+      } else {
+        var result = CompositeExpr.parse(builder)
+        if (!(result == ScalaElementTypes.WRONGWAY)) {
+          //blockStatMarker.done(ScalaElementTypes.BLOCK_STAT)
+          blockStatMarker.drop
+          ScalaElementTypes.BLOCK_STAT
+        }
+        else {
+          blockStatMarker.rollbackTo
+          ScalaElementTypes.WRONGWAY
+        }
       }
     }
 
