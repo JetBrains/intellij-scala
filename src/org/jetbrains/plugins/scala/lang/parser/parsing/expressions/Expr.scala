@@ -34,22 +34,38 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
           }
         }
 
+        def parseTail: ScalaElementType = {
+          var res = parse(builder)
+          if (ScalaElementTypes.EXPR.equals(res)) {
+            exprMarker.done(ScalaElementTypes.AN_FUN)
+            ScalaElementTypes.EXPR
+          } else {
+            builder.error("Expression expected")
+            exprMarker.drop()
+            ScalaElementTypes.EXPR
+          }
+        }
 
-        if (ScalaElementTypes.BINDINGS.equals(result)){
+        val rbMarker = builder.mark()
+        var first = builder.getTokenType ;
+          builder.advanceLexer; ParserUtils.rollForward(builder)
+        var second = builder.getTokenType ;
+          builder.advanceLexer; ParserUtils.rollForward(builder)
+        rbMarker.rollbackTo()
+        if (ScalaTokenTypes.tIDENTIFIER.equals(first) &&
+            ScalaTokenTypes.tFUNTYPE.equals(second) ) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+            ParserUtils.rollForward(builder)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
+            ParserUtils.rollForward(builder)
+          parseTail
+        } else if (ScalaElementTypes.BINDINGS.equals(result)){
           ParserUtils.rollForward(builder)
           builder.getTokenType match {
             case ScalaTokenTypes.tFUNTYPE => {
               ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
               ParserUtils.rollForward(builder)
-              var res = parse(builder)
-              if (ScalaElementTypes.EXPR.equals(res)) {
-                exprMarker.done(ScalaElementTypes.AN_FUN)
-                ScalaElementTypes.EXPR
-              } else {
-                builder.error("Expression expected")
-                exprMarker.drop()
-                ScalaElementTypes.EXPR
-              }
+              parseTail
             }
             case _ => {
               exprMarker.rollbackTo()
