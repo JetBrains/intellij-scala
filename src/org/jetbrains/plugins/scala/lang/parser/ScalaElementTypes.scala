@@ -70,6 +70,10 @@ object ScalaElementTypes {
   val PARAM = new ScalaElementType("parameter")
   //val PARAM_LIST = new ScalaElementType("parameters")
 
+
+  val PARAM_CLAUSE = new ScalaElementType("parameters clause")
+  val PARAM_CLAUSES = new ScalaElementType("parameters clause")
+
   /************ class ***************/
   val CLASS_PARAM = new ScalaElementType("class parameter")
   //val CLASS_PARAMS = new ScalaElementType("class parameters")
@@ -85,16 +89,13 @@ object ScalaElementTypes {
   /*************************************************************************************/
   /************************* TYPE PARAMETERS OF CLASS AND FUNCTIONS *************************/
   /*************************************************************************************/
+  val TYPE_PARAM_CLAUSE = new ScalaElementType("type parameter clause")
 
   /************ class ***************/
-  val TMPL_TYPE_PARAM_CLAUSE = new ScalaElementType("type parameter clause")
-  //val VARIANT_TYPE_PARAMS = new ScalaElementType("variant parameters of type")
   val VARIANT_TYPE_PARAM = new ScalaElementType("variant parameter of type")
 
   /************ function *************/
-  val FUN_TYPE_PARAM_CLAUSE = new ScalaElementType("function type parameter clause")
-  //val FUN_TYPE_PARAMS = new ScalaElementType("parameters of type")
-  val FUN_TYPE_PARAM = new ScalaElementType("parameter of type")
+  val TYPE_PARAM = new ScalaElementType("parameter of type")
 
 
   /*************************************************************************************/
@@ -164,6 +165,18 @@ object ScalaElementTypes {
   val FUN_SIG = new ScalaElementType("function signature")
 
   /*************************************************************************************/
+  /******************************* MODIFIERS AND ATTRIBUTES ****************************/
+  /*************************************************************************************/
+
+   /****************** attributes **********************/
+     val ATTRIBUTE_CLAUSE = new ScalaElementType("attribute clause")
+     val ATTRIBUTE_CLAUSES = new ScalaElementType("attribute clauses")
+     val ATTRIBUTE = new ScalaElementType("attribute")
+
+   /******************* modifiers **********************/
+     val MODIFIERS = new ScalaElementType("modifiers")
+
+  /*************************************************************************************/
   /************************************** LITERALS *************************************/
   /*************************************************************************************/
   val LITERAL = new ScalaElementType("Literal")
@@ -229,15 +242,6 @@ object ScalaElementTypes {
   val STATEMENT_SEPARATOR = new ScalaElementType("statement separator")
 
 //ordinary identifier
-
-//Attributes
-  val ATTRIBUTE_CLAUSE = new ScalaElementType("attribute clause")
-  val ATTRIBUTE_CLAUSES = new ScalaElementType("attribute clauses")
-  val ATTRIBUTE = new ScalaElementType("attribute")
-
-//Modifiers
-
-  val MODIFIERS = new ScalaElementType("modifiers")
 
 //top
   val TOP_STAT = new ScalaElementType("top stat")

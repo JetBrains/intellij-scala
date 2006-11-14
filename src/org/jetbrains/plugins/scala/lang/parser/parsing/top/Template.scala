@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.AttributeClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifiers
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
@@ -131,44 +132,36 @@ object Template extends Constr{
          isDefOrDcl = true
         }
 
+        var defOrDclElement : IElementType = ScalaElementTypes.WRONGWAY
         if (isDefOrDcl) {
           if (BNF.firstDclDef.contains(builder.getTokenType)) {
-              //Console.println("dcldef parse" + builder.getTokenType)
-              DclDef parse builder
-              //Console.println("dcldef parsed")
+              defOrDclElement = (DclDef parseBodyNode builder)
+              statementDefDclMarker.done(defOrDclElement)
             } else {
+              //error, because def or dcl must be defined after attributeClause or Modifier
               builder error "expected definition or declaration"
-              //Console.println("template stat done : "+ builder.getTokenType)
-          }
-          statementDefDclMarker.done(ScalaElementTypes.STATEMENT_TEMPLATE)
+            }
+
           return
-          //error, because def or dcl must be defined after attributeClause or Modifier
-        } else {
-          statementDefDclMarker.drop()
         }
 
         if (BNF.firstDclDef.contains(builder.getTokenType)) {
-          //Console.println("dcl parse" + builder.getTokenType)
-          DclDef parse builder
-          //Console.println("dcl parsed")
-          //Console.println("template stat done : "+ builder.getTokenType)
+          defOrDclElement = DclDef.parseBodyNode(builder)
+          statementDefDclMarker.done(defOrDclElement)
           return
         }
+
+        statementDefDclMarker.drop()
 
         if (BNF.firstExpr.contains(builder.getTokenType)) {
           Expr parse builder
-          //Console.println("template stat done : "+ builder.getTokenType)
           return
         }
 
-        //Console.println("template stat done : "+ builder.getTokenType)
         return
-
-     // } else builder error "wrong template declaration"
 
     }
   }
-   
 
   
 }

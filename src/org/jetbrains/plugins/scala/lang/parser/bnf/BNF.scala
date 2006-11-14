@@ -144,6 +144,18 @@ object BNF {
     )
   )
 
+  val firstVariantTypeParam = TokenSet.orSet(
+    Array(
+      TokenSet.create(
+        Array (
+          ScalaTokenTypes.tPLUS,
+          ScalaTokenTypes.tMINUS
+        )
+      ),
+      firstTypeParam
+    )
+  )
+
   val firstFunTypeParam = TokenSet.create(
     Array (
       ScalaTokenTypes.tLINE_TERMINATOR,

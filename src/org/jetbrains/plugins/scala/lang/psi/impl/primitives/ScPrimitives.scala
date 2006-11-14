@@ -45,7 +45,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl, com.intellij.la
   /*************************************************************************************/
   /************************************ BRACKETS ***************************************/
   /*************************************************************************************/
-
+  /*
   case class ScLSQBracketImpl( node : ASTNode ) extends ScPrimitives (node) {
     def primitiveToString : String = "["
   }
@@ -69,38 +69,40 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl, com.intellij.la
   case class ScRParenthisImpl( node : ASTNode ) extends ScPrimitives (node) {
     def primitiveToString : String = ")"
   }
-
+     */
   /*************************************************************************************/
   /*********************************** DELIMITERS **************************************/
   /*************************************************************************************/
   case class ScStatementSeparatorImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
     override def toString : String = "Statement separator"
   }
-
+  /*
   case class ScLineTerminatorImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
     override def toString : String = "Line terminator"
-  }
+  } */
 
   /*************************************************************************************/
   /************************************* KEYWORD ***************************************/
   /*************************************************************************************/
-  case class ScCaseImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+ /* case class ScCaseImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
     override def toString : String = "'case'"
-  }
+  }*/
 
   case class ScModifiers ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "Modifiers"
   }
 
-  case class ScModifier ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "Modifier"
-  }
-
+  /***************** attributes ***************/
   case class ScAttributeClauses ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "AttributeClauses"
+    override def toString: String = "Attribute clauses"
   }
 
   case class ScAttributeClause ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "AttributeClause"
+    override def toString: String = "Attribute clause"
   }
+
+  case class ScAttribute ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "Attribute"
+  }
+
 }

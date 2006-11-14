@@ -11,6 +11,10 @@ import com.intellij.lang.ASTNode
 
   class TemplateStatement (node : ASTNode) extends ScalaPsiElementImpl (node)
 
+  /*case class ScTemplateStatement (node : ASTNode) extends Definition (node) {
+    override def toString: String = "pattern" + " " + super.toString
+  } */
+
   /***************** definition ***********************/
 
   class Definition (node : ASTNode) extends TemplateStatement (node) {

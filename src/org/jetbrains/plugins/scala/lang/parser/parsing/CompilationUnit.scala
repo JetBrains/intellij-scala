@@ -103,20 +103,14 @@ object CompilationUnit extends Constr {
     override def parseBody (builder: PsiBuilder): Unit = {
 
       if (BNF.firstTopStat.contains(builder.getTokenType)) {
-        //Console.println("single top stat handle")
         TopStat.parse(builder)
-        //Console.println("single top stat handled")
       }
 
-      while (!builder.eof() && (BNF.firstStatementSeparator.contains(builder.getTokenType))) {
-        //Console.println("statement separator handle")
+      while (!builder.eof() && (BNF.firstStatementSeparator.contains(builder.getTokenType))){
         StatementSeparator parse builder
-        //Console.println("statement separator handled")
 
         if (BNF.firstTopStat.contains(builder.getTokenType)) {
-          //Console.println("single top stat handle")
           TopStat.parse(builder)
-          //Console.println("single top stat handled")
         }
       }
     }

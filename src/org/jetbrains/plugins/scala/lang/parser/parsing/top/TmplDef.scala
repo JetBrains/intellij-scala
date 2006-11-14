@@ -15,7 +15,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Construction
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateParents
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParam
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.VariantTypeParam
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
 //import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef.ClassParam
@@ -34,8 +35,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
 */
 
 object TmplDef extends ConstrWithoutNode {
+  override def parseBody(builder : PsiBuilder) : Unit = {
+    val tmplDefMarker = builder.mark()
+    tmplDefMarker.done(parseBodyNode(builder))
+  }
 
-   override def parseBody(builder : PsiBuilder) : Unit = {
+   def parseBodyNode(builder : PsiBuilder) : IElementType = {
       //Console.println("token in tmplDef " + builder.getTokenType)
       val caseMarker = builder.mark()
 
@@ -47,34 +52,54 @@ object TmplDef extends ConstrWithoutNode {
           case ScalaTokenTypes.kCLASS => {
             caseMarker.rollbackTo()
             ClassDef.parse(builder)
+            return ScalaElementTypes.CLASS_DEF
           }
 
           case ScalaTokenTypes.kOBJECT => {
             caseMarker.rollbackTo()
             ObjectDef.parse(builder)
+            return ScalaElementTypes.OBJECT_DEF
           }
 
           case _ => {
             caseMarker.rollbackTo()
             builder error "expected object or class declaration"
+            return ScalaElementTypes.WRONGWAY
           }
         }
 
-        return
+        return ScalaElementTypes.WRONGWAY
       }
 
       caseMarker.rollbackTo()
 
       //Console.println("token in tmplDef for match " + builder.getTokenType)
       builder.getTokenType match {
-        case ScalaTokenTypes.kCLASS => ClassDef.parse(builder)
-        case ScalaTokenTypes.kOBJECT => ObjectDef.parse(builder)
-        case ScalaTokenTypes.kTRAIT => TraitDef.parse(builder)
-        case _ => builder error "expected class, object or trait declaration"
+        case ScalaTokenTypes.kCLASS => {
+          ClassDef.parse(builder)
+          return ScalaElementTypes.CLASS_DEF
+        }
+
+        case ScalaTokenTypes.kOBJECT => {
+          ObjectDef.parse(builder)
+          return ScalaElementTypes.OBJECT_DEF
+        }
+
+        case ScalaTokenTypes.kTRAIT => {
+          TraitDef.parse(builder)
+          return ScalaElementTypes.TRAIT_DEF
+        }
+
+        case _ => {
+          builder error "expected class, object or trait declaration"
+          return ScalaElementTypes.WRONGWAY
+        }
       }
+
+      return ScalaElementTypes.WRONGWAY
     }
 
-  abstract class TypeDef extends Constr
+  abstract class TypeDef extends ConstrWithoutNode
 
   abstract class InstanceDef extends TypeDef
 
@@ -105,7 +130,7 @@ object TmplDef extends ConstrWithoutNode {
       }
 
     case class ClassDef extends InstanceDef {
-      override def getElementType = ScalaElementTypes.CLASS_DEF
+      //def getElementType = ScalaElementTypes.CLASS_DEF
 
       override def parseBody ( builder : PsiBuilder ) : Unit = {
 
@@ -138,7 +163,8 @@ object TmplDef extends ConstrWithoutNode {
 
           if (checkForTypeParamClauses(first, second)) {
             //Console.println("checked for type parameters ")
-            TypeParamClause.parse(builder)
+//            TypeParamClause.parse(builder)
+            new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder
           }
 
           (new ParamClauses[ClassParam](new ClassParam)).parse(builder)
@@ -183,10 +209,20 @@ object TmplDef extends ConstrWithoutNode {
           }
 
          if (isModifier){
+           //afte modifier must be 'val' or 'var'
            builder.getTokenType() match {
              case ScalaTokenTypes.kVAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL) }
              case ScalaTokenTypes.kVAR => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAR) }
-             case _ => { builder.error("expected 'val' or 'var'") }
+             case _ => {
+               builder.error("expected 'val' or 'var'")
+               return
+             }
+           }
+         } else {
+           builder.getTokenType() match {
+             case ScalaTokenTypes.kVAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL) }
+             case ScalaTokenTypes.kVAR => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAR) }
+             case _ => {}
            }
          }
 
@@ -221,37 +257,8 @@ object TmplDef extends ConstrWithoutNode {
     }
 
 
-    object TypeParamClause extends Constr {
-      override def getElementType = ScalaElementTypes.TMPL_TYPE_PARAM_CLAUSE
-
-      override def parseBody(builder : PsiBuilder) : Unit = {
-
-        if (builder.getTokenType.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
-        }
-
-        if (builder.getTokenType.equals(ScalaTokenTypes.tLSQBRACKET)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
-
-          builder.getTokenType match {
-            case ScalaTokenTypes.tPLUS
-               | ScalaTokenTypes.tMINUS
-               | ScalaTokenTypes.tIDENTIFIER
-               => {
-              VariantTypeParams.parse(builder)
-           }
-
-           case _ => builder error "wrong type paramters"
-        }
-
-        } else builder.error("expected '[")
-
-        if (builder.getTokenType.equals(ScalaTokenTypes.tRSQBRACKET)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
-        } else builder.error("expected ']")
-      }
-    }
-
+    
+    /*
     object VariantTypeParams extends ConstrWithoutNode {
       //override def getElementType = ScalaElementTypes.VARIANT_TYPE_PARAMS
 
@@ -275,30 +282,7 @@ object TmplDef extends ConstrWithoutNode {
         }
       }
     }
-
-    object VariantTypeParam extends Constr {
-      override def getElementType = ScalaElementTypes.VARIANT_TYPE_PARAM
-
-      override def parseBody(builder : PsiBuilder) : Unit = {
-        if (!builder.getTokenType.equals(ScalaTokenTypes.tPLUS)
-            && !builder.getTokenType.equals(ScalaTokenTypes.tMINUS)
-            && !builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)){
-          builder.error("expected '+', '-' or identifier")
-        }
-
-        if (builder.getTokenType.equals(ScalaTokenTypes.tPLUS)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tPLUS)
-        }
-
-        if (builder.getTokenType.equals(ScalaTokenTypes.tMINUS)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tMINUS)
-        }
-
-        if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
-          TypeParam.parse(builder)
-        }
-      }
-    }
+    */
 
     /************** OBJECT ******************/
 
@@ -359,7 +343,8 @@ object TmplDef extends ConstrWithoutNode {
 
       if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
         //Console.println("type param clause in trait " + builder.getTokenType);
-        TypeParamClause parse builder
+        //TypeParamClause parse builder
+        new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder
       }
 
       if (ScalaTokenTypes.kREQUIRES.equals(builder.getTokenType)) {
@@ -421,4 +406,10 @@ object TmplDef extends ConstrWithoutNode {
     }
   }
 
+}
+
+object TmplDefWithoutNode extends ConstrWithoutNode {
+   override def parseBody(builder : PsiBuilder) : Unit = {
+     //TmplDef parse 
+   }
 }
