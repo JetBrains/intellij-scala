@@ -134,6 +134,7 @@ object ScalaPsiCreator {
 
     /******************* PATTERNS *********************/
     case ScalaElementTypes.PATTERN1 => new ScPattern1Impl(node)
+    case ScalaElementTypes.PATTERN3 => new ScPattern3Impl(node)
     case ScalaElementTypes.PATTERN => new ScPatternImpl(node)
     case ScalaElementTypes.PATTERNS => new ScPatternsImpl(node)
     case ScalaElementTypes.WILD_PATTERN => new ScWildPatternImpl(node)

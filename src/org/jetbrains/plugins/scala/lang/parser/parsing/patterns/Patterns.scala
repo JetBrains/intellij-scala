@@ -148,11 +148,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
   }
 
 
-  object Pattern3 {
+  object Pattern3 extends InfixTemplate(ScalaElementTypes.PATTERN3, SimplePattern.parse)
+
   /*
-    Pattern3 ::=   SimplePattern
-                 | SimplePattern {id SimplePattern}
-  */
+  {
+
+  //  Pattern3 ::=   SimplePattern
+  //               | SimplePattern {id SimplePattern}
+
 
     def parse(builder : PsiBuilder) : ScalaElementType = {
       var result = SimplePattern.parse(builder)
@@ -163,7 +166,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
       }
     }
   }
-
+  */
 
   object Pattern2 {
   /*
