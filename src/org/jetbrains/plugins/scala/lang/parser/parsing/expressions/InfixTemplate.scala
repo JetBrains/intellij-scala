@@ -154,7 +154,8 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
             val rollbackMarker = builder.mark() //for rollback
             opStack += builder.getTokenText // operator text to stack
             ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-            ParserUtils.rollForward(builder)
+            if (elemType.equals(ScalaElementTypes.PATTERN3))
+              ParserUtils.rollForward(builder)
 
             val newMarker = builder.mark()
             /*Attention!*/
@@ -188,10 +189,10 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 
       if (!result.equals(ScalaElementTypes.WRONGWAY)) {
 
-        ParserUtils.rollForward(builder)
         /* For simple patterns */
         if(ScalaElementTypes.SIMPLE_PATTERN.equals(result) &&
            ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType) ){
+          ParserUtils.rollForward(builder)
           marker.drop()
           elemType
         } else {
