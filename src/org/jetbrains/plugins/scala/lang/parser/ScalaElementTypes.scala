@@ -176,7 +176,7 @@ object ScalaElementTypes {
   /************************************** EXPRESSIONS **********************************/
   /*************************************************************************************/
   val PREFIX_EXPR = new ScalaElementType("prefix expression")
-  val PREFIX = new ScalaElementType("Simple prefix of prefix expression")
+  val PREFIX = new ScalaElementType("prefix")
   val POSTFIX_EXPR = new ScalaElementType("postfix expression")
   val INFIX_EXPR = new ScalaElementType("infix expression")
   val SIMPLE_EXPR = new ScalaElementType("simple expression")
@@ -187,6 +187,8 @@ object ScalaElementTypes {
   val EXPR = new ScalaElementType("expression")
   val AN_FUN = new ScalaElementType("anonymous function")
   val BINDING = new ScalaElementType("binding")
+  val GENERATOR = new ScalaElementType("generator")
+  val ENUMERATOR = new ScalaElementType("enumerator")
   val BINDINGS = new ScalaElementType("bindings")
   val EXPRS = new ScalaElementType("list of expressions")
   val ARG_EXPRS = new ScalaElementType("arguments of function")
