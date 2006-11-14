@@ -60,6 +60,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
   object Generator extends EnumTemplate(ScalaElementTypes.GENERATOR.asInstanceOf[ScalaElementType],
                                         ScalaTokenTypes.tCHOOSE.asInstanceOf[ScalaElementType])
 
+  /*
+  Enumerator ::=    Generator
+                  | val Pattern1 ‘=’ Expr
+                  | Expr
+  */
   object Enumerator{
     def parse(builder : PsiBuilder) : ScalaElementType = {
       val enMarker = builder.mark()
@@ -91,13 +96,25 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
         enMarker.rollbackTo()
         ScalaElementTypes.WRONGWAY
       }
-
     }
-  
-
   }
 
 
+  /*
+  Enumerators ::= Generator {StatementSeparator Enumerator}
+  */
+  /*
+  object Enumerators{
+    def parse(builder : PsiBuilder) : ScalaElementType = {
+
+      val ensMarker = builder.mark()
+      var res = Generator.parse(builder)
+
+
+
+    }
+  }
+  */
 
 
 
