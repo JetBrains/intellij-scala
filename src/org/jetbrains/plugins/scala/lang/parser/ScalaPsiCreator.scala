@@ -25,7 +25,7 @@ object ScalaPsiCreator {
 
    node.getElementType() match {
 
-      /*****************************************************/
+    /*****************************************************/
     /********************** TOP **************************/
     /*****************************************************/
 
@@ -52,8 +52,8 @@ object ScalaPsiCreator {
      case ScalaElementTypes.OBJECT_DEF => new ScObjectDefinition( node )
      case ScalaElementTypes.TRAIT_DEF => new ScTraitDefinition( node )
 
-     case ScalaElementTypes.CLASS_PARAM_CLAUSE => new ScClassParamClause( node )
-     case ScalaElementTypes.TMPL_TYPE_PARAM_CLAUSE => new ScTmplTypeParameterClause( node )
+     //case ScalaElementTypes.CLASS_PARAM_CLAUSE => new ScClassParamClause( node )
+     //case ScalaElementTypes.TMPL_TYPE_PARAM_CLAUSE => new ScTmplTypeParameterClause( node )
 
      /***************************************************/
      /******************** TEMPLATES ********************/
@@ -74,6 +74,7 @@ object ScalaPsiCreator {
      /***************************************************/
      /*************** TEMPLATE STATEMENTS ***************/
      /***************************************************/
+     //case ScalaElementTypes.TEMPLATE_STATEMENT => new ScTemplateStatement(node)
 
      /*************** DECLARATION ***************/
      case ScalaElementTypes.VALUE_DECLARATION => new ScValueDeclaration(node)
@@ -89,7 +90,44 @@ object ScalaPsiCreator {
 
      /**************** OTHERS ******************/
      case ScalaElementTypes.FUN_SIG => new ScFunctionSignature(node)
-     case ScalaElementTypes.FUN_TYPE_PARAM_CLAUSE => new ScFunctionTypeParamClause(node)
+
+    /***************************************************/
+    /********* PARAMETERS AND TYPE PARAMETERS **********/
+    /***************************************************/
+
+    /******************** parameters *******************/
+     case ScalaElementTypes.PARAM_CLAUSE => new ScParamClause(node)
+     case ScalaElementTypes.PARAM_CLAUSES => new ScParamClauses(node)
+
+    /*********** class ************/
+     case ScalaElementTypes.CLASS_PARAM => new ScClassParam(node)
+
+     /********** function **********/
+     case ScalaElementTypes.PARAM => new ScParam(node)
+
+
+     /***************** type parameters ****************/
+     case ScalaElementTypes.TYPE_PARAM_CLAUSE => new ScTypeParamClause(node)
+
+     /*********** class ************/
+     case ScalaElementTypes.VARIANT_TYPE_PARAM => new ScVariantTypeParam(node)
+
+     /********** function **********/
+     case ScalaElementTypes.TYPE_PARAM => new ScTypeParam(node)
+
+
+    /***************************************************/
+    /************* MODIFIERS AND ATTRIBUTES ************/
+    /***************************************************/
+
+    /************** modifiers **************/
+    case ScalaElementTypes.MODIFIERS => new ScModifiers(node)
+
+    /************** attributes **************/
+    case ScalaElementTypes.ATTRIBUTE => new ScAttribute(node)
+    case ScalaElementTypes.ATTRIBUTE_CLAUSE => new ScAttributeClause(node)
+    case ScalaElementTypes.ATTRIBUTE_CLAUSES => new ScAttributeClauses(node)
+
 
      /********************** TOKENS **********************/
 

@@ -16,36 +16,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.Constr
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
- object TypeParam extends ConstrItem {
-      override def getElementType = ScalaElementTypes.FUN_TYPE_PARAM
-
-      override def first = BNF.firstTypeParam
-
-      override def parseBody(builder : PsiBuilder) : Unit = {
-        if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-        } else builder.error("expected identifier")
-
-        if (builder.getTokenType.equals(ScalaTokenTypes.tLOWER_BOUND)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLOWER_BOUND)
-          Type.parse(builder)
-        }
-
-        if (builder.getTokenType.equals(ScalaTokenTypes.tUPPER_BOUND)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tUPPER_BOUND)
-          Type.parse(builder)
-        }
-
-        if (builder.getTokenType.equals(ScalaTokenTypes.tVIEW)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tVIEW)
-          Type.parse(builder)
-        }
-      }
-    }
-
-
+ 
     class ParamClauses[T <: Param] (param : T) extends Constr {
-      override def getElementType = ScalaElementTypes.CLASS_PARAM_CLAUSES
+      override def getElementType = ScalaElementTypes.PARAM_CLAUSES
 
           def checkForParamClause[T <: Param](param : T, first : IElementType, second : IElementType, third : IElementType) : Boolean = {
             var a = first
@@ -115,7 +88,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
     }
 
  class ParamClause[T <: Param] (param : T) extends Constr {
-    override def getElementType : IElementType = ScalaElementTypes.FUN_PARAM_CLAUSE
+    override def getElementType : IElementType = ScalaElementTypes.PARAM_CLAUSE
 
     override def parseBody(builder : PsiBuilder) : Unit = {
       if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
@@ -216,5 +189,4 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
       }
     }
   }
-
 }

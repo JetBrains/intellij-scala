@@ -22,10 +22,11 @@ import com.intellij.lang.ASTNode
 
   /************* PARAMETER CLAUSES *****************/
 
-  class ParamClauses( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "parameters clauses" + " " + super.toString
+  class ScParamClauses( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "parameters clauses"
   }
 
+/*
   case class ScClassParamClauses( node : ASTNode ) extends ParamClauses ( node ) {
     override def toString: String = "class" + " " + super.toString
   }
@@ -33,20 +34,20 @@ import com.intellij.lang.ASTNode
   case class ScFunParamClauses( node : ASTNode ) extends ParamClauses ( node ) {
     override def toString: String = "function" + " " + super.toString
   }
-
+  */
   /************* PARAMETER CLAUSE *****************/
 
-  class ParamClause( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+  class ScParamClause( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "parameters clause"
   }
 
-  case class ScClassParamClause( node : ASTNode ) extends ParamClause ( node ) {
+  /*case class ScClassParamClause( node : ASTNode ) extends ParamClause ( node ) {
     override def toString: String = "class" + " " + super.toString
   }
 
   case class ScFunParamClause( node : ASTNode ) extends ParamClause ( node ) {
     override def toString: String = "function" + " " + super.toString
-  }
+  } */
 
   /************** TYPE PARAMETER  *********************/
   class TypeParam( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
@@ -62,9 +63,10 @@ import com.intellij.lang.ASTNode
   }                   
 
   /************** TYPE PARAMETER CLAUSE *********************/
-  class TypeParamClause( node : ASTNode ) extends ParamClause ( node ) {
+  class ScTypeParamClause( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "type parameter clause"
   }
+/*
 
   case class ScTypeParamClause( node : ASTNode ) extends TypeParamClause ( node ) {
     override def toString: String = super.toString
@@ -73,5 +75,5 @@ import com.intellij.lang.ASTNode
   case class ScFunctionTypeParamClause( node : ASTNode ) extends TypeParamClause ( node ) {
     override def toString: String = "function" + " " + super.toString
   }
-
+  */
 }
