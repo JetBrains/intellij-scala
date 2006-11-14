@@ -89,7 +89,9 @@ special =   \u0021 | \u0023
           | \u007E
           | \u005C | \u002F     //slashes
 
-op = {special}+
+// Vertical line haemorrhoids
+op = \u007C ({special} | \u007C)+ 
+     | {special} ({special} | \u007C)*
 
 idrest1 = ({letter} | {digit})* ("_" {op})?
 idrest = ({letter} | {digit})* ("_" {op} | "_" {idrest1} )?
