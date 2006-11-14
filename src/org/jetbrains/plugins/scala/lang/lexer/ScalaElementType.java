@@ -9,14 +9,14 @@ import org.jetbrains.plugins.scala.ScalaFileType;
  * Time: 12:47:37
  */
 public class ScalaElementType extends IElementType {
-    private String debugName = null;
+  private String debugName = null;
 
-    public ScalaElementType(String debugName) {
-        super(debugName, ScalaFileType.SCALA_FILE_TYPE.getLanguage());
-        this.debugName = debugName;
-    }
+  public ScalaElementType(String debugName) {
+    super(debugName, ScalaFileType.SCALA_FILE_TYPE.getLanguage());
+    this.debugName = debugName;
+  }
 
-    public String toString(){
-        return debugName;
-    }
+  public String toString() {
+    return debugName;
+  }
 }

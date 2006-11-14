@@ -10,7 +10,7 @@ import java.io.Reader;
  * Time: 16:37:53
  */
 public class ScalaLexer extends FlexAdapter {
-    public ScalaLexer() {
-        super(new _ScalaLexer((Reader) null));
-    }
+  public ScalaLexer() {
+    super(new _ScalaLexer((Reader) null));
+  }
 }
