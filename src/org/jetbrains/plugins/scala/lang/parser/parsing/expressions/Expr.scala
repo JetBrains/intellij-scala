@@ -11,6 +11,94 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
+
+  /* Abstract class for expression and ResultExpression parsing */
+  /*
+  abstract class ExprTemplate(val elemType: ScalaElementType,
+                              val tailType: ScalaElementType,
+                              val tailParse: (PsiBuilder=>ScalaElementType)){
+
+    def parse(builder : PsiBuilder) : ScalaElementType = {
+        var exprMarker = builder.mark()
+        var result = Bindings.parse(builder)
+
+        def parseComposite: ScalaElementType = {
+          result = CompositeExpr.parse(builder)
+          if (ScalaElementTypes.EXPR1.equals(result)) {
+            exprMarker.drop()
+            ScalaElementTypes.EXPR
+          } else {
+            exprMarker.rollbackTo()
+            ScalaElementTypes.WRONGWAY
+          }
+        }
+
+        def parseTail: ScalaElementType = {
+          var res = tailParse(builder)
+          if (tailType.equals(res)) {
+            exprMarker.done(ScalaElementTypes.AN_FUN)
+            elemType
+          } else {
+            builder.error(
+              elemType match{
+                case ScalaElementTypes.EXPR => "Expression expected"
+                case _ => "Block expected"
+              }
+            )
+            exprMarker.drop()
+            elemType
+          }
+        }
+
+        val rbMarker = builder.mark()
+        var first = builder.getTokenType ;
+          builder.advanceLexer; ParserUtils.rollForward(builder)
+        var second = builder.getTokenType ;
+          builder.advanceLexer; ParserUtils.rollForward(builder)
+        rbMarker.rollbackTo()
+        if (ScalaTokenTypes.tIDENTIFIER.equals(first)
+            //&& ScalaTokenTypes.tFUNTYPE.equals(second)
+            ) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+            ParserUtils.rollForward(builder)
+          second match {
+            case ScalaTokenTypes.tFUNTYPE => {
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
+                ParserUtils.rollForward(builder)
+              parseTail
+            }
+            case ScalaTokenTypes.tCOLON => {
+              var res3 = Type1 parse builder
+              if (ScalaElementTypes.TYPE1.equals(res3)){
+
+              }
+            }
+            case _ =>
+                        
+          }
+
+        } else if (ScalaElementTypes.BINDINGS.equals(result)){
+          ParserUtils.rollForward(builder)
+          builder.getTokenType match {
+            case ScalaTokenTypes.tFUNTYPE => {
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
+              ParserUtils.rollForward(builder)
+              parseTail
+            }
+            case _ => {
+              exprMarker.rollbackTo()
+              exprMarker = builder.mark()
+              parseComposite
+            }
+          }
+        } else {
+          parseComposite
+        }
+      }
+  }
+
+*/
+
   object Expr {
   /*
   Common expression
