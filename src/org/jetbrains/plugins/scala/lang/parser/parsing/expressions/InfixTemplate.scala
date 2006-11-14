@@ -64,6 +64,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 
       // Parsing after second operator encountered
       def subParse1() : ScalaElementType = {
+        ParserUtils.rollForward(builder)
         builder.getTokenType match {
           // If an identifier
           case  ScalaTokenTypes.tIDENTIFIER
@@ -86,6 +87,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 
             /*Attention!*/
             //var res1 = PrefixExpr parse(builder)
+            ParserUtils.rollForward(builder)
             var res1 = parseBase(builder)
 
             rbMarker.rollbackTo()
@@ -109,8 +111,8 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 
               /*Attention!*/
               //PrefixExpr parse(builder)
+              ParserUtils.rollForward(builder)
               parseBase(builder)
-
               markerStack += newMarker
               opStack += currentOp
               subParse1
@@ -136,6 +138,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 
       def subParse : ScalaElementType = {
 
+        ParserUtils.rollForward(builder)
         builder.getTokenType match {
           // If an identifier
           case  ScalaTokenTypes.tIDENTIFIER
@@ -160,6 +163,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
             val newMarker = builder.mark()
             /*Attention!*/
             //var res = PrefixExpr parse(builder)
+            ParserUtils.rollForward(builder)
             var res = parseBase(builder)
 
             // if  PE1 op PE2 ....
@@ -196,7 +200,6 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
           marker.drop()
           elemType
         } else {
-
           markerStack += marker
           result = subParse
           result
