@@ -253,6 +253,27 @@ FIRST(PrefixExpression) = ScalaTokenTypes.tPLUS
   }
 
 /*
+INFIX EXPRESSION
+Default grammar:
+InfixExpr ::= PrefixExpr
+          | InfixExpr id [NewLine] PrefixExpr
+
+***********************************************
+
+Realized grammar:
+InfixExpr ::= PrefixExpr
+          | InfixExpr id [NewLine] PrefixExpr
+
+***********************************************
+
+FIRST(InfixExpression) =  PrefixExpression.FIRST
+
+*/
+  object InfixExpr extends InfixTemplate(ScalaElementTypes.INFIX_EXPR, PrefixExpr.parse){
+    val INFIX_FIRST = PrefixExpr.PREFIX_FIRST
+  }
+
+/*
 POSTFIX EXPRESSION
 Default grammar:
 PostfixExpr ::= InfixExpr [id [NewLine]]

@@ -10,6 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi._
       override def toString: String = "Common pattern"
   }
 
+  case class ScPattern3Impl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Simple pattern"
+  }
+
   case class ScPatternImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "Composite pattern"
   }
