@@ -333,33 +333,17 @@ object Construction extends Constr{
     override def getElementType = ScalaElementTypes.IMPORT_STMT
 
     override def parseBody(builder: PsiBuilder): Unit = {
-      builder.getTokenType() match {
-        case ScalaTokenTypes.kIMPORT => {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.kIMPORT)
+      if (ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kIMPORT)
 
-          /*builder.getTokenType() match {
-            case ScalaTokenTypes.tIDENTIFIER => {
-              val importExprsMarker = builder.mark()
+        ParserUtils.listOfSmth(builder, ImportExpr, ScalaTokenTypes.tCOMMA, ScalaElementTypes.IMPORT_EXPRS)
 
-              ImportExpr.parse(builder)
-              while (builder.getTokenType().equals(ScalaTokenTypes.tCOMMA)){
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
-                //Console.println("comma in importExpr")
-                ImportExpr.parse(builder)
-              }
-
-              importExprsMarker.done(ScalaElementTypes.IMPORT_EXPRS)
-            }
-            case _ => { builder.error("expected identifier") }
-
-          } */
-
-          ParserUtils.listOfSmth(builder, ImportExpr, ScalaTokenTypes.tCOMMA, ScalaElementTypes.IMPORT_EXPRS)
-        }
-
-        case _ => { builder.error("expected 'import'") }
+      } else {
+        builder.error("expected 'import'")
+        return
       }
     }
+  
 
 
   object ImportExpr extends ConstrItem {
@@ -376,8 +360,6 @@ object Construction extends Constr{
       builder.getTokenType() match {
         case ScalaTokenTypes.tIDENTIFIER => {
           StableIdInImport.parse(builder)
-
-          //Console.println("expect '.' " + builder.getTokenType())
 
           if (builder.getTokenType().equals(ScalaTokenTypes.tDOT)) {
             //Console.println("ate dot " + builder.getTokenType)
@@ -396,11 +378,7 @@ object Construction extends Constr{
               }
 
               case ScalaTokenTypes.tLBRACE => {
-                //Console.println("import selectors handle")
-
                 ImportSelectors.parse(builder)
-
-                //Console.println("import selectors handled")
               }
 
               case _ => { builder.error("expected '.'") }

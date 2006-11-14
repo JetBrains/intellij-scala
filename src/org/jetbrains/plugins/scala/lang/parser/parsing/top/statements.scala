@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParam
@@ -252,6 +253,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           return ScalaElementTypes.FUNCTION_DECLARATION
         } else {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
+          DebugPrint println ("parsing expression after '=' : " + builder.getTokenType)
 
           if (BNF.firstExpr.contains(builder.getTokenType)) {
             Expr parse builder

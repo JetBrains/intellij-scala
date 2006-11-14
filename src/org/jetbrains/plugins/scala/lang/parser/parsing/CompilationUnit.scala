@@ -118,37 +118,23 @@ object CompilationUnit extends Constr {
 
   object TopStat {
     def parse(builder: PsiBuilder): Unit = {
-      //val topStatMarker = builder.mark()
-
-      ////Console.println("token type : " + builder.getTokenType())
-      if (builder.eof) {
-        //topStatMarker.done(ScalaElementTypes.TOP_STAT)
-        return
-      }
 
       if (builder.getTokenType.equals(ScalaTokenTypes.kIMPORT)){
-        //Console.println("parse import")
         Import.parse(builder)
-        //topStatMarker.done(ScalaElementTypes.TOP_STAT)
         return
       }
 
       if (builder.getTokenType.equals(ScalaTokenTypes.kPACKAGE)){
-        //Console.println("parse packaging")
         Packaging.parse(builder)
-        //topStatMarker.done(ScalaElementTypes.TOP_STAT)
         return
       }
 
-      val topLevelTmplDef = builder.mark()
-       /*//Console.println("token : " + builder.getTokenType())
-       //Console.println("token : " + BNF.firstAttributeClause)
-       //Console.println("token : " + BNF.firstAttributeClause.contains(builder.getTokenType()))*/
+      val tmplDefMarker = builder.mark()
+
       val attributeClausesMarker = builder.mark()
       var isAttrClauses = false
 
       while (BNF.firstAttributeClause.contains(builder.getTokenType())) {
-        //Console.println("parse attribute clause")
         isAttrClauses = true
 
         AttributeClause parse builder
@@ -178,28 +164,17 @@ object CompilationUnit extends Constr {
 
       if (isTmpl && !(builder.getTokenType.equals(ScalaTokenTypes.kCASE) || BNF.firstTmplDef.contains(builder.getTokenType))) {
         builder.error("wrong type declaration")
-        //topStatMarker.drop()
-        topLevelTmplDef.drop()
+        tmplDefMarker.drop()
         return
       }
 
       if (builder.getTokenType.equals(ScalaTokenTypes.kCASE) || BNF.firstTmplDef.contains(builder.getTokenType)) {
-        //Console.println("parse tmplDef")
-        TmplDef.parse(builder)
-
-        if (!isTmpl) {
-          topLevelTmplDef.drop()
-        } else {
-          topLevelTmplDef.done(ScalaElementTypes.TOP_TMPL_DEF)
-        }
-
+        tmplDefMarker.done(TmplDef.parseBodyNode(builder))
         return
       }
 
+      tmplDefMarker.drop()
       builder error "wrong top statement declaration"    
-
-      //if parse nothing
-     // topStatMarker.done(ScalaElementTypes.TOP_STAT)
     }
   }
  

@@ -110,6 +110,9 @@ object Template extends Constr{
       //if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
         //Console.println("in template stat : "+ builder.getTokenType)
 
+        DebugPrint println "template statement parsing"
+        DebugPrint println ("token type : " + builder.getTokenType)
+        
         if(ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)) {
          Import parse builder
          return
