@@ -42,7 +42,8 @@ class Program extends ScalaTokenTypes {
     var marker = builder.mark()
     rollForward
     ParserUtils.rollForward(builder)
-    
+
+    //compilation unit
     if ( !builder.eof() ){
       CompilationUnit.parse(builder)
     }
