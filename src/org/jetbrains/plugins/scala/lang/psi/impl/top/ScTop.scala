@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl {
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.top.defs.TmplDef
 import com.intellij.lang.ASTNode
 
 /**
@@ -20,9 +21,9 @@ import com.intellij.lang.ASTNode
   class ScPackaging ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "Packaging"
 
-    /*def getTmplDefinitions : Array[T <: TmplDef] {
-      getChildren
-    } */
+    def getTmplDefs : Seq[TmplDef] = {
+      for (val element  <- getChildren) yield element.asInstanceOf[TmplDef]
+    }
   }
 
   class ScPackageStatement ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
