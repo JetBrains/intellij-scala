@@ -55,7 +55,7 @@ object BNF {
        ScalaTokenTypes.kFALSE,
        ScalaTokenTypes.tCHAR,
        ScalaTokenTypes.kNULL,
-       ScalaTokenTypes.tSTRING_BEGIN,
+       ScalaTokenTypes.tSTRING,
        ScalaTokenTypes.tPLUS,
        ScalaTokenTypes.tMINUS,
        ScalaTokenTypes.tTILDA,
