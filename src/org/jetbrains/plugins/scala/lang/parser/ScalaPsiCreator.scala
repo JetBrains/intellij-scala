@@ -26,31 +26,41 @@ object ScalaPsiCreator {
    node.getElementType() match {
 
     /*****************************************************/
+    /********************* FILE **************************/
+    /*****************************************************/
+     case ScalaElementTypes.FILE => new ScFile(node)
+     case ScalaElementTypes.COMPILATION_UNIT => new ScCompilationUnit(node)
+
+    /*****************************************************/
     /********************** TOP **************************/
     /*****************************************************/
 
-     case ScalaElementTypes.PACKAGING => new ScPackaging( node )
-     case ScalaElementTypes.QUAL_ID => new ScQualId( node )
+     case ScalaElementTypes.PACKAGING => new ScPackaging(node)
+     case ScalaElementTypes.QUAL_ID => new ScQualId(node)
 
-     case ScalaElementTypes.TOP_STAT_SEQ => new ScTopStatSeq( node )
-     case ScalaElementTypes.TOP_STAT => new ScTopStat( node )
+     //case ScalaElementTypes.TOP_STAT_SEQ => new ScTopStatSeq( node )
+     //case ScalaElementTypes.TOP_STAT => new ScTopStat( node )
 
      /***************************************************/
      /********************* IMPORT **********************/
      /***************************************************/
 
-     case ScalaElementTypes.IMPORT_STMT => new ScImportStmt( node )
-     case ScalaElementTypes.IMPORT_EXPR => new ScImportExpr( node )
-     case ScalaElementTypes.IMPORT_EXPRS => new ScImportExprs( node )
+     case ScalaElementTypes.IMPORT_STMT => new ScImportStmt(node)
+     case ScalaElementTypes.IMPORT_EXPR => new ScImportExpr(node)
+     case ScalaElementTypes.IMPORT_EXPRS => new ScImportExprs(node)
+
+     case ScalaElementTypes.IMPORT_SELECTORS => new ScImportSelectors(node)
+     case ScalaElementTypes.IMPORT_SELECTOR => new ScImportSelector(node)
 
      /***************************************************/
      /********************** DEF ************************/
      /***************************************************/
 
-     case ScalaTokenTypes.kPACKAGE => new ScPackage( node )
-     case ScalaElementTypes.CLASS_DEF => new ScClassDefinition( node )
-     case ScalaElementTypes.OBJECT_DEF => new ScObjectDefinition( node )
-     case ScalaElementTypes.TRAIT_DEF => new ScTraitDefinition( node )
+     //case ScalaTokenTypes.kPACKAGE => new ScPackage(node)
+     case ScalaElementTypes.PACKAGE_STMT => new ScPackageStatement(node)
+     case ScalaElementTypes.CLASS_DEF => new ScClassDefinition(node)
+     case ScalaElementTypes.OBJECT_DEF => new ScObjectDefinition(node)
+     case ScalaElementTypes.TRAIT_DEF => new ScTraitDefinition(node)
 
      //case ScalaElementTypes.CLASS_PARAM_CLAUSE => new ScClassParamClause( node )
      //case ScalaElementTypes.TMPL_TYPE_PARAM_CLAUSE => new ScTmplTypeParameterClause( node )
@@ -74,7 +84,6 @@ object ScalaPsiCreator {
      /***************************************************/
      /*************** TEMPLATE STATEMENTS ***************/
      /***************************************************/
-     //case ScalaElementTypes.TEMPLATE_STATEMENT => new ScTemplateStatement(node)
 
      /*************** DECLARATION ***************/
      case ScalaElementTypes.VALUE_DECLARATION => new ScValueDeclaration(node)
@@ -104,7 +113,7 @@ object ScalaPsiCreator {
 
      /********** function **********/
      case ScalaElementTypes.PARAM => new ScParam(node)
-
+     case ScalaElementTypes.PARAM_TYPE => new ScParamType(node)
 
      /***************** type parameters ****************/
      case ScalaElementTypes.TYPE_PARAM_CLAUSE => new ScTypeParamClause(node)
@@ -127,6 +136,8 @@ object ScalaPsiCreator {
     case ScalaElementTypes.ATTRIBUTE => new ScAttribute(node)
     case ScalaElementTypes.ATTRIBUTE_CLAUSE => new ScAttributeClause(node)
     case ScalaElementTypes.ATTRIBUTE_CLAUSES => new ScAttributeClauses(node)
+
+    case ScalaElementTypes.CONSTRUCTOR => new ScConstructor(node)
 
 
      /********************** TOKENS **********************/

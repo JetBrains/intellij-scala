@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.Construction
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateParents
@@ -105,6 +104,7 @@ object TmplDef extends ConstrWithoutNode {
 
   /************** CLASS ******************/
 
+  //todo for NullPointerException in tokens
    def checkForTypeParamClauses (first : IElementType, second : IElementType) : Boolean = {
         var a = first
         var b = second

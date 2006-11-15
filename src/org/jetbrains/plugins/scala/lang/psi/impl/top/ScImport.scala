@@ -22,4 +22,12 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl, com.intellij.la
   class ScImportExprs( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "Import expressions"
   }
+
+  class ScImportSelectors( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "Import selectors"
+  }
+
+  class ScImportSelector( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "Import selector"
+  }
 };

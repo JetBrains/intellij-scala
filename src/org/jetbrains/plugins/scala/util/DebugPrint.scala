@@ -5,7 +5,7 @@ package org.jetbrains.plugins.scala.util
  */
 object DebugPrint {
 
-  var displayLog = true;
+  var displayLog = false;
 
   def println(st: String): Unit = {
     if (displayLog) {
