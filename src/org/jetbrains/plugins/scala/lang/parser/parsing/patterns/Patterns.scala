@@ -367,9 +367,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
       }
 
       if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType)){
-        builder.advanceLexer
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
         if (ScalaTokenTypes.tSTAR.equals(builder.getTokenType)){
-          builder.advanceLexer
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tSTAR)
           psMarker.done(ScalaElementTypes.WILD_PATTERN)
           ScalaElementTypes.PATTERNS
         } else {

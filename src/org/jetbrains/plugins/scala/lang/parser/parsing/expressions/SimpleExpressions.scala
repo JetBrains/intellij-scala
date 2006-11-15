@@ -138,14 +138,12 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
       /* case (f) */
       else if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)) {
         ParserUtils.eatElement(builder,ScalaTokenTypes.tLPARENTHIS)
-        ParserUtils.rollForward(builder)
         if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)) {
           closeParent
           flag = true
         } else {
           var res = Expr parse builder 
           if (res.eq(ScalaElementTypes.EXPR)) {
-            ParserUtils.rollForward(builder)
             if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)) {
               closeParent
               result = res
@@ -300,7 +298,8 @@ FIRST(PostfixExpression) =  InffixExpression.FIRST
           case ScalaTokenTypes.tIDENTIFIER => {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
             isPostfix = true
-            ParserUtils.rollForward(builder)
+            // Real need!
+            ParserUtils.rollForward(builder) //Warning!
           }
           case _ =>
         }

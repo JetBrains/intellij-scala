@@ -8,7 +8,7 @@
     <delete file="${lexer.file}"/>
     <delete file="${lexer.log}"/>
 
-    <java jar="JFlex.jar" output="jflex.log" fork="true" maxmemory="192m">
+    <java jar="JFlex.jar" output="jflex.log" fork="true" maxmemory="256m">
       <arg value="--charat"/>
       <arg value="-skel"/>
       <arg value="${skeleton}"/>
