@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import com.intellij.psi.tree.IElementType
 import com.intellij.lang.PsiBuilder
@@ -40,23 +41,16 @@ object CompilationUnit extends Constr {
   override def getElementType = ScalaElementTypes.COMPILATION_UNIT
   override def parseBody (builder : PsiBuilder) : Unit = {
 
-    //Console.println("token type : " + builder.getTokenType())
     builder.getTokenType() match {
       //possible package statement
       case ScalaTokenTypes.kPACKAGE => {
-        ////Console.println("top level package handle")
-        //ParserUtils.eatConstr(builder, Package, ScalaElementTypes.PACKAGE_STMT)
         val packChooseMarker = builder.mark()
-        //Console.println("exp package " + builder.getTokenType)
         builder.advanceLexer //Ate package
 
         if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
           QualId.parse(builder)
         }
 
-        //
-
-        //Console.println("terminator or semicolon " + builder.getTokenType)
         builder.getTokenType match {
           case ScalaTokenTypes.tLINE_TERMINATOR
              | ScalaTokenTypes.tSEMICOLON
@@ -65,6 +59,7 @@ object CompilationUnit extends Constr {
             packChooseMarker.rollbackTo()
             Package.parse(builder)
 
+            DebugPrint println ("token after qualId in package: " + builder.getTokenType)
             builder.getTokenType match {
               case ScalaTokenTypes.tLINE_TERMINATOR => {
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
@@ -81,18 +76,12 @@ object CompilationUnit extends Constr {
 
           case _ => { packChooseMarker.rollbackTo() }
         }
-        ////Console.println("top level package handled")
       }
 
       case _=> {}
     }
 
-    //Console.println("token type : " + builder.getTokenType())
-
-
-        //Console.println("TopStatSeq invoke ")
-        TopStatSeq.parse(builder)
-        //Console.println("TopStatSeq invoked ")
+    TopStatSeq.parse(builder)
 
   }
 
