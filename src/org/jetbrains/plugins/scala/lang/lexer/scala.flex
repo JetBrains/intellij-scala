@@ -57,7 +57,7 @@ import org.jetbrains.annotations.NotNull;
     }
 
     private IElementType process(IElementType type){
-        //System.out.println(type.toString());
+        System.out.println(type.toString());
         return type;
     }
 
@@ -372,6 +372,10 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
                                                     } else {
                                                       return process(tNON_SIGNIFICANT_NEWLINE);                                                      
                                                     }
+                                                }
+
+{LineTerminator}                                {   yybegin(YYINITIAL);
+                                                    return process(tLINE_TERMINATOR);
                                                 }
 
 .                                               {   yypushback(yylength());
