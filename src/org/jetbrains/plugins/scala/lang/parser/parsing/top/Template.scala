@@ -6,7 +6,7 @@ import com.intellij.psi.tree.TokenSet
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.Construction
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.Constructor
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.AttributeClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifiers
@@ -19,11 +19,13 @@ import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
+
 /**
  * User: Dmitry.Krasilschikov
  * Date: 30.10.2006
  * Time: 15:04:19
  */
+ 
 object Template extends Constr{
   override def getElementType = ScalaElementTypes.TEMPLATE
 
@@ -43,7 +45,7 @@ object Template extends Constr{
 
     override def parseBody(builder : PsiBuilder) : Unit = {
       if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
-        Construction.parse(builder)
+        Constructor.parse(builder)
       } else builder.error("expected identifier")
 
       while (builder.getTokenType.equals(ScalaTokenTypes.kWITH)) {

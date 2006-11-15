@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.top.params {
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.types.ScTypeImpl
 import com.intellij.lang.ASTNode
 /**
  * User: Dmitry.Krasilschikov
@@ -14,6 +15,10 @@ import com.intellij.lang.ASTNode
 
   class ScParam( node : ASTNode ) extends Param ( node ) {
     override def toString: String = super.toString
+  }
+
+  class ScParamType( node : ASTNode ) extends ScTypeImpl ( node ) {
+    override def toString: String = "parameter " + super.toString
   }
 
   class ScClassParam( node : ASTNode ) extends Param ( node ) {

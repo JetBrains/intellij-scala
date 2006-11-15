@@ -105,4 +105,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl, com.intellij.la
     override def toString: String = "Attribute"
   }
 
+   case class ScConstructor ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "constuctor"
+  }
 }

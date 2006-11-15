@@ -97,8 +97,8 @@ object CompilationUnit extends Constr {
   }
 
 
-  object TopStatSeq extends Constr {
-    override def getElementType = ScalaElementTypes.TOP_STAT_SEQ
+  object TopStatSeq extends ConstrWithoutNode {
+    //override def getElementType = ScalaElementTypes.TOP_STAT_SEQ
 
     override def parseBody (builder: PsiBuilder): Unit = {
 
@@ -180,7 +180,7 @@ object CompilationUnit extends Constr {
  
 
     object Package extends Constr {
-      override def getElementType = ScalaElementTypes.PACKAGE
+      override def getElementType = ScalaElementTypes.PACKAGE_STMT
 
       override def parseBody(builder: PsiBuilder): Unit = {
 

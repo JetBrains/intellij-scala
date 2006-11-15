@@ -19,7 +19,7 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
     super(path);
   }
 
-  public abstract String transform(String testName, String[] data) throws Exception;
+  public abstract String transform(String testName, String[] data, String[] outTree) throws Exception;
 
   protected void runTest(final File myTestFile) throws Throwable {
 
@@ -27,6 +27,7 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
     Assert.assertNotNull(content);
 
     List<String> input = new ArrayList<String>();
+    List<String> output = new ArrayList<String>();
 
     int separatorIndex;
     content = StringUtil.replace(content, "\r", ""); // for MACs
@@ -45,6 +46,7 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
     while (StringUtil.startsWithChar(result, '-') ||
             StringUtil.startsWithChar(result, '\n') ||
             StringUtil.startsWithChar(result, '\r')) {
+      output.add(result);
       result = result.substring(1);
     }
 
@@ -60,7 +62,9 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
       testName = testName.substring(0, dotIdx);
     }
 
-    String temp = transform(testName, input.toArray(new String[input.size()]));
+    String temp = transform(testName, input.toArray(new String[input.size()]),
+        output.toArray(new String[output.size()]));
+    
 //    transformed = StringUtil.replace(temp ,"\r", "");
 //
 //    result = StringUtil.replace(result, "\r", "");

@@ -8,24 +8,34 @@ import com.intellij.lang.ASTNode
  * Date: 06.10.2006
  * Time: 19:13:02
  */
-  case class ScPackage ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "'package'"
+
+  class ScFile ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "file"
   }
 
-  case class ScPackaging ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+  class ScCompilationUnit ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "compilation unit"
+  }
+
+  class ScPackaging ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "Packaging"
 
-    def getPackageBlock : ScTopStatSeq = {
+    /*def getPackageBlock : ScTopStatSeq = {
       return new ScTopStatSeq( node )
-    }
+    } */
+  }
+
+  class ScPackageStatement ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "package statement"
   }
 
   case class ScQualId ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     //todo
-    override def toString: String = "Qualified identifier: " + getText
+    override def toString: String = "Qualified identifier"
+    def getQualId = getText
   }
 
-  case class ScTopStat ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+/*  case class ScTopStat ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     //todo
     override def toString: String = "Top statement"
   }
@@ -35,6 +45,6 @@ import com.intellij.lang.ASTNode
     override def toString: String = "Top statement sequence"
   }
 
-  
+  */
 
 }

@@ -39,7 +39,7 @@ object ScalaElementTypes {
 
   val TEMPLATE_PARENTS = new ScalaElementType("template parents")
   val MIXIN_PARENTS = new ScalaElementType("mixin parents")
-  val CONSTRUCTION = new ScalaElementType("construction")
+  val CONSTRUCTOR = new ScalaElementType("constructor")
 
   val TEMPLATE = new ScalaElementType("template")
   val TEMPLATE_BODY = new ScalaElementType("template body")
@@ -120,8 +120,8 @@ object ScalaElementTypes {
   /*************************************************************************************/
 
   //Package
-  val PACKAGE_GROUP = new ScalaElementType("package group")
-  val PACKAGE = new ScalaElementType("package token")
+  //val PACKAGE_GROUP = new ScalaElementType("package group")
+  //val PACKAGE = new ScalaElementType("package token")
   val PACKAGE_STMT = new ScalaElementType("package statement")
   val QUAL_ID = new ScalaElementType("Qualification identifier")
 
@@ -244,8 +244,8 @@ object ScalaElementTypes {
 //ordinary identifier
 
 //top
-  val TOP_STAT = new ScalaElementType("top stat")
-  val TOP_STAT_SEQ = new ScalaElementType("top stat sequence")
+ // val TOP_STAT = new ScalaElementType("top stat")
+ // val TOP_STAT_SEQ = new ScalaElementType("top stat sequence")
 
 //types
 

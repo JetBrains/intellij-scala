@@ -16,7 +16,7 @@ public class ParserTest extends BaseScalaFileSetTestCase {
   }
 
 
-  public String transform(String testName, String[] data) throws Exception {
+  public String transform(String testName, String[] data, String[] outTree) throws Exception {
     String fileText = data[0];
     PsiManager psiManager = PsiManager.getInstance(project);
     PsiElementFactory psiElementFactory = psiManager.getElementFactory();
@@ -25,8 +25,17 @@ public class ParserTest extends BaseScalaFileSetTestCase {
     Assert.assertNotNull(fileText);
     PsiFile psiFile = psiElementFactory.createFileFromText(TEMP_FILE, fileText);
 
+   // System.out.println(DebugUtil.psiToString(psiFile, false));
+    //System.out.println("fooooooooooooooo");
 
-    System.out.println(DebugUtil.psiToString(psiFile, false));
+    String strPsiTree = "";
+    for(String str : outTree){
+      strPsiTree += str;
+    }
+
+    //System.out.println(strPsiTree);
+
+    Assert.assertEquals(strPsiTree, DebugUtil.psiToString(psiFile, false));
 
     //String psiLeafText = gatherTextFromPsiFile(psiFile);
     //Assert.assertEquals(fileText, psiLeafText);

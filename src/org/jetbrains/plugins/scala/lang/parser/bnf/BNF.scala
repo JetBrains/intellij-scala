@@ -101,6 +101,12 @@ object BNF {
     )
   )
 
+  val firstImportSelector = TokenSet.create(
+    Array(
+      ScalaTokenTypes.tIDENTIFIER
+    )
+  )
+
   val firstLocalModifier = TokenSet.create(
     Array (
       ScalaTokenTypes.kABSTRACT,
