@@ -179,6 +179,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
         var rbMarker = builder.mark()
         var first = builder.getTokenType
         builder.advanceLexer
+        ParserUtils.rollForward(builder)
         var second = builder.getTokenType
         rbMarker.rollbackTo()
         if (ScalaTokenTypes.kCASE.equals(first) &&

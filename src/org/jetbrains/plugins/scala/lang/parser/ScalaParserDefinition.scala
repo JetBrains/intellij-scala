@@ -38,8 +38,9 @@ class ScalaParserDefinition extends ParserDefinition {
     }
 
     def getWhitespaceTokens() : TokenSet = {
-        var whiteSpaces = new Array[IElementType](1)
+        var whiteSpaces = new Array[IElementType](2)
         whiteSpaces.update(0, ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
+        whiteSpaces.update(1, ScalaTokenTypes.tNON_SIGNIFICANT_NEWLINE)
         val whiteSpaceTokens = TokenSet create( whiteSpaces )
         whiteSpaceTokens
     }

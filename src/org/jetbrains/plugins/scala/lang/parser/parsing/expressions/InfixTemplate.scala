@@ -64,7 +64,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 
       // Parsing after second operator encountered
       def subParse1() : ScalaElementType = {
-        ParserUtils.rollForward(builder)
+//        ParserUtils.rollForward(builder)
         builder.getTokenType match {
           // If an identifier
           case  ScalaTokenTypes.tIDENTIFIER
@@ -87,7 +87,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 
             /*Attention!*/
             //var res1 = PrefixExpr parse(builder)
-            ParserUtils.rollForward(builder)
+//            ParserUtils.rollForward(builder)
             var res1 = parseBase(builder)
 
             rbMarker.rollbackTo()
@@ -111,7 +111,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 
               /*Attention!*/
               //PrefixExpr parse(builder)
-              ParserUtils.rollForward(builder)
+//              ParserUtils.rollForward(builder)
               parseBase(builder)
               markerStack += newMarker
               opStack += currentOp
@@ -138,7 +138,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 
       def subParse : ScalaElementType = {
 
-        ParserUtils.rollForward(builder)
+//        ParserUtils.rollForward(builder)
         builder.getTokenType match {
           // If an identifier
           case  ScalaTokenTypes.tIDENTIFIER
@@ -157,13 +157,13 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
             val rollbackMarker = builder.mark() //for rollback
             opStack += builder.getTokenText // operator text to stack
             ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-            if (elemType.equals(ScalaElementTypes.PATTERN3))
+            if (elemType.equals(ScalaElementTypes.INFIX_EXPR))
               ParserUtils.rollForward(builder)
 
             val newMarker = builder.mark()
             /*Attention!*/
             //var res = PrefixExpr parse(builder)
-            ParserUtils.rollForward(builder)
+//            ParserUtils.rollForward(builder)
             var res = parseBase(builder)
 
             // if  PE1 op PE2 ....
@@ -196,7 +196,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
         /* For simple patterns */
         if(ScalaElementTypes.SIMPLE_PATTERN.equals(result) &&
            ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType) ){
-          ParserUtils.rollForward(builder)
+//          ParserUtils.rollForward(builder)
           marker.drop()
           elemType
         } else {

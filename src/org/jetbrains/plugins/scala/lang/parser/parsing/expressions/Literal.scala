@@ -26,38 +26,46 @@ Literal ::= integerLiteral
 
     builder.getTokenType match{
       case ScalaTokenTypes.tINTEGER => { // Integer literal
-        builder.advanceLexer()
+        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
 //        marker.done(ScalaTokenTypes.tINTEGER)
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tFLOAT => { //Floating point literal
-        builder.advanceLexer()
+        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
 //        marker.done(ScalaTokenTypes.tFLOAT)
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => { //Boolean Literal
-        builder.advanceLexer()        
+        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
 //        marker.done(ScalaElementTypes.BOOLEAN_LITERAL)
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tCHAR => { //Character literal
-        builder.advanceLexer()
+        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
 //        marker.done(ScalaTokenTypes.tCHAR)
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.kNULL => { //null literal
-        builder.advanceLexer()
+        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
 //        marker.done(ScalaTokenTypes.kNULL)
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
+      case ScalaTokenTypes.tSTRING => { //Character literal
+        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
+//        marker.done(ScalaTokenTypes.tCHAR)
+        marker.done(ScalaElementTypes.LITERAL)
+        ScalaElementTypes.LITERAL
+      }
+
+/*
       case ScalaTokenTypes.tSTRING_BEGIN => { //String literal
 //        val beginMarker = builder.mark();
-        builder.advanceLexer()
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tSTRING_BEGIN)
 //        beginMarker.done(ScalaTokenTypes.tSTRING_BEGIN)
         builder.getTokenType match {
           case ScalaTokenTypes.tSTRING_END => {
@@ -80,6 +88,8 @@ Literal ::= integerLiteral
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
+*/
+
       case _ => {
         marker.rollbackTo()
         ScalaElementTypes.WRONGWAY

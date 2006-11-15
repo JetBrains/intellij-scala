@@ -11,13 +11,19 @@ import com.intellij.lang.PsiBuilder
 
 object ParserUtils {
 
-  def rollForward(builder: PsiBuilder) : Unit = {
+  def rollForward(builder: PsiBuilder) : Boolean = {
+
+    var counter = 0
     while (!builder.eof()){
        builder.getTokenType match{
-         case ScalaTokenTypes.tLINE_TERMINATOR => builder.advanceLexer
-         case _ => return
+         case ScalaTokenTypes.tLINE_TERMINATOR => {
+           builder.advanceLexer
+           counter=counter+1
+         }
+         case _ => return (counter == 0)
        }
     }
+    counter == 0
   }
 
   //Write element node
@@ -27,8 +33,15 @@ object ParserUtils {
         val marker = builder.mark()
         builder.advanceLexer // Ate something
         marker.done(elem)
-      } else builder.advanceLexer
-    } else builder error "unexpected end of file"  
+        //rollForward(builder)
+      } else {
+        builder.advanceLexer
+        //rollForward(builder)
+      }
+    } else {
+      builder error "unexpected end of file"
+      false
+    }
   }
 
   def listOfSmthWithoutNode(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType) : Unit = {

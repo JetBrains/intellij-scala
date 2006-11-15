@@ -46,10 +46,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         }
 
         def subParse: ScalaElementType = {
-          ParserUtils.rollForward(builder)
           var res = oneBindingParse
           if (res.equals(ScalaElementTypes.BINDING)){
-            ParserUtils.rollForward(builder)
             builder.getTokenType match {
               case ScalaTokenTypes.tRPARENTHIS => {
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
@@ -76,7 +74,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
         if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-          ParserUtils.rollForward(builder)
           var res = oneBindingParse
           if (res.equals(ScalaElementTypes.BINDING)){
            ParserUtils.rollForward(builder)

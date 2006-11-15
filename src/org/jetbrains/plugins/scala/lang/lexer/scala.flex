@@ -24,25 +24,48 @@ import org.jetbrains.annotations.NotNull;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 %{
+    // Length of NewLine token
+    private Stack <IElementType> braceStack = new Stack<IElementType>();
+
+    private boolean newLineAllowed(){
+      if (braceStack.isEmpty()){
+        return true;
+      } else {
+        if (ScalaTokenTypes.tLBRACE.equals(braceStack.peek())){
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
+
+    private IElementType popBraceStack(IElementType elem){
+     if (
+          !braceStack.isEmpty() &&
+          (
+            elem.equals(tRSQBRACKET) && tLSQBRACKET.equals(braceStack.peek()) ||
+            elem.equals(tRBRACE) && tLBRACE.equals(braceStack.peek()) ||
+            elem.equals(tRPARENTHIS) && tLPARENTHIS.equals(braceStack.peek())
+          )
+        ) {
+          braceStack.pop();
+          return process(elem);
+        }
+        else {
+          return tWRONG;
+        }
+    }
+
     private IElementType process(IElementType type){
         //System.out.println(type.toString());
         return type;
     }
 
+    private void processNewLine(){
+      yybegin(PROCESS_NEW_LINE);
+    }
+
 %}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////  reserved words  ////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-KEYWORDS  =   "abstract" | "case"    | "catch"     | "class"      | "def"
-            | "do"       | "else"    | "extends"   | "false"      | "final"
-            | "finally"  | "for"     | "if"        | "implicit"   | "import"
-            | "match"    | "new"     | "null"      | "object"     | "override"
-            | "package"  | "private" | "protected" | "requires"   | "return"
-            | "sealed"   | "super"   | "this"      | "throw"      | "trait"
-            | "try"      | "true"    | "type"      | "val"        | "var"
-            | "while"    | "with"    | "yield"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////      integers and floats     /////////////////////////////////////////////////////////////////////
@@ -64,7 +87,6 @@ floatingPointLiteral =
     | {digit}+ {exponentPart}? {floatType}
 exponentPart = (E | e) ("+" | "-")? {digit}+
 floatType = F | f | D | d
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////      identifiers      ////////////////////////////////////////////////////////////////////////////
@@ -110,20 +132,35 @@ charNoDoubleQuote = [^"\""]
 stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 stringLiteral = {stringElement}*
 characterLiteral = "\'" {charEscapeSeq} "\'"
-                   | "\'" [^"\'"] "\'" 
+                   | "\'" [^"\'"] "\'"
+wholeString = "\"" .* ?("\"")
+wrongString = "\"" .*
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////// NewLine processing ///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Literal =    {integerLiteral}
+           | {floatingPointLiteral}
+           | {characterLiteral}
+           | {booleanLiteral}
+           | {wholeString}
+           | "null"
+            
+//precedeNewLine =     "this" | "return" | "_" | ")" | "]" | "}"
+notFollowNewLine =   "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield"
+                    | "," | "." | ";" | ":" | "_" | "=" | "=>" | "<-" | "<:" | "<%" | ">:"
+                    | "#" | "@" | ")" | "]" |"}"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Common symbols //////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-LineTerminator = \r | \n | \r\n | "\\u0085"|  "\\u2028" | "\\\u2029"
+LineTerminator = \r | \n | \r\n | \u0085|  \u2028 | \u2029
 InLineTerminator = " " | "\t" | "\f" 
-InputCharacter = [^\r\n\f]
-
 WhiteSpaceInLine = {InLineTerminator}
-WhiteSpaceLineTerminate = {LineTerminator}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////  boolean values ///////////////////////////////////////////////////////////////////////////////////
@@ -144,6 +181,11 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////  states ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+%state NEW_LINE_DEPRECATED
+
+%state PROCESS_NEW_LINE
+// Valid preceding token for newlinw encountered
 
 //%state IN_BLOCK_COMMENT_STATE
 // In block comment
@@ -181,25 +223,33 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////// Strings /////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-"\""                                    {   yybegin(IN_STRING_STATE);
-                                            return process(tSTRING_BEGIN);
-                                        }
-{characterLiteral}                      {   return process(tCHAR);  }
+{wholeString}                             {   processNewLine();
+                                            return process(tSTRING);  }
+
+//"\""                                    {   yybegin(IN_STRING_STATE);
+//                                            return process(tSTRING_BEGIN);
+//                                        }
+
+{characterLiteral}                      {   processNewLine();
+                                            return process(tCHAR);  }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// braces ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-"["                                     {   return process(tLSQBRACKET); }
-"]"                                     {   return process(tRSQBRACKET); }
+"["                                     {   braceStack.push(tLSQBRACKET);
+                                            return process(tLSQBRACKET); }
+"]"                                     {   processNewLine();
+                                            return popBraceStack(tRSQBRACKET); }
 
-"{"                                     {   return process(tLBRACE); }
-"}"                                     {   return process(tRBRACE); }
+"{"                                     {   braceStack.push(tLBRACE);
+                                            return process(tLBRACE); }
+"}"                                     {   processNewLine();
+                                            return popBraceStack(tRBRACE); }
 
-"("                                     {   return process(tLPARENTHIS); }
-")"                                     {   return process(tRPARENTHIS); }
-
-")"                                     {   return process(tRPARENTHIS); }
-
+"("                                     {   braceStack.push(tLPARENTHIS);
+                                            return process(tLPARENTHIS); }
+")"                                     {   processNewLine();
+                                            return popBraceStack(tRPARENTHIS); }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -212,7 +262,8 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "do"                                    {   return process(kDO); }
 "else"                                  {   return process(kELSE); }
 "extends"                               {   return process(kEXTENDS); }
-"false"                                 {   return process(kFALSE); }
+"false"                                 {   processNewLine();
+                                            return process(kFALSE); }
 "final"                                 {   return process(kFINAL); }
 "finally"                               {   return process(kFINALLY); }
 "for"                                   {   return process(kFOR); }
@@ -221,22 +272,26 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "import"                                {   return process(kIMPORT); }
 "match"                                 {   return process(kMATCH); }
 "new"                                   {   return process(kNEW); }
-"null"                                  {   return process(kNULL); }
+"null"                                  {   processNewLine();
+                                            return process(kNULL); }
 "object"                                {   return process(kOBJECT); }
 "override"                              {   return process(kOVERRIDE); }
 "package"                               {   return process(kPACKAGE); }
 "private"                               {   return process(kPRIVATE); }
 "protected"                             {   return process(kPROTECTED); }
 "requires"                              {   return process(kREQUIRES); }
-"return"                                {   return process(kRETURN); }
+"return"                                {   processNewLine();
+                                            return process(kRETURN); }
 "sealed"                                {   return process(kSEALED); }
 "super"                                 {   return process(kSUPER); }
 "this"                                  {   return process(kTHIS); }
-"this"                                  {   return process(kTHIS); }
+"this"                                  {   processNewLine();
+                                            return process(kTHIS); }
 "throw"                                 {   return process(kTHROW); }
 "trait"                                 {   return process(kTRAIT); }
 "try"                                   {   return process(kTRY); }
-"true"                                  {   return process(kTRUE); }
+"true"                                  {   processNewLine();
+                                            return process(kTRUE); }
 "type"                                  {   return process(kTYPE); }
 "val"                                   {   return process(kVAL); }
 "var"                                   {   return process(kVAR); }
@@ -273,9 +328,12 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 
 ////////////////////// Identifier /////////////////////////////////////////
 
-{identifier}                            {   return process(tIDENTIFIER); }
-{integerLiteral}                        {   return process(tINTEGER);  }
-{floatingPointLiteral}                  {   return process(tFLOAT);      }
+{identifier}                            {   processNewLine();
+                                            return process(tIDENTIFIER); }
+{integerLiteral}                        {   processNewLine();
+                                            return process(tINTEGER);  }
+{floatingPointLiteral}                  {   processNewLine();
+                                            return process(tFLOAT);      }
 
 ///////////////////// Operators //////////////////////////////////////////
 
@@ -289,14 +347,37 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 {WhiteSpaceInLine}                            {   return process(tWHITE_SPACE_IN_LINE);  }
 
 ////////////////////// white spaces line terminator ///////////////////////////////////////////////
-{LineTerminator}                              {   return process(tLINE_TERMINATOR); }
+{LineTerminator}                              {   return process(tNON_SIGNIFICANT_NEWLINE); }
 
 ////////////////////// STUB ///////////////////////////////////////////////
 .                                             {   return process(tSTUB); }
 
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////  New line processing state////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+<PROCESS_NEW_LINE>{
 
+{WhiteSpaceInLine}                              { return process(tWHITE_SPACE_IN_LINE);  }
+"//" .*                                         { return process(tCOMMENT); }
+
+{LineTerminator} / (" ")* {notFollowNewLine}    {   yybegin(YYINITIAL);
+                                                    return process(tNON_SIGNIFICANT_NEWLINE);
+                                                }
+
+{LineTerminator}/ (.|{LineTerminator})          {   yybegin(YYINITIAL);
+                                                    if(newLineAllowed()){
+                                                      return process(tLINE_TERMINATOR);
+                                                    } else {
+                                                      return process(tNON_SIGNIFICANT_NEWLINE);                                                      
+                                                    }
+                                                }
+
+.                                               {   yypushback(yylength());
+                                                    yybegin(YYINITIAL);
+                                                }
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// In block comment /////////////////////////////////////////////////////////////////////////////

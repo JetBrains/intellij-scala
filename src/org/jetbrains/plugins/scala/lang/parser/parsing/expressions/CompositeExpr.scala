@@ -75,10 +75,8 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
             ParserUtils.eatElement(builder, ScalaTokenTypes.kMATCH)
             if (builder.getTokenType.eq(ScalaTokenTypes.tLBRACE)) {
               ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
-              ParserUtils.rollForward(builder)
               var result = CaseClauses.parse(builder)
               if (ScalaElementTypes.CASE_CLAUSES.equals(result)) {
-                ParserUtils.rollForward(builder)
                 if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){
                   ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
                   rollbackMarker.drop()
@@ -122,7 +120,6 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
 
       def assignProcess: ScalaElementType = {
         ParserUtils.eatElement(builder , ScalaTokenTypes.tASSIGN)
-        ParserUtils.rollForward(builder)
         var res = Expr.parse(builder)
         if (res.eq(ScalaElementTypes.EXPR)) {
           rollbackMarker.drop()
@@ -137,11 +134,9 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       }
 
       def processSimpleExpr: ScalaElementType = {
-        ParserUtils.rollForward(builder)
         var res = SimpleExpr.parse(builder)
         if (res.parsed.eq(ScalaElementTypes.SIMPLE_EXPR) &&
             ( res.endness.eq("argexprs") || res.endness.eq(".id") ) ) {
-          ParserUtils.rollForward(builder)
           if (builder.getTokenType.eq(ScalaTokenTypes.tASSIGN)) {
           assignProcess
           } else {
@@ -157,7 +152,6 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       if (builder.getTokenType.eq(ScalaTokenTypes.tIDENTIFIER)) {
         ParserUtils.eatElement(builder , ScalaTokenTypes.tIDENTIFIER)
         if (builder.getTokenType.eq(ScalaTokenTypes.tASSIGN)) {
-          ParserUtils.rollForward(builder)
           assignProcess
         } else {
           rollbackMarker.rollbackTo()
@@ -184,11 +178,9 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       def elseProcessing: ScalaElementType = {
         if (builder.getTokenType.eq(ScalaTokenTypes.tSEMICOLON)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tSEMICOLON)
-          ParserUtils.rollForward(builder)
         }
         if (builder.getTokenType.eq(ScalaTokenTypes.kELSE)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kELSE)
-          ParserUtils.rollForward(builder)
           val res2 = Expr.parse(builder)
           if (res2.eq(ScalaElementTypes.EXPR)){
             rollbackMarker.drop()
@@ -200,20 +192,21 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
 
       if (builder.getTokenType.eq(ScalaTokenTypes.kIF)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kIF)
-        ParserUtils.rollForward(builder)
+//        ParserUtils.rollForward(builder)
         if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-          ParserUtils.rollForward(builder)
+//          ParserUtils.rollForward(builder)
           val res = Expr parse(builder)
           if (res.eq(ScalaElementTypes.EXPR)){
-            ParserUtils.rollForward(builder)
+//            ParserUtils.rollForward(builder)
             if (builder.getTokenType.eq (ScalaTokenTypes.tRPARENTHIS)){
               ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+              // Warning!
               ParserUtils.rollForward(builder)
               val res1 = Expr.parse(builder)
               if (res1.eq(ScalaElementTypes.EXPR)){
                 var mileMarker = builder.mark()
-                ParserUtils.rollForward(builder)
+//                ParserUtils.rollForward(builder)
                 builder.getTokenType match {
                   case ScalaTokenTypes.kELSE | ScalaTokenTypes.tSEMICOLON => {
                     mileMarker.drop()
@@ -246,15 +239,16 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       def errorDone = errorDoneMain(rollbackMarker)
       if (builder.getTokenType.eq(ScalaTokenTypes.kWHILE)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kWHILE)
-        ParserUtils.rollForward(builder)
+//        ParserUtils.rollForward(builder)
         if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-          ParserUtils.rollForward(builder)
+//          ParserUtils.rollForward(builder)
           val res = Expr parse(builder)
           if (res.eq(ScalaElementTypes.EXPR)){
-            ParserUtils.rollForward(builder)
+//            ParserUtils.rollForward(builder)
             if (builder.getTokenType.eq (ScalaTokenTypes.tRPARENTHIS)){
               ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+              // Warning!
               ParserUtils.rollForward(builder)
               val res1 = Expr.parse(builder)
               if (res1.eq(ScalaElementTypes.EXPR)){
@@ -280,7 +274,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       def errorDone = errorDoneMain(rollbackMarker)
       if (builder.getTokenType.eq(ScalaTokenTypes.kTHROW)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kTHROW)
-        ParserUtils.rollForward(builder)
+//        ParserUtils.rollForward(builder)
         val res = Expr parse(builder)
         if (res.eq(ScalaElementTypes.EXPR)){
           rollbackMarker.drop()
@@ -300,7 +294,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       def errorDone = errorDoneMain(rollbackMarker)
       if (builder.getTokenType.eq(ScalaTokenTypes.kRETURN)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kRETURN)
-        ParserUtils.rollForward(builder)
+//        ParserUtils.rollForward(builder)
         val res = Expr parse(builder)
         rollbackMarker.drop()
         compMarker.done(ScalaElementTypes.RETURN_STMT)

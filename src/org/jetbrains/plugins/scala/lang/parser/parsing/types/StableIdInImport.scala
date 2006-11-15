@@ -65,7 +65,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
       // if .id encoutered
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
         val mileMarker = builder.mark()
-        builder.advanceLexer
+        ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
         if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)) { //continue parse StableId
           mileMarker.rollbackTo()
           if (doWithMarker) dotMarker.drop //done(ScalaTokenTypes.tDOT)
@@ -110,7 +110,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
           nextMarker.drop()
           // If keyWord type encountered
           val dotMarker = builder.mark()
-          builder.advanceLexer // Ate DOT
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
             if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
               dotMarker.drop //done(ScalaTokenTypes.tDOT)
               ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
@@ -120,7 +120,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
                   val nextMarker2 = nextMarker1.precede()
                   nextMarker1.done(ScalaElementTypes.STABLE_ID)
                   val dotMarker1 = builder.mark()
-                  builder.advanceLexer // Ate DOT
+                  ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
                   specialProcessing(dotMarker1, nextMarker2, false, ScalaElementTypes.STABLE_ID, leftRecursion, true)
                 }
                 case _ => {
@@ -156,7 +156,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
               val nextMarker = currentMarker.precede()
               currentMarker.done(ScalaElementTypes.STABLE_ID)
               val dotMarker = builder.mark()
-              builder.advanceLexer //Ate DOT
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
               specialProcessing(dotMarker, nextMarker, false, ScalaElementTypes.STABLE_ID, leftRecursion, true)
             }
             case _ => {
@@ -176,7 +176,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
           ParserUtils.eatElement(builder, ScalaTokenTypes.kTHIS)
           if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)){
             val dotMarker = builder.mark()
-            builder.advanceLexer // Ate DOT
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
             if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
               val newMarker = currentMarker.precede()
               currentMarker.drop()
@@ -229,7 +229,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
               val nextMarker = currentMarker.precede()
               currentMarker.done(ScalaElementTypes.STABLE_ID)
               val dotMarker = builder.mark()
-              builder.advanceLexer //Ate DOT
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
               specialProcessing(dotMarker, nextMarker, false, ScalaElementTypes.STABLE_ID, leftRecursion, true)
             }
             case _ => {
@@ -248,13 +248,13 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
         case ScalaTokenTypes.tIDENTIFIER => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
           builder.getTokenType match {
-            case ScalaTokenTypes.tDOT => {
+            case ScalaTokenTypes.tDOT =>
               val nextMarker = currentMarker.precede()
               currentMarker.done(ScalaElementTypes.STABLE_ID)
               val dotMarker = builder.mark()
-              builder.advanceLexer //Ate DOT
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
               specialProcessing(dotMarker, nextMarker, false, ScalaElementTypes.STABLE_ID, afterDotParse, true)
-            }
+            
             case _ => {
               currentMarker.done(ScalaElementTypes.STABLE_ID)
               //currentMarker.drop()
@@ -267,6 +267,13 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
         }
         case _ => ParserUtils.errorToken(builder, currentMarker, "Wrong id declaration", ScalaElementTypes.STABLE_ID)
       }
+    }
+
+    def foo: Boolean = {
+      if (true)
+
+      false
+      true
     }
 
     val stableMarker = builder.mark()

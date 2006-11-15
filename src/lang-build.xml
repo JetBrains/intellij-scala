@@ -53,6 +53,11 @@
       <classpath refid="base.path"/>
     </javac>
 
+    <javac srcdir="../test"
+           destdir="../classes/production/Scala">
+      <classpath refid="base.path"/>
+    </javac>
+
     <!--Scala taskdef-->
     <taskdef name="scalac"
              classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
