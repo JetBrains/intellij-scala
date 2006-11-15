@@ -57,7 +57,7 @@ import org.jetbrains.annotations.NotNull;
     }
 
     private IElementType process(IElementType type){
-        System.out.println(type.toString());
+        //System.out.println(type.toString());
         return type;
     }
 
