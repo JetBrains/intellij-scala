@@ -231,6 +231,7 @@ object ScalaElementTypes {
   val PATTERN1 = new ScalaElementType("pattern 1")
   val PATTERN = new ScalaElementType("pattern")
   val PATTERNS = new ScalaElementType("patterns")
+  val PATTERN2_LIST = new ScalaElementType("pattern2 list")
   val WILD_PATTERN = new ScalaElementType("any sequence")
   val CASE_CLAUSE = new ScalaElementType("case clause")
   val CASE_CLAUSES = new ScalaElementType("case clauses")

@@ -22,6 +22,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParam
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
+//import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2Item
+//import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
@@ -141,15 +143,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
       override def parseBody(builder : PsiBuilder) : Unit = {
         parseBodyNode(builder)
       }
-        //change ids to pattern2
       def parseBodyNode(builder : PsiBuilder) : IElementType = {
-        //val valMarker = builder.mark()
 
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+          //Pattern2 parse builder
+          //ParserUtils.listOfSmth(builder, Pattern2Item, ScalaTokenTypes.tCOMMA, ScalaElementTypes.PATTERN2_LIST)
           Ids parse builder
         } else {
           builder error "expected idnetifier"
-//          valMarker.drop()
           return ScalaElementTypes.WRONGWAY
         }
 

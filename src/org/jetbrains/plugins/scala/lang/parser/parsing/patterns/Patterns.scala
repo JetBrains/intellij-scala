@@ -168,13 +168,32 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
   }
   */
 
-  object Pattern2 {
+  /*object Pattern2Item extends Pattern2 with ConstrItem {
+    override def first = BNF.firstPattern2
+
+    override def parse(builder : PsiBuilder) : Unit = {
+      parse(builder); 
+      def a : Unit = {}
+      a
+    }
+  }   */
+
+  class Pattern2 {
   /*
     Pattern2 ::=   varid [‘@’ Pattern3]
                  | Pattern3
   */
 
-    def parse(builder : PsiBuilder) : ScalaElementType = {
+  /*override def parseBody(builder : PsiBuilder) : Unit = {
+    this.parse(builder);
+    def a : Unit = {}
+    a
+  } 
+  override def parseBody(builder : PsiBuilder) : IElementType = {
+    this.parse(builder)
+  }    */
+
+   def parse(builder : PsiBuilder) : ScalaElementType = {
       var rbMarker = builder.mark()
 
       def parsePattern3: ScalaElementType = {
@@ -235,7 +254,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
         def parsePattern2 : ScalaElementType = {
           p1Marker.rollbackTo()
           p1Marker = builder.mark()
-          var result = Pattern2.parse(builder)
+          var result = (new Pattern2()).parse(builder)
           if (ScalaElementTypes.PATTERN2.equals(result)) {
             p1Marker.done(ScalaElementTypes.PATTERN1)
             ScalaElementTypes.PATTERN1

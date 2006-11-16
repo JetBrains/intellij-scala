@@ -388,7 +388,10 @@ object Attribute extends Constr{
 
             //found '_', return because '_' have to be the last token in import selectors construction
             if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType)){
-              ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
+              val underMarker = builder.mark()
+              //ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
+              builder.advanceLexer
+              underMarker.done(ScalaElementTypes.IMPORT_SELECTOR)
               return
             }
 
@@ -400,7 +403,10 @@ object Attribute extends Constr{
         }
 
         if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
+          //ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
+          val underMarker = builder.mark()
+          builder.advanceLexer
+          underMarker.done(ScalaElementTypes.IMPORT_SELECTOR)
           return
         }
 

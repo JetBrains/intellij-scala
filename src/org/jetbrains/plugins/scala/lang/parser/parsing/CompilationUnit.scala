@@ -37,8 +37,8 @@ import com.intellij.lang.PsiBuilder
 *         Packaging   ::=   package QualId ‘{’ TopStatSeq ‘}’
 */
 
-object CompilationUnit extends Constr {
-  override def getElementType = ScalaElementTypes.COMPILATION_UNIT
+object CompilationUnit extends ConstrWithoutNode {
+  //override def getElementType = ScalaElementTypes.COMPILATION_UNIT
   override def parseBody (builder : PsiBuilder) : Unit = {
 
     builder.getTokenType() match {
