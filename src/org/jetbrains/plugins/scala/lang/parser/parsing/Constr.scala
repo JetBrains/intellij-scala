@@ -22,8 +22,14 @@ abstract class Constr {
 
 }
 
-abstract class ConstrItem extends Constr{
+trait Item {
    def first : TokenSet
+}
+
+trait ConstrItem extends Constr with Item {
+}
+
+trait ConstrItemReturned extends ConstrReturned with Item {
 }
 
 abstract class ConstrUnpredict {

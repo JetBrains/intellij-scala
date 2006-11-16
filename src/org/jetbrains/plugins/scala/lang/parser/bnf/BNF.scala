@@ -39,10 +39,17 @@ object BNF {
   /*********************** FIRSTS *************************/
   /********************************************************/
 
-    val firstStableId : TokenSet = TokenSet.create(
+  val firstStableId : TokenSet = TokenSet.create(
     Array (
        ScalaTokenTypes.kTHIS,
        ScalaTokenTypes.kSUPER,
+       ScalaTokenTypes.tIDENTIFIER
+    )
+  )
+
+  //todo
+  val firstPattern2: TokenSet = TokenSet.create(
+    Array (
        ScalaTokenTypes.tIDENTIFIER
     )
   )
