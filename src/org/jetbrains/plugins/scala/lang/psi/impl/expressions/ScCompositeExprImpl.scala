@@ -15,6 +15,19 @@ import org.jetbrains.plugins.scala.lang.psi._
   case class ScDoStmtImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "DO statement"
   }
+  case class ScTryStmtImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "TRY statement"
+  }
+      case class ScTryBlockImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+          override def toString: String = "Try block"
+      }
+      case class ScCatchBlockImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+          override def toString: String = "Catch block"
+      }
+      case class ScFinallyBlockImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+          override def toString: String = "Finally block"
+      }
+  
   case class ScWhileStmtImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "WHILE statement"
   }
