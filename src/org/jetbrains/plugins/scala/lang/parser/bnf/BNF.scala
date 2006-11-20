@@ -199,6 +199,18 @@ object BNF {
     )
   )
 
+  val firstParamClauses = TokenSet.orSet(
+    Array (
+      firstParamClause,
+      TokenSet.create(
+        Array (
+          ScalaTokenTypes.tLBRACE
+        )
+      )
+    )
+  )
+
+
   val firstParamType = TokenSet.orSet(
     Array (
       firstType,
