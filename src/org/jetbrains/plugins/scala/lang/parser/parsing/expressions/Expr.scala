@@ -12,12 +12,14 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
 
-  /* Abstract class for expression and ResultExpression parsing */
+//  object ResultExpr {
   /*
-  abstract class ExprTemplate(val elemType: ScalaElementType,
-                              val tailType: ScalaElementType,
-                              val tailParse: (PsiBuilder=>ScalaElementType)){
-
+  Result expression
+  Default grammar
+  Expr ::= ( Bindings | Id ) ‘=>’ Expr
+          | Expr1               (a)
+  */
+  /*
     def parse(builder : PsiBuilder) : ScalaElementType = {
         var exprMarker = builder.mark()
         var result = Bindings.parse(builder)
@@ -34,19 +36,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         }
 
         def parseTail: ScalaElementType = {
-          var res = tailParse(builder)
-          if (tailType.equals(res)) {
+          var res = parse(builder)
+          if (ScalaElementTypes.EXPR.equals(res)) {
             exprMarker.done(ScalaElementTypes.AN_FUN)
-            elemType
+            ScalaElementTypes.EXPR
           } else {
-            builder.error(
-              elemType match{
-                case ScalaElementTypes.EXPR => "Expression expected"
-                case _ => "Block expected"
-              }
-            )
+            builder.error("Expression expected")
             exprMarker.drop()
-            elemType
+            ScalaElementTypes.EXPR
           }
         }
 
@@ -56,26 +53,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         var second = builder.getTokenType ;
           builder.advanceLexer; ParserUtils.rollForward(builder)
         rbMarker.rollbackTo()
-        if (ScalaTokenTypes.tIDENTIFIER.equals(first)
-            //&& ScalaTokenTypes.tFUNTYPE.equals(second)
-            ) {
+        if (ScalaTokenTypes.tIDENTIFIER.equals(first) &&
+            ScalaTokenTypes.tFUNTYPE.equals(second) ) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-            ParserUtils.rollForward(builder)
-          second match {
-            case ScalaTokenTypes.tFUNTYPE => {
-              ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
-                ParserUtils.rollForward(builder)
-              parseTail
-            }
-            case ScalaTokenTypes.tCOLON => {
-              var res3 = Type1 parse builder
-              if (ScalaElementTypes.TYPE1.equals(res3)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
+          parseTail
+        } else if (ScalaTokenTypes.tIDENTIFIER.equals(first) &&
+                   ScalaTokenTypes.tCOLON.equals(second) ){
+           rbMarker = builder.mark()
+           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
+           var res3 = Type1 parse builder
+           
 
-              }
-            }
-            case _ =>
-                        
-          }
 
         } else if (ScalaElementTypes.BINDINGS.equals(result)){
           ParserUtils.rollForward(builder)
@@ -97,7 +87,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
       }
   }
 
-*/
+  */
+
 
   object Expr {
   /*
@@ -143,9 +134,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         if (ScalaTokenTypes.tIDENTIFIER.equals(first) &&
             ScalaTokenTypes.tFUNTYPE.equals(second) ) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-            ParserUtils.rollForward(builder)
           ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
-            ParserUtils.rollForward(builder)
           parseTail
         } else if (ScalaElementTypes.BINDINGS.equals(result)){
           ParserUtils.rollForward(builder)
@@ -165,8 +154,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
           parseComposite
         }
       }
-
-
   }
 
     object Exprs {
