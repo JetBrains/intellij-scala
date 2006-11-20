@@ -53,6 +53,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     // Strings
     static final TokenSet tSTRINGS = TokenSet.create(
             ScalaTokenTypes.tSTRING,
+            ScalaTokenTypes.tWRONG_STRING,
             ScalaTokenTypes.tCHAR
     );
 
