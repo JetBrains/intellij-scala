@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
         /* Parses one binding */
         def oneBindingParse: ScalaElementType = {
+
           var oneBindMarker = builder.mark()
           if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
             ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)

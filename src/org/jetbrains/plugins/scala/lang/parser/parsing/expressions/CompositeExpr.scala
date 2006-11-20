@@ -27,7 +27,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           | SimpleExpr ArgumentExprs ‘=’ Expr                                         (b1)
           | PostfixExpr [‘:’ Type1]                                                   (a)
           | PostfixExpr match ‘{’ CaseClauses ‘}’                                      (a1)
-          | MethodClosure
+          | MethodClosure                                                            (closure)
 */
 
   def parse(builder : PsiBuilder) : ScalaElementType = {
@@ -429,6 +429,49 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       }
     }
 
+/*********************** case (closure) ********************/
+    def closureCase: ScalaElementType = {
+      val rollbackMarker = builder.mark() // marker to rollback
+
+      def close = {
+        rollbackMarker.drop()
+        compMarker.done(ScalaElementTypes.METHOD_CLOSURE)
+        ScalaElementTypes.EXPR1
+      }
+
+      /* for mistakes processing */
+      def errorDone = errorDoneMain(rollbackMarker , ScalaElementTypes.METHOD_CLOSURE)
+      if (builder.getTokenType.eq(ScalaTokenTypes.tDOT)){
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
+        if (builder.getTokenType.eq(ScalaTokenTypes.tIDENTIFIER)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+          builder.getTokenType match {
+            case ScalaTokenTypes.tDOT         => {
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
+              if (builder.getTokenType.eq(ScalaTokenTypes.tIDENTIFIER)){
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+                close 
+              } else errorDone("Identifier expected")
+            }
+            case  ScalaTokenTypes.tLBRACE
+                 |ScalaTokenTypes.tLPARENTHIS => {
+              ArgumentExprs parse builder
+              close
+            }
+            case ScalaTokenTypes.tLSQBRACKET  => {
+              TypeArgs parse builder
+              close
+            }
+            case _ => close
+          }
+        } else errorDone("Identifier expected")
+      } else {
+        rollbackMarker.rollbackTo()
+        ScalaElementTypes.WRONGWAY
+      }
+    }
+
+
 /*********************** case (throw) **********************/
 
     def throwCase: ScalaElementType = {
@@ -493,6 +536,8 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
     else if (variants(tryCase)) result
     /* case (for) */
     else if (variants(forCase)) result
+    /* case (closure) */
+    else if (variants(closureCase)) result
     /* case (while) */
     else if (variants(whileCase)) result
     /* case (do) */
