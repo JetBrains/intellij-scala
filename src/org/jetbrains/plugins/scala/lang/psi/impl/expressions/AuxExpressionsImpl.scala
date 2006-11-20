@@ -27,6 +27,10 @@ import org.jetbrains.plugins.scala.lang.psi._
       override def toString: String = "Enumerator"
   }
 
+  case class ScEnumeratorsImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Enumerators"
+  }
+
   case class ScAnFunImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "Anonymous function"
   }
