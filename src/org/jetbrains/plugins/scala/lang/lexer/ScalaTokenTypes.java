@@ -8,7 +8,7 @@ import com.intellij.psi.tree.IElementType;
  * Time: 12:39:38
  */
 public interface ScalaTokenTypes {
-
+                                 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// Wrong token //////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,8 +45,9 @@ public interface ScalaTokenTypes {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   IElementType tSTRING = new ScalaElementType("string content");
-  IElementType tSTRING_BEGIN = new ScalaElementType("begin of string");
-  IElementType tSTRING_END = new ScalaElementType("end of string");
+  IElementType tWRONG_STRING = new ScalaElementType("wrong string content");
+//  IElementType tSTRING_BEGIN = new ScalaElementType("begin of string");
+//  IElementType tSTRING_END = new ScalaElementType("end of string");
 
   IElementType tCHAR = new ScalaElementType("Character");
 

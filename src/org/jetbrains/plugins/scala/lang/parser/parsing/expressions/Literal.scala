@@ -61,6 +61,12 @@ Literal ::= integerLiteral
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
+      case ScalaTokenTypes.tWRONG_STRING => { //Character literal
+        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
+        builder.error("Wrong string literal")
+        marker.done(ScalaElementTypes.LITERAL)
+        ScalaElementTypes.LITERAL
+      }
 
 /*
       case ScalaTokenTypes.tSTRING_BEGIN => { //String literal
