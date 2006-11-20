@@ -41,49 +41,62 @@ object CompilationUnit extends ConstrWithoutNode {
   //override def getElementType = ScalaElementTypes.COMPILATION_UNIT
   override def parseBody (builder : PsiBuilder) : Unit = {
 
-    builder.getTokenType() match {
-      //possible package statement
-      case ScalaTokenTypes.kPACKAGE => {
+    DebugPrint println "first token: " + builder.getTokenType
+    
+    if (builder.getTokenType.equals(ScalaTokenTypes.kPACKAGE)) {
         val packChooseMarker = builder.mark()
         builder.advanceLexer //Ate package
+        DebugPrint println "'package' ate"
 
         if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
           QualId.parse(builder)
+          DebugPrint println "quilId ate"
         }
 
-        builder.getTokenType match {
-          case ScalaTokenTypes.tLINE_TERMINATOR
-             | ScalaTokenTypes.tSEMICOLON
-             => {
-            //Console.println("package parse")
-            packChooseMarker.rollbackTo()
-            Package.parse(builder)
+        if (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
+          StatementSeparator parse builder
 
-            DebugPrint println ("token after qualId in package: " + builder.getTokenType)
-            builder.getTokenType match {
-              case ScalaTokenTypes.tLINE_TERMINATOR => {
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
-              }
+          packChooseMarker.done(ScalaElementTypes.PACKAGE_STMT)
+          DebugPrint println "package stmt done"
 
-              case ScalaTokenTypes.tSEMICOLON => {
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tSEMICOLON)
-              }
+          TopStatSeq parse builder
 
-              case _ => { builder.error("expected ';' or line terminator")}
-            }
+          return
+        }
 
+        val packageBlockMarker = builder.mark()
+        if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
+          DebugPrint println "begin of packaging "
+
+          TopStatSeq parse builder
+
+          if (builder.getTokenType.equals(ScalaTokenTypes.tRBRACE)) {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+
+            packageBlockMarker.done(ScalaElementTypes.PACKAGING_BLOCK)
+            
+            packChooseMarker.done(ScalaElementTypes.PACKAGING)
+            DebugPrint println "end of packaging "
+            return
+          } else {
+            builder.error("expected '}'")
+            packChooseMarker.drop()
+            packageBlockMarker.drop()
+            return
           }
 
-          case _ => { packChooseMarker.rollbackTo() }
+          packChooseMarker.drop()
+          return
         }
+
+        builder.error("expected top statement")
+        packChooseMarker.drop()
+        return
       }
 
-      case _=> {}
+      TopStatSeq parse builder
     }
-
-    TopStatSeq.parse(builder)
-
-  }
 
 
   object TopStatSeq extends ConstrWithoutNode {
@@ -93,6 +106,7 @@ object CompilationUnit extends ConstrWithoutNode {
 
       if (BNF.firstTopStat.contains(builder.getTokenType)) {
         TopStat.parse(builder)
+        DebugPrint println "1. next token in topstat: " + builder.getTokenType
       }
 
       while (!builder.eof() && (BNF.firstStatementSeparator.contains(builder.getTokenType))){
@@ -101,6 +115,7 @@ object CompilationUnit extends ConstrWithoutNode {
         if (BNF.firstTopStat.contains(builder.getTokenType)) {
           TopStat.parse(builder)
         }
+          DebugPrint println "2. next token in topstat: " + builder.getTokenType
       }
     }
   }
@@ -163,11 +178,12 @@ object CompilationUnit extends ConstrWithoutNode {
       }
 
       tmplDefMarker.drop()
-      builder error "wrong top statement declaration"    
+      builder error "wrong top statement declaration"
+      return
     }
   }
  
-
+/*
     object Package extends Constr {
       override def getElementType = ScalaElementTypes.PACKAGE_STMT
 
@@ -179,12 +195,7 @@ object CompilationUnit extends ConstrWithoutNode {
 
             builder.getTokenType() match {
               case ScalaTokenTypes.tIDENTIFIER => {
-                //val qualIdMarker = builder.mark()
-                //ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-                ParserUtils.eatConstr(builder, QualId, ScalaElementTypes.QUAL_ID)
-                //qualIdMarker.done(ScalaElementTypes.QUAL_ID)
-
-                StatementSeparator parse builder
+                QualId parse builder
               }
 
               case _ => builder.error("Wrong package name")
@@ -195,7 +206,7 @@ object CompilationUnit extends ConstrWithoutNode {
         }
     }
   }
-
+ */
     object Packaging extends Constr {
       override def getElementType = ScalaElementTypes.PACKAGING
 
@@ -214,15 +225,23 @@ object CompilationUnit extends ConstrWithoutNode {
                 //ParserUtils.eatConstr(builder, TopStatSeq, ScalaElementTypes.TOP_STAT_SEQ)
                 TopStatSeq parse builder
 
-              } else builder.error("expected '{'")
+              } else {
+                builder.error("expected '{'")
+                return
+              }
 
               if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType())) {
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
-              } else builder.error("expected '}'")
+              } else {
+                builder.error("expected '}'")
+                return
+              }
           }
 
-          case _ => { builder.error("expected 'package") }
-        }
+          case _ => {
+            builder.error("expected 'package") }
+            return
+          }
 
       }
     }

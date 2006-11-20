@@ -34,24 +34,33 @@ trait ConstrItemReturned extends ConstrReturned with Item {
 
 abstract class ConstrUnpredict {
   def parse (builder : PsiBuilder ) : Unit = {
-     parseBody(builder)
-   } 
+    if (!builder.eof()) {
+       parseBody(builder)
+    } else builder error "unexpected end of file"
+  }
 
    def parseBody (builder : PsiBuilder) : Unit
 }
 
 abstract class ConstrReturned {
   def parse (builder : PsiBuilder ) : IElementType = {
-     parseBody(builder)
-   }
+    if (!builder.eof()) {
+      parseBody(builder)
+    } else {
+      builder error "unexpected end of file"
+      ScalaElementTypes.WRONGWAY
+    }
+  }
 
    def parseBody (builder : PsiBuilder) : IElementType
 }
 
 abstract class ConstrWithoutNode {
   def parse (builder : PsiBuilder ) : Unit = {
+   if (!builder.eof()) {
      parseBody(builder)
-   }
+   } else builder error "unexpected end of file"
+  }
 
-   def parseBody (builder : PsiBuilder) : Unit
+  def parseBody (builder : PsiBuilder) : Unit
 }

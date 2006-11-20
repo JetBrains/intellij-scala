@@ -2,8 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.defs {
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiElement;
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.Template
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScTypeParamClause
+import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
+
+
 /**
  * User: Dmitry.Krasilschikov
  * Date: 13.11.2006
@@ -13,21 +17,22 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScTypeParamClause
   abstract class TmplDef( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "template definition"
 
-    //def getTemplateBody : Template
     def getTemplateName : String
+    def getTemplate : Template
+
+    def isTypeDef : boolean = { this.isInstanceOf[TypeDef] }
+    def isInstanceDef : boolean = { this.isInstanceOf[InstanceDef] }
   }
 
-  trait TypeDef extends TmplDef (node){
-    //override def getTemplateName : String = {val children = getChildren; children(1).getText}
-
-    def hasTypeParameterClause = {}
-
-    def typeParameterClause : ScTypeParamClause = {
-      for (val child <- getChildren; child.isInstanceOf[ScTypeParamClause]) {
-        return child.asInstanceOf[ScTypeParamClause]
-      }
-      return null
+  trait TypeDef extends TmplDef (node) {
+    def getTypeParameterClause : ScTypeParamClause = {
+      getChild[ScTypeParamClause]
     }
+
+    import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScRequiresBlock
+
+    def getRequiresBlock = getChild[ScRequiresBlock]
+    def hasRequiresBlock = hasChild[ScRequiresBlock]
   }
 
   trait InstanceDef extends TmplDef (node){
@@ -35,6 +40,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScTypeParamClause
 
     //[case] class A
     override def getTemplateName : String = {val children = getChildren; if (isCase) children(2).getText else children(1).getText}
+
+    import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScClassTemplate
+    override def getTemplate = getChild[ScClassTemplate]
   }
 
   case class ScClassDefinition( node : ASTNode ) extends InstanceDef (node) with TypeDef {
@@ -49,11 +57,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScTypeParamClause
     override def toString: String = super.toString + ": " + "trait"
 
     override def getTemplateName : String = {val children = getChildren; children(1).getText}
+
+    import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTraitTemplate
+    override def getTemplate = getChild[ScTraitTemplate]
   }
-
-
- /* *//*********** class **********//*
-  class ScClassParameterClause( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "class parameters clause"
-  }*/
 }

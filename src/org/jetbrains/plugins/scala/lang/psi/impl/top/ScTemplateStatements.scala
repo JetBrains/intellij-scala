@@ -65,4 +65,8 @@ import com.intellij.lang.ASTNode
     override def toString: String = "function signature"
   }
 
+  class ScSupplementaryConstructor (node : ASTNode) extends ScalaPsiElementImpl (node) {
+    override def toString: String = "supplementary constructor"
+  }
+
 }

@@ -10,6 +10,27 @@ import javax.swing.Icon
 class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement( node )
   with ScalaPsiElement {
 
+    def getChildNumber[T] : Int = {
+      val children = getChildren
+
+      for (val i <- Iterator.range(0, children.length); children(i).isInstanceOf[T]) {
+        return i
+      }
+      return -1
+    }
+
+    def hasChild[T] : Boolean = {
+      return getChild[T] != -1
+    }
+
+    //nullable
+    def getChild[T] : T = {
+      val num = getChildNumber[T]
+
+      if (num != -1) getChildren.apply(num).asInstanceOf[T]
+      else null
+    }
+
   def getASTNode() : ASTNode = {
     //val key : Key[Int] = new Key("foo")
     node

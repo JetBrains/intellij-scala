@@ -31,6 +31,7 @@ object ScalaElementTypes {
   val COMPILATION_UNIT = new ScalaElementType("compilation unit")
 
   val PACKAGING = new ScalaElementType("packaging")
+  val PACKAGING_BLOCK = new ScalaElementType("packaging block")
 
   val TMPL_DEF = new ScalaElementType("template definition")
   val TOP_TMPL_DEF = new ScalaElementType("top template definition")
@@ -59,6 +60,8 @@ object ScalaElementTypes {
   /******************* CLASS ************************/
   val CLASS = new ScalaElementType("class")
   val CLASS_DEF = new ScalaElementType("class definition")
+
+  val REQUIRES_BLOCK = new ScalaElementType("requires block")
 
   val CLASS_TEMPLATE = new ScalaElementType("class template")
 
@@ -163,6 +166,8 @@ object ScalaElementTypes {
   /**************** functions *************************/
   val FUNCTION_DEFINITION = new ScalaElementType("function definition")
   val FUN_SIG = new ScalaElementType("function signature")
+
+  val SUPPLEMENTARY_CONSTRUCTOR = new ScalaElementType("supplementary constructor")  
 
   /*************************************************************************************/
   /******************************* MODIFIERS AND ATTRIBUTES ****************************/

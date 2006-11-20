@@ -68,7 +68,8 @@ object BNF {
        ScalaTokenTypes.tNOT,
        ScalaTokenTypes.tIDENTIFIER,
        ScalaTokenTypes.tLBRACE,
-       ScalaTokenTypes.kNEW
+       ScalaTokenTypes.kNEW,
+       ScalaTokenTypes.kTHIS
     )
   )
 
@@ -186,6 +187,24 @@ object BNF {
     Array (
       ScalaTokenTypes.tLINE_TERMINATOR,
       ScalaTokenTypes.tLPARENTHIS
+    )
+  )
+
+  val firstImplicitEnd = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tLPARENTHIS
+    )
+  )
+
+  val firstParamClauses = TokenSet.orSet(
+    Array (
+      firstParamClause,
+      TokenSet.create(
+        Array (
+          ScalaTokenTypes.tLINE_TERMINATOR
+        )
+      ),
+      firstImplicitEnd
     )
   )
 
