@@ -269,7 +269,7 @@
       <module fileurl="file://$PROJECT_DIR$/Scala.iml" filepath="$PROJECT_DIR$/Scala.iml" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA 5785" project-jdk-type="IDEA JDK">
+  <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA 6541" project-jdk-type="IDEA JDK">
     <output url="file://$PROJECT_DIR$/classes" />
   </component>
   <component name="ProjectRunConfigurationManager" />
@@ -289,22 +289,7 @@
       </value>
     </option>
   </component>
-  <component name="libraryTable">
-    <library name="lib">
-      <CLASSES>
-        <root url="file://C:/Program Files/Scala/lib" />
-      </CLASSES>
-      <JAVADOC />
-      <SOURCES />
-    </library>
-    <library name="apache-ant-1.7">
-      <CLASSES>
-        <root url="file://C:/distr/apache-ant-1.7.0Beta2" />
-      </CLASSES>
-      <JAVADOC />
-      <SOURCES />
-    </library>
-  </component>
+  <component name="libraryTable" />
   <component name="uidesigner-configuration">
     <option name="INSTRUMENT_CLASSES" value="true" />
     <option name="COPY_FORMS_RUNTIME_TO_OUTPUT" value="true" />

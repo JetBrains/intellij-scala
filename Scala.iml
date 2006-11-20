@@ -9,12 +9,10 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="IDEA 5785" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="lib" level="project" />
-    <orderEntry type="library" name="apache-ant-1.7" level="project" />
     <orderEntry type="library" name="ant" level="application" />
     <orderEntry type="library" name="scala-libs" level="application" />
+    <orderEntry type="jdk" jdkName="IDEA 6541" jdkType="IDEA JDK" />
     <orderEntryProperties />
   </component>
   <component name="VcsManagerConfiguration">
