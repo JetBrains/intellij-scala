@@ -212,6 +212,7 @@ object ScalaElementTypes {
 
   /******************************** COMPOSITE EXPRESSIONS *****************************/
   val IF_STMT = new ScalaElementType("if statement")
+  val FOR_STMT = new ScalaElementType("if statement")
   val WHILE_STMT = new ScalaElementType("while statement")
   val RETURN_STMT = new ScalaElementType("return statement")
   val THROW_STMT = new ScalaElementType("throw statement")

@@ -67,35 +67,6 @@ Literal ::= integerLiteral
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
-
-/*
-      case ScalaTokenTypes.tSTRING_BEGIN => { //String literal
-//        val beginMarker = builder.mark();
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tSTRING_BEGIN)
-//        beginMarker.done(ScalaTokenTypes.tSTRING_BEGIN)
-        builder.getTokenType match {
-          case ScalaTokenTypes.tSTRING_END => {
-//            val strContentMarker = builder.mark()
-//            strContentMarker.done(ScalaTokenTypes.tSTRING)
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tSTRING_END)
-          }
-          case ScalaTokenTypes.tSTRING => {
-            ParserUtils.eatElement(builder,ScalaTokenTypes.tSTRING)
-            builder.getTokenType match {
-              case ScalaTokenTypes.tSTRING_END => {
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tSTRING_END)
-              }
-              case _ => builder.error("Wrong string completion")
-            }
-          }
-          case _ => builder.error("Wrong string declaration")
-        }
-//        marker.done(ScalaElementTypes.STRING_LITERAL)
-        marker.done(ScalaElementTypes.LITERAL)
-        ScalaElementTypes.LITERAL
-      }
-*/
-
       case _ => {
         marker.rollbackTo()
         ScalaElementTypes.WRONGWAY
