@@ -55,12 +55,20 @@ object BNF {
 
    val firstExpr : TokenSet = TokenSet.create(
     Array (
-       ScalaTokenTypes.tINTEGER,
-       ScalaTokenTypes.tFLOAT,
+       ScalaTokenTypes.tDOT,
        ScalaTokenTypes.kTRUE,
+       ScalaTokenTypes.kTHIS,
+       ScalaTokenTypes.kSUPER,
        ScalaTokenTypes.kFALSE,
        ScalaTokenTypes.tCHAR,
        ScalaTokenTypes.kNULL,
+       ScalaTokenTypes.kIF,
+       ScalaTokenTypes.kWHILE,
+       ScalaTokenTypes.kDO,
+       ScalaTokenTypes.kTRY,
+       ScalaTokenTypes.kFOR,
+       ScalaTokenTypes.kTHROW,
+       ScalaTokenTypes.kRETURN,
        ScalaTokenTypes.tSTRING,
        ScalaTokenTypes.tPLUS,
        ScalaTokenTypes.tMINUS,
@@ -68,8 +76,9 @@ object BNF {
        ScalaTokenTypes.tNOT,
        ScalaTokenTypes.tIDENTIFIER,
        ScalaTokenTypes.tLBRACE,
-       ScalaTokenTypes.kNEW,
-       ScalaTokenTypes.kTHIS
+       ScalaTokenTypes.tPARENTHIS,
+       ScalaTokenTypes.kNEW
+       ScalaElementTypes.tLITERAL
     )
   )
 
@@ -187,24 +196,6 @@ object BNF {
     Array (
       ScalaTokenTypes.tLINE_TERMINATOR,
       ScalaTokenTypes.tLPARENTHIS
-    )
-  )
-
-  val firstImplicitEnd = TokenSet.create(
-    Array (
-      ScalaTokenTypes.tLPARENTHIS
-    )
-  )
-
-  val firstParamClauses = TokenSet.orSet(
-    Array (
-      firstParamClause,
-      TokenSet.create(
-        Array (
-          ScalaTokenTypes.tLINE_TERMINATOR
-        )
-      ),
-      firstImplicitEnd
     )
   )
 
