@@ -31,6 +31,9 @@ import org.jetbrains.plugins.scala.lang.psi._
   case class ScWhileStmtImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "WHILE statement"
   }
+  case class ScClosureImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Method closure"
+  }
   case class ScReturnStmtImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "RETURN statement"
   }
