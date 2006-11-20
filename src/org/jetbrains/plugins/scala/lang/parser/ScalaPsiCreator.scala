@@ -168,6 +168,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.EXPR => new ScExprImpl(node)
     case ScalaElementTypes.BINDING => new ScBindingImpl(node)
     case ScalaElementTypes.ENUMERATOR => new ScEnumeratorImpl(node)
+    case ScalaElementTypes.ENUMERATORS => new ScEnumeratorsImpl(node)
     case ScalaElementTypes.AN_FUN => new ScAnFunImpl(node)
     case ScalaElementTypes.EXPRS => new ScExprsImpl(node)
     case ScalaElementTypes.ARG_EXPRS => new ScArgumentExprsImpl(node)
@@ -175,6 +176,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.BLOCK_STAT => new ScBlockStatImpl(node)
 
     case ScalaElementTypes.IF_STMT => new ScIfStmtImpl(node)
+    case ScalaElementTypes.FOR_STMT => new ScForStmtImpl(node)
     case ScalaElementTypes.WHILE_STMT => new ScWhileStmtImpl(node)
     case ScalaElementTypes.RETURN_STMT => new ScReturnStmtImpl(node)
     case ScalaElementTypes.THROW_STMT => new ScThrowStmtImpl(node)

@@ -42,8 +42,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
             res = Expr.parse(builder)
             if (ScalaElementTypes.EXPR.equals(res)){
               ParserUtils.rollForward(builder)
-              //genMarker.done(ScalaElementTypes.ENUMERATOR)
-              genMarker.drop()
+              if (ScalaElementTypes.GENERATOR.equals(elemType)){
+                genMarker.done(ScalaElementTypes.ENUMERATOR)
+              } else {
+                genMarker.drop()
+              }
               elemType
             } else badCloseAfterAssign ("Wrong expression")
           } else badClose (assignType.toString + " expected")
@@ -70,7 +73,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
       val enMarker = builder.mark()
 
       def genParse: Boolean = {
-        var res = Generator parse builder
+        var res = { object Enumer extends EnumTemplate(
+                         ScalaElementTypes.ENUMERATOR.asInstanceOf[ScalaElementType],
+                         ScalaTokenTypes.tCHOOSE.asInstanceOf[ScalaElementType]
+                         )
+                     Enumer parse builder}
         ScalaElementTypes.GENERATOR.equals(res)
       }
 
@@ -86,11 +93,16 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
       if (genParse) {
         enMarker.done(ScalaElementTypes.ENUMERATOR)
         ScalaElementTypes.ENUMERATOR
-      } else if (enParse || !ScalaElementTypes.WRONGWAY.equals(Expr.parse(builder))) {
+      } else if (enParse ){
+        enMarker.done(ScalaElementTypes.ENUMERATOR)
+        ScalaElementTypes.ENUMERATOR
+      } else if (!ScalaElementTypes.WRONGWAY.equals(Expr.parse(builder))) {
         enMarker.done(ScalaElementTypes.ENUMERATOR)
         ScalaElementTypes.ENUMERATOR
       } else {
-        enMarker.rollbackTo()
+        //enMarker.rollbackTo()
+        builder.error("Wrong enumerator")
+        enMarker.done(ScalaElementTypes.ENUMERATOR)
         ScalaElementTypes.WRONGWAY
       }
     }
@@ -100,18 +112,48 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
   /*
   Enumerators ::= Generator {StatementSeparator Enumerator}
   */
-  /*
+
   object Enumerators{
+
     def parse(builder : PsiBuilder) : ScalaElementType = {
 
       val ensMarker = builder.mark()
+
+      def matchToken = builder.getTokenType match {
+          case  ScalaTokenTypes.tSEMICOLON
+              | ScalaTokenTypes.tLINE_TERMINATOR => {
+            ParserUtils.eatElement(builder, builder.getTokenType)
+            subParse
+          }
+          case _ => {
+            ensMarker.done(ScalaElementTypes.ENUMERATORS)
+            ScalaElementTypes.ENUMERATORS
+          }
+        }
+
+      def subParse: ScalaElementType = {
+        var res = Enumerator.parse(builder)
+        if (ScalaElementTypes.WRONGWAY.equals(res)){
+          builder.error("Enumerator expected")
+          ensMarker.done(ScalaElementTypes.ENUMERATORS)
+          ScalaElementTypes.ENUMERATORS
+        } else {
+          matchToken
+        }
+      }
+
       var res = Generator.parse(builder)
-
-
+      if (ScalaElementTypes.WRONGWAY.equals(res)){
+        builder.error("Wrong generator")
+        ensMarker.done(ScalaElementTypes.ENUMERATORS)
+        ScalaElementTypes.ENUMERATORS
+      } else {
+        matchToken
+      }
 
     }
   }
-  */
+
 
 
 
