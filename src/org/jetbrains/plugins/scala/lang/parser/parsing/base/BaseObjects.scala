@@ -40,7 +40,10 @@ object StatementSeparator extends ConstrWithoutNode {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
       }
 
-      case _ => { builder.error("wrong statement separator")}
+      case _ => {
+        builder.error("wrong statement separator")
+        return
+      }
     }
   }
 }
@@ -89,6 +92,7 @@ object AttributeClause extends ConstrItem {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
         } else {
           builder.error("expected ']'")
+          return
         }
 
         builder.getTokenType() match {
@@ -101,7 +105,10 @@ object AttributeClause extends ConstrItem {
         }
       }
 
-      case _ => { builder.error("wrong statement separator")}
+      case _ => {
+        builder.error("wrong statement separator")
+        return
+      }
     }
   }
 
@@ -149,10 +156,10 @@ object Attribute extends Constr{
 
         if (BNF.firstExpr.contains(builder.getTokenType)) {
           Exprs.parse(builder)
-        } else {
+        } /*else {
           builder.error("expected expression")
           return
-        }
+        }*/
 
 
         if (builder.getTokenType().equals(ScalaTokenTypes.tRPARENTHIS)) {
@@ -197,6 +204,7 @@ object Attribute extends Constr{
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
         } else {
           builder.error("expected ']'")
+          return
         }
       }
     }
@@ -218,7 +226,10 @@ object Attribute extends Constr{
           //Console.println("possible type parse")
           if (BNF.firstType.contains(builder.getTokenType)) {
             Type parse builder
-          } else builder error "expected identifier"
+          } else {
+            builder error "expected identifier"
+            return
+          }
         }
       }
     }
@@ -276,11 +287,17 @@ object Attribute extends Constr{
       if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)){
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-        } else builder.error("expected identifier")
+        } else {
+          builder.error("expected identifier")
+          return
+        }
 
         if ( builder.getTokenType.equals(ScalaTokenTypes.tRSQBRACKET) ){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
-        } else builder.error("expected ']'")
+        } else {
+          builder.error("expected ']'")
+          return
+        }
       }
     }
   }
@@ -302,7 +319,10 @@ object Attribute extends Constr{
           case _ => builder error "expected local modifier"
         }
 
-      } else builder error "expected local modifier"
+      } else {
+        builder error "expected local modifier"
+        return
+      }
 
     }
   }
@@ -321,7 +341,6 @@ object Attribute extends Constr{
         return
       }
     }
-  
 
 
   object ImportExpr extends ConstrItem {
@@ -335,41 +354,44 @@ object Attribute extends Constr{
 
     override def parseBody(builder: PsiBuilder): Unit = {
 
-      builder.getTokenType() match {
-        case ScalaTokenTypes.tIDENTIFIER => {
-          StableIdInImport.parse(builder)
-
-          if (builder.getTokenType().equals(ScalaTokenTypes.tDOT)) {
-            //Console.println("ate dot " + builder.getTokenType)
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
-
-            //Console.println("after dot " + builder.getTokenType)
-            builder.getTokenType() match {
-              case ScalaTokenTypes.tIDENTIFIER => {
-                //Console.println("identifier " + builder.getTokenText())
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-              }
-
-              case ScalaTokenTypes.tUNDER => {
-              //Console.println("under " + builder.getTokenText())
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
-              }
-
-              case ScalaTokenTypes.tLBRACE => {
-                ImportSelectors.parse(builder)
-              }
-
-              case _ => { builder.error("expected '.'") }
-            }
-
-          } else {
-            builder.error("expected '.'")
-          }
-        }
-
-        case _ => { builder.error("expected identifier") }
+      if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+        StableIdInImport.parse(builder)
+      } else {
+        builder.error("expected identifier")
+        return
       }
 
+      if (builder.getTokenType().equals(ScalaTokenTypes.tDOT)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
+      } else {
+        builder.error("expected '.'")
+        return
+      }
+
+      //Console.println("after dot " + builder.getTokenType)
+      builder.getTokenType() match {
+        case ScalaTokenTypes.tIDENTIFIER => {
+          //Console.println("identifier " + builder.getTokenText())
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+          return
+        }
+
+        case ScalaTokenTypes.tUNDER => {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
+          Console.println("after under " + builder.getTokenText())
+          return
+        }
+
+        case ScalaTokenTypes.tLBRACE => {
+          ImportSelectors.parse(builder)
+          return
+        }
+
+        case _ => {
+          builder.error("expected identifier, import selectors or '_'")
+          return
+        }
+      }
     }
   }
 
@@ -454,13 +476,17 @@ object Attribute extends Constr{
               ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
             }
 
-            case _ => { builder.error("expected identifier or '_'") }
-          }
+            case _ => {
+              builder.error("expected identifier or '_'")
+              return
+              }
+            }
 
         }
 
       } else {
         builder error "expected import selector"
+        return
       }
     }
   }
@@ -479,7 +505,10 @@ object Attribute extends Constr{
 
      if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-     } else builder error "expected identifier"
+     } else {
+       builder error "expected identifier"
+       return
+     }
 
      while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
        ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
@@ -487,7 +516,10 @@ object Attribute extends Constr{
 
        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-       } else builder error "expected identifier"
+       } else {
+         builder error "expected identifier"
+         return
+       }
      }
    }
  }

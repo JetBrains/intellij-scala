@@ -9,7 +9,7 @@ import com.intellij.lang.ASTNode
  * Time: 15:29:25
  */
  /************* PARAMETER ****************/
-  class Param( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+  abstract class Param( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "parameter"
   }
 

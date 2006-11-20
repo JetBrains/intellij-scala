@@ -74,7 +74,10 @@ object Template extends Constr{
 
         if (!builder.eof() && builder.getTokenType.equals(ScalaTokenTypes.tRBRACE)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
-        } else builder error "expected '}'"
+        } else {
+          builder error "expected '}'"
+          return
+        }
         
       }
     }
@@ -85,7 +88,7 @@ object Template extends Constr{
 
     override def parseBody(builder : PsiBuilder) : Unit = {
       if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
-        //Console.println("single Template Stat " + builder.getTokenType)
+        DebugPrint.println("single Template Stat " + builder.getTokenType)
         TemplateStat parse builder
       }
 
@@ -95,9 +98,9 @@ object Template extends Constr{
 
           //Console.println("candidate to TemplateStat " + builder.getTokenType)
           if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
-            //Console.println("parse TemplateStat " + builder.getTokenType)
             TemplateStat parse builder
-          } 
+          }
+            DebugPrint.println("parse TemplateStat " + builder.getTokenType)
         }
         //Console.println("single Template Stat done " + builder.getTokenType)
     }

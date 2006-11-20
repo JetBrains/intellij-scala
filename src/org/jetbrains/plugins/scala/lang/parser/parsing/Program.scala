@@ -39,18 +39,22 @@ class Program extends ScalaTokenTypes {
     }
 
 
-    var marker = builder.mark()
-    rollForward
-    ParserUtils.rollForward(builder)
+    //var marker = builder.mark()
+   // rollForward
+//    ParserUtils.rollForward(builder)
 
     //compilation unit
     if ( !builder.eof() ){
       CompilationUnit.parse(builder)
     }
 
+    while (!builder.eof())
+      builder.advanceLexer
+    /*
     parseNext
     ParserUtils.rollForward(builder)
-    marker.done(ScalaElementTypes.FILE)
+    */
+    //marker.done(ScalaElementTypes.FILE)
   }
 
 }

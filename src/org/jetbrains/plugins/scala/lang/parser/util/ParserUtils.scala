@@ -53,7 +53,7 @@ object ParserUtils {
       return
     }
 
-    while (builder.getTokenType.equals(delimiter)) {
+    while (!builder.eof() && builder.getTokenType.equals(delimiter)) {
       eatElement(builder, delimiter);
 
       if (itemType.first.contains(builder.getTokenType)) {

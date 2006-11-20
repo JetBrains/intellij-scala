@@ -36,6 +36,7 @@ object ScalaPsiCreator {
     /*****************************************************/
 
      case ScalaElementTypes.PACKAGING => new ScPackaging(node)
+     case ScalaElementTypes.PACKAGING_BLOCK => new ScPackagingBlock(node)
      case ScalaElementTypes.QUAL_ID => new ScQualId(node)
 
      //case ScalaElementTypes.TOP_STAT_SEQ => new ScTopStatSeq( node )
