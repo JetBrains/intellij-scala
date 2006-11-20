@@ -76,9 +76,9 @@ object BNF {
        ScalaTokenTypes.tNOT,
        ScalaTokenTypes.tIDENTIFIER,
        ScalaTokenTypes.tLBRACE,
-       ScalaTokenTypes.tPARENTHIS,
+       ScalaTokenTypes.tLPARENTHIS,
        ScalaTokenTypes.kNEW,
-       ScalaElementTypes.tLITERAL
+       ScalaElementTypes.LITERAL
     )
   )
 
