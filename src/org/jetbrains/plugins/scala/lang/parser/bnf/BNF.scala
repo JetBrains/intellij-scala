@@ -11,8 +11,7 @@ object BNF {
            ScalaTokenTypes.kTRUE,
            ScalaTokenTypes.kFALSE,
            ScalaTokenTypes.tCHAR,
-           ScalaTokenTypes.kNULL,
-           ScalaTokenTypes.tSTRING_BEGIN
+           ScalaTokenTypes.kNULL
     )
   )
   
