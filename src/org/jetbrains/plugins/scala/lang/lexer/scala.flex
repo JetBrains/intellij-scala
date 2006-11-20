@@ -296,7 +296,8 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ///////////////////// Reserved shorthands //////////////////////////////////////////
 "*"                                     {   return process(tSTAR);  }
 "?"                                     {   return process(tQUESTION);  }
-"_"                                     {   return process(tUNDER);  }
+"_"                                     {   processNewLine();
+                                            return process(tUNDER);  }
 ":"                                     {   return process(tCOLON);  }
 "="                                     {   return process(tASSIGN);  }
 "=>"                                    {   return process(tFUNTYPE); }
