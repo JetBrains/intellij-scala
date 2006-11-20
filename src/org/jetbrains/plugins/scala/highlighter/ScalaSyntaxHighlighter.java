@@ -53,8 +53,6 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     // Strings
     static final TokenSet tSTRINGS = TokenSet.create(
             ScalaTokenTypes.tSTRING,
-            ScalaTokenTypes.tSTRING_BEGIN,
-            ScalaTokenTypes.tSTRING_END,
             ScalaTokenTypes.tCHAR
     );
 
@@ -102,7 +100,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
     static final TokenSet tOPS = TokenSet.create(
             ScalaTokenTypes.tASSIGN,
-            ScalaTokenTypes.tDIV,       
+            ScalaTokenTypes.tDIV,
             ScalaTokenTypes.tMINUS,
             ScalaTokenTypes.tPLUS,
             ScalaTokenTypes.tSTAR
