@@ -261,6 +261,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
     }
 
 /***************************** case (do) *************************/
+
     def doCase: ScalaElementType = {
       val rollbackMarker = builder.mark() // marker to rollback
 
@@ -351,7 +352,85 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       }
     }
 
+/******************** case (try) ************************/
+
+    def tryCase: ScalaElementType = {
+      val rollbackMarker = builder.mark() // marker to rollback
+
+      /* for mistakes processing */
+      def errorDone = errorDoneMain(rollbackMarker , ScalaElementTypes.FOR_STMT)
+
+      def parseCatch = {
+        var catchMarker = builder.mark()
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kCATCH)
+        if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
+          /* ‘{’ CaseClauses ‘}’ */
+          var result = CaseClauses.parse(builder)
+          if (result.equals(ScalaElementTypes.CASE_CLAUSES)) {
+            if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+            } else {
+              builder.error("} expected")
+            }
+          } else {
+            builder.error("Wrong case clauses")
+          }
+        } else {
+          builder.error(" { expected ")
+        }
+        catchMarker.done(ScalaElementTypes.CATCH_BLOCK)
+        ScalaElementTypes.CATCH_BLOCK
+      }
+
+      def parseFinally = {
+        var finMarker = builder.mark()
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kFINALLY)
+        var result = Expr.parse(builder)
+        if (result.equals(ScalaElementTypes.WRONGWAY)) {
+          builder.error("Wrong expression")
+        }
+        finMarker.done(ScalaElementTypes.FINALLY_BLOCK)
+        ScalaElementTypes.FINALLY_BLOCK
+      }
+
+      def braceMatcher(brace: IElementType, tryMarker: PsiBuilder.Marker) = {
+        val rightBrace = brace match {
+          case ScalaTokenTypes.tLBRACE => ScalaTokenTypes.tRBRACE.asInstanceOf[ScalaElementType]
+          case _ => ScalaTokenTypes.tRPARENTHIS.asInstanceOf[ScalaElementType]
+        }
+        ParserUtils.eatElement(builder, brace)
+        val res = Block.parse(builder , true)
+        if (res.eq(ScalaElementTypes.BLOCK)){
+          if (builder.getTokenType.equals (rightBrace)){
+            ParserUtils.eatElement(builder, rightBrace)
+            tryMarker.done(ScalaElementTypes.TRY_BLOCK)
+            if (ScalaTokenTypes.kCATCH.equals(builder.getTokenType)) parseCatch
+            if (ScalaTokenTypes.kFINALLY.equals(builder.getTokenType)) parseFinally
+            rollbackMarker.drop()
+            compMarker.done(ScalaElementTypes.TRY_STMT)
+            ScalaElementTypes.EXPR1
+          } else errorDone(" " + rightBrace.toString +" expected")
+        } else errorDone("Wrong enumerators")
+      }
+
+      if (builder.getTokenType.eq(ScalaTokenTypes.kTRY)){
+        val tryMarker = builder.mark()
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kTRY)
+        if (builder.getTokenType.eq(ScalaTokenTypes.tLBRACE)) {
+            braceMatcher(builder.getTokenType, tryMarker)
+        } else {
+          tryMarker.done(ScalaElementTypes.TRY_BLOCK)
+          errorDone(" { expected")
+        }
+      } else {
+        rollbackMarker.rollbackTo()
+        ScalaElementTypes.WRONGWAY
+      }
+    }
+
 /*********************** case (throw) **********************/
+
     def throwCase: ScalaElementType = {
       val rollbackMarker = builder.mark() // marker to rollback
 
@@ -379,13 +458,15 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       if (builder.getTokenType.eq(ScalaTokenTypes.kRETURN)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kRETURN)
         val res = Expr parse(builder)
-        if (!ScalaElementTypes.WRONGWAY.equals(res)){
+//        if (!ScalaElementTypes.WRONGWAY.equals(res)){
         rollbackMarker.drop()
         compMarker.done(ScalaElementTypes.RETURN_STMT)
         ScalaElementTypes.EXPR1
+/*
         } else {
          errorDone("Wrong expression for return statement")
         }
+*/
       } else {
         rollbackMarker.rollbackTo()
         ScalaElementTypes.WRONGWAY
@@ -408,6 +489,8 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
     else if (variants(returnCase)) result
     /* case (if) */
     else if (variants(ifCase)) result
+    /* case (try) */
+    else if (variants(tryCase)) result
     /* case (for) */
     else if (variants(forCase)) result
     /* case (while) */

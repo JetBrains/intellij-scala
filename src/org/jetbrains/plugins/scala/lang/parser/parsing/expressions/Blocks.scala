@@ -30,9 +30,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
     def parse(builder : PsiBuilder) : ScalaElementType = {
       val blockExprMarker = builder.mark()
 
-      if (builder.getTokenType.eq(ScalaTokenTypes.tLBRACE)) {
+      if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
-        ParserUtils.rollForward(builder)
         if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
           blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
@@ -56,7 +55,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
             /* ‘{’ CaseClauses ‘}’ */
             result = CaseClauses.parse(builder)
             if (result.equals(ScalaElementTypes.CASE_CLAUSES)) {
-              ParserUtils.rollForward(builder)
               if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
                 blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
