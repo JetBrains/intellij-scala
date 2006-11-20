@@ -128,7 +128,7 @@ plainid = {upper} {idrest}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-charNoDoubleQuote = [^"\""]
+charNoDoubleQuote = !( ![^"\""] | {LineTerminator})
 stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 stringLiteral = {stringElement}*
 characterLiteral = "\'" {charEscapeSeq} "\'"
@@ -141,13 +141,7 @@ wrongString = "\"" .*
 ///////////////////// NewLine processing ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Literal =    {integerLiteral}
-           | {floatingPointLiteral}
-           | {characterLiteral}
-           | {booleanLiteral}
-           | {wholeString}
-           | "null"
-            
+         
 //precedeNewLine =     "this" | "return" | "_" | ")" | "]" | "}"
 notFollowNewLine =   "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield"
                     | "," | "." | ";" | ":" | "_" | "=" | "=>" | "<-" | "<:" | "<%" | ">:"
@@ -223,12 +217,12 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////// Strings /////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-{wholeString}                             {   processNewLine();
-                                            return process(tSTRING);  }
+//{wholeString}                             {   processNewLine();
+//                                            return process(tSTRING);  }
 
-//"\""                                    {   yybegin(IN_STRING_STATE);
-//                                            return process(tSTRING_BEGIN);
-//                                        }
+"\""                                    {   yypushback(yylength());
+                                            yybegin(IN_STRING_STATE);
+                                        }
 
 {characterLiteral}                      {   processNewLine();
                                             return process(tCHAR);  }
@@ -402,13 +396,15 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 <IN_STRING_STATE>{
 
-"\""                                    {   yybegin(YYINITIAL);
-                                            return process(tSTRING_END);
+"\"" {stringLiteral}* "\""              {   yybegin(PROCESS_NEW_LINE);
+                                            return process(tSTRING);
                                         }
 
-{stringLiteral}                         {   return process(tSTRING); }
+("\"" {stringLiteral}*) / {LineTerminator}            {   yybegin(PROCESS_NEW_LINE);
+                                                          return process(tWRONG_STRING);
+                                                      }     
 
-.|{LineTerminator}                      {   return process(tSTUB); }
+.                                       {   return process(tSTUB); }
 
 }
 

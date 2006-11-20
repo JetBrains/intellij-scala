@@ -53,8 +53,7 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
            ScalaTokenTypes.kTRUE,
            ScalaTokenTypes.kFALSE,
            ScalaTokenTypes.tCHAR,
-           ScalaTokenTypes.kNULL,
-           ScalaTokenTypes.tSTRING_BEGIN
+           ScalaTokenTypes.kNULL
     )
   )
 

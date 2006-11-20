@@ -86,10 +86,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
       if (genParse) {
         enMarker.done(ScalaElementTypes.ENUMERATOR)
         ScalaElementTypes.ENUMERATOR
-      } else if (enParse) {
-        enMarker.done(ScalaElementTypes.ENUMERATOR)
-        ScalaElementTypes.ENUMERATOR
-      } else if (!ScalaElementTypes.WRONGWAY.equals(Expr.parse(builder))) {
+      } else if (enParse || !ScalaElementTypes.WRONGWAY.equals(Expr.parse(builder))) {
         enMarker.done(ScalaElementTypes.ENUMERATOR)
         ScalaElementTypes.ENUMERATOR
       } else {
