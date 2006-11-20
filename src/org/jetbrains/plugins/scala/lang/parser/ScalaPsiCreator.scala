@@ -177,6 +177,7 @@ object ScalaPsiCreator {
 
     case ScalaElementTypes.IF_STMT => new ScIfStmtImpl(node)
     case ScalaElementTypes.FOR_STMT => new ScForStmtImpl(node)
+    case ScalaElementTypes.DO_STMT => new ScDoStmtImpl(node)
     case ScalaElementTypes.WHILE_STMT => new ScWhileStmtImpl(node)
     case ScalaElementTypes.RETURN_STMT => new ScReturnStmtImpl(node)
     case ScalaElementTypes.THROW_STMT => new ScThrowStmtImpl(node)
