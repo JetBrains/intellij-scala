@@ -1,21 +1,20 @@
 package org.jetbrains.plugins.scala;
 
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.module.ModuleTypeManager;
-import com.intellij.openapi.options.SettingsEditorGroup;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.compiler.CompilerManager;
-import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.actions.ScalaSdkChooser;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.project.ProjectManagerAdapter;
 import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.actions.ScalaSdkChooser;
+import org.jetbrains.plugins.scala.compiler.ScalaCompiler;
 
 import javax.swing.*;
 
@@ -43,7 +42,11 @@ public class ScalaLoader implements ApplicationComponent, Configurable {
             }
     );
 
-
+    ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
+      public void projectOpened(Project project) {
+        CompilerManager.getInstance(project).addCompiler(new ScalaCompiler());
+      }
+    });
   }
 
   public void disposeComponent() {

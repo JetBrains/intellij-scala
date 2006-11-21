@@ -16,7 +16,7 @@ public class ScalaFileType extends LanguageFileType {
 
   public static final ScalaFileType SCALA_FILE_TYPE = new ScalaFileType();
 
-  public ScalaFileType() {
+  private ScalaFileType() {
     super(new ScalaLanguage());
   }
 

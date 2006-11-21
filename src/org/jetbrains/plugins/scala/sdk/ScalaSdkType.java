@@ -23,7 +23,7 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
 
   @NonNls private static final String LIB_DIR_NAME = "lib";
 
-  @NonNls private static final String SCALA_EXE_NAME = "scala";
+  @NonNls private static final String SCALA_EXE_NAME = SystemInfo.isWindows ? "scala.bat" : "scala";
   private static final String JAVA_SDK_NAME = "JAVA_SDK_NAME";
 
   public ScalaSdkType() {
@@ -47,7 +47,7 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
 
   @Nullable
   public String getVersionString(String sdkHome) {
-    return null;
+    return "1.5";
   }
 
   @Nullable
@@ -166,11 +166,25 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
 
   @Nullable
   public String getToolsPath(Sdk sdk) {
-    return null;
+    Sdk javaSdk = ((JavaSdkData) sdk.getSdkAdditionalData()).findSdk();
+    if (javaSdk == null) return null;
+    return javaSdk.getSdkType().getToolsPath(javaSdk);
+  }
+
+  @Nullable
+  public String getScalaCompilerPath (Sdk sdk) {
+    return getLibraryDirPath(sdk) + File.separatorChar + "scala-compiler.jar";
   }
 
   @Nullable
   public String getVMExecutablePath(Sdk sdk) {
+    Sdk javaSdk = ((JavaSdkData) sdk.getSdkAdditionalData()).findSdk();
+    if (javaSdk == null) return null;
+    return javaSdk.getSdkType().getVMExecutablePath(javaSdk);
+  }
+
+  @Nullable
+  public String getScalaVMExecutablePath(Sdk sdk) {
     return getBinPath(sdk) + File.separatorChar + SCALA_EXE_NAME;
   }
 
