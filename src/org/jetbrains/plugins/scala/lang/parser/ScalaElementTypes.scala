@@ -99,7 +99,7 @@ object ScalaElementTypes {
 
   /************ function *************/
   val TYPE_PARAM = new ScalaElementType("parameter of type")
-
+  val TYPE_PARAMS = new ScalaElementType("parameters of type")
 
   /*************************************************************************************/
   /************************************** TYPES ****************************************/
@@ -166,6 +166,8 @@ object ScalaElementTypes {
   /**************** functions *************************/
   val FUNCTION_DEFINITION = new ScalaElementType("function definition")
   val FUN_SIG = new ScalaElementType("function signature")
+  val CONSTR_EXPR = new ScalaElementType("constructor expression")
+  val SELF_INVOCATION = new ScalaElementType("self invocation")
 
   val SUPPLEMENTARY_CONSTRUCTOR = new ScalaElementType("supplementary constructor")  
 
@@ -211,6 +213,7 @@ object ScalaElementTypes {
   val BINDINGS = new ScalaElementType("bindings")
   val EXPRS = new ScalaElementType("list of expressions")
   val ARG_EXPRS = new ScalaElementType("arguments of function")
+  val ARG_EXPRS_LIST = new ScalaElementType("list function arguments")
   val BLOCK_EXPR = new ScalaElementType("block of expressions")
   val BLOCK = new ScalaElementType("block")
   val BLOCK_STAT = new ScalaElementType("block statements")
@@ -240,10 +243,10 @@ object ScalaElementTypes {
   val SIMPLE_PATTERN = new ScalaElementType("simple pattern")
   val PATTERN3 = new ScalaElementType("pattern 3")
   val PATTERN2 = new ScalaElementType("pattern 2")
+  val PATTERN2_LIST = new ScalaElementType("pattern 2 list")  
   val PATTERN1 = new ScalaElementType("pattern 1")
   val PATTERN = new ScalaElementType("pattern")
   val PATTERNS = new ScalaElementType("patterns")
-  val PATTERN2_LIST = new ScalaElementType("pattern2 list")
   val WILD_PATTERN = new ScalaElementType("any sequence")
   val CASE_CLAUSE = new ScalaElementType("case clause")
   val CASE_CLAUSES = new ScalaElementType("case clauses")

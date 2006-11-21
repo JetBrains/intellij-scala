@@ -15,10 +15,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 import org.jetbrains.plugins.scala.lang.parser.parsing.Constr
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.util.DebugPrint
 
  
-    class ParamClauses[T <: Param] (param : T) extends Constr {
-      override def getElementType = ScalaElementTypes.PARAM_CLAUSES
+    class ParamClauses[T <: Param] (param : T) extends ConstrUnpredict {
+//      override def getElementType = ScalaElementTypes.PARAM_CLAUSES
 
           def checkForParamClause[T <: Param](param : T, first : IElementType, second : IElementType, third : IElementType) : Boolean = {
             var a = first
@@ -48,24 +49,25 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
       
 
       override def parseBody(builder : PsiBuilder) : Unit = {
-        var chooseParsingWay = builder.mark()
+        var paramClausesMarker = builder.mark
+        var chooseParsingWay = builder.mark
 
         var first = builder.getTokenType()
         builder.advanceLexer
-        //Console.println("first in class param clause " + first)
 
         var second = builder.getTokenType()
         builder.advanceLexer
-        //Console.println("second in class param clause " + second)
 
         var third = builder.getTokenType()
-        builder.advanceLexer
-        //Console.println("third in class param clause " + third)
+        //builder.advanceLexer
+
+        var numberParamClauses = 0;
 
         //it is possible to cyclic
         while (checkForParamClause[T](param, first, second, third)) {
           chooseParsingWay.rollbackTo()
           new ParamClause[T](param).parse(builder)
+          numberParamClauses = numberParamClauses + 1
           chooseParsingWay = builder.mark()
 
           first = builder.getTokenType()
@@ -73,22 +75,25 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
           second = builder.getTokenType()
           builder.advanceLexer
           third = builder.getTokenType()
-          //Console.println("one param clause " + builder.getTokenType())
-        }
-
-        if (checkForImplicit(first, second, third)) {
-          //Console.println("one implicit end " + builder.getTokenType())
-          chooseParsingWay.rollbackTo()
-          //Console.println("check for implicit")
-          new ImplicitEnd[T](param).parse(builder)
         }
 
         chooseParsingWay.rollbackTo()
+
+        if (checkForImplicit(first, second, third)) {
+          new ImplicitEnd[T](param).parse(builder)
+        }
+
+        //chooseParsingWay.drop()
+
+        DebugPrint println ("param clauses: " + numberParamClauses)
+
+        if (numberParamClauses > 1) paramClausesMarker.done(ScalaElementTypes.PARAM_CLAUSES)
+        else paramClausesMarker.drop()
       }
     }
 
- class ParamClause[T <: Param] (param : T) extends Constr {
-    override def getElementType : IElementType = ScalaElementTypes.PARAM_CLAUSE
+ class ParamClause[T <: Param] (param : T) extends ConstrWithoutNode {
+    //override def getElementType : IElementType = ScalaElementTypes.PARAM_CLAUSE
 
     override def parseBody(builder : PsiBuilder) : Unit = {
       if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
@@ -104,7 +109,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
       }
 
       if (param.first.contains(builder.getTokenType)){
-        ParserUtils.listOfSmthWithoutNode(builder, param, ScalaTokenTypes.tCOMMA)
+        ParserUtils.listOfSmth(builder, param, ScalaTokenTypes.tCOMMA, ScalaElementTypes.PARAM_CLAUSE)
       }
 
       if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)) {
@@ -124,19 +129,31 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
         if (builder.getTokenType().equals(ScalaTokenTypes.tLPARENTHIS)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-        } else builder.error("expected '('")
+        } else {
+          builder.error("expected '('")
+          return
+        }
 
         if (builder.getTokenType().equals(ScalaTokenTypes.kIMPLICIT)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kIMPLICIT)
-        } else builder.error("expected 'implicit'")
+        } else {
+          builder.error("expected 'implicit'")
+          return
+        }
 
         if (param.first.contains(builder.getTokenType())) {
-           param parse builder
-        } else builder.error("expected parameter or list of parameters")
+          ParserUtils.listOfSmth(builder, param, ScalaTokenTypes.tCOMMA, ScalaElementTypes.PARAM_CLAUSE)
+        } else {
+          builder.error("expected parameter or list of parameters")
+          return
+        }
 
         if (builder.getTokenType().equals(ScalaTokenTypes.tRPARENTHIS)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
-        } else builder.error("expected ')'")
+        } else {
+          builder.error("expected ')'")
+          return
+        }
       }
     }
 

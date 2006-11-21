@@ -44,7 +44,7 @@ object ParserUtils {
     }
   }
 
-  def listOfSmthWithoutNode(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType) : Unit = {
+  /*def listOfSmthWithoutNode(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType) : Unit = {
 
     if (itemType.first.contains(builder.getTokenType)) {
       itemType parse builder
@@ -63,15 +63,47 @@ object ParserUtils {
         return
       }
     }
-  }
+  } */
 
   def listOfSmth(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType, listType : IElementType) : Unit = {
+    val listMarker = builder.mark()
+
+    if (itemType.first.contains(builder.getTokenType)) {
+      itemType parse builder
+    } else {
+      builder error "wrong item"
+      listMarker.drop
+      return
+    }
+
+    var numberOfElements = 1;
+    while (!builder.eof() && builder.getTokenType.equals(delimiter)) {
+      eatElement(builder, delimiter);
+
+      if (itemType.first.contains(builder.getTokenType)) {
+        itemType parse builder
+        numberOfElements + 1
+      } else {
+        builder error "expected next item"
+        listMarker.drop
+        return
+      }
+    }
+
+    if (numberOfElements > 1) listMarker.done(listType)
+    else listMarker.drop
+  }
+
+  /*
+  def listOfSmth(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType, listType : IElementType) : Unit = {
+
     val listMarker = builder.mark()
 
     listOfSmthWithoutNode(builder, itemType, delimiter)
 
     listMarker.done(listType)
   }
+  */
 
   /*
    *   Parse block in breaces

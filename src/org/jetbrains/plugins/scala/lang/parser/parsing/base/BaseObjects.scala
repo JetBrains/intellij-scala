@@ -262,14 +262,40 @@ object Attribute extends Constr{
     }
   }
 
-  object Modifiers extends Constr {
-    override def getElementType = ScalaElementTypes.MODIFIERS
+  object ModifierWithoutImplicit extends ConstrWithoutNode {
+    //override def getElementType = ScalaElementTypes.MODIFIER
 
     override def parseBody(builder: PsiBuilder): Unit = {
+      //Console.println("token type : " + builder.getTokenType())
+      if (BNF.firstLocalModifier.contains(builder.getTokenType)) {
+        LocalModifierWithoutImplicit.parse(builder)
+      }
+
+      if (ScalaTokenTypes.kOVERRIDE.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kOVERRIDE)
+      }
+
+      if (BNF.firstAccessModifier.contains(builder.getTokenType)) {
+        AccessModifier.parse(builder)
+      }
+
+    }
+  }
+
+  object Modifiers extends ConstrUnpredict {
+    //override def getElementType = ScalaElementTypes.MODIFIERS
+
+    override def parseBody(builder: PsiBuilder): Unit = {
+      val modifiersMarker = builder.mark
+      var numberOfModifiers = 0;
       while (BNF.firstModifier.contains(builder.getTokenType)) {
         DebugPrint println ("modifiers parse: " + builder.getTokenType)
         Modifier parse builder
+        numberOfModifiers = numberOfModifiers + 1
       }
+
+      if (numberOfModifiers > 1) modifiersMarker.done(ScalaElementTypes.MODIFIERS)
+      else (modifiersMarker.drop)
     }
   }
 
@@ -285,6 +311,8 @@ object Attribute extends Constr{
       }
 
       if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)){
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
+
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         } else {
@@ -315,6 +343,30 @@ object Attribute extends Constr{
           case ScalaTokenTypes.kSEALED => ParserUtils.eatElement(builder, ScalaTokenTypes.kSEALED)
 
           case ScalaTokenTypes.kIMPLICIT => ParserUtils.eatElement(builder, ScalaTokenTypes.kIMPLICIT)
+
+          case _ => builder error "expected local modifier"
+        }
+
+      } else {
+        builder error "expected local modifier"
+        return
+      }
+
+    }
+  }
+
+
+ object LocalModifierWithoutImplicit extends ConstrWithoutNode {
+    override def parseBody(builder: PsiBuilder): Unit = {
+      //Console.println("token type : " + builder.getTokenType())
+
+      if (BNF.firstLocalModifier.contains(builder.getTokenType)) {
+        builder.getTokenType() match {
+          case ScalaTokenTypes.kABSTRACT => ParserUtils.eatElement(builder, ScalaTokenTypes.kABSTRACT)
+
+          case ScalaTokenTypes.kFINAL => ParserUtils.eatElement(builder, ScalaTokenTypes.kFINAL)
+
+          case ScalaTokenTypes.kSEALED => ParserUtils.eatElement(builder, ScalaTokenTypes.kSEALED)
 
           case _ => builder error "expected local modifier"
         }

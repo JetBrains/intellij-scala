@@ -17,14 +17,17 @@ import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParam
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ArgumentExprs
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockStat
 //import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2Item
-//import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
+import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
@@ -149,7 +152,33 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           //Pattern2 parse builder
           //ParserUtils.listOfSmth(builder, Pattern2Item, ScalaTokenTypes.tCOMMA, ScalaElementTypes.PATTERN2_LIST)
-          Ids parse builder
+          val pattern2sMarker = builder.mark
+
+          if (BNF.firstPattern2.contains(builder.getTokenType)){
+            (new Pattern2()).parse(builder)
+          } else {
+            builder error "expected pattern"
+            return ScalaElementTypes.WRONGWAY
+          }
+
+          var numberOfPattern2s = 1;
+
+          while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+
+            if (BNF.firstPattern2.contains(builder.getTokenType)){
+              (new Pattern2()).parse(builder)
+              numberOfPattern2s = numberOfPattern2s + 1;
+              
+            } else {
+              builder error "expected pattern"
+              return ScalaElementTypes.WRONGWAY
+            }
+          }
+
+          if (numberOfPattern2s > 1) pattern2sMarker.done(ScalaElementTypes.PATTERN2_LIST)
+          else pattern2sMarker.drop
+
         } else {
           builder error "expected idnetifier"
           return ScalaElementTypes.WRONGWAY
@@ -289,10 +318,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           return
         }
 
-        if (BNF.firstType.contains(builder.getTokenType)) {
-          Type parse builder
+        if (BNF.firstConstrExpr.contains(builder.getTokenType)) {
+          ConstrExpr parse builder
         } else {
-          builder error "expected type declaration"
+          builder error "expected contructor expression"
           return
         }
 
@@ -396,7 +425,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             new TypeParamClause[TypeParam](new TypeParam) parse builder
           }
 
-          if (BNF.firstParamClause.contains(builder.getTokenType)) {
+          if (BNF.firstParamClauses.contains(builder.getTokenType)) {
             //Console.println("ParamClauses parsing " + builder.getTokenType)
             new ParamClauses[FunParam] (new FunParam) parse builder
             //Console.println("ParamClauses parsed " + builder.getTokenType)
@@ -413,4 +442,63 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
     class FunParam extends Param {
       override def getElementType : IElementType = ScalaElementTypes.FUN_PARAM
     }
+
+    object ConstrExpr extends Constr {
+      override def getElementType = ScalaElementTypes.CONSTR_EXPR
+
+      override def parseBody(builder : PsiBuilder) : Unit = {
+        if (BNF.firstSelfInvocation.contains(builder.getTokenType)) {
+          SelfInvocation parse builder
+          return
+        }
+
+        if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
+
+          if (BNF.firstSelfInvocation.contains(builder.getTokenType)) {
+            SelfInvocation parse builder
+          } else {
+            builder error "expected self invocation"
+            return
+          }
+
+          while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
+            StatementSeparator parse builder
+
+            if (BNF.firstBlockStat.contains(builder.getTokenType)) {
+              BlockStat parse builder
+            }
+          }
+
+          return
+        }
+
+        builder error "expected constructor expression"
+      }
+    }
+
+    object SelfInvocation extends Constr {
+      override def getElementType = ScalaElementTypes.SELF_INVOCATION
+
+      override def parseBody(builder : PsiBuilder) : Unit = {
+        if (ScalaTokenTypes.kTHIS.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.kTHIS)
+        } else {
+          builder error "expected 'this'"
+          return
+        }
+
+        val argExprsMarker = builder.mark
+        var numberOfArgExprs = 0;
+
+        while (BNF.firstArgumentExprs.contains(builder.getTokenType)) {
+          ArgumentExprs parse builder
+          numberOfArgExprs = numberOfArgExprs + 1
+        }
+
+        if (numberOfArgExprs > 1) argExprsMarker.done(ScalaElementTypes.ARG_EXPRS_LIST)
+        else argExprsMarker.drop
+      }
+    }
+
 }
