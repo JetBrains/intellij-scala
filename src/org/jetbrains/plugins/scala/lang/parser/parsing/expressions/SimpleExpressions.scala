@@ -107,7 +107,9 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
             builder.error("Type argument expected")
             new SimpleExprResult(ScalaElementTypes.WRONGWAY, "wrong")
           }
-        } else new SimpleExprResult(_res, stringRes)
+        } else {
+          new SimpleExprResult(_res, stringRes)
+        }
       }
 
       var flag = false
@@ -136,11 +138,15 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
       }
       /* case (f) */
       else if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)) {
+        val unitMarker = builder.mark()
         ParserUtils.eatElement(builder,ScalaTokenTypes.tLPARENTHIS)
         if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)) {
-          closeParent
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+          unitMarker.done(ScalaElementTypes.UNIT)
+          result = ScalaElementTypes.UNIT
           flag = true
         } else {
+          unitMarker.drop()
           var res = Expr parse builder 
           if (res.eq(ScalaElementTypes.EXPR)) {
             if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)) {

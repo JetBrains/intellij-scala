@@ -190,7 +190,6 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
           }
         }
       }
-
       if (!result.equals(ScalaElementTypes.WRONGWAY)) {
 
         /* For simple patterns */

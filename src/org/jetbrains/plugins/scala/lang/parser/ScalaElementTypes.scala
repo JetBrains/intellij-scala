@@ -116,6 +116,7 @@ object ScalaElementTypes {
   /*********************************** IDENTIFIER **************************************/
   /*************************************************************************************/
   val IDENTIFIER = new ScalaElementType("identifier")
+  val UNIT = new ScalaElementType("unit")
   val IDENTIFIER_LIST = new ScalaElementType("list of identifiers")
 
   /*************************************************************************************/
