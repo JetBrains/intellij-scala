@@ -78,9 +78,19 @@ object BNF {
        ScalaTokenTypes.tLBRACE,
        ScalaTokenTypes.tLPARENTHIS,
        ScalaTokenTypes.kNEW,
+       //todo: check
        ScalaElementTypes.LITERAL
     )
   )
+
+
+  val firstArgumentExprs : TokenSet = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tLBRACE,
+      ScalaTokenTypes.tLPARENTHIS
+    )
+  )
+
 
    val firstStatementSeparator = TokenSet.create(
     Array (
@@ -132,13 +142,36 @@ object BNF {
     )
   )
 
+  val firstLocalModifierWithoutImplicit = TokenSet.create(
+    Array (
+      ScalaTokenTypes.kABSTRACT,
+      ScalaTokenTypes.kFINAL,
+      ScalaTokenTypes.kSEALED
+    )
+  )
+
+
+
   val firstAccessModifier : TokenSet = TokenSet.create(
     Array (
       ScalaTokenTypes.kPRIVATE,
       ScalaTokenTypes.kPROTECTED
     )
   )
-  //fix problem with implicit
+
+
+  val firstModifierWithoutImplicit : TokenSet = TokenSet.orSet(
+    Array (
+      TokenSet.create(
+        Array(
+          ScalaTokenTypes.kOVERRIDE
+        )
+      ),
+      firstAccessModifier,
+      firstLocalModifierWithoutImplicit
+    )
+  )
+
   val firstModifier : TokenSet = TokenSet.orSet(
     Array (
       TokenSet.create(
@@ -192,6 +225,14 @@ object BNF {
     )
   )
 
+  val firstClassTypeParamClause = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tLINE_TERMINATOR,
+      ScalaTokenTypes.tLSQBRACKET
+    )
+  )
+
+
   val firstParamClause = TokenSet.create(
     Array (
       ScalaTokenTypes.tLINE_TERMINATOR,
@@ -199,12 +240,32 @@ object BNF {
     )
   )
 
+  val firstClassParamClause = TokenSet.create(
+    Array (
+      ScalaTokenTypes.tLINE_TERMINATOR,
+      ScalaTokenTypes.tLPARENTHIS
+    )
+  )
+
+
   val firstParamClauses = TokenSet.orSet(
     Array (
       firstParamClause,
       TokenSet.create(
         Array (
-          ScalaTokenTypes.tLBRACE
+          ScalaTokenTypes.tLPARENTHIS
+        )
+      )
+    )
+  )
+
+
+  val firstClassParamClauses = TokenSet.orSet(
+    Array (
+      firstClassParamClause,
+      TokenSet.create(
+        Array (
+          ScalaTokenTypes.tLPARENTHIS
         )
       )
     )
@@ -230,7 +291,7 @@ object BNF {
 
   val firstClassParam = TokenSet.orSet(
     Array(
-      firstModifier,
+      firstModifierWithoutImplicit,
       TokenSet.create(
         Array (
           ScalaTokenTypes.tIDENTIFIER,
@@ -252,6 +313,24 @@ object BNF {
     )
   )
 
+
+  val firstSelfInvocation : TokenSet = TokenSet.create(
+    Array (
+      ScalaTokenTypes.kTHIS
+    )
+  )
+
+  val firstConstrExpr : TokenSet = TokenSet.orSet(
+    Array (
+      firstSelfInvocation,
+      TokenSet.create(
+        Array (
+          ScalaTokenTypes.tLBRACE
+        )
+      )
+    )
+  )
+
   val firstFunDef = firstFunSig
 
    val firstTmplDef = TokenSet.create(
@@ -260,6 +339,16 @@ object BNF {
       ScalaTokenTypes.kCLASS,
       ScalaTokenTypes.kOBJECT,
       ScalaTokenTypes.kTRAIT
+    )
+  )
+
+  //todo: expr -> expr1
+  val firstBlockStat : TokenSet = TokenSet.orSet(
+    Array (
+      firstImport,
+      firstLocalModifier,
+      firstTmplDef,
+      firstExpr
     )
   )
 

@@ -54,6 +54,7 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
     Assert.assertNotNull(result);
     Assert.assertNotNull(input);
 
+    System.out.println("result: " + result);
 
     final String transformed;
     String testName = myTestFile.getName();

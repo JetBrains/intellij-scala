@@ -22,29 +22,65 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
     class TypeParamClause[T <: TypeParam] (typeParam : T) extends Constr {
       override def getElementType : IElementType = ScalaElementTypes.TYPE_PARAM_CLAUSE
 
-      override def parseBody(builder : PsiBuilder) : Unit = {
-         if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
-           ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
+        def checkForTypeParamClause (first : IElementType, second : IElementType) : Boolean = {
+          var a = first
+          var b = second
+
+          if (a.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
+            a = b
+          }
+
+          a.equals(ScalaTokenTypes.tLSQBRACKET)
         }
 
-        if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
+        /*def checkForParamClauses(first : IElementType, second : IElementType) : Boolean = {
+          var a = first
+          var b = second
 
-          if (typeParam.first.contains(builder.getTokenType)){
-            ParserUtils.listOfSmthWithoutNode(builder, typeParam, ScalaTokenTypes.tCOMMA)
-          } else {
-            builder error "expected type parameter declaration"
+          if (a.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
+            a = b
           }
 
-          if (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType)) {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
+          if (a.equals(ScalaTokenTypes.tLPARENTHIS)) return true
+          else false
+        } */
+
+
+      override def parseBody(builder : PsiBuilder) : Unit = {
+        val typeParamClausemarker = builder.mark
+
+        val first = builder.getTokenType
+        builder.advanceLexer
+
+        val second = builder.getTokenType
+        typeParamClausemarker.rollbackTo
+
+        if (checkForTypeParamClause(first, second)) {
+
+          if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
+          }
+
+          if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)) {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
+
+            if (typeParam.first.contains(builder.getTokenType)){
+              ParserUtils.listOfSmth(builder, typeParam, ScalaTokenTypes.tCOMMA, ScalaElementTypes.TYPE_PARAMS)
+            } else {
+              builder error "expected type parameter declaration"
+            }
+
+            if (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType)) {
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
+            } else {
+              builder error "expected ']'"
+              return
+            }
           } else {
-            builder error "expected ']'"
+            builder error "expected '['"
             return
           }
-        } else {
-          builder error "expected '['"
-          return
+
         }
       }
     }

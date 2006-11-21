@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.VariantTypePar
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImplicit
 //import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef.ClassParam
 
 /**
@@ -106,29 +107,7 @@ object TmplDef extends ConstrWithoutNode {
   /************** CLASS ******************/
 
   //todo for NullPointerException in tokens
-   def checkForTypeParamClauses (first : IElementType, second : IElementType) : Boolean = {
-        var a = first
-        var b = second
-
-        if (a.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
-          a = b
-        }
-
-        a.equals(ScalaTokenTypes.tLSQBRACKET)
-      }
-
-      def checkForClassParamClauses(first : IElementType, second : IElementType) : Boolean = {
-        var a = first
-        var b = second
-
-        if (a.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
-          a = b
-        }
-
-        if (a.equals(ScalaTokenTypes.tLPARENTHIS)) return true
-        else false
-      }
-
+ 
     case class ClassDef extends InstanceDef {
       //def getElementType = ScalaElementTypes.CLASS_DEF
 
@@ -147,7 +126,7 @@ object TmplDef extends ConstrWithoutNode {
 
         if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-
+          /*
           var chooseParsingWay = builder.mark()
 
           builder.advanceLexer
@@ -157,11 +136,13 @@ object TmplDef extends ConstrWithoutNode {
           var second = builder.getTokenType()
 
           chooseParsingWay.rollbackTo()
-
-          if (checkForTypeParamClauses(first, second)) {
+          */
+//          if (checkForTypeParamClauses(first, second)) {
+          if (BNF.firstClassTypeParamClause.contains(builder.getTokenType)) {
             new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder
           }
 
+          /*
           chooseParsingWay = builder.mark()
 
           //builder.advanceLexer
@@ -171,10 +152,12 @@ object TmplDef extends ConstrWithoutNode {
           second = builder.getTokenType()
 
           chooseParsingWay.rollbackTo()
+          */
 
-          DebugPrint println ("first: " + first)
-          DebugPrint println ("second: " + second)
-          if (checkForClassParamClauses(first, second)) {
+//          DebugPrint println ("first: " + first)
+//          DebugPrint println ("second: " + second)
+          //if (checkForClassParamClauses(first, second)) {
+          if (BNF.firstClassParamClauses.contains(builder.getTokenType)) {
              (new ParamClauses[ClassParam](new ClassParam)).parse(builder)
           }
 
@@ -191,7 +174,10 @@ object TmplDef extends ConstrWithoutNode {
             }
             case _ => {}
           }
-        }
+        }  else {
+          builder error "expected identifier"
+          return
+        }        
       }
    }
 
@@ -220,18 +206,11 @@ object TmplDef extends ConstrWithoutNode {
 
         override def parseBody(builder : PsiBuilder) : Unit = {
 
-         var isModifier = false
+          var isModifier = false
+
           while (BNF.firstModifier.contains(builder.getTokenType)) {
+            ModifierWithoutImplicit parse builder
             isModifier = true;
-            builder.getTokenType() match {
-              case ScalaTokenTypes.kABSTRACT => { ParserUtils.eatElement(builder, ScalaTokenTypes.kABSTRACT) }
-              case ScalaTokenTypes.kFINAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kFINAL) }
-              case ScalaTokenTypes.kOVERRIDE => { ParserUtils.eatElement(builder, ScalaTokenTypes.kOVERRIDE) }
-              case ScalaTokenTypes.kPRIVATE => { ParserUtils.eatElement(builder, ScalaTokenTypes.kPRIVATE) }
-              case ScalaTokenTypes.kPROTECTED => { ParserUtils.eatElement(builder, ScalaTokenTypes.kPROTECTED) }
-              case ScalaTokenTypes.kSEALED => { ParserUtils.eatElement(builder, ScalaTokenTypes.kSEALED) }
-              case _ => builder error "expected modifier"
-            }
           }
 
          if (isModifier){
