@@ -92,8 +92,8 @@ import org.jetbrains.plugins.scala.util.DebugPrint
       }
     }
 
- class ParamClause[T <: Param] (param : T) extends ConstrWithoutNode {
-    //override def getElementType : IElementType = ScalaElementTypes.PARAM_CLAUSE
+ class ParamClause[T <: Param] (param : T) extends Constr {
+    override def getElementType : IElementType = ScalaElementTypes.PARAM_CLAUSE
 
     override def parseBody(builder : PsiBuilder) : Unit = {
       if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
@@ -109,7 +109,7 @@ import org.jetbrains.plugins.scala.util.DebugPrint
       }
 
       if (param.first.contains(builder.getTokenType)){
-        ParserUtils.listOfSmth(builder, param, ScalaTokenTypes.tCOMMA, ScalaElementTypes.PARAM_CLAUSE)
+        ParserUtils.listOfSmth(builder, param, ScalaTokenTypes.tCOMMA, ScalaElementTypes.PARAMS)
       }
 
       if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)) {
@@ -121,8 +121,10 @@ import org.jetbrains.plugins.scala.util.DebugPrint
     }
   }
 
-   class ImplicitEnd[T <: Param] (param : T){
-      def parse(builder : PsiBuilder) : Unit = {
+   class ImplicitEnd[T <: Param] (param : T) extends Constr{
+     override def getElementType : IElementType = ScalaElementTypes.PARAM_CLAUSE
+
+      override def parseBody (builder : PsiBuilder) : Unit = {
          if (builder.getTokenType().equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
         }
