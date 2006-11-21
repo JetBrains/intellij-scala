@@ -71,7 +71,7 @@ object ScalaElementTypes {
 
   val PARAM_TYPE = new ScalaElementType("parameter type")
   val PARAM = new ScalaElementType("parameter")
-  //val PARAM_LIST = new ScalaElementType("parameters")
+  val PARAMS = new ScalaElementType("parameters")
 
 
   val PARAM_CLAUSE = new ScalaElementType("parameters clause")

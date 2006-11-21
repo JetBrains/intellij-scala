@@ -76,7 +76,20 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
     object Def extends ConstrUnpredict {
       override def parseBody(builder : PsiBuilder) : Unit = {
         if (BNF.firstDef.contains(builder.getTokenType)){
-          DclDef parse builder
+          val candidateOnDefElement = DclDef parseBodyNode builder
+
+          candidateOnDefElement match {
+            case  ScalaElementTypes.VARIABLE_DEFINITION
+                | ScalaElementTypes.PATTERN_DEFINITION
+                | ScalaElementTypes.FUNCTION_DEFINITION
+                | ScalaElementTypes.TYPE_DEFINITION
+                | ScalaElementTypes.TMPL_DEF
+                => {}
+            case _ => {
+              builder error "expected definition"
+              return
+            }
+          }
         }
       }
     }
