@@ -44,11 +44,11 @@ object Template extends Constr{
     override def getElementType = ScalaElementTypes.TEMPLATE_PARENTS
 
     override def parseBody(builder : PsiBuilder) : Unit = {
-      if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
+      if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         Constructor.parse(builder)
       } else builder.error("expected identifier")
 
-      while (builder.getTokenType.equals(ScalaTokenTypes.kWITH)) {
+      while (ScalaTokenTypes.kWITH.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kWITH)
 
         if (BNF.firstSimpleType.contains(builder.getTokenType)) {
@@ -63,7 +63,7 @@ object Template extends Constr{
 
     override def parseBody(builder : PsiBuilder) : Unit = {
 
-      if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)) {
+      if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
 
         if (BNF.firstTemplateStatSeq.contains(builder.getTokenType)) {
@@ -72,7 +72,7 @@ object Template extends Constr{
           //Console.println("parsed template stat list")
         }
 
-        if (!builder.eof() && builder.getTokenType.equals(ScalaTokenTypes.tRBRACE)) {
+        if (!builder.eof() && ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
         } else {
           builder error "expected '}'"

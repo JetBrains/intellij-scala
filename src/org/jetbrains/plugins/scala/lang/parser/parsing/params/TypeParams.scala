@@ -96,15 +96,15 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
           return
         }
 
-        if (builder.getTokenType.equals(ScalaTokenTypes.tPLUS)) {
+        if (ScalaTokenTypes.tPLUS.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tPLUS)
         }
 
-        if (builder.getTokenType.equals(ScalaTokenTypes.tMINUS)) {
+        if (ScalaTokenTypes.tMINUS.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tMINUS)
         }
 
-        if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
+        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           (new TypeParam()).parse(builder)
         }
       }
@@ -116,21 +116,21 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
       override def first = BNF.firstTypeParam
 
       override def parseBody(builder : PsiBuilder) : Unit = {
-        if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)){
+        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         } else builder.error("expected identifier")
 
-        if (builder.getTokenType.equals(ScalaTokenTypes.tLOWER_BOUND)){
+        if (ScalaTokenTypes.tLOWER_BOUND.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLOWER_BOUND)
           Type.parse(builder)
         }
 
-        if (builder.getTokenType.equals(ScalaTokenTypes.tUPPER_BOUND)){
+        if (ScalaTokenTypes.tUPPER_BOUND.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tUPPER_BOUND)
           Type.parse(builder)
         }
 
-        if (builder.getTokenType.equals(ScalaTokenTypes.tVIEW)){
+        if (ScalaTokenTypes.tVIEW.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tVIEW)
           Type.parse(builder)
         }
