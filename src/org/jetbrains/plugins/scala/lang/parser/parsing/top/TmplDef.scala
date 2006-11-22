@@ -106,8 +106,6 @@ object TmplDef extends ConstrWithoutNode {
 
   /************** CLASS ******************/
 
-  //todo for NullPointerException in tokens
- 
     case class ClassDef extends InstanceDef {
       //def getElementType = ScalaElementTypes.CLASS_DEF
 
@@ -126,37 +124,11 @@ object TmplDef extends ConstrWithoutNode {
 
         if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-          /*
-          var chooseParsingWay = builder.mark()
 
-          builder.advanceLexer
-          var first = builder.getTokenType()
-
-          builder.advanceLexer
-          var second = builder.getTokenType()
-
-          chooseParsingWay.rollbackTo()
-          */
-//          if (checkForTypeParamClauses(first, second)) {
           if (BNF.firstClassTypeParamClause.contains(builder.getTokenType)) {
             new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder
           }
 
-          /*
-          chooseParsingWay = builder.mark()
-
-          //builder.advanceLexer
-          first = builder.getTokenType()
-
-          builder.advanceLexer
-          second = builder.getTokenType()
-
-          chooseParsingWay.rollbackTo()
-          */
-
-//          DebugPrint println ("first: " + first)
-//          DebugPrint println ("second: " + second)
-          //if (checkForClassParamClauses(first, second)) {
           if (BNF.firstClassParamClauses.contains(builder.getTokenType)) {
              (new ParamClauses[ClassParam](new ClassParam)).parse(builder)
           }
@@ -231,7 +203,7 @@ object TmplDef extends ConstrWithoutNode {
            }
          }
 
-          if (builder.getTokenType().equals(ScalaTokenTypes.tIDENTIFIER)) {
+          if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
             new Param().parse(builder)
           } else builder.error("expected identifier")
         }
@@ -254,8 +226,6 @@ object TmplDef extends ConstrWithoutNode {
             return
           }
         }
-
-        //Console.println("before parsing templateBody " + builder.getTokenType)
 
         if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)){
           TemplateBody.parse(builder)
@@ -346,23 +316,12 @@ object TmplDef extends ConstrWithoutNode {
       }
 
       if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
-        //Console.println("type param clause in trait " + builder.getTokenType);
-        //TypeParamClause parse builder
         new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder
       }
 
       if (ScalaTokenTypes.kREQUIRES.equals(builder.getTokenType)) {
         Requires parse builder
       }
-     /*
-      if (ScalaTokenTypes.kREQUIRES.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.kREQUIRES)
-
-        if (BNF.firstSimpleType.contains(builder.getTokenType)){
-          SimpleType parse builder
-        } else builder error "expected simple type"
-      }
-      */
 
       if (BNF.firstTraitTemplate.contains(builder.getTokenType)){
         TraitTemplate parse builder

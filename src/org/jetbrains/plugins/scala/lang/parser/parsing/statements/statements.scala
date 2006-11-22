@@ -83,7 +83,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
                 | ScalaElementTypes.PATTERN_DEFINITION
                 | ScalaElementTypes.FUNCTION_DEFINITION
                 | ScalaElementTypes.TYPE_DEFINITION
-                | ScalaElementTypes.TMPL_DEF
+                | ScalaElementTypes.OBJECT_DEF
+                | ScalaElementTypes.CLASS_DEF
+                | ScalaElementTypes.TRAIT_DEF
                 => {}
             case _ => {
               builder error "expected definition"
