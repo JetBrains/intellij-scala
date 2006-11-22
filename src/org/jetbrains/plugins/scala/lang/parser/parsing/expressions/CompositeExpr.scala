@@ -206,7 +206,9 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
               if (res1.eq(ScalaElementTypes.EXPR)){
                 var mileMarker = builder.mark()
                 builder.getTokenType match {
-                  case ScalaTokenTypes.kELSE | ScalaTokenTypes.tSEMICOLON => {
+                  case ScalaTokenTypes.kELSE
+                      | ScalaTokenTypes.tSEMICOLON
+                      | ScalaTokenTypes.tLINE_TERMINATOR => {
                     mileMarker.drop()
                     elseProcessing
                   }
