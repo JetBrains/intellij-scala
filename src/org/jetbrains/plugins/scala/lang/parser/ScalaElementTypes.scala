@@ -204,8 +204,9 @@ object ScalaElementTypes {
   //Various prefixes
   //val MINUS = new ScalaElementType("minus")
 
-  val EXPR1 = new ScalaElementType("compositte expression ")
+  val EXPR1 = new ScalaElementType("composite expression ")
   val EXPR = new ScalaElementType("expression")
+  val RESULT_EXPR = new ScalaElementType("result expression")
   val AN_FUN = new ScalaElementType("anonymous function")
   val BINDING = new ScalaElementType("binding")
   val GENERATOR = new ScalaElementType("generator")
