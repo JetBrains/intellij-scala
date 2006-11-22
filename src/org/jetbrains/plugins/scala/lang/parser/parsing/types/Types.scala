@@ -426,6 +426,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           }
           case _ => {
             builder.error("Wrong simple type")
+            if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
+                  Refinements.parse(builder)
+            }
             type1Marker.done(ScalaElementTypes.TYPE1)
             ScalaElementTypes.TYPE1
           }
