@@ -66,11 +66,11 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
     String temp = transform(testName, input.toArray(new String[input.size()]),
         output.toArray(new String[output.size()]));
     
-//    transformed = StringUtil.replace(temp ,"\r", "");
+    transformed = StringUtil.replace(temp ,"\r", "");
 //
 //    result = StringUtil.replace(result, "\r", "");
 //
-//    Assert.assertEquals(result.trim(), transformed.trim());
+    Assert.assertEquals(result.trim(), transformed.trim());
 
   }
 
