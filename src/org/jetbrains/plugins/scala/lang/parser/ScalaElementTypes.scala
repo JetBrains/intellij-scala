@@ -109,7 +109,9 @@ object ScalaElementTypes {
   val SIMPLE_TYPE = new ScalaElementType("simple type")
   val TYPE1 = new ScalaElementType("type1")
   val TYPE = new ScalaElementType("common type")
-  val TYPES = new ScalaElementType("types")
+  val TYPES = new ScalaElementType("common type")
+  val REFINE_STAT = new ScalaElementType("refinement statement")
+  val REFINEMENTS = new ScalaElementType("refinements")
   val TYPE_ARGS = new ScalaElementType("type arguments")
 
   /*************************************************************************************/
@@ -206,6 +208,7 @@ object ScalaElementTypes {
 
   val EXPR1 = new ScalaElementType("composite expression ")
   val EXPR = new ScalaElementType("expression")
+  //val WRONG_EXPR = new ScalaElementType("wrong expression")
   val RESULT_EXPR = new ScalaElementType("result expression")
   val AN_FUN = new ScalaElementType("anonymous function")
   val BINDING = new ScalaElementType("binding")

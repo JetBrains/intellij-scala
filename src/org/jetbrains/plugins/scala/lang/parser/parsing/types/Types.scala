@@ -404,6 +404,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
   *******************************************
   */
     def parse(builder : PsiBuilder) : ScalaElementType = {
+      val type1Marker = builder.mark()
 
       def subParse : ScalaElementType = {
         var result = SimpleType parse(builder)
@@ -415,19 +416,45 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                 subParse
               }
               case _ => {
+                if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
+                  Refinements.parse(builder)
+                }
+                type1Marker.done(ScalaElementTypes.TYPE1)
                 ScalaElementTypes.TYPE1
               }
             }
           }
-          case _ => result
+          case _ => {
+            builder.error("Wrong simple type")
+            type1Marker.done(ScalaElementTypes.TYPE1)
+            ScalaElementTypes.TYPE1
+          }
         }
       }
 
-      val type1Marker = builder.mark()
-      var res = subParse
-      if (res.equals(ScalaElementTypes.WRONGWAY)) type1Marker.rollbackTo()
-        else type1Marker.drop()
-      res
+      var res = SimpleType parse(builder)
+      res match {
+        case ScalaElementTypes.SIMPLE_TYPE => {
+          builder.getTokenType match {
+            case ScalaTokenTypes.kWITH => {
+              ParserUtils.eatElement(builder, ScalaTokenTypes.kWITH)
+              subParse
+            }
+            case _ => {
+              if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
+                Refinements.parse(builder)
+              }
+              type1Marker.done(ScalaElementTypes.TYPE1)
+              ScalaElementTypes.TYPE1
+            }
+          }
+        }
+        case _ => {
+          type1Marker.rollbackTo()
+          ScalaElementTypes.WRONGWAY
+        }
+      }
+
     }
 
   }
@@ -445,6 +472,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
   */
     def parse(builder : PsiBuilder) : ScalaElementType = {
 
+      var typeMarker = builder.mark()
+
       // If ')' symbol - the end of list of parameter list encountered
       def rightBraceProcessing(typesMarker: PsiBuilder.Marker) : ScalaElementType = {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
@@ -452,9 +481,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
         if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
           parse(builder)
+          typeMarker.done(ScalaElementTypes.TYPE)
+          ScalaElementTypes.TYPE
         } else {
           builder.error(" => expected")
-          ScalaElementTypes.WRONGWAY
+          typeMarker.done(ScalaElementTypes.TYPE)
+          ScalaElementTypes.TYPE
         }
       }
 
@@ -467,8 +499,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
               case ScalaTokenTypes.tFUNTYPE => {
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
                 parse(builder)
+                typeMarker.done(ScalaElementTypes.TYPE)
+                ScalaElementTypes.TYPE
               }
               case _ => {
+                typeMarker.drop()
                 ScalaElementTypes.TYPE
               }
             }
@@ -486,27 +521,27 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                   if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
                     rightBraceProcessing(typesMarker)
                   } else {
-                    typesMarker.rollbackTo()
                     builder.error("Right brace expected")
-                    ScalaElementTypes.WRONGWAY
+                    typesMarker.drop()
+                    typeMarker.done(ScalaElementTypes.TYPE)
+                    ScalaElementTypes.TYPE
                   }
                 } else {
+                  typesMarker.drop()
                   builder.error("Types list expected")
-                  ScalaElementTypes.WRONGWAY
+                  typeMarker.done(ScalaElementTypes.TYPE)
+                  ScalaElementTypes.TYPE
                 }
               }
             } else {
               builder.error("Wrong type")
+              typeMarker.rollbackTo()
               ScalaElementTypes.WRONGWAY
             }
           }
         }
       }
-      val typeMarker = builder.mark()
-      var res = subParse
-      if (res.equals(ScalaElementTypes.TYPE)) typeMarker.done(ScalaElementTypes.TYPE)
-        else typeMarker.rollbackTo()
-      res
+      subParse
     }
 
 
