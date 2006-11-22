@@ -111,18 +111,18 @@ object TmplDef extends ConstrWithoutNode {
 
       override def parseBody ( builder : PsiBuilder ) : Unit = {
 
-        if (builder.getTokenType.equals(ScalaTokenTypes.kCASE)) {
+        if (ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kCASE)
         }
 
-        if (builder.getTokenType.equals(ScalaTokenTypes.kCLASS)) {
+        if (ScalaTokenTypes.kCLASS.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kCLASS)
         } else {
           builder error "expected 'class'"
           return
         }
 
-        if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
+        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
 
           if (BNF.firstClassTypeParamClause.contains(builder.getTokenType)) {
@@ -133,7 +133,7 @@ object TmplDef extends ConstrWithoutNode {
              (new ParamClauses[ClassParam](new ClassParam)).parse(builder)
           }
 
-          if (builder.getTokenType.equals(ScalaTokenTypes.kREQUIRES)) {
+          if (ScalaTokenTypes.kREQUIRES.equals(builder.getTokenType)) {
             Requires parse builder
           }
 
@@ -157,7 +157,7 @@ object TmplDef extends ConstrWithoutNode {
      override def getElementType = ScalaElementTypes.REQUIRES_BLOCK
 
      override def parseBody(builder : PsiBuilder) : Unit = {
-       if (builder.getTokenType.equals(ScalaTokenTypes.kREQUIRES)) {
+       if (ScalaTokenTypes.kREQUIRES.equals(builder.getTokenType)) {
          ParserUtils.eatElement(builder, ScalaTokenTypes.kREQUIRES)
 
           if (BNF.firstSimpleType.contains(builder.getTokenType)) {
@@ -215,10 +215,10 @@ object TmplDef extends ConstrWithoutNode {
       override def parseBody(builder : PsiBuilder) : Unit = {
         val classTemplateMarker = builder.mark
 
-        if (builder.getTokenType.equals(ScalaTokenTypes.kEXTENDS)){
+        if (ScalaTokenTypes.kEXTENDS.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.kEXTENDS)
 
-          if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)){
+          if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
             TemplateParents.parse(builder)
           } else {
             builder.error("expected identifier")
@@ -227,7 +227,7 @@ object TmplDef extends ConstrWithoutNode {
           }
         }
 
-        if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)){
+        if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)){
           TemplateBody.parse(builder)
           classTemplateMarker.done(ScalaElementTypes.CLASS_TEMPLATE)
           return
@@ -235,10 +235,10 @@ object TmplDef extends ConstrWithoutNode {
 
         val templateBodyMarker = builder.mark
 
-        if (builder.getTokenType.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
+        if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
 
-          if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)){
+          if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)){
             TemplateBody.parse(builder)
             classTemplateMarker.done(ScalaElementTypes.CLASS_TEMPLATE)
             templateBodyMarker.drop()
@@ -261,18 +261,18 @@ object TmplDef extends ConstrWithoutNode {
     def getElementType : ScalaElementType = ScalaElementTypes.OBJECT_DEF
 
     override def parseBody ( builder : PsiBuilder ) : Unit = {
-      if (builder.getTokenType.equals(ScalaTokenTypes.kCASE)) {
+      if (ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kCASE)
       }
 
-      if (builder.getTokenType.equals(ScalaTokenTypes.kOBJECT)) {
+      if (ScalaTokenTypes.kOBJECT.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kOBJECT)
       } else {
         builder error "expected 'object'"
         return
       }
 
-      if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
+      if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
       } else builder.error("expected identifier")
 

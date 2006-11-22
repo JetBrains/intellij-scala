@@ -39,7 +39,7 @@ object ParserUtils {
         //rollForward(builder)
       }
     } else {
-      builder error "unexpected end of file"
+    //  builder error "unexpected end of file"
       false
     }
   }
@@ -77,7 +77,7 @@ object ParserUtils {
     }
 
     var numberOfElements = 1;
-    while (!builder.eof() && builder.getTokenType.equals(delimiter)) {
+    while (!builder.eof() && delimiter.equals(builder.getTokenType)) {
       eatElement(builder, delimiter);
 
       if (itemType.first.contains(builder.getTokenType)) {

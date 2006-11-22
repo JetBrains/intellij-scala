@@ -320,7 +320,7 @@ object Attribute extends Constr{
           return
         }
 
-        if ( builder.getTokenType.equals(ScalaTokenTypes.tRSQBRACKET) ){
+        if ( ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType) ){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
         } else {
           builder.error("expected ']'")
