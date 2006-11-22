@@ -117,10 +117,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                                nextMarker1,
                                true,
                                ScalaElementTypes.PATH,
-                               (marker1: PsiBuilder.Marker) => ParserUtils.errorToken(builder,
-                                                                                    marker1,
-                                                                                    "Wrong id declaration",
-                                                                                    ScalaElementTypes.STABLE_ID),
+                               (marker1: PsiBuilder.Marker) => { builder.error("Identifier expected")
+                                                                currentMarker.done(ScalaElementTypes.STABLE_ID)
+                                                                ScalaElementTypes.STABLE_ID } ,
                                false)
               }
           } else {
@@ -149,7 +148,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
               }
             }
           }
-          case _ => ParserUtils.errorToken(builder, currentMarker, "Wrong id declaration", ScalaElementTypes.STABLE_ID)
+          case _ => {
+            builder.error("Identifier expected")
+            currentMarker.done(ScalaElementTypes.STABLE_ID)
+            ScalaElementTypes.STABLE_ID
+            // ParserUtils.errorToken(builder, currentMarker, "Wrong id declaration", ScalaElementTypes.STABLE_ID)
+          }
         }
       }
 
@@ -184,10 +188,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                                currentMarker,
                                true,
                                ScalaElementTypes.PATH,
-                               (marker1: PsiBuilder.Marker) => ParserUtils.errorToken(builder,
-                                                                                    marker1,
-                                                                                    "Wrong id declaration",
-                                                                                    ScalaElementTypes.STABLE_ID),
+                               (marker1: PsiBuilder.Marker) => { builder.error("Identifier expected")
+                                                                 currentMarker.done(ScalaElementTypes.STABLE_ID)
+                                                                 ScalaElementTypes.STABLE_ID },
                                false)
               }
             } else { 
@@ -241,8 +244,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                 typeProcessing(dotMarker, nextMarker, false, ScalaElementTypes.STABLE_ID, afterDotParse, true)
               }
               case _ => {
+                //with one id only
                 currentMarker.done(ScalaElementTypes.STABLE_ID)
-                ScalaElementTypes.STABLE_ID
+                ScalaElementTypes.STABLE_ID_ID
               }
             }
           }
@@ -276,7 +280,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
     */
     def parse(builder : PsiBuilder) : ScalaElementType = {
       var result = StableId.parse(builder)
-      if (result.equals(ScalaElementTypes.STABLE_ID))
+      if (result.equals(ScalaElementTypes.STABLE_ID) || result.equals(ScalaElementTypes.STABLE_ID_ID))
         ScalaElementTypes.PATH
       else result
     }
@@ -324,7 +328,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
               }
             }
             case _ => {
-              if (result.equals(ScalaElementTypes.STABLE_ID)){
+              if (result.equals(ScalaElementTypes.STABLE_ID || result.equals(ScalaElementTypes.STABLE_ID_ID))){
                 ScalaElementTypes.SIMPLE_TYPE
               } else ParserUtils.errorToken(builder, currentMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
             }
