@@ -177,8 +177,9 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       def errorDone = errorDoneMain(rollbackMarker, ScalaElementTypes.IF_STMT )
 
       def elseProcessing: ScalaElementType = {
-        if (builder.getTokenType.eq(ScalaTokenTypes.tSEMICOLON)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tSEMICOLON)
+        if (builder.getTokenType.equals(ScalaTokenTypes.tSEMICOLON) ||
+            builder.getTokenType.equals(ScalaTokenTypes.tLINE_TERMINATOR)){
+          ParserUtils.eatElement(builder, builder.getTokenType)
         }
         if (builder.getTokenType.eq(ScalaTokenTypes.kELSE)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kELSE)
