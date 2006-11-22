@@ -25,27 +25,13 @@ public class ParserTest extends BaseScalaFileSetTestCase {
     Assert.assertNotNull(fileText);
     PsiFile psiFile = psiElementFactory.createFileFromText(TEMP_FILE, fileText);
 
-   // System.out.println(DebugUtil.psiToString(psiFile, false));
-    //System.out.println("fooooooooooooooo");
-
     String psiTree = DebugUtil.psiToString(psiFile, false);
     System.out.println("------------------------"+testName+"------------------------");
     System.out.println(psiTree);
     System.out.println("");
-/*
-    String strPsiTree = "";
-    for(String str : outTree){
-      strPsiTree += str;
-    }
-*/
-    //System.out.println(strPsiTree);
-
-//    Assert.assertEquals(strPsiTree, DebugUtil.psiToString(psiFile, false));
 
     //String psiLeafText = gatherTextFromPsiFile(psiFile);
-    //Assert.assertEquals(fileText, psiLeafText);
 
-    //return DebugUtil.psiToString(psiFile, false);
     return psiTree;
 
   }
