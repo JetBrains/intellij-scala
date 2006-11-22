@@ -205,10 +205,20 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
               val res1 = Expr.parse(builder)
               if (res1.eq(ScalaElementTypes.EXPR)){
                 var mileMarker = builder.mark()
+
+                /* else? */
+                var tempMarker = builder.mark()
+                if (!builder.eof) builder.advanceLexer()
+                var second = builder.getTokenType
+                tempMarker.rollbackTo()
+
                 builder.getTokenType match {
                   case ScalaTokenTypes.kELSE
-                      | ScalaTokenTypes.tSEMICOLON
-                      | ScalaTokenTypes.tLINE_TERMINATOR => {
+                      | ScalaTokenTypes.tSEMICOLON => {
+                    mileMarker.drop()
+                    elseProcessing
+                  }
+                  case ScalaTokenTypes.tLINE_TERMINATOR if (ScalaTokenTypes.kELSE.equals(second)) => {
                     mileMarker.drop()
                     elseProcessing
                   }
