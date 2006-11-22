@@ -372,6 +372,12 @@ object BNF {
     )
   )
 
+  val firstTypeDef = TokenSet.create(
+    Array(
+      ScalaTokenTypes.tIDENTIFIER
+    )
+  )
+
   /* it uses because of when we parse TemplateStat we don't know beforehand what we parse: dcl or def. If we get '= expr'
    * this means construction is Definition, else construction is Declaration
    */

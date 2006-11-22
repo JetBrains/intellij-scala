@@ -96,6 +96,26 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
       }
     }
 
+    object Dcl extends ConstrUnpredict {
+      override def parseBody(builder : PsiBuilder) : Unit = {
+        if (BNF.firstDcl.contains(builder.getTokenType)){
+          val candidateOnDclElement = DclDef parseBodyNode builder
+
+          candidateOnDclElement match {
+            case  ScalaElementTypes.VARIABLE_DECLARATION
+                | ScalaElementTypes.VALUE_DECLARATION
+                | ScalaElementTypes.FUNCTION_DECLARATION
+                | ScalaElementTypes.TYPE_DECLARATION
+                => {}
+            case _ => {
+              builder error "expected declaration"
+              return
+            }
+          }
+        }
+      }
+    }
+
     object Var extends ConstrUnpredict {
       override def parseBody(builder : PsiBuilder) : Unit = {
         parseBodyNode(builder)
@@ -427,6 +447,22 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           return ScalaElementTypes.WRONGWAY
         }
       }
+
+    object TypeDef extends ConstrUnpredict {
+      override def parseBody(builder : PsiBuilder) : Unit = {
+        if (BNF.firstTypeDef.contains(builder.getTokenType)){
+          val candidateOnTypeDefElement = TypeDclDef parseBodyNode builder
+
+           candidateOnTypeDefElement match {
+            case  ScalaElementTypes.TYPE_DEFINITION => {}
+            case _ => {
+              builder error "expected type definition"
+              return
+            }
+          }
+        }
+      }
+    }
   
     object FunSig extends ConstrWithoutNode {
       //override def getElementType : IElementType = ScalaElementTypes.FUN_SIG
