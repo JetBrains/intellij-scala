@@ -12,46 +12,54 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
 
-//  object ResultExpr {
+  object ResultExpr {
   /*
   Result expression
   Default grammar
   Expr ::= ( Bindings | Id ) ‘=>’ Expr
           | Expr1               (a)
   */
-  /*
+
     def parse(builder : PsiBuilder) : ScalaElementType = {
         var exprMarker = builder.mark()
         var result = Bindings.parse(builder)
 
+        //Console.println(result)
+
         def parseComposite: ScalaElementType = {
           result = CompositeExpr.parse(builder)
-          if (ScalaElementTypes.EXPR1.equals(result)) {
-            exprMarker.drop()
-            ScalaElementTypes.EXPR
+          if (!ScalaElementTypes.WRONGWAY.equals(result)) {
+            //exprMarker.done(ScalaElementTypes.EXPR1)
+            exprMarker.drop
+            ScalaElementTypes.EXPR1
           } else {
+//            builder.error("Wrong result expression")
+//            exprMarker.done(ScalaElementTypes.RESULT_EXPR)
             exprMarker.rollbackTo()
-            ScalaElementTypes.WRONGWAY
-          }
+            ScalaElementTypes.RESULT_EXPR          }
         }
 
         def parseTail: ScalaElementType = {
-          var res = parse(builder)
-          if (ScalaElementTypes.EXPR.equals(res)) {
-            exprMarker.done(ScalaElementTypes.AN_FUN)
-            ScalaElementTypes.EXPR
+          if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
+            exprMarker.done(ScalaElementTypes.RESULT_EXPR)
+            ScalaElementTypes.RESULT_EXPR  
           } else {
-            builder.error("Expression expected")
-            exprMarker.drop()
-            ScalaElementTypes.EXPR
+            var res = Block.parse (builder , false)
+            if (!ScalaElementTypes.WRONGWAY.equals(result)) {
+              exprMarker.done(ScalaElementTypes.RESULT_EXPR)
+              ScalaElementTypes.RESULT_EXPR
+            } else {
+              exprMarker.rollbackTo()
+              ScalaElementTypes.RESULT_EXPR
+            }
           }
         }
 
         val rbMarker = builder.mark()
         var first = builder.getTokenType ;
-          builder.advanceLexer; ParserUtils.rollForward(builder)
+          builder.advanceLexer;
         var second = builder.getTokenType ;
-          builder.advanceLexer; ParserUtils.rollForward(builder)
+          builder.advanceLexer; 
         rbMarker.rollbackTo()
         if (ScalaTokenTypes.tIDENTIFIER.equals(first) &&
             ScalaTokenTypes.tFUNTYPE.equals(second) ) {
@@ -60,19 +68,29 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
           parseTail
         } else if (ScalaTokenTypes.tIDENTIFIER.equals(first) &&
                    ScalaTokenTypes.tCOLON.equals(second) ){
-           rbMarker = builder.mark()
+           var rbMarker = builder.mark()
            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
            ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
            var res3 = Type1 parse builder
-           
-
-
+           if (ScalaElementTypes.TYPE1.equals(res3)) {
+             if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType)){
+               ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
+               parseTail
+             } else {
+               builder.error("=> expected")
+               exprMarker.done(ScalaElementTypes.RESULT_EXPR)
+               ScalaElementTypes.RESULT_EXPR
+             }
+           } else {
+             builder.error("Wrong type")
+             exprMarker.done(ScalaElementTypes.RESULT_EXPR)
+             ScalaElementTypes.RESULT_EXPR
+           }
         } else if (ScalaElementTypes.BINDINGS.equals(result)){
           ParserUtils.rollForward(builder)
           builder.getTokenType match {
             case ScalaTokenTypes.tFUNTYPE => {
               ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
-              ParserUtils.rollForward(builder)
               parseTail
             }
             case _ => {
@@ -86,8 +104,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         }
       }
   }
-
-  */
 
 
   object Expr {

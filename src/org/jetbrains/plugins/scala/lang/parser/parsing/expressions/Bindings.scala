@@ -77,7 +77,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
           var res = oneBindingParse
           if (res.equals(ScalaElementTypes.BINDING)){
-           ParserUtils.rollForward(builder)
             builder.getTokenType match {
               case ScalaTokenTypes.tRPARENTHIS => {
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)

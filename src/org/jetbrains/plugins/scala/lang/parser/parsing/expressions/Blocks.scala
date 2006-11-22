@@ -36,7 +36,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
           blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
           ScalaElementTypes.BLOCK_EXPR
-        } else {
+        } else if (!ScalaTokenTypes.kCASE.equals(builder.getTokenType)){
           /*  ‘{’ Block ‘}’ */
           var result = Block.parse(builder, true)
           if (result.equals(ScalaElementTypes.BLOCK)) {
@@ -50,10 +50,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
               blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
               ScalaElementTypes.BLOCK_EXPR
             }
-          } else {
-
+          } else{
+            builder.error("Wrong inner block statement")
+            blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
+            ScalaElementTypes.BLOCK_EXPR
+          }
+        } else {
             /* ‘{’ CaseClauses ‘}’ */
-            result = CaseClauses.parse(builder)
+            var result = CaseClauses.parse(builder)
             if (result.equals(ScalaElementTypes.CASE_CLAUSES)) {
               if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
@@ -69,7 +73,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
             blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
             ScalaElementTypes.BLOCK_EXPR
             }
-          }
         }
       } else {
          blockExprMarker.rollbackTo()
@@ -110,21 +113,44 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
       rollForward
       do {
         result = BlockStat.parse(builder)
-        if (flag2 && result.equals(ScalaElementTypes.BLOCK_STAT)) {
+        if (flag2 &&
+              ( result.equals(ScalaElementTypes.BLOCK_STAT) ||
+                result.equals(ScalaElementTypes.EXPR1) )
+          ) {
           counter = counter + 1
-          rollbackMarker.drop()
-          flag2 = rollForward
-          rollbackMarker = builder.mark()
-          builder.getTokenType match {
-            case ScalaTokenTypes.tRBRACE if withBrace => {
-              rollbackMarker.drop()
-              result = ScalaElementTypes.BLOCK
-              flag = false
-            }
-            case _ => {
-              flag = true
+
+          if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType) &&
+              result.equals(ScalaElementTypes.EXPR1)) {
+            rollbackMarker.rollbackTo()
+            flag = false
+            ResultExpr.parse(builder)
+            result = ScalaElementTypes.BLOCK 
+          } else {
+            rollbackMarker.drop()
+            flag2 = rollForward
+            rollbackMarker = builder.mark()
+            builder.getTokenType match {
+              case ScalaTokenTypes.tRBRACE if withBrace => {
+                rollbackMarker.drop()
+                result = ScalaElementTypes.BLOCK
+                flag = false
+              }
+              case _ => {
+                flag = true
+              }
             }
           }
+        } else if (
+          {
+            rollbackMarker.rollbackTo()
+            result = ResultExpr.parse(builder)
+            rollbackMarker = builder.mark()
+            !ScalaElementTypes.WRONGWAY.equals(result)
+          }
+        ) {
+          flag = false
+          result = ScalaElementTypes.BLOCK
+          rollbackMarker.drop()
         } else if (!withBrace) {
           flag = false
           rollbackMarker.rollbackTo()
@@ -164,7 +190,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
         if (!(result == ScalaElementTypes.WRONGWAY)) {
           //blockStatMarker.done(ScalaElementTypes.BLOCK_STAT)
           blockStatMarker.drop
-          ScalaElementTypes.BLOCK_STAT
+          ScalaElementTypes.EXPR1
         }
         else {
           blockStatMarker.rollbackTo
