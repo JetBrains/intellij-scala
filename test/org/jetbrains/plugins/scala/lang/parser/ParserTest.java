@@ -26,7 +26,7 @@ public class ParserTest extends BaseScalaFileSetTestCase {
     PsiFile psiFile = psiElementFactory.createFileFromText(TEMP_FILE, fileText);
 
     String psiTree = DebugUtil.psiToString(psiFile, false);
-    System.out.println("------------------------"+testName+"------------------------");
+    System.out.println("------------------------ "+testName+" ------------------------");
     System.out.println(psiTree);
     System.out.println("");
 
