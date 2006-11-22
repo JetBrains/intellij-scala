@@ -124,7 +124,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
             rollbackMarker.rollbackTo()
             flag = false
             ResultExpr.parse(builder)
-            result = ScalaElementTypes.BLOCK 
+            result = ScalaElementTypes.BLOCK
           } else {
             rollbackMarker.drop()
             flag2 = rollForward
@@ -193,8 +193,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
           ScalaElementTypes.EXPR1
         }
         else {
-          blockStatMarker.rollbackTo
-          ScalaElementTypes.WRONGWAY
+          blockStatMarker.rollbackTo()
+          //blockStatMarker.done(ScalaElementTypes.WRONG_EXPR)
+          ScalaElementTypes.BLOCK_STAT
         }
       }
 

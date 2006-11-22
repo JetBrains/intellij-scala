@@ -74,7 +74,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
               | ScalaTokenTypes.tNOT
               | ScalaTokenTypes.tOR
               | ScalaTokenTypes.tSTAR
-              | ScalaTokenTypes.tCOLON
+//              | ScalaTokenTypes.tCOLON
               | ScalaTokenTypes.tAND
               | ScalaTokenTypes.tDIV
               if (!( builder.getTokenType.equals(ScalaTokenTypes.tOR) &&
@@ -148,7 +148,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
               | ScalaTokenTypes.tNOT
               | ScalaTokenTypes.tOR
               | ScalaTokenTypes.tSTAR
-              | ScalaTokenTypes.tCOLON
+//              | ScalaTokenTypes.tCOLON
               | ScalaTokenTypes.tDIV
               | ScalaTokenTypes.tAND
               if (!( builder.getTokenType.equals(ScalaTokenTypes.tOR) &&
