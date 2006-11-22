@@ -105,6 +105,7 @@ object ScalaElementTypes {
   /************************************** TYPES ****************************************/
   /*************************************************************************************/
   val STABLE_ID = new ScalaElementType("stable id")
+    val STABLE_ID_ID = new ScalaElementType("stable id")
   val PATH = new ScalaElementType("path")
   val SIMPLE_TYPE = new ScalaElementType("simple type")
   val TYPE1 = new ScalaElementType("type1")

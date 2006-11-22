@@ -73,7 +73,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
       def parseStableId: ScalaElementType = {
         var result = StableId.parse(builder)
-        if (ScalaElementTypes.STABLE_ID.equals(result)) {
+        if (ScalaElementTypes.STABLE_ID.equals(result) || ScalaElementTypes.STABLE_ID_ID.equals(result)) {
           if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
             argsParse
             spMarker.drop()
