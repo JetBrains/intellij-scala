@@ -74,21 +74,21 @@ object AttributeClause extends ConstrItem {
 
   override def parseBody(builder: PsiBuilder): Unit = {
 
-        builder.getTokenType() match {
+      builder.getTokenType() match {
       case ScalaTokenTypes.tLSQBRACKET => {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
 
         Attribute.parse(builder)
 
         //possible attributes, separated by comma
-        while (builder.getTokenType().equals(ScalaTokenTypes.tCOMMA)){
+        while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
           Attribute.parse(builder)
         }
 
         //expected right square brace
-        if (builder.getTokenType().equals(ScalaTokenTypes.tRSQBRACKET)) {
+        if (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
         } else {
           builder.error("expected ']'")
@@ -145,9 +145,9 @@ object Attribute extends Constr{
         TypeArgs.parse(builder)
       }
 
-      while (builder.getTokenType().equals(ScalaTokenTypes.tLPARENTHIS)) {
+      while (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) {
         DebugPrint println ("constrctuctor parse: " + builder.getTokenType)
-        if (builder.getTokenType().equals(ScalaTokenTypes.tLPARENTHIS)) {
+        if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
         } else {
           builder.error("expected '('")
@@ -162,7 +162,7 @@ object Attribute extends Constr{
         }*/
 
 
-        if (builder.getTokenType().equals(ScalaTokenTypes.tRPARENTHIS)) {
+        if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
         } else {
           builder.error("expected ')'")
@@ -200,7 +200,7 @@ object Attribute extends Constr{
 
         Types.parse(builder)
 
-        if (builder.getTokenType().equals(ScalaTokenTypes.tRSQBRACKET)) {
+        if (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
         } else {
           builder.error("expected ']'")
@@ -413,7 +413,7 @@ object Attribute extends Constr{
         return
       }
 
-      if (builder.getTokenType().equals(ScalaTokenTypes.tDOT)) {
+      if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
       } else {
         builder.error("expected '.'")

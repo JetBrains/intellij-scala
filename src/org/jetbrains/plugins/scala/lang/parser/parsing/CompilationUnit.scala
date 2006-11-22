@@ -37,6 +37,9 @@ import com.intellij.lang.PsiBuilder
 *         Packaging   ::=   package QualId ‘{’ TopStatSeq ‘}’
 */
 
+
+//IChameleonElementType
+
 object CompilationUnit extends ConstrWithoutNode {
   //override def getElementType = ScalaElementTypes.COMPILATION_UNIT
   override def parseBody (builder : PsiBuilder) : Unit = {
@@ -49,7 +52,7 @@ object CompilationUnit extends ConstrWithoutNode {
         DebugPrint println "'package' ate"
 
         if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
-          QualId.parse(builder)
+          QualId parse builder
           DebugPrint println "quilId ate"
         }
 
@@ -65,7 +68,7 @@ object CompilationUnit extends ConstrWithoutNode {
         }
 
         val packageBlockMarker = builder.mark()
-        if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)) {
+        if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
           DebugPrint println "begin of packaging "
 
@@ -81,12 +84,12 @@ object CompilationUnit extends ConstrWithoutNode {
             return
           } else {
             builder.error("expected '}'")
-            packChooseMarker.drop()
             packageBlockMarker.drop()
+            packChooseMarker.drop()
             return
           }
 
-          packChooseMarker.drop()
+//          packChooseMarker.drop()
           return
         }
 

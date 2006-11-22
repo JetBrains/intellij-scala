@@ -125,18 +125,18 @@ import org.jetbrains.plugins.scala.util.DebugPrint
      override def getElementType : IElementType = ScalaElementTypes.PARAM_CLAUSE
 
       override def parseBody (builder : PsiBuilder) : Unit = {
-         if (builder.getTokenType().equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
+         if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
         }
 
-        if (builder.getTokenType().equals(ScalaTokenTypes.tLPARENTHIS)) {
+        if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
         } else {
           builder.error("expected '('")
           return
         }
 
-        if (builder.getTokenType().equals(ScalaTokenTypes.kIMPLICIT)) {
+        if (ScalaTokenTypes.kIMPLICIT.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kIMPLICIT)
         } else {
           builder.error("expected 'implicit'")
@@ -150,7 +150,7 @@ import org.jetbrains.plugins.scala.util.DebugPrint
           return
         }
 
-        if (builder.getTokenType().equals(ScalaTokenTypes.tRPARENTHIS)) {
+        if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
         } else {
           builder.error("expected ')'")
