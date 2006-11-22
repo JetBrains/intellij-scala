@@ -14,6 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi._
   case class ScBlockExprImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "Block expressions"
   }
+  case class ScResExprImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Result expression"
+  }
 
   case class ScBlockStatImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "Common block statement"
