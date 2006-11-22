@@ -55,13 +55,17 @@ object BNF {
 
    val firstExpr : TokenSet = TokenSet.create(
     Array (
+       ScalaTokenTypes.tINTEGER,
+       ScalaTokenTypes.tFLOAT,
+       ScalaTokenTypes.tCHAR,
+       ScalaTokenTypes.kNULL,
+       ScalaTokenTypes.tSTRING,
+    
        ScalaTokenTypes.tDOT,
        ScalaTokenTypes.kTRUE,
        ScalaTokenTypes.kTHIS,
        ScalaTokenTypes.kSUPER,
        ScalaTokenTypes.kFALSE,
-       ScalaTokenTypes.tCHAR,
-       ScalaTokenTypes.kNULL,
        ScalaTokenTypes.kIF,
        ScalaTokenTypes.kWHILE,
        ScalaTokenTypes.kDO,
@@ -69,10 +73,10 @@ object BNF {
        ScalaTokenTypes.kFOR,
        ScalaTokenTypes.kTHROW,
        ScalaTokenTypes.kRETURN,
-       ScalaTokenTypes.tSTRING,
        ScalaTokenTypes.tPLUS,
        ScalaTokenTypes.tMINUS,
        ScalaTokenTypes.tTILDA,
+       ScalaTokenTypes.tSTAR,
        ScalaTokenTypes.tNOT,
        ScalaTokenTypes.tIDENTIFIER,
        ScalaTokenTypes.tLBRACE,
