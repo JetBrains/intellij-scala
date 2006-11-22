@@ -170,7 +170,9 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
         }
         /* case (e) */
         else { result1 = StableId.parse(builder) // Path ?
-          if (!flag && result1.equals(ScalaElementTypes.PATH)) {
+          if (!flag && (result1.equals(ScalaElementTypes.PATH)
+                        || result1.equals(ScalaElementTypes.STABLE_ID_ID))
+             ) {
             result = result1
             flag = true
             endness = "plain"
