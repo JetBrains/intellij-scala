@@ -51,9 +51,14 @@ object CompilationUnit extends ConstrWithoutNode {
         builder.advanceLexer //Ate package
         DebugPrint println "'package' ate"
 
-        if (builder.getTokenType.equals(ScalaTokenTypes.tIDENTIFIER)) {
+        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           QualId parse builder
           DebugPrint println "quilId ate"
+        }
+
+        DebugPrint println "after parsing qualId" + builder.getTokenType
+        if (builder eof) {
+          packChooseMarker.done(ScalaElementTypes.PACKAGE_STMT)
         }
 
         if (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
@@ -66,6 +71,7 @@ object CompilationUnit extends ConstrWithoutNode {
 
           return
         }
+
 
         val packageBlockMarker = builder.mark()
         if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
@@ -89,7 +95,7 @@ object CompilationUnit extends ConstrWithoutNode {
             return
           }
 
-//          packChooseMarker.drop()
+          packChooseMarker.drop()
           return
         }
 
