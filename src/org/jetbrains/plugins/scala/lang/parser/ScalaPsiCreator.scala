@@ -168,6 +168,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.POSTFIX_EXPR => new ScPostfixExprImpl(node)
 //    case ScalaElementTypes.EXPR1 => new ScCompositeExprImpl(node)
     case ScalaElementTypes.EXPR => new ScExprImpl(node)
+    case ScalaElementTypes.RESULT_EXPR => new ScResExprImpl(node)
     case ScalaElementTypes.BINDING => new ScBindingImpl(node)
     case ScalaElementTypes.ENUMERATOR => new ScEnumeratorImpl(node)
     case ScalaElementTypes.ENUMERATORS => new ScEnumeratorsImpl(node)
