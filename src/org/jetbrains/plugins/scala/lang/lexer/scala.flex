@@ -375,7 +375,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-"abstract"                              {   return process(kABSTRACT); }
+"abstract"                              {   return process(kABSTRACT); } 
 
 "case" / ({LineTerminator}|" ")+ ("class" | "object")
                                         {   return process(kCASE); }
