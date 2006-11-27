@@ -39,6 +39,17 @@ import org.jetbrains.annotations.NotNull;
       }
     }
 
+    private void changeState(){
+      if (braceStack.isEmpty()) {
+        yybegin(YYINITIAL);
+      } else if ( tLPARENTHIS.equals(braceStack.peek()) || tLSQBRACKET.equals(braceStack.peek()) ){
+        yybegin(NEW_LINE_DEPRECATED);
+      } else {
+        yybegin(NEW_LINE_ALLOWED);
+      }
+    }
+
+
     private IElementType popBraceStack(IElementType elem){
      if (
           !braceStack.isEmpty() &&
@@ -49,6 +60,17 @@ import org.jetbrains.annotations.NotNull;
           )
         ) {
           braceStack.pop();
+
+          /*
+          if (braceStack.isEmpty()) {
+            yybegin(YYINITIAL);
+          } else if ( tLPARENTHIS.equals(braceStack.peek()) || tLSQBRACKET.equals(braceStack.peek()) ){
+            yybegin(NEW_LINE_DEPRECATED);
+          } else {
+            yybegin(NEW_LINE_ALLOWED);
+          }
+          */
+
           return process(elem);
         }
         else {
@@ -73,7 +95,7 @@ import org.jetbrains.annotations.NotNull;
 
 integerLiteral = ({decimalNumeral} | {hexNumeral} | {octalNumeral}) (L | l)?
 decimalNumeral = 0 | {nonZeroDigit} {digit}*
-hexNumeral = 0 x {hexDigit}+    
+hexNumeral = 0 x {hexDigit}+
 octalNumeral = 0{octalDigit}+
 digit = [0-9]
 nonZeroDigit = [1-9]
@@ -112,7 +134,7 @@ special =   \u0021 | \u0023
           | \u005C | \u002F     //slashes
 
 // Vertical line haemorrhoids
-op = \u007C ({special} | \u007C)+ 
+op = \u007C ({special} | \u007C)+
      | {special} ({special} | \u007C)*
 
 idrest1 = ({letter} | {digit})* ("_" {op})?
@@ -141,7 +163,7 @@ wrongString = "\"" .*
 ///////////////////// NewLine processing ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-         
+
 //precedeNewLine =     "this" | "return" | "_" | ")" | "]" | "}"
 notFollowNewLine =   "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield"
                     | "," | "." | ";" | ":" | "_" | "=" | "=>" | "<-" | "<:" | "<%" | ">:"
@@ -153,7 +175,7 @@ notFollowNewLine =   "catch" | "else" | "extends" | "finally" | "match" | "requi
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 LineTerminator = \r | \n | \r\n | \u0085|  \u2028 | \u2029
-InLineTerminator = " " | "\t" | "\f" 
+InLineTerminator = " " | "\t" | "\f"
 WhiteSpaceInLine = {InLineTerminator}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,28 +199,132 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 %state NEW_LINE_DEPRECATED
+%state NEW_LINE_ALLOWED
 
-%state PROCESS_NEW_LINE
+%xstate PROCESS_NEW_LINE
 // Valid preceding token for newlinw encountered
 
 //%state IN_BLOCK_COMMENT_STATE
 // In block comment
 
-%state IN_STRING_STATE
+%xstate IN_STRING_STATE
 // Inside the string... Boo!
 
 %state IN_XML_STATE
 //the scala expression between xml tags
 %%
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////// rules declarations ////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 <YYINITIAL>{
+"]"                                     {   processNewLine();
+                                            return process(tRSQBRACKET); }
+
+"}"                                     {   processNewLine();
+                                            return process(tRBRACE); }
+
+")"                                     {   processNewLine();
+                                            return process(tRPARENTHIS); }
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////  New line processing state////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+<PROCESS_NEW_LINE>{
+
+{WhiteSpaceInLine}                              { return process(tWHITE_SPACE_IN_LINE);  }
+"//" .*                                         { return process(tCOMMENT); }
+
+{LineTerminator} / (" ")* {notFollowNewLine}    {   //yybegin(YYINITIAL);
+                                                    changeState();
+                                                    return process(tNON_SIGNIFICANT_NEWLINE);
+                                                }
+
+{LineTerminator}/ (.|{LineTerminator})          {   //yybegin(YYINITIAL);
+                                                    changeState();
+                                                    if(newLineAllowed()){
+                                                      return process(tLINE_TERMINATOR);
+                                                    } else {
+                                                      return process(tNON_SIGNIFICANT_NEWLINE);
+                                                    }
+                                                }
+
+{LineTerminator}                                {   //yybegin(YYINITIAL);
+                                                    changeState();
+                                                    return process(tLINE_TERMINATOR);
+                                                }
+
+.                                               {   yypushback(yylength());
+                                                    changeState();
+                                                    //yybegin(YYINITIAL);
+                                                }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////// In block comment /////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//<IN_BLOCK_COMMENT_STATE>{
+//
+//"*/"                                    {   yybegin(YYINITIAL);
+//                                            return process(tCOMMENT);
+//                                        }
+
+//.|{LineTerminator}                      {   return process(tCOMMENT); }
+
+//}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////// Inside a string  /////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+<IN_STRING_STATE>{
+
+"\"" {stringLiteral}* "\""              {   yybegin(PROCESS_NEW_LINE);
+                                            return process(tSTRING);
+                                        }
+
+("\"" {stringLiteral}*) / {LineTerminator}            {   yybegin(PROCESS_NEW_LINE);
+                                                          return process(tWRONG_STRING);
+                                                      }
+
+.                                       {   return process(tSTUB); }
+
+}
+
+//todo: it is nesseccary organize stack of statements to control opened and corresponding closed tags
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////// Inside a xml  /////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+<IN_XML_STATE>{
+
+"{"                                     {   yybegin(YYINITIAL);
+                                            return process(tBEGINSCALAEXPR);
+                                        }
+
+"}"                                     {   yybegin(IN_XML_STATE);
+                                            return process(tENDSCALAEXPR);
+                                        }
+
+{openXmlTag}                            {   yybegin(IN_XML_STATE);
+                                            return process(tOPENXMLTAG);
+                                        }
+
+{closeXmlTag}                           {   yybegin(YYINITIAL);
+                                            return process(tCLOSEXMLTAG);
+                                        }
+
+.|{LineTerminator}                      {   return process(tSTRING); }
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////// FOR ALL INCLUSIVE STATES //////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////// comments ///////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 "//" .*                                    { return process(tCOMMENT); }
 
@@ -231,16 +357,19 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ///////////////////////// braces ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 "["                                     {   braceStack.push(tLSQBRACKET);
+                                            yybegin(NEW_LINE_DEPRECATED);
                                             return process(tLSQBRACKET); }
 "]"                                     {   processNewLine();
                                             return popBraceStack(tRSQBRACKET); }
 
 "{"                                     {   braceStack.push(tLBRACE);
+                                            yybegin(NEW_LINE_ALLOWED);
                                             return process(tLBRACE); }
 "}"                                     {   processNewLine();
                                             return popBraceStack(tRBRACE); }
 
 "("                                     {   braceStack.push(tLPARENTHIS);
+                                            yybegin(NEW_LINE_DEPRECATED);
                                             return process(tLPARENTHIS); }
 ")"                                     {   processNewLine();
                                             return popBraceStack(tRPARENTHIS); }
@@ -347,90 +476,3 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////////////////// STUB ///////////////////////////////////////////////
 .                                             {   return process(tSTUB); }
 
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////  New line processing state////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<PROCESS_NEW_LINE>{
-
-{WhiteSpaceInLine}                              { return process(tWHITE_SPACE_IN_LINE);  }
-"//" .*                                         { return process(tCOMMENT); }
-
-{LineTerminator} / (" ")* {notFollowNewLine}    {   yybegin(YYINITIAL);
-                                                    return process(tNON_SIGNIFICANT_NEWLINE);
-                                                }
-
-{LineTerminator}/ (.|{LineTerminator})          {   yybegin(YYINITIAL);
-                                                    if(newLineAllowed()){
-                                                      return process(tLINE_TERMINATOR);
-                                                    } else {
-                                                      return process(tNON_SIGNIFICANT_NEWLINE);                                                      
-                                                    }
-                                                }
-
-{LineTerminator}                                {   yybegin(YYINITIAL);
-                                                    return process(tLINE_TERMINATOR);
-                                                }
-
-.                                               {   yypushback(yylength());
-                                                    yybegin(YYINITIAL);
-                                                }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////// In block comment /////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//<IN_BLOCK_COMMENT_STATE>{
-//
-//"*/"                                    {   yybegin(YYINITIAL);
-//                                            return process(tCOMMENT);
-//                                        }
-
-//.|{LineTerminator}                      {   return process(tCOMMENT); }
-
-//}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////// Inside a string  /////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<IN_STRING_STATE>{
-
-"\"" {stringLiteral}* "\""              {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tSTRING);
-                                        }
-
-("\"" {stringLiteral}*) / {LineTerminator}            {   yybegin(PROCESS_NEW_LINE);
-                                                          return process(tWRONG_STRING);
-                                                      }     
-
-.                                       {   return process(tSTUB); }
-
-}
-
-//todo: it is nesseccary organize stack of statements to control opened and corresponding closed tags
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////// Inside a xml  /////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<IN_XML_STATE>{
-
-"{"                                     {   yybegin(YYINITIAL);
-                                            return process(tBEGINSCALAEXPR);
-                                        }
-
-"}"                                     {   yybegin(IN_XML_STATE);
-                                            return process(tENDSCALAEXPR);
-                                        }
-
-{openXmlTag}                            {   yybegin(IN_XML_STATE);
-                                            return process(tOPENXMLTAG);
-                                        }
-
-{closeXmlTag}                           {   yybegin(YYINITIAL);
-                                            return process(tCLOSEXMLTAG);
-                                        }
-
-.|{LineTerminator}                      {   return process(tSTRING); }
-
-}
