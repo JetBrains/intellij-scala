@@ -1,0 +1,2 @@
+class A(a: T with S with U {val i:T})
+-----
