@@ -1,0 +1,21 @@
+import a.b.a_b.c
+-----
+Scala file
+  Import statement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    Import expression
+      Stable Identifier
+        Stable Identifier
+          Stable Identifier
+            Identifier
+              PsiElement(identifier)('a')
+          PsiElement(.)('.')
+          Identifier
+            PsiElement(identifier)('b')
+        PsiElement(.)('.')
+        Identifier
+          PsiElement(identifier)('a_b')
+      PsiElement(.)('.')
+      Identifier
+        PsiElement(identifier)('c')
