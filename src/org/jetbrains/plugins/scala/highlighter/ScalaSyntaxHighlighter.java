@@ -54,7 +54,8 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     static final TokenSet tSTRINGS = TokenSet.create(
             ScalaTokenTypes.tSTRING,
             ScalaTokenTypes.tWRONG_STRING,
-            ScalaTokenTypes.tCHAR
+            ScalaTokenTypes.tCHAR,
+            ScalaTokenTypes.tSYMBOL
     );
 
     // Keywords
