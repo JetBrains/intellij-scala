@@ -1,0 +1,35 @@
+package org {
+
+import com.ert._
+
+}
+-----
+Scala file
+  Packaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    Qualified identifier
+      Stable Identifier
+        Identifier
+          PsiElement(identifier)('org')
+    PsiWhiteSpace(' ')
+    Packaging block
+      PsiElement({)('{')
+      PsiWhiteSpace('\n')
+      PsiWhiteSpace('\n')
+      Import statement
+        PsiElement(import)('import')
+        PsiWhiteSpace(' ')
+        Import expression
+          Stable Identifier
+            Stable Identifier
+              Identifier
+                PsiElement(identifier)('com')
+            PsiElement(.)('.')
+            Identifier
+              PsiElement(identifier)('ert')
+          PsiElement(.)('.')
+          PsiElement(_)('_')
+      PsiElement(newline)('\n')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
