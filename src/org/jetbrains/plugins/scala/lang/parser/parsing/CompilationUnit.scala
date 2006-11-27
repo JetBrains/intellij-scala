@@ -139,9 +139,8 @@ object CompilationUnit extends ConstrWithoutNode {
       var isAttrClauses = false
 
       while (BNF.firstAttributeClause.contains(builder.getTokenType())) {
-        isAttrClauses = true
-
         AttributeClause parse builder
+        isAttrClauses = true
       }
 
       if (isAttrClauses)
@@ -152,10 +151,10 @@ object CompilationUnit extends ConstrWithoutNode {
       val modifierMarker = builder.mark()
       var isModifiers = false
 
-      while (BNF.firstModifier.contains(builder.getTokenType())) {
+      while (BNF.firstModifier.contains(builder.getTokenType)) {
         //Console.println("parse modifier")
-        isModifiers = true
         Modifier.parse(builder)
+        isModifiers = true
       }
 
       if (isModifiers)

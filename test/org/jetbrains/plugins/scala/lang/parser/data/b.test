@@ -1,9 +1,0 @@
-package org.com
------
-Scala file
-  file
-      package statement
-        PsiElement(package)('package')
-        PsiWhiteSpace(' ')
-        Qualified identifier
-        
