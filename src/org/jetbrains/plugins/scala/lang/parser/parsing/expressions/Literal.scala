@@ -49,6 +49,12 @@ Literal ::= integerLiteral
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
+      case ScalaTokenTypes.tSYMBOL => { //Character literal
+        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
+//        marker.done(ScalaTokenTypes.tCHAR)
+        marker.done(ScalaElementTypes.LITERAL)
+        ScalaElementTypes.LITERAL
+      }
       case ScalaTokenTypes.kNULL => { //null literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
 //        marker.done(ScalaTokenTypes.kNULL)
