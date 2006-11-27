@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
     // Length of NewLine token
     private Stack <IElementType> braceStack = new Stack<IElementType>();
 
+    /* Defines, is in this section new line is whitespace or not? */
     private boolean newLineAllowed(){
       if (braceStack.isEmpty()){
         return true;
@@ -39,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
       }
     }
 
+    /* Changes state depending on brace stack */
     private void changeState(){
       if (braceStack.isEmpty()) {
         yybegin(YYINITIAL);
@@ -50,6 +52,7 @@ import org.jetbrains.annotations.NotNull;
     }
 
 
+    /* removes brace from stack */
     private IElementType popBraceStack(IElementType elem){
      if (
           !braceStack.isEmpty() &&
@@ -60,20 +63,13 @@ import org.jetbrains.annotations.NotNull;
           )
         ) {
           braceStack.pop();
-
-          /*
-          if (braceStack.isEmpty()) {
-            yybegin(YYINITIAL);
-          } else if ( tLPARENTHIS.equals(braceStack.peek()) || tLSQBRACKET.equals(braceStack.peek()) ){
-            yybegin(NEW_LINE_DEPRECATED);
-          } else {
-            yybegin(NEW_LINE_ALLOWED);
-          }
-          */
-
           return process(elem);
-        }
-        else {
+        } else if (elem.equals(tFUNTYPE)) {
+          if (!braceStack.isEmpty() && kCASE.equals(braceStack.peek())) {
+            braceStack.pop();
+          }
+          return process(elem);
+        } else {
           return tWRONG;
         }
     }
@@ -224,6 +220,8 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 
 ")"                                     {   processNewLine();
                                             return process(tRPARENTHIS); }
+"=>"                                    {   return process(tFUNTYPE);  }
+                                               
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////  New line processing state////////////////////////////////////////////////////////////////////
@@ -378,7 +376,14 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 "abstract"                              {   return process(kABSTRACT); }
-"case"                                  {   return process(kCASE); }
+
+"case" / ({LineTerminator}|" ")+ ("class" | "object")
+                                        {   return process(kCASE); }
+
+"case"                                  {   braceStack.push(kCASE);
+                                            yybegin(NEW_LINE_DEPRECATED);
+                                            return process(kCASE); }
+                                            
 "catch"                                 {   return process(kCATCH); }
 "class"                                 {   return process(kCLASS); }
 "def"                                   {   return process(kDEF); }
@@ -429,7 +434,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
                                             return process(tUNDER);  }
 ":"                                     {   return process(tCOLON);  }
 "="                                     {   return process(tASSIGN);  }
-"=>"                                    {   return process(tFUNTYPE); }
+"=>"                                    {   return popBraceStack(tFUNTYPE); }
 \u21D2                                  {   return process(tFUNTYPE_ASCII); }
 "<-"                                    {   return process(tCHOOSE); }
 "<:"                                    {   return process(tLOWER_BOUND); }
