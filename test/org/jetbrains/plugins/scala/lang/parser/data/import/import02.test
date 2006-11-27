@@ -1,0 +1,12 @@
+import a._
+-----
+Scala file
+  Import statement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    Import expression
+      Stable Identifier
+        Identifier
+          PsiElement(identifier)('a')
+      PsiElement(.)('.')
+      PsiElement(_)('_')
