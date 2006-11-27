@@ -1,35 +1,44 @@
 class A(a:(a=>(c,d)=>e))
 -----
 Scala file
-  Typed statement
-    Stable Identifier
-      Identifier
-        PsiElement(identifier)('a')
-    PsiElement(:)(':')
-    Simple type
+  template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    Identifier
+      PsiElement(identifier)('A')
+    parameters clause
       PsiElement(()('(')
-      Function type
-        Simple type
-          Stable Identifier
-            Identifier
-              PsiElement(identifier)('a')
-        PsiElement(=>)('=>')
-        Function type
-          Types list
-            PsiElement(()('(')
+      class parameter
+        parameter
+          Identifier
+            PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          parameter Function type
             Simple type
-              Stable Identifier
-                Identifier
-                  PsiElement(identifier)('c')
-            PsiElement(,)(',')
-            Simple type
-              Stable Identifier
-                Identifier
-                  PsiElement(identifier)('d')
-            PsiElement())(')')
-          PsiElement(=>)('=>')
-          Simple type
-            Stable Identifier
-              Identifier
-                PsiElement(identifier)('e')
+              PsiElement(()('(')
+              Function type
+                Simple type
+                  Stable Identifier
+                    Identifier
+                      PsiElement(identifier)('a')
+                PsiElement(=>)('=>')
+                Function type
+                  Types list
+                    PsiElement(()('(')
+                    Simple type
+                      Stable Identifier
+                        Identifier
+                          PsiElement(identifier)('c')
+                    PsiElement(,)(',')
+                    Simple type
+                      Stable Identifier
+                        Identifier
+                          PsiElement(identifier)('d')
+                    PsiElement())(')')
+                  PsiElement(=>)('=>')
+                  Simple type
+                    Stable Identifier
+                      Identifier
+                        PsiElement(identifier)('e')
+              PsiElement())(')')
       PsiElement())(')')
