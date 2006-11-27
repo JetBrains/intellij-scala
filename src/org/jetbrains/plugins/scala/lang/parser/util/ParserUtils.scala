@@ -28,6 +28,9 @@ object ParserUtils {
 
   //Write element node
   def eatElement(builder: PsiBuilder, elem: IElementType): Unit = {
+
+    //builder.getTokenType.toString
+
     if (!builder.eof()) {
       if (elem.equals(ScalaTokenTypes.tIDENTIFIER)){
         val marker = builder.mark()
