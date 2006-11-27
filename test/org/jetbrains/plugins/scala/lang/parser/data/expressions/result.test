@@ -1,0 +1,45 @@
+class A{
+val foo=(a:T,b:S)=>true
+}
+-----
+Scala file
+  template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    Identifier
+      PsiElement(identifier)('A')
+    class template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        pattern definition
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          Identifier
+            PsiElement(identifier)('foo')
+          PsiElement(=)('=')
+          Anonymous function
+            PsiElement(()('(')
+            Binding
+              Identifier
+                PsiElement(identifier)('a')
+              PsiElement(:)(':')
+              Simple type
+                Stable Identifier
+                  Identifier
+                    PsiElement(identifier)('T')
+            PsiElement(,)(',')
+            Binding
+              Identifier
+                PsiElement(identifier)('b')
+              PsiElement(:)(':')
+              Simple type
+                Stable Identifier
+                  Identifier
+                    PsiElement(identifier)('S')
+            PsiElement())(')')
+            PsiElement(=>)('=>')
+            Literal
+              PsiElement(true)('true')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
