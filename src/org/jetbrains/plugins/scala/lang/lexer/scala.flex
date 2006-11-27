@@ -149,11 +149,11 @@ plainid = {upper} {idrest}
 charNoDoubleQuote = !( ![^"\""] | {LineTerminator})
 stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 stringLiteral = {stringElement}*
+
 characterLiteral = "\'" {charEscapeSeq} "\'"
                    | "\'" [^"\'"] "\'"
-wholeString = "\"" .* ?("\"")
-wrongString = "\"" .*
 
+symbolLiteral = "'" plainid
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////// NewLine processing ///////////////////////////////////////////////////////////////////////////////
@@ -332,7 +332,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 //                                          }
 
 
-"/*" {special}* ~"*/"                     {   return process(tCOMMENT); }
+"/*" {special}* ~ "*/"                      {   return process(tCOMMENT); }
 
 
 
@@ -341,7 +341,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////// Strings /////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//{wholeString}                             {   processNewLine();
+//{wholeString}                         {   processNewLine();
 //                                            return process(tSTRING);  }
 
 "\""                                    {   yypushback(yylength());
@@ -350,6 +350,9 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 
 {characterLiteral}                      {   processNewLine();
                                             return process(tCHAR);  }
+
+{symbolLiteral}                         {   processNewLine();
+                                            return process(tSYMBOL);  }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// braces ///////////////////////////////////////////////////////////////////////////////////////
