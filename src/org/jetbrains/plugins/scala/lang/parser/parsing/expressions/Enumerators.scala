@@ -26,22 +26,18 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 
       def badCloseAfterAssign(st:String): ScalaElementType = {
         builder.error(st)
-        genMarker.drop()
+        genMarker.done(elemType)
         elemType
       }
 
       if (ScalaTokenTypes.kVAL.equals(builder.getTokenType)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL)
-        ParserUtils.rollForward(builder)
         var res = Pattern1.parse(builder)
         if (ScalaElementTypes.PATTERN1.equals(res)){
-          ParserUtils.rollForward(builder)
           if (assignType.equals(builder.getTokenType)){
             ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL)
-            ParserUtils.rollForward(builder)
             res = Expr.parse(builder)
             if (ScalaElementTypes.EXPR.equals(res)){
-              ParserUtils.rollForward(builder)
               if (ScalaElementTypes.GENERATOR.equals(elemType)){
                 genMarker.done(ScalaElementTypes.ENUMERATOR)
               } else {
@@ -78,7 +74,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
                          ScalaTokenTypes.tCHOOSE.asInstanceOf[ScalaElementType]
                          )
                      Enumer parse builder}
-        ScalaElementTypes.GENERATOR.equals(res)
+        ScalaElementTypes.ENUMERATOR.equals(res)
       }
 
       def enParse: Boolean = {
@@ -100,7 +96,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
         enMarker.done(ScalaElementTypes.ENUMERATOR)
         ScalaElementTypes.ENUMERATOR
       } else {
-        //enMarker.rollbackTo()
         builder.error("Wrong enumerator")
         enMarker.done(ScalaElementTypes.ENUMERATOR)
         ScalaElementTypes.WRONGWAY
