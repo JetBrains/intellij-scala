@@ -328,7 +328,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
               }
             }
             case _ => {
-              if (result.equals(ScalaElementTypes.STABLE_ID || result.equals(ScalaElementTypes.STABLE_ID_ID))){
+              if (result.equals(ScalaElementTypes.STABLE_ID) || result.equals(ScalaElementTypes.STABLE_ID_ID)){
                 ScalaElementTypes.SIMPLE_TYPE
               } else ParserUtils.errorToken(builder, currentMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
             }
