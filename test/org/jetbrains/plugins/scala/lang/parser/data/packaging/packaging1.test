@@ -1,0 +1,14 @@
+package org {}
+-----
+Scala file
+  Packaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    Qualified identifier
+      Stable Identifier
+        Identifier
+          PsiElement(identifier)('org')
+    PsiWhiteSpace(' ')
+    Packaging block
+      PsiElement({)('{')
+      PsiElement(})('}')
