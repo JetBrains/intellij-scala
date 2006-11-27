@@ -22,6 +22,8 @@ import org.jetbrains.plugins.scala.util.DebugPrint
 //      override def getElementType = ScalaElementTypes.PARAM_CLAUSES
 
           def checkForParamClause[T <: Param](param : T, first : IElementType, second : IElementType, third : IElementType) : Boolean = {
+            if (first == null || second == null || third == null) return false
+
             var a = first
             var b = second
             var c = third
@@ -35,6 +37,8 @@ import org.jetbrains.plugins.scala.util.DebugPrint
           }
 
           def checkForImplicit(first : IElementType, second : IElementType, third : IElementType) : Boolean = {
+            if (first == null || second == null || third == null) return false
+
             var a = first
             var b = second
             var c = third

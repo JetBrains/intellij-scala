@@ -1,2 +1,48 @@
 class A(a: T with S with U {val i:T})
 -----
+Scala file
+  template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    Identifier
+      PsiElement(identifier)('A')
+    parameters clause
+      PsiElement(()('(')
+      class parameter
+        parameter
+          Identifier
+            PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          parameter Function type
+            Simple type
+              Stable Identifier
+                Identifier
+                  PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(whith)('with')
+              PsiWhiteSpace(' ')
+              Stable Identifier
+                Identifier
+                  PsiElement(identifier)('S')
+              PsiWhiteSpace(' ')
+              PsiElement(whith)('with')
+              PsiWhiteSpace(' ')
+              Stable Identifier
+                Identifier
+                  PsiElement(identifier)('U')
+              PsiWhiteSpace(' ')
+              Refinements
+                PsiElement({)('{')
+                Refinement statement
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  Identifier
+                    PsiElement(identifier)('i')
+                  PsiElement(:)(':')
+                  Simple type
+                    Stable Identifier
+                      Identifier
+                        PsiElement(identifier)('T')
+                PsiElement(})('}')
+      PsiElement())(')')

@@ -74,11 +74,21 @@ object Template extends Constr{
 
         if (!builder.eof() && ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
-        } else {
-          builder error "expected '}'"
           return
         }
-        
+
+        while (!builder.eof || !BNF.lastTemplateStat.equals(builder.getTokenType)) {
+          builder advanceLexer
+        }
+
+        builder error "expected '}'"
+
+        if (builder.eof) return
+
+        if (BNF.lastTemplateStat.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+          return
+        }
       }
     }
   }

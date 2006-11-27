@@ -33,6 +33,15 @@ object BNF {
     )
   )
 
+  /*********** LAST **************/
+  var lastTemplateStat = TokenSet.create (
+    Array (
+       ScalaTokenTypes.tRBRACE
+    )
+  )
+
+
+
 
   /********************************************************/
   /*********************** FIRSTS *************************/

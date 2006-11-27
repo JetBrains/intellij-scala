@@ -23,6 +23,8 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
       override def getElementType : IElementType = ScalaElementTypes.TYPE_PARAM_CLAUSE
 
         def checkForTypeParamClause (first : IElementType, second : IElementType) : Boolean = {
+          if (first == null || second == null) return false
+
           var a = first
           var b = second
 
