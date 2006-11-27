@@ -119,7 +119,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
     def parse(builder : PsiBuilder) : ScalaElementType = {
         var exprMarker = builder.mark()
-        var result = Bindings.parse(builder)
+        var result = ScalaElementTypes.WRONGWAY
 
         def parseComposite: ScalaElementType = {
           result = CompositeExpr.parse(builder)
@@ -134,29 +134,36 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
         def parseTail: ScalaElementType = {
           var res = parse(builder)
-          if (ScalaElementTypes.EXPR.equals(res)) {
+          if (!ScalaElementTypes.WRONGWAY.equals(res)) {
             exprMarker.done(ScalaElementTypes.AN_FUN)
             ScalaElementTypes.EXPR
           } else {
             builder.error("Expression expected")
-            exprMarker.drop()
+            exprMarker.done(ScalaElementTypes.AN_FUN)
             ScalaElementTypes.EXPR
           }
         }
 
         val rbMarker = builder.mark()
-        var first = builder.getTokenType ;
-          builder.advanceLexer; ParserUtils.rollForward(builder)
-        var second = builder.getTokenType ;
-          builder.advanceLexer; ParserUtils.rollForward(builder)
-        rbMarker.rollbackTo()
+
+        var first = if (builder.getTokenType != null) builder.getTokenType
+                    else ScalaTokenTypes.tWRONG
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+        var second = if (builder.getTokenType != null) builder.getTokenType
+                    else ScalaTokenTypes.tWRONG
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
+
         if (ScalaTokenTypes.tIDENTIFIER.equals(first) &&
             ScalaTokenTypes.tFUNTYPE.equals(second) ) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
+          rbMarker.drop()
           parseTail
-        } else if (ScalaElementTypes.BINDINGS.equals(result)){
-          ParserUtils.rollForward(builder)
+        } else if (
+          {
+            rbMarker.rollbackTo()
+            result = Bindings.parse(builder)
+            ScalaElementTypes.BINDINGS.equals(result)
+          }
+        ){
           builder.getTokenType match {
             case ScalaTokenTypes.tFUNTYPE => {
               ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
