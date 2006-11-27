@@ -45,7 +45,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
             ScalaElementTypes.RESULT_EXPR  
           } else {
             var res = Block.parse (builder , false)
-            if (!ScalaElementTypes.WRONGWAY.equals(result)) {
+
+// ACHTUNG!!!
+
+            if (!ScalaElementTypes.WRONGWAY.equals(res)) {
               exprMarker.done(ScalaElementTypes.RESULT_EXPR)
               ScalaElementTypes.RESULT_EXPR
             } else {
@@ -68,7 +71,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
           parseTail
         } else if (ScalaTokenTypes.tIDENTIFIER.equals(first) &&
                    ScalaTokenTypes.tCOLON.equals(second) ){
-           var rbMarker = builder.mark()
+           //var rbMarker = builder.mark()
            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
            ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
            var res3 = Type1 parse builder

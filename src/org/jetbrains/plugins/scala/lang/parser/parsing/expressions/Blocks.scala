@@ -190,7 +190,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
         if (!(result == ScalaElementTypes.WRONGWAY)) {
           //blockStatMarker.done(ScalaElementTypes.BLOCK_STAT)
           blockStatMarker.drop
-          ScalaElementTypes.EXPR1
+          //ScalaElementTypes.EXPR1
+          result
         }
         else {
           blockStatMarker.rollbackTo()
