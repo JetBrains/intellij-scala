@@ -136,7 +136,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
 
       def processSimpleExpr: ScalaElementType = {
         var res = SimpleExpr.parse(builder)
-        if (res.parsed.eq(ScalaElementTypes.SIMPLE_EXPR) &&
+        if (!res.parsed.equals(ScalaElementTypes.WRONGWAY) &&
             ( res.endness.eq("argexprs") || res.endness.eq(".id") ) ) {
           if (builder.getTokenType.eq(ScalaTokenTypes.tASSIGN)) {
           assignProcess
