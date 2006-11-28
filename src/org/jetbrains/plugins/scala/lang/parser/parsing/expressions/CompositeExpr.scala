@@ -374,7 +374,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       def errorDone = errorDoneMain(rollbackMarker , ScalaElementTypes.FOR_STMT)
 
       def parseCatch = {
-        var catchMarker = builder.mark()
+        var catcMarker = builder.mark()
         ParserUtils.eatElement(builder, ScalaTokenTypes.kCATCH)
         if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
@@ -392,7 +392,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
         } else {
           builder.error(" { expected ")
         }
-        catchMarker.done(ScalaElementTypes.CATCH_BLOCK)
+        catcMarker.done(ScalaElementTypes.CATCH_BLOCK)
         ScalaElementTypes.CATCH_BLOCK
       }
 
