@@ -77,7 +77,7 @@ object Template extends Constr{
           return
         }
 
-        while (!builder.eof || !BNF.lastTemplateStat.equals(builder.getTokenType)) {
+    /*    while (!builder.eof || !BNF.lastTemplateStat.equals(builder.getTokenType)) {
           builder advanceLexer
         }
 
@@ -88,7 +88,7 @@ object Template extends Constr{
         if (BNF.lastTemplateStat.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
           return
-        }
+        }           */
       }
     }
   }
@@ -102,15 +102,48 @@ object Template extends Constr{
         TemplateStat parse builder
       }
 
+        var isError = true
         while (!builder.eof() && BNF.firstStatementSeparator.contains(builder.getTokenType)) {
           //Console.println("parse StatementSeparator " + builder.getTokenType)
           StatementSeparator parse builder
 
           //Console.println("candidate to TemplateStat " + builder.getTokenType)
-          if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
-            TemplateStat parse builder
-          }
-            DebugPrint.println("parse TemplateStat " + builder.getTokenType)
+//          if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+//            TemplateStat parse builder
+//          }
+//            DebugPrint.println("parse TemplateStat " + builder.getTokenType)
+//            if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
+//              return
+//            }
+
+///todo StatementSeparator in stat
+
+            if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+
+              val errMarker = builder.mark
+              TemplateStat.parse(builder)
+
+              if (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
+                isError = false
+                errMarker.drop()
+              } else {
+                isError = true
+                errMarker.done(ScalaElementTypes.WRONGWAY)
+              }
+            }
+          /*  } else if (!BNF.firstStatementSeparator.contains(builder.getTokenType)) {
+              builder error "wrong template statement delaration"
+              isError = true
+            } else {
+              isError = false
+            }
+            */
+            if (isError){
+//              ParserUtils.parseTillLast(builder, TokenSet.orSet(Array(BNF.firstStatementSeparator, TokenSet.create(Array(ScalaTokenTypes.tRBRACE)))))
+              ParserUtils.parseTillLast(builder, TokenSet.orSet(Array(TokenSet.create(Array(ScalaTokenTypes.tRBRACE)))))
+            }
+
+            DebugPrint println "after template stat" + builder.getTokenType
         }
         //Console.println("single Template Stat done " + builder.getTokenType)
     }

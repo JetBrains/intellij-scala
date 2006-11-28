@@ -5,7 +5,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrItem
 import org.jetbrains.plugins.scala.lang.parser.parsing.Constr
+import org.jetbrains.plugins.scala.util.DebugPrint
 import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.TokenSet
 
 import com.intellij.lang.PsiBuilder
 
@@ -67,6 +69,17 @@ object ParserUtils {
       }
     }
   } */
+
+  def parseTillLast (builder : PsiBuilder, lastSet : TokenSet) : Unit = {
+    while (!builder.eof() && !lastSet.contains(builder.getTokenType)) {
+      builder.advanceLexer
+      DebugPrint println "an error"
+    }
+
+    if (builder.eof()) /*builder error "unexpected end of file"; */ return
+
+    if (lastSet.contains(builder.getTokenType)) builder advanceLexer; return
+  }
 
   def listOfSmth(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType, listType : IElementType) : Unit = {
     val listMarker = builder.mark()

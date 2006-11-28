@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import com.intellij.psi.tree.IElementType
 import com.intellij.lang.PsiBuilder
+import com.intellij.psi.tree.TokenSet
 
 
 /**
@@ -104,18 +105,32 @@ object CompilationUnit extends ConstrWithoutNode {
 
     override def parseBody (builder: PsiBuilder): Unit = {
 
-      if (BNF.firstTopStat.contains(builder.getTokenType)) {
-        TopStat.parse(builder)
-       // DebugPrint println "1. next token in topstat: " + builder.getTokenType
-      }
+      var isError = false;
+      var isEnd = false;
+      while (!builder.eof && !isError && !isEnd) {
 
-      while (!builder.eof() && (BNF.firstStatementSeparator.contains(builder.getTokenType))){
-        StatementSeparator parse builder
+        isError = false
+
+        while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
+          StatementSeparator parse builder
+          DebugPrint println ("TopStatSeq: StatementSeparator parse " + builder.getTokenType)
+        }
 
         if (BNF.firstTopStat.contains(builder.getTokenType)) {
           TopStat.parse(builder)
         }
-        //  DebugPrint println "2. next token in topstat: " + builder.getTokenType
+
+        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) || builder.eof) {
+          isEnd = true;
+        }
+
+        if (!isEnd && !BNF.firstStatementSeparator.contains(builder.getTokenType)) {
+          isError = true;
+          builder error "expected line teminator or '}'"
+        }
+
+        DebugPrint println ("TopStatSeq: token " + builder.getTokenType)
+
       }
     }
   }

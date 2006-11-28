@@ -240,8 +240,8 @@ object TmplDef extends ConstrWithoutNode {
 
           if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)){
             TemplateBody.parse(builder)
-            classTemplateMarker.done(ScalaElementTypes.CLASS_TEMPLATE)
             templateBodyMarker.drop()
+            classTemplateMarker.done(ScalaElementTypes.CLASS_TEMPLATE)
             return
           } else {
             templateBodyMarker.rollbackTo()
