@@ -41,17 +41,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
           var result = Block.parse(builder, true)
           if (result.equals(ScalaElementTypes.BLOCK)) {
             ParserUtils.rollForward(builder)
-            if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){
+            if (builder.getTokenType.equals(ScalaTokenTypes.tRBRACE)){
               ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
               blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
               ScalaElementTypes.BLOCK_EXPR
             } else {
               builder.error("} expected")
+              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
               blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
               ScalaElementTypes.BLOCK_EXPR
             }
           } else{
             builder.error("Wrong inner block statement")
+            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
             blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
             ScalaElementTypes.BLOCK_EXPR
           }
@@ -65,11 +67,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
                 ScalaElementTypes.BLOCK_EXPR
               } else {
                 builder.error("} expected")
+                ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
                 blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
                 ScalaElementTypes.BLOCK_EXPR
               }
             } else{
             builder.error("Wrong inner block statement")
+            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
             blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
             ScalaElementTypes.BLOCK_EXPR
             }

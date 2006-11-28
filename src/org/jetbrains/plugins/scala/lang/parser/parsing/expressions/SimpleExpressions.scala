@@ -302,7 +302,13 @@ FIRST(PostfixExpression) =  InffixExpression.FIRST
       var isPostfix = false
       if (!result.equals(ScalaElementTypes.WRONGWAY)) {
         builder.getTokenType match {
-          case ScalaTokenTypes.tIDENTIFIER => {
+          case ScalaTokenTypes.tIDENTIFIER  if { // A bug with method closure
+            val rbMarker = builder.mark()
+            builder.advanceLexer
+            var flag = !ScalaTokenTypes.tDOT.equals(builder.getTokenType)
+            rbMarker.rollbackTo()
+            flag
+          } => {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
             isPostfix = true
             // Real need!
