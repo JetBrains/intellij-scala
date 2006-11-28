@@ -164,7 +164,6 @@ object TmplDef extends ConstrWithoutNode {
             SimpleType parse builder
           } else {
             builder error "expected simple type declaration"
-            return
           }
 
        } else builder error "expected requires"
@@ -185,23 +184,18 @@ object TmplDef extends ConstrWithoutNode {
             isModifier = true;
           }
 
-         if (isModifier){
            //afte modifier must be 'val' or 'var'
            builder.getTokenType() match {
              case ScalaTokenTypes.kVAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL) }
              case ScalaTokenTypes.kVAR => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAR) }
+
              case _ => {
-               builder.error("expected 'val' or 'var'")
-               return
+               if (isModifier){
+                 builder.error("expected 'val' or 'var'")
+               }
              }
            }
-         } else {
-           builder.getTokenType() match {
-             case ScalaTokenTypes.kVAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL) }
-             case ScalaTokenTypes.kVAR => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAR) }
-             case _ => {}
-           }
-         }
+
 
           if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
             new Param().parse(builder)
@@ -216,13 +210,18 @@ object TmplDef extends ConstrWithoutNode {
         val classTemplateMarker = builder.mark
 
         if (ScalaTokenTypes.kEXTENDS.equals(builder.getTokenType)){
+
+          val extendsBlockMarker = builder.mark
           ParserUtils.eatElement(builder, ScalaTokenTypes.kEXTENDS)
 
           if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
             TemplateParents.parse(builder)
+            extendsBlockMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+
           } else {
             builder.error("expected identifier")
-            classTemplateMarker.drop()
+            extendsBlockMarker.drop
+            classTemplateMarker.drop
             return
           }
         }
@@ -254,6 +253,24 @@ object TmplDef extends ConstrWithoutNode {
        classTemplateMarker.done(ScalaElementTypes.CLASS_TEMPLATE)
       }
     }
+
+ /* case object ExtendsBlock extends Constr {
+    def getElementType : ScalaElementType = ScalaElementTypes.EXTENDS_BLOCK
+
+    override def parseBody ( builder : PsiBuilder ) : Unit = {
+      if (ScalaTokenTypes.kEXTENDS.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kEXTENDS)
+
+        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
+          TemplateParents.parse(builder)
+        } else {
+          builder.error("expected identifier")
+          classTemplateMarker.drop()
+          return
+        }
+      }
+    }
+  }       */
 
     /************** OBJECT ******************/
 

@@ -63,6 +63,9 @@ object ScalaPsiCreator {
      case ScalaElementTypes.OBJECT_DEF => new ScObjectDefinition(node)
      case ScalaElementTypes.TRAIT_DEF => new ScTraitDefinition(node)
 
+      /***************** class ***************/
+      case ScalaElementTypes.REQUIRES_BLOCK => new ScRequiresBlock(node)
+      case ScalaElementTypes.EXTENDS_BLOCK => new ScExtendsBlock(node)
      //case ScalaElementTypes.CLASS_PARAM_CLAUSE => new ScClassParamClause( node )
      //case ScalaElementTypes.TMPL_TYPE_PARAM_CLAUSE => new ScTmplTypeParameterClause( node )
 

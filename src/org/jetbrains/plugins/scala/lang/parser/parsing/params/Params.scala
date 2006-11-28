@@ -192,16 +192,20 @@ import org.jetbrains.plugins.scala.util.DebugPrint
     }
   }
 
-  object ParamType extends Constr {
-    override def getElementType : IElementType = ScalaElementTypes.PARAM_TYPE
+  object ParamType extends ConstrUnpredict {
+//    override def getElementType : IElementType = ScalaElementTypes.PARAM_TYPE
 
     override def parseBody(builder : PsiBuilder) : Unit = {
+      var paramTypeMarker = builder.mark
+
       if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType)) {
          ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
+         paramTypeMarker.drop
       }
 
       if (BNF.firstType.contains(builder.getTokenType)) {
          Type parse builder
+         paramTypeMarker.done(ScalaElementTypes.TYPE)
       } else {
         builder error "expected type declaration"
         return
@@ -209,6 +213,7 @@ import org.jetbrains.plugins.scala.util.DebugPrint
 
       if (ScalaTokenTypes.tSTAR.equals(builder.getTokenType)) {
          ParserUtils.eatElement(builder, ScalaTokenTypes.tSTAR)
+         paramTypeMarker.done(ScalaElementTypes.PARAM_TYPE)
       }
     }
   }
