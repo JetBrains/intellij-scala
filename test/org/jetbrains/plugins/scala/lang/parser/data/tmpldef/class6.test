@@ -7,7 +7,7 @@ Scala file
     Identifier
       PsiElement(identifier)('ABC')
     PsiWhiteSpace(' ')
-    null
+    requires block
       PsiElement(requires)('requires')
       PsiWhiteSpace(' ')
       Stable Identifier

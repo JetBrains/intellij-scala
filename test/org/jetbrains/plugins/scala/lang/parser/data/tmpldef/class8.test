@@ -8,17 +8,18 @@ Scala file
       PsiElement(identifier)('A')
     type parameter clause
       PsiElement([)('[')
-      variant type parameter
+      type parameter
         type parameter
           Identifier
             PsiElement(identifier)('T')
       PsiElement(])(']')
     PsiWhiteSpace(' ')
     class template
-      PsiElement(extends)('extends')
-      PsiWhiteSpace(' ')
-      template parents
-        constuctor
-          Stable Identifier
-            Identifier
-              PsiElement(identifier)('B')
+      extends block
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        template parents
+          constuctor
+            Stable Identifier
+              Identifier
+                PsiElement(identifier)('B')
