@@ -505,12 +505,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
         if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
+        } else {
+          builder error "expected '{'"
+        }
 
           if (BNF.firstSelfInvocation.contains(builder.getTokenType)) {
             SelfInvocation parse builder
           } else {
             builder error "expected self invocation"
-            return
           }
 
           while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
@@ -521,10 +523,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             }
           }
 
-          return
-        }
 
-        builder error "expected constructor expression"
+        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+        } else {
+          builder error "expected '}'"
+        }
       }
     }
 

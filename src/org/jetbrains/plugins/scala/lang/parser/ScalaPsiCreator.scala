@@ -101,6 +101,11 @@ object ScalaPsiCreator {
      case ScalaElementTypes.FUNCTION_DEFINITION => new ScFunctionDefinition(node)
      case ScalaElementTypes.TYPE_DEFINITION => new ScTypeDefinition(node)
 
+     /********** function definition: supplementary constructor *************/
+     case ScalaElementTypes.SELF_INVOCATION => new ScSelfInvocation(node)
+     case ScalaElementTypes.CONSTR_EXPR => new ScConstrExpr(node)
+     case ScalaElementTypes.SUPPLEMENTARY_CONSTRUCTOR => new ScSupplementaryConstructor(node)
+
      /**************** OTHERS ******************/
      case ScalaElementTypes.FUN_SIG => new ScFunctionSignature(node)
 

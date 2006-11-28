@@ -10,7 +10,7 @@ Scala file
     Identifier
       PsiElement(identifier)('A')
     PsiWhiteSpace(' ')
-    null
+    requires block
       PsiElement(requires)('requires')
       PsiWhiteSpace(' ')
       Stable Identifier
@@ -18,10 +18,11 @@ Scala file
           PsiElement(identifier)('Any')
     PsiWhiteSpace(' ')
     class template
-      PsiElement(extends)('extends')
-      PsiWhiteSpace(' ')
-      template parents
-        constuctor
-          Stable Identifier
-            Identifier
-              PsiElement(identifier)('B')
+      extends block
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        template parents
+          constuctor
+            Stable Identifier
+              Identifier
+                PsiElement(identifier)('B')

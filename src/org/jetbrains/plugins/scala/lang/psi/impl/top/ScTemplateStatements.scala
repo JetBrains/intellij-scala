@@ -33,6 +33,21 @@ import com.intellij.lang.ASTNode
     override def toString: String = "function" + " " + super.toString
   }
 
+  /************** supplementary constructor ***************/
+
+  case class ScSelfInvocation (node : ASTNode) extends ScalaPsiElementImpl (node) {
+    override def toString: String = "self invocation"
+  }
+
+  case class ScConstrExpr (node : ASTNode) extends ScalaPsiElementImpl (node) {
+    override def toString: String = "constructor expression"
+  }
+
+  case class ScSupplementaryConstructor (node : ASTNode) extends ScalaPsiElementImpl (node) {
+    override def toString: String = "supplementary constructor"
+  }
+
+
   case class ScTypeDefinition (node : ASTNode) extends Definition (node) {
     override def toString: String = "type" + " " + super.toString
   }
@@ -63,10 +78,6 @@ import com.intellij.lang.ASTNode
 
   class ScFunctionSignature (node : ASTNode) extends ScalaPsiElementImpl (node) {
     override def toString: String = "function signature"
-  }
-
-  class ScSupplementaryConstructor (node : ASTNode) extends ScalaPsiElementImpl (node) {
-    override def toString: String = "supplementary constructor"
-  }
+  }    
 
 }
