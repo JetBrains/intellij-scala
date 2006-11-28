@@ -24,6 +24,7 @@ object ScalaElementTypes {
   /*************************************************************************************/
   val WRONGWAY = new ScalaElementType("Wrong way!")
   val EMPTY = new ScalaElementType("empty")
+  val CLOSED = new ScalaElementType("closed")
 
   /*************************************************************************************/
   /************************************** TYPE DECLARATION *****************************/
