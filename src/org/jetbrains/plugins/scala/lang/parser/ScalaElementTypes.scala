@@ -23,6 +23,7 @@ object ScalaElementTypes {
   /************************************** OTHER ****************************************/
   /*************************************************************************************/
   val WRONGWAY = new ScalaElementType("Wrong way!")
+  val TRASH = new ScalaElementType("trash")
   val EMPTY = new ScalaElementType("empty")
   val CLOSED = new ScalaElementType("closed")
 
@@ -63,6 +64,7 @@ object ScalaElementTypes {
   val CLASS_DEF = new ScalaElementType("class definition")
 
   val REQUIRES_BLOCK = new ScalaElementType("requires block")
+  val EXTENDS_BLOCK = new ScalaElementType("extends block")
 
   val CLASS_TEMPLATE = new ScalaElementType("class template")
 

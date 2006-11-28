@@ -94,10 +94,36 @@ object Template extends Constr{
   }
 
   object TemplateStatSeq extends ConstrWithoutNode {
-    //override def getElementType : IElementType = ScalaElementTypes.TEMPLATE_STAT_LIST
-
     override def parseBody(builder : PsiBuilder) : Unit = {
-      if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+
+      var isError = false;
+      var isEnd = false;
+      while (!builder.eof && !isError && !isEnd) {
+
+        isError = false
+
+        while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
+          StatementSeparator parse builder
+          DebugPrint println ("TemplateStatSeq: StatementSeparator parse " + builder.getTokenType)
+        }
+
+        if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+          TemplateStat.parse(builder)
+        }
+
+        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) || builder.eof) {
+          isEnd = true;
+        }
+
+        if (!isEnd && !BNF.firstStatementSeparator.contains(builder.getTokenType)) {
+          isError = true;
+          builder error "expected line teminator or '}'"
+        }
+
+        DebugPrint println ("TemplateStatSeq: token " + builder.getTokenType)
+
+      }
+  /*    if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
         DebugPrint.println("single Template Stat " + builder.getTokenType)
         TemplateStat parse builder
       }
@@ -131,13 +157,13 @@ object Template extends Constr{
                 errMarker.done(ScalaElementTypes.WRONGWAY)
               }
             }
-          /*  } else if (!BNF.firstStatementSeparator.contains(builder.getTokenType)) {
+          *//*  } else if (!BNF.firstStatementSeparator.contains(builder.getTokenType)) {
               builder error "wrong template statement delaration"
               isError = true
             } else {
               isError = false
             }
-            */
+            *//*
             if (isError){
 //              ParserUtils.parseTillLast(builder, TokenSet.orSet(Array(BNF.firstStatementSeparator, TokenSet.create(Array(ScalaTokenTypes.tRBRACE)))))
               ParserUtils.parseTillLast(builder, TokenSet.orSet(Array(TokenSet.create(Array(ScalaTokenTypes.tRBRACE)))))
@@ -145,7 +171,7 @@ object Template extends Constr{
 
             DebugPrint println "after template stat" + builder.getTokenType
         }
-        //Console.println("single Template Stat done " + builder.getTokenType)
+        //Console.println("single Template Stat done " + builder.getTokenType)*/
     }
   }
 

@@ -21,12 +21,22 @@ import com.intellij.lang.ASTNode
     override def toString: String = "object" + " " + super.toString
   }
 
+  /*********** class **************/
   case class ScClassTemplate( node : ASTNode ) extends Template ( node ) {
     override def getTemplateParents = getChild[ScTemplateParents]
 
     override def toString: String = "class" + " " + super.toString
   }
 
+  case class ScRequiresBlock( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "requires block"
+  }
+
+  case class ScExtendsBlock ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+    override def toString: String = "extends block"
+  }
+
+  /************ trait ***************/
   case class ScTraitTemplate( node : ASTNode ) extends Template ( node ) {
     override def getTemplateParents = getChild[ScMixinParents]
 
@@ -37,10 +47,6 @@ import com.intellij.lang.ASTNode
     override def toString: String = super.toString
 
     override def getTemplateParents = getChild[ScTemplateParents]
-  }
-
-  class ScRequiresBlock( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "requires block"
   }
 
   /**************** parents ****************/

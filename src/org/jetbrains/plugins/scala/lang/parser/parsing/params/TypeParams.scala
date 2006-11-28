@@ -88,27 +88,39 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
     }
 
     class VariantTypeParam extends TypeParam {
-      override def getElementType = ScalaElementTypes.VARIANT_TYPE_PARAM
+
+//      override def getElementType = typeParamNode
 
       override def first = BNF.firstVariantTypeParam
 
-      override def parseBody(builder : PsiBuilder) : Unit = {
+//      var typeParamNode : ScalaElementType = ScalaElementTypes.VARIANT_TYPE_PARAM
+
+      override def parse(builder : PsiBuilder) : Unit = {
+        var variantTypeParamMarker = builder.mark
+
         if (!first.contains(builder.getTokenType)) {
           builder.error("expected '+', '-' or identifier")
           return
         }
 
-        if (ScalaTokenTypes.tPLUS.equals(builder.getTokenType)) {
+        var isVariantTypeParam = false;
+
+        if (!isVariantTypeParam && ScalaTokenTypes.tPLUS.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tPLUS)
+          isVariantTypeParam = true
         }
 
-        if (ScalaTokenTypes.tMINUS.equals(builder.getTokenType)) {
+        if (!isVariantTypeParam && ScalaTokenTypes.tMINUS.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tMINUS)
+          isVariantTypeParam = true
         }
 
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           (new TypeParam()).parse(builder)
         }
+
+        if (isVariantTypeParam) variantTypeParamMarker.done(ScalaElementTypes.VARIANT_TYPE_PARAM)
+        else variantTypeParamMarker.done(ScalaElementTypes.TYPE_PARAM)
       }
     }
 

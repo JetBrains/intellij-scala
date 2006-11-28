@@ -55,6 +55,8 @@ object CompilationUnit extends ConstrWithoutNode {
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         QualId parse builder
         DebugPrint println "quilId ate"
+      } else {
+        builder error "expected qualified identifier"
       }
 
       var lastTokenInPackage = builder.getTokenType
@@ -107,7 +109,7 @@ object CompilationUnit extends ConstrWithoutNode {
 
       var isError = false;
       var isEnd = false;
-      while (!builder.eof && !isError && !isEnd) {
+      while (!builder.eof /*&& !isError */&& !isEnd) {
 
         isError = false
 
@@ -126,7 +128,10 @@ object CompilationUnit extends ConstrWithoutNode {
 
         if (!isEnd && !BNF.firstStatementSeparator.contains(builder.getTokenType)) {
           isError = true;
-          builder error "expected line teminator or '}'"
+          builder error "top statement declaration error"
+          val errorMarker = builder.mark
+          builder.advanceLexer
+          errorMarker.done(ScalaElementTypes.TRASH)
         }
 
         DebugPrint println ("TopStatSeq: token " + builder.getTokenType)
@@ -240,6 +245,8 @@ object CompilationUnit extends ConstrWithoutNode {
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           QualId parse builder
           DebugPrint println "quilId ate"
+        } else {
+          builder error "expected qualified identifier"
         }
 
         var packageBlockMarker = builder.mark
