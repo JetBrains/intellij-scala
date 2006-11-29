@@ -42,7 +42,6 @@ import com.intellij.psi.tree.TokenSet
 //IChameleonElementType
 
 object CompilationUnit extends ConstrWithoutNode {
-  //override def getElementType = ScalaElementTypes.COMPILATION_UNIT
   override def parseBody (builder : PsiBuilder) : Unit = {
 
     DebugPrint println "first token: " + builder.getTokenType
@@ -70,41 +69,17 @@ object CompilationUnit extends ConstrWithoutNode {
       if (BNF.firstStatementSeparator.contains(lastTokenInPackage)){
         Package parse builder
       }
+
+      if (builder.eof) {
+        return
+      }
     }
 
     TopStatSeq parse builder
 
     }
 
-  /*  def addChameleon (builder : PsiBuilder) : Unit = {
-      var numberOfBraces = 1;
-
-      var startOffset = builder.getCurrentOffset()
-
-      var text : String
-      while (!builder.eof){
-        text = text + builder.getTokenText
-
-        if (builder.getTokenType.?equals(ScalaTokenTypes.tLBRACE))
-          numberOfBraces = numberOfBraces + 1
-
-        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType))
-          numberOfBraces = numberOfBraces - 1
-
-        if (numberOfBraces == 0) return
-
-        builder advanceLexer
-      }
-
-      var endOffset = builder.getCurrentOffset();
-      val chameleon : Chameleon =
-    }
-
-   */
-
   object TopStatSeq extends ConstrWithoutNode {
-    //override def getElementType = ScalaElementTypes.TOP_STAT_SEQ
-
     override def parseBody (builder: PsiBuilder): Unit = {
 
       var isError = false;
@@ -132,6 +107,8 @@ object CompilationUnit extends ConstrWithoutNode {
 
           if (BNF.firstTopStat.contains(builder.getTokenType)) {
             isError = false;
+          } else {
+//            builder.advanceLexer
           }
 //          val errorMarker = builder.mark
 //          builder.advanceLexer
@@ -176,7 +153,6 @@ object CompilationUnit extends ConstrWithoutNode {
       var isModifiers = false
 
       while (BNF.firstModifier.contains(builder.getTokenType)) {
-        //Console.println("parse modifier")
         Modifier.parse(builder)
         isModifiers = true
       }
