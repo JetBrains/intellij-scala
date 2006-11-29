@@ -57,9 +57,9 @@ import org.jetbrains.annotations.NotNull;
      if (
           !braceStack.isEmpty() &&
           (
-            elem.equals(tRSQBRACKET) && tLSQBRACKET.equals(braceStack.peek()) ||
-            elem.equals(tRBRACE) && tLBRACE.equals(braceStack.peek()) ||
-            elem.equals(tRPARENTHIS) && tLPARENTHIS.equals(braceStack.peek())
+            (elem.equals(tRSQBRACKET) && tLSQBRACKET.equals(braceStack.peek())) ||
+            (elem.equals(tRBRACE) && tLBRACE.equals(braceStack.peek())) ||
+            (elem.equals(tRPARENTHIS) && tLPARENTHIS.equals(braceStack.peek()))
           )
         ) {
           braceStack.pop();
@@ -75,7 +75,6 @@ import org.jetbrains.annotations.NotNull;
     }
 
     private IElementType process(IElementType type){
-        //System.out.println(type.toString());
         return type;
     }
 
