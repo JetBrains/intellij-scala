@@ -118,7 +118,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
       val ensMarker = builder.mark()
       elems += ScalaTokenTypes.tLINE_TERMINATOR
       elems += ScalaTokenTypes.tSEMICOLON
-      elems += ScalaTokenTypes.tRPARENTHIS
+      //elems += ScalaTokenTypes.tRPARENTHIS
 
       def matchToken = builder.getTokenType match {
           case  ScalaTokenTypes.tSEMICOLON
@@ -133,18 +133,25 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
         }
 
       def subParse: ScalaElementType = {
-        var res = Enumerator.parse(builder)
-        if (ScalaElementTypes.WRONGWAY.equals(res)){
-          builder.error("Enumerator expected")
-          ParserUtils.rollPanic(builder, elems)
-        } else {
-          if (!elems.contains(builder.getTokenType)) {
-            builder.error("Wrong enumerator")
+        if (!ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
+          var res = Enumerator.parse(builder)
+          if (ScalaElementTypes.WRONGWAY.equals(res)){
+            builder.error("Enumerator expected")
             ParserUtils.rollPanic(builder, elems)
+          } else {
+            if (!elems.contains(builder.getTokenType)
+               && !ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType) ) {
+              builder.error("Wrong enumerator")
+              ParserUtils.rollPanic(builder, elems)
+            }
+            else {}
           }
-          else {}
+          matchToken
+        } else {
+          builder.error("Enumerator expected")
+          ensMarker.done(ScalaElementTypes.ENUMERATORS)
+          ScalaElementTypes.ENUMERATORS
         }
-        matchToken
       }
 
       var res = Generator.parse(builder)
