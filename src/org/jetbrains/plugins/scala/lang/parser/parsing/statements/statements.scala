@@ -127,7 +127,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           Ids parse builder
         } else {
           builder error "expected identifier"
-          return ScalaElementTypes.WRONGWAY
+//          return ScalaElementTypes.WRONGWAY
         }
 
         var hasTypeDcl = false
@@ -138,7 +138,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             Type parse builder
           } else {
             builder error "expected type declaration"
-            return ScalaElementTypes.WRONGWAY
+//            return ScalaElementTypes.WRONGWAY
           }
 
           hasTypeDcl = true
@@ -161,7 +161,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           } else {
             builder error "wrong start of expression"
             //varMarker.drop()
-            return ScalaElementTypes.WRONGWAY
+//            return ScalaElementTypes.WRONGWAY
           }
 
           //varMarker.done(ScalaElementTypes.VARIABLE_DEFINITION)
@@ -208,8 +208,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           else pattern2sMarker.drop
 
         } else {
-          builder error "expected idnetifier"
-          return ScalaElementTypes.WRONGWAY
+          builder error "expected identifier"
+//          return ScalaElementTypes.WRONGWAY
         }
 
         var hasTypeDcl = false
@@ -222,7 +222,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           } else {
             builder error "expected type declaration"
 //            valMarker.drop()
-            return ScalaElementTypes.WRONGWAY
+//            return ScalaElementTypes.WRONGWAY
           }
 
           hasTypeDcl = true
@@ -232,7 +232,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
         if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
           if (!hasTypeDcl) {
             builder error "wrong variable declaration"
-            return ScalaElementTypes.WRONGWAY
+//            return ScalaElementTypes.WRONGWAY
           }
 
           return ScalaElementTypes.VALUE_DECLARATION
@@ -243,7 +243,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             Expr parse builder
           } else {
             builder error "wrong start of expression"
-            return ScalaElementTypes.WRONGWAY
+//            return ScalaElementTypes.WRONGWAY
           }
 
           return ScalaElementTypes.PATTERN_DEFINITION
@@ -271,7 +271,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
               Type parse builder
             } else {
               builder error "wrong type declaration"
-              return ScalaElementTypes.WRONGWAY
+//              return ScalaElementTypes.WRONGWAY
             }
             hasTypeDcl = true
 
@@ -280,7 +280,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
         if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
           if (!hasTypeDcl) {
             builder error "wrong function declaration"
-            return ScalaElementTypes.WRONGWAY
+//            return ScalaElementTypes.WRONGWAY
           }
 
           return ScalaElementTypes.FUNCTION_DECLARATION
@@ -292,7 +292,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             Expr parse builder
           } else {
             builder error "wrong start of expression"
-            return ScalaElementTypes.WRONGWAY
+//            return ScalaElementTypes.WRONGWAY
           }
 
           return ScalaElementTypes.FUNCTION_DEFINITION
@@ -365,7 +365,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           } else {
             builder error "expected identifier"
 //            typeMarker.drop()
-            return ScalaElementTypes.WRONGWAY
+//            return ScalaElementTypes.WRONGWAY
           }
 
           if (ScalaTokenTypes.tLOWER_BOUND.equals(builder.getTokenType)) {
@@ -376,7 +376,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             } else {
               builder error "wrong type declaration"
 //              typeMarker.drop()
-              return ScalaElementTypes.WRONGWAY
+//              return ScalaElementTypes.WRONGWAY
             }
           }
 
@@ -388,7 +388,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             } else {
               builder error "wrong type declaration"
 //              typeMarker.drop()
-              return ScalaElementTypes.WRONGWAY
+//              return ScalaElementTypes.WRONGWAY
             }
           }
 
@@ -401,7 +401,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             } else {
               builder error "wrong type declaration"
 //              typeMarker.drop()
-              return ScalaElementTypes.WRONGWAY
+//              return ScalaElementTypes.WRONGWAY
             }
 
             isView = true
@@ -411,7 +411,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             if (isView){
               builder error "wrong type definition"
 //              typeMarker.drop()
-              return ScalaElementTypes.WRONGWAY
+//              return ScalaElementTypes.WRONGWAY
             }
 
 //            typeMarker.done(ScalaElementTypes.TYPE_DECLARATION)
@@ -425,7 +425,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             } else {
               builder error "wrong type declaration"
 //              typeMarker.drop()
-              return ScalaElementTypes.WRONGWAY
+//              return ScalaElementTypes.WRONGWAY
             }
 
 //            typeMarker.done(ScalaElementTypes.TYPE_DEFINITION)
