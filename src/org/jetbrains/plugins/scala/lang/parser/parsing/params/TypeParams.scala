@@ -19,6 +19,10 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
   /******************** type parameters **********************/
 
+/*
+ *  TypeParamClause ::= [NewLine] ‘[’ VariantTypeParam { ‘,’ VariantTypeParam } ‘]’
+ */
+
     class TypeParamClause[T <: TypeParam] (typeParam : T) extends Constr {
       override def getElementType : IElementType = ScalaElementTypes.TYPE_PARAM_CLAUSE
 
@@ -74,6 +78,10 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
       }
     }
 
+/*
+ *  VariantTypeParam::= [‘+’ | ‘’] TypeParam
+ */
+
     class VariantTypeParam extends TypeParam {
       override def first = BNF.firstVariantTypeParam
 
@@ -105,6 +113,10 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
         else variantTypeParamMarker.drop
       }
     }
+
+/*
+ *  TypeParam ::= id [>: Type] [<: Type] [<% Type]
+ */
 
     class TypeParam extends ConstrItem {
       override def getElementType = ScalaElementTypes.TYPE_PARAM

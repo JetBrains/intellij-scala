@@ -39,9 +39,6 @@ object ScalaPsiCreator {
      case ScalaElementTypes.PACKAGING_BLOCK => new ScPackagingBlock(node)
      case ScalaElementTypes.QUAL_ID => new ScQualId(node)
 
-     //case ScalaElementTypes.TOP_STAT_SEQ => new ScTopStatSeq( node )
-     //case ScalaElementTypes.TOP_STAT => new ScTopStat( node )
-
      /***************************************************/
      /********************* IMPORT **********************/
      /***************************************************/
@@ -57,7 +54,6 @@ object ScalaPsiCreator {
      /********************** DEF ************************/
      /***************************************************/
 
-     //case ScalaTokenTypes.kPACKAGE => new ScPackage(node)
      case ScalaElementTypes.PACKAGE_STMT => new ScPackageStatement(node)
      case ScalaElementTypes.CLASS_DEF => new ScClassDefinition(node)
      case ScalaElementTypes.OBJECT_DEF => new ScObjectDefinition(node)
@@ -66,8 +62,6 @@ object ScalaPsiCreator {
       /***************** class ***************/
       case ScalaElementTypes.REQUIRES_BLOCK => new ScRequiresBlock(node)
       case ScalaElementTypes.EXTENDS_BLOCK => new ScExtendsBlock(node)
-     //case ScalaElementTypes.CLASS_PARAM_CLAUSE => new ScClassParamClause( node )
-     //case ScalaElementTypes.TMPL_TYPE_PARAM_CLAUSE => new ScTmplTypeParameterClause( node )
 
      /***************************************************/
      /******************** TEMPLATES ********************/
@@ -116,20 +110,15 @@ object ScalaPsiCreator {
     /******************** parameters *******************/
      case ScalaElementTypes.PARAM_CLAUSE => new ScParamClause(node)
      case ScalaElementTypes.PARAM_CLAUSES => new ScParamClauses(node)
-
     /*********** class ************/
      case ScalaElementTypes.CLASS_PARAM => new ScClassParam(node)
-
      /********** function **********/
      case ScalaElementTypes.PARAM => new ScParam(node)
      case ScalaElementTypes.PARAM_TYPE => new ScParamType(node)
-
      /***************** type parameters ****************/
      case ScalaElementTypes.TYPE_PARAM_CLAUSE => new ScTypeParamClause(node)
-
      /*********** class ************/
      case ScalaElementTypes.VARIANT_TYPE_PARAM => new ScVariantTypeParam(node)
-
      /********** function **********/
      case ScalaElementTypes.TYPE_PARAM => new ScTypeParam(node)
 
@@ -211,8 +200,6 @@ object ScalaPsiCreator {
     case ScalaElementTypes.PATTERNS => new ScPatternsImpl(node)
     case ScalaElementTypes.WILD_PATTERN => new ScWildPatternImpl(node)
     case ScalaElementTypes.CASE_CLAUSE => new ScCaseClauseImpl(node)
-
-
 
 
      case _ => new ScalaPsiElementImpl( node )

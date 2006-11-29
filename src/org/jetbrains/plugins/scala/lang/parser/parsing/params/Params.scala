@@ -17,7 +17,10 @@ import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.util.DebugPrint
 
- 
+/*
+ *  ParamClauses ::= {ParamClause} ImplicitEnd
+ */ 
+
     class ParamClauses[T <: Param] (param : T) extends ConstrUnpredict {
 //      override def getElementType = ScalaElementTypes.PARAM_CLAUSES
 
@@ -63,7 +66,6 @@ import org.jetbrains.plugins.scala.util.DebugPrint
         builder.advanceLexer
 
         var third = builder.getTokenType()
-        //builder.advanceLexer
 
         var numberParamClauses = 0;
 
@@ -87,14 +89,16 @@ import org.jetbrains.plugins.scala.util.DebugPrint
           new ImplicitEnd[T](param).parse(builder)
         }
 
-        //chooseParsingWay.drop()
-
         DebugPrint println ("param clauses: " + numberParamClauses)
 
         if (numberParamClauses > 1) paramClausesMarker.done(ScalaElementTypes.PARAM_CLAUSES)
         else paramClausesMarker.drop()
       }
     }
+
+/*
+ *  ParamClause ::= [NewLine] { ‘(’ [Params] ’)’ }
+ */
 
  class ParamClause[T <: Param] (param : T) extends Constr {
     override def getElementType : IElementType = ScalaElementTypes.PARAM_CLAUSE
@@ -124,6 +128,10 @@ import org.jetbrains.plugins.scala.util.DebugPrint
       }
     }
   }
+
+/*
+ *  ImplicitEnd = [NewLine] '(' 'implicit'  ClassParams ')'
+ */
 
    class ImplicitEnd[T <: Param] (param : T) extends Constr{
      override def getElementType : IElementType = ScalaElementTypes.PARAM_CLAUSE
@@ -163,6 +171,10 @@ import org.jetbrains.plugins.scala.util.DebugPrint
       }
     }
 
+ /*
+ *  Param ::= id ‘:’ ParamType
+ */
+
   class Param extends ConstrItem {
     override def getElementType : IElementType = ScalaElementTypes.PARAM
 
@@ -191,6 +203,10 @@ import org.jetbrains.plugins.scala.util.DebugPrint
       }
     }
   }
+
+/*
+ *  ParamType ::= [‘=>’] Type [‘*’]
+ */
 
   object ParamType extends ConstrUnpredict {
 //    override def getElementType : IElementType = ScalaElementTypes.PARAM_TYPE
