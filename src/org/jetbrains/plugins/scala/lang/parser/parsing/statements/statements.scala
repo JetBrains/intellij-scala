@@ -122,14 +122,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
       }
 
       def parseBodyNode(builder : PsiBuilder) : IElementType = {
-      //Console.println("val parse")
-       // val varMarker = builder.mark()
 
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           Ids parse builder
         } else {
           builder error "expected identifier"
-         // varMarker.drop()
           return ScalaElementTypes.WRONGWAY
         }
 
@@ -141,7 +138,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             Type parse builder
           } else {
             builder error "expected type declaration"
-           // varMarker.drop()
             return ScalaElementTypes.WRONGWAY
           }
 
@@ -154,7 +150,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             builder error "wrong variable declaration"
           }
 
-          //varMarker.done(ScalaElementTypes.VARIABLE_DECLARATION)
           return ScalaElementTypes.VARIABLE_DECLARATION
         } else {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
@@ -185,8 +180,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
       def parseBodyNode(builder : PsiBuilder) : IElementType = {
 
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-          //Pattern2 parse builder
-          //ParserUtils.listOfSmth(builder, Pattern2Item, ScalaTokenTypes.tCOMMA, ScalaElementTypes.PATTERN2_LIST)
           val pattern2sMarker = builder.mark
 
           if (BNF.firstPattern2.contains(builder.getTokenType)){
@@ -239,11 +232,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
         if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
           if (!hasTypeDcl) {
             builder error "wrong variable declaration"
-//            valMarker.drop()
             return ScalaElementTypes.WRONGWAY
           }
 
-//          valMarker.done(ScalaElementTypes.VALUE_DECLARATION)
           return ScalaElementTypes.VALUE_DECLARATION
         } else {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
@@ -252,15 +243,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             Expr parse builder
           } else {
             builder error "wrong start of expression"
-//            valMarker.drop()
             return ScalaElementTypes.WRONGWAY
           }
 
-//          valMarker.done(ScalaElementTypes.PATTERN_DEFINITION)
           return ScalaElementTypes.PATTERN_DEFINITION
         }
 
-//        valMarker.drop()
         return ScalaElementTypes.WRONGWAY
       }
     }

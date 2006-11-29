@@ -9,9 +9,8 @@ Scala file
     type parameter clause
       PsiElement([)('[')
       type parameter
-        type parameter
-          Identifier
-            PsiElement(identifier)('T')
+        Identifier
+          PsiElement(identifier)('T')
       PsiElement(])(']')
     PsiWhiteSpace(' ')
     class template

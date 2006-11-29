@@ -95,7 +95,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 //      var typeParamNode : ScalaElementType = ScalaElementTypes.VARIANT_TYPE_PARAM
 
-      override def parse(builder : PsiBuilder) : Unit = {
+      override def parse (builder : PsiBuilder) : Unit = {
         var variantTypeParamMarker = builder.mark
 
         if (!first.contains(builder.getTokenType)) {
@@ -120,7 +120,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
         }
 
         if (isVariantTypeParam) variantTypeParamMarker.done(ScalaElementTypes.VARIANT_TYPE_PARAM)
-        else variantTypeParamMarker.done(ScalaElementTypes.TYPE_PARAM)
+        else variantTypeParamMarker.drop
       }
     }
 
