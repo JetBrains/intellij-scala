@@ -84,14 +84,16 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
                   compMarker.done(ScalaElementTypes.MATCH_STMT)
                   ScalaElementTypes.EXPR1
                 } else {
-                  builder.error("} expected")
+                  builder.error("Case clauses expected")
                   rollbackMarker.drop()
+                  ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
                   compMarker.done(ScalaElementTypes.MATCH_STMT)
                   ScalaElementTypes.EXPR1
                 }
               } else {
                 builder.error("Case clauses expected")
                 rollbackMarker.drop()
+                ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
                 compMarker.done(ScalaElementTypes.MATCH_STMT)
                 ScalaElementTypes.EXPR1
               }
@@ -149,7 +151,6 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           ScalaElementTypes.WRONGWAY
         }
       }
-
       if (builder.getTokenType.eq(ScalaTokenTypes.tIDENTIFIER)) {
         ParserUtils.eatElement(builder , ScalaTokenTypes.tIDENTIFIER)
         if (builder.getTokenType.eq(ScalaTokenTypes.tASSIGN)) {
@@ -200,48 +201,74 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
         }
       }
 
+      /* Parse body of IF statement */
+      def parseContent = {
+        // Warning!
+        ParserUtils.rollForward(builder)
+        val res1 = Expr.parse(builder)
+        if (res1.eq(ScalaElementTypes.EXPR)){
+          var mileMarker = builder.mark()
+
+          /* else? */
+          var tempMarker = builder.mark()
+          if (!builder.eof) builder.advanceLexer()
+          var second = builder.getTokenType
+          tempMarker.rollbackTo()
+
+          builder.getTokenType match {
+            case ScalaTokenTypes.kELSE
+                | ScalaTokenTypes.tSEMICOLON => {
+              mileMarker.drop()
+              elseProcessing
+            }
+            case ScalaTokenTypes.tLINE_TERMINATOR if (ScalaTokenTypes.kELSE.equals(second)) => {
+              mileMarker.drop()
+              elseProcessing
+            }
+            case _ => {
+              mileMarker.rollbackTo()
+              rollbackMarker.drop()
+              compMarker.done(ScalaElementTypes.IF_STMT)
+              ScalaElementTypes.EXPR1
+            }
+          }
+        } else errorDone("Wrong expression")
+      }
+
       if (builder.getTokenType.eq(ScalaTokenTypes.kIF)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kIF)
-        if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)){
+        if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
           val res = Expr parse(builder)
           if (res.eq(ScalaElementTypes.EXPR)){
             if (builder.getTokenType.eq (ScalaTokenTypes.tRPARENTHIS)){
               ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
-              // Warning!
-              ParserUtils.rollForward(builder)
-              val res1 = Expr.parse(builder)
-              if (res1.eq(ScalaElementTypes.EXPR)){
-                var mileMarker = builder.mark()
-
-                /* else? */
-                var tempMarker = builder.mark()
-                if (!builder.eof) builder.advanceLexer()
-                var second = builder.getTokenType
-                tempMarker.rollbackTo()
-
-                builder.getTokenType match {
-                  case ScalaTokenTypes.kELSE
-                      | ScalaTokenTypes.tSEMICOLON => {
-                    mileMarker.drop()
-                    elseProcessing
-                  }
-                  case ScalaTokenTypes.tLINE_TERMINATOR if (ScalaTokenTypes.kELSE.equals(second)) => {
-                    mileMarker.drop()
-                    elseProcessing
-                  }
-                  case _ => {
-                    mileMarker.rollbackTo()
-                    rollbackMarker.drop()
-                    compMarker.done(ScalaElementTypes.IF_STMT)
-                    ScalaElementTypes.EXPR1
-                  }
-                }
-              } else errorDone("Wrong expression")
-            } else errorDone(" ) expected")
-          } else errorDone("Wrong expression")
+              parseContent
+            } else {
+              builder.error(" ) expected")
+              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS , ScalaTokenTypes.tRPARENTHIS)
+              if (!builder.eof) {
+                parseContent
+              }
+              else {
+                rollbackMarker.drop()
+                compMarker.done(ScalaElementTypes.IF_STMT)
+                ScalaElementTypes.EXPR1
+              }
+            }
+          } else {
+            builder.error("Wrong expression")
+            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS , ScalaTokenTypes.tRPARENTHIS)
+            if (!builder.eof) {
+              parseContent
+            }
+            else {
+              rollbackMarker.drop()
+              compMarker.done(ScalaElementTypes.IF_STMT)
+              ScalaElementTypes.EXPR1
+            }
+          }
         } else errorDone("( expected")
-
       } else {
         rollbackMarker.rollbackTo()
         ScalaElementTypes.WRONGWAY
@@ -253,6 +280,31 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
     def whileCase: ScalaElementType = {
       val rollbackMarker = builder.mark() // marker to rollback
 
+      /* WHILE statement body parsing */
+      def parseContent = {
+        // Warning!
+        ParserUtils.rollForward(builder)
+        val res1 = Expr.parse(builder)
+        if (res1.eq(ScalaElementTypes.EXPR)){
+          rollbackMarker.drop()
+          compMarker.done(ScalaElementTypes.WHILE_STMT)
+          ScalaElementTypes.EXPR1
+        } else errorDone("Wrong expression")
+      }
+
+      def parseError(st: String) = {
+        builder.error(st)
+        ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS , ScalaTokenTypes.tRPARENTHIS)
+        if (!builder.eof) {
+          parseContent
+        }
+        else {
+          rollbackMarker.drop()
+          compMarker.done(ScalaElementTypes.WHILE_STMT)
+          ScalaElementTypes.EXPR1
+        }
+      }
+
       /* for mistakes processing */
       def errorDone = errorDoneMain(rollbackMarker , ScalaElementTypes.WHILE_STMT)
       if (builder.getTokenType.eq(ScalaTokenTypes.kWHILE)){
@@ -263,16 +315,9 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           if (res.eq(ScalaElementTypes.EXPR)){
             if (builder.getTokenType.eq (ScalaTokenTypes.tRPARENTHIS)){
               ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
-              // Warning!
-              ParserUtils.rollForward(builder)
-              val res1 = Expr.parse(builder)
-              if (res1.eq(ScalaElementTypes.EXPR)){
-                rollbackMarker.drop()
-                compMarker.done(ScalaElementTypes.WHILE_STMT)
-                ScalaElementTypes.EXPR1
-              } else errorDone("Wrong expression")
-            } else errorDone(" ) expected")
-          } else errorDone("Wrong expression")
+              parseContent
+            } else parseError(") expected")
+          } else parseError("Wrong expression")
         } else errorDone("( expected")
 
       } else {
@@ -345,6 +390,19 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
         } else errorDone("Wrong expression")
       }
 
+      def parseError(st: String, elem1: IElementType , elem2: IElementType) = {
+        builder.error(st)
+        ParserUtils.rollPanicToBrace(builder, elem1 , elem2)
+        if (!builder.eof) {
+          bodyParse
+        }
+        else {
+          rollbackMarker.drop()
+          compMarker.done(ScalaElementTypes.FOR_STMT)
+          ScalaElementTypes.EXPR1
+        }
+      }
+
       def braceMatcher(brace: IElementType) = {
         val rightBrace = brace match {
           case ScalaTokenTypes.tLBRACE => ScalaTokenTypes.tRBRACE.asInstanceOf[ScalaElementType]
@@ -356,9 +414,8 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           if (builder.getTokenType.eq (rightBrace)){
             ParserUtils.eatElement(builder, rightBrace)
             bodyParse
-          } else errorDone(rightBrace.toString +" expected")
-        } else errorDone("Wrong enumerators")
-
+          } else parseError(rightBrace.toString +" expected", brace, rightBrace)
+        } else parseError("Wrong enumerators", brace, rightBrace)
       }
 
       if (builder.getTokenType.eq(ScalaTokenTypes.kFOR)){
@@ -522,15 +579,9 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       if (builder.getTokenType.eq(ScalaTokenTypes.kRETURN)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kRETURN)
         val res = Expr parse(builder)
-//        if (!ScalaElementTypes.WRONGWAY.equals(res)){
         rollbackMarker.drop()
         compMarker.done(ScalaElementTypes.RETURN_STMT)
         ScalaElementTypes.EXPR1
-/*
-        } else {
-         errorDone("Wrong expression for return statement")
-        }
-*/
       } else {
         rollbackMarker.rollbackTo()
         ScalaElementTypes.WRONGWAY

@@ -37,7 +37,7 @@ ArgumentExprs ::= ‘(’ [Exprs] ’)’
           if (ScalaElementTypes.BLOCK_EXPR.equals(result))
           argsMarker.done(ScalaElementTypes.ARG_EXPRS)
           ScalaElementTypes.ARG_EXPRS
-        } else if (ScalaTokenTypes.tLPARENTHIS.eq(builder getTokenType)){
+        } else if (ScalaTokenTypes.tLPARENTHIS.equals(builder getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
           if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
             closeParent

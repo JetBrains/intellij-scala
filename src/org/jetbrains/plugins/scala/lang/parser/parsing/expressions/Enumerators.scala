@@ -1,3 +1,5 @@
+import scala.collection.mutable._
+
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 /**
 * @author Ilya Sergey
@@ -103,16 +105,20 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
     }
   }
 
-
   /*
   Enumerators ::= Generator {StatementSeparator Enumerator}
   */
 
   object Enumerators{
 
+    val elems = new HashSet[IElementType]
+
     def parse(builder : PsiBuilder) : ScalaElementType = {
 
       val ensMarker = builder.mark()
+      elems += ScalaTokenTypes.tLINE_TERMINATOR
+      elems += ScalaTokenTypes.tSEMICOLON
+      elems += ScalaTokenTypes.tRPARENTHIS
 
       def matchToken = builder.getTokenType match {
           case  ScalaTokenTypes.tSEMICOLON
@@ -130,11 +136,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
         var res = Enumerator.parse(builder)
         if (ScalaElementTypes.WRONGWAY.equals(res)){
           builder.error("Enumerator expected")
-          ensMarker.done(ScalaElementTypes.ENUMERATORS)
-          ScalaElementTypes.ENUMERATORS
+          ParserUtils.rollPanic(builder, elems)
         } else {
-          matchToken
+          if (!elems.contains(builder.getTokenType)) {
+            builder.error("Wrong enumerator")
+            ParserUtils.rollPanic(builder, elems)
+          }
+          else {}
         }
+        matchToken
       }
 
       var res = Generator.parse(builder)

@@ -155,8 +155,14 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
               endness = "plain"
               flag = true
             } else {
-              builder.error(" ) expected")
-              flag = false
+              builder.error(" Wrong expression")
+              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS , ScalaTokenTypes.tRPARENTHIS)
+              new SimpleExprResult(ScalaElementTypes.SIMPLE_EXPR, "plain")
+              result = res
+              endness = "plain"
+              flag = true
+
+//              flag = false
             }
           } else flag = false
         }

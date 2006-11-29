@@ -15,6 +15,13 @@ package org.jetbrains.plugins.scala.lang.parser.util {
 
   object ParserUtils {
 
+    /* rolls forward until token from elems encountered */
+    def rollPanic(builder: PsiBuilder, elems: HashSet[IElementType]) = {
+        while (! builder.eof && !elems.contains(builder.getTokenType)){
+          eatElement(builder , builder.getTokenType)
+        }
+    }
+
     /* rolls forward towards right brace */
     def rollPanicToBrace(builder: PsiBuilder, lbrace: IElementType, rbrace: IElementType) = {
         val stack = new Stack[IElementType]

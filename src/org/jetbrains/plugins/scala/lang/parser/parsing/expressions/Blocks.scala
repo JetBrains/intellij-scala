@@ -61,7 +61,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
             /* ‘{’ CaseClauses ‘}’ */
             var result = CaseClauses.parse(builder)
             if (result.equals(ScalaElementTypes.CASE_CLAUSES)) {
-              if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){
+              if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
                 blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
                 ScalaElementTypes.BLOCK_EXPR
