@@ -48,11 +48,13 @@ ArgumentExprs ::= ‘(’ [Exprs] ’)’
                 closeParent
               } else {
                 builder.error(") expected")
+                ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
                 argsMarker.done(ScalaElementTypes.ARG_EXPRS)
                 ScalaElementTypes.ARG_EXPRS
               }
             } else {
               builder.error("Wrong arguments")
+              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
               argsMarker.done(ScalaElementTypes.ARG_EXPRS)
               ScalaElementTypes.ARG_EXPRS
             }

@@ -30,9 +30,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
     def parse(builder : PsiBuilder) : ScalaElementType = {
       val blockExprMarker = builder.mark()
 
-      if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)) {
+      if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
-        if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){
+        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
           blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
           ScalaElementTypes.BLOCK_EXPR
@@ -41,7 +41,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
           var result = Block.parse(builder, true)
           if (result.equals(ScalaElementTypes.BLOCK)) {
             ParserUtils.rollForward(builder)
-            if (builder.getTokenType.equals(ScalaTokenTypes.tRBRACE)){
+            if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
               ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
               blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
               ScalaElementTypes.BLOCK_EXPR
