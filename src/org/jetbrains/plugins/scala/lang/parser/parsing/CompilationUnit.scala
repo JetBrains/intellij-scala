@@ -39,7 +39,9 @@ import com.intellij.psi.tree.TokenSet
 */
 
 
-//IChameleonElementType
+/*
+ *  CompilationUnit ::= [package QualId StatementSeparator] TopStatSeq
+ */
 
 object CompilationUnit extends ConstrWithoutNode {
   override def parseBody (builder : PsiBuilder) : Unit = {
@@ -79,6 +81,10 @@ object CompilationUnit extends ConstrWithoutNode {
 
     }
 
+/*
+ *  TopStatSeq ::= TopStat {StatementSeparator TopStat}
+ */    
+
   object TopStatSeq extends ConstrWithoutNode {
     override def parseBody (builder: PsiBuilder): Unit = {
 
@@ -108,18 +114,36 @@ object CompilationUnit extends ConstrWithoutNode {
           if (BNF.firstTopStat.contains(builder.getTokenType)) {
             isError = false;
           } else {
-//            builder.advanceLexer
+            builder.advanceLexer
+            isError = false;
+             tryParseTopStat(builder)
           }
-//          val errorMarker = builder.mark
-//          builder.advanceLexer
-//          errorMarker.done(ScalaElementTypes.TRASH)
         }
 
         DebugPrint println ("TopStatSeq: token " + builder.getTokenType)
 
       }
     }
+
+    def tryParseTopStat (builder : PsiBuilder) : Unit = {
+
+      var isParsed = false;
+      while (!builder.eof() && !isParsed){
+        if (BNF.firstTopStat.contains(builder.getTokenType)) {
+          TopStat parse builder
+          isParsed = true
+        } else {
+          builder.advanceLexer
+        }
+      }
+    }
   }
+
+/*
+ *  TopStat ::= {AttributeClause} {Modifier} TmplDef
+ *            | Import
+ *            | Packaging
+ */
 
   object TopStat {
     def parse(builder: PsiBuilder): Unit = {
@@ -182,6 +206,9 @@ object CompilationUnit extends ConstrWithoutNode {
     }
   }
  
+/*
+ *  [package QualId StatementSeparator]
+ */
 
     object Package extends Constr {
       override def getElementType = ScalaElementTypes.PACKAGE_STMT
@@ -209,6 +236,10 @@ object CompilationUnit extends ConstrWithoutNode {
         }
       }
     }
+
+/*
+ *  Packaging ::= package QualId ‘{’ TopStatSeq ‘}’
+ */
 
     object Packaging extends Constr {
       override def getElementType = ScalaElementTypes.PACKAGING
@@ -251,6 +282,11 @@ object CompilationUnit extends ConstrWithoutNode {
         }
       }
     }
+
+
+/*
+ *  QualId ::= id {‘.’ id}
+ */
 
     object QualId extends Constr {
       override def getElementType = ScalaElementTypes.QUAL_ID

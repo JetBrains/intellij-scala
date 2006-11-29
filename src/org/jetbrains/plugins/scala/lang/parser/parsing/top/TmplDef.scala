@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClaus
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImplicit
-//import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef.ClassParam
 
 /**
  * User: Dmitry.Krasilschikov
@@ -28,12 +27,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImpli
  * Time: 13:54:45
  */
 
- /*
- TmplDef ::= [case] class ClassDef
-           | [case] object ObjectDef
-           | trait TraitDef
 
-*/
+/*
+ * TmplDef ::= [case] class ClassDef
+ *          | [case] object ObjectDef
+ *          | trait TraitDef
+ *
+ */
 
 object TmplDef extends ConstrWithoutNode {
   override def parseBody(builder : PsiBuilder) : Unit = {
@@ -97,13 +97,27 @@ object TmplDef extends ConstrWithoutNode {
       return ScalaElementTypes.WRONGWAY
     }
 
-  abstract class TypeDef extends ConstrWithoutNode
+/*
+ *  TypeDef presents define type structure, i.e. these are TypeDef and ClassDef
+ */
 
-  abstract class InstanceDef extends TypeDef
+  trait TypeDef extends ConstrWithoutNode
+
+/*
+ *  InstanceDef presents define instancibility of structure, i.e. these are ClassDef and ObjectDef
+ */
+
+  trait InstanceDef extends ConstrWithoutNode
+
+  
 
   /************** CLASS ******************/
 
-    case class ClassDef extends InstanceDef {
+/*
+ *  ClassDef ::= id [TypeParamClause] ClassParamClauses [‘requires’ SimpleType] ClassTemplate
+ */
+
+    case class ClassDef extends InstanceDef with TypeDef {
       //def getElementType = ScalaElementTypes.CLASS_DEF
 
       override def parseBody ( builder : PsiBuilder ) : Unit = {
@@ -171,9 +185,11 @@ object TmplDef extends ConstrWithoutNode {
      }
    }
 
+
 /*
- *
+ * ClassParam ::= [{Modifier} (‘val’ | ‘var’)] Param
  */
+
      class ClassParam extends Param {
         override def first = BNF.firstClassParam
 
@@ -210,6 +226,10 @@ object TmplDef extends ConstrWithoutNode {
         }
       }
 
+/*
+ *  Block: 'extends' with identifier
+ */
+
     object ExtendsBlock extends Constr {
       override def getElementType = ScalaElementTypes.EXTENDS_BLOCK
 
@@ -227,6 +247,10 @@ object TmplDef extends ConstrWithoutNode {
         }
       }
     }
+
+/*
+ *  ClassTemplate ::= [extends TemplateParents] [[NewLine] TemplateBody]
+ */
 
     class ClassTemplate extends ConstrUnpredict {
       override def parseBody(builder : PsiBuilder) : Unit = {
@@ -269,6 +293,10 @@ object TmplDef extends ConstrWithoutNode {
 
     /************** OBJECT ******************/
 
+/*
+ *  ObjectDef ::= id ClassTemplate
+ */
+
    case object ObjectDef extends InstanceDef {
     def getElementType : ScalaElementType = ScalaElementTypes.OBJECT_DEF
 
@@ -299,6 +327,10 @@ object TmplDef extends ConstrWithoutNode {
 
 
   /************** TRAIT ******************/
+
+/*
+ *  TraitDef ::= id [TypeParamClause] [‘requires’ SimpleType] TraitTemplate
+ */
 
   case class TraitDef extends TypeDef {
     def getElementType = ScalaElementTypes.TRAIT_DEF
@@ -333,6 +365,10 @@ object TmplDef extends ConstrWithoutNode {
     }
   }
 
+/*
+ *  TraitTemplate ::= [extends MixinParents] [[NewLine] TemplateBody]
+ */
+
   object TraitTemplate extends Constr {
     override def getElementType = ScalaElementTypes.TRAIT_TEMPLATE
 
@@ -361,6 +397,10 @@ object TmplDef extends ConstrWithoutNode {
       }
     }
   }
+
+/*
+ *  MixinParents ::= SimpleType {‘with’ SimpleType}
+ */
 
   object MixinParents extends Constr {
     override def getElementType = ScalaElementTypes.MIXIN_PARENTS

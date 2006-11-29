@@ -25,6 +25,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
  * Date: 30.10.2006
  * Time: 15:04:19
  */
+
+/*
+ *  Template ::= TemplateParents [TemplateBody]
+ */
  
 object Template extends Constr{
   override def getElementType = ScalaElementTypes.TEMPLATE
@@ -39,6 +43,10 @@ object Template extends Constr{
     }
   }
 } 
+
+/*
+ *  TemplateParents ::= Constr {with SimpleType}
+ */
 
   object TemplateParents extends Constr {
     override def getElementType = ScalaElementTypes.TEMPLATE_PARENTS
@@ -57,6 +65,10 @@ object Template extends Constr{
       }
     }
   }
+
+/*
+ *  TemplateBody ::= ‘{’ TemplateStatSeq ‘}’
+ */  
 
   object TemplateBody extends Constr {
     override def getElementType = ScalaElementTypes.TEMPLATE_BODY
@@ -81,6 +93,11 @@ object Template extends Constr{
       }
     }
 }
+
+/*
+ *  TemplateStatSeq ::= [TemplateStat] {StatementSeparator [TemplateStat}]
+ */
+
 
   object TemplateStatSeq extends ConstrWithoutNode {
     override def parseBody(builder : PsiBuilder) : Unit = {
@@ -125,6 +142,13 @@ object Template extends Constr{
        } 
     }
   }
+
+/*
+ *  TemplateStat ::= Import
+ *              | {AttributeClause} {Modifier} Def
+ *              | {AttributeClause} {Modifier} Dcl
+ *              | Expr
+ */
 
   object TemplateStat extends ConstrUnpredict {
     override def parseBody(builder : PsiBuilder) : Unit = {

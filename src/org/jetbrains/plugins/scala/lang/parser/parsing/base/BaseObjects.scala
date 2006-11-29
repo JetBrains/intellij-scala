@@ -23,14 +23,11 @@ import com.intellij.psi.tree.IElementType
  */
 
 /*
-    StatementSeparator ::= NewLine | ‘;’
-*/
+ *  StatementSeparator ::= NewLine | ‘;’
+ */
 
 object StatementSeparator extends ConstrWithoutNode {
-  //override def getElementType = ScalaElementTypes.STATEMENT_SEPARATOR
-
   override def parseBody(builder: PsiBuilder): Unit = {
-    //Console.println("token type : " + builder.getTokenType())
      builder.getTokenType() match {
       case ScalaTokenTypes.tSEMICOLON => {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tSEMICOLON)
@@ -115,8 +112,8 @@ object AttributeClause extends ConstrItem {
 }
 
 /*
-    Attribute ::= Constr
-*/
+ *  Attribute ::= Constr
+ */
 
 object Attribute extends Constr{
   override def getElementType = ScalaElementTypes.ATTRIBUTE
@@ -127,8 +124,8 @@ object Attribute extends Constr{
 }
 
 /*
-    Constr ::= StableId [TypeArgs] {‘(’ [Exprs] ‘)’}
-*/
+ *   Constr ::= StableId [TypeArgs] {‘(’ [Exprs] ‘)’}
+ */
   object Constructor extends Constr{
     override def getElementType = ScalaElementTypes.CONSTRUCTOR
 
@@ -156,11 +153,7 @@ object Attribute extends Constr{
 
         if (BNF.firstExpr.contains(builder.getTokenType)) {
           Exprs.parse(builder)
-        } /*else {
-          builder.error("expected expression")
-          return
-        }*/
-
+        }
 
         if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
@@ -173,8 +166,8 @@ object Attribute extends Constr{
   }
 
 /*
-    ExprInParenthis :== '(' [exprs] ')'
-*/
+ *   ExprInParenthis :== '(' [exprs] ')'
+ */
 
   object ExprInParenthis extends ConstrWithoutNode {
     override def parseBody(builder: PsiBuilder): Unit = {
@@ -211,8 +204,8 @@ object Attribute extends Constr{
   }
 
 /*
-    types :== Type {',' Type}
-*/
+ *   types :== Type {',' Type}
+ */
   
   object Types extends Constr{
     override def getElementType = ScalaElementTypes.TYPES
@@ -223,7 +216,6 @@ object Attribute extends Constr{
         while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
-          //Console.println("possible type parse")
           if (BNF.firstType.contains(builder.getTokenType)) {
             Type parse builder
           } else {
@@ -236,17 +228,14 @@ object Attribute extends Constr{
   }
 
 /*
-    Modifier ::= LocalModifier
-    | override
-    | private [ "[" id "]" ]
-    | protected [ "[" id "]" ]
-*/
+ *   Modifier ::= LocalModifier
+ *             | override
+ *             | private [ "[" id "]" ]
+ *             | protected [ "[" id "]" ]
+ */
 
   object Modifier extends ConstrWithoutNode {
-    //override def getElementType = ScalaElementTypes.MODIFIER
-
     override def parseBody(builder: PsiBuilder): Unit = {
-      //Console.println("token type : " + builder.getTokenType())
       if (BNF.firstLocalModifier.contains(builder.getTokenType)) {
         LocalModifier.parse(builder)
       }
@@ -263,10 +252,7 @@ object Attribute extends Constr{
   }
 
   object ModifierWithoutImplicit extends ConstrWithoutNode {
-    //override def getElementType = ScalaElementTypes.MODIFIER
-
     override def parseBody(builder: PsiBuilder): Unit = {
-      //Console.println("token type : " + builder.getTokenType())
       if (BNF.firstLocalModifier.contains(builder.getTokenType)) {
         LocalModifierWithoutImplicit.parse(builder)
       }
@@ -283,11 +269,10 @@ object Attribute extends Constr{
   }
 
   object Modifiers extends ConstrUnpredict {
-    //override def getElementType = ScalaElementTypes.MODIFIERS
-
     override def parseBody(builder: PsiBuilder): Unit = {
       val modifiersMarker = builder.mark
       var numberOfModifiers = 0;
+
       while (BNF.firstModifier.contains(builder.getTokenType)) {
         DebugPrint println ("modifiers parse: " + builder.getTokenType)
         Modifier parse builder
@@ -299,12 +284,13 @@ object Attribute extends Constr{
     }
   }
 
+/*
+ *  AccessModifier ::= private [ "[" id "]" ]
+ *                   | protected [ "[" id "]" ]
+ */
+
   object AccessModifier extends ConstrWithoutNode {
-    //override def getElementType = ScalaElementTypes.ACCESS_MODIFIER
-
     override def parseBody(builder: PsiBuilder): Unit = {
-      //Console.println("token type : " + builder.getTokenType())
-
       builder.getTokenType match {
         case ScalaTokenTypes.kPRIVATE => ParserUtils.eatElement(builder, ScalaTokenTypes.kPRIVATE)
         case ScalaTokenTypes.kPROTECTED => ParserUtils.eatElement(builder, ScalaTokenTypes.kPROTECTED)
@@ -330,10 +316,15 @@ object Attribute extends Constr{
     }
   }
 
+/*
+ *  LocalModifier ::= abstract
+ *                  | final
+ *                  | sealed
+ *                  | implicit
+ */
+
   object LocalModifier extends ConstrWithoutNode {
     override def parseBody(builder: PsiBuilder): Unit = {
-      //Console.println("token type : " + builder.getTokenType())
-
       if (BNF.firstLocalModifier.contains(builder.getTokenType)) {
         builder.getTokenType() match {
           case ScalaTokenTypes.kABSTRACT => ParserUtils.eatElement(builder, ScalaTokenTypes.kABSTRACT)
@@ -355,11 +346,8 @@ object Attribute extends Constr{
     }
   }
 
-
  object LocalModifierWithoutImplicit extends ConstrWithoutNode {
     override def parseBody(builder: PsiBuilder): Unit = {
-      //Console.println("token type : " + builder.getTokenType())
-
       if (BNF.firstLocalModifier.contains(builder.getTokenType)) {
         builder.getTokenType() match {
           case ScalaTokenTypes.kABSTRACT => ParserUtils.eatElement(builder, ScalaTokenTypes.kABSTRACT)
@@ -379,6 +367,10 @@ object Attribute extends Constr{
     }
   }
 
+/*
+ *  Import ::= import ImportExpr {‘,’ ImportExpr}
+ */
+
   object Import extends Constr {
     override def getElementType = ScalaElementTypes.IMPORT_STMT
 
@@ -394,6 +386,9 @@ object Attribute extends Constr{
       }
     }
 
+/*
+ *  ImportExpr ::= StableId ‘.’ (id | ‘_’ | ImportSelectors)
+ */
 
   object ImportExpr extends ConstrItem {
     override def getElementType = ScalaElementTypes.IMPORT_EXPR
@@ -420,10 +415,8 @@ object Attribute extends Constr{
         return
       }
 
-      //Console.println("after dot " + builder.getTokenType)
       builder.getTokenType() match {
         case ScalaTokenTypes.tIDENTIFIER => {
-          //Console.println("identifier " + builder.getTokenText())
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
           return
         }
@@ -447,6 +440,10 @@ object Attribute extends Constr{
     }
   }
 
+/*
+ *  ImportSelectors ::= ‘{’ {ImportSelector ‘,’} (ImportSelector | ‘_’) ‘}’
+ */
+
   object ImportSelectors extends Constr{
     override def getElementType = ScalaElementTypes.IMPORT_SELECTORS
 
@@ -463,7 +460,6 @@ object Attribute extends Constr{
             //found '_', return because '_' have to be the last token in import selectors construction
             if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType)){
               val underMarker = builder.mark()
-              //ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
               builder.advanceLexer
               underMarker.done(ScalaElementTypes.IMPORT_SELECTOR)
               return
@@ -477,7 +473,6 @@ object Attribute extends Constr{
         }
 
         if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType)){
-          //ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
           val underMarker = builder.mark()
           builder.advanceLexer
           underMarker.done(ScalaElementTypes.IMPORT_SELECTOR)
@@ -507,6 +502,11 @@ object Attribute extends Constr{
 
     }
   }
+
+/*
+ *  ImportSelector ::= id [‘=>’ id | ‘=>’ ‘_’]
+ */
+
 
   object ImportSelector extends Constr{
     override def getElementType = ScalaElementTypes.IMPORT_SELECTOR
@@ -544,6 +544,11 @@ object Attribute extends Constr{
   }
  }
 
+/*
+ *  ids ::= id {‘,’ id}
+ */
+
+
  object Ids extends Constr {
   def getElementType : IElementType = ScalaElementTypes.IDENTIFIER_LIST
 
@@ -564,7 +569,6 @@ object Attribute extends Constr{
 
      while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
        ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
-       //Console.println("Ids parse")
 
        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
