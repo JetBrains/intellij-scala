@@ -48,11 +48,12 @@ class Program extends ScalaTokenTypes {
       CompilationUnit.parse(builder)
     }
 
-    while (!builder.eof()) {
       val trashMarker = builder.mark
-      builder.advanceLexer
+      while (!builder.eof()) {
+        builder error "an error occured" 
+        builder.advanceLexer
+      }
       trashMarker.done(ScalaElementTypes.TRASH)
-    }
     /*
     parseNext
     ParserUtils.rollForward(builder)

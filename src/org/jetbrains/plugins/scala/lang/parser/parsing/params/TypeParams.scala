@@ -35,18 +35,6 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
           a.equals(ScalaTokenTypes.tLSQBRACKET)
         }
 
-        /*def checkForParamClauses(first : IElementType, second : IElementType) : Boolean = {
-          var a = first
-          var b = second
-
-          if (a.equals(ScalaTokenTypes.tLINE_TERMINATOR)) {
-            a = b
-          }
-
-          if (a.equals(ScalaTokenTypes.tLPARENTHIS)) return true
-          else false
-        } */
-
 
       override def parseBody(builder : PsiBuilder) : Unit = {
         val typeParamClauseMarker = builder.mark
@@ -87,12 +75,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
     }
 
     class VariantTypeParam extends TypeParam {
-
-//      override def getElementType = typeParamNode
-
       override def first = BNF.firstVariantTypeParam
-
-//      var typeParamNode : ScalaElementType = ScalaElementTypes.VARIANT_TYPE_PARAM
 
       override def parse (builder : PsiBuilder) : Unit = {
         var variantTypeParamMarker = builder.mark

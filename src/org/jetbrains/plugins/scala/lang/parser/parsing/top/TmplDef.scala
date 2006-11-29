@@ -42,13 +42,10 @@ object TmplDef extends ConstrWithoutNode {
   }
 
    def parseBodyNode(builder : PsiBuilder) : IElementType = {
-      //Console.println("token in tmplDef " + builder.getTokenType)
       val caseMarker = builder.mark()
 
       if (ScalaTokenTypes.kCASE.equals(builder.getTokenType)){
         builder.advanceLexer //Ate 'case'
-
-         //Console.println("token, expected class or object " + builder.getTokenType)
 
          builder.getTokenType match {
           case ScalaTokenTypes.kCLASS => {
@@ -75,7 +72,6 @@ object TmplDef extends ConstrWithoutNode {
         caseMarker.rollbackTo()
       }
 
-      //Console.println("token in tmplDef for match " + builder.getTokenType)
       builder.getTokenType match {
         case ScalaTokenTypes.kCLASS => {
           ClassDef.parse(builder)
@@ -154,6 +150,10 @@ object TmplDef extends ConstrWithoutNode {
       }
    }
 
+/*
+ *  Block: 'requires' with type
+ */
+
    object Requires extends Constr {
      override def getElementType = ScalaElementTypes.REQUIRES_BLOCK
 
@@ -171,36 +171,42 @@ object TmplDef extends ConstrWithoutNode {
      }
    }
 
+/*
+ *
+ */
      class ClassParam extends Param {
-        override def getElementType = ScalaElementTypes.CLASS_PARAM
-
         override def first = BNF.firstClassParam
 
-        override def parseBody(builder : PsiBuilder) : Unit = {
+        override def parse(builder : PsiBuilder) : Unit = {
+          var classParamMarker = builder.mark
 
           var isModifier = false
+          var isClassParam = false
 
           while (BNF.firstModifier.contains(builder.getTokenType)) {
             ModifierWithoutImplicit parse builder
             isModifier = true;
           }
 
-           //afte modifier must be 'val' or 'var'
+           //after modifier must be 'val' or 'var'
            builder.getTokenType() match {
-             case ScalaTokenTypes.kVAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL) }
-             case ScalaTokenTypes.kVAR => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAR) }
+             case ScalaTokenTypes.kVAL => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL); isClassParam = true }
+             case ScalaTokenTypes.kVAR => { ParserUtils.eatElement(builder, ScalaTokenTypes.kVAR); isClassParam = true }
 
              case _ => {
                if (isModifier){
                  builder.error("expected 'val' or 'var'")
                }
+                 isClassParam = false
              }
            }
-
 
           if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
             new Param().parse(builder)
           } else builder.error("expected identifier")
+
+          if (isClassParam) classParamMarker.done(ScalaElementTypes.CLASS_PARAM)
+          else classParamMarker.drop
         }
       }
 
@@ -223,8 +229,6 @@ object TmplDef extends ConstrWithoutNode {
     }
 
     class ClassTemplate extends ConstrUnpredict {
-      //override def getElementType = ScalaElementTypes.CLASS_TEMPLATE
-
       override def parseBody(builder : PsiBuilder) : Unit = {
         val classTemplateMarker = builder.mark
 
@@ -262,23 +266,6 @@ object TmplDef extends ConstrWithoutNode {
       }
     }
 
- /* case object ExtendsBlock extends Constr {
-    def getElementType : ScalaElementType = ScalaElementTypes.EXTENDS_BLOCK
-
-    override def parseBody ( builder : PsiBuilder ) : Unit = {
-      if (ScalaTokenTypes.kEXTENDS.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.kEXTENDS)
-
-        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
-          TemplateParents.parse(builder)
-        } else {
-          builder.error("expected identifier")
-          classTemplateMarker.drop()
-          return
-        }
-      }
-    }
-  }       */
 
     /************** OBJECT ******************/
 
@@ -309,14 +296,6 @@ object TmplDef extends ConstrWithoutNode {
       }
     }
   }
-
- /* object ObjectTemplate extends ClassTemplate {
-    override def getElementType : ScalaElementType = ScalaElementTypes.OBJECT_TEMPLATE
-
-    override def parseBody ( builder : PsiBuilder ) : Unit = {
-      super.parseBody(builder)
-    }
-  }*/
 
 
   /************** TRAIT ******************/
@@ -359,11 +338,14 @@ object TmplDef extends ConstrWithoutNode {
 
     override def parseBody(builder : PsiBuilder) : Unit = {
       if (ScalaTokenTypes.kEXTENDS.equals(builder.getTokenType)) {
+        var extendsMarker = builder.mark
         ParserUtils.eatElement(builder, ScalaTokenTypes.kEXTENDS)
 
         if (BNF.firstMixinParents.contains(builder.getTokenType)){
           MixinParents parse builder
         } else builder error "expected mixin parents"
+
+        extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
       }
 
       if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
@@ -371,7 +353,7 @@ object TmplDef extends ConstrWithoutNode {
 
         if (BNF.firstTemplateBody.contains(builder.getTokenType)){
           TemplateBody parse builder
-        } else builder error "expected template body"
+        } //else builder error "expected template body"
       }
 
       if (BNF.firstTemplateBody.contains(builder.getTokenType)){
@@ -399,10 +381,4 @@ object TmplDef extends ConstrWithoutNode {
     }
   }
 
-}
-
-object TmplDefWithoutNode extends ConstrWithoutNode {
-   override def parseBody(builder : PsiBuilder) : Unit = {
-     //TmplDef parse 
-   }
 }

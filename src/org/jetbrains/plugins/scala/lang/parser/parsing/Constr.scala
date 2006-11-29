@@ -8,6 +8,11 @@ import com.intellij.psi.tree.TokenSet
  * Date: 19.10.2006
  * Time: 17:35:24
  */
+
+/*
+ * Construction is a node in PSI tree; type of node added from getElementType method
+ */
+
 abstract class Constr {
    def parse (builder : PsiBuilder ) : Unit = {
      if (!builder.eof()) {
@@ -28,9 +33,10 @@ trait Item {
 
 trait ConstrItem extends Constr with Item {
 }
-
-trait ConstrItemReturned extends ConstrReturned with Item {
-}
+ 
+/*
+ * Construction is a node in PSI tree; type defines in parseBody method
+ */
 
 abstract class ConstrUnpredict {
   def parse (builder : PsiBuilder ) : Unit = {
@@ -41,6 +47,10 @@ abstract class ConstrUnpredict {
 
    def parseBody (builder : PsiBuilder) : Unit
 }
+
+/*
+ * Construction isn't a node; parseNode method returned type of node
+ */
 
 abstract class ConstrReturned {
   def parse (builder : PsiBuilder ) : IElementType = {
@@ -54,6 +64,10 @@ abstract class ConstrReturned {
 
    def parseBody (builder : PsiBuilder) : IElementType
 }
+
+/*
+ * Construction without a node
+ */
 
 abstract class ConstrWithoutNode {
   def parse (builder : PsiBuilder ) : Unit = {
