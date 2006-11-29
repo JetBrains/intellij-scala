@@ -177,11 +177,14 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       def errorDone = errorDoneMain(rollbackMarker, ScalaElementTypes.IF_STMT )
 
       def elseProcessing: ScalaElementType = {
+
+        val rMarker = builder.mark()
         if (builder.getTokenType.equals(ScalaTokenTypes.tSEMICOLON) ||
             builder.getTokenType.equals(ScalaTokenTypes.tLINE_TERMINATOR)){
           ParserUtils.eatElement(builder, builder.getTokenType)
         }
         if (builder.getTokenType.eq(ScalaTokenTypes.kELSE)) {
+          rMarker.drop()
           ParserUtils.eatElement(builder, ScalaTokenTypes.kELSE)
           val res2 = Expr.parse(builder)
           if (res2.eq(ScalaElementTypes.EXPR)){
@@ -189,7 +192,12 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
             compMarker.done(ScalaElementTypes.IF_STMT)
             ScalaElementTypes.EXPR1
           } else errorDone("Wrong expression")                   
-        } else errorDone("else expected")
+        } else {
+          rMarker.rollbackTo()
+          rollbackMarker.drop()
+          compMarker.done(ScalaElementTypes.IF_STMT)
+          ScalaElementTypes.EXPR1  
+        }
       }
 
       if (builder.getTokenType.eq(ScalaTokenTypes.kIF)){
