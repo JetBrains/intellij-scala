@@ -112,14 +112,7 @@ floatType = F | f | D | d
 
 identifier = {plainid} | "'" "\"" {stringLiteral} "\"" "'"
 
-charEscapeSeq = "\\" "u" {hexDigit} {hexDigit} {hexDigit} {hexDigit}
-
-
-upper = [A-Z_] | "$"
-lower = [a-z]
-letter = {upper} | {lower}
 digit = [0-9]
-
 special =   \u0021 | \u0023
           | [\u0025-\u0026]
           | [\u002A-\u002B]
@@ -133,12 +126,11 @@ special =   \u0021 | \u0023
 op = \u007C ({special} | \u007C)+
      | {special} ({special} | \u007C)*
 
-idrest1 = ({letter} | {digit})* ("_" {op})?
-idrest = ({letter} | {digit})* ("_" {op} | "_" {idrest1} )?
+idrest1 = [:jletter:]? [:jletterdigit:]* ("_" {op})?
+idrest = [:jletter:]? [:jletterdigit:]* ("_" {op} | "_" {idrest1} )?
+varid = [:jletter:] {idrest}
 
-varid = {lower} {idrest}
-plainid = {upper} {idrest}
-          | {varid}
+plainid = {varid}
           | {op}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,25 +138,24 @@ plainid = {upper} {idrest}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE})*("'"|\\)?
+STRING_LITERAL=\"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*(\"|\\)?
+
+charEscapeSeq = \\[^\r\n]
 charNoDoubleQuote = !( ![^"\""] | {LineTerminator})
 stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 stringLiteral = {stringElement}*
-
 characterLiteral = "\'" {charEscapeSeq} "\'"
                    | "\'" [^"\'"] "\'"
-
-symbolLiteral = "'" plainid
+symbolLiteral = "\'" {plainid}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////// NewLine processing ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-//precedeNewLine =     "this" | "return" | "_" | ")" | "]" | "}"
 notFollowNewLine =   "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield"
                     | "," | "." | ";" | ":" | "_" | "=" | "=>" | "<-" | "<:" | "<%" | ">:"
                     | "#" | "@" | ")" | "]" |"}"
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Common symbols //////////////////////////////////////////////////////////////////////////////////////////////
@@ -173,12 +164,6 @@ notFollowNewLine =   "catch" | "else" | "extends" | "finally" | "match" | "requi
 LineTerminator = \r | \n | \r\n | \u0085|  \u2028 | \u2029
 InLineTerminator = " " | "\t" | "\f"
 WhiteSpaceInLine = {InLineTerminator}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////  boolean values ///////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-booleanLiteral = "true" | "false"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////  xml tag  /////////////////////////////////////////////////////////////////////////////////////////
@@ -206,7 +191,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 %xstate IN_STRING_STATE
 // Inside the string... Boo!
 
-%state IN_XML_STATE
+%xstate IN_XML_STATE
 //the scala expression between xml tags
 %%
 
@@ -231,13 +216,8 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 {WhiteSpaceInLine}                              { return process(tWHITE_SPACE_IN_LINE);  }
 "//" .*                                         { return process(tCOMMENT); }
 
-{LineTerminator} / (" ")* {notFollowNewLine}    {   //yybegin(YYINITIAL);
-                                                    changeState();
-                                                    return process(tNON_SIGNIFICANT_NEWLINE);
-                                                }
-
-{LineTerminator}/ (.|{LineTerminator})          {   //yybegin(YYINITIAL);
-                                                    changeState();
+{LineTerminator} / (" ")* {notFollowNewLine} {identifier}
+                                                {   changeState();
                                                     if(newLineAllowed()){
                                                       return process(tLINE_TERMINATOR);
                                                     } else {
@@ -245,14 +225,26 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
                                                     }
                                                 }
 
-{LineTerminator}                                {   //yybegin(YYINITIAL);
-                                                    changeState();
+
+{LineTerminator} / (" ")* {notFollowNewLine}    {   changeState();
+                                                    return process(tNON_SIGNIFICANT_NEWLINE);
+                                                }
+
+
+{LineTerminator}/ (.|{LineTerminator})          {   changeState();
+                                                    if(newLineAllowed()){
+                                                      return process(tLINE_TERMINATOR);
+                                                    } else {
+                                                      return process(tNON_SIGNIFICANT_NEWLINE);
+                                                    }
+                                                }
+
+{LineTerminator}                                {   changeState();
                                                     return process(tLINE_TERMINATOR);
                                                 }
 
 .                                               {   yypushback(yylength());
                                                     changeState();
-                                                    //yybegin(YYINITIAL);
                                                 }
 }
 
@@ -342,7 +334,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //{wholeString}                         {   processNewLine();
-//                                            return process(tSTRING);  }
+//                                          return process(tSTRING);  }
 
 "\""                                    {   yypushback(yylength());
                                             yybegin(IN_STRING_STATE);
