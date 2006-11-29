@@ -1,0 +1,19 @@
+class a
+class b
+------
+Scala file
+  template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    Identifier
+      PsiElement(identifier)('a')
+    type parameter clause
+      <empty list>
+    class template
+      <empty list>
+  PsiElement(newline)('\n')
+  template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    Identifier
+      PsiElement(identifier)('b')
