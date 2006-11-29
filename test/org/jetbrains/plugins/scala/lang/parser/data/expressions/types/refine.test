@@ -14,7 +14,7 @@ Scala file
             PsiElement(identifier)('a')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          parameter Function type
+          Function type
             Simple type
               Stable Identifier
                 Identifier

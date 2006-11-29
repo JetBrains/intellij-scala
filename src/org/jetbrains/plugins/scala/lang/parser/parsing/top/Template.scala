@@ -62,36 +62,23 @@ object Template extends Constr{
     override def getElementType = ScalaElementTypes.TEMPLATE_BODY
 
     override def parseBody(builder : PsiBuilder) : Unit = {
+      if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
+      } else {
+        builder error "expected '{'"
+      }
+
+      if (BNF.firstTemplateStatSeq.contains(builder.getTokenType)) {
+        TemplateStatSeq parse builder
+      }
 
       if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
-
-        if (BNF.firstTemplateStatSeq.contains(builder.getTokenType)) {
-          //Console.println("parse template stat list")
-          TemplateStatSeq parse builder
-          //Console.println("parsed template stat list")
-        }
-
-        if (!builder.eof() && ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
-          return
-        }
-
-    /*    while (!builder.eof || !BNF.lastTemplateStat.equals(builder.getTokenType)) {
-          builder advanceLexer
-        }
-
+      } else {
         builder error "expected '}'"
-
-        if (builder.eof) return
-
-        if (BNF.lastTemplateStat.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
-          return
-        }           */
       }
     }
-  }
+}
 
   object TemplateStatSeq extends ConstrWithoutNode {
     override def parseBody(builder : PsiBuilder) : Unit = {
