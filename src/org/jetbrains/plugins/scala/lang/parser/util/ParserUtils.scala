@@ -17,9 +17,40 @@ package org.jetbrains.plugins.scala.lang.parser.util {
 
     /* rolls forward until token from elems encountered */
     def rollPanic(builder: PsiBuilder, elems: HashSet[IElementType]) = {
-        while (! builder.eof && !elems.contains(builder.getTokenType)){
-          eatElement(builder , builder.getTokenType)
+
+        val stack = new Stack[IElementType]
+        var flag = true
+
+        while (flag && ! builder.eof && !elems.contains(builder.getTokenType)){
+          if ( ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType) ||
+               ScalaTokenTypes.tLBRACE.equals(builder.getTokenType) ||
+               ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)
+             ) {
+              stack += builder.getTokenType
+              eatElement(builder , builder.getTokenType)
+          }
+          else if ( !stack.isEmpty &&
+            ((ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType) &&
+              ScalaTokenTypes.tLPARENTHIS.equals(stack.top))           ||
+            (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)     &&
+              ScalaTokenTypes.tLBRACE.equals(stack.top))               ||
+            (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType) &&
+              ScalaTokenTypes.tLSQBRACKET.equals(stack.top)) )
+          ) {
+            stack.pop
+            eatElement(builder , builder.getTokenType)
+          }
+          else if (stack.isEmpty &&
+               (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType) ||
+                ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) ||
+                ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType) )
+          ) {
+            flag = false
+          } else {
+            eatElement(builder , builder.getTokenType)
+          }
         }
+        while (!stack.isEmpty) stack.pop
     }
 
     /* rolls forward towards right brace */

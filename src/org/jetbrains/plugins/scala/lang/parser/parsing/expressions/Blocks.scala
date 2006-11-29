@@ -1,4 +1,4 @@
-import scala.collection.mutable.HashSet
+import scala.collection.mutable._
 
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 /**
@@ -92,6 +92,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
   Block ::= {BlockStat StatementSeparator} [ResultExpr]
   */
     def parse(builder : PsiBuilder, withBrace: Boolean) : ScalaElementType = {
+
+      // TODO
+      val elems = new HashSet[IElementType]
+      elems += ScalaTokenTypes.tLINE_TERMINATOR 
+      elems += ScalaTokenTypes.tSEMICOLON
+      elems += ScalaTokenTypes.tSEMICOLON
+
 
       def rollForward: Boolean = {
         var flag1 = true
