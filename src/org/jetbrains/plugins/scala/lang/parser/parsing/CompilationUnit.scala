@@ -109,13 +109,13 @@ object CompilationUnit extends ConstrWithoutNode {
 
       var isError = false;
       var isEnd = false;
-      while (!builder.eof /*&& !isError */&& !isEnd) {
+      while (!builder.eof && !isError && !isEnd) {
 
         isError = false
 
         while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
           StatementSeparator parse builder
-          DebugPrint println ("TopStatSeq: StatementSeparator parse " + builder.getTokenType)
+          DebugPrint println ("TopStatSeq: StatementSeparator parsed, token " + builder.getTokenType)
         }
 
         if (BNF.firstTopStat.contains(builder.getTokenType)) {
@@ -129,9 +129,13 @@ object CompilationUnit extends ConstrWithoutNode {
         if (!isEnd && !BNF.firstStatementSeparator.contains(builder.getTokenType)) {
           isError = true;
           builder error "top statement declaration error"
-          val errorMarker = builder.mark
-          builder.advanceLexer
-          errorMarker.done(ScalaElementTypes.TRASH)
+
+          if (BNF.firstTopStat.contains(builder.getTokenType)) {
+            isError = false;
+          }
+//          val errorMarker = builder.mark
+//          builder.advanceLexer
+//          errorMarker.done(ScalaElementTypes.TRASH)
         }
 
         DebugPrint println ("TopStatSeq: token " + builder.getTokenType)
@@ -236,7 +240,7 @@ object CompilationUnit extends ConstrWithoutNode {
       override def parseBody(builder: PsiBuilder) : Unit = {
 
         if (ScalaTokenTypes.kPACKAGE.equals(builder.getTokenType)) {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.kPACKAGE)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.kPACKAGE)
         } else {
           builder.error("expected 'package'")
           return

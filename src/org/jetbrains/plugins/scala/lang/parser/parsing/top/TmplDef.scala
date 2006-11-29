@@ -49,6 +49,7 @@ object TmplDef extends ConstrWithoutNode {
         builder.advanceLexer //Ate 'case'
 
          //Console.println("token, expected class or object " + builder.getTokenType)
+
          builder.getTokenType match {
           case ScalaTokenTypes.kCLASS => {
             caseMarker.rollbackTo()
@@ -70,9 +71,9 @@ object TmplDef extends ConstrWithoutNode {
         }
 
         return ScalaElementTypes.WRONGWAY
+      } else {
+        caseMarker.rollbackTo()
       }
-
-      caseMarker.rollbackTo()
 
       //Console.println("token in tmplDef for match " + builder.getTokenType)
       builder.getTokenType match {
@@ -119,11 +120,13 @@ object TmplDef extends ConstrWithoutNode {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kCLASS)
         } else {
           builder error "expected 'class'"
-          return
         }
 
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+        }  else {
+          builder error "expected identifier"
+        }
 
           if (BNF.firstClassTypeParamClause.contains(builder.getTokenType)) {
             new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder
@@ -146,10 +149,8 @@ object TmplDef extends ConstrWithoutNode {
             }
             case _ => {}
           }
-        }  else {
-          builder error "expected identifier"
-          return
-        }        
+
+          DebugPrint println ("after classdef : " + builder.getTokenType) 
       }
    }
 
@@ -203,6 +204,24 @@ object TmplDef extends ConstrWithoutNode {
         }
       }
 
+    object ExtendsBlock extends Constr {
+      override def getElementType = ScalaElementTypes.EXTENDS_BLOCK
+
+      override def parseBody(builder : PsiBuilder) : Unit = {
+        if (ScalaTokenTypes.kEXTENDS.equals(builder.getTokenType)){
+         ParserUtils.eatElement(builder, ScalaTokenTypes.kEXTENDS)
+        } else {
+          builder.error("expected 'extends'")
+        }
+
+        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
+          TemplateParents.parse(builder)
+        } else {
+          builder.error("expected identifier")
+        }
+      }
+    }
+
     class ClassTemplate extends ConstrUnpredict {
       //override def getElementType = ScalaElementTypes.CLASS_TEMPLATE
 
@@ -210,22 +229,10 @@ object TmplDef extends ConstrWithoutNode {
         val classTemplateMarker = builder.mark
 
         if (ScalaTokenTypes.kEXTENDS.equals(builder.getTokenType)){
-
-          val extendsBlockMarker = builder.mark
-          ParserUtils.eatElement(builder, ScalaTokenTypes.kEXTENDS)
-
-          if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
-            TemplateParents.parse(builder)
-            extendsBlockMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-
-          } else {
-            builder.error("expected identifier")
-            extendsBlockMarker.drop
-            classTemplateMarker.drop
-            return
-          }
+          ExtendsBlock parse builder
         }
 
+        DebugPrint println ("classTemplate : " + builder.getTokenType) 
         if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)){
           TemplateBody.parse(builder)
           classTemplateMarker.done(ScalaElementTypes.CLASS_TEMPLATE)
@@ -247,9 +254,10 @@ object TmplDef extends ConstrWithoutNode {
             classTemplateMarker.done(ScalaElementTypes.CLASS_TEMPLATE)
             return
           }
+        } else {
+          templateBodyMarker.rollbackTo()
         }
-
-       templateBodyMarker.rollbackTo()
+        
        classTemplateMarker.done(ScalaElementTypes.CLASS_TEMPLATE)
       }
     }
@@ -329,7 +337,7 @@ object TmplDef extends ConstrWithoutNode {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
       } else {
         builder error "expected identifier"
-        return
+       // return
       }
 
       if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
@@ -342,7 +350,7 @@ object TmplDef extends ConstrWithoutNode {
 
       if (BNF.firstTraitTemplate.contains(builder.getTokenType)){
         TraitTemplate parse builder
-      } else builder error "expected trait template"
+      } //else builder error "expected trait template"
     }
   }
 

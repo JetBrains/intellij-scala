@@ -66,16 +66,18 @@ object Template extends Constr{
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
       } else {
         builder error "expected '{'"
+        return
       }
 
       if (BNF.firstTemplateStatSeq.contains(builder.getTokenType)) {
         TemplateStatSeq parse builder
       }
 
-      if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
+      if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
       } else {
         builder error "expected '}'"
+        return
       }
     }
 }
@@ -105,71 +107,27 @@ object Template extends Constr{
         if (!isEnd && !BNF.firstStatementSeparator.contains(builder.getTokenType)) {
           isError = true;
           builder error "expected line teminator or '}'"
+
+           if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+            isError = false;
+          }
+
+          if (ScalaTokenTypes.tWRONG.equals(builder.getTokenType)) {
+            while (!builder.eof && (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)
+                || ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType)
+                || ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType))){
+              builder.advanceLexer
+            }
+          }
         }
 
         DebugPrint println ("TemplateStatSeq: token " + builder.getTokenType)
-
-      }
-  /*    if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
-        DebugPrint.println("single Template Stat " + builder.getTokenType)
-        TemplateStat parse builder
-      }
-
-        var isError = true
-        while (!builder.eof() && BNF.firstStatementSeparator.contains(builder.getTokenType)) {
-          //Console.println("parse StatementSeparator " + builder.getTokenType)
-          StatementSeparator parse builder
-
-          //Console.println("candidate to TemplateStat " + builder.getTokenType)
-//          if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
-//            TemplateStat parse builder
-//          }
-//            DebugPrint.println("parse TemplateStat " + builder.getTokenType)
-//            if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
-//              return
-//            }
-
-///todo StatementSeparator in stat
-
-            if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
-
-              val errMarker = builder.mark
-              TemplateStat.parse(builder)
-
-              if (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
-                isError = false
-                errMarker.drop()
-              } else {
-                isError = true
-                errMarker.done(ScalaElementTypes.WRONGWAY)
-              }
-            }
-          *//*  } else if (!BNF.firstStatementSeparator.contains(builder.getTokenType)) {
-              builder error "wrong template statement delaration"
-              isError = true
-            } else {
-              isError = false
-            }
-            *//*
-            if (isError){
-//              ParserUtils.parseTillLast(builder, TokenSet.orSet(Array(BNF.firstStatementSeparator, TokenSet.create(Array(ScalaTokenTypes.tRBRACE)))))
-              ParserUtils.parseTillLast(builder, TokenSet.orSet(Array(TokenSet.create(Array(ScalaTokenTypes.tRBRACE)))))
-            }
-
-            DebugPrint println "after template stat" + builder.getTokenType
-        }
-        //Console.println("single Template Stat done " + builder.getTokenType)*/
+       } 
     }
   }
 
   object TemplateStat extends ConstrUnpredict {
-    //override def getElementType : IElementType = ScalaElementTypes.TEMPLATE_STAT
-
-    //override def first : TokenSet = BNF.firstTemplateStat
-
     override def parseBody(builder : PsiBuilder) : Unit = {
-      //if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
-        //Console.println("in template stat : "+ builder.getTokenType)
 
         DebugPrint println "template statement parsing"
         DebugPrint println ("token type : " + builder.getTokenType)
