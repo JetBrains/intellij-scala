@@ -26,7 +26,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ArgumentExprs
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockStat
-//import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2Item
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
@@ -60,7 +59,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
           case _ => {
             if (BNF.firstTmplDef.contains(builder.getTokenType)) {
-              //Console.println("TMPL")
               return (TmplDef parseBodyNode builder)
             } else {
               builder error "wrong declaration"
@@ -72,7 +70,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
       }
     }
 
-  //todo: check for return Definition
     object Def extends ConstrUnpredict {
       override def parseBody(builder : PsiBuilder) : Unit = {
         if (BNF.firstDef.contains(builder.getTokenType)){
@@ -137,7 +134,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           Ids parse builder
         } else {
           builder error "expected identifier"
-//          return ScalaElementTypes.WRONGWAY
         }
 
         var hasTypeDcl = false
@@ -148,7 +144,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             Type parse builder
           } else {
             builder error "expected type declaration"
-//            return ScalaElementTypes.WRONGWAY
           }
 
           hasTypeDcl = true
@@ -170,15 +165,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
           } else {
             builder error "wrong start of expression"
-            //varMarker.drop()
-//            return ScalaElementTypes.WRONGWAY
           }
 
-          //varMarker.done(ScalaElementTypes.VARIABLE_DEFINITION)
           return ScalaElementTypes.VARIABLE_DEFINITION
         }
 
-        //varMarker.drop()
         return ScalaElementTypes.WRONGWAY
       }
     }
@@ -190,38 +181,32 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
       def parseBodyNode(builder : PsiBuilder) : IElementType = {
 
-//        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-          val pattern2sMarker = builder.mark
+        val pattern2sMarker = builder.mark
+
+        if (BNF.firstPattern2.contains(builder.getTokenType)){
+          (new Pattern2()).parse(builder)
+        } else {
+          builder error "expected pattern"
+          return ScalaElementTypes.WRONGWAY
+        }
+
+        var numberOfPattern2s = 1;
+
+        while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
           if (BNF.firstPattern2.contains(builder.getTokenType)){
             (new Pattern2()).parse(builder)
+            numberOfPattern2s = numberOfPattern2s + 1;
+
           } else {
             builder error "expected pattern"
             return ScalaElementTypes.WRONGWAY
           }
+        }
 
-          var numberOfPattern2s = 1;
-
-          while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
-
-            if (BNF.firstPattern2.contains(builder.getTokenType)){
-              (new Pattern2()).parse(builder)
-              numberOfPattern2s = numberOfPattern2s + 1;
-              
-            } else {
-              builder error "expected pattern"
-              return ScalaElementTypes.WRONGWAY
-            }
-          }
-
-          if (numberOfPattern2s > 1) pattern2sMarker.done(ScalaElementTypes.PATTERN2_LIST)
-          else pattern2sMarker.drop
-
-//        } else {
-//          builder error "expected identifier"
-//          return ScalaElementTypes.WRONGWAY
-//        }
+        if (numberOfPattern2s > 1) pattern2sMarker.done(ScalaElementTypes.PATTERN2_LIST)
+        else pattern2sMarker.drop
 
         var hasTypeDcl = false
 
@@ -232,8 +217,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             Type parse builder
           } else {
             builder error "expected type declaration"
-//            valMarker.drop()
-//            return ScalaElementTypes.WRONGWAY
           }
 
           hasTypeDcl = true
@@ -243,7 +226,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
         if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
           if (!hasTypeDcl) {
             builder error "wrong value declaration"
-//            return ScalaElementTypes.WRONGWAY
           }
 
           return ScalaElementTypes.VALUE_DECLARATION
@@ -254,7 +236,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             Expr parse builder
           } else {
             builder error "wrong start of expression"
-//            return ScalaElementTypes.WRONGWAY
           }
 
           return ScalaElementTypes.PATTERN_DEFINITION
@@ -282,7 +263,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
               Type parse builder
             } else {
               builder error "wrong type declaration"
-//              return ScalaElementTypes.WRONGWAY
             }
             hasTypeDcl = true
 
@@ -291,7 +271,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
         if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
           if (!hasTypeDcl) {
             builder error "wrong function declaration"
-//            return ScalaElementTypes.WRONGWAY
           }
 
           return ScalaElementTypes.FUNCTION_DECLARATION
@@ -303,7 +282,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             Expr parse builder
           } else {
             builder error "wrong start of expression"
-//            return ScalaElementTypes.WRONGWAY
           }
 
           return ScalaElementTypes.FUNCTION_DEFINITION
@@ -368,15 +346,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
         }
 
         def parseBodyNode(builder : PsiBuilder) : IElementType = {
-          //Console.println("type parse")
-//          val typeMarker = builder.mark()
 
           if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
           } else {
             builder error "expected identifier"
-//            typeMarker.drop()
-//            return ScalaElementTypes.WRONGWAY
           }
 
           if (ScalaTokenTypes.tLOWER_BOUND.equals(builder.getTokenType)) {
@@ -386,8 +360,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
               Type parse builder
             } else {
               builder error "wrong type declaration"
-//              typeMarker.drop()
-//              return ScalaElementTypes.WRONGWAY
             }
           }
 
@@ -398,8 +370,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
               Type parse builder
             } else {
               builder error "wrong type declaration"
-//              typeMarker.drop()
-//              return ScalaElementTypes.WRONGWAY
             }
           }
 
@@ -411,8 +381,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
               Type parse builder
             } else {
               builder error "wrong type declaration"
-//              typeMarker.drop()
-//              return ScalaElementTypes.WRONGWAY
             }
 
             isView = true
@@ -421,11 +389,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)){
             if (isView){
               builder error "wrong type definition"
-//              typeMarker.drop()
-//              return ScalaElementTypes.WRONGWAY
             }
 
-//            typeMarker.done(ScalaElementTypes.TYPE_DECLARATION)
             return ScalaElementTypes.TYPE_DECLARATION
 
           } else {
@@ -435,14 +400,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
               Type parse builder
             } else {
               builder error "wrong type declaration"
-//              typeMarker.drop()
-//              return ScalaElementTypes.WRONGWAY
             }
 
-//            typeMarker.done(ScalaElementTypes.TYPE_DEFINITION)
             return ScalaElementTypes.TYPE_DEFINITION
           }
-//          typeMarker.drop()
           return ScalaElementTypes.WRONGWAY
         }
       }
@@ -464,21 +425,16 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
     }
   
     object FunSig extends ConstrWithoutNode {
-      //override def getElementType : IElementType = ScalaElementTypes.FUN_SIG
-
       override def parseBody(builder : PsiBuilder) : Unit = {
          if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
 
           if (BNF.firstFunTypeParam.contains(builder.getTokenType)) {
-            //FunTypeParamClause parse builder
             new TypeParamClause[TypeParam](new TypeParam) parse builder
           }
 
           if (BNF.firstParamClauses.contains(builder.getTokenType)) {
-            //Console.println("ParamClauses parsing " + builder.getTokenType)
             new ParamClauses[FunParam] (new FunParam) parse builder
-            //Console.println("ParamClauses parsed " + builder.getTokenType)
           }
 
         } else {
