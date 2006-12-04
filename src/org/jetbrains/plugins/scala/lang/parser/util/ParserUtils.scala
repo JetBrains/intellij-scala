@@ -22,6 +22,7 @@ package org.jetbrains.plugins.scala.lang.parser.util {
         var flag = true
 
         while (flag && ! builder.eof && !elems.contains(builder.getTokenType)){
+
           if ( ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType) ||
                ScalaTokenTypes.tLBRACE.equals(builder.getTokenType) ||
                ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)
