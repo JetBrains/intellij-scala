@@ -76,6 +76,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
     object Def extends ConstrUnpredict {
       override def parseBody(builder : PsiBuilder) : Unit = {
         if (BNF.firstDef.contains(builder.getTokenType)){
+          val defMarker = builder.mark
+
           val candidateOnDefElement = DclDef parseBodyNode builder
 
           candidateOnDefElement match {
@@ -86,9 +88,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
                 | ScalaElementTypes.OBJECT_DEF
                 | ScalaElementTypes.CLASS_DEF
                 | ScalaElementTypes.TRAIT_DEF
-                => {}
+                => {
+                defMarker.done(candidateOnDefElement)
+                }
             case _ => {
               builder error "expected definition"
+              defMarker.drop
               return
             }
           }
@@ -99,6 +104,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
     object Dcl extends ConstrUnpredict {
       override def parseBody(builder : PsiBuilder) : Unit = {
         if (BNF.firstDcl.contains(builder.getTokenType)){
+          val dclMarker = builder.mark
+
           val candidateOnDclElement = DclDef parseBodyNode builder
 
           candidateOnDclElement match {
@@ -106,9 +113,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
                 | ScalaElementTypes.VALUE_DECLARATION
                 | ScalaElementTypes.FUNCTION_DECLARATION
                 | ScalaElementTypes.TYPE_DECLARATION
-                => {}
+                => {
+                dclMarker.done(candidateOnDclElement)
+                }
             case _ => {
               builder error "expected declaration"
+              dclMarker.drop
               return
             }
           }

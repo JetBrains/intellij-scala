@@ -12,7 +12,7 @@ Scala file
         Identifier
           PsiElement(identifier)('a')
         PsiElement(:)(':')
-        parameter Function type
+        Function type
           Simple type
             PsiElement(()('(')
             Function type
