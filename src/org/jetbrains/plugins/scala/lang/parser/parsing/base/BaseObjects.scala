@@ -544,21 +544,22 @@ object Attribute extends Constr{
   }
  }
 
-/*
+/*                           
  *  ids ::= id {‘,’ id}
  */
 
 
- object Ids extends Constr {
-  def getElementType : IElementType = ScalaElementTypes.IDENTIFIER_LIST
+ object Ids extends ConstrUnpredict {
+  /*def getElementType : IElementType = ScalaElementTypes.IDENTIFIER_LIST
 
     override def parse(builder : PsiBuilder) : Unit = {
       val marker = builder.mark()
       parseBody(builder)
       marker.done(getElementType)
-    }
+    }*/
 
-    def parseBody(builder : PsiBuilder) : Unit = {
+    override def parseBody(builder : PsiBuilder) : Unit = {
+      val idListmarker = builder.mark()
 
      if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
@@ -567,16 +568,21 @@ object Attribute extends Constr{
        return
      }
 
+     var hasIdList = false;
      while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
        ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+         hasIdList = true;
        } else {
          builder error "expected identifier"
          return
        }
      }
+
+      if (hasIdList) idListmarker.done(ScalaElementTypes.IDENTIFIER_LIST)
+      else idListmarker.drop
    }
  }
 

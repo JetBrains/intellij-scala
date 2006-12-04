@@ -231,7 +231,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
         //if there is no '=' it is mean, that construction is declaration, else definition
         if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
           if (!hasTypeDcl) {
-            builder error "wrong variable declaration"
+            builder error "wrong value declaration"
 //            return ScalaElementTypes.WRONGWAY
           }
 

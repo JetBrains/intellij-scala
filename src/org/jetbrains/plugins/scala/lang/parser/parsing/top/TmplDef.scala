@@ -142,6 +142,8 @@ object TmplDef extends ConstrWithoutNode {
             new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder
           }
 
+          DebugPrint println ("after ClassTypeParamClause : " + builder.getTokenType)
+
           if (BNF.firstClassParamClauses.contains(builder.getTokenType)) {
              (new ParamClauses[ClassParam](new ClassParam)).parse(builder)
           }

@@ -9,16 +9,15 @@ Scala file
     PsiWhiteSpace(' ')
     parameters clause
       PsiElement(()('(')
-      class parameter
-        parameter
-          Identifier
-            PsiElement(identifier)('unit')
-          PsiWhiteSpace(' ')
-          PsiElement(:)(':')
-          PsiWhiteSpace(' ')
-          Function type
-            Simple type
-              Stable Identifier
-                Identifier
-                  PsiElement(identifier)('Unit')
+      parameter
+        Identifier
+          PsiElement(identifier)('unit')
+        PsiWhiteSpace(' ')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        Function type
+          Simple type
+            Stable Identifier
+              Identifier
+                PsiElement(identifier)('Unit')
       PsiElement())(')')

@@ -15,7 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
-import org.jetbrains.plugins.scala.lang.psi.impl.top._, org.jetbrains.plugins.scala.lang.psi.impl.primitives._
+import org.jetbrains.plugins.scala.lang.psi.impl.top._, org.jetbrains.plugins.scala.lang.psi.impl.primitives._,
+       org.jetbrains.plugins.scala.lang.psi.impl.specialNodes.ScTrash
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -100,8 +101,13 @@ object ScalaPsiCreator {
      case ScalaElementTypes.CONSTR_EXPR => new ScConstrExpr(node)
      case ScalaElementTypes.SUPPLEMENTARY_CONSTRUCTOR => new ScSupplementaryConstructor(node)
 
-     /**************** OTHERS ******************/
+     /**************** function ******************/
      case ScalaElementTypes.FUN_SIG => new ScFunctionSignature(node)
+     case ScalaElementTypes.CONSTRUCTOR => new ScConstructor(node)
+
+     /**************** variable ******************/
+     case ScalaElementTypes.IDENTIFIER_LIST => new ScIdentifierList(node)
+
 
     /***************************************************/
     /********* PARAMETERS AND TYPE PARAMETERS **********/
@@ -129,22 +135,19 @@ object ScalaPsiCreator {
 
     /************** modifiers **************/
     case ScalaElementTypes.MODIFIERS => new ScModifiers(node)
-
     /************** attributes **************/
     case ScalaElementTypes.ATTRIBUTE => new ScAttribute(node)
     case ScalaElementTypes.ATTRIBUTE_CLAUSE => new ScAttributeClause(node)
     case ScalaElementTypes.ATTRIBUTE_CLAUSES => new ScAttributeClauses(node)
 
-    case ScalaElementTypes.CONSTRUCTOR => new ScConstructor(node)
 
 
-     /********************** TOKENS **********************/
 
-      /********************* LITERALS *********************/
-       case ScalaElementTypes.LITERAL => new ScLiteralImpl(node)       
+   /********************** TOKENS **********************/
+    /********************* LITERALS *********************/
+    case ScalaElementTypes.LITERAL => new ScLiteralImpl(node)
 
-      case ScalaTokenTypes.tIDENTIFIER => new ScIdentifierImpl(node)
-
+    case ScalaTokenTypes.tIDENTIFIER => new ScIdentifierImpl(node)
 
 
     /********************** TYPES ************************/
@@ -201,6 +204,8 @@ object ScalaPsiCreator {
     case ScalaElementTypes.WILD_PATTERN => new ScWildPatternImpl(node)
     case ScalaElementTypes.CASE_CLAUSE => new ScCaseClauseImpl(node)
 
+
+    case ScalaElementTypes.TRASH => new ScTrash(node)
 
      case _ => new ScalaPsiElementImpl( node )
 
