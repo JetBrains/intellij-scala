@@ -45,13 +45,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
         if (ScalaTokenTypes.tLPARENTHIS.equals(builder getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-          ParserUtils.rollForward(builder)
+          // LOOK!!! ParserUtils.rollForward(builder)
           if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
             closeParent
           } else {
             var res = Patterns.parse(builder)
             if (res.equals(ScalaElementTypes.PATTERNS)) {
-              ParserUtils.rollForward(builder)
+              // LOOK!!! ParserUtils.rollForward(builder)
               if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
                 closeParent
               } else {
@@ -97,7 +97,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
       // ‘(’ [Pattern] ‘)’
       } else if (ScalaTokenTypes.tLPARENTHIS.eq(builder getTokenType)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-        ParserUtils.rollForward(builder)
+        // LOOK!!! ParserUtils.rollForward(builder)
         if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
           closeParent
           spMarker.drop()
@@ -105,7 +105,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
         } else {
           var res = Pattern.parse(builder)
           if (ScalaElementTypes.PATTERN.equals(res)) {
-            ParserUtils.rollForward(builder)
+            // LOOK!!! ParserUtils.rollForward(builder)
             if (ScalaTokenTypes.tRPARENTHIS.equals(builder getTokenType)) {
               closeParent
             } else {
@@ -317,11 +317,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
       def subParse: ScalaElementType = {
         var res = Pattern1.parse(builder)
         if (res.equals(ScalaElementTypes.PATTERN1)){
-          ParserUtils.rollForward(builder)
+          // LOOK!!! ParserUtils.rollForward(builder)
           if (builder.getTokenType != null &&
               builder.getTokenType.equals(ScalaTokenTypes.tOR)) {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tOR)
-            ParserUtils.rollForward(builder)
+            // LOOK!!! ParserUtils.rollForward(builder)
             subParse
           } else {
             pMarker.done(ScalaElementTypes.PATTERN)
@@ -336,11 +336,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
       var result = Pattern1.parse(builder)
       if (result.equals(ScalaElementTypes.PATTERN1)) {
-        ParserUtils.rollForward(builder)
+        // LOOK!!! ParserUtils.rollForward(builder)
         if (builder.getTokenType != null &&
             builder.getTokenType.equals(ScalaTokenTypes.tOR)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tOR)
-          ParserUtils.rollForward(builder)
+          // LOOK!!! ParserUtils.rollForward(builder)
           subParse
         } else {
           //pMarker.done(ScalaElementTypes.PATTERN)
@@ -364,7 +364,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
       var psMarker = builder.mark()
 
       def subParse: ScalaElementType = {
-        ParserUtils.rollForward(builder)
+        // LOOK!!! ParserUtils.rollForward(builder)
         if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
           parseSequence
@@ -403,10 +403,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
 
   object CaseClause {
-  /*
-    Pattern3 ::=   SimplePattern
-                 | SimplePattern {id SimplePattern}
-  */
+
     def parse(builder : PsiBuilder) : ScalaElementType = {
       val caseMarker = builder.mark()
 
@@ -461,7 +458,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
       var result = CaseClause.parse(builder)
       if (ScalaElementTypes.CASE_CLAUSE.equals(result)) {
         while (!builder.eof && ScalaElementTypes.CASE_CLAUSE.equals(result)){
-          ParserUtils rollForward builder
           result = CaseClause.parse(builder)
         }
         ScalaElementTypes.CASE_CLAUSES
