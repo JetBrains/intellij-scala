@@ -114,10 +114,6 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
               ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
               val newMarker = builder.mark()
 
-              /*Attention!*/
-              //PrefixExpr parse(builder)
-//              ParserUtils.rollForward(builder)
-
               // NEW 04.12.06
               if (elemType.equals(ScalaElementTypes.INFIX_EXPR))
                 ParserUtils.rollForward(builder)
