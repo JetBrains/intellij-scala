@@ -113,7 +113,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 
     val elems = new HashSet[IElementType]
 
-    def parse(builder : PsiBuilder) : ScalaElementType = {
+    def parse(builder : PsiBuilder, rightBrace: IElementType) : ScalaElementType = {
 
       val ensMarker = builder.mark()
       elems += ScalaTokenTypes.tLINE_TERMINATOR
@@ -133,14 +133,16 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
         }
 
       def subParse: ScalaElementType = {
-        if (!ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
+        //if (!ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
+        if (!rightBrace.equals(builder.getTokenType)){
           var res = Enumerator.parse(builder)
           if (ScalaElementTypes.WRONGWAY.equals(res)){
             builder.error("Enumerator expected")
             ParserUtils.rollPanic(builder, elems)
           } else {
             if (!elems.contains(builder.getTokenType)
-               && !ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType) ) {
+               //&& !ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType) ) {
+               && !rightBrace.equals(builder.getTokenType) ) {
               builder.error("Wrong enumerator")
               ParserUtils.rollPanic(builder, elems)
             }
