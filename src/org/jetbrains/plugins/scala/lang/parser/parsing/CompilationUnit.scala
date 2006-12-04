@@ -88,11 +88,15 @@ object CompilationUnit extends ConstrWithoutNode {
   object TopStatSeq extends ConstrWithoutNode {
     override def parseBody (builder: PsiBuilder): Unit = {
 
+      var isLocalError = false;
       var isError = false;
       var isEnd = false;
-      while (!builder.eof && !isError && !isEnd) {
 
-        isError = false
+      var errorMarker = builder.mark
+      while (!builder.eof && /*!isLocalError && */!isEnd) {
+        DebugPrint println ("TopStatSeq: token " + builder.getTokenType)
+
+        isLocalError = false
 
         while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
           StatementSeparator parse builder
@@ -108,24 +112,27 @@ object CompilationUnit extends ConstrWithoutNode {
         }
 
         if (!isEnd && !BNF.firstStatementSeparator.contains(builder.getTokenType)) {
-          isError = true;
+//          isLocalError = true;
           builder error "top statement declaration error"
 
           if (BNF.firstTopStat.contains(builder.getTokenType)) {
-            isError = false;
+//            isLocalError = false;
           } else {
             builder.advanceLexer
-            isError = false;
-             tryParseTopStat(builder)
+//            isLocalError = false;
+            tryParseTopStat(builder)
           }
         }
 
-        DebugPrint println ("TopStatSeq: token " + builder.getTokenType)
-
+       isError = isError || isLocalError
       }
+
+      if (isError) errorMarker.done(ScalaElementTypes.TRASH)
+      else errorMarker.drop
     }
 
     def tryParseTopStat (builder : PsiBuilder) : Unit = {
+      val trashMarker = builder.mark
 
       var isParsed = false;
       while (!builder.eof() && !isParsed){
@@ -133,9 +140,12 @@ object CompilationUnit extends ConstrWithoutNode {
           TopStat parse builder
           isParsed = true
         } else {
+
           builder.advanceLexer
         }
       }
+
+      trashMarker.done(ScalaElementTypes.TRASH)
     }
   }
 

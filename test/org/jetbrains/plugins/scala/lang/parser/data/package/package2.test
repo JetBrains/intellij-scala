@@ -1,3 +1,12 @@
 package a
 
 -----
+Scala file
+  Package statement
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    Qualified identifier
+      Stable Identifier
+        Identifier
+          PsiElement(identifier)('a')
+    PsiElement(newline)('\n')

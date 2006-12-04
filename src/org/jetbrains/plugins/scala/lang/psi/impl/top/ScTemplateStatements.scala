@@ -74,10 +74,18 @@ import com.intellij.lang.ASTNode
     override def toString: String = "type" + " " + super.toString
   }
 
-  /****************** others *************************/
+  /************** function signature *********************/
 
   class ScFunctionSignature (node : ASTNode) extends ScalaPsiElementImpl (node) {
     override def toString: String = "function signature"
-  }    
+  }
+
+  /****************** variable ************************/
+
+  class ScIdentifierList (node : ASTNode) extends ScalaPsiElementImpl (node) {
+    override def toString: String = "list of identifiers"
+  }
+
+
 
 }

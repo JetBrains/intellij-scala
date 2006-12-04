@@ -8,41 +8,40 @@ Scala file
       PsiElement(identifier)('A')
     parameters clause
       PsiElement(()('(')
-      class parameter
-        parameter
-          Identifier
-            PsiElement(identifier)('a')
-          PsiElement(:)(':')
-          PsiWhiteSpace(' ')
-          Function type
-            Simple type
-              Stable Identifier
+      parameter
+        Identifier
+          PsiElement(identifier)('a')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        Function type
+          Simple type
+            Stable Identifier
+              Identifier
+                PsiElement(identifier)('T')
+            PsiWhiteSpace(' ')
+            PsiElement(whith)('with')
+            PsiWhiteSpace(' ')
+            Stable Identifier
+              Identifier
+                PsiElement(identifier)('S')
+            PsiWhiteSpace(' ')
+            PsiElement(whith)('with')
+            PsiWhiteSpace(' ')
+            Stable Identifier
+              Identifier
+                PsiElement(identifier)('U')
+            PsiWhiteSpace(' ')
+            Refinements
+              PsiElement({)('{')
+              Refinement statement
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
                 Identifier
-                  PsiElement(identifier)('T')
-              PsiWhiteSpace(' ')
-              PsiElement(whith)('with')
-              PsiWhiteSpace(' ')
-              Stable Identifier
-                Identifier
-                  PsiElement(identifier)('S')
-              PsiWhiteSpace(' ')
-              PsiElement(whith)('with')
-              PsiWhiteSpace(' ')
-              Stable Identifier
-                Identifier
-                  PsiElement(identifier)('U')
-              PsiWhiteSpace(' ')
-              Refinements
-                PsiElement({)('{')
-                Refinement statement
-                  PsiElement(val)('val')
-                  PsiWhiteSpace(' ')
-                  Identifier
-                    PsiElement(identifier)('i')
-                  PsiElement(:)(':')
-                  Simple type
-                    Stable Identifier
-                      Identifier
-                        PsiElement(identifier)('T')
-                PsiElement(})('}')
+                  PsiElement(identifier)('i')
+                PsiElement(:)(':')
+                Simple type
+                  Stable Identifier
+                    Identifier
+                      PsiElement(identifier)('T')
+              PsiElement(})('}')
       PsiElement())(')')

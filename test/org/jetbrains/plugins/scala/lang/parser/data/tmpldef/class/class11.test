@@ -1,2 +1,15 @@
 implicit implicit private class A
 -----
+Scala file
+  template definition: class
+    Modifiers
+      PsiElement(implicit)('implicit')
+      PsiWhiteSpace(' ')
+      PsiElement(implicit)('implicit')
+      PsiWhiteSpace(' ')
+      PsiElement(private)('private')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    Identifier
+      PsiElement(identifier)('A')
