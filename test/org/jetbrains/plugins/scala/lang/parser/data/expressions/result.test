@@ -1,5 +1,5 @@
-class A{
-val foo=(a:T,b:S)=>true
+class Человек{
+val лицо=(a:T,b:S)=>true
 }
 -----
 Scala file
@@ -7,7 +7,7 @@ Scala file
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     Identifier
-      PsiElement(identifier)('A')
+      PsiElement(identifier)('Человек')
     class template
       template body
         PsiElement({)('{')
@@ -16,7 +16,7 @@ Scala file
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           Identifier
-            PsiElement(identifier)('foo')
+            PsiElement(identifier)('лицо')
           PsiElement(=)('=')
           Anonymous function
             PsiElement(()('(')
