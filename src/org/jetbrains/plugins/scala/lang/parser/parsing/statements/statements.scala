@@ -187,9 +187,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
       override def parseBody(builder : PsiBuilder) : Unit = {
         parseBodyNode(builder)
       }
+
       def parseBodyNode(builder : PsiBuilder) : IElementType = {
 
-        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+//        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           val pattern2sMarker = builder.mark
 
           if (BNF.firstPattern2.contains(builder.getTokenType)){
@@ -217,10 +218,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           if (numberOfPattern2s > 1) pattern2sMarker.done(ScalaElementTypes.PATTERN2_LIST)
           else pattern2sMarker.drop
 
-        } else {
-          builder error "expected identifier"
+//        } else {
+//          builder error "expected identifier"
 //          return ScalaElementTypes.WRONGWAY
-        }
+//        }
 
         var hasTypeDcl = false
 

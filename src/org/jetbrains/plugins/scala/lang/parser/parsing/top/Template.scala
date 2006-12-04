@@ -185,11 +185,11 @@ object Template extends Constr{
           if (BNF.firstDclDef.contains(builder.getTokenType)) {
               defOrDclElement = (DclDef parseBodyNode builder)
               statementDefDclMarker.done(defOrDclElement)
-            } else {
-              //error, because def or dcl must be defined after attributeClause or Modifier
-              builder error "expected definition or declaration"
-              statementDefDclMarker.drop
-            }
+          } else {
+            //error, because def or dcl must be defined after attributeClause or Modifier
+            builder error "expected definition or declaration"
+            statementDefDclMarker.drop
+          }
 
           return
         }
