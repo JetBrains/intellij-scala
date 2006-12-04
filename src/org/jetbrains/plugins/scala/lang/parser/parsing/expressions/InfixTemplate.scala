@@ -88,6 +88,11 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
             /*Attention!*/
             //var res1 = PrefixExpr parse(builder)
 //            ParserUtils.rollForward(builder)
+
+            // NEW 04.12.06
+            if (elemType.equals(ScalaElementTypes.INFIX_EXPR))
+              ParserUtils.rollForward(builder)
+
             var res1 = parseBase(builder)
 
             rbMarker.rollbackTo()
@@ -112,6 +117,11 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
               /*Attention!*/
               //PrefixExpr parse(builder)
 //              ParserUtils.rollForward(builder)
+
+              // NEW 04.12.06
+              if (elemType.equals(ScalaElementTypes.INFIX_EXPR))
+                ParserUtils.rollForward(builder)
+
               parseBase(builder)
               markerStack += newMarker
               opStack += currentOp
