@@ -97,7 +97,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
       val elems = new HashSet[IElementType]
       elems += ScalaTokenTypes.tLINE_TERMINATOR 
       elems += ScalaTokenTypes.tSEMICOLON
-      elems += ScalaTokenTypes.tSEMICOLON
+      elems += ScalaTokenTypes.tRBRACE
 
 
       def rollForward: Boolean = {
