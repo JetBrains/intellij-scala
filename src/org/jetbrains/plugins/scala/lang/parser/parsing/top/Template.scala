@@ -113,6 +113,8 @@ object Template extends Constr{
           DebugPrint println ("TemplateStatSeq: StatementSeparator parse " + builder.getTokenType)
         }
 
+        //todo: it needs guarant, that TemplteStat.parse advance lexer not less than 1 token
+
         if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
           TemplateStat.parse(builder)
         }
@@ -132,7 +134,7 @@ object Template extends Constr{
           if (ScalaTokenTypes.tWRONG.equals(builder.getTokenType)) {
             while (!builder.eof && (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)
                 || ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType)
-                || ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType))){
+                || ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType))) {
               builder.advanceLexer
             }
           }
@@ -186,6 +188,7 @@ object Template extends Constr{
             } else {
               //error, because def or dcl must be defined after attributeClause or Modifier
               builder error "expected definition or declaration"
+              statementDefDclMarker.drop
             }
 
           return
@@ -200,7 +203,12 @@ object Template extends Constr{
         statementDefDclMarker.drop()
 
         if (BNF.firstExpr.contains(builder.getTokenType)) {
-          Expr parse builder
+          val exprElementType = Expr parse builder
+          if (ScalaElementTypes.WRONGWAY.equals(exprElementType)) {
+            builder error "wrong expression"
+            builder.advanceLexer
+          }
+          
           return
         }
 

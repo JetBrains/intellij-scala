@@ -22,6 +22,23 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
 
     def isTypeDef : boolean = { this.isInstanceOf[TypeDef] }
     def isInstanceDef : boolean = { this.isInstanceOf[InstanceDef] }
+
+    //todo: getQualifiedName
+    //todo:if there is no package
+    def getQualifiedName : String = {
+      var packageNode = getParent
+
+      if (packageNode.getParent.getFirstChild.isInstanceOf[ScPackageStatement]) return packageNode.getParent.getFirstChild.asInstanceOf[ScPackaging].getFullPackageName + "." + this.getName
+
+      var fullPackageName = "";
+
+      while (packageNode.getParent.isInstanceOf[ScPackaging]) {
+        fullPackageName = packageNode.getParent.asInstanceOf[ScPackaging].getFullPackageName + "." + fullPackageName
+        packageNode = packageNode.getParent.getParent
+      }
+
+      return fullPackageName + "." + this.getName
+    }
   }
 
   trait TypeDef extends TmplDef (node) {

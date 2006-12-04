@@ -29,6 +29,13 @@ import com.intellij.lang.ASTNode
     def getTmplDefs : Seq[TmplDef] = {
       for (val tmplDef <- getChildren; tmplDef.isInstanceOf[TmplDef]) yield tmplDef.asInstanceOf[TmplDef]
     }
+
+    def getFullPackageName : String = {
+      // package(0) a.b.c.d(1)
+      val children = getChildren
+      if (children(1).isInstanceOf[ScQualId]) children(1).asInstanceOf[ScQualId].getFullName
+      else null
+    }
   }
 
   class ScPackagingBlock ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
@@ -39,10 +46,10 @@ import com.intellij.lang.ASTNode
     override def toString: String = "Package statement"
 
     //nullable
-    def getPackageName : ScQualId = {
+    def getFullPackageName : String = {
       // package(0) a.b.c.d(1)
       val children = getChildren
-      if (children(1).isInstanceOf[ScQualId]) children(1).asInstanceOf[ScQualId]
+      if (children(1).isInstanceOf[ScQualId]) children(1).asInstanceOf[ScQualId].getFullName
       else null
     }
   }
@@ -51,6 +58,7 @@ import com.intellij.lang.ASTNode
     //todo
     override def toString: String = "Qualified identifier"
 
-    def getQualId = getText
+    //todo: change stableId parsing to qualId parsing
+    def getFullName = getText
   }
 }
