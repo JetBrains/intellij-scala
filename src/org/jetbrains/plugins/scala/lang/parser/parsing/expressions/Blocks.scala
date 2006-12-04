@@ -156,7 +156,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
             rollbackMarker.rollbackTo()
             result = ResultExpr.parse(builder)
             rollbackMarker = builder.mark()
-            !ScalaElementTypes.WRONGWAY.equals(result)
+            !ScalaElementTypes.WRONGWAY.equals(result) && flag2
           }
         ) {
           flag = false
