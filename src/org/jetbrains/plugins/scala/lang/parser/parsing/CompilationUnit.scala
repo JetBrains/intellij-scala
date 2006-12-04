@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.AttributeClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
+import org.jetbrains.plugins.scala.lang.parser.parsing.top._
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -301,7 +301,8 @@ object CompilationUnit extends ConstrWithoutNode {
       override def getElementType = ScalaElementTypes.QUAL_ID
       override def parseBody(builder : PsiBuilder) : Unit = {
        //todo: change to simple qualID
-       StableId.parse(builder)
+       //StableId.parse(builder)
+       Qual_Id.parse(builder)
       }
     }
 }
