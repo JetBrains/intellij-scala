@@ -112,13 +112,13 @@ object CompilationUnit extends ConstrWithoutNode {
         }
 
         if (!isEnd && !BNF.firstStatementSeparator.contains(builder.getTokenType)) {
-//          isLocalError = true;
+          isLocalError = true;
           builder error "top statement declaration error"
 
           if (BNF.firstTopStat.contains(builder.getTokenType)) {
 //            isLocalError = false;
           } else {
-            builder.advanceLexer
+//            builder.advanceLexer
 //            isLocalError = false;
             tryParseTopStat(builder)
           }
@@ -135,12 +135,11 @@ object CompilationUnit extends ConstrWithoutNode {
       val trashMarker = builder.mark
 
       var isParsed = false;
-      while (!builder.eof() && !isParsed){
+      while (!builder.eof() && !isParsed) {
         if (BNF.firstTopStat.contains(builder.getTokenType)) {
           TopStat parse builder
           isParsed = true
         } else {
-
           builder.advanceLexer
         }
       }

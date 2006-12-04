@@ -108,6 +108,8 @@ object ScalaPsiCreator {
      /**************** variable ******************/
      case ScalaElementTypes.IDENTIFIER_LIST => new ScIdentifierList(node)
 
+     /**************** pattern ******************/
+     case ScalaElementTypes.PATTERN2_LIST => new ScPattern2List(node)
 
     /***************************************************/
     /********* PARAMETERS AND TYPE PARAMETERS **********/

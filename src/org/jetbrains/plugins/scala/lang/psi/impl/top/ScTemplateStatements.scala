@@ -86,6 +86,11 @@ import com.intellij.lang.ASTNode
     override def toString: String = "list of identifiers"
   }
 
+  /****************** pattern2List  ************************/
+
+  class ScPattern2List (node : ASTNode) extends ScalaPsiElementImpl (node) {
+    override def toString: String = "list of pattern2"
+  }
 
 
 }
