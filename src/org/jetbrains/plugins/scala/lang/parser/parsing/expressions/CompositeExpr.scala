@@ -409,9 +409,9 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           case _ => ScalaTokenTypes.tRPARENTHIS.asInstanceOf[ScalaElementType]
         }
         ParserUtils.eatElement(builder, brace)
-        val res = Enumerators parse(builder)
+        val res = Enumerators.parse(builder , rightBrace)
         if (res.eq(ScalaElementTypes.ENUMERATORS)){
-          if (builder.getTokenType.eq (rightBrace)){
+          if (rightBrace.equals(builder.getTokenType)){
             ParserUtils.eatElement(builder, rightBrace)
             bodyParse
           } else parseError(rightBrace.toString +" expected", brace, rightBrace)
