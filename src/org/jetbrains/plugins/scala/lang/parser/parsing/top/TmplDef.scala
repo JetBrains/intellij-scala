@@ -136,6 +136,7 @@ object TmplDef extends ConstrWithoutNode {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         }  else {
           builder error "expected identifier"
+          return
         }
 
           if (BNF.firstClassTypeParamClause.contains(builder.getTokenType)) {
@@ -316,7 +317,10 @@ object TmplDef extends ConstrWithoutNode {
 
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-      } else builder.error("expected identifier")
+      } else {
+        builder.error("expected identifier")
+        return
+      }
 
       if (BNF.firstClassTemplate.contains(builder.getTokenType)){
         new ClassTemplate().parse(builder)
@@ -347,7 +351,7 @@ object TmplDef extends ConstrWithoutNode {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
       } else {
         builder error "expected identifier"
-       // return
+        return
       }
 
       if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {

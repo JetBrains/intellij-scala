@@ -51,7 +51,7 @@ class Program extends ScalaTokenTypes {
     if (!builder.eof()) {
       val trashMarker = builder.mark
       while (!builder.eof()) {
-        builder error "an error occured"
+        builder error "out of compilation unit"
         DebugPrint println ("after TopStatSeq: " + builder.getTokenType)
         builder.advanceLexer
       }
