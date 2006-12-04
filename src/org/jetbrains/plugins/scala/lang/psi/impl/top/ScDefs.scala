@@ -28,11 +28,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
     def getQualifiedName : String = {
       var packageNode = getParent
 
-      if (packageNode.getParent.getFirstChild.isInstanceOf[ScPackageStatement]) return packageNode.getParent.getFirstChild.asInstanceOf[ScPackaging].getFullPackageName + "." + this.getName
+      if (packageNode!= null && packageNode.getParent!= null && packageNode.getParent.getFirstChild.isInstanceOf[ScPackageStatement]) return packageNode.getParent.getFirstChild.asInstanceOf[ScPackaging].getFullPackageName + "." + this.getName
 
       var fullPackageName = "";
 
-      while (packageNode.getParent.isInstanceOf[ScPackaging]) {
+      while (packageNode!= null && packageNode.getParent!= null && packageNode.getParent.isInstanceOf[ScPackaging]) {
         fullPackageName = packageNode.getParent.asInstanceOf[ScPackaging].getFullPackageName + "." + fullPackageName
         packageNode = packageNode.getParent.getParent
       }

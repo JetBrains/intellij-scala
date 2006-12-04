@@ -34,14 +34,15 @@ Scala file
             Refinements
               PsiElement({)('{')
               Refinement statement
-                PsiElement(val)('val')
-                PsiWhiteSpace(' ')
-                Identifier
-                  PsiElement(identifier)('i')
-                PsiElement(:)(':')
-                Simple type
-                  Stable Identifier
-                    Identifier
-                      PsiElement(identifier)('T')
+                value definition
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  Identifier
+                    PsiElement(identifier)('i')
+                  PsiElement(:)(':')
+                  Simple type
+                    Stable Identifier
+                      Identifier
+                        PsiElement(identifier)('T')
               PsiElement(})('}')
       PsiElement())(')')

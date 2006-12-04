@@ -162,7 +162,7 @@ object TmplDef extends ConstrWithoutNode {
             case _ => {}
           }
 
-          DebugPrint println ("after classdef : " + builder.getTokenType) 
+          DebugPrint println ("after classdef : " + builder.getTokenType)
       }
    }
 
@@ -320,9 +320,6 @@ object TmplDef extends ConstrWithoutNode {
 
       if (BNF.firstClassTemplate.contains(builder.getTokenType)){
         new ClassTemplate().parse(builder)
-      } else {
-        builder error "object cannot have constructor"
-        return
       }
     }
   }
@@ -422,5 +419,4 @@ object TmplDef extends ConstrWithoutNode {
       }
     }
   }
-
 }
