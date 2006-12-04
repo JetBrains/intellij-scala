@@ -40,6 +40,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         }
 
         def parseTail: ScalaElementType = {
+
           if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
             exprMarker.done(ScalaElementTypes.RESULT_EXPR)
             ScalaElementTypes.RESULT_EXPR  
@@ -47,7 +48,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
             var res = Block.parse (builder , false)
 
 // ACHTUNG!!!
-
             if (!ScalaElementTypes.WRONGWAY.equals(res)) {
               exprMarker.done(ScalaElementTypes.RESULT_EXPR)
               ScalaElementTypes.RESULT_EXPR
@@ -62,17 +62,23 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         var first = builder.getTokenType ;
           builder.advanceLexer;
         var second = builder.getTokenType ;
-          builder.advanceLexer; 
         rbMarker.rollbackTo()
+
         if (ScalaTokenTypes.tIDENTIFIER.equals(first) &&
             ScalaTokenTypes.tFUNTYPE.equals(second) ) {
+
+          /* Let's kick it! */
+          builder.getTokenType
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+          builder.getTokenType
           ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
           parseTail
         } else if (ScalaTokenTypes.tIDENTIFIER.equals(first) &&
                    ScalaTokenTypes.tCOLON.equals(second) ){
            //var rbMarker = builder.mark()
+           builder.getTokenType
            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+           builder.getTokenType
            ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
            var res3 = Type1 parse builder
            if (ScalaElementTypes.TYPE1.equals(res3)) {
