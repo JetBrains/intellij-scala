@@ -117,7 +117,7 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
       var result = ScalaElementTypes.WRONGWAY
 
       /* case (h) */
-      if (builder.getTokenType.eq(ScalaTokenTypes.kNEW))  {
+      if (ScalaTokenTypes.kNEW.equals(builder.getTokenType))  {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kNEW)
         Template.parseBody(builder)
         //TODO!!!
@@ -126,7 +126,7 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
         flag = true
       }
       /* case (g) */      
-      else if (builder.getTokenType.eq(ScalaTokenTypes.tLBRACE))  {
+      else if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType))  {
           val res3 = BlockExpr.parse(builder)
           if (res3.eq(ScalaElementTypes.BLOCK_EXPR)){
             result = res3
@@ -169,7 +169,7 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
       } else {
         /* case (d) */
         var result1 = Literal.parse(builder)  // Literal ?
-        if (!result1.eq(ScalaElementTypes.WRONGWAY)) {
+        if (!result1.equals(ScalaElementTypes.WRONGWAY)) {
           result = result1
           flag = true // Yes, it is!
           endness = "plain"

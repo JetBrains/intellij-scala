@@ -103,11 +103,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
       def rollForward: Boolean = {
         var flag1 = true
         var flag2 = false
-        while ( !builder.eof() && flag1){
+        while (flag1 && !builder.eof()){
            builder.getTokenType match{
              case ScalaTokenTypes.tLINE_TERMINATOR
                 | ScalaTokenTypes.tSEMICOLON => {
-                  ParserUtils.eatElement(builder, builder.getTokenType())
+                  builder.advanceLexer
+                  //ParserUtils.eatElement(builder, builder.getTokenType())
                   flag2 = true
                 }
              case _ => flag1 = false
