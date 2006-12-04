@@ -406,7 +406,6 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
                                             return process(kRETURN); }
 "sealed"                                {   return process(kSEALED); }
 "super"                                 {   return process(kSUPER); }
-"this"                                  {   return process(kTHIS); }
 "this"                                  {   processNewLine();
                                             return process(kTHIS); }
 "throw"                                 {   return process(kTHROW); }
