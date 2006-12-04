@@ -1,2 +1,25 @@
-import a.q; object Object = {}
+import a.q; object Object {}
 -----
+Scala file
+  Import statement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    Import expression
+      Stable Identifier
+        Identifier
+          PsiElement(identifier)('a')
+      PsiElement(.)('.')
+      Identifier
+        PsiElement(identifier)('q')
+  PsiElement(;)(';')
+  PsiWhiteSpace(' ')
+  template definition: object
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    Identifier
+      PsiElement(identifier)('Object')
+    PsiWhiteSpace(' ')
+    class template
+      template body
+        PsiElement({)('{')
+        PsiElement(})('}')

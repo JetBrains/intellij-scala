@@ -92,7 +92,8 @@ object CompilationUnit extends ConstrWithoutNode {
       var isError = false;
       var isEnd = false;
 
-      var errorMarker = builder.mark
+      //var errorMarker : PsiBuilder.Marker
+
       while (!builder.eof && /*!isLocalError && */!isEnd) {
         DebugPrint println ("TopStatSeq: token " + builder.getTokenType)
 
@@ -112,6 +113,8 @@ object CompilationUnit extends ConstrWithoutNode {
         }
 
         if (!isEnd && !BNF.firstStatementSeparator.contains(builder.getTokenType)) {
+//          errorMarker = builder.mark
+
           isLocalError = true;
           builder error "top statement declaration error"
 
@@ -122,25 +125,69 @@ object CompilationUnit extends ConstrWithoutNode {
 //            isLocalError = false;
             tryParseTopStat(builder)
           }
+
+//          errorMarker.done(ScalaElementTypes.TRASH)
         }
 
        isError = isError || isLocalError
       }
 
-      if (isError) errorMarker.done(ScalaElementTypes.TRASH)
-      else errorMarker.drop
+//      if (isError) errorMarker.done(ScalaElementTypes.TRASH)
+//      else errorMarker.drop
     }
 
     def tryParseTopStat (builder : PsiBuilder) : Unit = {
       val trashMarker = builder.mark
 
-      var isParsed = false;
-      while (!builder.eof() && !isParsed) {
-        if (BNF.firstTopStat.contains(builder.getTokenType)) {
-          TopStat parse builder
-          isParsed = true
+      var sqBraquetsCounter = 0;
+      var parenthisCounter = 0;
+      var bracesCounter = 0;
+
+      var isParsedTopStat = false;
+      var isParsedBlock = false;
+
+      while (!builder.eof() && !isParsedBlock) {
+
+        if (isParsedTopStat) {
+          while (!builder.eof && (bracesCounter > 0 || parenthisCounter > 0 || bracesCounter > 0)) {
+             builder.getTokenType match {
+              case ScalaTokenTypes.tLBRACE => bracesCounter = bracesCounter + 1
+              case ScalaTokenTypes.tRBRACE => bracesCounter = bracesCounter - 1
+
+              case ScalaTokenTypes.tLSQBRACKET => sqBraquetsCounter + 1
+              case ScalaTokenTypes.tRSQBRACKET => sqBraquetsCounter - 1
+
+              case ScalaTokenTypes.tLPARENTHIS => parenthisCounter + 1
+              case ScalaTokenTypes.tRPARENTHIS => parenthisCounter - 1
+
+              case _ => {}
+            }
+            builder.advanceLexer
+          }
+
+          isParsedBlock = bracesCounter == 0 && parenthisCounter == 0 || bracesCounter == 0
+
         } else {
-          builder.advanceLexer
+          if (BNF.firstTopStat.contains(builder.getTokenType)) {
+            TopStat parse builder
+            isParsedTopStat = true
+          } else {
+
+            builder.getTokenType match {
+              case ScalaTokenTypes.tLBRACE => bracesCounter = bracesCounter + 1
+              case ScalaTokenTypes.tRBRACE => bracesCounter = bracesCounter - 1
+
+              case ScalaTokenTypes.tLSQBRACKET => sqBraquetsCounter + 1
+              case ScalaTokenTypes.tRSQBRACKET => sqBraquetsCounter - 1
+
+              case ScalaTokenTypes.tLPARENTHIS => parenthisCounter + 1
+              case ScalaTokenTypes.tRPARENTHIS => parenthisCounter - 1
+
+              case _ => {}
+            }
+            builder.advanceLexer
+
+          }
         }
       }
 
