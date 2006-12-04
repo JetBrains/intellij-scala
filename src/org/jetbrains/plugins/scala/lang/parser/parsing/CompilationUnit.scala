@@ -165,7 +165,9 @@ object CompilationUnit extends ConstrWithoutNode {
             builder.advanceLexer
           }
 
-          isParsedBlock = bracesCounter == 0 && parenthisCounter == 0 || bracesCounter == 0
+          isParsedBlock = (bracesCounter == 0 && parenthisCounter == 0 && bracesCounter == 0)
+
+          //parse only 1 topStat. think about more
 
         } else {
           if (BNF.firstTopStat.contains(builder.getTokenType)) {
