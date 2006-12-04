@@ -180,6 +180,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.ARG_EXPRS => new ScArgumentExprsImpl(node)
     case ScalaElementTypes.BLOCK_EXPR => new ScBlockExprImpl(node)
     case ScalaElementTypes.BLOCK_STAT => new ScBlockStatImpl(node)
+    case ScalaElementTypes.ERROR_STMT => new ScErrorStatImpl(node)
 
     case ScalaElementTypes.IF_STMT => new ScIfStmtImpl(node)
     case ScalaElementTypes.FOR_STMT => new ScForStmtImpl(node)

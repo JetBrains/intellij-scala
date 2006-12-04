@@ -28,7 +28,8 @@ package org.jetbrains.plugins.scala.lang.parser.util {
                ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)
              ) {
               stack += builder.getTokenType
-              eatElement(builder , builder.getTokenType)
+              builder.advanceLexer
+              //eatElement(builder , builder.getTokenType)
           }
           else if ( !stack.isEmpty &&
             ((ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType) &&
@@ -39,7 +40,8 @@ package org.jetbrains.plugins.scala.lang.parser.util {
               ScalaTokenTypes.tLSQBRACKET.equals(stack.top)) )
           ) {
             stack.pop
-            eatElement(builder , builder.getTokenType)
+            builder.advanceLexer
+            //eatElement(builder , builder.getTokenType)
           }
           else if (stack.isEmpty &&
                (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType) ||
@@ -48,7 +50,8 @@ package org.jetbrains.plugins.scala.lang.parser.util {
           ) {
             flag = false
           } else {
-            eatElement(builder , builder.getTokenType)
+            builder.advanceLexer
+            // eatElement(builder , builder.getTokenType)
           }
         }
         while (!stack.isEmpty) stack.pop
