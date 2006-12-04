@@ -58,7 +58,10 @@ object BNF {
   //todo
   val firstPattern2: TokenSet = TokenSet.create(
     Array (
-       ScalaTokenTypes.tIDENTIFIER
+       ScalaTokenTypes.tIDENTIFIER,
+       ScalaTokenTypes.tUNDER,
+       ScalaElementTypes.LITERAL,
+       ScalaTokenTypes.tLPARENTHIS
     )
   )
 
