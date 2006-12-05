@@ -121,7 +121,7 @@ Scala file
               PsiElement(()('(')
               Infix expression
                 Prefix expression
-                  PsiElement(!)('!')
+                  PsiElement(identifier)('!')
                   Stable Identifier
                     Stable Identifier
                       Identifier
