@@ -28,6 +28,9 @@ public class FileScanner {
   private static void scanForFiles(final List<File> files, final File f, final String pattern, final boolean dirAllowed) {
     // recursively scan for all subdirectories
     if (f.isDirectory()) {
+
+      System.out.println(pattern);
+
       for (File file : f.listFiles()) {
         if (!file.isDirectory()) {
           String path = file.getAbsolutePath();

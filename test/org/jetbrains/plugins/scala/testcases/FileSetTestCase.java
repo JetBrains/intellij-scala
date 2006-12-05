@@ -19,7 +19,7 @@ import java.util.List;
  */
 public abstract class FileSetTestCase extends TestSuite {
   @NonNls
-  private static final String TEST_FILE_PATTERN = "(.*)\\.test";
+  protected static final String TEST_FILE_PATTERN = "(.*)\\.test";
   private File[] myFiles;
 
   public FileSetTestCase(String path) {

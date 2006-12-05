@@ -230,13 +230,13 @@ Scala file
                           PsiElement(identifier)('nme')
                       PsiWhiteSpace(' ')
                       Identifier
-                        PsiElement(+)('+')
+                        PsiElement(identifier)('+')
                       PsiWhiteSpace(' ')
                       Literal
                         PsiElement(string content)('":"')
                     PsiWhiteSpace(' ')
                     Identifier
-                      PsiElement(+)('+')
+                      PsiElement(identifier)('+')
                     PsiWhiteSpace(' ')
                     Stable Identifier
                       Stable Identifier
@@ -430,13 +430,13 @@ Scala file
                                 PsiElement(identifier)('nme')
                             PsiWhiteSpace(' ')
                             Identifier
-                              PsiElement(+)('+')
+                              PsiElement(identifier)('+')
                             PsiWhiteSpace(' ')
                             Literal
                               PsiElement(string content)('":"')
                           PsiWhiteSpace(' ')
                           Identifier
-                            PsiElement(+)('+')
+                            PsiElement(identifier)('+')
                           PsiWhiteSpace(' ')
                           Stable Identifier
                             Stable Identifier
