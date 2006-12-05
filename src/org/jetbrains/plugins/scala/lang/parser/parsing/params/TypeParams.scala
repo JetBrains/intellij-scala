@@ -95,12 +95,14 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
         var isVariantTypeParam = false;
 
-        if (!isVariantTypeParam && ScalaTokenTypes.tPLUS.equals(builder.getTokenType)) {
+        //if (!isVariantTypeParam && ScalaTokenTypes.tPLUS.equals(builder.getTokenType)) {
+        if (!isVariantTypeParam && "+".equals(builder.getTokenText)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tPLUS)
           isVariantTypeParam = true
         }
 
-        if (!isVariantTypeParam && ScalaTokenTypes.tMINUS.equals(builder.getTokenType)) {
+        //if (!isVariantTypeParam && ScalaTokenTypes.tMINUS.equals(builder.getTokenType)) {
+        if (!isVariantTypeParam && "-".equals(builder.getTokenText)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tMINUS)
           isVariantTypeParam = true
         }

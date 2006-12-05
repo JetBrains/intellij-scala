@@ -68,16 +68,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
         builder.getTokenType match {
           // If an identifier
           case  ScalaTokenTypes.tIDENTIFIER
-              | ScalaTokenTypes.tPLUS
-              | ScalaTokenTypes.tMINUS
-              | ScalaTokenTypes.tTILDA
-              | ScalaTokenTypes.tNOT
-              | ScalaTokenTypes.tOR
-              | ScalaTokenTypes.tSTAR
-//              | ScalaTokenTypes.tCOLON
-              | ScalaTokenTypes.tAND
-              | ScalaTokenTypes.tDIV
-              if (!( builder.getTokenType.equals(ScalaTokenTypes.tOR) &&
+              if (!( builder.getTokenText.equals("|") &&
                      elemType==ScalaElementTypes.PATTERN3 )) => {
             // current Operation
             val currentOp = builder.getTokenText
@@ -148,16 +139,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
         builder.getTokenType match {
           // If an identifier
           case  ScalaTokenTypes.tIDENTIFIER
-              | ScalaTokenTypes.tPLUS
-              | ScalaTokenTypes.tMINUS
-              | ScalaTokenTypes.tTILDA
-              | ScalaTokenTypes.tNOT
-              | ScalaTokenTypes.tOR
-              | ScalaTokenTypes.tSTAR
-//              | ScalaTokenTypes.tCOLON
-              | ScalaTokenTypes.tDIV
-              | ScalaTokenTypes.tAND
-              if (!( builder.getTokenType.equals(ScalaTokenTypes.tOR) &&
+              if (!( builder.getTokenText.equals("|") &&
                      elemType==ScalaElementTypes.PATTERN3 )) => {
 
             val rollbackMarker = builder.mark() //for rollback

@@ -227,7 +227,8 @@ import org.jetbrains.plugins.scala.util.DebugPrint
         builder error "expected type declaration"
       }
 
-      if (ScalaTokenTypes.tSTAR.equals(builder.getTokenType)) {
+      //if (ScalaTokenTypes.tSTAR.equals(builder.getTokenType)) {
+      if ("*".equals(builder.getTokenText)) {
          ParserUtils.eatElement(builder, ScalaTokenTypes.tSTAR)
          isParamType = true;
       }

@@ -221,11 +221,7 @@ FIRST(PrefixExpression) = ScalaTokenTypes.tPLUS
 
     val tPREFIXES: TokenSet = TokenSet.create(
       Array(
-        ScalaTokenTypes.tPLUS,
-        ScalaTokenTypes.tMINUS,
-        ScalaTokenTypes.tTILDA,
-        ScalaTokenTypes.tNOT,
-        ScalaTokenTypes.tAND
+        ScalaTokenTypes.tIDENTIFIER
       )
     )
     //val PREFIX_FIRST = TokenSet.orSet(Array(SimpleExpr.SIMPLE_FIRST, BNF.tPREFIXES ))
@@ -237,12 +233,12 @@ FIRST(PrefixExpression) = ScalaTokenTypes.tPLUS
       var result = ScalaElementTypes.PREFIX_EXPR
       var isPrefix = false
 
-      builder getTokenType match {
-        case ScalaTokenTypes.tPLUS
-             | ScalaTokenTypes.tMINUS
-             | ScalaTokenTypes.tTILDA
-             | ScalaTokenTypes.tNOT
-             | ScalaTokenTypes.tAND => {
+      builder getTokenText match {
+        case "+"
+             | "-"
+             | "~"
+             | "!"
+             | "&" => {
                ParserUtils.eatElement(builder, ScalaElementTypes.PREFIX)
                isPrefix = true
                if (SimpleExpr.SIMPLE_FIRST.contains(builder.getTokenType)) {

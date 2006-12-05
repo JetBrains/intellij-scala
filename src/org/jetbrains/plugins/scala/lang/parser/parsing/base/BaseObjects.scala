@@ -423,7 +423,7 @@ object Attribute extends Constr{
 
         case ScalaTokenTypes.tUNDER => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
-          Console.println("after under " + builder.getTokenText())
+          //Console.println("after under " + builder.getTokenText())
           return
         }
 
