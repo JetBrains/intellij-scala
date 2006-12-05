@@ -1,0 +1,29 @@
+class A{
+  {x => 3}
+}
+-----
+Scala file
+  template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    Identifier
+      PsiElement(identifier)('A')
+    class template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        PsiWhiteSpace(' ')
+        PsiWhiteSpace(' ')
+        Block expressions
+          PsiElement({)('{')
+          Result expression
+            Identifier
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            Literal
+              PsiElement(integer)('3')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
