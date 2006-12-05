@@ -1,0 +1,115 @@
+class A{
+def tryMatch =
+      x match {
+        case None => () => ();
+        case Some(Pair(p, r)) =>
+      }
+}
+-----
+Scala file
+  template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    Identifier
+      PsiElement(identifier)('A')
+    class template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        function definition
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          Identifier
+            PsiElement(identifier)('tryMatch')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n')
+          PsiWhiteSpace(' ')
+          PsiWhiteSpace(' ')
+          PsiWhiteSpace(' ')
+          PsiWhiteSpace(' ')
+          PsiWhiteSpace(' ')
+          PsiWhiteSpace(' ')
+          MATCH statement
+            Stable Identifier
+              Identifier
+                PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            Case Clause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Common pattern
+                Identifier
+                  PsiElement(identifier)('None')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              Result expression
+                unit
+                  PsiElement(()('(')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                unit
+                  PsiElement(()('(')
+                  PsiElement())(')')
+                PsiElement(;)(';')
+            PsiWhiteSpace('\n')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            Case Clause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Common pattern
+                Stable Identifier
+                  Identifier
+                    PsiElement(identifier)('Some')
+                Argument patterns
+                  PsiElement(()('(')
+                  Common pattern
+                    Stable Identifier
+                      Identifier
+                        PsiElement(identifier)('Pair')
+                    Argument patterns
+                      PsiElement(()('(')
+                      Common pattern
+                        Identifier
+                          PsiElement(identifier)('p')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      Common pattern
+                        Identifier
+                          PsiElement(identifier)('r')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+            PsiWhiteSpace('\n')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
