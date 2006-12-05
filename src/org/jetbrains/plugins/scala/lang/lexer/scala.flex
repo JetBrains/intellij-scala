@@ -421,8 +421,15 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "yield"                                 {   return process(kYIELD); }
 
 ///////////////////// Reserved shorthands //////////////////////////////////////////
-"*"                                     {   return process(tSTAR);  }
-"?"                                     {   return process(tQUESTION);  }
+
+//"*"                                     {   return process(tSTAR);  }
+//"?"                                     {   return process(tQUESTION);  }
+
+"*"                                     {   processNewLine();
+                                            return process(tIDENTIFIER);  }
+"?"                                     {   processNewLine();
+                                            return process(tIDENTIFIER);  }
+
 "_"                                     {   processNewLine();
                                             return process(tUNDER);  }
 ":"                                     {   return process(tCOLON);  }
@@ -435,13 +442,28 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "<%"                                    {   return process(tVIEW); }
 "#"                                     {   return process(tINNER_CLASS); }
 "@"                                     {   return process(tAT);}
-"&"                                     {   return process(tAND);}
-"|"                                     {   return process(tOR);}
 
-"+"                                     {   return process(tPLUS);}
-"-"                                     {   return process(tMINUS);}
-"~"                                     {   return process(tTILDA);}
-"!"                                     {   return process(tNOT);}
+//"&"                                     {   return process(tAND);}
+//"|"                                     {   return process(tOR);}
+
+"&"                                     {   processNewLine();
+                                            return process(tIDENTIFIER);}
+"|"                                     {   processNewLine();
+                                            return process(tIDENTIFIER);}
+"+"                                     {   processNewLine();
+                                            return process(tIDENTIFIER); }
+"-"                                     {   processNewLine();
+                                            return process(tIDENTIFIER);}
+"~"                                     {   processNewLine();
+                                            return process(tIDENTIFIER);}
+"!"                                     {   processNewLine();
+                                            return process(tIDENTIFIER);}
+
+
+//"+"                                     {   return process(tPLUS);}
+//"-"                                     {   return process(tMINUS);}
+//"~"                                     {   return process(tTILDA);}
+//"!"                                     {   return process(tNOT);}
 
 "."                                     {   return process(tDOT);}
 ";"                                     {   return process(tSEMICOLON);}

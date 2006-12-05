@@ -319,7 +319,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
         if (res.equals(ScalaElementTypes.PATTERN1)){
           // LOOK!!! ParserUtils.rollForward(builder)
           if (builder.getTokenType != null &&
-              builder.getTokenType.equals(ScalaTokenTypes.tOR)) {
+              builder.getTokenText.equals("|")) {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tOR)
             // LOOK!!! ParserUtils.rollForward(builder)
             subParse
@@ -338,7 +338,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
       if (result.equals(ScalaElementTypes.PATTERN1)) {
         // LOOK!!! ParserUtils.rollForward(builder)
         if (builder.getTokenType != null &&
-            builder.getTokenType.equals(ScalaTokenTypes.tOR)) {
+            builder.getTokenText.equals("|")) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tOR)
           // LOOK!!! ParserUtils.rollForward(builder)
           subParse
