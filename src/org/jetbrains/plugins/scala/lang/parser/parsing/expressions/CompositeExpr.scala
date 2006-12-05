@@ -488,14 +488,20 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
             rollbackMarker.drop()
             compMarker.done(ScalaElementTypes.TRY_STMT)
             ScalaElementTypes.EXPR1
-          } else errorDone(" " + rightBrace.toString +" expected")
-        } else errorDone("Wrong enumerators")
+          } else {
+            tryMarker.drop()
+            errorDone(" " + rightBrace.toString +" expected")
+          }
+        } else {
+          tryMarker.drop()
+          errorDone("Wrong block")
+        }
       }
 
       if (builder.getTokenType.eq(ScalaTokenTypes.kTRY)){
         val tryMarker = builder.mark()
         ParserUtils.eatElement(builder, ScalaTokenTypes.kTRY)
-        if (builder.getTokenType.eq(ScalaTokenTypes.tLBRACE)) {
+        if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
             braceMatcher(builder.getTokenType, tryMarker)
         } else {
           tryMarker.done(ScalaElementTypes.TRY_BLOCK)
