@@ -129,7 +129,7 @@ object BNF {
   val firstSimpleType : TokenSet = TokenSet.create(
     Array (
       ScalaTokenTypes.tIDENTIFIER,
-      ScalaTokenTypes.tLBRACE
+      ScalaTokenTypes.tLPARENTHIS
     )
   )
 

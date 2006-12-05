@@ -77,7 +77,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
             ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
             parseTail
           } else {
-            builder.error("=> expected")
             exprMarker.done(ScalaElementTypes.RESULT_EXPR)
             ScalaElementTypes.RESULT_EXPR
           }
@@ -175,11 +174,30 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
                     else ScalaTokenTypes.tWRONG
         ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
 
-        if (ScalaTokenTypes.tIDENTIFIER.equals(first) &&
+
+        if (ScalaTokenTypes.tLPARENTHIS.equals(first) &&
+            ScalaTokenTypes.tRPARENTHIS.equals(second) ) {  // () => ...
+          /* Let's kick it! */
+          rbMarker.rollbackTo()
+          val uMarker = builder.mark()
+          builder.getTokenType
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+          builder.getTokenType
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+          uMarker.done(ScalaElementTypes.UNIT)
+          if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType)){
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
+            parseTail
+          } else {
+            exprMarker.drop
+            ScalaElementTypes.EXPR
+          }
+         } else if (ScalaTokenTypes.tIDENTIFIER.equals(first) &&
             ScalaTokenTypes.tFUNTYPE.equals(second) ) {
           rbMarker.drop()
           parseTail
-        } else if (
+        }
+         else if (
           {
             rbMarker.rollbackTo()
             result = Bindings.parse(builder)

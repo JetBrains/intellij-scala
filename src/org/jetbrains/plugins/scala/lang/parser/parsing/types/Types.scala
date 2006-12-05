@@ -515,7 +515,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
       def subParse : ScalaElementType = {
         // Suppose, this is rule that begins from Type1 statement
 
-
         var result = Type1 parse(builder)
         result match {
           case ScalaElementTypes.TYPE1 => {
@@ -569,9 +568,23 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           }
         }
       }
-      subParse
-    }
 
+      if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
+        var rMarker = builder.mark()
+        val typesMarker = builder.mark() // Eat types of parameters
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+        if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
+          rMarker.drop()
+          rightBraceProcessing(typesMarker)
+        } else {
+          rMarker.rollbackTo()
+          subParse
+        }
+      } else {
+        subParse
+      }
+
+    }
 
   }
 
