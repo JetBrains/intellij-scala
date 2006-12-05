@@ -15,11 +15,15 @@ import java.util.ArrayList;
 
 public class SourceTest extends BaseScalaFileSetTestCase {
   @NonNls
-  private static final String DATA_PATH = "C:/Work/src/scala/collection";
+  //private static final String DATA_PATH = "C:/Work/src/scala/collection";
+  private static final String DATA_PATH = "src";
   protected static final String TEST_FILE_PATTERN = "(.*)\\.scala";
 
   public SourceTest() {
-    super(DATA_PATH);
+    super(  System.getProperty("path")!=null ?
+            System.getProperty("path") :
+            DATA_PATH
+    );
   }
 
 
