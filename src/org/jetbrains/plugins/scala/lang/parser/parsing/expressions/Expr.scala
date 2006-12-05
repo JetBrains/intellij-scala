@@ -62,10 +62,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         var first = builder.getTokenType ;
           builder.advanceLexer;
         var second = builder.getTokenType ;
+          builder.advanceLexer;
+        var third = builder.getTokenType ;
         rbMarker.rollbackTo()
 
         if (ScalaTokenTypes.tLPARENTHIS.equals(first) &&
-            ScalaTokenTypes.tRPARENTHIS.equals(second) ) {  // () => ...
+            ScalaTokenTypes.tRPARENTHIS.equals(second) &&
+            !ScalaTokenTypes.tDOT.equals(third)) {
+
+          // () => ...
           /* Let's kick it! */
           val uMarker = builder.mark()
           builder.getTokenType
@@ -172,11 +177,18 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         var second = if (builder.getTokenType != null) builder.getTokenType
                     else ScalaTokenTypes.tWRONG
+
+        val rb = builder.mark()
+        builder.advanceLexer
+        var third = if (builder.getTokenType != null) builder.getTokenType
+                    else ScalaTokenTypes.tWRONG
+        rb.rollbackTo()
         ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
 
 
         if (ScalaTokenTypes.tLPARENTHIS.equals(first) &&
-            ScalaTokenTypes.tRPARENTHIS.equals(second) ) {  // () => ...
+            ScalaTokenTypes.tRPARENTHIS.equals(second) &&
+            !ScalaTokenTypes.tDOT.equals(third)) {  // () => ...
           /* Let's kick it! */
           rbMarker.rollbackTo()
           val uMarker = builder.mark()
@@ -192,12 +204,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
             exprMarker.drop
             ScalaElementTypes.EXPR
           }
-         } else if (ScalaTokenTypes.tIDENTIFIER.equals(first) &&
+        } else if (ScalaTokenTypes.tIDENTIFIER.equals(first) &&
             ScalaTokenTypes.tFUNTYPE.equals(second) ) {
           rbMarker.drop()
           parseTail
-        }
-         else if (
+        } else if (
           {
             rbMarker.rollbackTo()
             result = Bindings.parse(builder)

@@ -77,6 +77,7 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
       }
 
       def subParse(_res: ScalaElementType, stringRes: String): SimpleExprResult = {
+
         /* case (a) */
         if (builder.getTokenType.eq(ScalaTokenTypes.tDOT))  {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
