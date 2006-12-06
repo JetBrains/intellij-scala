@@ -48,13 +48,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
             } else {
               builder.error("} expected")
               ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
-              blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
+              //blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
+              blockExprMarker.drop()
               ScalaElementTypes.BLOCK_EXPR
             }
           } else{
             builder.error("Wrong inner block statement")
             ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
-            blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
+            //blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
+            blockExprMarker.drop
             ScalaElementTypes.BLOCK_EXPR
           }
         } else {
