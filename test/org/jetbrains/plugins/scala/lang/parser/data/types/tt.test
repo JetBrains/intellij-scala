@@ -1,0 +1,56 @@
+class A{
+  def getIterator = nodes
+    	  . filter . map . elements;
+}
+-----
+Scala file
+  template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    Identifier
+      PsiElement(identifier)('A')
+    class template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        PsiWhiteSpace(' ')
+        PsiWhiteSpace(' ')
+        function definition
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          Identifier
+            PsiElement(identifier)('getIterator')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Stable Identifier
+            Stable Identifier
+              Stable Identifier
+                Stable Identifier
+                  Identifier
+                    PsiElement(identifier)('nodes')
+                PsiWhiteSpace('\n')
+                PsiWhiteSpace(' ')
+                PsiWhiteSpace(' ')
+                PsiWhiteSpace(' ')
+                PsiWhiteSpace(' ')
+                PsiWhiteSpace('\t')
+                PsiWhiteSpace(' ')
+                PsiWhiteSpace(' ')
+                PsiElement(.)('.')
+                PsiWhiteSpace(' ')
+                Identifier
+                  PsiElement(identifier)('filter')
+              PsiWhiteSpace(' ')
+              PsiElement(.)('.')
+              PsiWhiteSpace(' ')
+              Identifier
+                PsiElement(identifier)('map')
+            PsiWhiteSpace(' ')
+            PsiElement(.)('.')
+            PsiWhiteSpace(' ')
+            Identifier
+              PsiElement(identifier)('elements')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
