@@ -437,8 +437,8 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 "=>"                                    {   return popBraceStack(tFUNTYPE); }
 \u21D2                                  {   return process(tFUNTYPE_ASCII); }
 "<-"                                    {   return process(tCHOOSE); }
-"<:"                                    {   return process(tLOWER_BOUND); }
-">:"                                    {   return process(tUPPER_BOUND); }
+"<:"                                    {   return process(tUPPER_BOUND); }
+">:"                                    {   return process(tLOWER_BOUND); }
 "<%"                                    {   return process(tVIEW); }
 "#"                                     {   return process(tINNER_CLASS); }
 "@"                                     {   return process(tAT);}
