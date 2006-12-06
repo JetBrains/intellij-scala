@@ -355,6 +355,7 @@ object TmplDef extends ConstrWithoutNode {
       }
 
       if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
+        DebugPrint println ("traitDef - typeParamClause: " + builder.getTokenType)
         new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder
       }
 
@@ -363,6 +364,7 @@ object TmplDef extends ConstrWithoutNode {
       }
 
       if (BNF.firstTraitTemplate.contains(builder.getTokenType)){
+        DebugPrint println ("traitDef - traitTemplate: " + builder.getTokenType)
         TraitTemplate parse builder
       } //else builder error "expected trait template"
     }
@@ -376,6 +378,7 @@ object TmplDef extends ConstrWithoutNode {
     override def getElementType = ScalaElementTypes.TRAIT_TEMPLATE
 
     override def parseBody(builder : PsiBuilder) : Unit = {
+      DebugPrint println ("traitTemplate: " + builder.getTokenType)
       if (ScalaTokenTypes.kEXTENDS.equals(builder.getTokenType)) {
         var extendsMarker = builder.mark
         ParserUtils.eatElement(builder, ScalaTokenTypes.kEXTENDS)
@@ -387,16 +390,16 @@ object TmplDef extends ConstrWithoutNode {
         extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
       }
 
+      val lineTerminatorMarker = builder.mark
       if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
-
-        if (BNF.firstTemplateBody.contains(builder.getTokenType)){
-          TemplateBody parse builder
-        } //else builder error "expected template body"
       }
 
       if (BNF.firstTemplateBody.contains(builder.getTokenType)){
+        lineTerminatorMarker.drop
         TemplateBody parse builder
+      } else {
+        lineTerminatorMarker.rollbackTo
       }
     }
   }
