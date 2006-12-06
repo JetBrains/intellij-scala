@@ -139,7 +139,7 @@ plainid = {varid}
 
 
 ESCAPE_SEQUENCE=\\[^\r\n]
-CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE})*("'"|\\)?
+CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE})*("'"|\\)
 STRING_LITERAL=\"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*(\"|\\)?
 
 charEscapeSeq = \\[^\r\n]
@@ -347,11 +347,11 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 //                                            yybegin(IN_STRING_STATE);
 //                                        }
 
+{symbolLiteral}                          {   processNewLine();
+                                            return process(tSYMBOL);  }
+
 {CHARACTER_LITERAL}                      {   processNewLine();
                                             return process(tCHAR);  }
-
-{symbolLiteral}                         {   processNewLine();
-                                            return process(tSYMBOL);  }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// braces ///////////////////////////////////////////////////////////////////////////////////////
