@@ -216,17 +216,18 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 {WhiteSpaceInLine}                              { return process(tWHITE_SPACE_IN_LINE);  }
 "//" .*                                         { return process(tCOMMENT); }
 
-{LineTerminator} / (" ")* {specNotFollow} {identifier}
+{LineTerminator} / ({WhiteSpaceInLine})* {specNotFollow} {identifier}
                                                 {   changeState();
                                                     if(newLineAllowed()){
                                                       return process(tLINE_TERMINATOR);
                                                     } else {
-                                                      return process(tNON_SIGNIFICANT_NEWLINE);
+                                                     return process(tNON_SIGNIFICANT_NEWLINE);
                                                     }
                                                 }
 
 
-{LineTerminator} / (" ")* {notFollowNewLine}    {   changeState();
+{LineTerminator} / ({WhiteSpaceInLine})* {notFollowNewLine}
+                                                {   changeState();
                                                     return process(tNON_SIGNIFICANT_NEWLINE);
                                                 }
 
