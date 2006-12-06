@@ -23,8 +23,8 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  *  TypeParamClause ::= [NewLine] ‘[’ VariantTypeParam { ‘,’ VariantTypeParam } ‘]’
  */
 
-    class TypeParamClause[T <: TypeParam] (typeParam : T) extends Constr {
-      override def getElementType : IElementType = ScalaElementTypes.TYPE_PARAM_CLAUSE
+    class TypeParamClause[T <: TypeParam] (typeParam : T) extends ConstrUnpredict {
+//      override def getElementType : IElementType = ScalaElementTypes.TYPE_PARAM_CLAUSE
 
         def checkForTypeParamClause (first : IElementType, second : IElementType) : Boolean = {
           if (first == null || second == null) return false
@@ -41,6 +41,8 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 
       override def parseBody(builder : PsiBuilder) : Unit = {
+        val typeParamClauseElementMarker = builder.mark
+
         val typeParamClauseMarker = builder.mark
         val first = builder.getTokenType
         builder.advanceLexer
@@ -58,6 +60,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
             ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
           } else {
             builder error "expected '['"
+            typeParamClauseElementMarker.drop
             return
           }
 
@@ -70,10 +73,14 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
           if (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType)) {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
           } else {
+            typeParamClauseElementMarker.drop
             builder error "expected ']'"
             return
           }       
 
+          typeParamClauseElementMarker.done(ScalaElementTypes.TYPE_PARAM_CLAUSE)
+        } else {
+          typeParamClauseElementMarker.drop
         }
       }
     }

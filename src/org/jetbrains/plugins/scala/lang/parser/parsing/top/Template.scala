@@ -74,6 +74,8 @@ object Template extends Constr{
     override def getElementType = ScalaElementTypes.TEMPLATE_BODY
 
     override def parseBody(builder : PsiBuilder) : Unit = {
+      DebugPrint println ("templateBody: " + builder.getTokenType)
+
       if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
       } else {
