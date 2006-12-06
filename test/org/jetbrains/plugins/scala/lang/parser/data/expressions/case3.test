@@ -1,0 +1,111 @@
+class A{
+ x match{
+ case Alt(xs @ _*) => traverse1(xs)
+ case ELEMENTS( _ ) | MIXED( _ ) => c.toString(sb)
+ }
+}
+-----
+Scala file
+  template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    Identifier
+      PsiElement(identifier)('A')
+    class template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        PsiWhiteSpace(' ')
+        MATCH statement
+          Stable Identifier
+            Identifier
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n')
+          PsiWhiteSpace(' ')
+          Case Clause
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            Common pattern
+              Stable Identifier
+                Identifier
+                  PsiElement(identifier)('Alt')
+              Argument patterns
+                PsiElement(()('(')
+                Identifier
+                  PsiElement(identifier)('xs')
+                PsiWhiteSpace(' ')
+                PsiElement(@)('@')
+                PsiWhiteSpace(' ')
+                Wild pattern
+                  PsiElement(_)('_')
+                  PsiElement(identifier)('*')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            Common expression
+              Stable Identifier
+                Identifier
+                  PsiElement(identifier)('traverse1')
+              Argument expressions
+                PsiElement(()('(')
+                Stable Identifier
+                  Identifier
+                    PsiElement(identifier)('xs')
+                PsiElement())(')')
+            PsiElement(newline)('\n')
+          PsiWhiteSpace(' ')
+          Case Clause
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            Composite pattern
+              Common pattern
+                Stable Identifier
+                  Identifier
+                    PsiElement(identifier)('ELEMENTS')
+                Argument patterns
+                  PsiElement(()('(')
+                  PsiWhiteSpace(' ')
+                  Common pattern
+                    PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              Common pattern
+                Stable Identifier
+                  Identifier
+                    PsiElement(identifier)('MIXED')
+                Argument patterns
+                  PsiElement(()('(')
+                  PsiWhiteSpace(' ')
+                  Common pattern
+                    PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            Common expression
+              Stable Identifier
+                Stable Identifier
+                  Identifier
+                    PsiElement(identifier)('c')
+                PsiElement(.)('.')
+                Identifier
+                  PsiElement(identifier)('toString')
+              Argument expressions
+                PsiElement(()('(')
+                Stable Identifier
+                  Identifier
+                    PsiElement(identifier)('sb')
+                PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
