@@ -98,10 +98,11 @@ octalDigit = [0-7]
 hexDigit = [0-9A-Fa-f]
 
 floatingPointLiteral =
-        {digit}+ "." {digit}* {exponentPart}? {floatType}?
+        {digit} + "." {digit}* {exponentPart}? {floatType}?
     | "." {digit}+ {exponentPart}? {floatType}?
     | {digit}+ {exponentPart} {floatType}?
     | {digit}+ {exponentPart}? {floatType}
+
 exponentPart = (E | e) ("+" | "-")? {digit}+
 floatType = F | f | D | d
 
@@ -145,8 +146,6 @@ charEscapeSeq = \\[^\r\n]
 charNoDoubleQuote = !( ![^"\""] | {LineTerminator})
 stringElement = {charNoDoubleQuote} | {charEscapeSeq}  
 stringLiteral = {stringElement}*
-characterLiteral = "\'" {charEscapeSeq} "\'"
-                   | "\'" [^"\'"] "\'"
 symbolLiteral = "\'" {plainid}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -347,7 +346,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 //                                            yybegin(IN_STRING_STATE);
 //                                        }
 
-{characterLiteral}                      {   processNewLine();
+{CHARACTER_LITERAL}                      {   processNewLine();
                                             return process(tCHAR);  }
 
 {symbolLiteral}                         {   processNewLine();
@@ -482,6 +481,8 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 
 {identifier}                            {   processNewLine();
                                             return process(tIDENTIFIER); }
+({digit}+) / ("." {identifier})         {   processNewLine();
+                                            return process(tINTEGER);  }
 {integerLiteral}                        {   processNewLine();
                                             return process(tINTEGER);  }
 {floatingPointLiteral}                  {   processNewLine();
