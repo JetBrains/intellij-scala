@@ -155,6 +155,7 @@ symbolLiteral = "\'" {plainid}
 notFollowNewLine =   "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield"
                     | "," | "." | ";" | ":" | "_" | "=" | "=>" | "<-" | "<:" | "<%" | ">:"
                     | "#" | "@" | ")" | "]" |"}"
+specNotFollow    =  "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Common symbols //////////////////////////////////////////////////////////////////////////////////////////////
@@ -215,7 +216,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 {WhiteSpaceInLine}                              { return process(tWHITE_SPACE_IN_LINE);  }
 "//" .*                                         { return process(tCOMMENT); }
 
-{LineTerminator} / (" ")* {notFollowNewLine} {identifier}
+{LineTerminator} / (" ")* {specNotFollow} {identifier}
                                                 {   changeState();
                                                     if(newLineAllowed()){
                                                       return process(tLINE_TERMINATOR);
@@ -266,11 +267,11 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 <IN_STRING_STATE>{
 
-"\"" {stringLiteral}* "\""              {   yybegin(PROCESS_NEW_LINE);
+"\"" ~ "\""              {   yybegin(PROCESS_NEW_LINE);
                                             return process(tSTRING);
                                         }
 
-("\"" {stringLiteral}*) / {LineTerminator}            {   yybegin(PROCESS_NEW_LINE);
+("\"" (!(!.|"\""))*) / {LineTerminator}            {   yybegin(PROCESS_NEW_LINE);
                                                           return process(tWRONG_STRING);
                                                       }
 
