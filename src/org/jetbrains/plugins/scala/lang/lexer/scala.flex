@@ -137,13 +137,14 @@ plainid = {varid}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+ESCAPE_SEQUENCE=\\[^\r\n]
 CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE})*("'"|\\)?
 STRING_LITERAL=\"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*(\"|\\)?
 
 charEscapeSeq = \\[^\r\n]
 charNoDoubleQuote = !( ![^"\""] | {LineTerminator})
-stringElement = {charNoDoubleQuote} | {charEscapeSeq}
-stringLiteral = {stringElement}* | "\"" "\\"
+stringElement = {charNoDoubleQuote} | {charEscapeSeq}  
+stringLiteral = {stringElement}*
 characterLiteral = "\'" {charEscapeSeq} "\'"
                    | "\'" [^"\'"] "\'"
 symbolLiteral = "\'" {plainid}
@@ -336,9 +337,15 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 //{wholeString}                         {   processNewLine();
 //                                          return process(tSTRING);  }
 
-"\""                                    {   yypushback(yylength());
-                                            yybegin(IN_STRING_STATE);
+
+{STRING_LITERAL}                        {   yybegin(PROCESS_NEW_LINE);
+                                            return process(tSTRING);
                                         }
+
+
+//"\""                                    {   yypushback(yylength());
+//                                            yybegin(IN_STRING_STATE);
+//                                        }
 
 {characterLiteral}                      {   processNewLine();
                                             return process(tCHAR);  }
