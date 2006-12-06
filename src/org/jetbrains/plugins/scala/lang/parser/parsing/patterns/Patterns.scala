@@ -375,19 +375,47 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
       }
 
       def parseSequence: ScalaElementType = {
-        var res = Pattern parse builder
-        if (ScalaElementTypes.PATTERN.equals(res)) {
-          subParse
-        } else {
-          builder.error("Wrong parser sequence")
+
+        var rm = builder.mark()
+        val varid = if(!builder.eof) builder.getTokenType else null
+        val text = if(!builder.eof) builder.getTokenText else null
+          builder.advanceLexer
+        val at = if(!builder.eof) builder.getTokenType else null
+          builder.advanceLexer
+        val under = if(!builder.eof) builder.getTokenType else null
+          builder.advanceLexer
+        val star = if(!builder.eof) builder.getTokenText else null
+        rm.rollbackTo()
+
+        if (ScalaTokenTypes.tIDENTIFIER.equals(varid) &&
+            text.substring(1).toLowerCase == text.substring(1) &&
+            ScalaTokenTypes.tAT.equals(at) &&
+            ScalaTokenTypes.tUNDER.equals(under) &&
+            "*".equals(star)
+        ){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER); builder.getTokenType
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tAT); builder.getTokenType
+          val uMarker = builder.mark()
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER); builder.getTokenType
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tSTAR); builder.getTokenType
+          uMarker.done(ScalaElementTypes.WILD_PATTERN)
           psMarker.drop()
-          ScalaElementTypes.WRONGWAY
+          ScalaElementTypes.PATTERNS
+        } else {
+          var res = Pattern parse builder
+          if (ScalaElementTypes.PATTERN.equals(res)) {
+            subParse
+          } else {
+            builder.error("Wrong parser sequence")
+            psMarker.drop()
+            ScalaElementTypes.WRONGWAY
+          }
         }
       }
 
       if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
-        if (ScalaTokenTypes.tSTAR.equals(builder.getTokenType)){
+        if ("*".equals(builder.getTokenText)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tSTAR)
           psMarker.done(ScalaElementTypes.WILD_PATTERN)
           ScalaElementTypes.PATTERNS
