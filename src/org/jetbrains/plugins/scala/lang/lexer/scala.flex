@@ -143,7 +143,7 @@ STRING_LITERAL=\"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*(\"|\\)?
 charEscapeSeq = \\[^\r\n]
 charNoDoubleQuote = !( ![^"\""] | {LineTerminator})
 stringElement = {charNoDoubleQuote} | {charEscapeSeq}
-stringLiteral = {stringElement}*
+stringLiteral = {stringElement}* | "\"" "\\"
 characterLiteral = "\'" {charEscapeSeq} "\'"
                    | "\'" [^"\'"] "\'"
 symbolLiteral = "\'" {plainid}
@@ -267,11 +267,11 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 <IN_STRING_STATE>{
 
-"\"" ~ "\""              {   yybegin(PROCESS_NEW_LINE);
+"\"" {stringLiteral} "\""              {   yybegin(PROCESS_NEW_LINE);
                                             return process(tSTRING);
                                         }
 
-("\"" (!(!.|"\""))*) / {LineTerminator}            {   yybegin(PROCESS_NEW_LINE);
+("\"" {stringLiteral}) / {LineTerminator}            {   yybegin(PROCESS_NEW_LINE);
                                                           return process(tWRONG_STRING);
                                                       }
 
