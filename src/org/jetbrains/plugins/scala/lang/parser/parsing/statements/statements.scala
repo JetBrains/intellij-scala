@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParam
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.VariantTypeParam
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClause
@@ -353,11 +354,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             builder error "expected identifier"
           }
 
+          var isTypeDcl = false;
           if (ScalaTokenTypes.tLOWER_BOUND.equals(builder.getTokenType)) {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tLOWER_BOUND)
 
             if (BNF.firstType.contains(builder.getTokenType)) {
               Type parse builder
+              isTypeDcl = true
             } else {
               builder error "wrong type declaration"
             }
@@ -368,12 +371,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
             if (BNF.firstType.contains(builder.getTokenType)) {
               Type parse builder
+              isTypeDcl = true
             } else {
               builder error "wrong type declaration"
             }
           }
 
-          var isView = false
+          //todo: check it
+         /* var isView = false
           if (ScalaTokenTypes.tVIEW.equals(builder.getTokenType)){
             ParserUtils.eatElement(builder, ScalaTokenTypes.tVIEW)
 
@@ -384,22 +389,33 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
             }
 
             isView = true
+          }*/
+
+          var isTypeParamClause = false;
+          if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
+              isTypeParamClause = ScalaElementTypes.TYPE_PARAM_CLAUSE.equals(new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder)
           }
 
+          DebugPrint println ("isTypeParamClause " + isTypeParamClause)
+
+          DebugPrint println ("statements - typeDef: token " + builder.getTokenType) 
+
           if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)){
-            if (isView){
-              builder error "wrong type definition"
+            if (isTypeParamClause) {
+              builder error "expected '='"
             }
 
             return ScalaElementTypes.TYPE_DECLARATION
 
           } else {
+            if (isTypeDcl) builder error "unexpected '='"
+
             ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
 
             if (BNF.firstType.contains(builder.getTokenType)) {
               Type parse builder
             } else {
-              builder error "wrong type declaration"
+              builder error "expected type declaration"
             }
 
             return ScalaElementTypes.TYPE_DEFINITION

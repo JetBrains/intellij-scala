@@ -69,7 +69,6 @@ public interface ScalaTokenTypes {
   IElementType tGREATER = new ScalaElementType(">");
   IElementType tGREATEROREQUAL = new ScalaElementType(">=");
 
-  IElementType tASSGN = new ScalaElementType("=");
   IElementType tPLUS = new ScalaElementType("+");
   IElementType tMINUS = new ScalaElementType("-");
   IElementType tTILDA = new ScalaElementType("~");

@@ -35,7 +35,7 @@ object Template extends Constr{
 
   override def parseBody (builder : PsiBuilder) : Unit = {
     if (BNF.firstTemplateParents.contains(builder.getTokenType)){
-      TemplateParents parse builder
+      new TemplateParents parse builder
     } else builder error "expected template parents"
 
     if (BNF.firstTemplateBody.contains(builder.getTokenType)){
@@ -48,9 +48,11 @@ object Template extends Constr{
  *  TemplateParents ::= Constr {with SimpleType}
  */
 
-  object TemplateParents extends Constr {
+  class TemplateParents extends ConstrItem {
     override def getElementType = ScalaElementTypes.TEMPLATE_PARENTS
 
+    override def first = BNF.firstTemplateParents
+    
     override def parseBody(builder : PsiBuilder) : Unit = {
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         Constructor.parse(builder)
@@ -100,7 +102,7 @@ object Template extends Constr{
  *  TemplateStatSeq ::= [TemplateStat] {StatementSeparator [TemplateStat}]
  */
 
-
+ /*
   object TemplateStatSeq extends ConstrWithoutNode {
     override def parseBody(builder : PsiBuilder) : Unit = {
 
@@ -144,6 +146,108 @@ object Template extends Constr{
 
         DebugPrint println ("TemplateStatSeq: token " + builder.getTokenType)
        } 
+    }
+  } */
+
+   object TemplateStatSeq extends ConstrWithoutNode {
+    override def parseBody (builder: PsiBuilder): Unit = {
+
+      var isLocalError = false;
+      var isError = false;
+      var isEnd = false;
+
+      while (!builder.eof && !isEnd) {
+        DebugPrint println ("TemplateStatSeq: token " + builder.getTokenType)
+
+        isLocalError = false
+
+        while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
+          StatementSeparator parse builder
+          DebugPrint println ("TemplateStatSeq: StatementSeparator parsed, token " + builder.getTokenType)
+        }
+
+        if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+          TemplateStat.parse(builder)
+        }
+
+        DebugPrint println ("TemplateStatSeq - TemplateStat: token " + builder.getTokenType)
+
+        if (ScalaTokenTypes.tWRONG.equals(builder.getTokenType)) {
+
+        }
+
+        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) || builder.eof) {
+          isEnd = true;
+          return
+        }
+
+        if (/*!isEnd && */!BNF.firstStatementSeparator.contains(builder.getTokenType)) {
+          isLocalError = true;
+          builder error "template statement declaration error"
+
+           builder.getTokenType match {
+              case ScalaTokenTypes.tRBRACE |
+                   ScalaTokenTypes.tRSQBRACKET |
+                   ScalaTokenTypes.tRPARENTHIS  => return
+
+              case _ => {}
+            }
+
+
+          if (!BNF.firstTemplateStat.contains(builder.getTokenType)) {
+            tryParseSmth(builder)
+          }
+        }
+       isError = isError || isLocalError
+      }
+    }
+
+    def tryParseSmth (builder : PsiBuilder) : Unit = {
+      var isAfterBlock = false;
+      var unstructuredTrashMarker : PsiBuilder.Marker = builder.mark;
+
+      while (!builder.eof){
+//        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) || builder.eof) {
+//          unstructuredTrashMarker.drop
+//          return
+//        }
+
+        if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
+          TemplateStat parse builder
+        } else {
+
+          builder.getTokenType match {
+            case ScalaTokenTypes.tLBRACE => unstructuredTrashMarker.done(ScalaElementTypes.TRASH); parseTemplateStatSeqInBlock(builder); return;//unstructuredTrashMarker = builder.mark
+            case _ => {builder.advanceLexer}
+          }
+        }
+      }
+
+      unstructuredTrashMarker.drop
+    }
+
+    def parseTemplateStatSeqInBlock (builder : PsiBuilder) : Unit = {
+      val trashBlockMarker = builder.mark
+
+      builder.getTokenType match {
+        case ScalaTokenTypes.tLBRACE |
+             ScalaTokenTypes.tLSQBRACKET |
+             ScalaTokenTypes.tLPARENTHIS => builder.advanceLexer
+
+        case _ => {builder error "expected open brace"; trashBlockMarker.drop; return}
+      }
+
+      TemplateStatSeq parse builder
+
+      builder.getTokenType match {
+        case ScalaTokenTypes.tRBRACE |
+             ScalaTokenTypes.tRSQBRACKET |
+             ScalaTokenTypes.tRPARENTHIS  => builder.advanceLexer
+
+        case _ => {}
+      }
+
+      trashBlockMarker.done(ScalaElementTypes.TRASH)
     }
   }
 

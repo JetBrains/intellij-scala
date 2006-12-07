@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 import org.jetbrains.plugins.scala.lang.parser.parsing.Constr
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-
+import org.jetbrains.plugins.scala.util.DebugPrint
 
   /******************** type parameters **********************/
 
@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  *  TypeParamClause ::= [NewLine] ‘[’ VariantTypeParam { ‘,’ VariantTypeParam } ‘]’
  */
 
-    class TypeParamClause[T <: TypeParam] (typeParam : T) extends ConstrUnpredict {
+    class TypeParamClause[T <: TypeParam] (typeParam : T) extends ConstrReturned {
 //      override def getElementType : IElementType = ScalaElementTypes.TYPE_PARAM_CLAUSE
 
         def checkForTypeParamClause (first : IElementType, second : IElementType) : Boolean = {
@@ -40,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
         }
 
 
-      override def parseBody(builder : PsiBuilder) : Unit = {
+      override def parseBody(builder : PsiBuilder) : IElementType = {
         val typeParamClauseElementMarker = builder.mark
 
         val typeParamClauseMarker = builder.mark
@@ -49,6 +49,8 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
         val second = builder.getTokenType
         typeParamClauseMarker.rollbackTo
+
+        DebugPrint println ("TypeParam - token: " + builder.getTokenType)
 
         if (checkForTypeParamClause(first, second)) {
 
@@ -61,7 +63,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
           } else {
             builder error "expected '['"
             typeParamClauseElementMarker.drop
-            return
+            return ScalaElementTypes.WRONGWAY
           }
 
           if (typeParam.first.contains(builder.getTokenType)){
@@ -75,12 +77,14 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
           } else {
             typeParamClauseElementMarker.drop
             builder error "expected ']'"
-            return
+            return ScalaElementTypes.WRONGWAY
           }       
 
           typeParamClauseElementMarker.done(ScalaElementTypes.TYPE_PARAM_CLAUSE)
+          return ScalaElementTypes.TYPE_PARAM_CLAUSE
         } else {
           typeParamClauseElementMarker.drop
+          return ScalaElementTypes.WRONGWAY
         }
       }
     }
