@@ -57,7 +57,7 @@ object ScalaElementTypes {
   /******************* TRAIT ************************/
   val TRAIT = new ScalaElementType("trait")
   val TRAIT_DEF = new ScalaElementType("trait definition")
-  val TRAIT_TEMPLATE = new ScalaElementType("trait template")
+//  val TRAIT_TEMPLATE = new ScalaElementType("trait template")
 
   /******************* CLASS ************************/
   val CLASS = new ScalaElementType("class")
@@ -66,7 +66,9 @@ object ScalaElementTypes {
   val REQUIRES_BLOCK = new ScalaElementType("requires block")
   val EXTENDS_BLOCK = new ScalaElementType("extends block")
 
-  val CLASS_TEMPLATE = new ScalaElementType("class template")
+//  val CLASS_TEMPLATE = new ScalaElementType("class template")
+  val TOP_DEF_TEMPLATE = new ScalaElementType("top definition template")  
+
 
   /*************************************************************************************/
   /************************* PARAMETERS OF CLASS AND FUNCTIONS *************************/

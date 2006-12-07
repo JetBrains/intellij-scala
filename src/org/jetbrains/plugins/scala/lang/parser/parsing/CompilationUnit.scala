@@ -119,8 +119,15 @@ object CompilationUnit extends ConstrWithoutNode {
       var isLocalError = false;
       var isError = false;
       var isEnd = false;
+      var lexerOffset : Int = -1
 
       while (!builder.eof && !isEnd) {
+        if (lexerOffset == builder.getCurrentOffset) {
+          builder advanceLexer
+        }
+
+        lexerOffset = builder.getCurrentOffset
+
         DebugPrint println ("TopStatSeq: token " + builder.getTokenType)
 
         isLocalError = false
@@ -223,6 +230,7 @@ object CompilationUnit extends ConstrWithoutNode {
 
       trashBlockMarker.done(ScalaElementTypes.TRASH)
     }
+  }  
   /*
     def tryParseTopStat (builder : PsiBuilder) : Unit = {
 
@@ -375,7 +383,7 @@ object CompilationUnit extends ConstrWithoutNode {
       trashMarker.done(ScalaElementTypes.TRASH)
       */
 //    }
-  }  
+//  }
 
 /*
  *  TopStat ::= {AttributeClause} {Modifier} TmplDef

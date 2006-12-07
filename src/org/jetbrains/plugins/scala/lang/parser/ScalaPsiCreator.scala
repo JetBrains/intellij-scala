@@ -68,9 +68,11 @@ object ScalaPsiCreator {
      /******************** TEMPLATES ********************/
      /***************************************************/
 
-     case ScalaElementTypes.OBJECT_TEMPLATE => new ScObjectTemplate( node )
-     case ScalaElementTypes.CLASS_TEMPLATE => new ScClassTemplate( node )
-     case ScalaElementTypes.TRAIT_TEMPLATE => new ScTraitTemplate( node )
+//     case ScalaElementTypes.OBJECT_TEMPLATE => new ScObjectTemplate( node )
+//     case ScalaElementTypes.CLASS_TEMPLATE => new ScClassTemplate( node )
+//     case ScalaElementTypes.TRAIT_TEMPLATE => new ScTraitTemplate( node )
+     case ScalaElementTypes.TOP_DEF_TEMPLATE => new ScTopDefTemplate( node )
+
 
      /******************* parents ****************/
      case ScalaElementTypes.TEMPLATE_PARENTS => new ScTemplateParents( node )

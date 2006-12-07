@@ -16,7 +16,8 @@ import java.util.ArrayList;
 public class SourceTest extends BaseScalaFileSetTestCase {
   @NonNls
   //private static final String DATA_PATH = "C:/Work/src/scala/collection";
-  private static final String DATA_PATH = "src";
+//  private static final String DATA_PATH = "src";
+  private static final String DATA_PATH = "C:\\Documents and Settings\\Dmitry.Krasilschikov\\Desktop\\src";
   protected static final String TEST_FILE_PATTERN = "(.*)\\.scala";
 
   public SourceTest() {

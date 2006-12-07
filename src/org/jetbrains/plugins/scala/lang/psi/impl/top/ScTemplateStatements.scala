@@ -55,7 +55,7 @@ import com.intellij.lang.ASTNode
   /***************** declaration ***********************/
 
   class Declaration (node : ASTNode) extends TemplateStatement (node) {
-    override def toString: String = "definition"
+    override def toString: String = "declaration"
   }
 
   case class ScValueDeclaration (node : ASTNode) extends Declaration (node) {

@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
     override def toString: String = "template definition"
 
     def getTemplateName : String
-    def getTemplate : Template
 
     def isTypeDef : boolean = { this.isInstanceOf[TypeDef] }
     def isInstanceDef : boolean = { this.isInstanceOf[InstanceDef] }
@@ -39,6 +38,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
 
       return fullPackageName + "." + this.getName
     }
+
+    import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
+    def getTemplate = getChild[ScTopDefTemplate]
   }
 
   trait TypeDef extends TmplDef (node) {
@@ -58,8 +60,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
     //[case] class A
     override def getTemplateName : String = {val children = getChildren; if (isCase) children(2).getText else children(1).getText}
 
-    import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScClassTemplate
-    override def getTemplate = getChild[ScClassTemplate]
+
   }
 
   case class ScClassDefinition( node : ASTNode ) extends InstanceDef (node) with TypeDef {
@@ -75,7 +76,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
 
     override def getTemplateName : String = {val children = getChildren; children(1).getText}
 
-    import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTraitTemplate
-    override def getTemplate = getChild[ScTraitTemplate]
+//    import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTraitTemplate
+//    override def getTemplate = getChild[ScTopDefTemplate]
   }
 }
