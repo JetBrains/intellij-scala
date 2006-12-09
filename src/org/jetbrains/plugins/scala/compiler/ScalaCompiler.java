@@ -75,6 +75,8 @@ public class ScalaCompiler implements TranslatingCompiler {
         File f = File.createTempFile("toCompile", "");
         PrintStream printer = new PrintStream(new FileOutputStream(f));
 
+        printer.println("-Xgenerics");
+
         //write output dir
         String url = rootManager.getCompilerOutputPathUrl();
         LOG.assertTrue(url != null);
