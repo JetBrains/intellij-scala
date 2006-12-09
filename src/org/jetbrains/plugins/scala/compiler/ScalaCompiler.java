@@ -60,9 +60,9 @@ public class ScalaCompiler implements TranslatingCompiler {
       ProjectJdk sdk = rootManager.getJdk();
       assert sdk != null && sdk.getSdkType() instanceof ScalaSdkType;
       String scalaCompilerPath = ((ScalaSdkType) sdk.getSdkType()).getScalaCompilerPath(sdk);
-      String scalaExe = sdk.getVMExecutablePath();
+      String javaExe = sdk.getVMExecutablePath();
       GeneralCommandLine commandLine = new GeneralCommandLine();
-      commandLine.setExePath(scalaExe);
+      commandLine.setExePath(javaExe);
       commandLine.addParameter("-cp");
       String myJarPath = PathUtil.getJarPathForClass(getClass());
       commandLine.addParameter(new StringBuilder().append(myJarPath).
@@ -74,11 +74,6 @@ public class ScalaCompiler implements TranslatingCompiler {
       try {
         File f = File.createTempFile("toCompile", "");
         PrintStream printer = new PrintStream(new FileOutputStream(f));
-
-        //write sources to compile
-        for (VirtualFile file : files) {
-          printer.println(file.getPath());
-        }
 
         //write output dir
         String url = rootManager.getCompilerOutputPathUrl();
@@ -108,6 +103,11 @@ public class ScalaCompiler implements TranslatingCompiler {
             printer.print(CLASS_PATH_LIST_SEPARATOR);
           }
         }
+
+        for (VirtualFile file : files) {
+          printer.println(file.getPath());
+        }
+
         printer.close();
 
         commandLine.addParameter(f.getPath());
@@ -159,7 +159,7 @@ public class ScalaCompiler implements TranslatingCompiler {
     for (Module module : modules) {
       ProjectJdk jdk = ModuleRootManager.getInstance(module).getJdk();
       if (jdk == null || !(jdk.getSdkType() instanceof ScalaSdkType)) {
-        Messages.showErrorDialog("Cannot compile", "Cannot compile scala files.\nPlease set up scala sdk");
+        Messages.showErrorDialog("Cannot compile scala files.\nPlease set up scala sdk", "Cannot compile");
         return false;
       }
 
