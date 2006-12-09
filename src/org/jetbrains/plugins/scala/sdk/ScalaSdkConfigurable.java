@@ -41,7 +41,7 @@ public class ScalaSdkConfigurable implements AdditionalDataConfigurable {
     List<Sdk> result = new ArrayList<Sdk>();
     for (Sdk sdk : sdks) {
       SdkType sdkType = sdk.getSdkType();
-      if (Comparing.equal(sdkType, JavaSdk.getInstance())) {
+      if (Comparing.equal(sdkType, JavaSdk.getInstance()) || sdkType.getName().equals("IDEA JDK")) {
         result.add(sdk);
       }
     }
