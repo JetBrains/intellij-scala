@@ -76,6 +76,7 @@ public class ScalaCompiler implements TranslatingCompiler {
         PrintStream printer = new PrintStream(new FileOutputStream(f));
 
         printer.println("-Xgenerics");
+        printer.println("-verbose");
 
         //write output dir
         String url = rootManager.getCompilerOutputPathUrl();
