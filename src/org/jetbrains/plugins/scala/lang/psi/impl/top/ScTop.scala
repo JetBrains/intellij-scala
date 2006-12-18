@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl {
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs.TmplDef
-import org.jetbrains.plugins.scala.lang.psi.impl.patterns
 import com.intellij.lang.ASTNode
 
 /**

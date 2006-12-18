@@ -10,45 +10,38 @@ import javax.swing.Icon
 class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement( node )
   with ScalaPsiElement {
 
-    def getChildNumber[T] : Int = {
-      val children = getChildren
-
-      for (val i <- Iterator.range(0, children.length); children(i).isInstanceOf[T]) {
-        return i
+    def getChildNumber[T <: ScalaPsiElementImpl] : Int = {
+      def inner (e : PsiElement, num : Int) : Int = e match {
+         case null => -1
+         case me : T => num
+         case _ => inner (e.getNextSibling (), num + 1)
       }
-      return -1
+
+      inner (getFirstChild (), 0)
     }
 
-    def hasChild[T] : Boolean = {
-      return getChild[T] != -1
+    def hasChild[T <: ScalaPsiElementImpl] : Boolean = {
+      return getChild[T] != null
     }
 
     //nullable
-    def getChild[T] : T = {
-      val num = getChildNumber[T]
+    def getChild[T <: ScalaPsiElementImpl] : T = {
+      def inner (e : PsiElement) : PsiElement = e match {
+         case null => null
+         case me : T => me
+         case _ => inner (e.getNextSibling())
+      }
 
-      if (num != -1) getChildren.apply(num).asInstanceOf[T]
-      else null
-    }
+      inner (getFirstChild ()).asInstanceOf[T]
+   }
 
-  def getASTNode() : ASTNode = {
-    //val key : Key[Int] = new Key("foo")
-    node
-  }
+  def getASTNode() : ASTNode = node
 
-  override def getUserData[T <: java.lang.Object]( key : Key[T] ) : T = {
-    return null;
-  }
+  override def getUserData[T >: Null <: java.lang.Object]( key : Key[T] ) : T = null.asInstanceOf[T]
 
-  override def putUserData[T <: java.lang.Object]( key : Key[T] , value : T) : Unit = {
-  }
+  override def putUserData[T >: Null <: java.lang.Object]( key : Key[T] , value : T) : Unit = {}
 
-  override def getIcon(flags : Int) : Icon = {
-    return null;
-  }
+  override def getIcon(flags : Int) : Icon = null
 
-  override def toString() : String = {
-    return null;
-  }
-
+  override def toString : String = null
 }
