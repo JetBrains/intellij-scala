@@ -30,6 +30,9 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
   }
 
   private static final String ourErrorMarker = " error:";
+  private static final String ourInfoMarker = "[";
+  private static final String ourParsingMarker = "parsing";
+  private static final String ourWroteMarker = "wrote";
 
 
   private void parseOutput(String text) {
@@ -61,7 +64,15 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
           return;
         }
       }
+    } else {
+        if (text.startsWith(ourInfoMarker)) {  //verbose compiler output
+          String info = text.substring(ourInfoMarker.length(), text.length() - 1);
+            if (info.startsWith(ourParsingMarker) || info.startsWith(ourWroteMarker)) {
+                myContext.getProgressIndicator().setText(info);
+            }
+        } else {
+          myContext.addMessage(CompilerMessageCategory.INFORMATION, text, null, -1, -1);
+        }
     }
-    myContext.addMessage(CompilerMessageCategory.INFORMATION, text, null, -1, -1);
   }
 }
