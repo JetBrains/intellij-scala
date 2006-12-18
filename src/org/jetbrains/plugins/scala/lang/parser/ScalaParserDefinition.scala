@@ -12,7 +12,6 @@ import com.intellij.psi.FileViewProvider
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
 
-import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile

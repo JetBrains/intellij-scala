@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
 object ScalaPsiCreator {
-  def createElement (node : ASTNode) : PsiElement = {
+  def createElement (node : ASTNode) : PsiElement = 
 
    node.getElementType() match {
 
@@ -143,7 +143,12 @@ object ScalaPsiCreator {
     case ScalaElementTypes.ATTRIBUTE => new ScAttribute(node)
     case ScalaElementTypes.ATTRIBUTE_CLAUSE => new ScAttributeClause(node)
     case ScalaElementTypes.ATTRIBUTE_CLAUSES => new ScAttributeClauses(node)
+    case _ => inner (node)
+   }
 
+
+   //to prevent stack overflow in type checker let's introduce helper method
+   private def inner (node : ASTNode) : PsiElement = node.getElementType() match {
 
 
 
@@ -216,5 +221,5 @@ object ScalaPsiCreator {
 
    }
          
-  }
+
 }
