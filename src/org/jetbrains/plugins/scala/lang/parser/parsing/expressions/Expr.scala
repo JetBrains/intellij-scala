@@ -244,10 +244,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
         val exprsMarker = builder.mark()
 
         def subParse: ScalaElementType = {
-          ParserUtils.rollForward(builder)
+          //ParserUtils.rollForward(builder)
           builder getTokenType match {
             case ScalaTokenTypes.tCOMMA => {
-              ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
               ParserUtils.rollForward(builder)
               val res1 = Expr.parse(builder)
               if (res1.equals(ScalaElementTypes.EXPR)) {

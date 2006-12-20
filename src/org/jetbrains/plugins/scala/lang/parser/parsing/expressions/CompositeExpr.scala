@@ -57,17 +57,27 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
         builder getTokenType match {
           /*    [‘:’ Type1]   */
           case ScalaTokenTypes.tCOLON => {
+
+            val argMarker = builder.mark()
+
             ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
             val res = Type1 parse (builder)
             res match {
               case ScalaElementTypes.TYPE1 => {
+                argMarker.drop()
                 rollbackMarker.drop()
                 compMarker.done(ScalaElementTypes.TYPED_EXPR_STMT)
                 ScalaElementTypes.EXPR1
               }
               case _ => {
-                rollbackMarker.rollbackTo()
-                ScalaElementTypes.WRONGWAY
+
+                argMarker.rollbackTo()
+                rollbackMarker.drop()
+                if (ScalaElementTypes.SIMPLE_EXPR.equals(result)){
+                  compMarker.done (ScalaElementTypes.EXPR)
+                }
+                else compMarker.drop
+                ScalaElementTypes.EXPR1
               }
             }
           }
