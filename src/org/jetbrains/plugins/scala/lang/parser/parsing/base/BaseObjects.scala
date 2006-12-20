@@ -157,6 +157,23 @@ object Attribute extends Constr{
 
         if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+        } else if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)){
+          // Suppose, that this is construction like
+          // (... expr : _* )
+          ParserUtils.eatElement(builder, builder.getTokenType)
+          if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType) && // _ ...
+              {
+                ParserUtils.eatElement(builder, builder.getTokenType)
+                 "*".equals(builder.getTokenText)                   // _* ...
+              } &&
+              {
+                ParserUtils.eatElement(builder, builder.getTokenType)
+                ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)
+              } ) {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+          } else {
+            builder.error("Sequence argument or ) expected")
+          }
         } else {
           builder.error("expected ')'")
           return
