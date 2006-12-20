@@ -7,5 +7,5 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi._
 
 class ScTypeArgsImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
-      override def toString: String = "Type arguments list" 
+      override def toString: String = "Type arguments list"
 }
