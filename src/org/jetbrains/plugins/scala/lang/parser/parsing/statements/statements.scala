@@ -269,11 +269,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
           }
 
+/*
         if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
           if (!hasTypeDcl) {
             builder error "wrong function declaration"
           }
-
           return ScalaElementTypes.FUNCTION_DECLARATION
         } else {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
@@ -287,6 +287,26 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
           return ScalaElementTypes.FUNCTION_DEFINITION
         }
+*/
+
+        if (ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
+          DebugPrint println ("parsing expression after '=' : " + builder.getTokenType)
+          if (BNF.firstExpr.contains(builder.getTokenType)) {
+            Expr parse builder
+          } else {
+            builder error "wrong start of expression"
+          }
+          return ScalaElementTypes.FUNCTION_DEFINITION
+        } else if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)){
+          Expr parse builder
+          return ScalaElementTypes.FUNCTION_DECLARATION
+        } else {
+          if (!hasTypeDcl) {
+            builder error "wrong function declaration"
+          }
+          return ScalaElementTypes.FUNCTION_DECLARATION
+        }
 
         return ScalaElementTypes.WRONGWAY
 
@@ -296,7 +316,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
         AdditionalConstructor parse builder
         return ScalaElementTypes.SUPPLEMENTARY_CONSTRUCTOR
       }
-
 
       builder error "expected function definition"
       return ScalaElementTypes.WRONGWAY
