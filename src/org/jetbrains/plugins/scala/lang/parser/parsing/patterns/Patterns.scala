@@ -100,7 +100,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
         // LOOK!!! ParserUtils.rollForward(builder)
         if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
           closeParent
-          spMarker.drop()
           ScalaElementTypes.SIMPLE_PATTERN
         } else {
           var res = Pattern.parse(builder)
