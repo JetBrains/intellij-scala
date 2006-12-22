@@ -14,7 +14,7 @@ object BNF {
            ScalaTokenTypes.kNULL
     )
   )
-  
+
   val tSIMPLE_FIRST: TokenSet = TokenSet.create(
     Array( ScalaTokenTypes.tIDENTIFIER,
            ScalaTokenTypes.kTHIS,
@@ -72,7 +72,7 @@ object BNF {
        ScalaTokenTypes.tCHAR,
        ScalaTokenTypes.kNULL,
        ScalaTokenTypes.tSTRING,
-    
+
        ScalaTokenTypes.tDOT,
        ScalaTokenTypes.kTRUE,
        ScalaTokenTypes.kTHIS,
@@ -121,7 +121,7 @@ object BNF {
       ScalaTokenTypes.tIDENTIFIER,
       ScalaTokenTypes.tLPARENTHIS,
       ScalaTokenTypes.kSUPER,
-      ScalaTokenTypes.kTHIS      
+      ScalaTokenTypes.kTHIS
     )
   )
 
