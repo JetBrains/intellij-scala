@@ -43,7 +43,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
     def getTemplate = getChild[ScTopDefTemplate]
   }
 
-  trait TypeDef extends TmplDef (node) {
+  trait TypeDef extends TmplDef {
     def getTypeParameterClause : ScTypeParamClause = {
       getChild[ScTypeParamClause]
     }
@@ -54,7 +54,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
     def hasRequiresBlock = hasChild[ScRequiresBlock]
   }
 
-  trait InstanceDef extends TmplDef (node){
+  trait InstanceDef extends TmplDef {
     def isCase : boolean = getFirstChild.getText == "case"
 
     //[case] class A
