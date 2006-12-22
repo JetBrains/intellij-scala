@@ -535,29 +535,33 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
 
       /* for mistakes processing */
       def errorDone = errorDoneMain(rollbackMarker , ScalaElementTypes.METHOD_CLOSURE)
+
+      def subParse : ScalaElementType =
+        builder.getTokenType match {
+        case ScalaTokenTypes.tDOT         => {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
+          if (builder.getTokenType.eq(ScalaTokenTypes.tIDENTIFIER)){
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+            subParse
+          } else errorDone("Identifier expected")
+        }
+        case  ScalaTokenTypes.tLBRACE
+             |ScalaTokenTypes.tLPARENTHIS => {
+          ArgumentExprs parse builder
+          subParse
+        }
+        case ScalaTokenTypes.tLSQBRACKET  => {
+          TypeArgs parse builder
+          subParse
+        }
+        case _ => close
+      }
+
       if (builder.getTokenType.eq(ScalaTokenTypes.tDOT)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
         if (builder.getTokenType.eq(ScalaTokenTypes.tIDENTIFIER)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-          builder.getTokenType match {
-            case ScalaTokenTypes.tDOT         => {
-              ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
-              if (builder.getTokenType.eq(ScalaTokenTypes.tIDENTIFIER)){
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-                close 
-              } else errorDone("Identifier expected")
-            }
-            case  ScalaTokenTypes.tLBRACE
-                 |ScalaTokenTypes.tLPARENTHIS => {
-              ArgumentExprs parse builder
-              close
-            }
-            case ScalaTokenTypes.tLSQBRACKET  => {
-              TypeArgs parse builder
-              close
-            }
-            case _ => close
-          }
+          subParse
         } else errorDone("Identifier expected")
       } else {
         rollbackMarker.rollbackTo()
