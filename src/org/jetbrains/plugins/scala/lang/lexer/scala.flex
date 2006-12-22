@@ -327,6 +327,10 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 
 "/*" {special}* ~ "*/"                      {   return process(tCOMMENT); }
 
+"/*" {special}* ~ "*/" / {LineTerminator}   {   processNewLine();
+                                                return process(tCOMMENT); }
+
+
 
 
 
