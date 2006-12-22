@@ -639,27 +639,33 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 
       var result = ScalaElementTypes.TYPE_ARGS
       val typeArgsMarker = builder.mark()
-      if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)){
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
-        var res = Types parse(builder)
-        if (res.equals(ScalaElementTypes.TYPES)) {
-          builder.getTokenType match {
-            case ScalaTokenTypes.tRSQBRACKET => {
-              ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
-              result = ScalaElementTypes.TYPE_ARGS
-            }
-            case _ => {
-              builder.error("] expected")
-              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLSQBRACKET, ScalaTokenTypes.tRSQBRACKET)
-              result = ScalaElementTypes.TYPE_ARGS
-              //result = ScalaElementTypes.WRONGWAY
-            }
-          }
-        } else {
-          builder.error("Wrong type")
+
+      def closeBracket = builder.getTokenType match {
+        case ScalaTokenTypes.tRSQBRACKET => {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
+          result = ScalaElementTypes.TYPE_ARGS
+        }
+        case _ => {
+          builder.error("] expected")
           ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLSQBRACKET, ScalaTokenTypes.tRSQBRACKET)
           result = ScalaElementTypes.TYPE_ARGS
-          //result = ScalaElementTypes.WRONGWAY
+        }
+      }
+
+      if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)){
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
+        if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType)){
+          ParserUtils.eatElement(builder, builder.getTokenType)
+          closeBracket
+        } else {
+          var res = Types parse(builder)
+          if (res.equals(ScalaElementTypes.TYPES)) {
+            closeBracket
+          } else {
+            builder.error("Wrong type")
+            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLSQBRACKET, ScalaTokenTypes.tRSQBRACKET)
+            result = ScalaElementTypes.TYPE_ARGS
+          }
         }
       } else {
         builder.error ("[ expected")
