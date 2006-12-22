@@ -183,16 +183,13 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 %state NEW_LINE_ALLOWED
 
 %xstate PROCESS_NEW_LINE
-// Valid preceding token for newlinw encountered
+// Valid preceding token for newline encountered
 
-//%state IN_BLOCK_COMMENT_STATE
-// In block comment
 
 %xstate IN_STRING_STATE
 // Inside the string... Boo!
 
-%xstate IN_XML_STATE
-//the scala expression between xml tags
+
 %%
 
 
@@ -215,6 +212,7 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 
 {WhiteSpaceInLine}                              { return process(tWHITE_SPACE_IN_LINE);  }
 "//" .*                                         { return process(tCOMMENT); }
+"/*" {special}* ~ "*/"                          { return process(tCOMMENT); }
 
 {LineTerminator} / ({WhiteSpaceInLine})* {specNotFollow} {identifier}
                                                 {   changeState();
@@ -250,20 +248,6 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////// In block comment /////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//<IN_BLOCK_COMMENT_STATE>{
-//
-//"*/"                                    {   yybegin(YYINITIAL);
-//                                            return process(tCOMMENT);
-//                                        }
-
-//.|{LineTerminator}                      {   return process(tCOMMENT); }
-
-//}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// Inside a string  /////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 <IN_STRING_STATE>{
@@ -280,31 +264,6 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 
 }
 
-//todo: it is nesseccary organize stack of statements to control opened and corresponding closed tags
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////// Inside a xml  /////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<IN_XML_STATE>{
-
-"{"                                     {   yybegin(YYINITIAL);
-                                            return process(tBEGINSCALAEXPR);
-                                        }
-
-"}"                                     {   yybegin(IN_XML_STATE);
-                                            return process(tENDSCALAEXPR);
-                                        }
-
-{openXmlTag}                            {   yybegin(IN_XML_STATE);
-                                            return process(tOPENXMLTAG);
-                                        }
-
-{closeXmlTag}                           {   yybegin(YYINITIAL);
-                                            return process(tCLOSEXMLTAG);
-                                        }
-
-.|{LineTerminator}                      {   return process(tSTRING); }
-
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -326,12 +285,6 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 
 
 "/*" {special}* ~ "*/"                      {   return process(tCOMMENT); }
-
-"/*" {special}* ~ "*/" / {LineTerminator}   {   processNewLine();
-                                                return process(tCOMMENT); }
-
-
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
