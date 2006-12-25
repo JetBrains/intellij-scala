@@ -84,34 +84,6 @@ object CompilationUnit extends ConstrWithoutNode {
 /*
  *  TopStatSeq ::= TopStat {StatementSeparator TopStat}
  */
- /*
- object TopStatSeqRegulary extends ConstrWithoutNode {
-   override def parseBody (builder: PsiBuilder): Unit = {
-
-     var isLocalError = false;
-     var isError = false;
-     var isEnd = false;
-
-     while (!builder.eof && !isLocalError && !isEnd) {
-       DebugPrint println ("TopStatSeq: token " + builder.getTokenType)
-
-       while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
-         StatementSeparator parse builder
-         DebugPrint println ("TopStatSeq: StatementSeparator parsed, token " + builder.getTokenType)
-       }
-
-       if (BNF.firstTopStat.contains(builder.getTokenType)) {
-         TopStat.parse(builder)
-       }
-
-       if (!BNF.firstStatementSeparator.contains(builder.getTokenType)) {
-         return
-       }
-
-     }
-   }
- }   */
-
 
   object TopStatSeq extends ConstrWithoutNode {
     override def parseBody (builder: PsiBuilder): Unit = {
