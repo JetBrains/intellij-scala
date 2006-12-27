@@ -27,43 +27,36 @@ Literal ::= integerLiteral
     builder.getTokenType match{
       case ScalaTokenTypes.tINTEGER => { // Integer literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-//        marker.done(ScalaTokenTypes.tINTEGER)
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tFLOAT => { //Floating point literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-//        marker.done(ScalaTokenTypes.tFLOAT)
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => { //Boolean Literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-//        marker.done(ScalaElementTypes.BOOLEAN_LITERAL)
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tCHAR => { //Character literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-//        marker.done(ScalaTokenTypes.tCHAR)
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tSYMBOL => { //Character literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-//        marker.done(ScalaTokenTypes.tCHAR)
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.kNULL => { //null literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-//        marker.done(ScalaTokenTypes.kNULL)
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tSTRING => { //Character literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-//        marker.done(ScalaTokenTypes.tCHAR)
         marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
