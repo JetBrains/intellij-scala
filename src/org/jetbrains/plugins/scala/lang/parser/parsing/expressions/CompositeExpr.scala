@@ -39,7 +39,8 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       def errorDone (msg: String): ScalaElementType = {
         rollbackMarker.drop()
         builder.error(msg)
-        compMarker.done(elem)
+        compMarker.error(msg)
+        //compMarker.done(elem)
         ScalaElementTypes.EXPR1
       }
       (msg:String) => errorDone(msg)
@@ -140,8 +141,9 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           ScalaElementTypes.EXPR1
         } else {
           rollbackMarker.drop()
-          builder.error("Expression expected")
-          compMarker.done (ScalaElementTypes.ASSIGN_STMT)
+          //builder.error("Expression expected")
+          //compMarker.done (ScalaElementTypes.ASSIGN_STMT)
+          compMarker.error("Expression expected")
           ScalaElementTypes.EXPR1
         }
       }
@@ -310,7 +312,8 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
         }
         else {
           rollbackMarker.drop()
-          compMarker.done(ScalaElementTypes.WHILE_STMT)
+          //compMarker.done(ScalaElementTypes.WHILE_STMT)
+          compMarker.error(st)
           ScalaElementTypes.EXPR1
         }
       }
