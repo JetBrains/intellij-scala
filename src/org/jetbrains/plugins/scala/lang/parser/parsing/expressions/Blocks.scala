@@ -38,6 +38,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
           ScalaElementTypes.BLOCK_EXPR
         } else if (!ScalaTokenTypes.kCASE.equals(builder.getTokenType)){
           /*  ‘{’ Block ‘}’ */
+
           var result = Block.parse(builder, true)
           if (result.equals(ScalaElementTypes.BLOCK)) {
             ParserUtils.rollForward(builder)
@@ -48,15 +49,16 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
             } else {
               builder.error("} expected")
               ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
-              //blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
-              blockExprMarker.drop()
+              blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
               ScalaElementTypes.BLOCK_EXPR
             }
           } else{
-            builder.error("Wrong inner block statement")
+            //builder.error("Wrong inner block statement")
+            var errMarker = builder.mark()
             ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
-            //blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
-            blockExprMarker.drop
+            errMarker.error("Wrong inner block statement")
+            blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
+            //blockExprMarker.drop
             ScalaElementTypes.BLOCK_EXPR
           }
         } else {
@@ -74,9 +76,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
                 ScalaElementTypes.BLOCK_EXPR
               }
             } else{
-            builder.error("Wrong inner block statement")
+            //builder.error("Wrong inner block statement")
             ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
-            blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
+            //blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
+            blockExprMarker.error("Wrong inner block statement")
             ScalaElementTypes.BLOCK_EXPR
             }
         }
@@ -177,7 +180,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
           } else {
             builder.error("Wrong statement")
             rollbackMarker.drop()
-            result = ScalaElementTypes.BLOCK
+            // LOOK 27.12.2006
+            //result = ScalaElementTypes.BLOCK
+            result = ScalaElementTypes.WRONGWAY
           }
         }
       } while (flag)
