@@ -38,6 +38,10 @@
       <fileset dir="../META-INF"/>
     </copy>
 
+    <copy todir="${project.lib}">
+      <fileset dir="../resources/"/>
+    </copy>
+
     <javac srcdir="."
            destdir="../classes/production/Scala">
       <classpath refid="base.path"/>
@@ -53,8 +57,8 @@
              classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
              classpath="${project.lib}">
       <classpath>
-        <pathelement location="${scala.home}\lib\scala-compiler.jar"/>
-        <pathelement location="${scala.home}\lib\scala-library.jar"/>
+        <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
+        <pathelement location="${scala.home}/lib/scala-library.jar"/>
       </classpath>
     </taskdef>
 
