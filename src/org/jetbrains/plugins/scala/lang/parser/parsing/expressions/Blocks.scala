@@ -180,7 +180,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
           } else {
             builder.error("Wrong statement")
             rollbackMarker.drop()
-            // LOOK 27.12.2006
+            // from 27.12.2006
             //result = ScalaElementTypes.BLOCK
             result = ScalaElementTypes.WRONGWAY
           }
