@@ -207,7 +207,7 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
 
   public SdkAdditionalData loadAdditionalData(Element additional) {
     String name = additional.getAttributeValue(JAVA_SDK_NAME);
-    if (name != null) return new JavaSdkData(name);
+    if (name != null) return new JavaSdkData(name, null);
     return null;
   }
 
