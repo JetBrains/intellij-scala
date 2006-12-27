@@ -61,9 +61,10 @@ ArgumentExprs ::= ‘(’ [Exprs] ’)’
                       } ) {
                     closeParent
                   } else {
-                    builder.error("Sequence argument or ) expected")
+                    //builder.error("Sequence argument or ) expected")
                     ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
-                    argsMarker.done(ScalaElementTypes.ARG_EXPRS)
+                    argsMarker.error("Sequence argument or ) expected")
+                    //argsMarker.done(ScalaElementTypes.ARG_EXPRS)
                     ScalaElementTypes.ARG_EXPRS
                   }
                 }
@@ -75,9 +76,10 @@ ArgumentExprs ::= ‘(’ [Exprs] ’)’
                 }
               }
             } else {
-              builder.error("Wrong arguments")
+              //builder.error("Wrong arguments")
               ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
-              argsMarker.done(ScalaElementTypes.ARG_EXPRS)
+              argsMarker.error("Wrong arguments")
+              //argsMarker.done(ScalaElementTypes.ARG_EXPRS)
               ScalaElementTypes.ARG_EXPRS
             }
           }
