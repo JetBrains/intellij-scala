@@ -47,7 +47,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
           } else {
             var res = Block.parse (builder , false)
 
-// ACHTUNG!!!
             if (!ScalaElementTypes.WRONGWAY.equals(res)) {
               exprMarker.done(ScalaElementTypes.RESULT_EXPR)
               ScalaElementTypes.RESULT_EXPR
