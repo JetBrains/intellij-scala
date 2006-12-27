@@ -35,9 +35,13 @@ class JavaSdkData implements SdkAdditionalData {
   }
 
   static Sdk findJavaSdkByName(String sdkName, @Nullable SdkModel sdkModel) {
-    Sdk[] sdks = sdkModel != null ? sdkModel.getSdks() : ProjectJdkTable.getInstance().getAllJdks();
-    for (Sdk sdk : sdks) {
+    for (Sdk sdk : ProjectJdkTable.getInstance().getAllJdks()) {
       if (sdk.getName().equals(sdkName)) return sdk;
+    }
+    if (sdkModel != null) {
+      for (Sdk sdk : sdkModel.getSdks()) {
+        if (sdk.getName().equals(sdkName)) return sdk;
+      }
     }
     return null;
   }
