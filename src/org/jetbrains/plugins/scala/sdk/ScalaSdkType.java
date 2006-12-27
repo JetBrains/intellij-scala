@@ -177,6 +177,11 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
   }
 
   @Nullable
+  public Sdk getEncapsulatedSdk(Sdk sdk) {
+    return ((JavaSdkData) sdk.getSdkAdditionalData()).findSdk();
+  }
+
+  @Nullable
   public String getVMExecutablePath(Sdk sdk) {
     Sdk javaSdk = ((JavaSdkData) sdk.getSdkAdditionalData()).findSdk();
     if (javaSdk == null) return null;
