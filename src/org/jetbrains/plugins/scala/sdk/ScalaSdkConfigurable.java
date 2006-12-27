@@ -20,10 +20,13 @@ public class ScalaSdkConfigurable implements AdditionalDataConfigurable {
 
   private Sdk myScalaSdk;
 
+  private SdkModel.Listener myListener;
+  private SdkModel mySdkModel;
+
   public ScalaSdkConfigurable(SdkModel sdkModel) {
+    mySdkModel = sdkModel;
     myJavaSdkCbx = new JComboBox();
-    DefaultComboBoxModel model = new DefaultComboBoxModel(getJavaSdks(sdkModel));
-    myJavaSdkCbx.setModel(model);
+    reloadModel();
     myJavaSdkCbx.setRenderer(new DefaultListCellRenderer(){
       public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         final Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index, isSelected,
@@ -34,10 +37,34 @@ public class ScalaSdkConfigurable implements AdditionalDataConfigurable {
         return listCellRendererComponent;
       }
     });
+
+    myListener = new SdkModel.Listener() {
+      public void sdkAdded(Sdk sdk) {
+        reloadModel();
+      }
+
+      public void beforeSdkRemove(Sdk sdk) {
+        reloadModel();
+      }
+
+      public void sdkChanged(Sdk sdk, String previousName) {
+        reloadModel();
+      }
+
+      public void sdkHomeSelected(Sdk sdk, String newSdkHome) {
+        reloadModel();
+      }
+    };
+    sdkModel.addListener(myListener);
   }
 
-  private Sdk[] getJavaSdks(SdkModel sdkModel) {
-    Sdk[] sdks = sdkModel.getSdks();
+  private void reloadModel() {
+    DefaultComboBoxModel model = new DefaultComboBoxModel(getJavaSdks());
+    myJavaSdkCbx.setModel(model);
+  }
+
+  private Sdk[] getJavaSdks() {
+    Sdk[] sdks = mySdkModel.getSdks();
     List<Sdk> result = new ArrayList<Sdk>();
     for (Sdk sdk : sdks) {
       SdkType sdkType = sdk.getSdkType();
@@ -63,7 +90,10 @@ public class ScalaSdkConfigurable implements AdditionalDataConfigurable {
 
   private void setupPaths() {
     final SdkModificator modificator = myScalaSdk.getSdkModificator();
-    modificator.setSdkAdditionalData(new JavaSdkData(((Sdk) myJavaSdkCbx.getSelectedItem()).getName()));
+    Sdk item = (Sdk) myJavaSdkCbx.getSelectedItem();
+    if (item != null) {
+      modificator.setSdkAdditionalData(new JavaSdkData(item.getName(), mySdkModel));
+    }
     ApplicationManager.getApplication().runWriteAction(new Runnable() {
       public void run() {
         modificator.commitChanges();
@@ -84,11 +114,12 @@ public class ScalaSdkConfigurable implements AdditionalDataConfigurable {
   public void reset() {
     SdkAdditionalData sdkAdditionalData = myScalaSdk.getSdkAdditionalData();
     if (sdkAdditionalData != null) {
-      Sdk selected = JavaSdkData.findJavaSdkByName(((JavaSdkData) sdkAdditionalData).getJavaSdkName());
+      Sdk selected = JavaSdkData.findJavaSdkByName(((JavaSdkData) sdkAdditionalData).getJavaSdkName(), mySdkModel);
       myJavaSdkCbx.setSelectedItem(selected);
     }
   }
 
   public void disposeUIResources() {
+    mySdkModel.removeListener(myListener);
   }
 }
