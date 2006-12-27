@@ -17,7 +17,7 @@ class Program extends ScalaTokenTypes {
     var flag = true
 
     // Debug print mode off
-    DebugPrint.displayLog_=(true) 
+    DebugPrint.displayLog_=(false) 
 
     def rollForward : Unit = {
       while ( !builder.eof() && flag){
