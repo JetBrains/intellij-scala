@@ -54,18 +54,21 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                           processFunction: PsiBuilder.Marker => ScalaElementType,
                           doWithMarker: Boolean
                         ): ScalaElementType = {
+
         if (ScalaTokenTypes.kTYPE.equals(builder.getTokenType)){
           dotMarker.rollbackTo()
           if (doneOrDrop) nextMarker.done(elem)
           else nextMarker.drop()
           elem
         } else {
-        if (doWithMarker) {
-          //dotMarker.done(ScalaTokenTypes.tDOT)
-          dotMarker.drop()
-        }
-        else dotMarker.drop()
-        processFunction(nextMarker)
+          if (doWithMarker) {
+            //dotMarker.done(ScalaTokenTypes.tDOT)
+            dotMarker.drop()
+          }
+          else {
+            dotMarker.drop()
+          }
+          processFunction(nextMarker)
         }
       }
 
@@ -175,8 +178,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                   case ScalaTokenTypes.tDOT => {
                     val nextMarker = newMarker.precede()
                     newMarker.done(ScalaElementTypes.STABLE_ID)
+                    val dotMarker = builder.mark()
                     ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
-                    leftRecursion(nextMarker)
+                    typeProcessing(dotMarker, nextMarker, false, ScalaElementTypes.STABLE_ID, leftRecursion, true)
                   }
                   case _ => {
                     newMarker.done(ScalaElementTypes.STABLE_ID)
