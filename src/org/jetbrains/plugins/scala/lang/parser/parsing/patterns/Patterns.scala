@@ -44,11 +44,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
         }
 
         if (ScalaTokenTypes.tLPARENTHIS.equals(builder getTokenType)){
+          var uMarker = builder.mark()
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-          // LOOK!!! ParserUtils.rollForward(builder)
           if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
-            closeParent
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+            uMarker.done(ScalaElementTypes.UNIT)
+            spMarker.drop()
+            ScalaElementTypes.SIMPLE_PATTERN
           } else {
+            uMarker.drop()
             var res = Patterns.parse(builder)
             if (res.equals(ScalaElementTypes.PATTERNS)) {
               // LOOK!!! ParserUtils.rollForward(builder)
@@ -96,12 +100,16 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
         ScalaElementTypes.SIMPLE_PATTERN
       // ‘(’ [Pattern] ‘)’
       } else if (ScalaTokenTypes.tLPARENTHIS.eq(builder getTokenType)){
+        var um = builder.mark()
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
         // LOOK!!! ParserUtils.rollForward(builder)
         if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
-          closeParent
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+          um.done(ScalaElementTypes.UNIT)
+          spMarker.drop()
           ScalaElementTypes.SIMPLE_PATTERN
         } else {
+          um.drop()
           var res = Pattern.parse(builder)
           if (ScalaElementTypes.PATTERN.equals(res)) {
             // LOOK!!! ParserUtils.rollForward(builder)
@@ -149,48 +157,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
   object Pattern3 extends InfixTemplate(ScalaElementTypes.PATTERN3, SimplePattern.parse)
 
-  /*
-  {
-
-  //  Pattern3 ::=   SimplePattern
-  //               | SimplePattern {id SimplePattern}
-
-
-    def parse(builder : PsiBuilder) : ScalaElementType = {
-      var result = SimplePattern.parse(builder)
-      if (ScalaElementTypes.SIMPLE_PATTERN.equals(result)) {
-        ScalaElementTypes.PATTERN3
-      } else {
-        ScalaElementTypes.WRONGWAY
-      }
-    }
-  }
-  */
-
-  /*object Pattern2Item extends Pattern2 with ConstrItem {
-    override def first = BNF.firstPattern2
-
-    override def parse(builder : PsiBuilder) : Unit = {
-      parse(builder); 
-      def a : Unit = {}
-      a
-    }
-  }   */
-
   class Pattern2 {
   /*
     Pattern2 ::=   varid [‘@’ Pattern3]
                  | Pattern3
   */
-
-  /*override def parseBody(builder : PsiBuilder) : Unit = {
-    this.parse(builder);
-    def a : Unit = {}
-    a
-  } 
-  override def parseBody(builder : PsiBuilder) : IElementType = {
-    this.parse(builder)
-  }    */
 
    def parse(builder : PsiBuilder) : ScalaElementType = {
       var rbMarker = builder.mark()
