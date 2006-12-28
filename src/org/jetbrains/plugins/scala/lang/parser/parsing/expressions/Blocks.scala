@@ -271,15 +271,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
       } else {
         parseDef(false)
       }
-
-
     }
-
   }
-
-
-
-
-
 }
 
