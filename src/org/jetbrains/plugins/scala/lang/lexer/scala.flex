@@ -155,7 +155,7 @@ symbolLiteral = "\'" {plainid}
 notFollowNewLine =   "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield"
                     | "," | "." | ";" | ":" | "_" | "=" | "=>" | "<-" | "<:" | "<%" | ">:"
                     | "#" | "@" | ")" | "]" |"}"
-specNotFollow    =  "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield"
+specNotFollow    =  "_" | "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Common symbols //////////////////////////////////////////////////////////////////////////////////////////////
