@@ -86,19 +86,16 @@ package org.jetbrains.plugins.scala.lang.parser.util {
 
     //Write element node
     def eatElement(builder: PsiBuilder, elem: IElementType): Unit = {
-      //builder.getTokenType.toString
       if (!builder.eof()) {
-        if (elem.equals(ScalaTokenTypes.tIDENTIFIER)){
-          val marker = builder.mark()
+//        if (elem.equals(ScalaTokenTypes.tIDENTIFIER)){
+//          val marker = builder.mark()
           builder.advanceLexer // Ate something
-          marker.done(elem)
-        } else {
-          builder.advanceLexer
-        }
-      } else {
-      //  builder error "unexpected end of file"
-        false
+//          marker.done(elem)
+//       } else {
+//         builder.advanceLexer
+//       }
       }
+      ()
     }
 
     /*def listOfSmthWithoutNode(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType) : Unit = {

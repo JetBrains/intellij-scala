@@ -22,52 +22,52 @@ Literal ::= integerLiteral
 
   def parse(builder : PsiBuilder) : ScalaElementType = {
 
-    val marker = builder.mark()
+//    val marker = builder.mark()
 
     builder.getTokenType match{
       case ScalaTokenTypes.tINTEGER => { // Integer literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-        marker.done(ScalaElementTypes.LITERAL)
+//        marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tFLOAT => { //Floating point literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-        marker.done(ScalaElementTypes.LITERAL)
+//        marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => { //Boolean Literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-        marker.done(ScalaElementTypes.LITERAL)
+//        marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tCHAR => { //Character literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-        marker.done(ScalaElementTypes.LITERAL)
+//        marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tSYMBOL => { //Character literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-        marker.done(ScalaElementTypes.LITERAL)
+//        marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.kNULL => { //null literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-        marker.done(ScalaElementTypes.LITERAL)
+//        marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tSTRING => { //Character literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-        marker.done(ScalaElementTypes.LITERAL)
+//        marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case ScalaTokenTypes.tWRONG_STRING => { //Character literal
         ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
         builder.error("Wrong string literal")
-        marker.done(ScalaElementTypes.LITERAL)
+//        marker.done(ScalaElementTypes.LITERAL)
         ScalaElementTypes.LITERAL
       }
       case _ => {
-        marker.rollbackTo()
+//        marker.rollbackTo()
         ScalaElementTypes.WRONGWAY
       }
     }
