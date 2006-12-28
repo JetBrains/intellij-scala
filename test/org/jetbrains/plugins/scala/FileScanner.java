@@ -33,8 +33,9 @@ public class FileScanner {
           String path = file.getAbsolutePath();
           if (!path.contains(".svn") &&
               !path.contains(".cvs") &&
-              !path.contains("/ant") &&
-              !path.contains("/doc") &&
+              !path.contains("ScalaBazaar") &&
+              !path.contains("DocUtil") &&
+              !path.contains("DocGenerator") &&
                path.matches(pattern)) {
             files.add(file);
           }
