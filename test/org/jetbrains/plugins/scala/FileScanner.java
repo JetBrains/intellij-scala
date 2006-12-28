@@ -32,9 +32,10 @@ public class FileScanner {
         if (!file.isDirectory()) {
           String path = file.getAbsolutePath();
           if (!path.contains(".svn") &&
-                  !path.contains(".cvs") &&
-                  !path.contains("xml") &&
-                  path.matches(pattern)) {
+              !path.contains(".cvs") &&
+              !path.contains("/ant") &&
+              !path.contains("/doc") &&
+               path.matches(pattern)) {
             files.add(file);
           }
         } else {
