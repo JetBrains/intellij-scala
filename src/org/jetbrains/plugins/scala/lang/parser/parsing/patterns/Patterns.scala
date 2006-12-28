@@ -44,15 +44,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
         }
 
         if (ScalaTokenTypes.tLPARENTHIS.equals(builder getTokenType)){
-          var uMarker = builder.mark()
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
           if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
-            uMarker.done(ScalaElementTypes.UNIT)
-            spMarker.drop()
-            ScalaElementTypes.SIMPLE_PATTERN
+            closeParent
           } else {
-            uMarker.drop()
             var res = Patterns.parse(builder)
             if (res.equals(ScalaElementTypes.PATTERNS)) {
               // LOOK!!! ParserUtils.rollForward(builder)
