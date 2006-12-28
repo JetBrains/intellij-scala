@@ -158,6 +158,8 @@ public class ScalaCompiler implements TranslatingCompiler {
   }
 
   public boolean validateConfiguration(CompileScope compileScope) {
+    VirtualFile[] scalaFiles = compileScope.getFiles(ScalaFileType.SCALA_FILE_TYPE, true);
+    if (scalaFiles.length == 0) return true;
     Module[] modules = compileScope.getAffectedModules();
     for (Module module : modules) {
       ProjectJdk jdk = ModuleRootManager.getInstance(module).getJdk();
