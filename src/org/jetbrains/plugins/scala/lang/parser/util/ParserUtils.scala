@@ -96,6 +96,7 @@ package org.jetbrains.plugins.scala.lang.parser.util {
 //       }
       }
       ()
+
     }
 
     /*def listOfSmthWithoutNode(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType) : Unit = {
