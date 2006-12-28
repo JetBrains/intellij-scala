@@ -36,6 +36,8 @@ public class FileScanner {
               !path.contains("ScalaBazaar") &&
               !path.contains("DocUtil") &&
               !path.contains("DocGenerator") &&
+              !path.contains("Logged") &&
+              !path.contains("EmitHtml") &&
                path.matches(pattern)) {
             files.add(file);
           }
