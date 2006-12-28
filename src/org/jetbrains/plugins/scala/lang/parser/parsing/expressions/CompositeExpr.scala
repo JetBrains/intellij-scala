@@ -130,6 +130,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
 
 /*********************** cases (b1), (b2) **************************/
     def bCase: ScalaElementType = {
+
       var rollbackMarker = builder.mark() // marker to rollback
 
       def assignProcess: ScalaElementType = {
@@ -163,6 +164,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           ScalaElementTypes.WRONGWAY
         }
       }
+
       if (builder.getTokenType.eq(ScalaTokenTypes.tIDENTIFIER)) {
         ParserUtils.eatElement(builder , ScalaTokenTypes.tIDENTIFIER)
         if (builder.getTokenType.eq(ScalaTokenTypes.tASSIGN)) {
@@ -176,8 +178,11 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
                  builder.getTokenType.eq(ScalaTokenTypes.kSUPER)){
         processSimpleExpr
       } else {
+        processSimpleExpr
+        /*
         rollbackMarker.rollbackTo()
         ScalaElementTypes.WRONGWAY
+        */
       }
     }
 
