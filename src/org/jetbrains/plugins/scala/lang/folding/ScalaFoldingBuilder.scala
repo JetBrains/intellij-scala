@@ -27,8 +27,11 @@ package org.jetbrains.plugins.scala.lang.folding{
         case ScalaElementTypes.BLOCK_EXPR      |
              ScalaElementTypes.PACKAGING_BLOCK |
              ScalaElementTypes.TEMPLATE_BODY  => {
-               descriptors += (new FoldingDescriptor(node, node.getTextRange()))
-             }
+          descriptors += (new FoldingDescriptor(node, node.getTextRange()))
+        }
+        case ScalaTokenTypes.tDOC_COMMENT => {
+          descriptors += (new FoldingDescriptor(node, node.getTextRange()))
+        }
         case _ => {}
       }
 
@@ -60,6 +63,9 @@ package org.jetbrains.plugins.scala.lang.folding{
              ScalaElementTypes.TEMPLATE_BODY  => {
                "{...}"
              }
+        case ScalaTokenTypes.tDOC_COMMENT => {
+          "/*...*/"
+        }
         case _ => null
       }
     }
