@@ -203,6 +203,7 @@ object ScalaElementTypes {
   /*************************************************************************************/
   /************************************** EXPRESSIONS **********************************/
   /*************************************************************************************/
+  /**/
   val PREFIX_EXPR = new ScalaElementType("prefix expression")
   val PREFIX = new ScalaElementType("prefix")
   val POSTFIX_EXPR = new ScalaElementType("postfix expression")

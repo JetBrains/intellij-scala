@@ -35,6 +35,7 @@ public class ScalaLanguage extends Language {
   }
 
   public FoldingBuilder getFoldingBuilder() {
+    //return null;
     return ScalaToolsFactory.getInstance().createScalaFoldingBuilder();
   }
 
