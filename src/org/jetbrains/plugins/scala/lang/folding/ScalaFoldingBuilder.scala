@@ -1,20 +1,22 @@
-package org.jetbrains.plugins.scala.lang.folding
+import scala.collection.mutable._
 
-import java.util.ArrayList;
-import com.intellij.lang.ASTNode;
-import com.intellij.lang.folding.FoldingBuilder;
-import com.intellij.lang.folding.FoldingDescriptor;
-import com.intellij.openapi.editor.Document;
-import com.intellij.psi.tree.IElementType;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
+package org.jetbrains.plugins.scala.lang.folding{
 
-/*
-* @author Ilya Sergey
-*
-*/
+  import java.util.ArrayList;
+  import com.intellij.lang.ASTNode;
+  import com.intellij.lang.folding.FoldingBuilder;
+  import com.intellij.lang.folding.FoldingDescriptor;
+  import com.intellij.openapi.editor.Document;
+  import com.intellij.psi.tree.IElementType;
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
+  import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
 
-class ScalaFoldingBuilder extends FoldingBuilder {
+  /*
+  * @author Ilya Sergey
+  *
+  */
+
+  class ScalaFoldingBuilder extends FoldingBuilder {
     /*
     public FoldingDescriptor[] buildFoldRegions(@NotNull ASTNode astNode, @NotNull Document document) {
         List<FoldingDescriptor> descriptors = new ArrayList<FoldingDescriptor>();
@@ -68,18 +70,42 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     }
     */
 
+    private def appendDescriptors (node: ASTNode,
+                                   document: Document,
+                                   descriptors: ListBuffer[FoldingDescriptor]): Unit = {
+      if (node.getElementType() == ScalaElementTypes.BLOCK_EXPR) {
+         descriptors += (new FoldingDescriptor(node, node.getTextRange()))
+      }
 
-    def buildFoldRegions(astNode: ASTNode, document: Document) : Array[FoldingDescriptor] = {
-      var descriptors = new ArrayList[FoldingDescriptor]
-      //appendDescriptors(astNode, descriptors);
-      descriptors.toArray(new Array[FoldingDescriptor](descriptors.size()));
+      var child = node.getFirstChildNode()
+      while (child != null) {
+         appendDescriptors(child, document, descriptors)
+         child = child.getTreeNext()
+      }
     }
 
-    def getPlaceholderText(node : ASTNode): String = {null}
+    def buildFoldRegions(astNode: ASTNode, document: Document) : Array[FoldingDescriptor] = {
+      var descriptors = new ListBuffer[FoldingDescriptor]
+      appendDescriptors(astNode, document, descriptors);
+      var list = descriptors.toList
+      var dArray = new Array[FoldingDescriptor](descriptors.length)
+      var i = 0
+      while (!list.isEmpty) {
+        dArray(i) = list.head
+        list = list.drop(1)
+        i=i+1
+      }
+      dArray
+    }
+
+    def getPlaceholderText(node : ASTNode): String = {
+      if (node.getElementType() == ScalaElementTypes.BLOCK_EXPR) {
+         return "{...}";
+      }
+      null
+    }
 
     def isCollapsedByDefault(node: ASTNode): Boolean = {false}
 
-
-
-
+  }
 }

@@ -18,4 +18,5 @@ class ScalaToolsFactoryImpl extends ScalaToolsFactory {
   def createScalaFoldingBuilder: ScalaFoldingBuilder = {
     new ScalaFoldingBuilder()
   }
+
 }
