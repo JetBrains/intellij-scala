@@ -73,8 +73,14 @@ package org.jetbrains.plugins.scala.lang.folding{
     private def appendDescriptors (node: ASTNode,
                                    document: Document,
                                    descriptors: ListBuffer[FoldingDescriptor]): Unit = {
-      if (node.getElementType() == ScalaElementTypes.BLOCK_EXPR) {
-         descriptors += (new FoldingDescriptor(node, node.getTextRange()))
+
+      node.getElementType match {
+        case ScalaElementTypes.BLOCK_EXPR      |
+             ScalaElementTypes.PACKAGING_BLOCK |
+             ScalaElementTypes.TEMPLATE_BODY => {
+               descriptors += (new FoldingDescriptor(node, node.getTextRange()))
+             }
+        case _ => {}
       }
 
       var child = node.getFirstChildNode()
@@ -100,12 +106,14 @@ package org.jetbrains.plugins.scala.lang.folding{
 
     def getPlaceholderText(node : ASTNode): String = {
       if (node.getElementType() == ScalaElementTypes.BLOCK_EXPR) {
-         return "{...}";
+         "{...}";
       }
       null
     }
 
-    def isCollapsedByDefault(node: ASTNode): Boolean = {false}
+    def isCollapsedByDefault(node: ASTNode): Boolean = {
+      false  
+    }
 
   }
 }
