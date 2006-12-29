@@ -4,6 +4,7 @@ import com.intellij.lang.Language;
 import com.intellij.lang.PairedBraceMatcher;
 import com.intellij.lang.Commenter;
 import com.intellij.lang.ParserDefinition;
+import com.intellij.lang.folding.FoldingBuilder;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -12,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter;
 import org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher;
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter;
-import org.jetbrains.plugins.scala.util.ScalaParserDefinitionFactory;
+import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
 //import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition;
 
 /**
@@ -33,9 +34,12 @@ public class ScalaLanguage extends Language {
     super("Scala");
   }
 
+  public FoldingBuilder getFoldingBuilder() {
+    return ScalaToolsFactory.getInstance().createScalaFoldingBuilder();
+  }
+
   public ParserDefinition getParserDefinition() {
-    return ScalaParserDefinitionFactory.getInstance().createScalaParserDefinition();
-    //return new ScalaParserDefinition();
+    return ScalaToolsFactory.getInstance().createScalaParserDefinition();
   }
 
   @NotNull
