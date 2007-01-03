@@ -12,7 +12,9 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaFileType;
 
+import javax.swing.*;
 import java.io.File;
 
 /**
@@ -218,6 +220,10 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
 
   public String getPresentableName() {
     return "Scala SDK";
+  }
+
+  public Icon getIcon() {
+    return ScalaFileType.SCALA_LOGO;
   }
 
   @NonNls

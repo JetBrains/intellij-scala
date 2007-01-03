@@ -15,6 +15,7 @@ import javax.swing.*;
 public class ScalaFileType extends LanguageFileType {
 
   public static final ScalaFileType SCALA_FILE_TYPE = new ScalaFileType();
+  public static final Icon SCALA_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_logo.png");
 
   private ScalaFileType() {
     super(new ScalaLanguage());
@@ -38,6 +39,6 @@ public class ScalaFileType extends LanguageFileType {
   }
 
   public Icon getIcon() {
-    return IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_logo.png");
+    return SCALA_LOGO;
   }
 }
