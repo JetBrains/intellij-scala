@@ -16,7 +16,9 @@ import java.io.File;
  */
 public class ScalacOSProcessHandler extends OSProcessHandler {
   private CompileContext myContext;
-  private boolean mySkipNextLine;
+  private Integer myLineNumber;
+  private String myMessage;
+  private String myUrl;
 
   public ScalacOSProcessHandler(GeneralCommandLine commandLine, CompileContext context) throws ExecutionException {
     super(commandLine.createProcess(), commandLine.getCommandLineString());
@@ -34,11 +36,22 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
   private static final String ourInfoMarkerEnd = "]";
   private static final String ourParsingMarker = "parsing";
   private static final String ourWroteMarker = "wrote";
+  private static final String ourColumnMarker = "^";
+
+  private boolean myColumnOnNextLine = false;
 
 
   private void parseOutput(String text) {
-    if (mySkipNextLine) {
-      mySkipNextLine = false;
+    if (myMessage != null) {
+      if (myColumnOnNextLine) {
+        int column = text.indexOf(ourColumnMarker);
+        if (column < 0) column = 1;
+        myContext.addMessage(CompilerMessageCategory.ERROR, myMessage, myUrl, myLineNumber, column);
+        myMessage = null;
+        myColumnOnNextLine = false;
+      } else {
+        myColumnOnNextLine = true;
+      }
       return;
     }
 
@@ -51,18 +64,14 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
       String errorPlace = text.substring(0, i);
       int j = errorPlace.lastIndexOf(':');
       if (j > 0) {
-        String url = VirtualFileManager.constructUrl(LocalFileSystem.PROTOCOL,
+        myUrl = VirtualFileManager.constructUrl(LocalFileSystem.PROTOCOL,
             errorPlace.substring(0, j).replace(File.separatorChar, '/'));
-        
+
         try {
-          Integer lineNumber = Integer.valueOf(errorPlace.substring(j + 1, errorPlace.length()));
-          String message = text.substring(i + 1).trim();
-          myContext.addMessage(CompilerMessageCategory.ERROR, message, url, lineNumber, 1);
-          mySkipNextLine = true;
-          return;
+          myLineNumber = Integer.valueOf(errorPlace.substring(j + 1, errorPlace.length()));
+          myMessage = text.substring(i + 1).trim();
         } catch (NumberFormatException e) {
           myContext.addMessage(CompilerMessageCategory.INFORMATION, "", text, -1, -1);
-          return;
         }
       }
     } else {
