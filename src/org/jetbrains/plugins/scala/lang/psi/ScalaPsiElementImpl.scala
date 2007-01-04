@@ -4,22 +4,31 @@ import com.intellij.psi.PsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.openapi.util.Key
+import com.intellij.psi.tree.TokenSet
 
 import javax.swing.Icon
 
 class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement( node )
   with ScalaPsiElement {
+    def childrenOfType[T <: ScalaPsiElementImpl] (tokSet : TokenSet) : Iterable[T] = new Iterable[T] () {
+     def elements = new Iterator[T] () {
+        private def findChild (child : ASTNode) : ASTNode = child match {
+           case null => null
+           case _ => if (tokSet.contains(child.getElementType())) child else findChild (child.getTreeNext)
+        }
 
-    def getChildNumber[T <: ScalaPsiElementImpl] : Int = {
-      def inner (e : PsiElement, num : Int) : Int = e match {
-         case null => -1
-         case me : T => num
-         case _ => inner (e.getNextSibling (), num + 1)
+        var n : ASTNode = findChild (getNode.getFirstChildNode)
+
+        def hasNext = n != null
+
+        def next : T =  if (n == null) null.asInstanceOf[T] else {
+          val res = n
+          n = findChild (n.getTreeNext) 
+          res.getPsi().asInstanceOf[T]
+        }
       }
-
-      inner (getFirstChild (), 0)
     }
-
+    
     def hasChild[T <: ScalaPsiElementImpl] : Boolean = {
       return getChild[T] != null
     }
