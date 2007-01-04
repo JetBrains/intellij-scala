@@ -5,6 +5,7 @@ import com.intellij.psi.tree.IFileElementType
 import com.intellij.lang.Language
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.ScalaLanguage
+import com.intellij.psi.tree.TokenSet
 
 /**
  * User: Dmitry.Krasilschikov
@@ -49,17 +50,14 @@ object ScalaElementTypes {
   //val TEMPLATE_STAT = new ScalaElementType("template statement")
 
   /******************* OBJECT ************************/
-  val OBJECT = new ScalaElementType("object")
   val OBJECT_DEF = new ScalaElementType("object definition")
   val OBJECT_TEMPLATE = new ScalaElementType("object template")
 
   /******************* TRAIT ************************/
-  val TRAIT = new ScalaElementType("trait")
   val TRAIT_DEF = new ScalaElementType("trait definition")
 //  val TRAIT_TEMPLATE = new ScalaElementType("trait template")
 
   /******************* CLASS ************************/
-  val CLASS = new ScalaElementType("class")
   val CLASS_DEF = new ScalaElementType("class definition")
 
   val REQUIRES_BLOCK = new ScalaElementType("requires block")
@@ -291,4 +289,8 @@ object ScalaElementTypes {
 
 
   //todo: supplement elements
+
+  val PACKAGING_BIT_SET = TokenSet.create (Array.apply(PACKAGING))
+
+  val TMPL_DEF_BIT_SET = TokenSet.create (Array.apply(OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
 }

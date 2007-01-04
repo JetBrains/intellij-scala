@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl {
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs.TmplDef
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 /**
  * User: Dmitry.Krasilschikov
@@ -13,9 +14,7 @@ import com.intellij.lang.ASTNode
   class ScFile ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "file"
 
-    def getPackaging : Array[ScPackaging] = {
-      for (val child <- getChildren; child.isInstanceOf[ScPackaging]) yield child.asInstanceOf[ScPackaging] 
-    }
+    def getPackaging : Iterable[ScPackaging] = childrenOfType[ScPackaging] (ScalaElementTypes.PACKAGING_BIT_SET)
   }
 
   class ScCompilationUnit ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
@@ -25,15 +24,11 @@ import com.intellij.lang.ASTNode
   class ScPackaging ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "Packaging"
 
-    def getTmplDefs : Seq[TmplDef] = {
-      for (val tmplDef <- getChildren; tmplDef.isInstanceOf[TmplDef]) yield tmplDef.asInstanceOf[TmplDef]
-    }
+    def getTmplDefs : Iterable[TmplDef] = childrenOfType[TmplDef] (ScalaElementTypes.TMPL_DEF_BIT_SET)
 
     def getFullPackageName : String = {
-      // package(0) a.b.c.d(1)
-      val children = getChildren
-      if (children(1).isInstanceOf[ScQualId]) children(1).asInstanceOf[ScQualId].getFullName
-      else null
+      val qualId = getChild[ScQualId]
+      if (qualId == null) null else qualId.getFullName
     }
   }
 
@@ -46,10 +41,8 @@ import com.intellij.lang.ASTNode
 
     //nullable
     def getFullPackageName : String = {
-      // package(0) a.b.c.d(1)
-      val children = getChildren
-      if (children(1).isInstanceOf[ScQualId]) children(1).asInstanceOf[ScQualId].getFullName
-      else null
+      val qualId = getChild[ScQualId]
+      if (qualId == null) null else qualId.getFullName
     }
   }
 
