@@ -45,15 +45,7 @@ package org.jetbrains.plugins.scala.lang.folding{
     def buildFoldRegions(astNode: ASTNode, document: Document) : Array[FoldingDescriptor] = {
       var descriptors = new ListBuffer[FoldingDescriptor]
       appendDescriptors(astNode, document, descriptors);
-      var list = descriptors.toList
-      var dArray = new Array[FoldingDescriptor](descriptors.length)
-      var i = 0
-      while (!list.isEmpty) {
-        dArray(i) = list.head
-        list = list.drop(1)
-        i=i+1
-      }
-      dArray
+      descriptors.toList.toArray
     }
 
     def getPlaceholderText(node : ASTNode): String = {
