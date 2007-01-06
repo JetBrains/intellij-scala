@@ -14,13 +14,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
  * Time: 15:08:18
  */
 /*************** definitions **************/
-  abstract class TmplDef( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+  abstract class ScTmplDef( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "template definition"
 
     def getTemplateName : String
 
-    def isTypeDef : boolean = { this.isInstanceOf[TypeDef] }
-    def isInstanceDef : boolean = { this.isInstanceOf[InstanceDef] }
+    def isTypeDef : boolean = { this.isInstanceOf[ScTypeDef] }
+    def isInstanceDef : boolean = { this.isInstanceOf[ScInstanceDef] }
 
     //todo: getQualifiedName
     //todo:if there is no package
@@ -43,7 +43,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
     def getTemplate = getChild[ScTopDefTemplate]
   }
 
-  trait TypeDef extends TmplDef {
+  trait ScTypeDef extends ScTmplDef {
     def getTypeParameterClause : ScTypeParamClause = {
       getChild[ScTypeParamClause]
     }
@@ -54,7 +54,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
     def hasRequiresBlock = hasChild[ScRequiresBlock]
   }
 
-  trait InstanceDef extends TmplDef {
+  trait ScInstanceDef extends ScTmplDef {
     def isCase : boolean = getFirstChild.getText == "case"
 
     //[case] class A
@@ -63,15 +63,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
 
   }
 
-  case class ScClassDefinition( node : ASTNode ) extends InstanceDef (node) with TypeDef {
+  case class ScClassDefinition( node : ASTNode ) extends ScInstanceDef (node) with ScTypeDef {
     override def toString: String = super.toString + ": " + "class"
   }
 
-  case class ScObjectDefinition( node : ASTNode ) extends InstanceDef ( node ) {
+  case class ScObjectDefinition( node : ASTNode ) extends ScInstanceDef ( node ) {
     override def toString: String = super.toString + ": " + "object"
   }
 
-  case class ScTraitDefinition( node : ASTNode ) extends TypeDef (node){
+  case class ScTraitDefinition( node : ASTNode ) extends ScTypeDef (node){
     override def toString: String = super.toString + ": " + "trait"
 
     override def getTemplateName : String = {val children = getChildren; children(1).getText}
