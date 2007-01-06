@@ -10,7 +10,7 @@ import javax.swing.Icon
 
 class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement( node )
   with ScalaPsiElement {
-    def childrenOfType[T <: ScalaPsiElementImpl] (tokSet : TokenSet) : Iterable[T] = new Iterable[T] () {
+    def childrenOfType[T >: Null <: ScalaPsiElementImpl] (tokSet : TokenSet) : Iterable[T] = new Iterable[T] () {
      def elements = new Iterator[T] () {
         private def findChild (child : ASTNode) : ASTNode = child match {
            case null => null
@@ -21,7 +21,7 @@ class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement( node )
 
         def hasNext = n != null
 
-        def next : T =  if (n == null) null.asInstanceOf[T] else {
+        def next : T =  if (n == null) null else {
           val res = n
           n = findChild (n.getTreeNext) 
           res.getPsi().asInstanceOf[T]
@@ -29,12 +29,12 @@ class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement( node )
       }
     }
     
-    def hasChild[T <: ScalaPsiElementImpl] : Boolean = {
+    def hasChild[T >: Null <: ScalaPsiElementImpl] : Boolean = {
       return getChild[T] != null
     }
 
     //nullable
-    def getChild[T <: ScalaPsiElementImpl] : T = {
+    def getChild[T >: Null <: ScalaPsiElementImpl] : T = {
       def inner (e : PsiElement) : PsiElement = e match {
          case null => null
          case me : T => me
@@ -46,7 +46,7 @@ class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement( node )
 
   def getASTNode() : ASTNode = node
 
-  override def getUserData[T >: Null <: java.lang.Object]( key : Key[T] ) : T = null.asInstanceOf[T]
+  override def getUserData[T >: Null <: java.lang.Object]( key : Key[T] ) : T = null
 
   override def putUserData[T >: Null <: java.lang.Object]( key : Key[T] , value : T) : Unit = {}
 
