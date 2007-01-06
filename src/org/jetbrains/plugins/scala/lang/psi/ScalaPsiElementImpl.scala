@@ -8,6 +8,9 @@ import com.intellij.psi.tree.TokenSet
 
 import javax.swing.Icon
 
+/**
+  @author ven
+*/
 class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement( node )
   with ScalaPsiElement {
     def childrenOfType[T >: Null <: ScalaPsiElementImpl] (tokSet : TokenSet) : Iterable[T] = new Iterable[T] () {
