@@ -674,7 +674,6 @@ def b1Case: ScalaElementType = {
     }
 
     /* Parsing function body */
-
     /* case (throw) */
     if (variants(throwCase)) result
     /* case (return) */
@@ -701,7 +700,6 @@ def b1Case: ScalaElementType = {
       compMarker.rollbackTo()
       ScalaElementTypes.WRONGWAY
     }
-
   }
 
 }
