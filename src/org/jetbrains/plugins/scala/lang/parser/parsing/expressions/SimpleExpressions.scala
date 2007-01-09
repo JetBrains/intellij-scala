@@ -189,7 +189,6 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
             flag = true
             endness = ".id"
           }
-          // ... other cases
         }
       }
       if (flag) subParse(result , endness)
@@ -255,7 +254,6 @@ FIRST(PrefixExpression) = ScalaTokenTypes.tPLUS
         result = ScalaElementTypes.PREFIX_EXPR
         marker.done(ScalaElementTypes.PREFIX_EXPR)
       } else marker.drop()
-
       result
     }
   }
