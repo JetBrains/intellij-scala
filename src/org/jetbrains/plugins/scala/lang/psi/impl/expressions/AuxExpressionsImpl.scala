@@ -8,6 +8,11 @@ import com.intellij.psi._
 
 import org.jetbrains.plugins.scala.lang.psi._
 
+  class ScExpression ( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "expression"
+  }
+
+  //todo: extends ScExpression
   case class ScArgumentExprsImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "Argument expressions"
   }
