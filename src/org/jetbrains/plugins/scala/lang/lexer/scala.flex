@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
     private Stack <IElementType> braceStack = new Stack<IElementType>();
 
     // Stack for comment positions
-    private Stack <int> commentStack = new Stack<int>();
+//    private Stack <int> commentStack = new Stack<int>();
 
     /* Defines, is in this section new line is whitespace or not? */
     private boolean newLineAllowed(){
