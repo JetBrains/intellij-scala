@@ -12,6 +12,11 @@ import org.jetbrains.plugins.scala.lang.psi._
       def getType() : PsiType = null
   }
 
+  case class ScSimpleExprImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Simple expression"
+      def getType() : PsiType = null
+  }
+
   case class ScPrefixExprImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "Prefix expression"
       def getType() : PsiType = null

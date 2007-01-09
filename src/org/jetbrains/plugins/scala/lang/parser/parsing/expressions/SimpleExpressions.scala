@@ -76,39 +76,62 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
           new SimpleExprResult(ScalaElementTypes.SIMPLE_EXPR, "plain")
       }
 
-      def subParse(_res: ScalaElementType, stringRes: String): SimpleExprResult = {
+      def subParse(_res: ScalaElementType, stringRes: String , simpleMarker1: PsiBuilder.Marker ): SimpleExprResult = {
 
         /* case (a) */
         if (builder.getTokenType.eq(ScalaTokenTypes.tDOT))  {
+
+          var nextMarker = simpleMarker1.precede()
+          simpleMarker1.done(ScalaElementTypes.SIMPLE_EXPR)
+
           ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
           builder.getTokenType match {
             case ScalaTokenTypes.tIDENTIFIER => {
               ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-              subParse(ScalaElementTypes.SIMPLE_EXPR, ".id")
+              subParse(ScalaElementTypes.SIMPLE_EXPR, ".id", nextMarker
+              )
             }
             case _ => {
               builder.error("Identifier expected")
+              nextMarker.done(ScalaElementTypes.SIMPLE_EXPR)
               new SimpleExprResult(ScalaElementTypes.WRONGWAY, "wrong")
             }
           }
         /* case (b) */
         } else if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS) ||
                    builder.getTokenType.eq(ScalaTokenTypes.tLBRACE)) {
+
+          var nextMarker = simpleMarker1.precede()
+          simpleMarker1.done(ScalaElementTypes.SIMPLE_EXPR)
+
           var res = ArgumentExprs.parse(builder)
-          if (res.eq(ScalaElementTypes.ARG_EXPRS)) subParse (ScalaElementTypes.SIMPLE_EXPR,"argexprs")
+          if (res.eq(ScalaElementTypes.ARG_EXPRS)) {
+            subParse (ScalaElementTypes.SIMPLE_EXPR,"argexprs", nextMarker
+            )
+          }
           else {
             builder.error("Arguments expected")
+            nextMarker.done(ScalaElementTypes.SIMPLE_EXPR)
             new SimpleExprResult(ScalaElementTypes.WRONGWAY, "wrong")
           }
         /* case (c) */ 
         } else if (builder.getTokenType.eq(ScalaTokenTypes.tLSQBRACKET)) {
+
+          var nextMarker = simpleMarker1.precede()
+          simpleMarker1.done(ScalaElementTypes.SIMPLE_EXPR)
+
           var res = TypeArgs.parse(builder)
-          if (res.eq(ScalaElementTypes.TYPE_ARGS)) subParse(ScalaElementTypes.SIMPLE_EXPR,"typeargs")
+          if (res.eq(ScalaElementTypes.TYPE_ARGS)) {
+            subParse(ScalaElementTypes.SIMPLE_EXPR,"typeargs", nextMarker
+            )
+          }
           else {
             builder.error("Type argument expected")
+            nextMarker.done(ScalaElementTypes.SIMPLE_EXPR)
             new SimpleExprResult(ScalaElementTypes.WRONGWAY, "wrong")
           }
         } else {
+          simpleMarker1.drop()
           new SimpleExprResult(_res, stringRes)
         }
       }
@@ -116,12 +139,14 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
       var flag = false
       var endness = "wrong"
       var result = ScalaElementTypes.WRONGWAY
+      var simpleMarker = builder.mark()
 
       /* case (h) */
       if (ScalaTokenTypes.kNEW.equals(builder.getTokenType))  {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kNEW)
         Template.parseBody(builder)
-        //TODO!!!
+        simpleMarker.done(ScalaElementTypes.SIMPLE_EXPR)
+        simpleMarker = builder.mark()
         result = ScalaElementTypes.TEMPLATE
         endness = "plain"
         flag = true
@@ -162,10 +187,10 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
               result = res
               endness = "plain"
               flag = true
-
-//              flag = false
             }
-          } else flag = false
+          } else {
+            flag = false
+          }
         }
       } else {
         /* case (d) */
@@ -191,8 +216,13 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
           }
         }
       }
-      if (flag) subParse(result , endness)
-        else new SimpleExprResult(ScalaElementTypes.WRONGWAY , "wrong")
+      if (flag) {
+          subParse(result , endness, simpleMarker)
+        }
+      else {
+        simpleMarker.drop()
+        new SimpleExprResult(ScalaElementTypes.WRONGWAY , "wrong")
+      }
     }
 
 
