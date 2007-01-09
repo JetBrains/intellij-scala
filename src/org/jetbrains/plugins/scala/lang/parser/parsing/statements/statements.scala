@@ -188,7 +188,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           (new Pattern2()).parse(builder)
         } else {
           builder error "expected pattern"
-          return ScalaElementTypes.WRONGWAY
         }
 
         var numberOfPattern2s = 1;
@@ -202,6 +201,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
           } else {
             builder error "expected pattern"
+            pattern2sMarker.drop()
             return ScalaElementTypes.WRONGWAY
           }
         }
