@@ -75,7 +75,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
                 argMarker.rollbackTo()
                 rollbackMarker.drop()
                 if (ScalaElementTypes.SIMPLE_EXPR.equals(result)){
-                  compMarker.done (ScalaElementTypes.EXPR)
+                  compMarker.done (ScalaElementTypes.SIMPLE_EXPR)
                 }
                 else compMarker.drop
                 ScalaElementTypes.EXPR1
@@ -129,7 +129,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
               }
               else {
                 rollbackMarker.drop()
-                compMarker.done(ScalaElementTypes.EXPR)
+                compMarker.done(result)
                 ScalaElementTypes.EXPR1
               }
             }

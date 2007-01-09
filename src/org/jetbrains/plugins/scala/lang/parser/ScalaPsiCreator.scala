@@ -173,11 +173,11 @@ object ScalaPsiCreator {
     /******************* EXPRESSIONS*********************/
 
     case ScalaElementTypes.PREFIX_EXPR => new ScPrefixExprImpl(node)
+    case ScalaElementTypes.SIMPLE_EXPR => new ScSimpleExprImpl(node)
     case ScalaElementTypes.UNIT => new ScUnitImpl(node)
-    case ScalaElementTypes.PREFIX => new ScPrefixImpl(node)
+//    case ScalaElementTypes.PREFIX => new ScPrefixImpl(node)
     case ScalaElementTypes.INFIX_EXPR => new ScInfixExprImpl(node)
     case ScalaElementTypes.POSTFIX_EXPR => new ScPostfixExprImpl(node)
-//    case ScalaElementTypes.EXPR1 => new ScCompositeExprImpl(node)
     case ScalaElementTypes.EXPR => new ScExprImpl(node)
     case ScalaElementTypes.RESULT_EXPR => new ScResExprImpl(node)
     case ScalaElementTypes.BINDING => new ScBindingImpl(node)
