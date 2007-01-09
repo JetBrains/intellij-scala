@@ -149,11 +149,17 @@ object CompilationUnit extends ConstrWithoutNode {
       var isAfterBlock = false;
       var unstructuredTrashMarker : PsiBuilder.Marker = builder.mark;
 
+      var lexerOffset : Int = -1
       while (!builder.eof){
 //        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) || builder.eof) {
 //          unstructuredTrashMarker.drop
 //          return
 //        }
+        if (lexerOffset == builder.getCurrentOffset) {
+          builder advanceLexer
+        }
+
+        lexerOffset = builder.getCurrentOffset
       
         if (BNF.firstTopStat.contains(builder.getTokenType)) {
           TopStat parse builder
@@ -478,12 +484,12 @@ object CompilationUnit extends ConstrWithoutNode {
           builder error "expected qualified identifier"
         }
 
-        var packageBlockMarker = builder.mark
+//        var packageBlockMarker = builder.mark
         if ( ScalaTokenTypes.tLBRACE.equals(builder.getTokenType) ){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
         } else {
           builder.error("expected '{'")
-          packageBlockMarker.drop
+//          packageBlockMarker.drop
           return
         }
 
@@ -491,11 +497,11 @@ object CompilationUnit extends ConstrWithoutNode {
 
         if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
-          packageBlockMarker.done(ScalaElementTypes.PACKAGING_BLOCK)
+//          packageBlockMarker.done(ScalaElementTypes.PACKAGING_BLOCK)
 
         } else {
           builder.error("expected '}'")
-          packageBlockMarker.drop
+//          packageBlockMarker.drop
           return
         }
       }
