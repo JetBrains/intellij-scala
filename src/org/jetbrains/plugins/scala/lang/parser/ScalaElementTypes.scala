@@ -234,16 +234,15 @@ object ScalaElementTypes {
   val WHILE_STMT = new ScalaElementType("while statement")
   val DO_STMT = new ScalaElementType("while statement")
   val TRY_STMT = new ScalaElementType("try statement")
-    val TRY_BLOCK = new ScalaElementType("try block")
-    val CATCH_BLOCK = new ScalaElementType("catch block")
-    val FINALLY_BLOCK = new ScalaElementType("finally block")
+  val TRY_BLOCK = new ScalaElementType("try block")
+  val CATCH_BLOCK = new ScalaElementType("catch block")
+  val FINALLY_BLOCK = new ScalaElementType("finally block")
   val RETURN_STMT = new ScalaElementType("return statement")
   val METHOD_CLOSURE = new ScalaElementType("method closure")
   val THROW_STMT = new ScalaElementType("throw statement")
   val ASSIGN_STMT = new ScalaElementType("assign statement")
   val MATCH_STMT = new ScalaElementType("match statement")
   val TYPED_EXPR_STMT = new ScalaElementType("typed statement")
-
 
 
 
@@ -290,7 +289,13 @@ object ScalaElementTypes {
 
   //todo: supplement elements
 
-  val PACKAGING_BIT_SET = TokenSet.create (Array.apply(PACKAGING))
+  val a = new Array[IElementType](1)
+  a.update(0, PACKAGING);
+  val PACKAGING_BIT_SET = TokenSet.create ( a )
 
-  val TMPL_DEF_BIT_SET = TokenSet.create (Array.apply(OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
+  val a1 = new Array[IElementType](3)
+  a1.update(0, OBJECT_DEF)
+  a1.update(1, CLASS_DEF)
+  a1.update(2, TRAIT_DEF)
+  val TMPL_DEF_BIT_SET = TokenSet.create (a1)
 }

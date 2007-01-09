@@ -18,6 +18,7 @@ public class ScalaBraceMatcher implements PairedBraceMatcher {
   };
 
   public BracePair[] getPairs() {
+    
     return PAIRS;
   }
 }

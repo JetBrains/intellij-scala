@@ -27,7 +27,7 @@ object ScalaPsiCreator {
 
     /*****************************************************/
     /********************* FILE **************************/
-    /*****************************************************/
+
      case ScalaElementTypes.FILE => new ScFile(node)
      case ScalaElementTypes.COMPILATION_UNIT => new ScCompilationUnit(node)
 

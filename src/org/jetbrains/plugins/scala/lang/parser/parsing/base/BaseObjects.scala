@@ -131,7 +131,7 @@ object Attribute extends Constr{
 
     override def parseBody(builder: PsiBuilder): Unit = {
 
-      if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+      if (BNF.firstStableId.contains(builder.getTokenType)) {
         StableId.parse(builder)
       } else {
         builder.error("expected identifier")
