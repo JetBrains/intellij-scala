@@ -29,7 +29,7 @@ package org.jetbrains.plugins.scala.lang.folding{
              ScalaElementTypes.TEMPLATE_BODY  => {
           descriptors += (new FoldingDescriptor(node, node.getTextRange()))
         }
-        case ScalaTokenTypes.tDOC_COMMENT => {
+        case ScalaTokenTypes.tBLOCK_COMMENT => {
           descriptors += (new FoldingDescriptor(node, node.getTextRange()))
         }
         case _ => {}
@@ -55,7 +55,7 @@ package org.jetbrains.plugins.scala.lang.folding{
              ScalaElementTypes.TEMPLATE_BODY  => {
                "{...}"
              }
-        case ScalaTokenTypes.tDOC_COMMENT => {
+        case ScalaTokenTypes.tBLOCK_COMMENT => {
           "/*...*/"
         }
         case _ => null
@@ -63,7 +63,7 @@ package org.jetbrains.plugins.scala.lang.folding{
     }
 
     def isCollapsedByDefault(node: ASTNode): Boolean = {
-      false  
+      node.getElementType == ScalaTokenTypes.tBLOCK_COMMENT
     }
 
   }

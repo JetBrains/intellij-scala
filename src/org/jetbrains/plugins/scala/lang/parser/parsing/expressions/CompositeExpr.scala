@@ -86,15 +86,18 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           case ScalaTokenTypes.kMATCH => {
             ParserUtils.eatElement(builder, ScalaTokenTypes.kMATCH)
             if (builder.getTokenType.eq(ScalaTokenTypes.tLBRACE)) {
+              var braceMarker = builder.mark()
               ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
               var result = CaseClauses.parse(builder)
               if (ScalaElementTypes.CASE_CLAUSES.equals(result)) {
                 if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){
                   ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+                  braceMarker.done(ScalaElementTypes.BLOCK_EXPR)
                   rollbackMarker.drop()
                   compMarker.done(ScalaElementTypes.MATCH_STMT)
                   ScalaElementTypes.EXPR1
                 } else {
+                  braceMarker.drop()
                   builder.error("Case clauses expected")
                   rollbackMarker.drop()
                   ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
@@ -102,6 +105,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
                   ScalaElementTypes.EXPR1
                 }
               } else {
+                braceMarker.drop()
                 builder.error("Case clauses expected")
                 rollbackMarker.drop()
                 ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)

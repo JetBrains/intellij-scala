@@ -237,7 +237,7 @@ object Attribute extends Constr{
             Type parse builder
           } else {
             builder error "expected identifier"
-            return
+            return                           
           }
         }
       }

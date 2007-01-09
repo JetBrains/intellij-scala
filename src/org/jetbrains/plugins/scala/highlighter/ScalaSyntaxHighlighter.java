@@ -21,7 +21,8 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
     // Comments
     static final TokenSet tCOMMENTS = TokenSet.create(
-            ScalaTokenTypes.tCOMMENT
+            ScalaTokenTypes.tCOMMENT,
+            ScalaTokenTypes.tBLOCK_COMMENT
     );
 
     // XML tags

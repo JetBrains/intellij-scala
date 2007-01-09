@@ -134,6 +134,17 @@ plainid = {varid}
           | {op}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////// Comments ////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+//C_STYLE_COMMENT=("/*"[^"*"]{COMMENT_TAIL})|"/*"
+C_STYLE_COMMENT=("/*"[special]{COMMENT_TAIL})|"/*"
+DOC_COMMENT="/*""*"+("/"|([^"/""*"]{COMMENT_TAIL}))?
+COMMENT_TAIL=([^"*"]*("*"+[^"*""/"])?)*("*"+"/")?
+END_OF_LINE_COMMENT="/""/"[^\r\n]*
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// String & chars //////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -211,8 +222,13 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 <PROCESS_NEW_LINE>{
 
 {WhiteSpaceInLine}                              { return process(tWHITE_SPACE_IN_LINE);  }
-"//" .*                                         { return process(tCOMMENT); }
-"/*" {special}* ~ "*/"                          { return process(tCOMMENT); }
+//"//" .*                                         { return process(tCOMMENT); }
+//  "/*" {special}* ~ "*/"                          { return process(tBLOCK_COMMENT); }
+
+{END_OF_LINE_COMMENT}                           { return process(tCOMMENT); }
+{C_STYLE_COMMENT}                               { return process(tCOMMENT); }
+{DOC_COMMENT}                                   { return process(tBLOCK_COMMENT); }
+
 
 {LineTerminator} / ({WhiteSpaceInLine})* {specNotFollow} {identifier}
                                                 {   changeState();
@@ -276,15 +292,15 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 /////////////////////// comments ///////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-"//" .*                                    { return process(tCOMMENT); }
-
-
+//"//" .*                                    { return process(tCOMMENT); }
 //"/*" {special}*                           {   yybegin(IN_BLOCK_COMMENT_STATE);
 //                                              return process(tCOMMENT);
 //                                          }
+//"/*" {special}* ~ "*/"                      {   return process(tBLOCK_COMMENT); }
 
-
-"/*" {special}* ~ "*/"                      {   return process(tCOMMENT); }
+{END_OF_LINE_COMMENT}                           { return process(tCOMMENT); }
+{C_STYLE_COMMENT}                               { return process(tCOMMENT); }
+{DOC_COMMENT}                                   { return process(tBLOCK_COMMENT); }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
