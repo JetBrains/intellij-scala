@@ -56,7 +56,7 @@ package org.jetbrains.plugins.scala.lang.folding{
                "{...}"
              }
         case ScalaTokenTypes.tBLOCK_COMMENT => {
-          "/*...*/"
+          "/**...*/"
         }
         case _ => null
       }
