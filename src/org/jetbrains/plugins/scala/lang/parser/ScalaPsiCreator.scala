@@ -161,6 +161,7 @@ object ScalaPsiCreator {
     /********************** TYPES ************************/
 
     case ScalaElementTypes.STABLE_ID => new ScStableIdImpl(node)
+    case ScalaElementTypes.STABLE_ID_ID => new ScStableIdImpl(node)
     case ScalaElementTypes.PATH => new ScPathImpl(node)
     case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeImpl(node)
     case ScalaElementTypes.TYPE => new ScTypeImpl(node)
