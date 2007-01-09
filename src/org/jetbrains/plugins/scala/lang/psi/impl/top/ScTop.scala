@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala.lang.psi.impl {
+package org.jetbrains.plugins.scala.lang.psi.impl.top {
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.top.defs.TmplDef
+import org.jetbrains.plugins.scala.lang.psi.impl.top.defs.ScTmplDef
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
   class ScPackaging ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "Packaging"
 
-    def getTmplDefs : Iterable[TmplDef] = childrenOfType[TmplDef] (ScalaElementTypes.TMPL_DEF_BIT_SET)
+    def getTmplDefs : Iterable[ScTmplDef] = childrenOfType[ScTmplDef] (ScalaElementTypes.TMPL_DEF_BIT_SET)
 
     def getFullPackageName : String = {
       val qualId = getChild[ScQualId]
