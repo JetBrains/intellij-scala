@@ -24,8 +24,7 @@ package org.jetbrains.plugins.scala.lang.folding{
                                    descriptors: ListBuffer[FoldingDescriptor]): Unit = {
 
       node.getElementType match {
-        case ScalaElementTypes.BLOCK_EXPR      |
-             ScalaElementTypes.PACKAGING_BLOCK |
+        case ScalaElementTypes.PACKAGING_BLOCK |
              ScalaElementTypes.TEMPLATE_BODY  => {
           descriptors += (new FoldingDescriptor(node, node.getTextRange()))
         }
@@ -50,8 +49,7 @@ package org.jetbrains.plugins.scala.lang.folding{
 
     def getPlaceholderText(node : ASTNode): String = {
       node.getElementType match {
-        case ScalaElementTypes.BLOCK_EXPR      |
-             ScalaElementTypes.PACKAGING_BLOCK |
+        case ScalaElementTypes.PACKAGING_BLOCK |
              ScalaElementTypes.TEMPLATE_BODY  => {
                "{...}"
              }
