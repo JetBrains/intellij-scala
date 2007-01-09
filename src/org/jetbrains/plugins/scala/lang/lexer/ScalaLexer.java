@@ -11,6 +11,7 @@ import java.io.Reader;
  */
 public class ScalaLexer extends FlexAdapter {
   public ScalaLexer() {
-    super(new _ScalaLexer((Reader) null));
+
+    super(new _ScalaLexer((Reader)  null));
   }
 }
