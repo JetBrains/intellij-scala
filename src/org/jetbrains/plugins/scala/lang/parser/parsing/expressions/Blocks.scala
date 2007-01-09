@@ -207,14 +207,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
       def parseExpr1: ScalaElementType = {
         var result = CompositeExpr.parse(builder)
         if (!(result == ScalaElementTypes.WRONGWAY)) {
-          //blockStatMarker.done(ScalaElementTypes.BLOCK_STAT)
           blockStatMarker.drop
-          //ScalaElementTypes.EXPR1
           result
         }
         else {
           blockStatMarker.rollbackTo()
-          //blockStatMarker.done(ScalaElementTypes.WRONG_EXPR)
           ScalaElementTypes.BLOCK_STAT
         }
       }

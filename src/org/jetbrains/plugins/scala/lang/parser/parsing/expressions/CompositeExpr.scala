@@ -118,12 +118,26 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
             }
           }
           case _ => {
-            rollbackMarker.drop()
-            if (ScalaElementTypes.SIMPLE_EXPR.equals(result)){
-              compMarker.done (ScalaElementTypes.EXPR)
+            if (!ScalaElementTypes.INFIX_EXPR.equals(result) &&
+                !ScalaElementTypes.POSTFIX_EXPR.equals(result) &&
+                !ScalaElementTypes.PREFIX_EXPR.equals(result) ){
+              if (ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)     ||
+                  ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType) ||
+                  ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)  ) {
+                rollbackMarker.rollbackTo()
+                ScalaElementTypes.WRONGWAY
+              }
+              else {
+                rollbackMarker.drop()
+                compMarker.done(ScalaElementTypes.EXPR)
+                ScalaElementTypes.EXPR1
+              }
             }
-            else compMarker.drop
-            ScalaElementTypes.EXPR1
+            else {
+              rollbackMarker.drop()
+              compMarker.drop
+              ScalaElementTypes.EXPR1
+            }
           }
         }
       } else {
@@ -183,13 +197,44 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
         processSimpleExpr
       } else {
         processSimpleExpr
-        /*
-        rollbackMarker.rollbackTo()
-        ScalaElementTypes.WRONGWAY
-        */
       }
     }
 
+
+/*
+  id = Expr
+*/
+def b1Case: ScalaElementType = {
+
+      var rollbackMarker = builder.mark() // marker to rollback
+
+      def assignProcess: ScalaElementType = {
+        ParserUtils.eatElement(builder , ScalaTokenTypes.tASSIGN)
+        var res = Expr.parse(builder)
+        if (res.eq(ScalaElementTypes.EXPR)) {
+          rollbackMarker.drop()
+          compMarker.done (ScalaElementTypes.ASSIGN_STMT)
+          ScalaElementTypes.EXPR1
+        } else {
+          rollbackMarker.drop()
+          compMarker.error("Expression expected")
+          ScalaElementTypes.EXPR1
+        }
+      }
+
+      if (builder.getTokenType.eq(ScalaTokenTypes.tIDENTIFIER)) {
+        ParserUtils.eatElement(builder , ScalaTokenTypes.tIDENTIFIER)
+        if (builder.getTokenType.eq(ScalaTokenTypes.tASSIGN)) {
+          assignProcess
+        } else {
+          rollbackMarker.rollbackTo()
+          ScalaElementTypes.WRONGWAY
+        }
+      } else {
+          rollbackMarker.drop()
+          ScalaElementTypes.WRONGWAY
+      }
+    }
 
 /******************************* case (if) ****************************/
     def ifCase: ScalaElementType = {
@@ -646,10 +691,12 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
     else if (variants(whileCase)) result
     /* case (do) */
     else if (variants(doCase)) result
-    /* cases (b1), (b2) */
-    else if (variants(bCase)) result
+    /* special b case */
+    else if (variants(b1Case)) result
     /* case (a) */
     else if (variants(aCase)) result
+    /* cases (b1), (b2) */
+    else if (variants(bCase)) result
     else {
       compMarker.rollbackTo()
       ScalaElementTypes.WRONGWAY
