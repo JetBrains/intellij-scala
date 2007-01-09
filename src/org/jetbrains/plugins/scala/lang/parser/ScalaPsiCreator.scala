@@ -155,7 +155,7 @@ object ScalaPsiCreator {
     /********************* LITERALS *********************/
     case ScalaElementTypes.LITERAL => new ScLiteralImpl(node)
 
-    case ScalaTokenTypes.tIDENTIFIER => new ScIdentifierImpl(node)
+//    case ScalaTokenTypes.tIDENTIFIER => new ScIdentifierImpl(node)
 
 
     /********************** TYPES ************************/

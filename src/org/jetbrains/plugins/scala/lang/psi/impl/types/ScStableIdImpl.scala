@@ -6,12 +6,16 @@ import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 
-class ScStableIdImpl( node : ASTNode ) extends ScPathImpl(node) {
+class ScStableIdImpl( node : ASTNode ) extends ScPsiExprImpl(node) {
 
-   override def toString: String = "Stable Identifier"
+  override def toString: String = "Stable Identifier"
 
-   def getPath : ScPathImpl = {
+  def getType() : PsiType = null
+
+  def getPath : ScPathImpl = {
     if (getChildren.length == 1 ) null
     else {
       val first = getChildren()(0)
@@ -20,6 +24,6 @@ class ScStableIdImpl( node : ASTNode ) extends ScPathImpl(node) {
         case _ => null
       }
     }
-
   }
+
 }

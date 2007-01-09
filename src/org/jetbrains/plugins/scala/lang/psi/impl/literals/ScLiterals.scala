@@ -3,15 +3,19 @@ package org.jetbrains.plugins.scala.lang.psi.impl.literals {
 * @author Ilya Sergey
 */
 import com.intellij.lang.ASTNode
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 
 import org.jetbrains.plugins.scala.lang.psi._
 
-  case class ScLiteralImpl( node : ASTNode ) extends ScalaPsiElementImpl ( node ){
+  case class ScLiteralImpl( node : ASTNode ) extends ScPsiExprImpl ( node ){
       override def toString: String = "Literal"
+      def getType() : PsiType = null
   }
 
-  case class ScUnitImpl( node : ASTNode ) extends ScalaPsiElementImpl ( node ){
+  case class ScUnitImpl( node : ASTNode ) extends ScPsiExprImpl ( node ){
       override def toString: String = "unit"
+      def getType() : PsiType = null
   }
 
   /**
@@ -45,8 +49,9 @@ import org.jetbrains.plugins.scala.lang.psi._
   /**
   * Implementation of NULL literal
   */
-  case class ScNullImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+  case class ScNullImpl( node : ASTNode ) extends ScPsiExprImpl(node) {
       override def toString: String = "null"
+      def getType() : PsiType = null
   }
 
   /**
