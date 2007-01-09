@@ -138,8 +138,8 @@ plainid = {varid}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//C_STYLE_COMMENT=("/*"[^"*"]{COMMENT_TAIL})|"/*"
-C_STYLE_COMMENT=("/*"[special]{COMMENT_TAIL})|"/*"
+C_STYLE_COMMENT=("/*"[^"*"]{COMMENT_TAIL})|"/*"
+//C_STYLE_COMMENT=("/*" [special] {COMMENT_TAIL})|"/*"
 DOC_COMMENT="/*""*"+("/"|([^"/""*"]{COMMENT_TAIL}))?
 COMMENT_TAIL=([^"*"]*("*"+[^"*""/"])?)*("*"+"/")?
 END_OF_LINE_COMMENT="/""/"[^\r\n]*
