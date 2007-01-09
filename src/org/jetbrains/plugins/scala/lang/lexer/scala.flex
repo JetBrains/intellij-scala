@@ -24,8 +24,11 @@ import org.jetbrains.annotations.NotNull;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 %{
-    // Length of NewLine token
+    // Stack for braces
     private Stack <IElementType> braceStack = new Stack<IElementType>();
+
+    // Stack for comment positions
+    private Stack <int> commentStack = new Stack<int>();
 
     /* Defines, is in this section new line is whitespace or not? */
     private boolean newLineAllowed(){
@@ -50,7 +53,6 @@ import org.jetbrains.annotations.NotNull;
         yybegin(NEW_LINE_ALLOWED);
       }
     }
-
 
     /* removes brace from stack */
     private IElementType popBraceStack(IElementType elem){
@@ -138,10 +140,9 @@ plainid = {varid}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-C_STYLE_COMMENT=("/*"[^"*"]{COMMENT_TAIL})|"/*"
-//C_STYLE_COMMENT=("/*" [special] {COMMENT_TAIL})|"/*"
+C_STYLE_COMMENT=("/*" [^"*"] {COMMENT_TAIL} ) | "/*"
 DOC_COMMENT="/*""*"+("/"|([^"/""*"]{COMMENT_TAIL}))?
-COMMENT_TAIL=([^"*"]*("*"+[^"*""/"])?)*("*"+"/")?
+COMMENT_TAIL=( [^"*"]* ("*"+ [^"*""/"] )? )* ("*"+"/")?
 END_OF_LINE_COMMENT="/""/"[^\r\n]*
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
