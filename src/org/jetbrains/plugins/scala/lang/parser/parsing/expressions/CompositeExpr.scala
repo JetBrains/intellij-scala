@@ -129,7 +129,8 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
               }
               else {
                 rollbackMarker.drop()
-                compMarker.done(result)
+                //compMarker.done(result)
+                compMarker.drop
                 ScalaElementTypes.EXPR1
               }
             }
