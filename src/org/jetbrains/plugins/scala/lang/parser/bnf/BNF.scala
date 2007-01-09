@@ -1,18 +1,31 @@
 package org.jetbrains.plugins.scala.lang.parser.bnf
 
 import com.intellij.psi.tree.TokenSet, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-
+import com.intellij.psi.tree.IElementType
 
 object BNF {
 
-  val tLITERALS: TokenSet = TokenSet.create(
-    Array( ScalaTokenTypes.tINTEGER,
-           ScalaTokenTypes.tFLOAT,
-           ScalaTokenTypes.kTRUE,
-           ScalaTokenTypes.kFALSE,
-           ScalaTokenTypes.tCHAR,
-           ScalaTokenTypes.kNULL
+  val literals : Array[IElementType] =
+    Array.apply (
+       ScalaTokenTypes.tINTEGER,
+       ScalaTokenTypes.tFLOAT,
+       ScalaTokenTypes.kTRUE,
+       ScalaTokenTypes.kFALSE,
+       ScalaTokenTypes.tCHAR,
+       ScalaTokenTypes.kNULL
     )
+
+
+  val tLITERALS: TokenSet = TokenSet.create (
+  /*  Array[IElementType] (
+       ScalaTokenTypes.tINTEGER,
+       ScalaTokenTypes.tFLOAT,
+       ScalaTokenTypes.kTRUE,
+       ScalaTokenTypes.kFALSE,
+       ScalaTokenTypes.tCHAR,
+       ScalaTokenTypes.kNULL
+    )*/
+    literals
   )
 
   val tSIMPLE_FIRST: TokenSet = TokenSet.create(
@@ -42,10 +55,8 @@ object BNF {
 
 
 
-
   /********************************************************/
   /*********************** FIRSTS *************************/
-  /********************************************************/
 
   val firstStableId : TokenSet = TokenSet.create(
     Array (
@@ -108,7 +119,7 @@ object BNF {
   )
 
 
-   val firstStatementSeparator = TokenSet.create(
+   val firstStatementSeparator : TokenSet = TokenSet.create(
     Array (
       ScalaTokenTypes.tLINE_TERMINATOR,
       ScalaTokenTypes.tSEMICOLON
@@ -135,7 +146,6 @@ object BNF {
 
   /********************************************************************************************/
   /********************************* Import, Attribute and Modifier ***************************/
-  /********************************************************************************************/
 
   val firstImport = TokenSet.create(
     Array(
@@ -321,7 +331,6 @@ object BNF {
 
   /*******************************************************************************/
   /********************************** Def and Dcl ********************************/
-  /*******************************************************************************/
 
   val firstFunSig : TokenSet = TokenSet.create(
     Array (
