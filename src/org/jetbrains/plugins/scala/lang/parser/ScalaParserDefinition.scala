@@ -45,8 +45,9 @@ class ScalaParserDefinition extends ParserDefinition {
     }
 
     def getCommentTokens() : TokenSet = {
-        var comments = new Array[IElementType](1)
-        comments.update(0, ScalaTokenTypes.tCOMMENT)
+        var comments = new Array[IElementType](2)
+        comments(0) = ScalaTokenTypes.tCOMMENT
+        comments(1) = ScalaTokenTypes.tBLOCK_COMMENT
         val commentTokens = TokenSet create( comments )
         commentTokens
         //throw new UnsupportedOperationException("getCommentTokens not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
