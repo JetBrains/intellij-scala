@@ -11,7 +11,7 @@ package org.jetbrains.plugins.scala.lang.psi.javaView {
   import org.jetbrains.plugins.scala.ScalaFileType
   import org.jetbrains.plugins.scala.lang.psi.impl.top._
 
-  class ScJavaFileImpl(viewProvider : FileViewProvider) extends LightPsiFileBase(viewProvider, StdLanguages.JAVA) with PsiJavaFile {
+  class ScJavaFile(viewProvider : FileViewProvider) extends LightPsiFileBase(viewProvider, StdLanguages.JAVA) with PsiJavaFile {
     def getLanguageLevel = LanguageLevel.JDK_1_5
 
     def findImportReferenceTo (psiClass : PsiClass) = null
@@ -34,16 +34,26 @@ package org.jetbrains.plugins.scala.lang.psi.javaView {
     def getPackageName = null
 
     override def getClasses = {
-      val scFile = viewProvider.getPsi(ScalaFileType.SCALA_FILE_TYPE.getLanguage).asInstanceOf[ScFile]
+      val scFile = viewProvider.getPsi(ScalaFileType.SCALA_FILE_TYPE.getLanguage).asInstanceOf[ScalaFile]
       scFile.getTmplDefs.map (c => new ScJavaClass(c, this)).toArray[PsiClass]
     }
 
     def getChildren = getClasses.asInstanceOf[Array[PsiElement]]
 
-    def copyLight (newFileViewProvider : FileViewProvider) = new ScJavaFileImpl(newFileViewProvider)
+    def copyLight (newFileViewProvider : FileViewProvider) = new ScJavaFile(newFileViewProvider)
 
     def clearCaches = {}
 
     def getFileType = StdFileTypes.JAVA
+
+    override def findElementAt(offset : Int) : PsiElement = {
+      for (val child <- getChildren) {
+        val textRange = child.getTextRange
+        if (textRange.contains(offset)) {
+          return child.findElementAt(offset - textRange.getStartOffset)
+        }
+      }
+      if (getTextRange.contains(offset))  this else null
+    }
   }
 }

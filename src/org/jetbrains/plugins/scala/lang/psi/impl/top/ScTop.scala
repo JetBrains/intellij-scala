@@ -11,24 +11,6 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
  * Time: 19:13:02
  */
 
-  class ScFile ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "file"
-
-    def getPackaging : Iterable[ScPackaging] = childrenOfType[ScPackaging] (ScalaElementTypes.PACKAGING_BIT_SET)
-
-    def getTmplDefs : List[ScTmplDef] = {
-      val children = childrenOfType[ScalaPsiElementImpl] (ScalaElementTypes.TMPL_OR_PACKAGING_DEF_BIT_SET)
-
-      (children :\ (Nil : List[ScTmplDef])) (
-      (y : ScalaPsiElementImpl, x : List[ScTmplDef]) => y.getNode.getElementType match
-        {
-          case ScalaElementTypes.PACKAGING => y.asInstanceOf[ScPackaging].getTmplDefs.toList ::: x
-          case _ => (y.asInstanceOf[ScTmplDef]) :: x
-        }
-      )
-    }
-  }
-
   class ScCompilationUnit ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "Compilation unit"
   }

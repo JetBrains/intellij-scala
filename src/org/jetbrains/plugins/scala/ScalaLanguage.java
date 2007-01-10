@@ -5,20 +5,13 @@ import com.intellij.lang.folding.FoldingBuilder;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.FileViewProvider;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.SingleRootFileViewProvider;
+import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter;
 import org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher;
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter;
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
-
-
-//import org.jetbrains.plugins.scala.structure.ScalaStructureViewBuilder;
 //import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition;
 
 /**
@@ -72,10 +65,11 @@ public class ScalaLanguage extends Language {
 
   public FileViewProvider createViewProvider(final VirtualFile file, final PsiManager manager, final boolean physical) {
     return new SingleRootFileViewProvider(manager, file, physical) {
-      @Nullable
-      protected PsiFile getPsiInner(Language target) {
-        if (target == StdLanguages.JAVA) return ScalaToolsFactory.getInstance().createJavaView(this);
-        return super.getPsiInner(target);
+      PsiFile myJavaRoot = ScalaToolsFactory.getInstance().createJavaView(this);
+
+      public PsiElement findElementAt(int offset, Language language) {
+        if (language == StdLanguages.JAVA) return myJavaRoot.findElementAt(offset);
+        return super.findElementAt(offset, language);
       }
     };
   }

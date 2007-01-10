@@ -4,6 +4,12 @@ import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.lang.Language
 import com.intellij.psi.FileViewProvider
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.psi.impl.top._
+import com.intellij.psi.tree.TokenSet
+import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
+import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+
 
 /**
  * User: Dmitry.Krasilschikov
@@ -24,4 +30,37 @@ class ScalaFile ( viewProvider : FileViewProvider )
   override def toString: String = {
     "Scala file"
   }
+
+  def getPackaging : Iterable[ScPackaging] = childrenOfType[ScPackaging] (ScalaElementTypes.PACKAGING_BIT_SET)
+
+  def getTmplDefs : List[ScTmplDef] = {
+    val children = childrenOfType[ScalaPsiElementImpl] (ScalaElementTypes.TMPL_OR_PACKAGING_DEF_BIT_SET)
+
+    (children :\ (Nil : List[ScTmplDef])) (
+    (y : ScalaPsiElementImpl, x : List[ScTmplDef]) => y.getNode.getElementType match
+      {
+        case ScalaElementTypes.PACKAGING => y.asInstanceOf[ScPackaging].getTmplDefs.toList ::: x
+        case _ => (y.asInstanceOf[ScTmplDef]) :: x
+      }
+    )
+  }
+
+  def childrenOfType[T >: Null <: ScalaPsiElementImpl] (tokSet : TokenSet) : Iterable[T] = new Iterable[T] () {
+     def elements = new Iterator[T] () {
+        private def findChild (child : ASTNode) : ASTNode = child match {
+           case null => null
+           case _ => if (tokSet.contains(child.getElementType())) child else findChild (child.getTreeNext)
+        }
+
+        var n : ASTNode = findChild (getNode.getFirstChildNode)
+
+        def hasNext = n != null
+
+        def next : T =  if (n == null) null else {
+          val res = n
+          n = findChild (n.getTreeNext)
+          res.getPsi().asInstanceOf[T]
+        }
+      }
+    }
 }
