@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.util
 
 import com.intellij.lang.ParserDefinition
 import com.intellij.psi.FileViewProvider
-import com.intellij.codeInsight.completion.CompletionData
+import com.intellij.codeInsight.completion._;
 import org.jetbrains.plugins.scala.lang.psi.javaView.ScJavaFileImpl
 import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition
 import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder
@@ -22,9 +22,10 @@ class ScalaToolsFactoryImpl extends ScalaToolsFactory {
 
   def createScalaFoldingBuilder: ScalaFoldingBuilder = new ScalaFoldingBuilder()
 
-  def createJavaView (viewProvider : FileViewProvider) = new ScJavaFileImpl(viewProvider)
-
   def createScalaCompletionData : CompletionData = new ScalaCompletionData()
 
-  def createSurroundDescriptors : CompletionData = new ScalaCompletionData()
+  def createSurroundDescriptors : SurroundDescriptors = new ScalaSurroundDescriptors()
+
+  def createJavaView (viewProvider : FileViewProvider) = new ScJavaFileImpl(viewProvider)
+
 }
