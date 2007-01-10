@@ -47,8 +47,6 @@ public interface ScalaTokenTypes {
 
   IElementType tSTRING = new ScalaElementType("string content");
   IElementType tWRONG_STRING = new ScalaElementType("wrong string content");
-//  IElementType tSTRING_BEGIN = new ScalaElementType("begin of string");
-//  IElementType tSTRING_END = new ScalaElementType("end of string");
 
   IElementType tCHAR = new ScalaElementType("Character");
   IElementType tSYMBOL = new ScalaElementType("Symbol");
