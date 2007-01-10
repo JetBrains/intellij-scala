@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.surroundWith._
  * Date: 09.10.2006
  * Time: 21:26:04
  */
+
 class ScalaToolsFactoryImpl extends ScalaToolsFactory {
 
   def createScalaParserDefinition: ParserDefinition = new ScalaParserDefinition()
