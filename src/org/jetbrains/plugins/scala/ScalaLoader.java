@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.codeInsight.completion.*;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.actions.ScalaSdkChooser;
 import org.jetbrains.plugins.scala.compiler.ScalaCompiler;
+import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
 
 import javax.swing.*;
 
@@ -43,6 +45,11 @@ public class ScalaLoader implements ApplicationComponent, Configurable {
             }
     );
 
+/*
+    CompletionUtil.registerCompletionData(ScalaFileType.SCALA_FILE_TYPE,
+            ScalaToolsFactory.getInstance().createScalaCompletionData());
+*/
+    
     ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
       public void projectOpened(Project project) {
         CompilerManager.getInstance(project).addCompiler(new ScalaCompiler());

@@ -18,15 +18,34 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
 
 class ScalaFoldingBuilder extends FoldingBuilder {
 
-
+                                        
   private def appendDescriptors (node: ASTNode,
                                  document: Document,
                                  descriptors: ListBuffer[FoldingDescriptor]): Unit = {
 
     node.getElementType match {
-      case ScalaElementTypes.PACKAGING_BLOCK |
-           ScalaElementTypes.TEMPLATE_BODY  => {
+      case ScalaElementTypes.PACKAGING_BLOCK => {
         descriptors += (new FoldingDescriptor(node, node.getTextRange()))
+      }
+      case ScalaElementTypes.BLOCK_EXPR |
+      ScalaElementTypes.INFIX_EXPR |
+      ScalaElementTypes.AN_FUN |
+      ScalaElementTypes.PREFIX_EXPR |
+      ScalaElementTypes.POSTFIX_EXPR |
+      ScalaElementTypes.SIMPLE_EXPR |
+      ScalaElementTypes.IF_STMT |
+      ScalaElementTypes.FOR_STMT |
+      ScalaElementTypes.WHILE_STMT |
+      ScalaElementTypes.DO_STMT |
+      ScalaElementTypes.TRY_STMT |
+      ScalaElementTypes.RETURN_STMT |
+      ScalaElementTypes.METHOD_CLOSURE |
+      ScalaElementTypes.THROW_STMT |
+      ScalaElementTypes.ASSIGN_STMT |
+      ScalaElementTypes.MATCH_STMT |
+      ScalaElementTypes.TYPED_EXPR_STMT if
+      (ScalaElementTypes.FUNCTION_DEFINITION.equals(node.getTreeParent().getElementType)) => {
+          descriptors += (new FoldingDescriptor(node, node.getTextRange()))
       }
       case ScalaTokenTypes.tBLOCK_COMMENT => {
         descriptors += (new FoldingDescriptor(node, node.getTextRange()))
@@ -49,10 +68,29 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 
   def getPlaceholderText(node : ASTNode): String = {
     node.getElementType match {
-      case ScalaElementTypes.PACKAGING_BLOCK |
-           ScalaElementTypes.TEMPLATE_BODY  => {
+      case ScalaElementTypes.PACKAGING_BLOCK => {
              "{...}"
-           }
+      }
+      case ScalaElementTypes.BLOCK_EXPR |
+      ScalaElementTypes.INFIX_EXPR |
+      ScalaElementTypes.AN_FUN |
+      ScalaElementTypes.PREFIX_EXPR |
+      ScalaElementTypes.POSTFIX_EXPR |
+      ScalaElementTypes.SIMPLE_EXPR |
+      ScalaElementTypes.IF_STMT |
+      ScalaElementTypes.FOR_STMT |
+      ScalaElementTypes.WHILE_STMT |
+      ScalaElementTypes.DO_STMT |
+      ScalaElementTypes.TRY_STMT |
+      ScalaElementTypes.RETURN_STMT |
+      ScalaElementTypes.METHOD_CLOSURE |
+      ScalaElementTypes.THROW_STMT |
+      ScalaElementTypes.ASSIGN_STMT |
+      ScalaElementTypes.MATCH_STMT |
+      ScalaElementTypes.TYPED_EXPR_STMT if
+      (ScalaElementTypes.FUNCTION_DEFINITION.equals(node.getTreeParent().getElementType)) => {
+             "{...}"
+      }
       case ScalaTokenTypes.tBLOCK_COMMENT => {
         "/**...*/"
       }

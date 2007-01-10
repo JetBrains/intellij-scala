@@ -11,10 +11,14 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.SingleRootFileViewProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter;
 import org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher;
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter;
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
+
+
+//import org.jetbrains.plugins.scala.structure.ScalaStructureViewBuilder;
 //import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition;
 
 /**
@@ -54,6 +58,11 @@ public class ScalaLanguage extends Language {
   public PairedBraceMatcher getPairedBraceMatcher() {
     return new ScalaBraceMatcher();
   }
+
+ /* @NotNull
+  public StructureViewBuilder getStructureViewBuilder(@NotNull final PsiFile psiFile) {
+      return new ScalaStructureViewBuilder(psiFile);
+  }*/
 
   @Nullable
   public Commenter getCommenter() {
