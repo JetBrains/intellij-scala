@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.surrounder;
+package org.jetbrains.plugins.scala.lang.surroundWith.descriptors;
 
 /**
  * User: Dmitry.Krasilschikov
@@ -10,7 +10,7 @@ import com.intellij.lang.surroundWith.Surrounder;
 import com.intellij.lang.surroundWith.SurroundDescriptor;
 
 import org.jetbrains.plugins.scala.lang.surroundWith.SurroundDescriptors;
-import org.jetbrains.plugins.scala.lang.surrounder.descriptors.ScalaExpressionSurroundDescriptor
+//import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor
 
 class ScalaSurroundDescriptors extends SurroundDescriptors {
   private val SURROUND_DESCRIPTORS : Array[SurroundDescriptor] = Array.apply(

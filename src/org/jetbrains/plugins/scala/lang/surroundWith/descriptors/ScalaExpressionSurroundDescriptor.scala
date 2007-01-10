@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.surrounder.descriptors;
+package org.jetbrains.plugins.scala.lang.surroundWith.descriptors;
 
 /**
  * User: Dmitry.Krasilschikov
@@ -18,7 +18,7 @@ import com.intellij.psi.PsiWhiteSpace;
 
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions.ScExprImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions.ScInfixExprImpl
-import org.jetbrains.plugins.scala.lang.surrounder.ScalaWithParenthisSurrounder
+import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.ScalaWithParenthisSurrounder
            
 class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
   private val SURROUNDERS : Array[Surrounder] = Array.apply (
