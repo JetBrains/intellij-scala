@@ -6,6 +6,7 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.PsiElement
 
 import org.jetbrains.plugins.scala.lang.parser._
+import org.jetbrains.plugins.scala.lang.psi.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.literals._
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
@@ -28,7 +29,9 @@ object ScalaPsiCreator {
     /*****************************************************/
     /********************* FILE **************************/
 
-     case ScalaElementTypes.FILE => new ScFile(node)
+     case ScalaElementTypes.FILE => new ScalaPsiElementImpl ( node ) {
+        override def toString: String = "Scala file"
+      }
      case ScalaElementTypes.COMPILATION_UNIT => new ScCompilationUnit(node)
 
     /*****************************************************/
