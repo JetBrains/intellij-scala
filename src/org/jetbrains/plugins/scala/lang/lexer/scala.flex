@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
     private Stack <IElementType> braceStack = new Stack<IElementType>();
 
     // Stack for comment positions
-//    private Stack <int> commentStack = new Stack<int>();
+    private Stack <IElementType> commentStack = new Stack<IElementType>();
 
     /* Defines, is in this section new line is whitespace or not? */
     private boolean newLineAllowed(){
@@ -139,8 +139,14 @@ plainid = {varid}
 ////////// Comments ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+COMMENT_BEGIN = "/*"
+DOC_COMMENT_BEGIN = "/*""*"
+COMMENT_END = "*""/"
+COMMENT_CONTENT = (!(![^"*""/"] | "/""*"))* 
+
+
 C_STYLE_COMMENT=("/*" [^"*"] {COMMENT_TAIL} ) | "/*"
-DOC_COMMENT="/*""*"+("/"|([^"/""*"]{COMMENT_TAIL}))?
+DOC_COMMENT="/*" "*"+ ( "/" | ( [^"/""*"] {COMMENT_TAIL} ) )?
 COMMENT_TAIL=( [^"*"]* ("*"+ [^"*""/"] )? )* ("*"+"/")?
 
 
@@ -178,15 +184,6 @@ LineTerminator = \r | \n | \r\n | \u0085|  \u2028 | \u2029
 InLineTerminator = " " | "\t" | "\f"
 WhiteSpaceInLine = {InLineTerminator}
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////  xml tag  /////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-openXmlBracket = "<"
-closeXmlBracket = ">"
-
-openXmlTag = {openXmlBracket} {stringLiteral} {closeXmlBracket}
-closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////  states ///////////////////////////////////////////////////////////////////////////////////////////
@@ -198,13 +195,13 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 %xstate PROCESS_NEW_LINE
 // Valid preceding token for newline encountered
 
-
 %xstate IN_STRING_STATE
 // Inside the string... Boo!
 
+%xstate IN_BLOCK_COMMENT_STATE
+%xstate IN_DOC_COMMENT_STATE
 
 %%
-
 
 <YYINITIAL>{
 "]"                                     {   processNewLine();
@@ -219,13 +216,42 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
                                                
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////  New line processing state////////////////////////////////////////////////////////////////////
+/////////////////////////  Block comment processing ////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+<IN_BLOCK_COMMENT_STATE> {
+{COMMENT_CONTENT}? {COMMENT_BEGIN}              { commentStack.push(ScalaTokenTypes.tLBRACE); }
+{COMMENT_CONTENT}? {DOC_COMMENT_BEGIN}          { commentStack.push(ScalaTokenTypes.tLBRACE); }
+{COMMENT_CONTENT}? {COMMENT_END}            {
+                                                  IElementType elem = commentStack.peek();
+                                                  if (commentStack.isEmpty()) {
+                                                    changeState();
+                                                  }
+                                                  if (!ScalaTokenTypes.tLBRACE.equals(elem)) {
+                                                    return process(ScalaTokenTypes.tBLOCK_COMMENT);
+                                                  } else {
+                                                    return process(ScalaTokenTypes.tCOMMENT);
+                                                  }
+                                                }
+{COMMENT_CONTENT}?                              { while (!commentStack.isEmpty()){
+                                                    commentStack.peek();
+                                                  }
+                                                  return process(ScalaTokenTypes.tCOMMENT);
+                                                }
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////  New line processing state ///////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 <PROCESS_NEW_LINE>{
 
 {WhiteSpaceInLine}                              { return process(tWHITE_SPACE_IN_LINE);  }
-//"//" .*                                         { return process(tCOMMENT); }
-//  "/*" {special}* ~ "*/"                          { return process(tBLOCK_COMMENT); }
+
+/*
+{COMMENT_BEGIN}                                 { yybegin(IN_BLOCK_COMMENT_STATE);
+                                                  commentStack.push(ScalaTokenTypes.tLBRACE); }
+
+{DOC_COMMENT_BEGIN}                             { yybegin(IN_DOC_COMMENT_STATE);
+                                                  commentStack.push(ScalaTokenTypes.tLPARENTHIS); }
+*/
 
 {END_OF_LINE_COMMENT}                           { return process(tCOMMENT); }
 {C_STYLE_COMMENT}                               { return process(tCOMMENT); }
@@ -294,16 +320,18 @@ closeXmlTag = {openXmlBracket} "\\" {stringLiteral} {closeXmlBracket}
 /////////////////////// comments ///////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//"//" .*                                    { return process(tCOMMENT); }
-//"/*" {special}*                           {   yybegin(IN_BLOCK_COMMENT_STATE);
-//                                              return process(tCOMMENT);
-//                                          }
-//"/*" {special}* ~ "*/"                      {   return process(tBLOCK_COMMENT); }
 
 {END_OF_LINE_COMMENT}                           { return process(tCOMMENT); }
 {C_STYLE_COMMENT}                               { return process(tCOMMENT); }
 {DOC_COMMENT}                                   { return process(tBLOCK_COMMENT); }
 
+/*
+{COMMENT_BEGIN}                                 { yybegin(IN_BLOCK_COMMENT_STATE);
+                                                  commentStack.push(ScalaTokenTypes.tLBRACE); }
+
+{DOC_COMMENT_BEGIN}                             { yybegin(IN_DOC_COMMENT_STATE);
+                                                  commentStack.push(ScalaTokenTypes.tLPARENTHIS); }
+*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Strings /////////////////////////////////////////////////////////////////////////////////////////////////////
