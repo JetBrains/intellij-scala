@@ -4,7 +4,9 @@ import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.lang.ParserDefinition;
 import com.intellij.lang.folding.FoldingBuilder;
-import org.jetbrains.plugins.scala.lang.surroundWith.SurroundDescriptors;
+import com.intellij.psi.SingleRootFileViewProvider;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.FileViewProvider;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,5 +37,5 @@ public abstract class ScalaToolsFactory implements ApplicationComponent {
 
   public abstract FoldingBuilder createScalaFoldingBuilder();
 
-  public abstract SurroundDescriptors createSurroundDescriptors();
+  public abstract PsiFile createJavaView(FileViewProvider viewProvider);
 }

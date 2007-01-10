@@ -9,6 +9,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerAdapter;
+import com.intellij.lang.CompositeLanguage;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +38,7 @@ public class ScalaLoader implements ApplicationComponent, Configurable {
     ApplicationManager.getApplication().runWriteAction(
             new Runnable() {
               public void run() {
-                FileTypeManager.getInstance().registerFileType(ScalaFileType.SCALA_FILE_TYPE, new String[]{"scala"});
+                FileTypeManager.getInstance().registerFileType(ScalaFileType.SCALA_FILE_TYPE, "scala");
               }
             }
     );
