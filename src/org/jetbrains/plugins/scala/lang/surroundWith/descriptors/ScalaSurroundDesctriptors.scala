@@ -18,5 +18,5 @@ class ScalaSurroundDescriptors extends SurroundDescriptors {
 //    new ScalaStatementsSurroundDescriptor()
   )
 
-  override def getSurroundDescriptors : Array[SurroundDescriptor] = SURROUND_DESCRIPTORS; Console.println("getSurroundDescriptors") 
+  override def getSurroundDescriptors : Array[SurroundDescriptor] = SURROUND_DESCRIPTORS; Console.println("ScalaSurroundDescriptors: getSurroundDescriptors") 
 }

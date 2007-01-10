@@ -30,19 +30,26 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
   def getElementsToSurround(file : PsiFile, startOffset : Int, endOffset : Int) : Array[PsiElement] = {
     Console println "ScalaExpressionSurroundDescriptor: getElementsToSurround"
     //todo
-    val expr : PsiExpression = findExpressionInRange(file, startOffset, endOffset)
-    Console println ("expr: " + expr.toString())
+    val expr : PsiExpression = findExpressionInRange(file, startOffset, endOffset);
 
     if (expr == null) return PsiElement.EMPTY_ARRAY;
+
+    Console.println("expr: " + expr.toString())
 
 //    FeatureUsageTracker.getInstance().triggerFeatureUsed("codeassists.surroundwith.expression");
     Array.apply(expr)
   }
 
 
-  private def findExpressionInRange(file : PsiFile, startOffset : Int, endOffset : Int) : ScExprImpl = {
+  def findExpressionInRange(file : PsiFile, startOffset : Int, endOffset : Int) : ScExprImpl = {
+    Console.println("findExpressionInRange: startOffset = " + startOffset)
+    Console.println("findExpressionInRange: endOffset = " + endOffset)
+
     val element1 : PsiElement = file.findElementAt(startOffset);
     val element2 : PsiElement = file.findElementAt(endOffset - 1);
+
+    Console println ("findExpressionInRange: element1= " + element1.toString())
+    Console println ("findExpressionInRange: element2= " + element2.toString())
 
     var endOffsetLocal : Int = endOffset
     var startOffsetLocal : Int = startOffset
@@ -50,7 +57,6 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
     if (element1.isInstanceOf[PsiWhiteSpace]) {
       startOffsetLocal = element1.getTextRange().getEndOffset();
     }
-
 
     if (element2.isInstanceOf[PsiWhiteSpace]) {
       endOffsetLocal = element2.getTextRange().getStartOffset();
