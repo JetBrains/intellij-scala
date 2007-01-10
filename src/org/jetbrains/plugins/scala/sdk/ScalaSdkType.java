@@ -180,7 +180,11 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
 
   @Nullable
   public Sdk getEncapsulatedSdk(Sdk sdk) {
-    return ((JavaSdkData) sdk.getSdkAdditionalData()).findSdk();
+    SdkAdditionalData data = sdk.getSdkAdditionalData();
+    if (data != null) {
+      return ((JavaSdkData) data).findSdk();
+    }
+    return null;
   }
 
   @Nullable
