@@ -74,9 +74,9 @@ public class ScalaLanguage extends Language {
     return new ScalaCommenter();
   }
 
- /* @NotNull
+  @NotNull
   public SurroundDescriptor[] getSurroundDescriptors() {
     System.out.println("getSurroundDescriptors in ScalaLanguage");
     return ScalaToolsFactory.getInstance().createSurroundDescriptors().getSurroundDescriptors();
-  }*/
+  }
 }
