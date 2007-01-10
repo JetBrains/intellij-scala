@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.ide.structureView.TreeBasedStructureViewBuilder;
 import com.intellij.ide.structureView.StructureViewModel;
 import com.intellij.psi.PsiFile;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * User: Dmitry.Krasilschikov

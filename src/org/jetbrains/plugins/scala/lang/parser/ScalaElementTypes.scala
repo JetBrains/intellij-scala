@@ -298,4 +298,6 @@ object ScalaElementTypes {
   a1.update(1, CLASS_DEF)
   a1.update(2, TRAIT_DEF)
   val TMPL_DEF_BIT_SET = TokenSet.create (a1)
+
+  val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create (Array.apply(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
 }
