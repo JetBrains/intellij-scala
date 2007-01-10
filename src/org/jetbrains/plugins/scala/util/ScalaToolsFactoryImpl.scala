@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.surroundWith.SurroundDescriptors
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition
 import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder
-import org.jetbrains.plugins.scala.lang.surrounder.ScalaSurroundDescriptors
+import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors
 
 /**
  * Author: Ilya Sergey
