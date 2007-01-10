@@ -20,10 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
     def getTemplateName : String
 
     def isTypeDef : boolean = { this.isInstanceOf[ScTypeDef] }
-  /*  def isInstanceDef : boolean = { this.isInstanceOf[ScInstanceDef] } */
 
-    //todo: getQualifiedName
-    //todo:if there is no package
     def getQualifiedName : String = {
       var packageNode = getParent
 
@@ -57,29 +54,18 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
     override def getTemplateName : String = {val children = getChildren; children(1).getText}
   }
 
-  /* trait ScInstanceDef extends ScTmplDef {
-    def isCase : boolean = getFirstChild.getText == "case"
-
-    //[case] class A
-    override def getTemplateName : String = {val children = getChildren; if (isCase) children(2).getText else children(1).getText}
-
-
-  }  */
-
-  case class ScClassDefinition( node : ASTNode ) extends /*ScInstanceDef (node) with */ScTypeDef (node){
+  case class ScClassDefinition( node : ASTNode ) extends ScTypeDef (node){
     override def toString: String = super.toString + ": " + "class"
   }
 
-  case class ScObjectDefinition( node : ASTNode ) /*extends ScInstanceDef ( node ) */ extends ScalaPsiElementImpl ( node ){
+  case class ScObjectDefinition( node : ASTNode ) extends ScTmplDef ( node ){
     override def toString: String = super.toString + ": " + "object"
+
+    //todo
+    override def getTemplateName : String = {val children = getChildren; children(1).getText}
   }
 
   case class ScTraitDefinition( node : ASTNode ) extends ScTypeDef (node) {
     override def toString: String = super.toString + ": " + "trait"
-
-//    override def getTemplateName : String = {val children = getChildren; children(1).getText}
-
-//    import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTraitTemplate
-//    override def getTemplate = getChild[ScTopDefTemplate]
   }
 }
