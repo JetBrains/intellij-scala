@@ -7,6 +7,7 @@ import com.intellij.lang.folding.FoldingBuilder;
 import com.intellij.psi.SingleRootFileViewProvider;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.FileViewProvider;
+import com.intellij.codeInsight.completion.CompletionData;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,4 +39,7 @@ public abstract class ScalaToolsFactory implements ApplicationComponent {
   public abstract FoldingBuilder createScalaFoldingBuilder();
 
   public abstract PsiFile createJavaView(FileViewProvider viewProvider);
+
+  public abstract CompletionData createScalaCompletionData();
+
 }
