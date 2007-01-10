@@ -71,6 +71,8 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
 
     def parse(builder : PsiBuilder) : SimpleExprResult = {
 
+      var deepCount = 1
+
       def closeParent: SimpleExprResult = {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
           new SimpleExprResult(ScalaElementTypes.SIMPLE_EXPR, "plain")
@@ -88,8 +90,8 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
           builder.getTokenType match {
             case ScalaTokenTypes.tIDENTIFIER => {
               ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-              subParse(ScalaElementTypes.SIMPLE_EXPR, ".id", nextMarker
-              )
+              deepCount = deepCount + 1
+              subParse(ScalaElementTypes.SIMPLE_EXPR, ".id", nextMarker )
             }
             case _ => {
               builder.error("Identifier expected")
@@ -106,8 +108,8 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
 
           var res = ArgumentExprs.parse(builder)
           if (res.eq(ScalaElementTypes.ARG_EXPRS)) {
-            subParse (ScalaElementTypes.SIMPLE_EXPR,"argexprs", nextMarker
-            )
+            deepCount = deepCount + 1
+            subParse (ScalaElementTypes.SIMPLE_EXPR,"argexprs", nextMarker )
           }
           else {
             builder.error("Arguments expected")
@@ -122,6 +124,7 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
 
           var res = TypeArgs.parse(builder)
           if (res.eq(ScalaElementTypes.TYPE_ARGS)) {
+            deepCount = deepCount + 1
             subParse(ScalaElementTypes.SIMPLE_EXPR,"typeargs", nextMarker
             )
           }
@@ -131,7 +134,12 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
             new SimpleExprResult(ScalaElementTypes.WRONGWAY, "wrong")
           }
         } else {
-          simpleMarker1.drop()
+          if (deepCount > 1) {
+            simpleMarker1.done(ScalaElementTypes.SIMPLE_EXPR)
+          }
+          else {
+            simpleMarker1.drop()
+          }
           new SimpleExprResult(_res, stringRes)
         }
       }

@@ -50,12 +50,10 @@ class ScalaParserDefinition extends ParserDefinition {
         comments(1) = ScalaTokenTypes.tBLOCK_COMMENT
         val commentTokens = TokenSet create( comments )
         commentTokens
-        //throw new UnsupportedOperationException("getCommentTokens not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
 
     def createElement( astNode : ASTNode ) : PsiElement = {
        ScalaPsiCreator.createElement( astNode )
-       //throw new UnsupportedOperationException("createFile not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
     }
 
     def createFile(fileViewProvider : FileViewProvider) : PsiFile = {
