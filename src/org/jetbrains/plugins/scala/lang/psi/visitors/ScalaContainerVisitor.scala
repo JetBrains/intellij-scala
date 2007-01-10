@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top._
 
 class ScalaContainerVisitor extends ScalaElementVisitor {
   override def visit (element : PsiElement) : Unit = {
-    type TopLevelElementType = ScFile with ScPackaging with ScClassDefinition with ScObjectDefinition with ScTraitDefinition
+    type TopLevelElementType = ScalaFile with ScPackaging with ScClassDefinition with ScObjectDefinition with ScTraitDefinition
 
     element match {
       case topLevelElement : TopLevelElementType => visitContainer(element)
