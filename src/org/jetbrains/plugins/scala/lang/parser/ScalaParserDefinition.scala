@@ -45,9 +45,21 @@ class ScalaParserDefinition extends ParserDefinition {
     }
 
     def getCommentTokens() : TokenSet = {
+        var comments = Array(
+          ScalaTokenTypes.tCOMMENT,
+          ScalaTokenTypes.tBLOCK_COMMENT,
+          // New
+          ScalaTokenTypes.tCOMMENT_BEGIN,
+          ScalaTokenTypes.tCOMMENT_END,
+          ScalaTokenTypes.tDOC_COMMENT_BEGIN,
+          ScalaTokenTypes.tDOC_COMMENT_END,
+          ScalaTokenTypes.tCOMMENT_CONTENT
+        )
+        /*
         var comments = new Array[IElementType](2)
         comments(0) = ScalaTokenTypes.tCOMMENT
         comments(1) = ScalaTokenTypes.tBLOCK_COMMENT
+        */
         val commentTokens = TokenSet create( comments )
         commentTokens
     }

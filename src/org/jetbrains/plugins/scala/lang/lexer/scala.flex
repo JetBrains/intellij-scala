@@ -141,14 +141,11 @@ plainid = {varid}
 
 COMMENT_BEGIN = "/*"
 DOC_COMMENT_BEGIN = "/*""*"
-COMMENT_END = "*""/"
-COMMENT_CONTENT = (!(![^"*""/"] | "/""*"))* 
-
+COMMENT_END = "*/"
 
 C_STYLE_COMMENT=("/*" [^"*"] {COMMENT_TAIL} ) | "/*"
 DOC_COMMENT="/*" "*"+ ( "/" | ( [^"/""*"] {COMMENT_TAIL} ) )?
 COMMENT_TAIL=( [^"*"]* ("*"+ [^"*""/"] )? )* ("*"+"/")?
-
 
 END_OF_LINE_COMMENT="/""/"[^\r\n]*
 
@@ -195,11 +192,7 @@ WhiteSpaceInLine = {InLineTerminator}
 %xstate PROCESS_NEW_LINE
 // Valid preceding token for newline encountered
 
-%xstate IN_STRING_STATE
-// Inside the string... Boo!
-
 %xstate IN_BLOCK_COMMENT_STATE
-%xstate IN_DOC_COMMENT_STATE
 
 %%
 
@@ -219,24 +212,29 @@ WhiteSpaceInLine = {InLineTerminator}
 /////////////////////////  Block comment processing ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 <IN_BLOCK_COMMENT_STATE> {
-{COMMENT_CONTENT}? {COMMENT_BEGIN}              { commentStack.push(ScalaTokenTypes.tLBRACE); }
-{COMMENT_CONTENT}? {DOC_COMMENT_BEGIN}          { commentStack.push(ScalaTokenTypes.tLBRACE); }
-{COMMENT_CONTENT}? {COMMENT_END}            {
-                                                  IElementType elem = commentStack.peek();
+{COMMENT_BEGIN}                                 { commentStack.push(ScalaTokenTypes.tLBRACE);
+                                                  return process(ScalaTokenTypes.tCOMMENT_BEGIN); }
+{DOC_COMMENT_BEGIN}                             { commentStack.push(ScalaTokenTypes.tLBRACE);
+                                                  return process(ScalaTokenTypes.tDOC_COMMENT_BEGIN); }
+{COMMENT_END}                                   { IElementType elem = commentStack.pop();
                                                   if (commentStack.isEmpty()) {
                                                     changeState();
                                                   }
                                                   if (!ScalaTokenTypes.tLBRACE.equals(elem)) {
-                                                    return process(ScalaTokenTypes.tBLOCK_COMMENT);
+                                                    return process(ScalaTokenTypes.tDOC_COMMENT_END);
                                                   } else {
-                                                    return process(ScalaTokenTypes.tCOMMENT);
+                                                    return process(ScalaTokenTypes.tCOMMENT_END);
                                                   }
                                                 }
-{COMMENT_CONTENT}?                              { while (!commentStack.isEmpty()){
-                                                    commentStack.peek();
+~({COMMENT_BEGIN}|{COMMENT_END})                { yypushback(2);
+                                                 return process(ScalaTokenTypes.tCOMMENT_CONTENT);}
+
+([^"*"/])*                                      { while (!commentStack.isEmpty()){
+                                                    commentStack.pop();
                                                   }
-                                                  return process(ScalaTokenTypes.tCOMMENT);
-                                                }
+                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT);
+                                                 }
+
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////  New line processing state ///////////////////////////////////////////////////////////////////
@@ -245,18 +243,23 @@ WhiteSpaceInLine = {InLineTerminator}
 
 {WhiteSpaceInLine}                              { return process(tWHITE_SPACE_IN_LINE);  }
 
-/*
-{COMMENT_BEGIN}                                 { yybegin(IN_BLOCK_COMMENT_STATE);
-                                                  commentStack.push(ScalaTokenTypes.tLBRACE); }
 
-{DOC_COMMENT_BEGIN}                             { yybegin(IN_DOC_COMMENT_STATE);
-                                                  commentStack.push(ScalaTokenTypes.tLPARENTHIS); }
-*/
+{COMMENT_BEGIN} /(.| {LineTerminator})*         { yybegin(IN_BLOCK_COMMENT_STATE);
+                                                  commentStack.push(ScalaTokenTypes.tLBRACE);
+                                                  return process(ScalaTokenTypes.tCOMMENT_BEGIN);
+                                                }
+
+{DOC_COMMENT_BEGIN} / (.| {LineTerminator})*    { yybegin(IN_BLOCK_COMMENT_STATE);
+                                                  commentStack.push(ScalaTokenTypes.tLPARENTHIS);
+                                                  return process(ScalaTokenTypes.tDOC_COMMENT_BEGIN);
+                                                }
 
 {END_OF_LINE_COMMENT}                           { return process(tCOMMENT); }
+
+/*
 {C_STYLE_COMMENT}                               { return process(tCOMMENT); }
 {DOC_COMMENT}                                   { return process(tBLOCK_COMMENT); }
-
+*/
 
 {LineTerminator} / ({WhiteSpaceInLine})* {specNotFollow} {identifier}
                                                 {   changeState();
@@ -292,24 +295,6 @@ WhiteSpaceInLine = {InLineTerminator}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////// Inside a string  /////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<IN_STRING_STATE>{
-
-"\"" {stringLiteral} "\""              {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tSTRING);
-                                        }
-
-("\"" {stringLiteral}) / {LineTerminator}            {   yybegin(PROCESS_NEW_LINE);
-                                                          return process(tWRONG_STRING);
-                                                      }
-
-.                                       {   return process(tSTUB); }
-
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////// FOR ALL INCLUSIVE STATES //////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -321,34 +306,34 @@ WhiteSpaceInLine = {InLineTerminator}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+
+{COMMENT_BEGIN} /(.| {LineTerminator})*         { yybegin(IN_BLOCK_COMMENT_STATE);
+                                                  commentStack.push(ScalaTokenTypes.tLBRACE);
+                                                  return process(ScalaTokenTypes.tCOMMENT_BEGIN);
+                                                }
+
+{DOC_COMMENT_BEGIN} / (.| {LineTerminator})*    { yybegin(IN_BLOCK_COMMENT_STATE);
+                                                  commentStack.push(ScalaTokenTypes.tLPARENTHIS);
+                                                  return process(ScalaTokenTypes.tDOC_COMMENT_BEGIN);
+                                                }
+
 {END_OF_LINE_COMMENT}                           { return process(tCOMMENT); }
-{C_STYLE_COMMENT}                               { return process(tCOMMENT); }
-{DOC_COMMENT}                                   { return process(tBLOCK_COMMENT); }
 
 /*
-{COMMENT_BEGIN}                                 { yybegin(IN_BLOCK_COMMENT_STATE);
-                                                  commentStack.push(ScalaTokenTypes.tLBRACE); }
-
-{DOC_COMMENT_BEGIN}                             { yybegin(IN_DOC_COMMENT_STATE);
-                                                  commentStack.push(ScalaTokenTypes.tLPARENTHIS); }
+{C_STYLE_COMMENT}                               { return process(tCOMMENT); }
+{DOC_COMMENT}                                   { return process(tBLOCK_COMMENT); }
 */
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Strings /////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//{wholeString}                         {   processNewLine();
-//                                          return process(tSTRING);  }
 
 
 {STRING_LITERAL}                        {   yybegin(PROCESS_NEW_LINE);
                                             return process(tSTRING);
                                         }
 
-
-//"\""                                    {   yypushback(yylength());
-//                                            yybegin(IN_STRING_STATE);
-//                                        }
 
 {symbolLiteral}                          {   processNewLine();
                                             return process(tSYMBOL);  }
@@ -491,14 +476,6 @@ WhiteSpaceInLine = {InLineTerminator}
                                             return process(tINTEGER);  }
 {floatingPointLiteral}                  {   processNewLine();
                                             return process(tFLOAT);      }
-
-///////////////////// Operators //////////////////////////////////////////
-
-
-////////////////////// XML /////////////////////////////////////////
-
-//{openXmlTag}                                {   yybegin(IN_XML_STATE);
-//                                            return process(tOPENXMLTAG); }
 
 ////////////////////// white spaces in line ///////////////////////////////////////////////
 {WhiteSpaceInLine}                            {   return process(tWHITE_SPACE_IN_LINE);  }
