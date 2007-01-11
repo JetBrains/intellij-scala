@@ -55,11 +55,6 @@ class ScalaParserDefinition extends ParserDefinition {
           ScalaTokenTypes.tDOC_COMMENT_END,
           ScalaTokenTypes.tCOMMENT_CONTENT
         )
-        /*
-        var comments = new Array[IElementType](2)
-        comments(0) = ScalaTokenTypes.tCOMMENT
-        comments(1) = ScalaTokenTypes.tBLOCK_COMMENT
-        */
         val commentTokens = TokenSet create( comments )
         commentTokens
     }
