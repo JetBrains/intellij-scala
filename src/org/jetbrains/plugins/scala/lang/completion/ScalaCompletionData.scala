@@ -18,14 +18,15 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 class ScalaCompletionData extends CompletionData {
 
   val afterDotFilter = new LeftNeighbour(new TextFilter("."))
-  var variant = new CompletionVariant
-//  variant.includeScopeClass(classOf[LeafPsiElement].asInstanceOf[java.lang.Class[LeafPsiElement]],
-//                            true);
+
+  var variant = new CompletionVariant(new NotFilter(afterDotFilter));
+  variant.includeScopeClass(classOf[LeafPsiElement].asInstanceOf[java.lang.Class[LeafPsiElement]],true);
   variant.addCompletionFilterOnElement(TrueFilter.INSTANCE)
 
   var keywords = Array (
     "true"
     ,"false"
+    , "null"
   )
 
   variant.addCompletion(keywords, TailType.NONE);
