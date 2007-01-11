@@ -249,11 +249,12 @@ WhiteSpaceInLine = {InLineTerminator}
                                                   return process(ScalaTokenTypes.tCOMMENT_BEGIN);
                                                 }
 
-{DOC_COMMENT_BEGIN} / (.| {LineTerminator})*    { yybegin(IN_BLOCK_COMMENT_STATE);
+/*
+{DOC_COMMENT_BEGIN} / ([^/])*    { yybegin(IN_BLOCK_COMMENT_STATE);
                                                   commentStack.push(ScalaTokenTypes.tLPARENTHIS);
                                                   return process(ScalaTokenTypes.tDOC_COMMENT_BEGIN);
                                                 }
-
+*/
 {END_OF_LINE_COMMENT}                           { return process(tCOMMENT); }
 
 /*
@@ -311,12 +312,12 @@ WhiteSpaceInLine = {InLineTerminator}
                                                   commentStack.push(ScalaTokenTypes.tLBRACE);
                                                   return process(ScalaTokenTypes.tCOMMENT_BEGIN);
                                                 }
-
-{DOC_COMMENT_BEGIN} / (.| {LineTerminator})*    { yybegin(IN_BLOCK_COMMENT_STATE);
+/*
+{DOC_COMMENT_BEGIN} / ([^/])*    { yybegin(IN_BLOCK_COMMENT_STATE);
                                                   commentStack.push(ScalaTokenTypes.tLPARENTHIS);
                                                   return process(ScalaTokenTypes.tDOC_COMMENT_BEGIN);
                                                 }
-
+*/
 {END_OF_LINE_COMMENT}                           { return process(tCOMMENT); }
 
 /*
