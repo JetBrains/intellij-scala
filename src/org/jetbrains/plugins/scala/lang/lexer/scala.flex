@@ -367,7 +367,7 @@ WhiteSpaceInLine = {InLineTerminator}
 
 "abstract"                              {   return process(kABSTRACT); } 
 
-"case" / ({LineTerminator}|" ")+ ("class" | "object")
+"case" / ({LineTerminator}|WhiteSpaceInLine)+ ("class" | "object")
                                         {   return process(kCASE); }
 
 "case"                                  {   braceStack.push(kCASE);
@@ -418,9 +418,6 @@ WhiteSpaceInLine = {InLineTerminator}
 
 ///////////////////// Reserved shorthands //////////////////////////////////////////
 
-//"*"                                     {   return process(tSTAR);  }
-//"?"                                     {   return process(tQUESTION);  }
-
 "*"                                     {   processNewLine();
                                             return process(tIDENTIFIER);  }
 "?"                                     {   processNewLine();
@@ -454,12 +451,6 @@ WhiteSpaceInLine = {InLineTerminator}
                                             return process(tIDENTIFIER);}
 "!"                                     {   processNewLine();
                                             return process(tIDENTIFIER);}
-
-
-//"+"                                     {   return process(tPLUS);}
-//"-"                                     {   return process(tMINUS);}
-//"~"                                     {   return process(tTILDA);}
-//"!"                                     {   return process(tNOT);}
 
 "."                                     {   return process(tDOT);}
 ";"                                     {   return process(tSEMICOLON);}
