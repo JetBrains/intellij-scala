@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala;
 
-import com.intellij.lang.*;
+import com.intellij.lang.Language;
+import com.intellij.lang.PairedBraceMatcher;
+import com.intellij.lang.Commenter;
+import com.intellij.lang.ParserDefinition;
+import com.intellij.lang.surroundWith.SurroundDescriptor;
 import com.intellij.lang.folding.FoldingBuilder;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.project.Project;
@@ -39,6 +43,7 @@ public class ScalaLanguage extends Language {
   }
 
   public ParserDefinition getParserDefinition() {
+    System.out.println("getScalaParserDefinition in ScalaLanguage");
     return ScalaToolsFactory.getInstance().createScalaParserDefinition();
   }
 
@@ -59,18 +64,13 @@ public class ScalaLanguage extends Language {
 
   @Nullable
   public Commenter getCommenter() {
+    System.out.println("getCommenter in ScalaLanguage");
     return new ScalaCommenter();
   }
 
-
-  public FileViewProvider createViewProvider(final VirtualFile file, final PsiManager manager, final boolean physical) {
-    return new SingleRootFileViewProvider(manager, file, physical) {
-      PsiFile myJavaRoot = ScalaToolsFactory.getInstance().createJavaView(this);
-
-      public PsiElement findElementAt(int offset, Language language) {
-        if (language == StdLanguages.JAVA) return myJavaRoot.findElementAt(offset);
-        return super.findElementAt(offset, language);
-      }
-    };
-  }
+  /*@NotNull
+ public SurroundDescriptor[] getSurroundDescriptors() {
+    System.out.println("getSurroundDescriptors in ScalaLanguage");
+    return ScalaToolsFactory.getInstance().createSurroundDescriptors().getSurroundDescriptors();
+  }*/
 }
