@@ -13,6 +13,7 @@ import javax.swing.Icon
 */
 class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement( node )
   with ScalaPsiElement {
+
     def childrenOfType[T >: Null <: ScalaPsiElementImpl] (tokSet : TokenSet) : Iterable[T] = new Iterable[T] () {
      def elements = new Iterator[T] () {
         private def findChild (child : ASTNode) : ASTNode = child match {
@@ -30,6 +31,12 @@ class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement( node )
           res.getPsi().asInstanceOf[T]
         }
       }
+    }
+
+    def childSatisfyPredicate(predicate : PsiElement => Boolean) : PsiElement = {
+      def inner (e : PsiElement) : PsiElement = if (e == null || predicate (e)) e else inner(e.getNextSibling())
+
+      inner (getFirstChild ())
     }
     
     def hasChild[T >: Null <: ScalaPsiElementImpl] : Boolean = {

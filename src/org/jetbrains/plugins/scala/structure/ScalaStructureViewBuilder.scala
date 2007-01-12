@@ -1,4 +1,4 @@
-
+/*
 package org.jetbrains.plugins.scala.structure;
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.ide.structureView.TreeBasedStructureViewBuilder;
 import com.intellij.ide.structureView.StructureViewModel;
 import com.intellij.psi.PsiFile;
-
+ */
 /**
  * User: Dmitry.Krasilschikov
  * Date: 29.12.2006
@@ -14,14 +14,9 @@ import com.intellij.psi.PsiFile;
  */
 
 /*
-class ScalaStructureViewBuilder extends TreeBasedStructureViewBuilder {
-    private var myPsiFile : PsiFile = null
+class ScalaStructureViewBuilder ( psiFile : PsiFile ) extends TreeBasedStructureViewBuilder {
+    private var myPsiFile : PsiFile = psiFile
 
-    def this ( psiFile : PsiFile ) = {
-      this()
-      myPsiFile = psiFile;
-    }
-  
 //    @NotNull
     def createStructureViewModel() : StructureViewModel =
       new ScalaStructureViewModel(myPsiFile.asInstanceOf[ScalaPsiElement])

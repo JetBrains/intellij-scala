@@ -20,13 +20,18 @@ class ScalaWithParenthisSurrounder extends ScalaExpressionSurrounder {
   override def isApplicable(expr : PsiExpression) : Boolean = true; Console.println("ScalaWithParenthisSurrounder : isAplicable");
 
   override def surroundExpression(project : Project, editor : Editor, expr : PsiExpression ) : TextRange =  {
-    Console println "expression in parenthis done"
+    DebugPrint println "expression in parenthis do"
     val manager : PsiManager = expr.getManager()
     val factory : PsiElementFactory = manager.getElementFactory()
     val codeStyleManager : CodeStyleManager = CodeStyleManager.getInstance(project)
 
     var parenthExpr = factory.createExpressionFromText("(a)", null).asInstanceOf[PsiParenthesizedExpression]
+    DebugPrint println ("parenthesed expression : " + parenthExpr.getExpression())
+
     parenthExpr = codeStyleManager.reformat(parenthExpr).asInstanceOf[PsiParenthesizedExpression]
+
+    DebugPrint println ("parenthesed expression after reformat: " + parenthExpr.getExpression())
+
     parenthExpr.getExpression().replace(expr);
     val localExpr = expr.replace(parenthExpr).asInstanceOf[PsiExpression]
     val offset = localExpr.getTextRange().getEndOffset();
@@ -35,6 +40,7 @@ class ScalaWithParenthisSurrounder extends ScalaExpressionSurrounder {
   }
 
   override def getTemplateDescription() : String = {
-    CodeInsightBundle.message("surround.with.parenthesis.template", null);
+//    CodeInsightBundle.message("surround.with.parenthesis.template", null);
+    "surround with parenthesis template"
   }
 }
