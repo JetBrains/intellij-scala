@@ -9,7 +9,8 @@ import com.intellij.ide.util.treeView.smartTree.Filter;
 import com.intellij.psi.PsiFile;
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-*/
+ */
+
 /**
  * User: Dmitry.Krasilschikov
  * Date: 29.12.2006

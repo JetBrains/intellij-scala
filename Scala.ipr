@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project version="4" relativePaths="false">
+<project version="4" relativePaths="true">
   <component name="AntConfiguration">
     <defaultAnt bundledAnt="true" />
     <buildFile url="file://$PROJECT_DIR$/src/lang-build.xml">
@@ -269,7 +269,7 @@
       <module fileurl="file://$PROJECT_DIR$/Scala.iml" filepath="$PROJECT_DIR$/Scala.iml" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA 6624" project-jdk-type="IDEA JDK">
+  <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA 6634" project-jdk-type="IDEA JDK">
     <output url="file://$PROJECT_DIR$/classes" />
   </component>
   <component name="ProjectRunConfigurationManager" />
@@ -292,7 +292,7 @@
   <component name="libraryTable">
     <library name="scala-2.3">
       <CLASSES>
-        <root url="file://C:/scala_sdk/scala-2.3.1" />
+        <root url="file://$PROJECT_DIR$/../../scala_sdk/scala-2.3.1" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />

@@ -10,6 +10,7 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
+import com.intellij.ide.structureView.StructureViewBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher;
@@ -43,7 +44,6 @@ public class ScalaLanguage extends Language {
   }
 
   public ParserDefinition getParserDefinition() {
-    System.out.println("getScalaParserDefinition in ScalaLanguage");
     return ScalaToolsFactory.getInstance().createScalaParserDefinition();
   }
 
@@ -57,20 +57,18 @@ public class ScalaLanguage extends Language {
     return new ScalaBraceMatcher();
   }
 
- /* @NotNull
-  public StructureViewBuilder getStructureViewBuilder(@NotNull final PsiFile psiFile) {
-      return new ScalaStructureViewBuilder(psiFile);
-  }*/
+//  @NotNull
+//  public StructureViewBuilder getStructureViewBuilder(@NotNull final PsiFile psiFile) {
+//      return ScalaToolsFactory.getInstance().createStructureViewBuilder(psiFile);
+//  }
 
   @Nullable
   public Commenter getCommenter() {
-    System.out.println("getCommenter in ScalaLanguage");
     return new ScalaCommenter();
   }
 
-  /*@NotNull
- public SurroundDescriptor[] getSurroundDescriptors() {
-    System.out.println("getSurroundDescriptors in ScalaLanguage");
-    return ScalaToolsFactory.getInstance().createSurroundDescriptors().getSurroundDescriptors();
-  }*/
+  @NotNull
+   public SurroundDescriptor[] getSurroundDescriptors() {
+      return ScalaToolsFactory.getInstance().createSurroundDescriptors().getSurroundDescriptors();
+  }
 }

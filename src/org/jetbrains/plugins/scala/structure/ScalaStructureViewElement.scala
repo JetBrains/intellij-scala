@@ -25,15 +25,15 @@ import org.jetbrains.plugins.scala.lang.psi.containers.ScContainer
 import org.jetbrains.plugins.scala.lang.psi.visitors.ScalaContainerVisitor
 import org.jetbrains.plugins.scala.lang.psi.visitors.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.top._, org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
-*/
 
+  */
 /**
  * User: Dmitry.Krasilschikov
  * Date: 29.12.2006
  * Time: 17:50:40
  */
 
- /*
+/*
 class ScalaStructureViewElement (element : ScalaPsiElement) extends StructureViewTreeElement[ScalaPsiElement] {
   private var myElement : ScalaPsiElement = element
 
@@ -47,8 +47,9 @@ class ScalaStructureViewElement (element : ScalaPsiElement) extends StructureVie
 
   override def getChildren() : Array[StructureViewTreeElement[ScalaPsiElement]] = {
     var childrenElements: ArrayBuffer[ScalaPsiElement] = new ArrayBuffer[ScalaPsiElement]();
- */
-   /* val myVisitor : ScalaContainerVisitor = new ScalaContainerVisitor() {
+   */
+   /*
+   val myVisitor : ScalaContainerVisitor = new ScalaContainerVisitor() {
     
       def visitContainer(scContainer : ScContainer) : Unit = {
         scContainer match {
@@ -65,9 +66,9 @@ class ScalaStructureViewElement (element : ScalaPsiElement) extends StructureVie
     */
 
 //    val childrenElements : Array[] = new Array[StructureViewTreeElement](1)
-/*
-    
-    if (myElement.isInstanceOf[ScTmplDef])
+  
+  /*
+  if (myElement.isInstanceOf[ScTmplDef])
       childrenElements(0) = myElement.asInstanceOf[ScTmplDef].getTemplate.asInstanceOf[ScalaPsiElement]
 
     for ( val i <- Array.range(0, childrenElements.length)) yield new ScalaStructureViewElement(childrenElements.apply(i))
@@ -90,4 +91,5 @@ class ScalaStructureViewElement (element : ScalaPsiElement) extends StructureVie
 
 }
 
-}*/
+}
+*/
