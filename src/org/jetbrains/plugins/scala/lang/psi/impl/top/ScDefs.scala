@@ -1,11 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.top.defs {
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.tree.IElementType;
+
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.Template
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 
 /**
@@ -52,7 +55,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
     def getRequiresBlock = getChild[ScRequiresBlock]
     def hasRequiresBlock = hasChild[ScRequiresBlock]
 
-    override def getTemplateName : String = {val children = getChildren; children(1).getText}
+    override def getTemplateName : String = {
+      def isName = (elementType : IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
+
+      childSatisfyPredicate(isName).getText()
+    }
   }
 
   case class ScClassDefinition( node : ASTNode ) extends ScTypeDef (node){

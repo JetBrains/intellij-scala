@@ -33,10 +33,10 @@ class ScalaPsiElementImpl( node : ASTNode ) extends ASTWrapperPsiElement( node )
       }
     }
 
-    def childSatisfyPredicate(predicate : PsiElement => Boolean) : PsiElement = {
-      def inner (e : PsiElement) : PsiElement = if (e == null || predicate (e)) e else inner(e.getNextSibling())
+    def childSatisfyPredicate(predicate : IElementType => Boolean) : PsiElement = {
+      def inner (e : PsiElement) : PsiElement = if (e == null || predicate (e.getNode().getElementType())) e else inner(e.getNextSibling())
 
-      inner (getFirstChild ())
+      inner (getFirstChild())
     }
     
     def hasChild[T >: Null <: ScalaPsiElementImpl] : Boolean = {
