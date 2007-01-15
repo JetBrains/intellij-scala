@@ -70,7 +70,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
     override def toString: String = super.toString + ": " + "object"
 
     //todo
-    override def getTemplateName : String = {val children = getChildren; children(1).getText}
+    override def getTemplateName : String = {
+      def isName = (elementType : IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
+
+      childSatisfyPredicate(isName).getText()
+    }
+
   }
 
   case class ScTraitDefinition( node : ASTNode ) extends ScTypeDef (node) {
