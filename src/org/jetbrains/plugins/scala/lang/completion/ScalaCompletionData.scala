@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.completion.filters.LeftLeftNeighbour;
 import org.jetbrains.plugins.scala.lang.completion.filters.BeforeDotFilter;
 import _root_.scala.collection.mutable._;
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
+
 /*
 * @author Ilya Sergey
 */
@@ -34,7 +36,7 @@ class ScalaCompletionData extends CompletionData {
         new LeftNeighbour(new TextFilter(".")),
         new LeftLeftNeighbour(new BeforeDotFilter(after))
       )
-      var variant = new CompletionVariant(andFilter)
+      val variant = new CompletionVariant(andFilter)
       if (handler != null) variant.setInsertHandler(handler)
       variant.includeScopeClass(classOf[LeafPsiElement].asInstanceOf[java.lang.Class[LeafPsiElement]], true);
       for (val el <- elems) variant.addCompletion(el)
@@ -53,14 +55,38 @@ class ScalaCompletionData extends CompletionData {
              ScalaKeyword.TYPE)
   }
 
+  /*
+  *  Keyword completion on top=level of file
+  */
+  def topDefinitionsCompletion = {
+    val afterDotFilter = new LeftNeighbour(new TextFilter("."))
+    val variant = new CompletionVariant(new NotFilter(afterDotFilter));
+    variant.includeScopeClass(classOf[LeafPsiElement].asInstanceOf[java.lang.Class[LeafPsiElement]], true);
+    addCompletions(
+      variant,
+      ScalaKeyword.CLASS,
+      ScalaKeyword.OBJECT,
+      ScalaKeyword.TRAIT,
+      ScalaKeyword.IMPORT,
+      ScalaKeyword.PACKAGE
+    )
+    registerVariant(variant)  
+  }
+
+
+
   def init = {
 
     /* Special cases */
     afterDotCompletion
+    topDefinitionsCompletion
 
     val afterDotFilter = new LeftNeighbour(new TextFilter("."))
     var variant = new CompletionVariant(new NotFilter(afterDotFilter));
     variant.includeScopeClass(classOf[LeafPsiElement].asInstanceOf[java.lang.Class[LeafPsiElement]], true);
+
+    //variant.includeScopeClass(classOf[Template].asInstanceOf[java.lang.Class[Template]], true);
+
     variant.addCompletionFilterOnElement(TrueFilter.INSTANCE)
 
     var keywords = Array (
@@ -111,6 +137,13 @@ class ScalaCompletionData extends CompletionData {
 
   override def findPrefix(insertedElement : PsiElement, offset: Int) : String = {
     WordCompletionData.findPrefixSimple(insertedElement, offset)
+  }
+
+  /**
+  * Adds all completion variants in sequence
+  */
+  def addCompletions(variant: CompletionVariant, comps: String*) = {
+    for (val el <- comps) variant.addCompletion(el)
   }
 
 }
