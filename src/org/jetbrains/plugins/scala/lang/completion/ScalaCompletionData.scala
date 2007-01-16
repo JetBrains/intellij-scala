@@ -17,9 +17,6 @@ import org.jetbrains.plugins.scala.lang.completion.filters.BeforeDotFilter;
 import _root_.scala.collection.mutable._;
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
 
-
-
-
 /*
 * @author Ilya Sergey
 */
@@ -46,7 +43,7 @@ class ScalaCompletionData extends CompletionData {
     }
 
     register(ScalaTokenTypes.tIDENTIFIER,
-             new DefaultInsertHandler(),
+             z DefaultInsertHandler(),
              ScalaKeyword.THIS,
              ScalaKeyword.SUPER)
     register(ScalaTokenTypes.tIDENTIFIER,
