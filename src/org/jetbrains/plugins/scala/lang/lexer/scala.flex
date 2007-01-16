@@ -218,11 +218,11 @@ WhiteSpaceInLine = {InLineTerminator}
                                                   if (commentStack.isEmpty()) {
                                                     changeState();
                                                   }
-                                                  //if (!ScalaTokenTypes.tLBRACE.equals(elem)) {
+                                                  if (!ScalaTokenTypes.tLBRACE.equals(elem)) {
                                                     return process(ScalaTokenTypes.tDOC_COMMENT_END);
-                                                  //} else {
-                                                  //  return process(ScalaTokenTypes.tCOMMENT_END);
-                                                  //}
+                                                  } else {
+                                                   return process(ScalaTokenTypes.tCOMMENT_END);
+                                                  }
                                                 }
 ~({COMMENT_BEGIN}|{COMMENT_END})                { yypushback(2);
                                                   return process(ScalaTokenTypes.tCOMMENT_CONTENT);}
