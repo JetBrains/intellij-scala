@@ -193,6 +193,7 @@ WhiteSpaceInLine = {InLineTerminator}
 // Valid preceding token for newline encountered
 
 %xstate IN_BLOCK_COMMENT_STATE
+%xstate IN_BLOCK_COMMENT_STATE_NEW_LINE
 
 %%
 
@@ -208,6 +209,7 @@ WhiteSpaceInLine = {InLineTerminator}
 "=>"                                    {   return process(tFUNTYPE);  }
                                                
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////  Block comment processing ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -233,6 +235,32 @@ WhiteSpaceInLine = {InLineTerminator}
                                                   return process(ScalaTokenTypes.tCOMMENT_CONTENT);
                                                 }
 }
+
+//////////////////////////////////////////////// With new line processing //////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+<IN_BLOCK_COMMENT_STATE_NEW_LINE> {
+{COMMENT_BEGIN}                                 { commentStack.push(ScalaTokenTypes.tLBRACE);
+                                                  return process(ScalaTokenTypes.tCOMMENT_BEGIN); }
+{COMMENT_END}                                   { IElementType elem = commentStack.pop();
+                                                  if (commentStack.isEmpty()) {
+                                                    yybegin(PROCESS_NEW_LINE);
+                                                  }
+                                                  if (!ScalaTokenTypes.tLBRACE.equals(elem)) {
+                                                    return process(ScalaTokenTypes.tDOC_COMMENT_END);
+                                                  } else {
+                                                   return process(ScalaTokenTypes.tCOMMENT_END);
+                                                  }
+                                                }
+~({COMMENT_BEGIN}|{COMMENT_END})                { yypushback(2);
+                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT);}
+
+[^]                                             { while (!commentStack.isEmpty()){
+                                                    commentStack.pop();
+                                                  }
+                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT);
+                                                }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////  New line processing state ///////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -241,7 +269,7 @@ WhiteSpaceInLine = {InLineTerminator}
 {WhiteSpaceInLine}                              { return process(tWHITE_SPACE_IN_LINE);  }
 
 
-{COMMENT_BEGIN} /(.| {LineTerminator})*         { yybegin(IN_BLOCK_COMMENT_STATE);
+{COMMENT_BEGIN} /(.| {LineTerminator})*         { yybegin(IN_BLOCK_COMMENT_STATE_NEW_LINE);
                                                   commentStack.push(ScalaTokenTypes.tLBRACE);
                                                   return process(ScalaTokenTypes.tCOMMENT_BEGIN);
                                                 }
