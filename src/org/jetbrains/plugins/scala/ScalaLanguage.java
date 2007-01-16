@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala;
 
-import com.intellij.lang.Language;
-import com.intellij.lang.PairedBraceMatcher;
-import com.intellij.lang.Commenter;
-import com.intellij.lang.ParserDefinition;
+import com.intellij.lang.*;
 import com.intellij.lang.surroundWith.SurroundDescriptor;
 import com.intellij.lang.folding.FoldingBuilder;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
@@ -70,5 +67,16 @@ public class ScalaLanguage extends Language {
   @NotNull
    public SurroundDescriptor[] getSurroundDescriptors() {
       return ScalaToolsFactory.getInstance().createSurroundDescriptors().getSurroundDescriptors();
+  }
+
+  public FileViewProvider createViewProvider(final VirtualFile file, final PsiManager manager, final boolean physical) {
+    return new SingleRootFileViewProvider(manager, file, physical) {
+      PsiFile myJavaRoot = ScalaToolsFactory.getInstance().createJavaView(this);
+
+      public PsiElement findElementAt(int offset, Language language) {
+        if (language == StdLanguages.JAVA) return myJavaRoot.findElementAt(offset);
+        return super.findElementAt(offset, language);
+      }
+    };
   }
 }
