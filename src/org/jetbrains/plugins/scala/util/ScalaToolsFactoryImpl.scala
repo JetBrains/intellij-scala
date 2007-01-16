@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder
 import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors
 import org.jetbrains.plugins.scala.lang.surroundWith._
 import org.jetbrains.plugins.scala.structure.ScalaStructureViewBuilder
-//import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionData
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionData
 import com.intellij.codeInsight.completion._;
 import com.intellij.ide.structureView.StructureViewBuilder
 import com.intellij.psi.PsiFile
@@ -24,7 +24,7 @@ class ScalaToolsFactoryImpl extends ScalaToolsFactory {
 
   def createScalaFoldingBuilder: ScalaFoldingBuilder = new ScalaFoldingBuilder()
 
-//  def createScalaCompletionData : CompletionData = new ScalaCompletionData()
+  def createScalaCompletionData : CompletionData = new ScalaCompletionData()
 
   def createJavaView (viewProvider : FileViewProvider) = new ScJavaFile(viewProvider)
 
