@@ -41,9 +41,9 @@ class ScalaParserDefinition extends ParserDefinition {
         ScalaElementTypes.FILE
     }
 
-    def getWhitespaceTokens() : TokenSet = ScalaTokenTypes.COMMENTS_TOKEN_SET
+    def getCommentTokens() : TokenSet = ScalaTokenTypes.COMMENTS_TOKEN_SET
 
-    def getCommentTokens() : TokenSet = ScalaTokenTypes.WHITES_SPACES_TOKEN_SET
+    def getWhitespaceTokens() : TokenSet = ScalaTokenTypes.WHITES_SPACES_TOKEN_SET
 
     def createElement( astNode : ASTNode ) : PsiElement = {
        ScalaPsiCreator.createElement( astNode )
