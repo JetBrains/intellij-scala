@@ -9,7 +9,6 @@ import com.intellij.lang.surroundWith.SurroundDescriptor;
 import com.intellij.lang.surroundWith.Surrounder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiExpression;
 import com.intellij.codeInsight.CodeInsightUtil;
 import com.intellij.debugger.codeinsight.JavaWithRuntimeCastSurrounder;
 import com.intellij.featureStatistics.FeatureUsageTracker;
@@ -19,28 +18,33 @@ import com.intellij.psi.PsiWhiteSpace;
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions.ScPsiExprImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions.ScInfixExprImpl
-import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.ScalaWithParenthisSurrounder
+//import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.ScalaWithParenthisSurrounder
+import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.ScalaWithBracesSurrounder
+
            
 class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
   private val SURROUNDERS : Array[Surrounder] = Array.apply (
-    new ScalaWithParenthisSurrounder()
+    new ScalaWithBracesSurrounder()
   )
 
-  def getSurrounders()  : Array[Surrounder] = SURROUNDERS
+//  override def getSurrounders()  : Array[Surrounder] = SURROUNDERS; DebugPrint.println("ScalaExpressionSurroundDescriptor: getSurrounders")
+  override def getSurrounders() : Array[Surrounder] = {
+    DebugPrint.println("ScalaExpressionSurroundDescriptor: getSurrounders")
+    Array.apply(new ScalaWithBracesSurrounder())
+  }
 
-  def getElementsToSurround(file : PsiFile, startOffset : Int, endOffset : Int) : Array[PsiElement] = {
-    Console println "ScalaExpressionSurroundDescriptor: getElementsToSurround"
+
+  override def getElementsToSurround(file : PsiFile, startOffset : Int, endOffset : Int) : Array[PsiElement] = {
+    DebugPrint.println("ScalaExpressionSurroundDescriptor: getElementsToSurround")
     //todo
-    val expr : PsiExpression = findExpressionInRange(file, startOffset, endOffset);
+    val expr : ScPsiExprImpl = findExpressionInRange(file, startOffset, endOffset);
 
     if (expr == null) return PsiElement.EMPTY_ARRAY;
 
-    Console.println("expr: " + expr.toString())
+    DebugPrint println ("expr: " + expr.toString)
 
-//    FeatureUsageTracker.getInstance().triggerFeatureUsed("codeassists.surroundwith.expression");
     Array.apply(expr)
   }
-
 
   def findExpressionInRange(file : PsiFile, startOffset : Int, endOffset : Int) : ScPsiExprImpl = {
     DebugPrint.println("findExpressionInRange: startOffset = " + startOffset)

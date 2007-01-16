@@ -7,6 +7,8 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 
 import org.jetbrains.plugins.scala.lang.psi._
+import com.intellij.psi.tree.IElementType;
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
   class ScExpression ( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "expression"
@@ -18,9 +20,13 @@ import org.jetbrains.plugins.scala.lang.psi._
   }
 
   case class ScBlockExprImpl( node : ASTNode ) extends ScPsiExprImpl(node) {
-      override def toString: String = "Block expressions"
-      def getType() : PsiType = null
+    override def toString: String = "Block expression"
+
+    def isExpr = (elementType : IElementType) => (ScalaElementTypes.EXPRESSION_BIT_SET.contains(elementType))
+
+    def getExpression : ScPsiExprImpl = childSatisfyPredicate(isExpr).asInstanceOf[ScPsiExprImpl]
   }
+  
   case class ScResExprImpl( node : ASTNode ) extends ScPsiExprImpl(node) {
       override def toString: String = "Result expression"
       def getType() : PsiType = null

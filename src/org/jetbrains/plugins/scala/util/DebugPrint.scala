@@ -16,5 +16,5 @@ object DebugPrint {
     if (displayLog) {
       Console.println(st)
     }
-  }
+  }    
 }

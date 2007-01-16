@@ -228,6 +228,8 @@ object ScalaElementTypes {
   val BLOCK = new ScalaElementType("block")
   val BLOCK_STAT = new ScalaElementType("block statements")
 
+  val PARENTHESIZED_EXPR = new ScalaElementType("parenthesized expression")
+
   /******************************** COMPOSITE EXPRESSIONS *****************************/
   val IF_STMT = new ScalaElementType("if statement")
   val FOR_STMT = new ScalaElementType("if statement")
@@ -245,10 +247,10 @@ object ScalaElementTypes {
   val TYPED_EXPR_STMT = new ScalaElementType("typed statement")
 
 
-
   /*************************************************************************************/
   /************************************** PATTERNS *************************************/
   /*************************************************************************************/
+
   val SIMPLE_PATTERN = new ScalaElementType("simple pattern")
   val PATTERN3 = new ScalaElementType("pattern 3")
   val PATTERN2 = new ScalaElementType("pattern 2")
@@ -300,4 +302,40 @@ object ScalaElementTypes {
   val TMPL_DEF_BIT_SET = TokenSet.create (a1)
 
   val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create (Array.apply(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
+
+  val EXPRESSION_BIT_SET = TokenSet.create (
+    Array.apply(
+      EXPR1,
+      EXPR,
+      RESULT_EXPR,
+      AN_FUN,
+      BINDING,
+      GENERATOR,
+      ENUMERATOR,
+      ENUMERATORS,
+      BINDINGS,
+      EXPRS,
+      ARG_EXPRS,
+      ARG_EXPRS_LIST,
+      BLOCK_EXPR,
+      ERROR_STMT,
+      BLOCK,
+      BLOCK_STAT,
+      PARENTHESIZED_EXPR,
+      IF_STMT,
+      FOR_STMT,
+      WHILE_STMT,
+      DO_STMT,
+      TRY_STMT,
+      TRY_BLOCK,
+      CATCH_BLOCK,
+      FINALLY_BLOCK,
+      RETURN_STMT,
+      METHOD_CLOSURE,
+      THROW_STMT,
+      ASSIGN_STMT,
+      MATCH_STMT ,
+      TYPED_EXPR_STMT
+    )
+  )
 }

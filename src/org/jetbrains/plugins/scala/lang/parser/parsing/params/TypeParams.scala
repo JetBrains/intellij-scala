@@ -5,7 +5,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.params {
  * Date: 13.11.2006
  * Time: 20:26:46
  */
- import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.PsiBuilder
 

@@ -207,7 +207,7 @@ WhiteSpaceInLine = {InLineTerminator}
 ")"                                     {   processNewLine();
                                             return process(tRPARENTHIS); }
 "=>"                                    {   return process(tFUNTYPE);  }
-                                               
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -311,7 +311,7 @@ WhiteSpaceInLine = {InLineTerminator}
 
 .                                               {   yypushback(yylength());
                                                     changeState();
-                                                } 
+                                                }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -381,7 +381,7 @@ WhiteSpaceInLine = {InLineTerminator}
 ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-"abstract"                              {   return process(kABSTRACT); } 
+"abstract"                              {   return process(kABSTRACT); }
 
 "case" / ({LineTerminator}|{WhiteSpaceInLine})+("class" | "object")
                                         {   return process(kCASE); }
