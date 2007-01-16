@@ -43,7 +43,7 @@ public abstract class ScalaToolsFactory implements ApplicationComponent {
 
   public abstract PsiFile createJavaView(FileViewProvider viewProvider);
 
-//  public abstract CompletionData createScalaCompletionData();
+  public abstract CompletionData createScalaCompletionData();
 
 //  public abstract StructureViewBuilder createStructureViewBuilder(PsiFile psiFile);
 }

@@ -42,11 +42,6 @@ class Program extends ScalaTokenTypes {
        }
     }
 
-
-    //var marker = builder.mark()
-   // rollForward
-//    ParserUtils.rollForward(builder)
-
     //compilation unit
     if ( !builder.eof() ){
       CompilationUnit.parse(builder)
@@ -61,11 +56,7 @@ class Program extends ScalaTokenTypes {
       }
       trashMarker.done(ScalaElementTypes.TRASH)
     }
-    /*
-    parseNext
-    ParserUtils.rollForward(builder)
-    */
-    //marker.done(ScalaElementTypes.FILE)
+
   }
 
 }
