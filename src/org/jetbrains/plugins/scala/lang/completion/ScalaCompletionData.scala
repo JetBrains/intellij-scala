@@ -17,6 +17,9 @@ import org.jetbrains.plugins.scala.lang.completion.filters.BeforeDotFilter;
 import _root_.scala.collection.mutable._;
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
 
+
+
+
 /*
 * @author Ilya Sergey
 */
@@ -64,6 +67,7 @@ class ScalaCompletionData extends CompletionData {
     variant.includeScopeClass(classOf[LeafPsiElement].asInstanceOf[java.lang.Class[LeafPsiElement]], true);
     addCompletions(
       variant,
+
       ScalaKeyword.CLASS,
       ScalaKeyword.OBJECT,
       ScalaKeyword.TRAIT,
@@ -79,7 +83,6 @@ class ScalaCompletionData extends CompletionData {
 
     /* Special cases */
     afterDotCompletion
-    topDefinitionsCompletion
 
     val afterDotFilter = new LeftNeighbour(new TextFilter("."))
     var variant = new CompletionVariant(new NotFilter(afterDotFilter));
