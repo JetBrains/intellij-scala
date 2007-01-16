@@ -11,6 +11,18 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
+import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+import org.jetbrains.plugins.scala.util.DebugPrint
+import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
+
+import com.intellij.lang.ASTNode
+import com.intellij.psi.impl.source.tree.CompositeElement
+import com.intellij.util.CharTable
+import com.intellij.lexer.Lexer
+import com.intellij.lang.impl.PsiBuilderImpl
+//import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.impl.source.CharTableImpl
 
   object ResultExpr {
   /*
@@ -142,6 +154,34 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
           | Expr1               (a)
   */
 
+
+   def createExpressionFromText(buffer : CharSequence) : ScPsiExprImpl = {
+//      val parserDefinition : ScalaParserDefinition = new ScalaParserDefinition()
+//      val psiManager : PsiManager = PsiManager.getInstance(project)
+
+//      val lexer : Lexer = parserDefinition.createLexer()
+      val lexer : Lexer = new ScalaLexer()
+      lexer.start(buffer, 0, buffer.length, 0)
+
+      val builder : PsiBuilderImpl = new PsiBuilderImpl(lexer, ScalaTokenTypes.WHITES_SPACES_TOKEN_SET, ScalaTokenTypes.COMMENTS_TOKEN_SET, new CharTableImpl(), buffer)
+      val exprType = parse(builder)
+
+      val expressionNode : ASTNode = builder.getTreeBuilt()
+
+      DebugPrint.println("node: " + expressionNode.toString())
+
+      createExpr(expressionNode)
+    }
+
+    private def createExpr (node : ASTNode) : ScPsiExprImpl = {
+      node.getElementType match {
+       //todo: add differents expressions
+        case ScalaElementTypes.BLOCK_EXPR => DebugPrint println ("created expr : block"); new ScBlockExprImpl(node);
+        case _ => DebugPrint println ("created expr : not block"); new ScExprImpl(node)
+      }
+    }
+
+  
     def parse(builder : PsiBuilder) : ScalaElementType = {
         var exprMarker = builder.mark()
         var result = ScalaElementTypes.WRONGWAY

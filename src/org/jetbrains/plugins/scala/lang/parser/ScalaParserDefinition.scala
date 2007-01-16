@@ -11,6 +11,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.FileViewProvider
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -28,7 +29,11 @@ class ScalaParserDefinition extends ParserDefinition {
         new ScalaLexer()
     }
 
-    def createParser(project: Project ) : PsiParser = {
+    def createLexer() : Lexer = {
+        new ScalaLexer()
+    }
+
+    def createParser(project: Project) : PsiParser = {
         new ScalaParser()
     }
      
@@ -36,28 +41,9 @@ class ScalaParserDefinition extends ParserDefinition {
         ScalaElementTypes.FILE
     }
 
-    def getWhitespaceTokens() : TokenSet = {
-        var whiteSpaces = new Array[IElementType](2)
-        whiteSpaces.update(0, ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
-        whiteSpaces.update(1, ScalaTokenTypes.tNON_SIGNIFICANT_NEWLINE)
-        val whiteSpaceTokens = TokenSet create( whiteSpaces )
-        whiteSpaceTokens
-    }
+    def getWhitespaceTokens() : TokenSet = ScalaTokenTypes.COMMENTS_TOKEN_SET
 
-    def getCommentTokens() : TokenSet = {
-        var comments = Array(
-          ScalaTokenTypes.tCOMMENT,
-          ScalaTokenTypes.tBLOCK_COMMENT,
-          // New
-          ScalaTokenTypes.tCOMMENT_BEGIN,
-          ScalaTokenTypes.tCOMMENT_END,
-          ScalaTokenTypes.tDOC_COMMENT_BEGIN,
-          ScalaTokenTypes.tDOC_COMMENT_END,
-          ScalaTokenTypes.tCOMMENT_CONTENT
-        )
-        val commentTokens = TokenSet create( comments )
-        commentTokens
-    }
+    def getCommentTokens() : TokenSet = ScalaTokenTypes.WHITES_SPACES_TOKEN_SET
 
     def createElement( astNode : ASTNode ) : PsiElement = {
        ScalaPsiCreator.createElement( astNode )

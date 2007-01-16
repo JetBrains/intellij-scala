@@ -10,8 +10,8 @@ import scala.tools.ant.Scalac;
 public class AntScalaCompiler extends Scalac {
 
   public void execute() {
-    setAddparams("-Xexperimental");
     setAddparams("-Xgenerics");
+//    setAddparams("-Xexperimental");
     super.execute();
   }
 }
