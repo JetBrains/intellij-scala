@@ -214,27 +214,24 @@ WhiteSpaceInLine = {InLineTerminator}
 <IN_BLOCK_COMMENT_STATE> {
 {COMMENT_BEGIN}                                 { commentStack.push(ScalaTokenTypes.tLBRACE);
                                                   return process(ScalaTokenTypes.tCOMMENT_BEGIN); }
-{DOC_COMMENT_BEGIN}                             { commentStack.push(ScalaTokenTypes.tLBRACE);
-                                                  return process(ScalaTokenTypes.tDOC_COMMENT_BEGIN); }
 {COMMENT_END}                                   { IElementType elem = commentStack.pop();
                                                   if (commentStack.isEmpty()) {
                                                     changeState();
                                                   }
-                                                  if (!ScalaTokenTypes.tLBRACE.equals(elem)) {
+                                                  //if (!ScalaTokenTypes.tLBRACE.equals(elem)) {
                                                     return process(ScalaTokenTypes.tDOC_COMMENT_END);
-                                                  } else {
-                                                    return process(ScalaTokenTypes.tCOMMENT_END);
-                                                  }
+                                                  //} else {
+                                                  //  return process(ScalaTokenTypes.tCOMMENT_END);
+                                                  //}
                                                 }
 ~({COMMENT_BEGIN}|{COMMENT_END})                { yypushback(2);
-                                                 return process(ScalaTokenTypes.tCOMMENT_CONTENT);}
+                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT);}
 
-([^"*"/])*                                      { while (!commentStack.isEmpty()){
+[^]                                             { while (!commentStack.isEmpty()){
                                                     commentStack.pop();
                                                   }
                                                   return process(ScalaTokenTypes.tCOMMENT_CONTENT);
-                                                 }
-
+                                                }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////  New line processing state ///////////////////////////////////////////////////////////////////
@@ -249,12 +246,6 @@ WhiteSpaceInLine = {InLineTerminator}
                                                   return process(ScalaTokenTypes.tCOMMENT_BEGIN);
                                                 }
 
-/*
-{DOC_COMMENT_BEGIN} / ([^/])*    { yybegin(IN_BLOCK_COMMENT_STATE);
-                                                  commentStack.push(ScalaTokenTypes.tLPARENTHIS);
-                                                  return process(ScalaTokenTypes.tDOC_COMMENT_BEGIN);
-                                                }
-*/
 {END_OF_LINE_COMMENT}                           { return process(tCOMMENT); }
 
 /*
@@ -312,12 +303,6 @@ WhiteSpaceInLine = {InLineTerminator}
                                                   commentStack.push(ScalaTokenTypes.tLBRACE);
                                                   return process(ScalaTokenTypes.tCOMMENT_BEGIN);
                                                 }
-/*
-{DOC_COMMENT_BEGIN} / ([^/])*    { yybegin(IN_BLOCK_COMMENT_STATE);
-                                                  commentStack.push(ScalaTokenTypes.tLPARENTHIS);
-                                                  return process(ScalaTokenTypes.tDOC_COMMENT_BEGIN);
-                                                }
-*/
 {END_OF_LINE_COMMENT}                           { return process(tCOMMENT); }
 
 /*
