@@ -4,7 +4,7 @@ package org.jetbrains.plugins.scala.lang.completion
  * Represents a Scala keyword. Constants defined in this trait represent all
  * keywords of the Scala language.
  */
-trait ScalaKeyword {
+object ScalaKeyword {
 
   val TRUE = "true"
   val FALSE = "false"
