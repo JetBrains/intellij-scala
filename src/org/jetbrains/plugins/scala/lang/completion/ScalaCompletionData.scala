@@ -28,7 +28,6 @@ class ScalaCompletionData extends CompletionData {
 
 /* Adding variants */
     init
-
   /*
   * Adding completion variants after dot
   */
@@ -74,7 +73,7 @@ class ScalaCompletionData extends CompletionData {
       ScalaKeyword.IMPORT,
       ScalaKeyword.PACKAGE
     )
-    registerVariant(variant)  
+    registerVariant(variant)
   }
 
 
