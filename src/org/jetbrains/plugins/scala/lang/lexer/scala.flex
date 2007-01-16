@@ -303,6 +303,8 @@ WhiteSpaceInLine = {InLineTerminator}
                                                   commentStack.push(ScalaTokenTypes.tLBRACE);
                                                   return process(ScalaTokenTypes.tCOMMENT_BEGIN);
                                                 }
+
+
 {END_OF_LINE_COMMENT}                           { return process(tCOMMENT); }
 
 /*
@@ -353,7 +355,7 @@ WhiteSpaceInLine = {InLineTerminator}
 
 "abstract"                              {   return process(kABSTRACT); } 
 
-"case" / ({LineTerminator}|WhiteSpaceInLine)+ ("class" | "object")
+"case" / ({LineTerminator}|{WhiteSpaceInLine})+("class" | "object")
                                         {   return process(kCASE); }
 
 "case"                                  {   braceStack.push(kCASE);
