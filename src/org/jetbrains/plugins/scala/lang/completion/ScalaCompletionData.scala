@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.completion.filters.LeftLeftNeighbour;
 import org.jetbrains.plugins.scala.lang.completion.filters.BeforeDotFilter;
 import _root_.scala.collection.mutable._;
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
+import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 
 /*
 * @author Ilya Sergey
@@ -24,7 +25,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
 class ScalaCompletionData extends CompletionData {
 
 /* Adding variants */
+
     init
+
   /*
   * Adding completion variants after dot
   */
@@ -43,7 +46,7 @@ class ScalaCompletionData extends CompletionData {
     }
 
     register(ScalaTokenTypes.tIDENTIFIER,
-             z DefaultInsertHandler(),
+             new DefaultInsertHandler(),
              ScalaKeyword.THIS,
              ScalaKeyword.SUPER)
     register(ScalaTokenTypes.tIDENTIFIER,
@@ -57,13 +60,19 @@ class ScalaCompletionData extends CompletionData {
   /*
   *  Keyword completion on top=level of file
   */
+
   def topDefinitionsCompletion = {
     val afterDotFilter = new LeftNeighbour(new TextFilter("."))
     val variant = new CompletionVariant(new NotFilter(afterDotFilter));
-    variant.includeScopeClass(classOf[LeafPsiElement].asInstanceOf[java.lang.Class[LeafPsiElement]], true);
+    //variant.includeScopeClass(classOf[LeafPsiElement].asInstanceOf[java.lang.Class[LeafPsiElement]], true);
+
+    variant.includeScopeClass(classOf[ScPrefixExprImpl].asInstanceOf[java.lang.Class[ScPrefixExprImpl]], true);
+    variant.includeScopeClass(classOf[ScPostfixExprImpl].asInstanceOf[java.lang.Class[ScPostfixExprImpl]], true);
+    variant.includeScopeClass(classOf[ScInfixExprImpl].asInstanceOf[java.lang.Class[ScInfixExprImpl]], true);
+    variant.includeScopeClass(classOf[ScSimpleExprImpl].asInstanceOf[java.lang.Class[ScSimpleExprImpl]], true);
+
     addCompletions(
       variant,
-
       ScalaKeyword.CLASS,
       ScalaKeyword.OBJECT,
       ScalaKeyword.TRAIT,
@@ -84,8 +93,12 @@ class ScalaCompletionData extends CompletionData {
     var variant = new CompletionVariant(new NotFilter(afterDotFilter));
     variant.includeScopeClass(classOf[LeafPsiElement].asInstanceOf[java.lang.Class[LeafPsiElement]], true);
 
-    //variant.includeScopeClass(classOf[Template].asInstanceOf[java.lang.Class[Template]], true);
-
+/*
+    variant.includeScopeClass(classOf[ScInfixExprImpl].asInstanceOf[java.lang.Class[ScInfixExprImpl]], false);
+    variant.includeScopeClass(classOf[ScPrefixExprImpl].asInstanceOf[java.lang.Class[ScPrefixExprImpl]], false);
+    variant.includeScopeClass(classOf[ScPostfixExprImpl].asInstanceOf[java.lang.Class[ScPostfixExprImpl]], false);
+    variant.includeScopeClass(classOf[ScSimpleExprImpl].asInstanceOf[java.lang.Class[ScSimpleExprImpl]], false);
+*/
     variant.addCompletionFilterOnElement(TrueFilter.INSTANCE)
 
     var keywords = Array (
@@ -130,7 +143,7 @@ class ScalaCompletionData extends CompletionData {
     )
 
     variant.addCompletion(keywords);
-    registerVariant(variant);
+//    registerVariant(variant);
 
   }
 
