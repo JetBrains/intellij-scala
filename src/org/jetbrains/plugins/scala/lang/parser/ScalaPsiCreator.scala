@@ -29,9 +29,11 @@ object ScalaPsiCreator {
     /*****************************************************/
     /********************* FILE **************************/
 
+/*
      case ScalaElementTypes.FILE => new ScalaPsiElementImpl ( node ) {
         override def toString: String = "Scala file"
-      }
+     }
+*/
      case ScalaElementTypes.COMPILATION_UNIT => new ScCompilationUnit(node)
 
     /*****************************************************/
