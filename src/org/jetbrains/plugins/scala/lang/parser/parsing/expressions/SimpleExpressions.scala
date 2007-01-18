@@ -72,6 +72,7 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
     def parse(builder : PsiBuilder) : SimpleExprResult = {
 
       var deepCount = 1
+      var inBraces = false
 
       def closeParent: SimpleExprResult = {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
@@ -134,7 +135,7 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
             new SimpleExprResult(ScalaElementTypes.WRONGWAY, "wrong")
           }
         } else {
-          if (deepCount > 1) {
+          if (deepCount > 1 || inBraces) {
             simpleMarker1.done(ScalaElementTypes.SIMPLE_EXPR)
           }
           else {
@@ -185,12 +186,14 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
           if (res.eq(ScalaElementTypes.EXPR)) {
             if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)) {
               closeParent
+              inBraces = true
               result = res
               endness = "plain"
               flag = true
             } else {
               builder.error(" Wrong expression")
               ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS , ScalaTokenTypes.tRPARENTHIS)
+              inBraces = true
               new SimpleExprResult(ScalaElementTypes.SIMPLE_EXPR, "plain")
               result = res
               endness = "plain"
