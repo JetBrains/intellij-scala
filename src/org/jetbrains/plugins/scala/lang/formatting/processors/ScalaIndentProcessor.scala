@@ -18,15 +18,15 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
 
   def getChildIndent(parent: ScalaBlock, child: ASTNode, prevChildNode: ASTNode) : Indent  = {
 
-    if (parent.getNode.getPsi.isInstanceOf[ScalaFile] ||
-        parent.getNode.getPsi.isInstanceOf[ScTemplateBody]) {
+    if (parent.getNode.getPsi.isInstanceOf[ScalaFile]) {
       return Indent.getNoneIndent()
     }
 
     parent.getNode.getElementType match {
       case ScalaElementTypes.BLOCK_EXPR |
+            ScalaElementTypes.TEMPLATE_BODY |
            ScalaElementTypes.PACKAGING  |
-           ScalaElementTypes.MATCH_STMT => {
+           ScalaElementTypes.MATCH_STMT  => {
         if (prevChildNode != null) {
           child.getElementType match {
             case ScalaTokenTypes.tRBRACE => return Indent.getNoneIndent()
