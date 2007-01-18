@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi._
       def getType() : PsiType = null
   }
 
+/*
   /**
   * Implementation of integer literals
   */
@@ -69,7 +70,7 @@ import org.jetbrains.plugins.scala.lang.psi._
   case class ScStringEndImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
     override def toString: String = "String End - double quote "
   }
-
+*/
 
 
 

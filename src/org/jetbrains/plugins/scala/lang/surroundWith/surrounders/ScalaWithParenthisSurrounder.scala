@@ -19,6 +19,7 @@ import com.intellij.psi.PsiExpression;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiParenthesizedExpression;
 import com.intellij.psi.codeStyle.CodeStyleManager;
+import org.jetbrains.plugins.scala.util.DebugPrint;
 
 class ScalaWithParenthisSurrounder extends ScalaExpressionSurrounder {
   override def isApplicable(expr : PsiExpression) : Boolean = true; Console.println("ScalaWithParenthisSurrounder : isAplicable");

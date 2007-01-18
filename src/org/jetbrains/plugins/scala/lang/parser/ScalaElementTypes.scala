@@ -33,7 +33,6 @@ object ScalaElementTypes {
   val COMPILATION_UNIT = new ScalaElementType("compilation unit")
 
   val PACKAGING = new ScalaElementType("packaging")
-  val PACKAGING_BLOCK = new ScalaElementType("packaging block")
 
   val TMPL_DEF = new ScalaElementType("template definition")
   val TOP_TMPL_DEF = new ScalaElementType("top template definition")

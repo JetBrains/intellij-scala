@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.Template
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 
 /**
@@ -50,20 +51,33 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
       getChild[ScTypeParamClause]
     }
 
-    import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScRequiresBlock
-
-    def getRequiresBlock = getChild[ScRequiresBlock]
-    def hasRequiresBlock = hasChild[ScRequiresBlock]
-
     override def getTemplateName : String = {
       def isName = (elementType : IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
-
       childSatisfyPredicate(isName).getText()
     }
   }
 
+  /*
+  *   Class definition implementation
+  */
   case class ScClassDefinition( node : ASTNode ) extends ScTypeDef (node){
+
+    def getBlock(elem: IElementType) : PsiElement = {
+      val node = this.getNode()
+      for (val child <- node.getChildren(null)) {
+        if (elem.equals(child.getElementType)) return child.getPsi
+      }
+      return null;
+    }
+
+    def getExtendsBlock: PsiElement = getBlock(ScalaElementTypes.EXTENDS_BLOCK)
+
+    def getRequiresBlock: PsiElement = getBlock(ScalaElementTypes.REQUIRES_BLOCK)
+
+    def getTemlateBody: PsiElement = getBlock(ScalaElementTypes.TEMPLATE_BODY)
+
     override def toString: String = super.toString + ": " + "class"
+
   }
 
   case class ScObjectDefinition( node : ASTNode ) extends ScTmplDef ( node ){
