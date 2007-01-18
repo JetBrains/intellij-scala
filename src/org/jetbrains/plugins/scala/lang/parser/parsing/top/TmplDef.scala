@@ -74,18 +74,15 @@ object TmplDef extends ConstrWithoutNode {
 
       builder.getTokenType match {
         case ScalaTokenTypes.kCLASS => {
-          ClassDef.parse(builder)
-          return ScalaElementTypes.CLASS_DEF
+          return ClassDef.parse(builder)
         }
 
         case ScalaTokenTypes.kOBJECT => {
-          ObjectDef.parse(builder)
-          return ScalaElementTypes.OBJECT_DEF
+          return ObjectDef.parse(builder)
         }
 
         case ScalaTokenTypes.kTRAIT => {
-          TraitDef.parse(builder)
-          return ScalaElementTypes.TRAIT_DEF
+          return TraitDef.parse(builder)
         }
 
         case _ => {
@@ -101,15 +98,13 @@ object TmplDef extends ConstrWithoutNode {
  *  TypeDef presents define type structure, i.e. these are TypeDef and ClassDef
  */
 
-  trait TypeDef extends ConstrWithoutNode
+  trait TypeDef extends ConstrReturned
 
 /*
  *  InstanceDef presents define instancibility of structure, i.e. these are ClassDef and ObjectDef
  */
 
-  trait InstanceDef extends ConstrWithoutNode
-
-  
+  trait InstanceDef extends ConstrReturned
 
   /************** CLASS ******************/
 
@@ -120,7 +115,7 @@ object TmplDef extends ConstrWithoutNode {
     case class ClassDef extends InstanceDef with TypeDef {
       //def getElementType = ScalaElementTypes.CLASS_DEF
 
-      override def parseBody ( builder : PsiBuilder ) : Unit = {
+      override def parseBody ( builder : PsiBuilder ) : IElementType = {
 
         if (ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kCASE)
@@ -132,6 +127,7 @@ object TmplDef extends ConstrWithoutNode {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kCLASS)
         } else {
           builder error "expected 'class'"
+          return ScalaElementTypes.WRONGWAY
         }
 
         DebugPrint println ("expected identifier : " + builder.getTokenType)
@@ -140,7 +136,7 @@ object TmplDef extends ConstrWithoutNode {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         }  else {
           builder error "expected identifier"
-          return
+          return ScalaElementTypes.WRONGWAY
         }
 
         DebugPrint println ("before ClassTypeParamClause : " + builder.getTokenType)
@@ -170,7 +166,9 @@ object TmplDef extends ConstrWithoutNode {
             case _ => {}
           }
 
-          DebugPrint println ("after classdef : " + builder.getTokenType)
+          return ScalaElementTypes.CLASS_DEF
+
+//          DebugPrint println ("after classdef : " + builder.getTokenType)
       }
    }
 
@@ -308,9 +306,9 @@ object TmplDef extends ConstrWithoutNode {
  */
 
    case object ObjectDef extends InstanceDef {
-    def getElementType : ScalaElementType = ScalaElementTypes.OBJECT_DEF
+//    def getElementType : ScalaElementType = ScalaElementTypes.OBJECT_DEF
 
-    override def parseBody ( builder : PsiBuilder ) : Unit = {
+    override def parseBody ( builder : PsiBuilder ) : IElementType = {
       if (ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kCASE)
       }
@@ -319,20 +317,22 @@ object TmplDef extends ConstrWithoutNode {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kOBJECT)
       } else {
         builder error "expected 'object'"
-        return
+        return ScalaElementTypes.WRONGWAY
       }
 
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
       } else {
         builder.error("expected identifier")
-        return
+        return ScalaElementTypes.WRONGWAY
       }
 
       if (BNF.firstClassTemplate.contains(builder.getTokenType)){
 //        new ClassTemplate().parse(builder)
         new TypeDefTemplate[TemplateParents](new TemplateParents) parse builder
       }
+
+      return ScalaElementTypes.OBJECT_DEF
     }
   }
 
@@ -344,22 +344,22 @@ object TmplDef extends ConstrWithoutNode {
  */
 
   case class TraitDef extends TypeDef {
-    def getElementType = ScalaElementTypes.TRAIT_DEF
+//    def getElementType = ScalaElementTypes.TRAIT_DEF
 
-    override def parseBody ( builder : PsiBuilder ) : Unit = {
+    override def parseBody ( builder : PsiBuilder ) : IElementType = {
 
       if (ScalaTokenTypes.kTRAIT.equals(builder.getTokenType)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kTRAIT)
       } else {
         builder error "expected trait declaration"
-        return
+        return ScalaElementTypes.WRONGWAY
       }
 
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
       } else {
         builder error "expected identifier"
-        return
+        return ScalaElementTypes.WRONGWAY
       }
 
       if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
@@ -376,6 +376,8 @@ object TmplDef extends ConstrWithoutNode {
 //        TraitTemplate parse builder
           new TypeDefTemplate[MixinParents] (new MixinParents) parse builder
       } //else builder error "expected trait template"
+
+      return ScalaElementTypes.TRAIT_DEF
     }
   }
 
