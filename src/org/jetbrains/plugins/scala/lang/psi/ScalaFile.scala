@@ -3,10 +3,12 @@ package org.jetbrains.plugins.scala.lang.psi
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.lang.Language
 import com.intellij.psi.FileViewProvider
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.impl.top._
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
+import org.jetbrains.annotations.Nullable
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
@@ -63,4 +65,15 @@ class ScalaFile ( viewProvider : FileViewProvider )
         }
       }
     }
+
+    [Nullable]
+    def getChild[T >: Null <: ScalaPsiElementImpl] : T = {
+      def inner (e : PsiElement) : PsiElement = e match {
+         case null => null
+         case me : T => me
+         case _ => inner (e.getNextSibling())
+      }
+
+      inner (getFirstChild ()).asInstanceOf[T]
+   }
 }

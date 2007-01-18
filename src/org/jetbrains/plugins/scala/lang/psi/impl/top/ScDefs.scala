@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.Template
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 
@@ -21,23 +22,30 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
   abstract class ScTmplDef( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "template definition"
 
-    def getTemplateName : String
+    def getName : String
 
     def isTypeDef : boolean = { this.isInstanceOf[ScTypeDef] }
 
     def getQualifiedName : String = {
-      var packageNode = getParent
-
-      if (packageNode != null && packageNode.getParent != null && packageNode.getParent.getFirstChild.isInstanceOf[ScPackageStatement])
-        return packageNode.getParent.getFirstChild.asInstanceOf[ScPackaging].getFullPackageName + "." + this.getName
-
-      var fullPackageName = "";
-      while (packageNode!= null && packageNode.getParent!= null && packageNode.getParent.isInstanceOf[ScPackaging]) {
-        fullPackageName = packageNode.getParent.asInstanceOf[ScPackaging].getFullPackageName + "." + fullPackageName
-        packageNode = packageNode.getParent.getParent
+      def inner (e : PsiElement, acc : String) : String = {
+        val parent = e.getParent
+        def append (s1 : String, s2 : String) = {if (s1 == "")  s2 else s1 + "." + s2}
+        append (
+          parent match {
+            case pack : ScPackaging => append (inner(parent, acc), pack.asInstanceOf[ScPackaging].getFullPackageName)
+            case tmplDef : ScTmplDef => append (inner(parent, acc), tmplDef.asInstanceOf[ScTmplDef].getName)
+            case f : ScalaFile => {
+              val packageStatement : ScPackageStatement = f.getChild[ScPackageStatement]
+              if (packageStatement == null) "" else {
+                val packageName = packageStatement.getFullPackageName
+                if (packageName == null) "" else packageName
+              }
+            }
+          },
+          getName)
       }
 
-      return fullPackageName + "." + this.getName
+      inner (this, "")
     }
 
     import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
@@ -51,7 +59,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
       getChild[ScTypeParamClause]
     }
 
-    override def getTemplateName : String = {
+    override def getName : String = {
       def isName = (elementType : IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
       childSatisfyPredicate(isName).getText()
     }
@@ -61,21 +69,6 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
   *   Class definition implementation
   */
   case class ScClassDefinition( node : ASTNode ) extends ScTypeDef (node){
-
-    def getBlock(elem: IElementType) : PsiElement = {
-      val node = this.getNode()
-      for (val child <- node.getChildren(null)) {
-        if (elem.equals(child.getElementType)) return child.getPsi
-      }
-      return null;
-    }
-
-    def getExtendsBlock: PsiElement = getBlock(ScalaElementTypes.EXTENDS_BLOCK)
-
-    def getRequiresBlock: PsiElement = getBlock(ScalaElementTypes.REQUIRES_BLOCK)
-
-    def getTemlateBody: PsiElement = getBlock(ScalaElementTypes.TEMPLATE_BODY)
-
     override def toString: String = super.toString + ": " + "class"
 
   }
@@ -84,7 +77,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
     override def toString: String = super.toString + ": " + "object"
 
     //todo
-    override def getTemplateName : String = {
+    override def getName : String = {
       def isName = (elementType : IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
 
       childSatisfyPredicate(isName).getText()
