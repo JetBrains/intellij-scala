@@ -24,9 +24,6 @@ class ScalaFoldingBuilder extends FoldingBuilder {
                                  descriptors: ListBuffer[FoldingDescriptor]): Unit = {
 
     node.getElementType match {
-      case ScalaElementTypes.PACKAGING_BLOCK => {
-        descriptors += (new FoldingDescriptor(node, node.getTextRange()))
-      }
       case ScalaElementTypes.BLOCK_EXPR |
       ScalaElementTypes.INFIX_EXPR |
       ScalaElementTypes.AN_FUN |
@@ -68,9 +65,6 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 
   def getPlaceholderText(node : ASTNode): String = {
     node.getElementType match {
-      case ScalaElementTypes.PACKAGING_BLOCK => {
-             "{...}"
-      }
       case ScalaElementTypes.BLOCK_EXPR |
       ScalaElementTypes.INFIX_EXPR |
       ScalaElementTypes.AN_FUN |

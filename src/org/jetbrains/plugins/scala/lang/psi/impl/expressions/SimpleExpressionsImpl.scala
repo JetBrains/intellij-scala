@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.expressions {
+package org.jetbrains.plugins.scala.lang.psi.impl.expressions
 /**
 * @author Ilya Sergey
 */
@@ -7,24 +7,23 @@ import com.intellij.psi._
 
 import org.jetbrains.plugins.scala.lang.psi._
 
-  case class ScInfixExprImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+  case class ScInfixExprImpl( node : ASTNode ) extends ScPsiExprImpl(node) {
       override def toString: String = "Infix expression"
       def getType() : PsiType = null
   }
 
-  case class ScSimpleExprImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+  case class ScSimpleExprImpl( node : ASTNode ) extends ScPsiExprImpl(node) {
       override def toString: String = "Simple expression"
       def getType() : PsiType = null
   }
 
-  case class ScPrefixExprImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+  case class ScPrefixExprImpl( node : ASTNode ) extends ScPsiExprImpl(node) {
       override def toString: String = "Prefix expression"
       def getType() : PsiType = null
   }
 
-  case class ScPostfixExprImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+  case class ScPostfixExprImpl( node : ASTNode ) extends ScPsiExprImpl(node) {
       override def toString: String = "Postfix expression"
       def getType() : PsiType = null
   }
   
-}

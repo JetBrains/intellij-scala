@@ -26,10 +26,6 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
     }
   }
 
-  class ScPackagingBlock ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "Packaging block"        
-  }
-
   class ScPackageStatement ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "Package statement"
 
