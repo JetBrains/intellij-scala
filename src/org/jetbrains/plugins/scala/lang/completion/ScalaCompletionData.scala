@@ -137,7 +137,7 @@ class ScalaCompletionData extends CompletionData {
     val afterDotFilter = new LeftNeighbour(new TextFilter("."))
     var variant = new CompletionVariant(new NotFilter(afterDotFilter));
     variant.includeScopeClass(classOf[LeafPsiElement].asInstanceOf[java.lang.Class[LeafPsiElement]], true);
-//    variant.includeScopeClass(classOf[ScPsiExprImpl].asInstanceOf[java.lang.Class[ScPsiExprImpl]], false);
+//    variant.includeScopeClass(classOf[ScExprImpl].asInstanceOf[java.lang.Class[ScExprImpl]], false);
     variant.addCompletionFilterOnElement(TrueFilter.INSTANCE)
     var keywords = Array (
       "true"
