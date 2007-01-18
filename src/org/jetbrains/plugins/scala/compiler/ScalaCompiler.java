@@ -108,6 +108,8 @@ public class ScalaCompiler implements TranslatingCompiler {
           }
         }
 
+        printer.println();
+
         for (VirtualFile file : files) {
           printer.println(file.getPath());
         }
