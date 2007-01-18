@@ -61,7 +61,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
     override def getName : String = {
       def isName = (elementType : IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
-      childSatisfyPredicate(isName).getText()
+      childSatisfyPredicateForElementType(isName).getText()
     }
   }
 
@@ -80,7 +80,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
     override def getName : String = {
       def isName = (elementType : IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
 
-      childSatisfyPredicate(isName).getText()
+      childSatisfyPredicateForElementType(isName).getText()
     }
 
   }

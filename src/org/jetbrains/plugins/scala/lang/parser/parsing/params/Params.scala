@@ -192,14 +192,12 @@ import org.jetbrains.plugins.scala.util.DebugPrint
          ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
       } else {
         builder error "expected ':'"
-        return
       }
 
       if (BNF.firstParamType.contains(builder.getTokenType)){
         ParamType parse builder
       } else {
         builder error "expected type parameter"
-        return
       }
     }
   }

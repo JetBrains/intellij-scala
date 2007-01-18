@@ -12,4 +12,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 
-abstract class ScPsiExprImpl( node : ASTNode ) extends ScalaPsiElementImpl(node)
+abstract class ScExprImpl( node : ASTNode ) extends ScalaPsiElementImpl(node)
+
+trait ScExpr1Impl extends ScExprImpl
+
+//trait ScPostfixExprImpl extends ScExpr1Impl
+
+//trait ScPrefixExprImpl extends ScInfixExprImpl
+
+//trait ScSimpleExprImpl extends ScPrefixExprImpl

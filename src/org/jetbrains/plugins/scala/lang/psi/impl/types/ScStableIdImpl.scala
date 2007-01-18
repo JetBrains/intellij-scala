@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.types._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 
-class ScStableIdImpl( node : ASTNode ) extends ScPsiExprImpl(node) {
+class ScStableIdImpl( node : ASTNode ) extends ScSimpleExprImpl(node) {
 
   override def toString: String = "Stable Identifier"
 

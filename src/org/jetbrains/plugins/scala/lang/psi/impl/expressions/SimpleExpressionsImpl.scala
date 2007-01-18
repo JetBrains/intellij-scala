@@ -7,23 +7,23 @@ import com.intellij.psi._
 
 import org.jetbrains.plugins.scala.lang.psi._
 
-  case class ScInfixExprImpl( node : ASTNode ) extends ScPsiExprImpl(node) {
+  class ScInfixExprImpl( node : ASTNode ) extends ScPostfixExprImpl(node) {
       override def toString: String = "Infix expression"
-      def getType() : PsiType = null
+//      override def getType() : PsiType = null
   }
 
-  case class ScSimpleExprImpl( node : ASTNode ) extends ScPsiExprImpl(node) {
+  class ScSimpleExprImpl( node : ASTNode ) extends ScPrefixExprImpl(node) {
       override def toString: String = "Simple expression"
-      def getType() : PsiType = null
+//      override def getType() : PsiType = null
   }
 
-  case class ScPrefixExprImpl( node : ASTNode ) extends ScPsiExprImpl(node) {
+  class ScPrefixExprImpl( node : ASTNode ) extends ScInfixExprImpl(node) {
       override def toString: String = "Prefix expression"
-      def getType() : PsiType = null
+//      override def getType() : PsiType = null
   }
 
-  case class ScPostfixExprImpl( node : ASTNode ) extends ScPsiExprImpl(node) {
+  class ScPostfixExprImpl( node : ASTNode ) extends ScExpr1Impl(node) {
       override def toString: String = "Postfix expression"
-      def getType() : PsiType = null
+//      def getType() : PsiType = null
   }
   

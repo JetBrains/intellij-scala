@@ -8,12 +8,27 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
+
+import com.intellij.psi.PsiFile
+import com.intellij.lang.ParserDefinition
+
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
-
+import org.jetbrains.plugins.scala.lang.psi.impl.literals._
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+
+import com.intellij.psi.impl.GeneratedMarkerVisitor
+import com.intellij.psi.impl.source.tree.TreeElement
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.impl.source.tree.TreeUtil
+import com.intellij.psi.impl.source.DummyHolder
+import com.intellij.psi.impl.source.tree.FileElement
+import com.intellij.util.IncorrectOperationException
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.source.tree.CompositeElement
@@ -144,8 +159,7 @@ import com.intellij.psi.impl.source.CharTableImpl
         }
       }
   }
-
-
+  
   object Expr {
   /*
   Common expression
@@ -153,35 +167,30 @@ import com.intellij.psi.impl.source.CharTableImpl
   Expr ::= ( Bindings | Id ) ‘=>’ Expr
           | Expr1               (a)
   */
+      
+  private val DUMMY = "dummy.";
+  def createExpressionFromText(buffer : String, manager : PsiManager) : ASTNode = {
+    def isExpr = (elementType : IElementType) => (ScalaElementTypes.EXPRESSION_BIT_SET.contains(elementType))
 
+    val definition : ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
+//    if (definition != null) ...
+    val text = "class a {" + buffer + "}"
 
-   def createExpressionFromText(buffer : CharSequence) : ScPsiExprImpl = {
-//      val parserDefinition : ScalaParserDefinition = new ScalaParserDefinition()
-//      val psiManager : PsiManager = PsiManager.getInstance(project)
+    val dummyFile : PsiFile = manager.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
 
-//      val lexer : Lexer = parserDefinition.createLexer()
-      val lexer : Lexer = new ScalaLexer()
-      lexer.start(buffer, 0, buffer.length, 0)
+    val classDef = dummyFile.getFirstChild
+    val topDefTmpl = classDef.getLastChild
+    val templateBody = topDefTmpl.getFirstChild.asInstanceOf[ScalaPsiElementImpl]
 
-      val builder : PsiBuilderImpl = new PsiBuilderImpl(lexer, ScalaTokenTypes.WHITES_SPACES_TOKEN_SET, ScalaTokenTypes.COMMENTS_TOKEN_SET, new CharTableImpl(), buffer)
-      val exprType = parse(builder)
+    val expression = templateBody.childSatisfyPredicateForElementType(isExpr)
 
-      val expressionNode : ASTNode = builder.getTreeBuilt()
+    if (expression == null) return null
 
-      DebugPrint.println("node: " + expressionNode.toString())
+    expression.asInstanceOf[ScExprImpl].getNode
 
-      createExpr(expressionNode)
-    }
+//    val expression : ScExprImpl = dummyFile.getFirstChild.getLastChild.asInstanceOf[ScalaPsiElementImpl].childSatisfyPredicate(isExpr).asInstanceOf[ScExprImpl]
+  }
 
-    private def createExpr (node : ASTNode) : ScPsiExprImpl = {
-      node.getElementType match {
-       //todo: add differents expressions
-        case ScalaElementTypes.BLOCK_EXPR => DebugPrint println ("created expr : block"); new ScBlockExprImpl(node);
-        case _ => DebugPrint println ("created expr : not block"); new ScExprImpl(node)
-      }
-    }
-
-  
     def parse(builder : PsiBuilder) : ScalaElementType = {
         var exprMarker = builder.mark()
         var result = ScalaElementTypes.WRONGWAY
