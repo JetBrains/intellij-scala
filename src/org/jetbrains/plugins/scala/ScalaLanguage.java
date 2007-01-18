@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.ide.structureView.StructureViewBuilder;
+import com.intellij.formatting.FormattingModelBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher;
@@ -36,7 +37,6 @@ public class ScalaLanguage extends Language {
   }
 
   public FoldingBuilder getFoldingBuilder() {
-    //return null;
     return ScalaToolsFactory.getInstance().createScalaFoldingBuilder();
   }
 
@@ -53,6 +53,11 @@ public class ScalaLanguage extends Language {
   public PairedBraceMatcher getPairedBraceMatcher() {
     return new ScalaBraceMatcher();
   }
+
+  @Nullable
+  public FormattingModelBuilder getFormattingModelBuilder() {
+       return ScalaToolsFactory.getInstance().createScalaFormattingModelBuilder();
+   }
 
 //  @NotNull
 //  public StructureViewBuilder getStructureViewBuilder(@NotNull final PsiFile psiFile) {
