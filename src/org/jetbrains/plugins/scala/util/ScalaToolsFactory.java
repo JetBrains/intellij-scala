@@ -8,6 +8,7 @@ import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
 import com.intellij.codeInsight.completion.CompletionData;
 import com.intellij.ide.structureView.StructureViewBuilder;
+import com.intellij.formatting.FormattingModelBuilder;
 import org.jetbrains.plugins.scala.lang.surroundWith.SurroundDescriptors;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -44,6 +45,8 @@ public abstract class ScalaToolsFactory implements ApplicationComponent {
   public abstract PsiFile createJavaView(FileViewProvider viewProvider);
 
   public abstract CompletionData createScalaCompletionData();
+
+  public abstract FormattingModelBuilder createScalaFormattingModelBuilder();
 
 //  public abstract StructureViewBuilder createStructureViewBuilder(PsiFile psiFile);
 }
