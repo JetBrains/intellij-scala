@@ -11,7 +11,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate;
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._;
 
 
 object ScalaIndentProcessor extends ScalaTokenTypes {
@@ -19,7 +19,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
   def getChildIndent(parent: ScalaBlock, child: ASTNode, prevChildNode: ASTNode) : Indent  = {
 
     if (parent.getNode.getPsi.isInstanceOf[ScalaFile] ||
-        parent.getNode.getPsi.isInstanceOf[ScTopDefTemplate]) {
+        parent.getNode.getPsi.isInstanceOf[ScTemplateBody]) {
       return Indent.getNoneIndent()
     }
 
