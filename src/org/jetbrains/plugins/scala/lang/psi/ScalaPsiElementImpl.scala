@@ -6,6 +6,7 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.openapi.util.Key
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType;
+import org.jetbrains.annotations.Nullable
 
 import javax.swing.Icon
 
@@ -50,7 +51,7 @@ class ScalaPsiElementImpl ( node : ASTNode ) extends ASTWrapperPsiElement( node 
       return getChild[T] != null
     }
 
-    //nullable
+    [Nullable]
     def getChild[T >: Null <: ScalaPsiElementImpl] : T = {
       def inner (e : PsiElement) : PsiElement = e match {
          case null => null

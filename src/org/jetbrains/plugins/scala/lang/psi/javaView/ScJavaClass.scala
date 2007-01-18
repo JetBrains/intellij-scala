@@ -114,7 +114,7 @@ case class ScJavaClass(scClass : ScTmplDef, parent : PsiElement) extends ScJavaE
 
   def getTypeParameters : Array[PsiTypeParameter] = PsiTypeParameter.EMPTY_ARRAY
 
-  override def getName : String = scClass.getTemplateName
+  override def getName : String = scClass.getName
 
   def setName(name : String) : PsiElement = this //todo
 

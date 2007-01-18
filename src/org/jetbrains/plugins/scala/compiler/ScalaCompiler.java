@@ -77,6 +77,7 @@ public class ScalaCompiler implements TranslatingCompiler {
 
         printer.println("-Xgenerics");
         printer.println("-Xexperimental");
+        printer.println("-target:jvm-1.5");
         printer.println("-verbose");
 
         //write output dir
