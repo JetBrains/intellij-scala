@@ -30,11 +30,11 @@
 //
 ////  final val SUITABLE_CLASSES : Array[Class] = Array.apply(ScTmplDef)
 //
-//  override protected def getSuitableClasses() : Array[Class[Object]] = {
+//  override protected def getSuitableClasses[T >: Null <: java.lang.Object]() : Array[Class[T]] = {
 //    new Array[Class[Object]](0)
 //  }
 //
-//  override def getRoot() : StructureViewTreeElement[ScalaPsiElement] = new ScalaStructureViewElement(myRoot)
+//  override def getRoot[T >: Null <: java.lang.Object] () : StructureViewTreeElement[T] = new ScalaStructureViewElement(myRoot).asInstanceOf[StructureViewTreeElement[T]]
 //
 //  //@NotNull
 //  override def getGroupers() : Array [Grouper] = Grouper.EMPTY_ARRAY

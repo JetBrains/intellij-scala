@@ -12,34 +12,46 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiElement;
-
+import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.util.DebugPrint
+import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 
-import org.jetbrains.plugins.scala.util.DebugPrint
-
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions.ScPsiExprImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expressions.ScExprImpl
 
 abstract class ScalaExpressionSurrounder extends Surrounder {
-// val LOG : Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.surrounder.SurroundExpressionHandler")
 
   override def isApplicable(elements : Array[PsiElement]) : Boolean = {
-//    LOG.assertTrue(elements.length == 1 && elements(0).isInstanceOf[ScPsiExprImpl]);
-    val expr = elements(0).asInstanceOf[ScPsiExprImpl]
-    Console.println("ScalaExpressionSurrounder: isApplicable" + expr);
-
+    val expr = elements(0).asInstanceOf[ScExprImpl]
     isApplicable(expr)
-
-//    Console.println(expr.toString())
-//    true
   }
-
-  def isApplicable(expr : ScPsiExprImpl) : Boolean
 
   override def surroundElements(project : Project, editor : Editor, elements : Array[PsiElement]) : TextRange = {
-    DebugPrint.println("element0 : " + elements(0).asInstanceOf[ScPsiExprImpl]);
-    
-    surroundExpression(project, editor, elements(0).asInstanceOf[ScPsiExprImpl])
+//    surroundExpression(project, editor, elements(0).asInstanceOf[ScExprImpl])
+
+//      val treeParent : PsiElement = elements(0).getParent
+
+//      newNodeParent.getNode.addChild(newNode, elements(0).getNode) //before first element from elements
+
+//      val insertInsteadNode : ASTNode = getInsertInsteadNode(newNode)
+      var newNode : ASTNode = null
+      var childNode : ASTNode = null
+
+      for (val child <- elements) {
+        childNode = child.getNode
+        newNode = Expr.createExpressionFromText(getExpressionTemplateAsString(child.getText), child.getManager)
+
+//        insertInsteadNode.getTreeParent.replaceChild(insertInsteadNode, childNode)
+        childNode.getTreeParent.replaceChild(childNode, newNode)
+      }
+
+      return getSurroundSelectionRange(newNode);
   }
 
-  def surroundExpression(project : Project, editor : Editor, expr : ScPsiExprImpl) : TextRange
+  def isApplicable(expr : ScExprImpl) : Boolean
+
+  def getExpressionTemplateAsString (exprString : String) : String
+
+  def getSurroundSelectionRange (node : ASTNode) : TextRange
+
 }

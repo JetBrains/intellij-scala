@@ -183,7 +183,7 @@ object ScalaPsiCreator {
 //    case ScalaElementTypes.PREFIX => new ScPrefixImpl(node)
     case ScalaElementTypes.INFIX_EXPR => new ScInfixExprImpl(node)
     case ScalaElementTypes.POSTFIX_EXPR => new ScPostfixExprImpl(node)
-    case ScalaElementTypes.EXPR => new ScExprImpl(node)
+    case ScalaElementTypes.EXPR => new ScCommonExprImpl(node)
     case ScalaElementTypes.RESULT_EXPR => new ScResExprImpl(node)
     case ScalaElementTypes.BINDING => new ScBindingImpl(node)
     case ScalaElementTypes.ENUMERATOR => new ScEnumeratorImpl(node)
@@ -217,7 +217,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.PATTERNS => new ScPatternsImpl(node)
     case ScalaElementTypes.WILD_PATTERN => new ScWildPatternImpl(node)
     case ScalaElementTypes.CASE_CLAUSE => new ScCaseClauseImpl(node)
-
+    case ScalaElementTypes.BLOCK => new ScBlockImpl(node)
 
     case ScalaElementTypes.TRASH => new ScTrash(node)
 

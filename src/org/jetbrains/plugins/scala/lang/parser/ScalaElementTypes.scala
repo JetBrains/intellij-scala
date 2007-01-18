@@ -227,7 +227,7 @@ object ScalaElementTypes {
   val BLOCK = new ScalaElementType("block")
   val BLOCK_STAT = new ScalaElementType("block statements")
 
-  val PARENTHESIZED_EXPR = new ScalaElementType("parenthesized expression")
+//  val PARENTHESIZED_EXPR = new ScalaElementType("parenthesized expression")
 
   /******************************** COMPOSITE EXPRESSIONS *****************************/
   val IF_STMT = new ScalaElementType("if statement")
@@ -302,25 +302,9 @@ object ScalaElementTypes {
 
   val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create (Array.apply(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
 
-  val EXPRESSION_BIT_SET = TokenSet.create (
+//todo: add cases
+  val EXPR1_BIT_SET : TokenSet = TokenSet.create (
     Array.apply(
-      EXPR1,
-      EXPR,
-      RESULT_EXPR,
-      AN_FUN,
-      BINDING,
-      GENERATOR,
-      ENUMERATOR,
-      ENUMERATORS,
-      BINDINGS,
-      EXPRS,
-      ARG_EXPRS,
-      ARG_EXPRS_LIST,
-      BLOCK_EXPR,
-      ERROR_STMT,
-      BLOCK,
-      BLOCK_STAT,
-      PARENTHESIZED_EXPR,
       IF_STMT,
       FOR_STMT,
       WHILE_STMT,
@@ -333,8 +317,46 @@ object ScalaElementTypes {
       METHOD_CLOSURE,
       THROW_STMT,
       ASSIGN_STMT,
-      MATCH_STMT ,
-      TYPED_EXPR_STMT
+      MATCH_STMT,
+      TYPED_EXPR_STMT,
+      POSTFIX_EXPR,
+      INFIX_EXPR,
+      SIMPLE_EXPR,
+      PREFIX_EXPR
+    )
+  )
+
+  val EXPRESSION_BIT_SET = TokenSet.orSet (
+    Array (
+      EXPR1_BIT_SET,
+      TokenSet.create (
+        Array.apply(
+          LITERAL,
+          STRING_LITERAL,
+          BOOLEAN_LITERAL,
+          PREFIX_EXPR,
+          PREFIX,
+          POSTFIX_EXPR,
+          INFIX_EXPR,
+          SIMPLE_EXPR,
+          EXPR1,
+          EXPR,
+          RESULT_EXPR,
+          AN_FUN,
+          BINDING,
+          GENERATOR,
+          ENUMERATOR,
+          ENUMERATORS,
+          BINDINGS,
+          EXPRS,
+          ARG_EXPRS,
+          ARG_EXPRS_LIST,
+          BLOCK_EXPR,
+          ERROR_STMT,
+          BLOCK,
+          BLOCK_STAT
+        )
+      )  
     )
   )
 }
