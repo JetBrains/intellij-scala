@@ -10,6 +10,7 @@ import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
+import org.jetbrains.plugins.scala.lang.formatting.processors._
 
 import java.util.List;
 import java.util.ArrayList;
@@ -55,9 +56,13 @@ class ScalaBlock(private val myParentBlock : ScalaBlock,
   private def getFuckingBlocks = {
     var children = myNode.getChildren(null)
     var subBlocks = new ArrayList[Block]
+    var prevChild: ASTNode = null
     for (val child <- children) {
       if (isCorrectBlock(child)) {
-        subBlocks.add(new ScalaBlock(this, child, myAlignment, myIndent, myWrap, mySettings))
+        val indent = ScalaIndentProcessor.getChildIndent(this, child, prevChild)
+        //subBlocks.add(new ScalaBlock(this, child, myAlignment, myIndent, myWrap, mySettings))
+        subBlocks.add(new ScalaBlock(this, child, myAlignment, indent, myWrap, mySettings))
+        prevChild = child
       }
     }
     subBlocks
