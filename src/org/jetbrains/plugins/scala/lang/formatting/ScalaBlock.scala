@@ -41,10 +41,10 @@ class ScalaBlock(private val myParentBlock : ScalaBlock,
     myNode.getFirstChildNode() == null
   }
 
-  def getChildAttributes(newChildIndex: Int) = {
+  def getChildAttributes(newChildIndex: Int) : ChildAttributes = {
     val parent = getNode.getPsi
     if (!parent.isInstanceOf[ScalaFile]) {
-      new ChildAttributes(Indent.getNormalIndent(), null)
+      return new ChildAttributes(Indent.getNormalIndent(), null)
     }
     new ChildAttributes(Indent.getNoneIndent(), null)
   }
@@ -53,14 +53,13 @@ class ScalaBlock(private val myParentBlock : ScalaBlock,
     null
   }
 
-  private def getFuckingBlocks = {
+  private def getDummyBlocks = {
     var children = myNode.getChildren(null)
-    var subBlocks = new ArrayList[Block]
+    val subBlocks = new ArrayList[Block]
     var prevChild: ASTNode = null
     for (val child <- children) {
       if (isCorrectBlock(child)) {
-        val indent = ScalaIndentProcessor.getChildIndent(this, child, prevChild)
-        //subBlocks.add(new ScalaBlock(this, child, myAlignment, myIndent, myWrap, mySettings))
+        val indent = ScalaIndentProcessor.getChildIndent(this, child)
         subBlocks.add(new ScalaBlock(this, child, myAlignment, indent, myWrap, mySettings))
         prevChild = child
       }
@@ -70,7 +69,7 @@ class ScalaBlock(private val myParentBlock : ScalaBlock,
 
   def getSubBlocks : List[Block] = {
     if (mySubBlocks == null) {
-      mySubBlocks = getFuckingBlocks
+      mySubBlocks = getDummyBlocks
     }
     mySubBlocks
   }
