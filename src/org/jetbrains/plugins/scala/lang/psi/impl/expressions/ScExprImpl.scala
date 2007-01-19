@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 abstract class ScExprImpl( node : ASTNode ) extends ScalaPsiElementImpl(node)
 
-trait ScExpr1Impl extends ScExprImpl
+abstract class ScExpr1Impl(node : ASTNode) extends ScExprImpl(node)
 
 //trait ScPostfixExprImpl extends ScExpr1Impl
 
