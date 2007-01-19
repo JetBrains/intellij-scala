@@ -10,17 +10,18 @@ import org.jetbrains.plugins.scala.lang.psi._
 
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
   class ScExpression ( node : ASTNode ) extends ScExprImpl(node) {
       override def toString: String = "expression"
   }
 
   //todo: extends ScExpression
-  case class ScArgumentExprsImpl( node : ASTNode ) extends ScExpr1Impl(node) {
+  case class ScArgumentExprsImpl( node : ASTNode ) extends ScExpr1Impl(node) with ContiniousIndent{
       override def toString: String = "Argument expressions"
   }
 
-  case class ScBlockExprImpl( node : ASTNode ) extends ScExpr1Impl(node) {
+  case class ScBlockExprImpl( node : ASTNode ) extends ScExpr1Impl(node) with BlockedIndent{
     override def toString: String = "Block expression"
 
 //    def isExpr = (elementType : IElementType) => (ScalaElementTypes.EXPRESSION_BIT_SET.contains(elementType))
@@ -49,7 +50,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
       override def toString: String = "Enumerator"
   }
 
-  case class ScEnumeratorsImpl( node : ASTNode ) extends ScExpr1Impl(node) {
+  case class ScEnumeratorsImpl( node : ASTNode ) extends ScExpr1Impl(node) with ContiniousIndent{
       override def toString: String = "Enumerators"
   }
 

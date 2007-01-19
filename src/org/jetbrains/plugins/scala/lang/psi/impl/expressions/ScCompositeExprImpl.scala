@@ -6,8 +6,9 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 
 import org.jetbrains.plugins.scala.lang.psi._
+import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
-  case class ScIfStmtImpl( node : ASTNode ) extends ScExprImpl(node) {
+  case class ScIfStmtImpl( node : ASTNode ) extends ScExprImpl(node) with IfElseIndent {
       override def toString: String = "IF statement"
 
       def isCondition = (e : PsiElement) => e.isInstanceOf[ScExpr1Impl]
@@ -16,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi._
 
       def getType() : PsiType = null
   }
-  case class ScForStmtImpl( node : ASTNode ) extends ScExprImpl(node) {
+  case class ScForStmtImpl( node : ASTNode ) extends ScExprImpl(node)  with IfElseIndent{
       override def toString: String = "FOR statement"
 
       def isEnumerators = (e : PsiElement) => e.isInstanceOf[ScEnumeratorsImpl]
@@ -25,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi._
 
       def getType() : PsiType = null
   }
-  case class ScDoStmtImpl( node : ASTNode ) extends ScExprImpl(node) {
+  case class ScDoStmtImpl( node : ASTNode ) extends ScExprImpl(node)  with IfElseIndent{
       override def toString: String = "DO statement"
       def getType() : PsiType = null
   }
@@ -33,20 +34,20 @@ import org.jetbrains.plugins.scala.lang.psi._
       override def toString: String = "TRY statement"
       def getType() : PsiType = null
   }
-      case class ScTryBlockImpl( node : ASTNode ) extends ScExprImpl(node) {
+      case class ScTryBlockImpl( node : ASTNode ) extends ScExprImpl(node) with IfElseIndent{
           override def toString: String = "Try block"
           def getType() : PsiType = null
       }
-      case class ScCatchBlockImpl( node : ASTNode ) extends ScExprImpl(node) {
+      case class ScCatchBlockImpl( node : ASTNode ) extends ScExprImpl(node) with IfElseIndent{
           override def toString: String = "Catch block"
           def getType() : PsiType = null
       }
-      case class ScFinallyBlockImpl( node : ASTNode ) extends ScExprImpl(node) {
+      case class ScFinallyBlockImpl( node : ASTNode ) extends ScExprImpl(node) with IfElseIndent{
           override def toString: String = "Finally block"
           def getType() : PsiType = null
       }
   
-  case class ScWhileStmtImpl( node : ASTNode ) extends ScExprImpl(node) {
+  case class ScWhileStmtImpl( node : ASTNode ) extends ScExprImpl(node) with IfElseIndent {
       override def toString: String = "WHILE statement"
       def getType() : PsiType = null
   }
