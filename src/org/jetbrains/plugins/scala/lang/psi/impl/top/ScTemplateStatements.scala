@@ -8,6 +8,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
   class TemplateStatement (node : ASTNode) extends ScalaPsiElementImpl (node)
 
@@ -21,15 +22,15 @@ import com.intellij.lang.ASTNode
     override def toString: String = "definition"
   }
 
-  case class ScPatternDefinition (node : ASTNode) extends Definition (node) {
+  case class ScPatternDefinition (node : ASTNode) extends Definition (node) with IfElseIndent{
     override def toString: String = "pattern" + " " + super.toString
   }
 
-  case class ScVariableDefinition (node : ASTNode) extends Definition (node) {
+  case class ScVariableDefinition (node : ASTNode) extends Definition (node) with IfElseIndent{
     override def toString: String = "variable" + " " + super.toString
   }
 
-  case class ScFunctionDefinition (node : ASTNode) extends Definition (node) {
+  case class ScFunctionDefinition (node : ASTNode) extends Definition (node) with IfElseIndent{
     override def toString: String = "function" + " " + super.toString
   }
 

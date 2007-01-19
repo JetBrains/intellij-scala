@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
 
 /**
@@ -19,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
  * Time: 15:08:18
  */
 /*************** definitions **************/
-  abstract class ScTmplDef( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+  abstract class ScTmplDef( node : ASTNode ) extends ScalaPsiElementImpl ( node ) with TemplateIndent{
     override def toString: String = "template definition"
 
     def getName : String
@@ -54,7 +55,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
     def getTemplates = getChildren
   }
 
-  trait ScTypeDef extends ScTmplDef {
+  trait ScTypeDef extends ScTmplDef  with IfElseIndent{
     def getTypeParameterClause : ScTypeParamClause = {
       getChild[ScTypeParamClause]
     }
