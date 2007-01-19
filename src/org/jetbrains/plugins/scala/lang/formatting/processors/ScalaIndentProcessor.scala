@@ -12,33 +12,37 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._;
+import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
+import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+import org.jetbrains.plugins.scala.lang.psi.impl.top._
+import com.intellij.psi.impl.source.tree.PsiErrorElementImpl
 
 
 object ScalaIndentProcessor extends ScalaTokenTypes {
 
-  def getChildIndent(parent: ScalaBlock, child: ASTNode, prevChildNode: ASTNode) : Indent  = {
-
-    if (parent.getNode.getPsi.isInstanceOf[ScalaFile]) {
-      return Indent.getNoneIndent()
-    }
-
-    parent.getNode.getElementType match {
-      case ScalaElementTypes.BLOCK_EXPR |
-            ScalaElementTypes.TEMPLATE_BODY |
-           ScalaElementTypes.PACKAGING  |
-           ScalaElementTypes.MATCH_STMT  => {
-        if (prevChildNode != null) {
-          child.getElementType match {
-            case ScalaTokenTypes.tRBRACE => return Indent.getNoneIndent()
-            case ScalaTokenTypes.tLBRACE => return Indent.getContinuationWithoutFirstIndent()
-            case _ => return Indent.getNormalIndent
-          }
+  def getChildIndent(parent: ScalaBlock, child: ASTNode) : Indent =
+    parent.getNode.getPsi match {
+      case _ : ScalaFile => Indent.getNoneIndent()
+      case _ : BlockedIndent => {
+        child.getElementType match {
+          case ScalaTokenTypes.tLBRACE |
+               ScalaTokenTypes.tRBRACE =>
+                    Indent.getNoneIndent()
+          case _ => Indent.getNormalIndent()
         }
       }
-      case _ => Indent.getContinuationWithoutFirstIndent()
-
+      case _ : ContiniousIndent => Indent.getContinuationWithoutFirstIndent()
+      case _ : IfElseIndent => {
+        child.getPsi match {
+          case _ : ScExprImpl => {
+            if (!child.getPsi.isInstanceOf[ScBlockExprImpl])
+              Indent.getNormalIndent()
+            else
+              Indent.getNoneIndent()
+          }
+          case _ => Indent.getNoneIndent()
+        }
+      }
+      case _ => Indent.getNoneIndent()
     }
-    return Indent.getContinuationWithoutFirstIndent()
-  }
-
 }
