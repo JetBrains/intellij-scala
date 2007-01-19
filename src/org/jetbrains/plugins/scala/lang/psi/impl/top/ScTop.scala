@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
 /**
  * User: Dmitry.Krasilschikov
@@ -17,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
     override def toString = "Compilation unit"
   }
 
-  class ScPackaging ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+  class ScPackaging ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) with BlockedIndent{
     override def toString = "Packaging"
 
     def getTmplDefs : Iterable[ScTmplDef] = childrenOfType[ScTmplDef] (ScalaElementTypes.TMPL_DEF_BIT_SET)

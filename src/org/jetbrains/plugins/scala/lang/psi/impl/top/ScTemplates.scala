@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templates {
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl;
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
 /**
  * User: Dmitry.Krasilschikov
@@ -63,7 +64,7 @@ import com.intellij.lang.ASTNode
   }
 
   /***************** body *******************/
-  case class ScTemplateBody( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+  case class ScTemplateBody( node : ASTNode ) extends ScalaPsiElementImpl ( node ) with BlockedIndent{
     override def toString: String = "template body"
   }
 }
