@@ -1,7 +1,7 @@
-class C{
-        while (a)
+class C {
+while (a)
 }
 -----
-class C{
-  while (a)
+class C {
+    while (a)
 }
