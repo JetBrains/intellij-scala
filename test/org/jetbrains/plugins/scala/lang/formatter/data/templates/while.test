@@ -1,0 +1,9 @@
+class C {
+while (true)
+            doSomething()
+}
+-----
+class C {
+  while (true)
+    doSomething()
+}
