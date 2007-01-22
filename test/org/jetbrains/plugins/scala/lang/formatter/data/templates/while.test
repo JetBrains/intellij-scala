@@ -1,6 +1,6 @@
 class C {
 while (true)
-            doSomething()
+doSomething()
 }
 -----
 class C {
