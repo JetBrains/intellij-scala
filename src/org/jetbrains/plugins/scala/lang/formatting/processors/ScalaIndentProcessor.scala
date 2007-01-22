@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.formatting
+package org.jetbrains.plugins.scala.lang.formatting.processors
 
 import com.intellij.formatting._;
 import com.intellij.lang.ASTNode;
