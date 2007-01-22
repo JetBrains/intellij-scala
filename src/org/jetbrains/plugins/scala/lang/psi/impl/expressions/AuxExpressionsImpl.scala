@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
       override def toString: String = "expression"
   }
 
-  //todo: extends ScExpression
   case class ScArgumentExprsImpl( node : ASTNode ) extends ScExpr1Impl(node) with ContiniousIndent{
       override def toString: String = "Argument expressions"
   }

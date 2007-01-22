@@ -20,7 +20,8 @@ class ScalaWithTryCatchSurrounder extends ScalaWithTrySurrounder {
 
     val caseClause = catchBlockPsiElement.caseClauses.elements.next
 
-    val offset = caseClause.getNode.getStartOffset
+//    val offset = caseClause.getNode.getStartOffset
+    val offset = caseClause.getTextRange.getStartOffset
     tryNode.removeChild(caseClause.getNode)
 
     new TextRange(offset, offset)

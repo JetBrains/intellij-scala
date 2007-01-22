@@ -16,11 +16,11 @@ import com.intellij.psi.tree.TokenSet
       override def toString: String = "IF statement"
 
       def isCondition = (e : PsiElement) => e.isInstanceOf[ScExpr1Impl]
-
       def condition : ScExpr1Impl = childSatisfyPredicateForPsiElement(isCondition).asInstanceOf[ScExpr1Impl]
 
       def getType() : PsiType = null
   }
+
   case class ScForStmtImpl( node : ASTNode ) extends ScExprImpl(node)  with IfElseIndent{
       override def toString: String = "FOR statement"
 
@@ -30,10 +30,16 @@ import com.intellij.psi.tree.TokenSet
 
       def getType() : PsiType = null
   }
+
   case class ScDoStmtImpl( node : ASTNode ) extends ScExprImpl(node)  with IfElseIndent{
       override def toString: String = "DO statement"
+
+      def isCondition = (e : PsiElement) => e.isInstanceOf[ScExprImpl]
+      def condition : ScExprImpl = getChild[ScExprImpl](getLastChild, (e : PsiElement) => e.getPrevSibling).asInstanceOf[ScExprImpl]
+
       def getType() : PsiType = null
   }
+
   case class ScTryStmtImpl( node : ASTNode ) extends ScExprImpl(node) {
       override def toString: String = "TRY statement"
 
@@ -44,6 +50,7 @@ import com.intellij.psi.tree.TokenSet
 
       def getType() : PsiType = null
   }
+
       case class ScTryBlockImpl( node : ASTNode ) extends ScExprImpl(node) with IfElseIndent{
           override def toString: String = "Try block"
           def getType() : PsiType = null
@@ -62,6 +69,11 @@ import com.intellij.psi.tree.TokenSet
   
   case class ScWhileStmtImpl( node : ASTNode ) extends ScExprImpl(node) with IfElseIndent {
       override def toString: String = "WHILE statement"
+
+      def isCondition = (e : PsiElement) => e.isInstanceOf[ScExprImpl]
+
+      def condition : ScExprImpl = childSatisfyPredicateForPsiElement(isCondition).asInstanceOf[ScExprImpl]
+
       def getType() : PsiType = null
   }
 

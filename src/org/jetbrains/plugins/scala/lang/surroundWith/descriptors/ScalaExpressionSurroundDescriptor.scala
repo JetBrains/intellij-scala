@@ -30,9 +30,11 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
       override def getTemplateDescription = "surround with { }"
     },
     new ScalaWithIfSurrounder(),
+    new ScalaWithForSurrounder(),
+    new ScalaWithWhileSurrounder(),
+    new ScalaWithDoWhileSurrounder(),
     new ScalaWithTrySurrounder(),
-    new ScalaWithTryCatchSurrounder(),
-    new ScalaWithForSurrounder()
+    new ScalaWithTryCatchSurrounder()
   )
 
 //  override def getSurrounders()  : Array[Surrounder] = SURROUNDERS; DebugPrint.println("ScalaExpressionSurroundDescriptor: getSurrounders")

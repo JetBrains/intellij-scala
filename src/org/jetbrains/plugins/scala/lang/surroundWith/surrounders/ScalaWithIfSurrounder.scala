@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 class ScalaWithIfSurrounder extends ScalaExpressionSurrounder {
     override def isApplicable(expr : ScExprImpl) : Boolean = {
     //todo: condition must be ScExpr1Impl
-    expr.isInstanceOf[ScExprImpl]
+    expr.isInstanceOf[ScExpr1Impl]
   }
 
   override def getExpressionTemplateAsString (exprAsString : String) = "if (a) " + exprAsString

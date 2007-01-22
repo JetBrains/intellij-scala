@@ -22,28 +22,28 @@ import org.jetbrains.plugins.scala.lang.psi._
   /**
   * Implementation of integer literals
   */
-  case class ScIntegerImpl( node : ASTNode ) extends ScalaPsiElementImpl ( node ){
+  case class ScIntegerImpl( node : ASTNode ) extends ScLiteralImpl ( node ){
       override def toString: String = "Integer Literal: "+ getText
   }
 
   /**
   * Implementation of floating point number literals
   */
-  case class ScFloatImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+  case class ScFloatImpl( node : ASTNode ) extends ScLiteralImpl(node) {
       override def toString: String = "Real Literal: "+ getText
   }
 
   /**
   * Implementation for boolean literals
   */
-  case class ScBooleanImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+  case class ScBooleanImpl( node : ASTNode ) extends ScLiteralImpl(node) {
       override def toString: String = "Boolean Literal: "+ getText
   }
 
   /**
   * Implementation of character literals
   */
-  case class ScCharacterImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+  case class ScCharacterImpl( node : ASTNode ) extends ScLiteralImpl(node) {
       override def toString: String = "Character Literal: "+ getText
   }
 
@@ -58,7 +58,7 @@ import org.jetbrains.plugins.scala.lang.psi._
   /**
   * Implementation of String literal
   */
-  case class ScStringImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+  case class ScStringImpl( node : ASTNode ) extends ScLiteralImpl(node) {
       override def toString: String = "String Literal: "+ getText
   }
   case class ScStringBeginImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {

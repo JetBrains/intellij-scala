@@ -71,7 +71,7 @@
 //  if (myElement.isInstanceOf[ScTmplDef])
 //      childrenElements(0) = myElement.asInstanceOf[ScTmplDef].getTemplate.asInstanceOf[ScalaPsiElement]
 //
-//    for ( val i <- Array.range(0, childrenElements.length)) yield new ScalaStructureViewElement(childrenElements.apply(i))
+//    (for ( val i <- Array.range(0, childrenElements.length)) yield new ScalaStructureViewElement(childrenElements.apply(i))).asInstanceOf[Array[StructureViewTreeElement]]
 //  }
 //
 //
