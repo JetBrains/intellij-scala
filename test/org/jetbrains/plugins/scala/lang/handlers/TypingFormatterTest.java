@@ -26,16 +26,12 @@ public class TypingFormatterTest extends FormatterTest {
 
   @NonNls
   protected static final String CARET_MARKER = "<caret>";
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/formatter/data/enter";
+  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/handlers/data/enter";
 
   protected Editor myEditor;
   protected FileEditorManager fileEditorManager;
   protected String newDocumentText;
   protected PsiFile myFile;
-
-  private Editor createEditor(VirtualFile file) {
-    return FileEditorManager.getInstance(project).openTextEditor(new OpenFileDescriptor(project, file, 0), false);
-  }
 
   public static void runAsWriteAction(final Runnable runnable) {
     ApplicationManager.getApplication().runWriteAction(runnable);
