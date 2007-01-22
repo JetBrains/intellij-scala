@@ -29,7 +29,12 @@
     </delete>
   </target>
 
-  <target name="make.project" description="Builds all classes">
+  <target name="create.lexer" description="Makes lexer file">
+    <ant dir="org/jetbrains/plugins/scala/lang/lexer/"
+         antfile="build.xml" target="generate.lexer" />
+  </target>
+
+  <target name="make.project" depends="create.lexer" description="Builds all classes">
 
     <mkdir dir="${project.lib}"/>
     <mkdir dir="${project.lib}/META-INF"/>
@@ -72,7 +77,7 @@
   </target>
 
 
-  <target name="rebuild.all" depends="clear.all" description="Builds all classes">
+  <target name="rebuild.all" depends="clear.all, create.lexer" description="Builds all classes">
 
     <mkdir dir="${project.lib}"/>
     <mkdir dir="${project.lib}/META-INF"/>
