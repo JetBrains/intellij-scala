@@ -46,7 +46,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
       override def toString: String = "Binding"
   }
 
-  case class ScEnumeratorImpl( node : ASTNode ) extends ScExpr1Impl(node) {
+  class ScEnumeratorImpl( node : ASTNode ) extends ScEnumeratorsImpl(node) {
       override def toString: String = "Enumerator"
   }
 

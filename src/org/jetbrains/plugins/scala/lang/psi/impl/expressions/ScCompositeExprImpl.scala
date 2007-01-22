@@ -7,6 +7,10 @@ import com.intellij.psi._
 
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
+import org.jetbrains.plugins.scala.lang.psi.impl.patterns.ScCaseClauseImpl
+import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import com.intellij.psi.tree.TokenSet
 
   case class ScIfStmtImpl( node : ASTNode ) extends ScExprImpl(node) with IfElseIndent {
       override def toString: String = "IF statement"
@@ -32,6 +36,12 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
   }
   case class ScTryStmtImpl( node : ASTNode ) extends ScExprImpl(node) {
       override def toString: String = "TRY statement"
+
+      def tryBlock = null
+
+      def isCatchBlock = (e : IElementType) => ScalaElementTypes.CATCH_BLOCK.equals(e)
+      def catchBlock = childSatisfyPredicateForElementType(isCatchBlock).asInstanceOf[ScCatchBlockImpl]
+
       def getType() : PsiType = null
   }
       case class ScTryBlockImpl( node : ASTNode ) extends ScExprImpl(node) with IfElseIndent{
@@ -40,6 +50,9 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
       }
       case class ScCatchBlockImpl( node : ASTNode ) extends ScExprImpl(node) with IfElseIndent{
           override def toString: String = "Catch block"
+
+          def caseClauses : Iterable[ScCaseClauseImpl] = childrenOfType[ScCaseClauseImpl](TokenSet.create(Array(ScalaElementTypes.CASE_CLAUSE)))
+
           def getType() : PsiType = null
       }
       case class ScFinallyBlockImpl( node : ASTNode ) extends ScExprImpl(node) with IfElseIndent{
@@ -51,26 +64,32 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
       override def toString: String = "WHILE statement"
       def getType() : PsiType = null
   }
+
   case class ScClosureImpl( node : ASTNode ) extends ScExprImpl(node) {
       override def toString: String = "Method closure"
       def getType() : PsiType = null
   }
+
   case class ScReturnStmtImpl( node : ASTNode ) extends ScExprImpl(node) {
       override def toString: String = "RETURN statement"
       def getType() : PsiType = null
   }
+
   case class ScThrowStmtImpl( node : ASTNode ) extends ScExprImpl(node) {
       override def toString: String = "THROW statement"
       def getType() : PsiType = null
   }
+
   case class ScMatchStmtImpl( node : ASTNode ) extends ScExprImpl(node) {
       override def toString: String = "MATCH statement"
       def getType() : PsiType = null
   }
+
   case class ScTypedStmtImpl( node : ASTNode ) extends ScExprImpl(node) {
       override def toString: String = "Typed statement"
       def getType() : PsiType = null
   }
+
   case class ScAssignStmtImpl( node : ASTNode ) extends ScExprImpl(node) {
       override def toString: String = "Assign statement"
       def getType() : PsiType = null

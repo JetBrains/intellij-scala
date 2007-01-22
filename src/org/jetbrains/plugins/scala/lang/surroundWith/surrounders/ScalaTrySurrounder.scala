@@ -11,7 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 
 class ScalaWithTrySurrounder extends ScalaExpressionSurrounder {
     override def isApplicable(expr : ScExprImpl) : Boolean = {
-    expr.isInstanceOf[ScBlockImpl]
+//    expr.isInstanceOf[ScBlockImpl]
+//todo: add node BLOCK in Psi
+      true
   }
 
   override def getExpressionTemplateAsString (exprAsString : String) = "try {" + exprAsString + "}"

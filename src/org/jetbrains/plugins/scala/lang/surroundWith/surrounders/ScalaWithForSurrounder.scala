@@ -15,7 +15,7 @@ class ScalaWithForSurrounder extends ScalaExpressionSurrounder {
     expr.isInstanceOf[ScExprImpl]
   }
 
-  override def getExpressionTemplateAsString (exprAsString : String) = "for (a) " + exprAsString
+  override def getExpressionTemplateAsString (exprAsString : String) = "for (val a <- as) " + exprAsString
 
   override def getTemplateDescription = "for"
 
