@@ -42,7 +42,7 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
     return CodeStyleSettingsManager.getSettings(project);
   }
 
-  private void performFormatting(final Project project, final PsiFile file) throws IncorrectOperationException {
+  protected void performFormatting(final Project project, final PsiFile file) throws IncorrectOperationException {
     mySettings = getSettings();
     mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE = 2;
     mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).CONTINUATION_INDENT_SIZE = 2;
