@@ -44,5 +44,5 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         }
       }
       case _ => Indent.getNoneIndent()
-    }
+   }
 }
