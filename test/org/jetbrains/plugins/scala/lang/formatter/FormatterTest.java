@@ -10,6 +10,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.FileTypeIndentOptionsProvider;
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.impl.DebugUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
@@ -28,6 +29,8 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
   @NonNls
   private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/formatter/data/";
 
+  protected CodeStyleSettings mySettings;
+
   public FormatterTest() {
     super(System.getProperty("path") != null ?
             System.getProperty("path") :
@@ -35,8 +38,16 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
     );
   }
 
-  private void performFormatting(final Project project, final PsiFile file) throws IncorrectOperationException {
+  private CodeStyleSettings getSettings() {
+    return CodeStyleSettingsManager.getSettings(project);
+  }
 
+  private void performFormatting(final Project project, final PsiFile file) throws IncorrectOperationException {
+    mySettings = getSettings();
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE = 2;
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).CONTINUATION_INDENT_SIZE = 2;
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).TAB_SIZE = 2;
+    
     TextRange myTextRange = file.getTextRange();
     CodeStyleManager.getInstance(project).reformatText(file, myTextRange.getStartOffset(), myTextRange.getEndOffset());
   }

@@ -1,7 +1,9 @@
 class C {
-while (a)
+while (true)
+            doSomething()
 }
 -----
 class C {
-    while (a)
+  while (true)
+    doSomething()
 }
