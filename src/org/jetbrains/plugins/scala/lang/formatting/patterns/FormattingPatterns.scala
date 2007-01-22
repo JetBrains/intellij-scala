@@ -17,4 +17,9 @@ package indent {
   */
   trait ContiniousIndent
 
+  /**
+  *  For if else statement
+  */
+  trait IfElseIndent
+
 }
