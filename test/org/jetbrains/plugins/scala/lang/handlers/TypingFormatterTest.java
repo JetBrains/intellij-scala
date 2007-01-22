@@ -19,6 +19,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.codeInsight.editorActions.EnterHandler;
+import com.intellij.ide.DataManager;
 import junit.framework.Test;
 
 
@@ -66,6 +67,9 @@ public class TypingFormatterTest extends FormatterTest {
     final EditorActionHandler handler = new EnterHandler(manager.getActionHandler(IdeActions.ACTION_EDITOR_ENTER));
     manager.setActionHandler(IdeActions.ACTION_EDITOR_ENTER, handler);
     final DataContext dataContext = new myDataContext();
+//    DataManager.getInstance().getDataContext()
+
+
 
     performAction(project, new Runnable() {
       public void run() {
