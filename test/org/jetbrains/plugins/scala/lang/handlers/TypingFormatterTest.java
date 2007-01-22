@@ -4,7 +4,11 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.jetbrains.plugins.scala.lang.formatter.FormatterTest;
+import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.codeStyle.CodeStyleSettings;
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.editor.actionSystem.EditorActionManager;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
@@ -21,18 +25,27 @@ import com.intellij.util.IncorrectOperationException;
 import com.intellij.codeInsight.editorActions.EnterHandler;
 import com.intellij.ide.DataManager;
 import junit.framework.Test;
+import junit.framework.Assert;
 
 
-public class TypingFormatterTest extends FormatterTest {
+public class TypingFormatterTest extends BaseScalaFileSetTestCase {
 
   @NonNls
   protected static final String CARET_MARKER = "<caret>";
   private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/handlers/data/enter";
 
   protected Editor myEditor;
+  protected CodeStyleSettings mySettings;
   protected FileEditorManager fileEditorManager;
   protected String newDocumentText;
   protected PsiFile myFile;
+
+  public TypingFormatterTest() {
+    super(System.getProperty("path") != null ?
+            System.getProperty("path") :
+            DATA_PATH
+    );
+  }
 
   public static void runAsWriteAction(final Runnable runnable) {
     ApplicationManager.getApplication().runWriteAction(runnable);
@@ -46,13 +59,25 @@ public class TypingFormatterTest extends FormatterTest {
     });
   }
 
+  protected CodeStyleSettings getSettings() {
+    return CodeStyleSettingsManager.getSettings(project);
+  }
+
+  protected void setSettings() {
+    mySettings = getSettings();
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE = 2;
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).CONTINUATION_INDENT_SIZE = 2;
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).TAB_SIZE = 2;
+  }
+
   protected String removeMarker(String text) {
     int index = text.indexOf(CARET_MARKER);
     return text.substring(0, index) + text.substring(index + CARET_MARKER.length());
   }
 
-
   private String typeEnter(final PsiFile file) throws IncorrectOperationException {
+
+    setSettings();
 
     String fileText = file.getText();
     int offset = fileText.indexOf(CARET_MARKER);
@@ -66,10 +91,9 @@ public class TypingFormatterTest extends FormatterTest {
     EditorActionManager manager = EditorActionManager.getInstance();
     final EditorActionHandler handler = new EnterHandler(manager.getActionHandler(IdeActions.ACTION_EDITOR_ENTER));
     manager.setActionHandler(IdeActions.ACTION_EDITOR_ENTER, handler);
+
     final DataContext dataContext = new myDataContext();
-//    DataManager.getInstance().getDataContext()
-
-
+    Assert.assertTrue(handler.isEnabled(myEditor, dataContext));
 
     performAction(project, new Runnable() {
       public void run() {
