@@ -82,21 +82,19 @@ class ScalaPsiElementImpl ( node : ASTNode ) extends ASTWrapperPsiElement( node 
    }
 
   override def replace(newElement : PsiElement) : PsiElement = {
-    if (newElement == null) throw new NullPointerException ("newElement is null")
+//    if (newElement == null) throw new NullPointerException ("newElement is null")
 
     val parent : ScalaPsiElementImpl = getParent().asInstanceOf[ScalaPsiElementImpl]
-    if (parent == null) throw new NullPointerException ("parent not null")
+//    if (parent == null) throw new NullPointerException ("parent not null")
 
     val parentNode = parent.getNode()
-    if (parentNode == null) throw new NullPointerException ("parentNode is null")
+//    if (parentNode == null) throw new NullPointerException ("parentNode is null")
 
     val myNode = this.getASTNode()
-    if (myNode == null) throw new NullPointerException ("myNode not null")
+//    if (myNode == null) throw new NullPointerException ("myNode not null")
 
     val newElementNode = newElement.asInstanceOf[ScalaPsiElementImpl].getASTNode()
-    if (newElementNode == null) throw new NullPointerException ("newElementNode is null" + myNode + " parentNode " + parentNode + " parent " + parent + " newElement " + newElement + " newElementNode " + newElementNode)
-
-
+//    if (newElementNode == null) throw new NullPointerException ("newElementNode is null" + myNode + " parentNode " + parentNode + " parent " + parent + " newElement " + newElement + " newElementNode " + newElementNode)
 
     parentNode.replaceChild(myNode, newElementNode)
     newElement
