@@ -38,16 +38,19 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
     );
   }
 
-  private CodeStyleSettings getSettings() {
+  protected CodeStyleSettings getSettings() {
     return CodeStyleSettingsManager.getSettings(project);
   }
 
-  protected void performFormatting(final Project project, final PsiFile file) throws IncorrectOperationException {
+  protected void setSettings() {
     mySettings = getSettings();
     mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE = 2;
     mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).CONTINUATION_INDENT_SIZE = 2;
     mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).TAB_SIZE = 2;
-    
+  }
+
+  protected void performFormatting(final Project project, final PsiFile file) throws IncorrectOperationException {
+    setSettings();    
     TextRange myTextRange = file.getTextRange();
     CodeStyleManager.getInstance(project).reformatText(file, myTextRange.getStartOffset(), myTextRange.getEndOffset());
   }
