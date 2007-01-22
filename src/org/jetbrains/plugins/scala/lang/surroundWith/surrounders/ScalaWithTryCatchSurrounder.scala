@@ -11,11 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 
 
 class ScalaWithTryCatchSurrounder extends ScalaWithTrySurrounder {
-//    override def isApplicable(expr : ScExprImpl) : Boolean = {
-//    expr.isInstanceOf[ScBlockImpl]
-//
-//  }
-
   override def getExpressionTemplateAsString (exprAsString : String) = "try { \n " + exprAsString + "\n" + "} catch { \n " + "case a=>b" +  "\n }"
 
   override def getTemplateDescription = "try / catch"
