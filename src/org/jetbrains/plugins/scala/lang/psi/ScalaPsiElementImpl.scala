@@ -78,19 +78,10 @@ class ScalaPsiElementImpl ( node : ASTNode ) extends ASTWrapperPsiElement( node 
    }
 
   override def replace(newElement : PsiElement) : PsiElement = {
-//    if (newElement == null) throw new NullPointerException ("newElement is null")
-
     val parent : ScalaPsiElementImpl = getParent().asInstanceOf[ScalaPsiElementImpl]
-//    if (parent == null) throw new NullPointerException ("parent not null")
-
     val parentNode = parent.getNode()
-//    if (parentNode == null) throw new NullPointerException ("parentNode is null")
-
     val myNode = this.getASTNode()
-//    if (myNode == null) throw new NullPointerException ("myNode not null")
-
     val newElementNode = newElement.asInstanceOf[ScalaPsiElementImpl].getASTNode()
-//    if (newElementNode == null) throw new NullPointerException ("newElementNode is null" + myNode + " parentNode " + parentNode + " parent " + parent + " newElement " + newElement + " newElementNode " + newElementNode)
 
     parentNode.replaceChild(myNode, newElementNode)
     newElement
@@ -98,11 +89,5 @@ class ScalaPsiElementImpl ( node : ASTNode ) extends ASTWrapperPsiElement( node 
 
   def getASTNode() : ASTNode = node
 
-//  override def getUserData[T >: Null <: java.lang.Object]( key : Key[T] ) : T = null
-//
-//  override def putUserData[T >: Null <: java.lang.Object]( key : Key[T] , value : T) : Unit = {}
-
-//  override def getIcon(flags : Int) : Icon = null
-//
   override def toString : String = "scala psi element"
 }
