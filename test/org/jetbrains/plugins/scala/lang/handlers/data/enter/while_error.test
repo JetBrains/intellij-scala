@@ -1,8 +1,8 @@
 class C {
-  while (true)<caret>
+  while (true) <caret>5
 }
 -----
 class C {
   while (true)
-  <caret>
+    <caret>5
 }
