@@ -38,9 +38,8 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
                       elem: ScalaElementType) = {
       def errorDone (msg: String): ScalaElementType = {
         rollbackMarker.drop()
-        builder.error(msg)
+//        builder.error(msg)
         compMarker.error(msg)
-        //compMarker.done(elem)
         ScalaElementTypes.EXPR1
       }
       (msg:String) => errorDone(msg)
@@ -161,8 +160,6 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           ScalaElementTypes.EXPR1
         } else {
           rollbackMarker.drop()
-          //builder.error("Expression expected")
-          //compMarker.done (ScalaElementTypes.ASSIGN_STMT)
           compMarker.error("Expression expected")
           ScalaElementTypes.EXPR1
         }
@@ -259,12 +256,12 @@ def b1Case: ScalaElementType = {
             rollbackMarker.drop()
             compMarker.done(ScalaElementTypes.IF_STMT)
             ScalaElementTypes.EXPR1
-          } else errorDone("Wrong expression")                   
+          } else errorDone("Wrong expression")
         } else {
           rMarker.rollbackTo()
           rollbackMarker.drop()
           compMarker.done(ScalaElementTypes.IF_STMT)
-          ScalaElementTypes.EXPR1  
+          ScalaElementTypes.EXPR1
         }
       }
 
@@ -356,18 +353,19 @@ def b1Case: ScalaElementType = {
           rollbackMarker.drop()
           compMarker.done(ScalaElementTypes.WHILE_STMT)
           ScalaElementTypes.EXPR1
-        } else errorDone("Wrong expression")
+        } else {
+          errorDone("Wrong expression")
+        }
       }
 
       def parseError(st: String) = {
-        builder.error(st)
+//        builder.error(st)
         ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS , ScalaTokenTypes.tRPARENTHIS)
         if (!builder.eof) {
           parseContent
         }
         else {
           rollbackMarker.drop()
-          //compMarker.done(ScalaElementTypes.WHILE_STMT)
           compMarker.error(st)
           ScalaElementTypes.EXPR1
         }
@@ -375,13 +373,14 @@ def b1Case: ScalaElementType = {
 
       /* for mistakes processing */
       def errorDone = errorDoneMain(rollbackMarker , ScalaElementTypes.WHILE_STMT)
+
       if (builder.getTokenType.eq(ScalaTokenTypes.kWHILE)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kWHILE)
-        if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)){
+        if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
           val res = Expr parse(builder)
-          if (res.eq(ScalaElementTypes.EXPR)){
-            if (builder.getTokenType.eq (ScalaTokenTypes.tRPARENTHIS)){
+          if (ScalaElementTypes.EXPR.eq(res)){
+            if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
               ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
               parseContent
             } else parseError(") expected")
