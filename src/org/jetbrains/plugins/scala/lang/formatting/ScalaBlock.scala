@@ -17,9 +17,9 @@ import java.util.ArrayList;
 
 class ScalaBlock(private val myParentBlock : ScalaBlock,
                  private val myNode : ASTNode,
-                 private val myAlignment : Alignment,
-                 private val myIndent: Indent,
-                 private val myWrap : Wrap,
+                 private var myAlignment : Alignment,
+                 private var myIndent: Indent,
+                 private var myWrap : Wrap,
                  private val mySettings : CodeStyleSettings)
   extends Object with ScalaTokenTypes with Block {
 
@@ -37,9 +37,9 @@ class ScalaBlock(private val myParentBlock : ScalaBlock,
 
   def getAlignment = myAlignment
 
-  def isLeaf = {
-    myNode.getFirstChildNode() == null
-  }
+  def isLeaf = isLeaf(myNode)
+
+  def isIncomplete = isIncomplete(myNode)
 
   def getChildAttributes(newChildIndex: Int) : ChildAttributes = {
     val parent = getNode.getPsi
@@ -74,8 +74,8 @@ class ScalaBlock(private val myParentBlock : ScalaBlock,
     mySubBlocks
   }
 
-  def isIncomplete = {
-    isIncomplete(myNode)
+  def isLeaf(node:ASTNode) = {
+    node.getFirstChildNode() == null
   }
 
   def isIncomplete (node: ASTNode) : Boolean = {
