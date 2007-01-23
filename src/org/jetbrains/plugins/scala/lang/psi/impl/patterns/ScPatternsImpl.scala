@@ -5,6 +5,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.patterns {
 import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.psi._
+import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
   case class ScPattern1Impl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "Common pattern"
@@ -27,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi._
   }
 
 
-  case class ScCaseClauseImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+  case class ScCaseClauseImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) with IfElseIndent{
       override def toString: String = "Case Clause"
   }
 

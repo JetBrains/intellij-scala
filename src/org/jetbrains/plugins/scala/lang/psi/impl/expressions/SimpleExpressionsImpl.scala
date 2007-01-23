@@ -6,8 +6,9 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 
 import org.jetbrains.plugins.scala.lang.psi._
+import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
-  class ScInfixExprImpl( node : ASTNode ) extends ScPostfixExprImpl(node) {
+  class ScInfixExprImpl( node : ASTNode ) extends ScPostfixExprImpl(node) with IfElseIndent{
       override def toString: String = "Infix expression"
 //      override def getType() : PsiType = null
   }
