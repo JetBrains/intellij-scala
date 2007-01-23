@@ -1,24 +1,16 @@
 package org.jetbrains.plugins.scala.lang.formatter;
 
-import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
-import org.jetbrains.plugins.scala.util.TestUtils;
-import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.annotations.NonNls;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.PsiElementFactory;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.codeStyle.CodeStyleManager;
-import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.psi.codeStyle.FileTypeIndentOptionsProvider;
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
-import com.intellij.psi.impl.DebugUtil;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.util.IncorrectOperationException;
-import junit.framework.Assert;
 import junit.framework.Test;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
+import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,13 +28,10 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
     );
   }
 
-
-
   protected void performFormatting(final Project project, final PsiFile file) throws IncorrectOperationException {
     TextRange myTextRange = file.getTextRange();
     CodeStyleManager.getInstance(project).reformatText(file, myTextRange.getStartOffset(), myTextRange.getEndOffset());
   }
-
 
   public String transform(String testName, String[] data) throws Exception {
     String fileText = data[0];
