@@ -53,7 +53,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
       override def toString: String = "Enumerators"
   }
 
-  case class ScAnFunImpl( node : ASTNode ) extends ScExpr1Impl(node) {
+  case class ScAnFunImpl( node : ASTNode ) extends ScExpr1Impl(node) with IfElseIndent{
       override def toString: String = "Anonymous function"
       def getType() : PsiType = null
   }
