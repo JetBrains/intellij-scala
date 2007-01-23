@@ -1,0 +1,8 @@
+class C {
+  if <caret>
+}
+-----
+class C {
+  if 
+  <caret>
+}
