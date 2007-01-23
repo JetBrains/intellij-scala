@@ -1,0 +1,9 @@
+class C {
+  x match {<caret>
+}
+-----
+class C {
+  x match {
+    <caret>
+  }
+}
