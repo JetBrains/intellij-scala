@@ -1,0 +1,8 @@
+class C {
+  val a=<caret>
+}
+-----
+class C {
+  val a=
+  <caret>
+}
