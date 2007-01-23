@@ -1,0 +1,9 @@
+  package a.b.c
+    import d.f
+        class D{
+   }
+-----
+package a.b.c
+import d.f
+class D{
+}
