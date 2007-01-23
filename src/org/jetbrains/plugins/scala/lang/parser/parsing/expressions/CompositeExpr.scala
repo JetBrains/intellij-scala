@@ -38,7 +38,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
                       elem: ScalaElementType) = {
       def errorDone (msg: String): ScalaElementType = {
         rollbackMarker.drop()
-//        builder.error(msg)
+//        builder.error(msg)     // Formatter bug!
         compMarker.error(msg)
         ScalaElementTypes.EXPR1
       }
