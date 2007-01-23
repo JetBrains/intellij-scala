@@ -1,0 +1,13 @@
+class C {
+  x match {
+    case a =>
+                            b
+  }
+}
+-----
+class C {
+  x match {
+    case a =>
+      b
+  }
+}
