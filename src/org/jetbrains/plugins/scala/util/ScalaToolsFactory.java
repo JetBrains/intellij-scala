@@ -1,17 +1,16 @@
 package org.jetbrains.plugins.scala.util;
 
-import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.codeInsight.completion.CompletionData;
+import com.intellij.formatting.FormattingModelBuilder;
 import com.intellij.lang.ParserDefinition;
 import com.intellij.lang.folding.FoldingBuilder;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
-import com.intellij.codeInsight.completion.CompletionData;
-import com.intellij.ide.structureView.StructureViewBuilder;
-import com.intellij.formatting.FormattingModelBuilder;
-import org.jetbrains.plugins.scala.lang.surroundWith.SurroundDescriptors;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.lang.surroundWith.SurroundDescriptors;
 
 /**
  * Author: Ilya Sergey
