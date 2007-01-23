@@ -92,7 +92,7 @@ import com.intellij.psi.tree.TokenSet
       def getType() : PsiType = null
   }
 
-  case class ScMatchStmtImpl( node : ASTNode ) extends ScExprImpl(node) with IfElseIndent{
+  case class ScMatchStmtImpl( node : ASTNode ) extends ScExprImpl(node) {
       override def toString: String = "MATCH statement"
       def getType() : PsiType = null
   }
