@@ -48,7 +48,7 @@ public abstract class ScalaFileSetTestCase extends FileSetTestCase {
     project = fixture.getProject();
     ScalaLoader.loadScala();
     setSettings();
-    
+
   }
 
   protected void tearDown() {
