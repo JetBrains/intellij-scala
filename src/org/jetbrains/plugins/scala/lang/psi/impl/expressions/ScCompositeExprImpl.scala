@@ -102,7 +102,7 @@ import com.intellij.psi.tree.TokenSet
       def getType() : PsiType = null
   }
 
-  case class ScAssignStmtImpl( node : ASTNode ) extends ScExprImpl(node) {
+  case class ScAssignStmtImpl( node : ASTNode ) extends ScExprImpl(node) with IfElseIndent{
       override def toString: String = "Assign statement"
       def getType() : PsiType = null
   }
