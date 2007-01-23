@@ -1,0 +1,8 @@
+class C {
+  while (true) <caret>
+}
+-----
+class C {
+  while (true) 
+    <caret>
+}
