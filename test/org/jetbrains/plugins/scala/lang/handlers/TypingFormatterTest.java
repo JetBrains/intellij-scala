@@ -1,31 +1,30 @@
 package org.jetbrains.plugins.scala.lang.handlers;
 
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.util.TestUtils;
-import org.jetbrains.plugins.scala.lang.formatter.FormatterTest;
-import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.editor.actionSystem.EditorActionManager;
-import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.actionSystem.IdeActions;
-import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.codeInsight.editorActions.EnterHandler;
 import com.intellij.openapi.actionSystem.DataConstants;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.IdeActions;
+import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
+import com.intellij.openapi.editor.actionSystem.EditorActionManager;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.InvalidDataException;
+import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-import com.intellij.codeInsight.editorActions.EnterHandler;
-import com.intellij.ide.DataManager;
-import junit.framework.Test;
+import com.intellij.idea.IdeaTestApplication;
 import junit.framework.Assert;
+import junit.framework.Test;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
+import org.jetbrains.plugins.scala.util.TestUtils;
+
+import java.io.IOException;
 
 
 public class TypingFormatterTest extends BaseScalaFileSetTestCase {
@@ -63,7 +62,7 @@ public class TypingFormatterTest extends BaseScalaFileSetTestCase {
     return text.substring(0, index) + text.substring(index + CARET_MARKER.length());
   }
 
-  private String typeEnter(final PsiFile file) throws IncorrectOperationException {
+  private String typeEnter(final PsiFile file) throws IncorrectOperationException, InvalidDataException, IOException {
 
     String fileText = file.getText();
     int offset = fileText.indexOf(CARET_MARKER);
@@ -78,7 +77,8 @@ public class TypingFormatterTest extends BaseScalaFileSetTestCase {
     final EditorActionHandler handler = new EnterHandler(manager.getActionHandler(IdeActions.ACTION_EDITOR_ENTER));
     manager.setActionHandler(IdeActions.ACTION_EDITOR_ENTER, handler);
 
-    final DataContext dataContext = new myDataContext();
+    final myDataContext dataContext = new myDataContext();
+    IdeaTestApplication.getInstance().setDataProvider(dataContext);
     Assert.assertTrue(handler.isEnabled(myEditor, dataContext));
 
     performAction(project, new Runnable() {
@@ -97,7 +97,7 @@ public class TypingFormatterTest extends BaseScalaFileSetTestCase {
     return result;
   }
 
-  protected String performTyping(final Project project, final PsiFile file) throws IncorrectOperationException {
+  protected String performTyping(final Project project, final PsiFile file) throws IncorrectOperationException, InvalidDataException, IOException {
     setSettings();
     return typeEnter(file);
   }
@@ -113,13 +113,13 @@ public class TypingFormatterTest extends BaseScalaFileSetTestCase {
     return new TypingFormatterTest();
   }
 
-  public class myDataContext implements DataContext {
+  public class myDataContext implements DataContext, DataProvider {
     @Nullable
     public Object getData(@NonNls String dataId) {
       if (DataConstants.LANGUAGE.equals(dataId)) return myFile.getLanguage();
       if (DataConstants.PROJECT.equals(dataId)) return myFile.getProject();
 
-      throw new IllegalArgumentException("Data not supported: " + dataId);
+      return null;
     }
   }
 
