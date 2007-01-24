@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
     def getTmplDefs : Iterable[ScTmplDef] = childrenOfType[ScTmplDef] (ScalaElementTypes.TMPL_DEF_BIT_SET)
 
     [NotNull]
-    def getFullPackageName : String = getChild[ScQualId].getFullName
+    def getFullPackageName : String = getChild(ScalaElementTypes.QUAL_ID).asInstanceOf[ScQualId].getFullName
   }
 
   class ScPackageStatement ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
     [Nullable]
     def getFullPackageName : String = {
-      val qualId = getChild[ScQualId]
+      val qualId = getChild(ScalaElementTypes.QUAL_ID).asInstanceOf[ScQualId]
       if (qualId == null) null else qualId.getFullName
     }
   }

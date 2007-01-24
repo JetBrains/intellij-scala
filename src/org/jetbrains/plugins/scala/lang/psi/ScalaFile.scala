@@ -10,6 +10,7 @@ import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 import org.jetbrains.annotations.Nullable
 import com.intellij.lang.ASTNode
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 
@@ -67,13 +68,12 @@ class ScalaFile ( viewProvider : FileViewProvider )
     }
 
     [Nullable]
-    def getChild[T >: Null <: ScalaPsiElementImpl] : T = {
+    def getChild(elemType : IElementType) : PsiElement = {
       def inner (e : PsiElement) : PsiElement = e match {
          case null => null
-         case me : T => me
-         case _ => inner (e.getNextSibling())
+         case _ => if (e.getNode.getElementType == elemType) e else inner (e.getNextSibling())
       }
 
-      inner (getFirstChild ()).asInstanceOf[T]
+      inner (getFirstChild ())
    }
 }

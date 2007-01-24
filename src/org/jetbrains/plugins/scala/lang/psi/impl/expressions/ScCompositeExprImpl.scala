@@ -35,7 +35,10 @@ import com.intellij.psi.tree.TokenSet
       override def toString: String = "DO statement"
 
       def isCondition = (e : PsiElement) => e.isInstanceOf[ScExprImpl]
-      def condition : ScExprImpl = getChild[ScExprImpl](getLastChild, (e : PsiElement) => e.getPrevSibling).asInstanceOf[ScExprImpl]
+      def condition : ScExprImpl = childSatisfyPredicateForPsiElement(isCondition).asInstanceOf[ScExpr1Impl] 
+        /*getChild[ScExprImpl](getLastChild, (e : PsiElement) => e.getPrevSibling).asInstanceOf[ScExprImpl]*/
+
+
 
       def getType() : PsiType = null
   }

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.top.templates {
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl;
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
@@ -19,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
   case class ScTopDefTemplate( node : ASTNode ) extends Template ( node ) {
     override def toString: String = "top definition" + " " + super.toString
 
-    override def getTemplateParents = getChild[ScTemplateParents]
+    override def getTemplateParents = getChild(ScalaElementTypes.TEMPLATE_PARENTS).asInstanceOf[ScTemplateParents]
   }
    
   /*********** class **************/
@@ -42,7 +43,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
   case class ScTemplate( node : ASTNode ) extends Template ( node ) {
     override def toString: String = super.toString
 
-    override def getTemplateParents = getChild[ScTemplateParents]
+    override def getTemplateParents = getChild(ScalaElementTypes.TEMPLATE_PARENTS).asInstanceOf[ScTemplateParents]
   }
 
   /**************** parents ****************/

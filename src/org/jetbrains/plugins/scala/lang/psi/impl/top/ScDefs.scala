@@ -36,7 +36,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
             case pack : ScPackaging => append (inner(parent, acc), pack.asInstanceOf[ScPackaging].getFullPackageName)
             case tmplDef : ScTmplDef => append (inner(parent, acc), tmplDef.asInstanceOf[ScTmplDef].getName)
             case f : ScalaFile => {
-              val packageStatement : ScPackageStatement = f.getChild[ScPackageStatement]
+              val packageStatement = f.getChild(ScalaElementTypes.PACKAGE_STMT).asInstanceOf[ScPackageStatement]
               if (packageStatement == null) "" else {
                 val packageName = packageStatement.getFullPackageName
                 if (packageName == null) "" else packageName
@@ -50,14 +50,14 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
     }
 
     import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
-    def getTemplate = getChild[ScTopDefTemplate]
+    def getTemplate = getChild(ScalaElementTypes.TOP_DEF_TEMPLATE).asInstanceOf[ScTopDefTemplate]
 
     def getTemplates = getChildren
   }
 
   trait ScTypeDef extends ScTmplDef  with IfElseIndent{
     def getTypeParameterClause : ScTypeParamClause = {
-      getChild[ScTypeParamClause]
+      getChild(ScalaElementTypes.TYPE_PARAM_CLAUSE).asInstanceOf[ScTypeParamClause]
     }
 
     override def getName : String = {
