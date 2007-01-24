@@ -6,8 +6,7 @@ Scala file
   template definition: class
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
-    Identifier
-      PsiElement(identifier)('Человек')
+    PsiElement(identifier)('Человек')
     class template
       template body
         PsiElement({)('{')
@@ -15,31 +14,25 @@ Scala file
         pattern definition
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          Identifier
-            PsiElement(identifier)('лицо')
+          PsiElement(identifier)('лицо')
           PsiElement(=)('=')
           Anonymous function
             PsiElement(()('(')
             Binding
-              Identifier
-                PsiElement(identifier)('a')
+              PsiElement(identifier)('a')
               PsiElement(:)(':')
               Simple type
                 Stable Identifier
-                  Identifier
-                    PsiElement(identifier)('T')
+                  PsiElement(identifier)('T')
             PsiElement(,)(',')
             Binding
-              Identifier
-                PsiElement(identifier)('b')
+              PsiElement(identifier)('b')
               PsiElement(:)(':')
               Simple type
                 Stable Identifier
-                  Identifier
-                    PsiElement(identifier)('S')
+                  PsiElement(identifier)('S')
             PsiElement())(')')
             PsiElement(=>)('=>')
-            Literal
-              PsiElement(true)('true')
+            PsiElement(true)('true')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

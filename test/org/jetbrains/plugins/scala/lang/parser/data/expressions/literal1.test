@@ -6,8 +6,7 @@ Scala file
   template definition: class
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
-    Identifier
-      PsiElement(identifier)('A')
+    PsiElement(identifier)('A')
     PsiWhiteSpace(' ')
     class template
       template body
@@ -16,17 +15,14 @@ Scala file
         PsiWhiteSpace(' ')
         PsiWhiteSpace(' ')
         Common expression
-          Literal
-            PsiElement(integer)('0')
+          PsiElement(integer)('0')
           PsiElement(.)('.')
-          Identifier
-            PsiElement(identifier)('asInstanceOf')
+          PsiElement(identifier)('asInstanceOf')
           Type arguments list
             PsiElement([)('[')
             Simple type
               Stable Identifier
-                Identifier
-                  PsiElement(identifier)('T')
+                PsiElement(identifier)('T')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
