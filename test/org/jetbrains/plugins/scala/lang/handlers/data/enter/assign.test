@@ -1,8 +1,0 @@
-class C{
-  a =<caret>5
-}
------
-class C{
-  a =
-    <caret>5
-}
