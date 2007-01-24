@@ -5,8 +5,8 @@ import com.intellij.psi.FileViewProvider
 import org.jetbrains.plugins.scala.lang.psi.javaView.ScJavaFile
 import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition
 import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder
-import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors
-import org.jetbrains.plugins.scala.lang.surroundWith._
+//import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors
+//import org.jetbrains.plugins.scala.lang.surroundWith._
 import org.jetbrains.plugins.scala.lang.formatting._
 //import org.jetbrains.plugins.scala.structure.ScalaStructureViewBuilder
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionData
@@ -30,7 +30,7 @@ class ScalaToolsFactoryImpl extends ScalaToolsFactory {
 
   def createJavaView (viewProvider : FileViewProvider) = new ScJavaFile(viewProvider)
 
-  def createSurroundDescriptors : SurroundDescriptors = new ScalaSurroundDescriptors()
+//  def createSurroundDescriptors : SurroundDescriptors = new ScalaSurroundDescriptors()
 
   def createScalaFormattingModelBuilder: FormattingModelBuilder = new ScalaFormattingModelBuilder()
 
