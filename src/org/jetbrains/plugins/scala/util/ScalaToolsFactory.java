@@ -10,7 +10,6 @@ import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.lang.surroundWith.SurroundDescriptors;
 
 /**
  * Author: Ilya Sergey
@@ -39,7 +38,7 @@ public abstract class ScalaToolsFactory implements ApplicationComponent {
 
   public abstract FoldingBuilder createScalaFoldingBuilder();
 
-  public abstract SurroundDescriptors createSurroundDescriptors();
+//  public abstract SurroundDescriptors createSurroundDescriptors();
 
   public abstract PsiFile createJavaView(FileViewProvider viewProvider);
 
