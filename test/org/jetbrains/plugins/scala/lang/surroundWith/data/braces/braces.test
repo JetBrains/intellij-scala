@@ -1,0 +1,7 @@
+class a {
+  if (a) abc
+}
+-----
+class a {
+  {if (a) abc}
+}
