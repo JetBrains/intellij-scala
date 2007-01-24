@@ -54,27 +54,18 @@ class ScalaPsiElementImpl ( node : ASTNode ) extends ASTWrapperPsiElement( node 
     }
 
 
-    def hasChild[T >: Null <: ScalaPsiElementImpl] : Boolean = {
-      return getChild[T] != null
-    }
-
-    def getChild[T >: Null <: ScalaPsiElementImpl] : T = {
-      getChild[T](getFirstChild, (e : PsiElement) => e.getNextSibling)
-    }
-
-    def getChild[T >: Null <: ScalaPsiElementImpl](startsWith : PsiElement) : T = {
-      getChild[T](startsWith, (e : PsiElement) => e.getNextSibling)
+    def hasChild(elemType : IElementType) : Boolean = {
+      return getChild(elemType) != null
     }
 
     [Nullable]
-    def getChild[T >: Null <: ScalaPsiElementImpl](startsWith : PsiElement, direction : PsiElement => PsiElement) : T = {
+    def getChild(elemType : IElementType) : PsiElement = {
       def inner (e : PsiElement) : PsiElement = e match {
          case null => null
-         case me : T => me
-         case _ => inner (direction (e))
+         case _ => if (e.getNode.getElementType == elemType) e else inner (e.getNextSibling())
       }
 
-      inner (startsWith).asInstanceOf[T]
+      inner (getFirstChild ())
    }
 
   override def replace(newElement : PsiElement) : PsiElement = {
