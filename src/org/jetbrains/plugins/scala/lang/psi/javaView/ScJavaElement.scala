@@ -19,7 +19,10 @@ abstract class ScJavaElement(scElement : ScalaPsiElementImpl, parent : PsiElemen
 
     parent.getChildren.length match {
       case 0 => null
-      case _ => children(0)
+      case _ => {
+        val children = parent.getChildren
+        children(0)
+      }
     }
 
   }
@@ -27,7 +30,10 @@ abstract class ScJavaElement(scElement : ScalaPsiElementImpl, parent : PsiElemen
   def getLastChild : PsiElement = {
     parent.getChildren.length match {
       case 0 => null
-      case _ => children(children.length - 1)
+      case _ => {
+        val children = parent.getChildren
+        children(children.length - 1)
+      }
     }
   }
 
