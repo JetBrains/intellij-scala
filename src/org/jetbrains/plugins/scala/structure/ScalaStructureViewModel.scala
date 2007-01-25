@@ -21,20 +21,15 @@
 //class ScalaStructureViewModel (root : ScalaPsiElement) extends TextEditorBasedStructureViewModel (root.getContainingFile()) {
 //  var myRoot : ScalaPsiElement = root
 //
-////  def this (root : ScalaPsiElement) = {
-////    this(root)
-////    var myRoot : ScalaPsiElement = root
-////  }
-//
 //  protected def getPsiFile() : PsiFile = myRoot.getContainingFile();
 //
 ////  final val SUITABLE_CLASSES : Array[Class] = Array.apply(ScTmplDef)
 //
-//  override protected def getSuitableClasses() : Array[Class[Object]] = {
-//    new Array[Class[Object]](0)
-//  }
 //
-//  def getRoot[T >: Null <: java.lang.Object]() : StructureViewTreeElement[T] = new ScalaStructureViewElement(myRoot).asInstanceOf[StructureViewTreeElement[T]]
+//  //is Element suitable
+////  override def isElementSuitable = null
+//
+//  override def getRoot() : ScalaStructureViewElement = new ScalaStructureViewElement(myRoot)
 //
 //  //@NotNull
 //  override def getGroupers() : Array [Grouper] = Grouper.EMPTY_ARRAY

@@ -16,7 +16,7 @@
 
    override def isApplicable(expr : ScExprImpl) : Boolean = true
 
-   override def getExpressionTemplateAsString (exprAsString : String) = lBracket + exprAsString + rBracket
+   override def getExpressionTemplateAsString (expr : ASTNode) = lBracket + expr.getText + rBracket
 
    override def getTemplateDescription = lBracket + "expression" + rBracket
 

@@ -14,6 +14,7 @@
 //import com.intellij.openapi.util.Iconable;
 //import com.intellij.ui.LayeredIcon;
 //import com.intellij.ui.RowIcon;
+//import com.intellij.ide.util.treeView.smartTree.TreeElement
 //
 //import javax.swing._;
 //import java.util.ArrayList;
@@ -34,7 +35,7 @@
 // */
 //
 //
-//class ScalaStructureViewElement (element : ScalaPsiElement) extends StructureViewTreeElement[ScalaPsiElement] {
+//class ScalaStructureViewElement (element : ScalaPsiElement) requires ScalaStructureViewElement extends StructureViewTreeElement {
 //  private var myElement : ScalaPsiElement = element
 //
 //  def getValue() : ScalaPsiElement = myElement
@@ -45,7 +46,7 @@
 //
 //  def canNavigateToSource() : Boolean = (myElement.asInstanceOf[NavigationItem]).canNavigateToSource()
 //
-//  override def getChildren() : Array[StructureViewTreeElement[ScalaPsiElement]] = {
+//  override def getChildren() : Array[StructureViewTreeElement] = {
 //    var childrenElements: ArrayBuffer[ScalaPsiElement] = new ArrayBuffer[ScalaPsiElement]();
 //
 //   /*
@@ -71,7 +72,7 @@
 //  if (myElement.isInstanceOf[ScTmplDef])
 //      childrenElements(0) = myElement.asInstanceOf[ScTmplDef].getTemplate.asInstanceOf[ScalaPsiElement]
 //
-//    (for ( val i <- Array.range(0, childrenElements.length)) yield new ScalaStructureViewElement(childrenElements.apply(i))).asInstanceOf[Array[StructureViewTreeElement]]
+//    for ( val i <- Array.range(0, childrenElements.length)) yield (new ScalaStructureViewElement(childrenElements.apply(i)))/*.asInstanceOf[TreeElement]*/
 //  }
 //
 //

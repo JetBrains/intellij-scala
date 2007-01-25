@@ -36,10 +36,28 @@ class ScalaPsiElementImpl ( node : ASTNode ) extends ASTWrapperPsiElement( node 
     }
 
     def childSatisfyPredicateForPsiElement(predicate : PsiElement => Boolean) : PsiElement = {
-      def inner(e : PsiElement) : PsiElement = if (e == null || predicate(e)) e else inner(e.getNextSibling)
-
-      inner(getFirstChild)
+      childSatisfyPredicateForPsiElement(predicate, getFirstChild, (e : PsiElement) => e.getNextSibling)
     }
+
+    def childSatisfyPredicateForPsiElement(predicate : PsiElement => Boolean, startsWith : PsiElement) : PsiElement = {
+      childSatisfyPredicateForPsiElement(predicate, startsWith, (e : PsiElement) => e.getNextSibling)
+    }
+
+    def childSatisfyPredicateForPsiElement(predicate : PsiElement => Boolean, startsWith : PsiElement, direction : PsiElement => PsiElement) : PsiElement = {
+      def inner(e : PsiElement) : PsiElement = if (e == null || predicate(e)) e else inner(direction(e))
+
+      inner(startsWith)
+    }
+//    def childSatisfyPredicateFor(predicate : T => Boolean, startsWith : T) : PsiElement = {
+//      childSatisfyPredicateForPsiElement(predicate, startsWith, (e : T) => e.getNextSibling)
+//    }
+
+    /*def childSatisfyPredicate[T](predicate : T => Boolean, startsWith : PsiElement, direction : T => T) : PsiElement = {
+
+      def inner(curChild : PsiElement, e : T) : PsiElement = if (e == null || predicate(e)) e else inner(direction curChild, e)
+
+      inner(startsWith, )
+    }*/
 
     def childSatisfyPredicateForASTNode(predicate : ASTNode => Boolean) : PsiElement = {
       def inner(e : PsiElement) : PsiElement = if (e == null || predicate(e.getNode)) e else inner(e.getNextSibling)
@@ -60,12 +78,22 @@ class ScalaPsiElementImpl ( node : ASTNode ) extends ASTWrapperPsiElement( node 
 
     [Nullable]
     def getChild(elemType : IElementType) : PsiElement = {
+      getChild(elemType, getFirstChild, (e : PsiElement) => e.getNextSibling)
+    }
+
+    [Nullable]
+    def getChild(elemType : IElementType, startsWith : PsiElement) : PsiElement = {
+      getChild(elemType, startsWith, (e : PsiElement) => e.getNextSibling)
+    }
+
+    [Nullable]
+    def getChild(elemType : IElementType, startsWith : PsiElement, direction : PsiElement => PsiElement) : PsiElement = {
       def inner (e : PsiElement) : PsiElement = e match {
          case null => null
-         case _ => if (e.getNode.getElementType == elemType) e else inner (e.getNextSibling())
+         case _ => if (e.getNode.getElementType == elemType) e else inner (direction(e))
       }
 
-      inner (getFirstChild ())
+      inner (startsWith)
    }
 
   override def replace(newElement : PsiElement) : PsiElement = {
