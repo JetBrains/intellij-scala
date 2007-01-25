@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala;
 
 import com.intellij.formatting.FormattingModelBuilder;
 import com.intellij.lang.*;
+import com.intellij.lang.surroundWith.SurroundDescriptor;
 import com.intellij.lang.folding.FoldingBuilder;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.project.Project;
@@ -67,10 +68,10 @@ public class ScalaLanguage extends Language {
     return new ScalaCommenter();
   }
 
-//  @NotNull
-//  public SurroundDescriptor[] getSurroundDescriptors() {
-//    return ScalaToolsFactory.getInstance().createSurroundDescriptors().getSurroundDescriptors();
-//  }
+  @NotNull
+  public SurroundDescriptor[] getSurroundDescriptors() {
+    return ScalaToolsFactory.getInstance().createSurroundDescriptors().getSurroundDescriptors();
+  }
 
   public FileViewProvider createViewProvider(final VirtualFile file, final PsiManager manager, final boolean physical) {
     return new SingleRootFileViewProvider(manager, file, physical) {
