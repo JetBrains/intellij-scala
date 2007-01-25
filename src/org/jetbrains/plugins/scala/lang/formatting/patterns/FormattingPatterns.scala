@@ -28,6 +28,7 @@ package spacing {
 
   import com.intellij.psi.tree.TokenSet
   import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+  import org.jetbrains.plugins.scala.lang.parser._
 
   object SpacingTokens extends ScalaTokenTypes {
 
@@ -36,19 +37,29 @@ package spacing {
         ScalaTokenTypes.tDOT,
         ScalaTokenTypes.tCOMMA,
         ScalaTokenTypes.tSEMICOLON,
+        ScalaTokenTypes.tCOLON,
         ScalaTokenTypes.tRPARENTHIS,
         ScalaTokenTypes.tRSQBRACKET
       )
     )
 
     val SPACING_AFTER = TokenSet.create(
-       Array(ScalaTokenTypes.tCOMMA)
+       Array(ScalaTokenTypes.tCOMMA,
+             ScalaTokenTypes.tCOLON,
+             ScalaTokenTypes.kNEW)
     )
 
     val NO_SPACING_AFTER = TokenSet.create(
         Array(ScalaTokenTypes.tDOT,
               ScalaTokenTypes.tLPARENTHIS,
               ScalaTokenTypes.tLSQBRACKET
+        )
+    )
+
+    val SINGLE_SPACING_BETWEEN = TokenSet.create(
+        Array(ScalaElementTypes.INFIX_EXPR,
+              ScalaTokenTypes.tIDENTIFIER,
+              ScalaElementTypes.PATTERN3
         )
     )
 
