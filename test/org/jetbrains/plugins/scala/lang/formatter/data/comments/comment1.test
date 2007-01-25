@@ -1,7 +1,11 @@
 class C {
-             //PREVED!
+          /** ******
+          *  PREVED!
+          *********/
 }
 -----
 class C {
-  //PREVED!
+  /** ******
+  *  PREVED!
+  *********/
 }
