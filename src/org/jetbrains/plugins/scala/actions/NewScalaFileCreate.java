@@ -13,8 +13,8 @@ public class NewScalaFileCreate extends AnAction {
 
   public NewScalaFileCreate() {
     super("Scala file",
-            "Create new Scala file",
-            IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_logo.png"));
+      "Create new Scala file",
+      IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_logo.png"));
   }
 
   public void actionPerformed(AnActionEvent e) {
