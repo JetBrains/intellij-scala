@@ -16,16 +16,18 @@ abstract class ScJavaElement(scElement : ScalaPsiElementImpl, parent : PsiElemen
   def getParent : PsiElement = parent
 
   def getFirstChild : PsiElement = {
-    parent.getChildren match {
-      case Array(0) => null
-      case children => children(0)
+
+    parent.getChildren.length match {
+      case 0 => null
+      case _ => children(0)
     }
+
   }
 
   def getLastChild : PsiElement = {
-    parent.getChildren match {
-      case Array(0) => null
-      case children => children(children.length - 1)
+    parent.getChildren.length match {
+      case 0 => null
+      case _ => children(children.length - 1)
     }
   }
 
