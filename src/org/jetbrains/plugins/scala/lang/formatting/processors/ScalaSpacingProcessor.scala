@@ -34,6 +34,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
        right.getElementType.equals(ScalaElementTypes.ARG_EXPRS))
       return NO_SPACING
 
+    if (SpacingTokens.SPACING_BEFORE.contains(right.getElementType))
+      return SINGLE_SPACING          
+
     if ((left.getPsi.isInstanceOf[ScInfixExprImpl] &&
         right.getElementType.equals(ScalaTokenTypes.tIDENTIFIER)) ||
         (right.getPsi.isInstanceOf[ScInfixExprImpl] &&
