@@ -48,6 +48,7 @@ ArgumentExprs ::= ‘(’ [Exprs] ’)’
             if (res.eq(ScalaElementTypes.EXPRS)) {
               builder.getTokenType match {
                 case ScalaTokenTypes.tRPARENTHIS => closeParent
+/*
                 case ScalaTokenTypes.tCOLON => {
                   // Suppose, that this is construction like
                   // (... expr : _* )
@@ -70,6 +71,7 @@ ArgumentExprs ::= ‘(’ [Exprs] ’)’
                     ScalaElementTypes.ARG_EXPRS
                   }
                 }
+*/
                 case _ => {
                   builder.error(") expected")
                   ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
