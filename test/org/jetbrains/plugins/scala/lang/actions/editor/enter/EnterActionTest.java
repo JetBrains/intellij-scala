@@ -31,7 +31,7 @@ public class EnterActionTest extends BaseScalaFileSetTestCase {
 
   @NonNls
   protected static final String CARET_MARKER = "<caret>";
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/actions/data/enter";
+  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/actions/editor/enter/data/actual";
 
   protected Editor myEditor;
   protected FileEditorManager fileEditorManager;
