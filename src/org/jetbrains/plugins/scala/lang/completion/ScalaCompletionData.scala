@@ -101,6 +101,7 @@ class ScalaCompletionData extends CompletionData {
     )
     var filter1 = new AndFilter(filter, new NotFilter(new LeftNeighbour(new TextFilter("class"))))
     filter1 = new AndFilter(filter1, new NotFilter(new LeftNeighbour(new TextFilter("trait"))))
+    filter1 = new AndFilter(filter1, new NotFilter(new LeftNeighbour(new TextFilter("."))))
 
     val variant = new CompletionVariant(filter1);
     //variant.includeScopeClass(classOf[ScalaFile].asInstanceOf[java.lang.Class[ScalaFile]], true);
@@ -121,6 +122,7 @@ class ScalaCompletionData extends CompletionData {
     filter1 = new AndFilter(filter1, new NotFilter(new LeftNeighbour(new TextFilter("trait"))))
     filter1 = new AndFilter(filter1, new NotFilter(new LeftNeighbour(new TextFilter("object"))))
     filter1 = new AndFilter(filter1, new NotFilter(new LeftNeighbour(new TextFilter("requires"))))
+    filter1 = new AndFilter(filter1, new NotFilter(new LeftNeighbour(new TextFilter("."))))
     val variant = new CompletionVariant(filter1);
     //variant.includeScopeClass(classOf[ScalaFile].asInstanceOf[java.lang.Class[ScalaFile]], true);
     variant.includeScopeClass(classOf[LeafPsiElement].asInstanceOf[java.lang.Class[LeafPsiElement]], true);
