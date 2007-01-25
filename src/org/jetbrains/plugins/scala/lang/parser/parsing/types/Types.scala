@@ -316,26 +316,60 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                     | Path ‘.’ type
       */
       def simpleTypeSubParse(currentMarker : PsiBuilder.Marker) : ScalaElementType = {
-        var result = StableId.parse(builder)
 
-        // If Stable Identifier or Path identified parsed...
-        if (!result.equals(ScalaElementTypes.WRONGWAY)){
-          builder.getTokenType match {
-            case ScalaTokenTypes.tDOT => {
-              ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
+        var myResult = ScalaElementTypes.WRONGWAY
+
+        def close (msg: String) = {
+          builder.error(msg)
+          ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
+          currentMarker.drop()
+          ScalaElementTypes.CLOSED
+        }
+
+        if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
+          val um = builder.mark()
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
+          // {} - unit
+          if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+            um.done(ScalaElementTypes.UNIT)
+            ScalaElementTypes.SIMPLE_TYPE
+          } else {
+            um.drop()
+            var res1 = Type parse (builder)
+            if (res1.equals(ScalaElementTypes.TYPE)) {
               builder.getTokenType match {
-                case ScalaTokenTypes.kTYPE => {
-                  ParserUtils.eatElement(builder, ScalaTokenTypes.kTYPE)
-                  ScalaElementTypes.SIMPLE_TYPE
+                // Unary type {T, }
+                case ScalaTokenTypes.tCOMMA => {
+                  ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+                  // Really, unary type {T,}
+                  if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
+                    ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+                    ScalaElementTypes.SIMPLE_TYPE
+                  } else {
+                    // TupleN type with N >= 2
+                    val res2 = Types.parse(builder)
+                    if (ScalaElementTypes.TYPES.equals(res2)) {
+                      builder.getTokenType match {
+                        case ScalaTokenTypes.tCOMMA => {
+                          ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+                          if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
+                            ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+                            ScalaElementTypes.SIMPLE_TYPE
+                          } else close("} expected")
+                        }
+                        case ScalaTokenTypes.tRBRACE => {
+                          ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+                          ScalaElementTypes.SIMPLE_TYPE
+                        }
+                        case _ => close("} expected")
+                      }
+                    } else close("Wrong type")
+                  }
                 }
-                case _ => ParserUtils.errorToken(builder, currentMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
+                case _ => close("Wrong type")
               }
-            }
-            case _ => {
-              if (result.equals(ScalaElementTypes.STABLE_ID) || result.equals(ScalaElementTypes.STABLE_ID_ID)){
-                ScalaElementTypes.SIMPLE_TYPE
-              } else ParserUtils.errorToken(builder, currentMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
-            }
+            } else close("Wrong type")
           }
         }
         /* | ‘(’ Type ’)’ */
@@ -354,20 +388,37 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                 ScalaElementTypes.WRONGWAY
               }
               case _ => {
-                builder.error(") expected")
-                ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
-                currentMarker.drop()
-                ScalaElementTypes.CLOSED
+                close(") expected")
               }
             }
           } else {
-
-            builder.error("Wrong type")
-            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
-            currentMarker.drop()
-            ScalaElementTypes.CLOSED
+            close("Wrong type")
           }
-        }  else ParserUtils.errorToken(builder, currentMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
+        }
+        // If Stable Identifier or Path identified parsed...
+        else if ( {
+          var result = StableId.parse(builder)
+          myResult = result
+          !result.equals(ScalaElementTypes.WRONGWAY)
+        } ){
+          builder.getTokenType match {
+            case ScalaTokenTypes.tDOT => {
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
+              builder.getTokenType match {
+                case ScalaTokenTypes.kTYPE => {
+                  ParserUtils.eatElement(builder, ScalaTokenTypes.kTYPE)
+                  ScalaElementTypes.SIMPLE_TYPE
+                }
+                case _ => ParserUtils.errorToken(builder, currentMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
+              }
+            }
+            case _ => {
+              if (myResult.equals(ScalaElementTypes.STABLE_ID) || myResult.equals(ScalaElementTypes.STABLE_ID_ID)){
+                ScalaElementTypes.SIMPLE_TYPE
+              } else ParserUtils.errorToken(builder, currentMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
+            }
+          }
+        } else ParserUtils.errorToken(builder, currentMarker, "Wrong type", ScalaElementTypes.SIMPLE_TYPE)
       }
 
       /*
