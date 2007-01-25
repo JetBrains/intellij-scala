@@ -123,8 +123,10 @@ Block ::= {BlockStat StatementSeparator} [ResultExpr]
     }
 
     var counter = 0
+    val blockMarker = builder.mark()
     var rollbackMarker = builder.mark()
     var result = ScalaElementTypes.BLOCK
+
     var flag = false
     var flag2 = true
     rollForward
@@ -186,6 +188,7 @@ Block ::= {BlockStat StatementSeparator} [ResultExpr]
         }
       }
     } while (flag)
+    blockMarker.done(ScalaElementTypes.BLOCK)
     result
   }
 }
