@@ -307,6 +307,28 @@ import com.intellij.psi.impl.source.CharTableImpl
                 ScalaElementTypes.EXPRS
               }
             }
+            case ScalaTokenTypes.tCOLON => {
+              ParserUtils.eatElement(builder, builder.getTokenType)
+              val rbm = builder.mark()
+              if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType) && // _ ...
+                  {
+                    ParserUtils.eatElement(builder, builder.getTokenType)
+                     "*".equals(builder.getTokenText)                   // _* ...
+                  } &&
+                  {
+                    ParserUtils.eatElement(builder, builder.getTokenType)
+                    ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)
+                  } ) {
+                  rbm.drop()
+                  exprsMarker.drop
+                  ScalaElementTypes.EXPRS
+              } else {
+                rbm.rollbackTo()
+                builder.error("Sequence type expected!")
+                exprsMarker.drop
+                ScalaElementTypes.EXPRS
+              }
+            }
             case _ => {
               //exprsMarker.done(ScalaElementTypes.EXPRS)
               exprsMarker.drop
