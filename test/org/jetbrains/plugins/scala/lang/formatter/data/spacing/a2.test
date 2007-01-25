@@ -1,0 +1,7 @@
+class C {
+  foo ( a , b , (  c  )  )
+}
+-----
+class C {
+  foo(a, b, (c))
+}
