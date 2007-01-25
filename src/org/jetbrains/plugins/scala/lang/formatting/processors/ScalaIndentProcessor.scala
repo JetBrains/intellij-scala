@@ -40,6 +40,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
             else
               Indent.getNoneIndent()
           }
+          case _ : ScBlockImpl => Indent.getNormalIndent()
           case _ => Indent.getNoneIndent()
         }
       }

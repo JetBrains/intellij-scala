@@ -50,7 +50,7 @@ class ScalaBlock(private val myParentBlock : ScalaBlock,
   }
 
   def getSpacing(child1: Block, child2: Block) = {
-    null
+    ScalaSpacingProcessor.getSpacing((child1.asInstanceOf[ScalaBlock]).getNode, (child2.asInstanceOf[ScalaBlock]).getNode)
   }
 
   private def getDummyBlocks = {
