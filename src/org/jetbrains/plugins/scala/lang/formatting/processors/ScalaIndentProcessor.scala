@@ -26,7 +26,9 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _ : BlockedIndent => {
         child.getElementType match {
           case ScalaTokenTypes.tLBRACE |
-               ScalaTokenTypes.tRBRACE =>
+               ScalaTokenTypes.tRBRACE |
+               ScalaTokenTypes.kPACKAGE |
+               ScalaElementTypes.QUAL_ID =>
                     Indent.getNoneIndent()
           case _ => Indent.getNormalIndent()
         }
