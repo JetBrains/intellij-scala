@@ -95,7 +95,7 @@ class ScalaBlock(private val myParentBlock : ScalaBlock,
 
 
   def isCorrectBlock(node:ASTNode) = {
-    node.getText().trim().length()>0 //|| node.getPsi.isInstanceOf[PsiErrorElement]
+    node.getText().trim().length()>0
   }
 
 }
