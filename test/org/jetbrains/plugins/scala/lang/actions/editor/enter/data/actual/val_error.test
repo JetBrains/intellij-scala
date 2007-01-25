@@ -1,8 +1,8 @@
 class C {
-  val a=<caret>
+  while (true)<caret>
 }
 -----
 class C {
-  val a=
+  while (true)
   <caret>
 }
