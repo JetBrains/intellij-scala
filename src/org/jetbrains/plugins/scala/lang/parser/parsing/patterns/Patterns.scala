@@ -448,13 +448,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
     CaseClauses ::= CaseClause { CaseClause }
   */
     def parse(builder : PsiBuilder) : ScalaElementType = {
+
+      val ccMarker = builder.mark()
       var result = CaseClause.parse(builder)
       if (ScalaElementTypes.CASE_CLAUSE.equals(result)) {
         while (!builder.eof && ScalaElementTypes.CASE_CLAUSE.equals(result)){
           result = CaseClause.parse(builder)
         }
+        ccMarker.done(ScalaElementTypes.CASE_CLAUSES)
         ScalaElementTypes.CASE_CLAUSES
-      } else result
+      } else {
+        ccMarker.done(ScalaElementTypes.CASE_CLAUSES)
+        result
+      }
     }
   }
 }

@@ -192,6 +192,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.EXPRS => new ScExprsImpl(node)
     case ScalaElementTypes.ARG_EXPRS => new ScArgumentExprsImpl(node)
     case ScalaElementTypes.BLOCK_EXPR => new ScBlockExprImpl(node)
+    case ScalaElementTypes.BLOCK => new ScBlockImpl(node)
     case ScalaElementTypes.BLOCK_STAT => new ScBlockStatImpl(node)
     case ScalaElementTypes.ERROR_STMT => new ScErrorStatImpl(node)
 
@@ -217,7 +218,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.PATTERNS => new ScPatternsImpl(node)
     case ScalaElementTypes.WILD_PATTERN => new ScWildPatternImpl(node)
     case ScalaElementTypes.CASE_CLAUSE => new ScCaseClauseImpl(node)
-    case ScalaElementTypes.BLOCK => new ScBlockImpl(node)
+    case ScalaElementTypes.CASE_CLAUSES => new ScCaseClausesImpl(node)
 
     case ScalaElementTypes.TRASH => new ScTrash(node)
 
