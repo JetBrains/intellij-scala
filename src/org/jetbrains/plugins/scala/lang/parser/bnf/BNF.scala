@@ -132,7 +132,8 @@ object BNF {
       ScalaTokenTypes.tIDENTIFIER,
       ScalaTokenTypes.tLPARENTHIS,
       ScalaTokenTypes.kSUPER,
-      ScalaTokenTypes.kTHIS
+      ScalaTokenTypes.kTHIS,
+      ScalaTokenTypes.tLBRACE
     )
   )
 
