@@ -27,9 +27,12 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
       override def toString: String = "Wild pattern"
   }
 
-
   case class ScCaseClauseImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) with IfElseIndent{
       override def toString: String = "Case Clause"
+  }
+
+  case class ScCaseClausesImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) with IfElseIndent{
+      override def toString: String = "Case Clauses"
   }
 
 }
