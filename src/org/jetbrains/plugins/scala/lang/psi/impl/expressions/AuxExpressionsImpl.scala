@@ -58,6 +58,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
       def getType() : PsiType = null
   }
 
+
   case class ScBlockImpl( node : ASTNode ) extends ScalaPsiElementImpl (node) with ScBlock {
       override def toString: String = "Block"
       def getType() : PsiType = null
