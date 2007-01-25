@@ -28,19 +28,15 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
   val FOR_SURROUNDER = 3
   val WHILE_SURROUNDER = 4
   val DO_WHILE_SURROUNDER = 5
-  val TRY_SURROUNDER = 6
-  val TRY_CATCH_SURROUNDER = 7
 
   private val SURROUNDERS : Array[Surrounder] = {
-    val surrounders = new Array[Surrounder](8)
+    val surrounders = new Array[Surrounder](6)
     surrounders(BRACES_SURROUNDER) = new ScalaWithBracketsSurrounder("{", "}")
     surrounders(PARENTHESES_SURROUDNER) = new ScalaWithBracketsSurrounder("(", ")")
     surrounders(IF_SURROUNDER) = new ScalaWithIfSurrounder()
     surrounders(FOR_SURROUNDER) = new ScalaWithForSurrounder()
     surrounders(WHILE_SURROUNDER) = new ScalaWithWhileSurrounder()
     surrounders(DO_WHILE_SURROUNDER) = new ScalaWithDoWhileSurrounder()
-    surrounders(TRY_SURROUNDER) = new ScalaWithTrySurrounder()
-    surrounders(TRY_CATCH_SURROUNDER) = new ScalaWithTrySurrounder()
     surrounders
 
     /*BRACES_SURROUNDER,

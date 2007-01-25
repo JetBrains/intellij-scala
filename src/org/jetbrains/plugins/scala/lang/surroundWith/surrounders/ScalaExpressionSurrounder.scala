@@ -18,12 +18,19 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions.ScExprImpl
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
 abstract class ScalaExpressionSurrounder extends Surrounder {
 
   override def isApplicable(elements : Array[PsiElement]) : Boolean = {
     val expr = elements(0).asInstanceOf[ScExprImpl]
     isApplicable(expr)
+  }
+
+  def isNeedBraces(expr : ASTNode) = {
+    if (expr.getTreeNext != null) ScalaTokenTypes.tDOT.equals(expr.getTreeNext.getElementType)
+    else false
   }
 
   override def surroundElements(project : Project, editor : Editor, elements : Array[PsiElement]) : TextRange = {
@@ -34,7 +41,7 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
 
       for (val child <- elements) {
         childNode = child.getNode
-        newNode = Expr.createExpressionFromText(getExpressionTemplateAsString(child.getText), child.getManager)
+        newNode = Expr.createExpressionFromText(getExpressionTemplateAsString(childNode), child.getManager)
 
         childNode.getTreeParent.replaceChild(childNode, newNode)
       }
@@ -44,8 +51,9 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
 
   def isApplicable(expr : ScExprImpl) : Boolean
 
-  def getExpressionTemplateAsString (exprString : String) : String
+//  def getExpressionTemplateAsString (exprString : String) : String
+
+  def getExpressionTemplateAsString (exprString : ASTNode) : String
 
   def getSurroundSelectionRange (node : ASTNode) : TextRange
-
 }
