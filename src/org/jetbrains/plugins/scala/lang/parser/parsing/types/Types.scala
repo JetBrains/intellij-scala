@@ -348,7 +348,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                     ScalaElementTypes.SIMPLE_TYPE
                   } else {
                     // TupleN type with N >= 2
-                    val res2 = Types.parse(builder)
+                    val res2 = Types.parse(builder, true)
                     if (ScalaElementTypes.TYPES.equals(res2)) {
                       builder.getTokenType match {
                         case ScalaTokenTypes.tCOMMA => {
@@ -594,7 +594,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
               if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
                 rightBraceProcessing(typesMarker)
               } else {
-                var res = Types.parse(builder)
+                var res = Types.parse(builder, false)
                 if (res.equals(ScalaElementTypes.TYPES)) {
                   if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
                     rightBraceProcessing(typesMarker)
@@ -652,31 +652,40 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
   *******************************************
   */
 
-    def parse(builder : PsiBuilder) : ScalaElementType = {
+    def parse(builder : PsiBuilder, forTuple: Boolean) : ScalaElementType = {
 
-      def subParse : ScalaElementType = {
-        var result = Type parse(builder)
-        result match {
-          case ScalaElementTypes.TYPE => {
-            builder.getTokenType match {
-              case ScalaTokenTypes.tCOMMA=> {
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
-                subParse
-              }
-              case _ => {
-                ScalaElementTypes.TYPES
-              }
+      val myTuple = forTuple
+
+      def subParse : ScalaElementType = builder.getTokenType match {
+        case ScalaTokenTypes.tCOMMA=> {
+          val rb = builder.mark()
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+          val result = Type parse(builder)
+          if (!ScalaElementTypes.WRONGWAY.equals(result)){
+            rb.drop()
+            subParse
+          } else {
+            if (myTuple) {
+              rb.rollbackTo()
+              ScalaElementTypes.TYPES
+            } else {
+              rb.drop()
+              ScalaElementTypes.WRONGWAY
             }
           }
-          case _ => result
+        }
+        case _ => {
+          ScalaElementTypes.TYPES
         }
       }
 
-      //val typesMarker = builder.mark()
-      val  res = subParse
-      //if (res.equals(ScalaElementTypes.TYPES)) typesMarker.done(ScalaElementTypes.TYPES)
-      //  else typesMarker.rollbackTo() 
-      res
+      val res =  Type parse(builder)
+      if (!ScalaElementTypes.WRONGWAY.equals(res)) {
+        subParse
+      }
+      else {
+        res
+      }
     }
   }
 
@@ -713,7 +722,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           ParserUtils.eatElement(builder, builder.getTokenType)
           closeBracket
         } else {
-          var res = Types parse(builder)
+          var res = Types parse(builder, false)
           if (res.equals(ScalaElementTypes.TYPES)) {
             closeBracket
           } else {
