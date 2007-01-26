@@ -25,7 +25,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           | return [Expr]                                                            (return)
           | [SimpleExpr ‘.’] id ‘=’ Expr                                               (b2)
           | SimpleExpr ArgumentExprs ‘=’ Expr                                         (b1)
-          | PostfixExpr [‘:’ Type1]                                                   (a)
+          | PostfixExpr [‘:’ CompoundType]                                                   (a)
           | PostfixExpr match ‘{’ CaseClauses ‘}’                                      (a1)
           | MethodClosure                                                            (closure)
 */
@@ -55,15 +55,15 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       var result = PostfixExpr.parse(builder)
       if (!result.equals(ScalaElementTypes.WRONGWAY)) {
         builder getTokenType match {
-          /*    [‘:’ Type1]   */
+          /*    [‘:’ CompoundType]   */
           case ScalaTokenTypes.tCOLON => {
 
             val argMarker = builder.mark()
 
             ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-            val res = Type1 parse (builder)
+            val res = CompoundType parse (builder)
             res match {
-              case ScalaElementTypes.TYPE1 => {
+              case ScalaElementTypes.COMPOUND_TYPE => {
                 argMarker.drop()
                 rollbackMarker.drop()
                 compMarker.done(ScalaElementTypes.TYPED_EXPR_STMT)

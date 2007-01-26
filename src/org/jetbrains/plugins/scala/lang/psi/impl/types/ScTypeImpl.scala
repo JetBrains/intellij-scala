@@ -10,7 +10,7 @@ class ScTypeImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "Function type"
 }
 
-class ScType1Impl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+class ScCompoundTypeImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "Simple type"
 }
 

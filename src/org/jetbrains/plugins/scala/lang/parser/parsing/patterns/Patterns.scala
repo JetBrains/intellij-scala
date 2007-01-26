@@ -208,8 +208,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
   object Pattern1 {
   /*
-  Pattern1 ::=    varid ‘:’ Type1
-                | ‘_’ ‘:’ Type1
+  Pattern1 ::=    varid ‘:’ CompoundType
+                | ‘_’ ‘:’ CompoundType
                 | Pattern2
   */
 
@@ -234,8 +234,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
           ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
           if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-            var res = Type1.parse(builder)
-            if (res.equals(ScalaElementTypes.TYPE1)) {
+            var res = CompoundType.parse(builder)
+            if (res.equals(ScalaElementTypes.COMPOUND_TYPE)) {
               p1Marker.done(ScalaElementTypes.PATTERN1)
               ScalaElementTypes.PATTERN1
             } else {
@@ -252,8 +252,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
           if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-            var res = Type1.parse(builder)
-            if (res.equals(ScalaElementTypes.TYPE1)) {
+            var res = CompoundType.parse(builder)
+            if (res.equals(ScalaElementTypes.COMPOUND_TYPE)) {
               p1Marker.done(ScalaElementTypes.PATTERN1)
               ScalaElementTypes.PATTERN1
             } else {

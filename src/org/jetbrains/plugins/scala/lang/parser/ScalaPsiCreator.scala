@@ -169,7 +169,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.PATH => new ScPathImpl(node)
     case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeImpl(node)
     case ScalaElementTypes.TYPE => new ScTypeImpl(node)
-    case ScalaElementTypes.TYPE1 => new ScType1Impl(node)
+    case ScalaElementTypes.COMPOUND_TYPE => new ScCompoundTypeImpl(node)
     case ScalaElementTypes.REFINE_STAT => new ScRefineStatImpl(node)
     case ScalaElementTypes.REFINEMENTS => new ScRefinementsImpl(node)
     case ScalaElementTypes.TYPES => new ScTypesImpl(node)
