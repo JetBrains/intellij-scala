@@ -73,7 +73,7 @@ abstract class InfixTemplate(val elemType: ScalaElementType,
                    elemType==ScalaElementTypes.PATTERN3 )) => {
           // current Operation
           val currentOp = builder.getTokenText
-          // marker before current Opertaor
+          // marker before current Operator
           var rbMarker = builder.mark()
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
 
@@ -88,10 +88,10 @@ abstract class InfixTemplate(val elemType: ScalaElementType,
           rbMarker.rollbackTo()
           if (!res1.equals(ScalaElementTypes.WRONGWAY)) {
             // Analyze priority of current and las operators
-            if ( !opStack.isEmpty && compare(opStack.top, currentOp) > 0) {
+            if ( !opStack.isEmpty && compare(opStack.top, currentOp) >= 0) {
               markerStack.pop.drop()
             }
-            while ( !opStack.isEmpty && compare(opStack.top, currentOp) > 0 ) {
+            while ( !opStack.isEmpty && compare(opStack.top, currentOp) >= 0 ) {
               opStack.pop
               var tempMarker = markerStack.top.precede()
               markerStack.pop.done(elemType)
