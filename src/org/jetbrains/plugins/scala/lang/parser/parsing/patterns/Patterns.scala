@@ -437,7 +437,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
           negative("Pattern expected")
         }
       } else {
-        caseMarker.rollbackTo()
+        caseMarker.drop()
         ScalaElementTypes.WRONGWAY
       }
     }
@@ -455,12 +455,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
         while (!builder.eof && ScalaElementTypes.CASE_CLAUSE.equals(result)){
           result = CaseClause.parse(builder)
         }
-        ccMarker.done(ScalaElementTypes.CASE_CLAUSES)
-        ScalaElementTypes.CASE_CLAUSES
-      } else {
-        ccMarker.done(ScalaElementTypes.CASE_CLAUSES)
-        result
       }
+      ccMarker.done(ScalaElementTypes.CASE_CLAUSES)
+      ScalaElementTypes.CASE_CLAUSES
     }
   }
 }
