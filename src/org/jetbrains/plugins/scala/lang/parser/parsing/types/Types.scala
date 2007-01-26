@@ -9,7 +9,8 @@ import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType 
+import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate 
 
   /*
   Class for StableId representation and parsing
@@ -470,7 +471,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
   }
 
   object CompoundType {
-
   /*
   CompoundType
   Default grammar:
@@ -536,6 +536,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 
   }
 
+  object InfixType extends InfixTemplate(ScalaElementTypes.INFIX_TYPE, CompoundType.parse)
+
 
   object Type {
 
@@ -568,11 +570,14 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
       }
 
       def subParse : ScalaElementType = {
-        // Suppose, this is rule that begins from CompoundType statement
+        // Suppose, this is rule that begins from InfixType statement
 
-        var result = CompoundType parse(builder)
+        var result = InfixType parse(builder)
+
         result match {
-          case ScalaElementTypes.COMPOUND_TYPE => {
+          case ScalaElementTypes.INFIX_TYPE |
+               ScalaElementTypes.SIMPLE_TYPE |
+               ScalaElementTypes.COMPOUND_TYPE => {
             builder.getTokenType match {
               case ScalaTokenTypes.tFUNTYPE => {
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
@@ -582,6 +587,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
               }
               case _ => {
                 typeMarker.drop()
+
+                Console.println("step 1")
+
                 ScalaElementTypes.TYPE
               }
             }
@@ -589,30 +597,40 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
           case _ => {
             // Suppose, that it is statement that begins form ([Types])
             if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
+
               val typesMarker = builder.mark() // Eat types of parameters
-              ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-              if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
-                rightBraceProcessing(typesMarker)
-              } else {
-                var res = Types.parse(builder, false)
-                if (res.equals(ScalaElementTypes.TYPES)) {
+              def end(msg: String) = {
+                builder.error(msg)
+                ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+                typesMarker.drop()
+                typeMarker.done(ScalaElementTypes.TYPE)
+                ScalaElementTypes.TYPE
+              }
+
+              def argProcess (elem: ScalaElementType,
+                              result: => IElementType,
+                              msg: String) = {
+                var res = result
+                if (res.equals(elem)) {
                   if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
                     rightBraceProcessing(typesMarker)
-                  } else {
+                  } else end("Right brace expected")
+                } else end(msg)
+              }
 
-                    builder.error("Right brace expected")
-                    ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
-                    typesMarker.drop()
-                    typeMarker.done(ScalaElementTypes.TYPE)
-                    ScalaElementTypes.TYPE
-                  }
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+              if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType)) {
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
+                argProcess(ScalaElementTypes.TYPE,
+                           Type.parse(builder),
+                           "Type expected")
+              } else {
+                if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
+                  rightBraceProcessing(typesMarker)
                 } else {
-
-                  builder.error("Types list expected")
-                  ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
-                  typesMarker.drop()
-                  typeMarker.done(ScalaElementTypes.TYPE)
-                  ScalaElementTypes.TYPE
+                  argProcess(ScalaElementTypes.TYPES,
+                           Types.parse(builder, false),
+                           "Types list expected")
                 }
               }
             } else {
@@ -638,7 +656,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
       } else {
         subParse
       }
-
     }
 
   }

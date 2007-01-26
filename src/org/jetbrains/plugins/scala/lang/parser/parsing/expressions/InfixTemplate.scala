@@ -80,7 +80,7 @@ abstract class InfixTemplate(val elemType: ScalaElementType,
           /*Attention!*/
 
           // NEW 04.12.06
-          if (elemType.equals(ScalaElementTypes.INFIX_EXPR))
+          if (!elemType.equals(ScalaElementTypes.PATTERN3))
             ParserUtils.rollForward(builder)
 
           var res1 = parseBase(builder)
@@ -105,7 +105,7 @@ abstract class InfixTemplate(val elemType: ScalaElementType,
             val newMarker = builder.mark()
 
             // NEW 04.12.06
-            if (elemType.equals(ScalaElementTypes.INFIX_EXPR))
+            if (!elemType.equals(ScalaElementTypes.PATTERN3))
               ParserUtils.rollForward(builder)
 
             parseBase(builder)
@@ -144,7 +144,7 @@ abstract class InfixTemplate(val elemType: ScalaElementType,
           val rollbackMarker = builder.mark() //for rollback
           opStack += builder.getTokenText // operator text to stack
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-          if (elemType.equals(ScalaElementTypes.INFIX_EXPR))
+          if (!elemType.equals(ScalaElementTypes.PATTERN3))
             ParserUtils.rollForward(builder)
 
           val newMarker = builder.mark()
@@ -177,6 +177,7 @@ abstract class InfixTemplate(val elemType: ScalaElementType,
         }
       }
     }
+
     if (!result.equals(ScalaElementTypes.WRONGWAY)) {
 
       /* For simple patterns */

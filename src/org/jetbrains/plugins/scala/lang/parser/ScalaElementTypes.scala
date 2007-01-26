@@ -110,6 +110,7 @@ object ScalaElementTypes {
   val PATH = new ScalaElementType("path")
   val SIMPLE_TYPE = new ScalaElementType("simple type")
   val COMPOUND_TYPE = new ScalaElementType("Compound type")
+  val INFIX_TYPE = new ScalaElementType("Infix type")
   val TYPE = new ScalaElementType("common type")
   val TYPES = new ScalaElementType("common type")
   val REFINE_STAT = new ScalaElementType("refinement statement")
