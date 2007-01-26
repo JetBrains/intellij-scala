@@ -31,7 +31,7 @@
 
   <target name="create.lexer" description="Makes lexer file">
     <ant dir="org/jetbrains/plugins/scala/lang/lexer/"
-         antfile="build.xml" target="generate.lexer" />
+         antfile="build.xml" target="generate.lexer"/>
   </target>
 
   <target name="make.project" depends="create.lexer" description="Builds all classes">
@@ -52,15 +52,17 @@
       <classpath refid="base.path"/>
     </javac>
 
-    <javac srcdir="../test"
+    <!--javac srcdir="../test"
            destdir="../classes/production/Scala">
       <classpath refid="base.path"/>
-    </javac>
+    </javac-->
 
     <!--Scala taskdef-->
     <taskdef name="scalac"
              classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
-             classpath="${project.lib}">
+             classpath="${project.lib},
+             ${scala.home}/lib/scala-library.jar,
+             ${scala.home}/lib/scala-compiler.jar">
       <classpath>
         <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
         <pathelement location="${scala.home}/lib/scala-library.jar"/>
@@ -114,29 +116,9 @@
             destdir="${project.lib}"
             force="changed">
       <classpath refid="base.path"/>
-      <include name="**/*.scala"/>
+      <include name="org/**/*.scala"/>
     </scalac>
 
-  </target>
-
-
-  <target name="build.parser" description="Builds parser">
-
-    <taskdef name="scalac"
-             classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
-             classpath="${project.lib}">
-      <classpath>
-        <pathelement location="${scala.home}\lib\scala-compiler.jar"/>
-        <pathelement location="${scala.home}\lib\scala-library.jar"/>
-      </classpath>
-    </taskdef>
-
-    <scalac srcdir="."
-            destdir="${project.lib}"
-            force="changed">
-      <classpath refid="base.path"/>
-      <include name="**/*.scala"/>
-    </scalac>
   </target>
 
 
