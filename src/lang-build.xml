@@ -57,7 +57,7 @@
       <classpath refid="base.path"/>
     </javac-->
 
-    <echo message="Scala project basedir = ${basedir}"/>
+    <echo message="Scala project basedir = ${basedir} projectlib = ${project.lib}"/>
 
     <!--Scala taskdef-->
     <taskdef name="scalac"
