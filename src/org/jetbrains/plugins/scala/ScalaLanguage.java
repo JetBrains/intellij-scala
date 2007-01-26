@@ -8,6 +8,7 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
+import com.intellij.ide.structureView.StructureViewBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher;
@@ -58,10 +59,10 @@ public class ScalaLanguage extends Language {
        return ScalaToolsFactory.getInstance().createScalaFormattingModelBuilder();
    }
 
-//  @NotNull
-//  public StructureViewBuilder getStructureViewBuilder(@NotNull final PsiFile psiFile) {
-//      return ScalaToolsFactory.getInstance().createStructureViewBuilder(psiFile);
-//  }
+  @NotNull
+  public StructureViewBuilder getStructureViewBuilder(@NotNull final PsiFile psiFile) {
+      return ScalaToolsFactory.getInstance().createStructureViewBuilder(psiFile);
+  }
 
   @Nullable
   public Commenter getCommenter() {

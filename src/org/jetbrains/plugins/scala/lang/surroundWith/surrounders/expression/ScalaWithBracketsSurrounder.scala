@@ -14,7 +14,7 @@
 
  class ScalaWithBracketsSurrounder (lBracket : String, rBracket : String) extends ScalaExpressionSurrounder {
 
-   override def isApplicable(expr : ScExprImpl) : Boolean = true
+//   override def isApplicable(expr : ScExprImpl) : Boolean = true
 
    override def getExpressionTemplateAsString (expr : ASTNode) = lBracket + expr.getText + rBracket
 

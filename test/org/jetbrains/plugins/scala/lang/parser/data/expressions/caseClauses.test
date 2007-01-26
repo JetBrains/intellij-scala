@@ -1,0 +1,8 @@
+class a {
+try {
+        abc
+    } catch {
+    case a=>b
+    }
+}
+-----

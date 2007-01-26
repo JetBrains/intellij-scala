@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 
 public class ParserTest extends BaseScalaFileSetTestCase {
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/data/";
+  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/data/expressions";
   //private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/data/actual";
 
   public ParserTest() {

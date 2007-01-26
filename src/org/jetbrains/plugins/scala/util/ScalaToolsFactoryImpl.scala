@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder
 import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors
 import org.jetbrains.plugins.scala.lang.surroundWith._
 import org.jetbrains.plugins.scala.lang.formatting._
-//import org.jetbrains.plugins.scala.structure.ScalaStructureViewBuilder
+import org.jetbrains.plugins.scala.structure.ScalaStructureViewBuilder
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionData
 import com.intellij.codeInsight.completion._
 import com.intellij.ide.structureView.StructureViewBuilder
@@ -34,5 +34,5 @@ class ScalaToolsFactoryImpl extends ScalaToolsFactory {
 
   def createScalaFormattingModelBuilder: FormattingModelBuilder = new ScalaFormattingModelBuilder()
 
-//  def createStructureViewBuilder (psiFile : PsiFile) : StructureViewBuilder = new ScalaStructureViewBuilder(psiFile : PsiFile)
+  def createStructureViewBuilder (psiFile : PsiFile) : StructureViewBuilder = new ScalaStructureViewBuilder(psiFile)
 }

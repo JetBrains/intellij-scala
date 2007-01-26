@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.TemplateStatement
 
 
 /**
@@ -23,7 +24,16 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
   abstract class ScTmplDef( node : ASTNode ) extends ScalaPsiElementImpl ( node ) with TemplateIndent{
     override def toString: String = "template definition"
 
-    def getName : String
+    def nameNode = {
+      def isName = (elementType : IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
+
+      childSatisfyPredicateForElementType(isName)
+    }
+
+    //todo: 
+    def getShortName = nameNode.getText
+
+    override def getTextOffset = nameNode.getTextRange.getStartOffset
 
     def isTypeDef : boolean = { this.isInstanceOf[ScTypeDef] }
 
@@ -50,9 +60,19 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
     }
 
     import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
-    def getTemplate = getChild(ScalaElementTypes.TOP_DEF_TEMPLATE).asInstanceOf[ScTopDefTemplate]
+    def getTemplate : ScTopDefTemplate = getChild(ScalaElementTypes.TOP_DEF_TEMPLATE).asInstanceOf[ScTopDefTemplate]
 
-    def getTemplates = getChildren
+    def getTemplateStatements : Iterable[TemplateStatement] = {
+      import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTemplateBody
+
+      val template = getTemplate
+      var body : ScTemplateBody = null
+      if ( template != null) {
+        body = template.getTemplateBody
+        if (body != null ) return body.childrenOfType[TemplateStatement](ScalaElementTypes.TMPL_STMT_BIT_SET)
+      }
+      null
+    }
   }
 
   trait ScTypeDef extends ScTmplDef  with IfElseIndent{
@@ -60,10 +80,6 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
       getChild(ScalaElementTypes.TYPE_PARAM_CLAUSE).asInstanceOf[ScTypeParamClause]
     }
 
-    override def getName : String = {
-      def isName = (elementType : IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
-      childSatisfyPredicateForElementType(isName).getText()
-    }
   }
 
   /*
@@ -78,11 +94,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
     override def toString: String = super.toString + ": " + "object"
 
     //todo
-    override def getName : String = {
-      def isName = (elementType : IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
 
-      childSatisfyPredicateForElementType(isName).getText()
-    }
 
   }
 

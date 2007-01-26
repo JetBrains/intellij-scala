@@ -120,6 +120,7 @@ object ScalaElementTypes {
   /*************************************************************************************/
   /*********************************** IDENTIFIER **************************************/
   /*************************************************************************************/
+
   val IDENTIFIER = new ScalaElementType("identifier")
   val UNIT = new ScalaElementType("unit")
   val IDENTIFIER_LIST = new ScalaElementType("list of identifiers")
@@ -302,6 +303,19 @@ object ScalaElementTypes {
   val TMPL_DEF_BIT_SET = TokenSet.create (a1)
 
   val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create (Array.apply(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
+
+  val TMPL_STMT_BIT_SET = TokenSet.create(
+    Array.apply(
+      PATTERN_DEFINITION,
+      VARIABLE_DEFINITION,
+      TYPE_DEFINITION,
+      FUNCTION_DEFINITION,
+      VALUE_DECLARATION,
+      VARIABLE_DECLARATION,
+      FUNCTION_DECLARATION,
+      TYPE_DECLARATION
+    )
+  )
 
 //todo: add cases
   val EXPR1_BIT_SET : TokenSet = TokenSet.create (
