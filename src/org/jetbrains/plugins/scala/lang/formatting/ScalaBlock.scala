@@ -11,6 +11,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.formatting.processors._
+import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
 import java.util.List;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ class ScalaBlock(private val myParentBlock : ScalaBlock,
 
   def getChildAttributes(newChildIndex: Int) : ChildAttributes = {
     val parent = getNode.getPsi
-    if (!parent.isInstanceOf[ScalaFile]) {
+    if (parent.isInstanceOf[BlockedIndent] ) {
       return new ChildAttributes(Indent.getNormalIndent(), null)
     }
     new ChildAttributes(Indent.getNoneIndent(), null)
