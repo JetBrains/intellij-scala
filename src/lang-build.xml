@@ -60,9 +60,7 @@
     <!--Scala taskdef-->
     <taskdef name="scalac"
              classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
-             classpath="${project.lib},
-             ${scala.home}/lib/scala-library.jar,
-             ${scala.home}/lib/scala-compiler.jar">
+             classpath="${project.lib}">
       <classpath>
         <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
         <pathelement location="${scala.home}/lib/scala-library.jar"/>
@@ -116,7 +114,7 @@
             destdir="${project.lib}"
             force="changed">
       <classpath refid="base.path"/>
-      <include name="org/**/*.scala"/>
+      <include name="**/*.scala"/>
     </scalac>
 
   </target>
