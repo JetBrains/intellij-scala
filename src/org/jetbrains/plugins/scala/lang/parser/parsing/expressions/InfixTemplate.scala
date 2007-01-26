@@ -37,10 +37,14 @@ abstract class InfixTemplate(val elemType: ScalaElementType,
 
   // compares two operators
   def compare (id1: String, id2: String): Int = {
-    if (priority(id1) < priority(id2)) 1
-    else if (priority(id1) > priority(id2)) -1
+    if (priority(id1) == priority(id2) &&
+        assoc(id1) != assoc(id2))
+      return 0
+
+    if (priority(id1) < priority(id2)) 1        //  a * b + c  =((a * b) + c)
+    else if (priority(id1) > priority(id2)) -1  //  a + b * c = (a + (b * c))
     else if (assoc(id1) == -1) -1
-    else 0
+    else 1
   }
 
   // Associations of operator
@@ -58,13 +62,10 @@ abstract class InfixTemplate(val elemType: ScalaElementType,
     val opStack = new Stack[String]
     val marker = builder.mark()
 
-    /*Attention!*/
-    //var result = PrefixExpr parse(builder)
     var result = parseBase(builder)
 
     // Parsing after second operator encountered
-    def subParse1() : ScalaElementType = {
-//        ParserUtils.rollForward(builder)
+    def subParse1 : ScalaElementType = {
       builder.getTokenType match {
         // If an identifier
         case  ScalaTokenTypes.tIDENTIFIER
@@ -77,8 +78,6 @@ abstract class InfixTemplate(val elemType: ScalaElementType,
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
 
           /*Attention!*/
-          //var res1 = PrefixExpr parse(builder)
-//            ParserUtils.rollForward(builder)
 
           // NEW 04.12.06
           if (elemType.equals(ScalaElementTypes.INFIX_EXPR))
@@ -89,10 +88,10 @@ abstract class InfixTemplate(val elemType: ScalaElementType,
           rbMarker.rollbackTo()
           if (!res1.equals(ScalaElementTypes.WRONGWAY)) {
             // Analyze priority of current and las operators
-            if ( !opStack.isEmpty && compare(opStack.top, currentOp) >= 0) {
+            if ( !opStack.isEmpty && compare(opStack.top, currentOp) > 0) {
               markerStack.pop.drop()
             }
-            while ( !opStack.isEmpty && compare(opStack.top, currentOp) >= 0 ) {
+            while ( !opStack.isEmpty && compare(opStack.top, currentOp) > 0 ) {
               opStack.pop
               var tempMarker = markerStack.top.precede()
               markerStack.pop.done(elemType)
