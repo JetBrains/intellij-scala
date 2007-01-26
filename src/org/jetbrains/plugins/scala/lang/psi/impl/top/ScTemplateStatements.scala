@@ -1,20 +1,30 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
 
+
 /**
  * User: Dmitry.Krasilschikov
  * Date: 13.11.2006
  * Time: 16:32:36
  */
 
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
+import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
-  class TemplateStatement (node : ASTNode) extends ScalaPsiElementImpl (node)
+  class TemplateStatement (node : ASTNode) extends ScalaPsiElementImpl (node) {
+    def nameNode = {
+      def isName = (elementType : IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
 
-  /*case class ScTemplateStatement (node : ASTNode) extends Definition (node) {
-    override def toString: String = "pattern" + " " + super.toString
-  } */
+      childSatisfyPredicateForElementType(isName)
+    }
+
+    //todo: constructor this 
+    def getShortName = if (nameNode != null) nameNode.getText else null
+
+    override def getTextOffset = nameNode.getTextRange.getStartOffset
+  }
 
   /***************** definition ***********************/
 

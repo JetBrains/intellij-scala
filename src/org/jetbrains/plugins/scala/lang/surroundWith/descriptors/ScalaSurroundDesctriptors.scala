@@ -13,14 +13,9 @@ import org.jetbrains.plugins.scala.lang.surroundWith.SurroundDescriptors;
 //import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor
 
 class ScalaSurroundDescriptors extends SurroundDescriptors {
-//  private val SURROUND_DESCRIPTORS : Array[SurroundDescriptor] = Array.apply(
-//    new ScalaExpressionSurroundDescriptor()
-//    new ScalaStatementsSurroundDescriptor()
-//  )
+  private val SURROUND_DESCRIPTORS : Array[SurroundDescriptor] = Array.apply(
+    new ScalaExpressionSurroundDescriptor()
+  )
 
-//  override def getSurroundDescriptors : Array[SurroundDescriptor] = SURROUND_DESCRIPTORS; Console.println("ScalaSurroundDescriptors: getSurroundDescriptors")
-  override def getSurroundDescriptors : Array[SurroundDescriptor] = {
-    //Console.println("ScalaSurroundDescriptors: getSurroundDescriptors")
-    Array.apply(new ScalaExpressionSurroundDescriptor(), new ScalaBlockSurroundDescriptor())
-  }
+  override def getSurroundDescriptors : Array[SurroundDescriptor] = SURROUND_DESCRIPTORS
 }

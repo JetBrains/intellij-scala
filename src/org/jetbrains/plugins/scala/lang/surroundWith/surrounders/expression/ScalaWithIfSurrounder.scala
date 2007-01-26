@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 class ScalaWithIfSurrounder extends ScalaExpressionSurrounder {
 //  private var inBraces : Boolean = false
 
-  override def isApplicable(expr : ScExprImpl) : Boolean = {
+  override def isApplicable(expr : PsiElement) : Boolean = {
     expr.isInstanceOf[ScExpr1Impl] 
   }
 

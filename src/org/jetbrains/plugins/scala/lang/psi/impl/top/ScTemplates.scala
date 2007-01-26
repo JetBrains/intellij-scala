@@ -13,14 +13,17 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
  /*************** templates **************/
   abstract class Template( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    def getTemplateParents : Parents
+//    def getTemplateParents : Parents
+
+    def getTemplateParents = getChild(ScalaElementTypes.TEMPLATE_PARENTS).asInstanceOf[ScTemplateParents]
+
+    def getTemplateBody = getChild(ScalaElementTypes.TEMPLATE_BODY).asInstanceOf[ScTemplateBody]
+
     override def toString: String = "template"
   }
 
   case class ScTopDefTemplate( node : ASTNode ) extends Template ( node ) {
     override def toString: String = "top definition" + " " + super.toString
-
-    override def getTemplateParents = getChild(ScalaElementTypes.TEMPLATE_PARENTS).asInstanceOf[ScTemplateParents]
   }
    
   /*********** class **************/

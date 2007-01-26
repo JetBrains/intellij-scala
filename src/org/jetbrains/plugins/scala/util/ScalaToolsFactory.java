@@ -8,6 +8,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
+import com.intellij.ide.structureView.StructureViewBuilder;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.surroundWith.SurroundDescriptors;
@@ -47,5 +48,5 @@ public abstract class ScalaToolsFactory implements ApplicationComponent {
 
   public abstract FormattingModelBuilder createScalaFormattingModelBuilder();
 
-//  public abstract StructureViewBuilder createStructureViewBuilder(PsiFile psiFile);
+  public abstract StructureViewBuilder createStructureViewBuilder(PsiFile psiFile);
 }

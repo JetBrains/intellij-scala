@@ -14,9 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 
 
 class ScalaWithWhileSurrounder extends ScalaExpressionSurrounder {
-  override def isApplicable(expr : ScExprImpl) : Boolean = {
-    true
-  }
+//  override def isApplicable(expr : ScExprImpl) : Boolean = {
+//    true
+//  }
 
   override def getExpressionTemplateAsString (expr : ASTNode) = {
     val exprAsString = "while (true) { \n " + expr.getText + "\n" + "}"
@@ -34,13 +34,10 @@ class ScalaWithWhileSurrounder extends ScalaExpressionSurrounder {
                       childSatisfyPredicateForPsiElement(isWhileStmt).asInstanceOf[ScWhileStmtImpl]
                     else withWhileNode.getPsi.asInstanceOf[ScWhileStmtImpl]
 
-//    val whileStmt = whileNode.getPsi.asInstanceOf[ScWhileStmtImpl]
     val conditionNode : ASTNode = whileStmt.condition.getNode
 
     val startOffset = conditionNode.getTextRange.getStartOffset
     val endOffset = conditionNode.getTextRange.getEndOffset
-
-//    whileStmt.getNode.removeChild(conditionNode)
 
     return new TextRange(startOffset, endOffset);
   }

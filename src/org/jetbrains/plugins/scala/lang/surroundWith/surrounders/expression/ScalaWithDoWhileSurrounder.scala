@@ -18,11 +18,11 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
 class ScalaWithDoWhileSurrounder extends ScalaExpressionSurrounder {
 
-  override def isApplicable(expr : ScExprImpl) : Boolean = {
-//  {if (expr.getNextSibling != null) inBraces = ScalaTokenTypes.tDOT.equals(expr.getNextSibling.getNode.getElementType);
-//     inBraces}
-    true
-  }
+//  override def isApplicable(expr : ScExprImpl) : Boolean = {
+////  {if (expr.getNextSibling != null) inBraces = ScalaTokenTypes.tDOT.equals(expr.getNextSibling.getNode.getElementType);
+////     inBraces}
+//    true
+//  }
 
   override def getExpressionTemplateAsString (expr : ASTNode) = {
     val exprAsString = "do { \n " + expr.getText + "\n" + "} while (true)"
