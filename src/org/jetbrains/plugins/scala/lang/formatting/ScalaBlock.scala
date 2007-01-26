@@ -44,7 +44,7 @@ class ScalaBlock(private val myParentBlock : ScalaBlock,
 
   def getChildAttributes(newChildIndex: Int) : ChildAttributes = {
     val parent = getNode.getPsi
-    if (parent.isInstanceOf[BlockedIndent] ) {
+    if (parent.isInstanceOf[BlockedIndent]) {
       return new ChildAttributes(Indent.getNormalIndent(), null)
     }
     new ChildAttributes(Indent.getNoneIndent(), null)
