@@ -95,10 +95,10 @@
       <classpath refid="base.path"/>
     </javac>
 
-    <javac srcdir="../test"
+    <!--javac srcdir="../test"
            destdir="../classes/production/Scala">
       <classpath refid="base.path"/>
-    </javac>
+    </javac-->
 
     <!--Scala taskdef-->
     <taskdef name="scalac"
