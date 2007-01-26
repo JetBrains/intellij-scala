@@ -263,6 +263,16 @@ object ScalaElementTypes {
   val CASE_CLAUSE = new ScalaElementType("case clause")
   val CASE_CLAUSES = new ScalaElementType("case clauses")
 
+  /************************************** TYPE PATTERNS ********************************/
+
+  val ARG_TYPE_PATTERN = new ScalaElementType("Argument type pattern")
+  val ARG_TYPE_PATTERNS = new ScalaElementType("Argument type patterns")
+  val TYPE_PATTERN_ARGS = new ScalaElementType("Type pattern arguments")
+  val SIMPLE_TYPE_PATTERN1 = new ScalaElementType("Simple type pattern 1")
+  val SIMPLE_TYPE_PATTERN = new ScalaElementType("Simple type pattern")
+  val TYPE_PATTERN = new ScalaElementType("Type pattern")
+
+
   /*************************************************************************************/
   /************************************** KEYWORDS *************************************/
   /*************************************************************************************/

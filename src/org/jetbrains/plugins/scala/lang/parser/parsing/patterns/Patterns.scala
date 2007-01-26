@@ -208,8 +208,8 @@ class Pattern2 {
 
 object Pattern1 {
 /*
-Pattern1 ::=    varid ‘:’ CompoundType
-              | ‘_’ ‘:’ CompoundType
+Pattern1 ::=    varid ‘:’ TypePattern
+              | ‘_’ ‘:’ TypePattern
               | Pattern2
 */
 
@@ -234,8 +234,8 @@ Pattern1 ::=    varid ‘:’ CompoundType
         ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
         if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-          var res = CompoundType.parse(builder)
-          if (res.equals(ScalaElementTypes.COMPOUND_TYPE)) {
+          var res = TypePattern.parse(builder)
+          if (res.equals(ScalaElementTypes.TYPE_PATTERN)) {
             p1Marker.done(ScalaElementTypes.PATTERN1)
             ScalaElementTypes.PATTERN1
           } else {
@@ -252,8 +252,8 @@ Pattern1 ::=    varid ‘:’ CompoundType
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-          var res = CompoundType.parse(builder)
-          if (res.equals(ScalaElementTypes.COMPOUND_TYPE)) {
+          var res = TypePattern.parse(builder)
+          if (res.equals(ScalaElementTypes.TYPE_PATTERN)) {
             p1Marker.done(ScalaElementTypes.PATTERN1)
             ScalaElementTypes.PATTERN1
           } else {

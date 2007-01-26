@@ -221,6 +221,11 @@ object ScalaPsiCreator {
     case ScalaElementTypes.CASE_CLAUSE => new ScCaseClauseImpl(node)
     case ScalaElementTypes.CASE_CLAUSES => new ScCaseClausesImpl(node)
 
+    case ScalaElementTypes.TYPE_PATTERN => new ScTypePatternImpl(node)
+    case ScalaElementTypes.SIMPLE_TYPE_PATTERN => new ScSimpleTypePatternImpl(node)
+    case ScalaElementTypes.SIMPLE_TYPE_PATTERN1 => new ScSimpleTypePattern1Impl(node)
+    case ScalaElementTypes.TYPE_PATTERN_ARGS => new ScTypePatternArgsImpl(node)
+
     case ScalaElementTypes.TRASH => new ScTrash(node)
 
      case _ => new ScalaPsiElementImpl( node )

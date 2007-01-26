@@ -1,4 +1,3 @@
-
 import scala.collection.mutable.LinkedList
 import scala.Nil
 import scala.{List => scalaList}
