@@ -57,7 +57,7 @@
       <classpath refid="base.path"/>
     </javac-->
 
-    <echo message="Scala project basedir = ${basedir} projectlib = ${project.lib}"/>
+
 
     <!--Scala taskdef-->
     <taskdef name="scalac"
@@ -80,6 +80,8 @@
 
 
   <target name="rebuild.all" depends="clear.all, create.lexer" description="Builds all classes">
+
+    <echo message="Scala project basedir = ${basedir} projectlib = ${project.lib}"/>
 
     <mkdir dir="${project.lib}"/>
     <mkdir dir="${project.lib}/META-INF"/>
