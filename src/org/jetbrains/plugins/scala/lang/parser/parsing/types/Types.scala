@@ -736,7 +736,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
           ParserUtils.eatElement(builder, builder.getTokenType)
           closeBracket
         } else {
-          var res = Types parse(builder, false)
+          var res = Types.parse(builder, false)
           if (res.equals(ScalaElementTypes.TYPES)) {
             closeBracket
           } else {
