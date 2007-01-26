@@ -23,8 +23,8 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
 
   public FormatterTest() {
     super(System.getProperty("path") != null ?
-            System.getProperty("path") :
-            DATA_PATH
+      System.getProperty("path") :
+      DATA_PATH
     );
   }
 
