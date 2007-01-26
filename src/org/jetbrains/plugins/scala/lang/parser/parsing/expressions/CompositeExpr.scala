@@ -506,7 +506,7 @@ def b1Case: ScalaElementType = {
       def errorDone = errorDoneMain(rollbackMarker , ScalaElementTypes.FOR_STMT)
 
       def parseCatch = {
-        var catcMarker = builder.mark()
+        val catcMarker = builder.mark()
         ParserUtils.eatElement(builder, ScalaTokenTypes.kCATCH)
         if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
@@ -517,9 +517,11 @@ def b1Case: ScalaElementType = {
               ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
             } else {
               builder.error("} expected")
+              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
             }
           } else {
             builder.error("Wrong case clauses")
+            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
           }
         } else {
           builder.error(" { expected ")
@@ -552,27 +554,31 @@ def b1Case: ScalaElementType = {
             tryMarker.done(ScalaElementTypes.TRY_BLOCK)
             if (ScalaTokenTypes.kCATCH.equals(builder.getTokenType)) parseCatch
             if (ScalaTokenTypes.kFINALLY.equals(builder.getTokenType)) parseFinally
-            rollbackMarker.drop()
-            compMarker.done(ScalaElementTypes.TRY_STMT)
-            ScalaElementTypes.EXPR1
           } else {
-            tryMarker.drop()
-            errorDone(" " + rightBrace.toString +" expected")
+            builder.error(brace+" expected")
+            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
+            tryMarker.done(ScalaElementTypes.TRY_BLOCK)
           }
         } else {
-          tryMarker.drop()
-          errorDone("Wrong block")
+          builder.error("Wrong block")
+          ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
+          tryMarker.done(ScalaElementTypes.TRY_BLOCK)
         }
+        compMarker.done(ScalaElementTypes.TRY_STMT)
+        ScalaElementTypes.EXPR1
       }
 
       if (builder.getTokenType.eq(ScalaTokenTypes.kTRY)){
         val tryMarker = builder.mark()
         ParserUtils.eatElement(builder, ScalaTokenTypes.kTRY)
+        rollbackMarker.drop()
         if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
-            braceMatcher(builder.getTokenType, tryMarker)
+            braceMatcher(ScalaTokenTypes.tLBRACE, tryMarker)
         } else {
+          builder.error(" { expected")
           tryMarker.done(ScalaElementTypes.TRY_BLOCK)
-          errorDone(" { expected")
+          compMarker.done(ScalaElementTypes.TRY_STMT)
+          ScalaElementTypes.EXPR1
         }
       } else {
         rollbackMarker.rollbackTo()
