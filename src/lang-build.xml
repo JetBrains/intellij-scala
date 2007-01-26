@@ -57,6 +57,8 @@
       <classpath refid="base.path"/>
     </javac-->
 
+    <echo message="Scala project basedir = ${basedir}"/>
+
     <!--Scala taskdef-->
     <taskdef name="scalac"
              classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
