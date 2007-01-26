@@ -572,12 +572,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
       def subParse : ScalaElementType = {
         // Suppose, this is rule that begins from InfixType statement
 
+        val rbm = builder.mark()
         var result = InfixType parse(builder)
 
         result match {
           case ScalaElementTypes.INFIX_TYPE |
                ScalaElementTypes.SIMPLE_TYPE |
                ScalaElementTypes.COMPOUND_TYPE => {
+            rbm.drop()
             builder.getTokenType match {
               case ScalaTokenTypes.tFUNTYPE => {
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
@@ -592,6 +594,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
             }
           }
           case _ => {
+            rbm.rollbackTo()
             // Suppose, that it is statement that begins form ([Types])
             if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
 
