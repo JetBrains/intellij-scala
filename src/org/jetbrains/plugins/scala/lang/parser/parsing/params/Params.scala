@@ -233,7 +233,7 @@ import org.jetbrains.plugins.scala.util.DebugPrint
 
       if (isParamType) paramTypeMarker.done(ScalaElementTypes.PARAM_TYPE)
       else {
-        paramTypeMarker.done(ScalaElementTypes.TYPE)
+        //paramTypeMarker.done(ScalaElementTypes.TYPE)
         paramTypeMarker.drop()
       }
     }

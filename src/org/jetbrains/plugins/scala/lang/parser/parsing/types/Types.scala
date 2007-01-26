@@ -587,9 +587,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
               }
               case _ => {
                 typeMarker.drop()
-
-                Console.println("step 1")
-
                 ScalaElementTypes.TYPE
               }
             }
