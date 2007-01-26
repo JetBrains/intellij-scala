@@ -126,8 +126,8 @@ import com.intellij.psi.impl.source.CharTableImpl
            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
            builder.getTokenType
            ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-           var res3 = Type1 parse builder
-           if (ScalaElementTypes.TYPE1.equals(res3)) {
+           var res3 = CompoundType parse builder
+           if (ScalaElementTypes.COMPOUND_TYPE.equals(res3)) {
              if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType)){
                ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
                parseTail

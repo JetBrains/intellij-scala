@@ -469,12 +469,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 
   }
 
-  object Type1 {
+  object CompoundType {
 
   /*
-  Type1
+  CompoundType
   Default grammar:
-  Type1 ::= SimpleType {with SimpleType} [Refinement]
+  CompoundType ::= SimpleType {with SimpleType} [Refinement]
   *******************************************
   */
     def parse(builder : PsiBuilder) : ScalaElementType = {
@@ -493,8 +493,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
                 if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
                   Refinements.parse(builder)
                 }
-                type1Marker.done(ScalaElementTypes.TYPE1)
-                ScalaElementTypes.TYPE1
+                type1Marker.done(ScalaElementTypes.COMPOUND_TYPE)
+                ScalaElementTypes.COMPOUND_TYPE
               }
             }
           }
@@ -503,8 +503,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
             if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
                   Refinements.parse(builder)
             }
-            type1Marker.done(ScalaElementTypes.TYPE1)
-            ScalaElementTypes.TYPE1
+            type1Marker.done(ScalaElementTypes.COMPOUND_TYPE)
+            ScalaElementTypes.COMPOUND_TYPE
           }
         }
       }
@@ -521,8 +521,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
               if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
                 Refinements.parse(builder)
               }
-              type1Marker.done(ScalaElementTypes.TYPE1)
-              ScalaElementTypes.TYPE1
+              type1Marker.done(ScalaElementTypes.COMPOUND_TYPE)
+              ScalaElementTypes.COMPOUND_TYPE
             }
           }
         }
@@ -542,9 +542,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
   /*
   Type
   Default grammar:
-  Type ::= Type1 ‘=>’ Type
+  Type ::= CompoundType ‘=>’ Type
            | ‘(’ [Types] ‘)’ ‘=>’ Type
-           | Type1
+           | CompoundType
   *******************************************
   */
     def parse(builder : PsiBuilder) : ScalaElementType = {
@@ -568,11 +568,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
       }
 
       def subParse : ScalaElementType = {
-        // Suppose, this is rule that begins from Type1 statement
+        // Suppose, this is rule that begins from CompoundType statement
 
-        var result = Type1 parse(builder)
+        var result = CompoundType parse(builder)
         result match {
-          case ScalaElementTypes.TYPE1 => {
+          case ScalaElementTypes.COMPOUND_TYPE => {
             builder.getTokenType match {
               case ScalaTokenTypes.tFUNTYPE => {
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)

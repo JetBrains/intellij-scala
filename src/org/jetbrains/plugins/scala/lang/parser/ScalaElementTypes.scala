@@ -109,7 +109,7 @@ object ScalaElementTypes {
     val STABLE_ID_ID = new ScalaElementType("stable id")
   val PATH = new ScalaElementType("path")
   val SIMPLE_TYPE = new ScalaElementType("simple type")
-  val TYPE1 = new ScalaElementType("type1")
+  val COMPOUND_TYPE = new ScalaElementType("Compound type")
   val TYPE = new ScalaElementType("common type")
   val TYPES = new ScalaElementType("common type")
   val REFINE_STAT = new ScalaElementType("refinement statement")
