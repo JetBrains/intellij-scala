@@ -81,8 +81,8 @@ public class ScalaSdkConfigurable implements AdditionalDataConfigurable {
   }
 
   public JComponent createComponent() {
-    JPanel panel = new JPanel();
-    panel.add(myJavaSdkCbx);
+    JPanel panel = new JPanel(new GridBagLayout());
+    panel.add(myJavaSdkCbx, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 5, 0, 5), 0, 0));
     setupPaths();
     panel.setBorder(IdeBorderFactory.createTitledBorder("Select Java SDK"));
     return panel;
