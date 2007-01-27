@@ -11,8 +11,7 @@ public class AntScalaCompiler extends Scalac {
 
   public void execute() {
     setAddparams("-Xgenerics");
-//    setAddparams("-target:jvm-1.5");
-//    setAddparams("-Xexperimental");
+    setAddparams("-target:jvm-1.5");
     super.execute();
   }
 }
