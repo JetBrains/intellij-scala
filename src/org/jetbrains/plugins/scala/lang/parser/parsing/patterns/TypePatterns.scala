@@ -221,7 +221,12 @@ object SimpleTypePattern {
                   closeParent
                 } else closeParent
               }
-            } else closeParent
+            } else {
+              builder.error(", expected")
+              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
+              spm.done(ScalaElementTypes.SIMPLE_TYPE_PATTERN)
+              ScalaElementTypes.SIMPLE_TYPE_PATTERN
+            }
           } else {
             ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
             spm.error("Wrong argument type pattern")
