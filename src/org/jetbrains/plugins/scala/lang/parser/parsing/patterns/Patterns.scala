@@ -195,9 +195,9 @@ SimplePattern ::=   ‘_’
         }
       } else { parseStableId }
     } else {
-      builder.error("Wrong pattern!")
-      spMarker.drop()
-      ScalaElementTypes.SIMPLE_PATTERN
+      //spMarker.drop()
+      spMarker.rollbackTo()
+      ScalaElementTypes.WRONGWAY
     }
   }
 }
@@ -384,8 +384,17 @@ object Patterns {
     def subParse: ScalaElementType = {
       // LOOK!!! ParserUtils.rollForward(builder)
       if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
+        val rbMarker = builder.mark()
         ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
-        parseSequence
+        val res = Pattern.parse(builder)
+        if (!ScalaElementTypes.WRONGWAY.equals(builder.getTokenType)){
+          rbMarker.drop()
+          subParse
+        } else {
+          rbMarker.rollbackTo()
+          psMarker.drop()
+          ScalaElementTypes.PATTERNS
+        }
       } else {
         psMarker.drop()
         ScalaElementTypes.PATTERNS
@@ -406,7 +415,7 @@ object Patterns {
       rm.rollbackTo()
 
       if (ScalaTokenTypes.tIDENTIFIER.equals(varid) &&
-          text.substring(1).toLowerCase == text.substring(1) &&
+          text.substring(0,1).toLowerCase == text.substring(0,1) &&
           ScalaTokenTypes.tAT.equals(at) &&
           ScalaTokenTypes.tUNDER.equals(under) &&
           "*".equals(star)
