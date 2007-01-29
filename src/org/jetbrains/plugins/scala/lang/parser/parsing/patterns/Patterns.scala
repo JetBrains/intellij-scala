@@ -33,6 +33,22 @@ SimplePattern ::=   ‘_’
       ScalaElementTypes.SIMPLE_PATTERN
     }
 
+    // Process "}" symbol
+    def closeParent1 = {
+      if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
+        ParserUtils.eatElement(builder,ScalaTokenTypes.tRBRACE)
+        spMarker.done(ScalaElementTypes.SIMPLE_PATTERN)
+        ScalaElementTypes.SIMPLE_PATTERN
+      }
+      else {
+        ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
+        spMarker.error("} expected")
+        ScalaElementTypes.SIMPLE_PATTERN
+      }
+    }
+
+
+
     def argsParse : ScalaElementType = {
       var argsMarker = builder.mark()
 
@@ -120,9 +136,8 @@ SimplePattern ::=   ‘_’
           ScalaElementTypes.SIMPLE_PATTERN
         }
       }
-    //
-    } /*
-    else if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
+    //  ‘{’ [Pattern ‘,’ [Patterns [‘,’]]] ‘}’
+    } else if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
       val uMarker = builder.mark()
       ParserUtils.eatElement(builder,ScalaTokenTypes.tLBRACE)
       if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
@@ -132,26 +147,31 @@ SimplePattern ::=   ‘_’
         ScalaElementTypes.SIMPLE_PATTERN
       } else {
         uMarker.drop()
-        var res = ArgTypePattern.parse(builder)
+        var res = Pattern.parse(builder)
         if (!ScalaElementTypes.WRONGWAY.equals(res)) {
           if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)){
             ParserUtils.eatElement(builder,ScalaTokenTypes.tCOMMA)
             if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
-              closeParent
+              closeParent1
             } else {
-              val res1 = ArgTypePatterns.parse(builder)
+              val res1 = Patterns.parse(builder)
               if (!ScalaElementTypes.WRONGWAY.equals(res1)) {
                 if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)){
                   ParserUtils.eatElement(builder,ScalaTokenTypes.tCOMMA)
                 }
-                closeParent
-              } else closeParent
+                closeParent1
+              } else closeParent1
             }
-          } else closeParent
+          } else {
+            builder.error(", expected")
+            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
+            spMarker.done(ScalaElementTypes.SIMPLE_PATTERN)
+            ScalaElementTypes.SIMPLE_PATTERN
+          }
         } else {
           ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
-          spm.error("Wrong argument type pattern")
-          ScalaElementTypes.SIMPLE_TYPE_PATTERN
+          spMarker.error("Wrong argument type pattern")
+          ScalaElementTypes.SIMPLE_PATTERN
         }
       }
      } // Literal
@@ -160,9 +180,7 @@ SimplePattern ::=   ‘_’
       ScalaElementTypes.SIMPLE_PATTERN
     /*  | varid
         | StableId [ ‘(’ [Patterns] ‘)’ ] */
-    }
-    */
-    else if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER){
+    } else if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER){
       if (builder.getTokenText.substring(0,1).toLowerCase ==
           builder.getTokenText.substring(0,1)) {// if variable id
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)

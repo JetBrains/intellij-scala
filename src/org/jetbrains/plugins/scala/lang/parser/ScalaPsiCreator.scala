@@ -213,6 +213,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.MATCH_STMT => new ScMatchStmtImpl(node)
 
     /******************* PATTERNS *********************/
+    case ScalaElementTypes.SIMPLE_PATTERN => new ScTuplePatternImpl(node) 
     case ScalaElementTypes.PATTERN1 => new ScPattern1Impl(node)
     case ScalaElementTypes.PATTERN3 => new ScPattern3Impl(node)
     case ScalaElementTypes.PATTERN => new ScPatternImpl(node)
