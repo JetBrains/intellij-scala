@@ -11,9 +11,7 @@ Scala file
     top definition template
       template body
         PsiElement({)('{')
-        PsiWhiteSpace('\n')
-        PsiWhiteSpace(' ')
-        PsiWhiteSpace(' ')
+        PsiWhiteSpace('\n  ')
         Infix expression
           Infix expression
             Stable Identifier
