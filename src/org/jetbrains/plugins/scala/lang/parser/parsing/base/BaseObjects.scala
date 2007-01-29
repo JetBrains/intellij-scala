@@ -152,7 +152,7 @@ object Attribute extends Constr{
         }
 
         if (BNF.firstExpr.contains(builder.getTokenType)) {
-          Exprs.parse(builder)
+          Exprs.parse(builder, null)
         }
 
         if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)) {
