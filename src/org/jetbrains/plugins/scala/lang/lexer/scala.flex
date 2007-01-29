@@ -425,7 +425,7 @@ WhiteSpaceInLine = {InLineTerminator}
 "try"                                   {   return process(kTRY); }
 "true"                                  {   processNewLine();
                                             return process(kTRUE); }
-"type"                                  {   //processNewLine();
+"type"                                  {   processNewLine();
                                             return process(kTYPE); }
 "val"                                   {   return process(kVAL); }
 "var"                                   {   return process(kVAR); }
