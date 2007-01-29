@@ -286,14 +286,14 @@ WhiteSpaceInLine = {InLineTerminator}
                                                     if(newLineAllowed()){
                                                       return process(tLINE_TERMINATOR);
                                                     } else {
-                                                     return process(tNON_SIGNIFICANT_NEWLINE);
+                                                     return process(tWHITE_SPACE_IN_LINE);
                                                     }
                                                 }
 
 
 {LineTerminator} / ({WhiteSpaceInLine})* {notFollowNewLine}
                                                 {   changeState();
-                                                    return process(tNON_SIGNIFICANT_NEWLINE);
+                                                    return process(tWHITE_SPACE_IN_LINE);
                                                 }
 
 
@@ -301,7 +301,7 @@ WhiteSpaceInLine = {InLineTerminator}
                                                     if(newLineAllowed()){
                                                       return process(tLINE_TERMINATOR);
                                                     } else {
-                                                      return process(tNON_SIGNIFICANT_NEWLINE);
+                                                      return process(tWHITE_SPACE_IN_LINE);
                                                     }
                                                 }
 
@@ -489,7 +489,8 @@ WhiteSpaceInLine = {InLineTerminator}
 {WhiteSpaceInLine}                            {   return process(tWHITE_SPACE_IN_LINE);  }
 
 ////////////////////// white spaces line terminator ///////////////////////////////////////////////
-{LineTerminator}                              {   return process(tNON_SIGNIFICANT_NEWLINE); }
+//{LineTerminator}                              {   return process(tNON_SIGNIFICANT_NEWLINE); }
+{LineTerminator}                              {   return process(tWHITE_SPACE_IN_LINE); }
 
 ////////////////////// STUB ///////////////////////////////////////////////
 .                                             {   return process(tSTUB); }
