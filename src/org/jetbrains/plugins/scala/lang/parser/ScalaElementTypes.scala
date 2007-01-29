@@ -227,6 +227,7 @@ object ScalaElementTypes {
   val BLOCK_EXPR = new ScalaElementType("block of expressions")
   val ERROR_STMT = new ScalaElementType("error statement")
   val BLOCK = new ScalaElementType("block")
+  val TUPLE = new ScalaElementType("Tuple")
   val BLOCK_STAT = new ScalaElementType("block statements")
 
 //  val PARENTHESIZED_EXPR = new ScalaElementType("parenthesized expression")

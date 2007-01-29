@@ -31,12 +31,18 @@ BlockExpr ::= ‘{’ CaseClauses ‘}’
     val blockExprMarker = builder.mark()
 
     if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
+      val um = builder.mark()
       ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
       if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
-        blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
+        um.done(ScalaElementTypes.UNIT)
+        blockExprMarker.drop()
         ScalaElementTypes.BLOCK_EXPR
-      } else if (!ScalaTokenTypes.kCASE.equals(builder.getTokenType)){
+      } else if ({
+        um.drop()
+        !ScalaTokenTypes.kCASE.equals(builder.getTokenType)
+      }){
+
         /*  ‘{’ Block ‘}’ */
 
         var result = Block.parse(builder, true)
@@ -53,12 +59,10 @@ BlockExpr ::= ‘{’ CaseClauses ‘}’
             ScalaElementTypes.BLOCK_EXPR
           }
         } else{
-          //builder.error("Wrong inner block statement")
           var errMarker = builder.mark()
           ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
           errMarker.error("Wrong inner block statement")
           blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
-          //blockExprMarker.drop
           ScalaElementTypes.BLOCK_EXPR
         }
       } else {
@@ -76,9 +80,7 @@ BlockExpr ::= ‘{’ CaseClauses ‘}’
               ScalaElementTypes.BLOCK_EXPR
             }
           } else{
-          //builder.error("Wrong inner block statement")
           ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
-          //blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
           blockExprMarker.error("Wrong inner block statement")
           ScalaElementTypes.BLOCK_EXPR
           }
@@ -96,6 +98,11 @@ Block
 Default grammar
 Block ::= {BlockStat StatementSeparator} [ResultExpr]
 */
+
+/*
+  Moreover, in this case we'll consider a tuple case
+*/
+
   def parse(builder : PsiBuilder, withBrace: Boolean) : ScalaElementType = {
 
     // TODO
@@ -125,7 +132,34 @@ Block ::= {BlockStat StatementSeparator} [ResultExpr]
     var counter = 0
     val blockMarker = builder.mark()
     var rollbackMarker = builder.mark()
+
+    val tupleMarker = builder.mark()
+    var bmAlive = true
+    var tmAlive = true
     var result = ScalaElementTypes.BLOCK
+
+
+    def tupleParse : Unit = {
+      tmAlive = false
+      if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+        val res = CompositeExpr.parse(builder)
+        if (ScalaElementTypes.EXPR1.equals(res)) {
+          builder.getTokenType match {
+            case ScalaTokenTypes.tCOMMA => tupleParse
+            case ScalaTokenTypes.tRBRACE => tupleMarker.done(ScalaElementTypes.TUPLE)
+            case _ => {
+              builder.error(", or } expected")
+              tupleMarker.done(ScalaElementTypes.TUPLE)
+            }
+          }
+        } else {
+          tupleMarker.done(ScalaElementTypes.TUPLE)
+        }
+      } else {
+        tupleMarker.done(ScalaElementTypes.TUPLE)
+      }
+    }
 
     var flag = false
     var flag2 = true
@@ -137,9 +171,22 @@ Block ::= {BlockStat StatementSeparator} [ResultExpr]
               result.equals(ScalaElementTypes.EXPR1) )
         ) {
         counter = counter + 1
-
-        if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType) &&
-            result.equals(ScalaElementTypes.EXPR1)) {
+        if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType) &&
+            result.equals(ScalaElementTypes.EXPR1)){
+          rollbackMarker.drop()
+          blockMarker.drop()
+          bmAlive = false
+          flag = false
+          tupleParse
+          result = ScalaElementTypes.BLOCK
+        } else if ({
+          if (tmAlive) {
+            tupleMarker.drop()
+            tmAlive = false
+          }
+          ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType) &&
+            result.equals(ScalaElementTypes.EXPR1)
+          }) {
           rollbackMarker.rollbackTo()
           flag = false
           ResultExpr.parse(builder)
@@ -188,7 +235,9 @@ Block ::= {BlockStat StatementSeparator} [ResultExpr]
         }
       }
     } while (flag)
-    blockMarker.done(ScalaElementTypes.BLOCK)
+    if (bmAlive) {
+      blockMarker.done(ScalaElementTypes.BLOCK)
+    }
     result
   }
 }
