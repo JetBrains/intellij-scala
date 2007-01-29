@@ -536,7 +536,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
 
   }
 
-  object InfixType extends InfixTemplate(ScalaElementTypes.INFIX_TYPE, CompoundType.parse)
+  object InfixType extends InfixTemplate(ScalaElementTypes.INFIX_TYPE, CompoundType.parse, CompoundType.parse)
 
 
   object Type {
