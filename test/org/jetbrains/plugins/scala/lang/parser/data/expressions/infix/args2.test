@@ -11,9 +11,7 @@ Scala file
     top definition template
       template body
         PsiElement({)('{')
-        PsiWhiteSpace('\n')
-        PsiWhiteSpace(' ')
-        PsiWhiteSpace(' ')
+        PsiWhiteSpace('\n  ')
         Infix expression
           Infix expression
             Infix expression
@@ -50,13 +48,11 @@ Scala file
           PsiWhiteSpace(' ')
           PsiElement(identifier)('div')
           PsiWhiteSpace(' ')
-          Argument expressions
-            Block expression
-              PsiElement({)('{')
-              Block
-                Stable Identifier
-                  PsiElement(identifier)('qoo')
-              PsiElement(})('}')
-        PsiWhiteSpace(' ')
-        PsiWhiteSpace('\n')
+          Block expression
+            PsiElement({)('{')
+            Block
+              Stable Identifier
+                PsiElement(identifier)('qoo')
+            PsiElement(})('}')
+        PsiWhiteSpace(' \n')
         PsiElement(})('}')
