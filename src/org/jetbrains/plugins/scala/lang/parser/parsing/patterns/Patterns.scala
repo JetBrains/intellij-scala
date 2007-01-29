@@ -107,7 +107,6 @@ SimplePattern ::=   ‘_’
         um.drop()
         var res = Pattern.parse(builder)
         if (ScalaElementTypes.PATTERN.equals(res)) {
-          // LOOK!!! ParserUtils.rollForward(builder)
           if (ScalaTokenTypes.tRPARENTHIS.equals(builder getTokenType)) {
             closeParent
           } else {
@@ -121,15 +120,51 @@ SimplePattern ::=   ‘_’
           ScalaElementTypes.SIMPLE_PATTERN
         }
       }
-    // Literal
-    } else if (Literal.parse(builder) == ScalaElementTypes.LITERAL) {
+    //
+    } /*
+    else if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
+      val uMarker = builder.mark()
+      ParserUtils.eatElement(builder,ScalaTokenTypes.tLBRACE)
+      if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
+        ParserUtils.eatElement(builder,ScalaTokenTypes.tRBRACE)
+        uMarker.done(ScalaElementTypes.UNIT)
+        spMarker.drop()
+        ScalaElementTypes.SIMPLE_PATTERN
+      } else {
+        uMarker.drop()
+        var res = ArgTypePattern.parse(builder)
+        if (!ScalaElementTypes.WRONGWAY.equals(res)) {
+          if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)){
+            ParserUtils.eatElement(builder,ScalaTokenTypes.tCOMMA)
+            if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
+              closeParent
+            } else {
+              val res1 = ArgTypePatterns.parse(builder)
+              if (!ScalaElementTypes.WRONGWAY.equals(res1)) {
+                if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)){
+                  ParserUtils.eatElement(builder,ScalaTokenTypes.tCOMMA)
+                }
+                closeParent
+              } else closeParent
+            }
+          } else closeParent
+        } else {
+          ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
+          spm.error("Wrong argument type pattern")
+          ScalaElementTypes.SIMPLE_TYPE_PATTERN
+        }
+      }
+     } // Literal
+     else if (Literal.parse(builder) == ScalaElementTypes.LITERAL) {
       spMarker.drop()
       ScalaElementTypes.SIMPLE_PATTERN
     /*  | varid
         | StableId [ ‘(’ [Patterns] ‘)’ ] */
-    } else if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER){
-      if (builder.getTokenText.substring(1).toLowerCase ==
-          builder.getTokenText.substring(1)) {// if variable id
+    }
+    */
+    else if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER){
+      if (builder.getTokenText.substring(0,1).toLowerCase ==
+          builder.getTokenText.substring(0,1)) {// if variable id
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         if (!builder.getTokenType.equals(ScalaTokenTypes.tLPARENTHIS) &&
             !builder.getTokenType.equals(ScalaTokenTypes.tDOT)) {
