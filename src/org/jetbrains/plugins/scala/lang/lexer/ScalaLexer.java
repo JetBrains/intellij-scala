@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.lexer.MergingLexerAdapter;
+import com.intellij.psi.tree.TokenSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,6 +13,11 @@ import com.intellij.lexer.MergingLexerAdapter;
 public class ScalaLexer extends MergingLexerAdapter {
 
   public ScalaLexer() {
-    super(new ScalaFlexLexer(), ScalaTokenTypes.WHITES_SPACES_TOKEN_SET);
+    super(new ScalaFlexLexer(),
+      TokenSet.create(
+        ScalaTokenTypes.tWHITE_SPACE_IN_LINE,
+        ScalaTokenTypes.tNON_SIGNIFICANT_NEWLINE,
+        ScalaTokenTypes.tCOMMENT_CONTENT
+      ));
   }
 }

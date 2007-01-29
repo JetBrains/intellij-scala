@@ -166,7 +166,7 @@ public interface ScalaTokenTypes {
   IElementType tAT = new ScalaElementType("@");
   IElementType tQUESTION = new ScalaElementType("?");
 
-  TokenSet WHITES_SPACES_TOKEN_SET = TokenSet.create(
+  public static TokenSet WHITES_SPACES_TOKEN_SET = TokenSet.create(
       tWHITE_SPACE_IN_LINE,
       tNON_SIGNIFICANT_NEWLINE
   );
