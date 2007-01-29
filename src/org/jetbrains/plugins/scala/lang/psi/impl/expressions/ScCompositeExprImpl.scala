@@ -53,11 +53,11 @@ import com.intellij.psi.tree.TokenSet
       def getType() : PsiType = null
   }
 
-      case class ScTryBlockImpl( node : ASTNode ) extends ScExpr1Impl(node) with IfElseIndent{
+      case class ScTryBlockImpl( node : ASTNode ) extends ScExpr1Impl(node) with BlockedIndent{
           override def toString: String = "Try block"
           def getType() : PsiType = null
       }
-      case class ScCatchBlockImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) with IfElseIndent{
+      case class ScCatchBlockImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) with BlockedIndent{
           override def toString: String = "Catch block"
 
           def caseClauses : Iterable[ScCaseClauseImpl] = {
