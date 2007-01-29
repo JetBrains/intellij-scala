@@ -17,14 +17,6 @@ object BNF {
 
 
   val tLITERALS: TokenSet = TokenSet.create (
-  /*  Array[IElementType] (
-       ScalaTokenTypes.tINTEGER,
-       ScalaTokenTypes.tFLOAT,
-       ScalaTokenTypes.kTRUE,
-       ScalaTokenTypes.kFALSE,
-       ScalaTokenTypes.tCHAR,
-       ScalaTokenTypes.kNULL
-    )*/
     literals
   )
 
