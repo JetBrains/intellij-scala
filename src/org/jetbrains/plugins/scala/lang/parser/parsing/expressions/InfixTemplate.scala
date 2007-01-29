@@ -17,7 +17,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
  @param parseBase: parse function for base of recursion
 */
 abstract class InfixTemplate(val elemType: ScalaElementType,
-                    val parseBase: PsiBuilder => ScalaElementType) {
+                    val parseBase: PsiBuilder => ScalaElementType,
+                    val parseRec: PsiBuilder => ScalaElementType) {
 
   /* Defines priority of operator */
   def priority(id: String) : Int = {
@@ -83,7 +84,8 @@ abstract class InfixTemplate(val elemType: ScalaElementType,
           if (!elemType.equals(ScalaElementTypes.PATTERN3))
             ParserUtils.rollForward(builder)
 
-          var res1 = parseBase(builder)
+          //var res1 = parseBase(builder)
+          var res1 = parseRec(builder)
 
           rbMarker.rollbackTo()
           if (!res1.equals(ScalaElementTypes.WRONGWAY)) {
@@ -108,7 +110,8 @@ abstract class InfixTemplate(val elemType: ScalaElementType,
             if (!elemType.equals(ScalaElementTypes.PATTERN3))
               ParserUtils.rollForward(builder)
 
-            parseBase(builder)
+            //parseBase(builder)
+            parseRec(builder)
             markerStack += newMarker
             opStack += currentOp
             subParse1
@@ -149,9 +152,8 @@ abstract class InfixTemplate(val elemType: ScalaElementType,
 
           val newMarker = builder.mark()
           /*Attention!*/
-          //var res = PrefixExpr parse(builder)
-//            ParserUtils.rollForward(builder)
-          var res = parseBase(builder)
+          //var res = parseBase(builder)
+          var res = parseRec(builder)
 
           // if  PE1 op PE2 ....
           if (!res.equals(ScalaElementTypes.WRONGWAY)) {
