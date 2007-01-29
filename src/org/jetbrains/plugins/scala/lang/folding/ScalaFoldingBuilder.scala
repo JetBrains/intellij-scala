@@ -44,7 +44,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       (ScalaElementTypes.FUNCTION_DEFINITION.equals(node.getTreeParent().getElementType)) => {
           descriptors += (new FoldingDescriptor(node, node.getTextRange()))
       }
-      case ScalaTokenTypes.tBLOCK_COMMENT => {
+      case ScalaTokenTypes.tCOMMENT_CONTENT => {
         descriptors += (new FoldingDescriptor(node, node.getTextRange()))
       }
       case _ => {}
@@ -85,7 +85,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       (ScalaElementTypes.FUNCTION_DEFINITION.equals(node.getTreeParent().getElementType)) => {
              "{...}"
       }
-      case ScalaTokenTypes.tBLOCK_COMMENT => {
+      case ScalaTokenTypes.tCOMMENT_CONTENT => {
         "/**...*/"
       }
       case _ => null
@@ -93,7 +93,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   }
 
   def isCollapsedByDefault(node: ASTNode): Boolean = {
-    node.getElementType == ScalaTokenTypes.tBLOCK_COMMENT
+    node.getElementType == ScalaTokenTypes.tCOMMENT_CONTENT
   }
 
 }
