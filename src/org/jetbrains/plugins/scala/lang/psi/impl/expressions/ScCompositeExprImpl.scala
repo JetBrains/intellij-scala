@@ -23,7 +23,7 @@ import com.intellij.psi.tree.TokenSet
 
   case class ScForStmtImpl( node : ASTNode ) extends ScExpr1Impl(node)  with IfElseIndent{
       override def toString: String = "FOR statement"
-
+                                
       def isEnumerators = (e : PsiElement) => e.isInstanceOf[ScEnumeratorsImpl]
 
       def enumerators : ScEnumeratorsImpl = childSatisfyPredicateForPsiElement(isEnumerators).asInstanceOf[ScEnumeratorsImpl]
