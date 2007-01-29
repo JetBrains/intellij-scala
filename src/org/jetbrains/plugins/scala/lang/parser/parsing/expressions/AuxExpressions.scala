@@ -43,7 +43,7 @@ ArgumentExprs ::= ‘(’ [Exprs] ’)’
           if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
             closeParent
           } else {
-            var res = Exprs.parse(builder)
+            var res = Exprs.parse(builder, null)
             if (res.eq(ScalaElementTypes.EXPRS)) {
               builder.getTokenType match {
                 case ScalaTokenTypes.tRPARENTHIS => closeParent

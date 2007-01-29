@@ -288,8 +288,12 @@ import com.intellij.psi.impl.source.CharTableImpl
   Exprs ::= Expr {‘,’ Expr}
   */
 
-    def parse(builder : PsiBuilder) : ScalaElementType = {
-        val exprsMarker = builder.mark()
+    def parse(builder : PsiBuilder, marker: PsiBuilder.Marker) : ScalaElementType = {
+
+        val exprsMarker = marker match {
+          case null => builder.mark()
+          case marker => marker
+        }
 
         def subParse: ScalaElementType = {
           //ParserUtils.rollForward(builder)
@@ -337,18 +341,19 @@ import com.intellij.psi.impl.source.CharTableImpl
           }
         }
 
-        var result = Expr.parse(builder)
-        /** Case (a) **/
-        if (result.equals(ScalaElementTypes.EXPR)) {
+        if (marker == null) {
+          var result = Expr.parse(builder)
+          /** Case (a) **/
+          if (result.equals(ScalaElementTypes.EXPR)) {
+            subParse
+          }
+          else {
+            builder.error("Argument expected")
+            exprsMarker.drop
+            ScalaElementTypes.EXPRS
+          }
+        } else {
           subParse
-        }
-        else {
-          builder.error("Argument expected")
-          //exprsMarker.done(ScalaElementTypes.EXPRS)
-          exprsMarker.drop
-          ScalaElementTypes.EXPRS
-        //  exprsMarker.rollbackTo()
-        //  ScalaElementTypes.WRONGWAY
         }
       }
   }

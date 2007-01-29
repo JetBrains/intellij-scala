@@ -69,7 +69,7 @@ val tSIMPLE_FIRST: TokenSet = TokenSet.create(
 //val SIMPLE_FIRST = TokenSet.orSet(Array(BNF.tSIMPLE_FIRST, BNF.tLITERALS ))
 val SIMPLE_FIRST = TokenSet.orSet(Array(tSIMPLE_FIRST, tLITERALS ))
 
-  def parse(builder : PsiBuilder) : SimpleExprResult = {
+  def parse(builder : PsiBuilder , marker: PsiBuilder.Marker) : SimpleExprResult = {
 
     var deepCount = 1
     var inBraces = false
@@ -148,92 +148,101 @@ val SIMPLE_FIRST = TokenSet.orSet(Array(tSIMPLE_FIRST, tLITERALS ))
     var flag = false
     var endness = "wrong"
     var result = ScalaElementTypes.WRONGWAY
-    var simpleMarker = builder.mark()
 
-    /* case (h) */
-    if (ScalaTokenTypes.kNEW.equals(builder.getTokenType))  {
-      ParserUtils.eatElement(builder, ScalaTokenTypes.kNEW)
-      Template.parseBody(builder)
-      simpleMarker.done(ScalaElementTypes.SIMPLE_EXPR)
-      simpleMarker = builder.mark()
-      result = ScalaElementTypes.TEMPLATE
-      endness = "plain"
-      flag = true
+    var simpleMarker = marker match {
+      case null => builder.mark()
+      case marker => marker
     }
-    /* case (g) */
-    else if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType))  {
-        val res3 = BlockExpr.parse(builder)
-        if (res3.eq(ScalaElementTypes.BLOCK_EXPR)){
-          result = res3
-          endness = "plain"
-          flag = true
-        } else {
-          flag = false
-        }
-    }
-    /* case (f) */
-    else if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)) {
-      val unitMarker = builder.mark()
-      ParserUtils.eatElement(builder,ScalaTokenTypes.tLPARENTHIS)
-      if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
-        unitMarker.done(ScalaElementTypes.UNIT)
-        result = ScalaElementTypes.UNIT
+
+  if (marker == null) {
+      /* case (h) */
+      if (ScalaTokenTypes.kNEW.equals(builder.getTokenType))  {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kNEW)
+        Template.parseBody(builder)
+        simpleMarker.done(ScalaElementTypes.SIMPLE_EXPR)
+        simpleMarker = builder.mark()
+        result = ScalaElementTypes.TEMPLATE
+        endness = "plain"
         flag = true
-      } else {
-        unitMarker.drop()
-        var res = Expr parse builder
-        if (res.eq(ScalaElementTypes.EXPR)) {
-          if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)) {
-            closeParent
-            inBraces = true
-            result = res
+      }
+      /* case (g) */
+      else if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType))  {
+          val res3 = BlockExpr.parse(builder)
+          if (res3.eq(ScalaElementTypes.BLOCK_EXPR)){
+            result = res3
             endness = "plain"
             flag = true
           } else {
-            builder.error(" Wrong expression")
-            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS , ScalaTokenTypes.tRPARENTHIS)
-            inBraces = true
-            new SimpleExprResult(ScalaElementTypes.SIMPLE_EXPR, "plain")
-            result = res
-            endness = "plain"
-            flag = true
+            flag = false
           }
-        } else {
-          flag = false
-        }
       }
-    } else {
-      /* case (d) */
-      var result1 = Literal.parse(builder)  // Literal ?
-      if (!result1.equals(ScalaElementTypes.WRONGWAY)) {
-        result = result1
-        flag = true // Yes, it is!
-        endness = "plain"
-      }
-      /* case (e) */
-      else { result1 = StableId.parse(builder) // Path ?
-        if (!flag && (result1.equals(ScalaElementTypes.PATH)
-                      || result1.equals(ScalaElementTypes.STABLE_ID_ID))
-           ) {
-          result = result1
+      /* case (f) */
+      else if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)) {
+        val unitMarker = builder.mark()
+        ParserUtils.eatElement(builder,ScalaTokenTypes.tLPARENTHIS)
+        if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+          unitMarker.done(ScalaElementTypes.UNIT)
+          result = ScalaElementTypes.UNIT
           flag = true
+        } else {
+          unitMarker.drop()
+          var res = Expr parse builder
+          if (res.eq(ScalaElementTypes.EXPR)) {
+            if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)) {
+              closeParent
+              inBraces = true
+              result = res
+              endness = "plain"
+              flag = true
+            } else {
+              builder.error(" Wrong expression")
+              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS , ScalaTokenTypes.tRPARENTHIS)
+              inBraces = true
+              new SimpleExprResult(ScalaElementTypes.SIMPLE_EXPR, "plain")
+              result = res
+              endness = "plain"
+              flag = true
+            }
+          } else {
+            flag = false
+          }
+        }
+      } else {
+        /* case (d) */
+        var result1 = Literal.parse(builder)  // Literal ?
+        if (!result1.equals(ScalaElementTypes.WRONGWAY)) {
+          result = result1
+          flag = true // Yes, it is!
           endness = "plain"
         }
-        if (!flag && result1.equals(ScalaElementTypes.STABLE_ID)) {
-          result = result1
-          flag = true
-          endness = ".id"
+        /* case (e) */
+        else { result1 = StableId.parse(builder) // Path ?
+          if (!flag && (result1.equals(ScalaElementTypes.PATH)
+                        || result1.equals(ScalaElementTypes.STABLE_ID_ID))
+             ) {
+            result = result1
+            flag = true
+            endness = "plain"
+          }
+          if (!flag && result1.equals(ScalaElementTypes.STABLE_ID)) {
+            result = result1
+            flag = true
+            endness = ".id"
+          }
         }
       }
-    }
-    if (flag) {
-        subParse(result , endness, simpleMarker)
+      if (flag) {
+          subParse(result , endness, simpleMarker)
+        }
+      else {
+        simpleMarker.drop()
+        new SimpleExprResult(ScalaElementTypes.WRONGWAY , "wrong")
       }
-    else {
-      simpleMarker.drop()
-      new SimpleExprResult(ScalaElementTypes.WRONGWAY , "wrong")
+    } else {
+      subParse(ScalaElementTypes.EXPR, "plain", simpleMarker)
     }
+
   }
 
 
@@ -283,13 +292,13 @@ object PrefixExpr {
              ParserUtils.eatElement(builder, ScalaElementTypes.PREFIX)
              isPrefix = true
              if (SimpleExpr.SIMPLE_FIRST.contains(builder.getTokenType)) {
-               result = (SimpleExpr  parse(builder)).parsed
+               result = (SimpleExpr.parse(builder, null)).parsed
              } else {
               builder.error("Wrong prefix expression!")
               result = ScalaElementTypes.WRONGWAY
              }
            }
-      case _ => result = (SimpleExpr parse(builder)).parsed
+      case _ => result = (SimpleExpr.parse(builder, null)).parsed
     }
     if (isPrefix) {
       result = ScalaElementTypes.PREFIX_EXPR
@@ -300,10 +309,70 @@ object PrefixExpr {
 
   def exprOrArgsParse(builder: PsiBuilder): ScalaElementType = {
     builder.getTokenType match {
-      case ScalaTokenTypes.tLPARENTHIS |
-           ScalaTokenTypes.tLBRACE => {
-        ArgumentExprs.parse(builder)
+      case ScalaTokenTypes.tLPARENTHIS => {
+        var argsMarker = builder.mark()
+        var exprsMarker = builder.mark()
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+        if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
+          argsMarker.drop()
+          exprsMarker.done(ScalaElementTypes.UNIT)
+          ScalaElementTypes.UNIT
+        } else {
+          var result = Expr.parse(builder)
+
+          def closeParent(elem: ScalaElementType): ScalaElementType = {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+            argsMarker.done(elem)
+            elem
+          }
+
+          if (result.equals(ScalaElementTypes.EXPR)) {
+            builder.getTokenType match {
+              case ScalaTokenTypes.tCOLON |
+                   ScalaTokenTypes.tCOMMA => {
+                val res = Exprs.parse (builder, exprsMarker)
+                if (res.equals(ScalaElementTypes.EXPRS)) {
+                  builder.getTokenType match {
+                    case ScalaTokenTypes.tRPARENTHIS => {
+                      closeParent(ScalaElementTypes.ARG_EXPRS)
+                    }
+                    case _ => {
+                      builder.error(") expected")
+                      ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+                      argsMarker.done(ScalaElementTypes.ARG_EXPRS)
+                      ScalaElementTypes.ARG_EXPRS
+                    }
+                  }
+                } else {
+                  ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+                  argsMarker.error("Wrong expression")
+                  ScalaElementTypes.ARG_EXPRS
+                }
+              }
+              case ScalaTokenTypes.tRPARENTHIS => {
+                exprsMarker.drop()
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+                SimpleExpr.parse(builder, argsMarker).parsed
+              }
+              case _ => {
+                builder.error(") expected")
+                exprsMarker.drop()
+                ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+                argsMarker.done(ScalaElementTypes.SIMPLE_EXPR)
+                ScalaElementTypes.SIMPLE_EXPR
+              }
+            }
+
+          } else {
+            exprsMarker.drop()
+            builder.error("Wrong expression")
+            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+            argsMarker.done(ScalaElementTypes.SIMPLE_EXPR)
+            ScalaElementTypes.SIMPLE_EXPR
+          }
+        }
       }
+      case ScalaTokenTypes.tLBRACE => BlockExpr.parse(builder)
       case _ => this.parse(builder)
     }
   }
