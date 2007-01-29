@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 //    def getExpression : ScExpr1Impl = childSatisfyPredicate(isExpr).asInstanceOf[ScExpr1Impl]
   }
   
-    case class ScResExprImpl( node : ASTNode ) extends ScExprImpl (node) with ScBlock {
+  case class ScResExprImpl( node : ASTNode ) extends ScExprImpl (node) with ScBlock {
       override def toString: String = "Result expression"
       def getType() : PsiType = null
   }
@@ -63,4 +63,10 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
       override def toString: String = "Block"
       def getType() : PsiType = null
   }
+
+  case class ScTupleImpl( node : ASTNode ) extends ScalaPsiElementImpl (node){
+      override def toString: String = "Tuple"
+      def getType() : PsiType = null
+  }
+
 }
