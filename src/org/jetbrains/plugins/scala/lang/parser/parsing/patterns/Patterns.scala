@@ -203,7 +203,7 @@ SimplePattern ::=   ‘_’
 }
 
 
-object Pattern3 extends InfixTemplate(ScalaElementTypes.PATTERN3, SimplePattern.parse)
+object Pattern3 extends InfixTemplate(ScalaElementTypes.PATTERN3, SimplePattern.parse, SimplePattern.parse)
 
 class Pattern2 {
 /*
