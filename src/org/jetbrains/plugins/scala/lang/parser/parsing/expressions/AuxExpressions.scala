@@ -33,7 +33,6 @@ ArgumentExprs ::= ‘(’ [Exprs] ’)’
           argsMarker.done(ScalaElementTypes.ARG_EXPRS)
           ScalaElementTypes.ARG_EXPRS
         }
-
         if (ScalaTokenTypes.tLBRACE.eq(builder getTokenType)) {
           var result = BlockExpr parse builder
           if (ScalaElementTypes.BLOCK_EXPR.equals(result))
@@ -48,30 +47,6 @@ ArgumentExprs ::= ‘(’ [Exprs] ’)’
             if (res.eq(ScalaElementTypes.EXPRS)) {
               builder.getTokenType match {
                 case ScalaTokenTypes.tRPARENTHIS => closeParent
-/*
-                case ScalaTokenTypes.tCOLON => {
-                  // Suppose, that this is construction like
-                  // (... expr : _* )
-                  ParserUtils.eatElement(builder, builder.getTokenType)
-                  if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType) && // _ ...
-                      {
-                        ParserUtils.eatElement(builder, builder.getTokenType)
-                         "*".equals(builder.getTokenText)                   // _* ...
-                      } &&
-                      {
-                        ParserUtils.eatElement(builder, builder.getTokenType)
-                        ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)
-                      } ) {
-                    closeParent
-                  } else {
-                    //builder.error("Sequence argument or ) expected")
-                    ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
-                    argsMarker.error("Sequence argument or ) expected")
-                    //argsMarker.done(ScalaElementTypes.ARG_EXPRS)
-                    ScalaElementTypes.ARG_EXPRS
-                  }
-                }
-*/
                 case _ => {
                   builder.error(") expected")
                   ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
