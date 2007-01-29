@@ -215,15 +215,18 @@ WhiteSpaceInLine = {InLineTerminator}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 <IN_BLOCK_COMMENT_STATE> {
 {COMMENT_BEGIN}                                 { commentStack.push(ScalaTokenTypes.tLBRACE);
-                                                  return process(ScalaTokenTypes.tCOMMENT_BEGIN); }
+                                                  //return process(ScalaTokenTypes.tCOMMENT_BEGIN); }
+                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT); }
 {COMMENT_END}                                   { IElementType elem = commentStack.pop();
                                                   if (commentStack.isEmpty()) {
                                                     changeState();
                                                   }
                                                   if (!ScalaTokenTypes.tLBRACE.equals(elem)) {
-                                                    return process(ScalaTokenTypes.tDOC_COMMENT_END);
+                                                    //return process(ScalaTokenTypes.tDOC_COMMENT_END);
+                                                    return process(ScalaTokenTypes.tCOMMENT_CONTENT);
                                                   } else {
-                                                   return process(ScalaTokenTypes.tCOMMENT_END);
+                                                   //return process(ScalaTokenTypes.tCOMMENT_END);
+                                                   return process(ScalaTokenTypes.tCOMMENT_CONTENT);
                                                   }
                                                 }
 ~({COMMENT_BEGIN}|{COMMENT_END})                { yypushback(2);
@@ -240,15 +243,15 @@ WhiteSpaceInLine = {InLineTerminator}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 <IN_BLOCK_COMMENT_STATE_NEW_LINE> {
 {COMMENT_BEGIN}                                 { commentStack.push(ScalaTokenTypes.tLBRACE);
-                                                  return process(ScalaTokenTypes.tCOMMENT_BEGIN); }
+                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT); }
 {COMMENT_END}                                   { IElementType elem = commentStack.pop();
                                                   if (commentStack.isEmpty()) {
                                                     yybegin(PROCESS_NEW_LINE);
                                                   }
                                                   if (!ScalaTokenTypes.tLBRACE.equals(elem)) {
-                                                    return process(ScalaTokenTypes.tDOC_COMMENT_END);
+                                                    return process(ScalaTokenTypes.tCOMMENT_CONTENT);
                                                   } else {
-                                                   return process(ScalaTokenTypes.tCOMMENT_END);
+                                                   return process(ScalaTokenTypes.tCOMMENT_CONTENT);
                                                   }
                                                 }
 ~({COMMENT_BEGIN}|{COMMENT_END})                { yypushback(2);
@@ -271,7 +274,8 @@ WhiteSpaceInLine = {InLineTerminator}
 
 {COMMENT_BEGIN} /(.| {LineTerminator})*         { yybegin(IN_BLOCK_COMMENT_STATE_NEW_LINE);
                                                   commentStack.push(ScalaTokenTypes.tLBRACE);
-                                                  return process(ScalaTokenTypes.tCOMMENT_BEGIN);
+                                                  //return process(ScalaTokenTypes.tCOMMENT_BEGIN);
+                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT);
                                                 }
 
 {END_OF_LINE_COMMENT}                           { return process(tCOMMENT); }
@@ -329,7 +333,8 @@ WhiteSpaceInLine = {InLineTerminator}
 
 {COMMENT_BEGIN} /(.| {LineTerminator})*         { yybegin(IN_BLOCK_COMMENT_STATE);
                                                   commentStack.push(ScalaTokenTypes.tLBRACE);
-                                                  return process(ScalaTokenTypes.tCOMMENT_BEGIN);
+                                                  //return process(ScalaTokenTypes.tCOMMENT_BEGIN);
+                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT);
                                                 }
 
 
