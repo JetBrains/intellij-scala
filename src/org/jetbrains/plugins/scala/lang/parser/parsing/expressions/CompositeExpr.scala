@@ -13,47 +13,47 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 
 object CompositeExpr {
-/*
-Composite Expression
-Default grammar
-Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                           (if)
-          | try ‘{’ Block ‘}’ [catch ‘{’ CaseClauses ‘}’] [finally Expr]                 (try)
-          | while ‘(’ Expr ‘)’ [NewLine] Expr                                          (while)
-          | do Expr [StatementSeparator] while ‘(’ Expr ’)’                            (do)
-          | for (‘(’ Enumerators ‘)’ | ‘{’ Enumerators ‘}’)[NewLine] [yield] Expr        (for)
-          | throw Expr                                                               (throw)
-          | return [Expr]                                                            (return)
-          | [SimpleExpr ‘.’] id ‘=’ Expr                                               (b2)
-          | SimpleExpr ArgumentExprs ‘=’ Expr                                         (b1)
-          | PostfixExpr [‘:’ CompoundType]                                                   (a)
-          | PostfixExpr match ‘{’ CaseClauses ‘}’                                      (a1)
-          | MethodClosure                                                            (closure)
-*/
+  /*
+  Composite Expression
+  Default grammar
+  Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                           (if)
+            | try ‘{’ Block ‘}’ [catch ‘{’ CaseClauses ‘}’] [finally Expr]                 (try)
+            | while ‘(’ Expr ‘)’ [NewLine] Expr                                          (while)
+            | do Expr [StatementSeparator] while ‘(’ Expr ’)’                            (do)
+            | for (‘(’ Enumerators ‘)’ | ‘{’ Enumerators ‘}’)[NewLine] [yield] Expr        (for)
+            | throw Expr                                                               (throw)
+            | return [Expr]                                                            (return)
+            | [SimpleExpr ‘.’] id ‘=’ Expr                                               (b2)
+            | SimpleExpr ArgumentExprs ‘=’ Expr                                         (b1)
+            | PostfixExpr [‘:’ CompoundType]                                                   (a)
+            | PostfixExpr match ‘{’ CaseClauses ‘}’                                      (a1)
+            | MethodClosure                                                            (closure)
+  */
 
-  def parse(builder : PsiBuilder) : ScalaElementType = {
+  def parse(builder: PsiBuilder): ScalaElementType = {
     val compMarker = builder.mark()
 
     /* Error processing */
     def errorDoneMain(rollbackMarker: PsiBuilder.Marker,
-                      elem: ScalaElementType) = {
-      def errorDone (msg: String): ScalaElementType = {
+            elem: ScalaElementType) = {
+      def errorDone(msg: String): ScalaElementType = {
         rollbackMarker.drop()
-//        builder.error(msg)     // Formatter bug!
+        //        builder.error(msg)     // Formatter bug!
         compMarker.error(msg)
         ScalaElementTypes.EXPR1
       }
-      (msg:String) => errorDone(msg)
+      (msg: String) => errorDone(msg)
     }
 
-/******************************************************************/
-/*********************** Various cases ****************************/
-/******************************************************************/
+    /******************************************************************/
+    /*********************** Various cases ****************************/
+    /******************************************************************/
 
-/****************************** case (a), (a1) ****************************/
+    /****************************** case (a), (a1) ****************************/
     def aCase: ScalaElementType = {
       val rollbackMarker = builder.mark() // marker to rollback
       var result = PostfixExpr.parse(builder)
-      if (!result.equals(ScalaElementTypes.WRONGWAY)) {
+      if (! result.equals(ScalaElementTypes.WRONGWAY)) {
         builder getTokenType match {
           /*    [‘:’ CompoundType]   */
           case ScalaTokenTypes.tCOLON => {
@@ -74,7 +74,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
                 argMarker.rollbackTo()
                 rollbackMarker.drop()
                 if (ScalaElementTypes.SIMPLE_EXPR.equals(result)){
-                  compMarker.done (ScalaElementTypes.SIMPLE_EXPR)
+                  compMarker.done(ScalaElementTypes.SIMPLE_EXPR)
                 }
                 else compMarker.drop
                 ScalaElementTypes.EXPR1
@@ -99,7 +99,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
                   braceMarker.drop()
                   builder.error("Case clauses expected")
                   rollbackMarker.drop()
-                  ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
+                  ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
                   compMarker.done(ScalaElementTypes.MATCH_STMT)
                   ScalaElementTypes.EXPR1
                 }
@@ -107,22 +107,22 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
                 braceMarker.drop()
                 builder.error("Case clauses expected")
                 rollbackMarker.drop()
-                ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
+                ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
                 compMarker.done(ScalaElementTypes.MATCH_STMT)
                 ScalaElementTypes.EXPR1
               }
             } else {
-               rollbackMarker.rollbackTo()
-               ScalaElementTypes.WRONGWAY
+              rollbackMarker.rollbackTo()
+              ScalaElementTypes.WRONGWAY
             }
           }
           case _ => {
-            if (!ScalaElementTypes.INFIX_EXPR.equals(result) &&
-                !ScalaElementTypes.POSTFIX_EXPR.equals(result) &&
-                !ScalaElementTypes.PREFIX_EXPR.equals(result) ){
-              if (ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)     ||
-                  ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType) ||
-                  ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)  ) {
+            if (! ScalaElementTypes.INFIX_EXPR.equals(result) &&
+            ! ScalaElementTypes.POSTFIX_EXPR.equals(result) &&
+            ! ScalaElementTypes.PREFIX_EXPR.equals(result)){
+              if (ScalaTokenTypes.tASSIGN.equals(builder.getTokenType) ||
+              ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType) ||
+              ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
                 rollbackMarker.rollbackTo()
                 ScalaElementTypes.WRONGWAY
               }
@@ -146,17 +146,17 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       }
     }
 
-/*********************** cases (b1), (b2) **************************/
+    /*********************** cases (b1), (b2) **************************/
     def bCase: ScalaElementType = {
 
       var rollbackMarker = builder.mark() // marker to rollback
 
       def assignProcess: ScalaElementType = {
-        ParserUtils.eatElement(builder , ScalaTokenTypes.tASSIGN)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
         var res = Expr.parse(builder)
         if (res.eq(ScalaElementTypes.EXPR)) {
           rollbackMarker.drop()
-          compMarker.done (ScalaElementTypes.ASSIGN_STMT)
+          compMarker.done(ScalaElementTypes.ASSIGN_STMT)
           ScalaElementTypes.EXPR1
         } else {
           rollbackMarker.drop()
@@ -166,11 +166,11 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       }
 
       def processSimpleExpr: ScalaElementType = {
-        var res = SimpleExpr.parse(builder, null)
-        if (!res.parsed.equals(ScalaElementTypes.WRONGWAY) &&
-            ( res.endness.eq("argexprs") || res.endness.eq(".id") ) ) {
+        var res = SimpleExpr.parse(builder, null, false)
+        if (! res.parsed.equals(ScalaElementTypes.WRONGWAY) &&
+        (res.endness.eq("argexprs") || res.endness.eq(".id"))) {
           if (builder.getTokenType.eq(ScalaTokenTypes.tASSIGN)) {
-          assignProcess
+            assignProcess
           } else {
             rollbackMarker.rollbackTo()
             ScalaElementTypes.WRONGWAY
@@ -182,7 +182,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
       }
 
       if (builder.getTokenType.eq(ScalaTokenTypes.tIDENTIFIER)) {
-        ParserUtils.eatElement(builder , ScalaTokenTypes.tIDENTIFIER)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         if (builder.getTokenType.eq(ScalaTokenTypes.tASSIGN)) {
           assignProcess
         } else {
@@ -191,7 +191,7 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
           processSimpleExpr
         }
       } else if (builder.getTokenType.eq(ScalaTokenTypes.kTHIS) ||
-                 builder.getTokenType.eq(ScalaTokenTypes.kSUPER)){
+      builder.getTokenType.eq(ScalaTokenTypes.kSUPER)){
         processSimpleExpr
       } else {
         processSimpleExpr
@@ -199,19 +199,19 @@ Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                   
     }
 
 
-/*
-  id = Expr
-*/
-def b1Case: ScalaElementType = {
+    /*
+      id = Expr
+    */
+    def b1Case: ScalaElementType = {
 
       var rollbackMarker = builder.mark() // marker to rollback
 
       def assignProcess: ScalaElementType = {
-        ParserUtils.eatElement(builder , ScalaTokenTypes.tASSIGN)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
         var res = Expr.parse(builder)
         if (res.eq(ScalaElementTypes.EXPR)) {
           rollbackMarker.drop()
-          compMarker.done (ScalaElementTypes.ASSIGN_STMT)
+          compMarker.done(ScalaElementTypes.ASSIGN_STMT)
           ScalaElementTypes.EXPR1
         } else {
           rollbackMarker.drop()
@@ -221,7 +221,7 @@ def b1Case: ScalaElementType = {
       }
 
       if (builder.getTokenType.eq(ScalaTokenTypes.tIDENTIFIER)) {
-        ParserUtils.eatElement(builder , ScalaTokenTypes.tIDENTIFIER)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         if (builder.getTokenType.eq(ScalaTokenTypes.tASSIGN)) {
           assignProcess
         } else {
@@ -229,23 +229,23 @@ def b1Case: ScalaElementType = {
           ScalaElementTypes.WRONGWAY
         }
       } else {
-          rollbackMarker.drop()
-          ScalaElementTypes.WRONGWAY
+        rollbackMarker.drop()
+        ScalaElementTypes.WRONGWAY
       }
     }
 
-/******************************* case (if) ****************************/
+    /******************************* case (if) ****************************/
     def ifCase: ScalaElementType = {
       val rollbackMarker = builder.mark() // marker to rollback
 
       /* for mistakes processing */
-      def errorDone = errorDoneMain(rollbackMarker, ScalaElementTypes.IF_STMT )
+      def errorDone = errorDoneMain(rollbackMarker, ScalaElementTypes.IF_STMT)
 
       def elseProcessing: ScalaElementType = {
 
         val rMarker = builder.mark()
         if (builder.getTokenType.equals(ScalaTokenTypes.tSEMICOLON) ||
-            builder.getTokenType.equals(ScalaTokenTypes.tLINE_TERMINATOR)){
+        builder.getTokenType.equals(ScalaTokenTypes.tLINE_TERMINATOR)){
           ParserUtils.eatElement(builder, builder.getTokenType)
         }
         if (builder.getTokenType.eq(ScalaTokenTypes.kELSE)) {
@@ -275,13 +275,13 @@ def b1Case: ScalaElementType = {
 
           /* else? */
           var tempMarker = builder.mark()
-          if (!builder.eof) builder.advanceLexer()
+          if (! builder.eof) builder.advanceLexer()
           var second = builder.getTokenType
           tempMarker.rollbackTo()
 
           builder.getTokenType match {
             case ScalaTokenTypes.kELSE
-                | ScalaTokenTypes.tSEMICOLON => {
+            | ScalaTokenTypes.tSEMICOLON => {
               mileMarker.drop()
               elseProcessing
             }
@@ -303,15 +303,15 @@ def b1Case: ScalaElementType = {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kIF)
         if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-          val res = Expr parse(builder)
+          val res = Expr parse (builder)
           if (res.eq(ScalaElementTypes.EXPR)){
-            if (builder.getTokenType.eq (ScalaTokenTypes.tRPARENTHIS)){
+            if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)){
               ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
               parseContent
             } else {
               builder.error(" ) expected")
-              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS , ScalaTokenTypes.tRPARENTHIS)
-              if (!builder.eof) {
+              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+              if (! builder.eof) {
                 parseContent
               }
               else {
@@ -322,8 +322,8 @@ def b1Case: ScalaElementType = {
             }
           } else {
             builder.error("Wrong expression")
-            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS , ScalaTokenTypes.tRPARENTHIS)
-            if (!builder.eof) {
+            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+            if (! builder.eof) {
               parseContent
             }
             else {
@@ -340,7 +340,7 @@ def b1Case: ScalaElementType = {
     }
 
 
-/***************************** case (while) *************************/
+    /***************************** case (while) *************************/
     def whileCase: ScalaElementType = {
       val rollbackMarker = builder.mark() // marker to rollback
 
@@ -359,9 +359,9 @@ def b1Case: ScalaElementType = {
       }
 
       def parseError(st: String) = {
-//        builder.error(st)
-        ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS , ScalaTokenTypes.tRPARENTHIS)
-        if (!builder.eof) {
+        //        builder.error(st)
+        ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+        if (! builder.eof) {
           parseContent
         }
         else {
@@ -372,13 +372,13 @@ def b1Case: ScalaElementType = {
       }
 
       /* for mistakes processing */
-      def errorDone = errorDoneMain(rollbackMarker , ScalaElementTypes.WHILE_STMT)
+      def errorDone = errorDoneMain(rollbackMarker, ScalaElementTypes.WHILE_STMT)
 
       if (builder.getTokenType.eq(ScalaTokenTypes.kWHILE)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kWHILE)
         if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-          val res = Expr parse(builder)
+          val res = Expr parse (builder)
           if (ScalaElementTypes.EXPR.eq(res)){
             if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
               ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
@@ -393,22 +393,22 @@ def b1Case: ScalaElementType = {
       }
     }
 
-/***************************** case (do) *************************/
+    /***************************** case (do) *************************/
 
     def doCase: ScalaElementType = {
       val rollbackMarker = builder.mark() // marker to rollback
 
       /* for mistakes processing */
-      def errorDone = errorDoneMain(rollbackMarker , ScalaElementTypes.DO_STMT)
+      def errorDone = errorDoneMain(rollbackMarker, ScalaElementTypes.DO_STMT)
 
       def whileProcessing = {
         if (builder.getTokenType.eq(ScalaTokenTypes.kWHILE)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.kWHILE)
           if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)){
             ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-            val res = Expr parse(builder)
+            val res = Expr parse (builder)
             if (res.eq(ScalaElementTypes.EXPR)){
-              if (builder.getTokenType.eq (ScalaTokenTypes.tRPARENTHIS)){
+              if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)){
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
                 rollbackMarker.drop()
                 compMarker.done(ScalaElementTypes.DO_STMT)
@@ -424,8 +424,8 @@ def b1Case: ScalaElementType = {
         val res1 = Expr.parse(builder)
         if (res1.eq(ScalaElementTypes.EXPR)){
           builder.getTokenType match {
-            case  ScalaTokenTypes.tLINE_TERMINATOR
-                | ScalaTokenTypes.tSEMICOLON => ParserUtils.eatElement(builder, builder.getTokenType )
+            case ScalaTokenTypes.tLINE_TERMINATOR
+            | ScalaTokenTypes.tSEMICOLON => ParserUtils.eatElement(builder, builder.getTokenType)
             case _ =>
           }
           whileProcessing
@@ -436,13 +436,13 @@ def b1Case: ScalaElementType = {
       }
     }
 
-/******************** case (for) ************************/
+    /******************** case (for) ************************/
 
     def forCase: ScalaElementType = {
       val rollbackMarker = builder.mark() // marker to rollback
 
       /* for mistakes processing */
-      def errorDone = errorDoneMain(rollbackMarker , ScalaElementTypes.FOR_STMT)
+      def errorDone = errorDoneMain(rollbackMarker, ScalaElementTypes.FOR_STMT)
 
       def bodyParse = {
         ParserUtils.rollForward(builder)
@@ -457,10 +457,10 @@ def b1Case: ScalaElementType = {
         } else errorDone("Wrong expression")
       }
 
-      def parseError(st: String, elem1: IElementType , elem2: IElementType) = {
+      def parseError(st: String, elem1: IElementType, elem2: IElementType) = {
         builder.error(st)
-        ParserUtils.rollPanicToBrace(builder, elem1 , elem2)
-        if (!builder.eof) {
+        ParserUtils.rollPanicToBrace(builder, elem1, elem2)
+        if (! builder.eof) {
           bodyParse
         }
         else {
@@ -476,20 +476,20 @@ def b1Case: ScalaElementType = {
           case _ => ScalaTokenTypes.tRPARENTHIS.asInstanceOf[ScalaElementType]
         }
         ParserUtils.eatElement(builder, brace)
-        val res = Enumerators.parse(builder , rightBrace)
+        val res = Enumerators.parse(builder, rightBrace)
         if (res.eq(ScalaElementTypes.ENUMERATORS)){
           if (rightBrace.equals(builder.getTokenType)){
             ParserUtils.eatElement(builder, rightBrace)
             bodyParse
-          } else parseError(rightBrace.toString +" expected", brace, rightBrace)
+          } else parseError(rightBrace.toString + " expected", brace, rightBrace)
         } else parseError("Wrong enumerators", brace, rightBrace)
       }
 
       if (builder.getTokenType.eq(ScalaTokenTypes.kFOR)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kFOR)
         if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS) ||
-            builder.getTokenType.eq(ScalaTokenTypes.tLBRACE )) {
-            braceMatcher(builder.getTokenType)
+        builder.getTokenType.eq(ScalaTokenTypes.tLBRACE)) {
+          braceMatcher(builder.getTokenType)
         } else errorDone("( of { expected")
       } else {
         rollbackMarker.rollbackTo()
@@ -497,13 +497,13 @@ def b1Case: ScalaElementType = {
       }
     }
 
-/******************** case (try) ************************/
+    /******************** case (try) ************************/
 
     def tryCase: ScalaElementType = {
       val rollbackMarker = builder.mark() // marker to rollback
 
       /* for mistakes processing */
-      def errorDone = errorDoneMain(rollbackMarker , ScalaElementTypes.FOR_STMT)
+      def errorDone = errorDoneMain(rollbackMarker, ScalaElementTypes.FOR_STMT)
 
       def parseCatch = {
         val catcMarker = builder.mark()
@@ -517,11 +517,11 @@ def b1Case: ScalaElementType = {
               ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
             } else {
               builder.error("} expected")
-              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
+              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
             }
           } else {
             builder.error("Wrong case clauses")
-            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
+            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
           }
         } else {
           builder.error(" { expected ")
@@ -547,21 +547,21 @@ def b1Case: ScalaElementType = {
           case _ => ScalaTokenTypes.tRPARENTHIS.asInstanceOf[ScalaElementType]
         }
         ParserUtils.eatElement(builder, brace)
-        val res = Block.parse(builder , true)
+        val res = Block.parse(builder, true)
         if (res.eq(ScalaElementTypes.BLOCK)){
-          if (builder.getTokenType.equals (rightBrace)){
+          if (builder.getTokenType.equals(rightBrace)){
             ParserUtils.eatElement(builder, rightBrace)
             tryMarker.done(ScalaElementTypes.TRY_BLOCK)
             if (ScalaTokenTypes.kCATCH.equals(builder.getTokenType)) parseCatch
             if (ScalaTokenTypes.kFINALLY.equals(builder.getTokenType)) parseFinally
           } else {
-            builder.error(brace+" expected")
-            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
+            builder.error(brace + " expected")
+            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
             tryMarker.done(ScalaElementTypes.TRY_BLOCK)
           }
         } else {
           builder.error("Wrong block")
-          ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
+          ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
           tryMarker.done(ScalaElementTypes.TRY_BLOCK)
         }
         compMarker.done(ScalaElementTypes.TRY_STMT)
@@ -573,7 +573,7 @@ def b1Case: ScalaElementType = {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kTRY)
         rollbackMarker.drop()
         if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
-            braceMatcher(ScalaTokenTypes.tLBRACE, tryMarker)
+          braceMatcher(ScalaTokenTypes.tLBRACE, tryMarker)
         } else {
           builder.error(" { expected")
           tryMarker.done(ScalaElementTypes.TRY_BLOCK)
@@ -586,7 +586,7 @@ def b1Case: ScalaElementType = {
       }
     }
 
-/*********************** case (closure) ********************/
+    /*********************** case (closure) ********************/
     def closureCase: ScalaElementType = {
       val rollbackMarker = builder.mark() // marker to rollback
 
@@ -597,28 +597,28 @@ def b1Case: ScalaElementType = {
       }
 
       /* for mistakes processing */
-      def errorDone = errorDoneMain(rollbackMarker , ScalaElementTypes.METHOD_CLOSURE)
+      def errorDone = errorDoneMain(rollbackMarker, ScalaElementTypes.METHOD_CLOSURE)
 
-      def subParse : ScalaElementType =
+      def subParse: ScalaElementType =
         builder.getTokenType match {
-        case ScalaTokenTypes.tDOT         => {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
-          if (builder.getTokenType.eq(ScalaTokenTypes.tIDENTIFIER)){
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+          case ScalaTokenTypes.tDOT         => {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
+            if (builder.getTokenType.eq(ScalaTokenTypes.tIDENTIFIER)){
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+              subParse
+            } else errorDone("Identifier expected")
+          }
+          case ScalaTokenTypes.tLBRACE
+          |ScalaTokenTypes.tLPARENTHIS => {
+            ArgumentExprs parse builder
             subParse
-          } else errorDone("Identifier expected")
+          }
+          case ScalaTokenTypes.tLSQBRACKET  => {
+            TypeArgs parse builder
+            subParse
+          }
+          case _ => close
         }
-        case  ScalaTokenTypes.tLBRACE
-             |ScalaTokenTypes.tLPARENTHIS => {
-          ArgumentExprs parse builder
-          subParse
-        }
-        case ScalaTokenTypes.tLSQBRACKET  => {
-          TypeArgs parse builder
-          subParse
-        }
-        case _ => close
-      }
 
       if (builder.getTokenType.eq(ScalaTokenTypes.tDOT)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
@@ -633,16 +633,16 @@ def b1Case: ScalaElementType = {
     }
 
 
-/*********************** case (throw) **********************/
+    /*********************** case (throw) **********************/
 
     def throwCase: ScalaElementType = {
       val rollbackMarker = builder.mark() // marker to rollback
 
       /* for mistakes processing */
-      def errorDone = errorDoneMain(rollbackMarker , ScalaElementTypes.THROW_STMT)
+      def errorDone = errorDoneMain(rollbackMarker, ScalaElementTypes.THROW_STMT)
       if (builder.getTokenType.eq(ScalaTokenTypes.kTHROW)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kTHROW)
-        val res = Expr parse(builder)
+        val res = Expr parse (builder)
         if (res.eq(ScalaElementTypes.EXPR)){
           rollbackMarker.drop()
           compMarker.done(ScalaElementTypes.THROW_STMT)
@@ -654,14 +654,14 @@ def b1Case: ScalaElementType = {
       }
     }
 
-/********************** case (return) **************************/
+    /********************** case (return) **************************/
     def returnCase: ScalaElementType = {
       val rollbackMarker = builder.mark() // marker to rollback
       /* for mistakes processing */
       def errorDone = errorDoneMain(rollbackMarker, ScalaElementTypes.RETURN_STMT)
       if (builder.getTokenType.eq(ScalaTokenTypes.kRETURN)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kRETURN)
-        val res = Expr parse(builder)
+        val res = Expr parse (builder)
         rollbackMarker.drop()
         compMarker.done(ScalaElementTypes.RETURN_STMT)
         ScalaElementTypes.EXPR1
@@ -674,9 +674,9 @@ def b1Case: ScalaElementType = {
     var result = ScalaElementTypes.WRONGWAY
 
     /* Various variants of parsing */
-    def variants(variantProcessing: => ScalaElementType) : Boolean = {
+    def variants(variantProcessing: => ScalaElementType): Boolean = {
       result = variantProcessing
-      !result.equals(ScalaElementTypes.WRONGWAY)
+      ! result.equals(ScalaElementTypes.WRONGWAY)
     }
 
     /* Parsing function body */
