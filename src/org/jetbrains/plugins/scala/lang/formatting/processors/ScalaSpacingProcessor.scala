@@ -28,19 +28,19 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
 
     if (right.getElementType.equals(ScalaElementTypes.TYPE_PARAM_CLAUSE) ||
-        right.getElementType.equals(ScalaElementTypes.PARAM_CLAUSE) ||
-        right.getElementType.equals(ScalaElementTypes.PARAM_CLAUSES) ||
-        right.getElementType.equals(ScalaElementTypes.TYPE_ARGS) ||
-        right.getElementType.equals(ScalaElementTypes.ARG_EXPRS))
+    right.getElementType.equals(ScalaElementTypes.PARAM_CLAUSE) ||
+    right.getElementType.equals(ScalaElementTypes.PARAM_CLAUSES) ||
+    right.getElementType.equals(ScalaElementTypes.TYPE_ARGS) ||
+    right.getElementType.equals(ScalaElementTypes.ARG_EXPRS))
       return NO_SPACING
 
     if (SpacingTokens.SPACING_BEFORE.contains(right.getElementType))
       return SINGLE_SPACING
 
     if ((left.getPsi.isInstanceOf[ScInfixExprImpl] &&
-        right.getElementType.equals(ScalaTokenTypes.tIDENTIFIER)) ||
-        (right.getPsi.isInstanceOf[ScInfixExprImpl] &&
-        left.getElementType.equals(ScalaTokenTypes.tIDENTIFIER)))
+    right.getElementType.equals(ScalaTokenTypes.tIDENTIFIER)) ||
+    (right.getPsi.isInstanceOf[ScInfixExprImpl] &&
+    left.getElementType.equals(ScalaTokenTypes.tIDENTIFIER)))
       return SINGLE_SPACING
 
     if (SpacingTokens.NO_SPACING_BEFORE.contains(right.getElementType))
