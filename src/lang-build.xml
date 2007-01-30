@@ -1,5 +1,6 @@
 <project name="Generate various scala packages for parser needs" default="rebuild.all">
   <property file="scala.properties"/>
+  <property name="base.dir" value="${project.lib}/../../.."/>
 
 
   <path id="base.path">
@@ -24,7 +25,7 @@
 
   <target name="clear.all" description="Clears results">
     <mkdir dir="${project.lib}"/>
-    <delete>
+    <delete includeemptydirs="true">
       <fileset dir="${project.lib}"/>
     </delete>
   </target>
@@ -36,6 +37,7 @@
 
   <target name="make.project" depends="create.lexer" description="Builds all classes">
 
+    <mkdir dir="${project.lib}/../"/>
     <mkdir dir="${project.lib}"/>
     <mkdir dir="${project.lib}/META-INF"/>
 
@@ -51,13 +53,6 @@
            destdir="../classes/production/Scala">
       <classpath refid="base.path"/>
     </javac>
-
-    <!--javac srcdir="../test"
-           destdir="../classes/production/Scala">
-      <classpath refid="base.path"/>
-    </javac-->
-
-
 
     <!--Scala taskdef-->
     <taskdef name="scalac"
@@ -75,53 +70,53 @@
       <classpath refid="base.path"/>
       <include name="**/*.scala"/>
     </scalac>
-
   </target>
 
-
-  <target name="rebuild.all" depends="clear.all, create.lexer" description="Builds all classes">
-
-    <echo message="Scala project basedir = ${basedir} projectlib = ${project.lib}"/>
-
-    <mkdir dir="${project.lib}"/>
-    <mkdir dir="${project.lib}/META-INF"/>
-
-    <copy todir="${project.lib}/META-INF">
-      <fileset dir="../META-INF"/>
-    </copy>
-
-    <copy todir="${project.lib}">
-      <fileset dir="../resources/"/>
-    </copy>
-
-    <javac srcdir="."
+  <target name="build.tests">
+    <javac srcdir="../test"
            destdir="../classes/production/Scala">
       <classpath refid="base.path"/>
     </javac>
-
-    <!--javac srcdir="../test"
-           destdir="../classes/production/Scala">
-      <classpath refid="base.path"/>
-    </javac-->
-
-    <!--Scala taskdef-->
-    <taskdef name="scalac"
-             classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
-             classpath="${project.lib}">
-      <classpath>
-        <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
-        <pathelement location="${scala.home}/lib/scala-library.jar"/>
-      </classpath>
-    </taskdef>
-
-    <scalac srcdir="."
-            destdir="${project.lib}"
-            force="changed">
-      <classpath refid="base.path"/>
-      <include name="**/*.scala"/>
-    </scalac>
-
   </target>
 
+  <target name="rebuild.all" depends="clear.all, make.project" description="Builds all classes"/>
+
+  <!--target name="move.to.sandbox" depends="make.project">
+    <copy todir="C:\Documents and Settings\Ilya.Sergey\.IntelliJIdea70\sandbox\plugins">
+      <fileset dir="${base.dir}/classes/production"/>
+    </copy>
+  </target-->
+
+
+  <target name="test.formatter" depends="build.tests">
+
+    <junit fork="no"
+           dir="${base.dir}"
+           printsummary="yes"
+           haltonfailure="no">
+
+      <classpath>
+        <path location="${project.lib}"/>
+        <path location="${idea.lib}"/>
+        <path location="${ant.lib}"/>
+        <path location="${scala.home}/lib"/>
+      </classpath>
+
+      <jvmarg value="-Djava.awt.headless=true"/>
+      <jvmarg value="-Didea.plugins.load=false"/>
+      <jvmarg value="-ea"/>
+      <jvmarg value="-Xmx256M"/>
+      <jvmarg value="-Xbootclasspath/p:${idea.lib}/boot.jar"/>
+
+
+      <formatter type="plain"/>
+
+      <test name="org.jetbrains.plugins.scala.lang.formatter.FormatterTest"
+            haltonfailure="no"
+            todir="C:/logs">
+      </test>
+
+    </junit>
+  </target>
 
 </project>
