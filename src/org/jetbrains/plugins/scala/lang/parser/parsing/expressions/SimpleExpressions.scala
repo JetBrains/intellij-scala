@@ -411,6 +411,7 @@ object PostfixExpr {
 
   def parse(builder: PsiBuilder): ScalaElementType = {
     val marker = builder.mark()
+
     var result = InfixExpr parse (builder)
     var isPostfix = false
     if (! result.equals(ScalaElementTypes.WRONGWAY)) {
