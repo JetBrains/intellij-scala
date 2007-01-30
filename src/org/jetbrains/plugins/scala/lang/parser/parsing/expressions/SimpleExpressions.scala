@@ -69,10 +69,10 @@ val tSIMPLE_FIRST: TokenSet = TokenSet.create(
 //val SIMPLE_FIRST = TokenSet.orSet(Array(BNF.tSIMPLE_FIRST, BNF.tLITERALS ))
 val SIMPLE_FIRST = TokenSet.orSet(Array(tSIMPLE_FIRST, tLITERALS ))
 
-  def parse(builder : PsiBuilder , marker: PsiBuilder.Marker) : SimpleExprResult = {
+  def parse(builder : PsiBuilder , marker: PsiBuilder.Marker , braced: Boolean) : SimpleExprResult = {
 
     var deepCount = 1
-    var inBraces = false
+    var inBraces = braced
 
     def closeParent: SimpleExprResult = {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
@@ -292,13 +292,13 @@ object PrefixExpr {
              ParserUtils.eatElement(builder, ScalaElementTypes.PREFIX)
              isPrefix = true
              if (SimpleExpr.SIMPLE_FIRST.contains(builder.getTokenType)) {
-               result = (SimpleExpr.parse(builder, null)).parsed
+               result = (SimpleExpr.parse(builder, null, false)).parsed
              } else {
               builder.error("Wrong prefix expression!")
               result = ScalaElementTypes.WRONGWAY
              }
            }
-      case _ => result = (SimpleExpr.parse(builder, null)).parsed
+      case _ => result = (SimpleExpr.parse(builder, null, false)).parsed
     }
     if (isPrefix) {
       result = ScalaElementTypes.PREFIX_EXPR
@@ -352,7 +352,7 @@ object PrefixExpr {
               case ScalaTokenTypes.tRPARENTHIS => {
                 exprsMarker.drop()
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
-                SimpleExpr.parse(builder, argsMarker).parsed
+                SimpleExpr.parse(builder, argsMarker, true).parsed
               }
               case _ => {
                 builder.error(") expected")
