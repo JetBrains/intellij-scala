@@ -87,8 +87,8 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         "{...}"
       }
       case ScalaTokenTypes.tCOMMENT_CONTENT if {
-        (node.getText.subtring(0, 3).equals("/**")) &&
-        (node.getText.contains('\n') || node.getTokenText.contains('\r'))
+        node.getText.substring(0, 3).equals("/**") &&
+        (node.getText.contains('\n') || node.getText.contains('\r'))
       } => {
         "/**...*/"
       }
@@ -97,7 +97,9 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   }
 
   def isCollapsedByDefault(node: ASTNode): Boolean = {
-    node.getElementType == ScalaTokenTypes.tCOMMENT_CONTENT
+    node.getElementType == ScalaTokenTypes.tCOMMENT_CONTENT &&
+    node.getText.substring(0, 3).equals("/**") &&
+    (node.getText.contains('\n') || node.getText.contains('\r'))
   }
 
 }
