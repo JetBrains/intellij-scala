@@ -3,5 +3,5 @@ class C {
 }
 -----
 class C {
-  foo add (1,2) sub (3,4)
+  foo add(1, 2) sub(3, 4)
 }
