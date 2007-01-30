@@ -1,0 +1,7 @@
+class C {
+  foo   add        (1,2)    sub      (3,4)
+}
+-----
+class C {
+  foo add (1,2) sub (3,4)
+}
