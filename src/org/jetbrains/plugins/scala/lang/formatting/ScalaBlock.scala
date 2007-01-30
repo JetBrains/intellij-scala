@@ -12,19 +12,20 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
+import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 
 import java.util.List;
 import java.util.ArrayList;
 
-class ScalaBlock(private val myParentBlock : ScalaBlock,
-                 private val myNode : ASTNode,
-                 private var myAlignment : Alignment,
-                 private var myIndent: Indent,
-                 private var myWrap : Wrap,
-                 private val mySettings : CodeStyleSettings)
-  extends Object with ScalaTokenTypes with Block {
+class ScalaBlock(private val myParentBlock: ScalaBlock,
+        private val myNode: ASTNode,
+        private var myAlignment: Alignment,
+        private var myIndent: Indent,
+        private var myWrap: Wrap,
+        private val mySettings: CodeStyleSettings)
+extends Object with ScalaTokenTypes with Block {
 
-  private var mySubBlocks : List[Block] = null
+  private var mySubBlocks: List[Block] = null
 
   def getNode = myNode
 
@@ -42,9 +43,11 @@ class ScalaBlock(private val myParentBlock : ScalaBlock,
 
   def isIncomplete = isIncomplete(myNode)
 
-  def getChildAttributes(newChildIndex: Int) : ChildAttributes = {
+  def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val parent = getNode.getPsi
-    if (parent.isInstanceOf[BlockedIndent]) {
+    if (parent.isInstanceOf[BlockedIndent] ||
+    parent.isInstanceOf[ScTryBlockImpl] ||
+    parent.isInstanceOf[ScCatchBlockImpl]) {
       return new ChildAttributes(Indent.getNormalIndent(), null)
     }
     new ChildAttributes(Indent.getNoneIndent(), null)
@@ -68,35 +71,36 @@ class ScalaBlock(private val myParentBlock : ScalaBlock,
     subBlocks
   }
 
-  def getSubBlocks : List[Block] = {
+  def getSubBlocks: List[Block] = {
     if (mySubBlocks == null) {
       mySubBlocks = getDummyBlocks
     }
     mySubBlocks
   }
 
-  def isLeaf(node:ASTNode) = {
+  def isLeaf(node: ASTNode) = {
     node.getFirstChildNode() == null
   }
 
-  def isIncomplete (node: ASTNode) : Boolean = {
+  def isIncomplete(node: ASTNode): Boolean = {
+    if (node.getPsi.isInstanceOf[PsiErrorElement])
+      return true;
     var lastChild = node.getLastChildNode();
     while (lastChild != null &&
-            (lastChild.getPsi.isInstanceOf[PsiWhiteSpace] || lastChild.getPsi.isInstanceOf[PsiComment])) {
-        lastChild = lastChild.getTreePrev();
+    (lastChild.getPsi.isInstanceOf[PsiWhiteSpace] || lastChild.getPsi.isInstanceOf[PsiComment])) {
+      lastChild = lastChild.getTreePrev();
     }
     if (lastChild == null){
-        return false;
+      return false;
     }
     if (lastChild.getPsi.isInstanceOf[PsiErrorElement]) {
-        return true;
+      return true;
     }
     return isIncomplete(lastChild);
   }
 
-
-  def isCorrectBlock(node:ASTNode) = {
-    node.getText().trim().length()>0
+  def isCorrectBlock(node: ASTNode) = {
+    node.getText().trim().length() > 0
   }
 
 }
