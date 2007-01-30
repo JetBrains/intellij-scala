@@ -21,33 +21,33 @@ import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
 
 object ScalaIndentProcessor extends ScalaTokenTypes {
 
-  def getChildIndent(parent: ScalaBlock, child: ASTNode) : Indent =
+  def getChildIndent(parent: ScalaBlock, child: ASTNode): Indent =
     parent.getNode.getPsi match {
-      case _ : ScalaFile => Indent.getNoneIndent()
-      case _ : BlockedIndent => {
+      case _: ScalaFile => Indent.getNoneIndent()
+      case _: BlockedIndent => {
         child.getElementType match {
           case ScalaTokenTypes.tLBRACE |
-               ScalaTokenTypes.tRBRACE |
-               ScalaTokenTypes.kPACKAGE |
-               ScalaElementTypes.QUAL_ID =>
-                    Indent.getNoneIndent()
+          ScalaTokenTypes.tRBRACE |
+          ScalaTokenTypes.kPACKAGE |
+          ScalaElementTypes.QUAL_ID =>
+            Indent.getNoneIndent()
           case _ => Indent.getNormalIndent()
         }
       }
-      case _ : ContiniousIndent => Indent.getContinuationWithoutFirstIndent()
-      case _ : IfElseIndent => {
+      case _: ContiniousIndent => Indent.getContinuationWithoutFirstIndent()
+      case _: IfElseIndent => {
         child.getPsi match {
-          case _ : ScCaseClausesImpl => Indent.getNormalIndent() 
-          case _ : ScExprImpl => {
-            if (!child.getPsi.isInstanceOf[ScBlockExprImpl])
+          case _: ScCaseClausesImpl => Indent.getNormalIndent()
+          case _: ScExprImpl => {
+            if (! child.getPsi.isInstanceOf[ScBlockExprImpl])
               Indent.getNormalIndent()
             else
               Indent.getNoneIndent()
           }
-          case _ : ScBlockImpl => Indent.getNormalIndent()
+          case _: ScBlockImpl => Indent.getNormalIndent()
           case _ => Indent.getNoneIndent()
         }
       }
       case _ => Indent.getNoneIndent()
-   }
+    }
 }
