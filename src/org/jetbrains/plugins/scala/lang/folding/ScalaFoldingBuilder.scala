@@ -12,16 +12,17 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
 
 /*
-* @author Ilya Sergey
+*
+@author Ilya Sergey
 *
 */
 
 class ScalaFoldingBuilder extends FoldingBuilder {
 
-                                        
-  private def appendDescriptors (node: ASTNode,
-                                 document: Document,
-                                 descriptors: ListBuffer[FoldingDescriptor]): Unit = {
+
+  private def appendDescriptors(node: ASTNode,
+          document: Document,
+          descriptors: ListBuffer[FoldingDescriptor]): Unit = {
 
     node.getElementType match {
       case ScalaElementTypes.BLOCK_EXPR |
@@ -41,8 +42,8 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       ScalaElementTypes.ASSIGN_STMT |
       ScalaElementTypes.MATCH_STMT |
       ScalaElementTypes.TYPED_EXPR_STMT if
-      (ScalaElementTypes.FUNCTION_DEFINITION.equals(node.getTreeParent().getElementType)) => {
-          descriptors += (new FoldingDescriptor(node, node.getTextRange()))
+        (ScalaElementTypes.FUNCTION_DEFINITION.equals(node.getTreeParent().getElementType)) => {
+        descriptors += (new FoldingDescriptor(node, node.getTextRange()))
       }
       case ScalaTokenTypes.tCOMMENT_CONTENT => {
         descriptors += (new FoldingDescriptor(node, node.getTextRange()))
@@ -52,18 +53,18 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 
     var child = node.getFirstChildNode()
     while (child != null) {
-       appendDescriptors(child, document, descriptors)
-       child = child.getTreeNext()
+      appendDescriptors(child, document, descriptors)
+      child = child.getTreeNext()
     }
   }
 
-  def buildFoldRegions(astNode: ASTNode, document: Document) : Array[FoldingDescriptor] = {
+  def buildFoldRegions(astNode: ASTNode, document: Document): Array[FoldingDescriptor] = {
     var descriptors = new ListBuffer[FoldingDescriptor]
     appendDescriptors(astNode, document, descriptors);
     descriptors.toList.toArray
   }
 
-  def getPlaceholderText(node : ASTNode): String = {
+  def getPlaceholderText(node: ASTNode): String = {
     node.getElementType match {
       case ScalaElementTypes.BLOCK_EXPR |
       ScalaElementTypes.INFIX_EXPR |
@@ -82,10 +83,13 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       ScalaElementTypes.ASSIGN_STMT |
       ScalaElementTypes.MATCH_STMT |
       ScalaElementTypes.TYPED_EXPR_STMT if
-      (ScalaElementTypes.FUNCTION_DEFINITION.equals(node.getTreeParent().getElementType)) => {
-             "{...}"
+        (ScalaElementTypes.FUNCTION_DEFINITION.equals(node.getTreeParent().getElementType)) => {
+        "{...}"
       }
-      case ScalaTokenTypes.tCOMMENT_CONTENT => {
+      case ScalaTokenTypes.tCOMMENT_CONTENT if {
+        (node.getText.subtring(0, 3).equals("/**")) &&
+        (node.getText.contains('\n') || node.getTokenText.contains('\r'))
+      } => {
         "/**...*/"
       }
       case _ => null
