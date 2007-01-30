@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.psi.impl.top._
 import com.intellij.psi.impl.source.tree.PsiErrorElementImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.patterns.ScCaseClauseImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
 
 
 object ScalaIndentProcessor extends ScalaTokenTypes {
@@ -37,7 +37,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _ : ContiniousIndent => Indent.getContinuationWithoutFirstIndent()
       case _ : IfElseIndent => {
         child.getPsi match {
-          case _ : ScCaseClauseImpl => Indent.getNormalIndent() 
+          case _ : ScCaseClausesImpl => Indent.getNormalIndent() 
           case _ : ScExprImpl => {
             if (!child.getPsi.isInstanceOf[ScBlockExprImpl])
               Indent.getNormalIndent()
