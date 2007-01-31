@@ -1,0 +1,17 @@
+class C {
+  x match {
+    case ScalaTokenTypes.tLBRACE |
+    ScalaTokenTypes.tRBRACE |
+    ScalaTokenTypes.kPACKAGE |
+    ScalaElementTypes.QUAL_ID => {}
+  }
+}
+-----
+class C {
+  x match {
+    case ScalaTokenTypes.tLBRACE |
+      ScalaTokenTypes.tRBRACE |
+      ScalaTokenTypes.kPACKAGE |
+      ScalaElementTypes.QUAL_ID => {}
+  }
+}
