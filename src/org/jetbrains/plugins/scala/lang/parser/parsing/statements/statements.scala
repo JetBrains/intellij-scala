@@ -10,6 +10,15 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.PsiBuilder
 
+import com.intellij.psi._
+import com.intellij.lang.ParserDefinition
+import org.jetbrains.plugins.scala.ScalaFileType
+import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiManager
+
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.TemplateStatement
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
@@ -68,6 +77,28 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           }
 
         }
+      }
+
+      private val DUMMY = "dummy.";
+      def createTemplateStatementFromText(buffer : String, manager : PsiManager) : ASTNode = {
+        def isStmt = (element : PsiElement) => (element.isInstanceOf[TemplateStatement])
+
+        val pareserDefinition : ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
+
+        val text = "class a {" + buffer + "}"
+
+        val dummyFile : PsiFile = manager.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
+
+        val classDef = dummyFile.getFirstChild
+        val topDefTmpl = classDef.getLastChild
+        val templateBody = topDefTmpl.getFirstChild.asInstanceOf[ScalaPsiElementImpl]
+
+        val stmt = templateBody.childSatisfyPredicateForPsiElement(isStmt)
+
+        if (stmt == null) return null
+
+        stmt.asInstanceOf[TemplateStatement].getNode
+
       }
     }
 
@@ -302,9 +333,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           Expr parse builder
           return ScalaElementTypes.FUNCTION_DECLARATION
         } else {
-          if (!hasTypeDcl) {
+          /*if (!hasTypeDcl) {
             builder error "wrong function declaration"
-          }
+          }*/
           return ScalaElementTypes.FUNCTION_DECLARATION
         }
 
@@ -366,6 +397,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
         }
 
         def parseBodyNode(builder : PsiBuilder) : IElementType = {
+
+          if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
+          }
 
           if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)

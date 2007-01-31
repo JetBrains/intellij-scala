@@ -81,11 +81,19 @@
 
   <target name="rebuild.all" depends="clear.all, make.project" description="Builds all classes"/>
 
-  <!--target name="move.to.sandbox" depends="make.project">
-    <copy todir="C:\Documents and Settings\Ilya.Sergey\.IntelliJIdea70\sandbox\plugins">
-      <fileset dir="${base.dir}/classes/production"/>
+  <target name="move.to.sandbox" depends="make.project">
+    <mkdir dir="C:\Documents and Settings\Ilya.Sergey\.IntelliJIdea70\sandbox\plugins\Scala\classes"/>
+    <mkdir dir="C:\Documents and Settings\Ilya.Sergey\.IntelliJIdea70\sandbox\plugins\Scala\lib"/>
+    <copy todir="C:\Documents and Settings\Ilya.Sergey\.IntelliJIdea70\sandbox\plugins\Scala\classes">
+      <fileset dir="${project.lib}"/>
     </copy>
-  </target-->
+    <copy todir="C:\Documents and Settings\Ilya.Sergey\.IntelliJIdea70\sandbox\plugins\Scala\lib">
+      <fileset dir="${scala.home}/lib"/>
+    </copy>
+    <copy todir="C:\Documents and Settings\Ilya.Sergey\.IntelliJIdea70\sandbox\plugins\Scala\META-INF">
+      <fileset dir="${project.lib}/Meta-Inf"/>
+    </copy>
+  </target>
 
 
   <target name="test.formatter" depends="build.tests">

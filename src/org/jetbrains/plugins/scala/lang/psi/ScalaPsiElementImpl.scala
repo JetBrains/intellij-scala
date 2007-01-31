@@ -16,7 +16,26 @@ import javax.swing.Icon
 class ScalaPsiElementImpl ( node : ASTNode ) extends ASTWrapperPsiElement( node )
   with ScalaPsiElement {
 
-    def childrenOfType[T >: Null <: ScalaPsiElementImpl] (tokSet : TokenSet) : Iterable[T] = new Iterable[T] () {
+    /*def childrenOfType[T >: Null <: ScalaPsiElementImpl] (tokSet : TokenSet) : Iterable[T] = new Iterable[T] () {
+     def elements = new Iterator[T] () {
+        private def findChild (child : ASTNode) : ASTNode = child match {
+           case null => null
+           case _ => if (tokSet.contains(child.getElementType())) child else findChild (child.getTreeNext)
+        }
+
+        var n : ASTNode = findChild (getNode.getFirstChildNode)
+
+        def hasNext = n != null
+
+        def next : T =  if (n == null) null else {
+          val res = n
+          n = findChild (n.getTreeNext)
+          res.getPsi().asInstanceOf[T]
+        }
+      }
+    }*/
+
+    def childrenOfType[T >: Null <: PsiElement] (tokSet : TokenSet) : Iterable[T] = new Iterable[T] () {
      def elements = new Iterator[T] () {
         private def findChild (child : ASTNode) : ASTNode = child match {
            case null => null
@@ -48,6 +67,26 @@ class ScalaPsiElementImpl ( node : ASTNode ) extends ASTWrapperPsiElement( node 
 
       inner(startsWith)
     }
+
+    def childrenSatisfyPredicateForPsiElement[T >: Null <: ScalaPsiElementImpl](predicate : PsiElement => Boolean) = new Iterable[T] () {
+     def elements = new Iterator[T] () {
+        private def findChild (child : ASTNode) : ASTNode = child match {
+           case null => null
+           case _ => if (predicate(child.getPsi)) child else findChild (child.getTreeNext)
+        }
+
+        var n : ASTNode = findChild (getNode.getFirstChildNode)
+
+        def hasNext = n != null
+
+        def next : T =  if (n == null) null else {
+          val res = n
+          n = findChild (n.getTreeNext)
+          res.getPsi().asInstanceOf[T]
+        }
+      }
+    }
+
 //    def childSatisfyPredicateFor(predicate : T => Boolean, startsWith : T) : PsiElement = {
 //      childSatisfyPredicateForPsiElement(predicate, startsWith, (e : T) => e.getNextSibling)
 //    }
@@ -105,6 +144,16 @@ class ScalaPsiElementImpl ( node : ASTNode ) extends ASTWrapperPsiElement( node 
     parentNode.replaceChild(myNode, newElementNode)
     newElement
   }
+
+/*  override def copy() : PsiElement = {
+    val parserDefinition : ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
+//    if (definition != null) ...
+    val text = this.getText
+
+    val dummyFile : PsiFile = manager.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
+
+    val classDef = dummyFile.getFirstChild
+  }*/
 
   def getASTNode() : ASTNode = node
 

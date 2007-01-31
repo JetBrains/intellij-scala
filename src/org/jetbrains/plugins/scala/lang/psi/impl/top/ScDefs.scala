@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.Template
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.TemplateStatement
@@ -29,6 +29,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.Template
 
       childSatisfyPredicateForElementType(isName)
     }
+
+    def getTmplDefs : Iterable[ScTmplDef] = childrenOfType[ScTmplDef] (ScalaElementTypes.TMPL_DEF_BIT_SET)
 
     //todo: 
     def getShortName = nameNode.getText
@@ -62,6 +64,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.Template
     import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
     def getTemplate : ScTopDefTemplate = getChild(ScalaElementTypes.TOP_DEF_TEMPLATE).asInstanceOf[ScTopDefTemplate]
 
+    [Nullable]
     def getTemplateStatements : Iterable[TemplateStatement] = {
       import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTemplateBody
 

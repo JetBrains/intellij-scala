@@ -21,14 +21,7 @@ import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
-import com.intellij.psi.impl.GeneratedMarkerVisitor
-import com.intellij.psi.impl.source.tree.TreeElement
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.impl.source.tree.TreeUtil
-import com.intellij.psi.impl.source.DummyHolder
-import com.intellij.psi.impl.source.tree.FileElement
-import com.intellij.util.IncorrectOperationException
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.source.tree.CompositeElement
@@ -36,7 +29,7 @@ import com.intellij.util.CharTable
 import com.intellij.lexer.Lexer
 import com.intellij.lang.impl.PsiBuilderImpl
 //import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.psi.PsiManager;
+import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.source.CharTableImpl
 
   object ResultExpr {

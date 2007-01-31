@@ -8,8 +8,11 @@ import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
 
-class ScStableIdImpl( node : ASTNode ) extends ScSimpleExprImpl(node) {
+trait ScStableId extends ScPattern3 
+
+class ScStableIdImpl( node : ASTNode ) extends ScSimpleExprImpl(node) with ScStableId {
 
   override def toString: String = "Stable Identifier"
 
