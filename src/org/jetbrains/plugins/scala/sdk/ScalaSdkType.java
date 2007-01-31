@@ -230,6 +230,10 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
     return ScalaFileType.SCALA_LOGO;
   }
 
+  public Icon getIconForAddAction() {
+    return ScalaFileType.SCALA_LOGO;
+  }
+
   @NonNls
   @NotNull
   public String getComponentName() {
