@@ -34,6 +34,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNormalIndent()
         }
       }
+      case x: ScPatternImpl => Indent.getNormalIndent
       case _: ContiniousIndent => Indent.getContinuationWithoutFirstIndent()
       case _: IfElseIndent => {
         child.getPsi match {
