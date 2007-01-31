@@ -52,6 +52,8 @@ public class ScalaLoader implements ApplicationComponent, Configurable {
         CompilerManager.getInstance(project).addCompiler(new ScalaCompiler());
       }
     });
+    
+
   }
 
   public void disposeComponent() {
