@@ -384,9 +384,7 @@ InfixExpr ::= PrefixExpr
 FIRST(InfixExpression) =  PrefixExpression.FIRST
 
 */
-object InfixExpr extends InfixTemplate(ScalaElementTypes.INFIX_EXPR,
-PrefixExpr.parse,
-PrefixExpr.exprOrArgsParse){
+object InfixExpr extends InfixTemplate(ScalaElementTypes.INFIX_EXPR, PrefixExpr.parse, PrefixExpr.exprOrArgsParse){
   val INFIX_FIRST = PrefixExpr.PREFIX_FIRST
 }
 
