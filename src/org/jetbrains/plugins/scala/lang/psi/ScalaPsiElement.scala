@@ -26,6 +26,24 @@ trait ScalaPsiElement extends PsiElement {
       if (startsWith != null) inner(startsWith) else inner(getFirstChild)
     }
 
+
+
+    def childSatisfyPredicateForElementType(predicate : IElementType => Boolean, startsWith : PsiElement) : PsiElement = {
+      childSatisfyPredicateForElementType(predicate, startsWith, (e : PsiElement) => e.getNextSibling)
+    }
+
+    def childSatisfyPredicateForElementType(predicate : IElementType => Boolean, startsWith : PsiElement, direction : PsiElement => PsiElement) : PsiElement = {
+      def inner(e : PsiElement) : PsiElement = if (e == null || predicate(e.getNode.getElementType)) e else inner(direction(e))
+
+      if (startsWith != null) inner(startsWith) else inner(getFirstChild)
+    }
+
+    def childSatisfyPredicateForElementType(predicate : IElementType => Boolean) : PsiElement = {
+      childSatisfyPredicateForElementType(predicate, getFirstChild, (e : PsiElement) => e.getNextSibling)
+    }
+
+
+
      def childrenOfType[T >: Null <: PsiElement] (tokSet : TokenSet) : Iterable[T] = new Iterable[T] () {
      def elements = new Iterator[T] () {
         private def findChild (child : ASTNode) : ASTNode = child match {
@@ -79,12 +97,6 @@ trait ScalaPsiElement extends PsiElement {
 
     def childSatisfyPredicateForASTNode(predicate : ASTNode => Boolean) : PsiElement = {
       def inner(e : PsiElement) : PsiElement = if (e == null || predicate(e.getNode)) e else inner(e.getNextSibling)
-
-      inner(getFirstChild)
-    }
-
-    def childSatisfyPredicateForElementType(predicate : IElementType => Boolean) : PsiElement = {
-      def inner(e : PsiElement) : PsiElement = if (e == null || predicate (e.getNode.getElementType)) e else inner(e.getNextSibling)
 
       inner(getFirstChild)
     }
