@@ -106,7 +106,7 @@ object ScalaElementTypes {
   /************************************** TYPES ****************************************/
   /*************************************************************************************/
   val STABLE_ID = new ScalaElementType("stable id")
-    val STABLE_ID_ID = new ScalaElementType("stable id")
+  val STABLE_ID_ID = new ScalaElementType("stable id")
   val PATH = new ScalaElementType("path")
   val SIMPLE_TYPE = new ScalaElementType("simple type")
   val COMPOUND_TYPE = new ScalaElementType("Compound type")
@@ -352,23 +352,11 @@ object ScalaElementTypes {
     )
   )
 
-  /*val IDS_BIT_SET = TokenSet.create (
-    Array (
-     ScalaTokenTypes.tIDENTIFIER,
-     IDENTIFIER_LIST
+  val TYPE_BIT_SET : TokenSet = TokenSet.create (
+    Array.apply(
+
     )
   )
-
-  //todo: add cases
-  val PATTERN2_BIT_SET = TokenSet.create (
-    Array (
-     PATTERN2,
-     PATTERN2_LIST,
-     STABLE_ID,
-     ScalaTokenTypes.tIDENTIFIER,
-     LITERAL
-    )
-  )*/
 
   val EXPRESSION_BIT_SET = TokenSet.orSet (
     Array (

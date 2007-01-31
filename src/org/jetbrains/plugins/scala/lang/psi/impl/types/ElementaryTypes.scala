@@ -5,7 +5,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.literals {
 import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.psi._
-
+/*
   case class ScThisImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "Keyword: this"
   }
@@ -36,6 +36,6 @@ import org.jetbrains.plugins.scala.lang.psi._
 
   case class ScRParentImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "Symbol: )"
-  }
+  }*/
 
 }

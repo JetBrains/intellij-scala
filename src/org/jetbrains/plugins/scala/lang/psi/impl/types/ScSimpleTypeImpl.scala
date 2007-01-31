@@ -6,6 +6,8 @@ import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.psi._
 
-class ScSimpleTypeImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+trait ScSimpleType extends ScType1
+
+class ScSimpleTypeImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) with ScSimpleType {
       override def toString: String = "Simple Type"
 }
