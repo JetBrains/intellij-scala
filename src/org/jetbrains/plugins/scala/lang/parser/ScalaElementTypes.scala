@@ -6,7 +6,7 @@ import com.intellij.lang.Language
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.ScalaLanguage
 import com.intellij.psi.tree.TokenSet
-
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 /**
  * User: Dmitry.Krasilschikov
  * Date: 02.10.2006
@@ -354,7 +354,15 @@ object ScalaElementTypes {
 
   val TYPE_BIT_SET : TokenSet = TokenSet.create (
     Array.apply(
-
+      STABLE_ID,
+      STABLE_ID_ID,
+      PATH,
+      SIMPLE_TYPE,
+      COMPOUND_TYPE,
+      INFIX_TYPE,
+      TYPE,
+      TYPES,
+      ScalaTokenTypes.tIDENTIFIER
     )
   )
 

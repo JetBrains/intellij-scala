@@ -28,9 +28,18 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
   trait Function extends TemplateStatement {
     def getFunSig : ScFunctionSignature = getFirstChild.asInstanceOf[ScFunctionSignature]
 
-    private def isType = (e : PsiElement) => e.isInstanceOf[ScType]
+    //todo: stableId as identifier problem
+//    private def isType = (e : PsiElement) => e.isInstanceOf[ScType]
+    def isType = (e : IElementType) => ScalaElementTypes.TYPE_BIT_SET.contains(e)
 
-    def getType : ScType = if (names != null) {val listNames = names.toList; childSatisfyPredicateForPsiElement(isType, listNames.last.getNextSibling).asInstanceOf[ScTypeImpl]} else null
+    def getType : ScType = {
+      val theNames = names
+      if (theNames != null && listNames.last != null) {
+        val listNames = theNames.toList;
+//        childSatisfyPredicateForPsiElement(isType, listNames.last.getNextSibling).asInstanceOf[ScType]
+        childSatisfyPredicateForElementType(isType, listNames.last.getNextSibling).asInstanceOf[ScType]
+      } else null
+    }
   }
 
   trait TemplateStatement extends ScalaPsiElement {
@@ -110,10 +119,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
     override def toString: String = "variable" + " " + super.toString
   }
 
-  case class ScFunctionDefinition (node : ASTNode) extends ScalaPsiElementImpl(node) with Definition with IfElseIndent with Function {
+  case class ScFunctionDefinition (node : ASTNode) extends ScalaPsiElementImpl(node) with Function with Definition with IfElseIndent {
     override def toString: String = "function" + " " + super.toString
-
-
   }
 
   /************** supplementary constructor ***************/
