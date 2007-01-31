@@ -176,7 +176,7 @@ class ScalaCompletionData extends CompletionData {
   def init = {
 
     /* Special cases */
-    afterDotCompletion
+//    afterDotCompletion
     topDefinitionsCompletion
     requiresCompletion
     extendsCompletion
