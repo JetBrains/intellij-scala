@@ -34,8 +34,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
 
     def getType : ScType = {
       val theNames = names
+      val listNames = theNames.toList;
       if (theNames != null && listNames.last != null) {
-        val listNames = theNames.toList;
 //        childSatisfyPredicateForPsiElement(isType, listNames.last.getNextSibling).asInstanceOf[ScType]
         childSatisfyPredicateForElementType(isType, listNames.last.getNextSibling).asInstanceOf[ScType]
       } else null
