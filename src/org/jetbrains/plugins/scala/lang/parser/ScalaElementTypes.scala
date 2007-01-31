@@ -121,7 +121,7 @@ object ScalaElementTypes {
   /*********************************** IDENTIFIER **************************************/
   /*************************************************************************************/
 
-  val IDENTIFIER = new ScalaElementType("identifier")
+//  val IDENTIFIER = new ScalaElementType("identifier")
   val UNIT = new ScalaElementType("unit")
   val IDENTIFIER_LIST = new ScalaElementType("list of identifiers")
 
@@ -276,7 +276,7 @@ object ScalaElementTypes {
 
   /*************************************************************************************/
   /************************************** KEYWORDS *************************************/
-  /*************************************************************************************/
+  /************************************************************************************/
 
   val STATEMENT_SEPARATOR = new ScalaElementType("statement separator")
 
@@ -351,6 +351,24 @@ object ScalaElementTypes {
       PREFIX_EXPR
     )
   )
+
+  /*val IDS_BIT_SET = TokenSet.create (
+    Array (
+     ScalaTokenTypes.tIDENTIFIER,
+     IDENTIFIER_LIST
+    )
+  )
+
+  //todo: add cases
+  val PATTERN2_BIT_SET = TokenSet.create (
+    Array (
+     PATTERN2,
+     PATTERN2_LIST,
+     STABLE_ID,
+     ScalaTokenTypes.tIDENTIFIER,
+     LITERAL
+    )
+  )*/
 
   val EXPRESSION_BIT_SET = TokenSet.orSet (
     Array (

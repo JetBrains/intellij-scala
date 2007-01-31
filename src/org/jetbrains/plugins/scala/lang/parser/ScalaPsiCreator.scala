@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.parser
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.PsiElement
 
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile
@@ -22,13 +21,14 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
 object ScalaPsiCreator {
-  def createElement (node : ASTNode) : PsiElement = 
+  def createElement (node : ASTNode) : PsiElement =
 
+//    Console.println("el type " + node.getElementType)
    node.getElementType() match {
 
     /*****************************************************/
     /********************* FILE **************************/
-
+   case ScalaTokenTypes.tIDENTIFIER => new ScIdentifierImpl(node)
 /*
      case ScalaElementTypes.FILE => new ScalaPsiElementImpl ( node ) {
         override def toString: String = "Scala file"
@@ -146,6 +146,9 @@ object ScalaPsiCreator {
     case ScalaElementTypes.ATTRIBUTE => new ScAttribute(node)
     case ScalaElementTypes.ATTRIBUTE_CLAUSE => new ScAttributeClause(node)
     case ScalaElementTypes.ATTRIBUTE_CLAUSES => new ScAttributeClauses(node)
+
+//    case ScalaTokenTypes.tIDENTIFIER => new ScIdentifierImpl(node)
+
     case _ => inner (node)
    }
 
@@ -233,6 +236,4 @@ object ScalaPsiCreator {
      case _ => new ScalaPsiElementImpl( node )
 
    }
-         
-
 }

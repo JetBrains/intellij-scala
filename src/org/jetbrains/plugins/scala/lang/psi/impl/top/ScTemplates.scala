@@ -46,7 +46,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
   case class ScTemplate( node : ASTNode ) extends Template ( node ) {
     override def toString: String = super.toString
 
-    override def getTemplateParents = getChild(ScalaElementTypes.TEMPLATE_PARENTS).asInstanceOf[ScTemplateParents]
+//    override def getTemplateParents = getChild(ScalaElementTypes.TEMPLATE_PARENTS).asInstanceOf[ScTemplateParents]
   }
 
   /**************** parents ****************/

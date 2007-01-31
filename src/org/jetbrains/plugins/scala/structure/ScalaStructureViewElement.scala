@@ -47,11 +47,25 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
   override def getChildren() : Array[TreeElement] = {
     var childrenElements: ArrayBuffer[ScalaPsiElement] = new ArrayBuffer[ScalaPsiElement]();
 
+    //todo: add inherited methods
     myElement match {
       case file : ScalaFile => childrenElements ++= file.getPackaging; childrenElements ++= file.childrenOfType[ScTmplDef](ScalaElementTypes.TMPL_DEF_BIT_SET)
-      case packaging : ScPackaging => childrenElements.insertAll(0, packaging.getTmplDefs)
-      case topDef : ScTmplDef if (topDef.getTemplateStatements != null) => childrenElements.insertAll(0, topDef.getTemplateStatements)
+      case packaging : ScPackaging if (packaging.getTmplDefs != null) => childrenElements ++= packaging.getTmplDefs
+      case topDef : ScTmplDef => {
+        val templateStmts = topDef.getTemplateStatements
+
+        if (templateStmts != null) childrenElements ++= {
+//          var allStmts : Iterable[TemplateStatement] = null
+
+          val bigIter = for (val stmt <- templateStmts; stmt != null) yield stmt.asDisjunctNodes
+
+          bigIter.flatMap(x => x)
+        }
+
+        if (topDef.getTmplDefs != null) childrenElements ++= topDef.getTmplDefs
+      }
       case _ => {}
+//      case scalalElement : ScalaPsiElement if (scalalElement != null) => childrenElements += scalalElement
     }
 
     for ( val i <- Array.range(0, childrenElements.length))
@@ -66,6 +80,7 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
                  case packaging : ScPackaging => packaging.getFullPackageName
                  case topDef : ScTmplDef => topDef.getShortName
                  case templateStmt : TemplateStatement => templateStmt.getShortName
+                 case _ => ""
                }
             }
 

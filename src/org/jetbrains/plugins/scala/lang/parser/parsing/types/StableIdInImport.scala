@@ -65,7 +65,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
       // if .id encoutered
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
         val mileMarker = builder.mark()
-        ParserUtils.eatElement(builder, ScalaElementTypes.IDENTIFIER)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)) { //continue parse StableId
           mileMarker.rollbackTo()
           if (doWithMarker) dotMarker.drop //done(ScalaTokenTypes.tDOT)
