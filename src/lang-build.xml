@@ -106,6 +106,7 @@
       <classpath>
         <path location="${project.lib}"/>
         <path location="${idea.lib}"/>
+        <path location="${idea.lib}/../jre/jre/lib"/>
         <path location="${ant.lib}"/>
         <path location="${scala.home}/lib"/>
       </classpath>
