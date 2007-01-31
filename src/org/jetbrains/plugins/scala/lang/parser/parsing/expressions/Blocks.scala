@@ -17,17 +17,17 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template._
 import org.jetbrains.plugins.scala.lang.parser.parsing.base._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top._
-               
+
 
 
 object BlockExpr {
-/*
-Block expression
-Default grammar
-BlockExpr ::= ‘{’ CaseClauses ‘}’
-              | ‘{’ Block ‘}’
-*/
-  def parse(builder : PsiBuilder) : ScalaElementType = {
+  /*
+  Block expression
+  Default grammar
+  BlockExpr ::= ‘{’ CaseClauses ‘}’
+                | ‘{’ Block ‘}’
+  */
+  def parse(builder: PsiBuilder): ScalaElementType = {
     val blockExprMarker = builder.mark()
 
     if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
@@ -40,7 +40,7 @@ BlockExpr ::= ‘{’ CaseClauses ‘}’
         ScalaElementTypes.BLOCK_EXPR
       } else if ({
         um.drop()
-        !ScalaTokenTypes.kCASE.equals(builder.getTokenType)
+        ! ScalaTokenTypes.kCASE.equals(builder.getTokenType)
       }){
 
         /*  ‘{’ Block ‘}’ */
@@ -54,56 +54,56 @@ BlockExpr ::= ‘{’ CaseClauses ‘}’
             ScalaElementTypes.BLOCK_EXPR
           } else {
             builder.error("} expected")
-            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
+            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
             blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
             ScalaElementTypes.BLOCK_EXPR
           }
-        } else{
+        } else {
           var errMarker = builder.mark()
-          ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
+          ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
           errMarker.error("Wrong inner block statement")
           blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
           ScalaElementTypes.BLOCK_EXPR
         }
       } else {
-          /* ‘{’ CaseClauses ‘}’ */
-          var result = CaseClauses.parse(builder)
-          if (result.equals(ScalaElementTypes.CASE_CLAUSES)) {
-            if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
-              ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
-              blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
-              ScalaElementTypes.BLOCK_EXPR
-            } else {
-              builder.error("} expected")
-              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
-              blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
-              ScalaElementTypes.BLOCK_EXPR
-            }
-          } else{
-          ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE , ScalaTokenTypes.tRBRACE)
+        /* ‘{’ CaseClauses ‘}’ */
+        var result = CaseClauses.parse(builder)
+        if (result.equals(ScalaElementTypes.CASE_CLAUSES)) {
+          if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+            blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
+            ScalaElementTypes.BLOCK_EXPR
+          } else {
+            builder.error("} expected")
+            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
+            blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
+            ScalaElementTypes.BLOCK_EXPR
+          }
+        } else {
+          ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
           blockExprMarker.error("Wrong inner block statement")
           ScalaElementTypes.BLOCK_EXPR
-          }
+        }
       }
     } else {
-       blockExprMarker.rollbackTo()
-       ScalaElementTypes.WRONGWAY
+      blockExprMarker.rollbackTo()
+      ScalaElementTypes.WRONGWAY
     }
   }
 }
 
 object Block {
-/*
-Block
-Default grammar
-Block ::= {BlockStat StatementSeparator} [ResultExpr]
-*/
+  /*
+  Block
+  Default grammar
+  Block ::= {BlockStat StatementSeparator} [ResultExpr]
+  */
 
-/*
-  Moreover, in this case we'll consider a tuple case
-*/
+  /*
+    Moreover, in this case we'll consider a tuple case
+  */
 
-  def parse(builder : PsiBuilder, withBrace: Boolean) : ScalaElementType = {
+  def parse(builder: PsiBuilder, withBrace: Boolean): ScalaElementType = {
 
     // TODO
     val elems = new HashSet[IElementType]
@@ -115,16 +115,16 @@ Block ::= {BlockStat StatementSeparator} [ResultExpr]
     def rollForward: Boolean = {
       var flag1 = true
       var flag2 = false
-      while (flag1 && !builder.eof()){
-         builder.getTokenType match{
-           case ScalaTokenTypes.tLINE_TERMINATOR
-              | ScalaTokenTypes.tSEMICOLON => {
-                builder.advanceLexer
-                //ParserUtils.eatElement(builder, builder.getTokenType())
-                flag2 = true
-              }
-           case _ => flag1 = false
-         }
+      while (flag1 && ! builder.eof()){
+        builder.getTokenType match {
+          case ScalaTokenTypes.tLINE_TERMINATOR
+          | ScalaTokenTypes.tSEMICOLON => {
+            builder.advanceLexer
+            //ParserUtils.eatElement(builder, builder.getTokenType())
+            flag2 = true
+          }
+          case _ => flag1 = false
+        }
       }
       flag2
     }
@@ -139,7 +139,7 @@ Block ::= {BlockStat StatementSeparator} [ResultExpr]
     var result = ScalaElementTypes.BLOCK
 
 
-    def tupleParse : Unit = {
+    def tupleParse: Unit = {
       tmAlive = false
       if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
@@ -167,12 +167,11 @@ Block ::= {BlockStat StatementSeparator} [ResultExpr]
     do {
       result = BlockStat.parse(builder)
       if (flag2 &&
-            ( result.equals(ScalaElementTypes.BLOCK_STAT) ||
-              result.equals(ScalaElementTypes.EXPR1) )
-        ) {
+      (result.equals(ScalaElementTypes.BLOCK_STAT) ||
+      result.equals(ScalaElementTypes.EXPR1))) {
         counter = counter + 1
         if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType) &&
-            result.equals(ScalaElementTypes.EXPR1)){
+        result.equals(ScalaElementTypes.EXPR1)){
           rollbackMarker.drop()
           blockMarker.drop()
           bmAlive = false
@@ -185,8 +184,8 @@ Block ::= {BlockStat StatementSeparator} [ResultExpr]
             tmAlive = false
           }
           ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType) &&
-            result.equals(ScalaElementTypes.EXPR1)
-          }) {
+          result.equals(ScalaElementTypes.EXPR1)
+        }) {
           rollbackMarker.rollbackTo()
           flag = false
           ResultExpr.parse(builder)
@@ -206,18 +205,16 @@ Block ::= {BlockStat StatementSeparator} [ResultExpr]
             }
           }
         }
-      } else if (
-        {
-          rollbackMarker.rollbackTo()
-          result = ResultExpr.parse(builder)
-          rollbackMarker = builder.mark()
-          !ScalaElementTypes.WRONGWAY.equals(result) && flag2
-        }
-      ) {
+      } else if ({
+        rollbackMarker.rollbackTo()
+        result = ResultExpr.parse(builder)
+        rollbackMarker = builder.mark()
+        ! ScalaElementTypes.WRONGWAY.equals(result) && flag2
+      }) {
         flag = false
         result = ScalaElementTypes.BLOCK
         rollbackMarker.drop()
-      } else if (!withBrace) {
+      } else if (! withBrace) {
         flag = false
         rollbackMarker.rollbackTo()
         result = ScalaElementTypes.BLOCK
@@ -252,13 +249,13 @@ BlockStat ::= Import
 **/
 object BlockStat {
 
-  def parse(builder : PsiBuilder) : ScalaElementType = {
+  def parse(builder: PsiBuilder): ScalaElementType = {
     val blockStatMarker = builder.mark()
 
     /* Expr1 */
     def parseExpr1: ScalaElementType = {
       var result = CompositeExpr.parse(builder)
-      if (!(result == ScalaElementTypes.WRONGWAY)) {
+      if (! (result == ScalaElementTypes.WRONGWAY)) {
         blockStatMarker.drop
         result
       }
@@ -277,35 +274,35 @@ object BlockStat {
       var second = builder.getTokenType
       rbMarker.rollbackTo()
       if (ScalaTokenTypes.kCASE.equals(first) &&
-          (ScalaTokenTypes.kCLASS.equals(second) ||
-           ScalaTokenTypes.kOBJECT.equals(second) ||
-           ScalaTokenTypes.kTRAIT.equals(second))){
+      (ScalaTokenTypes.kCLASS.equals(second) ||
+      ScalaTokenTypes.kOBJECT.equals(second) ||
+      ScalaTokenTypes.kTRAIT.equals(second))){
         Def.parseBody(builder)
         blockStatMarker.drop
         ScalaElementTypes.BLOCK_STAT
       } else if (BNF.firstDef.contains(builder.getTokenType) &&
-                !ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
+      ! ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
         Def.parseBody(builder)
         blockStatMarker.drop
         ScalaElementTypes.BLOCK_STAT
-      } else if (!isImplicit)  {
+      } else if (! isImplicit)  {
         parseExpr1
       } else {
-          builder.error("Definition expected")
-          blockStatMarker.rollbackTo
-          ScalaElementTypes.WRONGWAY
+        builder.error("Definition expected")
+        blockStatMarker.rollbackTo
+        ScalaElementTypes.WRONGWAY
       }
     }
 
-    if(ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)){
+    if (ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)){
       Import.parseBody(builder)
       blockStatMarker.drop
       ScalaElementTypes.BLOCK_STAT
     } else if (builder.getTokenType != null && BNF.firstLocalModifier.contains(builder.getTokenType)) {
       var localModSet = new HashSet[IElementType]
       while (builder.getTokenType != null &&
-             BNF.firstLocalModifier.contains(builder.getTokenType) &&
-             !localModSet.contains(builder.getTokenType) ){
+      BNF.firstLocalModifier.contains(builder.getTokenType) &&
+      ! localModSet.contains(builder.getTokenType)){
         localModSet += builder.getTokenType
         builder.advanceLexer
       }
