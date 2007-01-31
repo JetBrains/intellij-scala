@@ -1,9 +1,22 @@
 package org.jetbrains.plugins.scala.components;
 
 import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.openapi.components.BaseComponent;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.DataConstants;
+import com.intellij.openapi.actionSystem.ex.DataConstantsEx;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
+import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.ide.fileTemplates.impl.FileTemplateImpl;
+import com.intellij.ide.projectView.impl.ProjectViewImpl;
+import com.intellij.ide.projectView.ProjectView;
+import com.intellij.ide.DataManager;
+import com.intellij.ide.IdeView;
+import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
@@ -51,10 +64,15 @@ public class ScalaFileCreator implements ApplicationComponent {
     FileTemplate scalaTemplate = FileTemplateManager.getInstance().getTemplate(SCALA_FILE_TEMPLATE);
     if (scalaTemplate != null)
       FileTemplateManager.getInstance().removeTemplate(scalaTemplate, false);
-    scalaTemplate = FileTemplateManager.getInstance().getTemplate("Scala file");
-    if (scalaTemplate != null)
-      FileTemplateManager.getInstance().removeTemplate(scalaTemplate, false);
   }
+
+/*
+  private String getPackage() {
+    IdeView view = (IdeView)DataManager.getInstance().getDataContext().getData(DataConstantsEx.IDE_VIEW);
+    String name = view.getOrChooseDirectory().getName();
+    return name == null ? "bugaga" : name;
+  }
+*/
 
 
 }
