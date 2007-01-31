@@ -6,7 +6,7 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaFlexLexer;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 import java.util.HashMap;
@@ -134,7 +134,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
   @NotNull
   public Lexer getHighlightingLexer() {
-    return new ScalaLexer();
+    return new ScalaFlexLexer();
   }
 
   @NotNull

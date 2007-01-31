@@ -21,9 +21,6 @@ public class ScalaBundle {
   @NonNls
   private static final String BUNDLE = "org.jetbrains.plugins.scala.ScalaBundle";
 
-  private ScalaBundle() {
-  }
-
   public static String message(@PropertyKey(resourceBundle = BUNDLE)String key, Object... params) {
     return CommonBundle.message(getBundle(), key, params);
   }

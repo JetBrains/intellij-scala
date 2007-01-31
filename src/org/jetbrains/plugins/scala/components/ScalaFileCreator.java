@@ -34,6 +34,7 @@ public class ScalaFileCreator implements ApplicationComponent {
 
 
   public void initComponent() {
+    removeComponent();
     FileTemplateManager fileTemplateManager = FileTemplateManager.getInstance();
     FileTemplate scalaTemplate = fileTemplateManager.getTemplate(SCALA_FILE_TEMPLATE);
     if (scalaTemplate == null) {
@@ -42,8 +43,17 @@ public class ScalaFileCreator implements ApplicationComponent {
   }
 
   public void disposeComponent() {
+    removeComponent();
+  }
+
+
+  private void removeComponent() {
     FileTemplate scalaTemplate = FileTemplateManager.getInstance().getTemplate(SCALA_FILE_TEMPLATE);
-    FileTemplateManager.getInstance().removeTemplate(scalaTemplate, false);
+    if (scalaTemplate != null)
+      FileTemplateManager.getInstance().removeTemplate(scalaTemplate, false);
+    scalaTemplate = FileTemplateManager.getInstance().getTemplate("Scala file");
+    if (scalaTemplate != null)
+      FileTemplateManager.getInstance().removeTemplate(scalaTemplate, false);
   }
 
 

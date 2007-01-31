@@ -360,7 +360,6 @@ object PrefixExpr {
           }
         }
       }
-      case ScalaTokenTypes.tLBRACE => BlockExpr.parse(builder)
       case _ => this.parse(builder)
     }
   }
