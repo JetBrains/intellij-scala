@@ -122,7 +122,7 @@ object ScalaPsiCreator {
 
     /******************** parameters *******************/
      case ScalaElementTypes.PARAM_CLAUSE => new ScParamClause(node)
-     case ScalaElementTypes.PARAM_CLAUSES => new ScParamClauses(node)
+     case ScalaElementTypes.PARAM_CLAUSES => new ScParamClausesImpl(node)
     /*********** class ************/
      case ScalaElementTypes.CLASS_PARAM => new ScClassParam(node)
      /********** function **********/

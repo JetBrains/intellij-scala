@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.psi.impl.primitives._
+import org.jetbrains.plugins.scala.lang.psi.impl.types._
+import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
 
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
@@ -23,10 +25,20 @@ import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
 
-  class TemplateStatement (node : ASTNode) extends ScalaPsiElementImpl (node) {
+  trait Function extends TemplateStatement {
+    def getFunSig : ScFunctionSignature = getFirstChild.asInstanceOf[ScFunctionSignature]
+
+    private def isType = (e : PsiElement) => e.isInstanceOf[ScType]
+
+    def getType : ScType = if (names != null) {val listNames = names.toList; childSatisfyPredicateForPsiElement(isType, listNames.last.getNextSibling).asInstanceOf[ScTypeImpl]} else null
+  }
+
+  trait TemplateStatement extends ScalaPsiElement {
     override def copy() : PsiElement = {
       DclDef.createTemplateStatementFromText(this.getText, this.getManager).getPsi()
     }
+
+    private def isDefinitionPredicate = (elementType : IElementType) => (elementType == ScalaTokenTypes.kTHIS)
 
     private def isThis = (elementType : IElementType) => (elementType == ScalaTokenTypes.kTHIS)
 
@@ -71,23 +83,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
       childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER)))
     }
 
-//    [NotNull]
-//    protected def names : Iterable[ScalaPsiElementImpl] = {
-//      if (isManyDeclarations) return getDeclarations.childrenOfType[ScalaPsiElementImpl](TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER)))
-//      if (isConstructor) return getChild(ScalaTokenTypes.kTHIS)
-//
-//      getChild(ScalaTokenTypes.tIDENTIFIER)
-//    }
-
   }
 
   /***************** definition ***********************/
 
-  class Definition (node : ASTNode) extends TemplateStatement (node) {
+  trait  Definition extends TemplateStatement {
     override def toString: String = "definition"
   }
 
-  case class ScPatternDefinition (node : ASTNode) extends Definition (node) with IfElseIndent{
+  case class ScPatternDefinition (node : ASTNode) extends ScalaPsiElementImpl(node) with Definition with IfElseIndent{
     override def toString: String = "pattern" + " " + super.toString
 
     private def isManyDeclarations = (getChild(ScalaElementTypes.PATTERN2_LIST) != null)
@@ -100,28 +104,16 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
 
       childrenOfType[PsiElement](TokenSet.create(Array(ScalaElementTypes.PATTERN2)))
     }
-//     def isPattern2 = (e : PsiElement) => e.isInstanceOf[ScPattern2]
-//
-//     [Nullable]
-//     override def stmtNamesNodes: Iterable[ScalaPsiElement] = {
-//       if (isManyDeclarations) return getDeclarations.childrenSatisfyPredicateForPsiElement[ScalaPsiElementImpl](isPattern2)
-//
-//       childrenSatisfyPredicateForPsiElement[ScalaPsiElementImpl](isPattern2)
-//     }
-
-//     override def nameNode = childSatisfyPredicateForPsiElement(isPattern2)
   }
 
-  case class ScVariableDefinition (node : ASTNode) extends Definition (node) with IfElseIndent{
+  case class ScVariableDefinition (node : ASTNode) extends ScalaPsiElementImpl(node) with Definition with IfElseIndent{
     override def toString: String = "variable" + " " + super.toString
   }
 
-  case class ScFunctionDefinition (node : ASTNode) extends Definition (node) with IfElseIndent{
+  case class ScFunctionDefinition (node : ASTNode) extends ScalaPsiElementImpl(node) with Definition with IfElseIndent with Function {
     override def toString: String = "function" + " " + super.toString
 
-//    override def names : Iterable[ScalaPsiElementImpl] = {
-//
-//    }
+
   }
 
   /************** supplementary constructor ***************/
@@ -139,29 +131,29 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
   }
 
 
-  case class ScTypeDefinition (node : ASTNode) extends Definition (node) {
+  case class ScTypeDefinition (node : ASTNode) extends ScalaPsiElementImpl(node) with Definition {
     override def toString: String = "type" + " " + super.toString
   }
 
   /***************** declaration ***********************/
 
-  class Declaration (node : ASTNode) extends TemplateStatement (node) {
+  trait Declaration extends TemplateStatement {
     override def toString: String = "declaration"
   }
 
-  case class ScValueDeclaration (node : ASTNode) extends Declaration (node) {
+  case class ScValueDeclaration (node : ASTNode) extends ScalaPsiElementImpl(node) with Declaration {
     override def toString: String = "value" + " " + super.toString
   }
 
-  case class ScVariableDeclaration (node : ASTNode) extends Declaration (node) {
+  case class ScVariableDeclaration (node : ASTNode) extends ScalaPsiElementImpl(node) with Declaration  {
     override def toString: String = "variable" + " " + super.toString
   }
 
-  case class ScFunctionDeclaration (node : ASTNode) extends Declaration (node) {
+  case class ScFunctionDeclaration (node : ASTNode) extends ScalaPsiElementImpl(node) with Declaration with Function {
     override def toString: String = "function" + " " + super.toString
   }
 
-  case class ScTypeDeclaration (node : ASTNode) extends Declaration (node) {
+  case class ScTypeDeclaration (node : ASTNode) extends ScalaPsiElementImpl(node) with Declaration  {
     override def toString: String = "type" + " " + super.toString
   }
 
@@ -169,6 +161,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
 
   class ScFunctionSignature (node : ASTNode) extends ScalaPsiElementImpl (node) {
     override def toString: String = "function signature"
+
+    private def isTypeParamClause = (e : PsiElement) => e.isInstanceOf[ScTypeParamClause]
+    def getTypeParamClause : ScTypeParamClause = childSatisfyPredicateForPsiElement(isTypeParamClause).asInstanceOf[ScTypeParamClause]
+
+    private def isParamClauses = (e : PsiElement) => e.isInstanceOf[ScParamClauses]
+    def getParamClauses : ScParamClauses = childSatisfyPredicateForPsiElement(isParamClauses).asInstanceOf[ScParamClauses]
   }
 
   /****************** variable ************************/

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
 
 trait ScStableId extends ScPattern3 
 
-class ScStableIdImpl( node : ASTNode ) extends ScSimpleExprImpl(node) with ScStableId {
+class ScStableIdImpl( node : ASTNode ) extends ScSimpleExprImpl(node) with ScStableId with ScSimpleType {
 
   override def toString: String = "Stable Identifier"
 

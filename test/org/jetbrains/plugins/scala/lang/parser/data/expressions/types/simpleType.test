@@ -1,0 +1,4 @@
+class a {
+  def getType : ScType = foo
+}
+-----

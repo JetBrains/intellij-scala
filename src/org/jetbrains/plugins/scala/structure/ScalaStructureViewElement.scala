@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.TemplateStatement
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 import org.jetbrains.plugins.scala.lang.psi.impl.top._, org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 
 /**
@@ -55,8 +55,6 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
         val templateStmts = topDef.getTemplateStatements
 
         if (templateStmts != null) childrenElements ++= {
-//          var allStmts : Iterable[TemplateStatement] = null
-
           val bigIter = for (val stmt <- templateStmts; stmt != null) yield stmt.asDisjunctNodes
 
           bigIter.flatMap(x => x)
@@ -79,7 +77,19 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
                  case file : ScalaFile => file.getVirtualFile.getName
                  case packaging : ScPackaging => packaging.getFullPackageName
                  case topDef : ScTmplDef => topDef.getShortName
-                 case templateStmt : TemplateStatement => templateStmt.getShortName
+
+                 case templateStmt : TemplateStatement => {
+                  val name = templateStmt.getShortName
+
+                  val stmtType = templateStmt match {
+                    case funDcl : ScFunctionDeclaration => ":" + funDcl.getType.getText
+//                    case funDef : ScFunctionDefinition => if (funDef.getType != null) ":" + funDef.getType else ""
+                    case _ => ""
+                  }
+
+                  name + stmtType
+                 }
+
                  case _ => ""
                }
             }

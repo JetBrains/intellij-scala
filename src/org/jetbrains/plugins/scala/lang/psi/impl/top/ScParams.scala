@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.params {
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.types.ScTypeImpl
 import com.intellij.lang.ASTNode
+import com.intellij.psi._
+
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 /**
  * User: Dmitry.Krasilschikov
@@ -27,8 +29,9 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
   }
 
   /************* PARAMETER CLAUSES *****************/
+  trait ScParamClauses extends PsiElement
 
-  class ScParamClauses( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+  class ScParamClausesImpl( node : ASTNode ) extends ScalaPsiElementImpl ( node ) with ScParamClauses {
     override def toString: String = "parameters clauses"
   }
 
@@ -43,7 +46,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
   */
   /************* PARAMETER CLAUSE *****************/
 
-  class ScParamClause( node : ASTNode ) extends ScalaPsiElementImpl ( node ) with ContiniousIndent{
+  class ScParamClause( node : ASTNode ) extends ScalaPsiElementImpl ( node ) with ContiniousIndent with ScParamClauses {
     override def toString: String = "parameters clause"
   }
 
