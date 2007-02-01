@@ -44,7 +44,7 @@ public class ScalaModuleCachesManager implements ModuleComponent {
   public void moduleAdded() {
 
     myModuleFilesCache = new ScalaModuleCachesImpl(myModule);
-    myModuleFilesCache.setCacheUrls(new String[]{ScalaUtils.getModuleRoot(myModule).getUrl()});
+    myModuleFilesCache.setCacheUrls(ScalaUtils.getModuleRootUrls(myModule));
 
     StartupManager.getInstance(myModule.getProject()).runPostStartup(new Runnable() {
       public void run() {
