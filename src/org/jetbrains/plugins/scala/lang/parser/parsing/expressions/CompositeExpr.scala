@@ -70,13 +70,14 @@ object CompositeExpr {
                 ScalaElementTypes.EXPR1
               }
               case _ => {
-
                 argMarker.rollbackTo()
                 rollbackMarker.drop()
                 if (ScalaElementTypes.SIMPLE_EXPR.equals(result)){
                   compMarker.done(ScalaElementTypes.SIMPLE_EXPR)
                 }
-                else compMarker.drop
+                else {
+                  compMarker.drop
+                }
                 ScalaElementTypes.EXPR1
               }
             }
@@ -601,7 +602,7 @@ object CompositeExpr {
 
       def subParse: ScalaElementType =
         builder.getTokenType match {
-          case ScalaTokenTypes.tDOT         => {
+          case ScalaTokenTypes.tDOT => {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
             if (builder.getTokenType.eq(ScalaTokenTypes.tIDENTIFIER)){
               ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
@@ -609,7 +610,7 @@ object CompositeExpr {
             } else errorDone("Identifier expected")
           }
           case ScalaTokenTypes.tLBRACE
-          |ScalaTokenTypes.tLPARENTHIS => {
+          | ScalaTokenTypes.tLPARENTHIS => {
             ArgumentExprs parse builder
             subParse
           }
@@ -679,6 +680,34 @@ object CompositeExpr {
       ! result.equals(ScalaElementTypes.WRONGWAY)
     }
 
+    def variants1 = {
+      result = builder.getTokenType match {
+        case ScalaTokenTypes.kIF => ifCase
+        case ScalaTokenTypes.kTRY => tryCase
+        case ScalaTokenTypes.kFOR => forCase
+        case ScalaTokenTypes.kRETURN => returnCase
+        case ScalaTokenTypes.kTHROW => throwCase
+        case ScalaTokenTypes.kWHILE => whileCase
+        case ScalaTokenTypes.kDO => doCase
+        case ScalaTokenTypes.tDOT => closureCase
+        case _ => ScalaElementTypes.WRONGWAY
+      }
+    }
+
+    variants1
+    if (ScalaElementTypes.WRONGWAY.equals(result)) {
+      if (variants(b1Case)) result
+      /* case (a) */
+      else if (variants(aCase)) result
+      /* cases (b1), (b2) */
+      else if (variants(bCase)) result
+      else {
+        compMarker.rollbackTo()
+        ScalaElementTypes.WRONGWAY
+      }
+    } else result
+
+  /*
     /* Parsing function body */
     /* case (throw) */
     if (variants(throwCase)) result
@@ -706,6 +735,8 @@ object CompositeExpr {
       compMarker.rollbackTo()
       ScalaElementTypes.WRONGWAY
     }
+  */
+  
   }
 
 }

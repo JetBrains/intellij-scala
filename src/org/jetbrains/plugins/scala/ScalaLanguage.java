@@ -56,12 +56,12 @@ public class ScalaLanguage extends Language {
 
   @Nullable
   public FormattingModelBuilder getFormattingModelBuilder() {
-       return ScalaToolsFactory.getInstance().createScalaFormattingModelBuilder();
-   }
+    return ScalaToolsFactory.getInstance().createScalaFormattingModelBuilder();
+  }
 
   @NotNull
   public StructureViewBuilder getStructureViewBuilder(@NotNull final PsiFile psiFile) {
-      return ScalaToolsFactory.getInstance().createStructureViewBuilder(psiFile);
+    return ScalaToolsFactory.getInstance().createStructureViewBuilder(psiFile);
   }
 
   @Nullable
@@ -76,6 +76,13 @@ public class ScalaLanguage extends Language {
 
   public FileViewProvider createViewProvider(final VirtualFile file, final PsiManager manager, final boolean physical) {
     return new SingleRootFileViewProvider(manager, file, physical) {
+
+      @Nullable
+      protected PsiFile getPsiInner(Language target) {
+        if (target == StdLanguages.JAVA) return myJavaRoot;
+        return super.getPsiInner(target);
+      }
+
       PsiFile myJavaRoot = ScalaToolsFactory.getInstance().createJavaView(this);
 
       public PsiElement findElementAt(int offset, Language language) {
