@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.TemplateStatement
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTemplateStatement
 
 
 /**
@@ -30,7 +30,17 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.Template
       childSatisfyPredicateForElementType(isName)
     }
 
-    def getTmplDefs : Iterable[ScTmplDef] = childrenOfType[ScTmplDef] (ScalaElementTypes.TMPL_DEF_BIT_SET)
+    def getTmplDefs : Iterable[ScTmplDef] = {
+      import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTemplateBody
+
+      val template = getTemplate
+      var body : ScTemplateBody = null
+      if ( template != null) {
+        body = template.getTemplateBody
+        if (body != null ) return body.childrenOfType[ScTmplDef] (ScalaElementTypes.TMPL_DEF_BIT_SET)
+      }
+      null
+    }
 
     //todo: 
     def getShortName = nameNode.getText
@@ -65,14 +75,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.Template
     def getTemplate : ScTopDefTemplate = getChild(ScalaElementTypes.TOP_DEF_TEMPLATE).asInstanceOf[ScTopDefTemplate]
 
     [Nullable]
-    def getTemplateStatements : Iterable[TemplateStatement] = {
+    def getTemplateStatements : Iterable[ScTemplateStatement] = {
       import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTemplateBody
 
       val template = getTemplate
       var body : ScTemplateBody = null
       if ( template != null) {
         body = template.getTemplateBody
-        if (body != null ) return body.childrenOfType[TemplateStatement](ScalaElementTypes.TMPL_STMT_BIT_SET)
+        if (body != null ) return body.childrenOfType[ScTemplateStatement](ScalaElementTypes.TMPL_STMT_BIT_SET)
       }
       null
     }

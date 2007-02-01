@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.top.params {
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.types.ScTypeImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.types._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+
+import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 
@@ -18,9 +21,17 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
   class ScParam( node : ASTNode ) extends Param ( node ) {
     override def toString: String = super.toString
+
+    def paramType = {
+      val child = getLastChild 
+      child match {
+        case _ : ScParamType => child
+        case _ => null
+      }
+    }
   }
 
-  class ScParamType( node : ASTNode ) extends ScTypeImpl ( node ) {
+  class ScParamType( node : ASTNode ) extends ScalaPsiElementImpl ( node ) with ScType {
     override def toString: String = "parameter " + super.toString
   }
 
@@ -29,34 +40,44 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
   }
 
   /************* PARAMETER CLAUSES *****************/
-  trait ScParamClauses extends PsiElement
+  trait ScParamClauses extends ScalaPsiElement {
+    def paramClauses : Iterable[ScParamClause] = {
+//      if (this.isInstanceOf[ScParamClause]) return Array(this)
+
+      childrenOfType[ScParamClause](TokenSet.create(Array(ScalaElementTypes.FUN_PARAM_CLAUSE)))
+    }
+
+    def implicitEnd = getChild(ScalaElementTypes.IMPLICIT_END)
+  }
 
   class ScParamClausesImpl( node : ASTNode ) extends ScalaPsiElementImpl ( node ) with ScParamClauses {
     override def toString: String = "parameters clauses"
   }
 
-/*
-  case class ScClassParamClauses( node : ASTNode ) extends ParamClauses ( node ) {
-    override def toString: String = "class" + " " + super.toString
-  }
-
-  case class ScFunParamClauses( node : ASTNode ) extends ParamClauses ( node ) {
-    override def toString: String = "function" + " " + super.toString
-  }
-  */
   /************* PARAMETER CLAUSE *****************/
 
-  class ScParamClause( node : ASTNode ) extends ScalaPsiElementImpl ( node ) with ContiniousIndent with ScParamClauses {
+  trait ScParamClause extends ScalaPsiElement {
+    private def isManyParams = (getChild(ScalaElementTypes.PARAMS) != null)
+    private def getParamsNode : ScParams = getChild(ScalaElementTypes.PARAMS).asInstanceOf[ScParamsImpl]
+
+    def params : Iterable[ScParam] = {
+      if (isManyParams) return getParamsNode.params
+
+      childrenOfType[ScParam](TokenSet.create(Array(ScalaElementTypes.FUN_PARAM)))
+    }
+  }
+
+  class ScParamClauseImpl( node : ASTNode ) extends ScalaPsiElementImpl ( node ) with ContiniousIndent with ScParamClause {
     override def toString: String = "parameters clause"
   }
 
-  /*case class ScClassParamClause( node : ASTNode ) extends ParamClause ( node ) {
-    override def toString: String = "class" + " " + super.toString
+  trait ScParams extends ScalaPsiElement {
+    def params : Iterable[ScParam] = childrenOfType[ScParam](TokenSet.create(Array(ScalaElementTypes.FUN_PARAM)))
   }
 
-  case class ScFunParamClause( node : ASTNode ) extends ParamClause ( node ) {
-    override def toString: String = "function" + " " + super.toString
-  } */
+  class ScParamsImpl (node : ASTNode) extends ScalaPsiElementImpl (node) with ScParams {
+    override def toString: String = "parameters"
+  }
 
   /************** TYPE PARAMETER  *********************/
   class TypeParam( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
@@ -75,14 +96,4 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
   class ScTypeParamClause( node : ASTNode ) extends ScalaPsiElementImpl ( node ) with ContiniousIndent{
     override def toString: String = "type parameter clause"
   }
-/*
-
-  case class ScTypeParamClause( node : ASTNode ) extends TypeParamClause ( node ) {
-    override def toString: String = super.toString
-  }
-
-  case class ScFunctionTypeParamClause( node : ASTNode ) extends TypeParamClause ( node ) {
-    override def toString: String = "function" + " " + super.toString
-  }
-  */
 }

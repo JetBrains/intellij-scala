@@ -107,7 +107,7 @@ object ScalaPsiCreator {
      case ScalaElementTypes.SUPPLEMENTARY_CONSTRUCTOR => new ScSupplementaryConstructor(node)
 
      /**************** function ******************/
-     case ScalaElementTypes.FUN_SIG => new ScFunctionSignature(node)
+//     case ScalaElementTypes.FUN_SIG => new ScFunctionSignature(node)
      case ScalaElementTypes.CONSTRUCTOR => new ScConstructor(node)
 
      /**************** variable ******************/
@@ -121,7 +121,7 @@ object ScalaPsiCreator {
     /***************************************************/
 
     /******************** parameters *******************/
-     case ScalaElementTypes.PARAM_CLAUSE => new ScParamClause(node)
+     case ScalaElementTypes.PARAM_CLAUSE => new ScParamClauseImpl(node)
      case ScalaElementTypes.PARAM_CLAUSES => new ScParamClausesImpl(node)
     /*********** class ************/
      case ScalaElementTypes.CLASS_PARAM => new ScClassParam(node)
@@ -135,6 +135,7 @@ object ScalaPsiCreator {
      /********** function **********/
      case ScalaElementTypes.TYPE_PARAM => new ScTypeParam(node)
 
+     case ScalaElementTypes.PARAMS => new ScParamsImpl(node)
 
     /***************************************************/
     /************* MODIFIERS AND ATTRIBUTES ************/

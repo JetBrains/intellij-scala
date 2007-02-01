@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 import org.jetbrains.plugins.scala.lang.psi.impl.top._, org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
+import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
 
 /**
  * User: Dmitry.Krasilschikov
@@ -38,7 +39,7 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
 
   def getValue() : PsiElement = myElement
 
-  def navigate(requestFocus : Boolean) : Unit = (myElement.asInstanceOf[NavigationItem]).navigate(requestFocus);
+  def navigate(requestFocus : Boolean) : Unit = (myElement.asInstanceOf[NavigationItem]).navigate(requestFocus)
 
   def canNavigate() : Boolean = (myElement.asInstanceOf[NavigationItem]).canNavigate()
 
@@ -63,7 +64,6 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
         if (topDef.getTmplDefs != null) childrenElements ++= topDef.getTmplDefs
       }
       case _ => {}
-//      case scalalElement : ScalaPsiElement if (scalalElement != null) => childrenElements += scalalElement
     }
 
     for ( val i <- Array.range(0, childrenElements.length))
@@ -78,13 +78,53 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
                  case packaging : ScPackaging => packaging.getFullPackageName
                  case topDef : ScTmplDef => topDef.getShortName
 
-                 case templateStmt : TemplateStatement => {
+                 case templateStmt : ScTemplateStatement => {
                     val name = templateStmt.getShortName
+
+                    val typeParamClause = templateStmt match {
+                      case function : ScFunction => function.getTypeParamClause
+                      case typeDefinition : ScTypeDefinition => typeDefinition.getTypeParamClause
+                      case _ => null
+                    }
+
+                    val paramTypesString = templateStmt match {
+                      case function : ScFunction => {
+                        val allParamClauses = function.paramClauses
+
+                        def paramTypeAsString (param : ScParam) =
+                          if (param.paramType != null ) param.paramType.getText
+                          else ""
+
+                        def paramClauseAsString (paramClause : ScParamClause) : String =
+//                          if (paramClause != null)
+//                            if (paramClause.params != null)
+                              paramClause.params.map[String](paramTypeAsString).mkString("(", ",", ")")
+//                            else ""
+//                          else ""
+
+//                        if (allParamClauses != null)
+                          allParamClauses.map[String](paramClauseAsString).mkString("", "", "")
+//                        else ""
+                      }
+
+                      case _ => null
+                    }
+
+                    val exprPresentage : ScalaPsiElement = templateStmt match {
+                      case functionDef : ScFunctionDefinition => null
+                      case definition : ScDefinition => definition.getExpr
+                      case _ => null
+                    }
 
                     val stmtType = templateStmt.getType
 
-                    if (stmtType != null) name + ":" + stmtType.getText
-                    else name
+                    var result = name
+                    if (typeParamClause != null) result = result + typeParamClause.getText
+                    if (paramTypesString != null) result = result + paramTypesString
+                    if (stmtType != null) result = result + ":" + stmtType.getText
+                    if (exprPresentage != null) result = result + " = " + exprPresentage.getText
+
+                    result
                  }
 
                  case _ => ""
