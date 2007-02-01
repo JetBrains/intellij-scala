@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatting.patterns
 
 package indent {
 
+  import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
   /**
   *  For blocks & composite expressions
   */
