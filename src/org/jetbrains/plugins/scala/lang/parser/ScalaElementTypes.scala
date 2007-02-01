@@ -427,6 +427,7 @@ object ScalaElementTypes {
     Array (
       TokenSet.create(
         Array.apply(
+          PATTERN2,
           PATTERN3,
           SIMPLE_PATTERN,
           LITERAL,

@@ -1,41 +1,109 @@
-/*
 package org.jetbrains.plugins.scala.lang.psi.impl
 
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 
-import com.intellij.psi.impl.source.tree.TreeUtil
-import com.intellij.psi.impl.source.SourceTreeToPsiMap
-import com.intellij.psi.impl.GeneratedMarkerVisitor
-import com.intellij.util.IncorrectOperationException
-import com.intellij.psi.impl.source.DummyHolder
+import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
+import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.tree.IElementType
+
+import com.intellij.psi.PsiFile
+import com.intellij.lang.ParserDefinition
+
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.parsing.types._
+import org.jetbrains.plugins.scala.lang.psi.impl.literals._
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
+import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
+import org.jetbrains.plugins.scala.util.DebugPrint
+import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+
+import com.intellij.openapi.util.TextRange
+
+import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.source.tree.CompositeElement
-import com.intellij.psi.impl.source.tree.FileElement
-import com.intellij.psi.PsiExpression
-import com.intellij.psi.PsiElement
-import com.intellij.psi.impl.PsiManager
+import com.intellij.util.CharTable
+import com.intellij.lexer.Lexer
+import com.intellij.lang.impl.PsiBuilderImpl
+import com.intellij.psi._
+import com.intellij.psi.impl.source.CharTableImpl
 
-class ScalaPsiElementFactory (manager : PsiManager ) {
+object ScalaPsiElementFactory {
 
-  def createElement() = {
+//  def createElementFromText (buffer : String, manager : PsiManager) : ASTNode = {
+//
+//  }
 
+  private val DUMMY = "dummy."
+  def createExpressionFromText(buffer : String, manager : PsiManager) : ASTNode = {
+    def isExpr = (elementType : IElementType) => (ScalaElementTypes.EXPRESSION_BIT_SET.contains(elementType))
+
+    val definition : ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
+//    if (definition != null) ...
+    val text = "class a {" + buffer + "}"
+
+    val dummyFile : PsiFile = manager.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
+
+    val classDef = dummyFile.getFirstChild
+    val topDefTmpl = classDef.getLastChild
+    val templateBody = topDefTmpl.getFirstChild.asInstanceOf[ScalaPsiElementImpl]
+
+    val expression = templateBody.childSatisfyPredicateForElementType(isExpr)
+
+    if (expression == null) return null
+
+    expression.asInstanceOf[ScExprImpl].getNode
   }
-  */
-/*
-  def createExpressionFromText(text : String , context: PsiElement ) : PsiExpression = {
-    val treeHolder : FileElement = new DummyHolder(manager, context).getTreeElement();
-    val psiManager : PsiManager = treeHolder.getManager()
 
-    val treeElement : CompositeElement = Expr.parseExpressionText(psiManager, text, treeHolder.getCharTable());
 
-    if (treeElement == null) throw new IncorrectOperationException("Incorrect expression \"" + text + "\".");
+    def createTemplateStatementFromText(buffer : String, manager : PsiManager) : ASTNode = {
+      def isStmt = (element : PsiElement) => (element.isInstanceOf[ScTemplateStatement])
 
-    TreeUtil.addChildren(treeHolder, treeElement)
-    treeHolder.acceptTree(new GeneratedMarkerVisitor())
+      val pareserDefinition : ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
 
-    SourceTreeToPsiMap.treeElementToPsi(treeElement).asInstanceOf[PsiExpression]
+      val text = "class a {" + buffer + "}"
+
+      val dummyFile : PsiFile = manager.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
+
+      val classDef = dummyFile.getFirstChild
+      val topDefTmpl = classDef.getLastChild
+      val templateBody = topDefTmpl.getFirstChild.asInstanceOf[ScalaPsiElementImpl]
+
+      val stmt = templateBody.childSatisfyPredicateForPsiElement(isStmt)
+
+      if (stmt == null) return null
+
+      stmt.asInstanceOf[ScTemplateStatement].getNode
+
+    }
+
+  def createPattern2FromText(buffer : String, manager : PsiManager) : ASTNode = {
+    def isPattern2 = (elementType : IElementType) => (ScalaElementTypes.PATTERN2_BIT_SET.contains(elementType))
+    def isTemplateStmt = (elementType : IElementType) => (ScalaElementTypes.TMPL_STMT_BIT_SET.contains(elementType))
+
+    val definition : ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
+//    if (definition != null) ...
+    val text = "class a {" +
+                "val " + buffer +
+                " = b" +
+                "}"
+
+    val dummyFile : PsiFile = manager.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
+
+    val classDef = dummyFile.getFirstChild
+    val topDefTmpl = classDef.getLastChild
+    val templateBody = topDefTmpl.getFirstChild.asInstanceOf[ScalaPsiElement]
+
+    val patDef : ScalaPsiElement = templateBody.childSatisfyPredicateForElementType(isTemplateStmt).asInstanceOf[ScalaPsiElement]
+    val pattern2 = patDef.childSatisfyPredicateForElementType(isPattern2)
+
+    if (pattern2 == null) return null
+
+    pattern2.asInstanceOf[ScPattern2].getNode
   }
-  */
-/*
-
-
-}*/
+}

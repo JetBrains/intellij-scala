@@ -22,10 +22,10 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
   class ScParam( node : ASTNode ) extends Param ( node ) {
     override def toString: String = super.toString
 
-    def paramType = {
+    def paramType () : ScType = {
       val child = getLastChild 
       child match {
-        case _ : ScParamType => child
+        case paramType : ScType => paramType
         case _ => null
       }
     }
