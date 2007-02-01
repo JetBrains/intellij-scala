@@ -24,6 +24,8 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           document: Document,
           descriptors: ListBuffer[FoldingDescriptor]): Unit = {
 
+    node.getPsi.getChildren
+
     node.getElementType match {
       case ScalaElementTypes.BLOCK_EXPR |
       ScalaElementTypes.INFIX_EXPR |
@@ -100,9 +102,10 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   }
 
   def isCollapsedByDefault(node: ASTNode): Boolean = {
-    node.getElementType == ScalaTokenTypes.tCOMMENT_CONTENT &&
-    node.getText.substring(0, 3).equals("/**") &&
-    (node.getText.contains('\n') || node.getText.contains('\r'))
+      false
+//    node.getElementType == ScalaTokenTypes.tCOMMENT_CONTENT &&
+//    node.getText.substring(0, 3).equals("/**") &&
+//    (node.getText.contains('\n') || node.getText.contains('\r'))
   }
 
 }
