@@ -356,17 +356,26 @@ object ScalaElementTypes {
     )
   )
 
-  val TYPE_BIT_SET : TokenSet = TokenSet.create (
-    Array.apply(
+  val STABLE_ID_BIT_SET = TokenSet.create(
+    Array(
       STABLE_ID,
-      STABLE_ID_ID,
-      PATH,
-      SIMPLE_TYPE,
-      COMPOUND_TYPE,
-      INFIX_TYPE,
-      TYPE,
-      TYPES,
       ScalaTokenTypes.tIDENTIFIER
+    )
+  )
+
+  val TYPE_BIT_SET : TokenSet = TokenSet.orSet (
+    Array(
+      STABLE_ID_BIT_SET,
+      TokenSet.create(
+        Array.apply(
+          SIMPLE_TYPE,
+          COMPOUND_TYPE,
+          INFIX_TYPE,
+          TYPE,
+          TYPES,
+          COMPOSITE_TYPE
+        )
+      )
     )
   )
 
@@ -410,13 +419,6 @@ object ScalaElementTypes {
       LITERAL,
       PATH,
       BLOCK_EXPR
-    )
-  )
-
-  val STABLE_ID_BIT_SET = TokenSet.create(
-    Array(
-      STABLE_ID,
-      ScalaTokenTypes.tIDENTIFIER
     )
   )
 

@@ -8,7 +8,9 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
-  trait ScPattern extends PsiElement
+  trait ScPatterns extends PsiElement
+
+  trait ScPattern extends ScPatterns
 
   trait ScPattern1 extends ScPattern
 
@@ -20,11 +22,11 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
       override def toString: String = "Tuple pattern"
   }
 
-  case class ScPattern1Impl( node : ASTNode ) extends ScalaPsiElementImpl (node) with ScPattern {
+  case class ScPattern1Impl( node : ASTNode ) extends ScalaPsiElementImpl (node) with ScPattern1 {
       override def toString: String = "Common pattern"
   }
 
-  case class ScPattern2Impl( node : ASTNode ) extends ScalaPsiElementImpl (node) with ScPattern {
+  case class ScPattern2Impl( node : ASTNode ) extends ScalaPsiElementImpl (node) with ScPattern2 {
       override def toString: String = "Binding pattern"
   }
 
@@ -36,7 +38,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
       override def toString: String = "Composite pattern"
   }
 
-  case class ScPatternsImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) with ScPattern {
+  case class ScPatternsImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) with ScPatterns {
       override def toString: String = "Argument patterns"
   }
 

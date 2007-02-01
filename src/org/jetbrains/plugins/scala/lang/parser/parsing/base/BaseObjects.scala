@@ -594,6 +594,7 @@ object Attribute extends Constr{
          hasIdList = true;
        } else {
          builder error "expected identifier"
+         idListmarker.drop()
          return
        }
      }

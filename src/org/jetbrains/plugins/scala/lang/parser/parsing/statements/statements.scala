@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiManager
 
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.TemplateStatement
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTemplateStatement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -81,7 +81,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
       private val DUMMY = "dummy.";
       def createTemplateStatementFromText(buffer : String, manager : PsiManager) : ASTNode = {
-        def isStmt = (element : PsiElement) => (element.isInstanceOf[TemplateStatement])
+        def isStmt = (element : PsiElement) => (element.isInstanceOf[ScTemplateStatement])
 
         val pareserDefinition : ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
 
@@ -97,7 +97,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
         if (stmt == null) return null
 
-        stmt.asInstanceOf[TemplateStatement].getNode
+        stmt.asInstanceOf[ScTemplateStatement].getNode
 
       }
     }
