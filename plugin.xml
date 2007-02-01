@@ -22,7 +22,7 @@
       <implementation-class>org.jetbrains.plugins.scala.components.ScalaFileCreator</implementation-class>
     </component>
   </application-components>
-  <project-components/>
+
 
   <actions>
     <!--action id="NewScalaFile" class="org.jetbrains.plugins.scala.actions.creators.NewScalaFileCreate" text="Scala file"
