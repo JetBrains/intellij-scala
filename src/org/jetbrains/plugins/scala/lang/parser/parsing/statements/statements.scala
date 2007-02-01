@@ -78,28 +78,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
         }
       }
-
-      private val DUMMY = "dummy.";
-      def createTemplateStatementFromText(buffer : String, manager : PsiManager) : ASTNode = {
-        def isStmt = (element : PsiElement) => (element.isInstanceOf[ScTemplateStatement])
-
-        val pareserDefinition : ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
-
-        val text = "class a {" + buffer + "}"
-
-        val dummyFile : PsiFile = manager.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
-
-        val classDef = dummyFile.getFirstChild
-        val topDefTmpl = classDef.getLastChild
-        val templateBody = topDefTmpl.getFirstChild.asInstanceOf[ScalaPsiElementImpl]
-
-        val stmt = templateBody.childSatisfyPredicateForPsiElement(isStmt)
-
-        if (stmt == null) return null
-
-        stmt.asInstanceOf[ScTemplateStatement].getNode
-
-      }
     }
 
     object Def extends ConstrUnpredict {

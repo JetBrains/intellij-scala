@@ -13,13 +13,14 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiElement;
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.util.DebugPrint
 import com.intellij.lang.ASTNode
 
+import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 abstract class ScalaSurrounderByExpression extends Surrounder {
 
@@ -41,7 +42,7 @@ abstract class ScalaSurrounderByExpression extends Surrounder {
 
       for (val child <- elements) {
         childNode = child.getNode
-        newNode = Expr.createExpressionFromText(getExpressionTemplateAsString(childNode), child.getManager)
+        newNode = ScalaPsiElementFactory.createExpressionFromText(getExpressionTemplateAsString(childNode), child.getManager)
 
         childNode.getTreeParent.replaceChild(childNode, newNode)
       }

@@ -24,9 +24,10 @@ import com.intellij.psi._
 import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-  trait ScTemplateStatement extends ScalaPsiElement {
-    override def copy() : PsiElement = DclDef.createTemplateStatementFromText(this.getText, this.getManager).getPsi
+  trait ScTemplateStatement extends ScalaPsiElement{
+    override def copy() : PsiElement = ScalaPsiElementFactory.createTemplateStatementFromText(this.getText, this.getManager).getPsi
 
     private def isDefinitionPredicate = (elementType : IElementType) => (elementType == ScalaTokenTypes.kTHIS)
 
@@ -41,9 +42,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
       val theNames = names
       for (val name <- theNames) yield {
         val thisCopy : ScTemplateStatement = this.copy.asInstanceOf[ScTemplateStatement]
+        val declarations = thisCopy.getDeclarations
+        val nameCopy = name.copy
 
-        thisCopy.getNode.replaceChild(thisCopy.getDeclarations.getNode, name.copy.getNode)
-        thisCopy
+        if (declarations != null && nameCopy != null) {
+          thisCopy.getNode.replaceChild(declarations.getNode, nameCopy.getNode); thisCopy
+        }
+        else thisCopy
       } 
     }
 

@@ -37,13 +37,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
 class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureViewElement extends StructureViewTreeElement {
   private var myElement : PsiElement = element
 
-  def getValue() : PsiElement = myElement
+  override def getValue() : PsiElement = myElement
 
-  def navigate(requestFocus : Boolean) : Unit = (myElement.asInstanceOf[NavigationItem]).navigate(requestFocus)
+  override def navigate(requestFocus : Boolean) : Unit = (myElement.asInstanceOf[NavigationItem]).navigate(requestFocus)
 
-  def canNavigate() : Boolean = (myElement.asInstanceOf[NavigationItem]).canNavigate()
+  override def canNavigate() : Boolean = (myElement.asInstanceOf[NavigationItem]).canNavigate()
 
-  def canNavigateToSource() : Boolean = (myElement.asInstanceOf[NavigationItem]).canNavigateToSource()
+  override def canNavigateToSource() : Boolean = (myElement.asInstanceOf[NavigationItem]).canNavigateToSource()
 
   override def getChildren() : Array[TreeElement] = {
     var childrenElements: ArrayBuffer[ScalaPsiElement] = new ArrayBuffer[ScalaPsiElement]();
@@ -90,32 +90,23 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
                     val paramTypesString = templateStmt match {
                       case function : ScFunction => {
                         val allParamClauses = function.paramClauses
-                        Console.println("allParamClauses" + allParamClauses)
 
                         def paramTypeAsString (param : ScParam) =
-                          if (param.paramType != null ) param.paramType.getText
+                          if (param.paramType != null ) param.paramType().getText
                           else ""
 
-                        def paramClauseAsString (paramClause : ScParamClause) : String =
-//                          if (paramClause != null)
-//                            if (paramClause.params != null)
-                              {
-                              Console.println("paramClause" + paramClause)
-                              Console.println("paramClause.params" + paramClause.params)
-                              paramClause.params.map[String](paramTypeAsString).mkString("(", ",", ")")
-                              }
+                        def paramClauseAsString (paramClause : ScParamClause) : String = {
+                            if (paramClause != null)
+                              if (paramClause.params != null)
+                                paramClause.params.map[String](paramTypeAsString).mkString("(", ",", ")")
+                              else ""
+                            else ""
+                          }
 
-//                            else ""
-//                          else ""
-
-//                        if (allParamClauses != null)
-                          Console.println("allParamClauses " + allParamClauses.elements.next)
+                        if (allParamClauses != null) {
                           val map = allParamClauses.map[String](paramClauseAsString)
-                          Console.println("map " + map)
-                          Console.println("mkString " + map.mkString("", "", ""))
-                          Console.println("map lenght " + map.elements.next)
                           map.mkString("", "", "")
-//                        else ""
+                        } else ""
                       }
 
                       case _ => null

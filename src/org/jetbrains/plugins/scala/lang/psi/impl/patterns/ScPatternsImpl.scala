@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement
 
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
   trait ScPatterns extends PsiElement
 
@@ -18,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
   trait ScPattern3 extends ScPattern2
 
-   case class ScTuplePatternImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+  case class ScTuplePatternImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
       override def toString: String = "Tuple pattern"
   }
 
@@ -28,6 +29,8 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
   case class ScPattern2Impl( node : ASTNode ) extends ScalaPsiElementImpl (node) with ScPattern2 {
       override def toString: String = "Binding pattern"
+
+      override def copy() : PsiElement = ScalaPsiElementFactory.createPattern2FromText(this.getText, this.getManager).getPsi
   }
 
   case class ScPattern3Impl( node : ASTNode ) extends ScalaPsiElementImpl (node) with ScPattern3 {
