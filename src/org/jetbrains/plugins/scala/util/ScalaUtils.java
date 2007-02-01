@@ -45,4 +45,22 @@ public abstract class ScalaUtils {
     return (module.getModuleFile().getParent());
   }
 
+  /**
+   * @param module Module to get content root
+   * @return VirtualFile corresponding to content root
+   */
+  @NotNull
+  public static String[] getModuleRootUrls(@NotNull final Module module) {
+    VirtualFile[] roots = ModuleRootManager.getInstance(module).getContentRoots();
+    if (roots.length == 0) {
+      roots = new VirtualFile[]{(module.getModuleFile().getParent())};
+    }
+    String[] urls = new String[roots.length];
+    int i = 0;
+    for (VirtualFile root : roots) {
+      urls[i++] = root.getUrl();
+    }
+    return urls;
+  }
+
 }

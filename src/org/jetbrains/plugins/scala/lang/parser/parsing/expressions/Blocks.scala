@@ -292,7 +292,7 @@ object BlockStat {
         blockStatMarker.rollbackTo
         ScalaElementTypes.WRONGWAY
       }
-    }
+    }                             
 
     if (ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)){
       Import.parseBody(builder)
