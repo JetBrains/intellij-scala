@@ -43,32 +43,31 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTempla
     }
 
     //todo: 
-    def getShortName = nameNode.getText
+    override def getName = nameNode.getText
 
     override def getTextOffset = nameNode.getTextRange.getStartOffset
 
     def isTypeDef : boolean = { this.isInstanceOf[ScTypeDef] }
 
     def getQualifiedName : String = {
-      def inner (e : PsiElement, acc : String) : String = {
+      def append (s1 : String, s2 : String) = {if (s1 == "")  s2 else s1 + "." + s2}
+
+      def inner (e : PsiElement) : String = {
         val parent = e.getParent
-        def append (s1 : String, s2 : String) = {if (s1 == "")  s2 else s1 + "." + s2}
-        append (
-          parent match {
-            case pack : ScPackaging => append (inner(parent, acc), pack.asInstanceOf[ScPackaging].getFullPackageName)
-            case tmplDef : ScTmplDef => append (inner(parent, acc), tmplDef.asInstanceOf[ScTmplDef].getName)
-            case f : ScalaFile => {
-              val packageStatement = f.getChild(ScalaElementTypes.PACKAGE_STMT).asInstanceOf[ScPackageStatement]
-              if (packageStatement == null) "" else {
-                val packageName = packageStatement.getFullPackageName
-                if (packageName == null) "" else packageName
-              }
+        parent match {
+          case pack: ScPackaging => append(inner(parent), pack.asInstanceOf[ScPackaging].getFullPackageName)
+          case tmplDef: ScTmplDef => tmplDef.asInstanceOf[ScTmplDef].getQualifiedName
+          case f: ScalaFile => {
+            val packageStatement = f.getChild(ScalaElementTypes.PACKAGE_STMT).asInstanceOf[ScPackageStatement]
+            if (packageStatement == null) "" else {
+              val packageName = packageStatement.getFullPackageName
+              if (packageName == null) "" else packageName
             }
-          },
-          getName)
+          }
+        }
       }
 
-      inner (this, "")
+      append (inner (this), getName)
     }
 
     import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
