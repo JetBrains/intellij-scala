@@ -87,8 +87,8 @@ object ScalaElementTypes {
   /************ function *************/
   val FUN_PARAM = PARAM
   //val FUN_PARAMS = new ScalaElementType("function parameters")
-  val FUN_PARAM_CLAUSE = new ScalaElementType("function parameter clause")
-  val FUN_PARAM_CLAUSES = new ScalaElementType("function parameter clauses")
+//  val FUN_PARAM_CLAUSE = new ScalaElementType("function parameter clause")
+//  val FUN_PARAM_CLAUSES = new ScalaElementType("function parameter clauses")
 
   /*************************************************************************************/
   /************************* TYPE PARAMETERS OF CLASS AND FUNCTIONS *************************/

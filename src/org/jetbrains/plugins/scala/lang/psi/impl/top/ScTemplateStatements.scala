@@ -84,15 +84,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
 //    def getFunSig : ScFunctionSignature = getFirstChild.asInstanceOf[ScFunctionSignature]
 
 //    private def isParamClauses = (e : PsiElement) => e.isInstanceOf[ScParamClauses]
-    private def isManyParamClauses = (getChild(ScalaElementTypes.FUN_PARAM_CLAUSES) != null)
-    private def getParamClausesNode : ScParamClauses = getChild(ScalaElementTypes.FUN_PARAM_CLAUSES).asInstanceOf[ScParamClauses]
+    private def isManyParamClauses = (getChild(ScalaElementTypes.PARAM_CLAUSES) != null)
+    private def getParamClausesNode : ScParamClauses = getChild(ScalaElementTypes.PARAM_CLAUSES).asInstanceOf[ScParamClauses]
 
 //    def  s () () : a
 
     def paramClauses : Iterable[ScParamClause] = {
+//      Console.println("getParamClausesNode" + getParamClausesNode)
+//      Console.println("getParamClausesNode.paramClauses " + getParamClausesNode.paramClauses)
       if (isManyParamClauses) return getParamClausesNode.paramClauses
 
-      childrenOfType[ScParamClause](TokenSet.create(Array(ScalaElementTypes.FUN_PARAM_CLAUSE)))
+//      Console.println("paramClauses " + childrenOfType[ScParamClause](TokenSet.create(Array(ScalaElementTypes.PARAM_CLAUSE))))
+
+      childrenOfType[ScParamClause](TokenSet.create(Array(ScalaElementTypes.PARAM_CLAUSE)))
     }
   }
 
