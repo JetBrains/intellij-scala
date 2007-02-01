@@ -76,7 +76,7 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
                myElement match {
                  case file : ScalaFile => file.getVirtualFile.getName
                  case packaging : ScPackaging => packaging.getFullPackageName
-                 case topDef : ScTmplDef => topDef.getShortName
+                 case topDef : ScTmplDef => topDef.getName
 
                  case templateStmt : ScTemplateStatement => {
                     val name = templateStmt.getShortName
