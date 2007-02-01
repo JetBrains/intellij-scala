@@ -8,9 +8,7 @@ import com.intellij.openapi.startup.StartupManager;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.components.ScalaComponents;
-import org.jetbrains.plugins.scala.cache.VirtualFileScanner;
-
-import java.util.Set;
+import org.jetbrains.plugins.scala.util.ScalaUtils;
 
 /**
  * @author Ilya.Sergey
@@ -46,6 +44,7 @@ public class ScalaModuleCachesManager implements ModuleComponent {
   public void moduleAdded() {
 
     myModuleFilesCache = new ScalaModuleCachesImpl(myModule);
+    myModuleFilesCache.setCacheUrls(new String[]{ScalaUtils.getModuleRoot(myModule).getUrl()});
 
     StartupManager.getInstance(myModule.getProject()).runPostStartup(new Runnable() {
       public void run() {
