@@ -90,6 +90,7 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
                     val paramTypesString = templateStmt match {
                       case function : ScFunction => {
                         val allParamClauses = function.paramClauses
+                        Console.println("allParamClauses" + allParamClauses)
 
                         def paramTypeAsString (param : ScParam) =
                           if (param.paramType != null ) param.paramType.getText
@@ -98,12 +99,22 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
                         def paramClauseAsString (paramClause : ScParamClause) : String =
 //                          if (paramClause != null)
 //                            if (paramClause.params != null)
+                              {
+                              Console.println("paramClause" + paramClause)
+                              Console.println("paramClause.params" + paramClause.params)
                               paramClause.params.map[String](paramTypeAsString).mkString("(", ",", ")")
+                              }
+
 //                            else ""
 //                          else ""
 
 //                        if (allParamClauses != null)
-                          allParamClauses.map[String](paramClauseAsString).mkString("", "", "")
+                          Console.println("allParamClauses " + allParamClauses.elements.next)
+                          val map = allParamClauses.map[String](paramClauseAsString)
+                          Console.println("map " + map)
+                          Console.println("mkString " + map.mkString("", "", ""))
+                          Console.println("map lenght " + map.elements.next)
+                          map.mkString("", "", "")
 //                        else ""
                       }
 
