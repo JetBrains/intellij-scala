@@ -44,6 +44,12 @@ public class ScalaLoader implements ApplicationComponent, Configurable {
             }
     );
 
+
+/*
+    System.out.println("STF="+ScalaToolsFactory.getInstance());
+    assert (ScalaToolsFactory.getInstance() != null);
+*/
+
     CompletionUtil.registerCompletionData(ScalaFileType.SCALA_FILE_TYPE,
             ScalaToolsFactory.getInstance().createScalaCompletionData());
 
