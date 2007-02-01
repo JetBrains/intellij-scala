@@ -214,7 +214,10 @@ class Pattern2 {
  def parse(builder : PsiBuilder) : ScalaElementType = {
     var rbMarker = builder.mark()
 
+    val p2m = builder.mark()
+
     def parsePattern3: ScalaElementType = {
+      p2m.drop()
       var result = Pattern3.parse(builder)
       if (ScalaElementTypes.PATTERN3.equals(result)) {
         ScalaElementTypes.PATTERN2
@@ -232,9 +235,11 @@ class Pattern2 {
         rbMarker.drop()
         var res = Pattern3.parse(builder)
         if (ScalaElementTypes.PATTERN3.equals(res)){
+          p2m.done(ScalaElementTypes.PATTERN2)
           ScalaElementTypes.PATTERN2
         } else {
           builder.error("Wrong simple pattern(s)")
+          p2m.done(ScalaElementTypes.PATTERN2)
           ScalaElementTypes.WRONGWAY
         }
       } else {
