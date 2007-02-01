@@ -24,8 +24,3 @@ trait ScResExpr extends ScBlock
 
 trait ScBlock extends PsiElement 
 
-//trait ScPostfixExprImpl extends ScExpr1Impl
-
-//trait ScPrefixExprImpl extends ScInfixExprImpl
-
-//trait ScSimpleExprImpl extends ScPrefixExprImpl
