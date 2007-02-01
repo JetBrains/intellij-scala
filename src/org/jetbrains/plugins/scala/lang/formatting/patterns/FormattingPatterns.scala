@@ -22,6 +22,8 @@ package indent {
   */
   trait IfElseIndent
 
+  trait CondIndent
+
 }
 
 package spacing {

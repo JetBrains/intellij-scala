@@ -176,7 +176,11 @@ object ScalaElementTypes {
   val CONSTR_EXPR = new ScalaElementType("constructor expression")
   val SELF_INVOCATION = new ScalaElementType("self invocation")
 
-  val SUPPLEMENTARY_CONSTRUCTOR = new ScalaElementType("supplementary constructor")  
+  val SUPPLEMENTARY_CONSTRUCTOR = new ScalaElementType("supplementary constructor")
+
+    /***************** types ******************/
+  val LOWER_BOUND_TYPE = new ScalaElementType("lower bound type")
+  val UPPER_BOUND_TYPE = new ScalaElementType("upper bound type")
 
   /*************************************************************************************/
   /******************************* MODIFIERS AND ATTRIBUTES ****************************/
@@ -397,6 +401,40 @@ object ScalaElementTypes {
           BLOCK_STAT
         )
       )  
+    )
+  )
+
+  val SIMPLE_EXPR_BIT_SET = TokenSet.create(
+    Array.apply(
+      SIMPLE_EXPR,
+      LITERAL,
+      PATH,
+      BLOCK_EXPR
+    )
+  )
+
+  val STABLE_ID_BIT_SET = TokenSet.create(
+    Array(
+      STABLE_ID,
+      ScalaTokenTypes.tIDENTIFIER
+    )
+  )
+
+  //todo: add clauses
+  val PATTERN2_BIT_SET = TokenSet.orSet(
+    Array (
+      TokenSet.create(
+        Array.apply(
+          PATTERN3,
+          SIMPLE_PATTERN,
+          LITERAL,
+          STABLE_ID,
+          UNIT,
+          ScalaTokenTypes.tUNDER
+          //([Patterns])
+         //XML_PATTERN
+        )
+      ), STABLE_ID_BIT_SET
     )
   )
 }

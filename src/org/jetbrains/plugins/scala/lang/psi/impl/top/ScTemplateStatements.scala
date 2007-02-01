@@ -25,27 +25,8 @@ import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
 
-  trait Function extends TemplateStatement {
-    def getFunSig : ScFunctionSignature = getFirstChild.asInstanceOf[ScFunctionSignature]
-
-    //todo: stableId as identifier problem
-//    private def isType = (e : PsiElement) => e.isInstanceOf[ScType]
-    def isType = (e : IElementType) => ScalaElementTypes.TYPE_BIT_SET.contains(e)
-
-    def getType : ScType = {
-      val theNames = names
-      val listNames = theNames.toList;
-      if (theNames != null && listNames.last != null) {
-//        childSatisfyPredicateForPsiElement(isType, listNames.last.getNextSibling).asInstanceOf[ScType]
-        childSatisfyPredicateForElementType(isType, listNames.last.getNextSibling).asInstanceOf[ScType]
-      } else null
-    }
-  }
-
   trait TemplateStatement extends ScalaPsiElement {
-    override def copy() : PsiElement = {
-      DclDef.createTemplateStatementFromText(this.getText, this.getManager).getPsi()
-    }
+    override def copy() : PsiElement = DclDef.createTemplateStatementFromText(this.getText, this.getManager).getPsi()
 
     private def isDefinitionPredicate = (elementType : IElementType) => (elementType == ScalaTokenTypes.kTHIS)
 
@@ -58,7 +39,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
       if (!isManyDeclarations) return Array(this.copy.asInstanceOf[TemplateStatement])
 
       val theNames = names
-
       for (val name <- theNames) yield {
         val thisCopy : TemplateStatement = this.copy.asInstanceOf[TemplateStatement]
 
@@ -67,8 +47,24 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
       }
     }
 
-    def getShortName : String = {
 
+    [Nullable]
+    def getType : ScType = {
+      def isType = (e : IElementType) => ScalaElementTypes.TYPE_BIT_SET.contains(e)
+
+//      val theNames = names
+//      val listNames = theNames.toList
+//      if (theNames != null && listNames.last != null) {
+
+//        childSatisfyPredicateForElementType(isType, listNames.last.getNextSibling).asInstanceOf[ScType]
+//      } else null
+      val colon = getChild(ScalaTokenTypes.tCOLON)
+      if (colon == null) return null
+
+      childSatisfyPredicateForElementType(isType, colon.getNextSibling).asInstanceOf[ScType]
+    }
+
+    def getShortName : String = {
       val theName = names.elements.next
       if (theName != null) theName.getText
       else "no name"
@@ -80,9 +76,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
       else this.getTextRange.getStartOffset
     }
 
-    private def isManyDeclarations : Boolean = (getChild(ScalaElementTypes.IDENTIFIER_LIST) != null)
-
-    private def getDeclarations : ScIdentifierList = getChild(ScalaElementTypes.IDENTIFIER_LIST).asInstanceOf[ScIdentifierList]
+    protected def isManyDeclarations : Boolean = (getChild(ScalaElementTypes.IDENTIFIER_LIST) != null)
+    protected def getDeclarations : ScalaPsiElement = getChild(ScalaElementTypes.IDENTIFIER_LIST).asInstanceOf[ScalaPsiElement]
 
     [NotNull]
     protected def names : Iterable[PsiElement] = {
@@ -91,27 +86,49 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
 
       childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER)))
     }
+  }
 
+  trait Function extends TemplateStatement {
+    def getFunSig : ScFunctionSignature = getFirstChild.asInstanceOf[ScFunctionSignature]
+  }
+
+  trait Type extends TemplateStatement {
+//    override def getType = null
+
+    [Nullable]
+    def getLowerBoundType = {
+      val lowerBound = getChild(ScalaElementTypes.LOWER_BOUND_TYPE)
+      if (lowerBound != null) lowerBound.asInstanceOf[ScalaPsiElement].getLastChild
+      else null
+    }
+
+    [Nullable]
+    def getUpperBoundType = {
+      val upperBound = getChild(ScalaElementTypes.UPPER_BOUND_TYPE)
+      if (upperBound != null) upperBound.asInstanceOf[ScalaPsiElement].getLastChild
+      else null
+    }
   }
 
   /***************** definition ***********************/
 
   trait  Definition extends TemplateStatement {
     override def toString: String = "definition"
+
+//    def getExpr =
   }
 
   case class ScPatternDefinition (node : ASTNode) extends ScalaPsiElementImpl(node) with Definition with IfElseIndent{
     override def toString: String = "pattern" + " " + super.toString
 
-    private def isManyDeclarations = (getChild(ScalaElementTypes.PATTERN2_LIST) != null)
-
-    private def getDeclarations : ScPattern2List = getChild(ScalaElementTypes.PATTERN2_LIST).asInstanceOf[ScPattern2List]
+    override def isManyDeclarations = (getChild(ScalaElementTypes.PATTERN2_LIST) != null)
+    override def getDeclarations : ScalaPsiElement = getChild(ScalaElementTypes.PATTERN2_LIST).asInstanceOf[ScalaPsiElement]
 
     [NotNull]
     override def names : Iterable[PsiElement] = {
-      if (isManyDeclarations) return getDeclarations.childrenOfType[PsiElement](TokenSet.create(Array(ScalaElementTypes.PATTERN2)))
+      if (isManyDeclarations) return getDeclarations.childrenOfType[PsiElement](ScalaElementTypes.PATTERN2_BIT_SET)
 
-      childrenOfType[PsiElement](TokenSet.create(Array(ScalaElementTypes.PATTERN2)))
+      childrenOfType[PsiElement](ScalaElementTypes.PATTERN2_BIT_SET)
     }
   }
 
@@ -137,8 +154,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
     override def toString: String = "supplementary constructor"
   }
 
-
-  case class ScTypeDefinition (node : ASTNode) extends ScalaPsiElementImpl(node) with Definition {
+  case class ScTypeDefinition (node : ASTNode) extends ScalaPsiElementImpl(node) with Definition with Type {
     override def toString: String = "type" + " " + super.toString
   }
 
@@ -160,7 +176,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
     override def toString: String = "function" + " " + super.toString
   }
 
-  case class ScTypeDeclaration (node : ASTNode) extends ScalaPsiElementImpl(node) with Declaration  {
+  case class ScTypeDeclaration (node : ASTNode) extends ScalaPsiElementImpl(node) with Declaration with Type {
     override def toString: String = "type" + " " + super.toString
   }
 

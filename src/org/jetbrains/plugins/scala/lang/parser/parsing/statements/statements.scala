@@ -410,24 +410,30 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
           var isTypeDcl = false;
           if (ScalaTokenTypes.tLOWER_BOUND.equals(builder.getTokenType)) {
+            val lowerBoundMarker = builder.mark
             ParserUtils.eatElement(builder, ScalaTokenTypes.tLOWER_BOUND)
 
             if (BNF.firstType.contains(builder.getTokenType)) {
               Type parse builder
               isTypeDcl = true
+              lowerBoundMarker.done(ScalaElementTypes.LOWER_BOUND_TYPE)
             } else {
               builder error "wrong type declaration"
+              lowerBoundMarker.drop()
             }
           }
 
           if (ScalaTokenTypes.tUPPER_BOUND.equals(builder.getTokenType)) {
+            val upperBoundMarker = builder.mark
             ParserUtils.eatElement(builder, ScalaTokenTypes.tUPPER_BOUND)
 
             if (BNF.firstType.contains(builder.getTokenType)) {
               Type parse builder
               isTypeDcl = true
+              upperBoundMarker.done(ScalaElementTypes.UPPER_BOUND_TYPE)
             } else {
               builder error "wrong type declaration"
+              upperBoundMarker.drop()
             }
           }
 

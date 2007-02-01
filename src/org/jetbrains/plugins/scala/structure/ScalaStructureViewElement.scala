@@ -79,18 +79,12 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
                  case topDef : ScTmplDef => topDef.getShortName
 
                  case templateStmt : TemplateStatement => {
-                  val name = templateStmt.getShortName
+                    val name = templateStmt.getShortName
 
-                  val stmtType = templateStmt match {
-                    case funDcl : ScFunctionDeclaration => ":" + funDcl.getType.getText
-                    /*case funDef : ScFunctionDefinition => {
-                      val funType = funDef.getType;
-                      if (funType != null) ":" + funType else ""
-                    }*/
-                    case _ => ""
-                  }
+                    val stmtType = templateStmt.getType
 
-                  name + stmtType
+                    if (stmtType != null) name + ":" + stmtType.getText
+                    else name
                  }
 
                  case _ => ""
