@@ -38,6 +38,7 @@ public class ScalaInfoFactory {
       System.out.println(myClass.getQualifiedName());
     }
 
+
 /*
         javaPsi
 
