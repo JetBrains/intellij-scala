@@ -217,7 +217,6 @@ class Pattern2 {
     val p2m = builder.mark()
 
     def parsePattern3: ScalaElementType = {
-      p2m.drop()
       var result = Pattern3.parse(builder)
       if (ScalaElementTypes.PATTERN3.equals(result)) {
         ScalaElementTypes.PATTERN2
@@ -243,6 +242,7 @@ class Pattern2 {
           ScalaElementTypes.WRONGWAY
         }
       } else {
+        p2m.drop()
         rbMarker.rollbackTo()
         rbMarker = builder.mark()
         var result = parsePattern3
@@ -257,6 +257,7 @@ class Pattern2 {
         }
       }
     } else {
+      p2m.drop()
       rbMarker.drop()
       parsePattern3
     }
