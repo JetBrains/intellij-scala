@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
  */
 
 class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureViewElement extends StructureViewTreeElement {
-  private var myElement : PsiElement = element
+  private val myElement : PsiElement = element
 
   override def getValue() : PsiElement = myElement
 
@@ -47,27 +47,37 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
 
   override def getChildren() : Array[TreeElement] = {
     var childrenElements: ArrayBuffer[ScalaPsiElement] = new ArrayBuffer[ScalaPsiElement]();
+    var stmtStructureViewElements : ArrayBuffer[ScalaStructureViewElement] = new ArrayBuffer[ScalaStructureViewElement]();
+    val result : ArrayBuffer[TreeElement] = new ArrayBuffer[TreeElement]()
 
     //todo: add inherited methods
     myElement match {
       case file : ScalaFile => childrenElements ++= file.getPackaging; childrenElements ++= file.childrenOfType[ScTmplDef](ScalaElementTypes.TMPL_DEF_BIT_SET)
       case packaging : ScPackaging if (packaging.getTmplDefs != null) => childrenElements ++= packaging.getTmplDefs
+
       case topDef : ScTmplDef => {
+        if (topDef.getTmplDefs != null) childrenElements ++= topDef.getTmplDefs
+
         val templateStmts = topDef.getTemplateStatements
 
-        if (templateStmts != null) childrenElements ++= {
-          val bigIter = for (val stmt <- templateStmts; stmt != null) yield stmt.asDisjunctNodes
+        if (templateStmts != null) stmtStructureViewElements ++= {
+          val bigIter = for (val stmt <- templateStmts; stmt != null) yield elementAsDisjunctStructureViewElements(stmt)
 
           bigIter.flatMap(x => x)
+//          templateStmts
         }
-
-        if (topDef.getTmplDefs != null) childrenElements ++= topDef.getTmplDefs
       }
       case _ => {}
     }
 
-    for ( val i <- Array.range(0, childrenElements.length))
-      yield (new ScalaStructureViewElement(childrenElements.apply(i))).asInstanceOf[TreeElement]
+    result ++= (for ( val i <- Array.range(0, childrenElements.length))
+                   yield (new ScalaStructureViewElement(childrenElements.apply(i))).asInstanceOf[TreeElement])
+
+    result ++= stmtStructureViewElements
+
+    val ar : Array[TreeElement] = new Array(result.length)
+    result.copyToArray (ar, 0)
+    ar
   }
 
   override def getPresentation() : ItemPresentation = {
@@ -124,7 +134,7 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
                     if (typeParamClause != null) result = result + typeParamClause.getText
                     if (paramTypesString != null) result = result + paramTypesString
                     if (stmtType != null) result = result + ":" + stmtType.getText
-                    if (exprPresentage != null) result = result + " = " + exprPresentage.getText
+//                    if (exprPresentage != null) result = result + " = " + exprPresentage.getText
 
                     result
                  }
@@ -141,6 +151,30 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
         }
     }
 
-}
+
+    private def elementAsDisjunctStructureViewElements (element : ScTemplateStatement) : Iterable[ScalaStructureViewElement] = {
+      val psiElement = element
+      if (!psiElement.isManyDeclarations) return Array(new ScalaStructureViewElement(psiElement))
+
+      val theNames = psiElement.names
+
+      for (val name <- theNames) yield {
+        new ScalaStructureViewElement(psiElement) {
+          override def getPresentation() : ItemPresentation = {
+            new ItemPresentation() {
+              override def getPresentableText() : String = {
+                   name.getText
+                }
+
+             override def getTextAttributesKey() : TextAttributesKey = null
+             override def getLocationString() : String  = null
+             override def getIcon(open : Boolean) : Icon = myElement.getIcon(Iconable.ICON_FLAG_OPEN);
+            }
+          }
+        }
+      }
+    }
+
+ }
 
 }

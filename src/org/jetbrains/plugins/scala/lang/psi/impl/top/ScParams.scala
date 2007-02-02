@@ -44,7 +44,6 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
     def paramClauses : Iterable[ScParamClause] = {
 //      if (this.isInstanceOf[ScParamClause]) return Array(this)
 
-      Console.println("ScParamClauses: paramClauses" + childrenOfType[ScParamClause](TokenSet.create(Array(ScalaElementTypes.PARAM_CLAUSE))))
       childrenOfType[ScParamClause](TokenSet.create(Array(ScalaElementTypes.PARAM_CLAUSE)))
     }
 

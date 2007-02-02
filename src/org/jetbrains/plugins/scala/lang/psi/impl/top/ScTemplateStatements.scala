@@ -35,22 +35,22 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
     def isConstructor = (childSatisfyPredicateForElementType(isThis) != null)
 
-    [NotNull]
-    def asDisjunctNodes : Iterable[ScTemplateStatement] = {
-      if (!isManyDeclarations) return Array(this.copy.asInstanceOf[ScTemplateStatement])
-
-      val theNames = names
-      for (val name <- theNames) yield {
-        val thisCopy : ScTemplateStatement = this.copy.asInstanceOf[ScTemplateStatement]
-        val declarations = thisCopy.getDeclarations
-        val nameCopy = name.copy
-
-        if (declarations != null && nameCopy != null) {
-          thisCopy.getNode.replaceChild(declarations.getNode, nameCopy.getNode); thisCopy
-        }
-        else thisCopy
-      } 
-    }
+//    [NotNull]
+//    def asDisjunctNodes : Iterable[ScTemplateStatement] = {
+//      if (!isManyDeclarations) return Array(this.copy.asInstanceOf[ScTemplateStatement])
+//
+//      val theNames = names
+//      for (val name <- theNames) yield {
+//        val thisCopy : ScTemplateStatement = this.copy.asInstanceOf[ScTemplateStatement]
+//        val declarations = thisCopy.getDeclarations
+//        val nameCopy = name.copy
+//
+//        if (declarations != null && nameCopy != null) {
+//          thisCopy.getNode.replaceChild(declarations.getNode, nameCopy.getNode); thisCopy
+//        }
+//        else thisCopy
+//      }
+//    }
 
     [Nullable]
     def getType : ScalaPsiElement = {
@@ -73,11 +73,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
       else this.getTextRange.getStartOffset
     }
 
-    protected def isManyDeclarations : Boolean = (getChild(ScalaElementTypes.IDENTIFIER_LIST) != null)
-    protected def getDeclarations : ScalaPsiElement = getChild(ScalaElementTypes.IDENTIFIER_LIST).asInstanceOf[ScalaPsiElement]
+    /*protected*/ def isManyDeclarations : Boolean = (getChild(ScalaElementTypes.IDENTIFIER_LIST) != null)
+    /*protected*/ def getDeclarations : ScalaPsiElement = getChild(ScalaElementTypes.IDENTIFIER_LIST).asInstanceOf[ScalaPsiElement]
 
     [NotNull]
-    protected def names : Iterable[PsiElement] = {
+    /*protected*/ def names : Iterable[PsiElement] = {
       if (isManyDeclarations) return getDeclarations.childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER)))
       if (isConstructor) return childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.kTHIS)))
 
