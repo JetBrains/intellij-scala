@@ -64,7 +64,8 @@ object BNF {
        ScalaTokenTypes.tIDENTIFIER,
        ScalaTokenTypes.tUNDER,
        ScalaElementTypes.LITERAL,
-       ScalaTokenTypes.tLPARENTHIS
+       ScalaTokenTypes.tLPARENTHIS,
+       ScalaTokenTypes.tLBRACE
     )
   )
 
