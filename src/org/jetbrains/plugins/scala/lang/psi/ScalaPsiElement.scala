@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiElement            
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.TokenSet
 
