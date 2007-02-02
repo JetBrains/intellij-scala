@@ -156,7 +156,8 @@ END_OF_LINE_COMMENT="/""/"[^\r\n]*
 
 ESCAPE_SEQUENCE=\\[^\r\n]
 CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE})*("'"|\\)
-STRING_LITERAL=\"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*(\"|\\)?
+STRING_LITERAL=\"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*(\"|\\)? |
+                \"\"\" ( (\"(\")?)? [^\"] )* \"\"\"    // Multi-line string
 
 charEscapeSeq = \\[^\r\n]
 charNoDoubleQuote = !( ![^"\""] | {LineTerminator})
