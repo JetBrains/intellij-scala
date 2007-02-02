@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ArgumentExprs
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockStat
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
     object DclDef extends ConstrUnpredict {
@@ -264,6 +264,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           if (BNF.firstFunSig.contains(builder.getTokenType)) {
             FunSig parse builder
 
+          if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
+          }
+
+          if (BNF.firstBlock.contains(builder.getTokenType)) {
+            Block.parse(builder, false)
+            return ScalaElementTypes.FUNCTION_DEFINITION
+          }
 
           var hasTypeDcl = false
           if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
@@ -278,25 +286,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
           }
 
-/*
-        if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
-          if (!hasTypeDcl) {
-            builder error "wrong function declaration"
-          }
-          return ScalaElementTypes.FUNCTION_DECLARATION
-        } else {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
-          DebugPrint println ("parsing expression after '=' : " + builder.getTokenType)
-
-          if (BNF.firstExpr.contains(builder.getTokenType)) {
-            Expr parse builder
-          } else {
-            builder error "wrong start of expression"
-          }
-
-          return ScalaElementTypes.FUNCTION_DEFINITION
-        }
-*/
 
         if (ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)

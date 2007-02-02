@@ -34,10 +34,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
  * Time: 17:50:40
  */
 
-class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureViewElement extends StructureViewTreeElement {
-  private val myElement : PsiElement = element
+class ScalaStructureViewElement (element : ScalaPsiElement) requires ScalaStructureViewElement extends StructureViewTreeElement {
+  private val myElement : ScalaPsiElement = element
 
-  override def getValue() : PsiElement = myElement
+  override def getValue() : PsiElement = myElement.asInstanceOf[ScalaPsiElement]
 
   override def navigate(requestFocus : Boolean) : Unit = (myElement.asInstanceOf[NavigationItem]).navigate(requestFocus)
 
@@ -64,7 +64,6 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
           val bigIter = for (val stmt <- templateStmts; stmt != null) yield elementAsDisjunctStructureViewElements(stmt)
 
           bigIter.flatMap(x => x)
-//          templateStmts
         }
       }
       case _ => {}
@@ -75,80 +74,21 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
 
     result ++= stmtStructureViewElements
 
-    val ar : Array[TreeElement] = new Array(result.length)
-    result.copyToArray (ar, 0)
-    ar
+    val resultAsArray : Array[TreeElement] = new Array(result.length)
+    result.copyToArray (resultAsArray, 0)
+    resultAsArray
   }
 
   override def getPresentation() : ItemPresentation = {
-        new ItemPresentation() {
-             def getPresentableText() : String = {
-               myElement match {
-                 case file : ScalaFile => file.getVirtualFile.getName
-                 case packaging : ScPackaging => packaging.getFullPackageName
-                 case topDef : ScTmplDef => topDef.getName
-
-                 case templateStmt : ScTemplateStatement => {
-                    val name = templateStmt.getShortName
-
-                    val typeParamClause = templateStmt match {
-                      case function : ScFunction => function.getTypeParamClause
-                      case typeDefinition : ScTypeDefinition => typeDefinition.getTypeParamClause
-                      case _ => null
-                    }
-
-                    val paramTypesString = templateStmt match {
-                      case function : ScFunction => {
-                        val allParamClauses = function.paramClauses
-
-                        def paramTypeAsString (param : ScParam) =
-                          if (param.paramType != null ) param.paramType().getText
-                          else ""
-
-                        def paramClauseAsString (paramClause : ScParamClause) : String = {
-                            if (paramClause != null)
-                              if (paramClause.params != null)
-                                paramClause.params.map[String](paramTypeAsString).mkString("(", ",", ")")
-                              else ""
-                            else ""
-                          }
-
-                        if (allParamClauses != null) {
-                          val map = allParamClauses.map[String](paramClauseAsString)
-                          map.mkString("", "", "")
-                        } else ""
-                      }
-
-                      case _ => null
-                    }
-
-                    val exprPresentage : ScalaPsiElement = templateStmt match {
-                      case functionDef : ScFunctionDefinition => null
-                      case definition : ScDefinition => definition.getExpr
-                      case _ => null
-                    }
-
-                    val stmtType = templateStmt.getType
-
-                    var result = name
-                    if (typeParamClause != null) result = result + typeParamClause.getText
-                    if (paramTypesString != null) result = result + paramTypesString
-                    if (stmtType != null) result = result + ":" + stmtType.getText
-//                    if (exprPresentage != null) result = result + " = " + exprPresentage.getText
-
-                    result
-                 }
-
-                 case _ => ""
-               }
-            }
-
-             override def getTextAttributesKey() : TextAttributesKey = null
-
-             override def getLocationString() : String  = null
-
-             override def getIcon(open : Boolean) : Icon = myElement.getIcon(Iconable.ICON_FLAG_OPEN);
+    new ItemPresentation() {
+        def getPresentableText() : String = {
+          ScalaStructureViewPresentationFormat.presentationText(myElement)
         }
+
+         override def getTextAttributesKey() : TextAttributesKey = null
+         override def getLocationString() : String  = null
+         override def getIcon(open : Boolean) : Icon = myElement.getIcon(Iconable.ICON_FLAG_OPEN);
+    }
     }
 
 
@@ -163,12 +103,11 @@ class ScalaStructureViewElement (element : PsiElement) requires ScalaStructureVi
           override def getPresentation() : ItemPresentation = {
             new ItemPresentation() {
               override def getPresentableText() : String = {
-                   name.getText
-                }
-
-             override def getTextAttributesKey() : TextAttributesKey = null
-             override def getLocationString() : String  = null
-             override def getIcon(open : Boolean) : Icon = myElement.getIcon(Iconable.ICON_FLAG_OPEN);
+                ScalaStructureViewPresentationFormat.presentationText(name.getText, psiElement)
+              }
+              override def getTextAttributesKey() : TextAttributesKey = null
+              override def getLocationString() : String  = null
+              override def getIcon(open : Boolean) : Icon = myElement.getIcon(Iconable.ICON_FLAG_OPEN)
             }
           }
         }

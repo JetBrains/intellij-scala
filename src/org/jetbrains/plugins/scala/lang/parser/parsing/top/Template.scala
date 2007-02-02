@@ -53,7 +53,7 @@ object Template extends Constr{
     override def first = BNF.firstTemplateParents
     
     override def parseBody(builder : PsiBuilder) : Unit = {
-      if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+      if (BNF.firstTemplateParents.contains(builder.getTokenType)) {
         Constructor.parse(builder)
       } else builder.error("expected identifier")
 

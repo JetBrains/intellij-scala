@@ -248,7 +248,7 @@ object TmplDef extends ConstrWithoutNode {
           builder.error("expected 'extends'")
         }
 
-        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
+        if (BNF.firstTemplateParents.contains(builder.getTokenType)){
           new TemplateParents parse builder
         } else {
           builder.error("expected identifier")

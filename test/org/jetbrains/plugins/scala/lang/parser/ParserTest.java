@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.parser;
 
 import com.intellij.psi.*;
 import com.intellij.psi.impl.DebugUtil;
-import junit.framework.Assert;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
@@ -10,7 +9,7 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 
 public class ParserTest extends BaseScalaFileSetTestCase {
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/data/patterns";
+  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/data/stmts";
   //private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/data/actual";
 
   public ParserTest() {

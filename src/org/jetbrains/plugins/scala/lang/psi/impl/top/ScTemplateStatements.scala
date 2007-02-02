@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-  trait ScTemplateStatement extends ScalaPsiElement{
+  trait ScTemplateStatement extends ScalaPsiElement {
     override def copy() : PsiElement = ScalaPsiElementFactory.createTemplateStatementFromText(this.getText, this.getManager).getPsi
 
     private def isDefinitionPredicate = (elementType : IElementType) => (elementType == ScalaTokenTypes.kTHIS)
