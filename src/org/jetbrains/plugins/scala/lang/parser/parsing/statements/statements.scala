@@ -264,14 +264,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
           if (BNF.firstFunSig.contains(builder.getTokenType)) {
             FunSig parse builder
 
-          if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
-          }
+//          if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
+//            ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
+//          }
 
-          if (BNF.firstBlock.contains(builder.getTokenType)) {
-            Block.parse(builder, false)
-            return ScalaElementTypes.FUNCTION_DEFINITION
-          }
+//          if (BNF.firstBlock.contains(builder.getTokenType)) {
+//            Block.parse(builder, false)
+//            return ScalaElementTypes.FUNCTION_DEFINITION
+//          }
 
           var hasTypeDcl = false
           if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
