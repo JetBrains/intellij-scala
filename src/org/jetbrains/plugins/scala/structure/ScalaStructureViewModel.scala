@@ -7,6 +7,7 @@ import com.intellij.ide.util.treeView.smartTree.Grouper;
 import com.intellij.ide.util.treeView.smartTree.Sorter;
 import com.intellij.ide.util.treeView.smartTree.Filter;
 import com.intellij.psi._;
+import org.jetbrains.annotations._
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
@@ -25,19 +26,16 @@ class ScalaStructureViewModel (root : PsiElement) extends TextEditorBasedStructu
 
 //  final val SUITABLE_CLASSES : Array[Class] = Array.apply(ScTmplDef)
 
-
   //is Element suitable
-//  override def isElementSuitable = null
+  override def getRoot() : ScalaStructureViewElement = new ScalaStructureViewElement(myRoot.asInstanceOf[ScalaPsiElement])
 
-  override def getRoot() : ScalaStructureViewElement = new ScalaStructureViewElement(myRoot)
-
-  //@NotNull
+  [NotNull]
   override def getGroupers() : Array [Grouper] = Grouper.EMPTY_ARRAY
 
-//  @NotNull
+  [NotNull]
   override def getSorters() : Array[Sorter] = { val ar = new Array[Sorter](1); ar.update(0, Sorter.ALPHA_SORTER); ar }
 
-//  @NotNull
+  [NotNull]
   override def getFilters() : Array[Filter] = Filter.EMPTY_ARRAY;
 
 }

@@ -370,6 +370,32 @@ object BNF {
     )
   )
 
+  val firstBindings = TokenSet.create(
+    Array(
+      ScalaTokenTypes.tLBRACE
+    )
+  )
+
+  //todo: expr -> expr1
+   val firstResultExpr : TokenSet = TokenSet.orSet(
+    Array (
+      firstBindings,
+      firstExpr,
+      TokenSet.create(
+        Array(
+          ScalaTokenTypes.tIDENTIFIER
+        )
+      )
+    )
+  )
+
+  val firstBlock : TokenSet = TokenSet.orSet(
+    Array (
+      firstBlockStat,
+      firstResultExpr
+    )
+  )
+
   val firstDclDefKeywords = TokenSet.create(
     Array(
       ScalaTokenTypes.kVAL,
