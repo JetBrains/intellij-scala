@@ -31,7 +31,7 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
     parseOutput(text);
   }
 
-  private static final String ourErrorMarker = " error:";
+  private static final String ourErrorMarker = ": error:";
   private static final String ourInfoMarkerStart = "[";
   private static final String ourInfoMarkerEnd = "]";
   private static final String ourParsingMarker = "parsing";
