@@ -20,7 +20,8 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
  * Time: 19:53:33
  */
 class ScalaFile(viewProvider: FileViewProvider)
-extends PsiFileBase (viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage()) {
+extends PsiFileBase (viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
+with ScalaPsiElement {
 
   override def getViewProvider() = {
     viewProvider
@@ -45,34 +46,4 @@ extends PsiFileBase (viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage()) 
     })
   }
 
-  def childrenOfType[T >: Null <: ScalaPsiElementImpl](tokSet: TokenSet): Iterable[T] = new Iterable[T] () {
-    def elements = new Iterator[T] () {
-      private def findChild(child: ASTNode): ASTNode = child match {
-        case null => null
-        case _ =>
-          if (tokSet.contains(child.getElementType())) child else findChild(child.getTreeNext)
-      }
-
-      val first = getFirstChild
-      var n: ASTNode = if (first == null) null else findChild(first.getNode)
-
-      def hasNext = n != null
-
-      def next: T =  if (n == null) null else {
-        val res = n
-        n = findChild(n.getTreeNext)
-        res.getPsi().asInstanceOf[T]
-      }
-    }
-  }
-
-  [Nullable]
-  def getChild(elemType: IElementType): PsiElement = {
-    def inner(e: PsiElement): PsiElement = e match {
-      case null => null
-      case _ => if (e.getNode.getElementType == elemType) e else inner(e.getNextSibling())
-    }
-
-    inner(getFirstChild())
-  }
 }

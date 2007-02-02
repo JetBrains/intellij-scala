@@ -119,7 +119,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
       if (upperBound != null) upperBound.asInstanceOf[ScalaPsiElement].getLastChild
       else null
     }
+
   }
+
+
 
   /***************** definition ***********************/
 
