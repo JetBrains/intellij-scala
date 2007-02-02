@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
-  /**
+  /** 
   * @author Ilya Sergey
   */
   import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
