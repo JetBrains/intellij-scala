@@ -2,16 +2,17 @@ package org.jetbrains.plugins.scala.cache;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.project.Project;
-
-import java.util.Set;
-import java.util.HashSet;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.cache.info.ScalaFileInfo;
 import org.jetbrains.plugins.scala.cache.info.ScalaInfoFactory;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Ilya.Sergey
@@ -36,10 +37,10 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
   /**
    * Refreshes cache
    *
-   * @param runProcessWithProgressSynchronously
+   * @param synchronously
    *
    */
-  private void refreshCache(boolean runProcessWithProgressSynchronously) {
+  private void refreshCache(boolean synchronously) {
     Runnable refreshCache = new Runnable() {
       public void run() {
         final ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
@@ -50,7 +51,7 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
       }
     };
 
-    if (runProcessWithProgressSynchronously) {
+    if (synchronously) {
 //      final String message = creatingCache ? RBundle.message("title.cache.creating", myCacheName) : RBundle.message("title.cache.updating", myCacheName);
       final String message = "Creating caches";
       ProgressManager.getInstance().runProcessWithProgressSynchronously(refreshCache, message, false, myProject);
@@ -135,7 +136,8 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
         progressIndicator.setText("Processing " + root.getPresentableUrl());
         //progressIndicator.setText(RBundle.message("title.cache.files.scanning", root.getPresentableUrl()));
       }
-      VirtualFileScanner.addScalaFiles(root, filesToAdd);
+      ProjectFileIndex index = ProjectRootManager.getInstance(myProject).getFileIndex();
+      VirtualFileScanner.addScalaFiles(root, filesToAdd, index);
     }
 
     return filesToAdd;
