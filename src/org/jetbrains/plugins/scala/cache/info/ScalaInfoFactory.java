@@ -39,18 +39,31 @@ public class ScalaInfoFactory {
       return null;
     }
 
-/*
-    String classNames[] = new String[classes.length];
-    for (int i=0; i< classes.length; i++) {
-      classNames[i] = classes[i].getQualifiedName();
-    }
-*/
-
     ScalaFileInfo fileInfo = new ScalaFileInfoImpl(file.getName(), parentDirUrl, file.getTimeStamp());
     fileInfo.setClasses(classes);
 
     return fileInfo;
   }
 
+
+  /**
+   * Creates new ScalaFileInfo for given file
+   *
+   * @param project Current project
+   * @param file    current file
+   * @return ScalaFileInfo object containing information about file
+   *         or null if file cannot be found or isn`t ruby file
+   */
+  public static  PsiJavaFile createPsiFile(@NotNull final Project project, @NotNull final VirtualFile file) {
+    if (!file.isValid()) {
+      return null;
+    }
+
+    final PsiManager myPsiManager = PsiManager.getInstance(project);
+    PsiFile psiFile = myPsiManager.findFile(file);
+    FileViewProvider provider = psiFile.getViewProvider();
+    PsiJavaFile javaPsi = (PsiJavaFile) provider.getPsi(StdLanguages.JAVA);
+    return javaPsi;
+  }
 
 }

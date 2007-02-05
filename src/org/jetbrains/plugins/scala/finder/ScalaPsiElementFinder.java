@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.finder;
 
-import com.intellij.psi.PsiElementFinder;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiPackage;
-import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.containers.HashMap;
 import com.intellij.openapi.components.ProjectComponent;
@@ -17,6 +14,7 @@ import org.jetbrains.plugins.scala.components.ScalaComponents;
 import org.jetbrains.plugins.scala.cache.module.ScalaModuleCachesManager;
 import org.jetbrains.plugins.scala.cache.module.ScalaModuleCaches;
 import org.jetbrains.plugins.scala.cache.info.ScalaFileInfo;
+import org.jetbrains.plugins.scala.cache.VirtualFileScanner;
 
 import java.util.Map;
 import java.util.ArrayList;
@@ -35,41 +33,34 @@ public class ScalaPsiElementFinder implements PsiElementFinder, ProjectComponent
   }
 
   public PsiClass findClass(@NotNull String qualifiedName, GlobalSearchScope scope) {
-    Module[] modules = ModuleManager.getInstance(myProject).getModules();
+/*    Module[] modules = ModuleManager.getInstance(myProject).getModules();
     for (Module module : modules) {
       ScalaModuleCachesManager manager =
               (ScalaModuleCachesManager) module.getComponent(ScalaComponents.SCALA_CACHE_MANAGER);
       ScalaModuleCaches caches = manager.getModuleFilesCache();
-      Collection<ScalaFileInfo> infos = caches.getAllClasses();
-      for (ScalaFileInfo info : infos) {
-        for (PsiClass clazz : info.getClasses()) {
-          if (clazz.getQualifiedName().equals(qualifiedName)) {
-            return clazz;
-          }
-        }
-      }
-    }
+      return caches.getClassByName(qualifiedName);
+    }*/
     return null;
   }
 
   @NotNull
   public PsiClass[] findClasses(String qualifiedName, GlobalSearchScope scope) {
-    ArrayList<PsiClass> classes = new ArrayList<PsiClass>();
+/*    ArrayList<PsiClass> classesAcc = new ArrayList<PsiClass>();
     Module[] modules = ModuleManager.getInstance(myProject).getModules();
     for (Module module : modules) {
       ScalaModuleCachesManager manager =
               (ScalaModuleCachesManager) module.getComponent(ScalaComponents.SCALA_CACHE_MANAGER);
       ScalaModuleCaches caches = manager.getModuleFilesCache();
-      Collection<ScalaFileInfo> infos = caches.getAllClasses();
-      for (ScalaFileInfo info : infos) {
-        for (PsiClass clazz : info.getClasses()) {
-          if (clazz.getQualifiedName().equals(qualifiedName)) {
-            classes.add(clazz);
-          }
-        }
+
+      caches.getClassByName("org.jetbrains.plugins.scala.lang.parser.parsing.Program");
+
+      PsiClass[] classes = caches.getClassesByName(qualifiedName);
+      for (PsiClass clazz : classes) {
+        classesAcc.add(clazz);
       }
     }
-    return classes.toArray(new PsiClass[classes.size()]);
+    return (PsiClass[])classesAcc.toArray();*/
+    return null;
   }
 
   public PsiPackage findPackage(String qualifiedName) {

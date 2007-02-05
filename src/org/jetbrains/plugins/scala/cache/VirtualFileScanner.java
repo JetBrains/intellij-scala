@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.roots.ProjectFileIndex;
 
 import java.util.Set;
@@ -49,6 +50,11 @@ public class VirtualFileScanner {
     for (final VirtualFile child : children) {
       addScalaFiles(child, allFiles, index);
     }
+  }
+
+  public static VirtualFile getFileByUrl(String url) {
+    VirtualFileManager fManager = VirtualFileManager.getInstance();
+    return fManager.findFileByUrl(url);
   }
 }
 

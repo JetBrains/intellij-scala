@@ -21,11 +21,17 @@ public interface ScalaFileInfo extends Serializable {
 
   public String getFileDirectoryUrl();
 
+  public String[] getClassNames();
+
   public void setClasses(PsiClass[] classes);
 
-  public PsiClass[] getClasses();
-
   public String toString();
+
+  public PsiClass getClassByName(String name);
+
+  public PsiClass[] getClassesByName(String name);
+
+  public boolean containsClass(String name);
 
 
 }

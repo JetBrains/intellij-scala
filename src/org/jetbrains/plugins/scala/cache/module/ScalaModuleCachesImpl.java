@@ -11,6 +11,7 @@ import com.intellij.psi.PsiManager;
 import org.jetbrains.plugins.scala.cache.ScalaFilesCacheImpl;
 import org.jetbrains.plugins.scala.cache.listeners.ScalaPsiTreeListener;
 import org.jetbrains.plugins.scala.cache.info.ScalaFileInfo;
+import org.jetbrains.plugins.scala.cache.info.ScalaFilesStorage;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -71,6 +72,8 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
       getUp2DateFileInfo(file);
     }
   }
+
+
 
 /*
   class ScalaFilesCacheUpdater implements CacheUpdater {
