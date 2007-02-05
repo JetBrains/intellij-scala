@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher;
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter;
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
+
+import java.io.Serializable;
 //import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition;
 
 /**
@@ -75,8 +77,9 @@ public class ScalaLanguage extends Language {
   }
 
   public FileViewProvider createViewProvider(final VirtualFile file, final PsiManager manager, final boolean physical) {
-    return new SingleRootFileViewProvider(manager, file, physical) {
 
+
+    return new SingleRootFileViewProvider(manager, file, physical) {
       @Nullable
       protected PsiFile getPsiInner(Language target) {
         if (target == StdLanguages.JAVA) return myJavaRoot;
@@ -90,5 +93,8 @@ public class ScalaLanguage extends Language {
         return super.findElementAt(offset, language);
       }
     };
+
   }
+
+
 }

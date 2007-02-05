@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.cache.info.impl.ScalaFileInfoImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.psi.*;
 import com.intellij.lang.StdLanguages;
 
@@ -35,15 +34,17 @@ public class ScalaInfoFactory {
     PsiJavaFile javaPsi = (PsiJavaFile) provider.getPsi(StdLanguages.JAVA);
     PsiClass[] classes = javaPsi.getClasses();
 
-    // Delete me after need ends!!!
-    for (PsiClass myClass : classes) {
-      //System.out.println(myClass.getQualifiedName());
-    }
-
     final String parentDirUrl = file.getParent() == null ? null : file.getParent().getUrl();
     if (parentDirUrl == null) {
       return null;
     }
+
+/*
+    String classNames[] = new String[classes.length];
+    for (int i=0; i< classes.length; i++) {
+      classNames[i] = classes[i].getQualifiedName();
+    }
+*/
 
     ScalaFileInfo fileInfo = new ScalaFileInfoImpl(file.getName(), parentDirUrl, file.getTimeStamp());
     fileInfo.setClasses(classes);
