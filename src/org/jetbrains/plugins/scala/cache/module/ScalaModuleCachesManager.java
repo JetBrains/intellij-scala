@@ -55,6 +55,7 @@ public class ScalaModuleCachesManager implements ModuleComponent {
     myModuleFilesCache = new ScalaModuleCachesImpl(myModule);
     myModuleFilesCache.setCacheUrls(ScalaUtils.getModuleRootUrls(myModule));
     myModuleFilesCache.setCacheName(myModule.getName());
+    myModuleFilesCache.setCacheFilePath(generateCacheFilePath());
 
     StartupManager.getInstance(myModule.getProject()).runPostStartup(new Runnable() {
       public void run() {
@@ -74,12 +75,6 @@ public class ScalaModuleCachesManager implements ModuleComponent {
   }
 
   public void disposeComponent() {
-/*
-    for (ScalaFileInfo info :myModuleFilesCache.getAllClasses()){
-      for (PsiClass clazz : info.getClasses()){
-        System.out.println(clazz.getQualifiedName());
-      }
-    }
-*/
+//    myModuleFilesCache.saveCacheToDisk(true);
   }
 }
