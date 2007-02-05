@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.cache.listeners;
 import com.intellij.psi.PsiTreeChangeEvent;
 import com.intellij.psi.PsiTreeChangeListener;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.util.io.fs.FileSystem;
 import org.jetbrains.plugins.scala.cache.module.ScalaModuleCaches;
 
 /**
@@ -49,7 +51,10 @@ public class ScalaPsiTreeListener implements PsiTreeChangeListener {
   public void childRemoved(PsiTreeChangeEvent event) {
     updateCaches(event);
     if (event.getChild() instanceof PsiFile) {
-      myScalaModuleCaches.processFileDeleted(((PsiFile) event.getChild()).getVirtualFile());
+      String parentUrl = ((PsiDirectory)event.getParent()).toString() ;
+      String url = parentUrl + FileSystem.FILE_SYSTEM.getSeparatorChar()
+              + ((PsiFile) event.getChild()).getVirtualFile().getName();
+      myScalaModuleCaches.processFileDeleted(url);
       myScalaModuleCaches.refresh();
     }
   }
