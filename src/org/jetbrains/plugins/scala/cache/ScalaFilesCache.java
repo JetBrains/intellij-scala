@@ -18,4 +18,8 @@ public interface ScalaFilesCache {
 
   public Collection<ScalaFileInfo> getAllClasses();
 
+  public void setCacheFilePath(@NotNull final String dataFileUrl);
+
+  public void saveCacheToDisk(final boolean runProcessWithProgressSynchronously);
+
 }

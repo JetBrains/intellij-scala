@@ -15,4 +15,5 @@ public interface ScalaModuleCaches extends ScalaFilesCache {
 
   public void refresh();
 
+
 }
