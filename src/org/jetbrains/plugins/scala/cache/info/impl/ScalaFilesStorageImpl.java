@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Collections;
 
+import com.intellij.util.io.fs.FileSystem;
+
 /**
  * Storage for file information
  *
@@ -24,7 +26,8 @@ public class ScalaFilesStorageImpl implements ScalaFilesStorage {
   }
 
   public void addScalaInfo(@NotNull final ScalaFileInfo sInfo) {
-    myUrl2FileInfo.put(sInfo.getFileUrl() + "." + sInfo.getFileName(), sInfo);
+    myUrl2FileInfo.put(sInfo.getFileUrl() + FileSystem.FILE_SYSTEM.getSeparatorChar() 
+            + sInfo.getFileName(), sInfo);
   }
 
   public Collection<ScalaFileInfo> getAllScalaFileInfos() {

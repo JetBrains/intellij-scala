@@ -50,8 +50,7 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
 
   }
 
-  public synchronized void processFileDeleted(final @NotNull VirtualFile file) {
-    final String url = file.getUrl();
+  public synchronized void processFileDeleted(final @NotNull String url) {
     myOutOfDateFileUrls.remove(url);
     removeScalaFileInfo(url);
   }

@@ -109,7 +109,6 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
     }
   }
 
-
   /**
    * Adding new info about files
    *
