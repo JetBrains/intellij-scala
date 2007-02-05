@@ -7,12 +7,19 @@ import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.project.Project;
+
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Collection;
+
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.cache.info.ScalaFileInfo;
 import org.jetbrains.plugins.scala.cache.info.ScalaInfoFactory;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.jetbrains.plugins.scala.cache.info.ScalaFilesStorage;
+import org.jetbrains.plugins.scala.cache.info.impl.ScalaFilesStorageImpl;
+import org.jetbrains.plugins.scala.ScalaBundle;
 
 /**
  * @author Ilya.Sergey
@@ -21,13 +28,48 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
 
   protected final Project myProject;
   private String[] myCacheUrls;
+  private String myCacheName;
+
+  private ScalaFilesStorage myScalaFilesStorage;
 
   public ScalaFilesCacheImpl(final Project project) {
     myProject = project;
   }
 
-  public void init(boolean b) {
-    refreshCache(true);
+  public void setCacheName(String myCacheName) {
+    this.myCacheName = myCacheName;
+  }
+
+  public String getCacheName() {
+    return myCacheName;
+  }
+
+  /**
+   * Initialisation of cache
+   *
+   * @param runProcessWithProgressSynchronously
+   *
+   */
+  public void init(final boolean runProcessWithProgressSynchronously) {
+
+    boolean creatingCache = false;
+
+    // TODO implement serialization
+    //myScalaFilesStorage = loadCacheFromDisk(runProcessWithProgressSynchronously);
+    myScalaFilesStorage = null;
+    if (myScalaFilesStorage == null) {
+      creatingCache = true;
+      myScalaFilesStorage = new ScalaFilesStorageImpl();
+    }
+
+// Updating file cache, if some files are out of date
+
+    refreshCache(creatingCache, runProcessWithProgressSynchronously);
+
+// Save updated cache on disk
+
+    // TODO implement serialization
+    //saveCacheToDisk(runProcessWithProgressSynchronously);
   }
 
   public void setCacheUrls(@NotNull String[] myCacheUrls) {
@@ -35,25 +77,32 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
   }
 
   /**
-   * Refreshes cache
+   * Returns information about all files in module
    *
-   * @param synchronously
+   * @return
+   */
+  public Collection<ScalaFileInfo> getAllClasses() {
+    return myScalaFilesStorage.getAllScalaFileInfos();
+  }
+
+  /**
+   * Refreshes cache and may create new instanse if is not created yet
+   *
+   * @param creatingCache Create or not
+   * @param runProcessWithProgressSynchronously
    *
    */
-  private void refreshCache(boolean synchronously) {
+  private void refreshCache(final boolean creatingCache, boolean runProcessWithProgressSynchronously) {
     Runnable refreshCache = new Runnable() {
       public void run() {
         final ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
         final Set<VirtualFile> filesToAdd = scanForFiles(myCacheUrls, progressIndicator);
-
         addScalaFileInfos(filesToAdd, progressIndicator);
-
       }
     };
 
-    if (synchronously) {
-//      final String message = creatingCache ? RBundle.message("title.cache.creating", myCacheName) : RBundle.message("title.cache.updating", myCacheName);
-      final String message = "Creating caches";
+    if (runProcessWithProgressSynchronously) {
+      final String message = creatingCache ? ScalaBundle.message("title.cache.creating", getCacheName()) : ScalaBundle.message("title.cache.updating", getCacheName());
       ProgressManager.getInstance().runProcessWithProgressSynchronously(refreshCache, message, false, myProject);
     } else {
       refreshCache.run();
@@ -71,8 +120,7 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
     int count = 0;
     int size = filesToAdd.size();
     if (progressIndicator != null) {
-      //progressIndicator.setText(RBundle.message("title.cache.files.parsing"));
-      progressIndicator.setText("Parsing new scala files");
+      progressIndicator.setText(ScalaBundle.message("title.cache.files.parsing"));
     }
     for (VirtualFile file : filesToAdd) {
       if (progressIndicator != null) {
@@ -84,24 +132,45 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
     }
   }
 
-  private ScalaFileInfo getUp2DateFileInfo(VirtualFile file, boolean b) {
-    /*
-    final RFileInfo fileInfo = myRFilesStorage.getRFileInfoByFileUrl(file.getUrl());
-        if (fileInfo!=null && fileInfo.getFileTimestamp() == file.getTimeStamp()) {
-            return fileInfo;
-        }
-        if (!forceUpdate && fileInfo!=null){
-            return fileInfo;
-        }
-      */
-    return regenerateFileInfo(file);
+  /**
+   * @param file        File for what restoring cached information
+   * @param forceUpdate Force update or not
+   * @return Old info about file if not changed or new whil regenerateFileInfo(file)
+   */
+  protected ScalaFileInfo getUp2DateFileInfo(VirtualFile file, final boolean forceUpdate) {
+    final ScalaFileInfo fileInfo = myScalaFilesStorage.getScalaFileInfoByFileUrl(file.getUrl());
+    if (fileInfo != null && fileInfo.getFileTimestamp() == file.getTimeStamp()) {
+      return fileInfo;
+    }
+    if (!forceUpdate && fileInfo != null) {
+      return fileInfo;
+    } else {
+      return regenerateFileInfo(file);
+    }
   }
 
-  private ScalaFileInfo regenerateFileInfo(VirtualFile file) {
-//    final String url = file.getUrl();
-//    removeRFileInfo(url);
+  /**
+   * Generates cabout file
+   *
+   * @param file
+   * @return final boolean forceUpdate
+   */
+  protected ScalaFileInfo regenerateFileInfo(VirtualFile file) {
+    final String url = file.getUrl();
+    removeScalaFileInfo(url);
     return createScalaFileInfo(file);
   }
+
+
+  /**
+   * Removes ScalaFileInfo
+   *
+   * @param fileUrl url for file
+   */
+  protected void removeScalaFileInfo(@Nullable final String fileUrl) {
+    myScalaFilesStorage.removeScalaInfo(fileUrl);
+  }
+
 
   /**
    * Creates ScalaFileInfo for file according corresponding ScalaFile
@@ -114,12 +183,7 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
     if (fileInfo == null) {
       return null;
     }
-/*
-        myRFilesStorage.addRInfo(fileInfo);
-        if (myWordsIndex!=null){
-            myWordsIndex.addFileInfoToIndex(fileInfo);
-        }
-*/
+    myScalaFilesStorage.addScalaInfo(fileInfo);
     return fileInfo;
   }
 
@@ -132,9 +196,9 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
     final Set<VirtualFile> filesToAdd = new HashSet<VirtualFile>();
     for (String url : urls) {
       final VirtualFile root = fManager.findFileByUrl(url);
+
       if (progressIndicator != null & root != null) {
-        progressIndicator.setText("Processing " + root.getPresentableUrl());
-        //progressIndicator.setText(RBundle.message("title.cache.files.scanning", root.getPresentableUrl()));
+        progressIndicator.setText(ScalaBundle.message("title.cache.files.scanning", root.getPresentableUrl()));
       }
       ProjectFileIndex index = ProjectRootManager.getInstance(myProject).getFileIndex();
       VirtualFileScanner.addScalaFiles(root, filesToAdd, index);

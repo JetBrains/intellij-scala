@@ -4,6 +4,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
+import com.intellij.psi.PsiClass;
+
 /**
  * Main info about onew scala file
  * @author Ilya.Sergey
@@ -19,11 +21,9 @@ public interface ScalaFileInfo extends Serializable {
 
   public String getFileDirectoryUrl();
 
-/*
-  public RVirtualContainer getVirtualContainer();
+  public void setClasses(PsiClass[] classes);
 
-  public void setVirtualContainer(final RVirtualContainer virtualContainer);
-*/
+  public PsiClass[] getClasses();
 
   public String toString();
 
