@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.cache.info;
 
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.cache.info.impl.ScalaFileInfoImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.fileTypes.LanguageFileType;
@@ -34,26 +35,20 @@ public class ScalaInfoFactory {
     PsiJavaFile javaPsi = (PsiJavaFile) provider.getPsi(StdLanguages.JAVA);
     PsiClass[] classes = javaPsi.getClasses();
 
+    // Delete me after need ends!!!
     for (PsiClass myClass : classes) {
-      System.out.println(myClass.getQualifiedName());
+      //System.out.println(myClass.getQualifiedName());
     }
 
+    final String parentDirUrl = file.getParent() == null ? null : file.getParent().getUrl();
+    if (parentDirUrl == null) {
+      return null;
+    }
 
-/*
-        javaPsi
+    ScalaFileInfo fileInfo = new ScalaFileInfoImpl(file.getName(), parentDirUrl, file.getTimeStamp());
+    fileInfo.setClasses(classes);
 
-        final String parentDirUrl = file.getParent() == null ? null : file.getParent().getUrl();
-        if (parentDirUrl == null) {
-            return null;
-        }
-
-// creating new RFileInfo
-        final RFileInfo fileInfo = new RFileInfoImpl(file.getName(), parentDirUrl, file.getTimeStamp());
-        final RVirtualContainer vc = RVirtualUtils.createBy((RFile) javaPsi, fileInfo);
-        fileInfo.setVirtualContainer(vc);
-        return fileInfo;
-*/
-    return null;
+    return fileInfo;
   }
 
 
