@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.cache.module;
 
 import org.jetbrains.plugins.scala.cache.ScalaFilesCache;
+import org.jetbrains.plugins.scala.cache.info.ScalaFilesStorage;
 import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.vfs.VirtualFile;
 
@@ -14,6 +15,5 @@ public interface ScalaModuleCaches extends ScalaFilesCache {
   public void processFileDeleted(final @NotNull String fileUrl);
 
   public void refresh();
-
 
 }

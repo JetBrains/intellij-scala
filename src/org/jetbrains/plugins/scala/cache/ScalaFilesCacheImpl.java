@@ -8,6 +8,8 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiJavaFile;
 
 import java.util.*;
 import java.io.*;
@@ -65,8 +67,7 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
     refreshCache(creatingCache, runProcessWithProgressSynchronously);
 
 // Save updated cache on disk
-  // TODO: implement serialization
-//    saveCacheToDisk(runProcessWithProgressSynchronously);
+    saveCacheToDisk(runProcessWithProgressSynchronously);
   }
 
   public void setCacheUrls(@NotNull String[] myCacheUrls) {
@@ -293,6 +294,14 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
     }
   }
 
+  public PsiClass getClassByName(@NotNull final String name) {
+    return myScalaFilesStorage.getClassByName(name);
+  }
+
+  public PsiClass[] getClassesByName(@NotNull final String name) {
+    return myScalaFilesStorage.getClassesByName(name);
+  }
+
   /**
    * Tries to load cache data from disk!
    *
@@ -348,6 +357,7 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
     }
     return storage[0];
   }
+
 
 
 }

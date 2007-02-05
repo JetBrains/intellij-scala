@@ -5,6 +5,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 import java.util.Collection;
 
+import com.intellij.psi.PsiClass;
+
 /**
  * Interface fo file storage
  *
@@ -19,5 +21,11 @@ public interface ScalaFilesStorage extends Serializable {
   public Collection<ScalaFileInfo> getAllScalaFileInfos();
 
   public ScalaFileInfo removeScalaInfo(@NotNull final String fileUrl);
+
+  public String getFileUrlByClassName(@NotNull final String name);
+
+  public PsiClass getClassByName (@NotNull final String name);
+
+  public PsiClass[] getClassesByName (@NotNull final String name);
 
 }

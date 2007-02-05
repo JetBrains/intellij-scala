@@ -75,6 +75,6 @@ public class ScalaModuleCachesManager implements ModuleComponent {
   }
 
   public void disposeComponent() {
-//    myModuleFilesCache.saveCacheToDisk(true);
+    myModuleFilesCache.saveCacheToDisk(true);
   }
 }

@@ -2,8 +2,11 @@ package org.jetbrains.plugins.scala.cache;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.cache.info.ScalaFileInfo;
+import org.jetbrains.plugins.scala.cache.info.ScalaFilesStorage;
 
 import java.util.Collection;
+
+import com.intellij.psi.PsiClass;
 
 /**
  * @author Ilya.Sergey
@@ -21,5 +24,9 @@ public interface ScalaFilesCache {
   public void setCacheFilePath(@NotNull final String dataFileUrl);
 
   public void saveCacheToDisk(final boolean runProcessWithProgressSynchronously);
+
+  public PsiClass getClassByName(@NotNull final String name);
+
+  public PsiClass[] getClassesByName(@NotNull final String name);
 
 }
