@@ -12,5 +12,7 @@ public interface ScalaComponents {
 
   final String SCALA_CACHE_MANAGER = "SCALA_CACHE_MANAGER";
 
+  final String SCALA_PSI_ELEMENT_FINDER = "SCALA_PSI_ELEMENT_FINDER";
+
 
 }
