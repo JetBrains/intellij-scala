@@ -52,7 +52,7 @@ public class ScalaPsiTreeListener implements PsiTreeChangeListener {
     updateCaches(event);
     if (event.getChild() instanceof PsiFile) {
       String parentUrl = ((PsiDirectory)event.getParent()).getVirtualFile().getUrl();
-      String url = parentUrl + FileSystem.FILE_SYSTEM.getSeparatorChar()
+      String url = parentUrl + '/'
               + ((PsiFile) event.getChild()).getVirtualFile().getName();
       myScalaModuleCaches.processFileDeleted(url);
       myScalaModuleCaches.refresh();
