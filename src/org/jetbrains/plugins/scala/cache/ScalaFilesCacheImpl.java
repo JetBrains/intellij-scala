@@ -12,6 +12,7 @@ import com.intellij.lang.StdLanguages;
 
 import java.util.*;
 import java.io.*;
+import java.lang.reflect.Array;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -316,7 +317,6 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
   }
 
   /**
-   *
    * @return qualified names of all classes in current cache
    */
   public Collection<String> getAllClassNames() {
@@ -325,13 +325,12 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
 
 
   /**
-   *
    * @return short names of all classes in current cache
    */
   public Collection<String> getAllClassShortNames() {
     return myScalaFilesStorage.getAllClassShortNames();
   }
-  
+
 
   /**
    * Return all classes in file, in which contains current class
@@ -350,6 +349,32 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
       return javaPsi.getClasses();
     }
     return new PsiClass[0];
+  }
+
+
+  /**
+   * Return all classes by short name
+   *
+   * @param shortName
+   * @return
+   */
+  public PsiClass[] getClassesByShortClassName(@NotNull String shortName) {
+    String[] urls = myScalaFilesStorage.getFileUrlsByShortClassName(shortName);
+
+    ArrayList<PsiClass> acc = new ArrayList<PsiClass>();
+    for (String url : urls) {
+      VirtualFile file = VirtualFileScanner.getFileByUrl(url);
+      final PsiManager myPsiManager = PsiManager.getInstance(myProject);
+      if (file != null) {
+        PsiFile psiFile = myPsiManager.findFile(file);
+        FileViewProvider provider = psiFile.getViewProvider();
+        PsiJavaFile javaPsi = (PsiJavaFile) provider.getPsi(StdLanguages.JAVA);
+        PsiClass classes[] = javaPsi.getClasses();
+        acc.addAll(Arrays.asList(classes));
+      }
+    }
+    return acc.toArray(PsiClass.EMPTY_ARRAY);
+
   }
 
   /**
