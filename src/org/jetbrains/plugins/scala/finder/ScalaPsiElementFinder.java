@@ -59,40 +59,16 @@ public class ScalaPsiElementFinder implements PsiElementFinder, ProjectComponent
         classesAcc.add(clazz);
       }
     }
-    return (PsiClass[]) classesAcc.toArray();
+    return classesAcc.toArray(PsiClass.EMPTY_ARRAY);
   }
 
   public PsiPackage findPackage(String qualifiedName) {
-/*
-    final PsiPackage aPackage = myFileManager.findPackage(qualifiedName);
-    if (aPackage == null && myCurrentMigration != null) {
-      final PsiPackage migrationPackage = myCurrentMigration.getMigrationPackage(qualifiedName);
-      if (migrationPackage != null) return migrationPackage;
-    }
-
-    return aPackage;
-*/
     return null;
   }
 
   @NotNull
   public PsiPackage[] getSubPackages(PsiPackage psiPackage, GlobalSearchScope scope) {
-    final Map<String, PsiPackage> packagesMap = new HashMap<String, PsiPackage>();
-    final String qualifiedName = psiPackage.getQualifiedName();
-    final PsiDirectory[] dirs = psiPackage.getDirectories(scope);
-    for (PsiDirectory dir : dirs) {
-      PsiDirectory[] subdirs = dir.getSubdirectories();
-      for (PsiDirectory subdir : subdirs) {
-        final PsiPackage aPackage = subdir.getPackage();
-        if (aPackage != null) {
-          final String subQualifiedName = aPackage.getQualifiedName();
-          if (subQualifiedName.startsWith(qualifiedName) && !packagesMap.containsKey(subQualifiedName)) {
-            packagesMap.put(aPackage.getQualifiedName(), aPackage);
-          }
-        }
-      }
-    }
-    return packagesMap.values().toArray(new PsiPackage[packagesMap.size()]);
+    return new PsiPackage[0];
   }
 
   @NotNull
