@@ -145,7 +145,7 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
       }
       override def getTextAttributesKey(): TextAttributesKey = null
       override def getLocationString(): String = getPath
-      override def getIcon(open: Boolean): Icon = ScalaFileType.SCALA_FILE_TYPE;
+      override def getIcon(open: Boolean): Icon = ScalaFileType.SCALA_LOGO;
     }
   }
 
