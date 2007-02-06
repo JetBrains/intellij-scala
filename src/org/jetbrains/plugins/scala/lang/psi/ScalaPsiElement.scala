@@ -66,7 +66,7 @@ trait ScalaPsiElement extends PsiElement {
 
       import _root_.scala.collection.mutable._
 
-//      val q = new LinkedList[PsiElement]
+      //      val q = new LinkedList[PsiElement]
 
       private def findChild(child: ASTNode): ASTNode = child match {
         case null => null
@@ -96,10 +96,6 @@ trait ScalaPsiElement extends PsiElement {
         }
     }
   }
-
-
-
-
 
   def childrenSatisfyPredicateForPsiElement[T >: Null <: ScalaPsiElementImpl](predicate: PsiElement => Boolean) = new Iterable[T] () {
     def elements = new Iterator[T] () {
