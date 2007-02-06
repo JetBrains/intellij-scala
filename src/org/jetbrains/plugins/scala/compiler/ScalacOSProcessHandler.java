@@ -31,7 +31,7 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
     parseOutput(text);
   }
 
-  private static final String ourErrorMarker = ": error:";
+  private static final String ourErrorMarker = " error:";
   private static final String ourInfoMarkerStart = "[";
   private static final String ourInfoMarkerEnd = "]";
   private static final String ourParsingMarker = "parsing";
@@ -62,6 +62,7 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
     int i = text.indexOf(ourErrorMarker);
     if (i > 0) {
       String errorPlace = text.substring(0, i);
+      if (errorPlace.endsWith(":")) errorPlace = errorPlace.substring(0, errorPlace.length() - 1); //hack over compiler output
       int j = errorPlace.lastIndexOf(':');
       if (j > 0) {
         myUrl = VirtualFileManager.constructUrl(LocalFileSystem.PROTOCOL,
