@@ -25,8 +25,9 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top {
     * @retruns Template definitions inside current packaging
     */
     // Canged!!!
-    //def getTmplDefs: Iterable[ScTmplDef] = childrenOfType[ScTmplDef](ScalaElementTypes.TMPL_DEF_BIT_SET)
-    def getTmplDefs: Iterable[ScTmplDef] = allChildrenOfType[ScTmplDef](ScalaElementTypes.TMPL_DEF_BIT_SET)
+    def getTmplDefs: Iterable[ScTmplDef] = childrenOfType[ScTmplDef](ScalaElementTypes.TMPL_DEF_BIT_SET)
+
+    //def getTmplDefs: Iterable[ScTmplDef] = allChildrenOfType[ScTmplDef](ScalaElementTypes.TMPL_DEF_BIT_SET)
 
     [NotNull]
     def getFullPackageName: String = getChild(ScalaElementTypes.QUAL_ID).asInstanceOf[ScQualId].getFullName

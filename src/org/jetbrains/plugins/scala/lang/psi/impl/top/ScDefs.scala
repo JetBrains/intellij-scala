@@ -39,8 +39,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTempla
       if ( template != null) {
         body = template.getTemplateBody
         // CHANGED!
-        //if (body != null ) return body.childrenOfType[ScTmplDef] (ScalaElementTypes.TMPL_DEF_BIT_SET)
-        if (body != null ) return body.allChildrenOfType[ScTmplDef] (ScalaElementTypes.TMPL_DEF_BIT_SET)
+        if (body != null ) return body.childrenOfType[ScTmplDef] (ScalaElementTypes.TMPL_DEF_BIT_SET)
+        //if (body != null ) return body.allChildrenOfType[ScTmplDef] (ScalaElementTypes.TMPL_DEF_BIT_SET)
       }
       null
     }
