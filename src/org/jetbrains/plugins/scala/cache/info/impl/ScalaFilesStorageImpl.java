@@ -53,10 +53,6 @@ public class ScalaFilesStorageImpl implements ScalaFilesStorage {
     }
   }
 
-  public Collection<ScalaFileInfo> getAllScalaFileInfos() {
-    return Collections.unmodifiableCollection(myUrl2FileInfo.values());
-  }
-
   public ScalaFileInfo removeScalaInfo(@NotNull final String fileUrl) {
     ScalaFileInfo info = myUrl2FileInfo.remove(fileUrl);
     if (info != null) {
@@ -70,9 +66,9 @@ public class ScalaFilesStorageImpl implements ScalaFilesStorage {
           if (urls.size() == 0) {
             myShortClass2FileInfo.remove(getShortName(clazz));
           } else
-          myShortClass2FileInfo.put(getShortName(clazz),
-                  new ShortNameInfo(getShortName(clazz), urls)
-          );
+            myShortClass2FileInfo.put(getShortName(clazz),
+                    new ShortNameInfo(getShortName(clazz), urls)
+            );
         }
       }
     }
@@ -93,6 +89,9 @@ public class ScalaFilesStorageImpl implements ScalaFilesStorage {
     return new String[0];
   }
 
+  public Collection<ScalaFileInfo> getAllScalaFileInfos() {
+    return Collections.unmodifiableCollection(myUrl2FileInfo.values());
+  }
 
   public Collection<String> getAllClassNames() {
     return myClass2FileInfo.keySet();
