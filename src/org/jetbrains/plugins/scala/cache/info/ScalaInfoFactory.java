@@ -39,7 +39,7 @@ public class ScalaInfoFactory {
       return null;
     }
 
-    ScalaFileInfo fileInfo = new ScalaFileInfoImpl(file.getName(), parentDirUrl, file.getTimeStamp());
+    ScalaFileInfo fileInfo = new ScalaFileInfoImpl(file.getName(), file.getUrl() , parentDirUrl, file.getTimeStamp());
     fileInfo.setClasses(classes);
 
     return fileInfo;
