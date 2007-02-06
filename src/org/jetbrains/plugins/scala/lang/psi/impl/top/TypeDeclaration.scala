@@ -8,5 +8,8 @@ import com.intellij.lang.ASTNode
  */
 abstract class ScTypeDefImpl(node: ASTNode) extends ScalaPsiElementImpl (node) {
   def getDefStr: String = getParent.getFirstChild.getText
-  override def toString: String = getDefStr + " :" + getFirstChild
+
+  override def toString: String = {
+    getDefStr + " :" + getFirstChild
+  }
 }    
