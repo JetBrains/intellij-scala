@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.cache.info.impl;
 import java.util.Set;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Arrays;
 
 /**
  * Stores info about all files, which contain classes with this name
@@ -11,7 +12,7 @@ import java.util.HashSet;
  */
 public class ShortNameInfo {
   private String className;
-  private Set<String> fileUrls;
+  private String[] fileUrls;
 
   public ShortNameInfo(String name, Collection<String> urls){
     setClassName(name);
@@ -31,10 +32,14 @@ public class ShortNameInfo {
   }
 
   public Set<String> getFileUrls() {
-    return fileUrls;
+    Set<String> set = new HashSet<String>();
+    for (String url: fileUrls){
+      set.add(url);
+    }
+    return set;
   }
 
   private void setFileUrls(Set<String> fileUrls) {
-    this.fileUrls = fileUrls;
+    this.fileUrls = fileUrls.toArray(new String[0]);
   }
 }
