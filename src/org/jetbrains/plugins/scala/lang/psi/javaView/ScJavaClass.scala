@@ -132,14 +132,20 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
 
   def getChildren: Array[PsiElement] = PsiElement.EMPTY_ARRAY
 
+  // TODO Must return true path
+  def getPath: String = getQualifiedName
+
   override def getPresentation(): ItemPresentation = {
     new ItemPresentation() {
+
+      import org.jetbrains.plugins.scala.ScalaFileType
+
       def getPresentableText(): String = {
         getName
       }
       override def getTextAttributesKey(): TextAttributesKey = null
-      override def getLocationString(): String = null
-      override def getIcon(open: Boolean): Icon = null;
+      override def getLocationString(): String = getPath
+      override def getIcon(open: Boolean): Icon = ScalaFileType.SCALA_FILE_TYPE;
     }
   }
 
