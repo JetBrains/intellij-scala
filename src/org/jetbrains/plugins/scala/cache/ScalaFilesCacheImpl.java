@@ -7,9 +7,8 @@ import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.*;
+import com.intellij.lang.StdLanguages;
 
 import java.util.*;
 import java.io.*;
@@ -96,8 +95,6 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
         final ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
         final Set<VirtualFile> filesToAdd = scanForFiles(myCacheUrls, progressIndicator);
 
-        System.out.println("Files to add "+ filesToAdd.size());
-
         /**
          * Remove garbage
          */
@@ -111,9 +108,6 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
           }
         }
         removeScalaFileInfos(urls2Delete, progressIndicator);
-
-        System.out.println("Files left "+ filesToAdd.size());
-
         addScalaFileInfos(filesToAdd, progressIndicator);
       }
     };
@@ -294,12 +288,51 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
     }
   }
 
-  public PsiClass getClassByName(@NotNull final String name) {
-    return myScalaFilesStorage.getClassByName(name);
+  /**
+   * Returns instance of PsiClass by qualified qualifiedClassName
+   *
+   * @param qualifiedClassName - Qualified class qualifiedClassName
+   * @return
+   */
+  public PsiClass getClassByName(@NotNull final String qualifiedClassName) {
+    PsiClass[] classes = getClassesInFileByClassName(qualifiedClassName);
+    for (PsiClass clazz : classes) {
+      if (clazz.getQualifiedName().equals(qualifiedClassName)) {
+        return clazz;
+      }
+    }
+    return null;
   }
 
-  public PsiClass[] getClassesByName(@NotNull final String name) {
-    return myScalaFilesStorage.getClassesByName(name);
+  public PsiClass[] getClassesByName(@NotNull final String qualifiedClassName) {
+    PsiClass[] classes = getClassesInFileByClassName(qualifiedClassName);
+    ArrayList acc = new ArrayList<PsiClass>();
+    for (PsiClass clazz : classes) {
+      if (clazz.getQualifiedName().equals(qualifiedClassName)) {
+        acc.add(clazz);
+      }
+    }
+    return (PsiClass[]) acc.toArray();
+  }
+
+
+  /**
+   * Return all classes in file, in which contains current class
+   *
+   * @param qualifiedClassName
+   * @return
+   */
+  private PsiClass[] getClassesInFileByClassName(@NotNull String qualifiedClassName) {
+    String url = myScalaFilesStorage.getFileUrlByClassName(qualifiedClassName);
+    VirtualFile file = VirtualFileScanner.getFileByUrl(url);
+    final PsiManager myPsiManager = PsiManager.getInstance(myProject);
+    if (file != null) {
+      PsiFile psiFile = myPsiManager.findFile(file);
+      FileViewProvider provider = psiFile.getViewProvider();
+      PsiJavaFile javaPsi = (PsiJavaFile) provider.getPsi(StdLanguages.JAVA);
+      return javaPsi.getClasses();
+    }
+    return new PsiClass[0];
   }
 
   /**
@@ -357,7 +390,6 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
     }
     return storage[0];
   }
-
 
 
 }
