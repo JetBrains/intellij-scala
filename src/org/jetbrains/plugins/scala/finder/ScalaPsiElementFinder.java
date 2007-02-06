@@ -38,7 +38,6 @@ public class ScalaPsiElementFinder implements PsiElementFinder, ProjectComponent
       ScalaModuleCachesManager manager =
               (ScalaModuleCachesManager) module.getComponent(ScalaComponents.SCALA_CACHE_MANAGER);
       ScalaModuleCaches caches = manager.getModuleFilesCache();
-//      caches.getClassByName("org.jetbrains.plugins.scala.lang.parser.parsing.Program");
       PsiClass clazz;
       if ((clazz = caches.getClassByName(qualifiedName)) != null) {
         return clazz;
