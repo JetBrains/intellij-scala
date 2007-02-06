@@ -29,4 +29,8 @@ public interface ScalaFilesCache {
 
   public PsiClass[] getClassesByName(@NotNull final String name);
 
+  public Collection<String> getAllClassNames();
+
+  public Collection<String> getAllClassShortNames();
+
 }

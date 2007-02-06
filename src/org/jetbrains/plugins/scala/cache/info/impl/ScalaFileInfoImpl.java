@@ -54,39 +54,6 @@ public class ScalaFileInfoImpl implements ScalaFileInfo {
   }
 
 
-  // TODO:  FIX ME!!!
-  public PsiClass getClassByName(String name) {
-    PsiJavaFile javaPsi = ((PsiJavaFile) VirtualFileScanner.getFileByUrl(getFileUrl()));
-    if (javaPsi != null) {
-      PsiClass[] classes = javaPsi.getClasses();
-      for (PsiClass clazz : classes) {
-        if (clazz.getQualifiedName().equals(name)) {
-          return clazz;
-        }
-        return null;
-      }
-    }
-    return null;
-  }
-
-
-  // TODO:  FIX ME!!!
-  public PsiClass[] getClassesByName(String name){
-    PsiJavaFile javaPsi = ((PsiJavaFile) VirtualFileScanner.getFileByUrl(getFileUrl()));
-    ArrayList acc = new ArrayList<PsiClass>();
-    if (javaPsi != null) {
-      PsiClass[] classes = javaPsi.getClasses();
-      for (PsiClass clazz : classes) {
-        if (clazz.getQualifiedName().equals(name)) {
-          acc.add(clazz);
-        }
-      }
-      return (PsiClass[])acc.toArray();
-    }
-    return new PsiClass[0];
-  }
-
-
   public boolean containsClass(String name) {
     for (String _name: myClassNames){
       if (_name.equals(name)) {

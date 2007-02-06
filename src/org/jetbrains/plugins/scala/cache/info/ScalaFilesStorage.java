@@ -20,6 +20,10 @@ public interface ScalaFilesStorage extends Serializable {
 
   public Collection<ScalaFileInfo> getAllScalaFileInfos();
 
+  public Collection<String> getAllClassNames();
+
+  public Collection<String> getAllClassShortNames();
+
   public ScalaFileInfo removeScalaInfo(@NotNull final String fileUrl);
 
   public String getFileUrlByClassName(@NotNull final String name);
