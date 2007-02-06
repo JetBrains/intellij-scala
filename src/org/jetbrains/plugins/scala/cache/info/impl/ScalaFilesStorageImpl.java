@@ -99,7 +99,7 @@ public class ScalaFilesStorageImpl implements ScalaFilesStorage {
   }
 
   public Collection<String> getAllClassShortNames() {
-
+    return myShortClass2FileInfo.keySet();
   }
 
   protected static String getShortName(String qualName) {
