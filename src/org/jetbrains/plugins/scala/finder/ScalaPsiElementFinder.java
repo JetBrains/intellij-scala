@@ -33,34 +33,34 @@ public class ScalaPsiElementFinder implements PsiElementFinder, ProjectComponent
   }
 
   public PsiClass findClass(@NotNull String qualifiedName, GlobalSearchScope scope) {
-/*    Module[] modules = ModuleManager.getInstance(myProject).getModules();
-    for (Module module : modules) {
-      ScalaModuleCachesManager manager =
-              (ScalaModuleCachesManager) module.getComponent(ScalaComponents.SCALA_CACHE_MANAGER);
-      ScalaModuleCaches caches = manager.getModuleFilesCache();
-      return caches.getClassByName(qualifiedName);
-    }*/
-    return null;
-  }
-
-  @NotNull
-  public PsiClass[] findClasses(String qualifiedName, GlobalSearchScope scope) {
-/*    ArrayList<PsiClass> classesAcc = new ArrayList<PsiClass>();
     Module[] modules = ModuleManager.getInstance(myProject).getModules();
     for (Module module : modules) {
       ScalaModuleCachesManager manager =
               (ScalaModuleCachesManager) module.getComponent(ScalaComponents.SCALA_CACHE_MANAGER);
       ScalaModuleCaches caches = manager.getModuleFilesCache();
+//      caches.getClassByName("org.jetbrains.plugins.scala.lang.parser.parsing.Program");
+      PsiClass clazz;
+      if ((clazz = caches.getClassByName(qualifiedName)) != null) {
+        return clazz;
+      }
+    }
+    return null;
+  }
 
-      caches.getClassByName("org.jetbrains.plugins.scala.lang.parser.parsing.Program");
-
+  @NotNull
+  public PsiClass[] findClasses(String qualifiedName, GlobalSearchScope scope) {
+    ArrayList<PsiClass> classesAcc = new ArrayList<PsiClass>();
+    Module[] modules = ModuleManager.getInstance(myProject).getModules();
+    for (Module module : modules) {
+      ScalaModuleCachesManager manager =
+              (ScalaModuleCachesManager) module.getComponent(ScalaComponents.SCALA_CACHE_MANAGER);
+      ScalaModuleCaches caches = manager.getModuleFilesCache();
       PsiClass[] classes = caches.getClassesByName(qualifiedName);
       for (PsiClass clazz : classes) {
         classesAcc.add(clazz);
       }
     }
-    return (PsiClass[])classesAcc.toArray();*/
-    return null;
+    return (PsiClass[]) classesAcc.toArray();
   }
 
   public PsiPackage findPackage(String qualifiedName) {
