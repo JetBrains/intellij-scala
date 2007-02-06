@@ -60,6 +60,43 @@ trait ScalaPsiElement extends PsiElement {
     }
   }
 
+  // TODO Implement it!
+  def allChildrenOfType[T >: Null <: PsiElement](tokSet: TokenSet): Iterable[T] = new Iterable[T] () {
+    def elements = new Iterator[T] () {
+
+      val q = new LinkedList[PsiElement]
+
+      private def findChild(child: ASTNode): ASTNode = child match {
+        case null => null
+        case _ => if (tokSet.contains(child.getElementType())) {
+          child
+        } else {
+          findChild(child.getTreeNext)
+        }
+      }
+
+      val first = getFirstChild
+      var n: ASTNode =
+        if (first == null) null
+        else {
+          findChild(first.getNode)
+        }
+
+      def hasNext = n != null
+
+      def next: T =
+        if (n == null)
+          null
+        else {
+          val res = n
+          n = findChild(n.getTreeNext)
+          res.getPsi().asInstanceOf[T]
+        }
+    }
+  }
+
+
+
 
 
   def childrenSatisfyPredicateForPsiElement[T >: Null <: ScalaPsiElementImpl](predicate: PsiElement => Boolean) = new Iterable[T] () {
