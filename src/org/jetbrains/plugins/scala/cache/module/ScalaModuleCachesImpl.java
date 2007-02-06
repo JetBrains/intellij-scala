@@ -4,6 +4,8 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.VirtualFileSystem;
+import com.intellij.openapi.vfs.ex.VirtualFileManagerEx;
+import com.intellij.openapi.roots.ex.ProjectRootManagerEx;
 import com.intellij.ide.startup.CacheUpdater;
 import com.intellij.ide.startup.FileContent;
 import com.intellij.pom.PomModel;
@@ -25,6 +27,8 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
   private Module myModule;
   private Set<String> myOutOfDateFileUrls = Collections.synchronizedSet(new HashSet<String>());
   private Set<String> myUpdatedFileUrls = Collections.synchronizedSet(new HashSet<String>());
+
+  private ScalaFilesCacheUpdater myCacheUpdater;
 
   public ScalaModuleCachesImpl(Module module) {
     super(module.getProject());
@@ -74,8 +78,18 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
   }
 
 
+  private void registerCacheUpdater() {
+    myCacheUpdater = new ScalaFilesCacheUpdater();
+    ProjectRootManagerEx.getInstanceEx(myProject).registerChangeUpdater(myCacheUpdater);
+    ((VirtualFileManagerEx) VirtualFileManagerEx.getInstance()).registerRefreshUpdater(myCacheUpdater);
+  }
 
-/*
+  private void unregisterCacheUpdater() {
+    ProjectRootManagerEx.getInstanceEx(myProject).unregisterChangeUpdater(myCacheUpdater);
+    ((VirtualFileManagerEx) VirtualFileManagerEx.getInstance()).unregisterRefreshUpdater(myCacheUpdater);
+  }
+
+
   class ScalaFilesCacheUpdater implements CacheUpdater {
     public synchronized VirtualFile[] queryNeededFiles() {
       List<VirtualFile> files = new ArrayList<VirtualFile>();
@@ -98,15 +112,15 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
 
     public void updatingDone() {
       assert myOutOfDateFileUrls.size() == 0;
+/*
       fireInfosUpdated();
       fireCacheUpdateFinished();
+*/
     }
 
     public void canceled() {
-      //do nothing
     }
   }
-*/
 
 
 }
