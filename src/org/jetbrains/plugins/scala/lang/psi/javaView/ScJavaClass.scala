@@ -132,8 +132,14 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
 
   def getChildren: Array[PsiElement] = PsiElement.EMPTY_ARRAY
 
-  // TODO Must return true path
-  def getPath: String = getQualifiedName
+  def getPath: String = {
+    var qualName = getQualifiedName;
+    val index = qualName.lastIndexOf('.');
+    if (index < 0 || index >= (qualName.length() - 1))
+      qualName
+    else
+      qualName.substring(0, index);
+  }
 
   override def getPresentation(): ItemPresentation = {
     new ItemPresentation() {
@@ -144,7 +150,7 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
         getName
       }
       override def getTextAttributesKey(): TextAttributesKey = null
-      override def getLocationString(): String = getPath
+      override def getLocationString(): String = '(' + getPath + ')'
       override def getIcon(open: Boolean): Icon = ScalaFileType.SCALA_LOGO;
     }
   }

@@ -103,7 +103,7 @@ public class ScalaFilesStorageImpl implements ScalaFilesStorage {
 
   protected static String getShortName(String qualName) {
     int index = qualName.lastIndexOf('.');
-    if (index < 0 || index >= qualName.length() - 1) {
+    if (index < 0 || index >= (qualName.length() - 1)) {
       return qualName;
     } else {
       return qualName.substring(index + 1);

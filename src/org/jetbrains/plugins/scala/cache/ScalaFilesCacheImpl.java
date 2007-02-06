@@ -309,7 +309,7 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
     PsiClass[] classes = getClassesInFileByClassName(qualifiedClassName);
     ArrayList<PsiClass> acc = new ArrayList<PsiClass>();
     for (PsiClass clazz : classes) {
-      if (clazz.getQualifiedName().equals(qualifiedClassName)) {
+      if (qualifiedClassName.equals(clazz.getQualifiedName())) {
         acc.add(clazz);
       }
     }
@@ -370,7 +370,11 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
         FileViewProvider provider = psiFile.getViewProvider();
         PsiJavaFile javaPsi = (PsiJavaFile) provider.getPsi(StdLanguages.JAVA);
         PsiClass classes[] = javaPsi.getClasses();
-        acc.addAll(Arrays.asList(classes));
+        for (PsiClass clazz: classes) {
+          if (shortName.equals(clazz.getName())){
+            acc.add(clazz);
+          }
+        }
       }
     }
     return acc.toArray(PsiClass.EMPTY_ARRAY);
