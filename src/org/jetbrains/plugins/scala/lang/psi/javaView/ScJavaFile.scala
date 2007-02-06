@@ -10,43 +10,45 @@ package org.jetbrains.plugins.scala.lang.psi.javaView {
   import com.intellij.util.ArrayUtil
   import org.jetbrains.plugins.scala.ScalaFileType
   import org.jetbrains.plugins.scala.lang.psi.impl.top._
+  import java.io.Serializable
 
-  class ScJavaFile(viewProvider : FileViewProvider) extends LightPsiFileBase(viewProvider, StdLanguages.JAVA) with PsiJavaFile {
+  class ScJavaFile(viewProvider: FileViewProvider) extends LightPsiFileBase(viewProvider, StdLanguages.JAVA) with PsiJavaFile
+  with Serializable{
     def getLanguageLevel = LanguageLevel.JDK_1_5
 
-    def findImportReferenceTo (psiClass : PsiClass) = null
+    def findImportReferenceTo(psiClass: PsiClass) = null
 
     def getImplicitlyImportedPackageReferences = PsiJavaCodeReferenceElement.EMPTY_ARRAY
 
     def getImplicitlyImportedPackages = ArrayUtil.EMPTY_STRING_ARRAY
 
-    def getSingleClassImports(checkIncludes : Boolean) = PsiClass.EMPTY_ARRAY
+    def getSingleClassImports(checkIncludes: Boolean) = PsiClass.EMPTY_ARRAY
 
-    def getOnDemandImports(includeImplicit : Boolean, checkIncludes : Boolean) = PsiElement.EMPTY_ARRAY
+    def getOnDemandImports(includeImplicit: Boolean, checkIncludes: Boolean) = PsiElement.EMPTY_ARRAY
 
     def getImportList = null
 
     def getPackageStatement = null
 
-    def importClass(psiClass : PsiClass) = false
+    def importClass(psiClass: PsiClass) = false
 
     //todo
     def getPackageName = null
 
     override def getClasses = {
       val scFile = viewProvider.getPsi(ScalaFileType.SCALA_FILE_TYPE.getLanguage).asInstanceOf[ScalaFile]
-      scFile.getTmplDefs.map (c => new ScJavaClass(c, this)).toArray[PsiClass]
+      scFile.getTmplDefs.map(c => new ScJavaClass(c, this)).toArray[PsiClass]
     }
 
     def getChildren = getClasses.asInstanceOf[Array[PsiElement]]
 
-    def copyLight (newFileViewProvider : FileViewProvider) = new ScJavaFile(newFileViewProvider)
+    def copyLight(newFileViewProvider: FileViewProvider) = new ScJavaFile(newFileViewProvider)
 
     def clearCaches = {}
 
     def getFileType = StdFileTypes.JAVA
 
-    override def findElementAt(offset : Int) : PsiElement = {
+    override def findElementAt(offset: Int): PsiElement = {
       for (val child <- getChildren) {
         val textRange = child.getTextRange
         if (textRange.contains(offset)) {
