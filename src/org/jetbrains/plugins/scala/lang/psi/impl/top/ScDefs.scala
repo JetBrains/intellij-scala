@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTempla
     }
 
     def getTmplDefs : Iterable[ScTmplDef] = {
+
       import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTemplateBody
 
       val template = getTemplate
@@ -106,8 +107,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTempla
     override def toString: String = super.toString + ": " + "object"
 
     //todo
-
-
   }
 
   case class ScTraitDefinition( node : ASTNode ) extends ScTypeDef (node) {
