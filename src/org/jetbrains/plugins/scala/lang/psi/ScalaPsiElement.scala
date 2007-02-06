@@ -60,17 +60,22 @@ trait ScalaPsiElement extends PsiElement {
     }
   }
 
-  // TODO Implement it!
   def allChildrenOfType[T >: Null <: PsiElement](tokSet: TokenSet): Iterable[T] = new Iterable[T] () {
     def elements = new Iterator[T] () {
 
-      import _root_.scala.collection.mutable._
+      import java.util.concurrent.SynchronousQueue
 
-      //      val q = new LinkedList[PsiElement]
+      val q = new SynchronousQueue[ASTNode]
 
       private def findChild(child: ASTNode): ASTNode = child match {
-        case null => null
+        case null if q.isEmpty() => null
+        case null => {
+          findChild(q.poll())
+        }
         case _ => if (tokSet.contains(child.getElementType())) {
+          if (child.getFirstChildNode != null) {
+            q.put(child.getFirstChildNode)
+          }
           child
         } else {
           findChild(child.getTreeNext)
