@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.cache.info.impl;
 import java.util.Set;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Arrays;
 import java.io.Serializable;
 
 /**
@@ -13,7 +12,7 @@ import java.io.Serializable;
  */
 public class ShortNameInfo implements Serializable {
   private String className;
-  private String[] fileUrls;
+  private Set<String> fileUrls;
 
   public ShortNameInfo(String name, Collection<String> urls){
     setClassName(name);
@@ -32,14 +31,10 @@ public class ShortNameInfo implements Serializable {
   }
 
   public Set<String> getFileUrls() {
-    Set<String> set = new HashSet<String>();
-    for (String url: fileUrls){
-      set.add(url);
-    }
-    return set;
+    return fileUrls;
   }
 
   private void setFileUrls(Set<String> fileUrls) {
-    this.fileUrls = fileUrls.toArray(new String[0]);
+    this.fileUrls = fileUrls;
   }
 }
