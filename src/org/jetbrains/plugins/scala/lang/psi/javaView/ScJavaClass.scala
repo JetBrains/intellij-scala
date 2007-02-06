@@ -135,7 +135,7 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
   override def getPresentation(): ItemPresentation = {
     new ItemPresentation() {
       def getPresentableText(): String = {
-        getQualifiedName
+        getName
       }
       override def getTextAttributesKey(): TextAttributesKey = null
       override def getLocationString(): String = null
