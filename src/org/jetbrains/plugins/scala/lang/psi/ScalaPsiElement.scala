@@ -64,7 +64,9 @@ trait ScalaPsiElement extends PsiElement {
   def allChildrenOfType[T >: Null <: PsiElement](tokSet: TokenSet): Iterable[T] = new Iterable[T] () {
     def elements = new Iterator[T] () {
 
-      val q = new LinkedList[PsiElement]
+      import _root_.scala.collection.mutable._
+
+//      val q = new LinkedList[PsiElement]
 
       private def findChild(child: ASTNode): ASTNode = child match {
         case null => null
