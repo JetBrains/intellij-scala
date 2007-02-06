@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.cache.module.ScalaModuleCaches;
 import org.jetbrains.plugins.scala.components.ScalaComponents;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 /**
@@ -41,9 +42,17 @@ public class ScalaChooseByNameContributor implements ChooseByNameContributor {
   public NavigationItem[] getItemsByName(String name, Project project, boolean includeNonProjectItems) {
     final GlobalSearchScope scope = includeNonProjectItems ? GlobalSearchScope.allScope(project) : GlobalSearchScope.projectScope(project);
 
+    ArrayList<PsiClass> acc = new ArrayList<PsiClass>();
+    Module[] modules = ModuleManager.getInstance(project).getModules();
+    for (Module module : modules) {
+      ScalaModuleCachesManager manager =
+              (ScalaModuleCachesManager) module.getComponent(ScalaComponents.SCALA_CACHE_MANAGER);
+      ScalaModuleCaches caches = manager.getModuleFilesCache();
+      acc.addAll(Arrays.asList(caches.getClassesByShortClassName(name)));
+    }
 
-
-    return filterUnshowable(PsiManager.getInstance(project).getShortNamesCache().getClassesByName(name, scope));
+    PsiClass[] candidats = acc.toArray(PsiClass.EMPTY_ARRAY);
+    return filterUnshowable(candidats);
   }
 
   private static NavigationItem[] filterUnshowable(PsiClass[] items) {
