@@ -22,6 +22,10 @@ public class ScalaFilesStorageImpl implements ScalaFilesStorage {
   private final Map<String, ScalaFileInfo> myClass2FileInfo =
           Collections.synchronizedMap(new HashMap<String, ScalaFileInfo>());
 
+  private final Map<String, ShortNameInfo> myShortClass2FileInfo =
+          Collections.synchronizedMap(new HashMap<String, ShortNameInfo>());
+
+
   public ScalaFileInfo getScalaFileInfoByFileUrl(@NotNull final String fileUrl) {
     return myUrl2FileInfo.get(fileUrl);
   }
@@ -30,6 +34,22 @@ public class ScalaFilesStorageImpl implements ScalaFilesStorage {
     myUrl2FileInfo.put(sInfo.getFileUrl(), sInfo);
     for (String clazz : sInfo.getClassNames()) {
       myClass2FileInfo.put(clazz, sInfo);
+
+      ShortNameInfo shortInfo = myShortClass2FileInfo.get(getShortName(clazz));
+      if (shortInfo != null) {
+        Set<String> urls = shortInfo.getFileUrls();
+        urls.add(sInfo.getFileUrl());
+        myShortClass2FileInfo.put(getShortName(clazz),
+                new ShortNameInfo(getShortName(clazz), urls)
+        );
+      } else {
+        Set<String> urls = new HashSet<String>();
+        urls.add(sInfo.getFileUrl());
+        myShortClass2FileInfo.put(getShortName(clazz),
+                new ShortNameInfo(getShortName(clazz), urls)
+        );
+      }
+
     }
   }
 
@@ -42,6 +62,18 @@ public class ScalaFilesStorageImpl implements ScalaFilesStorage {
     if (info != null) {
       for (String clazz : info.getClassNames()) {
         myClass2FileInfo.remove(clazz);
+
+        ShortNameInfo shortInfo = myShortClass2FileInfo.get(getShortName(clazz));
+        if (shortInfo != null) {
+          Set<String> urls = shortInfo.getFileUrls();
+          urls.remove(info.getFileUrl());
+          if (urls.size() == 0) {
+            myShortClass2FileInfo.remove(getShortName(clazz));
+          } else
+          myShortClass2FileInfo.put(getShortName(clazz),
+                  new ShortNameInfo(getShortName(clazz), urls)
+          );
+        }
       }
     }
     return info;
@@ -54,21 +86,29 @@ public class ScalaFilesStorageImpl implements ScalaFilesStorage {
     return null;
   }
 
+  public String[] getFileUrlsByShortClassName(@NotNull final String name) {
+    if (myShortClass2FileInfo.get(name) != null) {
+      return myShortClass2FileInfo.get(name).getFileUrls().toArray(new String[0]);
+    }
+    return new String[0];
+  }
+
+
   public Collection<String> getAllClassNames() {
-      return myClass2FileInfo.keySet();
+    return myClass2FileInfo.keySet();
   }
 
   public Collection<String> getAllClassShortNames() {
-    Collection<String> qualNames = myClass2FileInfo.keySet();
-    ArrayList<String> acc = new ArrayList<String>();
-    for (String qualName: qualNames){
-      int index = qualName.lastIndexOf('.');
-      if (index < 0 || index >= qualName.length()-1) {
-        acc.add(qualName);
-      } else {
-        acc.add(qualName.substring(index+1));
-      }
-    }
-    return acc;
+
   }
+
+  protected static String getShortName(String qualName) {
+    int index = qualName.lastIndexOf('.');
+    if (index < 0 || index >= qualName.length() - 1) {
+      return qualName;
+    } else {
+      return qualName.substring(index + 1);
+    }
+  }
+
 }

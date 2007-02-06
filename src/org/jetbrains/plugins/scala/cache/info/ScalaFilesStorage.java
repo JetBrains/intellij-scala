@@ -28,4 +28,6 @@ public interface ScalaFilesStorage extends Serializable {
 
   public String getFileUrlByClassName(@NotNull final String name);
 
+  public String[] getFileUrlsByShortClassName(@NotNull final String name);
+
 }

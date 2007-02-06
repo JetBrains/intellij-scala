@@ -8,8 +8,6 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.ide.util.gotoByName.DefaultClassNavigationContributor;
-import org.jetbrains.plugins.scala.cache.ScalaFilesCache;
 import org.jetbrains.plugins.scala.cache.module.ScalaModuleCachesManager;
 import org.jetbrains.plugins.scala.cache.module.ScalaModuleCaches;
 import org.jetbrains.plugins.scala.components.ScalaComponents;
@@ -22,10 +20,9 @@ import java.util.ArrayList;
  *
  * @author Ilya.Sergey
  */
-public class ScalaChooseByNameContributor extends DefaultClassNavigationContributor {
+public class ScalaChooseByNameContributor implements ChooseByNameContributor {
 
   public String[] getNames(Project project, boolean includeNonProjectItems) {
-
     ArrayList<String> acc = new ArrayList<String>();
     Module[] modules = ModuleManager.getInstance(project).getModules();
     for (Module module : modules) {
@@ -39,6 +36,23 @@ public class ScalaChooseByNameContributor extends DefaultClassNavigationContribu
     } else {
       return new String[0];
     }
+  }
+
+  public NavigationItem[] getItemsByName(String name, Project project, boolean includeNonProjectItems) {
+    final GlobalSearchScope scope = includeNonProjectItems ? GlobalSearchScope.allScope(project) : GlobalSearchScope.projectScope(project);
+
+
+
+    return filterUnshowable(PsiManager.getInstance(project).getShortNamesCache().getClassesByName(name, scope));
+  }
+
+  private static NavigationItem[] filterUnshowable(PsiClass[] items) {
+    ArrayList<NavigationItem> list = new ArrayList<NavigationItem>(items.length);
+    for (PsiClass item : items) {
+      if (item.getContainingFile().getVirtualFile() == null) continue;
+      list.add(item);
+    }
+    return list.toArray(new NavigationItem[list.size()]);
   }
 
 }
