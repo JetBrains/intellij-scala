@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
 
 class ScalaFoldingBuilder extends FoldingBuilder {
 
-
   private def appendDescriptors(node: ASTNode,
           document: Document,
           descriptors: ListBuffer[FoldingDescriptor]): Unit = {
@@ -28,22 +27,22 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 
     node.getElementType match {
       case ScalaElementTypes.BLOCK_EXPR |
-      ScalaElementTypes.INFIX_EXPR |
-      ScalaElementTypes.AN_FUN |
-      ScalaElementTypes.PREFIX_EXPR |
-      ScalaElementTypes.POSTFIX_EXPR |
-      ScalaElementTypes.SIMPLE_EXPR |
-      ScalaElementTypes.IF_STMT |
-      ScalaElementTypes.FOR_STMT |
-      ScalaElementTypes.WHILE_STMT |
-      ScalaElementTypes.DO_STMT |
-      ScalaElementTypes.TRY_STMT |
-      ScalaElementTypes.RETURN_STMT |
-      ScalaElementTypes.METHOD_CLOSURE |
-      ScalaElementTypes.THROW_STMT |
-      ScalaElementTypes.ASSIGN_STMT |
-      ScalaElementTypes.MATCH_STMT |
-      ScalaElementTypes.TYPED_EXPR_STMT if
+        ScalaElementTypes.INFIX_EXPR |
+        ScalaElementTypes.AN_FUN |
+        ScalaElementTypes.PREFIX_EXPR |
+        ScalaElementTypes.POSTFIX_EXPR |
+        ScalaElementTypes.SIMPLE_EXPR |
+        ScalaElementTypes.IF_STMT |
+        ScalaElementTypes.FOR_STMT |
+        ScalaElementTypes.WHILE_STMT |
+        ScalaElementTypes.DO_STMT |
+        ScalaElementTypes.TRY_STMT |
+        ScalaElementTypes.RETURN_STMT |
+        ScalaElementTypes.METHOD_CLOSURE |
+        ScalaElementTypes.THROW_STMT |
+        ScalaElementTypes.ASSIGN_STMT |
+        ScalaElementTypes.MATCH_STMT |
+        ScalaElementTypes.TYPED_EXPR_STMT if
         (ScalaElementTypes.FUNCTION_DEFINITION.equals(node.getTreeParent().getElementType)) => {
         descriptors += (new FoldingDescriptor(node, node.getTextRange()))
       }
@@ -72,22 +71,22 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   def getPlaceholderText(node: ASTNode): String = {
     node.getElementType match {
       case ScalaElementTypes.BLOCK_EXPR |
-      ScalaElementTypes.INFIX_EXPR |
-      ScalaElementTypes.AN_FUN |
-      ScalaElementTypes.PREFIX_EXPR |
-      ScalaElementTypes.POSTFIX_EXPR |
-      ScalaElementTypes.SIMPLE_EXPR |
-      ScalaElementTypes.IF_STMT |
-      ScalaElementTypes.FOR_STMT |
-      ScalaElementTypes.WHILE_STMT |
-      ScalaElementTypes.DO_STMT |
-      ScalaElementTypes.TRY_STMT |
-      ScalaElementTypes.RETURN_STMT |
-      ScalaElementTypes.METHOD_CLOSURE |
-      ScalaElementTypes.THROW_STMT |
-      ScalaElementTypes.ASSIGN_STMT |
-      ScalaElementTypes.MATCH_STMT |
-      ScalaElementTypes.TYPED_EXPR_STMT if
+        ScalaElementTypes.INFIX_EXPR |
+        ScalaElementTypes.AN_FUN |
+        ScalaElementTypes.PREFIX_EXPR |
+        ScalaElementTypes.POSTFIX_EXPR |
+        ScalaElementTypes.SIMPLE_EXPR |
+        ScalaElementTypes.IF_STMT |
+        ScalaElementTypes.FOR_STMT |
+        ScalaElementTypes.WHILE_STMT |
+        ScalaElementTypes.DO_STMT |
+        ScalaElementTypes.TRY_STMT |
+        ScalaElementTypes.RETURN_STMT |
+        ScalaElementTypes.METHOD_CLOSURE |
+        ScalaElementTypes.THROW_STMT |
+        ScalaElementTypes.ASSIGN_STMT |
+        ScalaElementTypes.MATCH_STMT |
+        ScalaElementTypes.TYPED_EXPR_STMT if
         (ScalaElementTypes.FUNCTION_DEFINITION.equals(node.getTreeParent().getElementType)) => {
         "{...}"
       }
@@ -102,10 +101,10 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   }
 
   def isCollapsedByDefault(node: ASTNode): Boolean = {
-      false
-//    node.getElementType == ScalaTokenTypes.tCOMMENT_CONTENT &&
-//    node.getText.substring(0, 3).equals("/**") &&
-//    (node.getText.contains('\n') || node.getText.contains('\r'))
+    false
+    //    node.getElementType == ScalaTokenTypes.tCOMMENT_CONTENT &&
+    //    node.getText.substring(0, 3).equals("/**") &&
+    //    (node.getText.contains('\n') || node.getText.contains('\r'))
   }
 
 }
