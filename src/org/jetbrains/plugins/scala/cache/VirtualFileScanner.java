@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.HashSet;
 
 /**
+ * Implements all auxiliary operations with virtual file system
+ *
  * @author Ilya.Sergey
  */
 public class VirtualFileScanner {
@@ -34,7 +36,7 @@ public class VirtualFileScanner {
    *
    * @param file     File or directory
    * @param allFiles Method adds all found files into this set
-   * @param index file index to check file ignored
+   * @param index    file index to check file ignored
    */
   public static void addScalaFiles(@Nullable final VirtualFile file, @NotNull final Set<VirtualFile> allFiles, ProjectFileIndex index) {
     if (file == null || ScalaUtils.isVersionControlSysDir(file) || index.isIgnored(file)) {
@@ -52,9 +54,18 @@ public class VirtualFileScanner {
     }
   }
 
+  /**
+   * Returns virtual file by URL
+   *
+   * @param url File URL
+   * @return Instance of VirtualFile for given URL
+   */
   public static VirtualFile getFileByUrl(String url) {
-    VirtualFileManager fManager = VirtualFileManager.getInstance();
-    return fManager.findFileByUrl(url);
+    if (url != null) {
+      VirtualFileManager fManager = VirtualFileManager.getInstance();
+      return fManager.findFileByUrl(url);
+    }
+    return null;
   }
 }
 

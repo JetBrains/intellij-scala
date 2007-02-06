@@ -27,10 +27,6 @@ public interface ScalaFileInfo extends Serializable {
 
   public String toString();
 
-  public PsiClass getClassByName(String name);
-
-  public PsiClass[] getClassesByName(String name);
-
   public boolean containsClass(String name);
 
 
