@@ -132,14 +132,14 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
 
   def getChildren: Array[PsiElement] = PsiElement.EMPTY_ARRAY
 
-  def getPresentation(): ItemPresentation = {
+  override def getPresentation(): ItemPresentation = {
     new ItemPresentation() {
       def getPresentableText(): String = {
         getQualifiedName
       }
       override def getTextAttributesKey(): TextAttributesKey = null
       override def getLocationString(): String = null
-      override def getIcon(open: Boolean): Icon = myElement.getIcon(Iconable.ICON_FLAG_OPEN);
+      override def getIcon(open: Boolean): Icon = null;
     }
   }
 
