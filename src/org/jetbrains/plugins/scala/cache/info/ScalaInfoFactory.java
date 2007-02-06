@@ -19,7 +19,7 @@ public class ScalaInfoFactory {
    * @param project Current project
    * @param file    current file
    * @return ScalaFileInfo object containing information about file
-   *         or null if file cannot be found or isn`t ruby file
+   *         or null if file cannot be found or isn`t scala file
    */
 
   @Nullable
@@ -52,7 +52,7 @@ public class ScalaInfoFactory {
    * @param project Current project
    * @param file    current file
    * @return ScalaFileInfo object containing information about file
-   *         or null if file cannot be found or isn`t ruby file
+   *         or null if file cannot be found or isn`t scala file
    */
   public static  PsiJavaFile createPsiFile(@NotNull final Project project, @NotNull final VirtualFile file) {
     if (!file.isValid()) {
