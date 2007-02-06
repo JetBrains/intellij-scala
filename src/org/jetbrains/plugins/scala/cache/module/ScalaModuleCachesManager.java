@@ -6,11 +6,13 @@ import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.psi.PsiClass;
+import com.intellij.navigation.ChooseByNameRegistry;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.components.ScalaComponents;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 import org.jetbrains.plugins.scala.cache.info.ScalaFileInfo;
+import org.jetbrains.plugins.scala.gotoclass.ScalaChooseByNameContributor;
 
 /**
  * @author Ilya.Sergey
@@ -62,6 +64,10 @@ public class ScalaModuleCachesManager implements ModuleComponent {
         myModuleFilesCache.init(true);
       }
     });
+
+    ChooseByNameRegistry registry = ChooseByNameRegistry.getInstance();
+    registry.contributeToClasses(new ScalaChooseByNameContributor());
+
   }
 
   @NonNls

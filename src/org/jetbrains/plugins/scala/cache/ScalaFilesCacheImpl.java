@@ -306,15 +306,32 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
 
   public PsiClass[] getClassesByName(@NotNull final String qualifiedClassName) {
     PsiClass[] classes = getClassesInFileByClassName(qualifiedClassName);
-    ArrayList acc = new ArrayList<PsiClass>();
+    ArrayList<PsiClass> acc = new ArrayList<PsiClass>();
     for (PsiClass clazz : classes) {
       if (clazz.getQualifiedName().equals(qualifiedClassName)) {
         acc.add(clazz);
       }
     }
-    return (PsiClass[]) acc.toArray();
+    return acc.toArray(PsiClass.EMPTY_ARRAY);
   }
 
+  /**
+   *
+   * @return qualified names of all classes in current cache
+   */
+  public Collection<String> getAllClassNames() {
+    return myScalaFilesStorage.getAllClassNames();
+  }
+
+
+  /**
+   *
+   * @return short names of all classes in current cache
+   */
+  public Collection<String> getAllClassShortNames() {
+    return myScalaFilesStorage.getAllClassShortNames();
+  }
+  
 
   /**
    * Return all classes in file, in which contains current class
