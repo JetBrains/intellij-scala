@@ -4,13 +4,14 @@ import java.util.Set;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Arrays;
+import java.io.Serializable;
 
 /**
  * Stores info about all files, which contain classes with this name
  * 
  * @author Ilya.Sergey
  */
-public class ShortNameInfo {
+public class ShortNameInfo implements Serializable {
   private String className;
   private String[] fileUrls;
 
@@ -20,7 +21,6 @@ public class ShortNameInfo {
     for (String url: urls){
       getFileUrls().add(url);
     }
-
   }
 
   public String getClassName() {
