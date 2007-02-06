@@ -17,14 +17,16 @@ public class ScalaFileInfoImpl implements ScalaFileInfo {
 
   private final String myFileName;
   private final String myFileDirectoryUrl;
+  private final String myUrl;
   private final long myTimestamp;
   private transient PsiClass[] myClasses;
   private String[] myClassNames;
 
-  public ScalaFileInfoImpl(final String fileName, final String directoryUrl, final long timestamp) {
+  public ScalaFileInfoImpl(final String fileName, final String url, final String directoryUrl, final long timestamp) {
     myFileName = fileName;
     myFileDirectoryUrl = directoryUrl;
     myTimestamp = timestamp;
+    myUrl = url;
   }
 
   public long getFileTimestamp() {
@@ -37,7 +39,7 @@ public class ScalaFileInfoImpl implements ScalaFileInfo {
 
   @NotNull
   public String getFileUrl() {
-    return myFileDirectoryUrl + '/' + myFileName;
+    return myUrl;
   }
 
   public String getFileDirectoryUrl() {
