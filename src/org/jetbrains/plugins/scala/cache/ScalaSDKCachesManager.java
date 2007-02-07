@@ -180,7 +180,7 @@ public class ScalaSDKCachesManager implements ProjectComponent {
     final Set<ProjectJdk> cachedSDKs = new HashSet<ProjectJdk>(sdk2ScalaFilesCache.keySet());
     for (ProjectJdk sdk : cachedSDKs) {
       if (!sdk2Add.contains(sdk)) {
-        removeSDK(sdk, false);
+        removeSDK(sdk, true);
       } else {
         sdk2Add.remove(sdk);
       }
