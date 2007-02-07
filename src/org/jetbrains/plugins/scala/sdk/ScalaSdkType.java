@@ -88,7 +88,10 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
     }
 */
     // Adding jars with source
-    VirtualFile src = jarFileSystem.findFileByPath(getSourceDirPath(sdk));
+/*
+    String srcPath = getSourceDirPath(sdk);
+    dirPath = srcPath.replace(File.separator, "/");
+    VirtualFile src = LocalFileSystem.getInstance().findFileByPath(dirPath);
     if (src != null && src.isDirectory()) {
       for (VirtualFile srcFile : src.getChildren()) {
         if (srcFile.getName().endsWith(".jar")) {
@@ -96,6 +99,7 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
         }
       }
     }
+*/
 
     JavaSdkData data = (JavaSdkData) sdk.getSdkAdditionalData();
     if (data != null) {
