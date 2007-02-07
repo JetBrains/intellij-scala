@@ -88,15 +88,10 @@ public class ScalaSDKCachesManager implements ProjectComponent {
     };
 
     jdkTableListener = new ProjectJdkTable.Listener() {
-      public void jdkAdded(final ProjectJdk sdk) {
-        StartupManager.getInstance(myProject).runPostStartup(new Runnable() {
-          public void run() {
-            addSDK(sdk);
-          }
-        });
-      }
+      public void jdkAdded(final ProjectJdk sdk) {}
 
       public void jdkRemoved(final ProjectJdk sdk) {
+        
         removeSDK(sdk, true);
       }
 
