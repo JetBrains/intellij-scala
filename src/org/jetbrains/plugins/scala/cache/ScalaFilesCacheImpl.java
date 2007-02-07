@@ -63,10 +63,10 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
       myScalaFilesStorage = new ScalaFilesStorageImpl();
     }
 
-// Updating file cache, if some files are out of date
+    // Updating file cache, if some files are out of date
     refreshCache(creatingCache, runProcessWithProgressSynchronously);
 
-// Save updated cache on disk
+    // Save updated cache on disk
     saveCacheToDisk(runProcessWithProgressSynchronously);
   }
 

@@ -33,7 +33,7 @@ class ScPackaging(node: ASTNode) extends ScalaPsiElementImpl (node) with Blocked
       y.getNode.getElementType match
       {
         case ScalaElementTypes.PACKAGING => y.asInstanceOf[ScPackaging].getTmplDefs.toList ::: x
-        case _ => y.asInstanceOf[ScTmplDef] :: x
+        case _ => y.asInstanceOf[ScTmplDef].getTmplDefs.toList ::: x
       }
     )
 

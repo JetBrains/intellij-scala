@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTemplateStatement
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
 
 
 /**
@@ -38,16 +39,15 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
 
     import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTemplateBody
     val template = getTemplate
-    var body: ScTemplateBody = null
     if (template != null) {
-      body = template.getTemplateBody
+      val body = template.getTemplateBody
       if (body != null) {
         val children = body.childrenOfType[ScTmplDef](ScalaElementTypes.TMPL_DEF_BIT_SET)
-        return (children :\ (Nil: List[ScTmplDef]))((y: ScTmplDef, x: List[ScTmplDef]) =>
+        return this :: (children :\ (Nil: List[ScTmplDef]))((y: ScTmplDef, x: List[ScTmplDef]) =>
           y.asInstanceOf[ScTmplDef].getTmplDefs.toList ::: x)
       }
     }
-    return null
+    return List[ScTmplDef](this)
   }
 
   override def getName = nameNode.getText
@@ -62,11 +62,14 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
   */
   def getQualifiedName: String = {
     def append(s1: String, s2: String) = {if (s1 == "")  s2 else s1 + "." + s2}
-    def inner(e: PsiElement): String = {
+    def iAmInner(e: PsiElement): String = {
       val parent = e.getParent
       parent match {
-        case pack: ScPackaging => append(inner(parent), pack.asInstanceOf[ScPackaging].getFullPackageName)
-        case tmplDef: ScTmplDef => tmplDef.asInstanceOf[ScTmplDef].getQualifiedName
+        case pack: ScPackaging => append(iAmInner(parent), pack.asInstanceOf[ScPackaging].getFullPackageName)
+        case tmplBody: ScTemplateBody => {
+          append(iAmInner(tmplBody.getParent.getParent),
+                  tmplBody.getParent.getParent.asInstanceOf[ScTmplDef].getName)
+        }
         case f: ScalaFile => {
           val packageStatement = f.getChild(ScalaElementTypes.PACKAGE_STMT).asInstanceOf[ScPackageStatement]
           if (packageStatement == null) "" else {
@@ -77,7 +80,7 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
       }
     }
 
-    append(inner(this), getName)
+    append(iAmInner(this), getName)
   }
 
 

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.top.templates {
+package org.jetbrains.plugins.scala.lang.psi.impl.top.templates
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl;
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -11,51 +11,50 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
  * Time: 17:54:19
  */
 
- /*************** templates **************/
-  abstract class Template( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+/*************** templates **************/
+abstract class Template(node: ASTNode) extends ScalaPsiElementImpl (node) {
 
-    def getTemplateParents = getChild(ScalaElementTypes.TEMPLATE_PARENTS).asInstanceOf[ScTemplateParents]
+  def getTemplateParents = getChild(ScalaElementTypes.TEMPLATE_PARENTS).asInstanceOf[ScTemplateParents]
 
-    def getTemplateBody = getChild(ScalaElementTypes.TEMPLATE_BODY).asInstanceOf[ScTemplateBody]
+  def getTemplateBody = getChild(ScalaElementTypes.TEMPLATE_BODY).asInstanceOf[ScTemplateBody]
 
-    override def toString: String = "template"
-  }
+  override def toString: String = "template"
+}
 
-  case class ScTopDefTemplate( node : ASTNode ) extends Template ( node ) {
-    override def toString: String = "top definition" + " " + super.toString
-  }
-   
-  /*********** class **************/
+case class ScTopDefTemplate(node: ASTNode) extends Template (node) {
+  override def toString: String = "top definition" + " " + super.toString
+}
 
-  case class ScRequiresBlock( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "requires block"
-  }
+/*********** class **************/
 
-  case class ScExtendsBlock ( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "extends block"
-  }
+case class ScRequiresBlock(node: ASTNode) extends ScalaPsiElementImpl (node) {
+  override def toString: String = "requires block"
+}
+
+case class ScExtendsBlock(node: ASTNode) extends ScalaPsiElementImpl (node) {
+  override def toString: String = "extends block"
+}
 
 
-  case class ScTemplate( node : ASTNode ) extends Template ( node ) {
-    override def toString: String = super.toString
-  }
+case class ScTemplate(node: ASTNode) extends Template (node) {
+  override def toString: String = super.toString
+}
 
-  /**************** parents ****************/
+/**************** parents ****************/
 
-  class Parents( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "parents"
-  }
+class Parents(node: ASTNode) extends ScalaPsiElementImpl (node) {
+  override def toString: String = "parents"
+}
 
-  case class ScTemplateParents( node : ASTNode ) extends Parents ( node ) {
-    override def toString: String = "template" + " " + super.toString
-  }
+case class ScTemplateParents(node: ASTNode) extends Parents (node) {
+  override def toString: String = "template" + " " + super.toString
+}
 
-  case class ScMixinParents( node : ASTNode ) extends Parents ( node ) {
-    override def toString: String = "mixin" + " " + super.toString
-  }
+case class ScMixinParents(node: ASTNode) extends Parents (node) {
+  override def toString: String = "mixin" + " " + super.toString
+}
 
-  /***************** body *******************/
-  case class ScTemplateBody( node : ASTNode ) extends ScalaPsiElementImpl ( node ) with BlockedIndent{
-    override def toString: String = "template body"
-  }
+/***************** body *******************/
+case class ScTemplateBody(node: ASTNode) extends ScalaPsiElementImpl (node) with BlockedIndent{
+  override def toString: String = "template body"
 }
