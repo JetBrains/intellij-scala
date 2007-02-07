@@ -31,20 +31,23 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
   }
 
   /**
-  *  Return definitions of inner templates
+  *  Returns definitions of inner templates
   *
   */
   def getTmplDefs: Iterable[ScTmplDef] = {
 
     import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTemplateBody
-
     val template = getTemplate
     var body: ScTemplateBody = null
     if (template != null) {
       body = template.getTemplateBody
-      if (body != null) return body.childrenOfType[ScTmplDef](ScalaElementTypes.TMPL_DEF_BIT_SET)
+      if (body != null) {
+        val children = body.childrenOfType[ScTmplDef](ScalaElementTypes.TMPL_DEF_BIT_SET)
+        return (children :\ (Nil: List[ScTmplDef]))((y: ScTmplDef, x: List[ScTmplDef]) =>
+          y.asInstanceOf[ScTmplDef].getTmplDefs.toList ::: x)
+      }
     }
-    null
+    return null
   }
 
   override def getName = nameNode.getText
