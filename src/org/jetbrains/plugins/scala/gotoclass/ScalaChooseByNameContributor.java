@@ -10,10 +10,13 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.plugins.scala.cache.module.ScalaModuleCachesManager;
 import org.jetbrains.plugins.scala.cache.module.ScalaModuleCaches;
+import org.jetbrains.plugins.scala.cache.ScalaFilesCache;
+import org.jetbrains.plugins.scala.cache.ScalaSDKCachesManager;
 import org.jetbrains.plugins.scala.components.ScalaComponents;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 
 
 /**
@@ -32,6 +35,15 @@ public class ScalaChooseByNameContributor implements ChooseByNameContributor {
       ScalaModuleCaches caches = manager.getModuleFilesCache();
       acc.addAll(caches.getAllClassShortNames());
     }
+
+    if (includeNonProjectItems) {
+      Collection<ScalaFilesCache> sdkCaches = ((ScalaSDKCachesManager) project.getComponent(ScalaComponents.SCALA_SDK_CACHE_MANAGER)).
+              getSdkFilesCaches().values();
+      for (ScalaFilesCache sdkCache : sdkCaches) {
+        acc.addAll(sdkCache.getAllClassShortNames());
+      }
+    }
+
     if (acc.size() > 0) {
       return acc.toArray(new String[acc.size()]);
     } else {
@@ -49,6 +61,14 @@ public class ScalaChooseByNameContributor implements ChooseByNameContributor {
               (ScalaModuleCachesManager) module.getComponent(ScalaComponents.SCALA_CACHE_MANAGER);
       ScalaModuleCaches caches = manager.getModuleFilesCache();
       acc.addAll(Arrays.asList(caches.getClassesByShortClassName(name)));
+    }
+
+    if (includeNonProjectItems) {
+      Collection<ScalaFilesCache> sdkCaches = ((ScalaSDKCachesManager) project.getComponent(ScalaComponents.SCALA_SDK_CACHE_MANAGER)).
+              getSdkFilesCaches().values();
+      for (ScalaFilesCache sdkCache : sdkCaches) {
+        acc.addAll(Arrays.asList(sdkCache.getClassesByShortClassName(name)));
+      }
     }
 
     PsiClass[] candidats = acc.toArray(PsiClass.EMPTY_ARRAY);
