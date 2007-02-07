@@ -16,20 +16,22 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTempla
 
 
 /**
- * User: Dmitry.Krasilschikov
- * Date: 13.11.2006
- * Time: 15:08:18
+ *  Main class, that describes behaviour of scala templates, such ass class, object and trait
+ *  @see ScJavaClass
  */
-/*************** definitions **************/
+
   abstract class ScTmplDef( node : ASTNode ) extends ScalaPsiElementImpl ( node ) with TemplateIndent{
     override def toString: String = "template definition"
 
     def nameNode = {
       def isName = (elementType : IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
-
       childSatisfyPredicateForElementType(isName)
     }
 
+    /**
+    *  Return definitions of inner templates
+    *
+    */
     def getTmplDefs : Iterable[ScTmplDef] = {
 
       import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTemplateBody
@@ -38,23 +40,23 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTempla
       var body : ScTemplateBody = null
       if ( template != null) {
         body = template.getTemplateBody
-        // CHANGED!
         if (body != null ) return body.childrenOfType[ScTmplDef] (ScalaElementTypes.TMPL_DEF_BIT_SET)
-        //if (body != null ) return body.allChildrenOfType[ScTmplDef] (ScalaElementTypes.TMPL_DEF_BIT_SET)
       }
       null
     }
 
-    //todo: 
     override def getName = nameNode.getText
 
     override def getTextOffset = nameNode.getTextRange.getStartOffset
 
     def isTypeDef : boolean = { this.isInstanceOf[ScTypeDef] }
 
+    /**
+    * Returns qualified name of current template definition
+    *
+    */
     def getQualifiedName : String = {
       def append (s1 : String, s2 : String) = {if (s1 == "")  s2 else s1 + "." + s2}
-
       def inner (e : PsiElement) : String = {
         val parent = e.getParent
         parent match {
@@ -74,6 +76,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTempla
     }
 
     import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
+
     def getTemplate : ScTopDefTemplate = getChild(ScalaElementTypes.TOP_DEF_TEMPLATE).asInstanceOf[ScTopDefTemplate]
 
     [Nullable]
@@ -90,12 +93,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTempla
     }
   }
 
-  trait ScTypeDef extends ScTmplDef  with IfElseIndent{
-    def getTypeParameterClause : ScTypeParamClause = {
-      getChild(ScalaElementTypes.TYPE_PARAM_CLAUSE).asInstanceOf[ScTypeParamClause]
-    }
-
-  }
+/**********************************************************************************************************************/
+/******************************************* Concrete templates *******************************************************/
+/**********************************************************************************************************************/
 
   /*
   *   Class definition implementation
@@ -105,12 +105,26 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTempla
 
   }
 
+  /*
+  *   Object definition implementation
+  */
   case class ScObjectDefinition( node : ASTNode ) extends ScTmplDef ( node ){
     override def toString: String = super.toString + ": " + "object"
 
-    //todo
   }
 
+  /*
+  *   Trait definition implementation
+  */
+  trait ScTypeDef extends ScTmplDef  with IfElseIndent{
+    def getTypeParameterClause : ScTypeParamClause = {
+      getChild(ScalaElementTypes.TYPE_PARAM_CLAUSE).asInstanceOf[ScTypeParamClause]
+    }
+  }
+
+  /*
+  *   Trait definition implementation
+  */
   case class ScTraitDefinition( node : ASTNode ) extends ScTypeDef (node) {
     override def toString: String = super.toString + ": " + "trait"
   }
