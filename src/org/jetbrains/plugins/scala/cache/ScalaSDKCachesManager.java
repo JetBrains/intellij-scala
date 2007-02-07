@@ -140,10 +140,6 @@ public class ScalaSDKCachesManager implements ProjectComponent {
         moduleConnection.subscribe(ProjectTopics.MODULES, moduleListener);
         rootConnection.subscribe(ProjectTopics.PROJECT_ROOTS, moduleRootListener);
         ProjectJdkTable.getInstance().addListener(jdkTableListener);
-
-        //myProject.getComponent(ModuleManager.class).addModuleListener(moduleListener);
-        //ProjectRootManager.getInstance(myProject).addModuleRootListener(moduleRootListener);
-
       }
     });
   }
@@ -157,9 +153,6 @@ public class ScalaSDKCachesManager implements ProjectComponent {
     if (rootConnection != null) {
       rootConnection.disconnect();
     }
-    //myProject.getComponent(ModuleManager.class).removeModuleListener(sModuleListener);
-    //ProjectRootManager.getInstance(myProject).removeModuleRootListener(moduleRootListener);
-
     ProjectJdkTable.getInstance().removeListener(jdkTableListener);
 
     sdk2ScalaFilesCache.clear();
