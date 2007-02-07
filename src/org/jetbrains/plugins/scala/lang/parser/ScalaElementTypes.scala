@@ -278,44 +278,25 @@ object ScalaElementTypes {
   val TYPE_PATTERN = new ScalaElementType("Type pattern")
 
 
-  /*************************************************************************************/
-  /************************************** KEYWORDS *************************************/
-  /************************************************************************************/
 
   val STATEMENT_SEPARATOR = new ScalaElementType("statement separator")
 
-//ordinary identifier
-
-//top
- // val TOP_STAT = new ScalaElementType("top stat")
- // val TOP_STAT_SEQ = new ScalaElementType("top stat sequence")
-
-//types
-
   val IMPLICIT_END = new ScalaElementType("implicit end")
-
 
   val COMPOSITE_TYPE = new ScalaElementType("type with =>")
 
   val TYPE_WITH_TYPES = new ScalaElementType("type WITH types")
   val REFINEMENT = new ScalaElementType("refinement")
 
-  //method closure - ?
-
   val ARGUMENT_EXPR = new ScalaElementType("argument expr")
 
+  /*************************************************************************************/
+  /***************************** PACKAGINGS & TEMPLATES ********************************/
+  /*************************************************************************************/
 
-  //todo: supplement elements
+  val PACKAGING_BIT_SET = TokenSet.create (Array.apply(PACKAGING))
 
-  val a = new Array[IElementType](1)
-  a.update(0, PACKAGING);
-  val PACKAGING_BIT_SET = TokenSet.create ( a )
-
-  val a1 = new Array[IElementType](3)
-  a1.update(0, OBJECT_DEF)
-  a1.update(1, CLASS_DEF)
-  a1.update(2, TRAIT_DEF)
-  val TMPL_DEF_BIT_SET = TokenSet.create (a1)
+  val TMPL_DEF_BIT_SET = TokenSet.create (Array.apply(OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
 
   val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create (Array.apply(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
 

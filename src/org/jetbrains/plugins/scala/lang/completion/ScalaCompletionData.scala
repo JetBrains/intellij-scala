@@ -129,10 +129,9 @@ class ScalaCompletionData extends CompletionData {
     val afterDotFilter = new LeftNeighbour(new TextFilter("."))
     var variant = new CompletionVariant(new NotFilter(afterDotFilter));
     variant.includeScopeClass(classOf[LeafPsiElement].asInstanceOf[java.lang.Class[LeafPsiElement]], true);
-    //    variant.includeScopeClass(classOf[ScExprImpl].asInstanceOf[java.lang.Class[ScExprImpl]], false);
     variant.addCompletionFilterOnElement(TrueFilter.INSTANCE)
-    var keywords = Array("true", "false", "null", "case", "catch", "def", "else", "finally", "for", "if", "match", "new", "override", "return", "super", "this", "throw", "try", "type", "while", "with", "yield")
-
+    var keywords = Array("true", "false", "null", "case", "catch", "def", "else", "finally", "for", "if", "match",
+            "new", "override", "return", "super", "this", "throw", "try", "type", "while", "with", "yield")
     variant.addCompletion(keywords)
     registerVariant(variant)
   }
