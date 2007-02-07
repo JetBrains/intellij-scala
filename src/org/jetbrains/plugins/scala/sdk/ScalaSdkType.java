@@ -21,11 +21,17 @@ import java.io.File;
  * @author ven
  */
 public class ScalaSdkType extends SdkType implements ApplicationComponent {
-  @NonNls private static final String BIN_DIR_NAME = "bin";
+  @NonNls
+  private static final String BIN_DIR_NAME = "bin";
 
-  @NonNls private static final String LIB_DIR_NAME = "lib";
+  @NonNls
+  private static final String LIB_DIR_NAME = "lib";
 
-  @NonNls private static final String SCALA_EXE_NAME = SystemInfo.isWindows ? "scala.bat" : "scala";
+  @NonNls
+  private static final String SRC_DIR_NAME = "src";
+
+  @NonNls
+  private static final String SCALA_EXE_NAME = SystemInfo.isWindows ? "scala.bat" : "scala";
   private static final String JAVA_SDK_NAME = "JAVA_SDK_NAME";
 
   public ScalaSdkType() {
@@ -75,9 +81,20 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
       }
     }
 
+/*
     VirtualFile srcZip = jarFileSystem.findFileByPath(getConvertedHomePath(sdk) + "src.zip" + JarFileSystem.JAR_SEPARATOR);
     if (srcZip != null) {
       sdkModificator.addRoot(srcZip, ProjectRootType.SOURCE);
+    }
+*/
+    // Adding jars with source
+    VirtualFile src = jarFileSystem.findFileByPath(getSourceDirPath(sdk));
+    if (src != null && src.isDirectory()) {
+      for (VirtualFile srcFile : src.getChildren()) {
+        if (srcFile.getName().endsWith(".jar")) {
+          sdkModificator.addRoot(srcFile, ProjectRootType.SOURCE);
+        }
+      }
     }
 
     JavaSdkData data = (JavaSdkData) sdk.getSdkAdditionalData();
@@ -98,8 +115,8 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
 
   private void addDocsForJava(SdkModificator sdkModificator, @NotNull Sdk javaSdk) {
     if (!addOrderEntriesForJava(OrderRootType.JAVADOC, ProjectRootType.JAVADOC, javaSdk, sdkModificator) &&
-        SystemInfo.isMac){
-      ProjectJdk [] jdks = ProjectJdkTable.getInstance().getAllJdks();
+            SystemInfo.isMac) {
+      ProjectJdk[] jdks = ProjectJdkTable.getInstance().getAllJdks();
       for (ProjectJdk jdk : jdks) {
         if (jdk.getSdkType() instanceof JavaSdk) {
           addOrderEntriesForJava(OrderRootType.JAVADOC, ProjectRootType.JAVADOC, jdk, sdkModificator);
@@ -110,21 +127,20 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
   }
 
   private void addSourcesForJava(SdkModificator sdkModificator, @NotNull Sdk javaSdk) {
-    if (!addOrderEntriesForJava(OrderRootType.SOURCES, ProjectRootType.SOURCE, javaSdk, sdkModificator)){
+    if (!addOrderEntriesForJava(OrderRootType.SOURCES, ProjectRootType.SOURCE, javaSdk, sdkModificator)) {
       if (SystemInfo.isMac) {
-        ProjectJdk [] jdks = ProjectJdkTable.getInstance().getAllJdks();
+        ProjectJdk[] jdks = ProjectJdkTable.getInstance().getAllJdks();
         for (ProjectJdk jdk : jdks) {
           if (jdk.getSdkType() instanceof JavaSdk) {
             addOrderEntriesForJava(OrderRootType.SOURCES, ProjectRootType.SOURCE, jdk, sdkModificator);
             break;
           }
         }
-      }
-      else {
+      } else {
         final File jdkHome = new File(javaSdk.getHomePath()).getParentFile();
         @NonNls final String srcZip = "src.zip";
         final File jarFile = new File(jdkHome, srcZip);
-        if (jarFile.exists()){
+        if (jarFile.exists()) {
           JarFileSystem jarFileSystem = JarFileSystem.getInstance();
           String path = jarFile.getAbsolutePath().replace(File.separatorChar, '/') + JarFileSystem.JAR_SEPARATOR;
           jarFileSystem.setNoCopyJarForPath(path);
@@ -137,7 +153,7 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
   private boolean addOrderEntriesForJava(OrderRootType orderRootType,
                                          ProjectRootType projectRootType,
                                          Sdk sdk,
-                                         SdkModificator toModificator){
+                                         SdkModificator toModificator) {
     boolean wasSmthAdded = false;
     final String[] entries = sdk.getRootProvider().getUrls(orderRootType);
     for (String entry : entries) {
@@ -174,7 +190,7 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
   }
 
   @Nullable
-  public String getScalaCompilerPath (Sdk sdk) {
+  public String getScalaCompilerPath(Sdk sdk) {
     return getLibraryDirPath(sdk) + File.separatorChar + "scala-compiler.jar";
   }
 
@@ -206,6 +222,10 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
 
   private String getLibraryDirPath(Sdk sdk) {
     return getConvertedHomePath(sdk) + LIB_DIR_NAME;
+  }
+
+  private String getSourceDirPath(Sdk sdk) {
+    return getConvertedHomePath(sdk) + SRC_DIR_NAME;
   }
 
   public void saveAdditionalData(SdkAdditionalData additionalData, Element additional) {
