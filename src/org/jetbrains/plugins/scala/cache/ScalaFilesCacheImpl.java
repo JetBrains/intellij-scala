@@ -370,8 +370,8 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
         FileViewProvider provider = psiFile.getViewProvider();
         PsiJavaFile javaPsi = (PsiJavaFile) provider.getPsi(StdLanguages.JAVA);
         PsiClass classes[] = javaPsi.getClasses();
-        for (PsiClass clazz: classes) {
-          if (shortName.equals(clazz.getName())){
+        for (PsiClass clazz : classes) {
+          if (shortName.equals(clazz.getName())) {
             acc.add(clazz);
           }
         }
@@ -435,6 +435,20 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
       loadCacheRunnable.run();
     }
     return storage[0];
+  }
+
+
+  public void removeCacheFile() {
+    final File dataFile = new File(myCacheDataFilePath);
+    try {
+      if (dataFile.exists()) {
+        final File parentDir = dataFile.getParentFile();
+        dataFile.delete();
+        parentDir.delete();
+      }
+    } catch (SecurityException e) {
+      e.printStackTrace();
+    }
   }
 
 

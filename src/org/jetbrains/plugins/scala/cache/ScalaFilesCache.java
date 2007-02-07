@@ -35,4 +35,6 @@ public interface ScalaFilesCache {
 
   public PsiClass[] getClassesByShortClassName(@NotNull String shortName);
 
+  public void removeCacheFile();
+
 }
