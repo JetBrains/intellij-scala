@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTemplateStatement
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
+import org.jetbrains.plugins.scala.icons.Icons 
 
 
 /**
@@ -111,6 +112,7 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
 case class ScClassDefinition(node: ASTNode) extends ScTypeDef (node){
   override def toString: String = super.toString + ": " + "class"
 
+  override def getIcon(flags : Int) = Icons.CLASS
 }
 
 /*
@@ -119,6 +121,7 @@ case class ScClassDefinition(node: ASTNode) extends ScTypeDef (node){
 case class ScObjectDefinition(node: ASTNode) extends ScTmplDef (node){
   override def toString: String = super.toString + ": " + "object"
 
+  override def getIcon(flags : Int) = Icons.OBJECT
 }
 
 /*
@@ -135,4 +138,6 @@ trait ScTypeDef extends ScTmplDef  with IfElseIndent{
 */
 case class ScTraitDefinition(node: ASTNode) extends ScTypeDef (node) {
   override def toString: String = super.toString + ": " + "trait"
+
+  override def getIcon(flags : Int) = Icons.TRAIT
 }
