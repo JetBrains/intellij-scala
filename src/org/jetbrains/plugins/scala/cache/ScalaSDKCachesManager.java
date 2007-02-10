@@ -40,10 +40,6 @@ public class ScalaSDKCachesManager implements ProjectComponent {
   @NonNls
   private static final String SCALA_CACHE_FILE = "sdk";
 
-  private ModuleListener moduleListener;
-  private MessageBusConnection moduleConnection;
-  private ModuleRootListener moduleRootListener;
-  private MessageBusConnection rootConnection;
   private ProjectJdkTable.Listener jdkTableListener;
 
   private Project myProject;
@@ -56,36 +52,6 @@ public class ScalaSDKCachesManager implements ProjectComponent {
 
 
   private void createListeners() {
-    moduleListener = new ModuleListener() {
-      public void moduleAdded(final Project project, final Module module) {
-        modulesChanged(project, module);
-      }
-
-      public void beforeModuleRemoved(Project project, Module module) {
-
-      }
-
-      public void moduleRemoved(final Project project, final Module module) {
-        modulesChanged(project, module);
-      }
-
-      public void modulesRenamed(Project project, List<Module> modules) {
-
-      }
-    };
-
-    moduleRootListener = new ModuleRootListener() {
-      public void beforeRootsChange(final ModuleRootEvent event) {
-      }
-
-      public void rootsChanged(final ModuleRootEvent event) {
-        final Project project = (Project) event.getSource();
-        if (project != myProject) {
-          return;
-        }
-        initSkdCaches(project);
-      }
-    };
 
     jdkTableListener = new ProjectJdkTable.Listener() {
       public void jdkAdded(final ProjectJdk sdk) {
@@ -116,10 +82,6 @@ public class ScalaSDKCachesManager implements ProjectComponent {
   public void projectClosed() {
   }
 
-  private void modulesChanged(@NotNull final Project project, @NotNull final Module module) {
-    initSkdCaches(project);
-  }
-
   @NonNls
   @NotNull
   public String getComponentName() {
@@ -131,31 +93,20 @@ public class ScalaSDKCachesManager implements ProjectComponent {
       public void run() {
         initSkdCaches(myProject);
         //  register listeners
-        moduleConnection = myProject.getMessageBus().connect();
-        rootConnection = myProject.getMessageBus().connect();
-        moduleConnection.subscribe(ProjectTopics.MODULES, moduleListener);
-        rootConnection.subscribe(ProjectTopics.PROJECT_ROOTS, moduleRootListener);
         ProjectJdkTable.getInstance().addListener(jdkTableListener);
       }
     });
   }
 
   public void disposeComponent() {
-
     // unregistering listeners
-    if (moduleConnection != null) {
-      moduleConnection.disconnect();
-    }
-    if (rootConnection != null) {
-      rootConnection.disconnect();
-    }
     ProjectJdkTable.getInstance().removeListener(jdkTableListener);
-
     sdk2ScalaFilesCache.clear();
   }
 
 
-  protected void initSkdCaches(final Project project) {
+  public void initSkdCaches(final Project project) {
+
     final Module[] modules = ModuleManager.getInstance(myProject).getModules();
     final Set<ProjectJdk> sdk2Add = new HashSet<ProjectJdk>();
     // Searching for all used sdk
@@ -193,7 +144,7 @@ public class ScalaSDKCachesManager implements ProjectComponent {
     }
   }
 
-  protected void addSDK(@NotNull final ProjectJdk sdk) {
+  public void addSDK(@NotNull final ProjectJdk sdk) {
     final ScalaFilesCache newSdkCache = new ScalaFilesCacheImpl(myProject);
     newSdkCache.setCacheName(sdk.getName());
     newSdkCache.setCacheUrls(getSDKContentRootURLs(sdk));

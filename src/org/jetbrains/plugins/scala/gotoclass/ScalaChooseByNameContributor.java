@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.cache.module.ScalaModuleCachesManager;
 import org.jetbrains.plugins.scala.cache.module.ScalaModuleCaches;
 import org.jetbrains.plugins.scala.cache.ScalaFilesCache;
 import org.jetbrains.plugins.scala.cache.ScalaSDKCachesManager;
+import org.jetbrains.plugins.scala.cache.ScalaLibraryCachesManager;
 import org.jetbrains.plugins.scala.components.ScalaComponents;
 
 import java.util.ArrayList;
@@ -42,6 +43,12 @@ public class ScalaChooseByNameContributor implements ChooseByNameContributor {
       for (ScalaFilesCache sdkCache : sdkCaches) {
         acc.addAll(sdkCache.getAllClassShortNames());
       }
+
+      Collection<ScalaFilesCache> libCaches = ((ScalaLibraryCachesManager) project.getComponent(ScalaComponents.SCALA_LIBRARY_CACHE_MANAGER)).
+              getLibraryFilesCaches().values();
+      for (ScalaFilesCache libCache : libCaches) {
+        acc.addAll(libCache.getAllClassShortNames());
+      }
     }
 
     if (acc.size() > 0) {
@@ -68,6 +75,12 @@ public class ScalaChooseByNameContributor implements ChooseByNameContributor {
               getSdkFilesCaches().values();
       for (ScalaFilesCache sdkCache : sdkCaches) {
         acc.addAll(Arrays.asList(sdkCache.getClassesByShortClassName(name)));
+      }
+
+      Collection<ScalaFilesCache> libCaches = ((ScalaLibraryCachesManager) project.getComponent(ScalaComponents.SCALA_LIBRARY_CACHE_MANAGER)).
+              getLibraryFilesCaches().values();
+      for (ScalaFilesCache libCache : libCaches) {
+        acc.addAll(Arrays.asList(libCache.getClassesByShortClassName(name)));
       }
     }
 
