@@ -63,7 +63,6 @@ public class ScalaModuleCachesManager implements ModuleComponent {
   private ScalaModuleCaches myModuleFilesCache;
   private ScalaFilesCache sdkScalaFilesCache;
   private Map<Library, ScalaFilesCache> libraryScalaFilesCache = new HashMap<Library, ScalaFilesCache>();
-  private Map<Module, ScalaFilesCache> moduleScalaFilesCache = new HashMap<Module, ScalaFilesCache>();
 
   private ScalaSDKCachesManager sdkCachesManager;
   private ScalaLibraryCachesManager libraryCachesManager;
@@ -97,7 +96,6 @@ public class ScalaModuleCachesManager implements ModuleComponent {
       public void rootsChanged(final ModuleRootEvent event) {
 
         libraryScalaFilesCache = new HashMap<Library, ScalaFilesCache>();
-        moduleScalaFilesCache = new HashMap<Module, ScalaFilesCache>();
         sdkScalaFilesCache = null;
 
         sdkCachesManager.initSkdCaches(myModule.getProject());
@@ -179,6 +177,7 @@ public class ScalaModuleCachesManager implements ModuleComponent {
   }
 
   public void disposeComponent() {
+    myModuleFilesCache.dispose();
     if (rootConnection != null) {
       rootConnection.disconnect();
     }
