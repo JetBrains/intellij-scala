@@ -35,6 +35,7 @@
       <implementation-class>org.jetbrains.plugins.scala.cache.ScalaSDKCachesManager</implementation-class>
     </component>
     <component>
+      <interface-class>com.intellij.psi.PsiElementFinder</interface-class>
       <implementation-class>org.jetbrains.plugins.scala.finder.ScalaPsiElementFinder</implementation-class>
     </component>
   </project-components>
