@@ -17,6 +17,7 @@ import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.JarFileSystem;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
@@ -27,6 +28,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * @author ven
@@ -34,18 +37,31 @@ import java.util.*;
 public class ScalaCompiler implements TranslatingCompiler {
   private static final Logger LOG = Logger.getInstance("org.jetbrains.plugins.scala.compiler.ScalaCompiler");
   private static final String CLASS_PATH_LIST_SEPARATOR = SystemInfo.isWindows ? ";" : ":";
+  private Project myProject;
+
+  public ScalaCompiler(Project project) {
+    myProject = project;
+  }
 
   public boolean isCompilableFile(VirtualFile virtualFile, CompileContext compileContext) {
     return ScalaFileType.SCALA_FILE_TYPE.equals(virtualFile.getFileType());
   }
 
   class ScalaCompileExitStatus implements ExitStatus {
+    private OutputItem[] myCompiledItems;
+    private VirtualFile[] myToRecompile;
+
+    public ScalaCompileExitStatus(Set<OutputItem> compiledItems, VirtualFile[] toRecompile) {
+      myToRecompile = toRecompile;
+      myCompiledItems = compiledItems.toArray(new OutputItem[compiledItems.size()]);
+    }
+
     public OutputItem[] getSuccessfullyCompiled() {
-      return new OutputItem[0];
+      return myCompiledItems;
     }
 
     public VirtualFile[] getFilesToRecompile() {
-      return new VirtualFile[0];
+      return myToRecompile;
     }
   }
 
@@ -53,9 +69,12 @@ public class ScalaCompiler implements TranslatingCompiler {
 
   public ExitStatus compile(CompileContext compileContext, final VirtualFile[] virtualFiles) {
     Map<Module, Set<VirtualFile>> map = buildModuleToFilesMap(compileContext, virtualFiles);
+    Set<OutputItem> compiledItems = new HashSet<OutputItem>();
+    Set<VirtualFile> allCompiling = new HashSet<VirtualFile>();
     for (Map.Entry<Module, Set<VirtualFile>> entry : map.entrySet()) {
       Module module = entry.getKey();
       Set<VirtualFile> files = entry.getValue();
+      allCompiling.addAll(files);
       ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
       ProjectJdk sdk = rootManager.getJdk();
       assert sdk != null && sdk.getSdkType() instanceof ScalaSdkType;
@@ -118,9 +137,10 @@ public class ScalaCompiler implements TranslatingCompiler {
         printer.close();
 
         commandLine.addParameter(f.getPath());
-        final ScalacOSProcessHandler processHandler = new ScalacOSProcessHandler(commandLine, compileContext);
+        final ScalacOSProcessHandler processHandler = new ScalacOSProcessHandler(commandLine, compileContext, myProject);
         processHandler.startNotify();
         processHandler.waitFor();
+        compiledItems.addAll(processHandler.getSuccessfullyCompiled());
       } catch (IOException e) {
         LOG.error (e);
         return new RecompileExitStatus(virtualFiles);
@@ -130,7 +150,11 @@ public class ScalaCompiler implements TranslatingCompiler {
       }
     }
 
-    return new ScalaCompileExitStatus();
+    VirtualFile[] toRecompile = compiledItems.size() == allCompiling.size() ?
+        VirtualFile.EMPTY_ARRAY :
+        allCompiling.toArray(new VirtualFile[allCompiling.size()]);
+
+    return new ScalaCompileExitStatus(compiledItems, toRecompile);
   }
 
   private static Map<Module, Set<VirtualFile>> buildModuleToFilesMap(final CompileContext context, final VirtualFile[] files) {

@@ -55,7 +55,7 @@ public class ScalaLoader implements ApplicationComponent, Configurable {
 
     ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
       public void projectOpened(Project project) {
-        CompilerManager.getInstance(project).addCompiler(new ScalaCompiler());
+        CompilerManager.getInstance(project).addCompiler(new ScalaCompiler(project));
       }
     });
     

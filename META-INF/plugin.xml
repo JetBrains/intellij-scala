@@ -4,25 +4,50 @@
   <description>Plugin for scala language</description>
   <version>1.0</version>
   <vendor>YourCompany</vendor>
-  <idea-version since-build="3000"/>
-    <application-components>
-      <component>
-        <interface-class>org.jetbrains.plugins.scala.util.ScalaToolsFactory</interface-class>
-        <implementation-class>org.jetbrains.plugins.scala.util.ScalaToolsFactoryImpl</implementation-class>
-      </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.ScalaLoader</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.sdk.ScalaSdkType</implementation-class>
-        </component>
-    </application-components>
-    <project-components/>
+  <idea-version since-build="6666"/>
+  <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
-    <!--actions>
-        <action id="NewScalaFile" class="org.jetbrains.plugins.scala.actions.NewScalaFileCreate" text="Scala file"
-                description="Create new Scala file">
-            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
-        </action>
-    </actions-->
+  <application-components>
+    <component>
+      <interface-class>org.jetbrains.plugins.scala.util.ScalaToolsFactory</interface-class>
+      <implementation-class>org.jetbrains.plugins.scala.util.ScalaToolsFactoryImpl</implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.ScalaLoader</implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.sdk.ScalaSdkType</implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.components.ScalaFileCreator</implementation-class>
+    </component>
+  </application-components>
+
+
+  <module-components>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.cache.module.ScalaModuleCachesManager</implementation-class>
+    </component>
+  </module-components>
+
+  <project-components>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.cache.ScalaSDKCachesManager</implementation-class>
+    </component>
+    <component>
+     <interface-class>com.intellij.psi.PsiElementFinder</interface-class> 
+     <implementation-class>org.jetbrains.plugins.scala.finder.ScalaPsiElementFinder</implementation-class>
+    </component>
+  </project-components>
+
+
+  <actions>
+    <!--action id="NewScalaFile" class="org.jetbrains.plugins.scala.actions.creators.NewScalaFileCreate" text="Scala file"
+            description="Create new Scala file">
+        <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
+    </action-->
+    <!--<group id="NEW_FILE_GROUP" class="org.jetbrains.plugins.ruby.rails.actions.generators.actions.GeneratorsActionGroup" popup = "false">
+        <add-to-group group-id="NewGroup" anchor="first"/>
+    </group>-->
+  </actions>
 </idea-plugin>
