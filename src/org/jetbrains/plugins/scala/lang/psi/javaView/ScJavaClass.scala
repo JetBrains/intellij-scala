@@ -24,7 +24,7 @@ import javax.swing._
 
 
 
-import org.jetbrains.plugins.scala.lang.psi.impl.top.defs.ScTmplDef
+import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 
 /**
 * @author ven
