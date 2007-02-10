@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.cache.info.ScalaFileInfo;
 import org.jetbrains.plugins.scala.cache.VirtualFileScanner;
 import org.jetbrains.plugins.scala.cache.ScalaSDKCachesManager;
 import org.jetbrains.plugins.scala.cache.ScalaFilesCache;
+import org.jetbrains.plugins.scala.cache.ScalaLibraryCachesManager;
 
 import java.util.Map;
 import java.util.ArrayList;
@@ -58,6 +59,15 @@ public class ScalaPsiElementFinder implements PsiElementFinder, ProjectComponent
       }
     }
 
+    Collection<ScalaFilesCache> libraryCaches = ((ScalaLibraryCachesManager) myProject.getComponent(ScalaComponents.SCALA_LIBRARY_CACHE_MANAGER)).
+            getLibraryFilesCaches().values();
+    for (ScalaFilesCache libraryCache : libraryCaches) {
+      PsiClass clazz;
+      if ((clazz = libraryCache.getClassByName(qualifiedName)) != null) {
+        return clazz;
+      }
+    }
+
     return null;
   }
 
@@ -80,6 +90,15 @@ public class ScalaPsiElementFinder implements PsiElementFinder, ProjectComponent
             getSdkFilesCaches().values();
     for (ScalaFilesCache sdkCache : sdkCaches) {
       PsiClass[] classes = sdkCache.getClassesByName(qualifiedName);
+      for (PsiClass clazz : classes) {
+        classesAcc.add(clazz);
+      }
+    }
+
+    Collection<ScalaFilesCache> libraryCaches = ((ScalaLibraryCachesManager) myProject.getComponent(ScalaComponents.SCALA_LIBRARY_CACHE_MANAGER)).
+            getLibraryFilesCaches().values();
+    for (ScalaFilesCache libCache : libraryCaches) {
+      PsiClass[] classes = libCache.getClassesByName(qualifiedName);
       for (PsiClass clazz : classes) {
         classesAcc.add(clazz);
       }
