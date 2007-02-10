@@ -226,7 +226,6 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
       ProjectFileIndex index = ProjectRootManager.getInstance(myProject).getFileIndex();
       VirtualFileScanner.addScalaFiles(root, filesToAdd, index);
     }
-
     return filesToAdd;
   }
 
