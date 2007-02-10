@@ -3,47 +3,24 @@ package org.jetbrains.plugins.scala.cache.module;
 import com.intellij.openapi.module.ModuleComponent;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.ex.ProjectRootManagerEx;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.project.ModuleListener;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.ProjectJdkTable;
-import com.intellij.openapi.projectRoots.ProjectJdk;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiExternalChangeAction;
-import com.intellij.psi.PsiTreeChangeEvent;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.impl.PsiTreeChangeEventImpl;
-import com.intellij.psi.impl.PsiManagerImpl;
-import com.intellij.psi.impl.PsiManagerConfiguration;
 import com.intellij.navigation.ChooseByNameRegistry;
-import com.intellij.j2ee.openapi.ex.ExternalResourceManagerEx;
-import com.intellij.ide.errorTreeView.SimpleMessageElement;
-import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.ProjectTopics;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.components.ScalaComponents;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
-import org.jetbrains.plugins.scala.cache.info.ScalaFileInfo;
 import org.jetbrains.plugins.scala.cache.ScalaFilesCache;
 import org.jetbrains.plugins.scala.cache.ScalaSDKCachesManager;
 import org.jetbrains.plugins.scala.cache.ScalaLibraryCachesManager;
-import org.jetbrains.plugins.scala.gotoclass.ScalaChooseByNameContributor;
+import org.jetbrains.plugins.scala.cache.gotoclass.ScalaChooseByNameContributor;
 
-import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Collection;
 
 /**
  * @author Ilya.Sergey
