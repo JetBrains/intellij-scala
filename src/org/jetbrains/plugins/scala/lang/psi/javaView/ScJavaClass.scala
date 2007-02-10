@@ -136,7 +136,7 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
     var qualName = getQualifiedName;
     val index = qualName.lastIndexOf('.');
     if (index < 0 || index >= (qualName.length() - 1))
-      qualName
+      ""
     else
       qualName.substring(0, index);
   }
@@ -150,7 +150,10 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
         getName
       }
       override def getTextAttributesKey(): TextAttributesKey = null
-      override def getLocationString(): String = '(' + getPath + ')'
+      override def getLocationString(): String = getPath match {
+        case "" => ""
+        case _  => '(' + getPath + ')'
+      }
       override def getIcon(open: Boolean): Icon = scClass match {
         case _ : ScClassDefinition => ScalaIcons.SCALA_CLASS
         case _ : ScTraitDefinition => ScalaIcons.SCALA_TRAIT
