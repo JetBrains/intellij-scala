@@ -72,7 +72,7 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
   private void parseOutput(String text) {
     if (myMessage != null) {
       if (myColumnOnNextLine) {
-        int column = text.indexOf(ourColumnMarker);
+        int column = text.indexOf(ourColumnMarker) + 1;
         if (column < 0) column = 1;
         myContext.addMessage(CompilerMessageCategory.ERROR, myMessage, myUrl, myLineNumber, column);
         myMessage = null;
