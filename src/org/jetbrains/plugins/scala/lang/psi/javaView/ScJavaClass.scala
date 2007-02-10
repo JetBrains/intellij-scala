@@ -144,14 +144,19 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
   override def getPresentation(): ItemPresentation = {
     new ItemPresentation() {
 
-      import org.jetbrains.plugins.scala.ScalaFileType
+      import org.jetbrains.plugins.scala._
 
       def getPresentableText(): String = {
         getName
       }
       override def getTextAttributesKey(): TextAttributesKey = null
       override def getLocationString(): String = '(' + getPath + ')'
-      override def getIcon(open: Boolean): Icon = ScalaFileType.SCALA_LOGO;
+      override def getIcon(open: Boolean): Icon = scClass match {
+        case _ : ScClassDefinition => ScalaIcons.SCALA_CLASS
+        case _ : ScTraitDefinition => ScalaIcons.SCALA_TRAIT
+        case _ : ScObjectDefinition => ScalaIcons.SCALA_OBJECT
+        case _  => ScalaFileType.SCALA_LOGO
+      }
     }
   }
 
