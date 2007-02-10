@@ -47,6 +47,16 @@ public abstract class ScalaUtils {
 
   /**
    * @param module Module to get content root
+   * @return VirtualFile array corresponding to content roots of current module
+   */
+  @NotNull
+  public static VirtualFile[] getModuleRoots(@NotNull final Module module) {
+    final VirtualFile[] roots = ModuleRootManager.getInstance(module).getContentRoots();
+    return roots;
+  }
+
+  /**
+   * @param module Module to get content root
    * @return VirtualFile corresponding to content root
    */
   @NotNull
