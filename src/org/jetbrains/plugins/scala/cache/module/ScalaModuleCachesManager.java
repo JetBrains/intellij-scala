@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.util.ScalaUtils;
 import org.jetbrains.plugins.scala.cache.ScalaFilesCache;
 import org.jetbrains.plugins.scala.cache.ScalaSDKCachesManager;
 import org.jetbrains.plugins.scala.cache.ScalaLibraryCachesManager;
-import org.jetbrains.plugins.scala.cache.gotoclass.ScalaChooseByNameContributor;
+import org.jetbrains.plugins.scala.gotoclass.ScalaChooseByNameContributor;
 
 import java.util.Map;
 import java.util.HashMap;
