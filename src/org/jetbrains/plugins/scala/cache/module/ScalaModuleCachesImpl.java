@@ -37,6 +37,7 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
 
   public void init(boolean b) {
     super.init(b);
+    registerCacheUpdater();
     registerListeners();
   }
 
@@ -52,7 +53,12 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
     PsiManager.getInstance(myModule.getProject()).addPsiTreeChangeListener(
             new ScalaPsiTreeListener(this)
     );
+  }
 
+  private void unregisterListeners() {
+    PsiManager.getInstance(myModule.getProject()).removePsiTreeChangeListener(
+            new ScalaPsiTreeListener(this)
+    );
   }
 
   public synchronized void processFileDeleted(final @NotNull String url) {
@@ -77,6 +83,12 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
     }
   }
 
+  public void dispose(){
+    super.dispose();
+    unregisterCacheUpdater();
+    unregisterListeners();
+  }
+
 
   private void registerCacheUpdater() {
     myCacheUpdater = new ScalaFilesCacheUpdater();
@@ -91,6 +103,7 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
 
 
   class ScalaFilesCacheUpdater implements CacheUpdater {
+
     public synchronized VirtualFile[] queryNeededFiles() {
       List<VirtualFile> files = new ArrayList<VirtualFile>();
       for (String outOfDateFileUrl : myOutOfDateFileUrls) {
@@ -107,15 +120,10 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
       getUp2DateFileInfo(virtualFile);
       final String url = virtualFile.getUrl();
       myOutOfDateFileUrls.remove(url);
-      myUpdatedFileUrls.add(url);
     }
 
     public void updatingDone() {
       assert myOutOfDateFileUrls.size() == 0;
-/*
-      fireInfosUpdated();
-      fireCacheUpdateFinished();
-*/
     }
 
     public void canceled() {

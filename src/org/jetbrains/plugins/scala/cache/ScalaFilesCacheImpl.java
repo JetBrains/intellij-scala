@@ -7,8 +7,14 @@ import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.startup.StartupManager;
 import com.intellij.psi.*;
 import com.intellij.lang.StdLanguages;
+import com.intellij.ide.startup.CacheUpdater;
+import com.intellij.ide.startup.FileContent;
+import com.intellij.ide.startup.StartupManagerEx;
+import com.intellij.ide.startup.FileSystemSynchronizer;
+import com.intellij.ide.startup.impl.StartupManagerImpl;
 
 import java.util.*;
 import java.io.*;
@@ -68,6 +74,11 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
 
     // Save updated cache on disk
     saveCacheToDisk(runProcessWithProgressSynchronously);
+
+  }
+
+  public void dispose() {
+
   }
 
   public void setCacheUrls(@NotNull String[] myCacheUrls) {
@@ -447,6 +458,39 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
       }
     } catch (SecurityException e) {
       e.printStackTrace();
+    }
+  }
+
+  class StartupCacheUpdater implements CacheUpdater {
+
+    public VirtualFile[] queryNeededFiles() {
+      final Set<VirtualFile> filesToAdd = scanForFiles(myCacheUrls, null);
+      /**
+       * Remove garbage
+       */
+      final VirtualFileManager fileManager = VirtualFileManager.getInstance();
+      final List<ScalaFileInfo> fileInfos = new LinkedList<ScalaFileInfo>(myScalaFilesStorage.getAllScalaFileInfos());
+      final Set<String> urls2Delete = new HashSet<String>();
+      for (ScalaFileInfo fileInfo : fileInfos) {
+        final VirtualFile virtualFile = fileManager.findFileByUrl(fileInfo.getFileUrl());
+        if (virtualFile == null || !filesToAdd.contains(virtualFile)) {
+          urls2Delete.add(fileInfo.getFileUrl());
+        }
+      }
+      removeScalaFileInfos(urls2Delete, null);
+      return filesToAdd.toArray(VirtualFile.EMPTY_ARRAY);
+    }
+
+    public void processFile(FileContent fileContent) {
+      getUp2DateFileInfo(fileContent.getVirtualFile(), true);
+    }
+
+    public void updatingDone() {
+      saveCacheToDisk(true);
+    }
+
+    public void canceled() {
+
     }
   }
 

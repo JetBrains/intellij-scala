@@ -15,6 +15,8 @@ public interface ScalaFilesCache {
 
   public void init (boolean  b);
 
+  public void dispose ();
+
   public void setCacheUrls(@NotNull String[] myCacheUrls);
 
   public void setCacheName(@NotNull String myCacheName);
