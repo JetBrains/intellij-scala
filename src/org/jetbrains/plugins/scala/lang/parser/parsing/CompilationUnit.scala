@@ -370,6 +370,7 @@ object CompilationUnit extends ConstrWithoutNode {
  */
 
   object TopStat {
+
     def parse(builder: PsiBuilder): Unit = {
 
       if (ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)){
