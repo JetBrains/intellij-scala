@@ -1,10 +1,14 @@
 <project name="Generate various scala packages for parser needs" default="rebuild.all">
   <property file="scala.properties"/>
   <property name="base.dir" value="${project.lib}/../../.."/>
-
+  <property name="output" value="${base.dir}/dist"/>
+  <property name="test.lib" value="${project.lib}/../../test/Scala"/>
 
   <path id="base.path">
     <fileset dir="${scala.home}/lib">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${idea.lib}/../jre/jre/lib">
       <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${idea.lib}">
@@ -18,9 +22,19 @@
     </fileset>
   </path>
 
-  <path id="test.path">
-    <pathelement location="${scala.home}\lib\scala-library.jar"/>
-    <pathelement location="${idea.lib}\junit-4.0.jar"/>
+  <path id="test.base.path">
+    <fileset dir="${scala.home}/lib">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${idea.lib}/../jre/jre/lib">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${idea.lib}/../jre/lib">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${idea.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
   </path>
 
   <target name="clear.all" description="Clears results">
@@ -54,6 +68,11 @@
       <classpath refid="base.path"/>
     </javac>
 
+    <javac srcdir="./../util"
+           destdir="../classes/production/Scala">
+      <classpath refid="base.path"/>
+    </javac>
+
     <!--Scala taskdef-->
     <taskdef name="scalac"
              classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
@@ -70,14 +89,12 @@
       <classpath refid="base.path"/>
       <include name="**/*.scala"/>
     </scalac>
+
+    <delete>
+      <fileset dir="${project.lib}" includes="**/AntScalaCompiler*"/>
+    </delete>
   </target>
 
-  <target name="build.tests">
-    <javac srcdir="../test"
-           destdir="../classes/production/Scala">
-      <classpath refid="base.path"/>
-    </javac>
-  </target>
 
   <target name="rebuild.all" depends="clear.all, make.project" description="Builds all classes"/>
 
@@ -96,6 +113,16 @@
   </target>
 
 
+  <target name="build.tests">
+    <mkdir dir="${test.lib}"/>
+    <javac srcdir="../test"
+           destdir="../classes/test/Scala">
+      <classpath>
+        <path location="${project.lib}"/>
+      </classpath>
+    </javac>
+  </target>
+
   <target name="test.formatter" depends="build.tests">
 
     <junit fork="no"
@@ -105,25 +132,30 @@
 
       <classpath>
         <path location="${project.lib}"/>
-        <path location="${idea.lib}"/>
-        <path location="${idea.lib}/../jre/jre/lib"/>
-        <path location="${ant.lib}"/>
-        <path location="${scala.home}/lib"/>
+        <path location="${test.lib}"/>
+        <path refid="test.base.path"/>
       </classpath>
 
+      <jvmarg value="-Xbootclasspath/p:${idea.lib}/boot.jar"/>
       <jvmarg value="-Djava.awt.headless=true"/>
       <jvmarg value="-Didea.plugins.load=false"/>
       <jvmarg value="-ea"/>
       <jvmarg value="-Xmx256M"/>
-      <jvmarg value="-Xbootclasspath/p:${idea.lib}/boot.jar"/>
-
 
       <formatter type="plain"/>
 
-      <test name="org.jetbrains.plugins.scala.lang.formatter.FormatterTest"
-            haltonfailure="no"
-            todir="C:/logs">
-      </test>
+      <batchtest todir="C:\logs">
+        <fileset dir="${base.dir}/test">
+          <include name="**/*FormatterTest.java"/>
+        </fileset>
+      </batchtest>
+
+      <!--
+            <test name="org.jetbrains.plugins.scala.lang.formatter.FormatterTest"
+                  haltonfailure="no"
+                  todir="C:/logs">
+            </test>
+      -->
 
     </junit>
   </target>
