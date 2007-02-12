@@ -145,6 +145,7 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
     new ItemPresentation() {
 
       import org.jetbrains.plugins.scala._
+      import org.jetbrains.plugins.scala.icons._
 
       def getPresentableText(): String = {
         getName
@@ -155,9 +156,9 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
         case _  => '(' + getPath + ')'
       }
       override def getIcon(open: Boolean): Icon = scClass match {
-        case _ : ScClassDefinition => ScalaIcons.SCALA_CLASS
-        case _ : ScTraitDefinition => ScalaIcons.SCALA_TRAIT
-        case _ : ScObjectDefinition => ScalaIcons.SCALA_OBJECT
+        case _ : ScClassDefinition => Icons.CLASS
+        case _ : ScTraitDefinition => Icons.TRAIT
+        case _ : ScObjectDefinition => Icons.OBJECT
         case _  => ScalaFileType.SCALA_LOGO
       }
     }
