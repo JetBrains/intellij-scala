@@ -282,7 +282,7 @@ object CompositeExpr {
 
           builder.getTokenType match {
             case ScalaTokenTypes.kELSE
-            | ScalaTokenTypes.tSEMICOLON => {
+              | ScalaTokenTypes.tSEMICOLON => {
               mileMarker.drop()
               elseProcessing
             }
@@ -387,7 +387,6 @@ object CompositeExpr {
             } else parseError(") expected")
           } else parseError("Wrong expression")
         } else errorDone("( expected")
-
       } else {
         rollbackMarker.rollbackTo()
         ScalaElementTypes.WRONGWAY
@@ -426,7 +425,7 @@ object CompositeExpr {
         if (res1.eq(ScalaElementTypes.EXPR)){
           builder.getTokenType match {
             case ScalaTokenTypes.tLINE_TERMINATOR
-            | ScalaTokenTypes.tSEMICOLON => ParserUtils.eatElement(builder, builder.getTokenType)
+              | ScalaTokenTypes.tSEMICOLON => ParserUtils.eatElement(builder, builder.getTokenType)
             case _ =>
           }
           whileProcessing
@@ -610,7 +609,7 @@ object CompositeExpr {
             } else errorDone("Identifier expected")
           }
           case ScalaTokenTypes.tLBRACE
-          | ScalaTokenTypes.tLPARENTHIS => {
+            | ScalaTokenTypes.tLPARENTHIS => {
             ArgumentExprs parse builder
             subParse
           }
@@ -707,36 +706,36 @@ object CompositeExpr {
       }
     } else result
 
-  /*
-    /* Parsing function body */
-    /* case (throw) */
-    if (variants(throwCase)) result
-    /* case (return) */
-    else if (variants(returnCase)) result
-    /* case (if) */
-    else if (variants(ifCase)) result
-    /* case (try) */
-    else if (variants(tryCase)) result
-    /* case (for) */
-    else if (variants(forCase)) result
-    /* case (closure) */
-    else if (variants(closureCase)) result
-    /* case (while) */
-    else if (variants(whileCase)) result
-    /* case (do) */
-    else if (variants(doCase)) result
-    /* special b case */
-    else if (variants(b1Case)) result
-    /* case (a) */
-    else if (variants(aCase)) result
-    /* cases (b1), (b2) */
-    else if (variants(bCase)) result
-    else {
-      compMarker.rollbackTo()
-      ScalaElementTypes.WRONGWAY
-    }
-  */
-  
+    /*
+      /* Parsing function body */
+      /* case (throw) */
+      if (variants(throwCase)) result
+      /* case (return) */
+      else if (variants(returnCase)) result
+      /* case (if) */
+      else if (variants(ifCase)) result
+      /* case (try) */
+      else if (variants(tryCase)) result
+      /* case (for) */
+      else if (variants(forCase)) result
+      /* case (closure) */
+      else if (variants(closureCase)) result
+      /* case (while) */
+      else if (variants(whileCase)) result
+      /* case (do) */
+      else if (variants(doCase)) result
+      /* special b case */
+      else if (variants(b1Case)) result
+      /* case (a) */
+      else if (variants(aCase)) result
+      /* cases (b1), (b2) */
+      else if (variants(bCase)) result
+      else {
+        compMarker.rollbackTo()
+        ScalaElementTypes.WRONGWAY
+      }
+    */
+
   }
 
 }
