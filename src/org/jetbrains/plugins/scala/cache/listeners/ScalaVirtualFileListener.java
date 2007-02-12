@@ -14,11 +14,9 @@ import org.jetbrains.plugins.scala.util.ScalaUtils;
 public class ScalaVirtualFileListener extends VirtualFileAdapter {
 
   private ScalaModuleCachesManager myManager;
-  private ScalaModuleCaches myCaches;
 
   public ScalaVirtualFileListener(ScalaModuleCachesManager manager) {
     myManager = manager;
-    myCaches = myManager.getModuleFilesCache();
   }
 
   public void beforeFileDeletion(VirtualFileEvent event) {
@@ -46,11 +44,12 @@ public class ScalaVirtualFileListener extends VirtualFileAdapter {
   }
 
   private void processFile(VirtualFile file, VirtualFile parent, FILE_CHANGE_TYPES type) {
-    if (parent == null) {
+    if (parent == null || file == null) {
       return;
     }
     if (!file.isDirectory()) {
       processFile(file, type);
+      return;
     }
     if (ScalaUtils.isVersionControlSysDir(file)) {
       return;
@@ -64,10 +63,12 @@ public class ScalaVirtualFileListener extends VirtualFileAdapter {
   private void processFile(VirtualFile file, FILE_CHANGE_TYPES type) {
     switch (type) {
       case CHANGED: {
-        myCaches.processFileChanged(file);
+        myManager.getModuleFilesCache().processFileChanged(file);
+        break;
       }
       case DELETED: {
-        myCaches.processFileDeleted(file.getUrl());
+        myManager.getModuleFilesCache().processFileDeleted(file.getUrl());
+        break;
       }
     }
   }
