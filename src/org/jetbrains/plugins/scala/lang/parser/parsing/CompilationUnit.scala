@@ -144,7 +144,6 @@ object CompilationUnit extends ConstrWithoutNode {
        isError = isError || isLocalError
       }
     }
-
     def tryParseSmth (builder : PsiBuilder) : Unit = {
       var isAfterBlock = false;
       var unstructuredTrashMarker : PsiBuilder.Marker = builder.mark;
