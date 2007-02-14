@@ -14,6 +14,10 @@ public interface ScalaModuleCaches extends ScalaFilesCache {
 
   public void processFileDeleted(final @NotNull String fileUrl);
 
+  public void simpleProcessFileChanged(final @NotNull VirtualFile file);
+
+  public void simpleProcessFileDeleted(final @NotNull String fileUrl);
+
   public void refresh();
 
 }
