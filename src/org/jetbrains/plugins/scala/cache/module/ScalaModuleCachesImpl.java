@@ -73,7 +73,8 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
 
   public synchronized void processFileChanged(final @NotNull VirtualFile file) {
     if (ScalaUtils.isScalaFile(file)) {
-      myOutOfDateFileUrls.add(file.getUrl());
+      getUp2DateFileInfo(file);
+      //myOutOfDateFileUrls.add(file.getUrl());
     }
   }
 
@@ -83,13 +84,12 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
 
   public synchronized void refresh() {
 
-    synchronized(monitor)
-    {
+    synchronized (monitor) {
       for (String url : myOutOfDateFileUrls) {
-            VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
-            getUp2DateFileInfo(file);
-          }
-    }                                                        
+        VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
+        getUp2DateFileInfo(file);
+      }
+    }
   }
 
   public void dispose() {
