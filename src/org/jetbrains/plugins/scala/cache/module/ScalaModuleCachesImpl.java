@@ -12,6 +12,7 @@ import com.intellij.pom.PomModel;
 import com.intellij.psi.PsiManager;
 import org.jetbrains.plugins.scala.cache.ScalaFilesCacheImpl;
 import org.jetbrains.plugins.scala.cache.listeners.ScalaPsiTreeListener;
+import org.jetbrains.plugins.scala.cache.listeners.ScalaVirtualFileListener;
 import org.jetbrains.plugins.scala.cache.info.ScalaFileInfo;
 import org.jetbrains.plugins.scala.cache.info.ScalaFilesStorage;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
@@ -127,6 +128,7 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
     }
 
     public void canceled() {
+      // do nothing
     }
   }
 
