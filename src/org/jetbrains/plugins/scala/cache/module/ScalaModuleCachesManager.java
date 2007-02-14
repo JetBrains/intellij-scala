@@ -7,6 +7,7 @@ import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.navigation.ChooseByNameRegistry;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.ProjectTopics;
@@ -17,6 +18,7 @@ import org.jetbrains.plugins.scala.util.ScalaUtils;
 import org.jetbrains.plugins.scala.cache.ScalaFilesCache;
 import org.jetbrains.plugins.scala.cache.ScalaSDKCachesManager;
 import org.jetbrains.plugins.scala.cache.ScalaLibraryCachesManager;
+import org.jetbrains.plugins.scala.cache.listeners.ScalaVirtualFileListener;
 import org.jetbrains.plugins.scala.gotoclass.ScalaChooseByNameContributor;
 
 import java.util.Map;
@@ -44,6 +46,8 @@ public class ScalaModuleCachesManager implements ModuleComponent {
   private ScalaSDKCachesManager sdkCachesManager;
   private ScalaLibraryCachesManager libraryCachesManager;
 
+  private ScalaVirtualFileListener vfListener;
+
 
   public ScalaModuleCachesManager(@NotNull final Module module) {
     myModule = module;
@@ -66,6 +70,7 @@ public class ScalaModuleCachesManager implements ModuleComponent {
   }
 
   private void createListeners() {
+
     moduleRootListener = new ModuleRootListener() {
       public void beforeRootsChange(final ModuleRootEvent event) {
       }
@@ -141,12 +146,14 @@ public class ScalaModuleCachesManager implements ModuleComponent {
 
   public void initComponent() {
 
+    vfListener = new ScalaVirtualFileListener(this);
     sdkCachesManager = ((ScalaSDKCachesManager) myModule.getProject().getComponent(ScalaComponents.SCALA_SDK_CACHE_MANAGER));
     libraryCachesManager = ((ScalaLibraryCachesManager) myModule.getProject().getComponent(ScalaComponents.SCALA_LIBRARY_CACHE_MANAGER));
 
     StartupManager.getInstance(myModule.getProject()).registerPostStartupActivity(new Runnable() {
       public void run() {
         //  register listeners
+        VirtualFileManager.getInstance().addVirtualFileListener(vfListener);
         rootConnection = myModule.getProject().getMessageBus().connect();
         rootConnection.subscribe(ProjectTopics.PROJECT_ROOTS, moduleRootListener);
       }
@@ -154,10 +161,12 @@ public class ScalaModuleCachesManager implements ModuleComponent {
   }
 
   public void disposeComponent() {
+    //  unregister listeners
     myModuleFilesCache.dispose();
     if (rootConnection != null) {
       rootConnection.disconnect();
     }
+    VirtualFileManager.getInstance().removeVirtualFileListener(vfListener);
     myModuleFilesCache.saveCacheToDisk(true);
   }
 
