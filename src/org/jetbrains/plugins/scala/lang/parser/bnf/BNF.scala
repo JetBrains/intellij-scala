@@ -51,6 +51,7 @@ object BNF {
           ScalaTokenTypes.tCHAR,
           ScalaTokenTypes.kNULL,
           ScalaTokenTypes.tSTRING,
+
           ScalaTokenTypes.tDOT,
           ScalaTokenTypes.kTRUE,
           ScalaTokenTypes.kTHIS,
@@ -98,7 +99,7 @@ object BNF {
   /********************************* Import, Attribute and Modifier ***************************/
 
   val firstImport = TokenSet.create(Array(ScalaTokenTypes.kIMPORT))
-                                             
+
   val firstImportSelector = TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER))
 
   val firstLocalModifier = TokenSet.create(Array(ScalaTokenTypes.kABSTRACT,
@@ -189,6 +190,11 @@ object BNF {
           ScalaTokenTypes.kOBJECT,
           ScalaTokenTypes.kTRAIT))
 
+  val firstDclDefKeywords = TokenSet.create(Array(ScalaTokenTypes.kVAL,
+          ScalaTokenTypes.kVAR,
+          ScalaTokenTypes.kDEF,
+          ScalaTokenTypes.kTYPE))
+
   //todo: expr -> expr1
   val firstBlockStat: TokenSet = TokenSet.orSet(Array(firstImport,
           firstLocalModifier,
@@ -205,11 +211,6 @@ object BNF {
 
   val firstBlock: TokenSet = TokenSet.orSet(Array(firstBlockStat,
           firstResultExpr))
-
-  val firstDclDefKeywords = TokenSet.create(Array(ScalaTokenTypes.kVAL,
-          ScalaTokenTypes.kVAR,
-          ScalaTokenTypes.kDEF,
-          ScalaTokenTypes.kTYPE))
 
   val firstDef = TokenSet.orSet(Array(firstDclDefKeywords,
           firstTmplDef))
@@ -228,7 +229,7 @@ object BNF {
           firstAttributeClause,
           firstModifier,
           firstDclDef,
-          firstExpr))
+          firstExpr))                      
 
   val firstTemplateStatSeq =  TokenSet.orSet(Array(firstStatementSeparator,
           firstTemplateStat))

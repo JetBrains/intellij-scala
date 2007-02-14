@@ -26,6 +26,10 @@ import java.util.*;
 public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaModuleCaches {
 
   private Module myModule;
+
+  private String monitor = "Mukhin's monitor";
+
+
   private Set<String> myOutOfDateFileUrls = Collections.synchronizedSet(new HashSet<String>());
   private Set<String> myUpdatedFileUrls = Collections.synchronizedSet(new HashSet<String>());
 
@@ -78,13 +82,17 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
   }
 
   public synchronized void refresh() {
-    for (String url : myOutOfDateFileUrls) {
-      VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
-      getUp2DateFileInfo(file);
-    }
+
+    synchronized(monitor)
+    {
+      for (String url : myOutOfDateFileUrls) {
+            VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
+            getUp2DateFileInfo(file);
+          }
+    }                                                        
   }
 
-  public void dispose(){
+  public void dispose() {
     super.dispose();
     unregisterCacheUpdater();
     unregisterListeners();
@@ -98,8 +106,10 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
   }
 
   private void unregisterCacheUpdater() {
-    ProjectRootManagerEx.getInstanceEx(myProject).unregisterChangeUpdater(myCacheUpdater);
-    ((VirtualFileManagerEx) VirtualFileManagerEx.getInstance()).unregisterRefreshUpdater(myCacheUpdater);
+    if (myCacheUpdater != null) {
+      ProjectRootManagerEx.getInstanceEx(myProject).unregisterChangeUpdater(myCacheUpdater);
+      ((VirtualFileManagerEx) VirtualFileManagerEx.getInstance()).unregisterRefreshUpdater(myCacheUpdater);
+    }
   }
 
 
