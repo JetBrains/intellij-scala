@@ -16,6 +16,10 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 
 import javax.swing.*;
 import java.io.File;
+import java.util.Collections;
+import java.util.Arrays;
+
+import scala.collection.jcl.Collection;
 
 /**
  * @author ven
@@ -88,18 +92,17 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
     }
 */
     // Adding jars with source
-/*
     String srcPath = getSourceDirPath(sdk);
     dirPath = srcPath.replace(File.separator, "/");
     VirtualFile src = LocalFileSystem.getInstance().findFileByPath(dirPath);
     if (src != null && src.isDirectory()) {
       for (VirtualFile srcFile : src.getChildren()) {
-        if (srcFile.getName().endsWith(".jar")) {
-          sdkModificator.addRoot(srcFile, ProjectRootType.SOURCE);
+        VirtualFile inJar = jarFileSystem.findFileByPath(srcFile.getPath() + JarFileSystem.JAR_SEPARATOR);
+        if (inJar != null && !rootContains(srcFile, sdk)) {
+          sdkModificator.addRoot(inJar, ProjectRootType.SOURCE);
         }
       }
     }
-*/
 
     JavaSdkData data = (JavaSdkData) sdk.getSdkAdditionalData();
     if (data != null) {
@@ -111,6 +114,17 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
       }
     }
     sdkModificator.commitChanges();
+  }
+
+  private boolean rootContains(VirtualFile file, Sdk sdk) {
+    final SdkModificator sdkModificator = sdk.getSdkModificator();
+    VirtualFile[] roots = sdkModificator.getRoots(ProjectRootType.SOURCE);
+    for (VirtualFile root: roots){
+      if (root.getChildren() != null && Arrays.asList(root.getChildren()).contains(file)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void addClassesForJava(SdkModificator sdkModificator, @NotNull Sdk javaSdk) {
