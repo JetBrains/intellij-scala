@@ -527,7 +527,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
           BlockStat parse builder
         }
       }
-
+                                                   
 
       if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
