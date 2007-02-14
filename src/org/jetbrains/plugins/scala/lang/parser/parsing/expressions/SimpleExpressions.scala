@@ -10,6 +10,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
+import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template._
 
 /*
@@ -273,10 +274,10 @@ object PrefixExpr {
 
     builder getTokenText match {
       case "+"
-      | "-"
-      | "~"
-      | "!"
-      | "&" => {
+        | "-"
+        | "~"
+        | "!"
+        | "&" => {
         ParserUtils.eatElement(builder, ScalaElementTypes.PREFIX)
         isPrefix = true
         if (SimpleExpr.SIMPLE_FIRST.contains(builder.getTokenType)) {
@@ -317,7 +318,7 @@ object PrefixExpr {
           if (result.equals(ScalaElementTypes.EXPR)) {
             builder.getTokenType match {
               case ScalaTokenTypes.tCOLON |
-              ScalaTokenTypes.tCOMMA => {
+                ScalaTokenTypes.tCOMMA => {
                 val res = Exprs.parse(builder, exprsMarker)
                 if (res.equals(ScalaElementTypes.EXPRS)) {
                   builder.getTokenType match {
@@ -394,7 +395,7 @@ Default grammar:
 PostfixExpr ::= InfixExpr [id [NewLine]]
 
 ***********************************************
-
+                                                      
 Realized grammar:                                             
 PostfixExpr ::= InfixExpr [id [NewLine]]
 
@@ -413,7 +414,7 @@ object PostfixExpr {
     var isPostfix = false
     if (! result.equals(ScalaElementTypes.WRONGWAY)) {
       builder.getTokenType match {
-        case ScalaTokenTypes.tIDENTIFIER  if { // A bug with method closure
+        case ScalaTokenTypes.tIDENTIFIER  if { // A bug with method closure (fixed)
           val rbMarker = builder.mark()
           builder.advanceLexer
           var flag = ! ScalaTokenTypes.tDOT.equals(builder.getTokenType)
@@ -422,8 +423,24 @@ object PostfixExpr {
         } => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
           isPostfix = true
-          // Real need!
-          ParserUtils.rollForward(builder) //Warning!
+          //  Fixed 14.02.07 - be careful
+//          ParserUtils.rollForward(builder)
+/*
+          val rb = builder.mark()
+          var dropped = false
+          if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)){
+            builder.advanceLexer
+            if (BNF.firstDef.contains(builder.getTokenType)){
+              rb.rollbackTo()
+            } else {
+              rb.drop()
+            }
+            dropped = true
+          }
+          if (!dropped) rb.drop
+*/
+
+
         }
         case _ =>
       }

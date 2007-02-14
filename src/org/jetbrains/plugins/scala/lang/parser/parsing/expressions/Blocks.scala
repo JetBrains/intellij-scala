@@ -289,7 +289,7 @@ object BlockStat {
         parseExpr1
       } else {
         builder.error("Definition expected")
-        blockStatMarker.rollbackTo
+        blockStatMarker.rollbackTo                                     
         ScalaElementTypes.WRONGWAY
       }
     }                             

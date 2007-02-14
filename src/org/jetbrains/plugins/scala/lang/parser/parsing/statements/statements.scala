@@ -334,14 +334,14 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
       if (ScalaTokenTypes.kTHIS.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kTHIS)
       } else {
-        builder error "function definition expected"
+        builder error "Function definition expected"
         return
       }
 
       if (BNF.firstParamClause.contains(builder.getTokenType)) {
         new ParamClause[FunParam] (new FunParam) parse builder
       } else {
-        builder error "expected parameter clause declaration"
+        builder error "Parameter clause declaration expected"
         return
       }
 
@@ -352,14 +352,14 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
       if (ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
       } else {
-        builder error "expected '='"
+        builder error "'=' expected"
         return
       }
 
       if (BNF.firstConstrExpr.contains(builder.getTokenType)) {
         ConstrExpr parse builder
       } else {
-        builder error "expected contructor expression"
+        builder error "Contructor expression expected"
         return
       }
 
@@ -512,18 +512,17 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
       if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
       } else {
-        builder error "expected '{'"
+        builder error "'{' expected "
       }
 
       if (BNF.firstSelfInvocation.contains(builder.getTokenType)) {
         SelfInvocation parse builder
       } else {
-        builder error "expected self invocation"
+        builder error "Self invocation expected "
       }
 
       while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
         StatementSeparator parse builder
-
         if (BNF.firstBlockStat.contains(builder.getTokenType)) {
           BlockStat parse builder
         }
@@ -536,7 +535,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         builder error "expected '}'"
       }
     }
-  }
+  }               
 
   object SelfInvocation extends Constr {
     override def getElementType = ScalaElementTypes.SELF_INVOCATION
