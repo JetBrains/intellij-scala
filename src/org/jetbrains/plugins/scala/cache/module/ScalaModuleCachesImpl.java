@@ -83,7 +83,8 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
 
   public synchronized void refresh() {
     synchronized (monitor) {
-      for (String url : myOutOfDateFileUrls) {
+      String urls[] = myOutOfDateFileUrls.toArray(new String[myOutOfDateFileUrls.size()]);
+      for (String url : urls) {
         VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
         getUp2DateFileInfo(file);
       }
