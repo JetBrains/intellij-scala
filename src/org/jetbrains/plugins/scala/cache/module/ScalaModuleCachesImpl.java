@@ -31,7 +31,6 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
 
 
   private Set<String> myOutOfDateFileUrls = Collections.synchronizedSet(new HashSet<String>());
-  private Set<String> myUpdatedFileUrls = Collections.synchronizedSet(new HashSet<String>());
 
   private ScalaFilesCacheUpdater myCacheUpdater;
 
@@ -71,16 +70,6 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
     removeScalaFileInfo(url);
   }
 
-  public void simpleProcessFileChanged(final @NotNull VirtualFile file) {
-    if (ScalaUtils.isScalaFile(file)) {
-      getUp2DateFileInfo(file);
-    }
-  }
-
-  public void simpleProcessFileDeleted(final @NotNull String fileUrl) {
-    removeScalaFileInfo(fileUrl);
-
-  }
 
   public synchronized void processFileChanged(final @NotNull VirtualFile file) {
     if (ScalaUtils.isScalaFile(file)) {
@@ -93,7 +82,6 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
   }
 
   public synchronized void refresh() {
-
     synchronized (monitor) {
       for (String url : myOutOfDateFileUrls) {
         VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
@@ -101,6 +89,7 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
       }
     }
   }
+
 
   public void dispose() {
     super.dispose();

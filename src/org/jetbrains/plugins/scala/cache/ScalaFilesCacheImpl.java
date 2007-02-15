@@ -170,7 +170,7 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
    * @param forceUpdate Force update or not
    * @return Old info about file if not changed or new whil regenerateFileInfo(file)
    */
-  protected ScalaFileInfo getUp2DateFileInfo(VirtualFile file, final boolean forceUpdate) {
+  protected synchronized ScalaFileInfo getUp2DateFileInfo(VirtualFile file, final boolean forceUpdate) {
     final ScalaFileInfo fileInfo = myScalaFilesStorage.getScalaFileInfoByFileUrl(file.getUrl());
     if (fileInfo != null && fileInfo.getFileTimestamp() == file.getTimeStamp()) {
       return fileInfo;
@@ -211,8 +211,17 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
    * @param file VirtualFile
    * @return new RFileInfo for file or null.
    */
-  public ScalaFileInfo createScalaFileInfo(@NotNull final VirtualFile file) {
+  public synchronized ScalaFileInfo createScalaFileInfo(@NotNull final VirtualFile file) {
     final ScalaFileInfo fileInfo = ScalaInfoFactory.createScalaFileInfo(myProject, file);
+
+/*
+    System.out.print("File info: " + file.getName() );
+    for (String name : fileInfo.getClassNames()) {
+      System.out.print(name + " ");
+    }
+    System.out.println("");
+*/
+
     if (fileInfo == null) {
       return null;
     }
