@@ -53,6 +53,7 @@
 
     <mkdir dir="${project.lib}/../"/>
     <mkdir dir="${project.lib}"/>
+    <mkdir dir="${project.lib}/org/jetbrains/plugins/scala/ScalaBundle.properties"/>
     <mkdir dir="${project.lib}/META-INF"/>
 
     <copy todir="${project.lib}/META-INF">
