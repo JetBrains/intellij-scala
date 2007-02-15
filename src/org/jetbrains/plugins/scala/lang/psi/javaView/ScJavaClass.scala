@@ -155,12 +155,7 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
         case "" => ""
         case _  => '(' + getPath + ')'
       }
-      override def getIcon(open: Boolean): Icon = scClass match {
-        case _ : ScClassDefinition => Icons.CLASS
-        case _ : ScTraitDefinition => Icons.TRAIT
-        case _ : ScObjectDefinition => Icons.OBJECT
-        case _  => ScalaFileType.SCALA_LOGO
-      }
+      override def getIcon(open: Boolean): Icon = scClass.getIcon(0)
     }
   }
 
