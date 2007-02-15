@@ -96,7 +96,29 @@
   </target>
 
 
-  <target name="rebuild.all" depends="clear.all, make.project" description="Builds all classes"/>
+  <target name="jar.plugin" depends="make.project" description="Makes jar">
+    <mkdir dir="${base.dir}/tempjar/Scala/lib"/>
+    <jar destfile="${base.dir}/Scala.jar">
+      <fileset dir="${project.lib}" excludes="**/*build.xml, **/scala.properties"/>
+    </jar>
+    <copy todir="${base.dir}/tempjar/Scala/lib">
+      <fileset dir="${base.dir}">
+        <include name="Scala.jar"/>
+      </fileset>
+      <fileset dir="${scala.home}/lib">
+        <include name="**/*.jar"/>
+      </fileset>
+    </copy>
+    <delete>
+      <fileset dir="${base.dir}" includes="Scala.jar"/>
+    </delete>
+    <zip destfile="${base.dir}/Scala.zip" basedir="${base.dir}/tempjar/Scala">
+      <fileset dir="${base.dir}/tempjar" includes="**/*.jar"/>
+    </zip>
+    <delete dir="tempjar"/>
+  </target>
+
+  <target name="rebuild.all" depends="clear.all, make.project, jar.plugin" description="Builds all classes"/>
 
   <target name="move.to.sandbox" depends="make.project">
     <mkdir dir="C:\Documents and Settings\Ilya.Sergey\.IntelliJIdea70\sandbox\plugins\Scala\classes"/>
@@ -129,7 +151,7 @@
 
     <junit fork="yes"
            dir="${base.dir}"
-           printsummary="yes"                  
+           printsummary="yes"
            haltonfailure="no">
 
       <classpath>
