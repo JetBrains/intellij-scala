@@ -91,7 +91,7 @@
     </scalac>
 
     <delete>
-      <fileset dir="${project.lib}" includes="**/AntScalaCompiler*"/>
+      <fileset dir="${project.lib}" includes="**/AntScalaCompiler*, **/*MyAnt*, **/*AntRunner*"/>
     </delete>
   </target>
 
@@ -112,10 +112,8 @@
     <delete>
       <fileset dir="${base.dir}" includes="Scala.jar"/>
     </delete>
-    <zip destfile="${base.dir}/Scala.zip" basedir="${base.dir}/tempjar/Scala">
-      <fileset dir="${base.dir}/tempjar" includes="**/*.jar"/>
-    </zip>
-    <delete dir="tempjar"/>
+    <zip destfile="${base.dir}/Scala.zip" basedir="${base.dir}/tempjar"/>
+    <delete dir="${base.dir}/tempjar"/>
   </target>
 
   <target name="rebuild.all" depends="clear.all, make.project, jar.plugin" description="Builds all classes"/>
