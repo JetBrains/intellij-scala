@@ -27,9 +27,6 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
 
   private Module myModule;
 
-  private String monitor = "Mukhin's monitor";
-
-
   private Set<String> myOutOfDateFileUrls = Collections.synchronizedSet(new HashSet<String>());
 
   private ScalaFilesCacheUpdater myCacheUpdater;
@@ -46,9 +43,8 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
   }
 
   public synchronized ScalaFileInfo getUp2DateFileInfo(@NotNull final VirtualFile file) {
-    if (myOutOfDateFileUrls.contains(file.getUrl())) {
-      myOutOfDateFileUrls.remove(file.getUrl());
-      return super.regenerateFileInfo(file);
+    if (myOutOfDateFileUrls.remove(file.getUrl())) {
+      return regenerateFileInfo(file);
     }
     return super.getUp2DateFileInfo(file, true);
   }
@@ -82,12 +78,11 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
   }
 
   public synchronized void refresh() {
-    synchronized (monitor) {
-      String urls[] = myOutOfDateFileUrls.toArray(new String[myOutOfDateFileUrls.size()]);
-      for (String url : urls) {
-        VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
-        getUp2DateFileInfo(file);
-      }
+    for (Iterator<String> iterator = myOutOfDateFileUrls.iterator(); iterator.hasNext();) {
+      String url = iterator.next();
+      VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
+      iterator.remove();
+      regenerateFileInfo(file);
     }
   }
 
