@@ -62,10 +62,6 @@
     <copy todir="${project.lib}">
       <fileset dir="../resources/"/>
     </copy>
-
-    <copy file="./org/jetbrains/plugins/scala/ScalaBundle.properties"
-          tofile="${project.lib}/org/jetbrains/plugins/scala/ScalaBundle.properties"/>
-
     <javac srcdir="."
            destdir="../classes/production/Scala">
       <classpath refid="base.path"/>
@@ -92,6 +88,9 @@
       <classpath refid="base.path"/>
       <include name="**/*.scala"/>
     </scalac>
+
+    <copy file="./org/jetbrains/plugins/scala/ScalaBundle.properties"
+          tofile="${project.lib}/org/jetbrains/plugins/scala/ScalaBundle.properties"/>
 
     <delete>
       <fileset dir="${project.lib}" includes="**/AntScalaCompiler*, **/*MyAnt*, **/*AntRunner*"/>
