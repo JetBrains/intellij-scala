@@ -114,7 +114,9 @@
 
 
   <target name="build.tests">
-    <mkdir dir="${test.lib}"/>
+
+    <mkdir dir="${project.lib}/../../test"/>
+    <mkdir dir="${project.lib}/../../test/Scala"/>
     <javac srcdir="../test"
            destdir="../classes/test/Scala">
       <classpath>
