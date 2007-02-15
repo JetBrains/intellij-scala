@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatting
-
+ 
 import com.intellij.formatting._;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;

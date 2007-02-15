@@ -13,7 +13,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
-
+             
 /**
  *  Describes scala file behaviour, adopting it to behavior of java file
  *  @see PsiJavaFile
