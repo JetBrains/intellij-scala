@@ -171,10 +171,6 @@ object Template extends Constr{
 
         DebugPrint println ("TemplateStatSeq - TemplateStat: token " + builder.getTokenType)
 
-        if (ScalaTokenTypes.tWRONG.equals(builder.getTokenType)) {
-
-        }
-
         if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) || builder.eof) {
           isEnd = true;
           return
