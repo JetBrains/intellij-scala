@@ -31,7 +31,7 @@ public class EnterActionTest extends BaseScalaFileSetTestCase {
 
   @NonNls
   protected static final String CARET_MARKER = "<caret>";
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/actions/editor/enter/data/actual";
+  private static final String DATA_PATH = "./test/org/jetbrains/plugins/scala/lang/actions/editor/enter/data/";
 
   protected Editor myEditor;
   protected FileEditorManager fileEditorManager;
@@ -70,6 +70,10 @@ public class EnterActionTest extends BaseScalaFileSetTestCase {
     fileText = removeMarker(fileText);
 
     myFile = TestUtils.createPseudoPhysicalFile(project, fileText);
+
+    
+
+
     fileEditorManager = FileEditorManager.getInstance(project);
     myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(project, myFile.getVirtualFile(), 0), false);
     myEditor.getCaretModel().moveToOffset(offset);
