@@ -20,7 +20,8 @@ public class ScalaPsiTreeListener implements PsiTreeChangeListener {
 
   private void updateCaches(PsiTreeChangeEvent event) {
     if (event.getFile() != null) {
-      myScalaModuleCaches.simpleProcessFileChanged(event.getFile().getVirtualFile());
+      myScalaModuleCaches.processFileChanged(event.getFile().getVirtualFile());
+      myScalaModuleCaches.refresh();
     }
   }
 
@@ -53,7 +54,8 @@ public class ScalaPsiTreeListener implements PsiTreeChangeListener {
       String parentUrl = ((PsiDirectory)event.getParent()).getVirtualFile().getUrl();
       String url = parentUrl + '/'
               + ((PsiFile) event.getChild()).getVirtualFile().getName();
-      myScalaModuleCaches.simpleProcessFileDeleted(url);
+      myScalaModuleCaches.processFileDeleted(url);
+      myScalaModuleCaches.refresh();
     }
   }
 
