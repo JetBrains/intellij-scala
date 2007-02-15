@@ -12,6 +12,9 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
+import java.io.File;
+import java.io.IOException;
+
 /**
  * Created by IntelliJ IDEA.
  * User: Ilya.Sergey
@@ -19,12 +22,14 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 
 public class FormatterTest extends BaseScalaFileSetTestCase {
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/formatter/data/";
 
-  public FormatterTest() {
-    super(System.getProperty("path") != null ?
+  private static final String DATA_PATH = "./test/org/jetbrains/plugins/scala/lang/formatter/data/";
+
+  public FormatterTest() throws IOException {
+    super(
+      System.getProperty("path") != null ?
       System.getProperty("path") :
-      DATA_PATH
+      (new File(DATA_PATH)).getCanonicalPath()
     );
   }
 
@@ -52,7 +57,7 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
     return psiFile.getText();
   }
 
-  public static Test suite() {
+  public static Test suite() throws IOException {
     return new FormatterTest();
   }
 
