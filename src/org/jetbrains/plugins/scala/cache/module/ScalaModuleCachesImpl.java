@@ -72,7 +72,9 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
   }
 
   public void simpleProcessFileChanged(final @NotNull VirtualFile file) {
-    getUp2DateFileInfo(file);  
+    if (ScalaUtils.isScalaFile(file)) {
+      getUp2DateFileInfo(file);
+    }
   }
 
   public void simpleProcessFileDeleted(final @NotNull String fileUrl) {

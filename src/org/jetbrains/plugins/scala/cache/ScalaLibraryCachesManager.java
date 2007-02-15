@@ -170,8 +170,7 @@ public class ScalaLibraryCachesManager implements ProjectComponent {
    */
   @NotNull
   private String generateCacheFilePath(@NotNull final Library library, @NotNull final String name) {
-    return PathManager.getSystemPath() + "/" + SCALA_CACHE_DIR + "/" + SCALA_CACHE_FILE + "/" + name + "_"
-            + library.getTable().hashCode();
+    return PathManager.getSystemPath() + "/" + SCALA_CACHE_DIR + "/" + SCALA_CACHE_FILE + "/" + name + "_";
   }
 
 
