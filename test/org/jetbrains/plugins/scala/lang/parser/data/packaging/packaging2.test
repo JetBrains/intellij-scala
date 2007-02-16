@@ -9,27 +9,21 @@ Scala file
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
     Qualified identifier
-      Stable Identifier
-        Identifier
-          PsiElement(identifier)('org')
+      PsiElement(identifier)('org')
     PsiWhiteSpace(' ')
-    Packaging block
-      PsiElement({)('{')
-      PsiWhiteSpace('\n')
-      PsiWhiteSpace('\n')
-      Import statement
-        PsiElement(import)('import')
-        PsiWhiteSpace(' ')
-        Import expression
+    PsiElement({)('{')
+    PsiWhiteSpace('\n\n')
+    Import statement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      Import expression
+        Stable Identifier
           Stable Identifier
-            Stable Identifier
-              Identifier
-                PsiElement(identifier)('com')
-            PsiElement(.)('.')
-            Identifier
-              PsiElement(identifier)('ert')
+            PsiElement(identifier)('com')
           PsiElement(.)('.')
-          PsiElement(_)('_')
-      PsiElement(newline)('\n')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+          PsiElement(identifier)('ert')
+        PsiElement(.)('.')
+        PsiElement(_)('_')
+    PsiElement(newline)('\n')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')

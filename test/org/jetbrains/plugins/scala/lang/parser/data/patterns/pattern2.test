@@ -2,3 +2,29 @@ class a {
   val a @ v = b
 }
 -----
+Scala file
+  template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    top definition template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        pattern definition
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          Binding pattern
+            PsiElement(identifier)('a')
+            PsiWhiteSpace(' ')
+            PsiElement(@)('@')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('v')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Stable Identifier
+            PsiElement(identifier)('b')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

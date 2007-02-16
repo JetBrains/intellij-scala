@@ -5,10 +5,7 @@ Scala file
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
     Qualified identifier
-      Stable Identifier
-        Identifier
-          PsiElement(identifier)('org')
+      PsiElement(identifier)('org')
     PsiWhiteSpace(' ')
-    Packaging block
-      PsiElement({)('{')
-      PsiElement(})('}')
+    PsiElement({)('{')
+    PsiElement(})('}')
