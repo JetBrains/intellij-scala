@@ -16,9 +16,7 @@ Scala file
     top definition template
       template body
         PsiElement({)('{')
-        PsiWhiteSpace('\n')
-        PsiWhiteSpace(' ')
-        PsiWhiteSpace(' ')
+        PsiWhiteSpace('\n  ')
         MATCH statement
           Stable Identifier
             PsiElement(identifier)('x')
@@ -27,10 +25,7 @@ Scala file
           PsiWhiteSpace(' ')
           Block expression
             PsiElement({)('{')
-            PsiWhiteSpace('\n')
-            PsiWhiteSpace(' ')
-            PsiWhiteSpace(' ')
-            PsiWhiteSpace(' ')
+            PsiWhiteSpace('\n   ')
             Case Clauses
               Case Clause
                 PsiElement(case)('case')
@@ -46,9 +41,7 @@ Scala file
                   Literal
                     PsiElement(integer)('0')
                   PsiElement(newline)('\n')
-              PsiWhiteSpace(' ')
-              PsiWhiteSpace(' ')
-              PsiWhiteSpace(' ')
+              PsiWhiteSpace('   ')
               Case Clause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
@@ -66,9 +59,7 @@ Scala file
                   Literal
                     PsiElement(integer)('1')
                   PsiElement(newline)('\n')
-              PsiWhiteSpace(' ')
-              PsiWhiteSpace(' ')
-              PsiWhiteSpace(' ')
+              PsiWhiteSpace('   ')
               Case Clause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
@@ -91,9 +82,7 @@ Scala file
                   Literal
                     PsiElement(integer)('2')
                   PsiElement(newline)('\n')
-              PsiWhiteSpace(' ')
-              PsiWhiteSpace(' ')
-              PsiWhiteSpace(' ')
+              PsiWhiteSpace('   ')
               Case Clause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
@@ -113,9 +102,7 @@ Scala file
                 Block
                   Literal
                     PsiElement(integer)('3')
-            PsiWhiteSpace('\n')
-            PsiWhiteSpace(' ')
-            PsiWhiteSpace(' ')
+            PsiWhiteSpace('\n  ')
             PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
