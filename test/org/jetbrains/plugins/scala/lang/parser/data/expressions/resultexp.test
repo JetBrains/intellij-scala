@@ -2,3 +2,17 @@ class a {
   abc
 }
 -----
+Scala file
+  template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    top definition template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        Stable Identifier
+          PsiElement(identifier)('abc')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

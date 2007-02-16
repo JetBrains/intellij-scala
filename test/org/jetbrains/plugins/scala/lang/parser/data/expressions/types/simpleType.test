@@ -2,3 +2,30 @@ class a {
   def getType : ScType = foo
 }
 -----
+Scala file
+  template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    top definition template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        function definition
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('getType')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          Simple type
+            Stable Identifier
+              PsiElement(identifier)('ScType')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Stable Identifier
+            PsiElement(identifier)('foo')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
