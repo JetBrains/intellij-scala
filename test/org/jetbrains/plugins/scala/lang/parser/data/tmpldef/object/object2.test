@@ -1,4 +1,4 @@
-object a (b : B.b.b)
+object a
 
 
 
@@ -7,23 +7,4 @@ Scala file
   template definition: object
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
-    Identifier
-      PsiElement(identifier)('a')
-  PsiErrorElement:top statement declaration error
-    <empty list>
-  PsiWhiteSpace(' ')
-  trash
-    PsiElement(()('(')
-    PsiElement(identifier)('b')
-    PsiWhiteSpace(' ')
-    PsiElement(:)(':')
-    PsiWhiteSpace(' ')
-    PsiElement(identifier)('B')
-    PsiElement(.)('.')
-    PsiElement(identifier)('b')
-    PsiElement(.)('.')
-    PsiElement(identifier)('b')
-    PsiElement())(')')
-    PsiElement(newline)('\n')
-    PsiWhiteSpace('\n')
-    PsiWhiteSpace('\n')
+    PsiElement(identifier)('a')

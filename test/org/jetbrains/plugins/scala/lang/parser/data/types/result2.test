@@ -6,24 +6,22 @@ Scala file
   template definition: class
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
-    Identifier
-      PsiElement(identifier)('A')
-    class template
+    PsiElement(identifier)('A')
+    top definition template
       template body
         PsiElement({)('{')
-        PsiWhiteSpace('\n')
-        PsiWhiteSpace(' ')
-        PsiWhiteSpace(' ')
-        Block expressions
+        PsiWhiteSpace('\n  ')
+        Block expression
           PsiElement({)('{')
-          Result expression
-            Identifier
+          Block
+            Result expression
               PsiElement(identifier)('x')
-            PsiWhiteSpace(' ')
-            PsiElement(=>)('=>')
-            PsiWhiteSpace(' ')
-            Literal
-              PsiElement(integer)('3')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              Block
+                Literal
+                  PsiElement(integer)('3')
           PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
