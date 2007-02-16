@@ -6,5 +6,4 @@ Scala file
     PsiWhiteSpace(' ')
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
-    Identifier
-      PsiElement(identifier)('a')
+    PsiElement(identifier)('a')
