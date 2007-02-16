@@ -8,26 +8,9 @@ Scala file
     PsiWhiteSpace(' ')
     Import expression
       Stable Identifier
-        Identifier
-          PsiElement(identifier)('item1')
-      PsiElement(.)('.')
-      Identifier
         PsiElement(identifier)('item1')
-  PsiElement(newline)('\n')
-  Import statement
-    PsiElement(import)('import')
-    PsiWhiteSpace(' ')
-    Import expression
-      Stable Identifier
-        Stable Identifier
-          Identifier
-            PsiElement(identifier)('item2')
-        PsiElement(.)('.')
-        Identifier
-          PsiElement(identifier)('item2')
       PsiElement(.)('.')
-      Identifier
-        PsiElement(identifier)('item2')
+      PsiElement(identifier)('item1')
   PsiElement(newline)('\n')
   Import statement
     PsiElement(import)('import')
@@ -35,42 +18,46 @@ Scala file
     Import expression
       Stable Identifier
         Stable Identifier
-          Identifier
-            PsiElement(identifier)('item3')
+          PsiElement(identifier)('item2')
         PsiElement(.)('.')
-        Identifier
+        PsiElement(identifier)('item2')
+      PsiElement(.)('.')
+      PsiElement(identifier)('item2')
+  PsiElement(newline)('\n')
+  Import statement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    Import expression
+      Stable Identifier
+        Stable Identifier
           PsiElement(identifier)('item3')
+        PsiElement(.)('.')
+        PsiElement(identifier)('item3')
       PsiElement(.)('.')
       Import selectors
         PsiElement({)('{')
         Import selector
-          Identifier
-            PsiElement(identifier)('item1')
+          PsiElement(identifier)('item1')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
         Import selector
-          Identifier
-            PsiElement(identifier)('item2')
+          PsiElement(identifier)('item2')
         PsiElement(})('}')
     PsiElement(,)(',')
     PsiWhiteSpace(' ')
     Import expression
       Stable Identifier
         Stable Identifier
-          Identifier
-            PsiElement(identifier)('item3')
-        PsiElement(.)('.')
-        Identifier
           PsiElement(identifier)('item3')
+        PsiElement(.)('.')
+        PsiElement(identifier)('item3')
       PsiElement(.)('.')
       Import selectors
         PsiElement({)('{')
         Import selector
-          Identifier
-            PsiElement(identifier)('item1')
+          PsiElement(identifier)('item1')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
         Import selector
-          Identifier
-            PsiElement(identifier)('item2')
+          PsiElement(identifier)('item2')
         PsiElement(})('}')

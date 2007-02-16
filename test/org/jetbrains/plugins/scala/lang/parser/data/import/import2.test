@@ -7,15 +7,12 @@ Scala file
     Import expression
       Stable Identifier
         Stable Identifier
-          Identifier
-            PsiElement(identifier)('one')
+          PsiElement(identifier)('one')
         PsiElement(.)('.')
-        Identifier
-          PsiElement(identifier)('selector')
+        PsiElement(identifier)('selector')
       PsiElement(.)('.')
       Import selectors
         PsiElement({)('{')
         Import selector
-          Identifier
-            PsiElement(identifier)('import_selector')
+          PsiElement(identifier)('import_selector')
         PsiElement(})('}')
