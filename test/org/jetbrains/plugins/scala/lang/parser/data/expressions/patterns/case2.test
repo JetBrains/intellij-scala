@@ -9,37 +9,40 @@ Scala file
   template definition: class
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
-    Identifier
-      PsiElement(identifier)('A')
-    class template
+    PsiElement(identifier)('A')
+    top definition template
       template body
         PsiElement({)('{')
         PsiWhiteSpace('\n')
         function definition
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
-          Identifier
-            PsiElement(identifier)('foo')
+          PsiElement(identifier)('foo')
           PsiElement(=)('=')
-          Block expressions
+          Block expression
             PsiElement({)('{')
             PsiWhiteSpace('\n')
-            Case Clause
-              PsiElement(case)('case')
-              PsiWhiteSpace(' ')
-              Common pattern
-                Literal
-                  PsiElement(integer)('1')
-              PsiElement(=>)('=>')
-            PsiWhiteSpace('\n')
-            Case Clause
-              PsiElement(case)('case')
-              PsiWhiteSpace(' ')
-              Common pattern
-                Literal
-                  PsiElement(integer)('2')
-              PsiElement(=>)('=>')
-            PsiWhiteSpace('\n')
+            Case Clauses
+              Case Clause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Common pattern
+                  Literal
+                    PsiElement(integer)('1')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n')
+                Block
+                  <empty list>
+              Case Clause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Common pattern
+                  Literal
+                    PsiElement(integer)('2')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n')
+                Block
+                  <empty list>
             PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

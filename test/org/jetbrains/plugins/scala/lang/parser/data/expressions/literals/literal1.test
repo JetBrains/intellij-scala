@@ -8,16 +8,17 @@ Scala file
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
     PsiWhiteSpace(' ')
-    class template
+    top definition template
       template body
         PsiElement({)('{')
-        PsiWhiteSpace('\n')
-        PsiWhiteSpace(' ')
-        PsiWhiteSpace(' ')
-        Common expression
-          PsiElement(integer)('0')
-          PsiElement(.)('.')
-          PsiElement(identifier)('asInstanceOf')
+        PsiWhiteSpace('\n  ')
+        Simple expression
+          Simple expression
+            Simple expression
+              Literal
+                PsiElement(integer)('0')
+            PsiElement(.)('.')
+            PsiElement(identifier)('asInstanceOf')
           Type arguments list
             PsiElement([)('[')
             Simple type

@@ -7,7 +7,7 @@ Scala file
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('Человек')
-    class template
+    top definition template
       template body
         PsiElement({)('{')
         PsiWhiteSpace('\n')
@@ -33,6 +33,7 @@ Scala file
                   PsiElement(identifier)('S')
             PsiElement())(')')
             PsiElement(=>)('=>')
-            PsiElement(true)('true')
+            Literal
+              PsiElement(true)('true')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

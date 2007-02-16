@@ -19,433 +19,358 @@ Scala file
   template definition: class
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
-    Identifier
-      PsiElement(identifier)('A')
-    class template
+    PsiElement(identifier)('A')
+    top definition template
       template body
         PsiElement({)('{')
         PsiWhiteSpace('\n')
         Infix expression
-          Stable Identifier
-            Stable Identifier
-              Identifier
-                PsiElement(identifier)('List')
-            PsiElement(.)('.')
-            Identifier
-              PsiElement(identifier)('flatten')
-          Argument expressions
-            PsiElement(()('(')
-            PsiWhiteSpace('\n')
-            PsiWhiteSpace(' ')
-            PsiWhiteSpace(' ')
-            Infix expression
+          Simple expression
+            Simple expression
               Stable Identifier
-                Identifier
+                Stable Identifier
                   PsiElement(identifier)('List')
-              Argument expressions
-                PsiElement(()('(')
-                Stable Identifier
-                  Stable Identifier
-                    Identifier
-                      PsiElement(identifier)('settings')
-                  PsiElement(.)('.')
-                  Identifier
-                    PsiElement(identifier)('outdir')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                Stable Identifier
-                  Stable Identifier
-                    Identifier
-                      PsiElement(identifier)('settings')
-                  PsiElement(.)('.')
-                  Identifier
-                    PsiElement(identifier)('classpath')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                Stable Identifier
-                  Stable Identifier
-                    Identifier
-                      PsiElement(identifier)('settings')
-                  PsiElement(.)('.')
-                  Identifier
-                    PsiElement(identifier)('bootclasspath')
-                PsiElement(,)(',')
-                PsiWhiteSpace('\n')
-                PsiWhiteSpace(' ')
-                PsiWhiteSpace(' ')
-                PsiWhiteSpace(' ')
-                PsiWhiteSpace(' ')
-                PsiWhiteSpace(' ')
-                PsiWhiteSpace(' ')
-                PsiWhiteSpace(' ')
-                Stable Identifier
-                  Stable Identifier
-                    Identifier
-                      PsiElement(identifier)('settings')
-                  PsiElement(.)('.')
-                  Identifier
-                    PsiElement(identifier)('extdirs')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                Stable Identifier
-                  Stable Identifier
-                    Identifier
-                      PsiElement(identifier)('settings')
-                  PsiElement(.)('.')
-                  Identifier
-                    PsiElement(identifier)('encoding')
-                PsiElement())(')')
-              PsiWhiteSpace(' ')
-              Identifier
-                PsiElement(identifier)('map')
-              PsiWhiteSpace(' ')
+                PsiElement(.)('.')
+                PsiElement(identifier)('flatten')
+            Argument expressions
               PsiElement(()('(')
-              Anonymous function
-                Identifier
-                  PsiElement(identifier)('s')
-                PsiWhiteSpace(' ')
-                PsiElement(=>)('=>')
-                PsiWhiteSpace(' ')
-                Common expression
-                  Stable Identifier
-                    Identifier
+              PsiWhiteSpace('\n  ')
+              Infix expression
+                Simple expression
+                  Simple expression
+                    Stable Identifier
                       PsiElement(identifier)('List')
                   Argument expressions
                     PsiElement(()('(')
                     Stable Identifier
                       Stable Identifier
-                        Identifier
-                          PsiElement(identifier)('s')
+                        PsiElement(identifier)('settings')
                       PsiElement(.)('.')
-                      Identifier
-                        PsiElement(identifier)('nme')
+                      PsiElement(identifier)('outdir')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
                     Stable Identifier
                       Stable Identifier
-                        Identifier
-                          PsiElement(identifier)('s')
+                        PsiElement(identifier)('settings')
                       PsiElement(.)('.')
-                      Identifier
-                        PsiElement(identifier)('value')
+                      PsiElement(identifier)('classpath')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    Stable Identifier
+                      Stable Identifier
+                        PsiElement(identifier)('settings')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('bootclasspath')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n       ')
+                    Stable Identifier
+                      Stable Identifier
+                        PsiElement(identifier)('settings')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('extdirs')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    Stable Identifier
+                      Stable Identifier
+                        PsiElement(identifier)('settings')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('encoding')
                     PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('map')
+                PsiWhiteSpace(' ')
+                Simple expression
+                  PsiElement(()('(')
+                  Anonymous function
+                    PsiElement(identifier)('s')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    Simple expression
+                      Simple expression
+                        Stable Identifier
+                          PsiElement(identifier)('List')
+                      Argument expressions
+                        PsiElement(()('(')
+                        Stable Identifier
+                          Stable Identifier
+                            PsiElement(identifier)('s')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('nme')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        Stable Identifier
+                          Stable Identifier
+                            PsiElement(identifier)('s')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('value')
+                        PsiElement())(')')
+                  PsiElement())(')')
               PsiElement())(')')
-            PsiElement())(')')
           PsiWhiteSpace(' ')
-          Identifier
-            PsiElement(identifier)(':::')
+          PsiElement(identifier)(':::')
           PsiElement(newline)('\n')
           PsiComment(comment)('// '-server' option')
           PsiWhiteSpace('\n')
           Infix expression
-            PsiElement(()('(')
-            IF statement
-              PsiElement(if)('if')
-              PsiWhiteSpace(' ')
+            Simple expression
               PsiElement(()('(')
-              Stable Identifier
+              IF statement
+                PsiElement(if)('if')
+                PsiWhiteSpace(' ')
+                PsiElement(()('(')
                 Stable Identifier
-                  Identifier
-                    PsiElement(identifier)('serverAddr')
-                PsiElement(.)('.')
-                Identifier
-                  PsiElement(identifier)('isEmpty')
-              PsiElement())(')')
-              PsiWhiteSpace(' ')
-              Stable Identifier
-                Identifier
-                  PsiElement(identifier)('Nil')
-              PsiWhiteSpace(' ')
-              PsiElement(else)('else')
-              PsiWhiteSpace(' ')
-              Common expression
-                Stable Identifier
-                  Identifier
-                    PsiElement(identifier)('List')
-                Argument expressions
-                  PsiElement(()('(')
-                  Literal
-                    PsiElement(string content)('"-server"')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
                   Stable Identifier
+                    PsiElement(identifier)('serverAddr')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('isEmpty')
+                PsiElement())(')')
+                PsiWhiteSpace(' ')
+                Stable Identifier
+                  PsiElement(identifier)('Nil')
+                PsiWhiteSpace(' ')
+                PsiElement(else)('else')
+                PsiWhiteSpace(' ')
+                Simple expression
+                  Simple expression
                     Stable Identifier
-                      Identifier
+                      PsiElement(identifier)('List')
+                  Argument expressions
+                    PsiElement(()('(')
+                    Literal
+                      PsiElement(string content)('"-server"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    Stable Identifier
+                      Stable Identifier
                         PsiElement(identifier)('serverAddr')
-                    PsiElement(.)('.')
-                    Identifier
+                      PsiElement(.)('.')
                       PsiElement(identifier)('get')
-                  PsiElement())(')')
-            PsiElement())(')')
+                    PsiElement())(')')
+              PsiElement())(')')
             PsiWhiteSpace(' ')
-            Identifier
-              PsiElement(identifier)(':::')
+            PsiElement(identifier)(':::')
             Infix expression
               PsiElement(newline)('\n')
               PsiComment(comment)('// ChoiceSetting')
               PsiWhiteSpace('\n')
-              PsiElement(()('(')
-              Infix expression
-                Stable Identifier
-                  Identifier
-                    PsiElement(identifier)('List')
-                Argument expressions
-                  PsiElement(()('(')
-                  Stable Identifier
-                    Stable Identifier
-                      Identifier
-                        PsiElement(identifier)('settings')
-                    PsiElement(.)('.')
-                    Identifier
-                      PsiElement(identifier)('debuginfo')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  Stable Identifier
-                    Stable Identifier
-                      Identifier
-                        PsiElement(identifier)('settings')
-                    PsiElement(.)('.')
-                    Identifier
-                      PsiElement(identifier)('target')
-                  PsiElement())(')')
-                PsiWhiteSpace(' ')
-                Identifier
-                  PsiElement(identifier)('map')
-                PsiWhiteSpace(' ')
+              Simple expression
                 PsiElement(()('(')
-                Anonymous function
-                  Identifier
-                    PsiElement(identifier)('s')
-                  PsiWhiteSpace(' ')
-                  PsiElement(=>)('=>')
-                  PsiWhiteSpace(' ')
-                  Infix expression
-                    Infix expression
+                Infix expression
+                  Simple expression
+                    Simple expression
+                      Stable Identifier
+                        PsiElement(identifier)('List')
+                    Argument expressions
+                      PsiElement(()('(')
                       Stable Identifier
                         Stable Identifier
-                          Identifier
-                            PsiElement(identifier)('s')
+                          PsiElement(identifier)('settings')
                         PsiElement(.)('.')
-                        Identifier
-                          PsiElement(identifier)('nme')
+                        PsiElement(identifier)('debuginfo')
+                      PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      Identifier
-                        PsiElement(identifier)('+')
-                      PsiWhiteSpace(' ')
-                      Literal
-                        PsiElement(string content)('":"')
-                    PsiWhiteSpace(' ')
-                    Identifier
-                      PsiElement(identifier)('+')
-                    PsiWhiteSpace(' ')
-                    Stable Identifier
                       Stable Identifier
-                        Identifier
-                          PsiElement(identifier)('s')
-                      PsiElement(.)('.')
-                      Identifier
-                        PsiElement(identifier)('value')
+                        Stable Identifier
+                          PsiElement(identifier)('settings')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('target')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('map')
+                  PsiWhiteSpace(' ')
+                  Simple expression
+                    PsiElement(()('(')
+                    Anonymous function
+                      PsiElement(identifier)('s')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      Infix expression
+                        Infix expression
+                          Stable Identifier
+                            Stable Identifier
+                              PsiElement(identifier)('s')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('nme')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          Literal
+                            PsiElement(string content)('":"')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        Stable Identifier
+                          Stable Identifier
+                            PsiElement(identifier)('s')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('value')
+                    PsiElement())(')')
                 PsiElement())(')')
-              PsiElement())(')')
               PsiWhiteSpace(' ')
-              Identifier
-                PsiElement(identifier)(':::')
+              PsiElement(identifier)(':::')
               Infix expression
                 PsiElement(newline)('\n')
                 PsiComment(comment)('// BooleanSetting')
                 PsiWhiteSpace('\n')
-                Stable Identifier
-                  Identifier
-                    PsiElement(identifier)('trim')
-                Argument expressions
-                  PsiElement(()('(')
-                  PsiWhiteSpace('\n')
-                  PsiWhiteSpace(' ')
-                  PsiWhiteSpace(' ')
-                  Infix expression
+                Simple expression
+                  Simple expression
                     Stable Identifier
-                      Identifier
-                        PsiElement(identifier)('List')
-                    Argument expressions
-                      PsiElement(()('(')
-                      Stable Identifier
-                        Stable Identifier
-                          Identifier
-                            PsiElement(identifier)('settings')
-                        PsiElement(.)('.')
-                        Identifier
-                          PsiElement(identifier)('debug')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      Stable Identifier
-                        Stable Identifier
-                          Identifier
-                            PsiElement(identifier)('settings')
-                        PsiElement(.)('.')
-                        Identifier
-                          PsiElement(identifier)('deprecation')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      Stable Identifier
-                        Stable Identifier
-                          Identifier
-                            PsiElement(identifier)('settings')
-                        PsiElement(.)('.')
-                        Identifier
-                          PsiElement(identifier)('nopredefs')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace('\n')
-                      PsiWhiteSpace(' ')
-                      PsiWhiteSpace(' ')
-                      PsiWhiteSpace(' ')
-                      PsiWhiteSpace(' ')
-                      PsiWhiteSpace(' ')
-                      PsiWhiteSpace(' ')
-                      PsiWhiteSpace(' ')
-                      Stable Identifier
-                        Stable Identifier
-                          Identifier
-                            PsiElement(identifier)('settings')
-                        PsiElement(.)('.')
-                        Identifier
-                          PsiElement(identifier)('verbose')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      Stable Identifier
-                        Identifier
-                          PsiElement(identifier)('reset')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      Stable Identifier
-                        Identifier
-                          PsiElement(identifier)('shutdown')
-                      PsiElement())(')')
-                    PsiWhiteSpace(' ')
-                    Identifier
-                      PsiElement(identifier)('map')
-                    PsiWhiteSpace(' ')
+                      PsiElement(identifier)('trim')
+                  Argument expressions
                     PsiElement(()('(')
-                    Anonymous function
-                      Identifier
-                        PsiElement(identifier)('s')
+                    PsiWhiteSpace('\n  ')
+                    Infix expression
+                      Simple expression
+                        Simple expression
+                          Stable Identifier
+                            PsiElement(identifier)('List')
+                        Argument expressions
+                          PsiElement(()('(')
+                          Stable Identifier
+                            Stable Identifier
+                              PsiElement(identifier)('settings')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('debug')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          Stable Identifier
+                            Stable Identifier
+                              PsiElement(identifier)('settings')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('deprecation')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          Stable Identifier
+                            Stable Identifier
+                              PsiElement(identifier)('settings')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('nopredefs')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace('\n       ')
+                          Stable Identifier
+                            Stable Identifier
+                              PsiElement(identifier)('settings')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('verbose')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          Stable Identifier
+                            PsiElement(identifier)('reset')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          Stable Identifier
+                            PsiElement(identifier)('shutdown')
+                          PsiElement())(')')
                       PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
+                      PsiElement(identifier)('map')
                       PsiWhiteSpace(' ')
-                      IF statement
-                        PsiElement(if)('if')
-                        PsiWhiteSpace(' ')
+                      Simple expression
                         PsiElement(()('(')
-                        Stable Identifier
-                          Stable Identifier
-                            Identifier
-                              PsiElement(identifier)('s')
-                          PsiElement(.)('.')
-                          Identifier
-                            PsiElement(identifier)('value')
+                        Anonymous function
+                          PsiElement(identifier)('s')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          IF statement
+                            PsiElement(if)('if')
+                            PsiWhiteSpace(' ')
+                            PsiElement(()('(')
+                            Stable Identifier
+                              Stable Identifier
+                                PsiElement(identifier)('s')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('value')
+                            PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            Stable Identifier
+                              Stable Identifier
+                                PsiElement(identifier)('s')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('nme')
+                            PsiWhiteSpace(' ')
+                            PsiElement(else)('else')
+                            PsiWhiteSpace(' ')
+                            Literal
+                              PsiElement(string content)('""')
                         PsiElement())(')')
-                        PsiWhiteSpace(' ')
-                        Stable Identifier
-                          Stable Identifier
-                            Identifier
-                              PsiElement(identifier)('s')
-                          PsiElement(.)('.')
-                          Identifier
-                            PsiElement(identifier)('nme')
-                        PsiWhiteSpace(' ')
-                        PsiElement(else)('else')
-                        PsiWhiteSpace(' ')
-                        Literal
-                          PsiElement(string content)('""')
                     PsiElement())(')')
-                  PsiElement())(')')
                 PsiWhiteSpace(' ')
-                Identifier
-                  PsiElement(identifier)(':::')
+                PsiElement(identifier)(':::')
                 PsiElement(newline)('\n')
                 PsiComment(comment)('// PhaseSetting')
                 PsiWhiteSpace('\n')
-                Stable Identifier
-                  Identifier
-                    PsiElement(identifier)('trim')
-                Argument expressions
-                  PsiElement(()('(')
-                  PsiWhiteSpace('\n')
-                  PsiWhiteSpace(' ')
-                  PsiWhiteSpace(' ')
-                  Infix expression
+                Simple expression
+                  Simple expression
                     Stable Identifier
-                      Identifier
-                        PsiElement(identifier)('List')
-                    Argument expressions
-                      PsiElement(()('(')
-                      Stable Identifier
-                        Stable Identifier
-                          Identifier
-                            PsiElement(identifier)('settings')
-                        PsiElement(.)('.')
-                        Identifier
-                          PsiElement(identifier)('log')
-                      PsiElement())(')')
-                    PsiWhiteSpace(' ')
-                    Identifier
-                      PsiElement(identifier)('map')
-                    PsiWhiteSpace(' ')
+                      PsiElement(identifier)('trim')
+                  Argument expressions
                     PsiElement(()('(')
-                    Anonymous function
-                      Identifier
-                        PsiElement(identifier)('s')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace(' ')
-                      IF statement
-                        PsiElement(if)('if')
-                        PsiWhiteSpace(' ')
-                        PsiElement(()('(')
-                        Stable Identifier
+                    PsiWhiteSpace('\n  ')
+                    Infix expression
+                      Simple expression
+                        Simple expression
+                          Stable Identifier
+                            PsiElement(identifier)('List')
+                        Argument expressions
+                          PsiElement(()('(')
                           Stable Identifier
                             Stable Identifier
-                              Identifier
-                                PsiElement(identifier)('s')
+                              PsiElement(identifier)('settings')
                             PsiElement(.)('.')
-                            Identifier
-                              PsiElement(identifier)('value')
-                          PsiElement(.)('.')
-                          Identifier
-                            PsiElement(identifier)('isEmpty')
-                        PsiElement())(')')
-                        PsiWhiteSpace(' ')
-                        Literal
-                          PsiElement(string content)('""')
-                        PsiWhiteSpace(' ')
-                        PsiElement(else)('else')
-                        PsiWhiteSpace(' ')
-                        Infix expression
-                          Infix expression
+                            PsiElement(identifier)('log')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('map')
+                      PsiWhiteSpace(' ')
+                      Simple expression
+                        PsiElement(()('(')
+                        Anonymous function
+                          PsiElement(identifier)('s')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          IF statement
+                            PsiElement(if)('if')
+                            PsiWhiteSpace(' ')
+                            PsiElement(()('(')
                             Stable Identifier
                               Stable Identifier
-                                Identifier
+                                Stable Identifier
                                   PsiElement(identifier)('s')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('value')
                               PsiElement(.)('.')
-                              Identifier
-                                PsiElement(identifier)('nme')
-                            PsiWhiteSpace(' ')
-                            Identifier
-                              PsiElement(identifier)('+')
+                              PsiElement(identifier)('isEmpty')
+                            PsiElement())(')')
                             PsiWhiteSpace(' ')
                             Literal
-                              PsiElement(string content)('":"')
-                          PsiWhiteSpace(' ')
-                          Identifier
-                            PsiElement(identifier)('+')
-                          PsiWhiteSpace(' ')
-                          Stable Identifier
-                            Stable Identifier
-                              Identifier
-                                PsiElement(identifier)('s')
-                            PsiElement(.)('.')
-                            Identifier
-                              PsiElement(identifier)('value')
+                              PsiElement(string content)('""')
+                            PsiWhiteSpace(' ')
+                            PsiElement(else)('else')
+                            PsiWhiteSpace(' ')
+                            Infix expression
+                              Infix expression
+                                Stable Identifier
+                                  Stable Identifier
+                                    PsiElement(identifier)('s')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('nme')
+                                PsiWhiteSpace(' ')
+                                PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                Literal
+                                  PsiElement(string content)('":"')
+                              PsiWhiteSpace(' ')
+                              PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              Stable Identifier
+                                Stable Identifier
+                                  PsiElement(identifier)('s')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('value')
+                        PsiElement())(')')
                     PsiElement())(')')
-                  PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

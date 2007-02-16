@@ -4,45 +4,37 @@ Scala file
   template definition: class
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
-    Identifier
-      PsiElement(identifier)('A')
+    PsiElement(identifier)('A')
     parameters clause
       PsiElement(()('(')
       parameter
-        Identifier
-          PsiElement(identifier)('a')
+        PsiElement(identifier)('a')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        Function type
-          Simple type
-            Stable Identifier
-              Identifier
-                PsiElement(identifier)('T')
-            PsiWhiteSpace(' ')
-            PsiElement(whith)('with')
-            PsiWhiteSpace(' ')
-            Stable Identifier
-              Identifier
-                PsiElement(identifier)('S')
-            PsiWhiteSpace(' ')
-            PsiElement(whith)('with')
-            PsiWhiteSpace(' ')
-            Stable Identifier
-              Identifier
-                PsiElement(identifier)('U')
-            PsiWhiteSpace(' ')
-            Refinements
-              PsiElement({)('{')
-              Refinement statement
-                value definition
-                  PsiElement(val)('val')
-                  PsiWhiteSpace(' ')
-                  Identifier
-                    PsiElement(identifier)('i')
-                  PsiElement(:)(':')
-                  Simple type
-                    Stable Identifier
-                      Identifier
-                        PsiElement(identifier)('T')
-              PsiElement(})('}')
+        Simple type
+          Stable Identifier
+            PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(with)('with')
+          PsiWhiteSpace(' ')
+          Stable Identifier
+            PsiElement(identifier)('S')
+          PsiWhiteSpace(' ')
+          PsiElement(with)('with')
+          PsiWhiteSpace(' ')
+          Stable Identifier
+            PsiElement(identifier)('U')
+          PsiWhiteSpace(' ')
+          Refinements
+            PsiElement({)('{')
+            Refinement statement
+              value declaration
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('i')
+                PsiElement(:)(':')
+                Simple type
+                  Stable Identifier
+                    PsiElement(identifier)('T')
+            PsiElement(})('}')
       PsiElement())(')')

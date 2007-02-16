@@ -7,7 +7,7 @@ Scala file
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
-    class template
+    top definition template
       template body
         PsiElement({)('{')
         PsiWhiteSpace('\n')
@@ -16,6 +16,7 @@ Scala file
           PsiWhiteSpace(' ')
           PsiElement(identifier)('x')
           PsiElement(=)('=')
-          PsiElement(integer)('239')
+          Literal
+            PsiElement(integer)('239')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

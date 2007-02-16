@@ -15,9 +15,7 @@ Scala file
     top definition template
       template body
         PsiElement({)('{')
-        PsiWhiteSpace('\n')
-        PsiWhiteSpace(' ')
-        PsiWhiteSpace(' ')
+        PsiWhiteSpace('\n  ')
         pattern definition
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
@@ -32,8 +30,7 @@ Scala file
                 PsiElement(integer)('1')
             PsiElement(})('}')
         PsiElement(newline)('\n')
-        PsiWhiteSpace(' ')
-        PsiWhiteSpace(' ')
+        PsiWhiteSpace('  ')
         pattern definition
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
@@ -43,8 +40,7 @@ Scala file
             PsiElement({)('{')
             PsiElement(})('}')
         PsiElement(newline)('\n')
-        PsiWhiteSpace(' ')
-        PsiWhiteSpace(' ')
+        PsiWhiteSpace('  ')
         pattern definition
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
@@ -58,8 +54,7 @@ Scala file
               PsiElement(,)(',')
             PsiElement(})('}')
         PsiElement(newline)('\n')
-        PsiWhiteSpace(' ')
-        PsiWhiteSpace(' ')
+        PsiWhiteSpace('  ')
         pattern definition
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
@@ -75,8 +70,7 @@ Scala file
                 PsiElement(integer)('2')
             PsiElement(})('}')
         PsiElement(newline)('\n')
-        PsiWhiteSpace(' ')
-        PsiWhiteSpace(' ')
+        PsiWhiteSpace('  ')
         pattern definition
           PsiElement(val)('val')
           PsiWhiteSpace(' ')

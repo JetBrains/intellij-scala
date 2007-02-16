@@ -4,40 +4,33 @@ Scala file
   template definition: class
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
-    Identifier
-      PsiElement(identifier)('A')
+    PsiElement(identifier)('A')
     parameters clause
       PsiElement(()('(')
       parameter
-        Identifier
-          PsiElement(identifier)('a')
+        PsiElement(identifier)('a')
         PsiElement(:)(':')
-        Function type
-          Simple type
-            PsiElement(()('(')
-            Function type
-              Simple type
-                Stable Identifier
-                  Identifier
-                    PsiElement(identifier)('a')
-              PsiElement(=>)('=>')
-              Function type
-                Types list
-                  PsiElement(()('(')
-                  Simple type
-                    Stable Identifier
-                      Identifier
-                        PsiElement(identifier)('c')
-                  PsiElement(,)(',')
-                  Simple type
-                    Stable Identifier
-                      Identifier
-                        PsiElement(identifier)('d')
-                  PsiElement())(')')
-                PsiElement(=>)('=>')
+        Simple type
+          PsiElement(()('(')
+          Functional type
+            Simple type
+              Stable Identifier
+                PsiElement(identifier)('a')
+            PsiElement(=>)('=>')
+            Functional type
+              Types list
+                PsiElement(()('(')
                 Simple type
                   Stable Identifier
-                    Identifier
-                      PsiElement(identifier)('e')
-            PsiElement())(')')
+                    PsiElement(identifier)('c')
+                PsiElement(,)(',')
+                Simple type
+                  Stable Identifier
+                    PsiElement(identifier)('d')
+                PsiElement())(')')
+              PsiElement(=>)('=>')
+              Simple type
+                Stable Identifier
+                  PsiElement(identifier)('e')
+          PsiElement())(')')
       PsiElement())(')')
