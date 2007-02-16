@@ -6,17 +6,13 @@ Scala file
     PsiWhiteSpace(' ')
     Import expression
       Stable Identifier
-        Identifier
-          PsiElement(identifier)('first')
+        PsiElement(identifier)('first')
       PsiElement(.)('.')
-      Identifier
-        PsiElement(identifier)('item')
+      PsiElement(identifier)('item')
     PsiElement(,)(',')
     PsiWhiteSpace(' ')
     Import expression
       Stable Identifier
-        Identifier
-          PsiElement(identifier)('second')
+        PsiElement(identifier)('second')
       PsiElement(.)('.')
-      Identifier
-        PsiElement(identifier)('item')
+      PsiElement(identifier)('item')

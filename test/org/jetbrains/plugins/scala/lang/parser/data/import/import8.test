@@ -8,31 +8,25 @@ Scala file
       Stable Identifier
         Stable Identifier
           Stable Identifier
-            Identifier
-              PsiElement(identifier)('a')
+            PsiElement(identifier)('a')
           PsiElement(.)('.')
-          Identifier
-            PsiElement(identifier)('b')
+          PsiElement(identifier)('b')
         PsiElement(.)('.')
-        Identifier
-          PsiElement(identifier)('c')
+        PsiElement(identifier)('c')
       PsiElement(.)('.')
       Import selectors
         PsiElement({)('{')
         PsiWhiteSpace(' ')
         Import selector
-          Identifier
-            PsiElement(identifier)('a')
+          PsiElement(identifier)('a')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
           PsiWhiteSpace(' ')
-          Identifier
-            PsiElement(identifier)('b')
+          PsiElement(identifier)('b')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
         Import selector
-          Identifier
-            PsiElement(identifier)('c')
+          PsiElement(identifier)('c')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
           PsiWhiteSpace(' ')
