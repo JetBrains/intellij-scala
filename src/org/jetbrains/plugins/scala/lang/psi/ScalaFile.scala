@@ -13,12 +13,12 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
-             
+
 /**
- *  Describes scala file behaviour, adopting it to behavior of java file
- *  @see PsiJavaFile
- *
- */
+*  Describes scala file behaviour, adopting it to behavior of java file
+*  @see PsiJavaFile
+*
+*/
 class ScalaFile(viewProvider: FileViewProvider)
 extends PsiFileBase (viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
 with ScalaPsiElement {
@@ -46,7 +46,7 @@ with ScalaPsiElement {
       y.getNode.getElementType match
       {
         case ScalaElementTypes.PACKAGING => y.asInstanceOf[ScPackaging].getTmplDefs.toList ::: x
-        case _ => (y.asInstanceOf[ScTmplDef]).getTmplDefs.toList ::: x
+        case _ => y.asInstanceOf[ScTmplDef] :: (y.asInstanceOf[ScTmplDef]).getTmplDefs.toList ::: x
       })
   }
 

@@ -56,7 +56,10 @@ package org.jetbrains.plugins.scala.structure {
         case packaging: ScPackaging if (packaging.getTmplDefs != null) => childrenElements ++= packaging.getTmplDefs
 
         case topDef: ScTmplDef => {
-          if (topDef.getTmplDefs != null) childrenElements ++= topDef.getTmplDefs
+          if (topDef.getTmplDefs != null) {
+            childrenElements ++= topDef.getTmplDefs
+            
+          }
 
           val templateStmts = topDef.getTemplateStatements
 
