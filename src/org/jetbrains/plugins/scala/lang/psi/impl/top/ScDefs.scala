@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTemplateStatement
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
-import org.jetbrains.plugins.scala.icons.Icons 
+import org.jetbrains.plugins.scala.icons.Icons
 
 
 /**
@@ -44,11 +44,11 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
       val body = template.getTemplateBody
       if (body != null) {
         val children = body.childrenOfType[ScTmplDef](ScalaElementTypes.TMPL_DEF_BIT_SET)
-        return this :: (children :\ (Nil: List[ScTmplDef]))((y: ScTmplDef, x: List[ScTmplDef]) =>
-          y.asInstanceOf[ScTmplDef].getTmplDefs.toList ::: x)
+        return (children :\ (Nil: List[ScTmplDef]))((y: ScTmplDef, x: List[ScTmplDef]) =>
+          y.asInstanceOf[ScTmplDef] :: y.asInstanceOf[ScTmplDef].getTmplDefs.toList ::: x)
       }
     }
-    return List[ScTmplDef](this)
+    return Nil: List[ScTmplDef]
   }
 
   override def getName = nameNode.getText
@@ -112,7 +112,7 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
 case class ScClassDefinition(node: ASTNode) extends ScTypeDef (node){
   override def toString: String = super.toString + ": " + "class"
 
-  override def getIcon(flags : Int) = Icons.CLASS
+  override def getIcon(flags: Int) = Icons.CLASS
 }
 
 /*
@@ -121,7 +121,7 @@ case class ScClassDefinition(node: ASTNode) extends ScTypeDef (node){
 case class ScObjectDefinition(node: ASTNode) extends ScTmplDef (node){
   override def toString: String = super.toString + ": " + "object"
 
-  override def getIcon(flags : Int) = Icons.OBJECT
+  override def getIcon(flags: Int) = Icons.OBJECT
 }
 
 /*
@@ -139,5 +139,5 @@ trait ScTypeDef extends ScTmplDef  with IfElseIndent{
 case class ScTraitDefinition(node: ASTNode) extends ScTypeDef (node) {
   override def toString: String = super.toString + ": " + "trait"
 
-  override def getIcon(flags : Int) = Icons.TRAIT
+  override def getIcon(flags: Int) = Icons.TRAIT
 }
