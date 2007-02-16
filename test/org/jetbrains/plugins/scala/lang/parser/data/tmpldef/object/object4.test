@@ -4,8 +4,7 @@ Scala file
   template definition: object
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
-    Identifier
-      PsiElement(identifier)('a')
+    PsiElement(identifier)('a')
   PsiErrorElement:top statement declaration error
     <empty list>
   PsiWhiteSpace(' ')
@@ -15,8 +14,7 @@ Scala file
       Attribute
         constuctor
           Stable Identifier
-            Identifier
-              PsiElement(identifier)('T')
+            PsiElement(identifier)('T')
       PsiElement(])(']')
   PsiErrorElement:wrong type declaration
     <empty list>

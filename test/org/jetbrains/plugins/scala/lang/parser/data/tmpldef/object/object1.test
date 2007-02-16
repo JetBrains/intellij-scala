@@ -7,13 +7,10 @@ Scala file
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
     Qualified identifier
-      Stable Identifier
-        Identifier
-          PsiElement(identifier)('a')
+      PsiElement(identifier)('a')
     PsiElement(newline)('\n')
   PsiWhiteSpace('\n')
   template definition: object
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
-    Identifier
-      PsiElement(identifier)('b')
+    PsiElement(identifier)('b')
