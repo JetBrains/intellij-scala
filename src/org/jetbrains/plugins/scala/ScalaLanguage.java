@@ -2,12 +2,16 @@ package org.jetbrains.plugins.scala;
 
 import com.intellij.formatting.FormattingModelBuilder;
 import com.intellij.lang.*;
+import com.intellij.lang.cacheBuilder.WordsScanner;
+import com.intellij.lang.cacheBuilder.DefaultWordsScanner;
+import com.intellij.lang.findUsages.FindUsagesProvider;
 import com.intellij.lang.surroundWith.SurroundDescriptor;
 import com.intellij.lang.folding.FoldingBuilder;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
+import com.intellij.psi.tree.TokenSet;
 import com.intellij.ide.structureView.StructureViewBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +19,7 @@ import org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher;
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter;
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
 
 import java.io.Serializable;
 //import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition;
@@ -40,6 +45,11 @@ public class ScalaLanguage extends Language {
 
   public FoldingBuilder getFoldingBuilder() {
     return ScalaToolsFactory.getInstance().createScalaFoldingBuilder();
+  }
+
+  @NotNull
+  public FindUsagesProvider getFindUsagesProvider() {
+    return ScalaToolsFactory.getInstance().createFindUsagesProvider();
   }
 
   public ParserDefinition getParserDefinition() {

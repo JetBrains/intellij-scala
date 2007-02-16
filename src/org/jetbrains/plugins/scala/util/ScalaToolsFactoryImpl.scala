@@ -10,10 +10,12 @@ import org.jetbrains.plugins.scala.lang.surroundWith._
 import org.jetbrains.plugins.scala.lang.formatting._
 import org.jetbrains.plugins.scala.structure.ScalaStructureViewBuilder
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionData
+import org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider
 import com.intellij.codeInsight.completion._
 import com.intellij.ide.structureView.StructureViewBuilder
 import com.intellij.formatting.FormattingModelBuilder
 import com.intellij.psi.PsiFile
+import com.intellij.lang.findUsages.FindUsagesProvider
 
 /**
  * Author: Ilya Sergey
@@ -35,4 +37,6 @@ class ScalaToolsFactoryImpl extends ScalaToolsFactory {
   def createScalaFormattingModelBuilder: FormattingModelBuilder = new ScalaFormattingModelBuilder()
 
   def createStructureViewBuilder (psiFile : PsiFile) : StructureViewBuilder = new ScalaStructureViewBuilder(psiFile)
+
+  def createFindUsagesProvider = ScalaFindUsagesProvider
 }

@@ -180,4 +180,7 @@ public interface ScalaTokenTypes {
       tDOC_COMMENT_END,
       tCOMMENT_CONTENT
   );
+
+  TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER);
+  TokenSet STRING_LITERAL_TOKEN_SET = TokenSet.create(tSTRING, tWRONG_STRING);
 }
