@@ -151,6 +151,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
     override def isManyDeclarations = (getChild(ScalaElementTypes.PATTERN2_LIST) != null)
     override def getDeclarations: ScalaPsiElement = getChild(ScalaElementTypes.PATTERN2_LIST).asInstanceOf[ScalaPsiElement]
 
+    override def getIcon(flags: Int) = Icons.VAL
+
     [NotNull]
     override def names: Iterable[PsiElement] = {
       if (isManyDeclarations) return getDeclarations.childrenOfType[PsiElement](ScalaElementTypes.PATTERN2_BIT_SET)
