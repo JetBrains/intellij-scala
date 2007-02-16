@@ -1,0 +1,28 @@
+class A {
+  0.asInstanceOf[T]
+}
+-----
+Scala file
+  template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    class template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        PsiWhiteSpace(' ')
+        PsiWhiteSpace(' ')
+        Common expression
+          PsiElement(integer)('0')
+          PsiElement(.)('.')
+          PsiElement(identifier)('asInstanceOf')
+          Type arguments list
+            PsiElement([)('[')
+            Simple type
+              Stable Identifier
+                PsiElement(identifier)('T')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

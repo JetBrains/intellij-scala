@@ -1,0 +1,21 @@
+class A{
+val x=239
+}
+-----
+Scala file
+  template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    class template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        pattern definition
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('x')
+          PsiElement(=)('=')
+          PsiElement(integer)('239')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
