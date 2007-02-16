@@ -120,7 +120,6 @@ case class ScClassDefinition(node: ASTNode) extends ScTypeDef (node){
 */
 case class ScObjectDefinition(node: ASTNode) extends ScTmplDef (node){
   override def toString: String = super.toString + ": " + "object"
-
   override def getIcon(flags: Int) = Icons.OBJECT
 }
 
