@@ -37,4 +37,3 @@ Scala file
     PsiElement(newline)('\n')
     PsiWhiteSpace('\n')
     PsiElement(})('}')
-  PsiElement(newline)('\n')
