@@ -4,21 +4,18 @@ Scala file
   template definition: class
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
-    Identifier
-      PsiElement(identifier)('A')
+    PsiElement(identifier)('A')
     type parameter clause
       PsiElement([)('[')
       type parameter
-        Identifier
-          PsiElement(identifier)('T')
+        PsiElement(identifier)('T')
       PsiElement(])(']')
     PsiWhiteSpace(' ')
-    class template
+    top definition template
       extends block
         PsiElement(extends)('extends')
         PsiWhiteSpace(' ')
         template parents
           constuctor
             Stable Identifier
-              Identifier
-                PsiElement(identifier)('B')
+              PsiElement(identifier)('B')
