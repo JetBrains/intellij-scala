@@ -53,7 +53,6 @@
 
     <mkdir dir="${project.lib}/../"/>
     <mkdir dir="${project.lib}"/>
-    <mkdir dir="${project.lib}/org/jetbrains/plugins/scala/ScalaBundle.properties"/>
     <mkdir dir="${project.lib}/META-INF"/>
 
     <copy todir="${project.lib}/META-INF">
@@ -176,6 +175,7 @@
         <fileset dir="${base.dir}/test">
           <include name="**/FormatterTest.java"/>
           <include name="**/EnterActionTest.java"/>
+          <include name="**/ParserTest.java"/>
         </fileset>
       </batchtest>
 
