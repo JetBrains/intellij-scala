@@ -1,0 +1,28 @@
+class A {
+  (a+b).id
+}
+-----
+Scala file
+  template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    top definition template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        Simple expression
+          Simple expression
+            PsiElement(()('(')
+            Infix expression
+              Stable Identifier
+                PsiElement(identifier)('a')
+              PsiElement(identifier)('+')
+              Stable Identifier
+                PsiElement(identifier)('b')
+            PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('id')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
