@@ -39,6 +39,8 @@ class ScPackaging(node: ASTNode) extends ScalaPsiElementImpl (node) with Blocked
 
   }
 
+  def getInnerPackagings: Iterable[ScPackaging] = childrenOfType[ScPackaging](ScalaElementTypes.PACKAGING_BIT_SET)
+
   [NotNull]
   def getFullPackageName: String = getChild(ScalaElementTypes.QUAL_ID).asInstanceOf[ScQualId].getFullName
 

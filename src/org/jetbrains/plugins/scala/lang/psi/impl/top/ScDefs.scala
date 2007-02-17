@@ -93,9 +93,8 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
     import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTemplateBody
 
     val template = getTemplate
-    var body: ScTemplateBody = null
     if (template != null) {
-      body = template.getTemplateBody
+      var body = template.getTemplateBody
       if (body != null) return body.childrenOfType[ScTemplateStatement](ScalaElementTypes.TMPL_STMT_BIT_SET)
     }
     null
