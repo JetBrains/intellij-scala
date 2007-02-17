@@ -142,6 +142,9 @@
     <javac srcdir="../test"
            destdir="../classes/test/Scala">
       <classpath refid="base.path"/>
+      <classpath>
+        <path location="${project.lib}"/>
+      </classpath>
     </javac>
   </target>
 
