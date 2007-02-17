@@ -12,6 +12,10 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.impl.top._
 import java.io.Serializable
 
+/**
+ *  Java toplevel view of the scala file
+ *  @see PsiJavaFile
+ */
 class ScJavaFile(viewProvider: FileViewProvider) extends LightPsiFileBase(viewProvider, StdLanguages.JAVA) with PsiJavaFile
 with Serializable{
   def getLanguageLevel = LanguageLevel.JDK_1_5

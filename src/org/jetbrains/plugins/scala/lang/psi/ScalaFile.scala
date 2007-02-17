@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.lang.Language
-import com.intellij.psi.FileViewProvider
-import com.intellij.psi.PsiElement
+import com.intellij.psi._
+import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.impl.top._
 import com.intellij.psi.tree.TokenSet
@@ -14,26 +14,13 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 
-/**
-*  Describes scala file behaviour, adopting it to behavior of java file
-*  @see PsiJavaFile
-*
-*/
 class ScalaFile(viewProvider: FileViewProvider)
 extends PsiFileBase (viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
 with ScalaPsiElement {
 
-  override def getViewProvider() = {
-    viewProvider
-  }
-
-  override def getFileType() = {
-    ScalaFileType.SCALA_FILE_TYPE
-  }
-
-  override def toString: String = {
-    "Scala file"
-  }
+  override def getViewProvider = viewProvider
+  override def getFileType = ScalaFileType.SCALA_FILE_TYPE
+  override def toString = "Scala file"
 
   def getPackaging: Iterable[ScPackaging] = childrenOfType[ScPackaging](ScalaElementTypes.PACKAGING_BIT_SET)
 
@@ -50,4 +37,17 @@ with ScalaPsiElement {
       })
   }
 
+  def getImports : Iterable[ScImportStmt] = childrenOfType[ScImportStmt](ScalaElementTypes.IMPORT_STATEMENT_BIT_SET)
+
+  override def processDeclarations(processor : PsiScopeProcessor,
+                                   substitutor : PsiSubstitutor,
+                                   lastParent : PsiElement,
+                                   place : PsiElement) = {
+    for (val importStatement <- getImports) {
+      val expr = importStatement.getExpression
+      expr.getImportReference
+    }
+
+    true
+  }
 }
