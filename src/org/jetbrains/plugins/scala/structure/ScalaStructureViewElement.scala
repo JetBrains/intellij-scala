@@ -46,24 +46,26 @@ package org.jetbrains.plugins.scala.structure {
     override def canNavigateToSource(): Boolean = (myElement.asInstanceOf[NavigationItem]).canNavigateToSource()
 
     override def getChildren(): Array[TreeElement] = {
-      var childrenElements: ArrayBuffer[ScalaPsiElement] = new ArrayBuffer[ScalaPsiElement]();
-      var stmtStructureViewElements: ArrayBuffer[ScalaStructureViewElement] = new ArrayBuffer[ScalaStructureViewElement]();
-      val result: ArrayBuffer[TreeElement] = new ArrayBuffer[TreeElement]()
+      var children = new ArrayBuffer[ScalaStructureViewElement]()
+      var stmtStructureViewElements = new ArrayBuffer[ScalaStructureViewElement]()
 
       //todo: add inherited methods
       myElement match {
-        case file: ScalaFile => childrenElements ++= file.getPackaging; childrenElements ++= file.childrenOfType[ScTmplDef](ScalaElementTypes.TMPL_DEF_BIT_SET)
-        case packaging: ScPackaging if (packaging.getTmplDefs != null) => childrenElements ++= packaging.getTmplDefs
+        case file: ScalaFile => {
+          children ++= createStructureViewElements(file.getPackaging)
+          children ++= createStructureViewElements(file.childrenOfType[ScTmplDef](ScalaElementTypes.TMPL_DEF_BIT_SET))
+        }
+        case packaging: ScPackaging  => {
+          children ++= createStructureViewElements(packaging.getTmplDefs)
+          children ++= createStructureViewElements(packaging.getInnerPackagings)
+        }
 
         case topDef: ScTmplDef => {
-          if (topDef.getTmplDefs != null) {
-            childrenElements ++= topDef.getTmplDefs
-            
-          }
+          children ++= createStructureViewElements(topDef.getTmplDefs)
 
           val templateStmts = topDef.getTemplateStatements
 
-          if (templateStmts != null) stmtStructureViewElements ++= {
+          stmtStructureViewElements ++= {
             val bigIter = for (val stmt <- templateStmts; stmt != null) yield elementAsDisjunctStructureViewElements(stmt)
 
             bigIter.flatMap(x => x)
@@ -72,15 +74,15 @@ package org.jetbrains.plugins.scala.structure {
         case _ => {}
       }
 
-      result ++= (for (val i <- Array.range(0, childrenElements.length))
-      yield (new ScalaStructureViewElement(childrenElements.apply(i))).asInstanceOf[TreeElement])
+      children ++= stmtStructureViewElements
 
-      result ++= stmtStructureViewElements
-
-      val resultAsArray: Array[TreeElement] = new Array(result.length)
-      result.copyToArray(resultAsArray, 0)
+      val resultAsArray: Array[TreeElement] = new Array(children.length)
+      children.copyToArray(resultAsArray, 0)
       resultAsArray
     }
+
+    private def createStructureViewElements[T  >: Null <: ScalaPsiElement]
+      (elems : Iterable[T]) : Iterable[ScalaStructureViewElement] = elems.map(e => new ScalaStructureViewElement(e)) 
 
     override def getPresentation(): ItemPresentation = {
       new ItemPresentation() {
@@ -96,17 +98,16 @@ package org.jetbrains.plugins.scala.structure {
 
 
     private def elementAsDisjunctStructureViewElements(element: ScTemplateStatement): Iterable[ScalaStructureViewElement] = {
-      val psiElement = element
-      if (! psiElement.isManyDeclarations) return Array(new ScalaStructureViewElement(psiElement))
+      if (!element.isManyDeclarations) return Array(new ScalaStructureViewElement(element))
 
-      val theNames = psiElement.names
+      val theNames = element.names
 
       for (val name <- theNames) yield {
-        new ScalaStructureViewElement(psiElement) {
+        new ScalaStructureViewElement(element) {
           override def getPresentation(): ItemPresentation = {
             new ItemPresentation() {
               override def getPresentableText(): String = {
-                ScalaStructureViewPresentationFormat.presentationText(name.getText, psiElement)
+                ScalaStructureViewPresentationFormat.presentationText(name.getText, element)
               }
               override def getTextAttributesKey(): TextAttributesKey = null
               override def getLocationString(): String = null
