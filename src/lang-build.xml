@@ -135,7 +135,7 @@
   </target>
 
 
-  <target name="build.tests">
+  <target name="build.tests" depends="make.project">
 
     <mkdir dir="${project.lib}/../../test"/>
     <mkdir dir="${project.lib}/../../test/Scala"/>
