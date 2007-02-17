@@ -141,10 +141,7 @@
     <mkdir dir="${project.lib}/../../test/Scala"/>
     <javac srcdir="../test"
            destdir="../classes/test/Scala">
-      <classpath>
-        <path location="${project.lib}"/>
-        <path location="${idea.lib}"/>
-      </classpath>
+      <classpath refid="base.path"/>
     </javac>
   </target>
 
