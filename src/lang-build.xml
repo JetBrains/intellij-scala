@@ -143,6 +143,7 @@
            destdir="../classes/test/Scala">
       <classpath>
         <path location="${project.lib}"/>
+        <path location="${idea.lib}"/>
       </classpath>
     </javac>
   </target>
