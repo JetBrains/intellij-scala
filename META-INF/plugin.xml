@@ -1,6 +1,7 @@
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
 <idea-plugin>
-  <name>Plugin name here</name>
+  <id>org.intellij.scala</id>
+  <name>Scala language plugin</name>
   <description>Plugin for scala language</description>
   <version>1.0</version>
   <vendor>YourCompany</vendor>
@@ -21,6 +22,9 @@
     <component>
       <implementation-class>org.jetbrains.plugins.scala.components.ScalaFileCreator</implementation-class>
     </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.components.ScalaIconProvider</implementation-class>
+    </component>
   </application-components>
 
 
@@ -35,19 +39,14 @@
       <implementation-class>org.jetbrains.plugins.scala.cache.ScalaSDKCachesManager</implementation-class>
     </component>
     <component>
-     <interface-class>com.intellij.psi.PsiElementFinder</interface-class> 
-     <implementation-class>org.jetbrains.plugins.scala.finder.ScalaPsiElementFinder</implementation-class>
+      <implementation-class>org.jetbrains.plugins.scala.cache.ScalaLibraryCachesManager</implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.finder.ScalaPsiElementFinder</implementation-class>
     </component>
   </project-components>
 
 
   <actions>
-    <!--action id="NewScalaFile" class="org.jetbrains.plugins.scala.actions.creators.NewScalaFileCreate" text="Scala file"
-            description="Create new Scala file">
-        <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
-    </action-->
-    <!--<group id="NEW_FILE_GROUP" class="org.jetbrains.plugins.ruby.rails.actions.generators.actions.GeneratorsActionGroup" popup = "false">
-        <add-to-group group-id="NewGroup" anchor="first"/>
-    </group>-->
   </actions>
 </idea-plugin>

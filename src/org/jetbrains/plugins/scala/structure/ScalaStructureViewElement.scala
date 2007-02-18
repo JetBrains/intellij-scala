@@ -65,10 +65,12 @@ package org.jetbrains.plugins.scala.structure {
 
           val templateStmts = topDef.getTemplateStatements
 
-          stmtStructureViewElements ++= {
-            val bigIter = for (val stmt <- templateStmts; stmt != null) yield elementAsDisjunctStructureViewElements(stmt)
+          if (templateStmts != null) {
+            stmtStructureViewElements ++= {
+              val bigIter = for (val stmt <- templateStmts; stmt != null) yield elementAsDisjunctStructureViewElements(stmt)
 
-            bigIter.flatMap(x => x)
+              bigIter.flatMap(x => x)
+            }
           }
         }
         case _ => {}
