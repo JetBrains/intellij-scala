@@ -150,7 +150,7 @@ public class ScalaCompiler implements TranslatingCompiler {
       }
     }
 
-    VirtualFile[] toRecompile = compiledItems.size() == allCompiling.size() ?
+    VirtualFile[] toRecompile = compiledItems.size() > 0 ?
         VirtualFile.EMPTY_ARRAY :
         allCompiling.toArray(new VirtualFile[allCompiling.size()]);
 
