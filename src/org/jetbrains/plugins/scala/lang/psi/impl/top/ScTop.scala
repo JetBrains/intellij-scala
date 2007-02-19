@@ -44,7 +44,7 @@ class ScPackaging(node: ASTNode) extends ScalaPsiElementImpl (node) with Blocked
 
   override def processDeclarations(processor: PsiScopeProcessor,
           substitutor: PsiSubstitutor,
-          lastParent: PsiElement,
+          lastParent: PsiElement,             
           place: PsiElement) : Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve.processors._
 

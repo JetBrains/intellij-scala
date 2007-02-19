@@ -21,10 +21,11 @@ class ScStableIdImpl(node: ASTNode) extends ScSimpleExprImpl(node) with ScStable
   def getType(): PsiType = null
 
   override def getReference = {
-    if (getChildren.length == 1) {
+    val length = getChildren.length
+    if (length == 1) {
       new ScalaClassReference(this)
     } else {
-      null
+      null       
     }
   }
 
