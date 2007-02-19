@@ -13,11 +13,12 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.resolve.processors._
+import org.jetbrains.plugins.scala.lang.psi.containers._
 
 
 class ScalaFile(viewProvider: FileViewProvider)
 extends PsiFileBase (viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
-with ScalaPsiElement {
+with ScalaPsiElement with Importable{
 
   override def getViewProvider = viewProvider
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE
@@ -38,8 +39,6 @@ with ScalaPsiElement {
       })
   }
 
-  def getImports: Iterable[ScImportStmt] = childrenOfType[ScImportStmt](ScalaElementTypes.IMPORT_STATEMENT_BIT_SET)
-
   def getUpperDefs = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_DEF_BIT_SET)
 
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -58,6 +57,11 @@ with ScalaPsiElement {
         if (! processor.execute(tmplDef, substitutor)) {
           return false
         }
+      }
+      val clazz = getClassByName(processor.asInstanceOf[ScalaPsiScopeProcessor].getName, this)
+      if (clazz != null) {
+        processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
+        return false
       }
       return true
     } else true

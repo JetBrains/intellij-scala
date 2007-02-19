@@ -15,11 +15,8 @@ trait ScalaPsiScopeProcessor extends PsiScopeProcessor {
 
   def getResult: PsiElement
 
-/*
-  def execute(element: PsiElement, substitutor: PsiSubstitutor): Boolean
+  def getName : String
 
-  def getHint[T >: Null <: AnyRef](hintClass: Class[T]): T
-*/                   
+  def setResult(result: PsiElement): Unit
 
-  //def handleEvent(event: Event, associated: Object) {}
 }

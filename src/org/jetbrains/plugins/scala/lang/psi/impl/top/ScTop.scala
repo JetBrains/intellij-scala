@@ -9,6 +9,7 @@ import com.intellij.psi.scope._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
+import org.jetbrains.plugins.scala.lang.psi.containers._
 
 /**********************************************************************************************************************/
 /******************************************** Main top definitions ****************************************************/
@@ -22,7 +23,7 @@ class ScCompilationUnit(node: ASTNode) extends ScalaPsiElementImpl (node) {
 * Implements behaviour of package body
 *
 */
-class ScPackaging(node: ASTNode) extends ScalaPsiElementImpl (node) with BlockedIndent{
+class ScPackaging(node: ASTNode) extends ScalaPsiElementImpl (node) with BlockedIndent with Importable{
   override def toString = "Packaging"
 
   /**
@@ -53,6 +54,11 @@ class ScPackaging(node: ASTNode) extends ScalaPsiElementImpl (node) with Blocked
         if (! processor.execute(tmplDef, substitutor)) {
           return false
         }
+      }
+      val clazz = getClassByName(processor.asInstanceOf[ScalaPsiScopeProcessor].getName, this)
+      if (clazz != null) {
+        processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
+        return false
       }
       return true
     } else true

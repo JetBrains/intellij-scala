@@ -13,6 +13,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expressions {
   import com.intellij.psi.tree.IElementType;
   import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
   import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
+  import org.jetbrains.plugins.scala.lang.psi.containers._
 
   class ScExpression(node: ASTNode) extends ScExprImpl(node) {
     override def toString: String = "expression"
@@ -61,7 +62,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expressions {
   }
 
 
-  case class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScBlock {
+  case class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScBlock with Importable{
     override def toString: String = "Block"
 
     def getType(): PsiType = null
@@ -80,6 +81,13 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expressions {
             return false
           }
         }
+
+        val clazz = getClassByName(processor.asInstanceOf[ScalaPsiScopeProcessor].getName, this)
+        if (clazz != null) {
+          processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
+          return false
+        }
+
         return true
       } else true
     }
