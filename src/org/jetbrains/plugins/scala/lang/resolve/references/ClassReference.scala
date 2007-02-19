@@ -8,8 +8,10 @@ package org.jetbrains.plugins.scala.lang.resolve.references
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processors._
+import com.intellij.openapi.util.TextRange
 
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
+import org.jetbrains.plugins.scala.lang.psi.impl.types._
 
 class ScalaClassReference(val myElement: PsiElement) extends PsiReference {
 
@@ -27,7 +29,7 @@ class ScalaClassReference(val myElement: PsiElement) extends PsiReference {
    *
    * @return Relative range in element
    */
-  def getRangeInElement = myElement.getTextRange
+  def getRangeInElement = new TextRange(0, myElement.getTextLength)
 
   /**
    * Returns the element which is the target of the reference.
@@ -116,8 +118,8 @@ class ScalaClassReference(val myElement: PsiElement) extends PsiReference {
   *
   */
   def getReferencedName = {
-    if (myElement.isInstanceOf[ScTmplDef]) {
-      myElement.asInstanceOf[ScTmplDef].getName
+    if (myElement.isInstanceOf[ScStableIdImpl]) {
+      myElement.asInstanceOf[ScStableIdImpl].getName
     } else null
   }
 
