@@ -11,6 +11,7 @@ import com.intellij.psi.PsiSubstitutor
 import com.intellij.psi.scope.PsiScopeProcessor.Event
 
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
+import org.jetbrains.plugins.scala.lang.psi.impl.types._
 
 class ScalaClassResolveProcessor(val myName: String) extends ScalaPsiScopeProcessor {
 
