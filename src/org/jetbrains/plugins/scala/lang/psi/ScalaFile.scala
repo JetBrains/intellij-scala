@@ -38,18 +38,32 @@ with ScalaPsiElement {
       })
   }
 
-  def getImports : Iterable[ScImportStmt] = childrenOfType[ScImportStmt](ScalaElementTypes.IMPORT_STATEMENT_BIT_SET)
+  def getImports: Iterable[ScImportStmt] = childrenOfType[ScImportStmt](ScalaElementTypes.IMPORT_STATEMENT_BIT_SET)
 
-  override def processDeclarations(processor : PsiScopeProcessor,
-                                   substitutor : PsiSubstitutor,
-                                   lastParent : PsiElement,
-                                   place : PsiElement) = {
-/*                                                            
-    for (val importStatement <- getImports) {
-      val expr = importStatement.getExpression
-      expr.getImportReference
-    }
-*/
-    true
+  override def processDeclarations(processor: PsiScopeProcessor,
+          substitutor: PsiSubstitutor,
+          lastParent: PsiElement,
+          place: PsiElement) = {
+    /*
+        for (val importStatement <- getImports) {
+          val expr = importStatement.getExpression
+          expr.getImportReference
+        }
+    */
+    import org.jetbrains.plugins.scala.lang.resolve.processors._
+    if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
+      for (val tmplDef <- getUpperDefs) {
+        if (! processor.execute(tmplDef, substitutor)) {
+          return false
+        }
+      }
+      return true
+    } else true
   }
+
+  def getUpperDefs = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_DEF_BIT_SET)
+
+
+
+
 }
