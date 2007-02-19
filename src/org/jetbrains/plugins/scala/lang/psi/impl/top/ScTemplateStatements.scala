@@ -189,6 +189,14 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
 
   case class ScTypeDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDefinition with ScType with ScParametrized{
     override def toString: String = "type" + " " + super.toString
+
+    def nameNode = {
+      def isName = (elementType: IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
+      childSatisfyPredicateForElementType(isName)
+    }
+
+    override def getName = nameNode.getText
+
   }
 
   /***************** declaration ***********************/
@@ -217,6 +225,13 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
 
   case class ScTypeDeclaration(node: ASTNode) extends ScalaPsiElementImpl(node) with Declaration with ScType {
     override def toString: String = "type" + " " + super.toString
+
+    def nameNode = {
+      def isName = (elementType: IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
+      childSatisfyPredicateForElementType(isName)
+    }
+
+    override def getName = nameNode.getText
   }
 
   /************** function signature *********************/
