@@ -61,7 +61,7 @@ class ScalaClassReference(val myElement: PsiElement) extends PsiReference {
    */
   def handleElementRename(newElementName: String): PsiElement = {
     null
-  }
+  }              
 
   /**
   * Changes the reference so that it starts to point to the specified element. This is called,
