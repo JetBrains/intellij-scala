@@ -40,6 +40,8 @@ with ScalaPsiElement {
 
   def getImports: Iterable[ScImportStmt] = childrenOfType[ScImportStmt](ScalaElementTypes.IMPORT_STATEMENT_BIT_SET)
 
+  def getUpperDefs = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_DEF_BIT_SET)
+
   override def processDeclarations(processor: PsiScopeProcessor,
           substitutor: PsiSubstitutor,
           lastParent: PsiElement,
@@ -60,10 +62,6 @@ with ScalaPsiElement {
       return true
     } else true
   }
-
-  def getUpperDefs = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_DEF_BIT_SET)
-
-
 
 
 }
