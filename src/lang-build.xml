@@ -4,6 +4,8 @@
   <property name="output" value="${base.dir}/dist"/>
   <property name="test.lib" value="${project.lib}/../../test/Scala"/>
 
+  <property name="output" value="${basedir}/dist"/>
+
   <path id="base.path">
     <fileset dir="${scala.home}/lib">
       <include name="**/*.jar"/>
@@ -135,7 +137,7 @@
   </target>
 
 
-  <target name="build.tests" depends="make.project">
+  <target name="build.tests">
 
     <mkdir dir="${project.lib}/../../test"/>
     <mkdir dir="${project.lib}/../../test/Scala"/>
@@ -150,7 +152,7 @@
 
   <target name="run.tests" depends="build.tests">
 
-    <mkdir dir = "${base.dir}/logs">
+    <mkdir dir="${base.dir}/logs"/>
 
     <junit fork="yes"
            dir="${base.dir}"
@@ -171,6 +173,10 @@
       <jvmarg value="-Xdebug"/>
       <jvmarg value="-Djava.compiler=NONE"/>
       <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5006"/>
+
+      <jvmarg value="-Didea.config.path=${output}/config"/>
+      <jvmarg value="-Didea.system.path=${output}/system"/>
+
 
       <formatter type="plain"/>
 
