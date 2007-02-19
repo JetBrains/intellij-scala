@@ -5,6 +5,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.defs.ScTmplDef
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 import com.intellij.lang.ASTNode
+import com.intellij.psi.scope._
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 
@@ -34,10 +36,28 @@ class ScPackaging(node: ASTNode) extends ScalaPsiElementImpl (node) with Blocked
       {
         case ScalaElementTypes.PACKAGING => y.asInstanceOf[ScPackaging].getTmplDefs.toList ::: x
         case _ => y.asInstanceOf[ScTmplDef] :: y.asInstanceOf[ScTmplDef].getTmplDefs.toList ::: x
-      }
-    )
+      })
 
   }
+
+  def getTypeDefs = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_OR_TYPE_BIT_SET)
+
+  override def processDeclarations(processor: PsiScopeProcessor,
+          substitutor: PsiSubstitutor,
+          lastParent: PsiElement,
+          place: PsiElement) : Boolean = {
+    import org.jetbrains.plugins.scala.lang.resolve.processors._
+
+    if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
+      for (val tmplDef <- getTypeDefs) {
+        if (! processor.execute(tmplDef, substitutor)) {
+          return false
+        }
+      }
+      return true
+    } else true
+  }
+
 
   def getInnerPackagings: Iterable[ScPackaging] = childrenOfType[ScPackaging](ScalaElementTypes.PACKAGING_BIT_SET)
 
