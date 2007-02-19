@@ -15,9 +15,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.types._
 
 class ScalaClassResolveProcessor(val myName: String) extends ScalaPsiScopeProcessor {
 
-  private var myResult: PsiElement = null
+  protected var myResult: PsiElement = null
 
   def getResult: PsiElement = myResult
+
+  def setResult(result: PsiElement) {
+    myResult = result
+  }
+
+  def getName = myName
 
   def execute(element: PsiElement, substitutor: PsiSubstitutor): Boolean = {
     if (element.isInstanceOf[ScTmplDef]) {
@@ -26,7 +32,7 @@ class ScalaClassResolveProcessor(val myName: String) extends ScalaPsiScopeProces
         return false
       }
     }
-    true          
+    true
   }
 
   def getHint[T >: Null <: java.lang.Object](hintClass: java.lang.Class[T]): T = {

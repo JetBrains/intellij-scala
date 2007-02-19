@@ -8,6 +8,7 @@ import com.intellij.psi._
 
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.resolve.processors._
+import org.jetbrains.plugins.scala.lang.psi.containers._ 
 
 /**
  * User: Dmitry.Krasilschikov
@@ -59,7 +60,7 @@ case class ScMixinParents(node: ASTNode) extends Parents (node) {
 }
 
 /***************** body *******************/
-case class ScTemplateBody(node: ASTNode) extends ScalaPsiElementImpl (node) with BlockedIndent{
+case class ScTemplateBody(node: ASTNode) extends ScalaPsiElementImpl (node) with BlockedIndent with Importable{
   override def toString: String = "template body"
 
   def getTypes = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_OR_TYPE_BIT_SET)
@@ -76,6 +77,12 @@ case class ScTemplateBody(node: ASTNode) extends ScalaPsiElementImpl (node) with
           return false
         }
       }
+      val clazz = getClassByName(processor.asInstanceOf[ScalaPsiScopeProcessor].getName, this)
+      if (clazz != null) {
+        processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
+        return false
+      }
+      
       return true
     } else true
   }

@@ -296,7 +296,9 @@ object ScalaElementTypes {
 
   val PACKAGING_BIT_SET = TokenSet.create(Array.apply(PACKAGING))
 
-  val IMPORT_STATEMENT_BIT_SET = TokenSet.create(Array.apply(IMPORT_STMT))
+  val IMPORT_STMT_BIT_SET = TokenSet.create(Array.apply(IMPORT_STMT))
+
+  val IMPORT_EXPR_BIT_SET = TokenSet.create(Array.apply(IMPORT_EXPR))
 
   val TMPL_DEF_BIT_SET = TokenSet.create(Array.apply(OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
 
