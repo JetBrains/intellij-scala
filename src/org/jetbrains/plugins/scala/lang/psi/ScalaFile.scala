@@ -45,7 +45,7 @@ with ScalaPsiElement {
   override def processDeclarations(processor: PsiScopeProcessor,
           substitutor: PsiSubstitutor,
           lastParent: PsiElement,
-          place: PsiElement) = {
+          place: PsiElement): Boolean = {
     /*
         for (val importStatement <- getImports) {
           val expr = importStatement.getExpression
