@@ -25,7 +25,7 @@ class ScalaClassResolveProcessor(val myName: String) extends ScalaPsiScopeProces
         return false
       }
     }
-    true
+    true          
   }
 
   def getHint[T >: Null <: java.lang.Object](hintClass: java.lang.Class[T]): T = {

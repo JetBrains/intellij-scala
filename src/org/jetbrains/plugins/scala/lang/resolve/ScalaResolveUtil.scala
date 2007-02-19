@@ -38,7 +38,7 @@ object ScalaResolveUtil {
       val result = processor.asInstanceOf[ScalaPsiScopeProcessor].getResult
       result
 
-    } else null
+    } else null           
 
 
   }
