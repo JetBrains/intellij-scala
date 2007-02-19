@@ -150,6 +150,8 @@
 
   <target name="run.tests" depends="build.tests">
 
+    <mkdir dir = "${base.dir}/logs">
+
     <junit fork="yes"
            dir="${base.dir}"
            printsummary="yes"
@@ -172,7 +174,7 @@
 
       <formatter type="plain"/>
 
-      <batchtest todir="C:\logs">
+      <batchtest todir="${base.dir}/logs">
         <fileset dir="${base.dir}/test">
           <include name="**/FormatterTest.java"/>
           <include name="**/EnterActionTest.java"/>
