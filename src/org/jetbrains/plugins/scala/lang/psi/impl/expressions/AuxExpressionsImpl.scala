@@ -68,7 +68,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expressions {
 
     def getTmplDefs = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_DEF_BIT_SET)
 
-    override def processDeclarations(processor: PsiScopeProcessor,
+    override def processDeclarations(processor: PsiScopeProcessor,       
             substitutor: PsiSubstitutor,
             lastParent: PsiElement,
             place: PsiElement) : Boolean = {

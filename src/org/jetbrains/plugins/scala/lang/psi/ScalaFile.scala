@@ -44,7 +44,7 @@ with ScalaPsiElement {
                                    substitutor : PsiSubstitutor,
                                    lastParent : PsiElement,
                                    place : PsiElement) = {
-/*
+/*                                                            
     for (val importStatement <- getImports) {
       val expr = importStatement.getExpression
       expr.getImportReference

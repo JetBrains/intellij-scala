@@ -67,7 +67,7 @@ case class ScTemplateBody(node: ASTNode) extends ScalaPsiElementImpl (node) with
   override def processDeclarations(processor: PsiScopeProcessor,
           substitutor: PsiSubstitutor,
           lastParent: PsiElement,
-          place: PsiElement) : Boolean = {
+          place: PsiElement) : Boolean = {                         
     import org.jetbrains.plugins.scala.lang.resolve.processors._
 
     if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
