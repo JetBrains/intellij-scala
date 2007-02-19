@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.resolve.processors._
 
 
 class ScalaFile(viewProvider: FileViewProvider)
@@ -43,11 +44,12 @@ with ScalaPsiElement {
                                    substitutor : PsiSubstitutor,
                                    lastParent : PsiElement,
                                    place : PsiElement) = {
+/*
     for (val importStatement <- getImports) {
       val expr = importStatement.getExpression
       expr.getImportReference
     }
-
+*/
     true
   }
 }

@@ -3,7 +3,11 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templates
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl;
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.lang.ASTNode
+import com.intellij.psi.scope._
+import com.intellij.psi._
+
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
+import org.jetbrains.plugins.scala.lang.resolve.processors._
 
 /**
  * User: Dmitry.Krasilschikov
@@ -57,4 +61,24 @@ case class ScMixinParents(node: ASTNode) extends Parents (node) {
 /***************** body *******************/
 case class ScTemplateBody(node: ASTNode) extends ScalaPsiElementImpl (node) with BlockedIndent{
   override def toString: String = "template body"
+
+  def getTypes = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_OR_TYPE_BIT_SET)
+
+  override def processDeclarations(processor: PsiScopeProcessor,
+          substitutor: PsiSubstitutor,
+          lastParent: PsiElement,
+          place: PsiElement) : Boolean = {
+    import org.jetbrains.plugins.scala.lang.resolve.processors._
+
+    if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
+      for (val tmplDef <- getTypes) {
+        if (! processor.execute(tmplDef, substitutor)) {
+          return false
+        }
+      }
+      return true
+    } else true
+  }
 }
+
+

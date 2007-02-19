@@ -4,20 +4,31 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl, com.intellij.la
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes 
 
 /**
- * User: Dmitry.Krasilschikov
- * Date: 25.10.2006
- * Time: 17:51:03
+ * @author Dmitry Krasilschikov, Ilya Sergey, ven
+ *
  */
-  class ScImport( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
-    override def toString: String = "'import'"
-  }
+
+//  class ScImport( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
+//    override def toString: String = "'import'"
+//  }
 
   class ScImportStmt( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "Import statement"
     
-    def getExpression : ScImportExpr = getChild(ScalaElementTypes.IMPORT_EXPR).asInstanceOf[ScImportExpr]
+    def getExpression = getChild(ScalaElementTypes.IMPORT_EXPR).asInstanceOf[ScImportExpr]
+
+    /**
+    * @returns All import expression in current statement
+    */
+//    def getExpressions = childrenOfType[ScImportExpr](ScalaElementTypes.IMPORT_EXPR)
+
   }
 
+
+  /**
+  *  Implements all logis related to import expressions
+  *
+  */
   class ScImportExpr( node : ASTNode ) extends ScalaPsiElementImpl ( node ) {
     override def toString: String = "Import expression"
 

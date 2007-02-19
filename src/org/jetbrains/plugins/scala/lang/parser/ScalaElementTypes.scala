@@ -54,7 +54,7 @@ object ScalaElementTypes {
 
   /******************* TRAIT ************************/
   val TRAIT_DEF = new ScalaElementType("trait definition")
-//  val TRAIT_TEMPLATE = new ScalaElementType("trait template")
+  //  val TRAIT_TEMPLATE = new ScalaElementType("trait template")
 
   /******************* CLASS ************************/
   val CLASS_DEF = new ScalaElementType("class definition")
@@ -62,8 +62,8 @@ object ScalaElementTypes {
   val REQUIRES_BLOCK = new ScalaElementType("requires block")
   val EXTENDS_BLOCK = new ScalaElementType("extends block")
 
-//  val CLASS_TEMPLATE = new ScalaElementType("class template")
-  val TOP_DEF_TEMPLATE = new ScalaElementType("top definition template")  
+  //  val CLASS_TEMPLATE = new ScalaElementType("class template")
+  val TOP_DEF_TEMPLATE = new ScalaElementType("top definition template")
 
 
   /*************************************************************************************/
@@ -87,8 +87,8 @@ object ScalaElementTypes {
   /************ function *************/
   val FUN_PARAM = PARAM
   //val FUN_PARAMS = new ScalaElementType("function parameters")
-//  val FUN_PARAM_CLAUSE = new ScalaElementType("function parameter clause")
-//  val FUN_PARAM_CLAUSES = new ScalaElementType("function parameter clauses")
+  //  val FUN_PARAM_CLAUSE = new ScalaElementType("function parameter clause")
+  //  val FUN_PARAM_CLAUSES = new ScalaElementType("function parameter clauses")
 
   /*************************************************************************************/
   /************************* TYPE PARAMETERS OF CLASS AND FUNCTIONS *************************/
@@ -121,7 +121,7 @@ object ScalaElementTypes {
   /*********************************** IDENTIFIER **************************************/
   /*************************************************************************************/
 
-//  val IDENTIFIER = new ScalaElementType("identifier")
+  //  val IDENTIFIER = new ScalaElementType("identifier")
   val UNIT = new ScalaElementType("unit")
   val IDENTIFIER_LIST = new ScalaElementType("list of identifiers")
 
@@ -178,7 +178,7 @@ object ScalaElementTypes {
 
   val SUPPLEMENTARY_CONSTRUCTOR = new ScalaElementType("supplementary constructor")
 
-    /***************** types ******************/
+  /***************** types ******************/
   val LOWER_BOUND_TYPE = new ScalaElementType("lower bound type")
   val UPPER_BOUND_TYPE = new ScalaElementType("upper bound type")
 
@@ -186,13 +186,13 @@ object ScalaElementTypes {
   /******************************* MODIFIERS AND ATTRIBUTES ****************************/
   /*************************************************************************************/
 
-   /****************** attributes **********************/
-     val ATTRIBUTE_CLAUSE = new ScalaElementType("attribute clause")
-     val ATTRIBUTE_CLAUSES = new ScalaElementType("attribute clauses")
-     val ATTRIBUTE = new ScalaElementType("attribute")
+  /****************** attributes **********************/
+  val ATTRIBUTE_CLAUSE = new ScalaElementType("attribute clause")
+  val ATTRIBUTE_CLAUSES = new ScalaElementType("attribute clauses")
+  val ATTRIBUTE = new ScalaElementType("attribute")
 
-   /******************* modifiers **********************/
-     val MODIFIERS = new ScalaElementType("modifiers")
+  /******************* modifiers **********************/
+  val MODIFIERS = new ScalaElementType("modifiers")
 
   /*************************************************************************************/
   /************************************** LITERALS *************************************/
@@ -234,7 +234,7 @@ object ScalaElementTypes {
   val TUPLE = new ScalaElementType("Tuple")
   val BLOCK_STAT = new ScalaElementType("block statements")
 
-//  val PARENTHESIZED_EXPR = new ScalaElementType("parenthesized expression")
+  //  val PARENTHESIZED_EXPR = new ScalaElementType("parenthesized expression")
 
   /******************************** COMPOSITE EXPRESSIONS *****************************/
   val IF_STMT = new ScalaElementType("if statement")
@@ -260,7 +260,7 @@ object ScalaElementTypes {
   val SIMPLE_PATTERN = new ScalaElementType("simple pattern")
   val PATTERN3 = new ScalaElementType("pattern 3")
   val PATTERN2 = new ScalaElementType("pattern 2")
-  val PATTERN2_LIST = new ScalaElementType("pattern 2 list")  
+  val PATTERN2_LIST = new ScalaElementType("pattern 2 list")
   val PATTERN1 = new ScalaElementType("pattern 1")
   val PATTERN = new ScalaElementType("pattern")
   val PATTERNS = new ScalaElementType("patterns")
@@ -294,133 +294,100 @@ object ScalaElementTypes {
   /***************************** PACKAGINGS & TEMPLATES ********************************/
   /*************************************************************************************/
 
-  val PACKAGING_BIT_SET = TokenSet.create (Array.apply(PACKAGING))
+  val PACKAGING_BIT_SET = TokenSet.create(Array.apply(PACKAGING))
 
-  val IMPORT_STATEMENT_BIT_SET = TokenSet.create (Array.apply(IMPORT_STMT))
+  val IMPORT_STATEMENT_BIT_SET = TokenSet.create(Array.apply(IMPORT_STMT))
 
-  val TMPL_DEF_BIT_SET = TokenSet.create (Array.apply(OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
+  val TMPL_DEF_BIT_SET = TokenSet.create(Array.apply(OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
 
-  val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create (Array.apply(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
+  val TMPL_OR_TYPE_BIT_SET = TokenSet.create(Array.apply(OBJECT_DEF,
+          CLASS_DEF,
+          TRAIT_DEF,
+          TYPE_DEFINITION,
+          TYPE_DECLARATION))
 
-  val TMPL_STMT_BIT_SET = TokenSet.create(
-    Array.apply(
-      PATTERN_DEFINITION,
-      VARIABLE_DEFINITION,
-      TYPE_DEFINITION,
-      FUNCTION_DEFINITION,
-      VALUE_DECLARATION,
-      VARIABLE_DECLARATION,
-      FUNCTION_DECLARATION,
-      TYPE_DECLARATION
-    )
-  )
 
-//todo: add cases
-  val EXPR1_BIT_SET : TokenSet = TokenSet.create (
-    Array.apply(
-      IF_STMT,
-      FOR_STMT,
-      WHILE_STMT,
-      DO_STMT,
-      TRY_STMT,
-      TRY_BLOCK,
-      CATCH_BLOCK,
-      FINALLY_BLOCK,
-      RETURN_STMT,
-      METHOD_CLOSURE,
-      THROW_STMT,
-      ASSIGN_STMT,
-      MATCH_STMT,
-      TYPED_EXPR_STMT,
-      POSTFIX_EXPR,
-      INFIX_EXPR,
-      SIMPLE_EXPR,
-      PREFIX_EXPR
-    )
-  )
+  val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create(Array.apply(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
 
-  val STABLE_ID_BIT_SET = TokenSet.create(
-    Array(
-      STABLE_ID,
-      ScalaTokenTypes.tIDENTIFIER
-    )
-  )
+  val TMPL_STMT_BIT_SET = TokenSet.create(Array.apply(PATTERN_DEFINITION,
+          VARIABLE_DEFINITION,
+          TYPE_DEFINITION,
+          FUNCTION_DEFINITION,
+          VALUE_DECLARATION,
+          VARIABLE_DECLARATION,
+          FUNCTION_DECLARATION,
+          TYPE_DECLARATION))
 
-  val TYPE_BIT_SET : TokenSet = TokenSet.orSet (
-    Array(
-      STABLE_ID_BIT_SET,
-      TokenSet.create(
-        Array.apply(
-          SIMPLE_TYPE,
-          COMPOUND_TYPE,
-          INFIX_TYPE,
-          TYPE,
-          TYPES,
-          COMPOSITE_TYPE
-        )
-      )
-    )
-  )
-
-  val EXPRESSION_BIT_SET = TokenSet.orSet (
-    Array (
-      EXPR1_BIT_SET,
-      TokenSet.create (
-        Array.apply(
-          LITERAL,
-          STRING_LITERAL,
-          BOOLEAN_LITERAL,
-          PREFIX_EXPR,
-          PREFIX,
+  //todo: add cases
+  val EXPR1_BIT_SET: TokenSet = TokenSet.create(Array.apply(IF_STMT,
+          FOR_STMT,
+          WHILE_STMT,
+          DO_STMT,
+          TRY_STMT,
+          TRY_BLOCK,
+          CATCH_BLOCK,
+          FINALLY_BLOCK,
+          RETURN_STMT,
+          METHOD_CLOSURE,
+          THROW_STMT,
+          ASSIGN_STMT,
+          MATCH_STMT,
+          TYPED_EXPR_STMT,
           POSTFIX_EXPR,
           INFIX_EXPR,
           SIMPLE_EXPR,
-          EXPR1,
-          EXPR,
-          RESULT_EXPR,
-          AN_FUN,
-          BINDING,
-          GENERATOR,
-          ENUMERATOR,
-          ENUMERATORS,
-          BINDINGS,
-          EXPRS,
-          ARG_EXPRS,
-          ARG_EXPRS_LIST,
-          BLOCK_EXPR,
-          ERROR_STMT,
-          BLOCK,
-          BLOCK_STAT
-        )
-      )  
-    )
-  )
+          PREFIX_EXPR))
 
-  val SIMPLE_EXPR_BIT_SET = TokenSet.create(
-    Array.apply(
-      SIMPLE_EXPR,
-      LITERAL,
-      PATH,
-      BLOCK_EXPR
-    )
-  )
+  val STABLE_ID_BIT_SET = TokenSet.create(Array(STABLE_ID,
+          ScalaTokenTypes.tIDENTIFIER))
+
+  val TYPE_BIT_SET: TokenSet = TokenSet.orSet(Array(STABLE_ID_BIT_SET,
+          TokenSet.create(Array.apply(SIMPLE_TYPE,
+                  COMPOUND_TYPE,
+                  INFIX_TYPE,
+                  TYPE,
+                  TYPES,
+                  COMPOSITE_TYPE))))
+
+  val EXPRESSION_BIT_SET = TokenSet.orSet(Array(EXPR1_BIT_SET,
+          TokenSet.create(Array.apply(LITERAL,
+                  STRING_LITERAL,
+                  BOOLEAN_LITERAL,
+                  PREFIX_EXPR,
+                  PREFIX,
+                  POSTFIX_EXPR,
+                  INFIX_EXPR,
+                  SIMPLE_EXPR,
+                  EXPR1,
+                  EXPR,
+                  RESULT_EXPR,
+                  AN_FUN,
+                  BINDING,
+                  GENERATOR,
+                  ENUMERATOR,
+                  ENUMERATORS,
+                  BINDINGS,
+                  EXPRS,
+                  ARG_EXPRS,
+                  ARG_EXPRS_LIST,
+                  BLOCK_EXPR,
+                  ERROR_STMT,
+                  BLOCK,
+                  BLOCK_STAT))))
+
+  val SIMPLE_EXPR_BIT_SET = TokenSet.create(Array.apply(SIMPLE_EXPR,
+          LITERAL,
+          PATH,
+          BLOCK_EXPR))
 
   //todo: add clauses
-  val PATTERN2_BIT_SET = TokenSet.orSet(
-    Array (
-      TokenSet.create(
-        Array.apply(
-          PATTERN2,
+  val PATTERN2_BIT_SET = TokenSet.create(Array(PATTERN2,
           PATTERN3,
           SIMPLE_PATTERN,
           LITERAL,
           STABLE_ID,
           UNIT,
-          ScalaTokenTypes.tUNDER
-          //([Patterns])
-         //XML_PATTERN
-        )
-      ), STABLE_ID_BIT_SET
-    )
-  )
+          ScalaTokenTypes.tUNDER,
+          ScalaTokenTypes.tIDENTIFIER))
+
 }
