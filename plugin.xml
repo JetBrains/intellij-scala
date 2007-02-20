@@ -22,7 +22,7 @@
     <component>
       <implementation-class>org.jetbrains.plugins.scala.components.ScalaFileCreator</implementation-class>
     </component>
-    <component>
+    <component>          
       <implementation-class>org.jetbrains.plugins.scala.components.ScalaIconProvider</implementation-class>
     </component>
   </application-components>
