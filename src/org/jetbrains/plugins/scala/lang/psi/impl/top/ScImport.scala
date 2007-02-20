@@ -100,12 +100,25 @@ class ScImportExpr(node: ASTNode) extends ScalaPsiElementImpl (node) {
 
   def isExplicit = ! getText.contains("_") && ! getText.contains("{")
 
-  def hasWildcard = getText.contains("_")
+  def hasWildcard: Boolean = {
+    if (getChild(ScalaTokenTypes.tUNDER) != null) return true
+    val selectorSet = getChild(ScalaElementTypes.IMPORT_SELECTORS).asInstanceOf[ScImportSelectors]
+    if (selectorSet != null) {
+      for (val selector <- selectorSet) {
+        if (selector.isWildcard) return true
+      }
+    }
+    false
+  }
 
 }
 
 class ScImportSelector(node: ASTNode) extends ScalaPsiElementImpl (node) {
   override def toString: String = "Import selector"
+
+  def isWildcard = {
+    ! getText.contains("=>") && getText.contains("_")
+  }
 
   def getRealName(name: String): String = {
     if (getText.contains("_")) return null
