@@ -63,7 +63,7 @@ object ScalaResolveUtil {
   */
   def getQualifiedPrefix(elt: PsiElement): String = {
 
-    var result = "."
+    var result = ""
     var parent = if (! elt.isInstanceOf[ScalaFile]) elt.getParent else elt
     while (! parent.isInstanceOf[ScalaFile] && parent!= null) {
       parent match {
