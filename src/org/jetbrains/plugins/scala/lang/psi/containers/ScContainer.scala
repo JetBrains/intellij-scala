@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.resolve.processors._
 import org.jetbrains.plugins.scala.lang.psi.impl.top._
 import org.jetbrains.plugins.scala.lang.psi._
+import org.jetbrains.plugins.scala.lang.resolve._
 
 /**
 *  Trait that describes behavior of container which can include
@@ -33,9 +34,9 @@ trait Importable extends ScalaPsiElement{
   *   Importable instance or null othervise
   *
   */
-  private def getQualifiedName(shortName: String): String = {
+  private def getQualifiedName(shortName: String, prefix: String): String = {
     for (val importExpr <- getImportExprs) {
-      val qualName = importExpr.getExplicitName(shortName)
+      val qualName = importExpr.getExplicitName(shortName, prefix)
       if (qualName != null){
         return qualName
       }
@@ -48,8 +49,8 @@ trait Importable extends ScalaPsiElement{
   *   or null otherwise
   *
   */
-  private def getClassByName(shortName: String): PsiElement = {
-    val qualName = getQualifiedName(shortName)
+  private def getInExplicitImports(shortName: String, prefix: String): PsiElement = {
+    val qualName = getQualifiedName(shortName, prefix)
     if (qualName != null) {
       val manager = PsiManager.getInstance(this.getProject)
       return manager.findClass(qualName, this.getResolveScope())
@@ -58,19 +59,51 @@ trait Importable extends ScalaPsiElement{
   }
 
   /**
+  *   Process _root_ and nested imports
+  *
+  */
+  private def stickNames(myRefText: String, prefix: String): String = {
+    var refText = myRefText
+    if (refText.substring(0, 7).equals("_root_.")) {
+      refText = refText.substring(7)
+    } else {
+      val importBegin = refText.substring(0, refText.indexOf("."))
+      val index = prefix.indexOf(importBegin)
+      if (index > 0 &&
+      prefix.charAt(index - 1) == '.' &&
+      prefix.charAt(index + importBegin.length) == '.'){
+        refText = prefix.substring(0, index) + refText
+      }
+    }
+    refText
+  }
+
+  /**
   *   Searches for given name belong wildcard imports
   *
   */
-  private def combWildcards(shortName: String) : PsiElement = {
+  private def combWildcards(shortName: String, prefix: String): PsiElement = {
     val manager = PsiManager.getInstance(this.getProject)
     for (val importExpr <- getImportExprs) {
       if (importExpr.hasWildcard) {
-        val qualName = importExpr.getImportReference.getText + "." + shortName
+        val qualName = stickNames(importExpr.getImportReference.getText, prefix) + "." + shortName
         val result = manager.findClass(qualName, this.getResolveScope())
         if (result != null) return result
       }
     }
     null
+  }
+
+  /**
+  *   searches for element in current scope (class, package etc)
+  *
+  */
+  private def getInPackage(shortName: String): PsiElement = {
+    val qualPrefix = ScalaResolveUtil.getQualifiedPrefix(this)
+    val manager = PsiManager.getInstance(this.getProject)
+    if (qualPrefix != null) {
+      manager.findClass(qualPrefix + shortName, this.getResolveScope())
+    } else null
   }
 
 
@@ -80,6 +113,8 @@ trait Importable extends ScalaPsiElement{
   */
   def getClazz(getDeclarations: => Iterable[PsiElement], processor: PsiScopeProcessor, substitutor: PsiSubstitutor): Boolean =
   {
+
+
     /*
         1. May be it is among local definitions  
     */
@@ -90,18 +125,49 @@ trait Importable extends ScalaPsiElement{
     }
 
     /*
-        2. May be it is among explicit imports?
+         2. May be it is in current package?
     */
-    var clazz = getClassByName(processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
+    var clazz = getInPackage(processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
     if (clazz != null) {
       processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
       return false
     }
 
     /*
-       3. May be it is among wildcard imports?
+        3. May be it is among explicit imports?
     */
-    clazz = combWildcards(processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
+    clazz = getInExplicitImports(processor.asInstanceOf[ScalaPsiScopeProcessor].getName,
+            ScalaResolveUtil.getQualifiedPrefix(this))
+    if (clazz != null) {
+      processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
+      return false
+    }
+
+    /*
+       4. May be it is among wildcard imports?
+    */
+    clazz = combWildcards(processor.asInstanceOf[ScalaPsiScopeProcessor].getName,
+            ScalaResolveUtil.getQualifiedPrefix(this))
+    if (clazz != null) {
+      processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
+      return false
+    }
+
+    val manager = PsiManager.getInstance(this.getProject)
+    /*
+       5. May be, it is in scala._ ?
+    */
+    clazz = manager.findClass("scala." + processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
+    if (clazz != null) {
+      processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
+      return false
+    }
+
+
+    /*
+       6. May be, it is in java.lang.*?
+    */
+    clazz = manager.findClass("java.lang." + processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
     if (clazz != null) {
       processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
       return false
