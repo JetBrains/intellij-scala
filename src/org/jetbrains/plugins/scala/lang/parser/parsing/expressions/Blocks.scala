@@ -277,7 +277,7 @@ object BlockStat {
       (ScalaTokenTypes.kCLASS.equals(second) ||
       ScalaTokenTypes.kOBJECT.equals(second) ||
       ScalaTokenTypes.kTRAIT.equals(second))){
-        Def.parseBody(builder)
+        Def.parse(builder)
         blockStatMarker.drop
         ScalaElementTypes.BLOCK_STAT
       } else if (BNF.firstDef.contains(builder.getTokenType) &&
@@ -295,7 +295,7 @@ object BlockStat {
     }                             
 
     if (ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)){
-      Import.parseBody(builder)
+      Import.parse(builder)
       blockStatMarker.drop
       ScalaElementTypes.BLOCK_STAT
     } else if (builder.getTokenType != null && BNF.firstLocalModifier.contains(builder.getTokenType)) {

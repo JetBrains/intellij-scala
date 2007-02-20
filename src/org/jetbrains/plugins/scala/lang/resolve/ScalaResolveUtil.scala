@@ -5,13 +5,27 @@ package org.jetbrains.plugins.scala.lang.resolve
 *
 */
 
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiNamedElement
-import com.intellij.psi.PsiSubstitutor
+import com.intellij.lang.ASTNode
+import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.tree.IElementType;
 
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.Template
+import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScTypeParamClause
+import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.annotations._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTemplateStatement
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.resolve.processors._
+import org.jetbrains.plugins.scala.lang.psi.impl.top._
+import org.jetbrains.plugins.scala.lang.psi._
+import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 
 object ScalaResolveUtil {
 
@@ -38,38 +52,41 @@ object ScalaResolveUtil {
       val result = processor.asInstanceOf[ScalaPsiScopeProcessor].getResult
       result
 
-    } else null           
+    } else null
 
 
   }
 
-  /*
-  35     @Nullable
-  36     public static PsiElement treeWalkUp(PsiScopeProcessor processor, PsiElement elt, PsiElement lastParent, PsiElement place) {
-  38
-  39       PsiElement cur = elt;
-  40       do {
-  41         if (!cur.processDeclarations(processor, PsiSubstitutor.EMPTY, cur == elt ? lastParent : null, place)) {
-  42           if (processor instanceof ResolveProcessor) {
-  43             return ((ResolveProcessor)processor).getResult();
-  44           }
-  45         }
-  46         if(cur instanceof PsiFile) break;
-  47         if (cur instanceof JSStatement && cur.getContext() instanceof JSIfStatement) {
-  48           // Do not try to resolve variables from then branch in else branch.
-  49           break;
-  50         }
-  51
-  52
-  53         cur = cur.getPrevSibling();
-  54       } while (cur != null);
-  55
-  56       final PsiElement func = processFunctionDeclarations(processor, elt.getContext());
-  57       if (func != null) return func;
-  58
-  59       return treeWalkUp(processor, elt.getContext(), elt, place);
-  60     }
+  /**
+  * Returns qualified name prefix of current element
+  *
   */
+  def getQualifiedPrefix(elt: PsiElement): String = {
+
+    var result = "."
+    var parent = if (! elt.isInstanceOf[ScalaFile]) elt.getParent else elt
+    while (! parent.isInstanceOf[ScalaFile] && parent!= null) {
+      parent match {
+        case pack: ScPackaging => {
+          result = pack.asInstanceOf[ScPackaging].getFullPackageName + "." + result
+        }
+        case tmplBody: ScTemplateBody => {
+          result = tmplBody.getParent.getParent.asInstanceOf[ScTmplDef].getName + "." + result
+        }
+        case _ => {}
+      }
+      parent = parent.getParent
+    }
+
+    if (parent.isInstanceOf[ScalaFile]) {
+      val packageStatement = parent.asInstanceOf[ScalaFile].getChild(ScalaElementTypes.PACKAGE_STMT).asInstanceOf[ScPackageStatement]
+      if (packageStatement == null) "" else {
+        val packageName = packageStatement.getFullPackageName
+        if (packageName != null) result = packageName + "." + result
+      }
+    }
+    result
+  }
 
 
 }
