@@ -104,7 +104,8 @@ class ScImportExpr(node: ASTNode) extends ScalaPsiElementImpl (node) {
     if (getChild(ScalaTokenTypes.tUNDER) != null) return true
     val selectorSet = getChild(ScalaElementTypes.IMPORT_SELECTORS).asInstanceOf[ScImportSelectors]
     if (selectorSet != null) {
-      for (val selector <- selectorSet) {
+      val ss = selectorSet.childrenOfType[ScImportSelector](ScalaElementTypes.SELECTOR_BIT_SET).toList
+      for (val selector <- ss) {
         if (selector.isWildcard) return true
       }
     }
