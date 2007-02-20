@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.bnf
 
 import com.intellij.psi.tree.TokenSet, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.IElementType, org.jetbrains.plugins.scala.lang.parser._
 
 object BNF {
 

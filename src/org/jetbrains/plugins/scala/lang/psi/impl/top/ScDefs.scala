@@ -78,6 +78,7 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
             if (packageName == null) "" else packageName
           }
         }
+        case _ => getName
       }
     }
     append(iAmInner(this), getName)
