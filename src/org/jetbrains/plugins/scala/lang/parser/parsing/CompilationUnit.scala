@@ -47,7 +47,7 @@ object CompilationUnit extends ConstrWithoutNode {
   override def parseBody (builder : PsiBuilder) : Unit = {
 
     DebugPrint println "first token: " + builder.getTokenType
-    
+
     if (ScalaTokenTypes.kPACKAGE.equals(builder.getTokenType)) {
       val packChooseMarker = builder.mark()
       builder.advanceLexer //Ate package
@@ -159,7 +159,7 @@ object CompilationUnit extends ConstrWithoutNode {
         }
 
         lexerOffset = builder.getCurrentOffset
-      
+
         if (BNF.firstTopStat.contains(builder.getTokenType)) {
           TopStat parse builder
         } else {
@@ -207,7 +207,7 @@ object CompilationUnit extends ConstrWithoutNode {
 
       trashBlockMarker.done(ScalaElementTypes.TRASH)
     }
-  }  
+  }
   /*
     def tryParseTopStat (builder : PsiBuilder) : Unit = {
 
@@ -309,7 +309,7 @@ object CompilationUnit extends ConstrWithoutNode {
 //        if (builder.eof) unstructuredTrashMarker.drop
 
       }
-        
+
 
 
         if (!isParsedTopStat) {
@@ -429,7 +429,7 @@ object CompilationUnit extends ConstrWithoutNode {
       return
     }
   }
- 
+
 /*
  *  [package QualId StatementSeparator]
  */
