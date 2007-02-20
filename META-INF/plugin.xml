@@ -44,6 +44,11 @@
     <component>
       <implementation-class>org.jetbrains.plugins.scala.finder.ScalaPsiElementFinder</implementation-class>
     </component>
+    <component>
+      <interface-class>com.intellij.ide.projectView.TreeStructureProvider</interface-class>
+      <implementation-class>org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider</implementation-class>
+    </component>
+    
   </project-components>
 
 

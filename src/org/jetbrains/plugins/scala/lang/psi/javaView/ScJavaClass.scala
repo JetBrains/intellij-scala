@@ -162,4 +162,10 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
 
 
   override def getIcon(flags : Int) = scClass.getIcon(flags)
+
+  override def navigate(requestFocus: Boolean): Unit = scClass.navigate(requestFocus)
+
+  override def canNavigate(): Boolean = scClass.canNavigate()
+
+  override def canNavigateToSource(): Boolean = scClass.canNavigateToSource()
 }
