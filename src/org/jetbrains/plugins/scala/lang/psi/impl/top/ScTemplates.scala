@@ -8,7 +8,7 @@ import com.intellij.psi._
 
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.resolve.processors._
-import org.jetbrains.plugins.scala.lang.psi.containers._ 
+import org.jetbrains.plugins.scala.lang.psi.containers._
 
 /**
  * User: Dmitry.Krasilschikov
@@ -69,22 +69,12 @@ case class ScTemplateBody(node: ASTNode) extends ScalaPsiElementImpl (node) with
           substitutor: PsiSubstitutor,
           lastParent: PsiElement,
           place: PsiElement) : Boolean = {                         
-    import org.jetbrains.plugins.scala.lang.resolve.processors._
 
+    import org.jetbrains.plugins.scala.lang.resolve.processors._
     if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
-      for (val tmplDef <- getTypes) {
-        if (! processor.execute(tmplDef, substitutor)) {
-          return false
-        }
-      }
-      val clazz = getClassByName(processor.asInstanceOf[ScalaPsiScopeProcessor].getName, this)
-      if (clazz != null) {
-        processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
-        return false
-      }
-      
-      return true
+      getClazz(getTypes, processor, substitutor)
     } else true
+
   }
 }
 

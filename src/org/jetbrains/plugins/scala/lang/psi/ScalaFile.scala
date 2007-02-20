@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processors._
 import org.jetbrains.plugins.scala.lang.psi.containers._
 
 
+
 class ScalaFile(viewProvider: FileViewProvider)
 extends PsiFileBase (viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
 with ScalaPsiElement with Importable{
@@ -53,17 +54,7 @@ with ScalaPsiElement with Importable{
     */
     import org.jetbrains.plugins.scala.lang.resolve.processors._
     if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
-      for (val tmplDef <- getUpperDefs) {
-        if (! processor.execute(tmplDef, substitutor)) {
-          return false
-        }
-      }
-      val clazz = getClassByName(processor.asInstanceOf[ScalaPsiScopeProcessor].getName, this)
-      if (clazz != null) {
-        processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
-        return false
-      }
-      return true
+      getClazz(getUpperDefs, processor, substitutor) 
     } else true
   }
 

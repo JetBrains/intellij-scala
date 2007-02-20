@@ -34,23 +34,70 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top {
 
     def getImportReference = getChild(ScalaElementTypes.STABLE_ID)
 
-    def getImportSelectors = getChild(ScalaElementTypes.IMPORT_SELECTORS)
+    private def getImportSelectors = {
+      val selectorSet = getChild(ScalaElementTypes.IMPORT_SELECTORS).asInstanceOf[ScImportSelectors]
+      if (selectorSet != null) selectorSet.childrenOfType[ScImportSelector](ScalaElementTypes.SELECTOR_BIT_SET).toList
+      else null
+    }
 
-    def getTailId = getChild(ScalaTokenTypes.tIDENTIFIER).getText
+    def getExplicitName(name: String): String = {
+      if (getTailId != null && getTailId.equals(name)) {
+        if (getImportReference != null){
+          return getImportReference.getText + "." + name
+        }
+        else {
+          return name
+        }
+      } else if (getImportSelectors != null) {
+        for (val selector <- getImportSelectors) {
+          if (selector.getRealName(name) != null) {
+            return getImportReference.getText + "." + selector.getRealName(name)
+          }
+        }
+        return null
+      }
+      null
+    }
 
-    def isPlain = ! getText.contains("_") && ! getText.contains("{")
+    def getTailId = {
+      if (getChild(ScalaTokenTypes.tIDENTIFIER) != null)
+        getChild(ScalaTokenTypes.tIDENTIFIER).getText
+      else null
+    }
+
+    def isExplicit = ! getText.contains("_") && ! getText.contains("{")
+
+    def hasWildcard = getText.contains("_")
 
   }
 
-  class ScImportExprs(node: ASTNode) extends ScalaPsiElementImpl (node) {
-    override def toString: String = "Import expressions"
+  class ScImportSelector(node: ASTNode) extends ScalaPsiElementImpl (node) {
+    override def toString: String = "Import selector"
+
+    def getRealName(name: String): String = {
+      if (getText.contains("_")) return null
+      if (! getText.contains("=>")) {
+        if (ScalaTokenTypes.tIDENTIFIER.equals(getFirstChild.getNode.getElementType) &&
+        getFirstChild.getText.equals(name))
+          return name
+        else
+          return null
+      }
+      val realName = getFirstChild
+      val pseudoName = getLastChild
+      if (ScalaTokenTypes.tIDENTIFIER.equals(realName.getNode.getElementType) &&
+      ScalaTokenTypes.tIDENTIFIER.equals(pseudoName.getNode.getElementType) &&
+      pseudoName.getText.equals(name)){
+        realName.getText
+      } else null
+    }
   }
 
   class ScImportSelectors(node: ASTNode) extends ScalaPsiElementImpl (node) {
     override def toString: String = "Import selectors"
   }
 
-  class ScImportSelector(node: ASTNode) extends ScalaPsiElementImpl (node) {
-    override def toString: String = "Import selector"
+  class ScImportExprs(node: ASTNode) extends ScalaPsiElementImpl (node) {
+    override def toString: String = "Import expressions"
   }
 };

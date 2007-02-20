@@ -300,6 +300,8 @@ object ScalaElementTypes {
 
   val IMPORT_EXPR_BIT_SET = TokenSet.create(Array.apply(IMPORT_EXPR))
 
+  val SELECTOR_BIT_SET = TokenSet.create(Array.apply(IMPORT_SELECTOR))
+
   val TMPL_DEF_BIT_SET = TokenSet.create(Array.apply(OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
 
   val TMPL_OR_TYPE_BIT_SET = TokenSet.create(Array.apply(OBJECT_DEF,

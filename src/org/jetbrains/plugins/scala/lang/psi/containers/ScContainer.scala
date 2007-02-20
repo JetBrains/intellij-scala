@@ -23,7 +23,7 @@ trait Importable extends ScalaPsiElement{
   *   Return all import expression in current container
   *
   */
-  def getImportExprs = {
+  private def getImportExprs = {
     val importStatements = childrenOfType[ScImportStmt](ScalaElementTypes.IMPORT_STMT_BIT_SET)
     (importStatements :\ (Nil: List[ScImportExpr]))((y: ScImportStmt, x: List[ScImportExpr]) => y.getImportExprs ::: x)
   }
@@ -33,22 +33,81 @@ trait Importable extends ScalaPsiElement{
   *   Importable instance or null othervise
   *
   */
-  def getQualifiedName (shortName: String) : String = {
+  private def getQualifiedName(shortName: String): String = {
     for (val importExpr <- getImportExprs) {
-      if (importExpr.isPlain && shortName.equals(importExpr.getTailId)) {
-        return importExpr.getText
+      val qualName = importExpr.getExplicitName(shortName)
+      if (qualName != null){
+        return qualName
       }
     }
     null
   }
 
-  def getClassByName(shortName: String, elem: PsiElement) : PsiElement = {
+  /**
+  *   Returns class element by qualified name if it exists in current scope
+  *   or null otherwise
+  *
+  */
+  private def getClassByName(shortName: String): PsiElement = {
     val qualName = getQualifiedName(shortName)
     if (qualName != null) {
-      val manager = PsiManager.getInstance(elem.getProject)
-      return manager.findClass(qualName, elem.getResolveScope())
+      val manager = PsiManager.getInstance(this.getProject)
+      return manager.findClass(qualName, this.getResolveScope())
     }
     null
+  }
+
+  /**
+  *   Searches for given name belong wildcard imports
+  *
+  */
+  private def combWildcards(shortName: String) : PsiElement = {
+    val manager = PsiManager.getInstance(this.getProject)
+    for (val importExpr <- getImportExprs) {
+      if (importExpr.hasWildcard) {
+        val qualName = importExpr.getImportReference.getText + "." + shortName
+        val result = manager.findClass(qualName, this.getResolveScope())
+        if (result != null) return result
+      }
+    }
+    null
+  }
+
+
+  /**
+  *   Retruns class according to current processor and substitutor
+  *
+  */
+  def getClazz(getDeclarations: => Iterable[PsiElement], processor: PsiScopeProcessor, substitutor: PsiSubstitutor): Boolean =
+  {
+    /*
+        1. May be it is among local definitions  
+    */
+    for (val tmplDef <- getDeclarations) {
+      if (! processor.execute(tmplDef, substitutor)) {
+        return false
+      }
+    }
+
+    /*
+        2. May be it is among explicit imports?
+    */
+    var clazz = getClassByName(processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
+    if (clazz != null) {
+      processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
+      return false
+    }
+
+    /*
+       3. May be it is among wildcard imports?
+    */
+    clazz = combWildcards(processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
+    if (clazz != null) {
+      processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
+      return false
+    }
+
+    return true
   }
 
 
