@@ -61,7 +61,7 @@ class ScImportExpr(node: ASTNode) extends ScalaPsiElementImpl (node) {
       var refText = getImportReference.getText
 
       def stickNames = {
-        if (refText.substring(0, 7).equals("_root_.")) {
+        if (refText.length > 7 && refText.substring(0, 7).equals("_root_.")) {
           refText = refText.substring(7)
         } else {
           val importBegin = if (refText.contains(".")) {

@@ -46,14 +46,16 @@ public class ScalaLibraryCachesManager implements ProjectComponent {
 
     libraryTableListener = new ProjectLibraryTable.Listener() {
 
-      public void afterLibraryAdded(Library newLibrary) {}
+      public void afterLibraryAdded(Library newLibrary) {
+      }
 
       public void afterLibraryRenamed(Library library) {
         removeLibrary(library, true);
         addLibrary(library);
       }
 
-      public void beforeLibraryRemoved(Library library) {}
+      public void beforeLibraryRemoved(Library library) {
+      }
 
       public void afterLibraryRemoved(Library library) {
         removeLibrary(library, true);
@@ -104,9 +106,9 @@ public class ScalaLibraryCachesManager implements ProjectComponent {
     final Set<Library> libraries2Add = new HashSet<Library>();
     // Searching for all used libraries
     for (Module module : modules) {
-      for (OrderEntry entry : ModuleRootManager.getInstance(module).getOrderEntries()){
-        if (entry instanceof LibraryOrderEntry){
-          final Library library = ((LibraryOrderEntry)entry).getLibrary();
+      for (OrderEntry entry : ModuleRootManager.getInstance(module).getOrderEntries()) {
+        if (entry instanceof LibraryOrderEntry) {
+          final Library library = ((LibraryOrderEntry) entry).getLibrary();
           if (library != null) {
             libraries2Add.add(library);
           }
@@ -142,12 +144,14 @@ public class ScalaLibraryCachesManager implements ProjectComponent {
   }
 
   public void addLibrary(@NotNull final Library library) {
-    final ScalaFilesCache newLibraryCache = new ScalaFilesCacheImpl(myProject);
-    newLibraryCache.setCacheName(library.getName());
-    newLibraryCache.setCacheUrls(getLibraryContentRootURLs(library));
-    newLibraryCache.setCacheFilePath(generateCacheFilePath(library));
-    newLibraryCache.init(true);
-    libraryScalaFilesCache.put(library, newLibraryCache);
+    if (library != null) {
+      final ScalaFilesCache newLibraryCache = new ScalaFilesCacheImpl(myProject);
+      newLibraryCache.setCacheName(library.getName());
+      newLibraryCache.setCacheUrls(getLibraryContentRootURLs(library));
+      newLibraryCache.setCacheFilePath(generateCacheFilePath(library));
+      newLibraryCache.init(true);
+      libraryScalaFilesCache.put(library, newLibraryCache);
+    }
   }
 
 /**********************************************************************************************************************/
@@ -164,8 +168,8 @@ public class ScalaLibraryCachesManager implements ProjectComponent {
   }
 
   /**
-   * @param library  Library to get cached info for
-   * @param name Sdk name
+   * @param library Library to get cached info for
+   * @param name    Sdk name
    * @return Path to file where cached information is saved.
    */
   @NotNull
@@ -186,7 +190,7 @@ public class ScalaLibraryCachesManager implements ProjectComponent {
     return libraryName + "_" + library.hashCode();
   }
 
-  protected void renameLibrary(final Library library, final String previousName) {
+  protected void renameLibrary(@NotNull final Library library, final String previousName) {
     final File prevDataFile = new File(generateCacheFilePath(library, previousName));
     final File newDataFile = new File(generateCacheFilePath(library));
     try {
