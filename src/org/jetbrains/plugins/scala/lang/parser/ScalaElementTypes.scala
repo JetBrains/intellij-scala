@@ -320,7 +320,10 @@ object ScalaElementTypes {
           VALUE_DECLARATION,
           VARIABLE_DECLARATION,
           FUNCTION_DECLARATION,
-          TYPE_DECLARATION))
+          TYPE_DECLARATION,
+          SUPPLEMENTARY_CONSTRUCTOR
+    )
+  )
 
   //todo: add cases
   val EXPR1_BIT_SET: TokenSet = TokenSet.create(Array.apply(IF_STMT,

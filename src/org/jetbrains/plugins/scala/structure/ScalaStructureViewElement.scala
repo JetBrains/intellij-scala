@@ -27,6 +27,7 @@ package org.jetbrains.plugins.scala.structure {
   import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
   import org.jetbrains.plugins.scala.lang.psi.impl.top._, org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
   import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
+  import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
 
   /**
   * User: Dmitry.Krasilschikov
@@ -98,28 +99,47 @@ package org.jetbrains.plugins.scala.structure {
       }
     }
 
+    private def patternDefVariables (pattern2: PsiElement, patDef : ScPatternDefinition) : Iterable[ScalaStructureViewElement] = {
+      val varid = pattern2 match {
+        case pat : ScPattern2Impl => if (pat.getVarid != null) pat.getVarid else pattern2
+        case _ => pattern2
+      }
 
-    private def elementAsDisjunctStructureViewElements(element: ScTemplateStatement): Iterable[ScalaStructureViewElement] = {
-      if (!element.isManyDeclarations) return Array(new ScalaStructureViewElement(element))
+      if (varid != null) Array(newStructureViewElement (varid, patDef))
+      else Array()
+    }
 
-      val theNames = element.names
+    private def createNewStructureViewElements (name : PsiElement, element : ScTemplateStatement) : Iterable[ScalaStructureViewElement] =
+      element match {
+        case patternDef : ScPatternDefinition => patternDefVariables (name, patternDef)
+        case _ if (name != null) => Array(newStructureViewElement (name, element))
+        case _ => Array()
+      }
 
-      for (val name <- theNames) yield {
-        new ScalaStructureViewElement(element) {
-          override def getPresentation(): ItemPresentation = {
-            new ItemPresentation() {
-              override def getPresentableText(): String = {
-                ScalaStructureViewPresentationFormat.presentationText(name.getText, element)
-              }
-              override def getTextAttributesKey(): TextAttributesKey = null
-              override def getLocationString(): String = null
-              override def getIcon(open: Boolean): Icon = myElement.getIcon(Iconable.ICON_FLAG_OPEN)
-            }
+   private def newStructureViewElement (name : PsiElement, element : ScTemplateStatement) : ScalaStructureViewElement =
+
+     new ScalaStructureViewElement(element) {
+      override def getPresentation(): ItemPresentation = {
+        new ItemPresentation() {
+          override def getPresentableText(): String = {
+            ScalaStructureViewPresentationFormat.presentationText(name.getText, element)
           }
+          override def getTextAttributesKey(): TextAttributesKey = null
+          override def getLocationString(): String = null
+          override def getIcon(open: Boolean): Icon = myElement.getIcon(Iconable.ICON_FLAG_OPEN)
         }
       }
     }
 
+
+    private def elementAsDisjunctStructureViewElements(element: ScTemplateStatement): Iterable[ScalaStructureViewElement] = {
+      if (!element.isManyDeclarations) return createNewStructureViewElements(element.names.elements.next, element)
+
+      val theNames = element.names
+      val allElems = for (val name <- theNames) yield createNewStructureViewElements(name, element)
+
+      allElems.flatMap(x => x)
+    }
   }
 
 }

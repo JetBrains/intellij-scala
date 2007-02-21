@@ -32,9 +32,9 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
 
     private def isDefinitionPredicate = (elementType: IElementType) => (elementType == ScalaTokenTypes.kTHIS)
 
-    private def isThis = (elementType: IElementType) => (elementType == ScalaTokenTypes.kTHIS)
+    private def isThis = (elementType: IElementType) => (ScalaTokenTypes.kTHIS.equals(elementType))
 
-    def isConstructor = (childSatisfyPredicateForElementType(isThis) != null)
+//    def isConstructor = this.isInstanceOf[ScSupplementaryConstructor]
 
     //    [NotNull]
     //    def asDisjunctNodes : Iterable[ScTemplateStatement] = {
@@ -80,7 +80,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
     [NotNull]
     /*protected*/ def names: Iterable[PsiElement] = {
       if (isManyDeclarations) return getDeclarations.childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER)))
-      if (isConstructor) return childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.kTHIS)))
+//      if (isConstructor) return childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.kTHIS)))
 
       childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER)))
     }
@@ -93,17 +93,13 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
     private def isManyParamClauses = (getChild(ScalaElementTypes.PARAM_CLAUSES) != null)
     private def getParamClausesNode: ScParamClauses = getChild(ScalaElementTypes.PARAM_CLAUSES).asInstanceOf[ScParamClauses]
 
-    //    def  s () () : a
-
     def paramClauses: Iterable[ScParamClause] = {
-      //      Console.println("getParamClausesNode" + getParamClausesNode)
-      //      Console.println("getParamClausesNode.paramClauses " + getParamClausesNode.paramClauses)
       if (isManyParamClauses) return getParamClausesNode.paramClauses
-
-      //      Console.println("paramClauses " + childrenOfType[ScParamClause](TokenSet.create(Array(ScalaElementTypes.PARAM_CLAUSE))))
 
       childrenOfType[ScParamClause](TokenSet.create(Array(ScalaElementTypes.PARAM_CLAUSE)))
     }
+
+    override def getIcon(flags: Int) = Icons.METHOD
   }
 
   trait ScType extends ScTemplateStatement {
@@ -120,10 +116,9 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
       if (upperBound != null) upperBound.asInstanceOf[ScalaPsiElement].getLastChild
       else null
     }
-
   }
 
-
+                                                                                    
 
   /***************** definition ***********************/
 
@@ -170,12 +165,12 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
   case class ScFunctionDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunction with ScDefinition with IfElseIndent {
     override def toString: String = "function" + " " + super.toString
 
-    override def getIcon(flags: Int) = Icons.METHOD
+//    override def getIcon(flags: Int) = Icons.METHOD
   }
 
   /************** supplementary constructor ***************/
 
-  case class ScSelfInvocation(node: ASTNode) extends ScalaPsiElementImpl (node) {
+  case class ScSelfInvocation(node: ASTNode) extends ScalaPsiElementImpl(node) {
     override def toString: String = "self invocation"
   }
 
@@ -183,8 +178,12 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
     override def toString: String = "constructor expression"
   }
 
-  case class ScSupplementaryConstructor(node: ASTNode) extends ScalaPsiElementImpl (node) {
+  case class ScSupplementaryConstructor(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunction with ScDefinition with IfElseIndent {
     override def toString: String = "supplementary constructor"
+
+    override def names: Iterable[PsiElement] = childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.kTHIS)))
+
+//    def getShortName: String = 'this'
   }
 
   case class ScTypeDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDefinition with ScType with ScParametrized{

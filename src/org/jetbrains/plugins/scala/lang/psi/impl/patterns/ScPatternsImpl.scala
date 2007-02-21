@@ -4,18 +4,21 @@ package org.jetbrains.plugins.scala.lang.psi.impl.patterns {
 */
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-  trait ScPatterns extends PsiElement
+  trait ScPatterns extends ScalaPsiElement
 
   trait ScPattern extends ScPatterns
 
   trait ScPattern1 extends ScPattern
 
-  trait ScPattern2 extends ScPattern1
+  trait ScPattern2 extends ScPattern1 {
+
+  }
 
   trait ScPattern3 extends ScPattern2
 
@@ -31,6 +34,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
       override def toString: String = "Binding pattern"
 
       override def copy() : PsiElement = ScalaPsiElementFactory.createPattern2FromText(this.getText, this.getManager).getPsi
+
+      def getVarid : PsiElement = getChild(ScalaTokenTypes.tIDENTIFIER)
   }
 
   case class ScPattern3Impl( node : ASTNode ) extends ScalaPsiElementImpl (node) with ScPattern3 {

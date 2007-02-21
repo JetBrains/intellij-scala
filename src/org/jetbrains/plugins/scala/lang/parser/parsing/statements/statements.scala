@@ -197,6 +197,8 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         (new Pattern2()).parse(builder)
       } else {
         builder error "expected pattern"
+        pattern2sMarker.drop()
+        return ScalaElementTypes.WRONGWAY
       }
 
       var numberOfPattern2s = 1;
