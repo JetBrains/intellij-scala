@@ -22,8 +22,6 @@ import java.util.Collection
 import java.util.Collections
 import javax.swing._
 
-
-
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 
 /**
@@ -160,6 +158,10 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
   }
 
 
+  /**
+  *  May be class, trait or object...
+  */
+  def getClassInstance = scClass
 
   override def getIcon(flags : Int) = scClass.getIcon(flags)
 

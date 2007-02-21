@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processors._
 import org.jetbrains.plugins.scala.lang.psi.impl.top._
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.resolve._
+import org.jetbrains.plugins.scala.lang.psi.javaView._
+import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 
 /**
 *  Trait that describes behavior of container which can include
@@ -53,7 +55,16 @@ trait Importable extends ScalaPsiElement{
     val qualName = getQualifiedName(shortName, prefix)
     if (qualName != null) {
       val manager = PsiManager.getInstance(this.getProject)
-      return manager.findClass(qualName, this.getResolveScope())
+      val classes = manager.findClasses(qualName, this.getResolveScope())
+      if (classes != null) {
+        for (val clazz <- classes) {
+          if (isValid(clazz)) {
+            return clazz
+          }
+        }
+        return null
+      } else null
+
     }
     null
   }
@@ -89,8 +100,14 @@ trait Importable extends ScalaPsiElement{
     for (val importExpr <- getImportExprs) {
       if (importExpr.hasWildcard) {
         val qualName = stickNames(importExpr.getImportReference.getText, prefix) + "." + shortName
-        val result = manager.findClass(qualName, this.getResolveScope())
-        if (result != null) return result
+        val classes = manager.findClasses(qualName, this.getResolveScope())
+        if (classes != null) {
+          for (val clazz <- classes) {
+            if (isValid(clazz)) {
+              return clazz
+            }
+          }
+        }
       }
     }
     null
@@ -104,7 +121,15 @@ trait Importable extends ScalaPsiElement{
     val qualPrefix = ScalaResolveUtil.getQualifiedPrefix(this)
     val manager = PsiManager.getInstance(this.getProject)
     if (qualPrefix != null) {
-      manager.findClass(qualPrefix + shortName, this.getResolveScope())
+      val classes = manager.findClasses(qualPrefix + shortName, this.getResolveScope())
+      if (classes != null) {
+        for (val clazz <- classes) {
+          if (isValid(clazz)) {
+            return clazz
+          }
+        }
+        return null
+      } else null
     } else null
   }
 
@@ -155,27 +180,39 @@ trait Importable extends ScalaPsiElement{
       return false
     }
 
-    val manager = PsiManager.getInstance(this.getProject)
-    /*
-       5. May be, it is in scala._ ?
-    */
-    clazz = manager.findClass("scala." + processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
-    if (clazz != null) {
-      processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
-      return false
-    }
+    /* We are already on top */
+    if (this.isInstanceOf[PsiFile]) {
+      val manager = PsiManager.getInstance(this.getProject)
+      /*
+         5. May be, it is in scala._ ?
+      */
+      val classes = manager.findClasses("scala." + processor.asInstanceOf[ScalaPsiScopeProcessor].getName, this.getResolveScope())
+      if (classes != null) {
+        for (val clazz <- classes) {
+          if (isValid(clazz)) {
+            processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
+            return false
+          }
+        }
+      }
 
-
-    /*
-       6. May be, it is in java.lang.*?
-    */
-    clazz = manager.findClass("java.lang." + processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
-    if (clazz != null) {
-      processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
-      return false
+      /*
+         6. May be, it is in java.lang.*?
+      */
+      clazz = manager.findClass("java.lang." + processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
+      if (clazz != null) {
+        processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
+        return false
+      }
     }
 
     return true
+  }
+
+  def isValid(clazz: PsiElement) = {
+    clazz.isInstanceOf[PsiClass] && (! clazz.isInstanceOf[ScJavaClass] ||
+    (clazz.isInstanceOf[ScJavaClass] &&
+    ! clazz.asInstanceOf[ScJavaClass].getClassInstance.isInstanceOf[ScObjectDefinition]))
   }
 
 

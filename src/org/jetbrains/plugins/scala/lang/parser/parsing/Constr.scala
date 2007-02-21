@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing
 
 import com.intellij.lang.PsiBuilder
-import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree._
 import com.intellij.psi.tree.TokenSet
 /**
  * User: Dmitry.Krasilschikov

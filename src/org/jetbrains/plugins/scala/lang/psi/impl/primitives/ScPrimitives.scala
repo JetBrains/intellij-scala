@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl, com.intellij.la
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
+  
 /**
  * User: Dmitry.Krasilschikov
  * Date: 25.10.2006
