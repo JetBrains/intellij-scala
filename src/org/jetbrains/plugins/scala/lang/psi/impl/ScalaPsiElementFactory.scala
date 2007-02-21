@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElementImpl,ScalaFile}
 
 import com.intellij.openapi.util.TextRange
 
@@ -54,6 +54,16 @@ object ScalaPsiElementFactory {
     if (expression == null) return null
 
     expression.asInstanceOf[ScExprImpl].getNode
+  }
+
+  def createIdentifierFromText(id: String, manager: PsiManager): ASTNode = {
+    val definition: ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
+    val text = "class " + id + "{}"
+
+    val dummyFile: ScalaFile = manager.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+
+    val classDef = dummyFile.getTmplDefs.head
+    classDef.nameNode.getNode
   }
 
   def createTemplateStatementFromText(buffer: String, manager: PsiManager): ASTNode = {

@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.top.defs
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.tree.IElementType
+import com.intellij.navigation.NavigationItem
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.Template
@@ -17,13 +18,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
 import org.jetbrains.plugins.scala.icons.Icons
 
-
 /**
 *  Main class, that describes behaviour of scala templates, such ass class, object and trait
 *  @see ScJavaClass
 */
 
-abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with TemplateIndent{
+abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with TemplateIndent with NavigationItem with PsiNamedElement {
 
   override def toString: String = "template definition"
 
@@ -52,6 +52,12 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
   }
 
   override def getName = nameNode.getText
+
+  override def setName(name : String) = {
+    val newNode = ScalaPsiElementFactory.createIdentifierFromText(name, getManager)
+    getNode.replaceChild(nameNode.getNode, newNode)
+    this
+  }
 
   override def getTextOffset = nameNode.getTextRange.getStartOffset
 
