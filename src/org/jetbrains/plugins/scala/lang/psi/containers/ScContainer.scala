@@ -64,15 +64,17 @@ trait Importable extends ScalaPsiElement{
   */
   private def stickNames(myRefText: String, prefix: String): String = {
     var refText = myRefText
-    if (refText.substring(0, 7).equals("_root_.")) {
+    if (refText.length > 7 && refText.substring(0, 7).equals("_root_.")) {
       refText = refText.substring(7)
     } else {
-      val importBegin = refText.substring(0, refText.indexOf("."))
-      val index = prefix.indexOf(importBegin)
-      if (index > 0 &&
-      prefix.charAt(index - 1) == '.' &&
-      prefix.charAt(index + importBegin.length) == '.'){
-        refText = prefix.substring(0, index) + refText
+      if (refText.contains(".")) {
+        val importBegin = refText.substring(0, refText.indexOf("."))
+        val index = prefix.indexOf(importBegin)
+        if (index > 0 &&
+        prefix.charAt(index - 1) == '.' &&
+        prefix.charAt(index + importBegin.length) == '.'){
+          refText = prefix.substring(0, index) + refText
+        }
       }
     }
     refText
