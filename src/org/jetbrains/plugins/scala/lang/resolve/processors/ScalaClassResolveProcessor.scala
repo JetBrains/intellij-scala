@@ -27,7 +27,8 @@ class ScalaClassResolveProcessor(val myName: String) extends ScalaPsiScopeProces
 
   def execute(element: PsiElement, substitutor: PsiSubstitutor): Boolean = {
     if (element.isInstanceOf[ScTmplDef]) {
-      if (element.asInstanceOf[ScTmplDef].getName.equals(myName)) {
+      if (element.asInstanceOf[ScTmplDef].getName.equals(myName) &&
+      ! element.isInstanceOf[ScObjectDefinition]) {
         myResult = element
         return false
       }
