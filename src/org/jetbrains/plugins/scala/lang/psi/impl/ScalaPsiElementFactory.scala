@@ -35,7 +35,7 @@ import com.intellij.psi.impl.source.CharTableImpl
 
 object ScalaPsiElementFactory {
 
-  private val DUMMY = "dummy."
+  private val DUMMY = "dummy." 
   def createExpressionFromText(buffer: String, manager: PsiManager): ASTNode = {
     def isExpr = (elementType: IElementType) => (ScalaElementTypes.EXPRESSION_BIT_SET.contains(elementType))
 
