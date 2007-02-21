@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.annotations.{Nullable, NotNull}
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 
 object ScalaFindUsagesProvider extends FindUsagesProvider {
   [Nullable]
@@ -15,17 +16,37 @@ object ScalaFindUsagesProvider extends FindUsagesProvider {
      ScalaTokenTypes.COMMENTS_TOKEN_SET,
      ScalaTokenTypes.STRING_LITERAL_TOKEN_SET);
 
-  override def canFindUsagesFor(psiElement: PsiElement): Boolean = false //todo
+  override def canFindUsagesFor(element: PsiElement): Boolean = element.isInstanceOf[ScTmplDef] //todo
 
   [Nullable]
   override def getHelpId(psiElement: PsiElement): String = null //todo
 
+  //todo
   [NotNull]
-  override def getType(element: PsiElement): String = "" //todo
+  override def getType(element: PsiElement): String = {
+    element match {
+      case _ : ScClassDefinition => "class"
+      case _ : ScObjectDefinition => "object"
+      case _ : ScTraitDefinition => "trait"
+      case _ => ""
+    }
+  }
 
+  //todo
   [NotNull]
-  override def getDescriptiveName(element: PsiElement): String = "" //todo
+  override def getDescriptiveName(element: PsiElement): String = {
+    element match {
+      case c : ScTmplDef => c.getName
+      case _ => ""
+    }
+  }
 
+  //todo
   [NotNull]
-  override def getNodeText(element: PsiElement, useFullName : Boolean): String = "" //todo
+  override def getNodeText(element: PsiElement, useFullName : Boolean): String = {
+    element match {
+      case c : ScTmplDef => c.getName
+      case _ => ""
+    }
+  }
 }
