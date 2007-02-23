@@ -75,5 +75,4 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
   case class ScCaseClausesImpl( node : ASTNode ) extends ScalaPsiElementImpl(node){
       override def toString: String = "Case Clauses"
   }
-
 }
