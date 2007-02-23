@@ -23,7 +23,7 @@ class ScalaClassResolveProcessor(val myName: String) extends ScalaPsiScopeProces
 
   def setResult(result: PsiElement) {
     myResult = result
-  }
+  }                            
 
   def getName = myName
 
