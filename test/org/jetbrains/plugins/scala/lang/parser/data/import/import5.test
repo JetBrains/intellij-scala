@@ -8,11 +8,13 @@ Scala file
       Stable Identifier
         PsiElement(identifier)('first')
       PsiElement(.)('.')
-      PsiElement(identifier)('item')
+      Import end
+        PsiElement(identifier)('item')
     PsiElement(,)(',')
     PsiWhiteSpace(' ')
     Import expression
       Stable Identifier
         PsiElement(identifier)('second')
       PsiElement(.)('.')
-      PsiElement(identifier)('item')
+      Import end
+        PsiElement(identifier)('item')
