@@ -27,18 +27,19 @@ Scala file
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
                 Common pattern
-                  Stable Identifier
-                    PsiElement(identifier)('Alt')
-                  Argument patterns
-                    PsiElement(()('(')
-                    PsiElement(identifier)('xs')
-                    PsiWhiteSpace(' ')
-                    PsiElement(@)('@')
-                    PsiWhiteSpace(' ')
-                    Wild pattern
-                      PsiElement(_)('_')
-                      PsiElement(identifier)('*')
-                    PsiElement())(')')
+                  Simple pattern
+                    Stable Identifier
+                      PsiElement(identifier)('Alt')
+                    Argument patterns
+                      PsiElement(()('(')
+                      PsiElement(identifier)('xs')
+                      PsiWhiteSpace(' ')
+                      PsiElement(@)('@')
+                      PsiWhiteSpace(' ')
+                      Wild pattern
+                        PsiElement(_)('_')
+                        PsiElement(identifier)('*')
+                      PsiElement())(')')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
@@ -59,28 +60,30 @@ Scala file
                 PsiWhiteSpace(' ')
                 Composite pattern
                   Common pattern
-                    Stable Identifier
-                      PsiElement(identifier)('ELEMENTS')
-                    Argument patterns
-                      PsiElement(()('(')
-                      PsiWhiteSpace(' ')
-                      Common pattern
-                        PsiElement(_)('_')
-                      PsiWhiteSpace(' ')
-                      PsiElement())(')')
+                    Simple pattern
+                      Stable Identifier
+                        PsiElement(identifier)('ELEMENTS')
+                      Argument patterns
+                        PsiElement(()('(')
+                        PsiWhiteSpace(' ')
+                        Common pattern
+                          PsiElement(_)('_')
+                        PsiWhiteSpace(' ')
+                        PsiElement())(')')
                   PsiWhiteSpace(' ')
                   PsiElement(identifier)('|')
                   PsiWhiteSpace(' ')
                   Common pattern
-                    Stable Identifier
-                      PsiElement(identifier)('MIXED')
-                    Argument patterns
-                      PsiElement(()('(')
-                      PsiWhiteSpace(' ')
-                      Common pattern
-                        PsiElement(_)('_')
-                      PsiWhiteSpace(' ')
-                      PsiElement())(')')
+                    Simple pattern
+                      Stable Identifier
+                        PsiElement(identifier)('MIXED')
+                      Argument patterns
+                        PsiElement(()('(')
+                        PsiWhiteSpace(' ')
+                        Common pattern
+                          PsiElement(_)('_')
+                        PsiWhiteSpace(' ')
+                        PsiElement())(')')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')

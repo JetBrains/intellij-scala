@@ -59,23 +59,25 @@ Scala file
                   PsiElement(case)('case')
                   PsiWhiteSpace(' ')
                   Common pattern
-                    Stable Identifier
-                      PsiElement(identifier)('Some')
-                    Argument patterns
-                      PsiElement(()('(')
-                      Common pattern
-                        Stable Identifier
-                          PsiElement(identifier)('Pair')
-                        Argument patterns
-                          PsiElement(()('(')
-                          Common pattern
-                            PsiElement(identifier)('p')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          Common pattern
-                            PsiElement(identifier)('r')
-                          PsiElement())(')')
-                      PsiElement())(')')
+                    Simple pattern
+                      Stable Identifier
+                        PsiElement(identifier)('Some')
+                      Argument patterns
+                        PsiElement(()('(')
+                        Common pattern
+                          Simple pattern
+                            Stable Identifier
+                              PsiElement(identifier)('Pair')
+                            Argument patterns
+                              PsiElement(()('(')
+                              Common pattern
+                                PsiElement(identifier)('p')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              Common pattern
+                                PsiElement(identifier)('r')
+                              PsiElement())(')')
+                        PsiElement())(')')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
                   PsiWhiteSpace('\n      ')

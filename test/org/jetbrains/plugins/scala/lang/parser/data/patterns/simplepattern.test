@@ -15,7 +15,7 @@ Scala file
         value declaration
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          Simple Pattern
+          Simple pattern
             Stable Identifier
               PsiElement(identifier)('S')
             Argument patterns
