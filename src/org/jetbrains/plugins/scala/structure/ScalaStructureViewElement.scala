@@ -105,6 +105,13 @@ package org.jetbrains.plugins.scala.structure {
         case _ => pattern2
       }
 
+//      val patterns = pattern2 match {
+//        case simplePat : ScPattern3 => simplePat.allPatterns
+//        case _ =>
+//      }
+//
+//      for(val pat <- patterns) yield newStructureViewElement (pat, patDef)
+//      ++
       if (varid != null) Array(newStructureViewElement (varid, patDef))
       else Array()
     }

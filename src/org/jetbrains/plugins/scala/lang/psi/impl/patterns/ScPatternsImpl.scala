@@ -4,11 +4,14 @@ package org.jetbrains.plugins.scala.lang.psi.impl.patterns {
 */
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+
 
   trait ScPatterns extends ScalaPsiElement
 
@@ -16,9 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
   trait ScPattern1 extends ScPattern
 
-  trait ScPattern2 extends ScPattern1 {
-
-  }
+  trait ScPattern2 extends ScPattern1 
 
   trait ScPattern3 extends ScPattern2
 
@@ -48,6 +49,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
   case class ScPatternsImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) with ScPatterns {
       override def toString: String = "Argument patterns"
+
+//      def isManyPatterns: Boolean = (getChild(ScalaElementTypes.PATTERNS) != null)
+//      def getPatterns: ScalaPsiElement = getChild(ScalaElementTypes.PATTERNS).asInstanceOf[ScalaPsiElement]
+//
+//      def allPatterns : Iterable[SalaPsiElement] = {
+//        if (isManyPatterns) return getPatterns.childrenOfType[SalaPsiElement](ScalaElementTypes.PATTERN_BIT_SET)
+//
+//        childrenOfType[ScalaPsiElement](ScalaElementTypes.PATTERN_BIT_SET)
+//      }
   }
 
   case class ScWildPatternImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {

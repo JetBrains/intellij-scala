@@ -80,7 +80,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
     [NotNull]
     /*protected*/ def names: Iterable[PsiElement] = {
       if (isManyDeclarations) return getDeclarations.childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER)))
-//      if (isConstructor) return childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.kTHIS)))
 
       childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER)))
     }
