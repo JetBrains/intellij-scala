@@ -92,7 +92,7 @@ object SimplePattern {
       if (ScalaElementTypes.STABLE_ID.equals(result) || ScalaElementTypes.STABLE_ID_ID.equals(result)) {
         if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
           argsParse
-          spMarker.done(ScalaElementTypes.SIMPLE_PATTERN)
+          spMarker.done(ScalaElementTypes.SIMPLE_PATTERN1)
           ScalaElementTypes.SIMPLE_PATTERN
         } else {
           spMarker.drop()

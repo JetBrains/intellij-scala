@@ -220,6 +220,7 @@ object ScalaPsiCreator {
 
     /******************* PATTERNS *********************/
     case ScalaElementTypes.SIMPLE_PATTERN => new ScTuplePatternImpl(node) 
+    case ScalaElementTypes.SIMPLE_PATTERN1 => new ScSimplePatternImpl(node)
     case ScalaElementTypes.PATTERN1 => new ScPattern1Impl(node)
     case ScalaElementTypes.PATTERN2 => new ScPattern2Impl(node)
     case ScalaElementTypes.PATTERN3 => new ScPattern3Impl(node)

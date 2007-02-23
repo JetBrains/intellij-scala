@@ -259,6 +259,7 @@ object ScalaElementTypes {
   /*************************************************************************************/
 
   val SIMPLE_PATTERN = new ScalaElementType("simple pattern")
+  val SIMPLE_PATTERN1 = new ScalaElementType("simple pattern")
   val PATTERN3 = new ScalaElementType("pattern 3")
   val PATTERN2 = new ScalaElementType("pattern 2")
   val PATTERN2_LIST = new ScalaElementType("pattern 2 list")
