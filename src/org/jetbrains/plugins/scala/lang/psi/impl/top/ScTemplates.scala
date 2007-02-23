@@ -73,6 +73,7 @@ case class ScTemplateBody(node: ASTNode) extends ScalaPsiElementImpl (node) with
     import org.jetbrains.plugins.scala.lang.resolve.processors._
     if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
       this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
+      this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
       getClazz(getTypes, processor, substitutor)
     } else true
 

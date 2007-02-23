@@ -40,7 +40,7 @@ class ScalaClassReference(val myElement: PsiElement) extends PsiReference {
   def resolve: PsiElement = {
     val refName = getReferencedName
     if (refName != null) {
-      ScalaResolveUtil.treeWalkUp(new ScalaClassResolveProcessor(refName), getElement, getElement, getElement)
+      ScalaResolveUtil.treeWalkUp(new ScalaClassResolveProcessor(refName, getElement.getTextOffset), getElement, getElement, getElement)
     } else null
   }
 
