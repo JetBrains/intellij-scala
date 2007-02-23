@@ -224,7 +224,9 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
   @Nullable
   public String getVMExecutablePath(Sdk sdk) {
     // TODO fix me - I Throw NPE if SDK not specified
-    Sdk javaSdk = ((JavaSdkData) sdk.getSdkAdditionalData()).findSdk();
+    JavaSdkData data = (JavaSdkData) sdk.getSdkAdditionalData();
+    if (data == null) return null;
+    Sdk javaSdk = data.findSdk();
     if (javaSdk == null) return null;
     return javaSdk.getSdkType().getVMExecutablePath(javaSdk);
   }

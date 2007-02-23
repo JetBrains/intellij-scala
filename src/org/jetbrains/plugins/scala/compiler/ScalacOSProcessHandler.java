@@ -112,8 +112,10 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
         } else if (info.startsWith(ourWroteMarker)) {
           myContext.getProgressIndicator().setText(info);
           String s = info.substring(ourWroteMarker.length());
-          int w = s.indexOf(' ');
-          String outputPath = w > 0 ? s.substring(0, w) : s;
+          //format of the string is: 'path path smth_without_whitespaces'
+          int j = s.lastIndexOf(' ');
+          LOG.assertTrue(j > 0);
+          String outputPath = s.substring(0, j / 2);
           try {
             TranslatingCompiler.OutputItem item = getOutputItem(outputPath.replace(File.separatorChar, '/'));
             if (item != null) {
