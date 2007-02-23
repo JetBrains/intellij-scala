@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTempla
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.resolve.references._
 
 /**
 * @author Dmitry Krasilschikov, Ilya Sergey, ven
@@ -93,8 +94,9 @@ class ScImportExpr(node: ASTNode) extends ScalaPsiElementImpl (node) {
   }
 
   def getTailId = {
-    if (getChild(ScalaTokenTypes.tIDENTIFIER) != null)
-      getChild(ScalaTokenTypes.tIDENTIFIER).getText
+    if (getChild(ScalaElementTypes.IMPORT_END) != null) {
+      getChild(ScalaElementTypes.IMPORT_END).getText
+    }
     else null
   }
 
@@ -110,6 +112,15 @@ class ScImportExpr(node: ASTNode) extends ScalaPsiElementImpl (node) {
       }
     }
     false
+  }
+
+}
+
+class ScImportEndId(node: ASTNode) extends ScalaPsiElementImpl (node) {
+  override def toString: String = "Import end"
+
+  override def getReference = {
+    new ClassObjectReference(this)
   }
 
 }

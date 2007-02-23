@@ -116,7 +116,7 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
 */
 case class ScClassDefinition(node: ASTNode) extends ScTypeDef (node){
   override def toString: String = super.toString + ": " + "class"
-
+                   
   override def getIcon(flags: Int) = Icons.CLASS
 }
 

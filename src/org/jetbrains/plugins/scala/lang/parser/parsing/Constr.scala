@@ -13,6 +13,8 @@ import com.intellij.psi.tree.TokenSet
  * Construction is a node in PSI tree; type of node added from getElementType method
  */
 
+class FFF
+
 abstract class Constr {
    def parse (builder : PsiBuilder ) : Unit = {
      if (!builder.eof()) {

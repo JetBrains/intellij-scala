@@ -76,6 +76,7 @@ case class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
     import org.jetbrains.plugins.scala.lang.resolve.processors._
 
     if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
+      this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
       getClazz(getTmplDefs, processor, substitutor)
     } else true
   }

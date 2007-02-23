@@ -16,8 +16,6 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.TokenSet
 
-class VEN
-
 /**
  * User: Dmitry.Krasilschikov
  * Date: 17.10.2006
@@ -43,6 +41,7 @@ class VEN
 /*
  *  CompilationUnit ::= [package QualId StatementSeparator] TopStatSeq
  */
+
 
 object CompilationUnit extends ConstrWithoutNode {
   override def parseBody (builder : PsiBuilder) : Unit = {

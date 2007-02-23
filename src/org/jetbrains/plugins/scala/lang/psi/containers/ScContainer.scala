@@ -22,6 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 */
 trait Importable extends ScalaPsiElement{
 
+  var canBeObject = false
+
   /**
   *   Return all import expression in current container
   *
@@ -58,7 +60,7 @@ trait Importable extends ScalaPsiElement{
       val classes = manager.findClasses(qualName, this.getResolveScope())
       if (classes != null) {
         for (val clazz <- classes) {
-          if (isValid(clazz)) {
+          if (isValid(clazz, canBeObject)) {
             return clazz
           }
         }
@@ -103,7 +105,7 @@ trait Importable extends ScalaPsiElement{
         val classes = manager.findClasses(qualName, this.getResolveScope())
         if (classes != null) {
           for (val clazz <- classes) {
-            if (isValid(clazz)) {
+            if (isValid(clazz, canBeObject)) {
               return clazz
             }
           }
@@ -124,7 +126,7 @@ trait Importable extends ScalaPsiElement{
       val classes = manager.findClasses(qualPrefix + shortName, this.getResolveScope())
       if (classes != null) {
         for (val clazz <- classes) {
-          if (isValid(clazz)) {
+          if (isValid(clazz, canBeObject)) {
             return clazz
           }
         }
@@ -189,7 +191,7 @@ trait Importable extends ScalaPsiElement{
       val classes = manager.findClasses("scala." + processor.asInstanceOf[ScalaPsiScopeProcessor].getName, this.getResolveScope())
       if (classes != null) {
         for (val clazz <- classes) {
-          if (isValid(clazz)) {
+          if (isValid(clazz, canBeObject)) {
             processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
             return false
           }
@@ -209,10 +211,11 @@ trait Importable extends ScalaPsiElement{
     return true
   }
 
-  def isValid(clazz: PsiElement) = {
+  def isValid(clazz: PsiElement, canBeObject: Boolean) = {
     clazz.isInstanceOf[PsiClass] && (! clazz.isInstanceOf[ScJavaClass] ||
     (clazz.isInstanceOf[ScJavaClass] &&
-    ! clazz.asInstanceOf[ScJavaClass].getClassInstance.isInstanceOf[ScObjectDefinition]))
+    (! clazz.asInstanceOf[ScJavaClass].getClassInstance.isInstanceOf[ScObjectDefinition]) ||
+    canBeObject))
   }
 
 
