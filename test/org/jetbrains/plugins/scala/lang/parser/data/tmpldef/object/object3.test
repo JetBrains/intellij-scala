@@ -8,7 +8,8 @@ Scala file
       Stable Identifier
         PsiElement(identifier)('a')
       PsiElement(.)('.')
-      PsiElement(identifier)('q')
+      Import end
+        PsiElement(identifier)('q')
   PsiElement(;)(';')
   PsiWhiteSpace(' ')
   template definition: object
