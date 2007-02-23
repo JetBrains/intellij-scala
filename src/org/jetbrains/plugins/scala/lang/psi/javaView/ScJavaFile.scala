@@ -39,17 +39,23 @@ with Serializable{
   //todo
   def getPackageName = ""
 
-  private var classes : Array[PsiClass] = null
+  private var classes: Array[PsiClass] = null
 
   override def getClasses = {
-    if (classes == null) {
-      val scFile = viewProvider.getPsi(ScalaFileType.SCALA_FILE_TYPE.getLanguage).asInstanceOf[ScalaFile]
-      val temp = scFile.getTmplDefs.map(c => new ScJavaClass(c, this)).toArray[PsiClass]
-      classes = temp
-      temp  //need thread safety here, so return local!
-    }
+    //TODO Fix me!
+    /*
+        if (classes == null) {
+          val scFile = viewProvider.getPsi(ScalaFileType.SCALA_FILE_TYPE.getLanguage).asInstanceOf[ScalaFile]
+          val temp = scFile.getTmplDefs.map(c => new ScJavaClass(c, this)).toArray[PsiClass]
+          classes = temp
+          temp  //need thread safety here, so return local!
+        }
 
-    classes
+        classes
+    */
+    val scFile = viewProvider.getPsi(ScalaFileType.SCALA_FILE_TYPE.getLanguage).asInstanceOf[ScalaFile]
+    scFile.getTmplDefs.map(c => new ScJavaClass(c, this)).toArray[PsiClass]
+
   }
 
   def getChildren = getClasses.asInstanceOf[Array[PsiElement]]
