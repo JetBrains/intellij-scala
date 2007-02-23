@@ -27,6 +27,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
       override def toString: String = "Tuple pattern"
   }
 
+  case class ScSimplePatternImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+      override def toString: String = "Simple pattern"
+  }
+
   case class ScPattern1Impl( node : ASTNode ) extends ScalaPsiElementImpl (node) with ScPattern1 {
       override def toString: String = "Common pattern"
   }
