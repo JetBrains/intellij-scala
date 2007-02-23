@@ -47,13 +47,14 @@ public class ScalaVirtualFileListener extends VirtualFileAdapter {
     if (parent == null || file == null) {
       return;
     }
+    if (ScalaUtils.isVersionControlSysDir(file)) {
+      return;
+    }
     if (!file.isDirectory()) {
       processFile(file, type);
       return;
     }
-    if (ScalaUtils.isVersionControlSysDir(file)) {
-      return;
-    }
+
     VirtualFile[] files = file.getChildren();
     for (VirtualFile virtualFile : files) {
       processFile(virtualFile, file, type);
@@ -72,7 +73,6 @@ public class ScalaVirtualFileListener extends VirtualFileAdapter {
       }
     }
   }
-
 
 }
 
