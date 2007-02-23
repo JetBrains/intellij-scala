@@ -62,8 +62,16 @@ class ScalaClassReference(val myElement: PsiElement) extends PsiReference {
    * @throws IncorrectOperationException if the rename cannot be handled for some reason.
    */
   def handleElementRename(newElementName: String): PsiElement = {
-    null
-  }              
+    if (myElement.getFirstChild.isInstanceOf[ScStableIdImpl]) {
+      import org.jetbrains.plugins.scala.lang.psi.impl._
+      val newChildNode = ScalaPsiElementFactory.createExpressionFromText(newElementName,
+              PsiManager.getInstance(myElement.getProject))
+      myElement.getNode.replaceChild(myElement.getFirstChild.getNode, newChildNode)
+      newChildNode.getPsi
+    } else {
+      null
+    }
+  }
 
   /**
   * Changes the reference so that it starts to point to the specified element. This is called,

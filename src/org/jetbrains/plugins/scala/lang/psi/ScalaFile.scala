@@ -46,14 +46,11 @@ with ScalaPsiElement with Importable{
           substitutor: PsiSubstitutor,
           lastParent: PsiElement,
           place: PsiElement): Boolean = {
-    /*
-        for (val importStatement <- getImports) {
-          val expr = importStatement.getExpression
-          expr.getImportReference
-        }
-    */
+
     import org.jetbrains.plugins.scala.lang.resolve.processors._
+
     if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
+      this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
       getClazz(getUpperDefs, processor, substitutor) 
     } else true
   }

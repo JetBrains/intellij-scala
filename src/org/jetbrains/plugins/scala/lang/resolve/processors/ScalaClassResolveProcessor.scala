@@ -17,7 +17,9 @@ class ScalaClassResolveProcessor(val myName: String) extends ScalaPsiScopeProces
 
   protected var myResult: PsiElement = null
 
-  def getResult: PsiElement = myResult
+  val canBeObject : Boolean = false
+
+  def getResult: PsiElement = myResult   
 
   def setResult(result: PsiElement) {
     myResult = result

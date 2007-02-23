@@ -50,6 +50,7 @@ object ScalaPsiCreator {
      case ScalaElementTypes.IMPORT_STMT => new ScImportStmt(node)
      case ScalaElementTypes.IMPORT_EXPR => new ScImportExpr(node)
      case ScalaElementTypes.IMPORT_EXPRS => new ScImportExprs(node)
+     case ScalaElementTypes.IMPORT_END => new ScImportEndId(node)
 
      case ScalaElementTypes.IMPORT_SELECTORS => new ScImportSelectors(node)
      case ScalaElementTypes.IMPORT_SELECTOR => new ScImportSelector(node)

@@ -421,35 +421,39 @@ object Attribute extends Constr{
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         StableIdInImport.parse(builder)
       } else {
-        builder.error("expected identifier")
+        builder.error("identifier expected ")
         return
       }
 
       if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
       } else {
-        builder.error("expected '.'")
+        builder.error("'.' expected ")
         return
       }
 
+      val endMarker = builder.mark()
       builder.getTokenType() match {
         case ScalaTokenTypes.tIDENTIFIER => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+          endMarker.done(ScalaElementTypes.IMPORT_END)
           return
         }
 
         case ScalaTokenTypes.tUNDER => {
+          endMarker.drop()
           ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
-          //Console.println("after under " + builder.getTokenText())
           return
         }
 
         case ScalaTokenTypes.tLBRACE => {
+          endMarker.drop()
           ImportSelectors.parse(builder)
           return
         }
 
         case _ => {
+          endMarker.drop()
           builder.error("expected identifier, import selectors or '_'")
           return
         }
