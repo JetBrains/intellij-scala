@@ -33,7 +33,8 @@ Scala file
         Stable Identifier
           PsiElement(identifier)('com')
         PsiElement(.)('.')
-        PsiElement(identifier)('ert')
+        Import end
+          PsiElement(identifier)('ert')
     PsiElement(newline)('\n')
     PsiWhiteSpace('\n')
     PsiElement(})('}')
