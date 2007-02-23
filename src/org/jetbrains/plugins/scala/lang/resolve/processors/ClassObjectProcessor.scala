@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 
 
-class ClassObjectResolveProcessor(myName: String) extends ScalaClassResolveProcessor(myName) {
+class ClassObjectResolveProcessor(myName: String, offset: Int) extends ScalaClassResolveProcessor(myName, offset) {
 
   override val canBeObject = true
 

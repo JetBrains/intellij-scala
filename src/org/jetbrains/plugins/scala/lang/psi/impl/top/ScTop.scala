@@ -51,6 +51,7 @@ class ScPackaging(node: ASTNode) extends ScalaPsiElementImpl (node) with Blocked
 
     if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
       this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
+      this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
       getClazz(getTypeDefs, processor, substitutor)
     } else true
   }

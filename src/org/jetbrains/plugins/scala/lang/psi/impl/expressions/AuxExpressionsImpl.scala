@@ -77,6 +77,7 @@ case class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
 
     if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
       this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
+      this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
       getClazz(getTmplDefs, processor, substitutor)
     } else true
   }

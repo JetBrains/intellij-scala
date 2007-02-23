@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 trait Importable extends ScalaPsiElement{
 
   var canBeObject = false
+  var offset = 0
 
   /**
   *   Return all import expression in current container
@@ -40,9 +41,11 @@ trait Importable extends ScalaPsiElement{
   */
   private def getQualifiedName(shortName: String, prefix: String): String = {
     for (val importExpr <- getImportExprs) {
-      val qualName = importExpr.getExplicitName(shortName, prefix)
-      if (qualName != null){
-        return qualName
+      if (importExpr.getTextOffset <= offset){
+        val qualName = importExpr.getExplicitName(shortName, prefix)
+        if (qualName != null){
+          return qualName
+        }
       }
     }
     null
@@ -100,7 +103,7 @@ trait Importable extends ScalaPsiElement{
   private def combWildcards(shortName: String, prefix: String): PsiElement = {
     val manager = PsiManager.getInstance(this.getProject)
     for (val importExpr <- getImportExprs) {
-      if (importExpr.hasWildcard) {
+      if (importExpr.hasWildcard && importExpr.getTextOffset <= offset) {
         val qualName = stickNames(importExpr.getImportReference.getText, prefix) + "." + shortName
         val classes = manager.findClasses(qualName, this.getResolveScope())
         if (classes != null) {

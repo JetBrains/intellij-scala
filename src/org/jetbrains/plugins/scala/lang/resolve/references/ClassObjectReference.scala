@@ -26,7 +26,7 @@ class ClassObjectReference(myElement: PsiElement) extends ScalaClassReference(my
   override def resolve: PsiElement = {
     val refName = getReferencedName
     if (refName != null) {
-      ScalaResolveUtil.treeWalkUp(new ClassObjectResolveProcessor(refName), getElement, getElement, getElement)
+      ScalaResolveUtil.treeWalkUp(new ClassObjectResolveProcessor(refName, getElement.getTextOffset), getElement, getElement, getElement)
     } else null
   }
 

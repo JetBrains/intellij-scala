@@ -51,7 +51,8 @@ with ScalaPsiElement with Importable{
 
     if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
       this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
-      getClazz(getUpperDefs, processor, substitutor) 
+      this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
+      getClazz(getUpperDefs, processor, substitutor)
     } else true
   }
 
