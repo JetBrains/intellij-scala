@@ -16,7 +16,8 @@ object ScalaFindUsagesProvider extends FindUsagesProvider {
      ScalaTokenTypes.COMMENTS_TOKEN_SET,
      ScalaTokenTypes.STRING_LITERAL_TOKEN_SET);
 
-  override def canFindUsagesFor(element: PsiElement): Boolean = element.isInstanceOf[ScTmplDef] //todo
+  override def canFindUsagesFor(element: PsiElement): Boolean = element.isInstanceOf[ScTmplDef] &&
+                                                                !element.isInstanceOf[ScObjectDefinition] //todo
 
   [Nullable]
   override def getHelpId(psiElement: PsiElement): String = null //todo
