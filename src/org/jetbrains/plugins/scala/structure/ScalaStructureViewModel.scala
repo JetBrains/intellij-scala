@@ -27,9 +27,6 @@ class ScalaStructureViewModel (root : PsiElement) extends TextEditorBasedStructu
 
   protected def getPsiFile() : PsiFile = myRoot.getContainingFile();
 
-//  final val SUITABLE_CLASSES : Array[Class] = Array.apply(ScTmplDef)
-
-  //is Element suitable
   override def getRoot() : ScalaStructureViewElement = new ScalaStructureViewElement(myRoot.asInstanceOf[ScalaPsiElement])
 
   [NotNull]
