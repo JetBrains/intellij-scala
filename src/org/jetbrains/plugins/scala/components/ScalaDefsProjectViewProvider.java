@@ -5,12 +5,17 @@ import com.intellij.ide.projectView.ViewSettings;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
+import com.intellij.ide.DeleteProvider;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DataConstants;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.lang.StdLanguages;
+import com.intellij.refactoring.actions.MoveAction;
+import com.intellij.refactoring.RefactoringActionHandler;
 
 import java.util.Collection;
 import java.util.List;
@@ -79,7 +84,42 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
 
   @Nullable
   public Object getData(Collection<AbstractTreeNode> selected, String dataName) {
+    if (selected != null) {
+      if (dataName.equals(DataConstants.DELETE_ELEMENT_PROVIDER)) {
+        for (AbstractTreeNode node : selected) {
+          if (node instanceof Node) return new CannotDeleteProvider();
+        }
+      } else if (dataName.equals(MoveAction.MOVE_PROVIDER)) {
+        for (AbstractTreeNode node : selected) {
+          if (node instanceof Node) return new CannotMoveProvider();
+        }
+      }
+    }
+
     return null;
+  }
+
+  //cannot delete
+  private static class CannotDeleteProvider implements DeleteProvider {
+    public CannotDeleteProvider() {
+    }
+
+    public void deleteElement(DataContext dataContext) {
+    }
+
+    public boolean canDeleteElement(DataContext dataContext) {
+      return false;
+    }
+  }
+
+  private static class CannotMoveProvider implements MoveAction.MoveProvider {
+    public RefactoringActionHandler getHandler(DataContext dataContext) {
+      return null;
+    }
+
+    public boolean isEnabledOnDataContext(DataContext dataContext) {
+      return false;
+    }
   }
 
   public void projectOpened() {}
