@@ -46,13 +46,4 @@ class ScalaStructureViewModel (root : PsiElement) extends TextEditorBasedStructu
       case _ : ScPackaging | _ : ScTmplDef | _ : ScTemplateStatement => true
       case _ => false
     }
-
-//  {
-//    if (element == null) false
-//
-//    if (element.isInstanceOf[ScPackaging]) true
-//    else if (element.isInstanceOf[ScTmplDef]) true
-//    else if (element.isInstanceOf[ScTemplateStatement]) true
-//    else false
-//  }
 }
