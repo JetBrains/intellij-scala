@@ -16,6 +16,7 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.TokenSet
 
+class VEN
 
 /**
  * User: Dmitry.Krasilschikov

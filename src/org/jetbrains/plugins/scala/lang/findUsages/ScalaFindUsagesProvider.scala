@@ -33,6 +33,8 @@ object ScalaFindUsagesProvider extends FindUsagesProvider {
     }
   }
 
+
+
   //todo
   [NotNull]
   override def getDescriptiveName(element: PsiElement): String = {
