@@ -15,6 +15,8 @@ package org.jetbrains.plugins.scala.lang.psi.javaView {
 
     def getParent: PsiElement = parent
 
+    override def isPhysical = false
+
     def getFirstChild: PsiElement = {
 
       parent.getChildren.length match {
