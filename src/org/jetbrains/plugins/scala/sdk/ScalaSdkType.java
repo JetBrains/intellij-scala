@@ -70,6 +70,7 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
 
   public void setupSdkPaths(Sdk sdk) {
     final SdkModificator sdkModificator = sdk.getSdkModificator();
+    sdkModificator.removeAllRoots();
     String dirPath = getLibraryDirPath(sdk);
     dirPath = dirPath.replace(File.separator, "/");
     VirtualFile libraryDir = LocalFileSystem.getInstance().findFileByPath(dirPath);
@@ -85,12 +86,10 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
       }
     }
 
-/*
     VirtualFile srcZip = jarFileSystem.findFileByPath(getConvertedHomePath(sdk) + "src.zip" + JarFileSystem.JAR_SEPARATOR);
     if (srcZip != null) {
       sdkModificator.addRoot(srcZip, ProjectRootType.SOURCE);
     }
-*/
     // Adding jars with source
     String srcPath = getSourceDirPath(sdk);
     dirPath = srcPath.replace(File.separator, "/");
@@ -104,7 +103,7 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
       }
     }
 
-    JavaSdkData data = (JavaSdkData) sdk.getSdkAdditionalData();
+    JavaSdkData data = (JavaSdkData) sdkModificator.getSdkAdditionalData();
     if (data != null) {
       Sdk javaSdk = data.findSdk();
       if (javaSdk != null) {
