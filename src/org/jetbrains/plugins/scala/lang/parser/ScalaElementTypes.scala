@@ -140,6 +140,7 @@ object ScalaElementTypes {
   /*************************************************************************************/
 
   val IMPORT_SELECTOR = new ScalaElementType("import selector")
+  val IMPORT_SELECTOR_BEGIN = new ScalaElementType("import selector begin")
   val IMPORT_SELECTOR_LIST = new ScalaElementType("import selector list")
   val IMPORT_SELECTORS = new ScalaElementType("import selectors")
   val IMPORT_END = new ScalaElementType("import end id")

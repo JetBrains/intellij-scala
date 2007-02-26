@@ -50,8 +50,8 @@ with ScalaPsiElement with Importable{
     import org.jetbrains.plugins.scala.lang.resolve.processors._
 
     if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
-      this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
-      this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
+        this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
+        this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
       getClazz(getUpperDefs, processor, substitutor)
     } else true
   }
