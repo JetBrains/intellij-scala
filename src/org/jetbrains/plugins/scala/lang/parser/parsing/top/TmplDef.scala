@@ -62,7 +62,7 @@ object TmplDef extends ConstrWithoutNode {
 
           case _ => {
             caseMarker.rollbackTo()
-            builder error "expected object or class declaration"
+            builder error "object or class declaration expected"
             return ScalaElementTypes.WRONGWAY
           }
         }
@@ -86,7 +86,7 @@ object TmplDef extends ConstrWithoutNode {
         }
 
         case _ => {
-          builder error "expected class, object or trait declaration"
+          builder error "class, object or trait declaration expected"
           return ScalaElementTypes.WRONGWAY
         }
       }
@@ -113,39 +113,29 @@ object TmplDef extends ConstrWithoutNode {
  */
 
     case class ClassDef extends InstanceDef with TypeDef {
-      //def getElementType = ScalaElementTypes.CLASS_DEF
-
       override def parseBody ( builder : PsiBuilder ) : IElementType = {
 
         if (ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kCASE)
         }
 
-        DebugPrint println ("expected 'class' : " + builder.getTokenType)
-
         if (ScalaTokenTypes.kCLASS.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kCLASS)
         } else {
-          builder error "expected 'class'"
+          builder error "'class' expected"
           return ScalaElementTypes.WRONGWAY
         }
-
-        DebugPrint println ("expected identifier : " + builder.getTokenType)
 
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         }  else {
-          builder error "expected identifier"
+          builder error "identifier expected"
           return ScalaElementTypes.WRONGWAY
         }
-
-        DebugPrint println ("before ClassTypeParamClause : " + builder.getTokenType)
 
           if (BNF.firstClassTypeParamClause.contains(builder.getTokenType)) {
             new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder
           }
-
-          DebugPrint println ("after ClassTypeParamClause : " + builder.getTokenType)
 
           if (BNF.firstClassParamClauses.contains(builder.getTokenType)) {
              (new ParamClauses[ClassParam](new ClassParam)).parse(builder)
@@ -160,7 +150,6 @@ object TmplDef extends ConstrWithoutNode {
                | ScalaTokenTypes.tLINE_TERMINATOR
                | ScalaTokenTypes.tLBRACE
               => {
-//               new ClassTemplate parse builder
                 new TypeDefTemplate[TemplateParents](new TemplateParents) parse builder
             }
             case _ => {}
@@ -168,7 +157,6 @@ object TmplDef extends ConstrWithoutNode {
 
           return ScalaElementTypes.CLASS_DEF
 
-//          DebugPrint println ("after classdef : " + builder.getTokenType)
       }
    }
 
@@ -186,10 +174,10 @@ object TmplDef extends ConstrWithoutNode {
           if (BNF.firstSimpleType.contains(builder.getTokenType)) {
             SimpleType parse builder
           } else {
-            builder error "expected simple type declaration"
+            builder error "simple type declaration expected"
           }
 
-       } else builder error "expected requires"
+       } else builder error "'requires' expected"
      }
    }
 
@@ -219,7 +207,7 @@ object TmplDef extends ConstrWithoutNode {
 
              case _ => {
                if (isModifier){
-                 builder.error("expected 'val' or 'var'")
+                 builder.error("'val' or 'var' expected")
                }
                  isClassParam = false
              }
@@ -227,7 +215,7 @@ object TmplDef extends ConstrWithoutNode {
 
           if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
             new Param().parse(builder)
-          } else builder.error("expected identifier")
+          } else builder.error("identifier expected ")
 
           if (isClassParam) classParamMarker.done(ScalaElementTypes.CLASS_PARAM)
           else classParamMarker.drop
@@ -245,59 +233,16 @@ object TmplDef extends ConstrWithoutNode {
         if (ScalaTokenTypes.kEXTENDS.equals(builder.getTokenType)){
          ParserUtils.eatElement(builder, ScalaTokenTypes.kEXTENDS)
         } else {
-          builder.error("expected 'extends'")
+          builder.error("'extends' expected")
         }
 
         if (BNF.firstTemplateParents.contains(builder.getTokenType)){
           new TemplateParents parse builder
         } else {
-          builder.error("expected identifier")
+          builder.error("identifier expected")
         }
       }
     }
-
-/*
- *  ClassTemplate ::= [extends TemplateParents] [[NewLine] TemplateBody]
- */
-
-    /*class ClassTemplate extends Template {
-      override def parseBody(builder : PsiBuilder) : Unit = {
-        val classTemplateMarker = builder.mark
-
-        if (ScalaTokenTypes.kEXTENDS.equals(builder.getTokenType)){
-          ExtendsBlock parse builder
-        }
-
-        DebugPrint println ("classTemplate : " + builder.getTokenType) 
-        if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)){
-          TemplateBody.parse(builder)
-          classTemplateMarker.done(ScalaElementTypes.CLASS_TEMPLATE)
-          return
-        }
-
-        val templateBodyMarker = builder.mark
-
-        if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
-
-          if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)){
-            TemplateBody.parse(builder)
-            templateBodyMarker.drop()
-            classTemplateMarker.done(ScalaElementTypes.CLASS_TEMPLATE)
-            return
-          } else {
-            templateBodyMarker.rollbackTo()
-            classTemplateMarker.done(ScalaElementTypes.CLASS_TEMPLATE)
-            return
-          }
-        } else {
-          templateBodyMarker.rollbackTo()
-        }
-        
-       classTemplateMarker.done(ScalaElementTypes.CLASS_TEMPLATE)
-      }
-    }
-      */
 
     /************** OBJECT ******************/
 
@@ -306,8 +251,6 @@ object TmplDef extends ConstrWithoutNode {
  */
 
    case object ObjectDef extends InstanceDef {
-//    def getElementType : ScalaElementType = ScalaElementTypes.OBJECT_DEF
-
     override def parseBody ( builder : PsiBuilder ) : IElementType = {
       if (ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kCASE)
@@ -316,19 +259,18 @@ object TmplDef extends ConstrWithoutNode {
       if (ScalaTokenTypes.kOBJECT.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kOBJECT)
       } else {
-        builder error "expected 'object'"
+        builder error "'object' expected"
         return ScalaElementTypes.WRONGWAY
       }
 
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
       } else {
-        builder.error("expected identifier")
+        builder.error("identifier expected")
         return ScalaElementTypes.WRONGWAY
       }
 
       if (BNF.firstClassTemplate.contains(builder.getTokenType)){
-//        new ClassTemplate().parse(builder)
         new TypeDefTemplate[TemplateParents](new TemplateParents) parse builder
       }
 
@@ -344,26 +286,23 @@ object TmplDef extends ConstrWithoutNode {
  */
 
   case class TraitDef extends TypeDef {
-//    def getElementType = ScalaElementTypes.TRAIT_DEF
-
     override def parseBody ( builder : PsiBuilder ) : IElementType = {
 
       if (ScalaTokenTypes.kTRAIT.equals(builder.getTokenType)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kTRAIT)
       } else {
-        builder error "expected trait declaration"
+        builder error "trait declaration expected"
         return ScalaElementTypes.WRONGWAY
       }
 
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
       } else {
-        builder error "expected identifier"
+        builder error "identifier expected"
         return ScalaElementTypes.WRONGWAY
       }
 
       if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
-        DebugPrint println ("traitDef - typeParamClause: " + builder.getTokenType)
         new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder
       }
 
@@ -373,7 +312,6 @@ object TmplDef extends ConstrWithoutNode {
 
       if (BNF.firstTraitTemplate.contains(builder.getTokenType)){
         DebugPrint println ("traitDef - traitTemplate: " + builder.getTokenType)
-//        TraitTemplate parse builder
           new TypeDefTemplate[MixinParents] (new MixinParents) parse builder
       } //else builder error "expected trait template"
 
@@ -381,53 +319,11 @@ object TmplDef extends ConstrWithoutNode {
     }
   }
 
-/*
- *  TraitTemplate ::= [extends MixinParents] [[NewLine] TemplateBody]
- */
 
-  /*object TraitTemplate extends ConstrUnpredict {
-//    override def getElementType = ScalaElementTypes.TRAIT_TEMPLATE
-
-    override def parseBody(builder : PsiBuilder) : Unit = {
-      DebugPrint println ("traitTemplate: " + builder.getTokenType)
-      val traitTemplateMarker = builder.mark
-      var isRealTraitTemplate = false;
-
-      if (ScalaTokenTypes.kEXTENDS.equals(builder.getTokenType)) {
-        var extendsMarker = builder.mark
-        ParserUtils.eatElement(builder, ScalaTokenTypes.kEXTENDS)
-
-        if (BNF.firstMixinParents.contains(builder.getTokenType)){
-          MixinParents parse builder
-          isRealTraitTemplate = true
-        } else builder error "expected mixin parents"
-
-        extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-      }
-
-      val lineTerminatorMarker = builder.mark
-      if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
-      }
-
-      if (BNF.firstTemplateBody.contains(builder.getTokenType)){
-        lineTerminatorMarker.drop
-        TemplateBody parse builder
-        isRealTraitTemplate = true;
-      } else {
-        lineTerminatorMarker.rollbackTo
-      }
-
-      if (isRealTraitTemplate) traitTemplateMarker.done(ScalaElementTypes.TRAIT_TEMPLATE)
-      else traitTemplateMarker.drop
-    }
-  }     */
-
-//  Template for class and Trait
+ //  Template for class and Trait
   class TypeDefTemplate [Parents <: TemplateParents] (parents : Parents) extends ConstrUnpredict {
 
     override def parseBody(builder : PsiBuilder) : Unit = {
-      DebugPrint println ("template: " + builder.getTokenType)
       val typedefTemplateMarker = builder.mark
       var isRealTypedefTemplate = false;
 
@@ -439,7 +335,7 @@ object TmplDef extends ConstrWithoutNode {
           parents.parse(builder)
 //          MixinParents parse builder
           isRealTypedefTemplate = true
-        } else builder error "expected mixin parents"
+        } else builder error "mixin parents expected"
 
         extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
       }
@@ -475,14 +371,14 @@ object TmplDef extends ConstrWithoutNode {
 
       if (BNF.firstSimpleType.contains(builder.getTokenType)){
           SimpleType parse builder
-      } else builder error "expected simple type"
+      } else builder error "simple type expected"
 
       while (ScalaTokenTypes.kWITH.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kWITH)
 
         if (BNF.firstSimpleType.contains(builder.getTokenType)){
           SimpleType parse builder
-        } else builder error "expected simple type"
+        } else builder error "simple type expected"
       }
     }
   }
