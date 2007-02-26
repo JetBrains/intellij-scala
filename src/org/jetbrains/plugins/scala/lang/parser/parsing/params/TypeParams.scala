@@ -61,7 +61,7 @@ import org.jetbrains.plugins.scala.util.DebugPrint
           if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)) {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
           } else {
-            builder error "expected '['"
+            builder error "'[' expected"
             typeParamClauseElementMarker.drop
             return ScalaElementTypes.WRONGWAY
           }
@@ -69,14 +69,14 @@ import org.jetbrains.plugins.scala.util.DebugPrint
           if (typeParam.first.contains(builder.getTokenType)){
             ParserUtils.listOfSmth(builder, typeParam, ScalaTokenTypes.tCOMMA, ScalaElementTypes.TYPE_PARAMS)
           } else {
-            builder error "expected type parameter declaration"
+            builder error "type parameter declaration expected"
           }
 
           if (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType)) {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
           } else {
             typeParamClauseElementMarker.drop
-            builder error "expected ']'"
+            builder error "']' expected"
             return ScalaElementTypes.WRONGWAY
           }       
 
@@ -100,19 +100,17 @@ import org.jetbrains.plugins.scala.util.DebugPrint
         var variantTypeParamMarker = builder.mark
 
         if (!first.contains(builder.getTokenType)) {
-          builder.error("expected '+', '-' or identifier")
+          builder.error("'+', '-' or identifier expected")
           return
         }
 
         var isVariantTypeParam = false;
 
-        //if (!isVariantTypeParam && ScalaTokenTypes.tPLUS.equals(builder.getTokenType)) {
         if (!isVariantTypeParam && "+".equals(builder.getTokenText)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tPLUS)
           isVariantTypeParam = true
         }
 
-        //if (!isVariantTypeParam && ScalaTokenTypes.tMINUS.equals(builder.getTokenType)) {
         if (!isVariantTypeParam && "-".equals(builder.getTokenText)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tMINUS)
           isVariantTypeParam = true
@@ -139,7 +137,7 @@ import org.jetbrains.plugins.scala.util.DebugPrint
       override def parseBody(builder : PsiBuilder) : Unit = {
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-        } else builder.error("expected identifier")
+        } else builder.error("identifier expected")
 
         if (ScalaTokenTypes.tLOWER_BOUND.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLOWER_BOUND)

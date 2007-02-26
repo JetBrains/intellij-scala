@@ -50,7 +50,6 @@ object AttributeClauses extends Constr {
 
   override def parseBody(builder: PsiBuilder): Unit = {
     while(BNF.firstAttributeClause.contains(builder.getTokenType)){
-      DebugPrint println ("attribute clause parse: " + builder.getTokenType)
       AttributeClause parse builder
     }
   }
@@ -202,8 +201,6 @@ object Attribute extends Constr{
     override def getElementType = ScalaElementTypes.TYPE_ARGS
 
     override def parseBody(builder: PsiBuilder): Unit = {
-      //Console.println("token type : " + builder.getTokenType())
-
       if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
 
@@ -290,7 +287,6 @@ object Attribute extends Constr{
       var numberOfModifiers = 0;
 
       while (BNF.firstModifier.contains(builder.getTokenType)) {
-        DebugPrint println ("modifiers parse: " + builder.getTokenType)
         Modifier parse builder
         numberOfModifiers = numberOfModifiers + 1
       }

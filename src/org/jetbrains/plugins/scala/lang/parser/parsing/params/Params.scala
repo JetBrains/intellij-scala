@@ -89,8 +89,6 @@ import org.jetbrains.plugins.scala.util.DebugPrint
           new ImplicitEnd[T](param).parse(builder)
         }
 
-        DebugPrint println ("param clauses: " + numberParamClauses)
-
         if (numberParamClauses > 1) paramClausesMarker.done(ScalaElementTypes.PARAM_CLAUSES)
         else paramClausesMarker.drop()
       }
@@ -112,7 +110,7 @@ import org.jetbrains.plugins.scala.util.DebugPrint
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
 
       } else {
-        builder error "expected '('"
+        builder error "'(' expected"
         return
       }
 
@@ -123,7 +121,7 @@ import org.jetbrains.plugins.scala.util.DebugPrint
       if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
       } else {
-        builder error "expected ')'"
+        builder error "')' expected"
         return
       }
     }
@@ -144,28 +142,28 @@ import org.jetbrains.plugins.scala.util.DebugPrint
         if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
         } else {
-          builder.error("expected '('")
+          builder.error("'(' expected")
           return
         }
 
         if (ScalaTokenTypes.kIMPLICIT.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kIMPLICIT)
         } else {
-          builder.error("expected 'implicit'")
+          builder.error("'implicit' expected")
           return
         }
 
         if (param.first.contains(builder.getTokenType())) {
           ParserUtils.listOfSmth(builder, param, ScalaTokenTypes.tCOMMA, ScalaElementTypes.PARAM_CLAUSE)
         } else {
-          builder.error("expected parameter or list of parameters")
+          builder.error("parameter or list of parameters expected")
           return
         }
 
         if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
         } else {
-          builder.error("expected ')'")
+          builder.error("')' expected")
           return
         }
       }
@@ -184,20 +182,20 @@ import org.jetbrains.plugins.scala.util.DebugPrint
        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
       } else {
-        builder error "expected identifier"
+        builder error "identifier expected"
         return
       }
 
       if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
          ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
       } else {
-        builder error "expected ':'"
+        builder error "':' expected"
       }
 
       if (BNF.firstParamType.contains(builder.getTokenType)){
         ParamType parse builder
       } else {
-        builder error "expected type parameter"
+        builder error "type parameter expected"
       }
     }
   }
@@ -207,8 +205,6 @@ import org.jetbrains.plugins.scala.util.DebugPrint
  */
 
   object ParamType extends ConstrUnpredict {
-//    override def getElementType : IElementType = ScalaElementTypes.PARAM_TYPE
-
     override def parseBody(builder : PsiBuilder) : Unit = {
       var paramTypeMarker = builder.mark
       var isParamType = false;
@@ -222,10 +218,9 @@ import org.jetbrains.plugins.scala.util.DebugPrint
          Type parse builder
          isParamType = false;
       } else {
-        builder error "expected type declaration"
+        builder error "type declaration expected"
       }
 
-      //if (ScalaTokenTypes.tSTAR.equals(builder.getTokenType)) {
       if ("*".equals(builder.getTokenText)) {
          ParserUtils.eatElement(builder, ScalaTokenTypes.tSTAR)
          isParamType = true;

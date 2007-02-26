@@ -107,20 +107,16 @@ object Template extends Constr{
       var isEnd = false;
 
       while (!builder.eof && !isEnd) {
-        DebugPrint println ("TemplateStatSeq: token " + builder.getTokenType)
 
         isLocalError = false
 
         while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
           StatementSeparator parse builder
-          DebugPrint println ("TemplateStatSeq: StatementSeparator parsed, token " + builder.getTokenType)
         }
 
         if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
           TemplateStat.parse(builder)
         }
-
-        DebugPrint println ("TemplateStatSeq - TemplateStat: token " + builder.getTokenType)
 
         if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) || builder.eof) {
           isEnd = true;
@@ -153,10 +149,6 @@ object Template extends Constr{
       var unstructuredTrashMarker : PsiBuilder.Marker = builder.mark;
 
       while (!builder.eof){
-//        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) || builder.eof) {
-//          unstructuredTrashMarker.drop
-//          return
-//        }
 
         if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
           TemplateStat parse builder
