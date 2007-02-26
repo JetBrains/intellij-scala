@@ -26,7 +26,7 @@ object ScalaPsiCreator {
     node.getElementType() match {
 
       /*****************************************************/
-      /********************* FILE **************************/
+      /************* COMPILATION UNIT **********************/
 
       case ScalaElementTypes.COMPILATION_UNIT => new ScCompilationUnit(node)
 
