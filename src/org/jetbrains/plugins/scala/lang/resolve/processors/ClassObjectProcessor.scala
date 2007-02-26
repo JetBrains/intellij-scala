@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.types._
 
 
 class ClassObjectResolveProcessor(myName: String, offset: Int) extends ScalaClassResolveProcessor(myName, offset) {
-
+                                 
   override val canBeObject = true
 
   override def execute(element: PsiElement, substitutor: PsiSubstitutor): Boolean = {
