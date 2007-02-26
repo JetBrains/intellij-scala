@@ -11,6 +11,10 @@ import org.jetbrains.plugins.scala.util.DebugPrint
 
 import com.intellij.lang.PsiBuilder
 
+/*
+ * Program parses all content in scala source file
+ */
+
 class Program extends ScalaTokenTypes {
 
   def parse(builder: PsiBuilder): Unit = {
@@ -20,30 +24,6 @@ class Program extends ScalaTokenTypes {
     // Debug print mode off
     DebugPrint.displayLog_=(false) 
 
-    def rollForward : Unit = {
-      while ( !builder.eof() && flag){
-         builder.getTokenType match{
-           case ScalaTokenTypes.tLINE_TERMINATOR
-           | ScalaTokenTypes.tSEMICOLON => builder.advanceLexer
-           case _ => flag = false
-         }
-      }
-      flag = true
-    }
-
-    def parseNext : Unit = {
-      while ( !builder.eof() ) {
-         rollForward
-
-         // Expression functionality testing
-         if (PostfixExpr.POSTFIX_FIRST.contains(builder.getTokenType)) {
-           PostfixExpr parse (builder)
-         } else builder advanceLexer
-
-       }
-    }
-
-    //compilation unit
     if ( !builder.eof() ){
       CompilationUnit.parse(builder)
     }
@@ -58,5 +38,4 @@ class Program extends ScalaTokenTypes {
     }
 
   }
-
 }
