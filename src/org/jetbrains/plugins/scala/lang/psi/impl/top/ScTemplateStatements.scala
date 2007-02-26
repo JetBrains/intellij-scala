@@ -95,7 +95,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
     }
   }
 
-                                                                                    
+
 
   /***************** definition ***********************/
 
@@ -144,7 +144,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
   case class ScFunctionDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunction with ScDefinition with IfElseIndent {
     override def toString: String = "function" + " " + super.toString
 
-//    override def getIcon(flags: Int) = Icons.METHOD
+    //    override def getIcon(flags: Int) = Icons.METHOD
   }
 
   /************** supplementary constructor ***************/

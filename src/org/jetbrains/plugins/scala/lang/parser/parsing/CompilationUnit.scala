@@ -44,18 +44,14 @@ import com.intellij.psi.tree.TokenSet
 
 
 object CompilationUnit extends ConstrWithoutNode {
-  override def parseBody (builder : PsiBuilder) : Unit = {
-
-    DebugPrint println "first token: " + builder.getTokenType
+  override def parseBody(builder: PsiBuilder): Unit = {
 
     if (ScalaTokenTypes.kPACKAGE.equals(builder.getTokenType)) {
       val packChooseMarker = builder.mark()
       builder.advanceLexer //Ate package
-      DebugPrint println "'package' ate"
 
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         QualId parse builder
-        DebugPrint println "quilId ate"
       } else {
         builder error "expected qualified identifier"
       }
@@ -79,44 +75,35 @@ object CompilationUnit extends ConstrWithoutNode {
 
     TopStatSeq parse builder
 
-    }
+  }
 
-/*
- *  TopStatSeq ::= TopStat {StatementSeparator TopStat}
- */
+  /*
+  *  TopStatSeq ::= TopStat {StatementSeparator TopStat}
+  */
 
   object TopStatSeq extends ConstrWithoutNode {
-    override def parseBody (builder: PsiBuilder): Unit = {
+    override def parseBody(builder: PsiBuilder): Unit = {
 
       var isLocalError = false;
       var isError = false;
       var isEnd = false;
-      var lexerOffset : Int = -1
+      var lexerOffset: Int = - 1
 
-      while (!builder.eof && !isEnd) {
+      while (! builder.eof && ! isEnd) {
         if (lexerOffset == builder.getCurrentOffset) {
           builder advanceLexer
         }
 
         lexerOffset = builder.getCurrentOffset
 
-        DebugPrint println ("TopStatSeq: token " + builder.getTokenType)
-
         isLocalError = false
 
         while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
           StatementSeparator parse builder
-          DebugPrint println ("TopStatSeq: StatementSeparator parsed, token " + builder.getTokenType)
         }
 
         if (BNF.firstTopStat.contains(builder.getTokenType)) {
           TopStat.parse(builder)
-        }
-
-        DebugPrint println ("TopStatSeq - TopStat: token " + builder.getTokenType)
-
-        if (ScalaTokenTypes.tWRONG.equals(builder.getTokenType)) {
-
         }
 
         if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) || builder.eof) {
@@ -124,36 +111,33 @@ object CompilationUnit extends ConstrWithoutNode {
           return
         }
 
-        if (/*!isEnd && */!BNF.firstStatementSeparator.contains(builder.getTokenType)) {
+        if (/*!isEnd && */! BNF.firstStatementSeparator.contains(builder.getTokenType)) {
           isLocalError = true;
           builder error "top statement declaration error"
 
-           builder.getTokenType match {
-              case ScalaTokenTypes.tRBRACE |
-                   ScalaTokenTypes.tRSQBRACKET |
-                   ScalaTokenTypes.tRPARENTHIS  => return
+          builder.getTokenType match {
+            case ScalaTokenTypes.tRBRACE |
+              ScalaTokenTypes.tRSQBRACKET |
+              ScalaTokenTypes.tRPARENTHIS  => return
 
-              case _ => {}
-            }
+            case _ => {}
+          }
 
 
-          if (!BNF.firstTopStat.contains(builder.getTokenType)) {
+          if (! BNF.firstTopStat.contains(builder.getTokenType)) {
             tryParseSmth(builder)
           }
         }
-       isError = isError || isLocalError
+        isError = isError || isLocalError
       }
     }
-    def tryParseSmth (builder : PsiBuilder) : Unit = {
+    def tryParseSmth(builder: PsiBuilder): Unit = {
       var isAfterBlock = false;
-      var unstructuredTrashMarker : PsiBuilder.Marker = builder.mark;
+      var unstructuredTrashMarker: PsiBuilder.Marker = builder.mark;
 
-      var lexerOffset : Int = -1
-      while (!builder.eof){
-//        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) || builder.eof) {
-//          unstructuredTrashMarker.drop
-//          return
-//        }
+      var lexerOffset: Int = - 1
+      while (! builder.eof){
+
         if (lexerOffset == builder.getCurrentOffset) {
           builder advanceLexer
         }
@@ -165,32 +149,25 @@ object CompilationUnit extends ConstrWithoutNode {
         } else {
 
           builder.getTokenType match {
-            case ScalaTokenTypes.tLBRACE => unstructuredTrashMarker.done(ScalaElementTypes.TRASH); parseTopStatSeqInBlock(builder); return;//unstructuredTrashMarker = builder.mark
-//            case ScalaTokenTypes.tLSQBRACKET => unstructuredTrashMarker.done(ScalaElementTypes.TRASH); parseTypeParamInBlock(builder); return;//unstructuredTrashMarker = builder.mark
-//            case ScalaTokenTypes.tLPARENTHIS => unstructuredTrashMarker.done(ScalaElementTypes.TRASH); parseParamsInBlock(builder); return;//unstructuredTrashMarker = builder.mark
+            case ScalaTokenTypes.tLBRACE => unstructuredTrashMarker.done(ScalaElementTypes.TRASH); parseTopStatSeqInBlock(builder); return;
+            //            case ScalaTokenTypes.tLSQBRACKET => unstructuredTrashMarker.done(ScalaElementTypes.TRASH); parseTypeParamInBlock(builder); return;
+            //            case ScalaTokenTypes.tLPARENTHIS => unstructuredTrashMarker.done(ScalaElementTypes.TRASH); parseParamsInBlock(builder); return;
             case _ => {builder.advanceLexer}
           }
         }
-//        unstructuredTrashMarker.drop
+        //        unstructuredTrashMarker.drop
       }
 
       unstructuredTrashMarker.drop
     }
 
-//    def parseTypeParamInBlock (builder : PsiBuilder) : Unit = {
-//      if (!ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)) return
-//
-//      if (BNF.firstTypeParam.contains(builder.getTokenType))
-//        new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder
-//    }
-
-    def parseTopStatSeqInBlock (builder : PsiBuilder) : Unit = {
+    def parseTopStatSeqInBlock(builder: PsiBuilder): Unit = {
       val trashBlockMarker = builder.mark
 
       builder.getTokenType match {
         case ScalaTokenTypes.tLBRACE |
-             ScalaTokenTypes.tLSQBRACKET |
-             ScalaTokenTypes.tLPARENTHIS => builder.advanceLexer
+          ScalaTokenTypes.tLSQBRACKET |
+          ScalaTokenTypes.tLPARENTHIS => builder.advanceLexer
 
         case _ => {builder error "expected open brace"; trashBlockMarker.drop; return}
       }
@@ -199,8 +176,8 @@ object CompilationUnit extends ConstrWithoutNode {
 
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE |
-             ScalaTokenTypes.tRSQBRACKET |
-             ScalaTokenTypes.tRPARENTHIS  => builder.advanceLexer
+          ScalaTokenTypes.tRSQBRACKET |
+          ScalaTokenTypes.tRPARENTHIS  => builder.advanceLexer
 
         case _ => {}
       }
@@ -208,165 +185,12 @@ object CompilationUnit extends ConstrWithoutNode {
       trashBlockMarker.done(ScalaElementTypes.TRASH)
     }
   }
+
   /*
-    def tryParseTopStat (builder : PsiBuilder) : Unit = {
-
-      var sqBraquetsCounter = 0;
-      var parenthisCounter = 0;
-      var bracesCounter = 0;
-
-//      var isParsedTopStat = false;
-//      var isParsedBlock = false;
-
-      while (!builder.eof()) {
-        var isInBlock = false;
-
-//        val unstructuredTrashMarker = builder.mark
-
-        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
-//          unstructuredTrashMarker.drop
-          return
-        }
-
-        while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
-          StatementSeparator parse builder
-          DebugPrint println ("TopStatSeq: StatementSeparator parsed, token " + builder.getTokenType)
-       }
-
-        var trashMarker : PsiBuilder.Marker = null
-
-        if (BNF.firstTopStat.contains(builder.getTokenType)) {
-          TopStat parse builder
-//          isParsedTopStat = true
-        } else {
-
-
-          builder error "expected top statement"
-          builder.getTokenType match {
-            case ScalaTokenTypes.tLBRACE => bracesCounter = bracesCounter + 1
-            case ScalaTokenTypes.tRBRACE => bracesCounter = bracesCounter - 1
-
-            case ScalaTokenTypes.tLSQBRACKET => sqBraquetsCounter = sqBraquetsCounter + 1
-            case ScalaTokenTypes.tRSQBRACKET => sqBraquetsCounter = sqBraquetsCounter - 1
-
-            case ScalaTokenTypes.tLPARENTHIS => parenthisCounter = parenthisCounter + 1
-            case ScalaTokenTypes.tRPARENTHIS => parenthisCounter = parenthisCounter - 1
-
-            case _ => {}
-          }
-          isInBlock = (bracesCounter > 0 || parenthisCounter > 0 || bracesCounter > 0)
-
-          if (isInBlock) (trashMarker = builder.mark)
-
-          builder.advanceLexer
-        }
-
-
-        if (isInBlock) {
-//         unstructuredTrashMarker.done(ScalaElementTypes.TRASH)
-
-//         val trashMarker = builder.mark
-
-          while(!builder.eof && isInBlock) {
-          DebugPrint println ("inBlock: " + builder.getTokenType)
-
-          while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
-                  StatementSeparator parse builder
-                  DebugPrint println ("TopStatSeq: StatementSeparator parsed, token " + builder.getTokenType)
-          }
-
-            if (BNF.firstTopStat.contains(builder.getTokenType)) {
-//              val offset = builder.getCurrentOffset
-              TopStat parse builder
-  //            isParsedTopStat = true
-
-//             if (builder.getCurrentOffset == offset) return
-
-            } else {
-              builder error "expected top statement"
-              builder.getTokenType match {
-                case ScalaTokenTypes.tLBRACE => bracesCounter = bracesCounter + 1
-                case ScalaTokenTypes.tRBRACE => bracesCounter = bracesCounter - 1
-
-                case ScalaTokenTypes.tLSQBRACKET => sqBraquetsCounter = sqBraquetsCounter + 1
-                case ScalaTokenTypes.tRSQBRACKET => sqBraquetsCounter = sqBraquetsCounter - 1
-
-                case ScalaTokenTypes.tLPARENTHIS => parenthisCounter = parenthisCounter + 1
-                case ScalaTokenTypes.tRPARENTHIS => parenthisCounter = parenthisCounter - 1
-
-                case _ => {}
-              }
-
-              isInBlock = (bracesCounter > 0 || parenthisCounter > 0 || bracesCounter > 0)
-
-              builder.advanceLexer
-            }
-          }
-
-          trashMarker.done(ScalaElementTypes.TRASH)
-        }
-        return
-//        if (builder.eof) unstructuredTrashMarker.drop
-
-      }
-
-
-
-        if (!isParsedTopStat) {
-          if (BNF.firstTopStat.contains(builder.getTokenType)) {
-            TopStat parse builder
-            isParsedTopStat = true
-          } else {
-
-            builder.getTokenType match {
-              case ScalaTokenTypes.tLBRACE => bracesCounter = bracesCounter + 1
-              case ScalaTokenTypes.tRBRACE => bracesCounter = bracesCounter - 1
-
-              case ScalaTokenTypes.tLSQBRACKET => sqBraquetsCounter + 1
-              case ScalaTokenTypes.tRSQBRACKET => sqBraquetsCounter - 1
-
-              case ScalaTokenTypes.tLPARENTHIS => parenthisCounter + 1
-              case ScalaTokenTypes.tRPARENTHIS => parenthisCounter - 1
-
-              case _ => {}
-            }
-            builder.advanceLexer
-          }
-
-        } else {
-
-          while (!builder.eof && (bracesCounter > 0 || parenthisCounter > 0 || bracesCounter > 0)) {
-             builder.getTokenType match {
-              case ScalaTokenTypes.tLBRACE => bracesCounter = bracesCounter + 1
-              case ScalaTokenTypes.tRBRACE => bracesCounter = bracesCounter - 1
-
-              case ScalaTokenTypes.tLSQBRACKET => sqBraquetsCounter + 1
-              case ScalaTokenTypes.tRSQBRACKET => sqBraquetsCounter - 1
-
-              case ScalaTokenTypes.tLPARENTHIS => parenthisCounter + 1
-              case ScalaTokenTypes.tRPARENTHIS => parenthisCounter - 1
-
-              case _ => {}
-            }
-            builder.advanceLexer
-          }
-
-          isParsedBlock = (bracesCounter == 0 && parenthisCounter == 0 && bracesCounter == 0)
-
-          //parse only 1 topStat. think about more
-        }
-      }
-
-      trashMarker.done(ScalaElementTypes.TRASH)
-      */
-//    }
-//  }
-
-/*
- *  TopStat ::= {AttributeClause} {Modifier} TmplDef
- *            | Import
- *            | Packaging
- */
+  *  TopStat ::= {AttributeClause} {Modifier} TmplDef
+  *            | Import
+  *            | Packaging
+  */
 
   object TopStat {
 
@@ -413,7 +237,7 @@ object CompilationUnit extends ConstrWithoutNode {
 
       var isTmpl = isAttrClauses || isModifiers;
 
-      if (isTmpl && !(ScalaTokenTypes.kCASE.equals(builder.getTokenType) || BNF.firstTmplDef.contains(builder.getTokenType))) {
+      if (isTmpl && ! (ScalaTokenTypes.kCASE.equals(builder.getTokenType) || BNF.firstTmplDef.contains(builder.getTokenType))) {
         builder.error("wrong type declaration")
         tmplDefMarker.drop()
         return
@@ -430,94 +254,88 @@ object CompilationUnit extends ConstrWithoutNode {
     }
   }
 
-/*
- *  [package QualId StatementSeparator]
- */
+  /*
+  *  [package QualId StatementSeparator]
+  */
 
-    object Package extends Constr {
-      override def getElementType = ScalaElementTypes.PACKAGE_STMT
+  object Package extends Constr {
+    override def getElementType = ScalaElementTypes.PACKAGE_STMT
 
-      override def parseBody(builder: PsiBuilder): Unit = {
+    override def parseBody(builder: PsiBuilder): Unit = {
 
-        if (ScalaTokenTypes.kPACKAGE.equals(builder.getTokenType)) {
-          builder.advanceLexer //Ate package
-          DebugPrint println "'package' ate"
-        } else {
-          builder error "expected 'package'"
-          return
-        }
+      if (ScalaTokenTypes.kPACKAGE.equals(builder.getTokenType)) {
+        builder.advanceLexer //Ate package
+        DebugPrint println "'package' ate"
+      } else {
+        builder error "expected 'package'"
+        return
+      }
 
-        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-          QualId parse builder
-          DebugPrint println "qualId ate"
-        }
+      if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+        QualId parse builder
+        DebugPrint println "qualId ate"
+      }
 
-        if (BNF.firstStatementSeparator.contains(builder.getTokenType)){
-          StatementSeparator parse builder
-        } else {
-          builder error "expected statement separator"
-          return
-        }
+      if (BNF.firstStatementSeparator.contains(builder.getTokenType)){
+        StatementSeparator parse builder
+      } else {
+        builder error "expected statement separator"
+        return
       }
     }
+  }
 
-/*
- *  Packaging ::= package QualId ‘{’ TopStatSeq ‘}’
- */
+  /*
+  *  Packaging ::= package QualId ‘{’ TopStatSeq ‘}’
+  */
 
-    object Packaging extends Constr {
-      override def getElementType = ScalaElementTypes.PACKAGING
+  object Packaging extends Constr {
+    override def getElementType = ScalaElementTypes.PACKAGING
 
-      override def parseBody(builder: PsiBuilder) : Unit = {
+    override def parseBody(builder: PsiBuilder): Unit = {
 
-        if (ScalaTokenTypes.kPACKAGE.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.kPACKAGE)
-        } else {
-          builder.error("expected 'package'")
-          return
-        }
+      if (ScalaTokenTypes.kPACKAGE.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.kPACKAGE)
+      } else {
+        builder.error("expected 'package'")
+        return
+      }
 
-        if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-          QualId parse builder
-          DebugPrint println "quilId ate"
-        } else {
-          builder error "expected qualified identifier"
-        }
+      if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+        QualId parse builder
+        DebugPrint println "quilId ate"
+      } else {
+        builder error "expected qualified identifier"
+      }
 
-//        var packageBlockMarker = builder.mark
-        if ( ScalaTokenTypes.tLBRACE.equals(builder.getTokenType) ){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
-        } else {
-          builder.error("expected '{'")
-//          packageBlockMarker.drop
-          return
-        }
+      if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)){
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
+      } else {
+        builder.error("expected '{'")
+        return
+      }
 
-        TopStatSeq parse builder
+      TopStatSeq parse builder
 
-        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
-//          packageBlockMarker.done(ScalaElementTypes.PACKAGING_BLOCK)
+      if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
 
-        } else {
-          builder.error("expected '}'")
-//          packageBlockMarker.drop
-          return
-        }
+      } else {
+        builder.error("expected '}'")
+        return
       }
     }
+  }
 
 
-/*
- *  QualId ::= id {‘.’ id}
- */
+  /*
+  *  QualId ::= id {‘.’ id}
+  */
 
-    object QualId extends Constr {
-      override def getElementType = ScalaElementTypes.QUAL_ID
-      override def parseBody(builder : PsiBuilder) : Unit = {
-       //todo: change to simple qualID
-       //StableId.parse(builder)
-       Qual_Id.parse(builder)
-      }
+  object QualId extends Constr {
+    override def getElementType = ScalaElementTypes.QUAL_ID
+    override def parseBody(builder: PsiBuilder): Unit = {
+      Qual_Id.parse(builder)
     }
+  }
 }

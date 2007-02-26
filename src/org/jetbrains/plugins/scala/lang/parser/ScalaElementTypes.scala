@@ -307,102 +307,100 @@ object ScalaElementTypes {
   val TMPL_DEF_BIT_SET = TokenSet.create(Array.apply(OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
 
   val TMPL_OR_TYPE_BIT_SET = TokenSet.create(Array.apply(OBJECT_DEF,
-          CLASS_DEF,
-          TRAIT_DEF,
-          TYPE_DEFINITION,
-          TYPE_DECLARATION))
+      CLASS_DEF,
+      TRAIT_DEF,
+      TYPE_DEFINITION,
+      TYPE_DECLARATION))
 
 
   val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create(Array.apply(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
 
   val TMPL_STMT_BIT_SET = TokenSet.create(Array.apply(PATTERN_DEFINITION,
-          VARIABLE_DEFINITION,
-          TYPE_DEFINITION,
-          FUNCTION_DEFINITION,
-          VALUE_DECLARATION,
-          VARIABLE_DECLARATION,
-          FUNCTION_DECLARATION,
-          TYPE_DECLARATION,
-          SUPPLEMENTARY_CONSTRUCTOR
-    )
-  )
+      VARIABLE_DEFINITION,
+      TYPE_DEFINITION,
+      FUNCTION_DEFINITION,
+      VALUE_DECLARATION,
+      VARIABLE_DECLARATION,
+      FUNCTION_DECLARATION,
+      TYPE_DECLARATION,
+      SUPPLEMENTARY_CONSTRUCTOR))
 
   //todo: add cases
   val EXPR1_BIT_SET: TokenSet = TokenSet.create(Array.apply(IF_STMT,
-          FOR_STMT,
-          WHILE_STMT,
-          DO_STMT,
-          TRY_STMT,
-          TRY_BLOCK,
-          CATCH_BLOCK,
-          FINALLY_BLOCK,
-          RETURN_STMT,
-          METHOD_CLOSURE,
-          THROW_STMT,
-          ASSIGN_STMT,
-          MATCH_STMT,
-          TYPED_EXPR_STMT,
+      FOR_STMT,
+      WHILE_STMT,
+      DO_STMT,
+      TRY_STMT,
+      TRY_BLOCK,
+      CATCH_BLOCK,
+      FINALLY_BLOCK,
+      RETURN_STMT,
+      METHOD_CLOSURE,
+      THROW_STMT,
+      ASSIGN_STMT,
+      MATCH_STMT,
+      TYPED_EXPR_STMT,
+      POSTFIX_EXPR,
+      INFIX_EXPR,
+      SIMPLE_EXPR,
+      PREFIX_EXPR))
+
+  val STABLE_ID_BIT_SET = TokenSet.create(Array(STABLE_ID,
+      ScalaTokenTypes.tIDENTIFIER))
+
+  val TYPE_BIT_SET: TokenSet = TokenSet.orSet(Array(STABLE_ID_BIT_SET,
+      TokenSet.create(Array.apply(SIMPLE_TYPE,
+          COMPOUND_TYPE,
+          INFIX_TYPE,
+          TYPE,
+          TYPES,
+          COMPOSITE_TYPE))))
+
+  val EXPRESSION_BIT_SET = TokenSet.orSet(Array(EXPR1_BIT_SET,
+      TokenSet.create(Array.apply(LITERAL,
+          STRING_LITERAL,
+          BOOLEAN_LITERAL,
+          PREFIX_EXPR,
+          PREFIX,
           POSTFIX_EXPR,
           INFIX_EXPR,
           SIMPLE_EXPR,
-          PREFIX_EXPR))
-
-  val STABLE_ID_BIT_SET = TokenSet.create(Array(STABLE_ID,
-          ScalaTokenTypes.tIDENTIFIER))
-
-  val TYPE_BIT_SET: TokenSet = TokenSet.orSet(Array(STABLE_ID_BIT_SET,
-          TokenSet.create(Array.apply(SIMPLE_TYPE,
-                  COMPOUND_TYPE,
-                  INFIX_TYPE,
-                  TYPE,
-                  TYPES,
-                  COMPOSITE_TYPE))))
-
-  val EXPRESSION_BIT_SET = TokenSet.orSet(Array(EXPR1_BIT_SET,
-          TokenSet.create(Array.apply(LITERAL,
-                  STRING_LITERAL,
-                  BOOLEAN_LITERAL,
-                  PREFIX_EXPR,
-                  PREFIX,
-                  POSTFIX_EXPR,
-                  INFIX_EXPR,
-                  SIMPLE_EXPR,
-                  EXPR1,
-                  EXPR,
-                  RESULT_EXPR,
-                  AN_FUN,
-                  BINDING,
-                  GENERATOR,
-                  ENUMERATOR,
-                  ENUMERATORS,
-                  BINDINGS,
-                  EXPRS,
-                  ARG_EXPRS,
-                  ARG_EXPRS_LIST,
-                  BLOCK_EXPR,
-                  ERROR_STMT,
-                  BLOCK,
-                  BLOCK_STAT))))
+          EXPR1,
+          EXPR,
+          RESULT_EXPR,
+          AN_FUN,
+          BINDING,
+          GENERATOR,
+          ENUMERATOR,
+          ENUMERATORS,
+          BINDINGS,
+          EXPRS,
+          ARG_EXPRS,
+          ARG_EXPRS_LIST,
+          BLOCK_EXPR,
+          ERROR_STMT,
+          BLOCK,
+          BLOCK_STAT))))
 
   val SIMPLE_EXPR_BIT_SET = TokenSet.create(Array.apply(SIMPLE_EXPR,
-          LITERAL,
-          PATH,
-          BLOCK_EXPR))
+      LITERAL,
+      PATH,
+      BLOCK_EXPR))
 
   val XML_PATTERN_BIT_SET = TokenSet.create(Array())
 
   val SIMPLE_PATTERN_BIT_SET = TokenSet.orSet(Array(XML_PATTERN_BIT_SET,
-    TokenSet.create(Array.apply(SIMPLE_PATTERN, SIMPLE_PATTERN1, STABLE_ID, ScalaTokenTypes.tUNDER, LITERAL, UNIT, ScalaTokenTypes.tIDENTIFIER))))
+      TokenSet.create(Array.apply(SIMPLE_PATTERN, SIMPLE_PATTERN1, STABLE_ID, ScalaTokenTypes.tUNDER, LITERAL, UNIT, ScalaTokenTypes.tIDENTIFIER))))
 
   val PATTERN3_BIT_SET = TokenSet.orSet(Array(SIMPLE_PATTERN_BIT_SET,
-    TokenSet.create(Array.apply(PATTERN3))))
+      TokenSet.create(Array.apply(PATTERN3))))
 
   val PATTERN2_BIT_SET = TokenSet.orSet(Array(PATTERN3_BIT_SET,
-    TokenSet.create(Array.apply(PATTERN2, STABLE_ID))))
+      TokenSet.create(Array.apply(PATTERN2, STABLE_ID))))
 
   val PATTERN1_BIT_SET = TokenSet.orSet(Array(PATTERN2_BIT_SET,
-          TokenSet.create(Array.apply(PATTERN1, STABLE_ID, ScalaTokenTypes.tUNDER))))
+      TokenSet.create(Array.apply(PATTERN1, STABLE_ID, ScalaTokenTypes.tUNDER))))
 
   val PATTERN_BIT_SET = TokenSet.orSet(Array(PATTERN1_BIT_SET,
-          TokenSet.create(Array.apply(PATTERN))))
+      TokenSet.create(Array.apply(PATTERN))))
 }

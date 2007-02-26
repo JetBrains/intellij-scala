@@ -13,41 +13,39 @@ import com.intellij.psi.tree.TokenSet
  * Construction is a node in PSI tree; type of node added from getElementType method
  */
 
-class FFF
-
 abstract class Constr {
-   def parse (builder : PsiBuilder ) : Unit = {
-     if (!builder.eof()) {
-       val marker = builder.mark()
-       parseBody(builder)
-       marker.done(getElementType)
-     } else builder error "unexpected end of file"  
-   }
+  def parse(builder: PsiBuilder): Unit = {
+    if (! builder.eof()) {
+      val marker = builder.mark()
+      parseBody(builder)
+      marker.done(getElementType)
+    } else builder error "unexpected end of file"
+  }
 
-   def getElementType : IElementType
-   def parseBody (builder : PsiBuilder) : Unit
+  def getElementType: IElementType
+  def parseBody(builder: PsiBuilder): Unit
 
 }
 
 trait Item {
-   def first : TokenSet
+  def first: TokenSet
 }
 
 trait ConstrItem extends Constr with Item {
 }
- 
+
 /*
- * Construction is a node in PSI tree; type defines in parseBody method
- */
+* Construction is a node in PSI tree; type defines in parseBody method
+*/
 
 abstract class ConstrUnpredict {
-  def parse (builder : PsiBuilder ) : Unit = {
-    if (!builder.eof()) {
-       parseBody(builder)
+  def parse(builder: PsiBuilder): Unit = {
+    if (! builder.eof()) {
+      parseBody(builder)
     } else builder error "unexpected end of file"
   }
 
-   def parseBody (builder : PsiBuilder) : Unit
+  def parseBody(builder: PsiBuilder): Unit
 }
 
 /*
@@ -55,8 +53,8 @@ abstract class ConstrUnpredict {
  */
 
 abstract class ConstrReturned {
-  def parse (builder : PsiBuilder ) : IElementType = {
-    if (!builder.eof()) {
+  def parse(builder: PsiBuilder): IElementType = {
+    if (! builder.eof()) {
       parseBody(builder)
     } else {
       builder error "unexpected end of file"
@@ -64,7 +62,7 @@ abstract class ConstrReturned {
     }
   }
 
-   def parseBody (builder : PsiBuilder) : IElementType
+  def parseBody(builder: PsiBuilder): IElementType
 }
 
 /*
@@ -72,11 +70,11 @@ abstract class ConstrReturned {
  */
 
 abstract class ConstrWithoutNode {
-  def parse (builder : PsiBuilder ) : Unit = {
-   if (!builder.eof()) {
-     parseBody(builder)
-   } else builder error "unexpected end of file"
+  def parse(builder: PsiBuilder): Unit = {
+    if (! builder.eof()) {
+      parseBody(builder)
+    } else builder error "unexpected end of file"
   }
 
-  def parseBody (builder : PsiBuilder) : Unit
+  def parseBody(builder: PsiBuilder): Unit
 }

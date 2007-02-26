@@ -52,7 +52,6 @@ class Program extends ScalaTokenTypes {
       val trashMarker = builder.mark
       while (!builder.eof()) {
         builder error "out of compilation unit"
-        DebugPrint println ("after TopStatSeq: " + builder.getTokenType)
         builder.advanceLexer
       }
       trashMarker.done(ScalaElementTypes.TRASH)
