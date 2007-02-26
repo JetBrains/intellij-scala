@@ -21,6 +21,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
+/*
+ * Surrounds an expression and return an expression
+ */
+
 abstract class ScalaExpressionSurrounder extends ScalaSurrounderByExpression {
   override def isApplicable(element : PsiElement) : Boolean = {
     element match {

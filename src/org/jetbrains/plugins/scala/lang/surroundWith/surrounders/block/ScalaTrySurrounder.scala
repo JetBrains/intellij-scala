@@ -12,6 +12,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 
+/*
+ * Surrounds block with try: try { Block } <Cursor>
+ */
+
 class ScalaWithTrySurrounder extends ScalaBlockSurrounder {
 
   override def getExpressionTemplateAsString (expr : ASTNode) = {

@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
 /*
- * ScalaWithDoWhileSurrounder sourrounds expression by do - while construction
-*/
+ * Surrounds expression with do - while: do { Expression } while { <Cursor> }
+ */
 
 class ScalaWithDoWhileSurrounder extends ScalaExpressionSurrounder {
   override def getExpressionTemplateAsString (expr : ASTNode) = {

@@ -12,6 +12,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 
+/*
+ * Surrounds expression with for: for { <Cursor> } yield Expression
+ */
+
 class ScalaWithForSurrounder extends ScalaExpressionSurrounder {
 
   override def getExpressionTemplateAsString (expr : ASTNode ) =

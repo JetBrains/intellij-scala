@@ -12,6 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
+/*
+ * Surrounds expression with { } and if: if { <Cursor> } { Expression }
+ */
+
 class ScalaWithIfBracesSurrounder extends ScalaWithIfSurrounder {
   override def getExpressionTemplateAsString (expr : ASTNode) =
     if (!isNeedBraces(expr)) "if (a) " + "{" + "\n" + expr.getText + "\n" + "}"
