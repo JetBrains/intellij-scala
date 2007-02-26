@@ -19,4 +19,4 @@ trait ScalaPsiScopeProcessor extends PsiScopeProcessor {
 
   def setResult(result: PsiElement): Unit
 
-}
+ }
