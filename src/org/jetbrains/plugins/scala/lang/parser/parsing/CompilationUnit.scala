@@ -53,7 +53,7 @@ object CompilationUnit extends ConstrWithoutNode {
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         QualId parse builder
       } else {
-        builder error "expected qualified identifier"
+        builder error "qualified identifier expected"
       }
 
       var lastTokenInPackage = builder.getTokenType
@@ -170,7 +170,7 @@ object CompilationUnit extends ConstrWithoutNode {
           ScalaTokenTypes.tLSQBRACKET |
           ScalaTokenTypes.tLPARENTHIS => builder.advanceLexer
 
-        case _ => {builder error "expected open brace"; trashBlockMarker.drop; return}
+        case _ => {builder error "open brace expected"; trashBlockMarker.drop; return}
       }
 
       TopStatSeq parse builder
@@ -267,7 +267,7 @@ object CompilationUnit extends ConstrWithoutNode {
       if (ScalaTokenTypes.kPACKAGE.equals(builder.getTokenType)) {
         builder.advanceLexer //Ate package
       } else {
-        builder error "expected 'package'"
+        builder error "'package' expected"
         return
       }
 
@@ -278,7 +278,7 @@ object CompilationUnit extends ConstrWithoutNode {
       if (BNF.firstStatementSeparator.contains(builder.getTokenType)){
         StatementSeparator parse builder
       } else {
-        builder error "expected statement separator"
+        builder error "statement separator expected"
         return
       }
     }
@@ -296,20 +296,20 @@ object CompilationUnit extends ConstrWithoutNode {
       if (ScalaTokenTypes.kPACKAGE.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kPACKAGE)
       } else {
-        builder.error("expected 'package'")
+        builder.error("'package' expected")
         return
       }
 
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         QualId parse builder
       } else {
-        builder error "expected qualified identifier"
+        builder error "qualified identifier expected"
       }
 
       if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
       } else {
-        builder.error("expected '{'")
+        builder.error("'{' expected")
         return
       }
 
@@ -319,7 +319,7 @@ object CompilationUnit extends ConstrWithoutNode {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
 
       } else {
-        builder.error("expected '}'")
+        builder.error("'}' expected")
         return
       }
     }

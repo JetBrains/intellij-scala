@@ -35,7 +35,7 @@ object Template extends Constr{
   override def parseBody (builder : PsiBuilder) : Unit = {
     if (BNF.firstTemplateParents.contains(builder.getTokenType)){
       new TemplateParents parse builder
-    } else builder error "expected template parents"
+    } else builder error "template parents expected"
 
     if (BNF.firstTemplateBody.contains(builder.getTokenType)){
       TemplateBody parse builder
@@ -55,7 +55,7 @@ object Template extends Constr{
     override def parseBody(builder : PsiBuilder) : Unit = {
       if (BNF.firstTemplateParents.contains(builder.getTokenType)) {
         Constructor.parse(builder)
-      } else builder.error("expected identifier")
+      } else builder.error("identifier expected")
 
       while (ScalaTokenTypes.kWITH.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kWITH)
@@ -75,12 +75,10 @@ object Template extends Constr{
     override def getElementType = ScalaElementTypes.TEMPLATE_BODY
 
     override def parseBody(builder : PsiBuilder) : Unit = {
-      DebugPrint println ("templateBody: " + builder.getTokenType)
-
       if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
       } else {
-        builder error "expected '{'"
+        builder error "'{' expected"
         return
       }
 
@@ -91,7 +89,7 @@ object Template extends Constr{
       if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
       } else {
-        builder error "expected '}'"
+        builder error "'}' expected"
         return
       }
     }
@@ -101,54 +99,7 @@ object Template extends Constr{
  *  TemplateStatSeq ::= [TemplateStat] {StatementSeparator [TemplateStat}]
  */
 
- /*
   object TemplateStatSeq extends ConstrWithoutNode {
-    override def parseBody(builder : PsiBuilder) : Unit = {
-
-      var isError = false;
-      var isEnd = false;
-      while (!builder.eof && !isError && !isEnd) {
-
-        isError = false
-
-        while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
-          StatementSeparator parse builder
-          DebugPrint println ("TemplateStatSeq: StatementSeparator parse " + builder.getTokenType)
-        }
-
-        //todo: it needs guarant, that TemplteStat.parse advance lexer not less than 1 token
-
-        if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
-          TemplateStat.parse(builder)
-        }
-
-        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) || builder.eof) {
-          isEnd = true;
-        }
-
-        if (!isEnd && !BNF.firstStatementSeparator.contains(builder.getTokenType)) {
-          isError = true;
-          builder error "expected line teminator or '}'"
-
-           if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
-            isError = false;
-          }
-
-          if (ScalaTokenTypes.tWRONG.equals(builder.getTokenType)) {
-            while (!builder.eof && (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)
-                || ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType)
-                || ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType))) {
-              builder.advanceLexer
-            }
-          }
-        }
-
-        DebugPrint println ("TemplateStatSeq: token " + builder.getTokenType)
-       } 
-    }
-  } */
-
-   object TemplateStatSeq extends ConstrWithoutNode {
     override def parseBody (builder: PsiBuilder): Unit = {
 
       var isLocalError = false;
@@ -229,7 +180,7 @@ object Template extends Constr{
              ScalaTokenTypes.tLSQBRACKET |
              ScalaTokenTypes.tLPARENTHIS => builder.advanceLexer
 
-        case _ => {builder error "expected open brace"; trashBlockMarker.drop; return}
+        case _ => {builder error "open brace expected"; trashBlockMarker.drop; return}
       }
 
       TemplateStatSeq parse builder
@@ -268,16 +219,12 @@ object Template extends Constr{
 
         var isDefOrDcl = false
         while(BNF.firstAttributeClause.contains(builder.getTokenType)) {
-         //Console.println("attribute clause invoke")
          AttributeClause parse builder
-         //Console.println("attribute clause invoked")
          isDefOrDcl = true
         }
 
         while(BNF.firstModifier.contains(builder.getTokenType)) {
-         //Console.println("modifier clause invoke")
          Modifiers parse builder
-         //Console.println("modifier clause invoked")
          isDefOrDcl = true
         }
 
@@ -288,7 +235,7 @@ object Template extends Constr{
               statementDefDclMarker.done(defOrDclElement)
           } else {
             //error, because def or dcl must be defined after attributeClause or Modifier
-            builder error "expected definition or declaration"
+            builder error "definition or declaration expected"
             statementDefDclMarker.drop
           }
 

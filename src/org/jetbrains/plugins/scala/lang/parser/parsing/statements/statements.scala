@@ -99,7 +99,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
             defMarker.done(candidateOnDefElement)
           }
           case _ => {
-            builder error "expected definition"
+            builder error "definition expected"
             defMarker.drop
             return
           }
@@ -124,7 +124,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
             dclMarker.done(candidateOnDclElement)
           }
           case _ => {
-            builder error "expected declaration"
+            builder error "declaration expected"
             dclMarker.drop
             return
           }
@@ -143,7 +143,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         Ids parse builder
       } else {
-        builder error "expected identifier"
+        builder error "identifier expected "
       }
 
       var hasTypeDcl = false
@@ -153,7 +153,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         if (BNF.firstType.contains(builder.getTokenType)) {
           Type parse builder
         } else {
-          builder error "expected type declaration"
+          builder error "type declaration expected"
         }
 
         hasTypeDcl = true
@@ -196,7 +196,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
       if (BNF.firstPattern2.contains(builder.getTokenType)){
         (new Pattern2()).parse(builder)
       } else {
-        builder error "expected pattern"
+        builder error "pattern expected"
         pattern2sMarker.drop()
         return ScalaElementTypes.WRONGWAY
       }
@@ -211,7 +211,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
           numberOfPattern2s = numberOfPattern2s + 1;
 
         } else {
-          builder error "expected pattern"
+          builder error "pattern expected"
           pattern2sMarker.drop()
           return ScalaElementTypes.WRONGWAY
         }
@@ -228,7 +228,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         if (BNF.firstType.contains(builder.getTokenType)) {
           Type parse builder
         } else {
-          builder error "expected type declaration"
+          builder error "type declaration expected"
         }
 
         hasTypeDcl = true
@@ -291,14 +291,13 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
 
         if (ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
-          DebugPrint println ("parsing expression after '=' : " + builder.getTokenType)
           if (BNF.firstExpr.contains(builder.getTokenType)) {
             Expr parse builder
           } else {
             builder error "wrong start of expression"
           }
           return ScalaElementTypes.FUNCTION_DEFINITION
-          // May be procedure - without '='
+          // procedure may be - without '='
         } else if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)){
           val bm = builder.mark()
           builder.advanceLexer()
@@ -336,14 +335,14 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
       if (ScalaTokenTypes.kTHIS.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kTHIS)
       } else {
-        builder error "Function definition expected"
+        builder error "function definition expected"
         return
       }
 
       if (BNF.firstParamClause.contains(builder.getTokenType)) {
         new ParamClause[FunParam] (new FunParam) parse builder
       } else {
-        builder error "Parameter clause declaration expected"
+        builder error "parameter clause declaration expected"
         return
       }
 
@@ -361,7 +360,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
       if (BNF.firstConstrExpr.contains(builder.getTokenType)) {
         ConstrExpr parse builder
       } else {
-        builder error "Contructor expression expected"
+        builder error "contructor expression expected"
         return
       }
 
@@ -382,7 +381,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
       } else {
-        builder error "expected identifier"
+        builder error "identifier expected"
       }
 
       var isTypeDcl = false;
@@ -414,32 +413,14 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         }
       }
 
-      //todo: check it
-      /* var isView = false
-      if (ScalaTokenTypes.tVIEW.equals(builder.getTokenType)){
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tVIEW)
-
-        if (BNF.firstType.contains(builder.getTokenType)) {
-          Type parse builder
-        } else {
-          builder error "wrong type declaration"
-        }
-
-        isView = true
-      }*/
-
-      var isTypeParamClause = false;
+          var isTypeParamClause = false;
       if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
         isTypeParamClause = ScalaElementTypes.TYPE_PARAM_CLAUSE.equals(new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder)
       }
 
-      DebugPrint println ("isTypeParamClause " + isTypeParamClause)
-
-      DebugPrint println ("statements - typeDef: token " + builder.getTokenType)
-
       if (! ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)){
         if (isTypeParamClause) {
-          builder error "expected '='"
+          builder error "'=' expected"
         }
 
         return ScalaElementTypes.TYPE_DECLARATION
@@ -452,7 +433,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         if (BNF.firstType.contains(builder.getTokenType)) {
           Type parse builder
         } else {
-          builder error "expected type declaration"
+          builder error "type declaration expected"
         }
 
         return ScalaElementTypes.TYPE_DEFINITION
@@ -469,7 +450,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         candidateOnTypeDefElement match {
           case ScalaElementTypes.TYPE_DEFINITION => {}
           case _ => {
-            builder error "expected type definition"
+            builder error "type definition expected"
             return
           }
         }
@@ -491,7 +472,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         }
 
       } else {
-        builder error "expected identifier"
+        builder error "identifier expected"
         return
       }
 
@@ -534,7 +515,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
       if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
       } else {
-        builder error "expected '}'"
+        builder error "'}' expected"
       }
     }
   }               
@@ -546,7 +527,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
       if (ScalaTokenTypes.kTHIS.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kTHIS)
       } else {
-        builder error "expected 'this'"
+        builder error "'this' expected"
         return
       }
 

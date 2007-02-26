@@ -88,7 +88,7 @@ object AttributeClause extends ConstrItem {
         if (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
         } else {
-          builder.error("expected ']'")
+          builder.error("']' expected")
           return
         }
 
@@ -134,7 +134,7 @@ object Attribute extends Constr{
       if (BNF.firstStableId.contains(builder.getTokenType)) {
         StableId.parse(builder)
       } else {
-        builder.error("expected identifier")
+        builder.error("identifier expected")
         return
       }
 
@@ -143,11 +143,10 @@ object Attribute extends Constr{
       }
 
       while (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) {
-        DebugPrint println ("constrctuctor parse: " + builder.getTokenType)
         if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
         } else {
-          builder.error("expected '('")
+          builder.error("'(' expected")
           return
         }
 
@@ -175,7 +174,7 @@ object Attribute extends Constr{
             builder.error("Sequence argument or ) expected")
           }
         } else {
-          builder.error("expected ')'")
+          builder.error("')' expected ")
           return
         }
       }
@@ -213,7 +212,7 @@ object Attribute extends Constr{
         if (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
         } else {
-          builder.error("expected ']'")
+          builder.error("']' expected")
           return
         }
       }
@@ -236,7 +235,7 @@ object Attribute extends Constr{
           if (BNF.firstType.contains(builder.getTokenType)) {
             Type parse builder
           } else {
-            builder error "expected identifier"
+            builder error "identifier expected"
             return                           
           }
         }
@@ -319,14 +318,14 @@ object Attribute extends Constr{
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         } else {
-          builder.error("expected identifier")
+          builder.error("identifier expected")
           return
         }
 
         if ( ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType) ){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
         } else {
-          builder.error("expected ']'")
+          builder.error("']' expected")
           return
         }
       }
@@ -352,11 +351,11 @@ object Attribute extends Constr{
 
           case ScalaTokenTypes.kIMPLICIT => ParserUtils.eatElement(builder, ScalaTokenTypes.kIMPLICIT)
 
-          case _ => builder error "expected local modifier"
+          case _ => builder error "local modifier expected"
         }
 
       } else {
-        builder error "expected local modifier"
+        builder error "local modifier expected"
         return
       }
 
@@ -373,11 +372,11 @@ object Attribute extends Constr{
 
           case ScalaTokenTypes.kSEALED => ParserUtils.eatElement(builder, ScalaTokenTypes.kSEALED)
 
-          case _ => builder error "expected local modifier"
+          case _ => builder error "local modifier expected"
         }
 
       } else {
-        builder error "expected local modifier"
+        builder error "local modifier expected"
         return
       }
 
@@ -398,7 +397,7 @@ object Attribute extends Constr{
         ParserUtils.listOfSmth(builder, ImportExpr, ScalaTokenTypes.tCOMMA, ScalaElementTypes.IMPORT_EXPRS)
 
       } else {
-        builder.error("expected 'import'")
+        builder.error("'import' expected")
         return
       }
     }
@@ -454,7 +453,7 @@ object Attribute extends Constr{
 
         case _ => {
           endMarker.drop()
-          builder.error("expected identifier, import selectors or '_'")
+          builder.error("identifier, import selectors or '_' expected")
           return
         }
       }
@@ -501,14 +500,14 @@ object Attribute extends Constr{
         }
 
         //import selector or '_' not found. Error
-        builder error "expected import selector"
+        builder error "import selector expected"
         return
       }
 
       if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
       } else {
-        builder error "expected '{'"
+        builder error "'{' expected"
         return
       }
 
@@ -517,7 +516,7 @@ object Attribute extends Constr{
       if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
       } else {
-        builder error "expected '}'"
+        builder error "'}' expected"
         return
       }
 
@@ -554,7 +553,7 @@ object Attribute extends Constr{
             }
 
             case _ => {
-              builder.error("expected identifier or '_'")
+              builder.error("identifier or '_' expected")
               return
               }
             }
@@ -562,7 +561,7 @@ object Attribute extends Constr{
         }
 
       } else {
-        builder error "expected import selector"
+        builder error "import selector expected"
         return
       }
     }
@@ -575,13 +574,6 @@ object Attribute extends Constr{
 
 
  object Ids extends ConstrUnpredict {
-  /*def getElementType : IElementType = ScalaElementTypes.IDENTIFIER_LIST
-
-    override def parse(builder : PsiBuilder) : Unit = {
-      val marker = builder.mark()
-      parseBody(builder)
-      marker.done(getElementType)
-    }*/
 
     override def parseBody(builder : PsiBuilder) : Unit = {
       val idListmarker = builder.mark()
@@ -589,7 +581,7 @@ object Attribute extends Constr{
      if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
      } else {
-       builder error "expected identifier"
+       builder error "identifier expected"
        return
      }
 
@@ -601,7 +593,7 @@ object Attribute extends Constr{
          ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
          hasIdList = true;
        } else {
-         builder error "expected identifier"
+         builder error "identifier expected"
          idListmarker.drop()
          return
        }
@@ -611,5 +603,4 @@ object Attribute extends Constr{
       else idListmarker.drop
    }
  }
-
 }
