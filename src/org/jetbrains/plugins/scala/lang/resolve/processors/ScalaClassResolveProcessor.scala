@@ -20,7 +20,7 @@ class ScalaClassResolveProcessor(val myName: String, val offset: Int) extends Sc
   val canBeObject : Boolean = false
 
   def getResult: PsiElement = myResult   
-
+                                        
   def setResult(result: PsiElement) {
     myResult = result
   }                            
