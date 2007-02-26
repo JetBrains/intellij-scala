@@ -110,7 +110,7 @@
         <include name="Scala.jar"/>
       </fileset>
       <fileset dir="${scala.home}/lib">
-        <include name="**/*.jar"/>
+        <include name="**/*scala-library.jar"/>
       </fileset>
     </copy>
     <delete>
@@ -119,7 +119,7 @@
     <zip destfile="${base.dir}/Scala.zip" basedir="${base.dir}/tempjar"/>
     <delete dir="${base.dir}/tempjar"/>
   </target>
-
+                 
   <target name="rebuild.all" depends="clear.all, make.project, jar.plugin" description="Builds all classes"/>
 
   <target name="move.to.sandbox" depends="make.project">
