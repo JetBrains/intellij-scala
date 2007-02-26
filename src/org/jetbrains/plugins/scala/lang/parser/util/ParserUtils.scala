@@ -87,38 +87,11 @@ object ParserUtils {
   //Write element node
   def eatElement(builder: PsiBuilder, elem: IElementType): Unit = {
     if (!builder.eof()) {
-//        if (elem.equals(ScalaTokenTypes.tIDENTIFIER)){
-//          val marker = builder.mark()
         builder.advanceLexer // Ate something
-//          marker.done(elem)
-//       } else {
-//         builder.advanceLexer
-//       }
     }
     ()
 
   }
-
-  /*def listOfSmthWithoutNode(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType) : Unit = {
-
-    if (itemType.first.contains(builder.getTokenType)) {
-      itemType parse builder
-    } else {
-      builder error "wrong item"
-      return
-    }
-
-    while (!builder.eof() && builder.getTokenType.equals(delimiter)) {
-      eatElement(builder, delimiter);
-
-      if (itemType.first.contains(builder.getTokenType)) {
-        itemType parse builder
-      } else {
-        builder error "expected next item"
-        return
-      }
-    }
-  } */
 
   def parseTillLast (builder : PsiBuilder, lastSet : TokenSet) : Unit = {
     while (!builder.eof() && !lastSet.contains(builder.getTokenType)) {
@@ -150,7 +123,7 @@ object ParserUtils {
         itemType parse builder
         numberOfElements + 1
       } else {
-        builder error "expected next item"
+        builder error "next item expected"
         listMarker.drop
         return
       }
@@ -160,16 +133,6 @@ object ParserUtils {
     else listMarker.drop
   }
 
-  /*
-  def listOfSmth(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType, listType : IElementType) : Unit = {
-
-    val listMarker = builder.mark()
-
-    listOfSmthWithoutNode(builder, itemType, delimiter)
-
-    listMarker.done(listType)
-  }
-  */
 
   /*
    *   Parse block in breaces
@@ -195,12 +158,12 @@ object ParserUtils {
       if (rightBrace.equals(builder.getTokenType)) {
         eatElement(builder, rightBrace)
       } else {
-        builder error "expected right brace"
+        builder error "right brace expected"
         return ScalaElementTypes.WRONGWAY
       }
 
     } else {
-      builder error "expected left brace"
+      builder error "left brace expected"
       return ScalaElementTypes.WRONGWAY
     }
 
@@ -210,9 +173,7 @@ object ParserUtils {
 
   def eatConstr(builder : PsiBuilder, constr: Constr, element : IElementType) : IElementType = {
     val marker = builder.mark()
-    //Console.println("before parsing " + constr + " : " + builder.getTokenType())
     constr.parse(builder)
-    //Console.println("after parsing " + constr + " : " + builder.getTokenType())
     marker.done(element)
     element
   }
