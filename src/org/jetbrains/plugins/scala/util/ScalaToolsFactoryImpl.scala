@@ -24,19 +24,19 @@ import com.intellij.lang.findUsages.FindUsagesProvider
  */
 class ScalaToolsFactoryImpl extends ScalaToolsFactory {
 
-  def createScalaParserDefinition: ParserDefinition = new ScalaParserDefinition()
+    def createScalaParserDefinition: ParserDefinition = new ScalaParserDefinition()
 
-  def createScalaFoldingBuilder: ScalaFoldingBuilder = new ScalaFoldingBuilder()
+    def createScalaFoldingBuilder: ScalaFoldingBuilder = new ScalaFoldingBuilder()
 
-  def createScalaCompletionData : CompletionData = new ScalaCompletionData()
+    def createScalaCompletionData: CompletionData = new ScalaCompletionData()
 
-  def createJavaView (viewProvider : FileViewProvider) = new ScJavaFile(viewProvider)
+    def createJavaView(viewProvider: FileViewProvider) = new ScJavaFile(viewProvider)
 
-  def createSurroundDescriptors : SurroundDescriptors = new ScalaSurroundDescriptors()
+    def createSurroundDescriptors: SurroundDescriptors = new ScalaSurroundDescriptors()
 
-  def createScalaFormattingModelBuilder: FormattingModelBuilder = new ScalaFormattingModelBuilder()
+    def createScalaFormattingModelBuilder: FormattingModelBuilder = new ScalaFormattingModelBuilder()
 
-  def createStructureViewBuilder (psiFile : PsiFile) : StructureViewBuilder = new ScalaStructureViewBuilder(psiFile)
+    def createStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder = new ScalaStructureViewBuilder(psiFile)
 
-  def createFindUsagesProvider = ScalaFindUsagesProvider
+    def createFindUsagesProvider = ScalaFindUsagesProvider
 }
