@@ -18,83 +18,80 @@ object ParserUtils {
   /* rolls forward until token from elems encountered */
   def rollPanic(builder: PsiBuilder, elems: HashSet[IElementType]) = {
 
-      val stack = new Stack[IElementType]
-      var flag = true
+    val stack = new Stack[IElementType]
+    var flag = true
 
-      while (flag && ! builder.eof && !elems.contains(builder.getTokenType)){
+    while (flag && ! builder.eof && ! elems.contains(builder.getTokenType)){
 
-        if ( ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType) ||
-             ScalaTokenTypes.tLBRACE.equals(builder.getTokenType) ||
-             ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)
-           ) {
-            stack += builder.getTokenType
-            builder.advanceLexer
-            //eatElement(builder , builder.getTokenType)
-        }
-        else if ( !stack.isEmpty &&
-          ((ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType) &&
-            ScalaTokenTypes.tLPARENTHIS.equals(stack.top))           ||
-          (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)     &&
-            ScalaTokenTypes.tLBRACE.equals(stack.top))               ||
-          (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType) &&
-            ScalaTokenTypes.tLSQBRACKET.equals(stack.top)) )
-        ) {
-          stack.pop
-          builder.advanceLexer
-          //eatElement(builder , builder.getTokenType)
-        }
-        else if (stack.isEmpty &&
-             (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType) ||
-              ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) ||
-              ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType) )
-        ) {
-          flag = false
-        } else {
-          builder.advanceLexer
-          // eatElement(builder , builder.getTokenType)
-        }
+      if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType) ||
+      ScalaTokenTypes.tLBRACE.equals(builder.getTokenType) ||
+      ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)) {
+        stack += builder.getTokenType
+        builder.advanceLexer
+        //eatElement(builder , builder.getTokenType)
       }
-      while (!stack.isEmpty) stack.pop
+      else if (! stack.isEmpty &&
+      ((ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType) &&
+      ScalaTokenTypes.tLPARENTHIS.equals(stack.top)) ||
+      (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) &&
+      ScalaTokenTypes.tLBRACE.equals(stack.top)) ||
+      (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType) &&
+      ScalaTokenTypes.tLSQBRACKET.equals(stack.top)))) {
+        stack.pop
+        builder.advanceLexer
+        //eatElement(builder , builder.getTokenType)
+      }
+      else if (stack.isEmpty &&
+      (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType) ||
+      ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) ||
+      ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType))) {
+        flag = false
+      } else {
+        builder.advanceLexer
+        // eatElement(builder , builder.getTokenType)
+      }
+    }
+    while (! stack.isEmpty) stack.pop
   }
 
   /* rolls forward towards right brace */
   def rollPanicToBrace(builder: PsiBuilder, lbrace: IElementType, rbrace: IElementType) = {
-      val stack = new Stack[IElementType]
-      stack += lbrace
-      while (! builder.eof && !stack.isEmpty){
-        if (lbrace.equals(builder.getTokenType)) stack += lbrace
-        else if (rbrace.equals(builder.getTokenType)) stack.pop
-        eatElement(builder , builder.getTokenType)
-      }
-      while (!stack.isEmpty) stack.pop
+    val stack = new Stack[IElementType]
+    stack += lbrace
+    while (! builder.eof && ! stack.isEmpty){
+      if (lbrace.equals(builder.getTokenType)) stack += lbrace
+      else if (rbrace.equals(builder.getTokenType)) stack.pop
+      eatElement(builder, builder.getTokenType)
+    }
+    while (! stack.isEmpty) stack.pop
   }
 
   /* Roll forward throug line terminators*/
-  def rollForward(builder: PsiBuilder) : Boolean = {
+  def rollForward(builder: PsiBuilder): Boolean = {
     var counter = 0
-    while (!builder.eof()){
-       builder.getTokenType match{
-         case ScalaTokenTypes.tLINE_TERMINATOR => {
-           builder.advanceLexer
-           counter=counter+1
-         }
-         case _ => return (counter == 0)
-       }
+    while (! builder.eof()){
+      builder.getTokenType match {
+        case ScalaTokenTypes.tLINE_TERMINATOR => {
+          builder.advanceLexer
+          counter =counter + 1
+        }
+        case _ => return (counter == 0)
+      }
     }
     counter == 0
   }
 
   //Write element node
   def eatElement(builder: PsiBuilder, elem: IElementType): Unit = {
-    if (!builder.eof()) {
-        builder.advanceLexer // Ate something
+    if (! builder.eof()) {
+      builder.advanceLexer // Ate something
     }
-    ()
+      ()
 
   }
 
-  def parseTillLast (builder : PsiBuilder, lastSet : TokenSet) : Unit = {
-    while (!builder.eof() && !lastSet.contains(builder.getTokenType)) {
+  def parseTillLast(builder: PsiBuilder, lastSet: TokenSet): Unit = {
+    while (! builder.eof() && ! lastSet.contains(builder.getTokenType)) {
       builder.advanceLexer
       DebugPrint println "an error"
     }
@@ -104,7 +101,7 @@ object ParserUtils {
     if (lastSet.contains(builder.getTokenType)) builder advanceLexer; return
   }
 
-  def listOfSmth(builder: PsiBuilder, itemType : ConstrItem, delimiter : IElementType, listType : IElementType) : Unit = {
+  def listOfSmth(builder: PsiBuilder, itemType: ConstrItem, delimiter: IElementType, listType: IElementType): Unit = {
     val listMarker = builder.mark()
 
     if (itemType.first.contains(builder.getTokenType)) {
@@ -116,7 +113,7 @@ object ParserUtils {
     }
 
     var numberOfElements = 1;
-    while (!builder.eof() && delimiter.equals(builder.getTokenType)) {
+    while (! builder.eof() && delimiter.equals(builder.getTokenType)) {
       eatElement(builder, delimiter);
 
       if (itemType.first.contains(builder.getTokenType)) {
@@ -147,7 +144,7 @@ object ParserUtils {
    *   @return parsed block
    */
 
-  def smthInBraces(builder: PsiBuilder, constr : Constr, leftBrace : IElementType, rightBrace : IElementType, blockType : IElementType) : IElementType= {
+  def smthInBraces(builder: PsiBuilder, constr: Constr, leftBrace: IElementType, rightBrace: IElementType, blockType: IElementType): IElementType = {
     val blockMarker = builder.mark()
 
     if (leftBrace.equals(builder.getTokenType)) {
@@ -171,7 +168,7 @@ object ParserUtils {
     blockType
   }
 
-  def eatConstr(builder : PsiBuilder, constr: Constr, element : IElementType) : IElementType = {
+  def eatConstr(builder: PsiBuilder, constr: Constr, element: IElementType): IElementType = {
     val marker = builder.mark()
     constr.parse(builder)
     marker.done(element)
@@ -181,9 +178,9 @@ object ParserUtils {
 
   //Write element node
   def errorToken(builder: PsiBuilder,
-                 marker: PsiBuilder.Marker ,
-                 msg: String,
-                 elem: ScalaElementType): ScalaElementType = {
+      marker: PsiBuilder.Marker,
+      msg: String,
+      elem: ScalaElementType): ScalaElementType = {
     builder.error(msg)
     //marker.done(elem)
     marker.rollbackTo()
