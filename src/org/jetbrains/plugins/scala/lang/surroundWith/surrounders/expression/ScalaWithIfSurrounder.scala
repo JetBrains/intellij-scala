@@ -12,6 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
+/*
+ * Surrounds expression with if: if { <Cursor> } Expression
+ */
+
 class ScalaWithIfSurrounder extends ScalaExpressionSurrounder {
 
   override def isApplicable(expr : PsiElement) : Boolean = {

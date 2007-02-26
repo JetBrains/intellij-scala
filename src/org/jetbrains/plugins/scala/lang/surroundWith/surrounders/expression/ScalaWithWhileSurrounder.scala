@@ -12,6 +12,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 
+/*
+ * Surrounds expression with while: while { <Cursor> } { Expression }
+ */
 
 class ScalaWithWhileSurrounder extends ScalaExpressionSurrounder {
   override def getExpressionTemplateAsString (expr : ASTNode) = {

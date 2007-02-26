@@ -9,12 +9,10 @@
  import com.intellij.openapi.util.TextRange
 
 /*
- * ScalaWithBracketsSurrounder is responsible of surrounders, witch enclause expression in brackets
+ * ScalaWithBracketsSurrounder is responsible of surrounders, witch enclause expression in brackets: { Expression } or ( Expression )
 */
 
  class ScalaWithBracketsSurrounder (lBracket : String, rBracket : String) extends ScalaExpressionSurrounder {
-
-//   override def isApplicable(expr : ScExprImpl) : Boolean = true
 
    override def getExpressionTemplateAsString (expr : ASTNode) = lBracket + expr.getText + rBracket
 
