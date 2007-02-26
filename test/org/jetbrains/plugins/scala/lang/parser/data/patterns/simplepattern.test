@@ -1,5 +1,5 @@
 class a {
-  val S() : String
+  val Some(x) : String
 }
 -----
 Scala file
@@ -17,9 +17,11 @@ Scala file
           PsiWhiteSpace(' ')
           Simple pattern
             Stable Identifier
-              PsiElement(identifier)('S')
+              PsiElement(identifier)('Some')
             Argument patterns
               PsiElement(()('(')
+              Common pattern
+                PsiElement(identifier)('x')
               PsiElement())(')')
           PsiWhiteSpace(' ')
           PsiElement(:)(':')

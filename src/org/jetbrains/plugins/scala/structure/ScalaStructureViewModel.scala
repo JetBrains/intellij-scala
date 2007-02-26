@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.impl.top.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs.ScTmplDef
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTemplateStatement
+import org.jetbrains.plugins.scala.lang.psi.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTemplateBody
 
 
 /**
@@ -38,9 +40,30 @@ class ScalaStructureViewModel (root : PsiElement) extends TextEditorBasedStructu
   [NotNull]
   override def getFilters() : Array[Filter] = Filter.EMPTY_ARRAY;
 
-  override def isSuitable(element : PsiElement) : Boolean  =
+//  override def getCurrentEditorElement() : Object  = {
+//    if (myEditor == null) return null
+//    val offset : int = myEditor.getCaretModel().getOffset()
+//    var element : PsiElement = getPsiFile().findElementAt(offset);
+//
+//
+//    while (!isSuitable(element)) {
+//      if (element == null) return null;
+//      element = element.getParent();
+//    }
+//
+//    return element;
+//  }
+
+  override def isSuitable(element : PsiElement) : Boolean  = {
     element match {
-      case _ : ScPackaging | _ : ScTmplDef | _ : ScTemplateStatement => true
+      case _ : ScPackaging => true
+      case _ : ScTmplDef if (element.getParent.isInstanceOf[ScalaFile] || element.getParent.isInstanceOf[ScPackaging] || element.getParent.isInstanceOf[ScTmplDef]) => true
+      case _ : ScTemplateStatement if (element.getParent.isInstanceOf[ScTemplateBody]) => true
       case _ => false
     }
+  }
+//    element match {
+//      case _ : ScPackaging | _ : ScTmplDef | _ : ScTemplateStatement => true
+//      case _ => false
+//    }
 }

@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
   trait ScPattern1 extends ScPattern
 
-  trait ScPattern2 extends ScPattern1 
+  trait ScPattern2 extends ScPattern1
 
   trait ScPattern3 extends ScPattern2
 
@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
       override def toString: String = "Tuple pattern"
   }
 
-  case class ScSimplePatternImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) {
+  case class ScSimplePatternImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) with ScPattern2 {
       override def toString: String = "Simple pattern"
   }
 
@@ -44,7 +44,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
   }
 
   case class ScPattern3Impl( node : ASTNode ) extends ScalaPsiElementImpl (node) with ScPattern3 {
-      override def toString: String = "Simple pattern"
+      override def toString: String = "Pattern 3"
   }
 
   case class ScPatternImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) with ScPattern {

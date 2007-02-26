@@ -45,5 +45,4 @@ class ScStableIdImpl(node: ASTNode) extends ScSimpleExprImpl(node) with ScStable
   }
 
   override def getName = getText
-
 }

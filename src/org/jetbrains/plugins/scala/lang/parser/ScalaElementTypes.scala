@@ -389,20 +389,10 @@ object ScalaElementTypes {
           PATH,
           BLOCK_EXPR))
 
-  //todo: add clauses
-//  val PATTERN2_BIT_SET = TokenSet.create(Array(PATTERN2,
-//          PATTERN3,
-//          SIMPLE_PATTERN,
-//          LITERAL,
-//          STABLE_ID,
-//          UNIT,
-//          ScalaTokenTypes.tUNDER,
-//          ScalaTokenTypes.tIDENTIFIER))
-
   val XML_PATTERN_BIT_SET = TokenSet.create(Array())
 
   val SIMPLE_PATTERN_BIT_SET = TokenSet.orSet(Array(XML_PATTERN_BIT_SET,
-    TokenSet.create(Array.apply(SIMPLE_PATTERN, STABLE_ID, ScalaTokenTypes.tUNDER, LITERAL, UNIT))))
+    TokenSet.create(Array.apply(SIMPLE_PATTERN, SIMPLE_PATTERN1, STABLE_ID, ScalaTokenTypes.tUNDER, LITERAL, UNIT, ScalaTokenTypes.tIDENTIFIER))))
 
   val PATTERN3_BIT_SET = TokenSet.orSet(Array(SIMPLE_PATTERN_BIT_SET,
     TokenSet.create(Array.apply(PATTERN3))))
@@ -415,6 +405,4 @@ object ScalaElementTypes {
 
   val PATTERN_BIT_SET = TokenSet.orSet(Array(PATTERN1_BIT_SET,
           TokenSet.create(Array.apply(PATTERN))))
-
-
 }
