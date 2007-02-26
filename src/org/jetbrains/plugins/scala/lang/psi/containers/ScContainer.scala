@@ -39,10 +39,10 @@ trait Importable extends ScalaPsiElement{
   *   Importable instance or null othervise
   *
   */
-  private def getQualifiedName(shortName: String, prefix: String): String = {
+  private def getQualifiedName(shortName: String, prefix: String, stick: Boolean): String = {
     for (val importExpr <- getImportExprs) {
       if (importExpr.getTextOffset <= offset){
-        val qualName = importExpr.getExplicitName(shortName, prefix)
+        val qualName = importExpr.getExplicitName(shortName, prefix, stick)
         if (qualName != null){
           return qualName
         }
@@ -57,19 +57,28 @@ trait Importable extends ScalaPsiElement{
   *
   */
   private def getInExplicitImports(shortName: String, prefix: String): PsiElement = {
-    val qualName = getQualifiedName(shortName, prefix)
+    var qualName = getQualifiedName(shortName, prefix, true)
     if (qualName != null) {
       val manager = PsiManager.getInstance(this.getProject)
-      val classes = manager.findClasses(qualName, this.getResolveScope())
-      if (classes != null) {
+      var classes = manager.findClasses(qualName, this.getResolveScope())
+      if (classes != null && classes.length > 0) {
         for (val clazz <- classes) {
           if (isValid(clazz, canBeObject)) {
             return clazz
           }
         }
-        return null
-      } else null
-
+      } else {
+        qualName = getQualifiedName(shortName, prefix, false)
+        classes = manager.findClasses(qualName, this.getResolveScope())
+        if (classes != null && classes.length > 0) {
+          for (val clazz <- classes) {
+            if (isValid(clazz, canBeObject)) {
+              return clazz
+            }
+          }
+          return null
+        }
+      }
     }
     null
   }
@@ -83,14 +92,16 @@ trait Importable extends ScalaPsiElement{
     if (refText.length > 7 && refText.substring(0, 7).equals("_root_.")) {
       refText = refText.substring(7)
     } else {
-      if (refText.contains(".")) {
-        val importBegin = refText.substring(0, refText.indexOf("."))
-        val index = prefix.indexOf(importBegin)
-        if (index > 0 &&
-        prefix.charAt(index - 1) == '.' &&
-        prefix.charAt(index + importBegin.length) == '.'){
-          refText = prefix.substring(0, index) + refText
-        }
+      val importBegin = if (refText.contains(".")) {
+        refText.substring(0, refText.indexOf("."))
+      } else refText
+      val index = prefix.indexOf(importBegin)
+      if (index > 0 &&
+      prefix.charAt(index - 1) == '.' &&
+      prefix.charAt(index + importBegin.length) == '.'){
+        refText = prefix.substring(0, index) + refText
+      } else {
+        refText = prefix + refText
       }
     }
     refText
@@ -105,11 +116,20 @@ trait Importable extends ScalaPsiElement{
     for (val importExpr <- getImportExprs) {
       if (importExpr.hasWildcard && importExpr.getTextOffset <= offset) {
         val qualName = stickNames(importExpr.getImportReference.getText, prefix) + "." + shortName
-        val classes = manager.findClasses(qualName, this.getResolveScope())
-        if (classes != null) {
+        var classes = manager.findClasses(qualName, this.getResolveScope())
+        if (classes != null && classes.length > 0) {
           for (val clazz <- classes) {
             if (isValid(clazz, canBeObject)) {
               return clazz
+            }
+          }
+        } else {
+          classes = manager.findClasses(importExpr.getImportReference.getText + "." + shortName, this.getResolveScope())
+          if (classes != null && classes.length > 0) {
+            for (val clazz <- classes) {
+              if (isValid(clazz, canBeObject)) {
+                return clazz
+              }
             }
           }
         }
@@ -123,18 +143,27 @@ trait Importable extends ScalaPsiElement{
   *
   */
   private def getInPackage(shortName: String): PsiElement = {
-    val qualPrefix = ScalaResolveUtil.getQualifiedPrefix(this)
+    var qualPrefix = ScalaResolveUtil.getQualifiedPrefix(this)
     val manager = PsiManager.getInstance(this.getProject)
     if (qualPrefix != null) {
-      val classes = manager.findClasses(qualPrefix + shortName, this.getResolveScope())
-      if (classes != null) {
-        for (val clazz <- classes) {
-          if (isValid(clazz, canBeObject)) {
-            return clazz
+      while (qualPrefix.contains(".")) {
+        val classes = manager.findClasses(qualPrefix + shortName, this.getResolveScope())
+        if (classes != null && classes.length > 0) {
+          for (val clazz <- classes) {
+            if (isValid(clazz, canBeObject)) {
+              return clazz
+            }
+          }
+          return null
+        }
+        if (qualPrefix.length > 1) {
+          qualPrefix = qualPrefix.substring(0, qualPrefix.length - 1)
+          if (qualPrefix.lastIndexOf(".") > 0) {
+            qualPrefix = qualPrefix.substring(0, qualPrefix.lastIndexOf(".") + 1)
           }
         }
-        return null
-      } else null
+      }
+      null
     } else null
   }
 
@@ -157,7 +186,7 @@ trait Importable extends ScalaPsiElement{
     }
 
     /*
-         2. May be it is in current package?
+         2. May be it is in current package or higher in current package branch?
     */
     var clazz = getInPackage(processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
     if (clazz != null) {
@@ -187,7 +216,19 @@ trait Importable extends ScalaPsiElement{
 
     /* We are already on top */
     if (this.isInstanceOf[PsiFile]) {
+
       val manager = PsiManager.getInstance(this.getProject)
+
+      /*
+        4.5 May be, it is in empty package?
+      */
+      clazz = manager.findClass(processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
+      if (clazz != null) {
+        processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
+        return false
+      }
+
+
       /*
          5. May be, it is in scala._ ?
       */

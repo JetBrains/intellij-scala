@@ -31,7 +31,6 @@ import org.jetbrains.plugins.scala.lang.resolve.references._
 
 class ScImportStmt(node: ASTNode) extends ScalaPsiElementImpl (node) {
   override def toString: String = "Import statement"
-
   /**
   *    Returns All import expression in current import statement
   *
@@ -56,7 +55,7 @@ class ScImportExpr(node: ASTNode) extends ScalaPsiElementImpl (node) {
     else null
   }
 
-  def getExplicitName(name: String, prefix: String): String = {
+  def getExplicitName(name: String, prefix: String, stick: Boolean): String = {
 
     if (getImportReference != null){
       var refText = getImportReference.getText
@@ -74,15 +73,17 @@ class ScImportExpr(node: ASTNode) extends ScalaPsiElementImpl (node) {
           prefix.length > index + importBegin.length &&
           prefix.charAt(index + importBegin.length) == '.'){
             refText = prefix.substring(0, index) + refText
+          } else {
+            refText = prefix + refText
           }
         }
       }
 
       if (getTailId != null && getTailId.equals(name)) {
-        stickNames
+        if (stick) stickNames
         return refText + "." + name
       } else if (getImportSelectors != null) {
-        stickNames
+        if (stick) stickNames
         for (val selector <- getImportSelectors) {
           if (selector.getRealName(name) != null) {
             return getImportReference.getText + "." + selector.getRealName(name)
@@ -122,7 +123,14 @@ class ScImportEndId(node: ASTNode) extends ScalaPsiElementImpl (node) {
   override def getReference = {
     new ClassObjectReference(this)
   }
+}
 
+class ScSelectorBeginId(node: ASTNode) extends ScalaPsiElementImpl (node) {
+  override def toString: String = "Selector begin"
+
+  override def getReference = {
+    new ClassObjectReference(this)
+  }
 }
 
 class ScImportSelector(node: ASTNode) extends ScalaPsiElementImpl (node) {
@@ -135,7 +143,7 @@ class ScImportSelector(node: ASTNode) extends ScalaPsiElementImpl (node) {
   def getRealName(name: String): String = {
     if (getText.contains("_")) return null
     if (! getText.contains("=>")) {
-      if (ScalaTokenTypes.tIDENTIFIER.equals(getFirstChild.getNode.getElementType) &&
+      if (ScalaElementTypes.IMPORT_SELECTOR_BEGIN.equals(getFirstChild.getNode.getElementType) &&
       getFirstChild.getText.equals(name))
         return name
       else
@@ -143,7 +151,7 @@ class ScImportSelector(node: ASTNode) extends ScalaPsiElementImpl (node) {
     }
     val realName = getFirstChild
     val pseudoName = getLastChild
-    if (ScalaTokenTypes.tIDENTIFIER.equals(realName.getNode.getElementType) &&
+    if (ScalaElementTypes.IMPORT_SELECTOR_BEGIN.equals(realName.getNode.getElementType) &&
     ScalaTokenTypes.tIDENTIFIER.equals(pseudoName.getNode.getElementType) &&
     pseudoName.getText.equals(name)){
       realName.getText

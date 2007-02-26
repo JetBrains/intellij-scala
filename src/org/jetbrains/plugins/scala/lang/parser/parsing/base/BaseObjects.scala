@@ -535,7 +535,11 @@ object Attribute extends Constr{
     override def parseBody(builder: PsiBuilder): Unit = {
 
       if (BNF.firstImportSelector.contains(builder.getTokenType)){
+
+        val sel = builder.mark()
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+        sel.done(ScalaElementTypes.IMPORT_SELECTOR_BEGIN)  
+
 
         if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)

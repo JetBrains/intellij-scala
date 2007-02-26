@@ -30,6 +30,7 @@ class ScStableIdImpl(node: ASTNode) extends ScSimpleExprImpl(node) with ScStable
     (getParent.isInstanceOf[ScSimpleTypeImpl] ||
     getParent.isInstanceOf[ScCompoundTypeImpl] ||
     getParent.isInstanceOf[ScConstructor] ||
+    getParent.isInstanceOf[ScRequiresBlock] ||
     getParent.isInstanceOf[ScTypePatternArgsImpl] ||
     getParent.isInstanceOf[ScSimpleTypePatternImpl] ||
     getParent.isInstanceOf[ScSimpleTypePattern1Impl] ||

@@ -49,6 +49,7 @@ object ScalaPsiCreator {
 
       case ScalaElementTypes.IMPORT_SELECTORS => new ScImportSelectors(node)
       case ScalaElementTypes.IMPORT_SELECTOR => new ScImportSelector(node)
+     case ScalaElementTypes.IMPORT_SELECTOR_BEGIN => new ScSelectorBeginId(node)
 
       /***************************************************/
       /********************** DEF ************************/
