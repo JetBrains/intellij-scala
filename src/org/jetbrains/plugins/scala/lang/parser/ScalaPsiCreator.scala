@@ -28,7 +28,6 @@ object ScalaPsiCreator {
       /*****************************************************/
       /********************* FILE **************************/
 
-      case ScalaTokenTypes.tIDENTIFIER => new ScIdentifierImpl(node)
       case ScalaElementTypes.COMPILATION_UNIT => new ScCompilationUnit(node)
 
       /*****************************************************/

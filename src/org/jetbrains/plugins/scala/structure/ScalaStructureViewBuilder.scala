@@ -18,7 +18,6 @@ import org.jetbrains.annotations._
  * ScalaStructureViewBuilder creates model
  */
 
-
 class ScalaStructureViewBuilder ( psiFile : PsiFile ) extends TreeBasedStructureViewBuilder {
     private var myPsiFile : PsiFile = psiFile
 
