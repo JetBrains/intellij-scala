@@ -23,6 +23,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTemplateBody
  * Time: 17:41:27
  */
 
+ /*
+  * ScalaStructureViewModel is responsible for structure view organizing  
+  */
 
 class ScalaStructureViewModel (root : PsiElement) extends TextEditorBasedStructureViewModel (root.getContainingFile()) {
   var myRoot : PsiElement = root
@@ -40,20 +43,6 @@ class ScalaStructureViewModel (root : PsiElement) extends TextEditorBasedStructu
   [NotNull]
   override def getFilters() : Array[Filter] = Filter.EMPTY_ARRAY;
 
-//  override def getCurrentEditorElement() : Object  = {
-//    if (myEditor == null) return null
-//    val offset : int = myEditor.getCaretModel().getOffset()
-//    var element : PsiElement = getPsiFile().findElementAt(offset);
-//
-//
-//    while (!isSuitable(element)) {
-//      if (element == null) return null;
-//      element = element.getParent();
-//    }
-//
-//    return element;
-//  }
-
   override def isSuitable(element : PsiElement) : Boolean  = {
     element match {
       case _ : ScPackaging => true
@@ -62,8 +51,4 @@ class ScalaStructureViewModel (root : PsiElement) extends TextEditorBasedStructu
       case _ => false
     }
   }
-//    element match {
-//      case _ : ScPackaging | _ : ScTmplDef | _ : ScTemplateStatement => true
-//      case _ => false
-//    }
 }
