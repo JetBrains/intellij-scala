@@ -131,6 +131,7 @@ object CompilationUnit extends ConstrWithoutNode {
         isError = isError || isLocalError
       }
     }
+
     def tryParseSmth(builder: PsiBuilder): Unit = {
       var isAfterBlock = false;
       var unstructuredTrashMarker: PsiBuilder.Marker = builder.mark;
@@ -265,7 +266,6 @@ object CompilationUnit extends ConstrWithoutNode {
 
       if (ScalaTokenTypes.kPACKAGE.equals(builder.getTokenType)) {
         builder.advanceLexer //Ate package
-        DebugPrint println "'package' ate"
       } else {
         builder error "expected 'package'"
         return
@@ -273,7 +273,6 @@ object CompilationUnit extends ConstrWithoutNode {
 
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         QualId parse builder
-        DebugPrint println "qualId ate"
       }
 
       if (BNF.firstStatementSeparator.contains(builder.getTokenType)){
@@ -303,7 +302,6 @@ object CompilationUnit extends ConstrWithoutNode {
 
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         QualId parse builder
-        DebugPrint println "quilId ate"
       } else {
         builder error "expected qualified identifier"
       }
