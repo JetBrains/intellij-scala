@@ -99,26 +99,8 @@ package org.jetbrains.plugins.scala.structure {
       }
     }
 
-    private def patternDefVariables (pattern2: PsiElement, patDef : ScPatternDefinition) : Iterable[ScalaStructureViewElement] = {
-      val varid = pattern2 match {
-        case pat : ScPattern2Impl => if (pat.getVarid != null) pat.getVarid else pattern2
-        case _ => pattern2
-      }
-
-//      val patterns = pattern2 match {
-//        case simplePat : ScPattern3 => simplePat.allPatterns
-//        case _ =>
-//      }
-//
-//      for(val pat <- patterns) yield newStructureViewElement (pat, patDef)
-//      ++
-      if (varid != null) Array(newStructureViewElement (varid, patDef))
-      else Array()
-    }
-
     private def createNewStructureViewElements (name : PsiElement, element : ScTemplateStatement) : Iterable[ScalaStructureViewElement] =
       element match {
-        case patternDef : ScPatternDefinition => patternDefVariables (name, patternDef)
         case _ if (name != null) => Array(newStructureViewElement (name, element))
         case _ => Array()
       }

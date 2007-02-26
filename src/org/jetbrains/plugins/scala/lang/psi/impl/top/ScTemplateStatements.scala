@@ -34,25 +34,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
 
     private def isThis = (elementType: IElementType) => (ScalaTokenTypes.kTHIS.equals(elementType))
 
-//    def isConstructor = this.isInstanceOf[ScSupplementaryConstructor]
-
-    //    [NotNull]
-    //    def asDisjunctNodes : Iterable[ScTemplateStatement] = {
-    //      if (!isManyDeclarations) return Array(this.copy.asInstanceOf[ScTemplateStatement])
-    //
-    //      val theNames = names
-    //      for (val name <- theNames) yield {
-    //        val thisCopy : ScTemplateStatement = this.copy.asInstanceOf[ScTemplateStatement]
-    //        val declarations = thisCopy.getDeclarations
-    //        val nameCopy = name.copy
-    //
-    //        if (declarations != null && nameCopy != null) {
-    //          thisCopy.getNode.replaceChild(declarations.getNode, nameCopy.getNode); thisCopy
-    //        }
-    //        else thisCopy
-    //      }
-    //    }
-
     [Nullable]
     def getType: ScalaPsiElement = {
       def isType = (e: IElementType) => ScalaElementTypes.TYPE_BIT_SET.contains(e)
@@ -74,11 +55,11 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
       else this.getTextRange.getStartOffset
     }
 
-    /*protected*/ def isManyDeclarations: Boolean = (getChild(ScalaElementTypes.IDENTIFIER_LIST) != null)
-    /*protected*/ def getDeclarations: ScalaPsiElement = getChild(ScalaElementTypes.IDENTIFIER_LIST).asInstanceOf[ScalaPsiElement]
+    def isManyDeclarations: Boolean = (getChild(ScalaElementTypes.IDENTIFIER_LIST) != null)
+    def getDeclarations: ScalaPsiElement = getChild(ScalaElementTypes.IDENTIFIER_LIST).asInstanceOf[ScalaPsiElement]
 
     [NotNull]
-    /*protected*/ def names: Iterable[PsiElement] = {
+    def names: Iterable[PsiElement] = {
       if (isManyDeclarations) return getDeclarations.childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER)))
 
       childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER)))
@@ -86,9 +67,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
   }
 
   trait ScFunction extends ScParametrized {
-    //    def getFunSig : ScFunctionSignature = getFirstChild.asInstanceOf[ScFunctionSignature]
-
-    //    private def isParamClauses = (e : PsiElement) => e.isInstanceOf[ScParamClauses]
     private def isManyParamClauses = (getChild(ScalaElementTypes.PARAM_CLAUSES) != null)
     private def getParamClausesNode: ScParamClauses = getChild(ScalaElementTypes.PARAM_CLAUSES).asInstanceOf[ScParamClauses]
 
@@ -139,20 +117,22 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
     def getTypeParamClause: ScTypeParamClause = childSatisfyPredicateForPsiElement(isTypeParamClause).asInstanceOf[ScTypeParamClause]
   }
 
-  case class ScPatternDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDefinition with IfElseIndent{
-    override def toString: String = "pattern" + " " + super.toString
-
+  trait ScValue extends ScTemplateStatement {
     override def isManyDeclarations = (getChild(ScalaElementTypes.PATTERN2_LIST) != null)
     override def getDeclarations: ScalaPsiElement = getChild(ScalaElementTypes.PATTERN2_LIST).asInstanceOf[ScalaPsiElement]
 
     override def getIcon(flags: Int) = Icons.VAL
 
-    [NotNull]
+    [Nullable]
     override def names: Iterable[PsiElement] = {
       if (isManyDeclarations) return getDeclarations.childrenOfType[PsiElement](ScalaElementTypes.PATTERN2_BIT_SET)
 
       childrenOfType[PsiElement](ScalaElementTypes.PATTERN2_BIT_SET)
     }
+  }
+
+  case class ScPatternDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDefinition with ScValue with IfElseIndent {
+    override def toString: String = "pattern" + " " + super.toString
   }
 
   case class ScVariableDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDefinition with IfElseIndent{
@@ -181,8 +161,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
     override def toString: String = "supplementary constructor"
 
     override def names: Iterable[PsiElement] = childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.kTHIS)))
-
-//    def getShortName: String = 'this'
   }
 
   case class ScTypeDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDefinition with ScType with ScParametrized{
@@ -203,7 +181,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
     override def toString: String = "declaration"
   }
 
-  case class ScValueDeclaration(node: ASTNode) extends ScalaPsiElementImpl(node) with Declaration {
+  case class ScValueDeclaration(node: ASTNode) extends ScalaPsiElementImpl(node) with ScValue with Declaration {
     override def toString: String = "value" + " " + super.toString
 
     override def getIcon(flags: Int) = Icons.VAL
@@ -236,8 +214,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
 
   /* class ScFunctionSignature (node : ASTNode) extends ScalaPsiElementImpl (node) {
     override def toString: String = "function signature"
-
-
   }*/
 
   /****************** variable ************************/

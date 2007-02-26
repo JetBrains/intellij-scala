@@ -149,8 +149,6 @@ object ScalaPsiCreator {
     case ScalaElementTypes.ATTRIBUTE_CLAUSE => new ScAttributeClause(node)
     case ScalaElementTypes.ATTRIBUTE_CLAUSES => new ScAttributeClauses(node)
 
-//    case ScalaTokenTypes.tIDENTIFIER => new ScIdentifierImpl(node)
-
     case _ => inner (node)
    }
 

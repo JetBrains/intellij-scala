@@ -81,6 +81,5 @@ class ScPackageStatement(node: ASTNode) extends ScalaPsiElementImpl (node) {
 case class ScQualId(node: ASTNode) extends ScalaPsiElementImpl (node) {
   override def toString = "Qualified identifier"
 
-  //todo: change stableId parsing to qualId parsing
   def getFullName = getText
 }
