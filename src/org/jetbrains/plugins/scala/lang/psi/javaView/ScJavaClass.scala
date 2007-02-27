@@ -108,7 +108,7 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
 
   def getModifierList: PsiModifierList = null
 
-  def hasModifierProperty(name: String): Boolean = false
+  def hasModifierProperty(name: String): Boolean = name.equals(PsiModifier.PUBLIC)
 
   def getDocComment: PsiDocComment = null
 
