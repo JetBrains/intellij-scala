@@ -15,6 +15,8 @@ object BNF {
         ScalaTokenTypes.tSYMBOL,
         ScalaTokenTypes.kNULL)
 
+  val tLITERALS = TokenSet.create(literals)
+
   val firstLiteral: TokenSet = TokenSet.create(literals)
 
   val tSIMPLE_FIRST: TokenSet = TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER,

@@ -22,7 +22,8 @@ class ScalaClassResolveProcessor(val myName: String, val offset: Int) extends Sc
   def getResult: PsiElement = myResult   
                                         
   def setResult(result: PsiElement) {
-    myResult = result
+    import org.jetbrains.plugins.scala.lang.psi.javaView.ScJavaClass
+    myResult =  if (result.isInstanceOf[ScJavaClass]) result.asInstanceOf[ScJavaClass].scClass else result
   }                            
 
   def getName = myName

@@ -12,6 +12,7 @@ import com.intellij.openapi.util.TextRange
 
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
+import org.jetbrains.plugins.scala.lang.psi.impl.primitives.ScIdentifier
 
 class ScalaClassReference(val myElement: PsiElement) extends PsiReference {
 
@@ -62,15 +63,11 @@ class ScalaClassReference(val myElement: PsiElement) extends PsiReference {
    * @throws IncorrectOperationException if the rename cannot be handled for some reason.
    */
   def handleElementRename(newElementName: String): PsiElement = {
-    if (myElement.getFirstChild.isInstanceOf[ScStableIdImpl]) {
-      import org.jetbrains.plugins.scala.lang.psi.impl._
-      val newChildNode = ScalaPsiElementFactory.createExpressionFromText(newElementName,
-              PsiManager.getInstance(myElement.getProject))
-      myElement.getNode.replaceChild(myElement.getFirstChild.getNode, newChildNode)
-      newChildNode.getPsi
-    } else {
-      null
-    }
+    import org.jetbrains.plugins.scala.lang.psi.impl._
+    val newChildNode = ScalaPsiElementFactory.createIdentifierFromText(newElementName,
+            PsiManager.getInstance(myElement.getProject))
+    myElement.getNode.replaceChild(myElement.getFirstChild.getNode, newChildNode)
+    newChildNode.getPsi
   }
 
   /**

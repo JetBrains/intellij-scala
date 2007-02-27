@@ -18,21 +18,20 @@ package org.jetbrains.plugins.scala.lang.psi.javaView {
     override def isPhysical = false
 
     def getFirstChild: PsiElement = {
-
-      parent.getChildren.length match {
+      val children = getChildren
+      children.length match {
         case 0 => null
         case _ => {
-          val children = parent.getChildren
           children(0)
         }
       }
     }
 
     def getLastChild: PsiElement = {
-      parent.getChildren.length match {
+      val children = getChildren
+      children.length match {
         case 0 => null
         case _ => {
-          val children = parent.getChildren
           children(children.length - 1)
         }
       }
