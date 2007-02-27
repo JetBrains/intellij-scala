@@ -39,24 +39,18 @@ with Serializable{
   //todo
   def getPackageName = ""
 
-  private var classes : Array[PsiClass] = null
-
   override def getClasses = {
-    if (classes == null) {
-      val scFile = viewProvider.getPsi(ScalaFileType.SCALA_FILE_TYPE.getLanguage).asInstanceOf[ScalaFile]
-      val temp = scFile.getTmplDefs.map(c => new ScJavaClass(c, this)).toArray[PsiClass]
-      classes = temp
-      temp  //need thread safety here, so return local!
-    }
-
-    classes
+    val scFile = viewProvider.getPsi(ScalaFileType.SCALA_FILE_TYPE.getLanguage).asInstanceOf[ScalaFile]
+    scFile.getTmplDefs.map(c => new ScJavaClass(c, this)).toArray[PsiClass]
   }
 
   def getChildren = getClasses.asInstanceOf[Array[PsiElement]]
 
   def copyLight(newFileViewProvider: FileViewProvider) = new ScJavaFile(newFileViewProvider)
 
-  override def clearCaches = {classes = null}
+  def clearCaches = {
+    //do not clear caches here, this method is not called
+  }
 
   def getFileType = StdFileTypes.JAVA
 
