@@ -89,7 +89,17 @@ class ScalaClassReference(val myElement: PsiElement) extends PsiReference {
    * @param element the element to check target for.
    * @return true if the reference targets that element, false otherwise.
    */
-  def isReferenceTo(element: PsiElement): Boolean = element.equals(resolve)
+  def isReferenceTo(element: PsiElement): Boolean = {
+    val resolved = resolve
+    if (element.equals(resolve)) return true
+
+    if (resolve.isInstanceOf[PsiClass] && element.isInstanceOf[PsiClass]) {
+      val qName1 = resolve.asInstanceOf[PsiClass].getQualifiedName
+      val qName2 = element.asInstanceOf[PsiClass].getQualifiedName
+      return qName1 != null && qName1.equals(qName2)
+    }
+    false
+  }
 
   /**
    * Returns the array of String, {@link PsiElement} and/or {@link com.intellij.psi.infos.CandidateInfo}
