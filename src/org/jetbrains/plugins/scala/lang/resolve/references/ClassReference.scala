@@ -93,12 +93,14 @@ class ScalaClassReference(val myElement: PsiElement) extends PsiReference {
     val resolved = resolve
     if (element.equals(resolve)) return true
 
-    if (resolve.isInstanceOf[PsiClass] && element.isInstanceOf[PsiClass]) {
-      val qName1 = resolve.asInstanceOf[PsiClass].getQualifiedName
-      val qName2 = element.asInstanceOf[PsiClass].getQualifiedName
-      return qName1 != null && qName1.equals(qName2)
-    }
-    false
+    var qName1 : String = null
+    if (resolve.isInstanceOf[PsiClass]) qName1 = resolve.asInstanceOf[PsiClass].getQualifiedName
+    if (resolve.isInstanceOf[ScTmplDef]) qName1 = resolve.asInstanceOf[ScTmplDef].getQualifiedName
+    var qName2 : String = null
+    if (element.isInstanceOf[PsiClass]) qName2 = element.asInstanceOf[PsiClass].getQualifiedName
+    if (element.isInstanceOf[ScTmplDef]) qName2 = element.asInstanceOf[ScTmplDef].getQualifiedName
+
+    qName1 != null && qName1.equals(qName2)
   }
 
   /**
