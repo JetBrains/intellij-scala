@@ -1,8 +1,8 @@
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
 <idea-plugin>
   <id>org.intellij.scala</id>
-  <name>Scala language plugin</name>
-  <description>Plugin for scala language</description>
+  <name>Scala</name>
+  <description>Plugin for Scala language</description>
   <version>0.1</version>
   <vendor>SmartTeam</vendor>
   <idea-version since-build="6733"/>
