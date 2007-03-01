@@ -28,7 +28,7 @@ public class ScalaLibraryCachesManager implements ProjectComponent {
   private static final Logger LOG = Logger.getInstance(ScalaSDKCachesManager.class.getName());
   protected Map<Library, ScalaFilesCache> libraryScalaFilesCache = new HashMap<Library, ScalaFilesCache>();
 
-  @NonNls
+  @NonNls                                              
   private static final String SCALA_CACHE_DIR = "scala_caches";
   @NonNls
   private static final String SCALA_CACHE_FILE = "libraries";
@@ -95,8 +95,11 @@ public class ScalaLibraryCachesManager implements ProjectComponent {
 
   public void disposeComponent() {
     // unregistering listeners
-    ProjectLibraryTable.getInstance(myProject).removeListener(libraryTableListener);
+    if (libraryTableListener != null && ProjectLibraryTable.getInstance(myProject) != null) {
+      ProjectLibraryTable.getInstance(myProject).removeListener(libraryTableListener);
+    }
     libraryScalaFilesCache.clear();
+
   }
 
 

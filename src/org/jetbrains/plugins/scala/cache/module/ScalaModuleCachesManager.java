@@ -162,12 +162,18 @@ public class ScalaModuleCachesManager implements ModuleComponent {
 
   public void disposeComponent() {
     //  unregister listeners
-    myModuleFilesCache.dispose();
+    if (myModuleFilesCache != null) {
+      myModuleFilesCache.dispose();
+    }
     if (rootConnection != null) {
       rootConnection.disconnect();
     }
-    VirtualFileManager.getInstance().removeVirtualFileListener(vfListener);
-    myModuleFilesCache.saveCacheToDisk(true);
+    if (vfListener != null) {
+      VirtualFileManager.getInstance().removeVirtualFileListener(vfListener);
+    }
+    if (myModuleFilesCache != null) {
+      myModuleFilesCache.saveCacheToDisk(true);
+    }
   }
 
 }
