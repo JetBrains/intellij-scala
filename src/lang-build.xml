@@ -119,23 +119,25 @@
     <zip destfile="${base.dir}/Scala.zip" basedir="${base.dir}/tempjar"/>
     <delete dir="${base.dir}/tempjar"/>
   </target>
-                 
-  <target name="rebuild.all" depends="clear.all, make.project, jar.plugin" description="Builds all classes"/>
 
-  <target name="move.to.sandbox" depends="make.project">
-    <mkdir dir="C:\Documents and Settings\Dmitry.Krasilschikov\.IntelliJIdea70\sandbox\plugins\Scala\classes"/>
-    <mkdir dir="C:\Documents and Settings\Dmitry.Krasilschikov\.IntelliJIdea70\sandbox\plugins\Scala\lib"/>
-    <copy todir="C:\Documents and Settings\Dmitry.Krasilschikov\.IntelliJIdea70\sandbox\plugins\Scala\classes">
-      <fileset dir="${project.lib}"/>
-    </copy>
-    <copy todir="C:\Documents and Settings\Dmitry.Krasilschikov\.IntelliJIdea70\sandbox\plugins\Scala\lib">
-      <fileset dir="${scala.home}/lib"/>
-    </copy>
-    <copy todir="C:\Documents and Settings\Dmitry.Krasilschikov\.IntelliJIdea70\sandbox\plugins\Scala\META-INF">
-      <fileset dir="${project.lib}/Meta-Inf"/>
-    </copy>
+  <target name="rebuild.all" depends="clear.all, make.project, jar.plugin, zip.sources" description="Builds all classes"/>
+
+  <target name="zip.sources" description="Zips sources">
+    <zip destfile="${base.dir}/scala-sources.zip"
+         basedir="${base.dir}"
+         includes="src/**/*.java,
+         src/**/*.scala,
+         src/**/*.properties,
+         src/**/*.flex,
+         src/**/*.jar,
+         src/**/*.skeleton,
+         src/**/*.xml,
+         util/**/AntScalaCompiler*,
+         resources/**/*.png,
+         META-INF/**/*.xml"
+         excludes="src/**/*junit*"
+            />
   </target>
-
 
   <target name="build.tests" depends="make.project">
 
@@ -161,7 +163,7 @@
 
       <classpath>
         <path location="${project.lib}"/>
-        <path location="${test.lib}"/>        
+        <path location="${test.lib}"/>
         <path refid="test.base.path"/>
       </classpath>
 
