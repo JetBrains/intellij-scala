@@ -100,9 +100,12 @@ public class ScalaSDKCachesManager implements ProjectComponent {
 
   public void disposeComponent() {
     // unregistering listeners
-    ProjectJdkTable.getInstance().removeListener(jdkTableListener);
+    if (jdkTableListener != null) {
+      ProjectJdkTable.getInstance().removeListener(jdkTableListener);
+    }
+
     sdk2ScalaFilesCache.clear();
-  }
+  }                                                                        
 
 
   public void initSkdCaches(final Project project) {
