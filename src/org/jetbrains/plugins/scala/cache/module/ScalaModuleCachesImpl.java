@@ -129,7 +129,7 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
     }
 
     public void updatingDone() {
-      assert myOutOfDateFileUrls.size() == 0;
+     // assert myOutOfDateFileUrls.size() == 0;
     }
 
     public void canceled() {
