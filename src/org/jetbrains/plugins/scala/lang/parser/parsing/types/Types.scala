@@ -601,7 +601,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
               val typesMarker = builder.mark() // Eat types of parameters
               def end(msg: String) = {
                 builder.error(msg)
-                ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
                 typesMarker.drop()
                 typeMarker.done(ScalaElementTypes.TYPE)
                 ScalaElementTypes.TYPE

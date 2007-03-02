@@ -22,13 +22,13 @@ ArgTypePattern ::=  varid
   def parse(builder : PsiBuilder) : ScalaElementType = {
     builder.getTokenType match {
       case ScalaTokenTypes.tUNDER => {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
+        builder.advanceLexer
         ScalaElementTypes.ARG_TYPE_PATTERN
       }
       case ScalaTokenTypes.tIDENTIFIER if
         (builder.getTokenText.substring(1).toLowerCase ==
          builder.getTokenText.substring(1)) => {
-        ParserUtils.eatElement(builder,ScalaTokenTypes.tIDENTIFIER)
+        builder.advanceLexer
         ScalaElementTypes.ARG_TYPE_PATTERN
       }
       case _ => {
@@ -52,7 +52,7 @@ object ArgTypePatterns {
       builder.getTokenType match {
         case ScalaTokenTypes.tCOMMA => {
           val rb = builder.mark()
-          ParserUtils.eatElement(builder,ScalaTokenTypes.tCOMMA)
+          builder.advanceLexer
           res = ArgTypePattern.parse(builder)
           if (ScalaElementTypes.ARG_TYPE_PATTERN.equals(res)) {
             rb.drop()
@@ -85,23 +85,21 @@ object TypePatternArgs {
       val tpaMarker = builder.mark()
       def end(msg: String) = {
         builder.error(msg)
-        ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLSQBRACKET , ScalaTokenTypes.tRSQBRACKET)
         tpaMarker.done(ScalaElementTypes.TYPE_PATTERN_ARGS)
         ScalaElementTypes.TYPE_PATTERN_ARGS
       }
-      ParserUtils.eatElement(builder,ScalaTokenTypes.tLSQBRACKET)
-      val res = ArgTypePatterns.parse(builder)
-      if (!ScalaElementTypes.WRONGWAY.equals(res)) {
+
+      builder.advanceLexer
+      if (!ScalaElementTypes.WRONGWAY.equals(ArgTypePatterns.parse(builder))) {
         if (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder,ScalaTokenTypes.tLSQBRACKET)
-          tpaMarker.done(ScalaElementTypes.TYPE_PATTERN_ARGS)
-          ScalaElementTypes.TYPE_PATTERN_ARGS
-        } else end ("] expected")
-      } else end("Wrong argument type patterns")
+          builder.advanceLexer
+        } else builder.error ("] expected")
+      } else builder.error("Argument type patterns expected")
+
+      tpaMarker.done(ScalaElementTypes.TYPE_PATTERN_ARGS)
+      ScalaElementTypes.TYPE_PATTERN_ARGS
     }
-    else {
-      ScalaElementTypes.WRONGWAY
-    }
+    else ScalaElementTypes.WRONGWAY
   }
 }
 
@@ -118,9 +116,9 @@ object SimpleTypePattern1 {
 
     def leftRecursion(currentMarker: PsiBuilder.Marker): ScalaElementType = {
       if (ScalaTokenTypes.tINNER_CLASS.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder,ScalaTokenTypes.tINNER_CLASS)
+        builder.advanceLexer
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder,ScalaTokenTypes.tIDENTIFIER)
+          builder.advanceLexer
           val next = currentMarker.precede()
           currentMarker.done(ScalaElementTypes.SIMPLE_TYPE_PATTERN1)
           leftRecursion(next)
@@ -137,9 +135,9 @@ object SimpleTypePattern1 {
 
     def dotType = {
       if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder,ScalaTokenTypes.tDOT)
+        builder.advanceLexer
         if (ScalaTokenTypes.kTYPE.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder,ScalaTokenTypes.kTYPE)
+          builder.advanceLexer
           val next = spm.precede()
           spm.done(ScalaElementTypes.SIMPLE_TYPE_PATTERN1)
           leftRecursion(next)
@@ -185,7 +183,7 @@ object SimpleTypePattern {
 
     def closeParent = {
       if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
-        ParserUtils.eatElement(builder,ScalaTokenTypes.tRBRACE)
+        builder.advanceLexer
         spm.done(ScalaElementTypes.SIMPLE_TYPE_PATTERN)
         ScalaElementTypes.SIMPLE_TYPE_PATTERN
       }
@@ -199,9 +197,9 @@ object SimpleTypePattern {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => {
         val uMarker = builder.mark()
-        ParserUtils.eatElement(builder,ScalaTokenTypes.tLBRACE)
+        builder.advanceLexer
         if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
-          ParserUtils.eatElement(builder,ScalaTokenTypes.tRBRACE)
+          builder.advanceLexer
           uMarker.done(ScalaElementTypes.UNIT)
           ScalaElementTypes.SIMPLE_TYPE_PATTERN
         } else {
@@ -209,15 +207,13 @@ object SimpleTypePattern {
           var res = ArgTypePattern.parse(builder)
           if (!ScalaElementTypes.WRONGWAY.equals(res)) {
             if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)){
-              ParserUtils.eatElement(builder,ScalaTokenTypes.tCOMMA)
+              builder.advanceLexer
               if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
                 closeParent
               } else {
                 val res1 = ArgTypePatterns.parse(builder)
                 if (!ScalaElementTypes.WRONGWAY.equals(res1)) {
-                  if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)){
-                    ParserUtils.eatElement(builder,ScalaTokenTypes.tCOMMA)
-                  }
+                  if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) builder.advanceLexer
                   closeParent
                 } else closeParent
               }
@@ -266,7 +262,7 @@ object TypePattern {
 
     def subParse: ScalaElementType = {
       if (ScalaTokenTypes.kWITH.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder,ScalaTokenTypes.kWITH)
+        builder.advanceLexer
         SimpleTypePattern.parse(builder)
         subParse
       } else {

@@ -190,8 +190,7 @@ object SimpleExpr {
               endness = "plain"
               flag = true
             } else {
-              builder.error(" Wrong expression")
-              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
+              builder.error(" Expression expected")
               inBraces = true
               new SimpleExprResult(ScalaElementTypes.SIMPLE_EXPR, "plain")
               result = res
@@ -327,13 +326,11 @@ object PrefixExpr {
                     }
                     case _ => {
                       builder.error(") expected")
-                      ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
                       argsMarker.done(ScalaElementTypes.ARG_EXPRS)
                       ScalaElementTypes.ARG_EXPRS
                     }
                   }
                 } else {
-                  ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
                   argsMarker.error("Wrong expression")
                   ScalaElementTypes.ARG_EXPRS
                 }
@@ -346,7 +343,6 @@ object PrefixExpr {
               case _ => {
                 builder.error(") expected")
                 exprsMarker.drop()
-                ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
                 argsMarker.done(ScalaElementTypes.SIMPLE_EXPR)
                 ScalaElementTypes.SIMPLE_EXPR
               }
@@ -354,8 +350,7 @@ object PrefixExpr {
 
           } else {
             exprsMarker.drop()
-            builder.error("Wrong expression")
-            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
+            builder.error("Expression expected")
             argsMarker.done(ScalaElementTypes.SIMPLE_EXPR)
             ScalaElementTypes.SIMPLE_EXPR
           }
