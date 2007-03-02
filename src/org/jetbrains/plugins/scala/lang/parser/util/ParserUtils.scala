@@ -54,17 +54,6 @@ object ParserUtils {
     while (! stack.isEmpty) stack.pop
   }
 
-  /* rolls forward towards right brace */
-  def rollPanicToBrace(builder: PsiBuilder, lbrace: IElementType, rbrace: IElementType) = {
-    val stack = new Stack[IElementType]
-    stack += lbrace
-    while (! builder.eof && ! stack.isEmpty){
-      if (lbrace.equals(builder.getTokenType)) stack += lbrace
-      else if (rbrace.equals(builder.getTokenType)) stack.pop
-      eatElement(builder, builder.getTokenType)
-    }
-  }
-
   /* Roll forward throug line terminators*/
   def rollForward(builder: PsiBuilder): Boolean = {
     var counter = 0

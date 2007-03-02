@@ -100,7 +100,6 @@ object CompositeExpr {
                   braceMarker.drop()
                   builder.error("Case clauses expected")
                   rollbackMarker.drop()
-                  ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
                   compMarker.done(ScalaElementTypes.MATCH_STMT)
                   ScalaElementTypes.EXPR1
                 }
@@ -108,7 +107,6 @@ object CompositeExpr {
                 braceMarker.drop()
                 builder.error("Case clauses expected")
                 rollbackMarker.drop()
-                ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
                 compMarker.done(ScalaElementTypes.MATCH_STMT)
                 ScalaElementTypes.EXPR1
               }
@@ -311,7 +309,6 @@ object CompositeExpr {
               parseContent
             } else {
               builder.error(" ) expected")
-              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
               if (! builder.eof) {
                 parseContent
               }
@@ -322,8 +319,7 @@ object CompositeExpr {
               }
             }
           } else {
-            builder.error("Wrong expression")
-            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
+            builder.error("Expression expected")
             if (! builder.eof) {
               parseContent
             }
@@ -361,13 +357,12 @@ object CompositeExpr {
 
       def parseError(st: String) = {
         //        builder.error(st)
-        ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
         if (! builder.eof) {
           parseContent
         }
         else {
           rollbackMarker.drop()
-          compMarker.error(st)
+          builder.error(st)
           ScalaElementTypes.EXPR1
         }
       }
@@ -459,7 +454,6 @@ object CompositeExpr {
 
       def parseError(st: String, elem1: IElementType, elem2: IElementType) = {
         builder.error(st)
-        ParserUtils.rollPanicToBrace(builder, elem1, elem2)
         if (! builder.eof) {
           bodyParse
         }
@@ -517,11 +511,9 @@ object CompositeExpr {
               ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
             } else {
               builder.error("} expected")
-              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
             }
           } else {
-            builder.error("Wrong case clauses")
-            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
+            builder.error("Case clauses expected")
           }
         } else {
           builder.error(" { expected ")
@@ -535,7 +527,7 @@ object CompositeExpr {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kFINALLY)
         var result = Expr.parse(builder)
         if (result.equals(ScalaElementTypes.WRONGWAY)) {
-          builder.error("Wrong expression")
+          builder.error("Expression expected")
         }
         finMarker.done(ScalaElementTypes.FINALLY_BLOCK)
         ScalaElementTypes.FINALLY_BLOCK
@@ -556,12 +548,10 @@ object CompositeExpr {
             if (ScalaTokenTypes.kFINALLY.equals(builder.getTokenType)) parseFinally
           } else {
             builder.error(brace + " expected")
-            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
             tryMarker.done(ScalaElementTypes.TRY_BLOCK)
           }
         } else {
-          builder.error("Wrong block")
-          ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
+          builder.error("Block expected")
           tryMarker.done(ScalaElementTypes.TRY_BLOCK)
         }
         compMarker.done(ScalaElementTypes.TRY_STMT)

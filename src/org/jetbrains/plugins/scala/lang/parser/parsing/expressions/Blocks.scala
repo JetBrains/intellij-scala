@@ -32,9 +32,9 @@ object BlockExpr {
 
     if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
       val um = builder.mark()
-      ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
+      builder.advanceLexer
       if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+        builder.advanceLexer
         um.done(ScalaElementTypes.UNIT)
         blockExprMarker.drop()
         ScalaElementTypes.BLOCK_EXPR
@@ -49,19 +49,17 @@ object BlockExpr {
         if (result.equals(ScalaElementTypes.BLOCK)) {
           ParserUtils.rollForward(builder)
           if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+            builder.advanceLexer
             blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
             ScalaElementTypes.BLOCK_EXPR
           } else {
             builder.error("} expected")
-            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
             blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
             ScalaElementTypes.BLOCK_EXPR
           }
         } else {
           var errMarker = builder.mark()
-          ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
-          errMarker.error("Wrong inner block statement")
+          errMarker.error("Block expected")
           blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
           ScalaElementTypes.BLOCK_EXPR
         }
@@ -70,18 +68,16 @@ object BlockExpr {
         var result = CaseClauses.parse(builder)
         if (result.equals(ScalaElementTypes.CASE_CLAUSES)) {
           if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+            builder.advanceLexer
             blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
             ScalaElementTypes.BLOCK_EXPR
           } else {
             builder.error("} expected")
-            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
             blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
             ScalaElementTypes.BLOCK_EXPR
           }
         } else {
-          ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
-          blockExprMarker.error("Wrong inner block statement")
+          blockExprMarker.error("Block expected")
           ScalaElementTypes.BLOCK_EXPR
         }
       }
@@ -120,7 +116,6 @@ object Block {
           case ScalaTokenTypes.tLINE_TERMINATOR
           | ScalaTokenTypes.tSEMICOLON => {
             builder.advanceLexer
-            //ParserUtils.eatElement(builder, builder.getTokenType())
             flag2 = true
           }
           case _ => flag1 = false
@@ -142,7 +137,7 @@ object Block {
     def tupleParse: Unit = {
       tmAlive = false
       if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+        builder.advanceLexer
         val res = CompositeExpr.parse(builder)
         if (ScalaElementTypes.EXPR1.equals(res)) {
           builder.getTokenType match {
