@@ -322,7 +322,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
 
         def close (msg: String) = {
           builder.error(msg)
-          ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
           currentMarker.drop()
           ScalaElementTypes.CLOSED
         }

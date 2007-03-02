@@ -307,9 +307,9 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
           } else {
             Block parse(builder, true)
             if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
-              builder.advanceLexer()
+              builder.advanceLexer
             } else {
-              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE)
+              builder.error ("} expected")
             }
             bm.done(ScalaElementTypes.BLOCK_EXPR)
           }
