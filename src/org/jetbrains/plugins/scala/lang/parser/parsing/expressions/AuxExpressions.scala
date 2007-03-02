@@ -29,7 +29,7 @@ ArgumentExprs ::= ‘(’ [Exprs] ’)’
 
         // Process ")" symbol
         def closeParent: ScalaElementType = {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
           argsMarker.done(ScalaElementTypes.ARG_EXPRS)
           ScalaElementTypes.ARG_EXPRS
         }
@@ -38,25 +38,25 @@ ArgumentExprs ::= ‘(’ [Exprs] ’)’
           if (ScalaElementTypes.BLOCK_EXPR.equals(result))
           argsMarker.done(ScalaElementTypes.ARG_EXPRS)
           ScalaElementTypes.ARG_EXPRS
-        } else if (ScalaTokenTypes.tLPARENTHIS.equals(builder getTokenType)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-          if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
+        } else if (ScalaTokenTypes.tLPARENTHESIS.equals(builder getTokenType)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
+          if (ScalaTokenTypes.tRPARENTHESIS.eq(builder getTokenType)) {
             closeParent
           } else {
             var res = Exprs.parse(builder, null)
             if (res.eq(ScalaElementTypes.EXPRS)) {
               builder.getTokenType match {
-                case ScalaTokenTypes.tRPARENTHIS => closeParent
+                case ScalaTokenTypes.tRPARENTHESIS => closeParent
                 case _ => {
                   builder.error(") expected")
-                  ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+                  ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
                   argsMarker.done(ScalaElementTypes.ARG_EXPRS)
                   ScalaElementTypes.ARG_EXPRS
                 }
               }
             } else {
               //builder.error("Wrong arguments")
-              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
               argsMarker.error("Wrong arguments")
               //argsMarker.done(ScalaElementTypes.ARG_EXPRS)
               ScalaElementTypes.ARG_EXPRS

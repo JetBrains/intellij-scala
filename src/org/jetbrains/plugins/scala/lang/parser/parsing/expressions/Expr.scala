@@ -83,17 +83,17 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
       var third = builder.getTokenType;
       rbMarker.rollbackTo()
 
-      if (ScalaTokenTypes.tLPARENTHIS.equals(first) &&
-      ScalaTokenTypes.tRPARENTHIS.equals(second) &&
+      if (ScalaTokenTypes.tLPARENTHESIS.equals(first) &&
+      ScalaTokenTypes.tRPARENTHESIS.equals(second) &&
       ! ScalaTokenTypes.tDOT.equals(third)) {
 
         // () => ...
         /* Let's kick it! */
         val uMarker = builder.mark()
         builder.getTokenType
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
         builder.getTokenType
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
         uMarker.done(ScalaElementTypes.UNIT)
         if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
@@ -225,16 +225,16 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
       ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
 
 
-      if (ScalaTokenTypes.tLPARENTHIS.equals(first) &&
-      ScalaTokenTypes.tRPARENTHIS.equals(second) &&
+      if (ScalaTokenTypes.tLPARENTHESIS.equals(first) &&
+      ScalaTokenTypes.tRPARENTHESIS.equals(second) &&
       ! ScalaTokenTypes.tDOT.equals(third)) {  // () => ...
         /* Let's kick it! */
         rbMarker.rollbackTo()
         val uMarker = builder.mark()
         builder.getTokenType
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
         builder.getTokenType
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
         uMarker.done(ScalaElementTypes.UNIT)
         if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
@@ -310,7 +310,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
             } &&
             {
               ParserUtils.eatElement(builder, builder.getTokenType)
-              ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)
+              ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType)
             }) {
               rbm.drop()
               exprsMarker.drop

@@ -374,13 +374,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
           }
         }
         /* | ‘(’ Type ’)’ */
-        else if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) { // Try to parse '(' Type ')' statement
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+        else if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType)) { // Try to parse '(' Type ')' statement
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
           var res1 = Type parse (builder)
           if (res1.equals(ScalaElementTypes.TYPE)) {
             builder.getTokenType match {
-              case ScalaTokenTypes.tRPARENTHIS => {
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+              case ScalaTokenTypes.tRPARENTHESIS => {
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
                 ScalaElementTypes.SIMPLE_TYPE
               }
               // For ([Types])
@@ -555,7 +555,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
 
       // If ')' symbol - the end of list of parameter list encountered
       def rightBraceProcessing(typesMarker: PsiBuilder.Marker) : ScalaElementType = {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
         typesMarker.done(ScalaElementTypes.TYPES)
         if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
@@ -596,12 +596,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
           case _ => {
             rbm.rollbackTo()
             // Suppose, that it is statement that begins form ([Types])
-            if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
+            if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType)){
 
               val typesMarker = builder.mark() // Eat types of parameters
               def end(msg: String) = {
                 builder.error(msg)
-                ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+                ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
                 typesMarker.drop()
                 typeMarker.done(ScalaElementTypes.TYPE)
                 ScalaElementTypes.TYPE
@@ -612,20 +612,20 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
                               msg: String) = {
                 var res = result
                 if (res.equals(elem)) {
-                  if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
+                  if (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType)){
                     rightBraceProcessing(typesMarker)
                   } else end("Right brace expected")
                 } else end(msg)
               }
 
-              ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
               if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType)) {
                 ParserUtils.eatElement(builder, ScalaTokenTypes.tFUNTYPE)
                 argProcess(ScalaElementTypes.TYPE,
                            Type.parse(builder),
                            "Type expected")
               } else {
-                if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
+                if (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType)){
                   rightBraceProcessing(typesMarker)
                 } else {
                   argProcess(ScalaElementTypes.TYPES,
@@ -642,11 +642,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
         }
       }
 
-      if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
+      if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType)){
         var rMarker = builder.mark()
         val typesMarker = builder.mark() // Eat types of parameters
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-        if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
+        if (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType)){
           rMarker.drop()
           rightBraceProcessing(typesMarker)
         } else {
@@ -718,43 +718,29 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
 
     def parse(builder : PsiBuilder) : ScalaElementType = {
 
-      var result = ScalaElementTypes.TYPE_ARGS
       val typeArgsMarker = builder.mark()
-
-      def closeBracket = builder.getTokenType match {
-        case ScalaTokenTypes.tRSQBRACKET => {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
-          result = ScalaElementTypes.TYPE_ARGS
-        }
-        case _ => {
-          builder.error("] expected")
-          ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLSQBRACKET, ScalaTokenTypes.tRSQBRACKET)
-          result = ScalaElementTypes.TYPE_ARGS
-        }
-      }
 
       if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
-        if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType)){
-          ParserUtils.eatElement(builder, builder.getTokenType)
-          closeBracket
-        } else {
-          var res = Types.parse(builder, false)
-          if (res.equals(ScalaElementTypes.TYPES)) {
-            closeBracket
-          } else {
-            builder.error("Wrong type")
-            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLSQBRACKET, ScalaTokenTypes.tRSQBRACKET)
-            result = ScalaElementTypes.TYPE_ARGS
-          }
+        builder.getTokenType match {
+          case ScalaTokenTypes.tUNDER => ParserUtils.eatElement(builder, builder.getTokenType)
+          case _ => Types.parse(builder, false)
         }
+
+        builder.getTokenType match {
+          case ScalaTokenTypes.tRSQBRACKET => {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tRSQBRACKET)
+          }
+          case _ => builder.error("] expected")
+        }
+
+        typeArgsMarker.done(ScalaElementTypes.TYPE_ARGS)
+        ScalaElementTypes.TYPE_ARGS
       } else {
         builder.error ("[ expected")
-        result = ScalaElementTypes.WRONGWAY
+        typeArgsMarker.rollbackTo()
+        ScalaElementTypes.WRONGWAY
       }
-      if (result.equals(ScalaElementTypes.TYPE_ARGS)) typeArgsMarker.done(ScalaElementTypes.TYPE_ARGS)
-        else typeArgsMarker.rollbackTo()
-      result
     }
   }
 

@@ -48,7 +48,7 @@ package spacing {
             ScalaTokenTypes.tCOMMA,
             ScalaTokenTypes.tSEMICOLON,
             ScalaTokenTypes.tCOLON,
-            ScalaTokenTypes.tRPARENTHIS,
+            ScalaTokenTypes.tRPARENTHESIS,
             ScalaTokenTypes.tRSQBRACKET))
 
     val SPACING_AFTER = TokenSet.orSet(Array(TokenSet.create(Array(ScalaTokenTypes.tCOMMA,
@@ -57,7 +57,7 @@ package spacing {
             ScalaSyntaxHighlighter.kRESWORDS))
 
     val NO_SPACING_AFTER = TokenSet.create(Array(ScalaTokenTypes.tDOT,
-            ScalaTokenTypes.tLPARENTHIS,
+            ScalaTokenTypes.tLPARENTHESIS,
             ScalaTokenTypes.tLSQBRACKET))
 
     val SINGLE_SPACING_BETWEEN = TokenSet.create(Array(ScalaElementTypes.INFIX_EXPR,

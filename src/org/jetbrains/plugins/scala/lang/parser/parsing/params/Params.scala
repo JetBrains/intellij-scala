@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.util.DebugPrint
               b = c
             }
 
-            a.equals(ScalaTokenTypes.tLPARENTHIS) && (param.first.contains(b) || b.equals(ScalaTokenTypes.tRPARENTHIS))
+            a.equals(ScalaTokenTypes.tLPARENTHESIS) && (param.first.contains(b) || b.equals(ScalaTokenTypes.tRPARENTHESIS))
 
           }
 
@@ -50,7 +50,7 @@ import org.jetbrains.plugins.scala.util.DebugPrint
               b = c
             }
 
-            a.equals(ScalaTokenTypes.tLPARENTHIS) && b.equals(ScalaTokenTypes.kIMPLICIT)
+            a.equals(ScalaTokenTypes.tLPARENTHESIS) && b.equals(ScalaTokenTypes.kIMPLICIT)
 
           }
       
@@ -106,8 +106,8 @@ import org.jetbrains.plugins.scala.util.DebugPrint
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
       }
 
-      if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+      if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
 
       } else {
         builder error "'(' expected"
@@ -118,8 +118,8 @@ import org.jetbrains.plugins.scala.util.DebugPrint
         ParserUtils.listOfSmth(builder, param, ScalaTokenTypes.tCOMMA, ScalaElementTypes.PARAMS)
       }
 
-      if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+      if (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
       } else {
         builder error "')' expected"
         return
@@ -139,8 +139,8 @@ import org.jetbrains.plugins.scala.util.DebugPrint
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
         }
 
-        if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+        if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
         } else {
           builder.error("'(' expected")
           return
@@ -160,8 +160,8 @@ import org.jetbrains.plugins.scala.util.DebugPrint
           return
         }
 
-        if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+        if (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
         } else {
           builder.error("')' expected")
           return

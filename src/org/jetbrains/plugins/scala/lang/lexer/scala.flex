@@ -47,7 +47,7 @@ import org.jetbrains.annotations.NotNull;
     private void changeState(){
       if (braceStack.isEmpty()) {
         yybegin(YYINITIAL);
-      } else if ( tLPARENTHIS.equals(braceStack.peek()) || tLSQBRACKET.equals(braceStack.peek()) ){
+      } else if ( tLPARENTHESIS.equals(braceStack.peek()) || tLSQBRACKET.equals(braceStack.peek()) ){
         yybegin(NEW_LINE_DEPRECATED);
       } else {
         yybegin(NEW_LINE_ALLOWED);
@@ -61,7 +61,7 @@ import org.jetbrains.annotations.NotNull;
           (
             (elem.equals(tRSQBRACKET) && tLSQBRACKET.equals(braceStack.peek())) ||
             (elem.equals(tRBRACE) && tLBRACE.equals(braceStack.peek())) ||
-            (elem.equals(tRPARENTHIS) && tLPARENTHIS.equals(braceStack.peek()))
+            (elem.equals(tRPARENTHESIS) && tLPARENTHESIS.equals(braceStack.peek()))
           )
         ) {
           braceStack.pop();
@@ -206,7 +206,7 @@ WhiteSpaceInLine = {InLineTerminator}
                                             return process(tRBRACE); }
 
 ")"                                     {   processNewLine();
-                                            return process(tRPARENTHIS); }
+                                            return process(tRPARENTHESIS); }
 "=>"                                    {   return process(tFUNTYPE);  }
 
 }
@@ -378,11 +378,11 @@ WhiteSpaceInLine = {InLineTerminator}
 "}"                                     {   processNewLine();
                                             return popBraceStack(tRBRACE); }
 
-"("                                     {   braceStack.push(tLPARENTHIS);
+"("                                     {   braceStack.push(tLPARENTHESIS);
                                             yybegin(NEW_LINE_DEPRECATED);
-                                            return process(tLPARENTHIS); }
+                                            return process(tLPARENTHESIS); }
 ")"                                     {   processNewLine();
-                                            return popBraceStack(tRPARENTHIS); }
+                                            return popBraceStack(tRPARENTHESIS); }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

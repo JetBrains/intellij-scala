@@ -141,9 +141,9 @@ object Attribute extends Constr{
         TypeArgs.parse(builder)
       }
 
-      while (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) {
-        if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+      while (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType)) {
+        if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
         } else {
           builder.error("'(' expected")
           return
@@ -153,8 +153,8 @@ object Attribute extends Constr{
           Exprs.parse(builder, null)
         }
 
-        if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+        if (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
         } else if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)){
           // Suppose, that this is construction like
           // (... expr : _* )
@@ -166,9 +166,9 @@ object Attribute extends Constr{
               } &&
               {
                 ParserUtils.eatElement(builder, builder.getTokenType)
-                ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)
+                ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType)
               } ) {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
           } else {
             builder.error("Sequence argument or ) expected")
           }

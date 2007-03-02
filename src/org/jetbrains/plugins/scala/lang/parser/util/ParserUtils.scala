@@ -23,7 +23,7 @@ object ParserUtils {
 
     while (flag && ! builder.eof && ! elems.contains(builder.getTokenType)){
 
-      if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType) ||
+      if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType) ||
       ScalaTokenTypes.tLBRACE.equals(builder.getTokenType) ||
       ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)) {
         stack += builder.getTokenType
@@ -31,8 +31,8 @@ object ParserUtils {
         //eatElement(builder , builder.getTokenType)
       }
       else if (! stack.isEmpty &&
-      ((ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType) &&
-      ScalaTokenTypes.tLPARENTHIS.equals(stack.top)) ||
+      ((ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType) &&
+      ScalaTokenTypes.tLPARENTHESIS.equals(stack.top)) ||
       (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) &&
       ScalaTokenTypes.tLBRACE.equals(stack.top)) ||
       (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType) &&
@@ -42,7 +42,7 @@ object ParserUtils {
         //eatElement(builder , builder.getTokenType)
       }
       else if (stack.isEmpty &&
-      (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType) ||
+      (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType) ||
       ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) ||
       ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType))) {
         flag = false
@@ -63,7 +63,6 @@ object ParserUtils {
       else if (rbrace.equals(builder.getTokenType)) stack.pop
       eatElement(builder, builder.getTokenType)
     }
-    while (! stack.isEmpty) stack.pop
   }
 
   /* Roll forward throug line terminators*/

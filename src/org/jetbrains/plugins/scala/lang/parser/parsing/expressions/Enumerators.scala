@@ -118,7 +118,7 @@ object Enumerators{
     val ensMarker = builder.mark()
     elems += ScalaTokenTypes.tLINE_TERMINATOR
     elems += ScalaTokenTypes.tSEMICOLON
-    //elems += ScalaTokenTypes.tRPARENTHIS
+    //elems += ScalaTokenTypes.tRPARENTHESIS
 
     def matchToken = builder.getTokenType match {
         case  ScalaTokenTypes.tSEMICOLON
@@ -133,7 +133,7 @@ object Enumerators{
       }
 
     def subParse: ScalaElementType = {
-      //if (!ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
+      //if (!ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType)){
       if (!rightBrace.equals(builder.getTokenType)){
         var res = Enumerator.parse(builder)
         if (ScalaElementTypes.WRONGWAY.equals(res)){
@@ -141,7 +141,7 @@ object Enumerators{
           ParserUtils.rollPanic(builder, elems)
         } else {
           if (!elems.contains(builder.getTokenType)
-             //&& !ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType) ) {
+             //&& !ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType) ) {
              && !rightBrace.equals(builder.getTokenType) ) {
             builder.error("Wrong enumerator")
             ParserUtils.rollPanic(builder, elems)

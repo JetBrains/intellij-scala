@@ -118,7 +118,7 @@ object CompilationUnit extends ConstrWithoutNode {
           builder.getTokenType match {
             case ScalaTokenTypes.tRBRACE |
               ScalaTokenTypes.tRSQBRACKET |
-              ScalaTokenTypes.tRPARENTHIS  => return
+              ScalaTokenTypes.tRPARENTHESIS  => return
 
             case _ => {}
           }
@@ -152,7 +152,7 @@ object CompilationUnit extends ConstrWithoutNode {
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => unstructuredTrashMarker.done(ScalaElementTypes.TRASH); parseTopStatSeqInBlock(builder); return;
             //            case ScalaTokenTypes.tLSQBRACKET => unstructuredTrashMarker.done(ScalaElementTypes.TRASH); parseTypeParamInBlock(builder); return;
-            //            case ScalaTokenTypes.tLPARENTHIS => unstructuredTrashMarker.done(ScalaElementTypes.TRASH); parseParamsInBlock(builder); return;
+            //            case ScalaTokenTypes.tLPARENTHESIS => unstructuredTrashMarker.done(ScalaElementTypes.TRASH); parseParamsInBlock(builder); return;
             case _ => {builder.advanceLexer}
           }
         }
@@ -168,7 +168,7 @@ object CompilationUnit extends ConstrWithoutNode {
       builder.getTokenType match {
         case ScalaTokenTypes.tLBRACE |
           ScalaTokenTypes.tLSQBRACKET |
-          ScalaTokenTypes.tLPARENTHIS => builder.advanceLexer
+          ScalaTokenTypes.tLPARENTHESIS => builder.advanceLexer
 
         case _ => {builder error "open brace expected"; trashBlockMarker.drop; return}
       }
@@ -178,7 +178,7 @@ object CompilationUnit extends ConstrWithoutNode {
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE |
           ScalaTokenTypes.tRSQBRACKET |
-          ScalaTokenTypes.tRPARENTHIS  => builder.advanceLexer
+          ScalaTokenTypes.tRPARENTHESIS  => builder.advanceLexer
 
         case _ => {}
       }
