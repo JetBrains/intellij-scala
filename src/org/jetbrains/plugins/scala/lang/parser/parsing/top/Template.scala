@@ -172,7 +172,7 @@ object Template extends Constr{
              ScalaTokenTypes.tLSQBRACKET |
              ScalaTokenTypes.tLPARENTHESIS => builder.advanceLexer
 
-        case _ => {builder error "open brace expected"; trashBlockMarker.drop; return}
+        case _ => {builder error "'{' or '[' or '(' expected"; trashBlockMarker.drop; return}
       }
 
       TemplateStatSeq parse builder
