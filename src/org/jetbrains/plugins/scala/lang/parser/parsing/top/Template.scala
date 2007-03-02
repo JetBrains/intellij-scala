@@ -130,7 +130,7 @@ object Template extends Constr{
            builder.getTokenType match {
               case ScalaTokenTypes.tRBRACE |
                    ScalaTokenTypes.tRSQBRACKET |
-                   ScalaTokenTypes.tRPARENTHIS  => return
+                   ScalaTokenTypes.tRPARENTHESIS  => return
 
               case _ => {}
             }
@@ -170,7 +170,7 @@ object Template extends Constr{
       builder.getTokenType match {
         case ScalaTokenTypes.tLBRACE |
              ScalaTokenTypes.tLSQBRACKET |
-             ScalaTokenTypes.tLPARENTHIS => builder.advanceLexer
+             ScalaTokenTypes.tLPARENTHESIS => builder.advanceLexer
 
         case _ => {builder error "open brace expected"; trashBlockMarker.drop; return}
       }
@@ -180,7 +180,7 @@ object Template extends Constr{
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE |
              ScalaTokenTypes.tRSQBRACKET |
-             ScalaTokenTypes.tRPARENTHIS  => builder.advanceLexer
+             ScalaTokenTypes.tRPARENTHESIS  => builder.advanceLexer
 
         case _ => {}
       }

@@ -51,8 +51,8 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   static final TokenSet tBRACES = TokenSet.create(
     ScalaTokenTypes.tLBRACE,
     ScalaTokenTypes.tRBRACE,
-    ScalaTokenTypes.tLPARENTHIS,
-    ScalaTokenTypes.tRPARENTHIS,
+    ScalaTokenTypes.tLPARENTHESIS,
+    ScalaTokenTypes.tRPARENTHESIS,
     ScalaTokenTypes.tLSQBRACKET,
     ScalaTokenTypes.tRSQBRACKET
   );

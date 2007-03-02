@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 public class ScalaBraceMatcher implements PairedBraceMatcher {
 
   private static final BracePair[] PAIRS = new BracePair[]{
-          new BracePair('(', ScalaTokenTypes.tLPARENTHIS, ')', ScalaTokenTypes.tRPARENTHIS, false),
+          new BracePair('(', ScalaTokenTypes.tLPARENTHESIS, ')', ScalaTokenTypes.tRPARENTHESIS, false),
           new BracePair('[', ScalaTokenTypes.tLSQBRACKET, ']', ScalaTokenTypes.tRSQBRACKET, false),
           new BracePair('{', ScalaTokenTypes.tLBRACE, '}', ScalaTokenTypes.tRBRACE, true)
   };

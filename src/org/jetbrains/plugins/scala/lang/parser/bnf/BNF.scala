@@ -22,7 +22,7 @@ object BNF {
   val tSIMPLE_FIRST: TokenSet = TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER,
       ScalaTokenTypes.kTHIS,
       ScalaTokenTypes.kSUPER,
-      ScalaTokenTypes.tLPARENTHIS,
+      ScalaTokenTypes.tLPARENTHESIS,
       ScalaTokenTypes.kNEW))
 
   val tPREFIXES: TokenSet = TokenSet.create(Array(ScalaTokenTypes.tPLUS,
@@ -51,7 +51,7 @@ object BNF {
     firstLiteral,
     TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER,
       ScalaTokenTypes.tUNDER,
-      ScalaTokenTypes.tLPARENTHIS)),
+      ScalaTokenTypes.tLPARENTHESIS)),
       firstXmlPattern
   ))
 
@@ -64,7 +64,7 @@ object BNF {
       firstPath,
       TokenSet.create(Array(
       ScalaTokenTypes.tLBRACE,
-      ScalaTokenTypes.tLPARENTHIS,
+      ScalaTokenTypes.tLPARENTHESIS,
       ScalaTokenTypes.kNEW)),
       firstXmlExpr))
 
@@ -102,7 +102,7 @@ object BNF {
 
 
   val firstArgumentExprs: TokenSet = TokenSet.create(Array(ScalaTokenTypes.tLBRACE,
-      ScalaTokenTypes.tLPARENTHIS))
+      ScalaTokenTypes.tLPARENTHESIS))
 
 
   val firstStatementSeparator: TokenSet = TokenSet.create(Array(ScalaTokenTypes.tLINE_TERMINATOR,
@@ -111,7 +111,7 @@ object BNF {
   val firstSimpleType: TokenSet = TokenSet.orSet(Array(
       firstStableId,
       firstPath,
-      TokenSet.create(Array(ScalaTokenTypes.tLPARENTHIS))
+      TokenSet.create(Array(ScalaTokenTypes.tLPARENTHESIS))
       ))
 
   val firstType1: TokenSet = firstSimpleType
@@ -172,18 +172,18 @@ object BNF {
 
 
   val firstParamClause = TokenSet.create(Array(ScalaTokenTypes.tLINE_TERMINATOR,
-      ScalaTokenTypes.tLPARENTHIS))
+      ScalaTokenTypes.tLPARENTHESIS))
 
   val firstClassParamClause = TokenSet.create(Array(ScalaTokenTypes.tLINE_TERMINATOR,
-      ScalaTokenTypes.tLPARENTHIS))
+      ScalaTokenTypes.tLPARENTHESIS))
 
 
   val firstParamClauses = TokenSet.orSet(Array(firstParamClause,
-      TokenSet.create(Array(ScalaTokenTypes.tLPARENTHIS))))
+      TokenSet.create(Array(ScalaTokenTypes.tLPARENTHESIS))))
 
 
   val firstClassParamClauses = TokenSet.orSet(Array(firstClassParamClause,
-      TokenSet.create(Array(ScalaTokenTypes.tLPARENTHIS))))
+      TokenSet.create(Array(ScalaTokenTypes.tLPARENTHESIS))))
 
 
   val firstParamType = TokenSet.orSet(Array(firstType,

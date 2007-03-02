@@ -29,7 +29,7 @@ object SimplePattern {
 
     // Process ")" symbol
     def closeParent: ScalaElementType = {
-      ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+      ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
       spMarker.drop()
       ScalaElementTypes.SIMPLE_PATTERN
     }
@@ -55,20 +55,20 @@ object SimplePattern {
 
       // Process ")" symbol
       def closeParent: ScalaElementType = {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
         argsMarker.done(ScalaElementTypes.PATTERNS)
         ScalaElementTypes.PATTERNS
       }
 
-      if (ScalaTokenTypes.tLPARENTHIS.equals(builder getTokenType)){
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-        if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
+      if (ScalaTokenTypes.tLPARENTHESIS.equals(builder getTokenType)){
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
+        if (ScalaTokenTypes.tRPARENTHESIS.eq(builder getTokenType)) {
           closeParent
         } else {
           var res = Patterns.parse(builder)
           if (res.equals(ScalaElementTypes.PATTERNS)) {
             // LOOK!!! ParserUtils.rollForward(builder)
-            if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
+            if (ScalaTokenTypes.tRPARENTHESIS.eq(builder getTokenType)) {
               closeParent
             } else {
               builder.error(") expected")
@@ -90,7 +90,7 @@ object SimplePattern {
     def parseStableId: ScalaElementType = {
       var result = StableId.parse(builder)
       if (ScalaElementTypes.STABLE_ID.equals(result) || ScalaElementTypes.STABLE_ID_ID.equals(result)) {
-        if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
+        if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType)){
           argsParse
           spMarker.done(ScalaElementTypes.SIMPLE_PATTERN1)
           ScalaElementTypes.SIMPLE_PATTERN
@@ -111,12 +111,12 @@ object SimplePattern {
       spMarker.drop()
       ScalaElementTypes.SIMPLE_PATTERN
       // ‘(’ [Pattern] ‘)’
-    } else if (ScalaTokenTypes.tLPARENTHIS.eq(builder getTokenType)){
+    } else if (ScalaTokenTypes.tLPARENTHESIS.eq(builder getTokenType)){
       var um = builder.mark()
-      ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+      ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
       // LOOK!!! ParserUtils.rollForward(builder)
-      if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+      if (ScalaTokenTypes.tRPARENTHESIS.eq(builder getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
         um.done(ScalaElementTypes.UNIT)
         spMarker.drop()
         ScalaElementTypes.SIMPLE_PATTERN
@@ -124,7 +124,7 @@ object SimplePattern {
         um.drop()
         var res = Pattern.parse(builder)
         if (ScalaElementTypes.PATTERN.equals(res)) {
-          if (ScalaTokenTypes.tRPARENTHIS.equals(builder getTokenType)) {
+          if (ScalaTokenTypes.tRPARENTHESIS.equals(builder getTokenType)) {
             closeParent
           } else {
             builder.error(") expected")
@@ -185,7 +185,7 @@ object SimplePattern {
       if (builder.getTokenText.substring(0, 1).toLowerCase ==
       builder.getTokenText.substring(0, 1)) {// if variable id
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-        if (! builder.getTokenType.equals(ScalaTokenTypes.tLPARENTHIS) &&
+        if (! builder.getTokenType.equals(ScalaTokenTypes.tLPARENTHESIS) &&
         ! builder.getTokenType.equals(ScalaTokenTypes.tDOT)) {
           spMarker.drop()
           ScalaElementTypes.SIMPLE_PATTERN

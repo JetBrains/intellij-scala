@@ -50,8 +50,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
           var res = oneBindingParse
           if (res.equals(ScalaElementTypes.BINDING)){
             builder.getTokenType match {
-              case ScalaTokenTypes.tRPARENTHIS => {
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+              case ScalaTokenTypes.tRPARENTHESIS => {
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
                 bindMarker.drop()
                 ScalaElementTypes.BINDINGS
               }
@@ -73,13 +73,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
           }
         }
 
-        if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+        if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
           var res = oneBindingParse
           if (res.equals(ScalaElementTypes.BINDING)){
             builder.getTokenType match {
-              case ScalaTokenTypes.tRPARENTHIS => {
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+              case ScalaTokenTypes.tRPARENTHESIS => {
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
                 bindMarker.drop()
                 ScalaElementTypes.BINDINGS
               }

@@ -122,7 +122,7 @@ object CompositeExpr {
             ! ScalaElementTypes.POSTFIX_EXPR.equals(result) &&
             ! ScalaElementTypes.PREFIX_EXPR.equals(result)){
               if (ScalaTokenTypes.tASSIGN.equals(builder.getTokenType) ||
-              ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType) ||
+              ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType) ||
               ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
                 rollbackMarker.rollbackTo()
                 ScalaElementTypes.WRONGWAY
@@ -302,16 +302,16 @@ object CompositeExpr {
 
       if (builder.getTokenType.eq(ScalaTokenTypes.kIF)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kIF)
-        if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+        if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
           val res = Expr parse (builder)
           if (res.eq(ScalaElementTypes.EXPR)){
-            if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)){
-              ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+            if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHESIS)){
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
               parseContent
             } else {
               builder.error(" ) expected")
-              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
               if (! builder.eof) {
                 parseContent
               }
@@ -323,7 +323,7 @@ object CompositeExpr {
             }
           } else {
             builder.error("Wrong expression")
-            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
             if (! builder.eof) {
               parseContent
             }
@@ -361,7 +361,7 @@ object CompositeExpr {
 
       def parseError(st: String) = {
         //        builder.error(st)
-        ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+        ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
         if (! builder.eof) {
           parseContent
         }
@@ -377,12 +377,12 @@ object CompositeExpr {
 
       if (builder.getTokenType.eq(ScalaTokenTypes.kWHILE)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kWHILE)
-        if (ScalaTokenTypes.tLPARENTHIS.equals(builder.getTokenType)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+        if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
           val res = Expr parse (builder)
           if (ScalaElementTypes.EXPR.eq(res)){
-            if (ScalaTokenTypes.tRPARENTHIS.equals(builder.getTokenType)){
-              ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+            if (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType)){
+              ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
               parseContent
             } else parseError(") expected")
           } else parseError("Wrong expression")
@@ -404,12 +404,12 @@ object CompositeExpr {
       def whileProcessing = {
         if (builder.getTokenType.eq(ScalaTokenTypes.kWHILE)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.kWHILE)
-          if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)){
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
+          if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHESIS)){
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
             val res = Expr parse (builder)
             if (res.eq(ScalaElementTypes.EXPR)){
-              if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)){
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+              if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHESIS)){
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
                 rollbackMarker.drop()
                 compMarker.done(ScalaElementTypes.DO_STMT)
                 ScalaElementTypes.EXPR1
@@ -473,7 +473,7 @@ object CompositeExpr {
       def braceMatcher(brace: IElementType) = {
         val rightBrace = brace match {
           case ScalaTokenTypes.tLBRACE => ScalaTokenTypes.tRBRACE.asInstanceOf[ScalaElementType]
-          case _ => ScalaTokenTypes.tRPARENTHIS.asInstanceOf[ScalaElementType]
+          case _ => ScalaTokenTypes.tRPARENTHESIS.asInstanceOf[ScalaElementType]
         }
         ParserUtils.eatElement(builder, brace)
         val res = Enumerators.parse(builder, rightBrace)
@@ -487,7 +487,7 @@ object CompositeExpr {
 
       if (builder.getTokenType.eq(ScalaTokenTypes.kFOR)){
         ParserUtils.eatElement(builder, ScalaTokenTypes.kFOR)
-        if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS) ||
+        if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHESIS) ||
         builder.getTokenType.eq(ScalaTokenTypes.tLBRACE)) {
           braceMatcher(builder.getTokenType)
         } else errorDone("( of { expected")
@@ -544,7 +544,7 @@ object CompositeExpr {
       def braceMatcher(brace: IElementType, tryMarker: PsiBuilder.Marker) = {
         val rightBrace = brace match {
           case ScalaTokenTypes.tLBRACE => ScalaTokenTypes.tRBRACE.asInstanceOf[ScalaElementType]
-          case _ => ScalaTokenTypes.tRPARENTHIS.asInstanceOf[ScalaElementType]
+          case _ => ScalaTokenTypes.tRPARENTHESIS.asInstanceOf[ScalaElementType]
         }
         ParserUtils.eatElement(builder, brace)
         val res = Block.parse(builder, true)
@@ -609,7 +609,7 @@ object CompositeExpr {
             } else errorDone("Identifier expected")
           }
           case ScalaTokenTypes.tLBRACE
-            | ScalaTokenTypes.tLPARENTHIS => {
+            | ScalaTokenTypes.tLPARENTHESIS => {
             ArgumentExprs parse builder
             subParse
           }

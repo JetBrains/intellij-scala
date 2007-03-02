@@ -58,7 +58,7 @@ object SimpleExpr {
   val tSIMPLE_FIRST: TokenSet = TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER,
           ScalaTokenTypes.kTHIS,
           ScalaTokenTypes.kSUPER,
-          ScalaTokenTypes.tLPARENTHIS,
+          ScalaTokenTypes.tLPARENTHESIS,
           ScalaTokenTypes.kNEW))
 
   //val SIMPLE_FIRST = TokenSet.orSet(Array(BNF.tSIMPLE_FIRST, BNF.tLITERALS ))
@@ -70,7 +70,7 @@ object SimpleExpr {
     var inBraces = braced
 
     def closeParent: SimpleExprResult = {
-      ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+      ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
       new SimpleExprResult(ScalaElementTypes.SIMPLE_EXPR, "plain")
     }
 
@@ -96,7 +96,7 @@ object SimpleExpr {
           }
         }
         /* case (b) */
-      } else if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS) ||
+      } else if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHESIS) ||
       builder.getTokenType.eq(ScalaTokenTypes.tLBRACE)) {
 
         var nextMarker = simpleMarker1.precede()
@@ -171,11 +171,11 @@ object SimpleExpr {
         }
       }
       /* case (f) */
-      else if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHIS)) {
+      else if (builder.getTokenType.eq(ScalaTokenTypes.tLPARENTHESIS)) {
         val unitMarker = builder.mark()
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-        if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
+        if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHESIS)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
           unitMarker.done(ScalaElementTypes.UNIT)
           result = ScalaElementTypes.UNIT
           flag = true
@@ -183,7 +183,7 @@ object SimpleExpr {
           unitMarker.drop()
           var res = Expr parse builder
           if (res.eq(ScalaElementTypes.EXPR)) {
-            if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHIS)) {
+            if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHESIS)) {
               closeParent
               inBraces = true
               result = res
@@ -191,7 +191,7 @@ object SimpleExpr {
               flag = true
             } else {
               builder.error(" Wrong expression")
-              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+              ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
               inBraces = true
               new SimpleExprResult(ScalaElementTypes.SIMPLE_EXPR, "plain")
               result = res
@@ -298,11 +298,11 @@ object PrefixExpr {
 
   def exprOrArgsParse(builder: PsiBuilder): ScalaElementType = {
     builder.getTokenType match {
-      case ScalaTokenTypes.tLPARENTHIS => {
+      case ScalaTokenTypes.tLPARENTHESIS => {
         var argsMarker = builder.mark()
         var exprsMarker = builder.mark()
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHIS)
-        if (ScalaTokenTypes.tRPARENTHIS.eq(builder getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
+        if (ScalaTokenTypes.tRPARENTHESIS.eq(builder getTokenType)) {
           argsMarker.drop()
           exprsMarker.done(ScalaElementTypes.UNIT)
           ScalaElementTypes.UNIT
@@ -310,7 +310,7 @@ object PrefixExpr {
           var result = Expr.parse(builder)
 
           def closeParent(elem: ScalaElementType): ScalaElementType = {
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
             argsMarker.done(elem)
             elem
           }
@@ -322,31 +322,31 @@ object PrefixExpr {
                 val res = Exprs.parse(builder, exprsMarker)
                 if (res.equals(ScalaElementTypes.EXPRS)) {
                   builder.getTokenType match {
-                    case ScalaTokenTypes.tRPARENTHIS => {
+                    case ScalaTokenTypes.tRPARENTHESIS => {
                       closeParent(ScalaElementTypes.ARG_EXPRS)
                     }
                     case _ => {
                       builder.error(") expected")
-                      ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+                      ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
                       argsMarker.done(ScalaElementTypes.ARG_EXPRS)
                       ScalaElementTypes.ARG_EXPRS
                     }
                   }
                 } else {
-                  ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+                  ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
                   argsMarker.error("Wrong expression")
                   ScalaElementTypes.ARG_EXPRS
                 }
               }
-              case ScalaTokenTypes.tRPARENTHIS => {
+              case ScalaTokenTypes.tRPARENTHESIS => {
                 exprsMarker.drop()
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHIS)
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
                 SimpleExpr.parse(builder, argsMarker, true).parsed
               }
               case _ => {
                 builder.error(") expected")
                 exprsMarker.drop()
-                ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+                ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
                 argsMarker.done(ScalaElementTypes.SIMPLE_EXPR)
                 ScalaElementTypes.SIMPLE_EXPR
               }
@@ -355,7 +355,7 @@ object PrefixExpr {
           } else {
             exprsMarker.drop()
             builder.error("Wrong expression")
-            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHIS, ScalaTokenTypes.tRPARENTHIS)
+            ParserUtils.rollPanicToBrace(builder, ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS)
             argsMarker.done(ScalaElementTypes.SIMPLE_EXPR)
             ScalaElementTypes.SIMPLE_EXPR
           }
