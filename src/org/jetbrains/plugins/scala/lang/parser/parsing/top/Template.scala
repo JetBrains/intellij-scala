@@ -41,7 +41,7 @@ object Template extends Constr{
       TemplateBody parse builder
     }
   }
-} 
+}
 
 /*
  *  TemplateParents ::= Constr {with SimpleType}
@@ -58,7 +58,7 @@ object Template extends Constr{
       } else builder.error("identifier expected")
 
       while (ScalaTokenTypes.kWITH.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.kWITH)
+        builder.advanceLexer
 
         if (BNF.firstSimpleType.contains(builder.getTokenType)) {
           SimpleType.parse(builder)
@@ -76,24 +76,18 @@ object Template extends Constr{
 
     override def parseBody(builder : PsiBuilder) : Unit = {
       if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
+        builder.advanceLexer
+        TemplateStatSeq parse builder
+        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
+          builder.advanceLexer
+        } else {
+          builder error "'}' expected"
+        }
       } else {
         builder error "'{' expected"
-        return
-      }
-
-      if (BNF.firstTemplateStatSeq.contains(builder.getTokenType)) {
-        TemplateStatSeq parse builder
-      }
-
-      if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
-      } else {
-        builder error "'}' expected"
-        return
       }
     }
-}
+  }
 
 /*
  *  TemplateStatSeq ::= [TemplateStat] {StatementSeparator [TemplateStat}]
@@ -101,91 +95,15 @@ object Template extends Constr{
 
   object TemplateStatSeq extends ConstrWithoutNode {
     override def parseBody (builder: PsiBuilder): Unit = {
+      while (!builder.eof) {
+        while (ScalaTokenTypes.STATEMENT_SEPARATORS.contains(builder.getTokenType)) builder.advanceLexer
+        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) return
 
-      var isLocalError = false;
-      var isError = false;
-      var isEnd = false;
-
-      while (!builder.eof && !isEnd) {
-
-        isLocalError = false
-
-        while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
-          StatementSeparator parse builder
-        }
-
-        if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
-          TemplateStat.parse(builder)
-        }
-
-        if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) || builder.eof) {
-          isEnd = true;
-          return
-        }
-
-        if (/*!isEnd && */!BNF.firstStatementSeparator.contains(builder.getTokenType)) {
-          isLocalError = true;
-          builder error "template statement declaration error"
-
-           builder.getTokenType match {
-              case ScalaTokenTypes.tRBRACE |
-                   ScalaTokenTypes.tRSQBRACKET |
-                   ScalaTokenTypes.tRPARENTHESIS  => return
-
-              case _ => {}
-            }
-
-
-          if (!BNF.firstTemplateStat.contains(builder.getTokenType)) {
-            tryParseSmth(builder)
-          }
-        }
-       isError = isError || isLocalError
-      }
-    }
-
-    def tryParseSmth (builder : PsiBuilder) : Unit = {
-      var isAfterBlock = false;
-      var unstructuredTrashMarker : PsiBuilder.Marker = builder.mark;
-
-      while (!builder.eof){
-
-        if (BNF.firstTemplateStat.contains(builder.getTokenType)) {
-          TemplateStat parse builder
-        } else {
-
-          builder.getTokenType match {
-            case ScalaTokenTypes.tLBRACE => unstructuredTrashMarker.done(ScalaElementTypes.TRASH); parseTemplateStatSeqInBlock(builder); return;//unstructuredTrashMarker = builder.mark
-            case _ => {builder.advanceLexer}
-          }
+        if (!TemplateStat.parseBody(builder)) {
+          builder.error("Definition or declaration expected")
+          builder.advanceLexer
         }
       }
-
-      unstructuredTrashMarker.drop
-    }
-
-    def parseTemplateStatSeqInBlock (builder : PsiBuilder) : Unit = {
-      val trashBlockMarker = builder.mark
-
-      builder.getTokenType match {
-        case ScalaTokenTypes.tLBRACE |
-             ScalaTokenTypes.tLSQBRACKET |
-             ScalaTokenTypes.tLPARENTHESIS => builder.advanceLexer
-
-        case _ => {builder error "'{' or '[' or '(' expected"; trashBlockMarker.drop; return}
-      }
-
-      TemplateStatSeq parse builder
-
-      builder.getTokenType match {
-        case ScalaTokenTypes.tRBRACE |
-             ScalaTokenTypes.tRSQBRACKET |
-             ScalaTokenTypes.tRPARENTHESIS  => builder.advanceLexer
-
-        case _ => {}
-      }
-
-      trashBlockMarker.done(ScalaElementTypes.TRASH)
     }
   }
 
@@ -196,65 +114,43 @@ object Template extends Constr{
  *              | Expr
  */
 
-  object TemplateStat extends ConstrUnpredict {
-    override def parseBody(builder : PsiBuilder) : Unit = {
-
-        DebugPrint println "template statement parsing"
-        DebugPrint println ("token type : " + builder.getTokenType)
-        
+  object TemplateStat {
+    def parseBody(builder : PsiBuilder) : Boolean = {
         if(ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)) {
          Import parse builder
-         return
+         return true
         }
 
         var statementDefDclMarker = builder.mark()
 
-        var isDefOrDcl = false
+        var isDefOrDclExpected = false
         while(BNF.firstAttributeClause.contains(builder.getTokenType)) {
          AttributeClause parse builder
-         isDefOrDcl = true
+         isDefOrDclExpected = true
         }
 
         while(BNF.firstModifier.contains(builder.getTokenType)) {
          Modifiers parse builder
-         isDefOrDcl = true
+         isDefOrDclExpected = true
         }
 
-        var defOrDclElement : IElementType = ScalaElementTypes.WRONGWAY
-        if (isDefOrDcl) {
-          if (BNF.firstDclDef.contains(builder.getTokenType)) {
-              defOrDclElement = (DclDef parseBodyNode builder)
-              statementDefDclMarker.done(defOrDclElement)
-          } else {
-            //error, because def or dcl must be defined after attributeClause or Modifier
+        var defOrDclElement = DclDef parseBodyNode builder
+        if (ScalaElementTypes.WRONGWAY.equals(defOrDclElement)) {
+          statementDefDclMarker.drop
+
+          if (isDefOrDclExpected) {
             builder error "definition or declaration expected"
-            statementDefDclMarker.drop
+            return false
+          } else {
+            //try expression
+            val exprElementType = Expr parse builder
+            return !ScalaElementTypes.WRONGWAY.equals(exprElementType)
           }
-
-          return
-        }
-
-        if (BNF.firstDclDef.contains(builder.getTokenType)) {
-          defOrDclElement = DclDef.parseBodyNode(builder)
+        } else {
           statementDefDclMarker.done(defOrDclElement)
-          return
+          return true
         }
-
-        statementDefDclMarker.drop()
-
-        if (BNF.firstExpr.contains(builder.getTokenType)) {
-          val exprElementType = Expr parse builder
-          if (ScalaElementTypes.WRONGWAY.equals(exprElementType)) {
-            builder error "wrong expression"
-            builder.advanceLexer
-          }
-          
-          return
-        }
-
-        return
-
-    }
+      }
   }
 
   

@@ -183,4 +183,6 @@ public interface ScalaTokenTypes {
 
   TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER);
   TokenSet STRING_LITERAL_TOKEN_SET = TokenSet.create(tSTRING, tWRONG_STRING);
+
+  TokenSet STATEMENT_SEPARATORS = TokenSet.create(tLINE_TERMINATOR, tSEMICOLON);
 }

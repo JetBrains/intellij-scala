@@ -105,9 +105,6 @@ object BNF {
       ScalaTokenTypes.tLPARENTHESIS))
 
 
-  val firstStatementSeparator: TokenSet = TokenSet.create(Array(ScalaTokenTypes.tLINE_TERMINATOR,
-      ScalaTokenTypes.tSEMICOLON))
-
   val firstSimpleType: TokenSet = TokenSet.orSet(Array(
       firstStableId,
       firstPath,
@@ -253,9 +250,6 @@ object BNF {
       firstDclDef,
       firstExpr))
 
-  val firstTemplateStatSeq =  TokenSet.orSet(Array(firstStatementSeparator,
-      firstTemplateStat))
-
   val firstConstr = firstStableId
 
   val firstTemplateParents = firstConstr
@@ -282,6 +276,6 @@ object BNF {
       firstImport,
       firstPackaging))
 
-  val firstTopStatSeq = TokenSet.orSet(Array(firstStatementSeparator,
+  val firstTopStatSeq = TokenSet.orSet(Array(ScalaTokenTypes.STATEMENT_SEPARATORS,
       firstTopStat))
 }

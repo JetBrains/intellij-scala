@@ -28,7 +28,7 @@ import com.intellij.psi.tree.IElementType
 
 object StatementSeparator extends ConstrWithoutNode {
   override def parseBody(builder: PsiBuilder): Unit = {
-     builder.getTokenType() match {
+     builder.getTokenType match {
       case ScalaTokenTypes.tSEMICOLON => {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tSEMICOLON)
       }
