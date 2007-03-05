@@ -49,29 +49,28 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
       builder.getTokenType match {
         case ScalaTokenTypes.kVAL => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL)
-          return (Val parseBodyNode builder)
+          return Val parseBodyNode builder
         }
 
         case ScalaTokenTypes.kVAR => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kVAR)
-          return (Var parseBodyNode builder)
+          return Var parseBodyNode builder
         }
 
         case ScalaTokenTypes.kDEF => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kDEF)
-          return (Fun parseBodyNode builder)
+          return Fun parseBodyNode builder
         }
 
         case ScalaTokenTypes.kTYPE => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kTYPE)
-          return (TypeDclDef parseBodyNode builder)
+          return TypeDclDef parseBodyNode builder
         }
 
         case _ => {
           if (BNF.firstTmplDef.contains(builder.getTokenType)) {
-            return (TmplDef parseBodyNode builder)
+            return TmplDef parseBodyNode builder
           } else {
-            builder error "wrong declaration"
             return ScalaElementTypes.WRONGWAY
           }
         }
@@ -504,7 +503,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         builder error "Self invocation expected "
       }
 
-      while (BNF.firstStatementSeparator.contains(builder.getTokenType)) {
+      while (ScalaTokenTypes.STATEMENT_SEPARATORS.contains(builder.getTokenType)) {
         StatementSeparator parse builder
         if (BNF.firstBlockStat.contains(builder.getTokenType)) {
           BlockStat parse builder
