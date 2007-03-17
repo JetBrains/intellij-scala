@@ -9,11 +9,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
  * @author ven
  */
 object ScalaJVMNameMapper extends NameMapper {
-  def getQualifiedName(clazz : PsiClass) = {
+  def getQualifiedName(clazz : PsiClass) : String = {
     if (clazz.isInstanceOf[ScJavaClass]) {
       val scClass = clazz.asInstanceOf[ScJavaClass].scClass
-      scClass match {
+      return scClass match {
         case _ : ScObjectDefinition => scClass.getQualifiedName + "$"
+        case _ : ScTraitDefinition => scClass.getQualifiedName + "$class"
         case _ => scClass.getQualifiedName
       }
     }
