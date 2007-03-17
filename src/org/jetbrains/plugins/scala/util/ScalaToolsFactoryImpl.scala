@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder
 import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors
 import org.jetbrains.plugins.scala.lang.surroundWith._
 import org.jetbrains.plugins.scala.lang.formatting._
+import org.jetbrains.plugins.scala.debugger.ScalaJVMNameMapper
 import org.jetbrains.plugins.scala.structure.ScalaStructureViewBuilder
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionData
 import org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider
@@ -24,19 +25,21 @@ import com.intellij.lang.findUsages.FindUsagesProvider
  */
 class ScalaToolsFactoryImpl extends ScalaToolsFactory {
 
-    def createScalaParserDefinition: ParserDefinition = new ScalaParserDefinition()
+  def createScalaParserDefinition: ParserDefinition = new ScalaParserDefinition()
 
-    def createScalaFoldingBuilder: ScalaFoldingBuilder = new ScalaFoldingBuilder()
+  def createScalaFoldingBuilder: ScalaFoldingBuilder = new ScalaFoldingBuilder()
 
-    def createScalaCompletionData: CompletionData = new ScalaCompletionData()
+  def createScalaCompletionData: CompletionData = new ScalaCompletionData()
 
-    def createJavaView(viewProvider: FileViewProvider) = new ScJavaFile(viewProvider)
+  def createJavaView(viewProvider: FileViewProvider) = new ScJavaFile(viewProvider)
 
-    def createSurroundDescriptors: SurroundDescriptors = new ScalaSurroundDescriptors()
+  def createSurroundDescriptors: SurroundDescriptors = new ScalaSurroundDescriptors()
 
-    def createScalaFormattingModelBuilder: FormattingModelBuilder = new ScalaFormattingModelBuilder()
+  def createScalaFormattingModelBuilder: FormattingModelBuilder = new ScalaFormattingModelBuilder()
 
-    def createStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder = new ScalaStructureViewBuilder(psiFile)
+  def createStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder = new ScalaStructureViewBuilder(psiFile)
 
-    def createFindUsagesProvider = ScalaFindUsagesProvider
+  def createFindUsagesProvider = ScalaFindUsagesProvider
+
+  def createJVMNameMapper = ScalaJVMNameMapper
 }
