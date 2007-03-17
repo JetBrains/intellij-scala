@@ -8,6 +8,7 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerAdapter;
+import com.intellij.debugger.DebuggerManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.compiler.ScalaCompiler;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
@@ -42,6 +43,8 @@ public class ScalaLoader implements ApplicationComponent {
         CompilerManager compilerManager = CompilerManager.getInstance(project);
         compilerManager.addCompiler(new ScalaCompiler(project));
         compilerManager.addCompilableFileType(ScalaFileType.SCALA_FILE_TYPE);
+
+        DebuggerManager.getInstance(project).addClassNameMapper(ScalaToolsFactory.getInstance().createJVMNameMapper());
       }
     });
     

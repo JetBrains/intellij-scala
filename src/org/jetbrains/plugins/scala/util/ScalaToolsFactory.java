@@ -10,6 +10,7 @@ import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
 import com.intellij.ide.structureView.StructureViewBuilder;
+import com.intellij.debugger.NameMapper;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.surroundWith.SurroundDescriptors;
@@ -52,4 +53,6 @@ public abstract class ScalaToolsFactory implements ApplicationComponent {
   public abstract StructureViewBuilder createStructureViewBuilder(PsiFile psiFile);
 
   public abstract FindUsagesProvider createFindUsagesProvider();
+
+  public abstract NameMapper createJVMNameMapper();
 }

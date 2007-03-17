@@ -100,7 +100,7 @@ octalDigit = [0-7]
 hexDigit = [0-9A-Fa-f]
 
 floatingPointLiteral =
-        {digit} + "." {digit}* {exponentPart}? {floatType}?
+      {digit}+ "." {digit}* {exponentPart}? {floatType}?
     | "." {digit}+ {exponentPart}? {floatType}?
     | {digit}+ {exponentPart} {floatType}?
     | {digit}+ {exponentPart}? {floatType}
@@ -484,12 +484,15 @@ WhiteSpaceInLine = {InLineTerminator}
 
 {identifier}                            {   processNewLine();
                                             return process(tIDENTIFIER); }
-({digit}+) / ("." {identifier})         {   processNewLine();
-                                            return process(tINTEGER);  }
-{integerLiteral}                        {   processNewLine();
-                                            return process(tINTEGER);  }
+
+//is not true according to Martin's comment from 17.03.2007
+//({digit}+) / ("." {identifier})         {   processNewLine();
+//                                            return process(tINTEGER);  }
+
 {floatingPointLiteral}                  {   processNewLine();
                                             return process(tFLOAT);      }
+{integerLiteral}                        {   processNewLine();
+                                            return process(tINTEGER);  }
 
 ////////////////////// white spaces in line ///////////////////////////////////////////////
 {WhiteSpaceInLine}                            {   return process(tWHITE_SPACE_IN_LINE);  }
