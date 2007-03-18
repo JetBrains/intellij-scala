@@ -153,9 +153,12 @@ object CompilationUnit extends ConstrWithoutNode {
         return false
       }
 
-      if (ScalaTokenTypes.kCASE.equals(builder.getTokenType) || BNF.firstTmplDef.contains(builder.getTokenType)) {
-        tmplDefMarker.done(TmplDef.parseBodyNode(builder))
-        return true
+      if (BNF.firstTmplDef.contains(builder.getTokenType)) {
+        val tmplParsed = TmplDef.parseBodyNode(builder)
+        if (!tmplParsed.equals(ScalaElementTypes.WRONGWAY)) {
+          tmplDefMarker.done(tmplParsed)
+          return true
+        }
       }
 
       tmplDefMarker.drop()
