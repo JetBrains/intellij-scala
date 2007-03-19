@@ -14,5 +14,6 @@ Scala file
       Import selectors
         PsiElement({)('{')
         Import selector
-          PsiElement(identifier)('import_selector')
+          Selector begin
+            PsiElement(identifier)('import_selector')
         PsiElement(})('}')

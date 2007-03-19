@@ -2,7 +2,6 @@ import item1.item1
 import item2.item2.item2
 import item3.item3.{item1, item2}, item3.item3.{item1, item2}
 -----
-Scala file
   Import statement
     PsiElement(import)('import')
     PsiWhiteSpace(' ')
@@ -39,11 +38,13 @@ Scala file
       Import selectors
         PsiElement({)('{')
         Import selector
-          PsiElement(identifier)('item1')
+          Selector begin
+            PsiElement(identifier)('item1')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
         Import selector
-          PsiElement(identifier)('item2')
+          Selector begin
+            PsiElement(identifier)('item2')
         PsiElement(})('}')
     PsiElement(,)(',')
     PsiWhiteSpace(' ')
@@ -57,9 +58,11 @@ Scala file
       Import selectors
         PsiElement({)('{')
         Import selector
-          PsiElement(identifier)('item1')
+          Selector begin
+            PsiElement(identifier)('item1')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
         Import selector
-          PsiElement(identifier)('item2')
+          Selector begin
+            PsiElement(identifier)('item2')
         PsiElement(})('}')

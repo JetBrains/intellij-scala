@@ -5,8 +5,6 @@ Scala file
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-  PsiErrorElement:top statement declaration error
-    <empty list>
   PsiWhiteSpace(' ')
   Attribute clauses
     Attribute clause

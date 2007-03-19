@@ -14,15 +14,18 @@ Scala file
       Import selectors
         PsiElement({)('{')
         Import selector
-          PsiElement(identifier)('a')
+          Selector begin
+            PsiElement(identifier)('a')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
         Import selector
-          PsiElement(identifier)('b')
+          Selector begin
+            PsiElement(identifier)('b')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
         Import selector
-          PsiElement(identifier)('c')
+          Selector begin
+            PsiElement(identifier)('c')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
           PsiWhiteSpace(' ')

@@ -18,7 +18,8 @@ Scala file
         PsiElement({)('{')
         PsiWhiteSpace(' ')
         Import selector
-          PsiElement(identifier)('a')
+          Selector begin
+            PsiElement(identifier)('a')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
           PsiWhiteSpace(' ')
@@ -26,7 +27,8 @@ Scala file
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
         Import selector
-          PsiElement(identifier)('c')
+          Selector begin
+            PsiElement(identifier)('c')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
           PsiWhiteSpace(' ')
