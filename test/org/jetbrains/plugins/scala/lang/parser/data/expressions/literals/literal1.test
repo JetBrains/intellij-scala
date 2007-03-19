@@ -12,18 +12,18 @@ Scala file
       template body
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        Simple expression
-          Simple expression
-            Simple expression
-              Literal
-                PsiElement(integer)('0')
-            PsiElement(.)('.')
-            PsiElement(identifier)('asInstanceOf')
-          Type arguments list
-            PsiElement([)('[')
-            Simple type
+        Postfix expression
+          Literal
+            PsiElement(float)('0.')
+          PsiElement(identifier)('asInstanceOf')
+        Attribute clause
+          PsiElement([)('[')
+          Attribute
+            constuctor
               Stable Identifier
                 PsiElement(identifier)('T')
-            PsiElement(])(']')
+          PsiElement(])(']')
+        PsiErrorElement:definition or declaration expected
+          <empty list>
         PsiWhiteSpace('\n')
         PsiElement(})('}')
