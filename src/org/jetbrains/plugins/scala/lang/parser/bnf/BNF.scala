@@ -51,7 +51,8 @@ object BNF {
     firstLiteral,
     TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER,
       ScalaTokenTypes.tUNDER,
-      ScalaTokenTypes.tLPARENTHESIS)),
+      ScalaTokenTypes.tLPARENTHESIS,
+      ScalaTokenTypes.tLBRACE)),
       firstXmlPattern
   ))
 
