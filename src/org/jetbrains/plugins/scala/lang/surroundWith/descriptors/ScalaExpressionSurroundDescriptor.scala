@@ -71,6 +71,8 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
       endOffsetLocal = element2.getTextRange().getStartOffset();
     }
 
+    if (";".equals(element2.getText())) endOffsetLocal = endOffsetLocal - 1;
+
     val expression : ScExprImpl = PsiTreeUtil.findElementOfClassAtRange[ScExprImpl](file, startOffsetLocal, endOffsetLocal, classOf[ScExprImpl].asInstanceOf[java.lang.Class[ScExprImpl]]);
 
     if (expression == null || expression.getTextRange().getEndOffset() != endOffsetLocal) return null
