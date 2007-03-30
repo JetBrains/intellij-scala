@@ -29,10 +29,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 abstract class ScalaSurrounderByExpression extends Surrounder {
 
   override def isApplicable(elements : Array[PsiElement]) : Boolean = {
-    var isAppl = true
     for (val element <- elements)
-      isAppl = isAppl && isApplicable(element)
-    isAppl  
+      if (!isApplicable(element)) return false
+    true
   }
 
   def isNeedBraces(expr : ASTNode) = {
