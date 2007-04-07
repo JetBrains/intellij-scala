@@ -116,7 +116,7 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
 */
 case class ScClassDefinition(node: ASTNode) extends ScTypeDef (node){
   override def toString: String = super.toString + ": " + "class"
-                   
+
   override def getIcon(flags: Int) = Icons.CLASS
 }
 
@@ -131,7 +131,7 @@ case class ScObjectDefinition(node: ASTNode) extends ScTmplDef (node){
 /*
 *   Trait definition implementation
 */
-trait ScTypeDef extends ScTmplDef  with IfElseIndent{
+class ScTypeDef(node: ASTNode) extends ScTmplDef(node)  with IfElseIndent{
   def getTypeParameterClause: ScTypeParamClause = {
     getChild(ScalaElementTypes.TYPE_PARAM_CLAUSE).asInstanceOf[ScTypeParamClause]
   }

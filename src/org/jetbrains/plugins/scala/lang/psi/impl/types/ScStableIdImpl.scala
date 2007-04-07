@@ -39,11 +39,14 @@ class ScStableIdImpl(node: ASTNode) extends ScSimpleExprImpl(node) with ScStable
     getParent.isInstanceOf[ScConstructor] ||
     getParent.isInstanceOf[ScTemplateParents] ||
     getParent.isInstanceOf[ScMixinParents])) {
-      new ScalaClassReference(this)
+      new ScalaClassReference(this)  // Class or Trait reference
+    } else
+      if (! getText.contains(".")) {
+      new ScalaLocalReference(this)  // local reference
     } else {
       null
     }
   }
 
   override def getName = getText
-}
+  }

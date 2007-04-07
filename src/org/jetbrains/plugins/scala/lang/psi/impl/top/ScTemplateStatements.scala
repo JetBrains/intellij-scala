@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
+package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements 
 
 
   /**
@@ -79,24 +79,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
     override def getIcon(flags: Int) = Icons.METHOD
   }
 
-  trait ScType extends ScTemplateStatement {
-    [Nullable]
-    def getLowerBoundType = {
-      val lowerBound = getChild(ScalaElementTypes.LOWER_BOUND_TYPE)
-      if (lowerBound != null) lowerBound.asInstanceOf[ScalaPsiElement].getLastChild
-      else null
-    }
-
-    [Nullable]
-    def getUpperBoundType = {
-      val upperBound = getChild(ScalaElementTypes.UPPER_BOUND_TYPE)
-      if (upperBound != null) upperBound.asInstanceOf[ScalaPsiElement].getLastChild
-      else null
-    }
-  }
-
-
-
   /***************** definition ***********************/
 
   trait ScDefinition extends ScTemplateStatement {
@@ -135,17 +117,14 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
     override def toString: String = "pattern" + " " + super.toString
   }
 
-  case class ScVariableDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDefinition with IfElseIndent{
-    override def toString: String = "variable" + " " + super.toString
-
-    override def getIcon(flags: Int) = Icons.VAR
-  }
 
   case class ScFunctionDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunction with ScDefinition with IfElseIndent {
     override def toString: String = "function" + " " + super.toString
 
     //    override def getIcon(flags: Int) = Icons.METHOD
   }
+
+
 
   /************** supplementary constructor ***************/
 
@@ -163,7 +142,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
     override def names: Iterable[PsiElement] = childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.kTHIS)))
   }
 
-  case class ScTypeDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDefinition with ScType with ScParametrized{
+  case class ScTypeDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDefinition with ScTemplateStatement with ScParametrized{
     override def toString: String = "type" + " " + super.toString
 
     def nameNode = {
@@ -187,19 +166,13 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
     override def getIcon(flags: Int) = Icons.VAL
   }
 
-  case class ScVariableDeclaration(node: ASTNode) extends ScalaPsiElementImpl(node) with Declaration  {
-    override def toString: String = "variable" + " " + super.toString
-
-    override def getIcon(flags: Int) = Icons.VAR
-  }
-
   case class ScFunctionDeclaration(node: ASTNode) extends ScalaPsiElementImpl(node) with Declaration with ScFunction {
     override def toString: String = "function" + " " + super.toString
 
     override def getIcon(flags: Int) = Icons.FUNCTION
   }
 
-  case class ScTypeDeclaration(node: ASTNode) extends ScalaPsiElementImpl(node) with Declaration with ScType {
+  case class ScTypeDeclaration(node: ASTNode) extends ScalaPsiElementImpl(node) with Declaration with ScTemplateStatement {
     override def toString: String = "type" + " " + super.toString
 
     def nameNode = {
@@ -222,9 +195,11 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements {
     override def toString: String = "list of identifiers"
   }
 
+  class ScVarReference(node: ASTNode) extends ScalaPsiElementImpl (node) {
+    override def toString: String = "Variable reference"
+  }
   /****************** pattern2List  ************************/
 
   class ScPattern2List(node: ASTNode) extends ScalaPsiElementImpl (node) {
     override def toString: String = "list of pattern2"
   }
-}

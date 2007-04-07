@@ -15,9 +15,16 @@ abstract class ScExprImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) wi
 
 abstract class ScExpr1Impl(node : ASTNode) extends ScExprImpl(node) with ScResExpr
 
-trait ScExpr
-
 trait ScResExpr extends ScBlock
 
-trait ScBlock extends PsiElement 
+trait ScBlock extends PsiElement
 
+
+/**
+*   Main Trait for all expressions
+*
+*/
+trait ScExpr {
+  import com.intellij.psi._
+  def getType: PsiType = null 
+}

@@ -21,7 +21,6 @@ import org.jetbrains.annotations._
 class ScalaStructureViewBuilder ( psiFile : PsiFile ) extends TreeBasedStructureViewBuilder {
     private var myPsiFile : PsiFile = psiFile
 
-    [NotNull]
     override def createStructureViewModel() : StructureViewModel =
       new ScalaStructureViewModel(myPsiFile.asInstanceOf[PsiElement])
 }
