@@ -42,6 +42,7 @@ with Serializable{
   override def getClasses = {
     val scFile = viewProvider.getPsi(ScalaFileType.SCALA_FILE_TYPE.getLanguage).asInstanceOf[ScalaFile]
     scFile.getTmplDefs.map(c => new ScJavaClass(c, this)).toArray[PsiClass]
+
   }
 
   def getChildren = getClasses.asInstanceOf[Array[PsiElement]]

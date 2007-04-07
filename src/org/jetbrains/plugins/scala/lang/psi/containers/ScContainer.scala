@@ -175,7 +175,6 @@ trait Importable extends ScalaPsiElement{
   def getClazz(getDeclarations: => Iterable[PsiElement], processor: PsiScopeProcessor, substitutor: PsiSubstitutor): Boolean =
   {
 
-
     /*
         1. May be it is among local definitions  
     */

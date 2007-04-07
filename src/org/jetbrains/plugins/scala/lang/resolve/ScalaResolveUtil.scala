@@ -53,8 +53,6 @@ object ScalaResolveUtil {
       result
 
     } else null
-
-
   }
 
   /**

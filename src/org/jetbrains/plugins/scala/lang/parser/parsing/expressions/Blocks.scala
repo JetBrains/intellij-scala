@@ -114,7 +114,7 @@ object Block {
       while (flag1 && ! builder.eof()){
         builder.getTokenType match {
           case ScalaTokenTypes.tLINE_TERMINATOR
-          | ScalaTokenTypes.tSEMICOLON => {
+            | ScalaTokenTypes.tSEMICOLON => {
             builder.advanceLexer
             flag2 = true
           }
@@ -284,10 +284,10 @@ object BlockStat {
         parseExpr1
       } else {
         builder.error("Definition expected")
-        blockStatMarker.rollbackTo                                     
+        blockStatMarker.rollbackTo
         ScalaElementTypes.WRONGWAY
       }
-    }                             
+    }
 
     if (ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)){
       Import.parse(builder)

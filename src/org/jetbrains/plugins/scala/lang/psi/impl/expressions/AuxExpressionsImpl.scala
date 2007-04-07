@@ -62,7 +62,12 @@ case class ScAnFunImpl(node: ASTNode) extends ScExpr1Impl(node) with IfElseInden
 }
 
 
-case class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScBlock with Importable{
+/**
+*   Main entity of code of block
+*
+*/
+case class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
+with ScBlock with Importable with LocalContainer{
   override def toString: String = "Block"
 
   def getType(): PsiType = null
@@ -75,10 +80,13 @@ case class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
           place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve.processors._
 
-    if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
-      this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
-      this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
+    if (processor.isInstanceOf[ScalaClassResolveProcessor]) { // Get Class types
+        this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
+        this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
       getClazz(getTmplDefs, processor, substitutor)
+    } else if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){ // Get Local variables
+        this.varOffset = processor.asInstanceOf[ScalaLocalVariableResolveProcessor].offset
+      getVariable(processor, substitutor)
     } else true
   }
 }

@@ -124,7 +124,6 @@ trait ScalaPsiElement extends PsiElement {
 
   def childSatisfyPredicateForASTNode(predicate: ASTNode => Boolean): PsiElement = {
     def inner(e: PsiElement): PsiElement = if (e == null || predicate(e.getNode)) e else inner(e.getNextSibling)
-
     inner(getFirstChild)
   }
 

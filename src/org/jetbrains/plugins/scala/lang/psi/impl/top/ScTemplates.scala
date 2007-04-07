@@ -59,8 +59,11 @@ case class ScMixinParents(node: ASTNode) extends Parents (node) {
   override def toString: String = "mixin" + " " + super.toString
 }
 
-/***************** body *******************/
-case class ScTemplateBody(node: ASTNode) extends ScalaPsiElementImpl (node) with BlockedIndent with Importable{
+/**
+*    Implements logic with body of classes, traits and objects
+*
+*/
+case class ScTemplateBody(node: ASTNode) extends ScalaPsiElementImpl (node) with BlockedIndent with Importable with LocalContainer{
   override def toString: String = "template body"
 
   def getTypes = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_OR_TYPE_BIT_SET)
@@ -71,10 +74,13 @@ case class ScTemplateBody(node: ASTNode) extends ScalaPsiElementImpl (node) with
           place: PsiElement) : Boolean = {                         
 
     import org.jetbrains.plugins.scala.lang.resolve.processors._
-    if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
+    if (processor.isInstanceOf[ScalaClassResolveProcessor]) { // GetClasses
       this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
       this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
       getClazz(getTypes, processor, substitutor)
+    } else if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){ // Get Local variables
+        this.varOffset = processor.asInstanceOf[ScalaLocalVariableResolveProcessor].offset
+      getVariable(processor, substitutor)
     } else true
 
   }
