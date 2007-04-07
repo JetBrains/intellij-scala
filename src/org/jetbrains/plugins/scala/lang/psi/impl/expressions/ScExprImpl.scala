@@ -26,5 +26,4 @@ trait ScBlock extends PsiElement
 */
 trait ScExpr {
   import com.intellij.psi._
-  def getType: PsiType = null 
 }
