@@ -556,7 +556,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         val marker = builder.mark()
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-        marker.done(ScalaElementTypes.VAR_REFERENCE)
+        marker.done(ScalaElementTypes.REFERENCE)
       } else {
         builder error "identifier expected"
         return
@@ -569,7 +569,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
           val marker = builder.mark()
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-          marker.done(ScalaElementTypes.VAR_REFERENCE)
+          marker.done(ScalaElementTypes.REFERENCE)
           hasIdList = true;
         } else {
           builder error "identifier expected"

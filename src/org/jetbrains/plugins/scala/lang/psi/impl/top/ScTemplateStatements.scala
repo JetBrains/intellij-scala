@@ -195,8 +195,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements
     override def toString: String = "list of identifiers"
   }
 
-  class ScVarReference(node: ASTNode) extends ScalaPsiElementImpl (node) {
-    override def toString: String = "Variable reference"
+  class ScReference(node: ASTNode) extends ScalaPsiElementImpl (node) {
+    override def toString: String = "Reference identifier"
   }
   /****************** pattern2List  ************************/
 

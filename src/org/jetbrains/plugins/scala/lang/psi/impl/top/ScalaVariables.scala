@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.types._
 
 trait ScalaVariable extends ScalaPsiElement {
 
-  val REFERENCE_SET = TokenSet.create(Array(ScalaElementTypes.VAR_REFERENCE))
+  val REFERENCE_SET = TokenSet.create(Array(ScalaElementTypes.REFERENCE))
 
   /**
   *   returns list of labels for all variable definitions
