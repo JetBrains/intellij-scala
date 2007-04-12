@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.psi.javaView._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
-import com.intellij.psi.tree._  
+import com.intellij.psi.tree._
 
 trait LocalContainer extends ScalaPsiElement {
 
@@ -31,11 +31,20 @@ trait LocalContainer extends ScalaPsiElement {
   val varSet = TokenSet.create(Array(ScalaElementTypes.VARIABLE_DEFINITION,
           ScalaElementTypes.VARIABLE_DECLARATION))
 
+  val valSet = TokenSet.create(Array(ScalaElementTypes.PATTERN_DEFINITION,
+          ScalaElementTypes.VALUE_DECLARATION))
+
   /**
   *   Returns all local variables in current block
   *
   */
-  def getVariables = childrenOfType[ScalaVariable](varSet)
+  def getVariables = childrenOfType[ScalaVariable](varSet).toList
+
+  /**
+  *   Returns all local variables in current block
+  *
+  */
+  def getValues = childrenOfType[ScalaValue](valSet).toList
 
   /**
   *  Scans for variable definitions in current block
@@ -44,7 +53,7 @@ trait LocalContainer extends ScalaPsiElement {
           substitutor: PsiSubstitutor): Boolean = {
 
     // Scan for variable
-    for (val varDef <- getVariables; varDef.getTextOffset <= varOffset) {
+    for (val varDef <- getVariables ::: getValues; varDef.getTextOffset <= varOffset) {
       if (varDef != null && ! processor.execute(varDef, substitutor)) {
         return false
       }

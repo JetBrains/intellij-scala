@@ -25,7 +25,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
           var oneBindMarker = builder.mark()
           if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
+            val vm = builder.mark()
             ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+            vm.done(ScalaElementTypes.REFERENCE)
             if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)){
               ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
               var res = Type.parse(builder)

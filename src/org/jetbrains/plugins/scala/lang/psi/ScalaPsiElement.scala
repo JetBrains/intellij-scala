@@ -60,6 +60,9 @@ trait ScalaPsiElement extends PsiElement {
     }
   }
 
+
+
+
   def allChildrenOfType[T >: Null <: PsiElement](tokSet: TokenSet): Iterable[T] = new Iterable[T] () {
     def elements = new Iterator[T] () {
 
@@ -78,6 +81,9 @@ trait ScalaPsiElement extends PsiElement {
           }
           child
         } else {
+          if (child.getFirstChildNode != null) {
+            q += child.getFirstChildNode
+          }
           findChild(child.getTreeNext)
         }
       }
