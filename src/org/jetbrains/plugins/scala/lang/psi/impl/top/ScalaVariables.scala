@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.psi.impl.primitives._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
+import org.jetbrains.plugins.scala.lang.psi.impl.top._
 
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
@@ -27,22 +28,20 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 
 
-trait ScalaVariable extends ScalaPsiElement {
-
-  val REFERENCE_SET = TokenSet.create(Array(ScalaElementTypes.REFERENCE))
+trait ScalaVariable extends ScalaPsiElement with Referenced {
 
   /**
   *   returns list of labels for all variable definitions
   */
-  def getVariableNames = childrenOfType[PsiElement](REFERENCE_SET).toList  :::
+  def getNames = childrenOfType[ScReference](REFERENCE_SET).toList  :::
   {
     val listOfIdentifiers = childSatisfyPredicateForElementType((elem: IElementType) =>
       elem.equals(ScalaElementTypes.IDENTIFIER_LIST)).asInstanceOf[ScalaPsiElement]
     val children = if (listOfIdentifiers != null)
-      listOfIdentifiers.childrenOfType[PsiElement](REFERENCE_SET)
+      listOfIdentifiers.childrenOfType[ScReference](REFERENCE_SET)
     else null
     if (children != null) children.toList
-    else Nil: List[PsiElement]
+    else Nil: List[ScReference]
   }
 
   /**

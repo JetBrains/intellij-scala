@@ -181,7 +181,9 @@ object SimplePattern {
     } else if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER){
       if (builder.getTokenText.substring(0, 1).toLowerCase ==
       builder.getTokenText.substring(0, 1)) {// if variable id
+        val vm = builder.mark()
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+        vm.done(ScalaElementTypes.REFERENCE)
         if (! builder.getTokenType.equals(ScalaTokenTypes.tLPARENTHESIS) &&
         ! builder.getTokenType.equals(ScalaTokenTypes.tDOT)) {
           spMarker.drop()
@@ -226,7 +228,9 @@ class Pattern2 {
     if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
     (builder.getTokenText.substring(0, 1).toLowerCase ==
     builder.getTokenText.substring(0, 1))) {
+      val vm = builder.mark()
       ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+      vm.done(ScalaElementTypes.REFERENCE)
       if (builder.getTokenType == ScalaTokenTypes.tAT) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tAT)
         rbMarker.drop()
@@ -251,10 +255,11 @@ class Pattern2 {
         if (ScalaElementTypes.PATTERN2.equals(result)) {
           rbMarker.drop()
           result
-        }
-        else {
+        }else {
           rbMarker.rollbackTo()
+          val vm = builder.mark()
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+          vm.done(ScalaElementTypes.REFERENCE)
           ScalaElementTypes.PATTERN2
         }
       }
@@ -310,7 +315,9 @@ object Pattern1 {
     } else if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
     (builder.getTokenText.substring(0, 1).toLowerCase ==
     builder.getTokenText.substring(0, 1))) {
+      val vm = builder.mark()
       ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+      vm.done(ScalaElementTypes.REFERENCE)
       if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
         var res = TypePattern.parse(builder)

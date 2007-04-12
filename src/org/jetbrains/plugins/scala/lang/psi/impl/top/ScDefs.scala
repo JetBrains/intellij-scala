@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.lang.psi.impl.top.defs
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiElement, PsiNamedElement}
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree._
 import com.intellij.navigation.NavigationItem
 
+import org.jetbrains.plugins.scala.lang.psi.containers._
+import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.Template
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScTypeParamClause
@@ -114,7 +116,47 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
 /*
 *   Class definition implementation
 */
-case class ScClassDefinition(node: ASTNode) extends ScTypeDef (node){
+case class ScClassDefinition(node: ASTNode) extends ScTypeDef (node) with LocalContainer{
+
+  def paramClauses = childrenOfType[ScParamClause](TokenSet.create(Array(ScalaElementTypes.PARAM_CLAUSE)))
+
+  import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
+  def getParameters= ((paramClauses :\ (Nil: List[ScClassParam]))((y: ScParamClause, x: List[ScClassParam]) =>
+    y.classParams.toList ::: x))
+
+  import com.intellij.psi.scope._
+  import com.intellij.psi._
+  override def getVariable(processor: PsiScopeProcessor,
+          substitutor: PsiSubstitutor): Boolean = {
+
+    // Scan for parameters
+    for (val classParamDef <- getParameters; classParamDef.getTextOffset <= varOffset) {
+      val realParam = if (classParamDef != null) classParamDef.getParam  else null 
+      if (classParamDef != null && realParam != null && ! processor.execute(realParam, substitutor)) {
+        return false
+      }
+    }
+    return true
+  }
+
+  /**
+  *  Process declarations of parameters
+  */
+  override def processDeclarations(processor: PsiScopeProcessor,
+          substitutor: PsiSubstitutor,
+          lastParent: PsiElement,
+          place: PsiElement): Boolean = {
+    import org.jetbrains.plugins.scala.lang.resolve.processors._
+
+    if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){
+        this.varOffset = processor.asInstanceOf[ScalaLocalVariableResolveProcessor].offset
+      getVariable(processor, substitutor)
+    } else true
+  }
+
+
+  
+
   override def toString: String = super.toString + ": " + "class"
 
   override def getIcon(flags: Int) = Icons.CLASS

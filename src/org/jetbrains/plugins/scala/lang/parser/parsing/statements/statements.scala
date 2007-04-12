@@ -308,7 +308,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
             if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
               builder.advanceLexer
             } else {
-              builder.error ("} expected")
+              builder.error("} expected")
             }
             bm.done(ScalaElementTypes.BLOCK_EXPR)
           }
@@ -412,7 +412,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         }
       }
 
-          var isTypeParamClause = false;
+      var isTypeParamClause = false;
       if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
         isTypeParamClause = ScalaElementTypes.TYPE_PARAM_CLAUSE.equals(new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder)
       }
@@ -509,7 +509,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
           BlockStat parse builder
         }
       }
-                                                   
+
 
       if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
@@ -517,7 +517,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         builder error "'}' expected"
       }
     }
-  }               
+  }
 
   object SelfInvocation extends Constr {
     override def getElementType = ScalaElementTypes.SELF_INVOCATION

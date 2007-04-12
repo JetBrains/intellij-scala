@@ -4,6 +4,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expressions
 * PSI implementation for auxiliary expressions
 */
 import com.intellij.lang.ASTNode
+import com.intellij.psi.tree._
 import com.intellij.psi._
 import com.intellij.psi.scope._
 
@@ -14,6 +15,7 @@ import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.psi.containers._
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 
 class ScExpression(node: ASTNode) extends ScExprImpl(node) {
   override def toString: String = "expression"
@@ -44,8 +46,18 @@ case class ScErrorStatImpl(node: ASTNode) extends ScExpr1Impl(node) {
   override def toString: String = "Error statement"
 }
 
-case class ScBindingImpl(node: ASTNode) extends ScExprImpl(node) {
+case class ScBindingImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Referenced {
   override def toString: String = "Binding"
+
+  def getNames = {
+    val children = allChildrenOfType[ScReference](REFERENCE_SET)
+    if (children != null) {
+      children.toList
+    } else {
+      Nil: List[ScReference]
+    }
+  }
+
 }
 
 class ScEnumeratorImpl(node: ASTNode) extends ScEnumeratorsImpl(node) {
@@ -56,8 +68,37 @@ case class ScEnumeratorsImpl(node: ASTNode) extends ScExpr1Impl(node) with Conti
   override def toString: String = "Enumerators"
 }
 
-case class ScAnFunImpl(node: ASTNode) extends ScExpr1Impl(node) with IfElseIndent{
+case class ScAnFunImpl(node: ASTNode) extends ScExpr1Impl(node) with IfElseIndent with LocalContainer{
+
+  import com.intellij.psi.scope._
+  override def processDeclarations(processor: PsiScopeProcessor,
+          substitutor: PsiSubstitutor,
+          lastParent: PsiElement,
+          place: PsiElement): Boolean = {
+    import org.jetbrains.plugins.scala.lang.resolve.processors._
+
+    if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){
+        this.varOffset = processor.asInstanceOf[ScalaLocalVariableResolveProcessor].offset
+      getBindingReferences(processor, substitutor)
+    } else true
+  }
+
+  def getBindings = childrenOfType[ScBindingImpl](TokenSet.create(Array(ScalaElementTypes.BINDING)))
+
+  def getBindingReferences(processor: PsiScopeProcessor,
+          substitutor: PsiSubstitutor): Boolean = {
+
+    // Scan for parameters
+    for (val binding <- getBindings; binding.getTextOffset <= varOffset) {
+      if (binding != null && ! processor.execute(binding, substitutor)) {
+        return false
+      }
+    }
+    return true
+  }
+
   override def toString: String = "Anonymous function"
+
   def getType(): PsiType = null
 }
 
@@ -84,7 +125,8 @@ with ScBlock with Importable with LocalContainer{
         this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
         this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
       getClazz(getTmplDefs, processor, substitutor)
-    } else if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){ // Get Local variables
+    } else if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){
+      // Get Local variables
         this.varOffset = processor.asInstanceOf[ScalaLocalVariableResolveProcessor].offset
       getVariable(processor, substitutor)
     } else true
