@@ -14,7 +14,8 @@ Scala file
         pattern definition
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('x')
+          Reference identifier
+            PsiElement(identifier)('x')
           PsiElement(=)('=')
           Literal
             PsiElement(integer)('239')

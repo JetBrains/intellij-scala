@@ -19,7 +19,8 @@ Scala file
         pattern definition
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('b')
+          Reference identifier
+            PsiElement(identifier)('b')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -34,7 +35,8 @@ Scala file
         pattern definition
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('a')
+          Reference identifier
+            PsiElement(identifier)('a')
           PsiElement(=)('=')
           unit
             PsiElement({)('{')
@@ -44,7 +46,8 @@ Scala file
         pattern definition
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('c')
+          Reference identifier
+            PsiElement(identifier)('c')
           PsiElement(=)('=')
           Block expression
             PsiElement({)('{')
@@ -58,7 +61,8 @@ Scala file
         pattern definition
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('d')
+          Reference identifier
+            PsiElement(identifier)('d')
           PsiElement(=)('=')
           Block expression
             PsiElement({)('{')
@@ -74,7 +78,8 @@ Scala file
         pattern definition
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('e')
+          Reference identifier
+            PsiElement(identifier)('e')
           PsiElement(=)('=')
           Block expression
             PsiElement({)('{')

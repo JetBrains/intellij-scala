@@ -38,7 +38,8 @@ Scala file
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
                 Common pattern
-                  PsiElement(identifier)('a')
+                  Reference identifier
+                    PsiElement(identifier)('a')
                 PsiElement(=>)('=>')
                 Block
                   Stable Identifier
