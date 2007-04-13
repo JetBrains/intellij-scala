@@ -41,10 +41,7 @@ object ScalaResolveUtil {
 
       if (elt == null) return null
       var cur = elt
-      while (cur.processDeclarations(processor,
-              PsiSubstitutor.EMPTY,
-              if (cur == elt) lastParent else null,
-              place)) {
+      while (cur.processDeclarations(processor, PsiSubstitutor.EMPTY, if (cur == elt) lastParent else null, place)) {
         if (cur.isInstanceOf[PsiFile]) return null
         cur = cur.getParent
       }
