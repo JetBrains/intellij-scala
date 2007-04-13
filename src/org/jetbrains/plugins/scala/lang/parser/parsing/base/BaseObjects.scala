@@ -146,7 +146,9 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
         }
 
         if (BNF.firstExpr.contains(builder.getTokenType)) {
+          val args = builder.mark()
           Exprs.parse(builder, null)
+          args.done(ScalaElementTypes.ARG_EXPRS)
         }
 
         if (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType)) {
