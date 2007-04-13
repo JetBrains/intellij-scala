@@ -71,11 +71,13 @@ Scala file
                             Argument patterns
                               PsiElement(()('(')
                               Common pattern
-                                PsiElement(identifier)('p')
+                                Reference identifier
+                                  PsiElement(identifier)('p')
                               PsiElement(,)(',')
                               PsiWhiteSpace(' ')
                               Common pattern
-                                PsiElement(identifier)('r')
+                                Reference identifier
+                                  PsiElement(identifier)('r')
                               PsiElement())(')')
                         PsiElement())(')')
                   PsiWhiteSpace(' ')

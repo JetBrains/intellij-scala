@@ -49,7 +49,8 @@ Scala file
                   Tuple pattern
                     PsiElement({)('{')
                     Common pattern
-                      PsiElement(identifier)('t')
+                      Reference identifier
+                        PsiElement(identifier)('t')
                     PsiElement(,)(',')
                     PsiElement(})('}')
                 PsiWhiteSpace(' ')
@@ -67,13 +68,16 @@ Scala file
                   Tuple pattern
                     PsiElement({)('{')
                     Common pattern
-                      PsiElement(identifier)('t')
+                      Reference identifier
+                        PsiElement(identifier)('t')
                     PsiElement(,)(',')
                     Common pattern
-                      PsiElement(identifier)('s')
+                      Reference identifier
+                        PsiElement(identifier)('s')
                     PsiElement(,)(',')
                     Common pattern
-                      PsiElement(identifier)('u')
+                      Reference identifier
+                        PsiElement(identifier)('u')
                     PsiElement(})('}')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -90,10 +94,12 @@ Scala file
                   Tuple pattern
                     PsiElement({)('{')
                     Common pattern
-                      PsiElement(identifier)('t')
+                      Reference identifier
+                        PsiElement(identifier)('t')
                     PsiElement(,)(',')
                     Common pattern
-                      PsiElement(identifier)('s')
+                      Reference identifier
+                        PsiElement(identifier)('s')
                     PsiElement(,)(',')
                     PsiElement(})('}')
                 PsiWhiteSpace(' ')

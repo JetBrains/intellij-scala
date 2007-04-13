@@ -16,11 +16,13 @@ Scala file
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           Binding pattern
-            PsiElement(identifier)('a')
+            Reference identifier
+              PsiElement(identifier)('a')
             PsiWhiteSpace(' ')
             PsiElement(@)('@')
             PsiWhiteSpace(' ')
-            PsiElement(identifier)('v')
+            Reference identifier
+              PsiElement(identifier)('v')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')

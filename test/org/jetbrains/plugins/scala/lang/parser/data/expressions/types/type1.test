@@ -8,7 +8,8 @@ Scala file
     parameters clause
       PsiElement(()('(')
       parameter
-        PsiElement(identifier)('a')
+        Reference identifier
+          PsiElement(identifier)('a')
         PsiElement(:)(':')
         Simple type
           PsiElement(()('(')

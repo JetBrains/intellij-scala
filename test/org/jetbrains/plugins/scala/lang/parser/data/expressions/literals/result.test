@@ -14,19 +14,22 @@ Scala file
         pattern definition
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('лицо')
+          Reference identifier
+            PsiElement(identifier)('лицо')
           PsiElement(=)('=')
           Anonymous function
             PsiElement(()('(')
             Binding
-              PsiElement(identifier)('a')
+              Reference identifier
+                PsiElement(identifier)('a')
               PsiElement(:)(':')
               Simple type
                 Stable Identifier
                   PsiElement(identifier)('T')
             PsiElement(,)(',')
             Binding
-              PsiElement(identifier)('b')
+              Reference identifier
+                PsiElement(identifier)('b')
               PsiElement(:)(':')
               Simple type
                 Stable Identifier

@@ -9,7 +9,8 @@ Scala file
     parameters clause
       PsiElement(()('(')
       parameter
-        PsiElement(identifier)('unit')
+        Reference identifier
+          PsiElement(identifier)('unit')
         PsiWhiteSpace(' ')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
