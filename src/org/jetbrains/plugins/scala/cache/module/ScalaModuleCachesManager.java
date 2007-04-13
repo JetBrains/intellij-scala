@@ -144,7 +144,7 @@ public class ScalaModuleCachesManager implements ModuleComponent {
     myModuleFilesCache.setCacheName(myModule.getName());
     myModuleFilesCache.setCacheFilePath(generateCacheFilePath());
 
-    StartupManager.getInstance(myModule.getProject()).runPostStartup(new Runnable() {
+    StartupManager.getInstance(myModule.getProject()).runWhenProjectIsInitialized(new Runnable() {
       public void run() {
         myModuleFilesCache.init(true);
       }

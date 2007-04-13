@@ -28,9 +28,7 @@ import com.intellij.psi.*;
 import com.intellij.lang.StdLanguages;
 import com.intellij.ide.startup.CacheUpdater;
 import com.intellij.ide.startup.FileContent;
-import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.ide.startup.FileSystemSynchronizer;
-import com.intellij.ide.startup.impl.StartupManagerImpl;
 
 import java.util.*;
 import java.io.*;
