@@ -405,4 +405,6 @@ object ScalaElementTypes {
 
   val PATTERN_BIT_SET = TokenSet.orSet(Array(PATTERN1_BIT_SET,
       TokenSet.create(Array.apply(PATTERN))))
+
+  val REFERENCE_SET = TokenSet.create(Array(ScalaElementTypes.REFERENCE))
 }

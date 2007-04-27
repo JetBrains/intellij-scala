@@ -35,7 +35,7 @@ class ScParam(node: ASTNode) extends Param (node) with Referenced{
   *  Returns references to binded values
   */
   def getNames = {
-    val children = allChildrenOfType[ScReference](REFERENCE_SET)
+    val children = allChildrenOfType[ScReference](ScalaElementTypes.REFERENCE_SET)
     if (children != null) {
       children.toList
     } else {

@@ -43,7 +43,7 @@ trait ScalaValue extends ScTemplateStatement with Referenced{
   */
   [Nullable]
   def getNames = {
-    val children = allChildrenOfType[ScReference](REFERENCE_SET)
+    val children = allChildrenOfType[ScReference](ScalaElementTypes.REFERENCE_SET)
     if (children != null) {
       children.toList
     } else {

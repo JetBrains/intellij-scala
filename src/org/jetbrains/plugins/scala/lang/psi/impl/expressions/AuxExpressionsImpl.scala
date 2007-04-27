@@ -50,7 +50,7 @@ case class ScBindingImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with 
   override def toString: String = "Binding"
 
   def getNames = {
-    val children = allChildrenOfType[ScReference](REFERENCE_SET)
+    val children = allChildrenOfType[ScReference](ScalaElementTypes.REFERENCE_SET)
     if (children != null) {
       children.toList
     } else {
