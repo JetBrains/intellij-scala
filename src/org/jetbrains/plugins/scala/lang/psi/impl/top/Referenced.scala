@@ -23,8 +23,6 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 
 trait Referenced {
-    val REFERENCE_SET = TokenSet.create(Array(ScalaElementTypes.REFERENCE))
-
   /**
   *   returns list of labels for all variable or value  definitions
   */

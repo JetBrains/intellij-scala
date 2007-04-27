@@ -33,12 +33,12 @@ trait ScalaVariable extends ScalaPsiElement with Referenced {
   /**
   *   returns list of labels for all variable definitions
   */
-  def getNames = childrenOfType[ScReference](REFERENCE_SET).toList  :::
+  def getNames = childrenOfType[ScReference](ScalaElementTypes.REFERENCE_SET).toList  :::
   {
     val listOfIdentifiers = childSatisfyPredicateForElementType((elem: IElementType) =>
       elem.equals(ScalaElementTypes.IDENTIFIER_LIST)).asInstanceOf[ScalaPsiElement]
     val children = if (listOfIdentifiers != null)
-      listOfIdentifiers.childrenOfType[ScReference](REFERENCE_SET)
+      listOfIdentifiers.childrenOfType[ScReference](ScalaElementTypes.REFERENCE_SET)
     else null
     if (children != null) children.toList
     else Nil: List[ScReference]
