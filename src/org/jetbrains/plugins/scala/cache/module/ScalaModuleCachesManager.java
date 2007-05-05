@@ -105,7 +105,7 @@ public class ScalaModuleCachesManager implements ModuleComponent {
             processJdkEntry((JdkOrderEntry) entry);
           } else if (entry instanceof LibraryOrderEntry) {
             processLibraryEntry((LibraryOrderEntry) entry);
-          } else if (entry instanceof LibraryOrderEntry) {
+          } else if (entry instanceof ModuleOrderEntry) {
             processModuleEntry((ModuleOrderEntry) entry);
           }
         }
