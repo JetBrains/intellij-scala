@@ -66,7 +66,6 @@ public class ScalaSDKCachesManager implements ProjectComponent {
     createListeners();
   }
 
-
   private void createListeners() {
 
     jdkTableListener = new ProjectJdkTable.Listener() {

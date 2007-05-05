@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.psi.javaView._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScalaValue
 import com.intellij.psi.tree._
 
 trait LocalContainer extends ScalaPsiElement {

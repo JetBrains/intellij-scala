@@ -24,7 +24,7 @@ import java.util.Collection;
 import com.intellij.psi.PsiClass;
 
 /**
- * Interface fo file storage
+ * Interface fo files storage
  *
  * @author Ilya.Sergey
  */

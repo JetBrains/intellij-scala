@@ -26,5 +26,5 @@ trait Referenced {
   /**
   *   returns list of labels for all variable or value  definitions
   */
-  def getNames: List[ScReference]
+  def getNames(): List[ScReference]
 }

@@ -21,6 +21,7 @@ abstract class Param(node: ASTNode) extends ScalaPsiElementImpl (node) {
 }
 
 class ScParam(node: ASTNode) extends Param (node) with Referenced{
+
   override def toString: String = super.toString
 
   def paramType(): ScType = {

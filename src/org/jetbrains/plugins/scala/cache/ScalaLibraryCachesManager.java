@@ -57,7 +57,6 @@ public class ScalaLibraryCachesManager implements ProjectComponent {
     createListeners();
   }
 
-
   private void createListeners() {
 
     libraryTableListener = new ProjectLibraryTable.Listener() {
@@ -163,14 +162,12 @@ public class ScalaLibraryCachesManager implements ProjectComponent {
   }
 
   public void addLibrary(@NotNull final Library library) {
-    if (library != null) {
-      final ScalaFilesCache newLibraryCache = new ScalaFilesCacheImpl(myProject);
-      newLibraryCache.setCacheName(library.getName());
-      newLibraryCache.setCacheUrls(getLibraryContentRootURLs(library));
-      newLibraryCache.setCacheFilePath(generateCacheFilePath(library));
-      newLibraryCache.init(true);
-      libraryScalaFilesCache.put(library, newLibraryCache);
-    }
+    final ScalaFilesCache newLibraryCache = new ScalaFilesCacheImpl(myProject);
+    newLibraryCache.setCacheName(library.getName());
+    newLibraryCache.setCacheUrls(getLibraryContentRootURLs(library));
+    newLibraryCache.setCacheFilePath(generateCacheFilePath(library));
+    newLibraryCache.init(true);
+    libraryScalaFilesCache.put(library, newLibraryCache);
   }
 
 /**********************************************************************************************************************/
