@@ -20,14 +20,14 @@ abstract class Param(node: ASTNode) extends ScalaPsiElementImpl (node) {
   override def toString: String = "parameter"
 }
 
-class ScParam(node: ASTNode) extends Param (node) with Referenced{
+class ScParam(node: ASTNode) extends Param (node) with ScReferenceIdContainer{
 
   override def toString: String = super.toString
 
-  def paramType(): ScType = {
+  def paramType(): ScalaType = {
     val child = getLastChild
     child match {
-      case paramType: ScType => paramType
+      case paramType: ScalaType => paramType
       case _ => null
     }
   }
@@ -36,18 +36,18 @@ class ScParam(node: ASTNode) extends Param (node) with Referenced{
   *  Returns references to binded values
   */
   def getNames = {
-    val children = allChildrenOfType[ScReference](ScalaElementTypes.REFERENCE_SET)
+    val children = allChildrenOfType[ScReferenceId](ScalaElementTypes.REFERENCE_SET)
     if (children != null) {
       children.toList
     } else {
-      Nil: List[ScReference]
+      Nil: List[ScReferenceId]
     }
   }
 
 
 }
 
-class ScParamType(node: ASTNode) extends ScalaPsiElementImpl (node) with ScType {
+class ScParamType(node: ASTNode) extends ScalaPsiElementImpl (node) with ScalaType {
   override def toString: String = "parameter " + super.toString
 }
 

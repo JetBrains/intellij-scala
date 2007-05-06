@@ -11,7 +11,10 @@ import org.jetbrains.plugins.scala.lang.parser._
 /**
 *  Main trait for all types
 */
-trait ScType extends ScalaPsiElement {
+trait ScalaType extends ScalaPsiElement {
+
+  def getClassType: PsiElement = null
+
   def getLowerBoundType = {
     val lowerBound = getChild(ScalaElementTypes.LOWER_BOUND_TYPE)
     if (lowerBound != null) lowerBound.asInstanceOf[ScalaPsiElement].getLastChild
@@ -25,18 +28,16 @@ trait ScType extends ScalaPsiElement {
   }
 }
 
-
-trait ScType1 extends ScType
-
-class ScTypeImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScType {
+class ScFunctionalTypeImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScalaType {
   override def toString: String = "Functional type"
 }
 
-class ScCompoundTypeImpl(node: ASTNode) extends ScTypeImpl(node) with ScSimpleType {
-  override def toString: String = "Simple type"
+class ScCompoundTypeImpl(node: ASTNode) extends ScFunctionalTypeImpl(node) with ScSimpleType {
+
+  override def toString: String = "Compound type"
 }
 
-class ScInfixTypeImpl(node: ASTNode) extends ScTypeImpl(node) {
+class ScInfixTypeImpl(node: ASTNode) extends ScFunctionalTypeImpl(node) {
   override def toString: String = "Infix type"
 }
 

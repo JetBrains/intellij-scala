@@ -22,9 +22,19 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 
-trait Referenced {
+/**
+*   Container for names, that could be referenced, sucha as value declaration,
+*   binding, pattern, parameter declaration etc.
+*/
+trait ScReferenceIdContainer {
+
+  /**
+  *   Get explicit type from named element
+  */
+  def getExplicitType(refernceIdInstance: ScReferenceId): ScalaType = null
+
   /**
   *   returns list of labels for all variable or value  definitions
   */
-  def getNames(): List[ScReference]
+  def getNames(): List[ScReferenceId]
 }

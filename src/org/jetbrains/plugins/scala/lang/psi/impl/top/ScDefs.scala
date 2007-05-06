@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTempla
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 
 /**
 *  Main class, that describes behaviour of scala templates, such ass class, object and trait
@@ -63,7 +64,7 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
 
   override def getTextOffset = nameNode.getTextRange.getStartOffset
 
-  def isTypeDef: boolean = { this.isInstanceOf[ScTypeDef] }
+  def isTypeDef: boolean = { this.isInstanceOf[ScTypeDefinition] }
 
   /**
   * Returns qualified name of current template definition
@@ -92,9 +93,21 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
     append(iAmInner(this), getName)
   }
 
-
-
   def getTemplate: ScTopDefTemplate = getChild(ScalaElementTypes.TOP_DEF_TEMPLATE).asInstanceOf[ScTopDefTemplate]
+
+  def getFieldOrMethodWithoutArguments(name: String): ScTemplateStatement = {
+    val statements = getTemplateStatements.toList
+    if (getTemplateStatements != null) {
+      for (val statement <- getTemplateStatements){
+        // TODO Implement other cases
+        if (statement.isInstanceOf[ScFunction] &&
+        name.equals(statement.asInstanceOf[ScFunction].getFunctionName)) {
+          return statement
+        }
+      }
+    }
+    null
+  }
 
   [Nullable]
   def getTemplateStatements: Iterable[ScTemplateStatement] = {
@@ -116,7 +129,7 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
 /*
 *   Class definition implementation
 */
-case class ScClassDefinition(node: ASTNode) extends ScTypeDef (node) with LocalContainer{
+case class ScClassDefinition(node: ASTNode) extends ScTypeDefinition (node) with LocalContainer{
 
   def paramClauses = childrenOfType[ScParamClause](TokenSet.create(Array(ScalaElementTypes.PARAM_CLAUSE)))
 
@@ -155,7 +168,6 @@ case class ScClassDefinition(node: ASTNode) extends ScTypeDef (node) with LocalC
   }
 
 
-  
 
   override def toString: String = super.toString + ": " + "class"
 
@@ -171,9 +183,14 @@ case class ScObjectDefinition(node: ASTNode) extends ScTmplDef (node){
 }
 
 /*
-*   Trait definition implementation
+*   Trait or class definition implementation
 */
-class ScTypeDef(node: ASTNode) extends ScTmplDef(node)  with IfElseIndent{
+class ScTypeDefinition(node: ASTNode) extends ScTmplDef(node)  with IfElseIndent{
+
+  override def toString: String = "type" + " " + super.toString
+
+  override def getName = nameNode.getText
+
   def getTypeParameterClause: ScTypeParamClause = {
     getChild(ScalaElementTypes.TYPE_PARAM_CLAUSE).asInstanceOf[ScTypeParamClause]
   }
@@ -182,7 +199,7 @@ class ScTypeDef(node: ASTNode) extends ScTmplDef(node)  with IfElseIndent{
 /*
 *   Trait definition implementation
 */
-case class ScTraitDefinition(node: ASTNode) extends ScTypeDef (node) {
+case class ScTraitDefinition(node: ASTNode) extends ScTypeDefinition (node) with LocalContainer {
   override def toString: String = super.toString + ": " + "trait"
 
   override def getIcon(flags: Int) = Icons.TRAIT

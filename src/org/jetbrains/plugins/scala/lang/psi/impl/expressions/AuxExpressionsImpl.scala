@@ -46,15 +46,32 @@ case class ScErrorStatImpl(node: ASTNode) extends ScExpr1Impl(node) {
   override def toString: String = "Error statement"
 }
 
-case class ScBindingImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Referenced {
+/**
+*  Implementation for bindings in closures
+*/
+case class ScBindingImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScReferenceIdContainer {
   override def toString: String = "Binding"
 
+  def getReferenceId = {
+    childSatisfyPredicateForASTNode((node: ASTNode) => ScalaElementTypes.REFERENCE.equals(node.getElementType))
+  }
+
+  import org.jetbrains.plugins.scala.lang.psi.impl.types._
+  override def getExplicitType(id: ScReferenceId): ScalaType= {
+    if (id != null && id.equals(getReferenceId)) {
+      import org.jetbrains.plugins.scala.lang.psi.impl.types._
+      childSatisfyPredicateForPsiElement((elem: PsiElement) => elem.isInstanceOf[ScalaType]).asInstanceOf[ScalaType]
+    } else {
+      null
+    }
+  }
+
   def getNames = {
-    val children = allChildrenOfType[ScReference](ScalaElementTypes.REFERENCE_SET)
+    val children = allChildrenOfType[ScReferenceId](ScalaElementTypes.REFERENCE_SET)
     if (children != null) {
       children.toList
     } else {
-      Nil: List[ScReference]
+      Nil: List[ScReferenceId]
     }
   }
 

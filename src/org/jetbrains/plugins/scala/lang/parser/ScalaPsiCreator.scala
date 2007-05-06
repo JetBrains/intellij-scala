@@ -91,7 +91,6 @@ object ScalaPsiCreator {
       case ScalaElementTypes.PATTERN_DEFINITION => new ScPatternDefinition(node)
       case ScalaElementTypes.VARIABLE_DEFINITION => new ScVariableDefinition(node)
       case ScalaElementTypes.FUNCTION_DEFINITION => new ScFunctionDefinition(node)
-      case ScalaElementTypes.TYPE_DEFINITION => new ScTypeDefinition(node)
 
       /********** function definition: supplementary constructor *************/
       case ScalaElementTypes.SELF_INVOCATION => new ScSelfInvocation(node)
@@ -103,7 +102,7 @@ object ScalaPsiCreator {
 
       /**************** variable ******************/
       case ScalaElementTypes.IDENTIFIER_LIST => new ScIdentifierList(node)
-      case ScalaElementTypes.REFERENCE => new ScReference(node)
+      case ScalaElementTypes.REFERENCE => new ScReferenceId(node)
 
       /**************** pattern ******************/
       case ScalaElementTypes.PATTERN2_LIST => new ScPattern2List(node)
@@ -159,7 +158,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.STABLE_ID_ID => new ScStableIdImpl(node)
     case ScalaElementTypes.PATH => new ScPathImpl(node)
     case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeImpl(node)
-    case ScalaElementTypes.TYPE => new ScTypeImpl(node)
+    case ScalaElementTypes.TYPE => new ScFunctionalTypeImpl(node)
     case ScalaElementTypes.COMPOUND_TYPE => new ScCompoundTypeImpl(node)
     case ScalaElementTypes.INFIX_TYPE => new ScInfixTypeImpl(node)
     case ScalaElementTypes.REFINE_STAT => new ScRefineStatImpl(node)

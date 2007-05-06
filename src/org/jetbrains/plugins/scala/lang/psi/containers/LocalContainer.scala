@@ -26,6 +26,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScalaValue
 import com.intellij.psi.tree._
 
+/**
+*  Various blocks
+*/
 trait LocalContainer extends ScalaPsiElement {
 
   var varOffset = 0

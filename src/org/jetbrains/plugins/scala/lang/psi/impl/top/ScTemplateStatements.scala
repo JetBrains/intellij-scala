@@ -80,6 +80,8 @@ trait ScFunction extends ScParametrized {
     childrenOfType[ScParamClause](TokenSet.create(Array(ScalaElementTypes.PARAM_CLAUSE)))
   }
 
+  def getFunctionName = getShortName
+
   override def getIcon(flags: Int) = Icons.METHOD
 }
 
@@ -110,7 +112,7 @@ trait ScParametrized extends ScTemplateStatement {
 case class ScFunctionDefinition(node: ASTNode) extends ScalaPsiElementImpl(node)
 with ScFunction with ScDefinition with IfElseIndent with LocalContainer {
 
-  def getParameters= (paramClauses :\ (Nil: List[ScParam]))((y: ScParamClause, x: List[ScParam]) =>
+  def getParameters = (paramClauses :\ (Nil: List[ScParam]))((y: ScParamClause, x: List[ScParam]) =>
     y.params.toList ::: x)
 
   import com.intellij.psi.scope._
@@ -163,7 +165,8 @@ case class ScSupplementaryConstructor(node: ASTNode) extends ScalaPsiElementImpl
   override def names: Iterable[PsiElement] = childrenOfType[PsiElement](TokenSet.create(Array(ScalaTokenTypes.kTHIS)))
 }
 
-case class ScTypeDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDefinition with ScTemplateStatement with ScParametrized{
+
+case class ScTypeAliasDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDefinition with ScTemplateStatement with ScParametrized{
   override def toString: String = "type" + " " + super.toString
 
   def nameNode = {
@@ -174,6 +177,7 @@ case class ScTypeDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) wit
   override def getName = nameNode.getText
 
 }
+
 
 /***************** declaration ***********************/
 
@@ -210,7 +214,30 @@ class ScIdentifierList(node: ASTNode) extends ScalaPsiElementImpl (node) {
   override def toString: String = "list of identifiers"
 }
 
-class ScReference(node: ASTNode) extends ScalaPsiElementImpl (node){
+/**
+*   Reference id in instances of ScReferenceIdContainer
+*/
+class ScReferenceId(node: ASTNode) extends ScalaPsiElementImpl (node){
+
+  def getType: ScalaType = {
+
+    def walkUp(elem : PsiElement): PsiElement =  {
+      if (elem.isInstanceOf[ScReferenceIdContainer] || elem == null) {
+        return elem
+      } else {
+        return walkUp(elem.getParent)
+      }
+    }
+
+    val typedParent = walkUp(this)
+    if (typedParent == null) {
+      return null
+    } else {
+      return typedParent.asInstanceOf[ScReferenceIdContainer].getExplicitType(this)
+    }
+
+  }
+
   override def toString: String = "Reference identifier"
 }
 
