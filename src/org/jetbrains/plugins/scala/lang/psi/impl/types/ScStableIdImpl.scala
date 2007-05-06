@@ -18,16 +18,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
 
 trait ScStableId extends ScPattern3
 
-class ScStableIdImpl(node: ASTNode) extends ScSimpleExprImpl(node) with ScStableId with ScSimpleType {
+class ScStableIdImpl(node: ASTNode) extends ScSimpleExprImpl(node) with ScStableId {
 
   override def toString: String = "Stable Identifier"
-
-  def getType(): PsiType = null
 
   override def getReference = {
     if (! getText.contains(".") &&
     getParent != null &&
-    (getParent.isInstanceOf[ScSimpleTypeImpl] ||
+    (getParent.isInstanceOf[ScalaType] ||
     getParent.isInstanceOf[ScCompoundTypeImpl] ||
     getParent.isInstanceOf[ScConstructor] ||
     getParent.isInstanceOf[ScRequiresBlock] ||
@@ -41,12 +39,11 @@ class ScStableIdImpl(node: ASTNode) extends ScSimpleExprImpl(node) with ScStable
     getParent.isInstanceOf[ScMixinParents])) {
       new ScalaClassReference(this)  // Class or Trait reference
     } else
-      if (! getText.contains(".")) {
+    // TODO Remove "."
+
       new ScalaLocalReference(this)  // local reference
-    } else {
-      null
-    }
+
   }
 
   override def getName = getText
-  }
+}

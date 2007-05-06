@@ -30,14 +30,13 @@ class ScalaLocalVariableResolveProcessor(val myName: String, val offset: Int) ex
 
   // Process variable
   def execute(element: PsiElement, substitutor: PsiSubstitutor): Boolean = {
-    if (element.isInstanceOf[Referenced]) {
-      val valDef = element.asInstanceOf[Referenced]
+    if (element.isInstanceOf[ScReferenceIdContainer]) {
+      val valDef = element.asInstanceOf[ScReferenceIdContainer]
       for (val value <- valDef.getNames) {
         if (value.getText.equals(myName) &&
         value.getTextOffset <= offset) {
           myResult = value
           // TODO type output!
-          //Console.println(varDef.getExplicitType)
           return false
         }
       }

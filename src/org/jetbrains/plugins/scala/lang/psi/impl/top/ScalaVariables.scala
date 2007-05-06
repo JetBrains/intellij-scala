@@ -28,27 +28,27 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 
 
-trait ScalaVariable extends ScalaPsiElement with Referenced {
+trait ScalaVariable extends ScalaPsiElement with ScReferenceIdContainer {
 
   /**
   *   returns list of labels for all variable definitions
   */
-  def getNames = childrenOfType[ScReference](ScalaElementTypes.REFERENCE_SET).toList  :::
+  def getNames = childrenOfType[ScReferenceId](ScalaElementTypes.REFERENCE_SET).toList  :::
   {
     val listOfIdentifiers = childSatisfyPredicateForElementType((elem: IElementType) =>
       elem.equals(ScalaElementTypes.IDENTIFIER_LIST)).asInstanceOf[ScalaPsiElement]
     val children = if (listOfIdentifiers != null)
-      listOfIdentifiers.childrenOfType[ScReference](ScalaElementTypes.REFERENCE_SET)
+      listOfIdentifiers.childrenOfType[ScReferenceId](ScalaElementTypes.REFERENCE_SET)
     else null
     if (children != null) children.toList
-    else Nil: List[ScReference]
+    else Nil: List[ScReferenceId]
   }
 
   /**
   *   Returns explicit type of variable, or null, if it is not specified
   */
   def getExplicitType = childSatisfyPredicateForASTNode((node: ASTNode) =>
-    node.getPsi.isInstanceOf[ScType])
+    node.getPsi.isInstanceOf[ScalaType])
 
 }
 
@@ -62,8 +62,7 @@ trait ScalaVariable extends ScalaPsiElement with Referenced {
 *   var a = 1
 *
 */
-case class ScVariableDefinition(node: ASTNode) extends ScalaPsiElementImpl(node)
-with ScDefinition with IfElseIndent with ScalaVariable{
+case class ScVariableDefinition(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDefinition with IfElseIndent with ScalaVariable{
   override def toString: String = "variable" + " " + super.toString
   override def getIcon(flags: Int) = Icons.VAR
 }
@@ -74,8 +73,7 @@ with ScDefinition with IfElseIndent with ScalaVariable{
 *   var a : Int
 *
 */
-case class ScVariableDeclaration(node: ASTNode) extends ScalaPsiElementImpl(node)
-with Declaration with ScalaVariable {
+case class ScVariableDeclaration(node: ASTNode) extends ScalaPsiElementImpl(node) with Declaration with ScalaVariable {
   override def toString: String = "variable" + " " + super.toString
   override def getIcon(flags: Int) = Icons.VAR
 }

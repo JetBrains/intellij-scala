@@ -518,9 +518,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
             }
             case _ => {
               if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
-                Refinements.parse(builder)
+                res = Refinements.parse(builder)
               }
-              type1Marker.done(ScalaElementTypes.COMPOUND_TYPE)
+              if (ScalaElementTypes.REFINEMENTS.equals(res)){
+                type1Marker.done(ScalaElementTypes.COMPOUND_TYPE)
+              } else {
+                type1Marker.done(ScalaElementTypes.SIMPLE_TYPE)
+              }
               ScalaElementTypes.COMPOUND_TYPE
             }
           }

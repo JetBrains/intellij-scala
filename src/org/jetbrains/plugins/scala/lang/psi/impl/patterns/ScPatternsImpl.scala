@@ -25,17 +25,17 @@ trait ScPatterns extends ScalaPsiElement
 /**
 *   Pattern ::= Pattern1 { ‘|’ Pattern1 }
 */
-trait ScPattern extends ScPatterns with Referenced{
+trait ScPattern extends ScPatterns with ScReferenceIdContainer{
 
   /**
   *  Returns references to binded values
   */
   def getNames = {
-    val children = allChildrenOfType[ScReference](ScalaElementTypes.REFERENCE_SET)
+    val children = allChildrenOfType[ScReferenceId](ScalaElementTypes.REFERENCE_SET)
     if (children != null) {
       children.toList
     } else {
-      Nil: List[ScReference]
+      Nil: List[ScReferenceId]
     }
   }
 }

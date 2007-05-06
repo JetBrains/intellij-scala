@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 
 
-trait ScalaValue extends ScTemplateStatement with Referenced{
+trait ScalaValue extends ScTemplateStatement with ScReferenceIdContainer{
 
   override def isManyDeclarations = (getChild(ScalaElementTypes.PATTERN2_LIST) != null)
 
@@ -43,11 +43,11 @@ trait ScalaValue extends ScTemplateStatement with Referenced{
   */
   [Nullable]
   override def getNames() = {
-    val children = allChildrenOfType[ScReference](ScalaElementTypes.REFERENCE_SET)
+    val children = allChildrenOfType[ScReferenceId](ScalaElementTypes.REFERENCE_SET)
     if (children != null) {
       children.toList
     } else {
-      Nil: List[ScReference]
+      Nil: List[ScReferenceId]
     }
   }
 

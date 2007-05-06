@@ -13,6 +13,8 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.primitives.ScIdentifier
+import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
+import org.jetbrains.plugins.scala.lang.psi.impl.top.defs.ScTypeDefinition
 
 class ScalaLocalReference(val myElement: PsiElement) extends PsiReference {
 
@@ -31,8 +33,12 @@ class ScalaLocalReference(val myElement: PsiElement) extends PsiReference {
    * @return Relative range in element
    */
   def getRangeInElement = {
-    val range = new TextRange(0, myElement.getTextLength)
-    range
+    if (!getReferencedName.contains(".")) {
+      new TextRange(0, myElement.getTextLength)
+    } else {
+      val index = getReferencedName.lastIndexOf(".")
+      new TextRange(index+1, myElement.getTextLength)
+    }
   }
 
   /**
@@ -44,8 +50,31 @@ class ScalaLocalReference(val myElement: PsiElement) extends PsiReference {
   def resolve: PsiElement = {
     val refName = getReferencedName
     if (refName != null) {
-      ScalaResolveUtil.treeWalkUp(new ScalaLocalVariableResolveProcessor(refName, getElement.getTextOffset), getElement, getElement, getElement)
-    } else null
+      if (! refName.contains(".")) {
+        ScalaResolveUtil.treeWalkUp(new ScalaLocalVariableResolveProcessor(refName, getElement.getTextOffset), getElement, getElement, getElement)
+      } else {
+        // Take qualifier
+        if (myElement.getFirstChild.isInstanceOf[ScStableId]) {
+          val parentReference = myElement.getFirstChild.asInstanceOf[ScStableId].getReference.resolve
+          if (parentReference.isInstanceOf[ScReferenceId]){
+            // Getting type from reference id occurence
+            val refType = parentReference.asInstanceOf[ScReferenceId].getType
+            if (refType != null) {
+              // Try to resolve as class type
+              val classType = refType.getClassType
+              if (classType != null && classType.isInstanceOf[ScTypeDefinition]){
+                // try to resolve class members
+                val method = classType.asInstanceOf[ScTypeDefinition].getFieldOrMethodWithoutArguments(refName.substring(refName.lastIndexOf(".") + 1))
+                return method
+              }
+            }
+          }
+        }
+        null
+      }
+    } else {
+      null
+    }
   }
 
   /**
@@ -96,10 +125,10 @@ class ScalaLocalReference(val myElement: PsiElement) extends PsiReference {
     val resolved = resolve
     if (element.equals(resolved)) return true
 
-    var qName1 : String = null
+    var qName1: String = null
     if (resolved.isInstanceOf[PsiClass]) qName1 = resolve.asInstanceOf[PsiClass].getQualifiedName
     if (resolved.isInstanceOf[ScTmplDef]) qName1 = resolve.asInstanceOf[ScTmplDef].getQualifiedName
-    var qName2 : String = null
+    var qName2: String = null
     if (element.isInstanceOf[PsiClass]) qName2 = element.asInstanceOf[PsiClass].getQualifiedName
     if (element.isInstanceOf[ScTmplDef]) qName2 = element.asInstanceOf[ScTmplDef].getQualifiedName
 
