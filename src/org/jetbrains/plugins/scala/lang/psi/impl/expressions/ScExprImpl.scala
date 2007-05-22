@@ -10,20 +10,16 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.typechecker._
 
-abstract class ScExprImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) with ScExpr
+abstract class ScalaExpression( node : ASTNode ) extends ScalaPsiElementImpl(node) with IScalaExpression {
+  import com.intellij.psi._
 
-abstract class ScExpr1Impl(node : ASTNode) extends ScExprImpl(node) with ScResExpr
+  def getAbstractType = (new ScalaTypeChecker).getTypeByTerm(this)
+}
+
+abstract class ScExpr1Impl(node : ASTNode) extends ScalaExpression(node) with ScResExpr
 
 trait ScResExpr extends ScBlock
 
 trait ScBlock extends PsiElement
-
-
-/**
-*   Main Trait for all expressions
-*
-*/
-trait ScExpr {
-  import com.intellij.psi._
-}

@@ -352,9 +352,12 @@ object TmplDef extends ConstrWithoutNode {
       } else {
         lineTerminatorMarker.rollbackTo
       }
-
+      // TODO changed 20.05.2007
+/*
       if (isRealTypedefTemplate) typedefTemplateMarker.done(ScalaElementTypes.TOP_DEF_TEMPLATE)
       else typedefTemplateMarker.drop
+*/
+      typedefTemplateMarker.drop
     }
   }
 

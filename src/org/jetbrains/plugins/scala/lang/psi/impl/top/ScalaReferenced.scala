@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.DclDef
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
+import org.jetbrains.plugins.scala.lang.typechecker._
+import org.jetbrains.plugins.scala.lang.typechecker.types._
 
 /**
 *   Container for names, that could be referenced, sucha as value declaration,
@@ -31,7 +33,17 @@ trait ScReferenceIdContainer {
   /**
   *   Get explicit type from named element
   */
-  def getExplicitType(refernceIdInstance: ScReferenceId): ScalaType = null
+  def getAbstractType(refernceIdInstance: ScReferenceId): AbstractType = null
+
+  /**
+  *   Get explicit type from named element
+  */
+  def getExplicitType(refernceIdInstance: ScReferenceId): AbstractType = null
+
+  /**
+  *   Get infered type from named element
+  */
+  def getInferedType(refernceIdInstance: ScReferenceId): AbstractType = null
 
   /**
   *   returns list of labels for all variable or value  definitions

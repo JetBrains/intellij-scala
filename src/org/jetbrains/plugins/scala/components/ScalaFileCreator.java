@@ -55,10 +55,12 @@ public class ScalaFileCreator implements ApplicationComponent {
 
   private void registerScalaScriptTemplate() {
     String templateText = ScalaBundle.message("template.file.text");
-    FileTemplate scalaTemplate = FileTemplateManager.getInstance().addTemplate(SCALA_FILE_TEMPLATE,
-            ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension());
-    ((FileTemplateImpl) scalaTemplate).setInternal(true);
-    scalaTemplate.setText(templateText);
+    if (FileTemplateManager.getInstance().getTemplate(SCALA_FILE_TEMPLATE) == null) {
+      FileTemplate scalaTemplate = FileTemplateManager.getInstance().addTemplate(SCALA_FILE_TEMPLATE,
+          ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension());
+      ((FileTemplateImpl) scalaTemplate).setInternal(true);
+      scalaTemplate.setText(templateText);
+    }
   }
 
 

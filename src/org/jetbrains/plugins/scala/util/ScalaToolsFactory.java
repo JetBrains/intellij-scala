@@ -30,6 +30,7 @@ import com.intellij.debugger.NameMapper;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.surroundWith.SurroundDescriptors;
+import org.jetbrains.plugins.scala.lang.typechecker.IScalaTypeChecker;
 
 /**
  * Author: Ilya Sergey
@@ -55,6 +56,8 @@ public abstract class ScalaToolsFactory implements ApplicationComponent {
   }
 
   public abstract ParserDefinition createScalaParserDefinition();
+
+  public abstract IScalaTypeChecker createScalaTypeChecker();
 
   public abstract FoldingBuilder createScalaFoldingBuilder();
 

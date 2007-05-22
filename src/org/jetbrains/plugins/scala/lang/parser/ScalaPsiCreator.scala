@@ -6,7 +6,6 @@ import com.intellij.psi.tree.IElementType
 
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.impl.literals._
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
@@ -14,8 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
-import org.jetbrains.plugins.scala.lang.psi.impl.top._, org.jetbrains.plugins.scala.lang.psi.impl.primitives._,
-org.jetbrains.plugins.scala.lang.psi.impl.specialNodes.ScTrash
+import org.jetbrains.plugins.scala.lang.psi.impl.top._, org.jetbrains.plugins.scala.lang.psi.impl.primitives._
+import org.jetbrains.plugins.scala.lang.psi.impl.specialNodes.ScTrash
+import org.jetbrains.plugins.scala.lang.psi.impl.expressions.simpleExprs._
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -56,6 +56,7 @@ object ScalaPsiCreator {
 
       case ScalaElementTypes.PACKAGE_STMT => new ScPackageStatement(node)
       case ScalaElementTypes.CLASS_DEF => new ScClassDefinition(node)
+      case ScalaElementTypes.NEW_TEMPLATE => new ScNewTemplateDefinition(node)
       case ScalaElementTypes.OBJECT_DEF => new ScObjectDefinition(node)
       case ScalaElementTypes.TRAIT_DEF => new ScTraitDefinition(node)
 
@@ -167,6 +168,13 @@ object ScalaPsiCreator {
     case ScalaElementTypes.TYPE_ARGS => new ScTypeArgsImpl(node)
 
     /******************* EXPRESSIONS*********************/
+
+    case ScalaElementTypes.PARENT_EXPR => new ScParenthesisedExpr(node)
+    case ScalaElementTypes.METHOD_CALL => new ScMethodCallImpl(node)
+    case ScalaElementTypes.REFERENCE_EXPRESSION => new ScReferenceExpressionImpl(node)
+    case ScalaElementTypes.THIS_REFERENCE_EXPRESSION => new ScThisReferenceExpressionImpl(node)
+    case ScalaElementTypes.PROPERTY_SELECTION => new ScPropertySelectionImpl(node)
+    case ScalaElementTypes.GENERIC_CALL => new ScGenericCallImpl(node)
 
     case ScalaElementTypes.PREFIX_EXPR => new ScPrefixExprImpl(node)
     case ScalaElementTypes.SIMPLE_EXPR => new ScSimpleExprImpl(node)

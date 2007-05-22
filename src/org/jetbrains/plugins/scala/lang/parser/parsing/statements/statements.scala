@@ -287,7 +287,6 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
 
         }
 
-
         if (ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
           if (BNF.firstExpr.contains(builder.getTokenType)) {
@@ -460,8 +459,9 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
   object FunSig extends ConstrWithoutNode {
     override def parseBody(builder: PsiBuilder): Unit = {
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+        val vm = builder.mark()
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-
+        vm.done(ScalaElementTypes.REFERENCE)
         if (BNF.firstFunTypeParam.contains(builder.getTokenType)) {
           new TypeParamClause[TypeParam](new TypeParam) parse builder
         }

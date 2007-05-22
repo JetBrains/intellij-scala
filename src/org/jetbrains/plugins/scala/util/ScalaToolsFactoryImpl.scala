@@ -17,6 +17,7 @@ import com.intellij.ide.structureView.StructureViewBuilder
 import com.intellij.formatting.FormattingModelBuilder
 import com.intellij.psi.PsiFile
 import com.intellij.lang.findUsages.FindUsagesProvider
+import org.jetbrains.plugins.scala.lang.typechecker._
 
 /**
  * Author: Ilya Sergey
@@ -42,4 +43,6 @@ class ScalaToolsFactoryImpl extends ScalaToolsFactory {
   def createFindUsagesProvider = ScalaFindUsagesProvider
 
   def createJVMNameMapper = ScalaJVMNameMapper
+
+  def createScalaTypeChecker = new ScalaTypeChecker()
 }
