@@ -1,0 +1,12 @@
+class VEN{
+  var field: DSL = null
+}
+
+class DSL{}
+
+class Temp {
+  var ven : VEN = new VEN()
+  var temp = ven.<caret>field
+}
+-----
+DSL

@@ -1,0 +1,15 @@
+package a.b.c
+class C{
+  class BB
+  def foo = {
+    new B<caret>B
+  }
+}
+-----
+package a.b.c
+class C{
+  class <caret>BB
+  def foo = {
+    new BB
+  }
+}

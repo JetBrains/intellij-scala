@@ -1,0 +1,7 @@
+class VEN{}
+
+class Temp {
+  val foo = (vvv: VEN) => <caret>vvv
+}
+-----
+VEN

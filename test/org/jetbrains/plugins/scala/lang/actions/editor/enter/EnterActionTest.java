@@ -1,3 +1,19 @@
+/*
+ * Copyright 2000-2006 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.jetbrains.plugins.scala.lang.actions.editor.enter;
 
 import com.intellij.codeInsight.editorActions.EnterHandler;
@@ -5,8 +21,6 @@ import com.intellij.openapi.actionSystem.DataConstants;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.DataProvider;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.actionSystem.EditorActionManager;
@@ -21,16 +35,15 @@ import junit.framework.Assert;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.jetbrains.plugins.scala.lang.actions.ActionTest;
 
 import java.io.IOException;
 
 
-public class EnterActionTest extends BaseScalaFileSetTestCase {
+public class EnterActionTest extends ActionTest {
 
   @NonNls
-  protected static final String CARET_MARKER = "<caret>";
   private static final String DATA_PATH = "./test/org/jetbrains/plugins/scala/lang/actions/editor/enter/data/";
 
   protected Editor myEditor;
@@ -45,49 +58,30 @@ public class EnterActionTest extends BaseScalaFileSetTestCase {
     );
   }
 
-  public static void runAsWriteAction(final Runnable runnable) {
-    ApplicationManager.getApplication().runWriteAction(runnable);
+
+  protected EditorActionHandler getMyHandler() {
+    EditorActionManager manager = EditorActionManager.getInstance();
+    final EditorActionHandler handler = new EnterHandler(manager.getActionHandler(IdeActions.ACTION_EDITOR_ENTER));
+    manager.setActionHandler(IdeActions.ACTION_EDITOR_ENTER, handler);
+    return handler;
   }
 
-  public static void performAction(final Project project, final Runnable action) {
-    runAsWriteAction(new Runnable() {
-      public void run() {
-        CommandProcessor.getInstance().executeCommand(project, action, "Execution", null);
-      }
-    });
-  }
 
-  protected String removeMarker(String text) {
-    int index = text.indexOf(CARET_MARKER);
-    return text.substring(0, index) + text.substring(index + CARET_MARKER.length());
-  }
-
-  private String typeEnter(final PsiFile file) throws IncorrectOperationException, InvalidDataException, IOException {
-
+  private String processFile(final PsiFile file) throws IncorrectOperationException, InvalidDataException, IOException {
     String result;
     String fileText = file.getText();
     int offset = fileText.indexOf(CARET_MARKER);
     fileText = removeMarker(fileText);
-
     myFile = TestUtils.createPseudoPhysicalFile(project, fileText);
-
-    
-
-
     fileEditorManager = FileEditorManager.getInstance(project);
     myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(project, myFile.getVirtualFile(), 0), false);
     myEditor.getCaretModel().moveToOffset(offset);
 
-    EditorActionManager manager = EditorActionManager.getInstance();
-    final EditorActionHandler handler = new EnterHandler(manager.getActionHandler(IdeActions.ACTION_EDITOR_ENTER));
-    manager.setActionHandler(IdeActions.ACTION_EDITOR_ENTER, handler);
 
-    final myDataContext dataContext = new myDataContext();
-    IdeaTestApplication.getInstance().setDataProvider(dataContext);
-    Assert.assertTrue(handler.isEnabled(myEditor, dataContext));
+    final myDataContext dataContext = getDataContext(myFile);
+    final EditorActionHandler handler = getMyHandler();
 
     try {
-
       performAction(project, new Runnable() {
         public void run() {
           handler.execute(myEditor, dataContext);
@@ -99,39 +93,21 @@ public class EnterActionTest extends BaseScalaFileSetTestCase {
       result = result.substring(0, offset) + CARET_MARKER + result.substring(offset);
 
     } finally {
-
       fileEditorManager.closeFile(myFile.getVirtualFile());
       myEditor = null;
-
     }
-
-
     return result;
   }
 
-  protected String performTyping(final Project project, final PsiFile file) throws IncorrectOperationException, InvalidDataException, IOException {
-    setSettings();
-    return typeEnter(file);
-  }
-
   public String transform(String testName, String[] data) throws Exception {
+    setSettings();
     String fileText = data[0];
     final PsiFile psiFile = TestUtils.createPseudoPhysicalFile(project, fileText);
-    return performTyping(project, psiFile);
+    return processFile(psiFile);
   }
 
 
   public static Test suite() {
     return new EnterActionTest();
   }
-
-  public class myDataContext implements DataContext, DataProvider {
-    @Nullable
-    public Object getData(@NonNls String dataId) {
-      if (DataConstants.LANGUAGE.equals(dataId)) return myFile.getLanguage();
-      if (DataConstants.PROJECT.equals(dataId)) return myFile.getProject();
-      return null;
-    }
-  }
-
 }
