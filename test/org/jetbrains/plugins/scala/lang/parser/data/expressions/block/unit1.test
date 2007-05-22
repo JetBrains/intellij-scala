@@ -3,7 +3,7 @@ def f = ()
 }
 -----
 Scala file
-  template definition: class
+  type template definition: class
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')

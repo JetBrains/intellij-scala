@@ -1,7 +1,7 @@
 case class a
 -----
 Scala file
-  template definition: class
+  type template definition: class
     PsiElement(case)('case')
     PsiWhiteSpace(' ')
     PsiElement(class)('class')

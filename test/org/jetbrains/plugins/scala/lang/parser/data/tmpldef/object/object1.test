@@ -10,7 +10,7 @@ Scala file
       PsiElement(identifier)('a')
     PsiElement(newline)('\n')
   PsiWhiteSpace('\n')
-  template definition: object
+  type template definition: object
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('b')

@@ -2,12 +2,12 @@ class a
 class b
 ------
 Scala file
-  template definition: class
+  type template definition: class
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
   PsiElement(newline)('\n')
-  template definition: class
+  type template definition: class
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('b')

@@ -1,7 +1,7 @@
 class A(a: T with S with U {val i:T})
 -----
 Scala file
-  template definition: class
+  type template definition: class
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
