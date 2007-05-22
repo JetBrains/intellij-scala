@@ -49,24 +49,34 @@ FIRST(SimpleExpr) = ScalaTokenTypes.tINTEGER,
 object SimpleExpr {
 
   val tLITERALS: TokenSet = TokenSet.create(Array(ScalaTokenTypes.tINTEGER,
-          ScalaTokenTypes.tFLOAT,
-          ScalaTokenTypes.kTRUE,
-          ScalaTokenTypes.kFALSE,
-          ScalaTokenTypes.tCHAR,
-          ScalaTokenTypes.kNULL))
+      ScalaTokenTypes.tFLOAT,
+      ScalaTokenTypes.kTRUE,
+      ScalaTokenTypes.kFALSE,
+      ScalaTokenTypes.tCHAR,
+      ScalaTokenTypes.kNULL))
 
   val tSIMPLE_FIRST: TokenSet = TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER,
-          ScalaTokenTypes.kTHIS,
-          ScalaTokenTypes.kSUPER,
-          ScalaTokenTypes.tLPARENTHESIS,
-          ScalaTokenTypes.kNEW))
+      ScalaTokenTypes.kTHIS,
+      ScalaTokenTypes.kSUPER,
+      ScalaTokenTypes.tLPARENTHESIS,
+      ScalaTokenTypes.kNEW))
 
   //val SIMPLE_FIRST = TokenSet.orSet(Array(BNF.tSIMPLE_FIRST, BNF.tLITERALS ))
   val SIMPLE_FIRST = TokenSet.orSet(Array(tSIMPLE_FIRST, tLITERALS))
 
+  def closeMarker(res: String, marker: PsiBuilder.Marker) = marker.done(res match {
+    case "parenthesised" => ScalaElementTypes.PARENT_EXPR
+    case ".id" => ScalaElementTypes.PROPERTY_SELECTION
+    case "id" => ScalaElementTypes.REFERENCE_EXPRESSION
+    case "this" => ScalaElementTypes.THIS_REFERENCE_EXPRESSION
+    case "argexprs" => ScalaElementTypes.METHOD_CALL
+    case "typeargs" => ScalaElementTypes.GENERIC_CALL
+    case _ => ScalaElementTypes.SIMPLE_EXPR
+  })
+
   def parse(builder: PsiBuilder, marker: PsiBuilder.Marker, braced: Boolean): SimpleExprResult = {
 
-    var deepCount = 1
+    var deepCount = 0
     var inBraces = braced
 
     def closeParent: SimpleExprResult = {
@@ -80,7 +90,7 @@ object SimpleExpr {
       if (builder.getTokenType.eq(ScalaTokenTypes.tDOT))  {
 
         var nextMarker = simpleMarker1.precede()
-        simpleMarker1.done(ScalaElementTypes.SIMPLE_EXPR)
+        closeMarker(stringRes, simpleMarker1)
 
         ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
         builder.getTokenType match {
@@ -100,7 +110,7 @@ object SimpleExpr {
       builder.getTokenType.eq(ScalaTokenTypes.tLBRACE)) {
 
         var nextMarker = simpleMarker1.precede()
-        simpleMarker1.done(ScalaElementTypes.SIMPLE_EXPR)
+        closeMarker(stringRes, simpleMarker1)
 
         var res = ArgumentExprs.parse(builder)
         if (res.eq(ScalaElementTypes.ARG_EXPRS)) {
@@ -116,7 +126,7 @@ object SimpleExpr {
       } else if (builder.getTokenType.eq(ScalaTokenTypes.tLSQBRACKET)) {
 
         var nextMarker = simpleMarker1.precede()
-        simpleMarker1.done(ScalaElementTypes.SIMPLE_EXPR)
+        closeMarker(stringRes, simpleMarker1)
 
         var res = TypeArgs.parse(builder)
         if (res.eq(ScalaElementTypes.TYPE_ARGS)) {
@@ -129,10 +139,9 @@ object SimpleExpr {
           new SimpleExprResult(ScalaElementTypes.WRONGWAY, "wrong")
         }
       } else {
-        if (deepCount > 1 || inBraces) {
-          simpleMarker1.done(ScalaElementTypes.SIMPLE_EXPR)
-        }
-        else {
+        if (deepCount > 0 /*|| inBraces*/) {
+          closeMarker(stringRes, simpleMarker1)
+        } else {
           simpleMarker1.drop()
         }
         new SimpleExprResult(_res, stringRes)
@@ -153,7 +162,7 @@ object SimpleExpr {
       if (ScalaTokenTypes.kNEW.equals(builder.getTokenType))  {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kNEW)
         Template.parseBody(builder)
-        simpleMarker.done(ScalaElementTypes.SIMPLE_EXPR)
+        simpleMarker.done(ScalaElementTypes.NEW_TEMPLATE)
         simpleMarker = builder.mark()
         result = ScalaElementTypes.TEMPLATE
         endness = "plain"
@@ -185,13 +194,13 @@ object SimpleExpr {
           if (res.eq(ScalaElementTypes.EXPR)) {
             if (builder.getTokenType.eq(ScalaTokenTypes.tRPARENTHESIS)) {
               closeParent
-              inBraces = true
+//              inBraces = true
               result = res
-              endness = "plain"
+              endness = "parenthesised"
               flag = true
             } else {
               builder.error(" Expression expected")
-              inBraces = true
+//              inBraces = true
               new SimpleExprResult(ScalaElementTypes.SIMPLE_EXPR, "plain")
               result = res
               endness = "plain"
@@ -210,24 +219,38 @@ object SimpleExpr {
           endness = "plain"
         }
         /* case (e) */
-        else { result1 = StableId.parse(builder) // Path ?
-        if (! flag && (result1.equals(ScalaElementTypes.PATH)
-        || result1.equals(ScalaElementTypes.STABLE_ID_ID))) {
-          result = result1
-          flag = true
-          endness = "plain"
-        }
-        if (! flag && result1.equals(ScalaElementTypes.STABLE_ID)) {
-          result = result1
-          flag = true
-          endness = ".id"
-        }
+        else {
+          // stable id parsing
+          // TODO add 'super' case parsing
+          def thisReferenfceParsing(marker: PsiBuilder.Marker) = {
+            if (ScalaTokenTypes.kTHIS.equals(builder.getTokenType())) {
+              builder.advanceLexer()
+              marker.done(ScalaElementTypes.THIS_REFERENCE_EXPRESSION)
+              endness = "this"
+              flag = true;
+              result = ScalaElementTypes.THIS_REFERENCE_EXPRESSION
+            } else {
+              marker.drop()
+            }
+          }
+          if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType())) {
+            val marker = builder.mark()
+            builder.advanceLexer()
+            val newMarker = marker.precede
+            result = ScalaElementTypes.REFERENCE_EXPRESSION
+            endness = "id"
+            flag = true;
+            marker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
+            thisReferenfceParsing(newMarker)
+          } else if (ScalaTokenTypes.kTHIS.equals(builder.getTokenType())) {
+            val marker = builder.mark
+            thisReferenfceParsing(marker)
+          }
         }
       }
       if (flag) {
         subParse(result, endness, simpleMarker)
-      }
-      else {
+      } else {
         simpleMarker.drop()
         new SimpleExprResult(ScalaElementTypes.WRONGWAY, "wrong")
       }
@@ -390,8 +413,8 @@ Default grammar:
 PostfixExpr ::= InfixExpr [id [NewLine]]
 
 ***********************************************
-                                                      
-Realized grammar:                                             
+
+Realized grammar:
 PostfixExpr ::= InfixExpr [id [NewLine]]
 
 ***********************************************
@@ -419,21 +442,21 @@ object PostfixExpr {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
           isPostfix = true
           //  Fixed 14.02.07 - be careful
-//          ParserUtils.rollForward(builder)
-/*
-          val rb = builder.mark()
-          var dropped = false
-          if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)){
-            builder.advanceLexer
-            if (BNF.firstDef.contains(builder.getTokenType)){
-              rb.rollbackTo()
-            } else {
-              rb.drop()
-            }
-            dropped = true
-          }
-          if (!dropped) rb.drop
-*/
+          //          ParserUtils.rollForward(builder)
+          /*
+                    val rb = builder.mark()
+                    var dropped = false
+                    if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)){
+                      builder.advanceLexer
+                      if (BNF.firstDef.contains(builder.getTokenType)){
+                        rb.rollbackTo()
+                      } else {
+                        rb.drop()
+                      }
+                      dropped = true
+                    }
+                    if (!dropped) rb.drop
+          */
 
 
         }

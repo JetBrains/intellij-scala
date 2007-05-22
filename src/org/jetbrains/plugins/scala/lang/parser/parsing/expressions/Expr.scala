@@ -14,7 +14,6 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 
   import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
   import org.jetbrains.plugins.scala.lang.parser.parsing.types._
-  import org.jetbrains.plugins.scala.lang.psi.impl.literals._
   import org.jetbrains.plugins.scala.ScalaFileType
   import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
   import org.jetbrains.plugins.scala.util.DebugPrint
@@ -177,7 +176,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 
       if (expression == null) return null
 
-      expression.asInstanceOf[ScExprImpl].getNode
+      expression.asInstanceOf[ScalaExpression].getNode
 
       //    val expression : ScExprImpl = dummyFile.getFirstChild.getLastChild.asInstanceOf[ScalaPsiElementImpl].childSatisfyPredicate(isExpr).asInstanceOf[ScExprImpl]
     }

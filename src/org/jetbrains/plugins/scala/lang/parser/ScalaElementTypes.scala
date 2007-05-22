@@ -65,6 +65,8 @@ object ScalaElementTypes {
   //  val CLASS_TEMPLATE = new ScalaElementType("class template")
   val TOP_DEF_TEMPLATE = new ScalaElementType("top definition template")
 
+  val NEW_TEMPLATE = new ScalaElementType("new template")
+
 
   /*************************************************************************************/
   /************************* PARAMETERS OF CLASS AND FUNCTIONS *************************/
@@ -215,6 +217,14 @@ object ScalaElementTypes {
   val POSTFIX_EXPR = new ScalaElementType("postfix expression")
   val INFIX_EXPR = new ScalaElementType("infix expression")
   val SIMPLE_EXPR = new ScalaElementType("simple expression")
+
+  val PARENT_EXPR = new ScalaElementType("Expression in parentheses")
+  val METHOD_CALL = new ScalaElementType("Method call")
+  val REFERENCE_EXPRESSION= new ScalaElementType("Reference expression")
+  val THIS_REFERENCE_EXPRESSION= new ScalaElementType("This reference expression")
+  val PROPERTY_SELECTION = new ScalaElementType("Property selection")
+  val GENERIC_CALL = new ScalaElementType("Generified call")
+
   //Various prefixes
   //val MINUS = new ScalaElementType("minus")
 
@@ -280,6 +290,8 @@ object ScalaElementTypes {
   val SIMPLE_TYPE_PATTERN1 = new ScalaElementType("Simple type pattern 1")
   val SIMPLE_TYPE_PATTERN = new ScalaElementType("Simple type pattern")
   val TYPE_PATTERN = new ScalaElementType("Type pattern")
+
+
 
 
 

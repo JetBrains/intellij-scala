@@ -6,6 +6,6 @@ import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.psi._
 
-case class ScExprsImpl( node : ASTNode ) extends ScExprImpl(node) {
+case class ScExprsImpl( node : ASTNode ) extends ScalaExpression(node) {
     override def toString: String = "Expression list"
 }

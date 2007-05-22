@@ -16,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.primitives._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
 import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
 
-trait ScStableId extends ScPattern3
+trait ScStableId extends ScPattern3 {
+}
 
 class ScStableIdImpl(node: ASTNode) extends ScSimpleExprImpl(node) with ScStableId {
 
@@ -38,11 +39,10 @@ class ScStableIdImpl(node: ASTNode) extends ScSimpleExprImpl(node) with ScStable
     getParent.isInstanceOf[ScTemplateParents] ||
     getParent.isInstanceOf[ScMixinParents])) {
       new ScalaClassReference(this)  // Class or Trait reference
-    } else
-    // TODO Remove "."
-
-      new ScalaLocalReference(this)  // local reference
-
+    } else {
+      null
+      //new ScalaLocalReference(this)  // local reference
+    }
   }
 
   override def getName = getText

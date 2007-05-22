@@ -33,7 +33,7 @@ trait ScalaVariable extends ScalaPsiElement with ScReferenceIdContainer {
   /**
   *   returns list of labels for all variable definitions
   */
-  def getNames = childrenOfType[ScReferenceId](ScalaElementTypes.REFERENCE_SET).toList  :::
+  def getNames = childrenOfType[ScReferenceId](ScalaElementTypes.REFERENCE_SET).toList :::
   {
     val listOfIdentifiers = childSatisfyPredicateForElementType((elem: IElementType) =>
       elem.equals(ScalaElementTypes.IDENTIFIER_LIST)).asInstanceOf[ScalaPsiElement]
@@ -47,8 +47,29 @@ trait ScalaVariable extends ScalaPsiElement with ScReferenceIdContainer {
   /**
   *   Returns explicit type of variable, or null, if it is not specified
   */
-  def getExplicitType = childSatisfyPredicateForASTNode((node: ASTNode) =>
-    node.getPsi.isInstanceOf[ScalaType])
+  override def getExplicitType(id: ScReferenceId) =
+    if (getNames.exists((elem: ScReferenceId) => elem.equals(id))){
+      val child = childSatisfyPredicateForASTNode((node: ASTNode) => node.getPsi.isInstanceOf[ScalaType])
+      if (child != null) {
+        child.asInstanceOf[ScalaType].getAbstractType
+      } else {
+        null
+      }
+    } else {
+      null
+    }
+
+  /**
+  *   Returns infered type of variable, or null in case of any problems with inference
+  */
+  override def getInferedType(id: ScReferenceId) = {
+    val child = childSatisfyPredicateForPsiElement((el: PsiElement) => el.isInstanceOf[ScalaExpression])
+    if (child != null) {
+      child.asInstanceOf[ScalaExpression].getAbstractType
+    } else {
+      null
+    }
+  }
 
 }
 

@@ -39,7 +39,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: IfElseIndent => {
         child.getPsi match {
           case _: ScCaseClausesImpl => Indent.getNormalIndent()
-          case _: ScExprImpl => {
+          case _: ScalaExpression => {
             if (! child.getPsi.isInstanceOf[ScBlockExprImpl])
               Indent.getNormalIndent()
             else

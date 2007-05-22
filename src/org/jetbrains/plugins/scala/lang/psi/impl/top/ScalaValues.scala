@@ -43,12 +43,17 @@ trait ScalaValue extends ScTemplateStatement with ScReferenceIdContainer{
   */
   [Nullable]
   override def getNames() = {
-    val children = allChildrenOfType[ScReferenceId](ScalaElementTypes.REFERENCE_SET)
-    if (children != null) {
-      children.toList
+    val pattern = childSatisfyPredicateForPsiElement((e: PsiElement) => e.isInstanceOf[ScPattern2])
+    (if (pattern != null) {
+      val children = pattern.asInstanceOf[ScPattern2].allChildrenOfType[ScReferenceId](ScalaElementTypes.REFERENCE_SET)
+      if (children != null) {
+        children.toList
+      } else {
+        Nil: List[ScReferenceId]
+      }
     } else {
       Nil: List[ScReferenceId]
-    }
+    }) ::: childrenOfType[ScReferenceId](ScalaElementTypes.REFERENCE_SET).toList
   }
 
 }

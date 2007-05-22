@@ -4,7 +4,7 @@
   * @author: Dmitry Krasilschikov
   */
 
- import org.jetbrains.plugins.scala.lang.psi.impl.expressions.ScExprImpl
+ import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
  import com.intellij.lang.ASTNode
  import com.intellij.openapi.util.TextRange
 

@@ -35,6 +35,9 @@ trait LocalContainer extends ScalaPsiElement {
   val varSet = TokenSet.create(Array(ScalaElementTypes.VARIABLE_DEFINITION,
           ScalaElementTypes.VARIABLE_DECLARATION))
 
+  val funSet = TokenSet.create(Array(ScalaElementTypes.FUNCTION_DEFINITION,
+          ScalaElementTypes.FUNCTION_DECLARATION))
+
   val valSet = TokenSet.create(Array(ScalaElementTypes.PATTERN_DEFINITION,
           ScalaElementTypes.VALUE_DECLARATION))
 
@@ -50,6 +53,7 @@ trait LocalContainer extends ScalaPsiElement {
   */
   def getValues = childrenOfType[ScalaValue](valSet).toList
 
+
   /**
   *  Scans for variable definitions in current block
   */
@@ -57,7 +61,8 @@ trait LocalContainer extends ScalaPsiElement {
           substitutor: PsiSubstitutor): Boolean = {
 
     // Scan for variable
-    for (val varDef <- getVariables ::: getValues; varDef.getTextOffset <= varOffset) {
+    for (val varDef <- getVariables ::: getValues ::: childrenOfType[ScFunction](funSet).toList;
+        varDef.getTextOffset <= varOffset) {
       if (varDef != null && ! processor.execute(varDef, substitutor)) {
         return false
       }

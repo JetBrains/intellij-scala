@@ -7,13 +7,15 @@ import com.intellij.psi._
 
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.parser._
+import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
+import org.jetbrains.plugins.scala.lang.typechecker.types._
 
 /**
 *  Main trait for all types
 */
 trait ScalaType extends ScalaPsiElement {
 
-  def getClassType: PsiElement = null
+  def getAbstractType: AbstractType = null
 
   def getLowerBoundType = {
     val lowerBound = getChild(ScalaElementTypes.LOWER_BOUND_TYPE)

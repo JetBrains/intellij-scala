@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.lang.resolve.references
 
-/**
-* @author Ilya Sergey
-*
+/** 
+* @author ilyas
 */
 
 import com.intellij.psi._
@@ -16,8 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.primitives.ScIdentifier
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions.simpleExprs._
+import org.jetbrains.plugins.scala.lang.typechecker.types._
+import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 
-class ScalaReferenceExprReference(val myElement: PsiElement) extends PsiReference {
+class ScalaPropertySelectionReference(val myElement: PsiElement) extends PsiReference {
 
 
   /**
@@ -34,7 +35,8 @@ class ScalaReferenceExprReference(val myElement: PsiElement) extends PsiReferenc
    * @return Relative range in element
    */
   def getRangeInElement = {
-    new TextRange(0, myElement.getTextLength)
+    val index = getReferencedName.lastIndexOf(".")
+    new TextRange(index + 1, myElement.getTextLength)
   }
 
   /**
@@ -44,10 +46,43 @@ class ScalaReferenceExprReference(val myElement: PsiElement) extends PsiReferenc
    */
 
   def resolve: PsiElement = {
-    val refName = getReferencedName
-    if (refName != null) {
-      // Resolve variables and parameters
-      ScalaResolveUtil.treeWalkUp(new ScalaLocalVariableResolveProcessor(refName, getElement.getTextOffset), getElement, getElement, getElement)
+    if (myElement.getFirstChild.isInstanceOf[ScalaExpression]){
+      val absType = myElement.getFirstChild.asInstanceOf[ScalaExpression].getAbstractType
+      absType.reduce match {
+        // Define type of expression before dot
+        case ValueType(ownType, _) if ownType != null => {
+          // if method call  or closure variable
+          val elem = myElement.getParent.isInstanceOf[ScMethodCallImpl]
+          elem
+
+          val candidates =
+            if (myElement.getParent.isInstanceOf[ScMethodCallImpl]) {
+              val argTypes = myElement.getParent.asInstanceOf[ScMethodCallImpl].getAllArguments.map((e: ScalaExpression) =>
+                e.getAbstractType)
+              ownType.getAllTemplateStatements.filter((stmt: PsiElement) => {
+                stmt.isInstanceOf[ScFunction] &&
+                stmt.asInstanceOf[ScFunction].getAbstractType(null).canBeAppliedTo(argTypes) &&
+                stmt.asInstanceOf[ScReferenceIdContainer].getNames.exists((id: ScReferenceId) =>
+                  (id.getName.equals(getReferencedName)))
+              }).map((e: PsiElement) => e.asInstanceOf[ScFunction])
+            } else {
+              ownType.getAllTemplateStatements.filter((stmt: PsiElement) =>
+                (stmt.isInstanceOf[ScFunction] && (stmt.asInstanceOf[ScFunction].getAllParams.length == 0) ||
+                stmt.isInstanceOf[ScalaVariable] || stmt.isInstanceOf[ScalaValue]) &&
+                stmt.asInstanceOf[ScReferenceIdContainer].getNames.exists((id: ScReferenceId) =>
+                  id.getName.equals(getReferencedName))).map((e: PsiElement) => e.asInstanceOf[ScReferenceIdContainer])
+            }
+          if (candidates.length != 1) {
+            Console.println("Found " + candidates.length + " candidates for resolve property " + getReferencedName +
+            " in " + absType.reduce.getRepresentation)
+            null
+          } else {
+            candidates.last.getNames.find((id: ScReferenceId) =>
+              (id.getName.equals(getReferencedName))).get
+          }
+        }
+        case _ => null
+      }
     } else {
       null
     }
@@ -71,11 +106,13 @@ class ScalaReferenceExprReference(val myElement: PsiElement) extends PsiReferenc
    * @throws IncorrectOperationException if the rename cannot be handled for some reason.
    */
   def handleElementRename(newElementName: String): PsiElement = {
-    import org.jetbrains.plugins.scala.lang.psi.impl._
-    val newChildNode = ScalaPsiElementFactory.createIdentifierFromText(newElementName,
-        PsiManager.getInstance(myElement.getProject))
-    myElement.getNode.replaceChild(myElement.getFirstChild.getNode, newChildNode)
-    newChildNode.getPsi
+    /*
+        import org.jetbrains.plugins.scala.lang.psi.impl._
+        val newChildNode = ScalaPsiElementFactory.createIdentifierFromText(newElementName,
+            PsiManager.getInstance(myElement.getProject))
+        myElement.getNode.replaceChild(myElement.getFirstChild.getNode, newChildNode)
+        newChildNode.getPsi
+    */ null
   }
 
   /**
@@ -98,17 +135,20 @@ class ScalaReferenceExprReference(val myElement: PsiElement) extends PsiReferenc
    * @return true if the reference targets that element, false otherwise.
    */
   def isReferenceTo(element: PsiElement): Boolean = {
-    val resolved = resolve
-    if (element.equals(resolved)) return true
+    false
+    /*
+        val resolved = resolve
+        if (element.equals(resolved)) return true
 
-    var qName1: String = null
-    if (resolved.isInstanceOf[PsiClass]) qName1 = resolve.asInstanceOf[PsiClass].getQualifiedName
-    if (resolved.isInstanceOf[ScTmplDef]) qName1 = resolve.asInstanceOf[ScTmplDef].getQualifiedName
-    var qName2: String = null
-    if (element.isInstanceOf[PsiClass]) qName2 = element.asInstanceOf[PsiClass].getQualifiedName
-    if (element.isInstanceOf[ScTmplDef]) qName2 = element.asInstanceOf[ScTmplDef].getQualifiedName
+        var qName1: String = null
+        if (resolved.isInstanceOf[PsiClass]) qName1 = resolve.asInstanceOf[PsiClass].getQualifiedName
+        if (resolved.isInstanceOf[ScTmplDef]) qName1 = resolve.asInstanceOf[ScTmplDef].getQualifiedName
+        var qName2: String = null
+        if (element.isInstanceOf[PsiClass]) qName2 = element.asInstanceOf[PsiClass].getQualifiedName
+        if (element.isInstanceOf[ScTmplDef]) qName2 = element.asInstanceOf[ScTmplDef].getQualifiedName
 
-    qName1 != null && qName1.equals(qName2)
+        qName1 != null && qName1.equals(qName2)
+    */
   }
 
   /**
@@ -141,9 +181,12 @@ class ScalaReferenceExprReference(val myElement: PsiElement) extends PsiReferenc
   *
   */
   def getReferencedName = {
-    if (myElement.isInstanceOf[ScReferenceExpressionImpl]) {
-      myElement.asInstanceOf[ScReferenceExpressionImpl].getName
-    } else null
+    if (myElement.getText != null && myElement.getText.contains(".")) {
+      val index = myElement.getText.lastIndexOf(".")
+      myElement.getText.substring(index + 1)
+    } else {
+      ""
+    }
   }
 
 }

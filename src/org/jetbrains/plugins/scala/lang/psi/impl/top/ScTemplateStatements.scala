@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.psi.impl.primitives._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
+import org.jetbrains.plugins.scala.lang.typechecker.types._
 
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
@@ -70,13 +71,63 @@ trait ScTemplateStatement extends ScalaPsiElement {
 
 
 
-trait ScFunction extends ScParametrized {
+trait ScFunction extends ScParametrized with ScReferenceIdContainer {
+
+  override def getNames() = {
+    val children = childrenOfType[ScReferenceId](ScalaElementTypes.REFERENCE_SET)
+    if (children != null) {
+      children.toList
+    } else {
+      Nil: List[ScReferenceId]
+    }
+  }
+
+  def getAllParams = (paramClauses.toList :\ (Nil: List[ScParam]))((y: ScParamClause, x: List[ScParam])=>
+    y.params.toList ::: x)
+
+  /**
+  *  Return abstract types of all parameters
+  */
+  def getParameterTypes: List[AbstractType] = {
+    getAllParams.map((param: ScParam) => param.paramType.getAbstractType)
+  }
+
+  /**
+  *   Returns explicit type of variable, or null, if it is not specified
+  */
+  override def getExplicitType(id: ScReferenceId) = {
+    val child = childSatisfyPredicateForASTNode((node: ASTNode) => node.getPsi.isInstanceOf[ScalaType])
+    if (child != null) {
+      new FunctionType(getParameterTypes, child.asInstanceOf[ScalaType].getAbstractType, null)
+    } else {
+      null
+    }
+  }
+  /**
+  *   Returns infered type of variable, or null in case of any problems with inference
+  */
+  override def getInferedType(id: ScReferenceId) = {
+    val child = childSatisfyPredicateForPsiElement((el: PsiElement) => el.isInstanceOf[ScalaExpression])
+    if (child != null) {
+      new FunctionType(getParameterTypes, child.asInstanceOf[ScalaExpression].getAbstractType, null)
+    } else {
+      null
+    }
+  }
+
+  override def getAbstractType(id: ScReferenceId): FunctionType = {
+    if (getExplicitType(id) != null) {
+      getExplicitType(id)
+    } else {
+      getInferedType(id)
+    }
+  }
+
   private def isManyParamClauses = (getChild(ScalaElementTypes.PARAM_CLAUSES) != null)
   private def getParamClausesNode: ScParamClauses = getChild(ScalaElementTypes.PARAM_CLAUSES).asInstanceOf[ScParamClauses]
 
   def paramClauses: Iterable[ScParamClause] = {
     if (isManyParamClauses) return getParamClausesNode.paramClauses
-
     childrenOfType[ScParamClause](TokenSet.create(Array(ScalaElementTypes.PARAM_CLAUSE)))
   }
 
@@ -117,7 +168,7 @@ with ScFunction with ScDefinition with IfElseIndent with LocalContainer {
 
   import com.intellij.psi.scope._
   override def getVariable(processor: PsiScopeProcessor,
-          substitutor: PsiSubstitutor): Boolean = {
+      substitutor: PsiSubstitutor): Boolean = {
 
     // Scan for parameters
     for (val paramDef <- getParameters; paramDef.getTextOffset <= varOffset) {
@@ -132,9 +183,9 @@ with ScFunction with ScDefinition with IfElseIndent with LocalContainer {
   *  Process declarations of parameters
   */
   override def processDeclarations(processor: PsiScopeProcessor,
-          substitutor: PsiSubstitutor,
-          lastParent: PsiElement,
-          place: PsiElement): Boolean = {
+      substitutor: PsiSubstitutor,
+      lastParent: PsiElement,
+      place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve.processors._
 
     if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){
@@ -219,9 +270,8 @@ class ScIdentifierList(node: ASTNode) extends ScalaPsiElementImpl (node) {
 */
 class ScReferenceId(node: ASTNode) extends ScalaPsiElementImpl (node){
 
-  def getType: ScalaType = {
-
-    def walkUp(elem : PsiElement): PsiElement =  {
+  def getType: AbstractType = {
+    def walkUp(elem: PsiElement): PsiElement =  {
       if (elem.isInstanceOf[ScReferenceIdContainer] || elem == null) {
         return elem
       } else {
@@ -233,10 +283,16 @@ class ScReferenceId(node: ASTNode) extends ScalaPsiElementImpl (node){
     if (typedParent == null) {
       return null
     } else {
-      return typedParent.asInstanceOf[ScReferenceIdContainer].getExplicitType(this)
+      if (typedParent.asInstanceOf[ScReferenceIdContainer].getExplicitType(this) != null) {
+        typedParent.asInstanceOf[ScReferenceIdContainer].getExplicitType(this)
+      } else {
+        typedParent.asInstanceOf[ScReferenceIdContainer].getInferedType(this)
+      }
     }
 
   }
+
+  override def getName = getText
 
   override def toString: String = "Reference identifier"
 }

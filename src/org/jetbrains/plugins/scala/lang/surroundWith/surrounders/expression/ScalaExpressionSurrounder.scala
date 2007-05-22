@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 abstract class ScalaExpressionSurrounder extends ScalaSurrounderByExpression {
   override def isApplicable(element : PsiElement) : Boolean = {
     element match {
-      case expr : ScExpr => true
+      case expr : ScalaExpression => true
       case _ => false
     }
   }

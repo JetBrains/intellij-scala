@@ -11,8 +11,9 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expressions{
   import com.intellij.psi.tree.IElementType
   import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
   import com.intellij.psi.tree.TokenSet
+  import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 
-  case class ScIfStmtImpl(node: ASTNode) extends ScExprImpl(node) with IfElseIndent with CondIndent{
+  case class ScIfStmtImpl(node: ASTNode) extends ScalaExpression(node) with IfElseIndent with CondIndent{
     override def toString: String = "IF statement"
 
     def isCondition = (e: PsiElement) => {
@@ -99,7 +100,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expressions{
       }
     }
 
-    def condition: ScExprImpl = childSatisfyPredicateForPsiElement(isCondition).asInstanceOf[ScExprImpl]
+    def condition: ScalaExpression = childSatisfyPredicateForPsiElement(isCondition).asInstanceOf[ScalaExpression]
 
     def getType(): PsiType = null
   }

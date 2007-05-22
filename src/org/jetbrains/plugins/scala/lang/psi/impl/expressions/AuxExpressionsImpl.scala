@@ -17,11 +17,12 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.psi.containers._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 
-class ScExpression(node: ASTNode) extends ScExprImpl(node) {
-  override def toString: String = "expression"
-}
-
 case class ScArgumentExprsImpl(node: ASTNode) extends ScExpr1Impl(node) with ContiniousIndent{
+
+  def getArguments : List[ScalaExpression] = getChildren.elements.toList.filter((e:PsiElement) => e.isInstanceOf[ScalaExpression]).map(
+  (e:PsiElement) => e.asInstanceOf[ScalaExpression]
+      )
+
   override def toString: String = "Argument expressions"
 }
 
@@ -33,7 +34,7 @@ case class ScBlockExprImpl(node: ASTNode) extends ScExpr1Impl(node) with Blocked
   //    def getExpression : ScExpr1Impl = childSatisfyPredicate(isExpr).asInstanceOf[ScExpr1Impl]
 }
 
-case class ScResExprImpl(node: ASTNode) extends ScExprImpl (node) with ScBlock {
+case class ScResExprImpl(node: ASTNode) extends ScalaExpression (node) with ScBlock {
   override def toString: String = "Result expression"
   def getType(): PsiType = null
 }
@@ -50,17 +51,31 @@ case class ScErrorStatImpl(node: ASTNode) extends ScExpr1Impl(node) {
 *  Implementation for bindings in closures
 */
 case class ScBindingImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScReferenceIdContainer {
+  import org.jetbrains.plugins.scala.lang.psi.impl.types._
+  import org.jetbrains.plugins.scala.lang.typechecker.types._
   override def toString: String = "Binding"
 
   def getReferenceId = {
     childSatisfyPredicateForASTNode((node: ASTNode) => ScalaElementTypes.REFERENCE.equals(node.getElementType))
   }
 
-  import org.jetbrains.plugins.scala.lang.psi.impl.types._
-  override def getExplicitType(id: ScReferenceId): ScalaType= {
-    if (id != null && id.equals(getReferenceId)) {
-      import org.jetbrains.plugins.scala.lang.psi.impl.types._
-      childSatisfyPredicateForPsiElement((elem: PsiElement) => elem.isInstanceOf[ScalaType]).asInstanceOf[ScalaType]
+  def getExplicitType: AbstractType = {
+    val scalaType = childSatisfyPredicateForPsiElement((elem: PsiElement) => elem.isInstanceOf[ScalaType]).asInstanceOf[ScalaType]
+    if (scalaType != null) {
+      scalaType.getAbstractType
+    } else {
+      null
+    }
+  }
+
+  override def getExplicitType(id: ScReferenceId): AbstractType = {
+    if (getReferenceId.equals(id)) {
+      val scalaType = childSatisfyPredicateForPsiElement((elem: PsiElement) => elem.isInstanceOf[ScalaType]).asInstanceOf[ScalaType]
+      if (scalaType != null) {
+        scalaType.getAbstractType
+      } else {
+        null
+      }
     } else {
       null
     }
@@ -86,12 +101,13 @@ case class ScEnumeratorsImpl(node: ASTNode) extends ScExpr1Impl(node) with Conti
 }
 
 case class ScAnFunImpl(node: ASTNode) extends ScExpr1Impl(node) with IfElseIndent with LocalContainer{
-
   import com.intellij.psi.scope._
+  import org.jetbrains.plugins.scala.lang.typechecker.types._
+
   override def processDeclarations(processor: PsiScopeProcessor,
-          substitutor: PsiSubstitutor,
-          lastParent: PsiElement,
-          place: PsiElement): Boolean = {
+      substitutor: PsiSubstitutor,
+      lastParent: PsiElement,
+      place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve.processors._
 
     if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){
@@ -100,10 +116,22 @@ case class ScAnFunImpl(node: ASTNode) extends ScExpr1Impl(node) with IfElseInden
     } else true
   }
 
-  def getBindings = childrenOfType[ScBindingImpl](TokenSet.create(Array(ScalaElementTypes.BINDING)))
+  override def getAbstractType = {
+    val bindingTypes = getBindings.map((b: ScBindingImpl)=> b.getExplicitType)
+    if (getExpression != null && bindingTypes != null) {
+      new FunctionType(bindingTypes, getExpression.getAbstractType, null)
+    } else {
+      null
+    }
+  }
+
+  def getExpression: ScalaExpression = childSatisfyPredicateForPsiElement((e: PsiElement) =>
+    e.isInstanceOf[ScalaExpression]).asInstanceOf[ScalaExpression]
+
+  def getBindings = childrenOfType[ScBindingImpl](TokenSet.create(Array(ScalaElementTypes.BINDING))).toList
 
   def getBindingReferences(processor: PsiScopeProcessor,
-          substitutor: PsiSubstitutor): Boolean = {
+      substitutor: PsiSubstitutor): Boolean = {
 
     // Scan for parameters
     for (val binding <- getBindings; binding.getTextOffset <= varOffset) {
@@ -133,9 +161,9 @@ with ScBlock with Importable with LocalContainer{
   def getTmplDefs = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_DEF_BIT_SET)
 
   override def processDeclarations(processor: PsiScopeProcessor,
-          substitutor: PsiSubstitutor,
-          lastParent: PsiElement,
-          place: PsiElement): Boolean = {
+      substitutor: PsiSubstitutor,
+      lastParent: PsiElement,
+      place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve.processors._
 
     if (processor.isInstanceOf[ScalaClassResolveProcessor]) { // Get Class types

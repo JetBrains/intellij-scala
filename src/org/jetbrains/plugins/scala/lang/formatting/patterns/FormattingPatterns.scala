@@ -27,7 +27,7 @@ package indent {
   *   For conditions
   */
   trait CondIndent {
-    def condition: ScExprImpl
+    def condition: ScalaExpression
   }
 
 

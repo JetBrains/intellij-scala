@@ -37,13 +37,14 @@ case class ScRequiresBlock(node: ASTNode) extends ScalaPsiElementImpl (node) {
 }
 
 case class ScExtendsBlock(node: ASTNode) extends ScalaPsiElementImpl (node) {
+
+  def getTemplateParents = getChild(ScalaElementTypes.TEMPLATE_PARENTS).asInstanceOf[ScTemplateParents]
+
+  def getMixinParents = getChild(ScalaElementTypes.MIXIN_PARENTS).asInstanceOf[ScMixinParents]
+
   override def toString: String = "extends block"
 }
 
-
-case class ScTemplate(node: ASTNode) extends Template (node) {
-  override def toString: String = super.toString
-}
 
 /**************** parents ****************/
 
@@ -51,11 +52,33 @@ class Parents(node: ASTNode) extends ScalaPsiElementImpl (node) {
   override def toString: String = "parents"
 }
 
+/**
+*   Template parents - may be one class and some traits
+*/
 case class ScTemplateParents(node: ASTNode) extends Parents (node) {
+  import org.jetbrains.plugins.scala.lang.psi.impl.primitives._
+  import org.jetbrains.plugins.scala.lang.psi.impl.types._
+  import com.intellij.psi.tree._
+
+  val STABLE_ID_BIT_SET = TokenSet.create(Array(ScalaElementTypes.STABLE_ID))
+
+  def getMainConstructor = getChild(ScalaElementTypes.CONSTRUCTOR).asInstanceOf[ScConstructor]
+
+  def getMixinParents = childrenOfType[ScStableId](STABLE_ID_BIT_SET)
+
   override def toString: String = "template" + " " + super.toString
 }
 
 case class ScMixinParents(node: ASTNode) extends Parents (node) {
+  import org.jetbrains.plugins.scala.lang.psi.impl.primitives._
+  import org.jetbrains.plugins.scala.lang.psi.impl.types._
+  import com.intellij.psi.tree._
+  val STABLE_ID_BIT_SET = TokenSet.create(Array(ScalaElementTypes.STABLE_ID))
+
+  def getMainConstructor = getChild(ScalaElementTypes.CONSTRUCTOR).asInstanceOf[ScConstructor]
+
+  def getMixinParents = childrenOfType[ScStableId](STABLE_ID_BIT_SET)
+
   override def toString: String = "mixin" + " " + super.toString
 }
 
@@ -68,15 +91,22 @@ case class ScTemplateBody(node: ASTNode) extends ScalaPsiElementImpl (node) with
 
   def getTypes = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_OR_TYPE_BIT_SET)
 
+  import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
+
+  def getTemplateStatements = {
+    val children = childrenOfType[ScTemplateStatement](ScalaElementTypes.TMPL_STMT_BIT_SET)
+    children
+  }
+
   override def processDeclarations(processor: PsiScopeProcessor,
-          substitutor: PsiSubstitutor,
-          lastParent: PsiElement,
-          place: PsiElement) : Boolean = {                         
+      substitutor: PsiSubstitutor,
+      lastParent: PsiElement,
+      place: PsiElement): Boolean = {
 
     import org.jetbrains.plugins.scala.lang.resolve.processors._
     if (processor.isInstanceOf[ScalaClassResolveProcessor]) { // GetClasses
-      this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
-      this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
+        this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
+        this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
       getClazz(getTypes, processor, substitutor)
     } else if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){ // Get Local variables
         this.varOffset = processor.asInstanceOf[ScalaLocalVariableResolveProcessor].offset

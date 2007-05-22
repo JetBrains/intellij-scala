@@ -16,8 +16,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.PsiWhiteSpace;
 
 import org.jetbrains.plugins.scala.util.DebugPrint
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions.ScExprImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions.ScInfixExprImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders._
 
            
@@ -49,13 +48,13 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
   override def getSurrounders() : Array[Surrounder] = SURROUNDERS
 
   override def getElementsToSurround(file : PsiFile, startOffset : Int, endOffset : Int) : Array[PsiElement] = {
-    val expr : ScExprImpl = findExpressionInRange(file, startOffset, endOffset)
+    val expr : ScalaExpression = findExpressionInRange(file, startOffset, endOffset)
     if (expr == null) return PsiElement.EMPTY_ARRAY
 
     Array.apply(expr)
   }
 
-  def findExpressionInRange(file : PsiFile, startOffset : Int, endOffset : Int) : ScExprImpl = {
+  def findExpressionInRange(file : PsiFile, startOffset : Int, endOffset : Int) : ScalaExpression = {
 
     val element1 : PsiElement = file.findElementAt(startOffset);
     val element2 : PsiElement = file.findElementAt(endOffset - 1);
@@ -73,7 +72,7 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
 
     if (";".equals(element2.getText())) endOffsetLocal = endOffsetLocal - 1;
 
-    val expression : ScExprImpl = PsiTreeUtil.findElementOfClassAtRange[ScExprImpl](file, startOffsetLocal, endOffsetLocal, classOf[ScExprImpl].asInstanceOf[java.lang.Class[ScExprImpl]]);
+    val expression : ScalaExpression = PsiTreeUtil.findElementOfClassAtRange[ScalaExpression](file, startOffsetLocal, endOffsetLocal, classOf[ScalaExpression].asInstanceOf[java.lang.Class[ScalaExpression]]);
 
     if (expression == null || expression.getTextRange().getEndOffset() != endOffsetLocal) return null
     
