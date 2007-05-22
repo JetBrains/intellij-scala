@@ -1,7 +1,7 @@
 class A(a:(a=>(c,d)=>e))
 -----
 Scala file
-  template definition: class
+  type template definition: class
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')

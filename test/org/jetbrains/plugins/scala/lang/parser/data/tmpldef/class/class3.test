@@ -1,7 +1,7 @@
 private class a
 -----
 Scala file
-  template definition: class
+  type template definition: class
     Modifiers
       PsiElement(private)('private')
     PsiWhiteSpace(' ')

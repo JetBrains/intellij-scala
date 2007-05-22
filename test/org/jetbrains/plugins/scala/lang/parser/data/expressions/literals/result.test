@@ -3,7 +3,7 @@ val лицо=(a:T,b:S)=>true
 }
 -----
 Scala file
-  template definition: class
+  type template definition: class
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('Человек')

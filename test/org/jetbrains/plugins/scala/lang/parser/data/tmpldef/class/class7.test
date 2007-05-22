@@ -1,7 +1,7 @@
 sealed class A requires Any extends B
 -----
 Scala file
-  template definition: class
+  type template definition: class
     Modifiers
       PsiElement(sealed)('sealed')
     PsiWhiteSpace(' ')
