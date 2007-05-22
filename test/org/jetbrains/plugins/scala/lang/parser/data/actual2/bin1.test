@@ -1,0 +1,6 @@
+class Dsl {
+
+  val boo = (ven : Ven) => ven.foo
+
+}
+-----

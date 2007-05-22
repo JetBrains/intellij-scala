@@ -1,0 +1,16 @@
+trait MAX{}
+
+trait VEN {
+  var ven: VEN = null
+}
+
+class DSL {
+  var dsl: DSL = null
+}
+
+class Temp extends DSL with VEN{
+  var ttt: Temp = null
+  <caret>ttt
+}
+-----
+Temp <: DSL,VEN
