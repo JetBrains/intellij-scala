@@ -1,7 +1,0 @@
-class C {
-  val    a    = new   B
-}
------
-class C {
-  val a = new B
-}

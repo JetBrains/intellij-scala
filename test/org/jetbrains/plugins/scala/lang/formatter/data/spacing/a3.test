@@ -1,7 +1,0 @@
-class C {
-  1+    a    - c.  f   :::   (d  + e  )
-}
------
-class C {
-  1 + a - c.f ::: (d + e)
-}

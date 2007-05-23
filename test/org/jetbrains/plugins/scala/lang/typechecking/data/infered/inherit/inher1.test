@@ -1,4 +1,4 @@
-trait MAX{}
+trait MAX extends VEN{}
 
 trait VEN {
   var ven: VEN = null
@@ -8,9 +8,9 @@ class DSL {
   var dsl: DSL = null
 }
 
-class Temp extends DSL with VEN{
+class Temp extends DSL with VEN with MAX{
   var ttt: Temp = null
   <caret>ttt
 }
 -----
-Temp <: DSL,VEN
+Temp <: DSL,VEN,MAX

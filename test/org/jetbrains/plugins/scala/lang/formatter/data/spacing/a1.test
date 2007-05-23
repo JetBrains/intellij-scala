@@ -1,7 +1,0 @@
-class C{
-  foo . bar()
-}
------
-class C{
-  foo.bar()
-}
