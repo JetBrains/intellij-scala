@@ -14,7 +14,7 @@ class Temp{
   var d1: DSL
   var d2: DSL
   var myVen : VEN = null
-  var temp = myVen.<caret>foo
+  var temp = myVen.<caret>foo()
 }
 -----
 ()=>VEN

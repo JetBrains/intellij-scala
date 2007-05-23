@@ -1,7 +1,0 @@
-class C    [   T   , S  ] (a:B)   (c  :   D) {
-  foo (   f  ,  g     / v    )
-}
------
-class C[T, S](a: B)(c: D) {
-  foo(f, g / v)
-}
