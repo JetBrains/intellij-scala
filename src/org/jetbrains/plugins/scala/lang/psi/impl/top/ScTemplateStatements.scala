@@ -123,6 +123,8 @@ trait ScFunction extends ScParametrized with ScReferenceIdContainer {
     }
   }
 
+  def getAbstractType: FunctionType = getAbstractType(null)
+
   private def isManyParamClauses = (getChild(ScalaElementTypes.PARAM_CLAUSES) != null)
   private def getParamClausesNode: ScParamClauses = getChild(ScalaElementTypes.PARAM_CLAUSES).asInstanceOf[ScParamClauses]
 

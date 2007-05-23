@@ -47,7 +47,7 @@ class ScalaReferenceExprReference(val myElement: PsiElement) extends PsiReferenc
     val refName = getReferencedName
     if (refName != null) {
       // Resolve variables and parameters
-      ScalaResolveUtil.treeWalkUp(new ScalaLocalVariableResolveProcessor(refName, getElement.getTextOffset), getElement, getElement, getElement)
+      ScalaResolveUtil.treeWalkUp(new ScalaLocalVariableResolveProcessor(refName, getElement.getTextOffset, getElement), getElement, getElement, getElement)
     } else {
       null
     }

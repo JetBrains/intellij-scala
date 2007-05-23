@@ -42,7 +42,7 @@ case class ScNewTemplateDefinition(node: ASTNode) extends ScTypeDefinition(node)
 
   override def setName(name: String) = this
 
-  override def getTextOffset = this.getTextOffset
+  override def getTextOffset = super.getTextOffset
 
   override def isTypeDef: boolean = true
 }

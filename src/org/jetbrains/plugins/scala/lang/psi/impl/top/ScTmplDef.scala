@@ -119,11 +119,8 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
   def getTemplateStatements: Iterable[ScTemplateStatement] = {
     import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTemplateBody
 
-    val template = getTemplate
-    if (template != null) {
-      var body = template.getTemplateBody
-      if (body != null) return body.getTemplateStatements
-    }
-    null
+    val body = getChild(ScalaElementTypes.TEMPLATE_BODY).asInstanceOf[ScTemplateBody]
+    if (body != null) return body.getTemplateStatements
+    else Nil: List[ScTemplateStatement]
   }
 }

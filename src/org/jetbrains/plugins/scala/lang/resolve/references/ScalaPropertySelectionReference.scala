@@ -35,7 +35,7 @@ class ScalaPropertySelectionReference(val myElement: PsiElement) extends PsiRefe
    * @return Relative range in element
    */
   def getRangeInElement = {
-    val index = getReferencedName.lastIndexOf(".")
+    val index = myElement.getText.lastIndexOf(".")
     new TextRange(index + 1, myElement.getTextLength)
   }
 
@@ -46,7 +46,8 @@ class ScalaPropertySelectionReference(val myElement: PsiElement) extends PsiRefe
    */
 
   def resolve: PsiElement = {
-    if (myElement.getFirstChild.isInstanceOf[ScalaExpression]){
+    if (myElement.getFirstChild.isInstanceOf[ScalaExpression] &&
+    myElement.getFirstChild.asInstanceOf[ScalaExpression].getAbstractType != null){
       val absType = myElement.getFirstChild.asInstanceOf[ScalaExpression].getAbstractType
       absType.reduce match {
         // Define type of expression before dot

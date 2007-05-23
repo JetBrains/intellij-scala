@@ -65,50 +65,77 @@ class ScTypeDefinition(node: ASTNode) extends ScTmplDef(node)  with IfElseIndent
     getMixinParentsNames
   }
 
+  def getAllParents(alreadyHas: List[ScTypeDefinition]): List[ScTypeDefinition] = {
 
+    def getImmediateParents(list: List[ScTypeDefinition]) =
+      getImmediateParentsNames.map[ScTypeDefinition]((s: ScStableId) =>
+        s.getReference.resolve.asInstanceOf[ScTypeDefinition]).filter((e: ScTypeDefinition) => ! list.contains(e))
+
+    var newParents = Nil: List[ScTypeDefinition]
+    if (alreadyHas != null && getImmediateParents(alreadyHas) != null){
+      for (val parent <- getImmediateParents(alreadyHas)){
+        if (parent != null && newParents != null &&
+        parent.getAllParents(parent :: alreadyHas ::: newParents) != null) {
+          newParents = newParents ::: parent :: parent.getAllParents(parent :: alreadyHas ::: newParents)
+        }
+      }
+    }
+    newParents
+  }
 
   /**
   *  Retruns names of all immediate parents
   */
   def getAllParents: List[ScTypeDefinition] = {
-    (getImmediateParentsNames :\ (Nil: List[ScTypeDefinition]))((y: ScStableId, x: List[ScTypeDefinition]) => {
-      if (y.getReference != null && y.getReference.resolve.isInstanceOf[ScTypeDefinition]) {
-        y.getReference.resolve.asInstanceOf[ScTypeDefinition] ::
-        y.getReference.resolve.asInstanceOf[ScTypeDefinition].getAllParents
-      } else {
-        Nil: List[ScTypeDefinition]
-      } ::: x
-    })
+    getAllParents(Nil: List[ScTypeDefinition])
   }
 
   /**
   *  Returns own template statements of current type definition
   */
   def getOwnTemplateStatements: List[ScTemplateStatement] = {
-    var statementSet = new HashSet[ScTemplateStatement](239)
+    //    var statementSet = new HashSet[ScTemplateStatement](239)
+    var statList = Nil: List[ScTemplateStatement]
+
     if (getTemplateBody != null &&
     getTemplateBody.asInstanceOf[ScTemplateBody].getTemplateStatements != null){
       for (val statement <- getTemplateBody.asInstanceOf[ScTemplateBody].getTemplateStatements) {
-        statementSet.addEntry(statement.asInstanceOf[ScTemplateStatement])
+        //        statementSet.addEntry(statement.asInstanceOf[ScTemplateStatement])
+        statList = statement.asInstanceOf[ScTemplateStatement] :: statList
       }
     }
-    statementSet.toList
+    //statementSet.toList
+    statList
   }
 
   /**
   *  Returns ALL template statements of current type definition (including inherited)
   */
   def getAllTemplateStatements: List[ScTemplateStatement] = {
-    var statementSet = new HashSet[ScTemplateStatement](239)
-    val reversedParentList = getAllParents.reverse
-    for (val parent <- reversedParentList){
-      if (parent != null && parent.isInstanceOf[ScTmplDef]) {
-        for (val statement <- parent.asInstanceOf[ScTmplDef].getTemplateStatements) {
-          statementSet.addEntry(statement.asInstanceOf[ScTemplateStatement])
+    /*
+        var statementSet = new HashSet[ScTemplateStatement](239)
+        val reversedParentList = getAllParents.reverse
+
+        Console.println("parents: " + reversedParentList.length)
+
+        for (val parent <- reversedParentList){
+
+          Console.println(parent + " " + parent.asInstanceOf[ScTmplDef].getQualifiedName + " " + (parent.asInstanceOf[ScTmplDef].getTemplateStatements != null))
+
+          if (parent != null && parent.isInstanceOf[ScTmplDef] &&
+          parent.asInstanceOf[ScTmplDef].getTemplateStatements != null) {
+
+            Console.println(parent.asInstanceOf[ScTmplDef].getQualifiedName + " " +
+            parent.asInstanceOf[ScTmplDef].getTemplateStatements.toList.length)
+
+            for (val statement <- parent.asInstanceOf[ScTmplDef].getTemplateStatements) {
+              statementSet.addEntry(statement.asInstanceOf[ScTemplateStatement])
+            }
+          }
         }
-      }
-    }
-    getOwnTemplateStatements ::: statementSet.toList
+    */
+
+    getOwnTemplateStatements // ::: statementSet.toList
   }
 
   def getAllMethods = getAllTemplateStatements.filter((stmt: ScTemplateStatement) => stmt.isInstanceOf[ScFunction])
