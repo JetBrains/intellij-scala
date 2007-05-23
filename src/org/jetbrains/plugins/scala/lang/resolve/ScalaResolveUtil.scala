@@ -65,7 +65,7 @@ object ScalaResolveUtil {
         case pack: ScPackaging => {
           result = pack.asInstanceOf[ScPackaging].getFullPackageName + "." + result
         }
-        case tmplBody: ScTemplateBody => {
+        case tmplBody: ScTemplateBody if tmplBody.getParent.getParent.isInstanceOf[ScTmplDef] => {
           result = tmplBody.getParent.getParent.asInstanceOf[ScTmplDef].getName + "." + result
         }
         case _ => {}

@@ -44,7 +44,7 @@ extends AbstractType(genericParams){
   }
 
   def getRepresentation = {
-    var res = ownType.getName
+    var res = ownType.getQualifiedName
     if (getBaseTypes.length > 0) {
       res = res + " <: "
       for (val baseType <- getBaseTypes) {

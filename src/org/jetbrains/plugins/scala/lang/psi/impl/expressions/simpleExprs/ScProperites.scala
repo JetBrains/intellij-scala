@@ -28,6 +28,9 @@ case class ScMethodCallImpl(node: ASTNode) extends ScalaExpression (node){
     null
   }
 
+  def getAllArgumentsTypes = getAllArguments.map((e: ScalaExpression) =>
+    e.getAbstractType)
+
   def getAllArguments: List[ScalaExpression] = {
     if (findChildByType(ScalaElementTypes.ARG_EXPRS) != null) {
       val thisArgs = findChildByType(ScalaElementTypes.ARG_EXPRS).asInstanceOf[ScArgumentExprsImpl].getArguments
