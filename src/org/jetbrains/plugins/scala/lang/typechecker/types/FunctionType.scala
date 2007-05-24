@@ -47,15 +47,14 @@ case class FunctionType(funParams: List[AbstractType],
 
   def conformsTo(otherType: AbstractType): Boolean = otherType match {
     case FunctionType(otherParams, otherResult, _) if otherParams != null && otherResult != null => {
-      // todo add subtyping
       if (otherParams.length != funParams.length) return false;
       for (val pair <- otherParams.zip[AbstractType](funParams)) {
         // contravariant subtyping
-        if (! pair._2.conformsTo(pair._1)) {
+        if (! pair._1.conformsTo(pair._2)) {
           return false;
         }
       }
-      return otherResult.conformsTo(result)
+      return result.conformsTo(otherResult)
     }
     case _ => false
   }
@@ -63,8 +62,9 @@ case class FunctionType(funParams: List[AbstractType],
 
   def getRepresentation = {
     var res = ""
-    for (val param <- funParams) {
-      res = res + param.getRepresentation + ","
+    if (funParams != null) for (val param <- funParams) {
+      if (param != null) res = res + param.getRepresentation + ","
+      else res = res + "null" + ","
     }
     if (res.length > 0) {
       "(" + res.substring(0, res.length - 1) + ")=>" + result.getRepresentation

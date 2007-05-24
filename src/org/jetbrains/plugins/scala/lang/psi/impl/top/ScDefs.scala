@@ -60,8 +60,8 @@ case class ScClassDefinition(node: ASTNode) extends ScTypeDefinition (node) with
   def paramClauses = childrenOfType[ScParamClause](TokenSet.create(Array(ScalaElementTypes.PARAM_CLAUSE)))
 
   import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
-  def getParameters = ((paramClauses :\ (Nil: List[ScClassParam]))((y: ScParamClause, x: List[ScClassParam]) =>
-    y.classParams.toList ::: x))
+  def getParameters = ((paramClauses :\ (Nil: List[ScParam]))((y: ScParamClause, x: List[ScParam]) =>
+    y.params.toList ::: x))
 
 
   import com.intellij.psi.scope._
@@ -70,8 +70,7 @@ case class ScClassDefinition(node: ASTNode) extends ScTypeDefinition (node) with
       substitutor: PsiSubstitutor): Boolean = {
     // Scan for parameters
     for (val classParamDef <- getParameters; classParamDef.getTextOffset <= varOffset) {
-      val realParam = if (classParamDef != null) classParamDef.getParam  else null
-      if (classParamDef != null && realParam != null && ! processor.execute(realParam, substitutor)) {
+      if (classParamDef != null && ! processor.execute(classParamDef, substitutor)) {
         return false
       }
     }

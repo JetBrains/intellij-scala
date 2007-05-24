@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
   }
 
   class ScPrefixExprImpl( node : ASTNode ) extends ScInfixExprImpl(node) {
+
       override def toString: String = "Prefix expression"
   }
 

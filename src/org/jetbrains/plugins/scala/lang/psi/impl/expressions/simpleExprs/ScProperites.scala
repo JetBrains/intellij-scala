@@ -21,6 +21,7 @@ case class ScPropertySelectionImpl(node: ASTNode) extends ScalaExpression (node)
 }
 
 case class ScMethodCallImpl(node: ASTNode) extends ScalaExpression (node){
+  import org.jetbrains.plugins.scala.lang.typechecker._
 
   override def getReference = if (getFirstChild != null){
     getFirstChild.getReference
@@ -28,18 +29,21 @@ case class ScMethodCallImpl(node: ASTNode) extends ScalaExpression (node){
     null
   }
 
-  def getAllArgumentsTypes = getAllArguments.map((e: ScalaExpression) =>
-    e.getAbstractType)
+  def getAllArgumentsTypes = getAllArguments.map((e: IScalaExpression) =>
+   (new ScalaTypeChecker).getTypeByTerm(e))
 
-  def getAllArguments: List[ScalaExpression] = {
+  def getAllArguments: List[IScalaExpression] = {
     if (findChildByType(ScalaElementTypes.ARG_EXPRS) != null) {
       val thisArgs = findChildByType(ScalaElementTypes.ARG_EXPRS).asInstanceOf[ScArgumentExprsImpl].getArguments
+/*
       if (this.getParent.isInstanceOf[ScMethodCallImpl])
       {
         thisArgs ::: this.getParent.asInstanceOf[ScMethodCallImpl].getAllArguments
       } else {
         thisArgs
       }
+*/
+      thisArgs
     } else {
       Nil: List[ScalaExpression]
     }

@@ -107,9 +107,10 @@ trait ScFunction extends ScParametrized with ScReferenceIdContainer {
   *   Returns infered type of variable, or null in case of any problems with inference
   */
   override def getInferedType(id: ScReferenceId) = {
-    val child = childSatisfyPredicateForPsiElement((el: PsiElement) => el.isInstanceOf[ScalaExpression])
+    val child = childSatisfyPredicateForPsiElement((el: PsiElement) => el.isInstanceOf[IScalaExpression])
     if (child != null) {
-      new FunctionType(getParameterTypes, child.asInstanceOf[ScalaExpression].getAbstractType, null)
+      import org.jetbrains.plugins.scala.lang.typechecker._
+      new FunctionType(getParameterTypes, (new ScalaTypeChecker).getTypeByTerm(child), null)
     } else {
       null
     }
@@ -123,6 +124,20 @@ trait ScFunction extends ScParametrized with ScReferenceIdContainer {
     }
   }
 
+  def canBeOverridenBy(newFun: ScFunction): Boolean = {
+    if (getFunctionName == null || getAbstractType == null || newFun.getAbstractType == null) {
+      return false
+    } else
+    { //Console.println("new: "+newFun.getAbstractType.getRepresentation + " old: "+ this.getAbstractType.getRepresentation)
+      if (this.getFunctionName.equals(newFun.getFunctionName)  &&
+      newFun.getAbstractType.conformsTo(this.getAbstractType)) {
+        return true
+      } else {
+        false
+      }
+    }
+  }
+
   def getAbstractType: FunctionType = getAbstractType(null)
 
   private def isManyParamClauses = (getChild(ScalaElementTypes.PARAM_CLAUSES) != null)
@@ -133,7 +148,14 @@ trait ScFunction extends ScParametrized with ScReferenceIdContainer {
     childrenOfType[ScParamClause](TokenSet.create(Array(ScalaElementTypes.PARAM_CLAUSE)))
   }
 
-  def getFunctionName = getShortName
+  def getFunctionName = {
+    val names = getNames
+    if (names != null) {
+      names.head.getText
+    } else {
+      "unnamedFunction"
+    }
+  }
 
   override def getIcon(flags: Int) = Icons.METHOD
 }

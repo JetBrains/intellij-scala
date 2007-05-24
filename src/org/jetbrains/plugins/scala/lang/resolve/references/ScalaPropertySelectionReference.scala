@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.defs.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions.simpleExprs._
 import org.jetbrains.plugins.scala.lang.typechecker.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+import org.jetbrains.plugins.scala.lang.typechecker._
 
 class ScalaPropertySelectionReference(val myElement: PsiElement) extends PsiReference {
 
@@ -47,19 +48,16 @@ class ScalaPropertySelectionReference(val myElement: PsiElement) extends PsiRefe
 
   def resolve: PsiElement = {
     if (myElement.getFirstChild.isInstanceOf[ScalaExpression] &&
-    myElement.getFirstChild.asInstanceOf[ScalaExpression].getAbstractType != null){
+    (new ScalaTypeChecker).getTypeByTerm(myElement.getFirstChild) != null){
       val absType = myElement.getFirstChild.asInstanceOf[ScalaExpression].getAbstractType
       absType.reduce match {
         // Define type of expression before dot
         case ValueType(ownType, _) if ownType != null => {
           // if method call  or closure variable
-          val elem = myElement.getParent.isInstanceOf[ScMethodCallImpl]
-          elem
-
           val candidates =
             if (myElement.getParent.isInstanceOf[ScMethodCallImpl]) {
-              val argTypes = myElement.getParent.asInstanceOf[ScMethodCallImpl].getAllArguments.map((e: ScalaExpression) =>
-                e.getAbstractType)
+              val argTypes = myElement.getParent.asInstanceOf[ScMethodCallImpl].getAllArguments.map((e: PsiElement) =>
+                (new ScalaTypeChecker).getTypeByTerm(e))
               ownType.getAllTemplateStatements.filter((stmt: PsiElement) => {
                 stmt.isInstanceOf[ScFunction] &&
                 stmt.asInstanceOf[ScFunction].getAbstractType(null).canBeAppliedTo(argTypes) &&
@@ -76,7 +74,14 @@ class ScalaPropertySelectionReference(val myElement: PsiElement) extends PsiRefe
           if (candidates.length != 1) {
             Console.println("Found " + candidates.length + " candidates for resolve property " + getReferencedName +
             " in " + absType.reduce.getRepresentation)
-            null
+            if (candidates.length > 0){
+              candidates.head.getNames.find((id: ScReferenceId) =>
+                (id.getName.equals(getReferencedName))).get
+            }
+            else {
+              // TODO fix me!
+              null
+            }
           } else {
             candidates.last.getNames.find((id: ScReferenceId) =>
               (id.getName.equals(getReferencedName))).get

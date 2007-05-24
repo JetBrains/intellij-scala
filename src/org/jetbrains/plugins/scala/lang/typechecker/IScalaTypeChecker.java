@@ -12,6 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expressions.IScalaExpression;
  */
 public interface IScalaTypeChecker {
 
-  public String getTypeRepresentation(IScalaExpression term);
+  public String getTypeRepresentation(PsiElement term);
 
 }

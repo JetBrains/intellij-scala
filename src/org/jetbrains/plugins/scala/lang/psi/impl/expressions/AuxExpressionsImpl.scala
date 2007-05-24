@@ -16,12 +16,16 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 import org.jetbrains.plugins.scala.lang.psi.containers._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
+import org.jetbrains.plugins.scala.lang.psi.impl.expressions.simpleExprs._
 
 case class ScArgumentExprsImpl(node: ASTNode) extends ScExpr1Impl(node) with ContiniousIndent{
 
-  def getArguments : List[ScalaExpression] = getChildren.elements.toList.filter((e:PsiElement) => e.isInstanceOf[ScalaExpression]).map(
-  (e:PsiElement) => e.asInstanceOf[ScalaExpression]
-      )
+  def getArguments: List[IScalaExpression] = {
+    val list = getChildren.elements.toList.filter((e: PsiElement) => e.isInstanceOf[ScNewTemplateDefinition] ||
+    e.isInstanceOf[IScalaExpression]).map((e: PsiElement) => e.asInstanceOf[IScalaExpression])
+    list
+  }
+
 
   override def toString: String = "Argument expressions"
 }

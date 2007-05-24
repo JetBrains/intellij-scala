@@ -63,9 +63,10 @@ trait ScalaVariable extends ScalaPsiElement with ScReferenceIdContainer {
   *   Returns infered type of variable, or null in case of any problems with inference
   */
   override def getInferedType(id: ScReferenceId) = {
-    val child = childSatisfyPredicateForPsiElement((el: PsiElement) => el.isInstanceOf[ScalaExpression])
+    val child = childSatisfyPredicateForPsiElement((el: PsiElement) => el.isInstanceOf[IScalaExpression])
     if (child != null) {
-      child.asInstanceOf[ScalaExpression].getAbstractType
+      import org.jetbrains.plugins.scala.lang.typechecker._
+      (new ScalaTypeChecker).getTypeByTerm(child)
     } else {
       null
     }

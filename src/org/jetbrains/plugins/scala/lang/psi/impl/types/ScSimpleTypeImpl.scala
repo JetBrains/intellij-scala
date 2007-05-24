@@ -15,10 +15,16 @@ trait ScSimpleType extends ScalaType
 */
 class ScSimpleTypeImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleType {
 
-  override def getAbstractType = {
-    val children = getChildren
+  override def getAbstractType : AbstractType= {
+    val children = getChildren             
     // For explicit type specification
-    if (children.length == 1 && children(0).isInstanceOf[ScStableId]){
+/*
+    if (children.length >0 && children(0).isInstanceOf[ScSimpleTypeImpl]) {
+      return children(0).asInstanceOf[ScSimpleTypeImpl].getAbstractType
+    }
+*/
+    if (children.length == 1 && children(0).isInstanceOf[ScStableId] &&
+    children(0).asInstanceOf[ScStableId].getReference != null){
       val classType = children(0).asInstanceOf[ScStableId].getReference.resolve
       if (classType.isInstanceOf[ScTypeDefinition]) {
         new ValueType(classType.asInstanceOf[ScTypeDefinition], null)

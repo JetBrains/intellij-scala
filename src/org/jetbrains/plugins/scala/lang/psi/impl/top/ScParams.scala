@@ -32,6 +32,19 @@ class ScParam(node: ASTNode) extends Param (node) with ScReferenceIdContainer{
     }
   }
 
+  override def getExplicitType(id: ScReferenceId) =
+    if (getNames.exists((elem: ScReferenceId) => elem.equals(id))){
+      val child = childSatisfyPredicateForASTNode((node: ASTNode) => node.getPsi.isInstanceOf[ScalaType])
+      if (child != null) {
+        child.asInstanceOf[ScalaType].getAbstractType
+      } else {
+        null
+      }
+    } else {
+      null
+    }
+
+
   /**
   *  Returns references to binded values
   */
@@ -53,7 +66,7 @@ class ScParamType(node: ASTNode) extends ScalaPsiElementImpl (node) with ScalaTy
 
 class ScClassParam(node: ASTNode) extends Param (node) {
 
-  def getParam = getChild(ScalaElementTypes.PARAM)
+  def getParam = getChild(ScalaElementTypes.PARAM).asInstanceOf[ScParam]
   override def toString: String = "class" + " " + super.toString
 }
 
@@ -82,10 +95,15 @@ trait ScParamClause extends ScalaPsiElement {
 
   def params: Iterable[ScParam] = {
     if (isManyParams) return getParamsNode.params
-    childrenOfType[ScParam](TokenSet.create(Array(ScalaElementTypes.PARAM)))
+    if (childrenOfType[ScParam](TokenSet.create(Array(ScalaElementTypes.PARAM))) != null) {
+      childrenOfType[ScParam](TokenSet.create(Array(ScalaElementTypes.PARAM))).toList :::
+      (classParams.toList :\ (Nil: List[ScParam]))((y: ScClassParam, x: List[ScParam]) =>  y.getParam :: x)
+    } else {
+      childrenOfType[ScParam](TokenSet.create(Array(ScalaElementTypes.PARAM))).toList
+    }
   }
 
-  def classParams = childrenOfType[ScClassParam](TokenSet.create(Array(ScalaElementTypes.CLASS_PARAM))) 
+  def classParams = childrenOfType[ScClassParam](TokenSet.create(Array(ScalaElementTypes.CLASS_PARAM)))
 }
 
 class ScParamClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ContiniousIndent with ScParamClause {

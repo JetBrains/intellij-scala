@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
+import org.jetbrains.plugins.scala.lang.psi.impl.expressions.simpleExprs._
 
 
 case class ValueType(ownType: ScTypeDefinition, genericParams: List[ScTypeDefinition])
@@ -35,10 +36,27 @@ extends AbstractType(genericParams){
 
   def getBaseTypes =  ownType.getAllParents
 
-  def conformsTo(otherType: AbstractType) = otherType match {
+  def conformsTo(otherAbstractType: AbstractType): Boolean = otherAbstractType match {
     case ValueType(otherType, _) if otherType != null => {
-      // todo add subtyping
-      otherType.equals(ownType)
+      if (otherType.equals(ownType)) return true;
+      if (ownType.getAllParents == null) return false;
+
+      val ownParents = ownType.getAllParents
+      val otherParents = if (otherType.isInstanceOf[ScNewTemplateDefinition]) {
+        otherType.getAllParents
+      } else {
+        otherType :: otherType.getAllParents
+      }
+/*
+      Console.println("ownType " + this.getRepresentation)
+      Console.println("otherType " + otherAbstractType.getRepresentation)
+*/
+      for (val otherParent <- otherParents) {
+        if (otherParent == null || ! ownParents.contains(otherParent)) {
+          return false;
+        }
+      }
+      return true;
     }
     case _ => false
   }
