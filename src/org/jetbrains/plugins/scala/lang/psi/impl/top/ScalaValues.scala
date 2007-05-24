@@ -56,6 +56,34 @@ trait ScalaValue extends ScTemplateStatement with ScReferenceIdContainer{
     }) ::: childrenOfType[ScReferenceId](ScalaElementTypes.REFERENCE_SET).toList
   }
 
+  override def getExplicitType(id: ScReferenceId) =
+  //TODO rewrite me for patterns!
+    if (getNames.length == 1 && getNames.exists((elem: ScReferenceId) => elem.equals(id))){
+      val child = childSatisfyPredicateForASTNode((node: ASTNode) => node.getPsi.isInstanceOf[ScalaType])
+      if (child != null) {
+        child.asInstanceOf[ScalaType].getAbstractType
+      } else {
+        null
+      }
+    } else {
+      null
+    }
+
+  /**
+  *   Returns infered type of variable, or null in case of any problems with inference
+  */
+  override def getInferedType(id: ScReferenceId) = {
+    //TODO rewrite me for patterns!
+    val child = childSatisfyPredicateForPsiElement((el: PsiElement) => el.isInstanceOf[IScalaExpression])
+    if (child != null) {
+      import org.jetbrains.plugins.scala.lang.typechecker._
+      (new ScalaTypeChecker).getTypeByTerm(child)
+    } else {
+      null
+    }
+  }
+
+
 }
 
 /********************************** IMPLEMENTATIONS  ******************************************/

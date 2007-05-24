@@ -47,16 +47,13 @@ class ScalaLocalVariableResolveProcessor(val myName: String, val offset: Int, va
 
       valDef match {
         case fun: ScFunction => {
-          Console.println("step 1 ")
           if (myElement.getParent.isInstanceOf[ScMethodCallImpl] &&
-          {Console.println(fun.getAbstractType.getRepresentation);
-          Console.println(fun.getAbstractType.canBeAppliedTo(myElement.getParent.asInstanceOf[ScMethodCallImpl].getAllArgumentsTypes))
-          true
-          } &&
+          fun.getFunctionName.equals(myName) &&
+          fun.getAbstractType != null &&
           fun.getAbstractType.canBeAppliedTo(myElement.getParent.asInstanceOf[ScMethodCallImpl].getAllArgumentsTypes)) {
-            Console.println("step 2 ")
             tryToFinish
-          } else if (fun.getAbstractType.funParams == null || fun.getAbstractType.funParams.length == 0){
+          } else if  (fun.getFunctionName.equals(myName) && fun.getAbstractType != null &&
+          (fun.getAbstractType.funParams == null || fun.getAbstractType.funParams.length == 0)){
             tryToFinish
           } else {
             true

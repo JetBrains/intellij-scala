@@ -29,20 +29,32 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
+import org.jetbrains.plugins.scala.lang.typechecker.types._
 
 
-case class ScNewTemplateDefinition(node: ASTNode) extends ScTypeDefinition(node) with IfElseIndent {
+case class ScNewTemplateDefinition(node: ASTNode) extends ScTypeDefinition(node) with IfElseIndent with IScalaExpression {
   private var LOG = Logger.getInstance("org.jetbrains.plugins.scala.lang.psi.impl.top.defs.ScNewTemplateDefinition");
 
   override def toString: String = "New template definition"
 
-  override def nameNode = null
+  override def nameNode = if (getTemplateParents != null &&
+  getTemplateParents.getMainConstructor != null &&
+  getTemplateParents.getMainConstructor.getClassName != null) {
+    def isName = (elementType: IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
+    getTemplateParents.getMainConstructor.getClassName.childSatisfyPredicateForElementType(isName)
+  } else {
+    this
+  }
+  
+  override def getOwnTemplateStatements = Nil : List[ScTemplateStatement]
 
-  override def getName = "Anonymous class in " + getContainingFile.getName + " at " + getTextOffset 
+  override def getName = "AnonymousClassInstance"
 
   override def setName(name: String) = this
 
   override def getTextOffset = super.getTextOffset
 
   override def isTypeDef: boolean = true
+
+  def getAbstractType = new ValueType(this, null)
 }

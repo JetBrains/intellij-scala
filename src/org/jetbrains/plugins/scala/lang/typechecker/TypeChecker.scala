@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.typechecker.types._
 
 class ScalaTypeChecker extends IScalaTypeChecker{
 
-  def getTypeByTerm(term: IScalaExpression): AbstractType = {
+  def getTypeByTerm(term: PsiElement): AbstractType = {
     if (term.getReference != null) {
       return term.getReference.resolve match {
         case refDef: ScReferenceId => {
@@ -41,12 +41,16 @@ class ScalaTypeChecker extends IScalaTypeChecker{
       }
     }
     term match {
-      case af: ScAnFunImpl =>af.getAbstractType 
+      case par: ScParenthesisedExpr => par.getAbstractType
+      case af: ScAnFunImpl =>af.getAbstractType
+      case newTmpl : ScNewTemplateDefinition => {
+        newTmpl.getAbstractType
+      }
       case _ => null
     }
   }
 
-  def getTypeRepresentation(term: IScalaExpression): String = getTypeByTerm(term) match {
+  def getTypeRepresentation(term: PsiElement): String = getTypeByTerm(term) match {
     case a: AbstractType => a.getRepresentation
     case _ => "Couldn't infer type of given term!"
   }

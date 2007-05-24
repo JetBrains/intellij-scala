@@ -84,7 +84,7 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
         case pack: ScPackaging => append(iAmInner(parent), pack.asInstanceOf[ScPackaging].getFullPackageName)
         case tmplBody: ScTemplateBody => {
           append(iAmInner(tmplBody.getParent.getParent),
-              tmplBody.getParent.getParent.asInstanceOf[ScTmplDef].getName)
+              tmplBody.getParent.asInstanceOf[ScTmplDef].getName)
         }
         case f: ScalaFile => {
           val packageStatement = f.getChild(ScalaElementTypes.PACKAGE_STMT).asInstanceOf[ScPackageStatement]
@@ -93,7 +93,9 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
             if (packageName == null) "" else packageName
           }
         }
-        case _ => getName
+        case null => ""
+        case x if x.getParent != null => iAmInner(x)
+        case _ => ""
       }
     }
     append(iAmInner(this), getName)

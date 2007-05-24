@@ -39,7 +39,7 @@ abstract class AbstractType(genericParams: List[ScTypeDefinition]){
 
   def getRepresentation: String
 
-  def conformsTo(otherType: AbstractType ): Boolean
+  def conformsTo (otherType: AbstractType ): Boolean
 
 
 }
