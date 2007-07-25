@@ -1,0 +1,50 @@
+IMPORTANT: THIS IS TO CERTIFY THE RIGHT TO USE THE YOURKIT SOFTWARE PRODUCT, 
+GRANTED BY YOURKIT LLC UNDER THE TERMS AND CONDITIONS OF THE LICENSE 
+AGREEMENT INCLUDED WITH THE SOFTWARE. PLEASE SAVE A COPY OF THIS EMAIL FOR 
+FUTURE REFERENCES. 
+
+***LICENSE DETAILS*** 
+
+Date of Issue: 20070104 
+Type of License : YourKit Java Profiler 6.0 - Commercial License - 5 Users Pack 
+
+***LICENSEE*** 
+
+Name: JetBrains 
+
+***INSTALLATION*** 
+
+The software is available for download from http://www.yourkit.com/download/ 
+
+To activate the software, please use the license keys. 
+
+ 
+
+***MAINTENANCE & SUPPORT*** 
+
+All releases for the licensed version of the software are free of charge for 
+a period of one year. 
+
+ 
+
+For technical assistance, please contact support@yourkit.com 
+
+For further information, please contact sales@yourkit.com 
+
+***LICENSE KEYS*** 
+
+When asked to provide license key, copy and paste key's entire block of lines: 
+
+# Key 2 
+
+1bc970aa7bebce83fb65c9b7721ecd17ffad12ce375c11edac8306c2b60e 
+2ffe5d0546fe4dcb333bc8c1584c9cd94785ff650d3605ab60a24e259938 
+7ff02e877a01b66433ee423786179ee441fe453129c403250491b55f3df5 
+a3d7c9657008d47f6f3f2e046b7cd9364d42836fb8c06d9c7214b186cee8 
+a9c083d04dace80dc8f00a66e0591c775289ae444c11ef3f791693e483e2 
+12bb4269d8dd37541ec4d3a645413f8ffdb8e2c13293c571f464087ed388 
+fa4e567a023db0e84b6947f6a0e2666538d4d0a2afb487dcda5d31402985 
+6f4c034c57d95d6ca0ceda2669e1209a32af9f277c6d102c69e9e9a16f84 
+8cb1a510650b2b2002433677cf10bce09786b6c0ca15a4 
+
+ 

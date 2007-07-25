@@ -1,9 +1,0 @@
-case class a
------
-Scala file
-  type template definition: class
-    PsiElement(case)('case')
-    PsiWhiteSpace(' ')
-    PsiElement(class)('class')
-    PsiWhiteSpace(' ')
-    PsiElement(identifier)('a')

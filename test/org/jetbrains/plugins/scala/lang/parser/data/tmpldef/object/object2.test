@@ -1,7 +1,0 @@
-object a
------
-Scala file
-  type template definition: object
-    PsiElement(object)('object')
-    PsiWhiteSpace(' ')
-    PsiElement(identifier)('a')
