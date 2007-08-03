@@ -1,7 +1,0 @@
-trait a
------
-Scala file
-  template definition: trait
-    PsiElement(trait)('trait')
-    PsiWhiteSpace(' ')
-    PsiElement(identifier)('a')
