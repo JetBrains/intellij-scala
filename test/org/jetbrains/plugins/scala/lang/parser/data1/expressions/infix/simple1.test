@@ -1,0 +1,42 @@
+class C {
+  foo add (x).toString sub (2,3)
+}
+-----
+Scala file
+  type template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PsiWhiteSpace(' ')
+    top definition template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        Infix expression
+          Infix expression
+            Stable Identifier
+              PsiElement(identifier)('foo')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('add')
+            PsiWhiteSpace(' ')
+            Simple expression
+              Simple expression
+                PsiElement(()('(')
+                Stable Identifier
+                  PsiElement(identifier)('x')
+                PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('toString')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('sub')
+          PsiWhiteSpace(' ')
+          Argument expressions
+            PsiElement(()('(')
+            Literal
+              PsiElement(integer)('2')
+            PsiElement(,)(',')
+            Literal
+              PsiElement(integer)('3')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,46 @@
+class C {
+1 + {2}.toString
+1 + {3}
+}
+-----
+Scala file
+  type template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PsiWhiteSpace(' ')
+    top definition template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        Infix expression
+          Literal
+            PsiElement(integer)('1')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('+')
+          PsiWhiteSpace(' ')
+          Simple expression
+            Simple expression
+              Block expression
+                PsiElement({)('{')
+                Block
+                  Literal
+                    PsiElement(integer)('2')
+                PsiElement(})('}')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toString')
+        PsiElement(newline)('\n')
+        Infix expression
+          Literal
+            PsiElement(integer)('1')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('+')
+          PsiWhiteSpace(' ')
+          Block expression
+            PsiElement({)('{')
+            Block
+              Literal
+                PsiElement(integer)('3')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

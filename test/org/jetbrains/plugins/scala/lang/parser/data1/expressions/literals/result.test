@@ -1,0 +1,42 @@
+class Человек{
+val лицо=(a:T,b:S)=>true
+}
+-----
+Scala file
+  type template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Человек')
+    top definition template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        pattern definition
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          Reference identifier
+            PsiElement(identifier)('лицо')
+          PsiElement(=)('=')
+          Anonymous function
+            PsiElement(()('(')
+            Binding
+              Reference identifier
+                PsiElement(identifier)('a')
+              PsiElement(:)(':')
+              Simple type
+                Stable Identifier
+                  PsiElement(identifier)('T')
+            PsiElement(,)(',')
+            Binding
+              Reference identifier
+                PsiElement(identifier)('b')
+              PsiElement(:)(':')
+              Simple type
+                Stable Identifier
+                  PsiElement(identifier)('S')
+            PsiElement())(')')
+            PsiElement(=>)('=>')
+            Literal
+              PsiElement(true)('true')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,7 @@
+class a
+-----
+Scala file
+  type template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')

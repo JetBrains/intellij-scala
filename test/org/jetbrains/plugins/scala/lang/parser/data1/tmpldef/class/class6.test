@@ -1,0 +1,13 @@
+class ABC requires DEF
+-----
+Scala file
+  type template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ABC')
+    PsiWhiteSpace(' ')
+    requires block
+      PsiElement(requires)('requires')
+      PsiWhiteSpace(' ')
+      Stable Identifier
+        PsiElement(identifier)('DEF')

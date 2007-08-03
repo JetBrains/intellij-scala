@@ -1,0 +1,114 @@
+class C {
+  x match {
+   case {} => 0
+   case {t,} => 1
+   case {t,s,u} => 2
+   case {t,s,} => 3
+  }
+}
+-----
+Scala file
+  type template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PsiWhiteSpace(' ')
+    top definition template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MATCH statement
+          Stable Identifier
+            PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          Block expression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n   ')
+            Case Clauses
+              Case Clause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Common pattern
+                  unit
+                    PsiElement({)('{')
+                    PsiElement(})('}')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                Block
+                  Literal
+                    PsiElement(integer)('0')
+                  PsiElement(newline)('\n')
+              PsiWhiteSpace('   ')
+              Case Clause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Common pattern
+                  Tuple pattern
+                    PsiElement({)('{')
+                    Common pattern
+                      Reference identifier
+                        PsiElement(identifier)('t')
+                    PsiElement(,)(',')
+                    PsiElement(})('}')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                Block
+                  Literal
+                    PsiElement(integer)('1')
+                  PsiElement(newline)('\n')
+              PsiWhiteSpace('   ')
+              Case Clause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Common pattern
+                  Tuple pattern
+                    PsiElement({)('{')
+                    Common pattern
+                      Reference identifier
+                        PsiElement(identifier)('t')
+                    PsiElement(,)(',')
+                    Common pattern
+                      Reference identifier
+                        PsiElement(identifier)('s')
+                    PsiElement(,)(',')
+                    Common pattern
+                      Reference identifier
+                        PsiElement(identifier)('u')
+                    PsiElement(})('}')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                Block
+                  Literal
+                    PsiElement(integer)('2')
+                  PsiElement(newline)('\n')
+              PsiWhiteSpace('   ')
+              Case Clause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Common pattern
+                  Tuple pattern
+                    PsiElement({)('{')
+                    Common pattern
+                      Reference identifier
+                        PsiElement(identifier)('t')
+                    PsiElement(,)(',')
+                    Common pattern
+                      Reference identifier
+                        PsiElement(identifier)('s')
+                    PsiElement(,)(',')
+                    PsiElement(})('}')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                Block
+                  Literal
+                    PsiElement(integer)('3')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

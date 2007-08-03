@@ -1,0 +1,33 @@
+class a {
+  val Some(x) : String
+}
+-----
+Scala file
+  type template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    top definition template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        value declaration
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          Simple pattern
+            Stable Identifier
+              PsiElement(identifier)('Some')
+            Argument patterns
+              PsiElement(()('(')
+              Common pattern
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          Simple type
+            Stable Identifier
+              PsiElement(identifier)('String')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
