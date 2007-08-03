@@ -1,0 +1,22 @@
+class A{
+  ().toString
+}
+-----
+Scala file
+  type template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    top definition template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        Simple expression
+          Simple expression
+            unit
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('toString')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

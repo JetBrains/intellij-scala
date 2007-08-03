@@ -1,0 +1,21 @@
+class A [+T] requires B
+-----
+Scala file
+  type template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    type parameter clause
+      PsiElement([)('[')
+      variant type parameter
+        PsiElement(identifier)('+')
+        type parameter
+          PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    requires block
+      PsiElement(requires)('requires')
+      PsiWhiteSpace(' ')
+      Stable Identifier
+        PsiElement(identifier)('B')

@@ -1,0 +1,37 @@
+class A(a:(a=>(c,d)=>e))
+-----
+Scala file
+  type template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    parameters clause
+      PsiElement(()('(')
+      parameter
+        Reference identifier
+          PsiElement(identifier)('a')
+        PsiElement(:)(':')
+        Simple type
+          PsiElement(()('(')
+          Functional type
+            Simple type
+              Stable Identifier
+                PsiElement(identifier)('a')
+            PsiElement(=>)('=>')
+            Functional type
+              Types list
+                PsiElement(()('(')
+                Simple type
+                  Stable Identifier
+                    PsiElement(identifier)('c')
+                PsiElement(,)(',')
+                Simple type
+                  Stable Identifier
+                    PsiElement(identifier)('d')
+                PsiElement())(')')
+              PsiElement(=>)('=>')
+              Simple type
+                Stable Identifier
+                  PsiElement(identifier)('e')
+          PsiElement())(')')
+      PsiElement())(')')

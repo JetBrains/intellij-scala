@@ -1,0 +1,95 @@
+class C {
+  val b = {1}
+  val a={}
+  val c={1,}
+  val d={1,2}
+  val e={1,2,}
+}
+-----
+Scala file
+  type template definition: class
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PsiWhiteSpace(' ')
+    top definition template
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        pattern definition
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          Reference identifier
+            PsiElement(identifier)('b')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Block expression
+            PsiElement({)('{')
+            Block
+              Literal
+                PsiElement(integer)('1')
+            PsiElement(})('}')
+        PsiElement(newline)('\n')
+        PsiWhiteSpace('  ')
+        pattern definition
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          Reference identifier
+            PsiElement(identifier)('a')
+          PsiElement(=)('=')
+          unit
+            PsiElement({)('{')
+            PsiElement(})('}')
+        PsiElement(newline)('\n')
+        PsiWhiteSpace('  ')
+        pattern definition
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          Reference identifier
+            PsiElement(identifier)('c')
+          PsiElement(=)('=')
+          Block expression
+            PsiElement({)('{')
+            Tuple
+              Literal
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+            PsiElement(})('}')
+        PsiElement(newline)('\n')
+        PsiWhiteSpace('  ')
+        pattern definition
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          Reference identifier
+            PsiElement(identifier)('d')
+          PsiElement(=)('=')
+          Block expression
+            PsiElement({)('{')
+            Tuple
+              Literal
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              Literal
+                PsiElement(integer)('2')
+            PsiElement(})('}')
+        PsiElement(newline)('\n')
+        PsiWhiteSpace('  ')
+        pattern definition
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          Reference identifier
+            PsiElement(identifier)('e')
+          PsiElement(=)('=')
+          Block expression
+            PsiElement({)('{')
+            Tuple
+              Literal
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              Literal
+                PsiElement(integer)('2')
+              PsiElement(,)(',')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

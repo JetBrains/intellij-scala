@@ -1,0 +1,69 @@
+import item1.item1
+import item2.item2.item2
+import item3.item3.{item1, item2}, item3.item3.{item1, item2}
+-----
+Scala file
+  Import statement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    Import expression
+      Stable Identifier
+        PsiElement(identifier)('item1')
+      PsiElement(.)('.')
+      Import end
+        PsiElement(identifier)('item1')
+  PsiElement(newline)('\n')
+  Import statement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    Import expression
+      Stable Identifier
+        Stable Identifier
+          PsiElement(identifier)('item2')
+        PsiElement(.)('.')
+        PsiElement(identifier)('item2')
+      PsiElement(.)('.')
+      Import end
+        PsiElement(identifier)('item2')
+  PsiElement(newline)('\n')
+  Import statement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    Import expression
+      Stable Identifier
+        Stable Identifier
+          PsiElement(identifier)('item3')
+        PsiElement(.)('.')
+        PsiElement(identifier)('item3')
+      PsiElement(.)('.')
+      Import selectors
+        PsiElement({)('{')
+        Import selector
+          Selector begin
+            PsiElement(identifier)('item1')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Import selector
+          Selector begin
+            PsiElement(identifier)('item2')
+        PsiElement(})('}')
+    PsiElement(,)(',')
+    PsiWhiteSpace(' ')
+    Import expression
+      Stable Identifier
+        Stable Identifier
+          PsiElement(identifier)('item3')
+        PsiElement(.)('.')
+        PsiElement(identifier)('item3')
+      PsiElement(.)('.')
+      Import selectors
+        PsiElement({)('{')
+        Import selector
+          Selector begin
+            PsiElement(identifier)('item1')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Import selector
+          Selector begin
+            PsiElement(identifier)('item2')
+        PsiElement(})('}')
