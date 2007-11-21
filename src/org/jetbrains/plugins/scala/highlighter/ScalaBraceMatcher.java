@@ -18,7 +18,10 @@ package org.jetbrains.plugins.scala.highlighter;
 
 import com.intellij.lang.PairedBraceMatcher;
 import com.intellij.lang.BracePair;
+import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Author: Ilya Sergey
@@ -36,5 +39,9 @@ public class ScalaBraceMatcher implements PairedBraceMatcher {
   public BracePair[] getPairs() {
     
     return PAIRS;
+  }
+
+  public boolean isPairedBracesAllowedBeforeType(@NotNull IElementType type, @Nullable IElementType type1) {
+    return false;
   }
 }
