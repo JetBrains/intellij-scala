@@ -110,8 +110,8 @@ public class ScalaCompiler implements TranslatingCompiler {
         File f = File.createTempFile("toCompile", "");
         PrintStream printer = new PrintStream(new FileOutputStream(f));
 
-        printer.println("-Xgenerics");
-        printer.println("-Xexperimental");
+        //printer.println("-Xgenerics");
+        //printer.println("-Xexperimental");
         printer.println("-target:jvm-1.5");
         printer.println("-verbose");
 
