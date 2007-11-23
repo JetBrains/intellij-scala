@@ -35,7 +35,7 @@
     <fileset dir="${scala.home}/lib">
       <include name="**/*.jar"/>
     </fileset>
-    <fileset dir="${idea.lib}/../jre/jre/lib">
+    <fileset dir="${env.JAVA_HOME}">
       <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${idea.lib}">
@@ -53,7 +53,7 @@
     <fileset dir="${scala.home}/lib">
       <include name="**/*.jar"/>
     </fileset>
-    <fileset dir="${idea.lib}/../jre/jre/lib">
+    <fileset dir="${env.JAVA_HOME}">
       <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${idea.lib}/../jre/lib">
