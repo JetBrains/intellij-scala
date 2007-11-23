@@ -21,6 +21,14 @@
   <property name="test.lib" value="${project.lib}/../../test/Scala"/>
 
   <property name="output" value="${basedir}/dist"/>
+  
+  <target name="unzip.last.successful.IDEA.build">
+      <unzip dest="${idea.lib}">
+        <fileset dir="${idea.lib}">
+          <include name="*.zip"/>
+        </fileset>
+      </unzip>
+  </target>
 
   <path id="base.path">
     <fileset dir="${scala.home}/lib">
@@ -67,7 +75,7 @@
          antfile="build.xml" target="generate.lexer"/>
   </target>
 
-  <target name="make.project" depends="create.lexer" description="Builds all classes">
+  <target name="make.project" depends="create.lexer,unzip.last.successful.IDEA.build" description="Builds all classes">
 
     <mkdir dir="${project.lib}/../"/>
     <mkdir dir="${project.lib}"/>
