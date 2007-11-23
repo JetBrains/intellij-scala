@@ -20,6 +20,7 @@
   <property name="idea.lib" value="${idea.pack}/lib"/>
   <property name="output" value="${base.dir}/dist"/>
   <property name="test.lib" value="${project.lib}/../../test/Scala"/>
+  <property name="java.lib" value="${env.JAVA_HOME}/lib"/>
 
   <property name="output" value="${basedir}/dist"/>
   
@@ -35,7 +36,7 @@
     <fileset dir="${scala.home}/lib">
       <include name="**/*.jar"/>
     </fileset>
-    <fileset dir="${%env.JAVA_HOME%}">
+    <fileset dir="${java.lib}">
       <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${idea.lib}">
@@ -53,7 +54,7 @@
     <fileset dir="${scala.home}/lib">
       <include name="**/*.jar"/>
     </fileset>
-    <fileset dir="${%env.JAVA_HOME%}">
+    <fileset dir="${java.lib}">
       <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${idea.lib}/../jre/lib">
