@@ -35,8 +35,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.Arrays;
 
-import scala.collection.jcl.Collection;
-
 /**
  * @author ven
  */
