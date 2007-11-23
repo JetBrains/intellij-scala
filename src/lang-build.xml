@@ -15,7 +15,7 @@
   -->
 
 <project name="Generate various scala packages for parser needs" default="rebuild.all">
-  <property file="scala.properties"/>
+  <!--<property file="scala.properties"/>-->
   <property name="base.dir" value="${project.lib}/../../.."/>
   <property name="idea.lib" value="${idea.pack}/lib"/>
   <property name="output" value="${base.dir}/dist"/>
