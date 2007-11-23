@@ -303,7 +303,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
             builder.advanceLexer()
             bm.done(ScalaElementTypes.UNIT)
           } else {
-            Block parse(builder, true)
+            Block.parse(builder, true)
             if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
               builder.advanceLexer
             } else {
