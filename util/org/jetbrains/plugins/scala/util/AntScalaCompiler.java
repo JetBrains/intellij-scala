@@ -10,7 +10,7 @@ import scala.tools.ant.Scalac;
 public class AntScalaCompiler extends Scalac {
 
   public void execute() {
-    setAddparams("-Xgenerics");
+    //setAddparams("-Xgenerics");
     //setAddparams("-target:jvm-1.5");
     super.execute();
   }
