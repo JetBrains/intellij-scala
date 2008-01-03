@@ -141,7 +141,7 @@ object ScalaPsiCreator {
       case ScalaElementTypes.ATTRIBUTE_CLAUSES => new ScAttributeClauses(node)
 
       case _ => inner(node)
-    } : PsiElement
+    }
 
 
   //to prevent stack overflow in type checker let's introduce helper method
