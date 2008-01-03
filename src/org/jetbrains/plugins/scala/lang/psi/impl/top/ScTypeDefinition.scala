@@ -65,7 +65,24 @@ class ScTypeDefinition(node: ASTNode) extends ScTmplDef(node)  with IfElseIndent
     getMixinParentsNames
   }
 
-  def getAllParents(alreadyHas: List[ScTypeDefinition]): List[ScTypeDefinition] = null
+  def getAllParents(alreadyHas: List[ScTypeDefinition]): List[ScTypeDefinition] = {
+
+    def getImmediateParents(list: List[ScTypeDefinition]) =
+      getImmediateParentsNames.map[ScTypeDefinition]((s: ScStableId) =>
+        s.getReference.resolve.asInstanceOf[ScTypeDefinition]).remove((e: ScTypeDefinition) => list.contains(e))
+
+    var newParents = Nil: List[ScTypeDefinition]
+    if (alreadyHas != null && getImmediateParents(alreadyHas) != null){
+      for (val parent <- getImmediateParents(alreadyHas)){
+        if (parent != null && newParents != null) {
+          if (! newParents.contains(parent)) {
+            newParents = newParents ::: parent :: parent.getAllParents(parent :: alreadyHas ::: newParents)
+          }
+        }
+      }
+    }
+    newParents
+  }
 
   /**
   *  Retruns names of all immediate parents
@@ -77,12 +94,59 @@ class ScTypeDefinition(node: ASTNode) extends ScTmplDef(node)  with IfElseIndent
   /**
   *  Returns own template statements of current type definition
   */
-  def getOwnTemplateStatements: List[ScTemplateStatement] = null
+  def getOwnTemplateStatements: List[ScTemplateStatement] = {
+    var statList = Nil: List[ScTemplateStatement]
+    if (getTemplateBody != null &&
+    getTemplateBody.asInstanceOf[ScTemplateBody].getTemplateStatements != null){
+      for (val statement <- getTemplateBody.asInstanceOf[ScTemplateBody].getTemplateStatements) {
+        statList = statement.asInstanceOf[ScTemplateStatement] :: statList
+      }
+    }
+    statList
+  }
 
   /**
   *  Returns ALL template statements of current type definition (including inherited)
   */
-  def getAllTemplateStatements: List[ScTemplateStatement] = null
+  def getAllTemplateStatements: List[ScTemplateStatement] = {
+    import _root_.scala.collection.mutable._
+    var statList = Nil: List[ScTemplateStatement]
+    val reversedParentList = getAllParents.reverse
+
+    val methodSet = new HashSet[String]
+
+    for (val parent <- reversedParentList){
+      if (parent != null && parent.isInstanceOf[ScTmplDef] &&
+      parent.asInstanceOf[ScTmplDef].getTemplateStatements != null) {
+        for (val statement <- parent.asInstanceOf[ScTmplDef].getTemplateStatements) {
+          if (statement.isInstanceOf[ScFunction]){
+            val function = statement.asInstanceOf[ScFunction]
+            val funName = function.getFunctionName
+            if (methodSet.contains(funName)){
+              statList = statList.remove((stmt: ScTemplateStatement) => stmt.isInstanceOf[ScFunction] &&
+              stmt.asInstanceOf[ScFunction].canBeOverridenBy(function))
+            } else {
+              methodSet += funName
+            }
+          }
+          statList = statement :: statList
+        }
+      }
+    }
+    val ownStats = getOwnTemplateStatements
+
+//    Console.println(ownStats.length + " own")
+
+    val filterFun = (stmt: ScTemplateStatement) => {ownStats.exists((s: ScTemplateStatement) =>
+      s.isInstanceOf[ScFunction] &&
+      stmt.asInstanceOf[ScFunction].canBeOverridenBy(s.asInstanceOf[ScFunction]))
+    }
+
+//    Console.println(statList.length + " before")
+    statList = statList.remove(filterFun)
+//    Console.println(statList.length + " after")
+    ownStats ::: statList
+  }
 
   def getAllMethods = getAllTemplateStatements.filter((stmt: ScTemplateStatement) => stmt.isInstanceOf[ScFunction])
 
