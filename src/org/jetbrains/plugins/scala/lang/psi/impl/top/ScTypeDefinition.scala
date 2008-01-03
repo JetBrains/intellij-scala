@@ -77,16 +77,7 @@ class ScTypeDefinition(node: ASTNode) extends ScTmplDef(node)  with IfElseIndent
   /**
   *  Returns own template statements of current type definition
   */
-  def getOwnTemplateStatements: List[ScTemplateStatement] = {
-    var statList = Nil: List[ScTemplateStatement]
-    if (getTemplateBody != null &&
-    getTemplateBody.asInstanceOf[ScTemplateBody].getTemplateStatements != null){
-      for (val statement <- getTemplateBody.asInstanceOf[ScTemplateBody].getTemplateStatements) {
-        statList = statement.asInstanceOf[ScTemplateStatement] :: statList
-      }
-    }
-    statList
-  }
+  def getOwnTemplateStatements: List[ScTemplateStatement] = null
 
   /**
   *  Returns ALL template statements of current type definition (including inherited)
