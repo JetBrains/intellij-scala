@@ -65,24 +65,7 @@ class ScTypeDefinition(node: ASTNode) extends ScTmplDef(node)  with IfElseIndent
     getMixinParentsNames
   }
 
-  def getAllParents(alreadyHas: List[ScTypeDefinition]): List[ScTypeDefinition] = {
-
-    def getImmediateParents(list: List[ScTypeDefinition]) =
-      getImmediateParentsNames.map[ScTypeDefinition]((s: ScStableId) =>
-        s.getReference.resolve.asInstanceOf[ScTypeDefinition]).remove((e: ScTypeDefinition) => list.contains(e))
-
-    var newParents = Nil: List[ScTypeDefinition]
-    if (alreadyHas != null && getImmediateParents(alreadyHas) != null){
-      for (val parent <- getImmediateParents(alreadyHas)){
-        if (parent != null && newParents != null) {
-          if (! newParents.contains(parent)) {
-            newParents = newParents ::: parent :: parent.getAllParents(parent :: alreadyHas ::: newParents)
-          }
-        }
-      }
-    }
-    newParents
-  }
+  def getAllParents(alreadyHas: List[ScTypeDefinition]): List[ScTypeDefinition] = null
 
   /**
   *  Retruns names of all immediate parents
