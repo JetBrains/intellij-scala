@@ -60,7 +60,7 @@ class ScalaPropertySelectionReference(val myElement: PsiElement) extends PsiRefe
                 (new ScalaTypeChecker).getTypeByTerm(e))
               ownType.getAllTemplateStatements.filter((stmt: PsiElement) => {
                 stmt.isInstanceOf[ScFunction] &&
-                stmt.asInstanceOf[ScFunction].getAbstractType(null).canBeAppliedTo(argTypes) &&
+//                stmt.asInstanceOf[ScFunction].getAbstractType(null).canBeAppliedTo(argTypes) &&
                 stmt.asInstanceOf[ScReferenceIdContainer].getNames.exists((id: ScReferenceId) =>
                   (id.getName.equals(getReferencedName)))
               }).map((e: PsiElement) => e.asInstanceOf[ScFunction])

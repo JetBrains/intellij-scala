@@ -44,7 +44,7 @@ RefineStat ::=    Dcl
 
   object Refinements {
   /*
-    Refinement ::= ‘{’ [RefineStat {StatementSeparator RefineStat}] ‘}’
+    Refinement ::= { [RefineStat {StatementSeparator RefineStat}] }
   */
 
     def parse(builder : PsiBuilder) : ScalaElementType = {

@@ -68,7 +68,7 @@ object Template extends Constr{
   }
 
 /*
- *  TemplateBody ::= ‘{’ TemplateStatSeq ‘}’
+ *  TemplateBody ::= { TemplateStatSeq }
  */  
 
   object TemplateBody extends Constr {

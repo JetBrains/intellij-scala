@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 object ArgTypePattern {
 /*
 ArgTypePattern ::=  varid
-                    | ‘_’
+                    | _ï¿½
                     | Type
 */
   def parse(builder : PsiBuilder) : ScalaElementType = {
@@ -43,7 +43,7 @@ ArgTypePattern ::=  varid
 
 object ArgTypePatterns {
 /*
-    ArgTypePattern {‘,’ ArgTypePattern}
+    ArgTypePattern {, ArgTypePattern}
 */
   def parse(builder : PsiBuilder) : ScalaElementType = {
     var res = ArgTypePattern.parse(builder)
@@ -78,7 +78,7 @@ object ArgTypePatterns {
 
 object TypePatternArgs {
 /*
-    TypePatternArgs ::= ‘[’ ArgTypePatterns ’]’
+    TypePatternArgs ::= [ ArgTypePatterns ]
 */
   def parse(builder : PsiBuilder) : ScalaElementType = {
     if (ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)) {
@@ -107,7 +107,7 @@ object SimpleTypePattern1 {
 /*
     SimpleTypePattern1 ::=  SimpleTypePattern1 "#" Id
                             | StableId
-                            | Path ‘.’ type
+                            | Path . type
 */
   def parse(builder : PsiBuilder) : ScalaElementType = {
 
@@ -174,7 +174,7 @@ object SimpleTypePattern1 {
 object SimpleTypePattern {
 /*
     SimpleTypePattern ::= SimpleTypePattern1 [ TypePatternArgs ]
-                          | ‘{’ [ArgTypePattern ‘,’ [ArgTypePatterns [‘,’]]] ’}’
+                          | { [ArgTypePattern , [ArgTypePatterns [,]]] }
 */
 
   def parse(builder : PsiBuilder) : ScalaElementType = {

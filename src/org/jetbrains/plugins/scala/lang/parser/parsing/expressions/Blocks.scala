@@ -24,8 +24,8 @@ object BlockExpr {
   /*
   Block expression
   Default grammar
-  BlockExpr ::= ‘{’ CaseClauses ‘}’
-                | ‘{’ Block ‘}’
+  BlockExpr ::= { CaseClauses }
+                | { Block }
   */
   def parse(builder: PsiBuilder): ScalaElementType = {
     val blockExprMarker = builder.mark()
@@ -43,7 +43,7 @@ object BlockExpr {
         ! ScalaTokenTypes.kCASE.equals(builder.getTokenType)
       }){
 
-        /*  ‘{’ Block ‘}’ */
+        /*  { Block } */
 
         var result = Block.parse(builder, true)
         if (result.equals(ScalaElementTypes.BLOCK)) {
@@ -64,7 +64,7 @@ object BlockExpr {
           ScalaElementTypes.BLOCK_EXPR
         }
       } else {
-        /* ‘{’ CaseClauses ‘}’ */
+        /* { CaseClauses } */
         var result = CaseClauses.parse(builder)
         if (result.equals(ScalaElementTypes.CASE_CLAUSES)) {
           if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){

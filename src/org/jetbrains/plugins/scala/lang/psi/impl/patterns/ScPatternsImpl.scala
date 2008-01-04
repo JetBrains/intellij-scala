@@ -22,9 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 */
 trait ScPatterns extends ScalaPsiElement
 
-/**
-*   Pattern ::= Pattern1 { ‘|’ Pattern1 }
-*/
 trait ScPattern extends ScPatterns with ScReferenceIdContainer{
 
   /**

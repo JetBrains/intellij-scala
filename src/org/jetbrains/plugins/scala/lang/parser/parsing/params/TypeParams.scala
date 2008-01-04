@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.util.DebugPrint
   /******************** type parameters **********************/
 
 /*
- *  TypeParamClause ::= [NewLine] ‘[’ VariantTypeParam { ‘,’ VariantTypeParam } ‘]’
+ *  TypeParamClause ::= [NewLine] [ VariantTypeParam { , VariantTypeParam } ]
  */
 
     class TypeParamClause[T <: TypeParam] (typeParam : T) extends ConstrReturned {
@@ -90,7 +90,7 @@ import org.jetbrains.plugins.scala.util.DebugPrint
     }
 
 /*
- *  VariantTypeParam::= [‘+’ | ‘’] TypeParam
+ *  VariantTypeParam::= [+ | ] TypeParam
  */
 
     class VariantTypeParam extends TypeParam {

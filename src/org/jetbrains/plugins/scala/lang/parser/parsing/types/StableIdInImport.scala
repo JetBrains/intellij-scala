@@ -20,9 +20,9 @@ STABLE ID
 Default grammar:
 
 StableId ::= id
-            | StableId ‘.’ id
-            | [id ‘.’] this ‘.’ id
-            | [id ’.’] super [‘[’ id ‘]’] ‘.’ id ‘.’ id
+            | StableId . id
+            | [id .] this . id
+            | [id .] super [[ id ]] . id . id
 
 *******************************************
 
@@ -86,7 +86,7 @@ FIRST(StableId) = ScalaTokenTypes.tIIDENTIFIER
 
     }
 
-    /** processing [‘[’ id ‘]’] statement**/
+    /** processing [[ id ]] statement**/
     def parseGeneric(currentMarker: PsiBuilder.Marker): Boolean = {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {

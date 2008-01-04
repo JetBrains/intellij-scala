@@ -116,6 +116,7 @@ trait ScFunction extends ScParametrized with ScReferenceIdContainer {
     }
   }
 
+/*
   override def getAbstractType(id: ScReferenceId): FunctionType = {
     if (getExplicitType(id) != null) {
       getExplicitType(id)
@@ -123,6 +124,7 @@ trait ScFunction extends ScParametrized with ScReferenceIdContainer {
       getInferedType(id)
     }
   }
+*/
 
   def canBeOverridenBy(newFun: ScFunction): Boolean = {
     if (getFunctionName == null || getAbstractType == null || newFun.getAbstractType == null) {
@@ -138,7 +140,7 @@ trait ScFunction extends ScParametrized with ScReferenceIdContainer {
     }
   }
 
-  def getAbstractType: FunctionType = getAbstractType(null)
+  def getAbstractType: FunctionType = {null}//getAbstractType(null)
 
   private def isManyParamClauses = (getChild(ScalaElementTypes.PARAM_CLAUSES) != null)
   private def getParamClausesNode: ScParamClauses = getChild(ScalaElementTypes.PARAM_CLAUSES).asInstanceOf[ScParamClauses]

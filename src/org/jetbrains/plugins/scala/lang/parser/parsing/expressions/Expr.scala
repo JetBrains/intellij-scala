@@ -35,7 +35,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
     /*
     Result expression
     Default grammar
-    Expr ::= ( Bindings | Id ) ‘=>’ Expr
+    Expr ::= ( Bindings | Id ) => Expr
             | Expr1               (a)
     */
 
@@ -154,7 +154,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
     /*
     Common expression
     Default grammar
-    Expr ::= ( Bindings | Id ) ‘=>’ Expr
+    Expr ::= ( Bindings | Id ) => Expr
             | Expr1               (a)
     */
 
@@ -273,7 +273,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
     /*
     Expression list
     Default grammar
-    Exprs ::= Expr {‘,’ Expr}
+    Exprs ::= Expr {, Expr}
     */
 
     def parse(builder: PsiBuilder, marker: PsiBuilder.Marker): ScalaElementType = {

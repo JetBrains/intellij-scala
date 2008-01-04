@@ -27,10 +27,10 @@ SIMPLE EXPRESSION
 Default grammar:
 SimpleExpr ::= Literal                     (d)
             | Path                       (e)
-            | ‘(’ [Expr] ‘)’               (f)
+            | ( [Expr] )               (f)
             | BlockExpr                  (g)
             | new Template               (h)
-            | SimpleExpr ‘.’ id           (a)
+            | SimpleExpr . id           (a)
             | SimpleExpr TypeArgs        (b)
             | SimpleExpr ArgumentExprs   (c)
             | XmlExpr
@@ -266,12 +266,12 @@ object SimpleExpr {
 /*
 PREFIX EXPRESSION
 Default grammar
-PrefixExpr ::= [ ‘-’ | ‘+’ | ‘~’ | ‘!’ ] SimpleExpr
+PrefixExpr ::= [ - | + | ~ | ! ] SimpleExpr
 
 ***********************************************
 
 Realized grammar:
-PrefixExpr ::= [ ‘-’ | ‘+’ | ‘~’ | ‘!’ ] SimpleExpr
+PrefixExpr ::= [ - | + | ~ | ! ] SimpleExpr
 
 *******************************************
 
