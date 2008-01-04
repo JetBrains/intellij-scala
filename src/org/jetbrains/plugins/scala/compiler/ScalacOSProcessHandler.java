@@ -139,7 +139,8 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
             }
           } catch (InvocationTargetException e) {
           } catch (InterruptedException e) {
-                      } }
+          }
+        }
       }
     }
   }

@@ -23,13 +23,13 @@
   <property name="java.lib" value="${jdk.home}/lib"/>
 
   <property name="output" value="${basedir}/dist"/>
-  
+
   <target name="unzip.last.successful.IDEA.build">
-      <unzip dest="${idea.pack}">
-        <fileset dir="${idea.pack}">
-          <include name="*.zip"/>
-        </fileset>
-      </unzip>
+    <unzip dest="${idea.pack}">
+    <fileset dir="${idea.pack}">
+    <include name="*.zip"/>
+    </fileset>
+    </unzip>
   </target>
 
   <path id="base.path">
@@ -73,7 +73,7 @@
   </target>
 
   <target name="create.lexer" description="Makes lexer file">
-    <ant dir="org/jetbrains/plugins/scala/lang/lexer/"
+    <ant dir="org/jetbrains/plugins/scala/lang/lexer"
          antfile="build.xml" target="generate.lexer"/>
   </target>
 
@@ -90,8 +90,12 @@
     <copy todir="${project.lib}">
       <fileset dir="../resources/"/>
     </copy>
+
+    <mkdir dir="../classes/production/Scala"/>
+
     <javac srcdir="."
-           destdir="../classes/production/Scala">
+           destdir="../classes/production/Scala"
+           verbose="yes">
       <classpath refid="base.path"/>
     </javac>
 
@@ -101,9 +105,7 @@
     </javac>
 
     <!--Scala taskdef-->
-    <taskdef name="scalac"
-             classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
-             classpath="${project.lib}">
+    <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
         <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
         <pathelement location="${scala.home}/lib/scala-library.jar"/>
@@ -146,7 +148,8 @@
     <delete dir="${base.dir}/tempjar"/>
   </target>
 
-  <target name="rebuild.all" depends="clear.all, make.project, jar.plugin, zip.sources" description="Builds all classes"/>
+  <target name="rebuild.all" depends="clear.all, make.project, jar.plugin, zip.sources"
+          description="Builds all classes"/>
 
   <target name="zip.sources" description="Zips sources">
     <zip destfile="${base.dir}/scala-sources.zip"
@@ -162,7 +165,7 @@
          resources/**/*.png,
          META-INF/**/*.xml"
          excludes="src/**/*junit*"
-            />
+        />
   </target>
 
   <target name="build.tests" depends="make.project">
@@ -178,7 +181,7 @@
     </javac>
   </target>
 
-  <target name="run.tests" >
+  <target name="run.tests">
 
     <mkdir dir="${base.dir}/logs"/>
 
