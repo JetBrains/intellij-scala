@@ -32,6 +32,8 @@ object BlockStat {
 
     /* Expr1 */
     def parseExpr1: ScalaElementType = {
+      ScalaElementTypes.WRONGWAY
+/*
       var result: ScalaElementType = CompositeExpr.parse(builder)
       if (! (result == ScalaElementTypes.WRONGWAY)) {
         blockStatMarker.drop
@@ -41,6 +43,7 @@ object BlockStat {
         blockStatMarker.rollbackTo()
         ScalaElementTypes.BLOCK_STAT
       }
+*/
     }
 
     /* Def */
