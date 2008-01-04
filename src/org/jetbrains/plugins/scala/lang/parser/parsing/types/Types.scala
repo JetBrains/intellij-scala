@@ -24,9 +24,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
   Default grammar:
 
   StableId ::= id
-              | StableId ‘.’ id
-              | [id ‘.’] this ‘.’ id
-              | [id ’.’] super [‘[’ id ‘]’] ‘.’ id ‘.’ id
+              | StableId . id
+              | [id .] this . id
+              | [id .] super [[ id ]] . id . id
 
   *******************************************
 
@@ -73,7 +73,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
         }
       }
 
-      /** processing [‘[’ id ‘]’] statement**/
+      /** processing [[ id ]] statement**/
       def parseGeneric(currentMarker: PsiBuilder.Marker): Boolean = {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tLSQBRACKET)
         if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
@@ -274,8 +274,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
   PATH
   Default grammar:
   Path ::= StableId
-          | [id ‘.’] this
-          | [id ’.’] super [‘[’ id ‘]’]‘.’ id
+          | [id .] this
+          | [id .] super [[ id ]]. id
   *******************************************
   */
 
@@ -297,10 +297,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
   SimpleType
   Default grammar:
   SimpleType ::= SimpleType TypeArgs
-            | SimpleType ‘#’ id
+            | SimpleType # id
             | StableId
-            | Path ‘.’ type
-            | ‘(’ Type ’)’
+            | Path . type
+            | ( Type )
   *******************************************
   */
 
@@ -314,7 +314,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
       /*
       Parsing alternatives:
       SimpleType ::= StableId
-                    | Path ‘.’ type
+                    | Path . type
       */
       def simpleTypeSubParse(currentMarker : PsiBuilder.Marker) : ScalaElementType = {
 
@@ -372,7 +372,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
             } else close("Wrong type")
           }
         }
-        /* | ‘(’ Type ’)’ */
+        /* | ( Type ) */
         else if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType)) { // Try to parse '(' Type ')' statement
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
           var res1 = Type parse (builder)
@@ -424,7 +424,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
       /*
       * Left recursion for statements like:
       *   SimpleType TypeArgs
-      *   | SimpleType ‘#’ id
+      *   | SimpleType # id
       */
       def leftRecursion(currentMarker : PsiBuilder.Marker) : ScalaElementType = {
         builder.getTokenType match {
@@ -547,8 +547,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
   /*
   Type
   Default grammar:
-  Type ::= CompoundType ‘=>’ Type
-           | ‘(’ [Types] ‘)’ ‘=>’ Type
+  Type ::= CompoundType => Type
+           | ( [Types] ) => Type
            | CompoundType
   *******************************************
   */
@@ -667,7 +667,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
   /*
   Types
   Default grammar:
-  Types ::= Type {‘,’ Type}
+  Types ::= Type {, Type}
   *******************************************
   */
 
@@ -714,7 +714,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
   /*
   Type Arguments
   Default grammar:
-  TypeArgs ::= ‘[’ Types ‘]’
+  TypeArgs ::= [ Types ]
   *******************************************
   */
 

@@ -52,7 +52,7 @@ class ScalaTypeChecker extends IScalaTypeChecker{
 
   def getTypeRepresentation(term: PsiElement): String = getTypeByTerm(term) match {
     case a: AbstractType => a.getRepresentation
-    case _ => "Couldn't infer type of given term!"
+//    case _ => "Couldn't infer type of given term!"
   }
 
 

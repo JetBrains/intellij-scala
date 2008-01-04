@@ -16,17 +16,17 @@ object CompositeExpr {
   /*
   Composite Expression
   Default grammar
-  Expr1 ::=   if ‘(’ Expr1 ‘)’ [NewLine] Expr [[‘;’] else Expr]                           (if)
-            | try ‘{’ Block ‘}’ [catch ‘{’ CaseClauses ‘}’] [finally Expr]                 (try)
-            | while ‘(’ Expr ‘)’ [NewLine] Expr                                          (while)
-            | do Expr [StatementSeparator] while ‘(’ Expr ’)’                            (do)
-            | for (‘(’ Enumerators ‘)’ | ‘{’ Enumerators ‘}’)[NewLine] [yield] Expr        (for)
+  Expr1 ::=   if ( Expr1 ) [NewLine] Expr [[;] else Expr]                           (if)
+            | try { Block } [catch { CaseClauses }] [finally Expr]                 (try)
+            | while ( Expr ) [NewLine] Expr                                          (while)
+            | do Expr [StatementSeparator] while ( Expr )                            (do)
+            | for (( Enumerators ) | { Enumerators })[NewLine] [yield] Expr        (for)
             | throw Expr                                                               (throw)
             | return [Expr]                                                            (return)
-            | [SimpleExpr ‘.’] id ‘=’ Expr                                               (b2)
-            | SimpleExpr ArgumentExprs ‘=’ Expr                                         (b1)
-            | PostfixExpr [‘:’ CompoundType]                                                   (a)
-            | PostfixExpr match ‘{’ CaseClauses ‘}’                                      (a1)
+            | [SimpleExpr .] id = Expr                                               (b2)
+            | SimpleExpr ArgumentExprs = Expr                                         (b1)
+            | PostfixExpr [: CompoundType]                                                   (a)
+            | PostfixExpr match { CaseClauses }                                      (a1)
             | MethodClosure                                                            (closure)
   */
 
@@ -55,7 +55,7 @@ object CompositeExpr {
       var result = PostfixExpr.parse(builder)
       if (! result.equals(ScalaElementTypes.WRONGWAY)) {
         builder getTokenType match {
-          /*    [‘:’ CompoundType]   */
+          /*    [: CompoundType]   */
           case ScalaTokenTypes.tCOLON => {
 
             val argMarker = builder.mark()
@@ -82,7 +82,7 @@ object CompositeExpr {
               }
             }
           }
-          /* match ‘{’ CaseClauses ‘}’ */
+          /* match { CaseClauses } */
           case ScalaTokenTypes.kMATCH => {
             ParserUtils.eatElement(builder, ScalaTokenTypes.kMATCH)
             if (builder.getTokenType.eq(ScalaTokenTypes.tLBRACE)) {
@@ -504,7 +504,7 @@ object CompositeExpr {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kCATCH)
         if (builder.getTokenType.equals(ScalaTokenTypes.tLBRACE)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
-          /* ‘{’ CaseClauses ‘}’ */
+          /* { CaseClauses } */
           var result = CaseClauses.parse(builder)
           if (result.equals(ScalaElementTypes.CASE_CLAUSES)) {
             if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){

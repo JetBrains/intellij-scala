@@ -16,11 +16,11 @@ import org.jetbrains.plugins.scala.lang.parser.bnf._
 
 object SimplePattern {
   /*
-  SimplePattern ::=   ‘_’
+  SimplePattern ::=   _ï¿½
                       | varid
                       | Literal
-                      | StableId [ ‘(’ [Patterns] ‘)’ ]
-                      | ‘(’ [Pattern] ‘)’
+                      | StableId [ ( [Patterns] ) ]
+                      | ( [Pattern] )
                       | XmlPattern
   */
 
@@ -104,12 +104,12 @@ object SimplePattern {
       }
     }
 
-    //  ‘_’
+    //  _ï¿½
     if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
       spMarker.drop()
       ScalaElementTypes.SIMPLE_PATTERN
-      // ‘(’ [Pattern] ‘)’
+      // ( [Pattern] )
     } else if (ScalaTokenTypes.tLPARENTHESIS.eq(builder getTokenType)){
       var um = builder.mark()
       ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
@@ -136,7 +136,7 @@ object SimplePattern {
           ScalaElementTypes.SIMPLE_PATTERN
         }
       }
-      //  ‘{’ [Pattern ‘,’ [Patterns [‘,’]]] ‘}’
+      //  { [Pattern , [Patterns [,]]] }
     } else if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
       val uMarker = builder.mark()
       ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
@@ -177,7 +177,7 @@ object SimplePattern {
       spMarker.drop()
       ScalaElementTypes.SIMPLE_PATTERN
       /*  | varid
-| StableId [ ‘(’ [Patterns] ‘)’ ] */
+| StableId [ ( [Patterns] ) ] */
     } else if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER){
       if (builder.getTokenText.substring(0, 1).toLowerCase ==
       builder.getTokenText.substring(0, 1)) {// if variable id
@@ -207,7 +207,7 @@ object Pattern3 extends InfixTemplate(ScalaElementTypes.PATTERN3, SimplePattern.
 
 class Pattern2 {
   /*
-    Pattern2 ::=   varid [‘@’ Pattern3]
+    Pattern2 ::=   varid [@ Pattern3]
                  | Pattern3
   */
 
@@ -274,8 +274,8 @@ class Pattern2 {
 
 object Pattern1 {
   /*
-  Pattern1 ::=    varid ‘:’ TypePattern
-                | ‘_’ ‘:’ TypePattern
+  Pattern1 ::=    varid : TypePattern
+                | _ï¿½ : TypePattern
                 | Pattern2
   */
 
@@ -295,7 +295,7 @@ object Pattern1 {
         ScalaElementTypes.WRONGWAY
       }
     }
-    //  ‘_’
+    //  _ï¿½
     if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
       if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
@@ -341,7 +341,7 @@ object Pattern1 {
 
 object Pattern {
   /*
-    Pattern ::= Pattern1 { ‘|’ Pattern1 }
+    Pattern ::= Pattern1 { | Pattern1 }
   */
 
   def parse(builder: PsiBuilder): ScalaElementType = {
@@ -389,8 +389,8 @@ object Pattern {
 
 object Patterns {
   /*
-    Patterns ::=    Pattern [‘,’ Patterns]
-                  | ‘_’ ‘*’
+    Patterns ::=    Pattern [, Patterns]
+                  | _ï¿½ *
   */
 
   def parse(builder: PsiBuilder): ScalaElementType = {

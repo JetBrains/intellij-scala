@@ -22,9 +22,6 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
   * Time: 11:38:56
   */
 
-  /*
-  *  StatementSeparator ::= NewLine | ‘;’
-  */
 
   object StatementSeparator extends ConstrWithoutNode {
     override def parseBody(builder: PsiBuilder): Unit = {
@@ -56,7 +53,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
   }
 
   /*
-      AttributeClause ::= ‘[’ Attribute {‘,’ Attribute} ‘]’ [NewLine]
+      AttributeClause ::=  [  Attribute { ,  Attribute}  ]  [NewLine]
   */
 
   object AttributeClause extends ConstrItem {
@@ -119,7 +116,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
   }
 
   /*
-  *   Constr ::= StableId [TypeArgs] {‘(’ [Exprs] ‘)’}
+  *   Constr ::= StableId [TypeArgs] { (  [Exprs]  ) }
   */
   object Constructor extends Constr{
     override def getElementType = ScalaElementTypes.CONSTRUCTOR
@@ -365,7 +362,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
   }
 
   /*
-  *  Import ::= import ImportExpr {‘,’ ImportExpr}
+  *  Import ::= import ImportExpr { ,  ImportExpr}
   */
 
   object Import extends Constr {
@@ -384,7 +381,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
     }
 
     /*
-    *  ImportExpr ::= StableId ‘.’ (id | ‘_’ | ImportSelectors)
+    *  ImportExpr ::= StableId  .  (id |  _  | ImportSelectors)
     */
 
     object ImportExpr extends ConstrItem {
@@ -438,7 +435,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
     }
 
     /*
-    *  ImportSelectors ::= ‘{’ {ImportSelector ‘,’} (ImportSelector | ‘_’) ‘}’
+    *  ImportSelectors ::=  {  {ImportSelector  , } (ImportSelector |  _ )  }
     */
 
     object ImportSelectors extends Constr{
@@ -501,7 +498,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
     }
 
     /*
-    *  ImportSelector ::= id [‘=>’ id | ‘=>’ ‘_’]
+    *  ImportSelector ::= id [ =>  id |  =>   _ ]
     */
 
 
@@ -546,7 +543,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
   }
 
   /*
-  *  ids ::= id {‘,’ id}
+  *  ids ::= id { ,  id}
   */
 
 

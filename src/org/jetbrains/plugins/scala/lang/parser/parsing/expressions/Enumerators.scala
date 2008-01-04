@@ -56,14 +56,14 @@ abstract class EnumTemplate(elemType: ScalaElementType,
 }
 
 /*
-Generator ::= val Pattern1 ‘<-’ Expr
+Generator ::= val Pattern1 <- Expr
 */
 object Generator extends EnumTemplate(ScalaElementTypes.GENERATOR.asInstanceOf[ScalaElementType],
                                       ScalaTokenTypes.tCHOOSE.asInstanceOf[ScalaElementType])
 
 /*
 Enumerator ::=    Generator
-                | val Pattern1 ‘=’ Expr
+                | val Pattern1 = Expr
                 | Expr
 */
 object Enumerator{

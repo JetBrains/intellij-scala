@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
   object Bindings {
   /*
-      Bindings ::= ‘(’ Binding {‘,’ Binding} ‘)’
-      Binding ::= id [‘:’ Type]
+      Bindings ::= ( Binding {, Binding} )
+      Binding ::= id [: Type]
   */
 
     def parse(builder : PsiBuilder) : ScalaElementType = {

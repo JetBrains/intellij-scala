@@ -95,7 +95,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.params {
   }
 
   /*
-  *  ParamClause ::= [NewLine] { ‘(’ [Params] ’)’ }
+  *  ParamClause ::= [NewLine] { ( [Params] ) }
   */
 
   class ParamClause[T <: Param](param: T) extends Constr {
@@ -170,7 +170,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.params {
   }
 
   /*
-  *  Param ::= id ‘:’ ParamType
+  *  Param ::= id : ParamType
   */
 
   class Param extends ConstrItem {
@@ -203,7 +203,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.params {
   }
 
   /*
-  *  ParamType ::= [‘=>’] Type [‘*’]
+  *  ParamType ::= [=>] Type [*]
   */
 
   object ParamType extends ConstrUnpredict {

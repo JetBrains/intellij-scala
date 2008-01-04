@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImplicit
 
 /*
-  QualId ::= id {‘.’ id}
+  QualId ::= id {. id}
 */
 
 object Qual_Id  {

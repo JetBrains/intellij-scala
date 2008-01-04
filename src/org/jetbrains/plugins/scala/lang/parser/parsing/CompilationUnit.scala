@@ -34,7 +34,6 @@ import com.intellij.psi.tree.TokenSet
 *                         | Import
 *                         | Packaging
 *                         |
-*         Packaging   ::=   package QualId ‘{’ TopStatSeq ‘}’
 */
 
 
@@ -195,9 +194,6 @@ object CompilationUnit extends ConstrWithoutNode {
     }
   }
 
-  /*
-  *  Packaging ::= package QualId ‘{’ TopStatSeq ‘}’
-  */
 
   object Packaging extends Constr {
     override def getElementType = ScalaElementTypes.PACKAGING
@@ -235,9 +231,6 @@ object CompilationUnit extends ConstrWithoutNode {
   }
 
 
-  /*
-  *  QualId ::= id {‘.’ id}
-  */
 
   object QualId extends Constr {
     override def getElementType = ScalaElementTypes.QUAL_ID

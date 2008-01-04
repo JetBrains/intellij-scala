@@ -19,7 +19,7 @@ import com.intellij.psi.tree.IElementType;
 Argument expressions
 Default grammar:
 
-ArgumentExprs ::= ‘(’ [Exprs] ’)’
+ArgumentExprs ::= ( [Exprs] )
               | BlockExpr
 */
   object ArgumentExprs {

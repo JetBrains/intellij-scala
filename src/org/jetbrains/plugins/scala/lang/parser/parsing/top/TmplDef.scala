@@ -109,7 +109,7 @@ object TmplDef extends ConstrWithoutNode {
   /************** CLASS ******************/
 
 /*
- *  ClassDef ::= id [TypeParamClause] ClassParamClauses [‘requires’ SimpleType] ClassTemplate
+ *  ClassDef ::= id [TypeParamClause] ClassParamClauses [requiresï¿½ SimpleType] ClassTemplate
  */
 
     case class ClassDef extends InstanceDef with TypeDef {
@@ -183,7 +183,7 @@ object TmplDef extends ConstrWithoutNode {
 
 
 /*
- * ClassParam ::= [{Modifier} (‘val’ | ‘var’)] Param
+ * ClassParam ::= [{Modifier} (valï¿½ | varï¿½)] Param
  */
 
      class ClassParam extends Param {
@@ -282,7 +282,7 @@ object TmplDef extends ConstrWithoutNode {
   /************** TRAIT ******************/
 
 /*
- *  TraitDef ::= id [TypeParamClause] [‘requires’ SimpleType] TraitTemplate
+ *  TraitDef ::= id [TypeParamClause] [requiresï¿½ SimpleType] TraitTemplate
  */
 
   case class TraitDef extends TypeDef {
@@ -362,7 +362,7 @@ object TmplDef extends ConstrWithoutNode {
   }
 
 /*
- *  MixinParents ::= SimpleType {‘with’ SimpleType}
+ *  MixinParents ::= SimpleType {withï¿½ SimpleType}
  */
 
   class MixinParents extends TemplateParents {

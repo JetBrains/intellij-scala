@@ -39,8 +39,9 @@ class ScalaClassResolveProcessor(val myName: String, val offset: Int) extends Sc
     true
   }
 
-  def getHint[T >: Null <: java.lang.Object](hintClass: java.lang.Class[T]): T = {
-    null
+
+  def getHint[T](hintClass: java.lang.Class[T]): T = {
+    null.asInstanceOf[T]
   }
 
 
