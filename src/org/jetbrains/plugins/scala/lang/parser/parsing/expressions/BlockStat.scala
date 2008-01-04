@@ -98,5 +98,6 @@ object BlockStat {
       parseDef(false)
     }
 */
+    ScalaElementTypes.WRONGWAY
   }
 }
