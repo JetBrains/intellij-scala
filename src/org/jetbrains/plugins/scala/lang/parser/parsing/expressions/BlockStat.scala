@@ -46,7 +46,6 @@ object BlockStat {
 
     /* Def */
     def parseDef(isImplicit: Boolean): ScalaElementType = {
-/*
       var rbMarker = builder.mark()
       var first = builder.getTokenType
       builder.advanceLexer
@@ -60,7 +59,7 @@ object BlockStat {
         Def.parse(builder)
         blockStatMarker.drop
         ScalaElementTypes.BLOCK_STAT
-      } else if (BNF.firstDef.contains(builder.getTokenType) &&
+      } else /*if (BNF.firstDef.contains(builder.getTokenType) &&
       ! ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
         Def.parseBody(builder)
         blockStatMarker.drop
@@ -71,8 +70,7 @@ object BlockStat {
         builder.error("Definition expected")
         blockStatMarker.rollbackTo
         ScalaElementTypes.WRONGWAY
-      }
-*/
+      }*/
       ScalaElementTypes.WRONGWAY
     }
 
