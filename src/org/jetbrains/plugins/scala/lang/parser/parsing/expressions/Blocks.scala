@@ -145,7 +145,11 @@ object Block {
             case ScalaTokenTypes.tRBRACE => tupleMarker.done(ScalaElementTypes.TUPLE)
             case _ => {
               builder.error(", or } expected")
-              tupleMarker.done(ScalaElementTypes.TUPLE)
+/*
+              if (builder!= null && tupleMarker != null) {
+                tupleMarker.done(ScalaElementTypes.TUPLE)
+              }
+*/
             }
           }
         } else {
