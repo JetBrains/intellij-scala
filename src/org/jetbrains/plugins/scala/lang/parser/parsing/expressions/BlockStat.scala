@@ -52,29 +52,29 @@ object BlockStat {
       ParserUtils.rollForward(builder)
       var second = builder.getTokenType
       rbMarker.rollbackTo()
+      /*
       if (ScalaTokenTypes.kCASE.equals(first) &&
       (ScalaTokenTypes.kCLASS.equals(second) ||
       ScalaTokenTypes.kOBJECT.equals(second) ||
       ScalaTokenTypes.kTRAIT.equals(second))){
         Def.parse(builder)
         blockStatMarker.drop
-        return ScalaElementTypes.BLOCK_STAT
-      }
-/*
-      if (BNF.firstDef.contains(builder.getTokenType) &&
+        ScalaElementTypes.BLOCK_STAT
+      } else  if (BNF.firstDef.contains(builder.getTokenType) &&
       ! ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
         Def.parseBody(builder)
         blockStatMarker.drop
-        return ScalaElementTypes.BLOCK_STAT
+        ScalaElementTypes.BLOCK_STAT
+      } else if (! isImplicit)  {
+        parseExpr1
+      } else {
+        builder.error("Definition expected")
+        blockStatMarker.rollbackTo
+        ScalaElementTypes.WRONGWAY
       }
-      if (! isImplicit)  {
-        return parseExpr1
-      }
-      builder.error("Definition expected")
-      blockStatMarker.rollbackTo
-*/
-      ScalaElementTypes.WRONGWAY
 
+      */
+      ScalaElementTypes.WRONGWAY
     }
 
     if (ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)){
