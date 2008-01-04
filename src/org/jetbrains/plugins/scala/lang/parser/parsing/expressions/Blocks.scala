@@ -97,9 +97,8 @@ object Block {
   */
 
   def parse(builder: PsiBuilder, withBrace: Boolean): ScalaElementType = {
-    ScalaElementTypes.WRONGWAY
 
-/*    // TODO
+    // TODO
     val elems = new HashSet[IElementType]
     elems += ScalaTokenTypes.tLINE_TERMINATOR
     elems += ScalaTokenTypes.tSEMICOLON
@@ -143,11 +142,9 @@ object Block {
             case ScalaTokenTypes.tRBRACE => tupleMarker.done(ScalaElementTypes.TUPLE)
             case _ => {
               builder.error(", or } expected")
-*//*
               if (builder!= null && tupleMarker != null) {
                 tupleMarker.done(ScalaElementTypes.TUPLE)
               }
-*//*
             }
           }
         } else {
@@ -232,7 +229,7 @@ object Block {
     if (bmAlive) {
       blockMarker.done(ScalaElementTypes.BLOCK)
     }
-    result*/
+    result
   }
 }
 
