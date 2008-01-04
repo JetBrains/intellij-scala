@@ -33,7 +33,6 @@ object BlockStat {
     /* Expr1 */
     def parseExpr1: ScalaElementType = {
       ScalaElementTypes.WRONGWAY
-/*
       var result: ScalaElementType = CompositeExpr.parse(builder)
       if (! (result == ScalaElementTypes.WRONGWAY)) {
         blockStatMarker.drop
@@ -43,7 +42,6 @@ object BlockStat {
         blockStatMarker.rollbackTo()
         ScalaElementTypes.BLOCK_STAT
       }
-*/
     }
 
     /* Def */
@@ -75,6 +73,7 @@ object BlockStat {
       }
     }
 
+/*
     if (ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)){
       Import.parse(builder)
       blockStatMarker.drop
@@ -98,5 +97,6 @@ object BlockStat {
     } else {
       parseDef(false)
     }
+*/
   }
 }
