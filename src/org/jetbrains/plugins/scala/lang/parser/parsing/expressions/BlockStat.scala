@@ -52,6 +52,7 @@ object BlockStat {
       ParserUtils.rollForward(builder)
       var second = builder.getTokenType
       rbMarker.rollbackTo()
+/*
       if (ScalaTokenTypes.kCASE.equals(first) &&
       (ScalaTokenTypes.kCLASS.equals(second) ||
       ScalaTokenTypes.kOBJECT.equals(second) ||
@@ -59,7 +60,7 @@ object BlockStat {
         Def.parse(builder)
         blockStatMarker.drop
         ScalaElementTypes.BLOCK_STAT
-      } else /*if (BNF.firstDef.contains(builder.getTokenType) &&
+      } else */ if (BNF.firstDef.contains(builder.getTokenType) &&
       ! ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
         Def.parseBody(builder)
         blockStatMarker.drop
@@ -70,8 +71,7 @@ object BlockStat {
         builder.error("Definition expected")
         blockStatMarker.rollbackTo
         ScalaElementTypes.WRONGWAY
-      }*/
-      ScalaElementTypes.WRONGWAY
+      }
     }
 
     if (ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)){
