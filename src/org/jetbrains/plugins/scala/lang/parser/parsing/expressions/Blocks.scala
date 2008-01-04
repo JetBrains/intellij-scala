@@ -28,7 +28,8 @@ object BlockExpr {
                 | { Block }
   */
   def parse(builder: PsiBuilder): ScalaElementType = {
-    val blockExprMarker = builder.mark()
+    ScalaElementTypes.WRONGWAY
+    /*val blockExprMarker = builder.mark()
 
     if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
       val um = builder.mark()
@@ -43,7 +44,7 @@ object BlockExpr {
         ! ScalaTokenTypes.kCASE.equals(builder.getTokenType)
       }){
 
-        /*  { Block } */
+        *//*  { Block } *//*
 
         var result = Block.parse(builder, true)
         if (result.equals(ScalaElementTypes.BLOCK)) {
@@ -64,7 +65,7 @@ object BlockExpr {
           ScalaElementTypes.BLOCK_EXPR
         }
       } else {
-        /* { CaseClauses } */
+        *//* { CaseClauses } *//*
         var result = CaseClauses.parse(builder)
         if (result.equals(ScalaElementTypes.CASE_CLAUSES)) {
           if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
@@ -85,7 +86,7 @@ object BlockExpr {
       blockExprMarker.rollbackTo()
       ScalaElementTypes.WRONGWAY
     }
-  }
+  */}
 }
 
 object Block {
@@ -100,8 +101,9 @@ object Block {
   */
 
   def parse(builder: PsiBuilder, withBrace: Boolean): ScalaElementType = {
+    ScalaElementTypes.WRONGWAY
 
-    // TODO
+/*    // TODO
     val elems = new HashSet[IElementType]
     elems += ScalaTokenTypes.tLINE_TERMINATOR
     elems += ScalaTokenTypes.tSEMICOLON
@@ -145,11 +147,11 @@ object Block {
             case ScalaTokenTypes.tRBRACE => tupleMarker.done(ScalaElementTypes.TUPLE)
             case _ => {
               builder.error(", or } expected")
-/*
+*//*
               if (builder!= null && tupleMarker != null) {
                 tupleMarker.done(ScalaElementTypes.TUPLE)
               }
-*/
+*//*
             }
           }
         } else {
@@ -234,7 +236,7 @@ object Block {
     if (bmAlive) {
       blockMarker.done(ScalaElementTypes.BLOCK)
     }
-    result
+    result*/
   }
 }
 
@@ -249,9 +251,13 @@ BlockStat ::= Import
 object BlockStat {
 
   def parse(builder: PsiBuilder): ScalaElementType = {
+    ScalaElementTypes.WRONGWAY
+/*
     val blockStatMarker = builder.mark()
 
-    /* Expr1 */
+    */
+/* Expr1 */
+/*
     def parseExpr1: ScalaElementType = {
       var result : ScalaElementType = CompositeExpr.parse(builder)
       if (! (result == ScalaElementTypes.WRONGWAY)) {
@@ -264,7 +270,9 @@ object BlockStat {
       }
     }
 
-    /* Def */
+    */
+/* Def */
+/*
     def parseDef(isImplicit: Boolean): ScalaElementType = {
       var rbMarker = builder.mark()
       var first = builder.getTokenType
@@ -316,5 +324,6 @@ object BlockStat {
     } else {
       parseDef(false)
     }
+*/
   }
 }
