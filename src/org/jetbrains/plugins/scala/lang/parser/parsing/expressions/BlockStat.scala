@@ -46,6 +46,7 @@ object BlockStat {
 
     /* Def */
     def parseDef(isImplicit: Boolean): ScalaElementType = {
+/*
       var rbMarker = builder.mark()
       var first = builder.getTokenType
       builder.advanceLexer
@@ -71,9 +72,10 @@ object BlockStat {
         blockStatMarker.rollbackTo
         ScalaElementTypes.WRONGWAY
       }
+*/
+      ScalaElementTypes.WRONGWAY
     }
 
-/*
     if (ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)){
       Import.parse(builder)
       blockStatMarker.drop
@@ -97,7 +99,5 @@ object BlockStat {
     } else {
       parseDef(false)
     }
-*/
-    ScalaElementTypes.WRONGWAY
   }
 }
