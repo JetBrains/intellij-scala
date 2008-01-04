@@ -60,6 +60,7 @@ object BlockStat {
         blockStatMarker.drop
         return ScalaElementTypes.BLOCK_STAT
       }
+/*
       if (BNF.firstDef.contains(builder.getTokenType) &&
       ! ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
         Def.parseBody(builder)
@@ -71,6 +72,7 @@ object BlockStat {
       }
       builder.error("Definition expected")
       blockStatMarker.rollbackTo
+*/
       ScalaElementTypes.WRONGWAY
 
     }
