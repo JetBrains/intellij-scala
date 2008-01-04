@@ -43,8 +43,6 @@ object BlockExpr {
         ! ScalaTokenTypes.kCASE.equals(builder.getTokenType)
       }){
 
-        *//*  { Block } *//*
-
         var result = Block.parse(builder, true)
         if (result.equals(ScalaElementTypes.BLOCK)) {
           ParserUtils.rollForward(builder)
@@ -64,7 +62,6 @@ object BlockExpr {
           ScalaElementTypes.BLOCK_EXPR
         }
       } else {
-        *//* { CaseClauses } *//*
         var result = CaseClauses.parse(builder)
         if (result.equals(ScalaElementTypes.CASE_CLAUSES)) {
           if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
