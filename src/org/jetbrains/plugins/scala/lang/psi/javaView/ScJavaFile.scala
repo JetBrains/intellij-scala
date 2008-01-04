@@ -20,6 +20,8 @@ class ScJavaFile(viewProvider: FileViewProvider) extends LightPsiFileBase(viewPr
 with Serializable{
   def getLanguageLevel = LanguageLevel.JDK_1_5
 
+  def setPackageName(name:String) = {}
+
   def findImportReferenceTo(psiClass: PsiClass) = null
 
   def getImplicitlyImportedPackageReferences = PsiJavaCodeReferenceElement.EMPTY_ARRAY

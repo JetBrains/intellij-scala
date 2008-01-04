@@ -28,8 +28,7 @@ object BlockExpr {
                 | { Block }
   */
   def parse(builder: PsiBuilder): ScalaElementType = {
-    ScalaElementTypes.WRONGWAY
-    /*val blockExprMarker = builder.mark()
+    val blockExprMarker = builder.mark()
 
     if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
       val um = builder.mark()
@@ -86,7 +85,7 @@ object BlockExpr {
       blockExprMarker.rollbackTo()
       ScalaElementTypes.WRONGWAY
     }
-  */}
+  }
 }
 
 object Block {
