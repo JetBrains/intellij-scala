@@ -138,7 +138,7 @@ object Block {
       tmAlive = false
       if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
         builder.advanceLexer
-        val res : ScalaElementType = null.asInstanceOf[ScalaElementType]// todo CompositeExpr.parse(builder)
+        val res : ScalaElementType = CompositeExpr.parse(builder)
         if (ScalaElementTypes.EXPR1.equals(res)) {
           builder.getTokenType match {
             case ScalaTokenTypes.tCOMMA => tupleParse
@@ -253,7 +253,7 @@ object BlockStat {
 
     /* Expr1 */
     def parseExpr1: ScalaElementType = {
-      var result : ScalaElementType =  null.asInstanceOf[ScalaElementType]// todo CompositeExpr.parse(builder)
+      var result : ScalaElementType = CompositeExpr.parse(builder)
       if (! (result == ScalaElementTypes.WRONGWAY)) {
         blockStatMarker.drop
         result
