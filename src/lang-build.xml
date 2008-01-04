@@ -114,6 +114,7 @@
 
     <scalac srcdir="."
             destdir="${project.lib}"
+            logging="debug"
             force="changed">
       <classpath refid="base.path"/>
       <include name="**/*.scala"/>
