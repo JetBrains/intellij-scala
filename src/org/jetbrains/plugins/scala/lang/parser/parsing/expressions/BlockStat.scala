@@ -52,16 +52,13 @@ object BlockStat {
       ParserUtils.rollForward(builder)
       var second = builder.getTokenType
       rbMarker.rollbackTo()
-      if (ScalaTokenTypes.kCASE.equals(first) &&
+      if ((ScalaTokenTypes.kCASE.equals(first) &&
       (ScalaTokenTypes.kCLASS.equals(second) ||
       ScalaTokenTypes.kOBJECT.equals(second) ||
-      ScalaTokenTypes.kTRAIT.equals(second))){
-//        Def.parse(builder)
-        blockStatMarker.drop
-        ScalaElementTypes.BLOCK_STAT
-      } else  if (BNF.firstDef.contains(builder.getTokenType) &&
-      ! ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
-//        Def.parseBody(builder)
+      ScalaTokenTypes.kTRAIT.equals(second))) ||
+      BNF.firstDef.contains(builder.getTokenType) &&
+      ! ScalaTokenTypes.kCASE.equals(builder.getTokenType)){
+        Def.parse(builder)
         blockStatMarker.drop
         ScalaElementTypes.BLOCK_STAT
       } else if (! isImplicit)  {
