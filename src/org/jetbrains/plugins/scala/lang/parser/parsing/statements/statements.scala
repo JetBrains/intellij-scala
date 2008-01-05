@@ -193,7 +193,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
       val pattern2sMarker = builder.mark
 
       if (BNF.firstPattern2.contains(builder.getTokenType)){
-        (new Pattern2()).parse(builder)
+          (new Pattern2()).parse(builder)
       } else {
         builder error "pattern expected"
         pattern2sMarker.drop()
@@ -206,7 +206,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
         if (BNF.firstPattern2.contains(builder.getTokenType)){
-          (new Pattern2()).parse(builder)
+            (new Pattern2()).parse(builder)
           numberOfPattern2s = numberOfPattern2s + 1;
 
         } else {
