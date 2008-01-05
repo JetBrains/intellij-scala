@@ -58,7 +58,7 @@ object BlockStat {
       ScalaTokenTypes.kTRAIT.equals(second))) ||
       BNF.firstDef.contains(builder.getTokenType) &&
       ! ScalaTokenTypes.kCASE.equals(builder.getTokenType)){
-        Def.parse(builder)
+        val defRes = Def.parse(builder);
         blockStatMarker.drop
         ScalaElementTypes.BLOCK_STAT
       } else if (! isImplicit)  {
