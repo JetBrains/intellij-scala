@@ -56,16 +56,16 @@ object BlockStat {
       (ScalaTokenTypes.kCLASS.equals(second) ||
       ScalaTokenTypes.kOBJECT.equals(second) ||
       ScalaTokenTypes.kTRAIT.equals(second))){
-        Def.parse(builder)
+//        Def.parse(builder)
         blockStatMarker.drop
         ScalaElementTypes.BLOCK_STAT
       } else  if (BNF.firstDef.contains(builder.getTokenType) &&
       ! ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
-        Def.parseBody(builder)
+//        Def.parseBody(builder)
         blockStatMarker.drop
         ScalaElementTypes.BLOCK_STAT
       } else if (! isImplicit)  {
-        parseExpr1
+//        parseExpr1
       } else {
         builder.error("Definition expected")
         blockStatMarker.rollbackTo
