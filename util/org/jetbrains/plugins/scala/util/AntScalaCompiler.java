@@ -1,5 +1,4 @@
 package org.jetbrains.plugins.scala.util;
-
 import scala.tools.ant.Scalac;
 
 /**
@@ -11,6 +10,7 @@ public class AntScalaCompiler extends Scalac {
 
   public void execute() {
     setAddparams("-verbose");
+    //setAddparams("-Xmx512M");
     //setAddparams("-Xgenerics");
     //setAddparams("-target:jvm-1.5");
     super.execute();
