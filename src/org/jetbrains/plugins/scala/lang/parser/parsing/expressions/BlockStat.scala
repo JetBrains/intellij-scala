@@ -56,8 +56,7 @@ object BlockStat {
       (ScalaTokenTypes.kCLASS.equals(second) ||
       ScalaTokenTypes.kOBJECT.equals(second) ||
       ScalaTokenTypes.kTRAIT.equals(second))) ||
-      BNF.firstDef.contains(builder.getTokenType) &&
-      ! ScalaTokenTypes.kCASE.equals(builder.getTokenType)){
+      BNF.firstDef.contains(builder.getTokenType) ){
         val defRes = Def.parse(builder);
         blockStatMarker.drop
         ScalaElementTypes.BLOCK_STAT
