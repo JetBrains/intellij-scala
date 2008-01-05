@@ -52,7 +52,6 @@ object BlockStat {
       ParserUtils.rollForward(builder)
       var second = builder.getTokenType
       rbMarker.rollbackTo()
-      /*
       if (ScalaTokenTypes.kCASE.equals(first) &&
       (ScalaTokenTypes.kCLASS.equals(second) ||
       ScalaTokenTypes.kOBJECT.equals(second) ||
@@ -73,7 +72,6 @@ object BlockStat {
         ScalaElementTypes.WRONGWAY
       }
 
-      */
       ScalaElementTypes.WRONGWAY
     }
 
