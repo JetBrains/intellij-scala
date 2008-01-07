@@ -105,7 +105,18 @@
     </javac>
 
     <!--Scala taskdef-->
-    <taskdef resource="scala/tools/ant/antlib.xml">
+    <!--
+        <taskdef resource="scala/tools/ant/antlib.xml">
+          <classpath>
+            <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
+            <pathelement location="${scala.home}/lib/scala-library.jar"/>
+          </classpath>
+        </taskdef>
+    -->
+    <!--Scala taskdef-->
+    <taskdef name="scalac"
+             classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
+             classpath="${project.lib}">
       <classpath>
         <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
         <pathelement location="${scala.home}/lib/scala-library.jar"/>
@@ -115,6 +126,7 @@
     <scalac srcdir="."
             destdir="${project.lib}"
             logging="debug"
+            scalacdebugging="yes"
             force="changed">
       <classpath refid="base.path"/>
       <include name="**/*.scala"/>
