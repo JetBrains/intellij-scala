@@ -84,7 +84,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
       if (BNF.firstDef.contains(builder.getTokenType)){
         val defMarker = builder.mark
 
-        val candidateOnDefElement = DclDef parseBodyNode builder
+        val candidateOnDefElement = ScalaElementTypes.WRONGWAY//DclDef parseBodyNode builder
 
         candidateOnDefElement match {
           case ScalaElementTypes.VARIABLE_DEFINITION
