@@ -81,10 +81,11 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
 
   object Def extends ConstrUnpredict {
     override def parseBody(builder: PsiBuilder): Unit = {
+/*
       if (BNF.firstDef.contains(builder.getTokenType)){
         val defMarker = builder.mark
 
-        val candidateOnDefElement = ScalaElementTypes.WRONGWAY//DclDef parseBodyNode builder
+        val candidateOnDefElement = DclDef parseBodyNode builder
 
         candidateOnDefElement match {
           case ScalaElementTypes.VARIABLE_DEFINITION
@@ -104,6 +105,8 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
           }
         }
       }
+*/
+      return ScalaElementTypes.WRONGWAY
     }
   }
 
