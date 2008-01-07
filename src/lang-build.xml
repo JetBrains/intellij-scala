@@ -26,9 +26,9 @@
 
   <target name="unzip.last.successful.IDEA.build">
     <unzip dest="${idea.pack}">
-    <fileset dir="${idea.pack}">
-    <include name="*.zip"/>
-    </fileset>
+      <fileset dir="${idea.pack}">
+        <include name="*.zip"/>
+      </fileset>
     </unzip>
   </target>
 
@@ -105,18 +105,7 @@
     </javac>
 
     <!--Scala taskdef-->
-    <!--
-        <taskdef resource="scala/tools/ant/antlib.xml">
-          <classpath>
-            <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
-            <pathelement location="${scala.home}/lib/scala-library.jar"/>
-          </classpath>
-        </taskdef>
-    -->
-    <!--Scala taskdef-->
-    <taskdef name="scalac"
-             classname="org.jetbrains.plugins.scala.util.AntScalaCompiler"
-             classpath="${project.lib}">
+    <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
         <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
         <pathelement location="${scala.home}/lib/scala-library.jar"/>
