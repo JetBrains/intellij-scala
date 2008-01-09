@@ -36,7 +36,7 @@ public abstract class ScalaUtils {
     }
     final String name = dir.getName().toLowerCase();
     return ".svn".equals(name) || "_svn".equals(name) ||
-            ".cvs".equals(name) || "_cvs".equals(name);
+        ".cvs".equals(name) || "_cvs".equals(name);
   }
 
   /**
@@ -45,7 +45,7 @@ public abstract class ScalaUtils {
    */
   public static boolean isScalaFile(final VirtualFile file) {
     return (file != null) && !file.isDirectory() &&
-            ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension().equals(file.getExtension());
+        ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension().equals(file.getExtension());
   }
 
   /**
@@ -79,7 +79,8 @@ public abstract class ScalaUtils {
   public static String[] getModuleRootUrls(@NotNull final Module module) {
     VirtualFile[] roots = ModuleRootManager.getInstance(module).getSourceRoots();
     if (roots.length == 0) {
-      roots = new VirtualFile[]{(module.getModuleFile().getParent())};
+      VirtualFile file = module.getModuleFile();
+      roots = file != null ? new VirtualFile[]{(file.getParent())} : VirtualFile.EMPTY_ARRAY;
     }
     String[] urls = new String[roots.length];
     int i = 0;

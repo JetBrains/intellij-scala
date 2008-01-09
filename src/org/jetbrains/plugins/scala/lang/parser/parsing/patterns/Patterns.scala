@@ -340,7 +340,7 @@ object Pattern1 {
 }
 
 object Pattern {
-  /*
+  /*                               
     Pattern ::= Pattern1 { | Pattern1 }
   */
 
