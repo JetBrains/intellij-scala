@@ -19,7 +19,7 @@
   <property name="base.dir" value="${project.lib}/../../.."/>
   <property name="idea.lib" value="${idea.pack}/lib"/>
   <property name="output" value="${base.dir}/dist"/>
-  <property name="test.lib" value="${project.lib}/../../test/Scala"/>
+  <property name="test.lib" value="${project.lib}/../../test/Scala"/>           
   <property name="java.lib" value="${jdk.home}/lib"/>
 
   <property name="output" value="${basedir}/dist"/>
@@ -57,9 +57,11 @@
     <fileset dir="${java.lib}">
       <include name="**/*.jar"/>
     </fileset>
-    <fileset dir="${idea.lib}/../jre/lib">
+<!--
+    <fileset dir="${idea.lib}/jre/lib">
       <include name="**/*.jar"/>
     </fileset>
+-->
     <fileset dir="${idea.lib}">
       <include name="**/*.jar"/>
     </fileset>
