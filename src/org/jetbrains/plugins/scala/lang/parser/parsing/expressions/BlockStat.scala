@@ -32,7 +32,6 @@ object BlockStat {
 
     /* Expr1 */
     def parseExpr1: ScalaElementType = {
-      ScalaElementTypes.WRONGWAY
       var result: ScalaElementType = CompositeExpr.parse(builder)
       if (! (result == ScalaElementTypes.WRONGWAY)) {
         blockStatMarker.drop
@@ -67,8 +66,6 @@ object BlockStat {
         blockStatMarker.rollbackTo
         ScalaElementTypes.WRONGWAY
       }
-
-      ScalaElementTypes.WRONGWAY
     }
 
     if (ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)){
@@ -80,6 +77,7 @@ object BlockStat {
       while (builder.getTokenType != null &&
       BNF.firstLocalModifier.contains(builder.getTokenType) &&
       ! localModSet.contains(builder.getTokenType)){
+
         localModSet += builder.getTokenType
         builder.advanceLexer
       }

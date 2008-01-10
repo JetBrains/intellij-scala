@@ -130,16 +130,16 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
           String s = info.substring(ourWroteMarker.length());
           //format of the string is: 'path path smth_without_whitespaces'
           int j = s.lastIndexOf(' ');
-          LOG.assertTrue(j > 0);
-          String outputPath = s.substring(0, j / 2);
-          try {
-            TranslatingCompiler.OutputItem item = getOutputItem(outputPath.replace(File.separatorChar, '/'));
-            if (item != null) {
-              mySuccessfullyCompiledSources.add(item);
-            }
-          } catch (InvocationTargetException e) {
-          } catch (InterruptedException e) {
-          }
+//          LOG.assertTrue(j > 0);
+//          String outputPath = s.substring(0, j / 2);
+//          try {
+//            TranslatingCompiler.OutputItem item = getOutputItem(outputPath.replace(File.separatorChar, '/'));
+//            if (item != null) {
+//              mySuccessfullyCompiledSources.add(item);
+//            }
+//          } catch (InvocationTargetException e) {
+//          } catch (InterruptedException e) {
+//          }
         }
       }
     }
