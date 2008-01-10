@@ -185,7 +185,7 @@
     </javac>
   </target>
 
-  <target name="run.tests">
+  <target name="run.tests" depends="make.project">
 
     <mkdir dir="${base.dir}/logs"/>
 
