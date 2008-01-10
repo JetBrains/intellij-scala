@@ -205,7 +205,7 @@ object SimplePattern {
 
 object Pattern3 extends InfixTemplate(ScalaElementTypes.PATTERN3, SimplePattern.parse, SimplePattern.parse)
 
-class Pattern2 {
+class Pattern2 {  
   /*
     Pattern2 ::=   varid [@ Pattern3]
                  | Pattern3
