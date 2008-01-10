@@ -50,8 +50,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         case ScalaTokenTypes.kVAL => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL)
           return Val parseBodyNode builder
-        }
-
+        }        
         case ScalaTokenTypes.kVAR => {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kVAR)
           return Var parseBodyNode builder
