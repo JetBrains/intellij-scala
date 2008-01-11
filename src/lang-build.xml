@@ -188,6 +188,8 @@
   <target name="run.tests" depends="build.tests, make.project">
 
     <mkdir dir="${base.dir}/logs"/>
+    <mkdir dir="${output}/config"/>
+    <mkdir dir="${output}/system"/>
 
     <junit fork="yes"
            dir="${base.dir}"
