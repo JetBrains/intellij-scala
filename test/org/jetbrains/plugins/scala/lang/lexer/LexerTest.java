@@ -31,7 +31,9 @@ public class LexerTest extends BaseScalaFileSetTestCase {
 
     IElementType type;
     while ((type = lexer.getTokenType()) != null) {
-      buffer.append(type.toString());
+      CharSequence s = lexer.getBufferSequence();
+      s = s.subSequence(lexer.getTokenStart(), lexer.getTokenEnd());
+      buffer.append(type.toString()).append(" {").append(s).append("}");
       lexer.advance();
       if (lexer.getTokenType() != null) {
         buffer.append("\n");
