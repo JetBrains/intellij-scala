@@ -64,7 +64,7 @@ case class ScPattern2Impl(node: ASTNode) extends ScalaPsiElementImpl (node) with
 }
 
 case class ScPattern3Impl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPattern3 {
-  override def toString: String = "Pattern 3"
+  override def toString: String = "Infix template pattern"
 }
 
 case class ScPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPattern {
@@ -77,6 +77,14 @@ case class ScPatternsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 
 case class ScWildPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) {
   override def toString: String = "Wild pattern"
+}
+
+case class ScLiteralPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) {
+  override def toString: String = "Literal pattern"
+}
+
+case class ScReferencePatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) {
+  override def toString: String = "Reference identifier pattern"
 }
 
 

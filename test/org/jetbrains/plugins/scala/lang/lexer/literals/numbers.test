@@ -1,0 +1,42 @@
+object a{
+  val x = 1
+  val y = 1.0
+  val z = true
+}
+-----
+object {object}
+white space in line { }
+identifier {a}
+{ {{}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {x}
+white space in line { }
+= {=}
+white space in line { }
+integer {1}
+newline {
+}
+white space in line {  }
+val {val}
+white space in line { }
+identifier {y}
+white space in line { }
+= {=}
+white space in line { }
+float {1.0}
+newline {
+}
+white space in line {  }
+val {val}
+white space in line { }
+identifier {z}
+white space in line { }
+= {=}
+white space in line { }
+true {true}
+white space in line {
+}
+} {}}

@@ -315,6 +315,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
   *                  | final
   *                  | sealed
   *                  | implicit
+  *                  | lazy
   */
 
   object LocalModifier extends ConstrWithoutNode {
@@ -328,6 +329,8 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
           case ScalaTokenTypes.kSEALED => ParserUtils.eatElement(builder, ScalaTokenTypes.kSEALED)
 
           case ScalaTokenTypes.kIMPLICIT => ParserUtils.eatElement(builder, ScalaTokenTypes.kIMPLICIT)
+
+          case ScalaTokenTypes.kLAZY => ParserUtils.eatElement(builder, ScalaTokenTypes.kLAZY)
 
           case _ => builder error "local modifier expected"
         }
@@ -349,6 +352,8 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
           case ScalaTokenTypes.kFINAL => ParserUtils.eatElement(builder, ScalaTokenTypes.kFINAL)
 
           case ScalaTokenTypes.kSEALED => ParserUtils.eatElement(builder, ScalaTokenTypes.kSEALED)
+
+          case ScalaTokenTypes.kLAZY => ParserUtils.eatElement(builder, ScalaTokenTypes.kLAZY)
 
           case _ => builder error "local modifier expected"
         }

@@ -1,0 +1,200 @@
+case class Some(n :int, m :int) {
+}
+
+object A {
+  def foo() = 1 match {
+  case 1 => {}
+  case x => {}
+  case "abc" => {}
+  case Some => {}
+  case Some(0,0) => {}
+  case Some(x,_) => {}
+  case _ => {}
+  }
+}
+-----
+Scala file
+  type template definition: class
+    PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Some')
+    parameters clause
+      PsiElement(()('(')
+      parameter
+        Reference identifier
+          PsiElement(identifier)('n')
+        PsiWhiteSpace(' ')
+        PsiElement(:)(':')
+        Simple Type
+          Stable Identifier
+            PsiElement(identifier)('int')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      parameter
+        Reference identifier
+          PsiElement(identifier)('m')
+        PsiWhiteSpace(' ')
+        PsiElement(:)(':')
+        Simple Type
+          Stable Identifier
+            PsiElement(identifier)('int')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiElement(newline)('\n')
+  PsiWhiteSpace('\n')
+  template definition: object
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      function definition
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        Reference identifier
+          PsiElement(identifier)('foo')
+        parameters clause
+          PsiElement(()('(')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MATCH statement
+          Literal
+            PsiElement(integer)('1')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          Block expression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n  ')
+            Case Clauses
+              Case Clause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Common pattern
+                  Literal
+                    PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                Block
+                  unit
+                    PsiElement({)('{')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              Case Clause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Common pattern
+                  Reference identifier
+                    PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                Block
+                  unit
+                    PsiElement({)('{')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              Case Clause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Common pattern
+                  Literal
+                    PsiElement(string content)('"abc"')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                Block
+                  unit
+                    PsiElement({)('{')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              Case Clause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Common pattern
+                  Stable Identifier
+                    PsiElement(identifier)('Some')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                Block
+                  unit
+                    PsiElement({)('{')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              Case Clause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Common pattern
+                  Simple pattern
+                    Stable Identifier
+                      PsiElement(identifier)('Some')
+                    Argument patterns
+                      PsiElement(()('(')
+                      Common pattern
+                        Literal
+                          PsiElement(integer)('0')
+                      PsiElement(,)(',')
+                      Common pattern
+                        Literal
+                          PsiElement(integer)('0')
+                      PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                Block
+                  unit
+                    PsiElement({)('{')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              Case Clause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Common pattern
+                  Simple pattern
+                    Stable Identifier
+                      PsiElement(identifier)('Some')
+                    Argument patterns
+                      PsiElement(()('(')
+                      Common pattern
+                        Reference identifier
+                          PsiElement(identifier)('x')
+                      PsiElement(,)(',')
+                      Common pattern
+                        PsiElement(_)('_')
+                      PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                Block
+                  unit
+                    PsiElement({)('{')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              Case Clause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Common pattern
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                Block
+                  unit
+                    PsiElement({)('{')
+                    PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

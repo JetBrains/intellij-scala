@@ -98,6 +98,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     ScalaTokenTypes.kIF,
     ScalaTokenTypes.kIMPLICIT,
     ScalaTokenTypes.kIMPORT,
+    ScalaTokenTypes.kLAZY,
     ScalaTokenTypes.kMATCH,
     ScalaTokenTypes.kNEW,
     ScalaTokenTypes.kNULL,
