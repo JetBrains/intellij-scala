@@ -115,6 +115,7 @@
     </taskdef>
 
     <scalac srcdir="."
+            debuginfo="true"
             destdir="${project.lib}"
             logging="debug"
             scalacdebugging="yes"
