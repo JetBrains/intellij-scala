@@ -117,6 +117,7 @@
     <scalac srcdir="."
             destdir="${project.lib}"
             logging="debug"
+            addparams="-g:vars"
             scalacdebugging="yes"
             force="changed">
       <classpath refid="base.path"/>
