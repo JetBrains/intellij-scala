@@ -1,0 +1,11 @@
+object Test {
+
+}
+-----
+object
+white space in line
+identifier
+white space in line
+{
+white space in line
+}
