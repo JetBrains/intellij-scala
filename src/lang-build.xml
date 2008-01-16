@@ -15,23 +15,21 @@
   -->
 
 <project name="Generate various scala packages for parser needs" default="rebuild.all">
-  <property file="scala.properties"/>
+  <!--<property file="scala.properties"/>-->
   <property name="base.dir" value="${project.lib}/../../.."/>
   <!--<property name="idea.lib" value="${idea.pack}/lib"/>-->
   <property name="output" value="${base.dir}/dist"/>
   <property name="test.lib" value="${project.lib}/../../test/Scala"/>
-  <!--<property name="java.lib" value="${jdk.home}/lib"/>-->
+  <property name="java.lib" value="${jdk.home}/lib"/>
 
   <property name="output" value="${basedir}/dist"/>
 
   <target name="unzip.last.successful.IDEA.build">
-<!--
     <unzip dest="${idea.pack}">
       <fileset dir="${idea.pack}">
         <include name="*.zip"/>
       </fileset>
     </unzip>
--->
   </target>
 
   <path id="base.path">
