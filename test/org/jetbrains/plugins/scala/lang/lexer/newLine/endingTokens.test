@@ -1,0 +1,60 @@
+id
+x
+
+this
+x
+
+var
+x
+
+extends
+x
+
+sealed
+x
+
+catch
+x
+-----
+identifier {id}
+newline {
+}
+identifier {x}
+newline {
+}
+white space in line {
+}
+this {this}
+newline {
+}
+identifier {x}
+newline {
+}
+white space in line {
+}
+var {var}
+white space in line {
+}
+identifier {x}
+white space in line {
+
+}
+extends {extends}
+white space in line {
+}
+identifier {x}
+newline {
+}
+white space in line {
+}
+sealed {sealed}
+white space in line {
+}
+identifier {x}
+white space in line {
+
+}
+catch {catch}
+white space in line {
+}
+identifier {x}

@@ -124,9 +124,11 @@ public interface ScalaTokenTypes {
   IElementType kFINAL = new ScalaElementType("final");
   IElementType kFINALLY = new ScalaElementType("finally");
   IElementType kFOR = new ScalaElementType("for");
+  IElementType kFOR_SOME = new ScalaElementType("forSome");
   IElementType kIF = new ScalaElementType("if");
   IElementType kIMPLICIT = new ScalaElementType("implicit");
   IElementType kIMPORT = new ScalaElementType("import");
+  IElementType kLAZY = new ScalaElementType("lazy");
   IElementType kMATCH = new ScalaElementType("match");
   IElementType kNEW = new ScalaElementType("new");
   IElementType kNULL = new ScalaElementType("null");

@@ -27,22 +27,17 @@ object SimplePattern {
   def parse(builder: PsiBuilder): ScalaElementType = {
     var spMarker = builder.mark()
 
-    // Process ")" symbol
-    def closeParent: ScalaElementType = {
-      ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
-      spMarker.drop()
-      ScalaElementTypes.SIMPLE_PATTERN
-    }
 
-    // Process "}" symbol
-    def closeParent1 = {
-      if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+
+    // Process ")" symbol
+    def closeParent = {
+      if (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType)){
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
         spMarker.done(ScalaElementTypes.SIMPLE_PATTERN)
         ScalaElementTypes.SIMPLE_PATTERN
       }
       else {
-        spMarker.error("} expected")
+        spMarker.error(") expected")
         ScalaElementTypes.SIMPLE_PATTERN
       }
     }
@@ -106,11 +101,13 @@ object SimplePattern {
 
     //  _�
     if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
+      val uMarker = builder.mark()
       ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
+      uMarker.done(ScalaElementTypes.WILD_PATTERN)
       spMarker.drop()
       ScalaElementTypes.SIMPLE_PATTERN
       // ( [Pattern] )
-    } else if (ScalaTokenTypes.tLPARENTHESIS.eq(builder getTokenType)){
+    } /*if (ScalaTokenTypes.tLPARENTHESIS.eq(builder getTokenType)){
       var um = builder.mark()
       ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
       // LOOK!!! ParserUtils.rollForward(builder)
@@ -136,12 +133,13 @@ object SimplePattern {
           ScalaElementTypes.SIMPLE_PATTERN
         }
       }
-      //  { [Pattern , [Patterns [,]]] }
-    } else if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
+      //  ( [Pattern , [Patterns [,]]] )
+    } else */
+      else if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType)) {
       val uMarker = builder.mark()
-      ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
-      if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
+      ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
+      if (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType)){
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
         uMarker.done(ScalaElementTypes.UNIT)
         spMarker.drop()
         ScalaElementTypes.SIMPLE_PATTERN
@@ -151,16 +149,16 @@ object SimplePattern {
         if (! ScalaElementTypes.WRONGWAY.equals(res)) {
           if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)){
             ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
-            if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
-              closeParent1
+            if (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType)){
+              closeParent
             } else {
               val res1 = Patterns.parse(builder)
               if (! ScalaElementTypes.WRONGWAY.equals(res1)) {
                 if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)){
                   ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
                 }
-                closeParent1
-              } else closeParent1
+                closeParent
+              } else closeParent
             }
           } else {
             builder.error(", expected")
@@ -174,7 +172,7 @@ object SimplePattern {
       }
     } // Literal
     else if (Literal.parse(builder) == ScalaElementTypes.LITERAL) {
-      spMarker.drop()
+      spMarker.done(ScalaElementTypes.LITERAL_PATTERN)
       ScalaElementTypes.SIMPLE_PATTERN
       /*  | varid
 | StableId [ ( [Patterns] ) ] */
@@ -183,7 +181,7 @@ object SimplePattern {
       builder.getTokenText.substring(0, 1)) {// if variable id
         val vm = builder.mark()
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-        vm.done(ScalaElementTypes.REFERENCE)
+        vm.done(ScalaElementTypes.REFERENCE_PATTERN)
         if (! builder.getTokenType.equals(ScalaTokenTypes.tLPARENTHESIS) &&
         ! builder.getTokenType.equals(ScalaTokenTypes.tDOT)) {
           spMarker.drop()
@@ -287,7 +285,8 @@ object Pattern1 {
       p1Marker = builder.mark()
       var result = (new Pattern2()).parse(builder)
       if (ScalaElementTypes.PATTERN2.equals(result)) {
-        p1Marker.done(ScalaElementTypes.PATTERN1)
+        p1Marker.drop
+        //p1Marker.done(ScalaElementTypes.PATTERN1)
         ScalaElementTypes.PATTERN1
       }
       else {
@@ -300,13 +299,13 @@ object Pattern1 {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
       if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-        var res = TypePattern.parse(builder)
+        var res = Type.parse(builder)
         if (res.equals(ScalaElementTypes.TYPE_PATTERN)) {
-          p1Marker.done(ScalaElementTypes.PATTERN1)
+          p1Marker.done(ScalaElementTypes.TYPE_PATTERN)
           ScalaElementTypes.PATTERN1
         } else {
           builder.error("Type declaration expected")
-          p1Marker.done(ScalaElementTypes.PATTERN1)
+          p1Marker.done(ScalaElementTypes.TYPE_PATTERN)
           ScalaElementTypes.PATTERN1
         }
       } else {
@@ -320,12 +319,12 @@ object Pattern1 {
       vm.done(ScalaElementTypes.REFERENCE)
       if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-        var res = TypePattern.parse(builder)
+        var res = Type.parse(builder)
         if (res.equals(ScalaElementTypes.TYPE_PATTERN)) {
-          p1Marker.done(ScalaElementTypes.PATTERN1)
+          p1Marker.done(ScalaElementTypes.TYPE_PATTERN)
           ScalaElementTypes.PATTERN1
         } else {
-          p1Marker.done(ScalaElementTypes.PATTERN1)
+          p1Marker.done(ScalaElementTypes.TYPE_PATTERN)
           builder.error("Type declaration expected")
           ScalaElementTypes.PATTERN1
         }
@@ -456,7 +455,7 @@ object Patterns {
 
     if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType)){
       ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
-      if ("*".equals(builder.getTokenText)){
+      if ("*"==builder.getTokenText){
         ParserUtils.eatElement(builder, ScalaTokenTypes.tSTAR)
         psMarker.done(ScalaElementTypes.WILD_PATTERN)
         ScalaElementTypes.PATTERNS
@@ -490,9 +489,7 @@ object CaseClause {
         if (ScalaTokenTypes.kIF.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.kCASE)
           var res2 = PostfixExpr parse builder
-          if (! ScalaElementTypes.WRONGWAY.equals(res2)) {
-            // Tres bien!
-          } else {
+          if (ScalaElementTypes.WRONGWAY.equals(res2))  {
             builder.error("Wrong expression")
             flag = false
           }
@@ -529,6 +526,15 @@ object CaseClauses {
     var result = CaseClause.parse(builder)
     if (ScalaElementTypes.CASE_CLAUSE.equals(result)) {
       while (! builder.eof && ScalaElementTypes.CASE_CLAUSE.equals(result)){
+       /* while (! builder.eof && (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)
+        || ScalaTokenTypes.tWHITE_SPACE_IN_LINE.equals(builder.getTokenType)))
+        {
+          if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType))
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
+          else if (ScalaTokenTypes.tWHITE_SPACE_IN_LINE.equals(builder.getTokenType))
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
+        }
+        if (! builder.eof)  */
         result = CaseClause.parse(builder)
       }
     }

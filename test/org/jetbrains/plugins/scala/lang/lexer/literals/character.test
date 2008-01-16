@@ -1,0 +1,31 @@
+object a{
+  val x = 'i'
+  val y = '\u0041'
+}
+-----
+object {object}
+white space in line { }
+identifier {a}
+{ {{}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {x}
+white space in line { }
+= {=}
+white space in line { }
+Character {'i'}
+newline {
+}
+white space in line {  }
+val {val}
+white space in line { }
+identifier {y}
+white space in line { }
+= {=}
+white space in line { }
+Character {'\u0041'}
+white space in line {
+}
+} {}}

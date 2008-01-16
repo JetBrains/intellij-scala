@@ -1,0 +1,12 @@
+case class Some(n :int){
+}
+case class Some2 {
+}
+object A {
+  val x = 1
+  def foo() = a match {
+    case x@(y,z) => {}
+    case x@Some(y) => {}
+  }
+}
+-----

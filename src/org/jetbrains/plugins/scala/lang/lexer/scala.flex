@@ -35,11 +35,7 @@ import org.jetbrains.annotations.NotNull;
       if (braceStack.isEmpty()){
         return true;
       } else {
-        if (ScalaTokenTypes.tLBRACE.equals(braceStack.peek())){
-          return true;
-        } else {
-          return false;
-        }
+        return ScalaTokenTypes.tLBRACE.equals(braceStack.peek());
       }
     }
 
@@ -72,18 +68,13 @@ import org.jetbrains.annotations.NotNull;
           }
           return process(elem);
         } else {
-          return tWRONG;
+          return process(elem);
         }
     }
 
     private IElementType process(IElementType type){
         return type;
     }
-
-    private void processNewLine(){
-      yybegin(PROCESS_NEW_LINE);
-    }
-
 %}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +103,7 @@ floatType = F | f | D | d
 /////////////////////      identifiers      ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-identifier = {plainid} //| "'" "\"" {stringLiteral} "\"" "'"
+identifier = {plainid} | "'"  {stringLiteral}  "'"
 
 digit = [0-9]
 special =   \u0021 | \u0023
@@ -124,12 +115,14 @@ special =   \u0021 | \u0023
           | \u007E
           | \u005C | \u002F     //slashes
 
-// Vertical line haemorrhoids
+// Vertical line
 op = \u007C ({special} | \u007C)+
      | {special} ({special} | \u007C)*
+octalDigit = [0-7]
 
 idrest1 = [:jletter:]? [:jletterdigit:]* ("_" {op})?
 idrest = [:jletter:]? [:jletterdigit:]* ("_" {op} | "_" {idrest1} )?
+idrest2 = [:jletterdigit]+ ("_" {op} )?
 varid = [:jletter:] {idrest}
 
 plainid = {varid}
@@ -155,7 +148,9 @@ END_OF_LINE_COMMENT="/""/"[^\r\n]*
 
 
 ESCAPE_SEQUENCE=\\[^\r\n]
-CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE})*("'"|\\)
+UNICODE_ESCAPE=!(!(\\u{hexDigit}{hexDigit}{hexDigit}{hexDigit}) | \\u000A)
+SOME_ESCAPE=\\{octalDigit} {octalDigit}? {octalDigit}?
+CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{UNICODE_ESCAPE}|{SOME_ESCAPE})("'"|\\)
 STRING_LITERAL=\"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*(\"|\\)? |
                 \"\"\" ( (\"(\")?)? [^\"] )* \"\"\"    // Multi-line string
 
@@ -171,14 +166,14 @@ symbolLiteral = "\'" {plainid}
 
 notFollowNewLine =   "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield"
                     | "," | "." | ";" | ":" | "_" | "=" | "=>" | "<-" | "<:" | "<%" | ">:"
-                    | "#" | "@" | ")" | "]" |"}"
+                    | "#" | "@" | ")" | "[" | "]" |"}"
 specNotFollow    =  "_" | "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Common symbols //////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-LineTerminator = \r | \n | \r\n | \u0085|  \u2028 | \u2029
+LineTerminator = \r | \n | \r\n | \u0085 |  \u2028 | \u2029 | \u000A | \u000a
 InLineTerminator = " " | "\t" | "\f"
 WhiteSpaceInLine = {InLineTerminator}
 
@@ -199,13 +194,13 @@ WhiteSpaceInLine = {InLineTerminator}
 %%
 
 <YYINITIAL>{
-"]"                                     {   processNewLine();
+"]"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return process(tRSQBRACKET); }
 
-"}"                                     {   processNewLine();
+"}"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return process(tRBRACE); }
 
-")"                                     {   processNewLine();
+")"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return process(tRPARENTHESIS); }
 "=>"                                    {   return process(tFUNTYPE);  }
 
@@ -281,11 +276,6 @@ WhiteSpaceInLine = {InLineTerminator}
 
 {END_OF_LINE_COMMENT}                           { return process(tCOMMENT); }
 
-/*
-{C_STYLE_COMMENT}                               { return process(tCOMMENT); }
-{DOC_COMMENT}                                   { return process(tBLOCK_COMMENT); }
-*/
-
 {LineTerminator} / ({WhiteSpaceInLine})* {specNotFollow} {identifier}
                                                 {   changeState();
                                                     if(newLineAllowed()){
@@ -295,8 +285,22 @@ WhiteSpaceInLine = {InLineTerminator}
                                                     }
                                                 }
 
+{LineTerminator} / "case" ({LineTerminator}|{WhiteSpaceInLine})+("class" | "object")
+                                                {   changeState();
+                                                    if(newLineAllowed()){
+                                                      return process(tLINE_TERMINATOR);
+                                                    } else {
+                                                     return process(tWHITE_SPACE_IN_LINE);
+                                                    }
+                                                }
 
-{LineTerminator} / ({WhiteSpaceInLine})* {notFollowNewLine}
+{LineTerminator} / "case"                      {   changeState();
+                                                   return process(tWHITE_SPACE_IN_LINE);
+                                               }
+
+
+
+{LineTerminator} / ({LineTerminator}|{WhiteSpaceInLine})* {notFollowNewLine}
                                                 {   changeState();
                                                     return process(tWHITE_SPACE_IN_LINE);
                                                 }
@@ -341,11 +345,6 @@ WhiteSpaceInLine = {InLineTerminator}
 
 {END_OF_LINE_COMMENT}                           { return process(tCOMMENT); }
 
-/*
-{C_STYLE_COMMENT}                               { return process(tCOMMENT); }
-{DOC_COMMENT}                                   { return process(tBLOCK_COMMENT); }
-*/
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Strings /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -357,10 +356,10 @@ WhiteSpaceInLine = {InLineTerminator}
                                         }
 
 
-{symbolLiteral}                          {   processNewLine();
+{symbolLiteral}                          {   yybegin(PROCESS_NEW_LINE);
                                             return process(tSYMBOL);  }
 
-{CHARACTER_LITERAL}                      {   processNewLine();
+{CHARACTER_LITERAL}                      {   yybegin(PROCESS_NEW_LINE);
                                             return process(tCHAR);  }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -369,19 +368,19 @@ WhiteSpaceInLine = {InLineTerminator}
 "["                                     {   braceStack.push(tLSQBRACKET);
                                             yybegin(NEW_LINE_DEPRECATED);
                                             return process(tLSQBRACKET); }
-"]"                                     {   processNewLine();
+"]"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return popBraceStack(tRSQBRACKET); }
 
 "{"                                     {   braceStack.push(tLBRACE);
                                             yybegin(NEW_LINE_ALLOWED);
                                             return process(tLBRACE); }
-"}"                                     {   processNewLine();
+"}"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return popBraceStack(tRBRACE); }
 
 "("                                     {   braceStack.push(tLPARENTHESIS);
                                             yybegin(NEW_LINE_DEPRECATED);
                                             return process(tLPARENTHESIS); }
-")"                                     {   processNewLine();
+")"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return popBraceStack(tRPARENTHESIS); }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////
@@ -402,17 +401,19 @@ WhiteSpaceInLine = {InLineTerminator}
 "do"                                    {   return process(kDO); }
 "else"                                  {   return process(kELSE); }
 "extends"                               {   return process(kEXTENDS); }
-"false"                                 {   processNewLine();
+"false"                                 {   yybegin(PROCESS_NEW_LINE);
                                             return process(kFALSE); }
 "final"                                 {   return process(kFINAL); }
 "finally"                               {   return process(kFINALLY); }
 "for"                                   {   return process(kFOR); }
+"forSome"                               {   return process(kFOR_SOME); }
 "if"                                    {   return process(kIF); }
 "implicit"                              {   return process(kIMPLICIT); }
 "import"                                {   return process(kIMPORT); }
+"lazy"                                  {   return process(kLAZY); }
 "match"                                 {   return process(kMATCH); }
 "new"                                   {   return process(kNEW); }
-"null"                                  {   processNewLine();
+"null"                                  {   yybegin(PROCESS_NEW_LINE);
                                             return process(kNULL); }
 "object"                                {   return process(kOBJECT); }
 "override"                              {   return process(kOVERRIDE); }
@@ -420,18 +421,18 @@ WhiteSpaceInLine = {InLineTerminator}
 "private"                               {   return process(kPRIVATE); }
 "protected"                             {   return process(kPROTECTED); }
 "requires"                              {   return process(kREQUIRES); }
-"return"                                {   processNewLine();
+"return"                                {   yybegin(PROCESS_NEW_LINE);
                                             return process(kRETURN); }
 "sealed"                                {   return process(kSEALED); }
 "super"                                 {   return process(kSUPER); }
-"this"                                  {   processNewLine();
+"this"                                  {   yybegin(PROCESS_NEW_LINE);
                                             return process(kTHIS); }
 "throw"                                 {   return process(kTHROW); }
 "trait"                                 {   return process(kTRAIT); }
 "try"                                   {   return process(kTRY); }
-"true"                                  {   processNewLine();
+"true"                                  {   yybegin(PROCESS_NEW_LINE);
                                             return process(kTRUE); }
-"type"                                  {   processNewLine();
+"type"                                  {   yybegin(PROCESS_NEW_LINE);
                                             return process(kTYPE); }
 "val"                                   {   return process(kVAL); }
 "var"                                   {   return process(kVAR); }
@@ -441,12 +442,12 @@ WhiteSpaceInLine = {InLineTerminator}
 
 ///////////////////// Reserved shorthands //////////////////////////////////////////
 
-"*"                                     {   processNewLine();
+"*"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return process(tIDENTIFIER);  }
-"?"                                     {   processNewLine();
+"?"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return process(tIDENTIFIER);  }
 
-"_"                                     {   processNewLine();
+"_"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return process(tUNDER);  }
 ":"                                     {   return process(tCOLON);  }
 "="                                     {   return process(tASSIGN);  }
@@ -459,20 +460,17 @@ WhiteSpaceInLine = {InLineTerminator}
 "#"                                     {   return process(tINNER_CLASS); }
 "@"                                     {   return process(tAT);}
 
-//"&"                                     {   return process(tAND);}
-//"|"                                     {   return process(tOR);}
-
-"&"                                     {   processNewLine();
+"&"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return process(tIDENTIFIER);}
-"|"                                     {   processNewLine();
+"|"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return process(tIDENTIFIER);}
-"+"                                     {   processNewLine();
+"+"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return process(tIDENTIFIER); }
-"-"                                     {   processNewLine();
+"-"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return process(tIDENTIFIER);}
-"~"                                     {   processNewLine();
+"~"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return process(tIDENTIFIER);}
-"!"                                     {   processNewLine();
+"!"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return process(tIDENTIFIER);}
 
 "."                                     {   return process(tDOT);}
@@ -482,23 +480,22 @@ WhiteSpaceInLine = {InLineTerminator}
 
 ////////////////////// Identifier /////////////////////////////////////////
 
-{identifier}                            {   processNewLine();
+{identifier}                            {   yybegin(PROCESS_NEW_LINE);
                                             return process(tIDENTIFIER); }
 
 //is not true according to Martin's comment from 17.03.2007
-//({digit}+) / ("." {identifier})         {   processNewLine();
+//({digit}+) / ("." {identifier})         {   yybegin(PROCESS_NEW_LINE);
 //                                            return process(tINTEGER);  }
 
-{floatingPointLiteral}                  {   processNewLine();
+{floatingPointLiteral}                  {   yybegin(PROCESS_NEW_LINE);
                                             return process(tFLOAT);      }
-{integerLiteral}                        {   processNewLine();
+{integerLiteral}                        {   yybegin(PROCESS_NEW_LINE);
                                             return process(tINTEGER);  }
 
 ////////////////////// white spaces in line ///////////////////////////////////////////////
 {WhiteSpaceInLine}                            {   return process(tWHITE_SPACE_IN_LINE);  }
 
 ////////////////////// white spaces line terminator ///////////////////////////////////////////////
-//{LineTerminator}                              {   return process(tNON_SIGNIFICANT_NEWLINE); }
 {LineTerminator}                              {   return process(tWHITE_SPACE_IN_LINE); }
 
 ////////////////////// STUB ///////////////////////////////////////////////

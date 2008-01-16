@@ -1,0 +1,74 @@
+x
+catch
+
+x
+x
+
+x
+null
+
+x
+;
+
+x
+case =>
+
+x
+case class
+
+x
+[]
+-----
+identifier {x}
+white space in line {
+}
+catch {catch}
+white space in line {
+
+}
+identifier {x}
+newline {
+}
+identifier {x}
+newline {
+}
+white space in line {
+}
+identifier {x}
+newline {
+}
+null {null}
+newline {
+}
+white space in line {
+}
+identifier {x}
+white space in line {
+}
+; {;}
+white space in line {
+
+}
+identifier {x}
+white space in line {
+}
+case {case}
+white space in line { }
+=> {=>}
+white space in line {
+
+}
+identifier {x}
+newline {
+}
+case {case}
+white space in line { }
+class {class}
+white space in line {
+
+}
+identifier {x}
+white space in line {
+}
+[ {[}
+] {]}

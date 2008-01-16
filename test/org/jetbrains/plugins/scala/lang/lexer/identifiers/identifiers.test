@@ -1,0 +1,21 @@
+x + __system Object maxIndex p2p _y dot_product_* empty_? _MAX_LEN_
+-----
+identifier {x}
+white space in line { }
+identifier {+}
+white space in line { }
+identifier {__system}
+white space in line { }
+identifier {Object}
+white space in line { }
+identifier {maxIndex}
+white space in line { }
+identifier {p2p}
+white space in line { }
+identifier {_y}
+white space in line { }
+identifier {dot_product_*}
+white space in line { }
+identifier {empty_?}
+white space in line { }
+identifier {_MAX_LEN_}

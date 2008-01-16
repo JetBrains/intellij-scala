@@ -6,11 +6,10 @@ Scala file
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
-    top definition template
-      extends block
-        PsiElement(extends)('extends')
-        PsiWhiteSpace(' ')
-        template parents
-          constuctor
-            Stable Identifier
-              PsiElement(identifier)('b')
+    extends block
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      template parents
+        constuctor
+          Stable Identifier
+            PsiElement(identifier)('b')

@@ -1,0 +1,6 @@
+case class A{
+}
+
+case class B{
+}
+-----

@@ -1,0 +1,37 @@
+[
+fada
+{foo(
+)
+foo();
+}
+{}
+]
+-----
+[ {[}
+white space in line {
+}
+identifier {fada}
+white space in line {
+}
+{ {{}
+identifier {foo}
+( {(}
+white space in line {
+}
+) {)}
+newline {
+}
+identifier {foo}
+( {(}
+) {)}
+; {;}
+white space in line {
+}
+} {}}
+white space in line {
+}
+{ {{}
+} {}}
+white space in line {
+}
+] {]}

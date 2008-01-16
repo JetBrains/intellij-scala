@@ -281,6 +281,9 @@ object ScalaElementTypes {
   val WILD_PATTERN = new ScalaElementType("any sequence")
   val CASE_CLAUSE = new ScalaElementType("case clause")
   val CASE_CLAUSES = new ScalaElementType("case clauses")
+  val LITERAL_PATTERN = new ScalaElementType("literal pattern")
+  val REFERENCE_PATTERN = new ScalaElementType("reference pattern")
+  val XML_PATTERN = new ScalaElementType("xml pattern")
 
   /************************************** TYPE PATTERNS ********************************/
 

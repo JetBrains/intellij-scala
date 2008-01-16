@@ -1,0 +1,42 @@
+object a{
+  val x = 'f_+
+  val y = 'x
+  val z = 'zz_*+
+}
+-----
+object {object}
+white space in line { }
+identifier {a}
+{ {{}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {x}
+white space in line { }
+= {=}
+white space in line { }
+Symbol {'f_+}
+newline {
+}
+white space in line {  }
+val {val}
+white space in line { }
+identifier {y}
+white space in line { }
+= {=}
+white space in line { }
+Symbol {'x}
+newline {
+}
+white space in line {  }
+val {val}
+white space in line { }
+identifier {z}
+white space in line { }
+= {=}
+white space in line { }
+Symbol {'zz_*+}
+white space in line {
+}
+} {}}

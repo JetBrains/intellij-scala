@@ -1,0 +1,19 @@
+object a{
+  'yield'
+  'dghfghd'
+}
+-----
+object {object}
+white space in line { }
+identifier {a}
+{ {{}
+white space in line {
+  }
+identifier {'yield'}
+newline {
+}
+white space in line {  }
+identifier {'dghfghd'}
+white space in line {
+}
+} {}}
