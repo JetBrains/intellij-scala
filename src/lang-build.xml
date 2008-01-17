@@ -20,6 +20,7 @@
   <property name="idea.lib" value="${idea.pack}/lib"/>
   <property name="output" value="${base.dir}/dist"/>
   <property name="test.lib" value="${project.lib}/../../test/Scala"/>
+  <property name="production.dest" location="${project.lib}/.."/>
   <property name="java.lib" value="${jdk.home}/lib"/>
 
   <property name="output" value="${basedir}/dist"/>
@@ -117,7 +118,7 @@
     <scalac srcdir="."
             destdir="${project.lib}"
             logging="debug"
-            addparams="-g:vars"
+            addparams="-g:notc"
             scalacdebugging="yes"
             force="changed">
       <classpath refid="base.path"/>
@@ -186,7 +187,7 @@
     </javac>
   </target>
 
-  <target name="run.tests" depends="build.tests, make.project">
+  <target name="run.tests" depends="build.tests">
 
     <mkdir dir="${base.dir}/logs"/>
     <mkdir dir="${output}/config"/>
@@ -195,7 +196,8 @@
     <junit fork="yes"
            dir="${base.dir}"
            printsummary="yes"
-           haltonfailure="no">
+           haltonfailure="no"
+           haltonerror="no">
 
       <classpath>
         <path location="${project.lib}"/>
@@ -205,16 +207,17 @@
 
       <jvmarg value="-Xbootclasspath/p:${idea.lib}/boot.jar"/>
       <jvmarg value="-Djava.awt.headless=true"/>
-      <jvmarg value="-Didea.load.plugins.id=org.intellij.scala"/>
-      <jvmarg value="-ea"/>
       <jvmarg value="-Xmx256M"/>
+      <jvmarg value="-ea"/>
       <jvmarg value="-Xdebug"/>
       <jvmarg value="-Djava.compiler=NONE"/>
-      <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5006"/>
+      <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5112"/>
 
       <jvmarg value="-Didea.config.path=${output}/config"/>
       <jvmarg value="-Didea.system.path=${output}/system"/>
+      <jvmarg value="-Didea.plugins.path=${production.dest}"/>
 
+      <jvmarg value="-Didea.load.plugins.id=org.intellij.scala"/>
 
       <formatter type="plain"/>
 
