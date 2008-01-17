@@ -26,11 +26,13 @@
   <property name="output" value="${basedir}/dist"/>
 
   <target name="unzip.last.successful.IDEA.build">
+<!--
     <unzip dest="${idea.pack}">
       <fileset dir="${idea.pack}">
         <include name="*.zip"/>
       </fileset>
     </unzip>
+-->
   </target>
 
   <path id="base.path">
@@ -174,7 +176,7 @@
         />
   </target>
 
-  <target name="build.tests" >
+  <target name="build.tests" depends="make.project">
 
     <mkdir dir="${project.lib}/../../test"/>
     <mkdir dir="${project.lib}/../../test/Scala"/>
