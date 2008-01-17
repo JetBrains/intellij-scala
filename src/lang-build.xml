@@ -18,7 +18,7 @@
   <!--<property file="scala.properties"/>-->
   <property name="base.dir" value="${project.lib}/../../.."/>
   <property name="idea.lib" value="${idea.pack}/lib"/>
-  <property name="output" value="${base.dir}/dist"/>
+  <property name="output" value="${project.lib}/dist"/>
   <property name="test.lib" value="${project.lib}/../../test/Scala"/>
   <property name="production.dest" location="${project.lib}/.."/>
   <property name="java.lib" value="${jdk.home}/lib"/>
@@ -174,7 +174,7 @@
         />
   </target>
 
-  <target name="build.tests" depends="make.project">
+  <target name="build.tests" >
 
     <mkdir dir="${project.lib}/../../test"/>
     <mkdir dir="${project.lib}/../../test/Scala"/>
