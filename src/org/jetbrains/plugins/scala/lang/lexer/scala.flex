@@ -284,7 +284,7 @@ WhiteSpaceInLine = {InLineTerminator}
                                                     }
                                                 }
 
-{LineTerminator} / "case" ({LineTerminator}|{WhiteSpaceInLine})+("class" | "object")
+{LineTerminator} / ({LineTerminator}|{WhiteSpaceInLine})* "case" ({LineTerminator}|{WhiteSpaceInLine})+("class" | "object")
                                                 {   changeState();
                                                     if(newLineAllowed()){
                                                       return process(tLINE_TERMINATOR);
@@ -293,7 +293,8 @@ WhiteSpaceInLine = {InLineTerminator}
                                                     }
                                                 }
 
-{LineTerminator} / "case"                      {   changeState();
+{LineTerminator} / ({LineTerminator}|{WhiteSpaceInLine})* "case"
+                                               {   changeState();
                                                    return process(tWHITE_SPACE_IN_LINE);
                                                }
 

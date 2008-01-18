@@ -1,0 +1,67 @@
+class a{
+  val x = y match{
+    case 1 => 2
+    case 2 => 3
+    case 3 => 5
+    case _ => 6
+  }
+}
+-----
+class {class}
+white space in line { }
+identifier {a}
+{ {{}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {x}
+white space in line { }
+= {=}
+white space in line { }
+identifier {y}
+white space in line { }
+match {match}
+{ {{}
+white space in line {
+    }
+case {case}
+white space in line { }
+integer {1}
+white space in line { }
+=> {=>}
+white space in line { }
+integer {2}
+white space in line {
+    }
+case {case}
+white space in line { }
+integer {2}
+white space in line { }
+=> {=>}
+white space in line { }
+integer {3}
+white space in line {
+    }
+case {case}
+white space in line { }
+integer {3}
+white space in line { }
+=> {=>}
+white space in line { }
+integer {5}
+white space in line {
+    }
+case {case}
+white space in line { }
+_ {_}
+white space in line { }
+=> {=>}
+white space in line { }
+integer {6}
+white space in line {
+  }
+} {}}
+white space in line {
+}
+} {}}
