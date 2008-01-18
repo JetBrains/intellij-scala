@@ -95,6 +95,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     ScalaTokenTypes.kFINAL,
     ScalaTokenTypes.kFINALLY,
     ScalaTokenTypes.kFOR,
+    ScalaTokenTypes.kFOR_SOME,
     ScalaTokenTypes.kIF,
     ScalaTokenTypes.kIMPLICIT,
     ScalaTokenTypes.kIMPORT,
