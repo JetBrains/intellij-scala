@@ -226,8 +226,8 @@
 <!--
           <include name="**/FormatterTest.java"/>
           <include name="**/EnterActionTest.java"/>
-          <include name="**/ParserTest.java"/>
 -->
+          <include name="**/ParserTest.java"/>
           <include name="**/LexerTest.java"/>
         </fileset>
       </batchtest>

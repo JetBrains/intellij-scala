@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 public class LexerTest extends BaseScalaFileSetTestCase {
 
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/lexer";
+  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/lexer/temp";
 
   public LexerTest() {
     super(System.getProperty("path") != null ?
