@@ -1,0 +1,83 @@
+lazy/*
+  Hello
+    /*
+      Nested comment //This is a nested comment
+    */
+  end
+*/ val x = 2/0 //Division by zero
+Int[{
+val x = 22}
+def boring(
+{val x=23
+val x = /*com/*nes
+ted*/ment*/239}
+end)] //it's hard to understaand
+-----
+lazy {lazy}
+comment content {/*
+  Hello
+    /*
+      Nested comment //This is a nested comment
+    */
+  end
+*/}
+white space in line { }
+val {val}
+white space in line { }
+identifier {x}
+white space in line { }
+= {=}
+white space in line { }
+integer {2}
+identifier {/}
+integer {0}
+white space in line { }
+comment {//Division by zero}
+newline {
+}
+identifier {Int}
+[ {[}
+{ {{}
+white space in line {
+}
+val {val}
+white space in line { }
+identifier {x}
+white space in line { }
+= {=}
+white space in line { }
+integer {22}
+} {}}
+white space in line {
+}
+def {def}
+white space in line { }
+identifier {boring}
+( {(}
+white space in line {
+}
+{ {{}
+val {val}
+white space in line { }
+identifier {x}
+= {=}
+integer {23}
+newline {
+}
+val {val}
+white space in line { }
+identifier {x}
+white space in line { }
+= {=}
+white space in line { }
+comment content {/*com/*nes
+ted*/ment*/}
+integer {239}
+} {}}
+white space in line {
+}
+identifier {end}
+) {)}
+] {]}
+white space in line { }
+comment {//it's hard to understaand}

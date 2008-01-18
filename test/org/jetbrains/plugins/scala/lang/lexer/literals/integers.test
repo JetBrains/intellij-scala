@@ -1,0 +1,15 @@
+0
+21
+0xFFFFFFFF
+0777L
+-----
+integer {0}
+newline {
+}
+integer {21}
+newline {
+}
+integer {0xFFFFFFFF}
+newline {
+}
+integer {0777L}

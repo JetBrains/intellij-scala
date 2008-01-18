@@ -1,6 +1,7 @@
 object a{
   val x = 'i'
   val y = '\u0041'
+  val z = '\32'
 }
 -----
 object {object}
@@ -26,6 +27,16 @@ white space in line { }
 = {=}
 white space in line { }
 Character {'\u0041'}
+newline {
+}
+white space in line {  }
+val {val}
+white space in line { }
+identifier {z}
+white space in line { }
+= {=}
+white space in line { }
+Character {'\32'}
 white space in line {
 }
 } {}}

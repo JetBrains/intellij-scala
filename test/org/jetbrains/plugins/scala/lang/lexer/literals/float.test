@@ -1,0 +1,19 @@
+0.0
+1e30f
+3.14159f
+1.0e-100
+.1
+-----
+float {0.0}
+newline {
+}
+float {1e30f}
+newline {
+}
+float {3.14159f}
+newline {
+}
+float {1.0e-100}
+white space in line {
+}
+float {.1}

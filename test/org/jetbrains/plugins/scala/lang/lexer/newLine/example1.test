@@ -1,0 +1,98 @@
+if (x > 0)
+  x = x - 1
+
+while (x > 0)
+  x = x / 2
+
+for (x <- 1 to 10)
+  println(x)
+
+type
+  IntList = List[Int]
+-----
+if {if}
+white space in line { }
+( {(}
+identifier {x}
+white space in line { }
+identifier {>}
+white space in line { }
+integer {0}
+) {)}
+newline {
+}
+white space in line {  }
+identifier {x}
+white space in line { }
+= {=}
+white space in line { }
+identifier {x}
+white space in line { }
+identifier {-}
+white space in line { }
+integer {1}
+newline {
+}
+white space in line {
+}
+while {while}
+white space in line { }
+( {(}
+identifier {x}
+white space in line { }
+identifier {>}
+white space in line { }
+integer {0}
+) {)}
+newline {
+}
+white space in line {  }
+identifier {x}
+white space in line { }
+= {=}
+white space in line { }
+identifier {x}
+white space in line { }
+identifier {/}
+white space in line { }
+integer {2}
+newline {
+}
+white space in line {
+}
+for {for}
+white space in line { }
+( {(}
+identifier {x}
+white space in line { }
+<- {<-}
+white space in line { }
+integer {1}
+white space in line { }
+identifier {to}
+white space in line { }
+integer {10}
+) {)}
+newline {
+}
+white space in line {  }
+identifier {println}
+( {(}
+identifier {x}
+) {)}
+newline {
+}
+white space in line {
+}
+type {type}
+newline {
+}
+white space in line {  }
+identifier {IntList}
+white space in line { }
+= {=}
+white space in line { }
+identifier {List}
+[ {[}
+identifier {Int}
+] {]}

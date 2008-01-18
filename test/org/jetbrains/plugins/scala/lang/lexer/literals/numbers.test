@@ -1,5 +1,6 @@
 object a{
   val x = 1
+  val x1 = 2L
   val y = 1.0
   val z = true
 }
@@ -17,6 +18,16 @@ white space in line { }
 = {=}
 white space in line { }
 integer {1}
+newline {
+}
+white space in line {  }
+val {val}
+white space in line { }
+identifier {x1}
+white space in line { }
+= {=}
+white space in line { }
+integer {2L}
 newline {
 }
 white space in line {  }

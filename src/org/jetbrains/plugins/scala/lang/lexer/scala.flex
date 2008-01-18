@@ -122,7 +122,6 @@ octalDigit = [0-7]
 
 idrest1 = [:jletter:]? [:jletterdigit:]* ("_" {op})?
 idrest = [:jletter:]? [:jletterdigit:]* ("_" {op} | "_" {idrest1} )?
-idrest2 = [:jletterdigit]+ ("_" {op} )?
 varid = [:jletter:] {idrest}
 
 plainid = {varid}
@@ -164,9 +163,9 @@ symbolLiteral = "\'" {plainid}
 ///////////////////// NewLine processing ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-notFollowNewLine =   "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield"
-                    | "," | "." | ";" | ":" | "_" | "=" | "=>" | "<-" | "<:" | "<%" | ">:"
-                    | "#" | "@" | ")" | "[" | "]" |"}"
+notFollowNewLine =   "catch" | "else" | "extends" | "forSome" | "finally" | "match" | "requires"
+                    | "with" | "yield" | "," | "." | ";" | ":" | "_" | "=" | "=>" | "<-" | "<:" | "<%"
+                    | ">:" | "#" | "@" | "["  | ")" | "]" |"}"
 specNotFollow    =  "_" | "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
