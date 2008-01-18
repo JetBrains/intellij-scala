@@ -12,7 +12,7 @@ Scala file
           PsiElement(identifier)('a')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        Simple type
+        Compound type
           Stable Identifier
             PsiElement(identifier)('T')
           PsiWhiteSpace(' ')
@@ -32,10 +32,10 @@ Scala file
               value declaration
                 PsiElement(val)('val')
                 PsiWhiteSpace(' ')
-                Reference identifier
+                Reference identifier pattern
                   PsiElement(identifier)('i')
                 PsiElement(:)(':')
-                Simple type
+                Simple Type
                   Stable Identifier
                     PsiElement(identifier)('T')
             PsiElement(})('}')

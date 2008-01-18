@@ -7,19 +7,19 @@ Scala file
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
-    top definition template
-      template body
-        PsiElement({)('{')
-        PsiWhiteSpace('\n')
-        function definition
-          PsiElement(def)('def')
-          PsiWhiteSpace(' ')
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n')
+      function definition
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        Reference identifier
           PsiElement(identifier)('f')
-          PsiWhiteSpace(' ')
-          PsiElement(=)('=')
-          PsiWhiteSpace(' ')
-          unit
-            PsiElement(()('(')
-            PsiElement())(')')
-        PsiWhiteSpace('\n')
-        PsiElement(})('}')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        unit
+          PsiElement(()('(')
+          PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

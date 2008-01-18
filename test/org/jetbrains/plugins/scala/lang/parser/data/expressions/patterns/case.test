@@ -10,43 +10,43 @@ Scala file
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
-    top definition template
-      template body
-        PsiElement({)('{')
-        PsiWhiteSpace('\n')
-        function definition
-          PsiElement(def)('def')
-          PsiWhiteSpace(' ')
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n')
+      function definition
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        Reference identifier
           PsiElement(identifier)('foo')
-          PsiElement(=)('=')
-          Block expression
-            PsiElement({)('{')
+        PsiElement(=)('=')
+        Block expression
+          PsiElement({)('{')
+          PsiWhiteSpace('\n')
+          Case Clauses
+            Case Clause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Literal pattern
+                Literal
+                  PsiElement(integer)('1')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              Block
+                Literal
+                  PsiElement(integer)('1')
             PsiWhiteSpace('\n')
-            Case Clauses
-              Case Clause
-                PsiElement(case)('case')
-                PsiWhiteSpace(' ')
-                Common pattern
-                  Literal
-                    PsiElement(integer)('1')
-                PsiElement(=>)('=>')
-                PsiWhiteSpace(' ')
-                Block
-                  Literal
-                    PsiElement(integer)('1')
-                  PsiElement(newline)('\n')
-              Case Clause
-                PsiElement(case)('case')
-                PsiWhiteSpace(' ')
-                Common pattern
-                  Literal
-                    PsiElement(integer)('1')
-                PsiElement(=>)('=>')
-                PsiWhiteSpace(' ')
-                Block
-                  Literal
-                    PsiElement(integer)('1')
-            PsiWhiteSpace('\n')
-            PsiElement(})('}')
-        PsiWhiteSpace('\n')
-        PsiElement(})('}')
+            Case Clause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Literal pattern
+                Literal
+                  PsiElement(integer)('1')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              Block
+                Literal
+                  PsiElement(integer)('1')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

@@ -8,21 +8,20 @@ Scala file
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
     PsiWhiteSpace(' ')
-    top definition template
-      template body
-        PsiElement({)('{')
-        PsiWhiteSpace('\n  ')
-        Simple expression
-          Simple expression
-            PsiElement(()('(')
-            Infix expression
-              Stable Identifier
-                PsiElement(identifier)('a')
-              PsiElement(identifier)('+')
-              Stable Identifier
-                PsiElement(identifier)('b')
-            PsiElement())(')')
-          PsiElement(.)('.')
-          PsiElement(identifier)('id')
-        PsiWhiteSpace('\n')
-        PsiElement(})('}')
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      Property selection
+        expression in parentheses
+          PsiElement(()('(')
+          Infix expression
+            Reference expression
+              PsiElement(identifier)('a')
+            PsiElement(identifier)('+')
+            Reference expression
+              PsiElement(identifier)('b')
+          PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('id')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

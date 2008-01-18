@@ -11,26 +11,26 @@ Scala file
         Reference identifier
           PsiElement(identifier)('a')
         PsiElement(:)(':')
-        Simple type
+        Simple Type
           PsiElement(()('(')
           Functional type
-            Simple type
+            Simple Type
               Stable Identifier
                 PsiElement(identifier)('a')
             PsiElement(=>)('=>')
             Functional type
               Types list
                 PsiElement(()('(')
-                Simple type
+                Simple Type
                   Stable Identifier
                     PsiElement(identifier)('c')
                 PsiElement(,)(',')
-                Simple type
+                Simple Type
                   Stable Identifier
                     PsiElement(identifier)('d')
                 PsiElement())(')')
               PsiElement(=>)('=>')
-              Simple type
+              Simple Type
                 Stable Identifier
                   PsiElement(identifier)('e')
           PsiElement())(')')

@@ -8,35 +8,34 @@ Scala file
     PsiWhiteSpace(' ')
     PsiElement(identifier)('C')
     PsiWhiteSpace(' ')
-    top definition template
-      template body
-        PsiElement({)('{')
-        PsiWhiteSpace('\n  ')
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      Infix expression
         Infix expression
-          Infix expression
-            Stable Identifier
-              PsiElement(identifier)('foo')
-            PsiWhiteSpace(' ')
-            PsiElement(identifier)('add')
-            PsiWhiteSpace(' ')
+          Reference expression
+            PsiElement(identifier)('foo')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('add')
+          PsiWhiteSpace(' ')
+          Property selection
             Simple expression
-              Simple expression
-                PsiElement(()('(')
-                Stable Identifier
-                  PsiElement(identifier)('x')
-                PsiElement())(')')
-              PsiElement(.)('.')
-              PsiElement(identifier)('toString')
-          PsiWhiteSpace(' ')
-          PsiElement(identifier)('sub')
-          PsiWhiteSpace(' ')
-          Argument expressions
-            PsiElement(()('(')
-            Literal
-              PsiElement(integer)('2')
-            PsiElement(,)(',')
-            Literal
-              PsiElement(integer)('3')
-            PsiElement())(')')
-        PsiWhiteSpace('\n')
-        PsiElement(})('}')
+              PsiElement(()('(')
+              Reference expression
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toString')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('sub')
+        PsiWhiteSpace(' ')
+        Argument expressions
+          PsiElement(()('(')
+          Literal
+            PsiElement(integer)('2')
+          PsiElement(,)(',')
+          Literal
+            PsiElement(integer)('3')
+          PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

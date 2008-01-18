@@ -8,51 +8,50 @@ Scala file
     PsiWhiteSpace(' ')
     PsiElement(identifier)('C')
     PsiWhiteSpace(' ')
-    top definition template
-      template body
-        PsiElement({)('{')
-        PsiWhiteSpace('\n  ')
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      Infix expression
         Infix expression
           Infix expression
             Infix expression
-              Infix expression
-                Literal
-                  PsiElement(integer)('1')
-                PsiWhiteSpace(' ')
-                PsiElement(identifier)('add')
-                PsiWhiteSpace(' ')
-                Argument expressions
-                  PsiElement(()('(')
-                  Literal
-                    PsiElement(integer)('1')
-                  PsiElement(,)(',')
-                  Literal
-                    PsiElement(integer)('2')
-                  PsiElement())(')')
+              Literal
+                PsiElement(integer)('1')
               PsiWhiteSpace(' ')
-              PsiElement(identifier)('sub')
+              PsiElement(identifier)('add')
               PsiWhiteSpace(' ')
               Argument expressions
                 PsiElement(()('(')
                 Literal
-                  PsiElement(integer)('3')
+                  PsiElement(integer)('1')
                 PsiElement(,)(',')
                 Literal
-                  PsiElement(integer)('4')
+                  PsiElement(integer)('2')
                 PsiElement())(')')
             PsiWhiteSpace(' ')
-            PsiElement(identifier)('mul')
+            PsiElement(identifier)('sub')
             PsiWhiteSpace(' ')
-            Literal
-              PsiElement(integer)('5')
+            Argument expressions
+              PsiElement(()('(')
+              Literal
+                PsiElement(integer)('3')
+              PsiElement(,)(',')
+              Literal
+                PsiElement(integer)('4')
+              PsiElement())(')')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('div')
+          PsiElement(identifier)('mul')
           PsiWhiteSpace(' ')
-          Block expression
-            PsiElement({)('{')
-            Block
-              Stable Identifier
-                PsiElement(identifier)('qoo')
-            PsiElement(})('}')
-        PsiWhiteSpace(' \n')
-        PsiElement(})('}')
+          Literal
+            PsiElement(integer)('5')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('div')
+        PsiWhiteSpace(' ')
+        Block expression
+          PsiElement({)('{')
+          Block
+            Reference expression
+              PsiElement(identifier)('qoo')
+          PsiElement(})('}')
+      PsiWhiteSpace(' \n')
+      PsiElement(})('}')
