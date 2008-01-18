@@ -19,8 +19,7 @@ white space in line { }
 white space in line { }
 integer {1}
 newline {
-}
-white space in line {  }
+  }
 val {val}
 white space in line { }
 identifier {x1}
@@ -29,8 +28,7 @@ white space in line { }
 white space in line { }
 integer {2L}
 newline {
-}
-white space in line {  }
+  }
 val {val}
 white space in line { }
 identifier {y}
@@ -39,8 +37,7 @@ white space in line { }
 white space in line { }
 float {1.0}
 newline {
-}
-white space in line {  }
+  }
 val {val}
 white space in line { }
 identifier {z}

@@ -175,6 +175,7 @@ specNotFollow    =  "_" | "catch" | "else" | "extends" | "finally" | "match" | "
 LineTerminator = \r | \n | \r\n | \u0085 |  \u2028 | \u2029 | \u000A | \u000a
 InLineTerminator = " " | "\t" | "\f"
 WhiteSpaceInLine = {InLineTerminator}
+mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpaceInLine})*
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -189,6 +190,7 @@ WhiteSpaceInLine = {InLineTerminator}
 
 %xstate IN_BLOCK_COMMENT_STATE
 %xstate IN_BLOCK_COMMENT_STATE_NEW_LINE
+%xstate IDENTIFIER_STATE
 
 %%
 
@@ -275,7 +277,8 @@ WhiteSpaceInLine = {InLineTerminator}
 
 {END_OF_LINE_COMMENT}                           { return process(tCOMMENT); }
 
-{LineTerminator} / ({WhiteSpaceInLine})* {specNotFollow} {identifier}
+
+{mNLS} / {specNotFollow} ([:jletter:] | [:jletterdigit:])
                                                 {   changeState();
                                                     if(newLineAllowed()){
                                                       return process(tLINE_TERMINATOR);
@@ -284,7 +287,7 @@ WhiteSpaceInLine = {InLineTerminator}
                                                     }
                                                 }
 
-{LineTerminator} / ({LineTerminator}|{WhiteSpaceInLine})* "case" ({LineTerminator}|{WhiteSpaceInLine})+("class" | "object")
+{mNLS} / "case" ({LineTerminator}|{WhiteSpaceInLine})+("class" | "object")
                                                 {   changeState();
                                                     if(newLineAllowed()){
                                                       return process(tLINE_TERMINATOR);
@@ -293,20 +296,28 @@ WhiteSpaceInLine = {InLineTerminator}
                                                     }
                                                 }
 
-{LineTerminator} / ({LineTerminator}|{WhiteSpaceInLine})* "case"
+{mNLS} /  "case"
                                                {   changeState();
                                                    return process(tWHITE_SPACE_IN_LINE);
                                                }
 
+{mNLS} / {floatingPointLiteral}                 {   changeState();
+                                                    if(newLineAllowed()){
+                                                      return process(tLINE_TERMINATOR);
+                                                    } else {
+                                                     return process(tWHITE_SPACE_IN_LINE);
+                                                    }
+                                                }
 
 
-{LineTerminator} / ({LineTerminator}|{WhiteSpaceInLine})* {notFollowNewLine}
+
+{mNLS} / {notFollowNewLine}
                                                 {   changeState();
                                                     return process(tWHITE_SPACE_IN_LINE);
                                                 }
 
 
-{LineTerminator}/ (.|{LineTerminator})          {   changeState();
+{mNLS}/ (.)                    {   changeState();
                                                     if(newLineAllowed()){
                                                       return process(tLINE_TERMINATOR);
                                                     } else {
@@ -314,7 +325,7 @@ WhiteSpaceInLine = {InLineTerminator}
                                                     }
                                                 }
 
-{LineTerminator}                                {   changeState();
+{mNLS}                                          {   changeState();
                                                     return process(tLINE_TERMINATOR);
                                                 }
 
@@ -322,6 +333,10 @@ WhiteSpaceInLine = {InLineTerminator}
                                                     changeState();
                                                 }
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////// Identfier state ////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -496,7 +511,7 @@ WhiteSpaceInLine = {InLineTerminator}
 {WhiteSpaceInLine}                            {   return process(tWHITE_SPACE_IN_LINE);  }
 
 ////////////////////// white spaces line terminator ///////////////////////////////////////////////
-{LineTerminator}                              {   return process(tWHITE_SPACE_IN_LINE); }
+{mNLS}                              {   return process(tWHITE_SPACE_IN_LINE); }
 
 ////////////////////// STUB ///////////////////////////////////////////////
 .                                             {   return process(tSTUB); }
