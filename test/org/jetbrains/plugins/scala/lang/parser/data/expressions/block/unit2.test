@@ -7,16 +7,15 @@ Scala file
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
-    top definition template
-      template body
-        PsiElement({)('{')
-        PsiWhiteSpace('\n  ')
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      Property selection
         Simple expression
-          Simple expression
-            unit
-              PsiElement(()('(')
-              PsiElement())(')')
-          PsiElement(.)('.')
-          PsiElement(identifier)('toString')
-        PsiWhiteSpace('\n')
-        PsiElement(})('}')
+          unit
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('toString')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

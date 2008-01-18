@@ -10,97 +10,92 @@ Scala file
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
-    top definition template
-      template body
-        PsiElement({)('{')
-        PsiWhiteSpace('\n ')
-        MATCH statement
-          Stable Identifier
-            PsiElement(identifier)('x')
-          PsiWhiteSpace(' ')
-          PsiElement(match)('match')
-          Block expression
-            PsiElement({)('{')
-            PsiWhiteSpace('\n ')
-            Case Clauses
-              Case Clause
-                PsiElement(case)('case')
-                PsiWhiteSpace(' ')
-                Common pattern
-                  Simple pattern
-                    Stable Identifier
-                      PsiElement(identifier)('Alt')
-                    Argument patterns
-                      PsiElement(()('(')
-                      PsiElement(identifier)('xs')
-                      PsiWhiteSpace(' ')
-                      PsiElement(@)('@')
-                      PsiWhiteSpace(' ')
-                      Wild pattern
-                        PsiElement(_)('_')
-                        PsiElement(identifier)('*')
-                      PsiElement())(')')
-                PsiWhiteSpace(' ')
-                PsiElement(=>)('=>')
-                PsiWhiteSpace(' ')
-                Block
-                  Simple expression
-                    Simple expression
-                      Stable Identifier
-                        PsiElement(identifier)('traverse1')
-                    Argument expressions
-                      PsiElement(()('(')
-                      Stable Identifier
-                        PsiElement(identifier)('xs')
-                      PsiElement())(')')
-                  PsiElement(newline)('\n')
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n ')
+      MATCH statement
+        Reference expression
+          PsiElement(identifier)('x')
+        PsiWhiteSpace(' ')
+        PsiElement(match)('match')
+        Block expression
+          PsiElement({)('{')
+          PsiWhiteSpace('\n ')
+          Case Clauses
+            Case Clause
+              PsiElement(case)('case')
               PsiWhiteSpace(' ')
-              Case Clause
-                PsiElement(case)('case')
-                PsiWhiteSpace(' ')
-                Composite pattern
-                  Common pattern
-                    Simple pattern
-                      Stable Identifier
-                        PsiElement(identifier)('ELEMENTS')
-                      Argument patterns
-                        PsiElement(()('(')
-                        PsiWhiteSpace(' ')
-                        Common pattern
-                          PsiElement(_)('_')
-                        PsiWhiteSpace(' ')
-                        PsiElement())(')')
+              Simple pattern
+                Stable Identifier
+                  PsiElement(identifier)('Alt')
+                Argument patterns
+                  PsiElement(()('(')
+                  PsiElement(identifier)('xs')
                   PsiWhiteSpace(' ')
-                  PsiElement(identifier)('|')
+                  PsiElement(@)('@')
                   PsiWhiteSpace(' ')
-                  Common pattern
-                    Simple pattern
-                      Stable Identifier
-                        PsiElement(identifier)('MIXED')
-                      Argument patterns
-                        PsiElement(()('(')
-                        PsiWhiteSpace(' ')
-                        Common pattern
-                          PsiElement(_)('_')
-                        PsiWhiteSpace(' ')
-                        PsiElement())(')')
-                PsiWhiteSpace(' ')
-                PsiElement(=>)('=>')
-                PsiWhiteSpace(' ')
-                Block
-                  Simple expression
-                    Simple expression
-                      Stable Identifier
-                        Stable Identifier
-                          PsiElement(identifier)('c')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('toString')
-                    Argument expressions
-                      PsiElement(()('(')
-                      Stable Identifier
-                        PsiElement(identifier)('sb')
-                      PsiElement())(')')
+                  Wild pattern
+                    PsiElement(_)('_')
+                    PsiElement(identifier)('*')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              Block
+                Method call
+                  Reference expression
+                    Reference expression
+                      PsiElement(identifier)('traverse1')
+                  Argument expressions
+                    PsiElement(()('(')
+                    Reference expression
+                      PsiElement(identifier)('xs')
+                    PsiElement())(')')
             PsiWhiteSpace('\n ')
-            PsiElement(})('}')
-        PsiWhiteSpace('\n')
-        PsiElement(})('}')
+            Case Clause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Composite pattern
+                Simple pattern
+                  Stable Identifier
+                    PsiElement(identifier)('ELEMENTS')
+                  Argument patterns
+                    PsiElement(()('(')
+                    PsiWhiteSpace(' ')
+                    Wild pattern
+                      PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                Simple pattern
+                  Stable Identifier
+                    PsiElement(identifier)('MIXED')
+                  Argument patterns
+                    PsiElement(()('(')
+                    PsiWhiteSpace(' ')
+                    Wild pattern
+                      PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              Block
+                Method call
+                  Property selection
+                    Reference expression
+                      Reference expression
+                        PsiElement(identifier)('c')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('toString')
+                  Argument expressions
+                    PsiElement(()('(')
+                    Reference expression
+                      PsiElement(identifier)('sb')
+                    PsiElement())(')')
+          PsiWhiteSpace('\n ')
+          PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

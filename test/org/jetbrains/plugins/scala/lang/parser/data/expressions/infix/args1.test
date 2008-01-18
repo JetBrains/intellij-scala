@@ -9,42 +9,42 @@ Scala file
     PsiWhiteSpace(' ')
     PsiElement(identifier)('C')
     PsiWhiteSpace(' ')
-    top definition template
-      template body
-        PsiElement({)('{')
-        PsiWhiteSpace('\n  ')
-        Infix expression
-          Stable Identifier
-            Stable Identifier
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      Infix expression
+        Property selection
+          Reference expression
+            Reference expression
               PsiElement(identifier)('foo')
-            PsiElement(.)('.')
-            PsiElement(identifier)('pair')
-          PsiWhiteSpace(' ')
-          PsiElement(identifier)('add')
-          PsiWhiteSpace(' ')
-          Argument expressions
-            PsiElement(()('(')
-            Literal
-              PsiElement(integer)('1')
-            PsiElement(,)(',')
-            Literal
-              PsiElement(integer)('2')
-            PsiElement())(')')
-        PsiElement(newline)('\n')
-        PsiWhiteSpace('  ')
+          PsiElement(.)('.')
+          PsiElement(identifier)('pair')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('add')
+        PsiWhiteSpace(' ')
+        Argument expressions
+          PsiElement(()('(')
+          Literal
+            PsiElement(integer)('1')
+          PsiElement(,)(',')
+          Literal
+            PsiElement(integer)('2')
+          PsiElement())(')')
+      PsiElement(newline)('\n')
+      PsiWhiteSpace('  ')
+      Infix expression
         Infix expression
-          Infix expression
-            Stable Identifier
-              PsiElement(identifier)('foo')
-            PsiWhiteSpace(' ')
-            PsiElement(identifier)('add')
-            PsiWhiteSpace(' ')
-            Literal
-              PsiElement(integer)('1')
+          Reference expression
+            PsiElement(identifier)('foo')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('add')
           PsiWhiteSpace(' ')
           Literal
-            PsiElement(integer)('2')
-        PsiWhiteSpace('\n')
-        PsiElement(})('}')
+            PsiElement(integer)('1')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('add')
+        PsiWhiteSpace(' ')
+        Literal
+          PsiElement(integer)('2')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

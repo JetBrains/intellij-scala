@@ -8,24 +8,24 @@ Scala file
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
-    top definition template
-      template body
-        PsiElement({)('{')
-        PsiWhiteSpace('\n  ')
-        function definition
-          PsiElement(def)('def')
-          PsiWhiteSpace(' ')
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      function definition
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        Reference identifier
           PsiElement(identifier)('getType')
-          PsiWhiteSpace(' ')
-          PsiElement(:)(':')
-          PsiWhiteSpace(' ')
-          Simple type
-            Stable Identifier
-              PsiElement(identifier)('ScType')
-          PsiWhiteSpace(' ')
-          PsiElement(=)('=')
-          PsiWhiteSpace(' ')
+        PsiWhiteSpace(' ')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        Simple Type
           Stable Identifier
-            PsiElement(identifier)('foo')
-        PsiWhiteSpace('\n')
-        PsiElement(})('}')
+            PsiElement(identifier)('ScType')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        Reference expression
+          PsiElement(identifier)('foo')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

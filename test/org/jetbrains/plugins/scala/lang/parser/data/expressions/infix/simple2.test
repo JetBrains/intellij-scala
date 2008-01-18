@@ -9,38 +9,37 @@ Scala file
     PsiWhiteSpace(' ')
     PsiElement(identifier)('C')
     PsiWhiteSpace(' ')
-    top definition template
-      template body
-        PsiElement({)('{')
-        PsiWhiteSpace('\n')
-        Infix expression
-          Literal
-            PsiElement(integer)('1')
-          PsiWhiteSpace(' ')
-          PsiElement(identifier)('+')
-          PsiWhiteSpace(' ')
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n')
+      Infix expression
+        Literal
+          PsiElement(integer)('1')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('+')
+        PsiWhiteSpace(' ')
+        Property selection
           Simple expression
-            Simple expression
-              Block expression
-                PsiElement({)('{')
-                Block
-                  Literal
-                    PsiElement(integer)('2')
-                PsiElement(})('}')
-            PsiElement(.)('.')
-            PsiElement(identifier)('toString')
-        PsiElement(newline)('\n')
-        Infix expression
-          Literal
-            PsiElement(integer)('1')
-          PsiWhiteSpace(' ')
-          PsiElement(identifier)('+')
-          PsiWhiteSpace(' ')
-          Block expression
-            PsiElement({)('{')
-            Block
-              Literal
-                PsiElement(integer)('3')
-            PsiElement(})('}')
-        PsiWhiteSpace('\n')
-        PsiElement(})('}')
+            Block expression
+              PsiElement({)('{')
+              Block
+                Literal
+                  PsiElement(integer)('2')
+              PsiElement(})('}')
+          PsiElement(.)('.')
+          PsiElement(identifier)('toString')
+      PsiElement(newline)('\n')
+      Infix expression
+        Literal
+          PsiElement(integer)('1')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('+')
+        PsiWhiteSpace(' ')
+        Block expression
+          PsiElement({)('{')
+          Block
+            Literal
+              PsiElement(integer)('3')
+          PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
