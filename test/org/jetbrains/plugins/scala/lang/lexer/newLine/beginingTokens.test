@@ -31,16 +31,14 @@ newline {
 }
 identifier {x}
 newline {
-}
-white space in line {
+
 }
 identifier {x}
 newline {
 }
 null {null}
 newline {
-}
-white space in line {
+
 }
 identifier {x}
 white space in line {

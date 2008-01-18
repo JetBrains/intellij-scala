@@ -21,16 +21,14 @@ newline {
 }
 identifier {x}
 newline {
-}
-white space in line {
+
 }
 this {this}
 newline {
 }
 identifier {x}
 newline {
-}
-white space in line {
+
 }
 var {var}
 white space in line {
@@ -44,8 +42,7 @@ white space in line {
 }
 identifier {x}
 newline {
-}
-white space in line {
+
 }
 sealed {sealed}
 white space in line {

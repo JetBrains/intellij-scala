@@ -24,6 +24,5 @@ Scala file
           PsiElement(identifier)('ert')
         PsiElement(.)('.')
         PsiElement(_)('_')
-    PsiElement(newline)('\n')
-    PsiWhiteSpace('\n')
+    PsiWhiteSpace('\n\n')
     PsiElement(})('}')

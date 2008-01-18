@@ -11,8 +11,7 @@ white space in line {
   }
 identifier {'yield'}
 newline {
-}
-white space in line {  }
+  }
 identifier {'dghfghd'}
 white space in line {
 }
