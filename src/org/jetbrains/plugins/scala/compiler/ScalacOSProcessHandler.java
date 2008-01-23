@@ -1,19 +1,3 @@
-/*
- * Copyright 2000-2006 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.execution.process.OSProcessHandler;
@@ -119,6 +103,8 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
         } catch (NumberFormatException e) {
           myContext.addMessage(CompilerMessageCategory.INFORMATION, "", text, -1, -1);
         }
+      } else {
+        myContext.addMessage(CompilerMessageCategory.INFORMATION, "", text, -1, -1);
       }
     } else {
       if (text.startsWith(ourInfoMarkerStart) && text.endsWith(ourInfoMarkerEnd)) {  //verbose compiler output
@@ -128,19 +114,16 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
         } else if (info.startsWith(ourWroteMarker)) {
           myContext.getProgressIndicator().setText(info);
           String s = info.substring(ourWroteMarker.length());
-          //format of the string is: 'path path smth_without_whitespaces'
-          int j = s.lastIndexOf(' ');
-//          LOG.assertTrue(j > 0);
-//          String outputPath = s.substring(0, j / 2);
-//          try {
-//            TranslatingCompiler.OutputItem item = getOutputItem(outputPath.replace(File.separatorChar, '/'));
-//            if (item != null) {
-//              mySuccessfullyCompiledSources.add(item);
-//            }
-//          } catch (InvocationTargetException e) {
-//          } catch (InterruptedException e) {
-//          }
-        }
+          int w = s.indexOf(' ');
+          String outputPath = w > 0 ? s.substring(0, w) : s;
+          try {
+            TranslatingCompiler.OutputItem item = getOutputItem(outputPath.replace(File.separatorChar, '/'));
+            if (item != null) {
+              mySuccessfullyCompiledSources.add(item);
+            }
+          } catch (InvocationTargetException e) {
+          } catch (InterruptedException e) {
+                      } }
       }
     }
   }
