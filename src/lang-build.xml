@@ -98,12 +98,12 @@
 
     <javac srcdir="."
            destdir="../classes/production/Scala"
-           verbose="yes">
+           verbose="yes" debug="true">
       <classpath refid="base.path"/>
     </javac>
 
     <javac srcdir="./../util"
-           destdir="../classes/production/Scala">
+           destdir="../classes/production/Scala" debug="true">
       <classpath refid="base.path"/>
     </javac>
 
