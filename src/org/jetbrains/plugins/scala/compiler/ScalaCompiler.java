@@ -98,6 +98,7 @@ public class ScalaCompiler implements TranslatingCompiler {
       String javaExe = sdk.getVMExecutablePath();
       GeneralCommandLine commandLine = new GeneralCommandLine();
       commandLine.setExePath(javaExe);
+      commandLine.addParameter("-Xss128m");
       commandLine.addParameter("-cp");
       String myJarPath = PathUtil.getJarPathForClass(getClass());
       commandLine.addParameter(new StringBuilder().append(myJarPath).
