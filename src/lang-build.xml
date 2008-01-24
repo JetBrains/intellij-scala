@@ -14,7 +14,7 @@
   -->
 
 <project name="Generate various scala packages for parser needs" default="rebuild.all">
-<!--<property file="scala.properties"/>-->
+  <!--<property file="scala.properties"/>-->
   <property name="base.dir" value="${project.lib}/../../.."/>
   <property name="idea.lib" value="${idea.pack}/lib"/>
   <property name="output" value="${project.lib}/dist"/>
@@ -57,11 +57,9 @@
     <fileset dir="${java.lib}">
       <include name="**/*.jar"/>
     </fileset>
-    <!--
-        <fileset dir="${idea.lib}/jre/lib">
-          <include name="**/*.jar"/>
-        </fileset>
-    -->
+    <fileset dir="${idea.lib}/../plugins/">
+      <include name="**/*.jar"/>
+    </fileset>
     <fileset dir="${idea.lib}">
       <include name="**/*.jar"/>
     </fileset>
@@ -222,10 +220,10 @@
 
       <batchtest todir="${base.dir}/logs">
         <fileset dir="${base.dir}/test">
-<!--
-          <include name="**/FormatterTest.java"/>
-          <include name="**/EnterActionTest.java"/>
--->
+          <!--
+                    <include name="**/FormatterTest.java"/>
+                    <include name="**/EnterActionTest.java"/>
+          -->
           <include name="**/ParserTest.java"/>
           <include name="**/LexerTest.java"/>
         </fileset>
