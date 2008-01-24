@@ -41,10 +41,12 @@ object ScalaResolveUtil {
 
       if (elt == null) return null
       var cur = elt
+/*
       while (cur.processDeclarations(processor, PsiSubstitutor.EMPTY, if (cur == elt) lastParent else null, place)) {
         if (cur.isInstanceOf[PsiFile]) return null
         cur = cur.getParent
       }
+*/
 
       val result = processor.asInstanceOf[ScalaPsiScopeProcessor].getResult
       result
@@ -60,7 +62,7 @@ object ScalaResolveUtil {
 
     var result = ""
     var parent = if (! elt.isInstanceOf[ScalaFile]) elt.getParent else elt
-    while (! parent.isInstanceOf[ScalaFile] && parent!= null) {
+    while (!parent.isInstanceOf[ScalaFile] && parent!= null) {
       parent match {
         case pack: ScPackaging => {
           result = pack.asInstanceOf[ScPackaging].getFullPackageName + "." + result

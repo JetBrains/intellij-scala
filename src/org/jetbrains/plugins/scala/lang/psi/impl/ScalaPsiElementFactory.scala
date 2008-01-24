@@ -35,14 +35,17 @@ import com.intellij.psi.impl.source.CharTableImpl
 object ScalaPsiElementFactory {
 
   private val DUMMY = "dummy." 
+/*
   def createExpressionFromText(buffer: String, manager: PsiManager): ASTNode = {
     def isExpr = (elementType: IElementType) => (ScalaElementTypes.EXPRESSION_BIT_SET.contains(elementType))
 
     val definition: ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
     //    if (definition != null) ...
+
+    val facade = JavaPsiFacade.getInstance(manager.getProject)
     val text = "class a {" + buffer + "}"
 
-    val dummyFile: PsiFile = manager.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
+    val dummyFile: PsiFile = facade.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
 
     val classDef = dummyFile.getFirstChild
     val topDefTmpl = classDef.getLastChild
@@ -54,7 +57,9 @@ object ScalaPsiElementFactory {
 
     expression.asInstanceOf[ScalaExpression].getNode
   }
+*/
 
+/*
   def createIdentifierFromText(id: String, manager: PsiManager): ASTNode = {
     val definition: ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
     val text = "class " + id + "{}"
@@ -64,7 +69,9 @@ object ScalaPsiElementFactory {
     val classDef = dummyFile.getTmplDefs.head
     classDef.nameNode.getNode
   }
+*/
 
+/*
   def createTemplateStatementFromText(buffer: String, manager: PsiManager): ASTNode = {
     def isStmt = (element: PsiElement) => (element.isInstanceOf[ScTemplateStatement])
 
@@ -85,7 +92,9 @@ object ScalaPsiElementFactory {
     stmt.asInstanceOf[ScTemplateStatement].getNode
 
   }
+*/
 
+/*
   def createPattern2FromText(buffer: String, manager: PsiManager): ASTNode = {
     def isPattern2 = (elementType: IElementType) => (ScalaElementTypes.PATTERN2_BIT_SET.contains(elementType))
     def isTemplateStmt = (elementType: IElementType) => (ScalaElementTypes.TMPL_STMT_BIT_SET.contains(elementType))
@@ -110,4 +119,5 @@ object ScalaPsiElementFactory {
 
     pattern2.asInstanceOf[ScPattern2].getNode
   }
+*/
 }

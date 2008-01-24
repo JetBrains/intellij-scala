@@ -1,6 +1,5 @@
 /*
- * Copyright 2000-2006 JetBrains s.r.o.
- *
+ * Copyright 2000-2008 JetBrains s.r.o.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -83,6 +82,7 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
   }
 
   public void setupSdkPaths(Sdk sdk) {
+/*
     final SdkModificator sdkModificator = sdk.getSdkModificator();
     sdkModificator.removeAllRoots();
     String dirPath = getLibraryDirPath(sdk);
@@ -127,8 +127,10 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
       }
     }
     sdkModificator.commitChanges();
+*/
   }
 
+/*
   private boolean rootContains(VirtualFile file, Sdk sdk) {
     final SdkModificator sdkModificator = sdk.getSdkModificator();
     VirtualFile[] roots = sdkModificator.getRoots(ProjectRootType.SOURCE);
@@ -156,7 +158,9 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
       }
     }
   }
+*/
 
+/*
   private void addSourcesForJava(SdkModificator sdkModificator, @NotNull Sdk javaSdk) {
     if (!addOrderEntriesForJava(OrderRootType.SOURCES, ProjectRootType.SOURCE, javaSdk, sdkModificator)) {
       if (SystemInfo.isMac) {
@@ -180,7 +184,9 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
       }
     }
   }
+*/
 
+/*
   private boolean addOrderEntriesForJava(OrderRootType orderRootType,
                                          ProjectRootType projectRootType,
                                          Sdk sdk,
@@ -194,6 +200,7 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
     }
     return wasSmthAdded;
   }
+*/
 
 
   public AdditionalDataConfigurable createAdditionalDataConfigurable(SdkModel sdkModel, SdkModificator sdkModificator) {
@@ -213,12 +220,14 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
     return getConvertedHomePath(sdk) + BIN_DIR_NAME;
   }
 
+/*
   @Nullable
   public String getToolsPath(Sdk sdk) {
     Sdk javaSdk = ((JavaSdkData) sdk.getSdkAdditionalData()).findSdk();
     if (javaSdk == null) return null;
-    return javaSdk.getSdkType().getToolsPath(javaSdk);
+    return javaSdk.getSdkType().getgetToolsPath(javaSdk);
   }
+*/
 
   @Nullable
   public String getScalaCompilerPath(Sdk sdk) {
@@ -240,7 +249,7 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
     if (data == null) return null;
     Sdk javaSdk = data.findSdk();
     if (javaSdk == null) return null;
-    return javaSdk.getSdkType().getVMExecutablePath(javaSdk);
+    return javaSdk.getHomePath() + File.separator + "java";
   }
 
   @Nullable

@@ -1,6 +1,5 @@
 /*
- * Copyright 2000-2006 JetBrains s.r.o.
- *
+ * Copyright 2000-2008 JetBrains s.r.o.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -136,12 +135,14 @@ public class ScalaPsiElementFinder implements PsiElementFinder, ProjectComponent
   public PsiClass[] getClasses(PsiPackage psiPackage, GlobalSearchScope scope) {
     ArrayList<PsiClass> list = new ArrayList<PsiClass>();
     final PsiDirectory[] dirs = psiPackage.getDirectories(scope);
+/*
     for (PsiDirectory dir : dirs) {
-      PsiClass[] classes = dir.getClasses();
+      PsiClass[] classes = dir.get;
       for (PsiClass aClass : classes) {
         list.add(aClass);
       }
     }
+*/
     return list.toArray(new PsiClass[list.size()]);
   }
 

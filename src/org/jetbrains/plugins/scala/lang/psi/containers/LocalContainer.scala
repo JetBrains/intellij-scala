@@ -61,12 +61,14 @@ trait LocalContainer extends ScalaPsiElement {
           substitutor: PsiSubstitutor): Boolean = {
 
     // Scan for variable
+/*
     for (val varDef <- getVariables ::: getValues ::: childrenOfType[ScFunction](funSet).toList;
         varDef.getTextOffset <= varOffset) {
       if (varDef != null && ! processor.execute(varDef, substitutor)) {
         return false
       }
     }
+*/
     return true
   }
 

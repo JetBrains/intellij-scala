@@ -43,6 +43,7 @@ class ScPackaging(node: ASTNode) extends ScalaPsiElementImpl (node) with Blocked
 
   def getTypeDefs = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_OR_TYPE_BIT_SET)
 
+/*
   override def processDeclarations(processor: PsiScopeProcessor,
           substitutor: PsiSubstitutor,
           lastParent: PsiElement,             
@@ -55,6 +56,7 @@ class ScPackaging(node: ASTNode) extends ScalaPsiElementImpl (node) with Blocked
       getClazz(getTypeDefs, processor, substitutor)
     } else true
   }
+*/
 
 
   def getInnerPackagings: Iterable[ScPackaging] = childrenOfType[ScPackaging](ScalaElementTypes.PACKAGING_BIT_SET)

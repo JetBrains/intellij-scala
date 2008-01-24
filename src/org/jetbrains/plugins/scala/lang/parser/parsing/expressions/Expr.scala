@@ -28,7 +28,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
   import com.intellij.lexer.Lexer
   import com.intellij.lang.impl.PsiBuilderImpl
   //import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-  import com.intellij.psi.PsiManager
+  import com.intellij.psi._
   import com.intellij.psi.impl.source.CharTableImpl
 
   object ResultExpr {
@@ -159,6 +159,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
     */
 
     private val DUMMY = "dummy.";
+/*
     def createExpressionFromText(buffer: String, manager: PsiManager): ASTNode = {
       def isExpr = (elementType: IElementType) => (ScalaElementTypes.EXPRESSION_BIT_SET.contains(elementType))
 
@@ -166,7 +167,8 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
       //    if (definition != null) ...
       val text = "class a {" + buffer + "}"
 
-      val dummyFile: PsiFile = manager.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
+      val facade = JavaPsiFacade.getInstance(manager.getProject)
+      val dummyFile: PsiFile = facade.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
 
       val classDef = dummyFile.getFirstChild
       val topDefTmpl = classDef.getLastChild
@@ -180,6 +182,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 
       //    val expression : ScExprImpl = dummyFile.getFirstChild.getLastChild.asInstanceOf[ScalaPsiElementImpl].childSatisfyPredicate(isExpr).asInstanceOf[ScExprImpl]
     }
+*/
 
     def parse(builder: PsiBuilder): ScalaElementType = {
       var exprMarker = builder.mark()

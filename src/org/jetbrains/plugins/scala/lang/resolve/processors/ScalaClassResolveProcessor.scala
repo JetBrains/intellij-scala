@@ -28,7 +28,9 @@ class ScalaClassResolveProcessor(val myName: String, val offset: Int) extends Sc
 
   def getName = myName
 
-  def execute(element: PsiElement, substitutor: PsiSubstitutor): Boolean = {
+  import com.intellij.psi._
+
+  def execute(element: PsiElement, substitutor: ResolveState): Boolean = {
     if (element.isInstanceOf[ScTmplDef]) {
       if (element.asInstanceOf[ScTmplDef].getName.equals(myName) &&
       ! element.isInstanceOf[ScObjectDefinition]) {

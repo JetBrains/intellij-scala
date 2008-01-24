@@ -33,6 +33,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 class ScTypeDefinition(node: ASTNode) extends ScTmplDef(node)  with IfElseIndent{
   import _root_.scala.tools.nsc.util._
 
+  override def setName(s: String) = this
+
   override def toString: String = "type" + " " + super.toString
 
   def getTemplateBody = getChild(ScalaElementTypes.TEMPLATE_BODY).asInstanceOf[ScTemplateBody]

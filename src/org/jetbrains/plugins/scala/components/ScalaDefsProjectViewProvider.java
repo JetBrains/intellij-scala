@@ -1,6 +1,5 @@
 /*
- * Copyright 2000-2006 JetBrains s.r.o.
- *
+ * Copyright 2000-2008 JetBrains s.r.o.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,6 +28,7 @@ import com.intellij.openapi.actionSystem.DataConstants;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
 import com.intellij.lang.StdLanguages;
 import com.intellij.refactoring.actions.MoveAction;
 import com.intellij.refactoring.RefactoringActionHandler;
@@ -82,13 +82,15 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
       Object value = child.getValue();
       if (value instanceof PsiFile && ((PsiFile) value).getLanguage().equals(ScalaFileType.SCALA_FILE_TYPE.getLanguage())) {
         PsiJavaFile javaPsi = (PsiJavaFile) ((PsiFile) value).getViewProvider().getPsi(StdLanguages.JAVA);
-        PsiClass[] classes = javaPsi.getClasses();
-        if (classes.length > 0) {
-          for (final PsiClass aClass : classes) {
-            result.add(new Node(aClass, settings));
+        if (javaPsi != null) {
+          PsiClass[] classes = javaPsi.getClasses();
+          if (classes.length > 0) {
+            for (final PsiClass aClass : classes) {
+              result.add(new Node(aClass, settings));
+            }
+          } else {
+            result.add(child);
           }
-        } else {
-          result.add(child);
         }
       } else {
         result.add(child);
@@ -112,6 +114,11 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
       }
     }
 
+    return null;
+  }
+
+  @Nullable
+  public PsiElement getTopLevelElement(PsiElement element) {
     return null;
   }
 

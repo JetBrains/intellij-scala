@@ -1,6 +1,5 @@
 /*
- * Copyright 2000-2006 JetBrains s.r.o.
- *
+ * Copyright 2000-2008 JetBrains s.r.o.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -65,12 +64,12 @@ public class SourceTest extends BaseScalaFileSetTestCase {
 
   public String transform(String testName, String fileText) throws Exception {
 
-    PsiManager psiManager = PsiManager.getInstance(project);
-    PsiElementFactory psiElementFactory = psiManager.getElementFactory();
+    JavaPsiFacade facade = JavaPsiFacade.getInstance(project);
+    PsiElementFactory psiElementFactory = facade.getElementFactory();
     Assert.assertNotNull(psiElementFactory);
     Assert.assertNotNull(TEMP_FILE);
     Assert.assertNotNull(fileText);
-    PsiFile psiFile = psiElementFactory.createFileFromText(TEMP_FILE, fileText);
+    PsiFile psiFile = PsiFileFactory.getInstance(project).createFileFromText(TEMP_FILE, fileText);
     String psiTree = DebugUtil.psiToString(psiFile, false);
     return psiTree;
 

@@ -31,6 +31,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 */
 case class ScClassDefinition(node: ASTNode) extends ScTypeDefinition (node) with LocalContainer{
 
+  override def setName(s: String) = this
+
   def getExtendsBlock = getChild(ScalaElementTypes.EXTENDS_BLOCK).asInstanceOf[ScExtendsBlock]
 
   override def getTemplateParents = if (getExtendsBlock != null) {
@@ -69,32 +71,36 @@ case class ScClassDefinition(node: ASTNode) extends ScTypeDefinition (node) with
   override def getVariable(processor: PsiScopeProcessor,
       substitutor: PsiSubstitutor): Boolean = {
     // Scan for parameters
-    for (val classParamDef <- getParameters; classParamDef.getTextOffset <= varOffset) {
-      if (classParamDef != null && ! processor.execute(classParamDef, substitutor)) {
-        return false
-      }
-    }
+    /*
+        for (val classParamDef <- getParameters; classParamDef.getTextOffset <= varOffset) {
+          if (classParamDef != null && ! processor.execute(classParamDef, substitutor)) {
+            return false
+          }
+        }
+    */
     return true
   }
 
   /**
   *  Process declarations of parameters
   */
-  override def processDeclarations(processor: PsiScopeProcessor,
-      substitutor: PsiSubstitutor,
-      lastParent: PsiElement,
-      place: PsiElement): Boolean = {
-    import org.jetbrains.plugins.scala.lang.resolve.processors._
+  /*
+    override def processDeclarations(processor: PsiScopeProcessor,
+        substitutor: PsiSubstitutor,
+        lastParent: PsiElement,
+        place: PsiElement): Boolean = {
+      import org.jetbrains.plugins.scala.lang.resolve.processors._
 
-    if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){
-        this.varOffset = processor.asInstanceOf[ScalaLocalVariableResolveProcessor].offset
-      getVariable(processor, substitutor)
-    } else true
-  }
+      if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){
+          this.varOffset = processor.asInstanceOf[ScalaLocalVariableResolveProcessor].offset
+        getVariable(processor, substitutor)
+      } else true
+    }
+  */
 
 
 
-  override def toString: String = super.toString + ": " + "class"
+  override def toString: String = super .toString + ": " + "class"
 
   override def getIcon(flags: Int) = Icons.CLASS
 }
@@ -104,8 +110,9 @@ case class ScClassDefinition(node: ASTNode) extends ScTypeDefinition (node) with
 */
 case class ScObjectDefinition(node: ASTNode) extends ScTmplDef (node) {
 
-  override def toString: String = super.toString + ": " + "object"
+  override def toString: String = super .toString + ": " + "object"
   override def getIcon(flags: Int) = Icons.OBJECT
+  override def setName(s: String) = this
 }
 
 /*
@@ -136,8 +143,10 @@ case class ScTraitDefinition(node: ASTNode) extends ScTypeDefinition (node) with
     }
   }
 
+  override def setName(s: String) = this
 
-  override def toString: String = super.toString + ": " + "trait"
+
+  override def toString: String = super .toString + ": " + "trait"
 
   override def getIcon(flags: Int) = Icons.TRAIT
 }

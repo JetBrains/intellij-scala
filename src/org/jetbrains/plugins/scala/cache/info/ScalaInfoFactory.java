@@ -1,6 +1,5 @@
 /*
- * Copyright 2000-2006 JetBrains s.r.o.
- *
+ * Copyright 2000-2008 JetBrains s.r.o.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -48,6 +47,7 @@ public class ScalaInfoFactory {
     PsiFile psiFile = myPsiManager.findFile(file);
     FileViewProvider provider = psiFile.getViewProvider();
     PsiJavaFile javaPsi = (PsiJavaFile) provider.getPsi(StdLanguages.JAVA);
+    if (javaPsi == null) return null;
     PsiClass[] classes = javaPsi.getClasses();
 
     final String parentDirUrl = file.getParent() == null ? null : file.getParent().getUrl();

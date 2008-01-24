@@ -98,6 +98,7 @@ case class ScTemplateBody(node: ASTNode) extends ScalaPsiElementImpl (node) with
     children
   }
 
+/*
   override def processDeclarations(processor: PsiScopeProcessor,
       substitutor: PsiSubstitutor,
       lastParent: PsiElement,
@@ -114,6 +115,8 @@ case class ScTemplateBody(node: ASTNode) extends ScalaPsiElementImpl (node) with
     } else true
 
   }
+*/
+
 }
 
 

@@ -1,6 +1,5 @@
 <!--
-  ~ Copyright 2000-2006 JetBrains s.r.o.
-  ~
+  ~ Copyright 2000-2008 JetBrains s.r.o.
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
@@ -21,8 +20,21 @@
   <description>Plugin for Scala language</description>
   <version>0.1</version>
   <vendor>SmartTeam</vendor>
-  <idea-version since-build="6733"/>
+  <idea-version since-build="8123"/>
   <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
+    <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
+    <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
+    <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
+    <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
+    <lang.foldingBuilder language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder"/>
+    <lang.formatter language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.formatting.ScalaFormattingModelBuilder"/>
+    <!--<lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>-->
+    <!--    <annotator language="Scala" implementationClass=""/>-->
+  </extensions>
+
 
   <application-components>
     <component>
@@ -64,7 +76,6 @@
       <interface-class>com.intellij.ide.projectView.TreeStructureProvider</interface-class>
       <implementation-class>org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider</implementation-class>
     </component>
-
   </project-components>
 
 

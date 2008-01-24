@@ -63,11 +63,14 @@ class ScalaClassReference(val myElement: PsiElement) extends PsiReference {
    * @throws IncorrectOperationException if the rename cannot be handled for some reason.
    */
   def handleElementRename(newElementName: String): PsiElement = {
+/*
     import org.jetbrains.plugins.scala.lang.psi.impl._
     val newChildNode = ScalaPsiElementFactory.createIdentifierFromText(newElementName,
             PsiManager.getInstance(myElement.getProject))
     myElement.getNode.replaceChild(myElement.getFirstChild.getNode, newChildNode)
     newChildNode.getPsi
+*/
+    null
   }
 
   /**

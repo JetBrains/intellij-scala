@@ -62,11 +62,13 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
     ""
   }
 
+/*
   override def setName(name: String) = {
     val newNode = ScalaPsiElementFactory.createIdentifierFromText(name, getManager)
     getNode.replaceChild(nameNode.getNode, newNode)
     this
   }
+*/
 
   override def getTextOffset = nameNode.getTextRange.getStartOffset
 
