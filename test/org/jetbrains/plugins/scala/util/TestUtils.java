@@ -1,6 +1,5 @@
 /*
- * Copyright 2000-2006 JetBrains s.r.o.
- *
+ * Copyright 2000-2008 JetBrains s.r.o.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +17,8 @@ package org.jetbrains.plugins.scala.util;
 
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiFileFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -37,7 +38,7 @@ public class TestUtils {
 
   public static PsiFile createPseudoPhysicalFile(final Project project, final String text, int i) throws IncorrectOperationException {
     String TEMP_FILE = project.getProjectFilePath() + "temp" + i + ".scala";
-    return PsiManager.getInstance(project).getElementFactory().createFileFromText(
+    return PsiFileFactory.getInstance(project).createFileFromText(
         TEMP_FILE,
         FileTypeManager.getInstance().getFileTypeByFileName(TEMP_FILE),
         text,
@@ -48,7 +49,7 @@ public class TestUtils {
 
   public static PsiFile createPseudoPhysicalFile(final Project project, final String text) throws IncorrectOperationException {
     String TEMP_FILE = project.getProjectFilePath() + "temp.scala";
-    return PsiManager.getInstance(project).getElementFactory().createFileFromText(
+    return PsiFileFactory.getInstance(project).createFileFromText(
         TEMP_FILE,
         FileTypeManager.getInstance().getFileTypeByFileName(TEMP_FILE),
         text,

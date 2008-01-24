@@ -1,6 +1,5 @@
 /*
- * Copyright 2000-2006 JetBrains s.r.o.
- *
+ * Copyright 2000-2008 JetBrains s.r.o.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +15,7 @@
 
 package org.jetbrains.plugins.scala.cache;
 
-import com.intellij.openapi.projectRoots.ProjectJdk;
+import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.roots.*;
 import com.intellij.openapi.project.Project;
@@ -49,7 +48,7 @@ import org.jetbrains.plugins.scala.cache.module.ScalaModuleCaches;
 public class ScalaSDKCachesManager implements ProjectComponent {
 
   private static final Logger LOG = Logger.getInstance(ScalaSDKCachesManager.class.getName());
-  protected Map<ProjectJdk, ScalaFilesCache> sdk2ScalaFilesCache = new HashMap<ProjectJdk, ScalaFilesCache>();
+  protected Map<Sdk, ScalaFilesCache> sdk2ScalaFilesCache = new HashMap<Sdk, ScalaFilesCache>();
 
   @NonNls
   private static final String SCALA_CACHE_DIR = "scala_caches";
@@ -69,15 +68,15 @@ public class ScalaSDKCachesManager implements ProjectComponent {
   private void createListeners() {
 
     jdkTableListener = new ProjectJdkTable.Listener() {
-      public void jdkAdded(final ProjectJdk sdk) {
+      public void jdkAdded(final Sdk sdk) {
         // Do nothing
       }
 
-      public void jdkRemoved(final ProjectJdk sdk) {
+      public void jdkRemoved(final Sdk sdk) {
         removeSDK(sdk, true);
       }
 
-      public void jdkNameChanged(final ProjectJdk sdk, final String previousName) {
+      public void jdkNameChanged(final Sdk sdk, final String previousName) {
         renameSDK(sdk, previousName);
       }
     };
@@ -87,7 +86,7 @@ public class ScalaSDKCachesManager implements ProjectComponent {
    * @param sdk Sdk to get ScalaFilesStorage
    * @return FilesCache for sdk
    */
-  public ScalaFilesCache getSdkFilesCache(final ProjectJdk sdk) {
+  public ScalaFilesCache getSdkFilesCache(final Sdk sdk) {
     return sdk2ScalaFilesCache.get(sdk);
   }
 
@@ -126,17 +125,17 @@ public class ScalaSDKCachesManager implements ProjectComponent {
   public void initSkdCaches(final Project project) {
 
     final Module[] modules = ModuleManager.getInstance(myProject).getModules();
-    final Set<ProjectJdk> sdk2Add = new HashSet<ProjectJdk>();
+    final Set<Sdk> sdk2Add = new HashSet<Sdk>();
     // Searching for all used sdk
     for (Module module : modules) {
-      final ProjectJdk sdk = ModuleRootManager.getInstance(module).getJdk();
+      final Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
       if (sdk != null) {
         sdk2Add.add(sdk);
       }
     }
     // remove old sdk
-    final Set<ProjectJdk> cachedSDKs = new HashSet<ProjectJdk>(sdk2ScalaFilesCache.keySet());
-    for (ProjectJdk sdk : cachedSDKs) {
+    final Set<Sdk> cachedSDKs = new HashSet<Sdk>(sdk2ScalaFilesCache.keySet());
+    for (Sdk sdk : cachedSDKs) {
       if (!sdk2Add.contains(sdk)) {
         removeSDK(sdk, true);
       } else {
@@ -144,16 +143,16 @@ public class ScalaSDKCachesManager implements ProjectComponent {
       }
     }
     // adding new Skds
-    for (ProjectJdk modulesSDK : sdk2Add) {
+    for (Sdk modulesSDK : sdk2Add) {
       addSDK(modulesSDK);
     }
   }
 
-  public Map<ProjectJdk, ScalaFilesCache> getSdkFilesCaches() {
+  public Map<Sdk, ScalaFilesCache> getSdkFilesCaches() {
     return sdk2ScalaFilesCache;
   }
 
-  protected void removeSDK(@NotNull final ProjectJdk sdk, final boolean removeCacheFromDisk) {
+  protected void removeSDK(@NotNull final Sdk sdk, final boolean removeCacheFromDisk) {
     final ScalaFilesCache cache = sdk2ScalaFilesCache.remove(sdk);
     if (cache != null) {
       if (removeCacheFromDisk) {
@@ -162,7 +161,7 @@ public class ScalaSDKCachesManager implements ProjectComponent {
     }
   }
 
-  public void addSDK(@NotNull final ProjectJdk sdk) {
+  public void addSDK(@NotNull final Sdk sdk) {
     final ScalaFilesCache newSdkCache = new ScalaFilesCacheImpl(myProject);
     newSdkCache.setCacheName(sdk.getName());
     newSdkCache.setCacheUrls(getSDKContentRootURLs(sdk));
@@ -180,7 +179,7 @@ public class ScalaSDKCachesManager implements ProjectComponent {
    * @return Path to file where cached information is saved.
    */
   @NotNull
-  private String generateCacheFilePath(@NotNull final ProjectJdk sdk) {
+  private String generateCacheFilePath(@NotNull final Sdk sdk) {
     return generateCacheFilePath(sdk, sdk.getName());
   }
 
@@ -190,24 +189,24 @@ public class ScalaSDKCachesManager implements ProjectComponent {
    * @return Path to file where cached information is saved.
    */
   @NotNull
-  private String generateCacheFilePath(@NotNull final ProjectJdk sdk, @NotNull final String name) {
+  private String generateCacheFilePath(@NotNull final Sdk sdk, @NotNull final String name) {
     return PathManager.getSystemPath() + "/" + SCALA_CACHE_DIR + "/" + SCALA_CACHE_FILE + "/" + name + "_" + sdk.getHomePath().hashCode();
   }
 
 
-  protected String[] getSDKContentRootURLs(@NotNull final ProjectJdk sdk) {
+  protected String[] getSDKContentRootURLs(@NotNull final Sdk sdk) {
     return sdk.getRootProvider().getUrls(OrderRootType.SOURCES);
   }
 
-  protected String generateCacheName(final ProjectJdk sdk) {
+  protected String generateCacheName(final Sdk sdk) {
     return generateCacheName(sdk, sdk.getName());
   }
 
-  protected String generateCacheName(final ProjectJdk sdk, final String sdkName) {
+  protected String generateCacheName(final Sdk sdk, final String sdkName) {
     return sdkName + "_" + sdk.getHomePath().hashCode();
   }
 
-  protected void renameSDK(final ProjectJdk sdk, final String previousName) {
+  protected void renameSDK(final Sdk sdk, final String previousName) {
     final File prevDataFile = new File(generateCacheFilePath(sdk, previousName));
     final File newDataFile = new File(generateCacheFilePath(sdk));
     try {

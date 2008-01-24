@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
 
 trait ScTemplateStatement extends ScalaPsiElement {
-  override def copy(): PsiElement = ScalaPsiElementFactory.createTemplateStatementFromText(this.getText, this.getManager).getPsi
+//  override def copy(): PsiElement = ScalaPsiElementFactory.createTemplateStatementFromText(this.getText, this.getManager).getPsi
 
   private def isDefinitionPredicate = (elementType: IElementType) => (elementType == ScalaTokenTypes.kTHIS)
 
@@ -197,17 +197,20 @@ with ScFunction with ScDefinition with IfElseIndent with LocalContainer {
       substitutor: PsiSubstitutor): Boolean = {
 
     // Scan for parameters
+/*
     for (val paramDef <- getParameters; paramDef.getTextOffset <= varOffset) {
       if (paramDef != null && ! processor.execute(paramDef, substitutor)) {
         return false
-      }
+      }                           
     }
+*/
     return true
   }
 
   /**
   *  Process declarations of parameters
   */
+/*
   override def processDeclarations(processor: PsiScopeProcessor,
       substitutor: PsiSubstitutor,
       lastParent: PsiElement,
@@ -219,6 +222,7 @@ with ScFunction with ScDefinition with IfElseIndent with LocalContainer {
       getVariable(processor, substitutor)
     } else true
   }
+*/
 
   override def toString: String = "function" + " " + super.toString
 

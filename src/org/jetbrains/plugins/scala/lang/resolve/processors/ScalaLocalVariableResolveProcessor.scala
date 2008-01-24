@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions.simpleExprs._
+import com.intellij.psi._
 
 class ScalaLocalVariableResolveProcessor(val myName: String, val offset: Int, val myElement: PsiElement) extends ScalaPsiScopeProcessor {
 
@@ -30,7 +31,7 @@ class ScalaLocalVariableResolveProcessor(val myName: String, val offset: Int, va
   def getName = myName
 
   // Process variable
-  def execute(element: PsiElement, substitutor: PsiSubstitutor): Boolean = {
+  def execute(element: PsiElement, substitutor: ResolveState): Boolean = {
     if (element.isInstanceOf[ScReferenceIdContainer]) {
 
       val valDef = element.asInstanceOf[ScReferenceIdContainer]

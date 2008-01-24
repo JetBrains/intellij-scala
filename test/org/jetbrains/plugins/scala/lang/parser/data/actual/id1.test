@@ -1,0 +1,6 @@
+object A extends B {
+  def foo() {
+    a.b.c.d.e  
+  }
+}
+-----

@@ -1,6 +1,5 @@
 /*
- * Copyright 2000-2006 JetBrains s.r.o.
- *
+ * Copyright 2000-2008 JetBrains s.r.o.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +24,7 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 
 public class ParserTest extends BaseScalaFileSetTestCase {
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/data/";
+  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/data/actual";
 
   public ParserTest() {
     super(  System.getProperty("path")!=null ?

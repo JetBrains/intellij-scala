@@ -40,6 +40,7 @@ class ClassObjectReference(myElement: PsiElement) extends ScalaClassReference(my
    * @throws IncorrectOperationException if the rename cannot be handled for some reason.
    */
   override def handleElementRename(newElementName: String): PsiElement = {
+/*
     if (myElement.getFirstChild.isInstanceOf[ScImportEndId] ||
     myElement.getFirstChild.isInstanceOf[ScSelectorBeginId]) {
       import org.jetbrains.plugins.scala.lang.psi.impl._
@@ -50,6 +51,8 @@ class ClassObjectReference(myElement: PsiElement) extends ScalaClassReference(my
     } else {
       null
     }
+*/
+    null
   }
 
 

@@ -4,7 +4,6 @@ import com.intellij.psi._
 import com.intellij.psi.meta.PsiMetaData
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.openapi.util.Pair
-import com.intellij.pom.java.PomMemberOwner
 import com.intellij.util.IncorrectOperationException
 import com.intellij.navigation.NavigationItem
 import com.intellij.ide.structureView.StructureViewTreeElement;
@@ -97,7 +96,7 @@ case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaEle
 
   def isInheritorDeep(baseClass: PsiClass, classToPass: PsiClass): Boolean = false
 
-  def getPom: PomMemberOwner = null
+//  def getPom: PomMemberOwner = null
 
   def getContainingClass: PsiClass = getParent match {
     case clazz: PsiClass => clazz.asInstanceOf[PsiClass]

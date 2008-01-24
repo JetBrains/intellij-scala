@@ -1,6 +1,5 @@
 /*
- * Copyright 2000-2006 JetBrains s.r.o.
- *
+ * Copyright 2000-2008 JetBrains s.r.o.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,10 +23,11 @@ import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.TranslatingCompiler;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.projectRoots.ProjectJdk;
+import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -92,10 +92,10 @@ public class ScalaCompiler implements TranslatingCompiler {
       Set<VirtualFile> files = entry.getValue();
       allCompiling.addAll(files);
       ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
-      ProjectJdk sdk = rootManager.getJdk();
+      Sdk sdk = rootManager.getSdk();
       assert sdk != null && sdk.getSdkType() instanceof ScalaSdkType;
       String scalaCompilerPath = ((ScalaSdkType) sdk.getSdkType()).getScalaCompilerPath(sdk);
-      String javaExe = sdk.getVMExecutablePath();
+      String javaExe = sdk.getHomePath() + File.separator + "java";
       GeneralCommandLine commandLine = new GeneralCommandLine();
       commandLine.setExePath(javaExe);
       commandLine.addParameter("-Xss128m");
@@ -117,9 +117,10 @@ public class ScalaCompiler implements TranslatingCompiler {
         printer.println("-verbose");
 
         //write output dir
-        String url = rootManager.getCompilerOutputPathUrl();
-        LOG.assertTrue(url != null);
-        String outputPath = VirtualFileManager.extractPath(url);
+        CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
+        VirtualFile virtualFile = compilerModuleExtension.getCompilerOutputPath();
+        LOG.assertTrue(virtualFile != null);
+        String outputPath = VirtualFileManager.extractPath(virtualFile.getUrl());
         printer.println("-d");
         printer.println(outputPath);
 
@@ -207,8 +208,8 @@ public class ScalaCompiler implements TranslatingCompiler {
     if (scalaFiles.length == 0) return true;
     Module[] modules = compileScope.getAffectedModules();
     for (Module module : modules) {
-      ProjectJdk jdk = ModuleRootManager.getInstance(module).getJdk();
-      if (jdk == null || !(jdk.getSdkType() instanceof ScalaSdkType)) {
+      Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
+      if (sdk == null || !(sdk.getSdkType() instanceof ScalaSdkType)) {
         Messages.showErrorDialog("Cannot compile scala files.\nPlease set up scala sdk", "Cannot compile");
         return false;
       }

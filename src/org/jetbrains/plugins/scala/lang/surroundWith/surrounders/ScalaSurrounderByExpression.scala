@@ -40,6 +40,7 @@ abstract class ScalaSurrounderByExpression extends Surrounder {
   }
 
   override def surroundElements(project : Project, editor : Editor, elements : Array[PsiElement]) : TextRange = {
+/*
       var newNode : ASTNode = null
       var childNode : ASTNode = null
 
@@ -51,6 +52,8 @@ abstract class ScalaSurrounderByExpression extends Surrounder {
       }
 
       return getSurroundSelectionRange(newNode);
+*/
+    return null
   }
 
   def isApplicable(expr : PsiElement) : Boolean

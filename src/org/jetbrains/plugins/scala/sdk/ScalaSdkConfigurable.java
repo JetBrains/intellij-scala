@@ -1,6 +1,5 @@
 /*
- * Copyright 2000-2006 JetBrains s.r.o.
- *
+ * Copyright 2000-2008 JetBrains s.r.o.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -47,8 +46,8 @@ public class ScalaSdkConfigurable implements AdditionalDataConfigurable {
       public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         final Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index, isSelected,
                                                                                        cellHasFocus);
-        if (value instanceof ProjectJdk) {
-          setText(((ProjectJdk)value).getName());
+        if (value instanceof Sdk) {
+          setText(((Sdk)value).getName());
         }
         return listCellRendererComponent;
       }

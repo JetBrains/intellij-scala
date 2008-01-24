@@ -42,6 +42,7 @@ with ScalaPsiElement with Importable{
 
   def getUpperDefs = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_DEF_BIT_SET)
 
+/*
   override def processDeclarations(processor: PsiScopeProcessor,
           substitutor: PsiSubstitutor,
           lastParent: PsiElement,
@@ -55,6 +56,7 @@ with ScalaPsiElement with Importable{
       getClazz(getUpperDefs, processor, substitutor)
     } else true
   }
+*/
 
 
 }

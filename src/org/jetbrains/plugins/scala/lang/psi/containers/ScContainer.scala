@@ -59,7 +59,7 @@ trait Importable extends ScalaPsiElement{
   private def getInExplicitImports(shortName: String, prefix: String): PsiElement = {
     var qualName = getQualifiedName(shortName, prefix, true)
     if (qualName != null) {
-      val manager = PsiManager.getInstance(this.getProject)
+      val manager = JavaPsiFacade.getInstance(this.getProject)
       var classes = manager.findClasses(qualName, this.getResolveScope())
       if (classes != null && classes.length > 0) {
         for (val clazz <- classes) {
@@ -112,7 +112,7 @@ trait Importable extends ScalaPsiElement{
   *
   */
   private def combWildcards(shortName: String, prefix: String): PsiElement = {
-    val manager = PsiManager.getInstance(this.getProject)
+    val manager = JavaPsiFacade.getInstance(this.getProject)
     for (val importExpr <- getImportExprs) {
       if (importExpr.hasWildcard && importExpr.getTextOffset <= offset) {
         val qualName = stickNames(importExpr.getImportReference.getText, prefix) + "." + shortName
@@ -144,7 +144,7 @@ trait Importable extends ScalaPsiElement{
   */
   private def getInPackage(shortName: String): PsiElement = {
     var qualPrefix = ScalaResolveUtil.getQualifiedPrefix(this)
-    val manager = PsiManager.getInstance(this.getProject)
+    val manager = JavaPsiFacade.getInstance(this.getProject)
     if (qualPrefix != null) {
       while (qualPrefix.contains(".")) {
         val classes = manager.findClasses(qualPrefix + shortName, this.getResolveScope())
@@ -175,6 +175,7 @@ trait Importable extends ScalaPsiElement{
   def getClazz(getDeclarations: => Iterable[PsiElement], processor: PsiScopeProcessor, substitutor: PsiSubstitutor): Boolean =
   {
 
+/*
     /*
         1. May be it is among local definitions  
     */
@@ -216,7 +217,7 @@ trait Importable extends ScalaPsiElement{
     /* We are already on top */
     if (this.isInstanceOf[PsiFile]) {
 
-      val manager = PsiManager.getInstance(this.getProject)
+      val manager = JavaPsiFacade.getInstance(this.getProject)
 
       /*
         4.5 May be, it is in empty package?
@@ -250,7 +251,7 @@ trait Importable extends ScalaPsiElement{
         return false
       }
     }
-
+*/
     return true
   }
 

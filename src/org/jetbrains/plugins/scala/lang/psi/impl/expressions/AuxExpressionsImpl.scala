@@ -108,17 +108,19 @@ case class ScAnFunImpl(node: ASTNode) extends ScExpr1Impl(node) with IfElseInden
   import com.intellij.psi.scope._
   import org.jetbrains.plugins.scala.lang.typechecker.types._
 
-  override def processDeclarations(processor: PsiScopeProcessor,
-      substitutor: PsiSubstitutor,
-      lastParent: PsiElement,
-      place: PsiElement): Boolean = {
-    import org.jetbrains.plugins.scala.lang.resolve.processors._
+  /*
+    override def processDeclarations(processor: PsiScopeProcessor,
+        substitutor: PsiSubstitutor,
+        lastParent: PsiElement,
+        place: PsiElement): Boolean = {
+      import org.jetbrains.plugins.scala.lang.resolve.processors._
 
-    if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){
-        this.varOffset = processor.asInstanceOf[ScalaLocalVariableResolveProcessor].offset
-      getBindingReferences(processor, substitutor)
-    } else true
-  }
+      if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){
+          this.varOffset = processor.asInstanceOf[ScalaLocalVariableResolveProcessor].offset
+        getBindingReferences(processor, substitutor)
+      } else true
+    }
+  */
 
   override def getAbstractType = {
     val bindingTypes = getBindings.map((b: ScBindingImpl)=> b.getExplicitType)
@@ -138,11 +140,13 @@ case class ScAnFunImpl(node: ASTNode) extends ScExpr1Impl(node) with IfElseInden
       substitutor: PsiSubstitutor): Boolean = {
 
     // Scan for parameters
-    for (val binding <- getBindings; binding.getTextOffset <= varOffset) {
-      if (binding != null && ! processor.execute(binding, substitutor)) {
-        return false
-      }
-    }
+    /*
+        for (val binding <- getBindings; binding.getTextOffset <= varOffset) {
+          if (binding != null && ! processor.execute(binding, substitutor)) {
+            return false
+          }
+        }
+    */
     return true
   }
 
@@ -164,26 +168,29 @@ with ScBlock with Importable with LocalContainer{
 
   def getTmplDefs = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_DEF_BIT_SET)
 
-  override def processDeclarations(processor: PsiScopeProcessor,
-      substitutor: PsiSubstitutor,
-      lastParent: PsiElement,
-      place: PsiElement): Boolean = {
-    import org.jetbrains.plugins.scala.lang.resolve.processors._
+/*
+   override def processDeclarations(processor: PsiScopeProcessor,
+       substitutor: PsiSubstitutor,
+       lastParent: PsiElement,
+       place: PsiElement): Boolean = {
+     import org.jetbrains.plugins.scala.lang.resolve.processors._
 
-    if (processor.isInstanceOf[ScalaClassResolveProcessor]) { // Get Class types
-        this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
-        this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
-      getClazz(getTmplDefs, processor, substitutor)
-    } else if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){
-      // Get Local variables
-        this.varOffset = processor.asInstanceOf[ScalaLocalVariableResolveProcessor].offset
-      getVariable(processor, substitutor)
-    } else true
-  }
+     if (processor.isInstanceOf[ScalaClassResolveProcessor]) { // Get Class types
+         this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
+         this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
+       getClazz(getTmplDefs, processor, substitutor)
+     } else if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){
+       // Get Local variables
+         this.varOffset = processor.asInstanceOf[ScalaLocalVariableResolveProcessor].offset
+       getVariable(processor, substitutor)
+     } else true
+   }
+*/
 }
 
+
 case class ScTupleImpl(node: ASTNode) extends ScalaPsiElementImpl (node){
-  override def toString: String = "Tuple"
-  def getType(): PsiType = null
+override def toString: String = "Tuple"
+def getType(): PsiType = null
 }
 

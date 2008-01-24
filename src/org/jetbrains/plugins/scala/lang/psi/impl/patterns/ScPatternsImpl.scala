@@ -58,7 +58,7 @@ case class ScPattern1Impl(node: ASTNode) extends ScalaPsiElementImpl (node) with
 case class ScPattern2Impl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPattern2 {
   override def toString: String = "Binding pattern"
 
-  override def copy(): PsiElement = ScalaPsiElementFactory.createPattern2FromText(this.getText, this.getManager).getPsi
+//  override def copy(): PsiElement = ScalaPsiElementFactory.createPattern2FromText(this.getText, this.getManager).getPsi
 
   def getVarid: PsiElement = getChild(ScalaTokenTypes.tIDENTIFIER)
 }
@@ -105,16 +105,18 @@ case class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wit
   import com.intellij.psi.scope._
   override def getVariable(processor: PsiScopeProcessor,
           substitutor: PsiSubstitutor): Boolean = {
+/*
     for (val pat <- childrenOfType[ScPattern](PATTERN_SET); pat.getTextOffset <= varOffset) {
       if (pat != null && ! processor.execute(pat, substitutor)) {
         return false
       }
     }
+*/
     return true
   }
 
   import com.intellij.psi.scope._
-  override def processDeclarations(processor: PsiScopeProcessor,
+  def processDeclarations(processor: PsiScopeProcessor,
           substitutor: PsiSubstitutor,
           lastParent: PsiElement,
           place: PsiElement): Boolean = {
