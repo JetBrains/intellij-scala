@@ -414,7 +414,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
         builder.getTokenType() match {
           case ScalaTokenTypes.tIDENTIFIER => {
             ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-            endMarker.done(ScalaElementTypes.IMPORT_END)
+            endMarker.done(ScalaElementTypes.REFERENCE)
             return
           }
 
@@ -516,7 +516,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
 
           val sel = builder.mark()
           ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-          sel.done(ScalaElementTypes.IMPORT_SELECTOR_BEGIN)
+          sel.done(ScalaElementTypes.REFERENCE)
 
 
           if (ScalaTokenTypes.tFUNTYPE.equals(builder.getTokenType)) {

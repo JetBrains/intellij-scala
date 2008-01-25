@@ -8,7 +8,7 @@ Scala file
       Stable Identifier
         PsiElement(identifier)('first')
       PsiElement(.)('.')
-      Import end
+      Reference identifier
         PsiElement(identifier)('item')
     PsiElement(,)(',')
     PsiWhiteSpace(' ')
@@ -16,5 +16,5 @@ Scala file
       Stable Identifier
         PsiElement(identifier)('second')
       PsiElement(.)('.')
-      Import end
+      Reference identifier
         PsiElement(identifier)('item')
