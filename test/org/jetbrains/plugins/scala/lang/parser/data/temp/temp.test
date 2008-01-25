@@ -1,6 +1,11 @@
-case class A{
+package s.w;
+
+package d.r.t
+{
+  class a{
+  }
 }
 
-case class B{
+class b{
 }
 -----

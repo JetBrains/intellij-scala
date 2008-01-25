@@ -1,0 +1,20 @@
+package a
+
+{
+}
+-----
+Scala file
+  Package statement
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    Qualified identifier
+      PsiElement(identifier)('a')
+    PsiElement(newline)('\n\n')
+  PsiErrorElement:wrong top statement declaration
+    <empty list>
+  PsiElement({)('{')
+  PsiWhiteSpace('\n')
+  trash
+    PsiErrorElement:out of compilation unit
+      <empty list>
+    PsiElement(})('}')

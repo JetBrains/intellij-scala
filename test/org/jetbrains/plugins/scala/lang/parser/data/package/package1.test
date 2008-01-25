@@ -8,8 +8,7 @@ Scala file
     PsiWhiteSpace(' ')
     Qualified identifier
       PsiElement(identifier)('a')
-    PsiElement(newline)('\n')
-  PsiWhiteSpace('\n')
+    PsiElement(newline)('\n\n')
   Import statement
     PsiElement(import)('import')
     PsiWhiteSpace(' ')

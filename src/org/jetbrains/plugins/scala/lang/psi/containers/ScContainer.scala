@@ -31,7 +31,7 @@ trait Importable extends ScalaPsiElement{
   */
   private def getImportExprs = {
     val importStatements = childrenOfType[ScImportStmt](ScalaElementTypes.IMPORT_STMT_BIT_SET)
-    (importStatements :\ (Nil: List[ScImportExpr]))((y: ScImportStmt, x: List[ScImportExpr]) => y.getImportExprs ::: x)
+      (importStatements :\ (Nil: List[ScImportExpr]))((y: ScImportStmt, x: List[ScImportExpr]) => y.getImportExprs ::: x)
   }
 
   /**
@@ -60,7 +60,8 @@ trait Importable extends ScalaPsiElement{
     var qualName = getQualifiedName(shortName, prefix, true)
     if (qualName != null) {
       val manager = JavaPsiFacade.getInstance(this.getProject)
-      var classes = manager.findClasses(qualName, this.getResolveScope())
+      val facade = JavaPsiFacade.getInstance(this.getProject)
+      var classes = facade.findClasses(qualName, this.getResolveScope())
       if (classes != null && classes.length > 0) {
         for (val clazz <- classes) {
           if (isValid(clazz, canBeObject)) {
@@ -69,7 +70,7 @@ trait Importable extends ScalaPsiElement{
         }
       } else {
         qualName = getQualifiedName(shortName, prefix, false)
-        classes = manager.findClasses(qualName, this.getResolveScope())
+        classes = facade.findClasses(qualName, this.getResolveScope())
         if (classes != null && classes.length > 0) {
           for (val clazz <- classes) {
             if (isValid(clazz, canBeObject)) {
@@ -116,7 +117,8 @@ trait Importable extends ScalaPsiElement{
     for (val importExpr <- getImportExprs) {
       if (importExpr.hasWildcard && importExpr.getTextOffset <= offset) {
         val qualName = stickNames(importExpr.getImportReference.getText, prefix) + "." + shortName
-        var classes = manager.findClasses(qualName, this.getResolveScope())
+        val facade = JavaPsiFacade.getInstance(this.getProject)
+        var classes = facade.findClasses(qualName, this.getResolveScope())
         if (classes != null && classes.length > 0) {
           for (val clazz <- classes) {
             if (isValid(clazz, canBeObject)) {
@@ -124,7 +126,7 @@ trait Importable extends ScalaPsiElement{
             }
           }
         } else {
-          classes = manager.findClasses(importExpr.getImportReference.getText + "." + shortName, this.getResolveScope())
+          classes = facade.findClasses(importExpr.getImportReference.getText + "." + shortName, this.getResolveScope())
           if (classes != null && classes.length > 0) {
             for (val clazz <- classes) {
               if (isValid(clazz, canBeObject)) {
@@ -145,9 +147,10 @@ trait Importable extends ScalaPsiElement{
   private def getInPackage(shortName: String): PsiElement = {
     var qualPrefix = ScalaResolveUtil.getQualifiedPrefix(this)
     val manager = JavaPsiFacade.getInstance(this.getProject)
+    val facade = JavaPsiFacade.getInstance(this.getProject)
     if (qualPrefix != null) {
       while (qualPrefix.contains(".")) {
-        val classes = manager.findClasses(qualPrefix + shortName, this.getResolveScope())
+        val classes = facade.findClasses(qualPrefix + shortName, this.getResolveScope())
         if (classes != null && classes.length > 0) {
           for (val clazz <- classes) {
             if (isValid(clazz, canBeObject)) {
@@ -176,6 +179,8 @@ trait Importable extends ScalaPsiElement{
   {
 
 /*
+    /*
+
     /*
         1. May be it is among local definitions  
     */
@@ -216,13 +221,13 @@ trait Importable extends ScalaPsiElement{
 
     /* We are already on top */
     if (this.isInstanceOf[PsiFile]) {
-
+      val facade = JavaPsiFacade.getInstance(this.getProject)
       val manager = JavaPsiFacade.getInstance(this.getProject)
 
       /*
         4.5 May be, it is in empty package?
       */
-      clazz = manager.findClass(processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
+      clazz = facade.findClass(processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
       if (clazz != null) {
         processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
         return false
@@ -232,7 +237,7 @@ trait Importable extends ScalaPsiElement{
       /*
          5. May be, it is in scala._ ?
       */
-      val classes = manager.findClasses("scala." + processor.asInstanceOf[ScalaPsiScopeProcessor].getName, this.getResolveScope())
+      val classes = facade.findClasses("scala." + processor.asInstanceOf[ScalaPsiScopeProcessor].getName, this.getResolveScope())
       if (classes != null) {
         for (val clazz <- classes) {
           if (isValid(clazz, canBeObject)) {
@@ -245,13 +250,15 @@ trait Importable extends ScalaPsiElement{
       /*
          6. May be, it is in java.lang.*?
       */
-      clazz = manager.findClass("java.lang." + processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
+      clazz = facade.findClass("java.lang." + processor.asInstanceOf[ScalaPsiScopeProcessor].getName)
       if (clazz != null) {
         processor.asInstanceOf[ScalaPsiScopeProcessor].setResult(clazz)
         return false
       }
     }
 */
+    */
+
     return true
   }
 
