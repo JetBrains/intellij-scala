@@ -30,8 +30,7 @@ Scala file
           Literal
             PsiElement(integer)('2')
           PsiElement())(')')
-      PsiElement(newline)('\n')
-      PsiWhiteSpace('  ')
+      PsiElement(newline)('\n  ')
       Infix expression
         Infix expression
           Reference expression

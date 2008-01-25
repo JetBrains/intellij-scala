@@ -55,18 +55,46 @@ object CompilationUnit extends ConstrWithoutNode {
         builder error "qualified identifier expected"
       }
 
-      var lastTokenInPackage = builder.getTokenType
-      packChooseMarker.rollbackTo
-
       if (builder.eof) {
         packChooseMarker.done(ScalaElementTypes.PACKAGE_STMT)
         return
       }
 
-      if (ScalaTokenTypes.STATEMENT_SEPARATORS.contains(lastTokenInPackage)){
-        Package parse builder
+      //If semicolon => package statement
+      if (ScalaTokenTypes.tSEMICOLON.equals(builder.getTokenType)){
+        ParserUtils.eatElement(builder,ScalaTokenTypes.tSEMICOLON)
+        packChooseMarker.rollbackTo
+        Package.parse(builder)
       }
-
+      //If other separator => try to understand package or packaging
+      else if (ScalaTokenTypes.STATEMENT_SEPARATORS.contains(builder.getTokenType)){
+        val s = builder.getTokenText
+        if (s.indexOf('\n',1) != -1) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
+          packChooseMarker.rollbackTo
+          Package.parse(builder)
+        }
+        else
+        {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
+          if (builder.eof) {
+             packChooseMarker.rollbackTo
+             Package.parse(builder)
+             return
+          }
+          if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)){
+             packChooseMarker.rollbackTo
+          }
+          else
+            packChooseMarker.rollbackTo
+            Package.parse(builder)
+        }
+      }
+      //Somthing other => try to parse packaging and catch syntactical mistake
+      else
+      {
+        packChooseMarker.rollbackTo
+      }
       if (builder.eof) {
         return
       }
@@ -211,6 +239,13 @@ object CompilationUnit extends ConstrWithoutNode {
         QualId parse builder
       } else {
         builder error "qualified identifier expected"
+      }
+
+      //If two new line characters => syntactical error
+      if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
+        val s = builder.getTokenText
+        if (s.indexOf('\n',1) == -1)
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
       }
 
       if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)){

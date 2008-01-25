@@ -190,7 +190,6 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpaceInLine})*
 
 %xstate IN_BLOCK_COMMENT_STATE
 %xstate IN_BLOCK_COMMENT_STATE_NEW_LINE
-%xstate IDENTIFIER_STATE
 
 %%
 
