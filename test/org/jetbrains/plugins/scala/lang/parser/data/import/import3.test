@@ -9,7 +9,7 @@ Scala file
       Stable Identifier
         PsiElement(identifier)('item1')
       PsiElement(.)('.')
-      Import end
+      Reference identifier
         PsiElement(identifier)('item1')
   PsiElement(newline)('\n')
   Import statement

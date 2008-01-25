@@ -1,11 +1,2 @@
-package s.w;
-
-package d.r.t
-{
-  class a{
-  }
-}
-
-class b{
-}
+import a.{a=>t,b=>_}
 -----
