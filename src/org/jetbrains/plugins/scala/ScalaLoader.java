@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
  * Time: 16:31:20
  */
 public class ScalaLoader implements ApplicationComponent {
-  public ScalaLoader() {}
+  public ScalaLoader(ScalaToolsFactory factory) {}
 
   public void initComponent() {
     loadScala();
@@ -45,7 +45,7 @@ public class ScalaLoader implements ApplicationComponent {
             new Runnable() {
               public void run() {
                 FileTypeManager.getInstance().registerFileType(ScalaFileType.SCALA_FILE_TYPE, "scala");
-              }
+              }  
             }
     );
 
