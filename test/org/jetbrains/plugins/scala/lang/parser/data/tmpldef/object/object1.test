@@ -8,9 +8,14 @@ Scala file
     PsiWhiteSpace(' ')
     Qualified identifier
       PsiElement(identifier)('a')
-    PsiElement(newline)('\n')
-  PsiWhiteSpace('\n')
-  type template definition: object
+    PsiElement(newline)('\n\n')
+  template definition: object
+    Modifiers
+      <empty list>
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('b')
+    extends block
+      <empty list>
+    template body
+      <empty list>

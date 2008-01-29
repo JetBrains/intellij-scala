@@ -174,6 +174,7 @@ object ScalaElementTypes {
   val PATTERN_DEFINITION = new ScalaElementType("pattern definition")
   val VARIABLE_DEFINITION = new ScalaElementType("variable definition")
   val TYPE_DEFINITION = new ScalaElementType("type definition")
+  val EARLY_DEFINITION = new ScalaElementType("early definition")
 
   /**************** functions *************************/
   val FUNCTION_DEFINITION = new ScalaElementType("function definition")

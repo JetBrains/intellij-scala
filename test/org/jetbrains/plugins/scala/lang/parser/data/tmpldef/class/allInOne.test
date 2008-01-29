@@ -1,0 +1,61 @@
+class Base extends Object {}
+trait Mixin extends Base {}
+object O extends Mixin {}
+-----
+Scala file
+  type template definition: class
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Base')
+    PsiWhiteSpace(' ')
+    extends block
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      template parents
+        constuctor
+          Stable Identifier
+            PsiElement(identifier)('Object')
+    PsiWhiteSpace(' ')
+    template body
+      PsiElement({)('{')
+      PsiElement(})('}')
+  PsiElement(newline)('\n')
+  type template definition: trait
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Mixin')
+    PsiWhiteSpace(' ')
+    extends block
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      template parents
+        constuctor
+          Stable Identifier
+            PsiElement(identifier)('Base')
+    PsiWhiteSpace(' ')
+    template body
+      PsiElement({)('{')
+      PsiElement(})('}')
+  PsiElement(newline)('\n')
+  template definition: object
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O')
+    PsiWhiteSpace(' ')
+    extends block
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      template parents
+        constuctor
+          Stable Identifier
+            PsiElement(identifier)('Mixin')
+    PsiWhiteSpace(' ')
+    template body
+      PsiElement({)('{')
+      PsiElement(})('}')

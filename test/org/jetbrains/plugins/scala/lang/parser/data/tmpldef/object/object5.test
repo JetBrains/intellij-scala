@@ -18,15 +18,18 @@ Scala file
     PsiWhiteSpace(' ')
     PsiElement({)('{')
     PsiWhiteSpace('\n  ')
-    type template definition: object
+    template definition: object
+      Modifiers
+        <empty list>
       PsiElement(object)('object')
       PsiWhiteSpace(' ')
       PsiElement(identifier)('a')
       PsiWhiteSpace(' ')
-      top definition template
-        template body
-          PsiElement({)('{')
-          PsiWhiteSpace('\n  ')
-          PsiElement(})('}')
+      extends block
+        <empty list>
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        PsiElement(})('}')
     PsiWhiteSpace('\n')
     PsiElement(})('}')

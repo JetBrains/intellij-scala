@@ -1,11 +1,17 @@
 object a [T]
 -----
 Scala file
-  type template definition: object
+  template definition: object
+    Modifiers
+      <empty list>
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-  PsiWhiteSpace(' ')
+    PsiWhiteSpace(' ')
+    extends block
+      <empty list>
+    template body
+      <empty list>
   Attribute clauses
     Attribute clause
       PsiElement([)('[')
@@ -14,5 +20,7 @@ Scala file
           Stable Identifier
             PsiElement(identifier)('T')
       PsiElement(])(']')
+  Modifiers
+    <empty list>
   PsiErrorElement:wrong type declaration
     <empty list>

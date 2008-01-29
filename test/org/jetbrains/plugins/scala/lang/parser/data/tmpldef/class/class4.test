@@ -3,11 +3,23 @@ class b
 ------
 Scala file
   type template definition: class
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
+    extends block
+      <empty list>
+    template body
+      <empty list>
   PsiElement(newline)('\n')
   type template definition: class
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('b')
+    extends block
+      <empty list>
+    template body
+      <empty list>
