@@ -2,6 +2,8 @@ class ABC requires DEF
 -----
 Scala file
   type template definition: class
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('ABC')
@@ -11,3 +13,7 @@ Scala file
       PsiWhiteSpace(' ')
       Stable Identifier
         PsiElement(identifier)('DEF')
+    extends block
+      <empty list>
+    template body
+      <empty list>

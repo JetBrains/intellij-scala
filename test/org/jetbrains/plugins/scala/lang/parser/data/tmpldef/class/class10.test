@@ -2,6 +2,8 @@ class A (unit : Unit)
 -----
 Scala file
   type template definition: class
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
@@ -14,7 +16,11 @@ Scala file
         PsiWhiteSpace(' ')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        Simple type
+        Simple Type
           Stable Identifier
             PsiElement(identifier)('Unit')
       PsiElement())(')')
+    extends block
+      <empty list>
+    template body
+      <empty list>

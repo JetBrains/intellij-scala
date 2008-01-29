@@ -1,7 +1,13 @@
 object a
 -----
 Scala file
-  type template definition: object
+  template definition: object
+    Modifiers
+      <empty list>
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
+    extends block
+      <empty list>
+    template body
+      <empty list>

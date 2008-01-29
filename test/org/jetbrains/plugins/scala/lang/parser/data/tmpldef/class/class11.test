@@ -12,3 +12,7 @@ Scala file
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
+    extends block
+      <empty list>
+    template body
+      <empty list>

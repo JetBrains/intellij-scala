@@ -2,8 +2,14 @@ case class a
 -----
 Scala file
   type template definition: class
+    Modifiers
+      <empty list>
     PsiElement(case)('case')
     PsiWhiteSpace(' ')
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
+    extends block
+      <empty list>
+    template body
+      <empty list>

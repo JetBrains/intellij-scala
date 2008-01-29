@@ -2,6 +2,8 @@ class A[T] extends B
 -----
 Scala file
   type template definition: class
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
@@ -11,11 +13,12 @@ Scala file
         PsiElement(identifier)('T')
       PsiElement(])(']')
     PsiWhiteSpace(' ')
-    top definition template
-      extends block
-        PsiElement(extends)('extends')
-        PsiWhiteSpace(' ')
-        template parents
-          constuctor
-            Stable Identifier
-              PsiElement(identifier)('B')
+    extends block
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      template parents
+        constuctor
+          Stable Identifier
+            PsiElement(identifier)('B')
+    template body
+      <empty list>

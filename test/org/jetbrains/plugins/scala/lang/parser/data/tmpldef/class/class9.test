@@ -2,6 +2,8 @@ class A [+T] requires B
 -----
 Scala file
   type template definition: class
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
@@ -19,3 +21,7 @@ Scala file
       PsiWhiteSpace(' ')
       Stable Identifier
         PsiElement(identifier)('B')
+    extends block
+      <empty list>
+    template body
+      <empty list>
