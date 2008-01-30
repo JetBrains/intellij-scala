@@ -92,6 +92,7 @@ object ScalaPsiCreator {
       case ScalaElementTypes.PATTERN_DEFINITION => new ScPatternDefinition(node)
       case ScalaElementTypes.VARIABLE_DEFINITION => new ScVariableDefinition(node)
       case ScalaElementTypes.FUNCTION_DEFINITION => new ScFunctionDefinition(node)
+      case ScalaElementTypes.TYPE_DEFINITION => new ScTypeDefinitionImpl(node)
 
       /********** function definition: supplementary constructor *************/
       case ScalaElementTypes.SELF_INVOCATION => new ScSelfInvocation(node)
@@ -107,6 +108,10 @@ object ScalaPsiCreator {
 
       /**************** pattern ******************/
       case ScalaElementTypes.PATTERN2_LIST => new ScPattern2List(node)
+
+      /**************** bounds *******************/
+      case ScalaElementTypes.LOWER_BOUND_TYPE => new ScLowerBoundImpl(node)
+      case ScalaElementTypes.UPPER_BOUND_TYPE => new ScUpperBoundImpl(node)
 
       /***************************************************/
       /********* PARAMETERS AND TYPE PARAMETERS **********/

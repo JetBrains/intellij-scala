@@ -5,32 +5,35 @@ class a {
 -----
 Scala file
   type template definition: class
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
-    top definition template
-      template body
-        PsiElement({)('{')
-        PsiWhiteSpace('\n  ')
-        function declaration
-          PsiElement(def)('def')
-          PsiWhiteSpace(' ')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      function definition
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        Reference identifier
           PsiElement(identifier)('b')
-          PsiWhiteSpace(' ')
-          parameters clause
-            PsiElement(()('(')
-            PsiElement())(')')
-        PsiElement(newline)('\n')
-        PsiWhiteSpace('  ')
+        PsiWhiteSpace(' ')
+        parameters clause
+          PsiElement(()('(')
+          PsiElement())(')')
+        PsiElement(newline)('\n  ')
         Block expression
           PsiElement({)('{')
           Block
             RETURN statement
               PsiElement(return)('return')
               PsiWhiteSpace(' ')
-              Stable Identifier
+              Reference expression
                 PsiElement(identifier)('a')
           PsiElement(})('}')
-        PsiWhiteSpace('\n')
-        PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

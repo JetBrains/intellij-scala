@@ -1,0 +1,57 @@
+object main{
+  def whileLoop (cond: => Boolean) (stat: => Unit): Unit
+}
+-----
+Scala file
+  template definition: object
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      function declaration
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        Reference identifier
+          PsiElement(identifier)('whileLoop')
+        PsiWhiteSpace(' ')
+        parameters clauses
+          parameters clause
+            PsiElement(()('(')
+            parameter
+              Reference identifier
+                PsiElement(identifier)('cond')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              Simple Type
+                Stable Identifier
+                  PsiElement(identifier)('Boolean')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          parameters clause
+            PsiElement(()('(')
+            parameter
+              Reference identifier
+                PsiElement(identifier)('stat')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              Simple Type
+                Stable Identifier
+                  PsiElement(identifier)('Unit')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        Simple Type
+          Stable Identifier
+            PsiElement(identifier)('Unit')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

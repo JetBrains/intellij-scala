@@ -1,0 +1,50 @@
+object Main{
+  var x,y : Int
+  var x : Int = _
+}
+-----
+Scala file
+  template definition: object
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Main')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      variable declaration
+        PsiElement(var)('var')
+        PsiWhiteSpace(' ')
+        list of identifiers
+          Reference identifier
+            PsiElement(identifier)('x')
+          PsiElement(,)(',')
+          Reference identifier
+            PsiElement(identifier)('y')
+        PsiWhiteSpace(' ')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        Simple Type
+          Stable Identifier
+            PsiElement(identifier)('Int')
+      PsiElement(newline)('\n  ')
+      variable declaration
+        PsiElement(var)('var')
+        PsiWhiteSpace(' ')
+        Reference identifier
+          PsiElement(identifier)('x')
+        PsiWhiteSpace(' ')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        Simple Type
+          Stable Identifier
+            PsiElement(identifier)('Int')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        PsiElement(_)('_')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

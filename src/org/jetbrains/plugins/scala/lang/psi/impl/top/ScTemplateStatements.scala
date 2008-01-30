@@ -283,6 +283,10 @@ case class ScTypeDeclaration(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   override def getName = nameNode.getText
 }
 
+case class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDefinition with ScTemplateStatement {
+  override def toString: String = "type " + super.toString
+}
+
 /************** function signature *********************/
 
 /* class ScFunctionSignature (node : ASTNode) extends ScalaPsiElementImpl (node) {

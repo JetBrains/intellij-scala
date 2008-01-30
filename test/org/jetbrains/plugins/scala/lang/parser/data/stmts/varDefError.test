@@ -1,0 +1,38 @@
+object y{
+  var Some(x):Int=_
+}
+-----
+Scala file
+  template definition: object
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('y')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      variable declaration
+        PsiElement(var)('var')
+        PsiWhiteSpace(' ')
+        Reference identifier
+          PsiElement(identifier)('Some')
+        PsiErrorElement:wrong value declaration
+          <empty list>
+      Typed statement
+        PsiElement(()('(')
+        Reference expression
+          PsiElement(identifier)('x')
+        PsiElement())(')')
+        PsiElement(:)(':')
+        Simple Type
+          Stable Identifier
+            PsiElement(identifier)('Int')
+      PsiErrorElement:Definition or declaration expected
+        <empty list>
+      PsiElement(=)('=')
+      PsiElement(_)('_')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

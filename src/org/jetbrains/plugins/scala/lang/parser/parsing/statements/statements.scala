@@ -138,57 +138,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
 
     def parseBodyNode(builder: PsiBuilder): IElementType = {
 
-      if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-        Ids parse builder
-      } else {
-        builder error "identifier expected "
-      }
-
-      var hasTypeDcl = false
-      if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-
-        if (BNF.firstType.contains(builder.getTokenType)) {
-          Type parse builder
-        } else {
-          builder error "type declaration expected"
-        }
-
-        hasTypeDcl = true
-      }
-
-      //if there is no '=' it is mean, that construction is declaration, else definition
-      if (! ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
-        if (! hasTypeDcl) {
-          builder error "wrong variable declaration"
-        }
-
-        return ScalaElementTypes.VARIABLE_DECLARATION
-      } else {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
-
-        if (BNF.firstExpr.contains(builder.getTokenType)) {
-          Expr parse builder
-        } else if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
-        } else {
-          builder error "wrong start of expression"
-        }
-
-        return ScalaElementTypes.VARIABLE_DEFINITION
-      }
-
-      return ScalaElementTypes.WRONGWAY
-    }
-  }
-
-  object Val extends ConstrUnpredict {
-    override def parseBody(builder: PsiBuilder): Unit = {
-      parseBodyNode(builder)
-    }
-
-    def parseBodyNode(builder: PsiBuilder): IElementType = {
-
+      val idsMarker = builder.mark
       val pattern2sMarker = builder.mark
 
       if (BNF.firstPattern2.contains(builder.getTokenType)){
@@ -196,6 +146,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
       } else {
         builder error "pattern expected"
         pattern2sMarker.drop()
+        idsMarker.drop
         return ScalaElementTypes.WRONGWAY
       }
 
@@ -211,6 +162,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         } else {
           builder error "pattern expected"
           pattern2sMarker.drop()
+          idsMarker.drop
           return ScalaElementTypes.WRONGWAY
         }
       }
@@ -234,7 +186,134 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
 
       //if there is no '=' it is mean, that construction is declaration, else definition
       if (! ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
-        if (! hasTypeDcl) {
+        idsMarker.rollbackTo
+        Ids.parse(builder)
+        if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
+
+          if (BNF.firstType.contains(builder.getTokenType)) {
+            Type parse builder
+          } else {
+            builder error "type declaration expected"
+          }
+        }
+        else
+        {
+          builder error "wrong value declaration"
+        }
+        return ScalaElementTypes.VARIABLE_DECLARATION
+      } else {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
+
+        if (BNF.firstExpr.contains(builder.getTokenType)) {
+          Expr parse builder
+        } else if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
+          idsMarker.rollbackTo
+          Ids.parse(builder)
+          if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
+            ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
+            if (BNF.firstType.contains(builder.getTokenType)) {
+              Type parse builder
+              if (ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)){
+                ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
+                if (ScalaTokenTypes.tUNDER.equals(builder.getTokenType)) {
+                  ParserUtils.eatElement(builder, ScalaTokenTypes.tUNDER)
+                } else {
+                  builder error "underline character expected"
+                }
+              }
+              else {
+                builder error "assign character expected"
+              }
+            } else {
+              builder error "type declaration expected"
+            }
+          }
+          else
+          {
+            builder error "wrong value declaration"
+          }
+          return ScalaElementTypes.VARIABLE_DECLARATION
+        } else {
+          builder error "wrong start of expression"
+        }
+        idsMarker.drop
+        return ScalaElementTypes.VARIABLE_DEFINITION
+      }
+
+      return ScalaElementTypes.WRONGWAY
+    }
+  }
+
+  object Val extends ConstrUnpredict {
+    override def parseBody(builder: PsiBuilder): Unit = {
+      parseBodyNode(builder)
+    }
+
+    def parseBodyNode(builder: PsiBuilder): IElementType = {
+
+      val idsMarker = builder.mark
+      val pattern2sMarker = builder.mark
+
+      if (BNF.firstPattern2.contains(builder.getTokenType)){
+          (new Pattern2()).parse(builder)
+      } else {
+        builder error "pattern expected"
+        pattern2sMarker.drop()
+        idsMarker.drop
+        return ScalaElementTypes.WRONGWAY
+      }
+
+      var numberOfPattern2s = 1;
+
+      while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+
+        if (BNF.firstPattern2.contains(builder.getTokenType)){
+            (new Pattern2()).parse(builder)
+          numberOfPattern2s = numberOfPattern2s + 1;
+
+        } else {
+          builder error "pattern expected"
+          pattern2sMarker.drop()
+          idsMarker.drop
+          return ScalaElementTypes.WRONGWAY
+        }
+      }
+
+      if (numberOfPattern2s > 1) pattern2sMarker.done(ScalaElementTypes.PATTERN2_LIST)
+      else pattern2sMarker.drop
+
+      var hasTypeDcl = false
+
+      if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
+        ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
+
+        if (BNF.firstType.contains(builder.getTokenType)) {
+          Type parse builder
+        } else {
+          builder error "type declaration expected"
+        }
+
+        hasTypeDcl = true
+      }
+
+      //if there is no '=' it is mean, that construction is declaration, else definition
+      if (! ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
+        idsMarker.rollbackTo
+        Ids.parse(builder)
+        if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
+          ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
+
+          if (BNF.firstType.contains(builder.getTokenType)) {
+            Type parse builder
+          } else {
+            builder error "type declaration expected"
+          }
+        }
+        else
+        {
           builder error "wrong value declaration"
         }
 
@@ -247,7 +326,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         } else {
           builder error "wrong start of expression"
         }
-
+        idsMarker.drop
         return ScalaElementTypes.PATTERN_DEFINITION
       }
 
@@ -263,15 +342,6 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
     def parseBodyNode(builder: PsiBuilder): IElementType = {
       if (BNF.firstFunSig.contains(builder.getTokenType)) {
         FunSig parse builder
-
-        //          if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) {
-        //            ParserUtils.eatElement(builder, ScalaTokenTypes.tLINE_TERMINATOR)
-        //          }
-
-        //          if (BNF.firstBlock.contains(builder.getTokenType)) {
-        //            Block.parse(builder, false)
-        //            return ScalaElementTypes.FUNCTION_DEFINITION
-        //          }
 
         var hasTypeDcl = false
         if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
@@ -295,7 +365,10 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
           }
           return ScalaElementTypes.FUNCTION_DEFINITION
           // procedure may be - without '='
-        } else if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)){
+        } else if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType) ||
+        ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)){
+          if (ScalaTokenTypes.tLINE_TERMINATOR.equals(builder.getTokenType)) builder.advanceLexer
+          if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)){
           val bm = builder.mark()
           builder.advanceLexer()
           if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
@@ -311,6 +384,9 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
             bm.done(ScalaElementTypes.BLOCK_EXPR)
           }
           return ScalaElementTypes.FUNCTION_DEFINITION
+        } else {
+            return ScalaElementTypes.FUNCTION_DECLARATION
+        }
         } else {
           return ScalaElementTypes.FUNCTION_DECLARATION
         }
@@ -381,6 +457,11 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         builder error "identifier expected"
       }
 
+      var isTypeParamClause = false;
+      if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
+        isTypeParamClause = ScalaElementTypes.TYPE_PARAM_CLAUSE.equals(new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder)
+      }
+
       var isTypeDcl = false;
       if (ScalaTokenTypes.tLOWER_BOUND.equals(builder.getTokenType)) {
         val lowerBoundMarker = builder.mark
@@ -410,20 +491,13 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
         }
       }
 
-      var isTypeParamClause = false;
-      if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
-        isTypeParamClause = ScalaElementTypes.TYPE_PARAM_CLAUSE.equals(new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder)
-      }
 
       if (! ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)){
-        if (isTypeParamClause) {
-          builder error "'=' expected"
-        }
-
         return ScalaElementTypes.TYPE_DECLARATION
-
       } else {
-        if (isTypeDcl) builder error "unexpected '='"
+        if (isTypeDcl) {
+          return ScalaElementTypes.TYPE_DECLARATION
+        }
 
         ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
 
