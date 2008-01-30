@@ -42,9 +42,6 @@
     <fileset dir="${idea.lib}">
       <include name="**/*.jar"/>
     </fileset>
-    <fileset dir="${ant.lib}">
-      <include name="**/*.jar"/>
-    </fileset>
     <fileset dir="${project.lib}">
       <include name="**/*.class"/>
     </fileset>
