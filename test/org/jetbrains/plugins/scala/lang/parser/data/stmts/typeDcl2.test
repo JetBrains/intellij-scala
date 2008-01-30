@@ -1,0 +1,35 @@
+abstract class base{
+  type f >:Int <:Any
+}
+-----
+Scala file
+  type template definition: class
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('base')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      type declaration
+        PsiElement(type)('type')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('f')
+        PsiWhiteSpace(' ')
+        Lower bound type
+          PsiElement(>:)('>:')
+          Simple Type
+            Stable Identifier
+              PsiElement(identifier)('Int')
+        PsiWhiteSpace(' ')
+        Upper bound type
+          PsiElement(<:)('<:')
+          Simple Type
+            Stable Identifier
+              PsiElement(identifier)('Any')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

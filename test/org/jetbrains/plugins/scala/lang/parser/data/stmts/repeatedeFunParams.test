@@ -1,0 +1,9 @@
+object main{
+  def sum(args: Int*) = {
+    var result = 0
+    for (arg <args.
+    elements) result += arg
+    result
+  }
+}
+-----

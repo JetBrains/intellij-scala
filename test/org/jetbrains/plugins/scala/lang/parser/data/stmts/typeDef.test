@@ -1,0 +1,33 @@
+object s{
+  type a[T] = Int
+}
+-----
+Scala file
+  template definition: object
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('s')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      type definition
+        PsiElement(type)('type')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('a')
+        type parameter clause
+          PsiElement([)('[')
+          type parameter
+            PsiElement(identifier)('T')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        Simple Type
+          Stable Identifier
+            PsiElement(identifier)('Int')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

@@ -1,0 +1,61 @@
+case class Some(x: Int){}
+object main{
+  val Some(x): Int
+}
+-----
+Scala file
+  type template definition: class
+    Modifiers
+      <empty list>
+    PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Some')
+    parameters clause
+      PsiElement(()('(')
+      parameter
+        Reference identifier
+          PsiElement(identifier)('x')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        Simple Type
+          Stable Identifier
+            PsiElement(identifier)('Int')
+      PsiElement())(')')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiElement(})('}')
+  PsiElement(newline)('\n')
+  template definition: object
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      value declaration
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        Reference identifier
+          PsiElement(identifier)('Some')
+        PsiErrorElement:wrong value declaration
+          <empty list>
+      Typed statement
+        PsiElement(()('(')
+        Reference expression
+          PsiElement(identifier)('x')
+        PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        Simple Type
+          Stable Identifier
+            PsiElement(identifier)('Int')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

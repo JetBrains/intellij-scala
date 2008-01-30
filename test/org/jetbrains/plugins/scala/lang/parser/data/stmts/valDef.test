@@ -1,0 +1,75 @@
+case class Some(x: Int){}
+object main{
+  val Some(x): Int = new Some(2)
+}
+------
+Scala file
+  type template definition: class
+    Modifiers
+      <empty list>
+    PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Some')
+    parameters clause
+      PsiElement(()('(')
+      parameter
+        Reference identifier
+          PsiElement(identifier)('x')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        Simple Type
+          Stable Identifier
+            PsiElement(identifier)('Int')
+      PsiElement())(')')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiElement(})('}')
+  PsiElement(newline)('\n')
+  template definition: object
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      pattern definition
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        Simple pattern
+          Stable Identifier
+            PsiElement(identifier)('Some')
+          Argument patterns
+            PsiElement(()('(')
+            Reference identifier pattern
+              PsiElement(identifier)('x')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        Simple Type
+          Stable Identifier
+            PsiElement(identifier)('Int')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        New template definition
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          template parents
+            constuctor
+              Stable Identifier
+                PsiElement(identifier)('Some')
+              PsiElement(()('(')
+              Argument expressions
+                Literal
+                  PsiElement(integer)('2')
+              PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
