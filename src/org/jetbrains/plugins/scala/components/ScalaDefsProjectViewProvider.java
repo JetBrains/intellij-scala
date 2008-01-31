@@ -77,7 +77,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
   }
 
   public Collection<AbstractTreeNode> modify(AbstractTreeNode parent, Collection<AbstractTreeNode> children, ViewSettings settings) {
-    List<AbstractTreeNode>result = new ArrayList<AbstractTreeNode>();
+    List<AbstractTreeNode> result = new ArrayList<AbstractTreeNode>();
     for (final AbstractTreeNode child : children) {
       Object value = child.getValue();
       if (value instanceof PsiFile && ((PsiFile) value).getLanguage().equals(ScalaFileType.SCALA_FILE_TYPE.getLanguage())) {
@@ -88,9 +88,9 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
             for (final PsiClass aClass : classes) {
               result.add(new Node(aClass, settings));
             }
-          } else {
-            result.add(child);
           }
+        } else {
+          result.add(child);
         }
       } else {
         result.add(child);
@@ -145,9 +145,11 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
     }
   }
 
-  public void projectOpened() {}
+  public void projectOpened() {
+  }
 
-  public void projectClosed() {}
+  public void projectClosed() {
+  }
 
   @NonNls
   @NotNull
@@ -155,7 +157,9 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
     return "ScalaDefsProjectViewProvider";
   }
 
-  public void initComponent() {}
+  public void initComponent() {
+  }
 
-  public void disposeComponent() {}
+  public void disposeComponent() {
+  }
 }
