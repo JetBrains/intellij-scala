@@ -8,7 +8,8 @@ import org.jetbrains.annotations.Nullable
 
 class ScalaIconProvider extends IconProvider {
   [Nullable]
-  override def getIcon(element : PsiElement, flags : Int) : Icon = {
+  override def getIcon(element: PsiElement, flags: Int): Icon = {
+
     if (element.isInstanceOf[ScalaFile]) {
       val file = element.asInstanceOf[ScalaFile]
       val name = file.getVirtualFile.getNameWithoutExtension
@@ -21,7 +22,6 @@ class ScalaIconProvider extends IconProvider {
         case clazz::_ => clazz.getIcon(flags)
       }
     }
-
     null
   }
 

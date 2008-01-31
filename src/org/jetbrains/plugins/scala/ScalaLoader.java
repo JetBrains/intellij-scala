@@ -49,7 +49,6 @@ public class ScalaLoader implements ApplicationComponent {
             }
     );
 
-
     CompletionUtil.registerCompletionData(ScalaFileType.SCALA_FILE_TYPE,
             ScalaToolsFactory.getInstance().createScalaCompletionData());
 
