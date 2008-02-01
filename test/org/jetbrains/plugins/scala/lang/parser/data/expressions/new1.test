@@ -3,3 +3,46 @@ class Temp {
   var foo = () => m
 }
 -----
+Scala file
+  type template definition: class
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Temp')
+    PsiWhiteSpace(' ')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      variable declaration
+        PsiElement(var)('var')
+        PsiWhiteSpace(' ')
+        Reference identifier
+          PsiElement(identifier)('m')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        Simple Type
+          Stable Identifier
+            PsiElement(identifier)('MAX')
+      PsiElement(newline)('\n  ')
+      variable definition
+        PsiElement(var)('var')
+        PsiWhiteSpace(' ')
+        Reference identifier pattern
+          PsiElement(identifier)('foo')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        Anonymous function
+          unit
+            PsiElement(()('(')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          Reference expression
+            PsiElement(identifier)('m')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

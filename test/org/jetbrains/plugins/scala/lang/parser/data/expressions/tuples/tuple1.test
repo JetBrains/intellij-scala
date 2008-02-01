@@ -1,9 +1,9 @@
 class C {
-  val b = {1}
-  val a={}
-  val c={1,}
-  val d={1,2}
-  val e={1,2,}
+  val b = (1)
+  val a=()
+  val c=(1,)
+  val d=(1,2)
+  val e=(1,2,)
 }
 -----
 Scala file

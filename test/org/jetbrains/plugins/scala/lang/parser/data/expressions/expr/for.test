@@ -1,0 +1,86 @@
+class a{
+  for { i <- 1 until n
+        j <- 1 until i
+        if isPrime(i+j)
+  } yield (i, j)
+}
+-----
+Scala file
+  type template definition: class
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      FOR statement
+        PsiElement(for)('for')
+        PsiWhiteSpace(' ')
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        Enumerators
+          Enumerator
+            Reference identifier pattern
+              PsiElement(identifier)('i')
+            PsiWhiteSpace(' ')
+            PsiElement(<-)('<-')
+            PsiWhiteSpace(' ')
+            Infix expression
+              Literal
+                PsiElement(integer)('1')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('until')
+              PsiWhiteSpace(' ')
+              Reference expression
+                PsiElement(identifier)('n')
+          PsiElement(newline)('\n        ')
+          Enumerator
+            Reference identifier pattern
+              PsiElement(identifier)('j')
+            PsiWhiteSpace(' ')
+            PsiElement(<-)('<-')
+            PsiWhiteSpace(' ')
+            Infix expression
+              Literal
+                PsiElement(integer)('1')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('until')
+              PsiWhiteSpace(' ')
+              Reference expression
+                PsiElement(identifier)('i')
+          PsiElement(newline)('\n        ')
+          Guard
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            Method call
+              Reference expression
+                PsiElement(identifier)('isPrime')
+              Argument expressions
+                PsiElement(()('(')
+                Infix expression
+                  Reference expression
+                    PsiElement(identifier)('i')
+                  PsiElement(identifier)('+')
+                  Reference expression
+                    PsiElement(identifier)('j')
+                PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        PsiElement(})('}')
+        PsiWhiteSpace(' ')
+        PsiElement(yield)('yield')
+        PsiWhiteSpace(' ')
+        Expression list
+          PsiElement(()('(')
+          Reference expression
+            PsiElement(identifier)('i')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          Reference expression
+            PsiElement(identifier)('j')
+          PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

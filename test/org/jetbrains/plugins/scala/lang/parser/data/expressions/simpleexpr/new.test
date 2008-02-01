@@ -1,0 +1,41 @@
+class a{
+  new {val x=5}
+  new b
+}
+-----
+Scala file
+  type template definition: class
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      New template definition
+        PsiElement(new)('new')
+        PsiWhiteSpace(' ')
+        template body
+          PsiElement({)('{')
+          pattern definition
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            Reference identifier pattern
+              PsiElement(identifier)('x')
+            PsiElement(=)('=')
+            Literal
+              PsiElement(integer)('5')
+          PsiElement(})('}')
+      PsiElement(newline)('\n  ')
+      New template definition
+        PsiElement(new)('new')
+        PsiWhiteSpace(' ')
+        template parents
+          constuctor
+            Stable Identifier
+              PsiElement(identifier)('b')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

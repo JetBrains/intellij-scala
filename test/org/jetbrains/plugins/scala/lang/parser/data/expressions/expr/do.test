@@ -1,5 +1,5 @@
-class a {
-  (b)
+class a{
+  do "hard work"; while (true)
 }
 -----
 Scala file
@@ -9,16 +9,23 @@ Scala file
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    PsiWhiteSpace(' ')
     extends block
       <empty list>
     template body
       PsiElement({)('{')
       PsiWhiteSpace('\n  ')
-      Expression list
+      DO statement
+        PsiElement(do)('do')
+        PsiWhiteSpace(' ')
+        Literal
+          PsiElement(string content)('"hard work"')
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        PsiElement(while)('while')
+        PsiWhiteSpace(' ')
         PsiElement(()('(')
-        Reference expression
-          PsiElement(identifier)('b')
+        Literal
+          PsiElement(true)('true')
         PsiElement())(')')
       PsiWhiteSpace('\n')
       PsiElement(})('}')

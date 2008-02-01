@@ -5,10 +5,14 @@ class C {
 -----
 Scala file
   type template definition: class
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('C')
     PsiWhiteSpace(' ')
+    extends block
+      <empty list>
     template body
       PsiElement({)('{')
       PsiWhiteSpace('\n')

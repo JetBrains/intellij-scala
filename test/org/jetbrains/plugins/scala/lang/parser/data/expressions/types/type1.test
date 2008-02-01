@@ -2,6 +2,8 @@ class A(a:(a=>(c,d)=>e))
 -----
 Scala file
   type template definition: class
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
@@ -35,3 +37,7 @@ Scala file
                   PsiElement(identifier)('e')
           PsiElement())(')')
       PsiElement())(')')
+    extends block
+      <empty list>
+    template body
+      <empty list>

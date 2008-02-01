@@ -1,0 +1,49 @@
+class a{
+  try {
+    0/0
+  }
+  finally{
+    "do nothing"
+  }
+}
+-----
+Scala file
+  type template definition: class
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      TRY statement
+        Try block
+          PsiElement(try)('try')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          Block
+            Infix expression
+              Literal
+                PsiElement(integer)('0')
+              PsiElement(identifier)('/')
+              Literal
+                PsiElement(integer)('0')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        Finally block
+          PsiElement(finally)('finally')
+          Block expression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            Block
+              Literal
+                PsiElement(string content)('"do nothing"')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

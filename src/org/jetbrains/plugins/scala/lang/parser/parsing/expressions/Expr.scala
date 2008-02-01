@@ -215,7 +215,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
 
       var first = if (builder.getTokenType != null) builder.getTokenType
       else ScalaTokenTypes.tWRONG
-      ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+      builder.advanceLexer
       var second = if (builder.getTokenType != null) builder.getTokenType
       else ScalaTokenTypes.tWRONG
 

@@ -8,9 +8,13 @@ def tryMatch =
 -----
 Scala file
   type template definition: class
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
+    extends block
+      <empty list>
     template body
       PsiElement({)('{')
       PsiWhiteSpace('\n')
@@ -53,32 +57,30 @@ Scala file
                         PsiElement(()('(')
                         PsiElement())(')')
                       PsiElement(;)(';')
+                      PsiErrorElement:object or class declaration expected
+                        <empty list>
               PsiWhiteSpace('\n        ')
               Case Clause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                Common pattern
-                  Simple pattern
-                    Stable Identifier
-                      PsiElement(identifier)('Some')
-                    Argument patterns
-                      PsiElement(()('(')
-                      Common pattern
-                        Simple pattern
-                          Stable Identifier
-                            PsiElement(identifier)('Pair')
-                          Argument patterns
-                            PsiElement(()('(')
-                            Common pattern
-                              Reference identifier
-                                PsiElement(identifier)('p')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            Common pattern
-                              Reference identifier
-                                PsiElement(identifier)('r')
-                            PsiElement())(')')
-                      PsiElement())(')')
+                Simple pattern
+                  Stable Identifier
+                    PsiElement(identifier)('Some')
+                  Argument patterns
+                    PsiElement(()('(')
+                    Simple pattern
+                      Stable Identifier
+                        PsiElement(identifier)('Pair')
+                      Argument patterns
+                        PsiElement(()('(')
+                        Reference identifier pattern
+                          PsiElement(identifier)('p')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        Reference identifier pattern
+                          PsiElement(identifier)('r')
+                        PsiElement())(')')
+                    PsiElement())(')')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace('\n      ')

@@ -1,5 +1,5 @@
-class a {
-  (b)
+class a{
+  (+2,3+9)
 }
 -----
 Scala file
@@ -9,7 +9,6 @@ Scala file
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    PsiWhiteSpace(' ')
     extends block
       <empty list>
     template body
@@ -17,8 +16,17 @@ Scala file
       PsiWhiteSpace('\n  ')
       Expression list
         PsiElement(()('(')
-        Reference expression
-          PsiElement(identifier)('b')
+        Prefix expression
+          PsiElement(identifier)('+')
+          Literal
+            PsiElement(integer)('2')
+        PsiElement(,)(',')
+        Infix expression
+          Literal
+            PsiElement(integer)('3')
+          PsiElement(identifier)('+')
+          Literal
+            PsiElement(integer)('9')
         PsiElement())(')')
       PsiWhiteSpace('\n')
       PsiElement(})('}')

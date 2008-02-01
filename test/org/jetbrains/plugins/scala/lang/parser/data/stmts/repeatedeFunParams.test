@@ -1,9 +1,90 @@
 object main{
   def sum(args: Int*) = {
     var result = 0
-    for (arg <args.
-    elements) result += arg
+    for (arg <- args.elements)
+      result += arg
     result
   }
 }
 -----
+Scala file
+  template definition: object
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      function definition
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        Reference identifier
+          PsiElement(identifier)('sum')
+        parameters clause
+          PsiElement(()('(')
+          parameter
+            Reference identifier
+              PsiElement(identifier)('args')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            parameter scala psi element
+              Simple Type
+                Stable Identifier
+                  PsiElement(identifier)('Int')
+              PsiElement(identifier)('*')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        Block expression
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          Block
+            variable definition
+              PsiElement(var)('var')
+              PsiWhiteSpace(' ')
+              Reference identifier pattern
+                PsiElement(identifier)('result')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              Literal
+                PsiElement(integer)('0')
+            PsiElement(newline)('\n    ')
+            FOR statement
+              PsiElement(for)('for')
+              PsiWhiteSpace(' ')
+              PsiElement(()('(')
+              Enumerators
+                Enumerator
+                  Reference identifier pattern
+                    PsiElement(identifier)('arg')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  Property selection
+                    Reference expression
+                      PsiElement(identifier)('args')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('elements')
+              PsiElement())(')')
+              PsiElement(newline)('\n      ')
+              Infix expression
+                Reference expression
+                  PsiElement(identifier)('result')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('+=')
+                PsiWhiteSpace(' ')
+                Reference expression
+                  PsiElement(identifier)('arg')
+            PsiElement(newline)('\n    ')
+            Reference expression
+              PsiElement(identifier)('result')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

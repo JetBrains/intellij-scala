@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
  * Time: 16:31:20
  */
 public class ScalaLoader implements ApplicationComponent {
-  public ScalaLoader(ScalaToolsFactory factory) {}
+  public ScalaLoader() {}
 
   public void initComponent() {
     loadScala();

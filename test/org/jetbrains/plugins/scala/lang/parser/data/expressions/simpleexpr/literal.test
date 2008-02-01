@@ -1,5 +1,5 @@
 class a {
-  (b)
+  23
 }
 -----
 Scala file
@@ -15,10 +15,7 @@ Scala file
     template body
       PsiElement({)('{')
       PsiWhiteSpace('\n  ')
-      Expression list
-        PsiElement(()('(')
-        Reference expression
-          PsiElement(identifier)('b')
-        PsiElement())(')')
+      Literal
+        PsiElement(integer)('23')
       PsiWhiteSpace('\n')
       PsiElement(})('}')
