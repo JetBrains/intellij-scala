@@ -1,5 +1,5 @@
-class a {
-  (b)
+class a{
+  {"this is a block"}
 }
 -----
 Scala file
@@ -9,16 +9,16 @@ Scala file
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    PsiWhiteSpace(' ')
     extends block
       <empty list>
     template body
       PsiElement({)('{')
       PsiWhiteSpace('\n  ')
-      Expression list
-        PsiElement(()('(')
-        Reference expression
-          PsiElement(identifier)('b')
-        PsiElement())(')')
+      Block expression
+        PsiElement({)('{')
+        Block
+          Literal
+            PsiElement(string content)('"this is a block"')
+        PsiElement(})('}')
       PsiWhiteSpace('\n')
       PsiElement(})('}')

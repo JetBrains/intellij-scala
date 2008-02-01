@@ -2,6 +2,8 @@ class A(a: T with S with U {val i:T})
 -----
 Scala file
   type template definition: class
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
@@ -32,7 +34,7 @@ Scala file
               value declaration
                 PsiElement(val)('val')
                 PsiWhiteSpace(' ')
-                Reference identifier pattern
+                Reference identifier
                   PsiElement(identifier)('i')
                 PsiElement(:)(':')
                 Simple Type
@@ -40,3 +42,7 @@ Scala file
                     PsiElement(identifier)('T')
             PsiElement(})('}')
       PsiElement())(')')
+    extends block
+      <empty list>
+    template body
+      <empty list>

@@ -22,10 +22,11 @@ Scala file
         PsiErrorElement:wrong value declaration
           <empty list>
       Typed statement
-        PsiElement(()('(')
-        Reference expression
-          PsiElement(identifier)('x')
-        PsiElement())(')')
+        Expression list
+          PsiElement(()('(')
+          Reference expression
+            PsiElement(identifier)('x')
+          PsiElement())(')')
         PsiElement(:)(':')
         Simple Type
           Stable Identifier

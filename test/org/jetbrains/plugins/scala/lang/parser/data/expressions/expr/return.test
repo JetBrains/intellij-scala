@@ -1,0 +1,38 @@
+class a{
+  return (2+2)-1*2
+}
+-----
+Scala file
+  type template definition: class
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      RETURN statement
+        PsiElement(return)('return')
+        PsiWhiteSpace(' ')
+        Infix expression
+          Expression list
+            PsiElement(()('(')
+            Infix expression
+              Literal
+                PsiElement(integer)('2')
+              PsiElement(identifier)('+')
+              Literal
+                PsiElement(integer)('2')
+            PsiElement())(')')
+          PsiElement(identifier)('-')
+          Infix expression
+            Literal
+              PsiElement(integer)('1')
+            PsiElement(identifier)('*')
+            Literal
+              PsiElement(integer)('2')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

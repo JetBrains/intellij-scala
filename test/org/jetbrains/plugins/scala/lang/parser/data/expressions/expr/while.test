@@ -1,0 +1,33 @@
+class a{
+  while (true==false)
+    "Stay here"
+}
+-----
+Scala file
+  type template definition: class
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      WHILE statement
+        PsiElement(while)('while')
+        PsiWhiteSpace(' ')
+        PsiElement(()('(')
+        Infix expression
+          Literal
+            PsiElement(true)('true')
+          PsiElement(identifier)('==')
+          Literal
+            PsiElement(false)('false')
+        PsiElement())(')')
+        PsiElement(newline)('\n    ')
+        Literal
+          PsiElement(string content)('"Stay here"')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

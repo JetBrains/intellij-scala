@@ -192,6 +192,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.BINDING => new ScBindingImpl(node)
     case ScalaElementTypes.ENUMERATOR => new ScEnumeratorImpl(node)
     case ScalaElementTypes.ENUMERATORS => new ScEnumeratorsImpl(node)
+    case ScalaElementTypes.GUARD => new ScGuardImpl(node)
     case ScalaElementTypes.AN_FUN => new ScAnFunImpl(node)
     case ScalaElementTypes.EXPRS => new ScExprsImpl(node)
     case ScalaElementTypes.ARG_EXPRS => new ScArgumentExprsImpl(node)

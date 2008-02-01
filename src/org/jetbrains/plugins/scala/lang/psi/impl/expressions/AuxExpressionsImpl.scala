@@ -104,6 +104,10 @@ case class ScEnumeratorsImpl(node: ASTNode) extends ScExpr1Impl(node) with Conti
   override def toString: String = "Enumerators"
 }
 
+case class ScGuardImpl(node: ASTNode) extends ScalaPsiElementImpl (node){
+  override def toString: String = "Guard"
+}
+
 case class ScAnFunImpl(node: ASTNode) extends ScExpr1Impl(node) with IfElseIndent with LocalContainer{
   import com.intellij.psi.scope._
   import org.jetbrains.plugins.scala.lang.typechecker.types._

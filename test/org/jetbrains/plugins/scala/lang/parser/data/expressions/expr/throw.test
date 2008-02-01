@@ -1,5 +1,5 @@
-class a {
-  (b)
+class a{
+  throw Exception
 }
 -----
 Scala file
@@ -9,16 +9,15 @@ Scala file
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    PsiWhiteSpace(' ')
     extends block
       <empty list>
     template body
       PsiElement({)('{')
       PsiWhiteSpace('\n  ')
-      Expression list
-        PsiElement(()('(')
+      THROW statement
+        PsiElement(throw)('throw')
+        PsiWhiteSpace(' ')
         Reference expression
-          PsiElement(identifier)('b')
-        PsiElement())(')')
+          PsiElement(identifier)('Exception')
       PsiWhiteSpace('\n')
       PsiElement(})('}')

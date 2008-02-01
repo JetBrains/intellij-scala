@@ -238,6 +238,7 @@ object ScalaElementTypes {
   val GENERATOR = new ScalaElementType("generator")
   val ENUMERATOR = new ScalaElementType("enumerator")
   val ENUMERATORS = new ScalaElementType("enumerator")
+  val GUARD = new ScalaElementType("guard")
   val BINDINGS = new ScalaElementType("bindings")
   val EXPRS = new ScalaElementType("list of expressions")
   val ARG_EXPRS = new ScalaElementType("arguments of function")

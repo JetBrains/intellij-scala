@@ -16,18 +16,18 @@ object CompositeExpr {
   /*
   Composite Expression
   Default grammar
-  Expr1 ::=   if ( Expr1 ) [NewLine] Expr [[;] else Expr]                           (if)
-            | try { Block } [catch { CaseClauses }] [finally Expr]                 (try)
+  Expr1 ::=   if ( Expr1 ) [NewLine] Expr [[;] else Expr]                            (if)
+            | try { Block } [catch { CaseClauses }] [finally Expr]                   (try)
             | while ( Expr ) [NewLine] Expr                                          (while)
             | do Expr [StatementSeparator] while ( Expr )                            (do)
-            | for (( Enumerators ) | { Enumerators })[NewLine] [yield] Expr        (for)
-            | throw Expr                                                               (throw)
-            | return [Expr]                                                            (return)
+            | for (( Enumerators ) | { Enumerators }){nl} [yield] Expr               (for)
+            | throw Expr                                                             (throw)
+            | return [Expr]                                                          (return)
             | [SimpleExpr .] id = Expr                                               (b2)
-            | SimpleExpr ArgumentExprs = Expr                                         (b1)
-            | PostfixExpr [: CompoundType]                                                   (a)
+            | SimpleExpr ArgumentExprs = Expr                                        (b1)
+            | PostfixExpr [: CompoundType]                                           (a)
             | PostfixExpr match { CaseClauses }                                      (a1)
-            | MethodClosure                                                            (closure)
+            | MethodClosure                                                          (closure)
   */
 
   def parse(builder: PsiBuilder): ScalaElementType = {
@@ -126,14 +126,14 @@ object CompositeExpr {
                 ScalaElementTypes.WRONGWAY
               }
               else {
-                rollbackMarker.drop()
+                rollbackMarker.drop
                 //compMarker.done(result)
                 compMarker.drop
                 ScalaElementTypes.EXPR1
               }
             }
             else {
-              rollbackMarker.drop()
+              rollbackMarker.drop
               compMarker.drop
               ScalaElementTypes.EXPR1
             }

@@ -4,16 +4,21 @@ class a {
 -----
 Scala file
   type template definition: class
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
+    extends block
+      <empty list>
     template body
       PsiElement({)('{')
       PsiWhiteSpace('\n  ')
-      PsiElement(()('(')
-      Reference expression
-        PsiElement(identifier)('b')
-      PsiElement())(')')
+      Expression list
+        PsiElement(()('(')
+        Reference expression
+          PsiElement(identifier)('b')
+        PsiElement())(')')
       PsiWhiteSpace('\n')
       PsiElement(})('}')

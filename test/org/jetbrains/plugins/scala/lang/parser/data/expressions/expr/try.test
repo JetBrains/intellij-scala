@@ -1,0 +1,69 @@
+class a{
+  try {
+    0/0
+  } catch{
+    case IOException => "do nothing"
+    case DivisionByZeroException => "you have a problem"
+  }
+}
+-----
+Scala file
+  type template definition: class
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    extends block
+      <empty list>
+    template body
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      TRY statement
+        Try block
+          PsiElement(try)('try')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          Block
+            Infix expression
+              Literal
+                PsiElement(integer)('0')
+              PsiElement(identifier)('/')
+              Literal
+                PsiElement(integer)('0')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace(' ')
+        Catch block
+          PsiElement(catch)('catch')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          Case Clauses
+            Case Clause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Stable Identifier
+                PsiElement(identifier)('IOException')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              Block
+                Literal
+                  PsiElement(string content)('"do nothing"')
+            PsiWhiteSpace('\n    ')
+            Case Clause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Stable Identifier
+                PsiElement(identifier)('DivisionByZeroException')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              Block
+                Literal
+                  PsiElement(string content)('"you have a problem"')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

@@ -55,23 +55,59 @@ abstract class EnumTemplate(elemType: ScalaElementType,
 
 }
 
+abstract class GenTemplate(elemType: ScalaElementType,
+                            assignType: ScalaElementType){
+
+  def parse(builder : PsiBuilder) : ScalaElementType = {
+    val genMarker = builder.mark()
+
+    def badClose(st:String): ScalaElementType = {
+      builder.error(st)
+      genMarker.rollbackTo()
+      ScalaElementTypes.WRONGWAY
+    }
+
+    def badCloseAfterAssign(st:String): ScalaElementType = {
+      builder.error(st)
+      genMarker.done(elemType)
+      elemType
+    }
+
+      var res = Pattern1.parse(builder)
+      if (ScalaElementTypes.PATTERN1.equals(res)){
+        if (assignType.equals(builder.getTokenType)){
+          ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL)
+          res = Expr.parse(builder)
+          if (ScalaElementTypes.EXPR.equals(res)){
+            if (ScalaElementTypes.GENERATOR.equals(elemType)){
+              genMarker.done(ScalaElementTypes.ENUMERATOR)
+            } else {
+              genMarker.drop()
+            }
+            elemType
+          } else badCloseAfterAssign ("Wrong expression")
+        } else badClose (assignType.toString + " expected")
+      } else badClose ("Wrong pattern")
+  }
+}
+
 /*
-Generator ::= val Pattern1 <- Expr
+Generator ::= Pattern1 <- Expr
 */
-object Generator extends EnumTemplate(ScalaElementTypes.GENERATOR.asInstanceOf[ScalaElementType],
+object Generator extends GenTemplate(ScalaElementTypes.GENERATOR.asInstanceOf[ScalaElementType],
                                       ScalaTokenTypes.tCHOOSE.asInstanceOf[ScalaElementType])
 
 /*
 Enumerator ::=    Generator
                 | val Pattern1 = Expr
-                | Expr
+                | Guard:= 'if' PostfixExpr
 */
 object Enumerator{
   def parse(builder : PsiBuilder) : ScalaElementType = {
     val enMarker = builder.mark()
 
     def genParse: Boolean = {
-      var res = { object Enumer extends EnumTemplate(
+      var res = { object Enumer extends GenTemplate(
                        ScalaElementTypes.ENUMERATOR.asInstanceOf[ScalaElementType],
                        ScalaTokenTypes.tCHOOSE.asInstanceOf[ScalaElementType]
                        )
@@ -94,13 +130,25 @@ object Enumerator{
     } else if (enParse ){
       enMarker.done(ScalaElementTypes.ENUMERATOR)
       ScalaElementTypes.ENUMERATOR
-    } else if (!ScalaElementTypes.WRONGWAY.equals(Expr.parse(builder))) {
-      enMarker.done(ScalaElementTypes.ENUMERATOR)
-      ScalaElementTypes.ENUMERATOR
     } else {
-      builder.error("Wrong enumerator")
-      enMarker.done(ScalaElementTypes.ENUMERATOR)
-      ScalaElementTypes.WRONGWAY
+      if (builder.getTokenType==ScalaTokenTypes.kIF){
+        builder.advanceLexer
+        val res = PostfixExpr.parse(builder)
+        if (res!=ScalaElementTypes.WRONGWAY){
+          enMarker.done(ScalaElementTypes.GUARD)
+          ScalaElementTypes.GUARD
+        }
+        else{
+          builder error "Wrong guard"
+          enMarker.done(ScalaElementTypes.GUARD)
+          ScalaElementTypes.GUARD
+        }
+      }
+      else{
+        builder error "Wrong enumerator"
+        enMarker.done(ScalaElementTypes.ENUMERATOR)
+        ScalaElementTypes.WRONGWAY
+      }
     }
   }
 }

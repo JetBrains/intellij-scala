@@ -1,5 +1,5 @@
 class a {
-  (b)
+  a.b.c
 }
 -----
 Scala file
@@ -15,10 +15,13 @@ Scala file
     template body
       PsiElement({)('{')
       PsiWhiteSpace('\n  ')
-      Expression list
-        PsiElement(()('(')
-        Reference expression
+      Property selection
+        Property selection
+          Reference expression
+            PsiElement(identifier)('a')
+          PsiElement(.)('.')
           PsiElement(identifier)('b')
-        PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('c')
       PsiWhiteSpace('\n')
       PsiElement(})('}')
