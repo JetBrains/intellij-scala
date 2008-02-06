@@ -68,7 +68,9 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
 
         case _ => {
           if (BNF.firstTmplDef.contains(builder.getTokenType)) {
-            return TmplDef parseBodyNode builder
+            TmplDef parse builder
+            //TODO: clear this
+            return ScalaElementTypes.CLASS_DEF
           } else {
             return ScalaElementTypes.WRONGWAY
           }
