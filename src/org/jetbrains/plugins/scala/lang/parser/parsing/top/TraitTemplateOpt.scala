@@ -59,7 +59,7 @@ object TraitTemplateOpt {
       case ScalaTokenTypes.tLBRACE => {
         //try to parse early definition if we can't => it's template body
         if (EarlyDef parse builder) {
-          new MixinParents parse builder
+          MixinParents parse builder
           //parse template body
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => {
@@ -94,7 +94,7 @@ object TraitTemplateOpt {
       }
       //In this case of course it's ClassParents
       case _ => {
-        new MixinParents parse builder
+        MixinParents parse builder
         //parse template body
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE => {

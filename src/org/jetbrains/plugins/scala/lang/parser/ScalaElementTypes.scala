@@ -118,6 +118,7 @@ object ScalaElementTypes {
   val REFINE_STAT = new ScalaElementType("refinement statement")
   val REFINEMENTS = new ScalaElementType("refinements")
   val TYPE_ARGS = new ScalaElementType("type arguments")
+  val ANNOT_TYPE = new ScalaElementType("annotation type")
 
   /*************************************************************************************/
   /*********************************** IDENTIFIER **************************************/

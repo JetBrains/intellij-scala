@@ -99,13 +99,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
  *  TypeDef presents define type structure, i.e. these are TypeDef and ClassDef
  */
 
-  trait TypeDef extends ConstrReturned
 
-/*
- *  InstanceDef presents define instancibility of structure, i.e. these are ClassDef and ObjectDef
- */
-
-  trait InstanceDef extends ConstrReturned
 
   /************** CLASS ******************/
 
@@ -173,7 +167,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
  *  Block: 'requires' with type
  */
 
-   object Requires extends Constr {
+   /*object Requires extends Constr {
      override def getElementType = ScalaElementTypes.REQUIRES_BLOCK
 
      override def parseBody(builder : PsiBuilder) : Unit = {
@@ -188,7 +182,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 
        } else builder error "'requires' expected"
      }
-   }
+   } */
 
 
 /*
@@ -235,7 +229,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
  *  Block: 'extends' with identifier
  */
 
-    object ExtendsBlock extends ConstrReturned {
+ /*   object ExtendsBlock extends ConstrReturned {
     override def parseBody(builder: PsiBuilder): IElementType = {
       val extendsMark = builder.mark
       if (!builder.eof && ScalaTokenTypes.kEXTENDS.equals(builder.getTokenType)){
@@ -252,7 +246,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
       extendsMark.done(ScalaElementTypes.EXTENDS_BLOCK)
       return ScalaElementTypes.EXTENDS_BLOCK
     }
-  }
+  }*/
 
     /************** OBJECT ******************/
 
@@ -362,7 +356,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 
 
  //  Template for class and Trait
-  class TypeDefTemplate[Parents <: TemplateParents](parents: Parents) extends ConstrUnpredict {
+ /* class TypeDefTemplate[Parents <: TemplateParents](parents: Parents) extends ConstrUnpredict {
 
     override def parseBody(builder: PsiBuilder): Unit = {
       val typedefTemplateMarker = builder.mark
@@ -387,13 +381,13 @@ import org.jetbrains.plugins.scala.ScalaBundle
       */
       typedefTemplateMarker.drop
     }
-  }
+  } */
 
 /*
  *  MixinParents ::= SimpleType {with� SimpleType}
  */
 
-  class MixinParents extends TemplateParents {
+ /* class MixinParents extends TemplateParents {
     override def getElementType = ScalaElementTypes.MIXIN_PARENTS
 
     override def first = BNF.firstMixinParents
@@ -412,4 +406,4 @@ import org.jetbrains.plugins.scala.ScalaBundle
         } else builder error "simple type expected"
       }
     }
-  }
+  } */
