@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import com.intellij.psi.tree.IElementType
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.TokenSet
-import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
 * Created by IntelliJ IDEA.
@@ -42,7 +42,7 @@ object TopStatSeq {
             builder.getTokenType match {
               case ScalaTokenTypes.tSEMICOLON |
                    ScalaTokenTypes.tLINE_TERMINATOR => builder.advanceLexer //it is good
-              case null => return
+              case null | ScalaTokenTypes.tRBRACE => return
               case _ => builder error ScalaBundle.message("semi.expected", new Array[Object](0))
             }
           }

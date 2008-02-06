@@ -20,38 +20,34 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClaus
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImplicit
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.AccessModifier
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateParents
 
-/*
-  QualId ::= id {. id}
+/** 
+* Created by IntelliJ IDEA.
+* User: Alexander.Podkhalyuz
+* Date: 06.02.2008
+* Time: 16:48:42
+* To change this template use File | Settings | File Templates.
 */
 
-object Qual_Id  {
+/*
+ * TraitDef ::= id [TypeParamClause] TraitTemplateOpt
+ */
 
-  def parse (builder: PsiBuilder) : ScalaElementType = {
-
-    def subParse (currentMarker: PsiBuilder.Marker, msg: String) : ScalaElementType = {
-      if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-        if (ScalaTokenTypes.tDOT.equals(builder.getTokenType)) {
-          val nextMarker = currentMarker.precede()
-          currentMarker.done(ScalaElementTypes.QUAL_ID)
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tDOT)
-          subParse(nextMarker , "Identifier expected")
-        } else {
-          //currentMarker.done(ScalaElementTypes.QUAL_ID)
-          currentMarker.drop
-          ScalaElementTypes.QUAL_ID
-        }
-      } else {
-        builder.error(msg)
-        currentMarker.drop
-        //currentMarker.done(ScalaElementTypes.QUAL_ID)
-        ScalaElementTypes.WRONGWAY
+object TraitDef {
+  def parse(builder: PsiBuilder): Boolean = {
+    builder.getTokenType match {
+        case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer //Ate identifier
+        case _ => builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
       }
+    //parsing type parameters
+    builder.getTokenType match {
+      case ScalaTokenTypes.tLSQBRACKET => new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder
+      case _ => {/*it could be without type parameters*/}
     }
-    var qualMarker = builder.mark()
-    subParse(qualMarker, "At least one identifier expected")
-
+    TraitTemplateOpt parse builder
+    return true
   }
-
 }

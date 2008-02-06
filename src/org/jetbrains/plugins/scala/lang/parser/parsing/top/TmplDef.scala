@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.AttributeClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
+import org.jetbrains.plugins.scala.ScalaBundle
 
 /** 
 * Created by IntelliJ IDEA.
@@ -59,6 +60,7 @@ object TmplDef {
       case ScalaTokenTypes.kCLASS => {
         caseMarker.drop
         modifierMarker.done(ScalaElementTypes.MODIFIERS)
+        builder.advanceLexer //Ate class
         ClassDef parse builder
         templateMarker.done(ScalaElementTypes.CLASS_DEF)
         return true
@@ -66,6 +68,7 @@ object TmplDef {
       case ScalaTokenTypes.kOBJECT => {
         caseMarker.drop
         modifierMarker.done(ScalaElementTypes.MODIFIERS)
+        builder.advanceLexer //Ate object
         ObjectDef parse builder
         templateMarker.done(ScalaElementTypes.OBJECT_DEF)
         return true
@@ -73,9 +76,23 @@ object TmplDef {
       case ScalaTokenTypes.kTRAIT => {
         caseMarker.rollbackTo
         modifierMarker.done(ScalaElementTypes.MODIFIERS)
-        TraitDef.parse(builder)
-        templateMarker.done(ScalaElementTypes.TRAIT_DEF)
-        return true
+        builder.getTokenType match {
+          case ScalaTokenTypes.kTRAIT => {
+            builder.advanceLexer //Ate trait
+            TraitDef.parse(builder)
+            templateMarker.done(ScalaElementTypes.TRAIT_DEF)
+            return true
+          }
+          // In this way wrong case modifier
+          case _ => {
+            builder error ScalaBundle.message("wrong.case.modifier", new Array[Object](0))
+            builder.advanceLexer //Ate case
+            builder.advanceLexer //Ate trait
+            TraitDef.parse(builder)
+            templateMarker.done(ScalaElementTypes.TRAIT_DEF)
+            return true
+          }
+        }
       }
       //it's error
       case _ => {
