@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClaus
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImplicit
+import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
  * User: Dmitry.Krasilschikov
@@ -112,7 +113,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImpli
  *  ClassDef ::= id [TypeParamClause] ClassParamClauses [requires� SimpleType] ClassTemplate
  */
 
-    case class ClassDef extends InstanceDef with TypeDef {
+    /*case class ClassDef extends InstanceDef with TypeDef {
       override def parseBody ( builder : PsiBuilder ) : IElementType = {
 
         if (ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
@@ -166,7 +167,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImpli
           return ScalaElementTypes.CLASS_DEF
 
       }
-   }
+   }  */
 
 /*
  *  Block: 'requires' with type
@@ -259,7 +260,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImpli
  *  ObjectDef ::= id ClassTemplate
  */
 
-   case object ObjectDef extends InstanceDef {
+ /*  case object ObjectDef extends InstanceDef {
     override def parseBody ( builder : PsiBuilder ) : IElementType = {
       if (ScalaTokenTypes.kCASE.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kCASE)
@@ -301,7 +302,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImpli
 
       return ScalaElementTypes.OBJECT_DEF
     }
-  }
+  }*/
 
 
   /************** TRAIT ******************/
@@ -310,7 +311,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImpli
  *  TraitDef ::= id [TypeParamClause] [requires� SimpleType] TraitTemplate
  */
 
-  case class TraitDef extends TypeDef {
+ /* case class TraitDef extends TypeDef {
     override def parseBody ( builder : PsiBuilder ) : IElementType = {
 
       if (ScalaTokenTypes.kTRAIT.equals(builder.getTokenType)){
@@ -357,7 +358,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImpli
 
       return ScalaElementTypes.TRAIT_DEF
     }
-  }
+  }*/
 
 
  //  Template for class and Trait

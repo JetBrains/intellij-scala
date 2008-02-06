@@ -102,10 +102,9 @@ object CompilationUnit {
             packChooseMarker.done(ScalaElementTypes.PACKAGE_STMT)
           }
         }
-      }
-      case _ => {
         TopStatSeq parse builder
       }
+      case _ => TopStatSeq parse builder
     }
   }
 }
