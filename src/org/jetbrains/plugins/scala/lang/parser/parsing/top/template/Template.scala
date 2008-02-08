@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing.top.template {
+package org.jetbrains.plugins.scala.lang.parser.parsing.top.template
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
  *  Template ::= TemplateParents [TemplateBody]
  */
  
-object Template extends Constr{
+/*object Template extends Constr{
   override def getElementType = ScalaElementTypes.TEMPLATE
 
   override def parseBody (builder : PsiBuilder) : Unit = {
@@ -41,13 +41,13 @@ object Template extends Constr{
       TemplateBody parse builder
     }
   }
-}
+}*/
 
 /*
  *  TemplateParents ::= Constr {with SimpleType}
  */
 
-  class TemplateParents extends ConstrItem {
+ /* class TemplateParents extends ConstrItem {
     override def getElementType = ScalaElementTypes.TEMPLATE_PARENTS
 
     override def first = BNF.firstTemplateParents
@@ -65,7 +65,7 @@ object Template extends Constr{
         }
       }
     }
-  }
+  }  */
 
 /*
  *  TemplateBody ::= { TemplateStatSeq }
@@ -152,6 +152,3 @@ object Template extends Constr{
         }
       }
   }
-
-  
-}

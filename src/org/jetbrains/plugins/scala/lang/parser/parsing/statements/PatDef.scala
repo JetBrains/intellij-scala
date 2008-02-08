@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateParents
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.VariantTypeParam
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
@@ -39,6 +38,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
 //TODO: Rewrite this
 object PatDef {
   def parse(builder: PsiBuilder): Boolean = {
+    val someMarker = builder.mark
     val pattern2sMarker = builder.mark
 
       if (BNF.firstPattern2.contains(builder.getTokenType)){
@@ -46,6 +46,7 @@ object PatDef {
       } else {
         builder error "pattern expected"
         pattern2sMarker.rollbackTo()
+        someMarker.drop
         return false
       }
 
@@ -61,6 +62,7 @@ object PatDef {
         } else {
           builder error "pattern expected"
           pattern2sMarker.rollbackTo()
+          someMarker.drop
           return false
         }
       }
@@ -82,7 +84,7 @@ object PatDef {
         hasTypeDcl = true
       }
      if (! ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
-        pattern2sMarker.rollbackTo
+        someMarker.rollbackTo
         return false
       } else {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
@@ -91,9 +93,10 @@ object PatDef {
           Expr parse builder
         } else {
           builder error "wrong start of expression"
-          pattern2sMarker.rollbackTo
+          someMarker.rollbackTo
           return false
         }
+        someMarker.drop
         return true
       }
 

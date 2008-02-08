@@ -162,7 +162,7 @@ object SimpleExpr {
       if (ScalaTokenTypes.kNEW.equals(builder.getTokenType))  {
         ParserUtils.eatElement(builder, ScalaTokenTypes.kNEW)
         if (BNF.firstTemplateParents.contains(builder.getTokenType)){
-          new TemplateParents parse builder
+          ClassParents parse builder
           if (BNF.firstTemplateBody.contains(builder.getTokenType)){
             TemplateBody parse builder
           }

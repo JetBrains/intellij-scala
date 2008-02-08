@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing.top
+package org.jetbrains.plugins.scala.lang.parser.parsing.top.params
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
@@ -14,34 +14,28 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.VariantTypeParam
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClause
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImplicit
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.AccessModifier
+import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 
 /** 
 * Created by IntelliJ IDEA.
 * User: Alexander.Podkhalyuz
-* Date: 06.02.2008
-* Time: 16:45:11
+* Date: 08.02.2008
+* Time: 11:04:19
 * To change this template use File | Settings | File Templates.
 */
 
 /*
- *  ObjectDef ::= id ClassTemplateOpt
+ * ClassParamClauses ::= {ClassParamClause}
+ *                       [[nl] '(' 'implicit' ClassParams ')']
  */
 
-object ObjectDef {
-  def parse(builder: PsiBuilder): Boolean = {
-    builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer //Ate identifier
-      case _ => builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
-    }
-    //parse extends block
-    ClassTemplateOpt parse builder
-    return true
+object ClassParamClauses {
+  def parse(builder: PsiBuilder) {
+    val classParamClausesMarker = builder.mark
+    while (ClassParamClause parse builder) {/*parse while parsed*/}
+    ImplicitClassParamClause parse builder
+    classParamClausesMarker.done(ScalaElementTypes.CLASS_PARAM_CLAUSES)
   }
 }

@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateParents
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.VariantTypeParam
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
@@ -22,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImplicit
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.AccessModifier
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateParents
 
 /** 
 * Created by IntelliJ IDEA.
