@@ -16,6 +16,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.params {
   import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
   import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
   import org.jetbrains.plugins.scala.util.DebugPrint
+  import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
 
   /*
   *  ParamClauses ::= {ParamClause} ImplicitEnd
@@ -206,7 +207,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.params {
   *  ParamType ::= [=>] Type [*]
   */
 
-  object ParamType extends ConstrUnpredict {
+  /*object ParamType extends ConstrUnpredict {
     override def parseBody(builder: PsiBuilder): Unit = {
       var paramTypeMarker = builder.mark
       var isParamType = false;
@@ -234,5 +235,5 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top.params {
         paramTypeMarker.drop()
       }
     }
-  }
+  }*/
 }
