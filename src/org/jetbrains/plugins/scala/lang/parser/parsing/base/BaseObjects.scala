@@ -370,7 +370,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
   *  Import ::= import ImportExpr { ,  ImportExpr}
   */
 
-  object Import extends Constr {
+  /*object Import extends Constr {
     override def getElementType = ScalaElementTypes.IMPORT_STMT
 
     override def parseBody(builder: PsiBuilder): Unit = {
@@ -383,7 +383,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
         builder.error("'import' expected")
         return
       }
-    }
+    }*/
 
     /*
     *  ImportExpr ::= StableId  .  (id |  _  | ImportSelectors)
@@ -545,7 +545,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
         }
       }
     }
-  }
+
 
   /*
   *  ids ::= id { ,  id}

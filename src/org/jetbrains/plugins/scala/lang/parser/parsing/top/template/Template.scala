@@ -70,6 +70,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
 /*
  *  TemplateBody ::= { TemplateStatSeq }
  */  
+/*import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
 
   object TemplateBody extends Constr {
     override def getElementType = ScalaElementTypes.TEMPLATE_BODY
@@ -77,6 +78,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
     override def parseBody(builder : PsiBuilder) : Unit = {
       if (ScalaTokenTypes.tLBRACE.equals(builder.getTokenType)) {
         builder.advanceLexer
+        SelfType parse builder
         TemplateStatSeq parse builder
         if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) {
           builder.advanceLexer
@@ -87,25 +89,25 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
         builder error "'{' expected"
       }
     }
-  }
+  } */
 
 /*
  *  TemplateStatSeq ::= [TemplateStat] {StatementSeparator [TemplateStat}]
  */
 
-  object TemplateStatSeq extends ConstrWithoutNode {
+ /* object TemplateStatSeq extends ConstrWithoutNode {
     override def parseBody (builder: PsiBuilder): Unit = {
       while (!builder.eof) {
         while (ScalaTokenTypes.STATEMENT_SEPARATORS.contains(builder.getTokenType)) builder.advanceLexer
         if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)) return
 
-        if (!TemplateStat.parseBody(builder)) {
+        if (!TemplateStat.parse(builder)) {
           builder.error("Definition or declaration expected")
           builder.advanceLexer
         }
       }
     }
-  }
+  }  */
 
 /*
  *  TemplateStat ::= Import
@@ -115,7 +117,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
  */
 
   object TemplateStat {
-    def parseBody(builder : PsiBuilder) : Boolean = {
+    def parse(builder : PsiBuilder) : Boolean = {
         if(ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)) {
          Import parse builder
          return true
