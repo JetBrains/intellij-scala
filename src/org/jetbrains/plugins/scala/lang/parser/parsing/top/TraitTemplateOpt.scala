@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImplicit
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.AccessModifier
+import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 
 /** 
 * Created by IntelliJ IDEA.
@@ -46,6 +47,31 @@ object TraitTemplateOpt {
         extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
         return
       }
+      case ScalaTokenTypes.tLINE_TERMINATOR => {
+        if (!LineTerminator(builder.getTokenText)) {
+          builder.advanceLexer //Ate nl
+          val templateMarker = builder.mark
+          templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
+          extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+          return
+        }
+        else {
+          builder.advanceLexer //Ate nl
+          builder.getTokenType match {
+            case ScalaTokenTypes.tLBRACE => {
+              TemplateBody parse builder
+              extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+              return
+            }
+            case _ => {
+              val templateMarker = builder.mark
+              templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
+              extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+              return
+            }
+          }
+        }
+      }
       case _ => {
         val templateMarker = builder.mark
         templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
@@ -66,6 +92,31 @@ object TraitTemplateOpt {
               TemplateBody parse builder
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
+            }
+            case ScalaTokenTypes.tLINE_TERMINATOR => {
+              if (!LineTerminator(builder.getTokenText)) {
+                builder.advanceLexer //Ate nl
+                val templateMarker = builder.mark
+                templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
+                extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+                return
+              }
+              else {
+                builder.advanceLexer //Ate nl
+                builder.getTokenType match {
+                  case ScalaTokenTypes.tLBRACE => {
+                    TemplateBody parse builder
+                    extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+                    return
+                  }
+                  case _ => {
+                    val templateMarker = builder.mark
+                    templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
+                    extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+                    return
+                  }
+                }
+              }
             }
             case _ => {
               val templateMarker = builder.mark
@@ -92,6 +143,7 @@ object TraitTemplateOpt {
           }
         }
       }
+      //if we find nl => it could be TemplateBody only, but we can't find nl after extends keyword
       //In this case of course it's ClassParents
       case _ => {
         MixinParents parse builder
@@ -102,6 +154,31 @@ object TraitTemplateOpt {
             extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
             return
           }
+          case ScalaTokenTypes.tLINE_TERMINATOR => {
+              if (!LineTerminator(builder.getTokenText)) {
+                builder.advanceLexer //Ate nl
+                val templateMarker = builder.mark
+                templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
+                extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+                return
+              }
+              else {
+                builder.advanceLexer //Ate nl
+                builder.getTokenType match {
+                  case ScalaTokenTypes.tLBRACE => {
+                    TemplateBody parse builder
+                    extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+                    return
+                  }
+                  case _ => {
+                    val templateMarker = builder.mark
+                    templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
+                    extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+                    return
+                  }
+                }
+              }
+            }
           case _ => {
             val templateMarker = builder.mark
             templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)

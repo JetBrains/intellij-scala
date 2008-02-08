@@ -119,6 +119,7 @@ object ScalaElementTypes {
   val REFINEMENTS = new ScalaElementType("refinements")
   val TYPE_ARGS = new ScalaElementType("type arguments")
   val ANNOT_TYPE = new ScalaElementType("annotation type")
+  val SELF_TYPE = new ScalaElementType("self type")
 
   /*************************************************************************************/
   /*********************************** IDENTIFIER **************************************/
