@@ -389,7 +389,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
     *  ImportExpr ::= StableId  .  (id |  _  | ImportSelectors)
     */
 
-    object ImportExpr extends ConstrItem {
+    /*object ImportExpr extends ConstrItem {
       override def getElementType = ScalaElementTypes.IMPORT_EXPR
 
       override def first = TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER))
@@ -437,13 +437,13 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
           }
         }
       }
-    }
+    }*/
 
     /*
     *  ImportSelectors ::=  {  {ImportSelector  , } (ImportSelector |  _ )  }
     */
 
-    object ImportSelectors extends Constr{
+    /*object ImportSelectors extends Constr{
       override def getElementType = ScalaElementTypes.IMPORT_SELECTORS
 
       override def parseBody(builder: PsiBuilder): Unit = {
@@ -500,14 +500,14 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
         }
 
       }
-    }
+    }*/
 
     /*
     *  ImportSelector ::= id [ =>  id |  =>   _ ]
     */
 
 
-    object ImportSelector extends Constr{
+    /*object ImportSelector extends Constr{
       override def getElementType = ScalaElementTypes.IMPORT_SELECTOR
 
       override def parseBody(builder: PsiBuilder): Unit = {
@@ -544,7 +544,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base {
           return
         }
       }
-    }
+    } */
 
 
   /*

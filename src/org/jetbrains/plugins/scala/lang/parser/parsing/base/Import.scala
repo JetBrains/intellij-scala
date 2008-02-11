@@ -37,7 +37,11 @@ object Import {
       }
       case _ => builder error ScalaBundle.message("unreachable.error", new Array[Object](0))
     }
-    ParserUtils.listOfSmth(builder, ImportExpr, ScalaTokenTypes.tCOMMA, ScalaElementTypes.IMPORT_EXPRS)
+    ImportExpr parse builder
+    while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+      builder.advanceLexer //Ate ,
+      ImportExpr parse builder
+    }
     importMarker.done(ScalaElementTypes.IMPORT_STMT)
   }
 }
