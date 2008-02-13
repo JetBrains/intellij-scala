@@ -54,14 +54,50 @@ object Packaging {
               case _ => {
                 builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
                 packMarker.done(ScalaElementTypes.PACKAGING)
-                return false
+                return true
+              }
+            }
+          }
+          case ScalaTokenTypes.tLINE_TERMINATOR => {
+            if (!LineTerminator(builder.getTokenText)) {
+              builder.advanceLexer //Ate nl
+              builder error ScalaBundle.message("lbrace.expected", new Array[Object](0))
+              packMarker.done(ScalaElementTypes.PACKAGING)
+              return true
+            }
+            else {
+              builder.advanceLexer //Ate nl
+              builder.getTokenType match {
+                case ScalaTokenTypes.tLBRACE => {
+                   builder.advanceLexer //Ate '{'
+                  //parse packaging body
+                  TopStatSeq parse builder
+                  //Look for '}'
+                  builder.getTokenType match {
+                    case ScalaTokenTypes.tRBRACE => {
+                      builder.advanceLexer //Ate '}'
+                      packMarker.done(ScalaElementTypes.PACKAGING)
+                      return true
+                    }
+                    case _ => {
+                      builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+                      packMarker.done(ScalaElementTypes.PACKAGING)
+                      return true
+                    }
+                  }
+                }
+                case _ => {
+                  builder error ScalaBundle.message("lbrace.expected", new Array[Object](0))
+                  packMarker.done(ScalaElementTypes.PACKAGING)
+                  return true
+                }
               }
             }
           }
           case _ => {
             builder error ScalaBundle.message("lbrace.expected", new Array[Object](0))
             packMarker.done(ScalaElementTypes.PACKAGING)
-            return false
+            return true
           }
         }
       }
