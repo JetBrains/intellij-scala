@@ -36,7 +36,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
  * ClassTemplateOpt ::= 'extends' ClassTemplate | [['extends'] TemplateBody]
  */
 
-//May be hard to read. Because written before understanding that before TemplateBode could be nl token
+//May be hard to read. Because written before understanding that before TemplateBody could be nl token
 //So there are fixed it, but may be should be some rewrite.
 object ClassTemplateOpt {
   def parse(builder: PsiBuilder): Unit = {

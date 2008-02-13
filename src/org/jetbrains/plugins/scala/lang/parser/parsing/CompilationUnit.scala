@@ -43,7 +43,7 @@ object CompilationUnit {
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER => Qual_Id parse builder
           case _ => builder error ScalaBundle.message("package.qualID.expected", new Array[Object](0))
-          }
+        }
 
         //try to split package and packaging
         builder.getTokenType match {
