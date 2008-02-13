@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template._
 import org.jetbrains.plugins.scala.lang.parser.parsing.base._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top._
+import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
 
 
 /**

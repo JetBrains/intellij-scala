@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
+  import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
 
   object RefineStat {
   /*
@@ -24,14 +25,13 @@ RefineStat ::=    Dcl
       val rsMarker = builder.mark()
       builder.getTokenType match {
         case ScalaTokenTypes.kTYPE => {
-          ParserUtils.eatElement(builder , ScalaTokenTypes.kTYPE)
-          TypeDef.parseBody(builder)
+          TypeDef.parse(builder)
           rsMarker.done(ScalaElementTypes.REFINE_STAT)
         } case ScalaTokenTypes.kVAL
                | ScalaTokenTypes.kVAR
                | ScalaTokenTypes.kDEF
                | ScalaTokenTypes.kTYPE => {
-          Dcl.parseBody(builder)
+          Dcl.parse(builder, false)
           rsMarker.done(ScalaElementTypes.REFINE_STAT)
         } case _ => {
           builder.error("Wrong refinement statement")
