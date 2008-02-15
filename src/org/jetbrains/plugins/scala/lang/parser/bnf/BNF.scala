@@ -129,7 +129,8 @@ object BNF {
   val firstLocalModifier = TokenSet.create(Array(ScalaTokenTypes.kABSTRACT,
       ScalaTokenTypes.kFINAL,
       ScalaTokenTypes.kIMPLICIT,
-      ScalaTokenTypes.kSEALED))
+      ScalaTokenTypes.kSEALED,
+      ScalaTokenTypes.kLAZY))
 
   val firstLocalModifierWithoutImplicit = TokenSet.create(Array(ScalaTokenTypes.kABSTRACT,
       ScalaTokenTypes.kFINAL,

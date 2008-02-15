@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParam
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.VariantTypeParam
@@ -28,10 +27,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClaus
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ArgumentExprs
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockStat
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 
@@ -60,6 +56,14 @@ object SelfInvocation {
     }
     val argExprsMarker = builder.mark
     var numberOfArgExprs = 0;
+
+    if (BNF.firstArgumentExprs.contains(builder.getTokenType)) {
+      ArgumentExprs parse builder
+      numberOfArgExprs = 1
+    }
+    else {
+      builder error ScalaBundle.message("arg.expr.expected", new Array[Object](0))
+    }
 
     while (BNF.firstArgumentExprs.contains(builder.getTokenType)) {
       ArgumentExprs parse builder

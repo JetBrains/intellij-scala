@@ -18,9 +18,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.VariantTypePar
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImplicit
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.StatementSeparator
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.AttributeClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.ScalaBundle

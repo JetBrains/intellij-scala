@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.VariantTypePar
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.ModifierWithoutImplicit
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.AccessModifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.PatVarDef
@@ -86,8 +85,8 @@ object EarlyDef {
     //finally look for 'with' keyword
     builder.getTokenType match {
       case ScalaTokenTypes.kWITH => {
-        builder.advanceLexer //Ate with
         earlyMarker.done(ScalaElementTypes.EARLY_DEFINITION)
+        builder.advanceLexer //Ate with
         return true
       }
       case _ => {

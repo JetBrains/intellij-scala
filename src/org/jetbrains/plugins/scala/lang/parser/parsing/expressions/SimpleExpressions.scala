@@ -240,8 +240,8 @@ object SimpleExpr {
       } else {
         /* case (d) */
         var result1 = Literal.parse(builder)  // Literal ?
-        if (! result1.equals(ScalaElementTypes.WRONGWAY)) {
-          result = result1
+        if (result1) {
+          result = ScalaElementTypes.LITERAL
           flag = true // Yes, it is!
           endness = "plain"
         }

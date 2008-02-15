@@ -8,12 +8,17 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 
-
-object Literal{
+/** 
+* Created by IntelliJ IDEA.
+* User: Alexander.Podkhalyuz
+* Date: 15.02.2008
+* Time: 11:08:30
+* To change this template use File | Settings | File Templates.
+*/
 
 /*
-Literal ::= integerLiteral
-            | floatingPointLiteral
+Literal ::= ['-']integerLiteral
+            | ['-']floatingPointLiteral
             | booleanLiteral
             | characterLiteral
             | stringLiteral
@@ -23,57 +28,45 @@ Literal ::= integerLiteral
             | null
 */
 
-  def parse(builder : PsiBuilder) : ScalaElementType = {
-
+object Literal{
+  def parse(builder : PsiBuilder) : Boolean = {
     val marker = builder.mark()
-
-    builder.getTokenType match{
-      case ScalaTokenTypes.tINTEGER => { // Integer literal
-        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
+    builder.getTokenType match {
+      /*case ScalaTokenTypes.tIDENTIFIER  => {
+        if (builder.getTokenText == "-") {
+          builder.advanceLexer //Ate -
+          builder.getTokenType match {
+            case ScalaTokenTypes.tINTEGER |
+                 ScalaTokenTypes.tFLOAT => {
+              builder.advanceLexer //Ate literal
+              marker.done(ScalaElementTypes.LITERAL)
+              return true
+            }
+          }
+        }
+        else {
+          marker.rollbackTo
+          return false
+        }
+      }*/
+      case ScalaTokenTypes.tINTEGER | ScalaTokenTypes.tFLOAT |
+           ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE |
+           ScalaTokenTypes.tCHAR | ScalaTokenTypes.tSYMBOL |
+           ScalaTokenTypes.kNULL | ScalaTokenTypes.tSTRING => {
+        builder.advanceLexer //Ate literal
         marker.done(ScalaElementTypes.LITERAL)
-        ScalaElementTypes.LITERAL
+        return true
       }
-      case ScalaTokenTypes.tFLOAT => { //Floating point literal
-        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-        marker.done(ScalaElementTypes.LITERAL)
-        ScalaElementTypes.LITERAL
-      }
-      case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => { //Boolean Literal
-        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-        marker.done(ScalaElementTypes.LITERAL)
-        ScalaElementTypes.LITERAL
-      }
-      case ScalaTokenTypes.tCHAR => { //Character literal
-        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-        marker.done(ScalaElementTypes.LITERAL)
-        ScalaElementTypes.LITERAL
-      }
-      case ScalaTokenTypes.tSYMBOL => { //Character literal
-        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-        marker.done(ScalaElementTypes.LITERAL)
-        ScalaElementTypes.LITERAL
-      }
-      case ScalaTokenTypes.kNULL => { //null literal
-        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-        marker.done(ScalaElementTypes.LITERAL)
-        ScalaElementTypes.LITERAL
-      }
-      case ScalaTokenTypes.tSTRING => { //Character literal
-        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
-        marker.done(ScalaElementTypes.LITERAL)
-        ScalaElementTypes.LITERAL
-      }
-      case ScalaTokenTypes.tWRONG_STRING => { //Character literal
-        ParserUtils.eatElement(builder, ScalaElementTypes.LITERAL)
+      case ScalaTokenTypes.tWRONG_STRING => { //wrong string literal
+        builder.advanceLexer //Ate wrong string
         builder.error("Wrong string literal")
         marker.done(ScalaElementTypes.LITERAL)
-        ScalaElementTypes.LITERAL
+        return true
       }
       case _ => {
         marker.rollbackTo()
-        ScalaElementTypes.WRONGWAY
+        return false
       }
     }
   }
-
 }
