@@ -31,16 +31,22 @@ object TopStatSeq {
         //end of parsing when find } or builder.eof
         case ScalaTokenTypes.tRBRACE | null => return
         case ScalaTokenTypes.tLINE_TERMINATOR |
-          ScalaTokenTypes.tSEMICOLON => builder.advanceLexer //not interesting case
+             ScalaTokenTypes.tSEMICOLON => builder.advanceLexer //not interesting case
         //otherwise parse TopStat
-        case _ if !TopStat.parse(builder) => {
-          builder error ScalaBundle.message("wrong.top.statment.declaration", new Array[Object](0))
-          builder.advanceLexer
+        case _ => {
+          if (!TopStat.parse(builder)) {
+            builder error ScalaBundle.message("wrong.top.statment.declaration", new Array[Object](0))
+            builder.advanceLexer
+          }
+          else {
+            builder.getTokenType match {
+              case ScalaTokenTypes.tSEMICOLON |
+                   ScalaTokenTypes.tLINE_TERMINATOR => builder.advanceLexer //it is good
+              case null | ScalaTokenTypes.tRBRACE => return
+              case _ => builder error ScalaBundle.message("semi.expected", new Array[Object](0))
+            }
+          }
         }
-        case ScalaTokenTypes.tSEMICOLON |
-          ScalaTokenTypes.tLINE_TERMINATOR => builder.advanceLexer //it is good
-        case null | ScalaTokenTypes.tRBRACE => return
-        case _ => builder error ScalaBundle.message("semi.expected", new Array[Object](0))
       }
     }
   }
