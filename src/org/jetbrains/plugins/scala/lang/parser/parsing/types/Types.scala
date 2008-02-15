@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
   */
 
   //object StableId extends Constr{
-  object StableId {
+  /*object StableId {
 
   /*
   STABLE ID
@@ -38,10 +38,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
     * ScalaElementTypes.WRONGWAY else
     */
 
-//*******************************************************
+// *******************************************************
 //please, rewrite it so, that parse(builder : PsiBuilder return Unit)
 //for example, make method parseStableId and use it, as need//and so, we 'll extend StableId by Constr
-//*******************************************************
+// *******************************************************
 
     def parse(builder : PsiBuilder) : ScalaElementType = {
 
@@ -289,7 +289,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
         ScalaElementTypes.PATH
       else result
     }
-  }
+  }  */
 
   object SimpleType {
 
@@ -398,7 +398,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
         // If Stable Identifier or Path identified parsed...
         else if ( {
           var result = StableId.parse(builder)
-          myResult = result
+          myResult = ScalaElementTypes.STABLE_ID
           !result.equals(ScalaElementTypes.WRONGWAY)
         } ){
           builder.getTokenType match {

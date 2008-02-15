@@ -201,6 +201,7 @@ object ScalaElementTypes {
 
   /******************* modifiers **********************/
   val MODIFIERS = new ScalaElementType("modifiers")
+  val ACCESS_MODIFIER = new ScalaElementType("access modifier")
 
   /*************************************************************************************/
   /************************************** LITERALS *************************************/
