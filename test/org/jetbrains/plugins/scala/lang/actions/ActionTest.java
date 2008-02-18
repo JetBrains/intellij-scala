@@ -28,7 +28,7 @@ import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.DataConstants;
-import com.intellij.idea.IdeaTestApplication;
+//import com.intellij.idea.IdeaTestApplication;
 import com.intellij.codeInsight.editorActions.EnterHandler;
 import com.intellij.psi.PsiFile;
 
@@ -64,7 +64,7 @@ public abstract class ActionTest extends BaseScalaFileSetTestCase {
    */
   protected myDataContext getDataContext(PsiFile file) throws InvalidDataException, IOException {
     final myDataContext dataContext = new myDataContext(file);
-    IdeaTestApplication.getInstance().setDataProvider(dataContext);
+//    IdeaTestApplication.getInstance().setDataProvider(dataContext);
     return dataContext;
   }
 
