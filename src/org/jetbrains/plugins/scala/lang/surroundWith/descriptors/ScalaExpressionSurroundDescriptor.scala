@@ -10,7 +10,6 @@ import com.intellij.lang.surroundWith.Surrounder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.codeInsight.CodeInsightUtil;
-import com.intellij.debugger.codeinsight.JavaWithRuntimeCastSurrounder;
 import com.intellij.featureStatistics.FeatureUsageTracker;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.PsiWhiteSpace;

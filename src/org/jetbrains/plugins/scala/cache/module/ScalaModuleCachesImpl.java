@@ -15,23 +15,18 @@
 
 package org.jetbrains.plugins.scala.cache.module;
 
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.VirtualFileSystem;
-import com.intellij.openapi.vfs.ex.VirtualFileManagerEx;
-import com.intellij.openapi.roots.ex.ProjectRootManagerEx;
 import com.intellij.ide.startup.CacheUpdater;
 import com.intellij.ide.startup.FileContent;
-import com.intellij.pom.PomModel;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.roots.ex.ProjectRootManagerEx;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiManager;
-import org.jetbrains.plugins.scala.cache.ScalaFilesCacheImpl;
-import org.jetbrains.plugins.scala.cache.listeners.ScalaPsiTreeListener;
-import org.jetbrains.plugins.scala.cache.listeners.ScalaVirtualFileListener;
-import org.jetbrains.plugins.scala.cache.info.ScalaFileInfo;
-import org.jetbrains.plugins.scala.cache.info.ScalaFilesStorage;
-import org.jetbrains.plugins.scala.util.ScalaUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.cache.ScalaFilesCacheImpl;
+import org.jetbrains.plugins.scala.cache.info.ScalaFileInfo;
+import org.jetbrains.plugins.scala.cache.listeners.ScalaPsiTreeListener;
+import org.jetbrains.plugins.scala.util.ScalaUtils;
 
 import java.util.*;
 
@@ -112,13 +107,13 @@ public class ScalaModuleCachesImpl extends ScalaFilesCacheImpl implements ScalaM
   private void registerCacheUpdater() {
     myCacheUpdater = new ScalaFilesCacheUpdater();
     ProjectRootManagerEx.getInstanceEx(myProject).registerChangeUpdater(myCacheUpdater);
-    ((VirtualFileManagerEx) VirtualFileManagerEx.getInstance()).registerRefreshUpdater(myCacheUpdater);
+//    ((VirtualFileManager) VirtualFileManager.getInstance()).registerRefreshUpdater(myCacheUpdater);
   }
 
   private void unregisterCacheUpdater() {
     if (myCacheUpdater != null) {
       ProjectRootManagerEx.getInstanceEx(myProject).unregisterChangeUpdater(myCacheUpdater);
-      ((VirtualFileManagerEx) VirtualFileManagerEx.getInstance()).unregisterRefreshUpdater(myCacheUpdater);
+//      ((VirtualFileManager) VirtualFileManager.getInstance()).unregisterRefreshUpdater(myCacheUpdater);
     }
   }
 

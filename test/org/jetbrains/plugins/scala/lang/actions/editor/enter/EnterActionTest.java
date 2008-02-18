@@ -16,26 +16,19 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter;
 
 import com.intellij.codeInsight.editorActions.EnterHandler;
-import com.intellij.openapi.actionSystem.DataConstants;
-import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.IdeActions;
-import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.actionSystem.EditorActionManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-import com.intellij.idea.IdeaTestApplication;
-import junit.framework.Assert;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.util.TestUtils;
 import org.jetbrains.plugins.scala.lang.actions.ActionTest;
+import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.IOException;
 
