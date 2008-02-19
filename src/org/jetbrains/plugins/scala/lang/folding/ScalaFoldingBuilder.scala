@@ -46,12 +46,6 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         (ScalaElementTypes.FUNCTION_DEFINITION.equals(node.getTreeParent().getElementType)) => {
         descriptors += (new FoldingDescriptor(node, node.getTextRange()))
       }
-      case ScalaTokenTypes.tCOMMENT_CONTENT if {
-        node.getText.substring(0, 3).equals("/**") &&
-        (node.getText.contains('\n') || node.getText.contains('\r'))
-      } => {
-        descriptors += (new FoldingDescriptor(node, node.getTextRange()))
-      }
       case _ => {}
     }
 
@@ -89,12 +83,6 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         ScalaElementTypes.TYPED_EXPR_STMT if
         (ScalaElementTypes.FUNCTION_DEFINITION.equals(node.getTreeParent().getElementType)) => {
         "{...}"
-      }
-      case ScalaTokenTypes.tCOMMENT_CONTENT if {
-        node.getText.substring(0, 3).equals("/**") &&
-        (node.getText.contains('\n') || node.getText.contains('\r'))
-      } => {
-        "/**...*/"
       }
       case _ => null
     }
