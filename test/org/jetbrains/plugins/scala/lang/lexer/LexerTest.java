@@ -16,9 +16,11 @@
 package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.psi.tree.IElementType;
+import com.intellij.lexer.Lexer;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
+import org.jetbrains.plugins.scala.lang.lexer.core.ScalaCoreLexer;
 
 /**
  * @author ilyas
@@ -39,7 +41,7 @@ public class LexerTest extends BaseScalaFileSetTestCase {
   public String transform(String testName, String[] data) throws Exception {
     String fileText = data[0];
 
-    ScalaLexer lexer = new ScalaLexer();
+    Lexer lexer = new ScalaLexer();
     lexer.start(fileText.toCharArray());
 
     StringBuffer buffer = new StringBuffer();

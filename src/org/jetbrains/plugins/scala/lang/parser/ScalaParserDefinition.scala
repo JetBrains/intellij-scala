@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile
-//import org.jetbrains.plugins.scala.ScalaFileType
 
 /**
  * Author: Ilya Sergey
@@ -25,38 +24,28 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaFile
  */
 class ScalaParserDefinition extends ParserDefinition {
 
-    def createLexer(project: Project) : Lexer = {
-        new ScalaLexer()
-    }
+  def createLexer(project: Project) = new ScalaLexer()
 
-    def createLexer() : Lexer = {
-        new ScalaLexer()
-    }
+  def createLexer() = new ScalaLexer()
 
-    def createParser(project: Project) : PsiParser = {
-        new ScalaParser()
-    }
-     
-    def getFileNodeType() : IFileElementType  = {
-        ScalaElementTypes.FILE
-    }
+  def createParser(project: Project): PsiParser = new ScalaParser()
 
-    def getCommentTokens() : TokenSet = ScalaTokenTypes.COMMENTS_TOKEN_SET
+  def getFileNodeType(): IFileElementType = ScalaElementTypes.FILE
 
-    def getStringLiteralElements() : TokenSet = ScalaTokenTypes.STRING_LITERAL_TOKEN_SET
+  def getCommentTokens(): TokenSet = ScalaTokenTypes.COMMENTS_TOKEN_SET
 
-    def getWhitespaceTokens() : TokenSet = ScalaTokenTypes.WHITES_SPACES_TOKEN_SET
+  def getStringLiteralElements(): TokenSet = ScalaTokenTypes.STRING_LITERAL_TOKEN_SET
 
-    def createElement( astNode : ASTNode ) : PsiElement = {
-       ScalaPsiCreator.createElement( astNode )
-    }
+  def getWhitespaceTokens(): TokenSet = ScalaTokenTypes.WHITES_SPACES_TOKEN_SET
 
-    def createFile(fileViewProvider : FileViewProvider) : PsiFile = {
-        return new ScalaFile(fileViewProvider);
-    }
+  def createElement(astNode: ASTNode): PsiElement = ScalaPsiCreator.createElement(astNode)
 
-    def spaceExistanceTypeBetweenTokens(astNode : ASTNode, astNode1 : ASTNode)  : ParserDefinition.SpaceRequirements = {
-        throw new UnsupportedOperationException("spaceExistanceTypeBetweenTokens not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
-    }
+  def createFile(fileViewProvider: FileViewProvider): PsiFile = {
+    return new ScalaFile(fileViewProvider);
+  }
+
+  def spaceExistanceTypeBetweenTokens(astNode: ASTNode, astNode1: ASTNode): ParserDefinition.SpaceRequirements = {
+    throw new UnsupportedOperationException("spaceExistanceTypeBetweenTokens not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
+  }
 
 }

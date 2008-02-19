@@ -13,20 +13,22 @@
  * limitations under the License.
  */
 
-package org.jetbrains.plugins.scala.lang.lexer;
+package org.jetbrains.plugins.scala.lang.lexer.core;
 
-import com.intellij.lexer.FlexAdapter;
-
-import java.io.Reader;
+import com.intellij.lexer.MergingLexerAdapter;
+import com.intellij.psi.tree.TokenSet;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 /**
- * Author: Ilya Sergey
- * Date: 24.09.2006
- * Time: 16:37:53
+ * @author ilyas
  */
-public class ScalaFlexLexer extends FlexAdapter {
-  public ScalaFlexLexer() {
+public class ScalaCoreLexer extends MergingLexerAdapter {
 
-    super(new _ScalaLexer((Reader)  null));
+  public ScalaCoreLexer() {
+    super(new ScalaFlexLexer(),
+      TokenSet.create(
+        ScalaTokenTypes.tWHITE_SPACE_IN_LINE,
+        ScalaTokenTypes.tCOMMENT_CONTENT
+      ));
   }
 }

@@ -21,7 +21,7 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaFlexLexer;
+import org.jetbrains.plugins.scala.lang.lexer.core.ScalaFlexLexer;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 import java.util.HashMap;
@@ -36,14 +36,9 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
   // Comments
   static final TokenSet tCOMMENTS = TokenSet.create(
-    ScalaTokenTypes.tCOMMENT,
+    ScalaTokenTypes.tLINE_COMMENT,
     ScalaTokenTypes.tBLOCK_COMMENT,
-    // New
-    ScalaTokenTypes.tCOMMENT_BEGIN,
-    ScalaTokenTypes.tCOMMENT_END,
-    ScalaTokenTypes.tDOC_COMMENT_BEGIN,
-    ScalaTokenTypes.tDOC_COMMENT_END,
-    ScalaTokenTypes.tCOMMENT_CONTENT
+    ScalaTokenTypes.tDOC_COMMENT
   );
 
   // XML tags

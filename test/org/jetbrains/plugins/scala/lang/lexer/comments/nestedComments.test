@@ -18,7 +18,7 @@ identifier {int}
 { {{}
 white space in line {
 }
-comment content {/*
+BlockComment {/*
   object f{ //It's static in this class.
   /*
     val x = 4

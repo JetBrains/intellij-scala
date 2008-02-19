@@ -1,0 +1,31 @@
+object A /**/ { /**
+
+*/  }
+
+/*****
+
+/*
+
+*/
+
+*/
+-----
+Scala file
+  template definition: object
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    PsiComment(BlockComment)('/**/')
+    PsiWhiteSpace(' ')
+    extends block
+      template body
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        PsiComment(DocComment)('/**\n\n*/')
+        PsiWhiteSpace('  ')
+        PsiElement(})('}')
+  PsiElement(newline)('\n\n')
+  PsiComment(DocComment)('/*****\n\n/*\n\n*/\n\n*/')

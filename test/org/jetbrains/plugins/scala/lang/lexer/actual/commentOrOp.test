@@ -2,3 +2,9 @@
 comment
 */2
 -----
+integer {2}
+identifier {+}
+BlockComment {/*
+comment
+*/}
+integer {2}

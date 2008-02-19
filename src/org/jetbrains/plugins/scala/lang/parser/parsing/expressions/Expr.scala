@@ -17,7 +17,6 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
   import org.jetbrains.plugins.scala.ScalaFileType
   import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
   import org.jetbrains.plugins.scala.util.DebugPrint
-  import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
   import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
   import com.intellij.openapi.util.TextRange

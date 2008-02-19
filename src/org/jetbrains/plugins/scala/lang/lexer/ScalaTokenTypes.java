@@ -54,14 +54,15 @@ public interface ScalaTokenTypes {
 ///////////////////////// Comments /////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  IElementType tBLOCK_COMMENT = new ScalaElementType("comment"); // rudimento
-
-  IElementType tCOMMENT = new ScalaElementType("comment");
+  IElementType tLINE_COMMENT = new ScalaElementType("comment");
   IElementType tCOMMENT_BEGIN = new ScalaElementType("comment begin");
   IElementType tCOMMENT_END = new ScalaElementType("comment end");
   IElementType tDOC_COMMENT_BEGIN = new ScalaElementType("block comment begin");
   IElementType tDOC_COMMENT_END = new ScalaElementType("block comment end");
   IElementType tCOMMENT_CONTENT = new ScalaElementType("comment content");
+
+  IElementType tDOC_COMMENT = new ScalaElementType("DocComment");
+  IElementType tBLOCK_COMMENT = new ScalaElementType("BlockComment");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// Strings & chars //////////////////////////////////////////////////////////////////////////////
@@ -189,13 +190,9 @@ public interface ScalaTokenTypes {
   );
 
   TokenSet COMMENTS_TOKEN_SET = TokenSet.create(
-      tCOMMENT,
+      tLINE_COMMENT,
       tBLOCK_COMMENT,
-      tCOMMENT_BEGIN,
-      tCOMMENT_END,
-      tDOC_COMMENT_BEGIN,
-      tDOC_COMMENT_END,
-      tCOMMENT_CONTENT
+      tCOMMENT_BEGIN
   );
 
   TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER);
