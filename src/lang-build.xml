@@ -70,7 +70,7 @@
   </target>
 
   <target name="create.lexer" description="Makes lexer file">
-    <ant dir="org/jetbrains/plugins/scala/lang/lexer"
+    <ant dir="org/jetbrains/plugins/scala/lang/lexer/core"
          antfile="build.xml" target="generate.lexer"/>
   </target>
 

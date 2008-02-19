@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
 import org.jetbrains.plugins.scala.util.DebugPrint
-import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElementImpl,ScalaFile}
 
 import com.intellij.openapi.util.TextRange

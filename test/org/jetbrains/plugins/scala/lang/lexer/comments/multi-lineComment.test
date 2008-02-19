@@ -9,7 +9,7 @@ identifier {a}
 { {{}
 white space in line {
 }
-comment content {/*
+BlockComment {/*
   val x = "str\"ing"*/}
 white space in line {
 }
