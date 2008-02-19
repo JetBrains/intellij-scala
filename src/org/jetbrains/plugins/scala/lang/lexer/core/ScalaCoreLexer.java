@@ -27,8 +27,7 @@ public class ScalaCoreLexer extends MergingLexerAdapter {
   public ScalaCoreLexer() {
     super(new ScalaFlexLexer(),
       TokenSet.create(
-        ScalaTokenTypes.tWHITE_SPACE_IN_LINE,
-        ScalaTokenTypes.tCOMMENT_CONTENT
+        ScalaTokenTypes.tWHITE_SPACE_IN_LINE
       ));
   }
 }
