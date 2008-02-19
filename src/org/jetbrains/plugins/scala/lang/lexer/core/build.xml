@@ -14,7 +14,7 @@
   -->
 
 <project name="generate lexer from scala.flex" default="generate.lexer">
-  <property name="lexer.file" value="_ScalaLexer.java"/>
+  <property name="lexer.file" value="_ScalaCoreLexer.java"/>
   <property name="split.lexer.file" value="_ScalaSplittingLexer.java"/>
   <property name="lexer.log" value="jflex.log"/>
   <property name="split.lexer.log" value="splitting.log"/>
