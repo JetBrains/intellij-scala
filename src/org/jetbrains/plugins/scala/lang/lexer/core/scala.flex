@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 %%
 
-%class _ScalaLexer
+%class _ScalaCoreLexer
 %implements FlexLexer, ScalaTokenTypes
 %unicode
 %public
@@ -27,9 +27,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 %{
     // Stack for braces
     private Stack <IElementType> braceStack = new Stack<IElementType>();
-
-    // Stack for comment positions
-    private Stack <IElementType> commentStack = new Stack<IElementType>();
 
     /* Defines, is in this section new line is whitespace or not? */
     private boolean newLineAllowed(){
@@ -132,14 +129,6 @@ plainid = {varid}
 ////////// Comments ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-COMMENT_BEGIN = "/*"
-DOC_COMMENT_BEGIN = "/*""*"
-COMMENT_END = "*/"
-
-C_STYLE_COMMENT=("/*" [^"*"] {COMMENT_TAIL} ) | "/*"
-DOC_COMMENT="/*" "*"+ ( "/" | ( [^"/""*"] {COMMENT_TAIL} ) )?
-COMMENT_TAIL=( [^"*"]* ("*"+ [^"*""/"] )? )* ("*"+"/")?
-
 END_OF_LINE_COMMENT="/""/"[^\r\n]*
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -186,11 +175,9 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpaceInLine})*
 %state NEW_LINE_DEPRECATED
 %state NEW_LINE_ALLOWED
 
-%xstate PROCESS_NEW_LINE
 // Valid preceding token for newline encountered
+%xstate PROCESS_NEW_LINE
 
-%xstate IN_BLOCK_COMMENT_STATE
-%xstate IN_BLOCK_COMMENT_STATE_NEW_LINE
 
 %%
 
@@ -208,72 +195,12 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpaceInLine})*
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////  Block comment processing ////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<IN_BLOCK_COMMENT_STATE> {
-{COMMENT_BEGIN}                                 { commentStack.push(ScalaTokenTypes.tLBRACE);
-                                                  //return process(ScalaTokenTypes.tCOMMENT_BEGIN); }
-                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT); }
-{COMMENT_END}                                   { IElementType elem = commentStack.pop();
-                                                  if (commentStack.isEmpty()) {
-                                                    changeState();
-                                                  }
-                                                  if (!ScalaTokenTypes.tLBRACE.equals(elem)) {
-                                                    //return process(ScalaTokenTypes.tDOC_COMMENT_END);
-                                                    return process(ScalaTokenTypes.tCOMMENT_CONTENT);
-                                                  } else {
-                                                   //return process(ScalaTokenTypes.tCOMMENT_END);
-                                                   return process(ScalaTokenTypes.tCOMMENT_CONTENT);
-                                                  }
-                                                }
-~({COMMENT_BEGIN}|{COMMENT_END})                { yypushback(2);
-                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT);}
-
-[^]                                             { while (!commentStack.isEmpty()){
-                                                    commentStack.pop();
-                                                  }
-                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT);
-                                                }
-}
-
-//////////////////////////////////////////////// With new line processing //////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<IN_BLOCK_COMMENT_STATE_NEW_LINE> {
-{COMMENT_BEGIN}                                 { commentStack.push(ScalaTokenTypes.tLBRACE);
-                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT); }
-{COMMENT_END}                                   { IElementType elem = commentStack.pop();
-                                                  if (commentStack.isEmpty()) {
-                                                    yybegin(PROCESS_NEW_LINE);
-                                                  }
-                                                  if (!ScalaTokenTypes.tLBRACE.equals(elem)) {
-                                                    return process(ScalaTokenTypes.tCOMMENT_CONTENT);
-                                                  } else {
-                                                   return process(ScalaTokenTypes.tCOMMENT_CONTENT);
-                                                  }
-                                                }
-~({COMMENT_BEGIN}|{COMMENT_END})                { yypushback(2);
-                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT);}
-
-[^]                                             { while (!commentStack.isEmpty()){
-                                                    commentStack.pop();
-                                                  }
-                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT);
-                                                }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////  New line processing state ///////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 <PROCESS_NEW_LINE>{
 
 {WhiteSpaceInLine}                              { return process(tWHITE_SPACE_IN_LINE);  }
 
-
-{COMMENT_BEGIN} /(.| {LineTerminator})*         { yybegin(IN_BLOCK_COMMENT_STATE_NEW_LINE);
-                                                  commentStack.push(ScalaTokenTypes.tLBRACE);
-                                                  //return process(ScalaTokenTypes.tCOMMENT_BEGIN);
-                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT);
-                                                }
 
 {END_OF_LINE_COMMENT}                           { return process(tLINE_COMMENT); }
 
@@ -349,13 +276,6 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpaceInLine})*
 /////////////////////// comments ///////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-{COMMENT_BEGIN} /(.| {LineTerminator})*         { yybegin(IN_BLOCK_COMMENT_STATE);
-                                                  commentStack.push(ScalaTokenTypes.tLBRACE);
-                                                  //return process(ScalaTokenTypes.tCOMMENT_BEGIN);
-                                                  return process(ScalaTokenTypes.tCOMMENT_CONTENT);
-                                                }
 
 
 {END_OF_LINE_COMMENT}                           { return process(tLINE_COMMENT); }
@@ -508,11 +428,11 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpaceInLine})*
                                             return process(tINTEGER);  }
 
 ////////////////////// white spaces in line ///////////////////////////////////////////////
-{WhiteSpaceInLine}                            {   return process(tWHITE_SPACE_IN_LINE);  }
+{WhiteSpaceInLine}                      {   return process(tWHITE_SPACE_IN_LINE);  }
 
 ////////////////////// white spaces line terminator ///////////////////////////////////////////////
-{mNLS}                              {   return process(tWHITE_SPACE_IN_LINE); }
+{mNLS}                                  {   return process(tWHITE_SPACE_IN_LINE); }
 
 ////////////////////// STUB ///////////////////////////////////////////////
-.                                             {   return process(tSTUB); }
+.                                       {   return process(tSTUB); }
 
