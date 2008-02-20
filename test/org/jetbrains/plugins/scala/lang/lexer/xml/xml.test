@@ -1,0 +1,37 @@
+val foo = <test attr ="{42}"><bugoga/>{239 + {<newxml/>}}</test>
+-----
+val {val}
+white space in line { }
+identifier {foo}
+white space in line { }
+= {=}
+white space in line { }
+XML_START_TAG_START {<}
+XML_NAME {test}
+WHITE_SPACE { }
+XML_NAME {attr}
+WHITE_SPACE { }
+XML_EQ {=}
+XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
+Xml Injection Start {{}
+integer {42}
+Xml Injection End {}}
+XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
+XML_TAG_END {>}
+XML_START_TAG_START {<}
+XML_NAME {bugoga}
+XML_EMPTY_ELEMENT_END {/>}
+Xml Injection Start {{}
+integer {239}
+white space in line { }
+identifier {+}
+white space in line { }
+{ {{}
+XML_START_TAG_START {<}
+XML_NAME {newxml}
+XML_EMPTY_ELEMENT_END {/>}
+} {}}
+Xml Injection End {}}
+XML_END_TAG_START {</}
+XML_NAME {test}
+XML_TAG_END {>}

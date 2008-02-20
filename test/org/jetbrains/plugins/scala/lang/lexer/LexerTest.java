@@ -17,10 +17,10 @@ package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lexer.Lexer;
+import com.intellij.lexer.XmlLexer;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
-import org.jetbrains.plugins.scala.lang.lexer.core.ScalaCoreLexer;
 
 /**
  * @author ilyas
@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.lexer.core.ScalaCoreLexer;
 public class LexerTest extends BaseScalaFileSetTestCase {
 
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/lexer";
+  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/lexer/";
 
   public LexerTest() {
     super(System.getProperty("path") != null ?
