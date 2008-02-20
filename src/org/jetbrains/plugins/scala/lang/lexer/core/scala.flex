@@ -37,6 +37,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
       }
     }
 
+    private static boolean endsByWhiteSpace(String s) {
+      return s != null && (s.endsWith(" ") || s.endsWith("\t") || s.endsWith("\f"));
+    }
+
     /* Changes state depending on brace stack */
     private void changeState(){
       if (braceStack.isEmpty()) {
@@ -141,7 +145,7 @@ UNICODE_ESCAPE=!(!(\\u{hexDigit}{hexDigit}{hexDigit}{hexDigit}) | \\u000A)
 SOME_ESCAPE=\\{octalDigit} {octalDigit}? {octalDigit}?
 CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{UNICODE_ESCAPE}|{SOME_ESCAPE})("'"|\\)
 STRING_LITERAL=\"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*(\"|\\)? |
-                \"\"\" ( (\"(\")?)? [^\"] )* \"\"\"    // Multi-line string
+               \"\"\" ( (\"(\")?)? [^\"] )* \"\"\"                                                 // Multi-line string
 
 charEscapeSeq = \\[^\r\n]
 charNoDoubleQuote = !( ![^"\""] | {LineTerminator})
@@ -163,9 +167,8 @@ specNotFollow    =  "_" | "catch" | "else" | "extends" | "finally" | "match" | "
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 LineTerminator = \r | \n | \r\n | \u0085 |  \u2028 | \u2029 | \u000A | \u000a
-InLineTerminator = " " | "\t" | "\f"
-WhiteSpaceInLine = {InLineTerminator}
-mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpaceInLine})*
+WhiteSpace = " " | "\t" | "\f"
+mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpace})*
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +180,6 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpaceInLine})*
 
 // Valid preceding token for newline encountered
 %xstate PROCESS_NEW_LINE
-
 
 %%
 
@@ -199,7 +201,7 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpaceInLine})*
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 <PROCESS_NEW_LINE>{
 
-{WhiteSpaceInLine}                              { return process(tWHITE_SPACE_IN_LINE);  }
+{WhiteSpace}                                    { return process(tWHITE_SPACE_IN_LINE);  }
 
 
 {END_OF_LINE_COMMENT}                           { return process(tLINE_COMMENT); }
@@ -214,7 +216,7 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpaceInLine})*
                                                     }
                                                 }
 
-{mNLS} / "case" ({LineTerminator}|{WhiteSpaceInLine})+("class" | "object")
+{mNLS} / "case" ({LineTerminator}|{WhiteSpace})+("class" | "object")
                                                 {   changeState();
                                                     if(newLineAllowed()){
                                                       return process(tLINE_TERMINATOR);
@@ -223,10 +225,10 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpaceInLine})*
                                                     }
                                                 }
 
-{mNLS} /  "case"
-                                               {   changeState();
+{mNLS} "case"                                   {   yypushback(4);
+                                                   changeState();
                                                    return process(tWHITE_SPACE_IN_LINE);
-                                               }
+                                                }
 
 {mNLS} / {floatingPointLiteral}                 {   changeState();
                                                     if(newLineAllowed()){
@@ -244,7 +246,8 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpaceInLine})*
                                                 }
 
 
-{mNLS}/ (.)                                     {   changeState();
+{mNLS} .                                        {   yypushback(1);
+                                                    changeState();
                                                     if(newLineAllowed()){
                                                       return process(tLINE_TERMINATOR);
                                                     } else {
@@ -260,30 +263,8 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpaceInLine})*
                                                     changeState();
                                                 }
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////// Identfier state ////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////// FOR ALL INCLUSIVE STATES //////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////// comments ///////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-{END_OF_LINE_COMMENT}                           { return process(tLINE_COMMENT); }
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////// Strings /////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{END_OF_LINE_COMMENT}                   { return process(tLINE_COMMENT); }
 
 
 {STRING_LITERAL}                        {   yybegin(PROCESS_NEW_LINE);
@@ -323,7 +304,7 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpaceInLine})*
 
 "abstract"                              {   return process(kABSTRACT); }
 
-"case" / ({LineTerminator}|{WhiteSpaceInLine})+("class" | "object")
+"case" / ({LineTerminator}|{WhiteSpace})+("class" | "object")
                                         {   return process(kCASE); }
 
 "case"                                  {   braceStack.push(kCASE);
@@ -413,24 +394,13 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpaceInLine})*
 ","                                     {   return process(tCOMMA);}
 
 
-////////////////////// Identifier /////////////////////////////////////////
-
 {identifier}                            {   yybegin(PROCESS_NEW_LINE);
                                             return process(tIDENTIFIER); }
-
-//is not true according to Martin's comment from 17.03.2007
-//({digit}+) / ("." {identifier})         {   yybegin(PROCESS_NEW_LINE);
-//                                            return process(tINTEGER);  }
-
 {floatingPointLiteral}                  {   yybegin(PROCESS_NEW_LINE);
                                             return process(tFLOAT);      }
 {integerLiteral}                        {   yybegin(PROCESS_NEW_LINE);
                                             return process(tINTEGER);  }
-
-////////////////////// white spaces in line ///////////////////////////////////////////////
-{WhiteSpaceInLine}                      {   return process(tWHITE_SPACE_IN_LINE);  }
-
-////////////////////// white spaces line terminator ///////////////////////////////////////////////
+{WhiteSpace}                            {   return process(tWHITE_SPACE_IN_LINE);  }
 {mNLS}                                  {   return process(tWHITE_SPACE_IN_LINE); }
 
 ////////////////////// STUB ///////////////////////////////////////////////
