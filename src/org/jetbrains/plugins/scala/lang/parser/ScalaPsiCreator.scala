@@ -16,6 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 import org.jetbrains.plugins.scala.lang.psi.impl.top._, org.jetbrains.plugins.scala.lang.psi.impl.primitives._
 import org.jetbrains.plugins.scala.lang.psi.impl.specialNodes.ScTrash
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions.simpleExprs._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel._
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -28,41 +33,40 @@ object ScalaPsiCreator {
       /*****************************************************/
       /************* COMPILATION UNIT **********************/
 
-      case ScalaElementTypes.COMPILATION_UNIT => new ScCompilationUnit(node)
+      case ScalaElementTypes.COMPILATION_UNIT => new ScCompilationUnit(node) //not used
 
       /*****************************************************/
       /********************** TOP **************************/
       /*****************************************************/
 
-      case ScalaElementTypes.PACKAGING => new ScPackaging(node)
-      case ScalaElementTypes.QUAL_ID => new ScQualId(node)
+      case ScalaElementTypes.PACKAGING => new ScPackagingImpl(node)
+      case ScalaElementTypes.QUAL_ID => new ScQualIdImpl(node)
 
       /***************************************************/
       /********************* IMPORT **********************/
       /***************************************************/
 
-      case ScalaElementTypes.IMPORT_STMT => new ScImportStmt(node)
-      case ScalaElementTypes.IMPORT_EXPR => new ScImportExpr(node)
-      case ScalaElementTypes.IMPORT_EXPRS => new ScImportExprs(node)
-      case ScalaElementTypes.IMPORT_END => new ScImportEndId(node)
+      case ScalaElementTypes.IMPORT_STMT => new ScImportStmtImpl(node)
+      case ScalaElementTypes.IMPORT_EXPR => new ScImportExprImpl(node)
+      case ScalaElementTypes.IMPORT_EXPRS => new ScImportExprs(node) //not used
+      case ScalaElementTypes.IMPORT_END => new ScImportEndId(node) //not used
 
-      case ScalaElementTypes.IMPORT_SELECTORS => new ScImportSelectors(node)
-      case ScalaElementTypes.IMPORT_SELECTOR => new ScImportSelector(node)
-      case ScalaElementTypes.IMPORT_SELECTOR_BEGIN => new ScSelectorBeginId(node)
+      case ScalaElementTypes.IMPORT_SELECTORS => new ScImportSelectorsImpl(node)
+      case ScalaElementTypes.IMPORT_SELECTOR => new ScImportSelectorImpl(node)
+      case ScalaElementTypes.IMPORT_SELECTOR_BEGIN => new ScSelectorBeginId(node) //not used
 
       /***************************************************/
       /********************** DEF ************************/
       /***************************************************/
 
-      case ScalaElementTypes.PACKAGE_STMT => new ScPackageStatement(node)
-      case ScalaElementTypes.CLASS_DEF => new ScClassDefinition(node)
-      case ScalaElementTypes.NEW_TEMPLATE => new ScNewTemplateDefinition(node)
-      case ScalaElementTypes.OBJECT_DEF => new ScObjectDefinition(node)
-      case ScalaElementTypes.TRAIT_DEF => new ScTraitDefinition(node)
+      case ScalaElementTypes.PACKAGE_STMT => new ScPackageStatementImpl(node)
+      case ScalaElementTypes.CLASS_DEF => new ScClassImpl(node)
+      case ScalaElementTypes.OBJECT_DEF => new ScObjectImpl(node)
+      case ScalaElementTypes.TRAIT_DEF => new ScTraitImpl(node)
 
       /***************** class ***************/
-      case ScalaElementTypes.REQUIRES_BLOCK => new ScRequiresBlock(node)
-      case ScalaElementTypes.EXTENDS_BLOCK => new ScExtendsBlock(node)
+      case ScalaElementTypes.REQUIRES_BLOCK => new ScRequiresBlockImpl(node)
+      case ScalaElementTypes.EXTENDS_BLOCK => new ScExtendsBlockImpl(node)
 
       /***************************************************/
       /******************** TEMPLATES ********************/
@@ -217,6 +221,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.ASSIGN_STMT => new ScAssignStmtImpl(node)
     case ScalaElementTypes.TYPED_EXPR_STMT => new ScTypedStmtImpl(node)
     case ScalaElementTypes.MATCH_STMT => new ScMatchStmtImpl(node)
+    case ScalaElementTypes.NEW_TEMPLATE => new ScNewTemplateDefinition(node)
 
     /******************* PATTERNS *********************/
     case ScalaElementTypes.SIMPLE_PATTERN => new ScTuplePatternImpl(node)
