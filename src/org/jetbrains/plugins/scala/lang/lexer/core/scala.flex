@@ -5,12 +5,13 @@ import com.intellij.psi.tree.IElementType;
 import java.util.*;
 import java.lang.reflect.Field;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 %%
 
 %class _ScalaCoreLexer
-%implements FlexLexer, ScalaTokenTypes
+%implements FlexLexer, ScalaTokenTypesEx
 %unicode
 %public
 
@@ -170,6 +171,8 @@ LineTerminator = \r | \n | \r\n | \u0085 |  \u2028 | \u2029 | \u000A | \u000a
 WhiteSpace = " " | "\t" | "\f"
 mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpace})*
 
+XML_BEGIN = "<" ("_" | [:jletter:])
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////  states ///////////////////////////////////////////////////////////////////////////////////////////
@@ -180,6 +183,7 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpace})*
 
 // Valid preceding token for newline encountered
 %xstate PROCESS_NEW_LINE
+%xstate WAIT_FOR_XML
 
 %%
 
@@ -197,14 +201,37 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpace})*
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////  XML processing ///////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+<WAIT_FOR_XML>{
+
+{XML_BEGIN}                             {   changeState();
+                                            yypushback(yytext().length());
+                                            return SCALA_XML_START;
+                                        }
+
+[^]                                     {   changeState();
+                                            yypushback(yytext().length());
+                                        }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////  New line processing state ///////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 <PROCESS_NEW_LINE>{
 
-{WhiteSpace}                                    { return process(tWHITE_SPACE_IN_LINE);  }
+{WhiteSpace}{XML_BEGIN}                         {  yybegin(WAIT_FOR_XML);
+                                                   while (!"".equals(yytext().toString().trim())){
+                                                     yypushback(1);
+                                                   }
+                                                   return process(tWHITE_SPACE_IN_LINE);  }
+
+{WhiteSpace}                                    {  return process(tWHITE_SPACE_IN_LINE);  }
 
 
-{END_OF_LINE_COMMENT}                           { return process(tLINE_COMMENT); }
+{END_OF_LINE_COMMENT}                           {  return process(tLINE_COMMENT); }
 
 
 {mNLS} / {specNotFollow} ([:jletter:] | [:jletterdigit:])
@@ -290,11 +317,21 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpace})*
 "{"                                     {   braceStack.push(tLBRACE);
                                             yybegin(NEW_LINE_ALLOWED);
                                             return process(tLBRACE); }
+"{"{XML_BEGIN}                          {   braceStack.push(tLBRACE);
+                                            yypushback(yytext().length() - 1);
+                                            yybegin(WAIT_FOR_XML);
+                                            return process(tLBRACE); }
+
 "}"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return popBraceStack(tRBRACE); }
 
 "("                                     {   braceStack.push(tLPARENTHESIS);
                                             yybegin(NEW_LINE_DEPRECATED);
+                                            return process(tLPARENTHESIS); }
+
+"("{XML_BEGIN}                          {   braceStack.push(tLPARENTHESIS);
+                                            yypushback(yytext().length() - 1);
+                                            yybegin(WAIT_FOR_XML);
                                             return process(tLPARENTHESIS); }
 ")"                                     {   yybegin(PROCESS_NEW_LINE);
                                             return popBraceStack(tRPARENTHESIS); }
@@ -400,7 +437,8 @@ mNLS = {LineTerminator} ({LineTerminator} | {WhiteSpace})*
                                             return process(tFLOAT);      }
 {integerLiteral}                        {   yybegin(PROCESS_NEW_LINE);
                                             return process(tINTEGER);  }
-{WhiteSpace}                            {   return process(tWHITE_SPACE_IN_LINE);  }
+{WhiteSpace}                            {   yybegin(WAIT_FOR_XML);
+                                            return process(tWHITE_SPACE_IN_LINE);  }
 {mNLS}                                  {   return process(tWHITE_SPACE_IN_LINE); }
 
 ////////////////////// STUB ///////////////////////////////////////////////
