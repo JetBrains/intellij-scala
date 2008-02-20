@@ -23,7 +23,7 @@ with ScalaPsiElement with Importable{
 
   override def getViewProvider = viewProvider
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE
-  override def toString = "Scala file"
+  override def toString = "ScalaFile"
 
   def getPackaging: Iterable[ScPackaging] = childrenOfType[ScPackaging](ScalaElementTypes.PACKAGING_BIT_SET)
 
