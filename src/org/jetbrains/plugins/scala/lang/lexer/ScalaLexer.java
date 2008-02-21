@@ -51,6 +51,7 @@ public class ScalaLexer implements Lexer {
   private CharSequence myBuffer;
   private int myXmlState;
   private IElementType myCurrentType;
+  public final String XML_BEGIN_PATTERN = "\\s*<\\w+.*";
 
   public ScalaLexer() {
     myCurrentLexer = myScalaPlainLexer;
@@ -124,35 +125,44 @@ public class ScalaLexer implements Lexer {
       myBraceStack.push(++currentLayer);
     } else
 
-    // XML injections
-    if (XML_START_TAG_START == type && !myLayeredTagStack.isEmpty()) {
+      // XML injections
+      if (XML_START_TAG_START == type && !myLayeredTagStack.isEmpty()) {
 
-      myLayeredTagStack.peek().push(new MyOpenXmlTag());
+        myLayeredTagStack.peek().push(new MyOpenXmlTag());
 
-    } else if (XML_EMPTY_ELEMENT_END == type && !myLayeredTagStack.isEmpty() &&
-        !myLayeredTagStack.peek().isEmpty()  && myLayeredTagStack.peek().peek().state == UNDEFINED) {
+      } else if (XML_EMPTY_ELEMENT_END == type && !myLayeredTagStack.isEmpty() &&
+          !myLayeredTagStack.peek().isEmpty() && myLayeredTagStack.peek().peek().state == UNDEFINED) {
 
-      myLayeredTagStack.peek().pop();
-      if (myLayeredTagStack.peek().isEmpty()) {
-        myLayeredTagStack.pop();
-        (myCurrentLexer = myScalaPlainLexer).start(getBufferSequence(), start, myBufferEnd, 0);
-      }
-
-    } else if (XML_TAG_END == type && !myLayeredTagStack.isEmpty() && !myLayeredTagStack.peek().isEmpty()) {
-
-      MyOpenXmlTag tag = myLayeredTagStack.peek().peek();
-      if (tag.state == UNDEFINED) {
-        tag.state = NONEMPTY;
-      } else if (tag.state == NONEMPTY) {
         myLayeredTagStack.peek().pop();
-      }
-      if (myLayeredTagStack.peek().isEmpty()) {
-        myLayeredTagStack.pop();
-        (myCurrentLexer = myScalaPlainLexer).start(getBufferSequence(), start, myBufferEnd, 0);
-      }
+        if (myLayeredTagStack.peek().isEmpty() && checkNotNextXmlBegin(myCurrentLexer)) {
+          myLayeredTagStack.pop();
+          (myCurrentLexer = myScalaPlainLexer).start(getBufferSequence(), start, myBufferEnd, 0);
+        }
+      } else if (XML_TAG_END == type && !myLayeredTagStack.isEmpty() && !myLayeredTagStack.peek().isEmpty()) {
 
-    }
+        MyOpenXmlTag tag = myLayeredTagStack.peek().peek();
+        if (tag.state == UNDEFINED) {
+          tag.state = NONEMPTY;
+        } else if (tag.state == NONEMPTY) {
+          myLayeredTagStack.peek().pop();
+        }
+        if (myLayeredTagStack.peek().isEmpty()) {
+          myLayeredTagStack.pop();
+          (myCurrentLexer = myScalaPlainLexer).start(getBufferSequence(), start, myBufferEnd, 0);
+        }
+
+      }
     return type;
+  }
+
+  private boolean checkNotNextXmlBegin(Lexer lexer) {
+    String text = lexer.getBufferSequence().toString();
+    int beginIndex = lexer.getTokenEnd();
+    if (beginIndex < text.length()) {
+      text = text.substring(beginIndex);
+      return !text.matches(XML_BEGIN_PATTERN);
+    }
+    return true;
   }
 
   public int getTokenStart() {
