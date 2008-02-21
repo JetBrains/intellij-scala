@@ -61,7 +61,7 @@ COMMENT_END = "*/"
                             return(commentType);
                          }
 
-[^]                      {  return SCALA_CONTENT; }
+[^]                      {  return SCALA_PLAIN_CONTENT; }
 
 }
 

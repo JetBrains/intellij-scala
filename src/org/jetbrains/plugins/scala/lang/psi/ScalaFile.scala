@@ -31,13 +31,16 @@ with ScalaPsiElement with Importable{
   *  Receiving al template definitions (such as class, object, trait) in current file
   */
   def getTmplDefs: List[ScTmplDef] = {
-    val children = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_OR_PACKAGING_DEF_BIT_SET)
+    Nil: List[ScTmplDef]
+/*
+    val children = childrenOfType[ScTmplDef](ScalaElementTypes.TMPL_OR_PACKAGING_DEF_BIT_SET)
     (children :\ (Nil: List[ScTmplDef]))((y: ScalaPsiElementImpl, x: List[ScTmplDef]) =>
       y.getNode.getElementType match
       {
-        case ScalaElementTypes.PACKAGING => y.asInstanceOf[ScPackaging].getTmplDefs.toList ::: x
-        case _ => y.asInstanceOf[ScTmplDef] :: (y.asInstanceOf[ScTmplDef]).getTmplDefs.toList ::: x
+//        case ScalaElementTypes.PACKAGING => y.asInstanceOf[ScPackaging].getTmplDefs.toList ::: x
+        case _ : ScTmplDef => y.asInstanceOf[ScTmplDef] :: (y.asInstanceOf[ScTmplDef]).getTmplDefs.toList ::: x
       })
+*/
   }
 
   def getUpperDefs = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_DEF_BIT_SET)

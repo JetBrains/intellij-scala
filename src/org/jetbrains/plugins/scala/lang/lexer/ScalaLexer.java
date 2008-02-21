@@ -100,7 +100,7 @@ public class ScalaLexer implements Lexer {
     int start = myCurrentLexer.getTokenStart();
     String tokenText = myCurrentLexer.getBufferSequence().subSequence(start, myCurrentLexer.getTokenEnd()).toString();
 
-    if (type == SCALA_XML_START) {
+    if (type == SCALA_XML_CONTENT_START) {
       myCurrentLexer = myXmlLexer;
       myCurrentLexer.start(getBufferSequence(), start, myBufferEnd, myXmlState);
       myLayeredTagStack.push(new Stack<MyOpenXmlTag>());
@@ -111,12 +111,12 @@ public class ScalaLexer implements Lexer {
       myXmlState = myCurrentLexer.getState();
       (myCurrentLexer = myScalaPlainLexer).start(getBufferSequence(), start, myBufferEnd, 0);
       myBraceStack.push(1);
-      return SCALA_XML_INJECTION_START;
+      return SCALA_IN_XML_INJECTION_START;
     } else if (type == ScalaTokenTypes.tRBRACE && myBraceStack.size() > 0) {
       int currentLayer = myBraceStack.pop();
       if (currentLayer == 1) {
         (myCurrentLexer = myXmlLexer).start(getBufferSequence(), start, myBufferEnd, myXmlState);
-        return SCALA_XML_INJECTION_END;
+        return SCALA_IN_XML_INJECTION_END;
       } else {
         myBraceStack.push(--currentLayer);
       }

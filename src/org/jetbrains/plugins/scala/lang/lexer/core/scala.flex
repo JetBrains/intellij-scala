@@ -208,7 +208,7 @@ XML_BEGIN = "<" ("_" | [:jletter:])
 
 {XML_BEGIN}                             {   changeState();
                                             yypushback(yytext().length());
-                                            return SCALA_XML_START;
+                                            return SCALA_XML_CONTENT_START;
                                         }
 
 [^]                                     {   changeState();

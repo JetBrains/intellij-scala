@@ -34,7 +34,7 @@ public class ScalaSplittingLexer extends MergingLexerAdapter implements ScalaTok
         TokenSet.create(
             tDOC_COMMENT,
             tBLOCK_COMMENT,
-            SCALA_CONTENT
+            SCALA_PLAIN_CONTENT
         ));
   }
 

@@ -30,6 +30,7 @@ object ScalaPsiCreator {
 
     node.getElementType() match {
 
+/*      
       /*****************************************************/
       /************* COMPILATION UNIT **********************/
 
@@ -244,6 +245,7 @@ object ScalaPsiCreator {
 
     case ScalaElementTypes.TRASH => new ScTrash(node)
 
+*/
     case _ => new ScalaPsiElementImpl(node)
 
   }

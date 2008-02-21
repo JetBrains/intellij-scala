@@ -20,9 +20,13 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
+import com.intellij.psi.tree.xml.IXmlLeafElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.core.ScalaFlexLexer;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.SCALA_XML_CONTENT;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -139,14 +143,20 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     fillMap(ATTRIBUTES, tOPS, DefaultHighlighter.OPERATION_SIGN);
     fillMap(ATTRIBUTES, tXML_TAGS, DefaultHighlighter.OPERATION_SIGN);
 
-//        ATTRIBUTES.put(ScalaTokenTypes.tBAD_CHARACTER, DefaultHighliter.BAD_CHARACTER);
-
   }
 
 
   @NotNull
   public Lexer getHighlightingLexer() {
-    return new ScalaFlexLexer();
+    return new ScalaLexer() {
+      public IElementType getTokenType() {
+        IElementType type = super.getTokenType();
+        if (type instanceof IXmlLeafElementType) {
+          return SCALA_XML_CONTENT;
+        }
+        return type;
+      }
+    };
   }
 
   @NotNull
