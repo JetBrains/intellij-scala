@@ -18,8 +18,14 @@ package org.jetbrains.plugins.scala;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.editor.highlighter.EditorHighlighter;
+import com.intellij.openapi.editor.colors.EditorColorsScheme;
+import com.intellij.openapi.project.Project;
+import com.intellij.lang.Language;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 
 import javax.swing.*;
 
@@ -31,6 +37,7 @@ import javax.swing.*;
 public class ScalaFileType extends LanguageFileType {
 
   public static final ScalaFileType SCALA_FILE_TYPE = new ScalaFileType();
+  public static final Language SCALA_LANGUAGE = SCALA_FILE_TYPE.getLanguage();
   public static final Icon SCALA_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_logo.png");
 
   private ScalaFileType() {
@@ -60,5 +67,9 @@ public class ScalaFileType extends LanguageFileType {
 
   public boolean isJVMDebuggingSupported() {
     return true;
+  }
+
+  public EditorHighlighter getEditorHighlighter(@Nullable Project project, @Nullable VirtualFile virtualFile, @NotNull EditorColorsScheme colors) {
+    return new ScalaEditorHighlighter(project, virtualFile, colors);
   }
 }

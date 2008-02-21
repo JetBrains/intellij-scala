@@ -196,7 +196,7 @@ public class ScalaPlainLexer implements Lexer {
     }
 
     final IElementType tokenType = mySplittingLexer.getTokenType();
-    if (tokenType == SCALA_CONTENT) {
+    if (tokenType == SCALA_PLAIN_CONTENT) {
       fedQueueFromLexer(myScalaLexer);
     } else {
       myTokenType = tokenType;
