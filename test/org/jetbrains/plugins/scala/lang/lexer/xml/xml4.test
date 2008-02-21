@@ -1,0 +1,12 @@
+val a =(<td/>)
+-----
+val {val}
+white space in line { }
+identifier {a}
+white space in line { }
+= {=}
+( {(}
+XML_START_TAG_START {<}
+XML_NAME {td}
+XML_EMPTY_ELEMENT_END {/>}
+) {)}
