@@ -223,9 +223,7 @@ XML_BEGIN = "<" ("_" | [:jletter:])
 <PROCESS_NEW_LINE>{
 
 {WhiteSpace}{XML_BEGIN}                         {  yybegin(WAIT_FOR_XML);
-                                                   while (!"".equals(yytext().toString().trim())){
-                                                     yypushback(1);
-                                                   }
+                                                   yypushback(2);
                                                    return process(tWHITE_SPACE_IN_LINE);  }
 
 {WhiteSpace}                                    {  return process(tWHITE_SPACE_IN_LINE);  }
@@ -272,6 +270,14 @@ XML_BEGIN = "<" ("_" | [:jletter:])
                                                     return process(tWHITE_SPACE_IN_LINE);
                                                 }
 
+{mNLS}{XML_BEGIN}                               {   yybegin(WAIT_FOR_XML);
+                                                    yypushback(2);
+                                                    if(newLineAllowed()){
+                                                      return process(tLINE_TERMINATOR);
+                                                    } else {
+                                                      return process(tWHITE_SPACE_IN_LINE);
+                                                    }
+                                                }
 
 {mNLS} .                                        {   yypushback(1);
                                                     changeState();
@@ -439,7 +445,8 @@ XML_BEGIN = "<" ("_" | [:jletter:])
                                             return process(tINTEGER);  }
 {WhiteSpace}                            {   yybegin(WAIT_FOR_XML);
                                             return process(tWHITE_SPACE_IN_LINE);  }
-{mNLS}                                  {   return process(tWHITE_SPACE_IN_LINE); }
+{mNLS}                                  {   yybegin(WAIT_FOR_XML);
+                                            return process(tWHITE_SPACE_IN_LINE); }
 
 ////////////////////// STUB ///////////////////////////////////////////////
 .                                       {   return process(tSTUB); }

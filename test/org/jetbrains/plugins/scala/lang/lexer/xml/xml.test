@@ -1,37 +1,177 @@
-val foo = <test attr ="{42}"><bugoga/>{239 + {<newxml/>}}</test>
+def body: NodeSeq =
+      {rootTitle} ++ {rootDesc} ++ <hr/> ++
+      <table cellpadding="3" class="member" summary="">
+        <tr><td colspan="2" class="title">Package Summary</td></tr>
+        {sort(packages).mkXML("","\n","")(pkg => <tr><td class="signature">
+          <code>package
+          {aref(pkgPath(pkg.sym) + "$content.html", "_self", pkg.fullName('.'))}
+          </code>
+        </td></tr>)}
+      </table>;
 -----
-val {val}
+def {def}
 white space in line { }
-identifier {foo}
+identifier {body}
+: {:}
+white space in line { }
+identifier {NodeSeq}
 white space in line { }
 = {=}
+white space in line {
+      }
+{ {{}
+identifier {rootTitle}
+} {}}
+white space in line { }
+identifier {++}
+white space in line { }
+{ {{}
+identifier {rootDesc}
+} {}}
+white space in line { }
+identifier {++}
 white space in line { }
 XML_START_TAG_START {<}
-XML_NAME {test}
+XML_NAME {hr}
+XML_EMPTY_ELEMENT_END {/>}
+white space in line { }
+identifier {++}
+newline {
+      }
+XML_START_TAG_START {<}
+XML_NAME {table}
 WHITE_SPACE { }
-XML_NAME {attr}
-WHITE_SPACE { }
+XML_NAME {cellpadding}
 XML_EQ {=}
 XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
-Xml Injection Start {{}
-integer {42}
-Xml Injection End {}}
+XML_ATTRIBUTE_VALUE_TOKEN {3}
+XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
+WHITE_SPACE { }
+XML_NAME {class}
+XML_EQ {=}
+XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
+XML_ATTRIBUTE_VALUE_TOKEN {member}
+XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
+WHITE_SPACE { }
+XML_NAME {summary}
+XML_EQ {=}
+XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
 XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
 XML_TAG_END {>}
+XML_WHITE_SPACE {
+        }
 XML_START_TAG_START {<}
-XML_NAME {bugoga}
-XML_EMPTY_ELEMENT_END {/>}
-Xml Injection Start {{}
-integer {239}
+XML_NAME {tr}
+XML_TAG_END {>}
+XML_START_TAG_START {<}
+XML_NAME {td}
+WHITE_SPACE { }
+XML_NAME {colspan}
+XML_EQ {=}
+XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
+XML_ATTRIBUTE_VALUE_TOKEN {2}
+XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
+WHITE_SPACE { }
+XML_NAME {class}
+XML_EQ {=}
+XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
+XML_ATTRIBUTE_VALUE_TOKEN {title}
+XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
+XML_TAG_END {>}
+XML_DATA_CHARACTERS {Package}
+XML_WHITE_SPACE { }
+XML_DATA_CHARACTERS {Summary}
+XML_END_TAG_START {</}
+XML_NAME {td}
+XML_TAG_END {>}
+XML_END_TAG_START {</}
+XML_NAME {tr}
+XML_TAG_END {>}
+XML_WHITE_SPACE {
+        }
+ScalaXmlInjectionStart {{}
+identifier {sort}
+( {(}
+identifier {packages}
+) {)}
+. {.}
+identifier {mkXML}
+( {(}
+string content {""}
+, {,}
+string content {"\n"}
+, {,}
+string content {""}
+) {)}
+( {(}
+identifier {pkg}
+white space in line { }
+=> {=>}
+white space in line { }
+XML_START_TAG_START {<}
+XML_NAME {tr}
+XML_TAG_END {>}
+XML_START_TAG_START {<}
+XML_NAME {td}
+WHITE_SPACE { }
+XML_NAME {class}
+XML_EQ {=}
+XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
+XML_ATTRIBUTE_VALUE_TOKEN {signature}
+XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
+XML_TAG_END {>}
+XML_WHITE_SPACE {
+          }
+XML_START_TAG_START {<}
+XML_NAME {code}
+XML_TAG_END {>}
+XML_DATA_CHARACTERS {package}
+XML_WHITE_SPACE {
+          }
+ScalaXmlInjectionStart {{}
+identifier {aref}
+( {(}
+identifier {pkgPath}
+( {(}
+identifier {pkg}
+. {.}
+identifier {sym}
+) {)}
 white space in line { }
 identifier {+}
 white space in line { }
-{ {{}
-XML_START_TAG_START {<}
-XML_NAME {newxml}
-XML_EMPTY_ELEMENT_END {/>}
-} {}}
-Xml Injection End {}}
+string content {"$content.html"}
+, {,}
+white space in line { }
+string content {"_self"}
+, {,}
+white space in line { }
+identifier {pkg}
+. {.}
+identifier {fullName}
+( {(}
+Character {'.'}
+) {)}
+) {)}
+ScalaXmlInjection End {}}
+XML_WHITE_SPACE {
+          }
 XML_END_TAG_START {</}
-XML_NAME {test}
+XML_NAME {code}
 XML_TAG_END {>}
+XML_WHITE_SPACE {
+        }
+XML_END_TAG_START {</}
+XML_NAME {td}
+XML_TAG_END {>}
+XML_END_TAG_START {</}
+XML_NAME {tr}
+XML_TAG_END {>}
+) {)}
+ScalaXmlInjection End {}}
+XML_WHITE_SPACE {
+      }
+XML_END_TAG_START {</}
+XML_NAME {table}
+XML_TAG_END {>}
+; {;}

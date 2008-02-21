@@ -22,10 +22,10 @@ import com.intellij.psi.tree.IElementType;
  */
 public interface ScalaTokenTypesEx extends ScalaTokenTypes {
 
-  IElementType SCALA_CONTENT = new ScalaElementType("Scala content");
-  IElementType SCALA_XML_START = new ScalaElementType("Xml Content Start");
+  IElementType SCALA_CONTENT = new ScalaElementType("ScalaContent");
+  IElementType SCALA_XML_START = new ScalaElementType("XmlContentStart");
 
-  IElementType SCALA_XML_INJECTION_START = new ScalaElementType("Xml Injection Start");
-  IElementType SCALA_XML_INJECTION_END = new ScalaElementType("Xml Injection End");
+  IElementType SCALA_XML_INJECTION_START = new ScalaElementType("ScalaXmlInjectionStart");
+  IElementType SCALA_XML_INJECTION_END = new ScalaElementType("ScalaXmlInjection End");
 
 }
