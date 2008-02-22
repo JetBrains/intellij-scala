@@ -50,7 +50,9 @@ public class ScalaLexer implements Lexer {
   private int myBufferEnd;
   private CharSequence myBuffer;
   private int myXmlState;
-  private IElementType myCurrentType;
+  private int myTokenStart;
+  private int myTokenEnd;
+  private IElementType myTokenType;
   public final String XML_BEGIN_PATTERN = "\\s*<\\w+.*";
 
   public ScalaLexer() {
@@ -73,18 +75,22 @@ public class ScalaLexer implements Lexer {
   }
 
   public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
-    myXmlState = (initialState >> XML_SHIFT) & MASK;
-    if (myCurrentLexer == null) myCurrentLexer = myScalaPlainLexer;
+    if (initialState == 0) {
+      myCurrentLexer = myScalaPlainLexer;
+    } else if (myCurrentLexer == null) myCurrentLexer = myScalaPlainLexer;
     if (myCurrentLexer instanceof XmlLexer) {
       myCurrentLexer.start(buffer, startOffset, endOffset, myXmlState);
     } else {
       myCurrentLexer.start(buffer, startOffset, endOffset, initialState & MASK);
     }
+    myXmlState = (initialState >> XML_SHIFT) & MASK;
     myBuffer = buffer;
     myBufferEnd = endOffset;
+    myTokenType = null;
   }
 
   public int getState() {
+    locateToken();
     int scalaState = myScalaPlainLexer.getState();
     int xmlState = myXmlLexer.getState();
     return scalaState | (xmlState << XML_SHIFT);
@@ -92,44 +98,44 @@ public class ScalaLexer implements Lexer {
 
   @Nullable
   public IElementType getTokenType() {
-    return myCurrentType == null ? myCurrentLexer.getTokenType() : myCurrentType;
+    locateToken();
+    return myTokenType;
   }
 
-  private IElementType updateLexers() {
-    IElementType type = myCurrentLexer.getTokenType();
-    int start = myCurrentLexer.getTokenStart();
-    String tokenText = myCurrentLexer.getBufferSequence().subSequence(start, myCurrentLexer.getTokenEnd()).toString();
+  private void locateToken() {
+    if (myTokenType == null) {
+      IElementType type = myCurrentLexer.getTokenType();
+      int start = myCurrentLexer.getTokenStart();
+      String tokenText = myCurrentLexer.getBufferSequence().subSequence(start, myCurrentLexer.getTokenEnd()).toString();
 
-    if (type == SCALA_XML_CONTENT_START) {
-      myCurrentLexer = myXmlLexer;
-      myCurrentLexer.start(getBufferSequence(), start, myBufferEnd, myXmlState);
-      myLayeredTagStack.push(new Stack<MyOpenXmlTag>());
-      myLayeredTagStack.peek().push(new MyOpenXmlTag());
-      return myCurrentLexer.getTokenType();
-    } else if ((type == XML_ATTRIBUTE_VALUE_TOKEN || type == XML_DATA_CHARACTERS) &&
-        tokenText.startsWith("{")) {
-      myXmlState = myCurrentLexer.getState();
-      (myCurrentLexer = myScalaPlainLexer).start(getBufferSequence(), start, myBufferEnd, 0);
-      myBraceStack.push(1);
-      return SCALA_IN_XML_INJECTION_START;
-    } else if (type == ScalaTokenTypes.tRBRACE && myBraceStack.size() > 0) {
-      int currentLayer = myBraceStack.pop();
-      if (currentLayer == 1) {
-        (myCurrentLexer = myXmlLexer).start(getBufferSequence(), start, myBufferEnd, myXmlState);
-        return SCALA_IN_XML_INJECTION_END;
-      } else {
-        myBraceStack.push(--currentLayer);
-      }
-    } else if (type == ScalaTokenTypes.tLBRACE && myBraceStack.size() > 0) {
-      int currentLayer = myBraceStack.pop();
-      myBraceStack.push(++currentLayer);
-    } else
-
-      // XML injections
-      if (XML_START_TAG_START == type && !myLayeredTagStack.isEmpty()) {
-
+      if (type == SCALA_XML_CONTENT_START) {
+        myCurrentLexer = myXmlLexer;
+        myCurrentLexer.start(getBufferSequence(), start, myBufferEnd, myXmlState);
+        myLayeredTagStack.push(new Stack<MyOpenXmlTag>());
         myLayeredTagStack.peek().push(new MyOpenXmlTag());
-
+        myTokenType = myCurrentLexer.getTokenType();
+        locateTextRange();
+      } else if ((type == XML_ATTRIBUTE_VALUE_TOKEN || type == XML_DATA_CHARACTERS) &&
+          tokenText.startsWith("{")) {
+        myXmlState = myCurrentLexer.getState();
+        (myCurrentLexer = myScalaPlainLexer).start(getBufferSequence(), start, myBufferEnd, 0);
+        locateTextRange();
+        myBraceStack.push(1);
+        myTokenType = SCALA_IN_XML_INJECTION_START;
+      } else if (type == ScalaTokenTypes.tRBRACE && myBraceStack.size() > 0) {
+        int currentLayer = myBraceStack.pop();
+        if (currentLayer == 1) {
+          locateTextRange();
+          (myCurrentLexer = myXmlLexer).start(getBufferSequence(), start + 1, myBufferEnd, myXmlState);
+          myTokenType = SCALA_IN_XML_INJECTION_END;
+        } else {
+          myBraceStack.push(--currentLayer);
+        }
+      } else if (type == ScalaTokenTypes.tLBRACE && myBraceStack.size() > 0) {
+        int currentLayer = myBraceStack.pop();
+        myBraceStack.push(++currentLayer);
+      } else if (XML_START_TAG_START == type && !myLayeredTagStack.isEmpty()) {
+        myLayeredTagStack.peek().push(new MyOpenXmlTag());
       } else if (XML_EMPTY_ELEMENT_END == type && !myLayeredTagStack.isEmpty() &&
           !myLayeredTagStack.peek().isEmpty() && myLayeredTagStack.peek().peek().state == UNDEFINED) {
 
@@ -139,7 +145,6 @@ public class ScalaLexer implements Lexer {
           (myCurrentLexer = myScalaPlainLexer).start(getBufferSequence(), start, myBufferEnd, 0);
         }
       } else if (XML_TAG_END == type && !myLayeredTagStack.isEmpty() && !myLayeredTagStack.peek().isEmpty()) {
-
         MyOpenXmlTag tag = myLayeredTagStack.peek().peek();
         if (tag.state == UNDEFINED) {
           tag.state = NONEMPTY;
@@ -150,9 +155,19 @@ public class ScalaLexer implements Lexer {
           myLayeredTagStack.pop();
           (myCurrentLexer = myScalaPlainLexer).start(getBufferSequence(), start, myBufferEnd, 0);
         }
-
       }
-    return type;
+      if (myTokenType == null) {
+        myTokenType = type;
+        if (myTokenType == null) return;
+        locateTextRange();
+      }
+      myCurrentLexer.advance();
+    }
+  }
+
+  private void locateTextRange() {
+    myTokenStart = myCurrentLexer.getTokenStart();
+    myTokenEnd = myCurrentLexer.getTokenEnd();
   }
 
   private boolean checkNotNextXmlBegin(Lexer lexer) {
@@ -166,20 +181,23 @@ public class ScalaLexer implements Lexer {
   }
 
   public int getTokenStart() {
-    return myCurrentLexer.getTokenStart();
+    locateToken();
+    return myTokenStart;
   }
 
   public int getTokenEnd() {
-    return myCurrentLexer.getTokenEnd();
+    locateToken();
+    return myTokenEnd;
   }
 
   public void advance() {
-    myCurrentLexer.advance();
-    myCurrentType = updateLexers();
+    myTokenType = null;
   }
 
   public LexerPosition getCurrentPosition() {
-    return new MyPosition(myCurrentLexer.getTokenStart(),
+    return new MyPosition(
+        myTokenStart,
+        myTokenEnd,
         new MyState(
             myXmlState,
             0,
@@ -192,9 +210,10 @@ public class ScalaLexer implements Lexer {
     MyPosition pos = (MyPosition) position;
     myBraceStack = pos.state.braceStack;
     myCurrentLexer = pos.state.currentLexer;
-    int start = pos.start;
+    myTokenStart = pos.getOffset();
+    myTokenEnd = pos.end;
     myLayeredTagStack = pos.state.tagStack;
-    myCurrentLexer.start(myCurrentLexer.getBufferSequence(), start, myBufferEnd,
+    myCurrentLexer.start(myCurrentLexer.getBufferSequence(), myTokenStart, myBufferEnd,
         myCurrentLexer instanceof XmlLexer ? pos.state.xmlState : 0);
   }
 
@@ -236,10 +255,12 @@ public class ScalaLexer implements Lexer {
 
   private static class MyPosition implements LexerPosition {
     public int start;
+    public int end;
     public MyState state;
 
-    public MyPosition(final int start, final MyState state) {
+    public MyPosition(final int start, final int end, final MyState state) {
       this.start = start;
+      this.end = end;
       this.state = state;
     }
 
