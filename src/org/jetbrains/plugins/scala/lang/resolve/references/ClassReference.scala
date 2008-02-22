@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processors._
 import com.intellij.openapi.util.TextRange
 
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
-import org.jetbrains.plugins.scala.lang.psi.impl.types._
+import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.primitives.ScIdentifier
 
 class ScalaClassReference(val myElement: PsiElement) extends PsiReference {

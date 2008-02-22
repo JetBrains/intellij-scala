@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.typechecker._
 
 import org.jetbrains.plugins.scala.lang.psi._
 
-case class ScLiteralImpl(node: ASTNode) extends ScalaExpression (node){
+case class ScLiteralImpl2(node: ASTNode) extends ScalaExpression (node){
   override def toString: String = "Literal"
 }
 

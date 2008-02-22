@@ -33,18 +33,18 @@ class ScTraitImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTrait 
 
   def getExtendsBlock = getChild(ScalaElementTypes.EXTENDS_BLOCK).asInstanceOf[ScExtendsBlock]
 
-  def getMixinParents = if (getExtendsBlock != null) {
+  def getMixinParents = null /*if (getExtendsBlock != null) {
     getExtendsBlock.getMixinParents
-  } else null
+  } else null*/
 
-  def getMainParentName = {
+  def getMainParentName = null/*{
     if (getMixinParents != null &&
     getMixinParents.getMainConstructor != null){
       getMixinParents.getMainConstructor.getClassName
     } else {
       null
     }
-  }
+  } */
 
   /*override def getMixinParentsNames = {
     if (getMixinParents != null){

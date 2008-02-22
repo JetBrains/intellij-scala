@@ -8,14 +8,14 @@ import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 import org.jetbrains.plugins.scala.lang.typechecker.types._
 
-trait ScSimpleType extends ScalaType
+trait ScSimpleType2 extends ScalaType
 
 /**
 *   The most simple type
 */
-class ScSimpleTypeImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleType {
+class ScSimpleTypeImpl2(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleType2 {
 
-  override def getAbstractType : AbstractType= {
+  /*override def getAbstractType : AbstractType= {
     val children = getChildren             
     // For explicit type specification
 /*
@@ -36,7 +36,7 @@ class ScSimpleTypeImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScS
       null
     }
 
-  }
+  }*/
 
   override def toString: String = "Simple Type"
 }

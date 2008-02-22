@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser._
 * Time: 18:15:38
 */
 
-trait ScIdentifier extends ScStableId
+trait ScIdentifier extends ScStableId2
 
 case class ScModifiers(node: ASTNode) extends ScalaPsiElementImpl (node) {
   override def toString: String = "Modifiers"
@@ -36,9 +36,9 @@ case class ScAttribute(node: ASTNode) extends ScalaPsiElementImpl (node) {
 */
 case class ScConstructor(node: ASTNode) extends ScalaPsiElementImpl (node) {
 
-  def getClassName = getChild(ScalaElementTypes.STABLE_ID).asInstanceOf[ScStableId]
+  //def getClassName = getChild(ScalaElementTypes.STABLE_ID).asInstanceOf[ScStableId]
 
-  def getArguments = getChild(ScalaElementTypes.ARG_EXPRS ).asInstanceOf[ScArgumentExprsImpl]
+  //def getArguments = getChild(ScalaElementTypes.ARG_EXPRS ).asInstanceOf[ScArgumentExprsImpl]
 
   override def toString: String = "constuctor"
 }

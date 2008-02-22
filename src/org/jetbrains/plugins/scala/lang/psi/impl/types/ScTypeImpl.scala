@@ -30,23 +30,23 @@ trait ScalaType extends ScalaPsiElement {
   }
 }
 
-class ScFunctionalTypeImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScalaType {
+class ScFunctionalTypeImpl2(node: ASTNode) extends ScalaPsiElementImpl(node) with ScalaType {
   override def toString: String = "Functional type"
 }
 
-class ScCompoundTypeImpl(node: ASTNode) extends ScFunctionalTypeImpl(node) with ScSimpleType {
+class ScCompoundTypeImpl2(node: ASTNode) extends ScFunctionalTypeImpl2(node) with ScSimpleType2 {
 
   override def toString: String = "Compound type"
 }
 
-class ScInfixTypeImpl(node: ASTNode) extends ScFunctionalTypeImpl(node) {
+class ScInfixTypeImpl2(node: ASTNode) extends ScFunctionalTypeImpl2(node) {
   override def toString: String = "Infix type"
 }
 
-class ScRefineStatImpl(node: ASTNode) extends ScalaPsiElementImpl(node) {
+class ScRefineStatImpl2(node: ASTNode) extends ScalaPsiElementImpl(node) {
   override def toString: String = "Refinement statement"
 }
 
-class ScRefinementsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) {
+class ScRefinementsImpl2(node: ASTNode) extends ScalaPsiElementImpl(node) {
   override def toString: String = "Refinements"
 }

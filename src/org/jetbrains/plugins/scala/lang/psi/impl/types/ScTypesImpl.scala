@@ -9,6 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi._
 
 trait ScTypes extends PsiElement
 
-class ScTypesImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) with ScTypes {
+class ScTypesImpl2( node : ASTNode ) extends ScalaPsiElementImpl(node) with ScTypes {
       override def toString: String = "Types list"
 }

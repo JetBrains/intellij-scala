@@ -35,18 +35,18 @@ class ScClassImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScClass{
 
   def getExtendsBlock = getChild(ScalaElementTypes.EXTENDS_BLOCK).asInstanceOf[ScExtendsBlock]
 
-  def getTemplateParents = if (getExtendsBlock != null) {
+  def getTemplateParents = null /*if (getExtendsBlock != null) {
     getExtendsBlock.getTemplateParents
-  } else null
+  } else null*/
 
-  def getMainParentName = {
+  def getMainParentName = null /*{
     if (getTemplateParents != null &&
     getTemplateParents.getMainConstructor != null){
       getTemplateParents.getMainConstructor.getClassName
     } else {
       null
     }
-  }
+  }*/
 
   /*override def getMixinParentsNames = {
     if (getTemplateParents != null){
