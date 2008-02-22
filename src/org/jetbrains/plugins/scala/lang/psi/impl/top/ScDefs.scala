@@ -35,20 +35,20 @@ case class ScClassDefinition(node: ASTNode) extends ScTypeDefinition (node) with
 
   def getExtendsBlock = getChild(ScalaElementTypes.EXTENDS_BLOCK).asInstanceOf[ScExtendsBlock]
 
-  override def getTemplateParents = if (getExtendsBlock != null) {
+  /*override def getTemplateParents = if (getExtendsBlock != null) {
     getExtendsBlock.getTemplateParents
-  } else null
+  } else null*/
 
-  override def getMainParentName = {
+  /*override def getMainParentName = {
     if (getTemplateParents != null &&
     getTemplateParents.getMainConstructor != null){
       getTemplateParents.getMainConstructor.getClassName
     } else {
       null
     }
-  }
+  }*/
 
-  override def getMixinParentsNames = {
+  /*override def getMixinParentsNames = {
     if (getTemplateParents != null){
       val temp = getTemplateParents.getMixinParents
       temp
@@ -56,7 +56,7 @@ case class ScClassDefinition(node: ASTNode) extends ScTypeDefinition (node) with
     } else {
       Nil: List[ScStableId]
     }
-  }
+  }*/
 
 
   def paramClauses = childrenOfType[ScParamClause](TokenSet.create(Array(ScalaElementTypes.PARAM_CLAUSE)))
@@ -122,26 +122,26 @@ case class ScTraitDefinition(node: ASTNode) extends ScTypeDefinition (node) with
 
   def getExtendsBlock = getChild(ScalaElementTypes.EXTENDS_BLOCK).asInstanceOf[ScExtendsBlock]
 
-  def getMixinParents = if (getExtendsBlock != null) {
+  /*def getMixinParents = if (getExtendsBlock != null) {
     getExtendsBlock.getMixinParents
-  } else null
+  } else null  */
 
-  override def getMainParentName = {
+  /*override def getMainParentName = {
     if (getMixinParents != null &&
     getMixinParents.getMainConstructor != null){
       getMixinParents.getMainConstructor.getClassName
     } else {
       null
     }
-  }
+  }*/
 
-  override def getMixinParentsNames = {
+  /*override def getMixinParentsNames = {
     if (getMixinParents != null){
       getMixinParents.getMixinParents.toList
     } else {
       Nil: List[ScStableId]
     }
-  }
+  }*/
 
   override def setName(s: String) = this
 

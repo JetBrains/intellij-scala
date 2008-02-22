@@ -19,9 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.containers._
 /*************** templates **************/
 abstract class Template(node: ASTNode) extends ScalaPsiElementImpl (node) {
 
-  def getTemplateParents = getChild(ScalaElementTypes.TEMPLATE_PARENTS).asInstanceOf[ScTemplateParents]
+ // def getTemplateParents = getChild(ScalaElementTypes.TEMPLATE_PARENTS).asInstanceOf[ScTemplateParents]
 
-  def getTemplateBody = getChild(ScalaElementTypes.TEMPLATE_BODY).asInstanceOf[ScTemplateBody]
+  //def getTemplateBody = getChild(ScalaElementTypes.TEMPLATE_BODY).asInstanceOf[ScTemplateBody]
 
   override def toString: String = "template"
 }
@@ -38,9 +38,9 @@ case class ScRequiresBlock(node: ASTNode) extends ScalaPsiElementImpl (node) {
 
 case class ScExtendsBlock(node: ASTNode) extends ScalaPsiElementImpl (node) {
 
-  def getTemplateParents = getChild(ScalaElementTypes.TEMPLATE_PARENTS).asInstanceOf[ScTemplateParents]
+  //def getTemplateParents = getChild(ScalaElementTypes.TEMPLATE_PARENTS).asInstanceOf[ScTemplateParents]
 
-  def getMixinParents = getChild(ScalaElementTypes.MIXIN_PARENTS).asInstanceOf[ScMixinParents]
+  //def getMixinParents = getChild(ScalaElementTypes.MIXIN_PARENTS).asInstanceOf[ScMixinParents]
 
   override def toString: String = "extends block"
 }
@@ -62,9 +62,9 @@ case class ScTemplateParents(node: ASTNode) extends Parents (node) {
 
   val STABLE_ID_BIT_SET = TokenSet.create(Array(ScalaElementTypes.STABLE_ID))
 
-  def getMainConstructor = getChild(ScalaElementTypes.CONSTRUCTOR).asInstanceOf[ScConstructor]
+  //def getMainConstructor = getChild(ScalaElementTypes.CONSTRUCTOR).asInstanceOf[ScConstructor]
 
-  def getMixinParents = childrenOfType[ScStableId](STABLE_ID_BIT_SET)
+  //def getMixinParents = childrenOfType[ScStableId](STABLE_ID_BIT_SET)
 
   override def toString: String = "template" + " " + super.toString
 }
@@ -75,9 +75,9 @@ case class ScMixinParents(node: ASTNode) extends Parents (node) {
   import com.intellij.psi.tree._
   val STABLE_ID_BIT_SET = TokenSet.create(Array(ScalaElementTypes.STABLE_ID))
 
-  def getMainConstructor = getChild(ScalaElementTypes.CONSTRUCTOR).asInstanceOf[ScConstructor]
+  //def getMainConstructor = getChild(ScalaElementTypes.CONSTRUCTOR).asInstanceOf[ScConstructor]
 
-  def getMixinParents = childrenOfType[ScStableId](STABLE_ID_BIT_SET)
+  //def getMixinParents = childrenOfType[ScStableId](STABLE_ID_BIT_SET)
 
   override def toString: String = "mixin" + " " + super.toString
 }
@@ -93,10 +93,10 @@ case class ScTemplateBody(node: ASTNode) extends ScalaPsiElementImpl (node) with
 
   import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 
-  def getTemplateStatements = {
+  /*def getTemplateStatements = {
     val children = childrenOfType[ScTemplateStatement](ScalaElementTypes.TMPL_STMT_BIT_SET)
     children
-  }
+  } */
 
 /*
   override def processDeclarations(processor: PsiScopeProcessor,

@@ -82,7 +82,7 @@ trait ScParamClauses extends ScalaPsiElement {
 /**
 *  Set of parameter clauses
 */
-class ScParamClausesImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParamClauses {
+class ScParamClausesImpl2(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParamClauses {
 
   override def toString: String = "parameters clauses"
 }
@@ -91,7 +91,7 @@ class ScParamClausesImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with 
 
 trait ScParamClause extends ScalaPsiElement {
   private def isManyParams = (getChild(ScalaElementTypes.PARAMS) != null)
-  private def getParamsNode: ScParams = getChild(ScalaElementTypes.PARAMS).asInstanceOf[ScParamsImpl]
+  private def getParamsNode: ScParams = getChild(ScalaElementTypes.PARAMS).asInstanceOf[ScParamsImpl2]
 
   def params: Iterable[ScParam] = {
     if (isManyParams) return getParamsNode.params
@@ -106,7 +106,7 @@ trait ScParamClause extends ScalaPsiElement {
   def classParams = childrenOfType[ScClassParam](TokenSet.create(Array(ScalaElementTypes.CLASS_PARAM)))
 }
 
-class ScParamClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ContiniousIndent with ScParamClause {
+class ScParamClauseImpl2(node: ASTNode) extends ScalaPsiElementImpl (node) with ContiniousIndent with ScParamClause {
   override def toString: String = "parameters clause"
 }
 
@@ -114,7 +114,7 @@ trait ScParams extends ScalaPsiElement {
   def params: Iterable[ScParam] = childrenOfType[ScParam](TokenSet.create(Array(ScalaElementTypes.FUN_PARAM)))
 }
 
-class ScParamsImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParams {
+class ScParamsImpl2(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParams {
   override def toString: String = "parameters"
 }
 

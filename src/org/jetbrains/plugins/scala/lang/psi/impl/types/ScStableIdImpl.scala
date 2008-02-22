@@ -16,14 +16,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.primitives._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
 import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
 
-trait ScStableId extends ScPattern3 {
+trait ScStableId2 extends ScPattern3 {
 }
 
-class ScStableIdImpl(node: ASTNode) extends ScSimpleExprImpl(node) with ScStableId {
+class ScStableIdImpl2(node: ASTNode) extends ScSimpleExprImpl(node) with ScStableId2 {
 
   override def toString: String = "Stable Identifier"
 
-  override def getReference = {
+  /*override def getReference = {
     if (! getText.contains(".") &&
     getParent != null &&
     (getParent.isInstanceOf[ScalaType] ||
@@ -43,7 +43,7 @@ class ScStableIdImpl(node: ASTNode) extends ScSimpleExprImpl(node) with ScStable
       null
       //new ScalaLocalReference(this)  // local reference
     }
-  }
+  }*/
 
   override def getName = getText
 }

@@ -19,6 +19,6 @@ import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
 * To change this template use File | Settings | File Templates.
 */
 
-class ScEarlyDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) {
+class ScEarlyDefinitionImpl2(node: ASTNode) extends ScalaPsiElementImpl (node) {
   override def toString: String = "Early definition"
 }

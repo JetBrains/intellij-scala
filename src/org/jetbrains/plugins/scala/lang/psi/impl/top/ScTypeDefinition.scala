@@ -41,33 +41,33 @@ class ScTypeDefinition(node: ASTNode) extends ScTmplDef(node)  with IfElseIndent
 
   def getTemplateParents = getChild(ScalaElementTypes.TEMPLATE_PARENTS).asInstanceOf[ScTemplateParents]
 
-  def getMainParentName = {
+  /*def getMainParentName = {
     if (getTemplateParents != null &&
     getTemplateParents.getMainConstructor != null){
       getTemplateParents.getMainConstructor.getClassName
     } else {
       null
     }
-  }
+  }*/
 
-  def getMixinParentsNames = {
+  /*def getMixinParentsNames = {
     if (getTemplateParents != null){
       getTemplateParents.getMixinParents.toList
     } else {
       Nil: List[ScStableId]
     }
-  }
+  } */
 
   /**
   *  Retruns names of immediate parents
   */
-  def getImmediateParentsNames = if (getMainParentName != null) {
+  def getImmediateParentsNames = null /*if (getMainParentName != null) {
     getMainParentName :: getMixinParentsNames
   }  else {
     getMixinParentsNames
-  }
+  }*/
 
-  def getAllParents(alreadyHas: List[ScTypeDefinition]): List[ScTypeDefinition] = {
+  /*def getAllParents(alreadyHas: List[ScTypeDefinition]): List[ScTypeDefinition] = {
 
     def getImmediateParents(list: List[ScTypeDefinition]) =
       getImmediateParentsNames.map[ScTypeDefinition]((s: ScStableId) =>
@@ -84,19 +84,19 @@ class ScTypeDefinition(node: ASTNode) extends ScTmplDef(node)  with IfElseIndent
       }
     }
     newParents
-  }
+  }*/
 
   /**
   *  Retruns names of all immediate parents
   */
-  def getAllParents: List[ScTypeDefinition] = {
+  def getAllParents: List[ScTypeDefinition] = null /*{
     getAllParents(Nil: List[ScTypeDefinition])
-  }
+  } */
 
   /**
   *  Returns own template statements of current type definition
   */
-  def getOwnTemplateStatements: List[ScTemplateStatement] = {
+  /*def getOwnTemplateStatements: List[ScTemplateStatement] = {
     var statList = Nil: List[ScTemplateStatement]
     if (getTemplateBody != null &&
     getTemplateBody.asInstanceOf[ScTemplateBody].getTemplateStatements != null){
@@ -105,7 +105,7 @@ class ScTypeDefinition(node: ASTNode) extends ScTmplDef(node)  with IfElseIndent
       }
     }
     statList
-  }
+  } */
 
   /**
   *  Returns ALL template statements of current type definition (including inherited)
@@ -117,7 +117,7 @@ class ScTypeDefinition(node: ASTNode) extends ScTmplDef(node)  with IfElseIndent
 
     val methodSet = new HashSet[String]
 
-    for (val parent <- reversedParentList){
+    /*for (val parent <- reversedParentList){
       if (parent != null && parent.isInstanceOf[ScTmplDef] &&
       parent.asInstanceOf[ScTmplDef].getTemplateStatements != null) {
         for (val statement <- parent.asInstanceOf[ScTmplDef].getTemplateStatements) {
@@ -134,15 +134,15 @@ class ScTypeDefinition(node: ASTNode) extends ScTmplDef(node)  with IfElseIndent
           statList = statement :: statList
         }
       }
-    }
-    val ownStats = getOwnTemplateStatements
+    }*/
+    val ownStats = null //getOwnTemplateStatements
 
 //    Console.println(ownStats.length + " own")
 
-    val filterFun = (stmt: ScTemplateStatement) => {ownStats.exists((s: ScTemplateStatement) =>
+    val filterFun = null /*(stmt: ScTemplateStatement) => {ownStats.exists((s: ScTemplateStatement) =>
       s.isInstanceOf[ScFunction] &&
       stmt.asInstanceOf[ScFunction].canBeOverridenBy(s.asInstanceOf[ScFunction]))
-    }
+    }*/
 
 //    Console.println(statList.length + " before")
     statList = statList.remove(filterFun)

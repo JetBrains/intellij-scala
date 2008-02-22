@@ -42,11 +42,11 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
   *  Returns definitions of inner templates
   *
   */
-  def getTmplDefs: Iterable[ScTmplDef] = {
+  def getTmplDefs: Iterable[ScTmplDef] = null /*{
     import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTemplateBody
     val template = getTemplate
     if (template != null) {
-      val body = template.getTemplateBody
+      val body = null //template.getTemplateBody
       if (body != null) {
         val children = body.childrenOfType[ScTmplDef](ScalaElementTypes.TMPL_DEF_BIT_SET)
         return (children :\ (Nil: List[ScTmplDef]))((y: ScTmplDef, x: List[ScTmplDef]) =>
@@ -54,7 +54,7 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
       }
     }
     return Nil: List[ScTmplDef]
-  }
+  }*/
 
   override def getName = if (nameNode != null) {
     nameNode.getText
@@ -106,25 +106,25 @@ abstract class ScTmplDef(node: ASTNode) extends ScalaPsiElementImpl (node) with 
   def getTemplate: ScTopDefTemplate = getChild(ScalaElementTypes.TOP_DEF_TEMPLATE).asInstanceOf[ScTopDefTemplate]
 
   def getFieldOrMethodWithoutArguments(name: String): ScTemplateStatement = {
-    val statements = getTemplateStatements.toList
-    if (getTemplateStatements != null) {
-      for (val statement <- getTemplateStatements){
+    val statements = null //getTemplateStatements.toList
+    if (statements /*getTemplateStatements*/ != null) {
+      /*for (val statement <- getTemplateStatements){
         // TODO Implement other cases
         if (statement.isInstanceOf[ScFunction] &&
         name.equals(statement.asInstanceOf[ScFunction].getFunctionName)) {
           return statement
         }
-      }
+      }*/
     }
     null
   }
 
   [Nullable]
-  def getTemplateStatements: Iterable[ScTemplateStatement] = {
+  def getTemplateStatements: Iterable[ScTemplateStatement] = null /*{
     import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTemplateBody
 
     val body = getChild(ScalaElementTypes.TEMPLATE_BODY).asInstanceOf[ScTemplateBody]
     if (body != null) return body.getTemplateStatements
     else Nil: List[ScTemplateStatement]
-  }
+  }*/
 }

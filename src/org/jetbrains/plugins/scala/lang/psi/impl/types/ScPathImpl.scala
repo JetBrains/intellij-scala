@@ -8,6 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 
 import org.jetbrains.plugins.scala.lang.psi._
 
-class ScPathImpl( node : ASTNode ) extends ScalaExpression(node) {
+class ScPathImpl2( node : ASTNode ) extends ScalaExpression(node) {
       override def toString: String = "Path"
 }

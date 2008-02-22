@@ -37,16 +37,16 @@ case class ScNewTemplateDefinition(node: ASTNode) extends ScTypeDefinition(node)
 
   override def toString: String = "New template definition"
 
-  override def nameNode = if (getTemplateParents != null &&
+  /*override def nameNode = if (getTemplateParents != null &&
   getTemplateParents.getMainConstructor != null &&
   getTemplateParents.getMainConstructor.getClassName != null) {
     def isName = (elementType: IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
     getTemplateParents.getMainConstructor.getClassName.childSatisfyPredicateForElementType(isName)
   } else {
     this
-  }
+  }*/
   
-  override def getOwnTemplateStatements = Nil : List[ScTemplateStatement]
+  def getOwnTemplateStatements = Nil : List[ScTemplateStatement]
 
   override def getName = "AnonymousClassInstance"
 
