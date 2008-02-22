@@ -15,9 +15,10 @@
 
 package org.jetbrains.plugins.scala.highlighter;
 
-import org.jetbrains.annotations.NonNls;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.HighlighterColors;
+import com.intellij.openapi.editor.JavaHighlighterColors;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.NonNls;
 
 /**
  * Author: Ilya Sergey
@@ -48,15 +49,15 @@ public class DefaultHighlighter {
 
   // Registering TextAttributes
   static {
-    TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID, HighlighterColors.JAVA_LINE_COMMENT.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(BLOCK_COMMENT_ID, HighlighterColors.JAVA_BLOCK_COMMENT.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(KEYWORD_ID, HighlighterColors.JAVA_KEYWORD.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(NUMBER_ID, HighlighterColors.JAVA_NUMBER.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(STRING_ID, HighlighterColors.JAVA_STRING.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(BRACKETS_ID, HighlighterColors.JAVA_BRACKETS.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID, JavaHighlighterColors.JAVA_LINE_COMMENT.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(BLOCK_COMMENT_ID, JavaHighlighterColors.JAVA_BLOCK_COMMENT.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(KEYWORD_ID, JavaHighlighterColors.JAVA_KEYWORD.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(NUMBER_ID, JavaHighlighterColors.JAVA_NUMBER.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(STRING_ID, JavaHighlighterColors.JAVA_STRING.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(BRACKETS_ID, JavaHighlighterColors.JAVA_BRACKETS.getDefaultAttributes());
 
 
-    TextAttributesKey.createTextAttributesKey(OPERATION_SIGN_ID, HighlighterColors.JAVA_OPERATION_SIGN.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(OPERATION_SIGN_ID, JavaHighlighterColors.JAVA_OPERATION_SIGN.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID, HighlighterColors.BAD_CHARACTER.getDefaultAttributes());
   }
 

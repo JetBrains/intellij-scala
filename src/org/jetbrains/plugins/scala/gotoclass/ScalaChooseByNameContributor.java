@@ -73,6 +73,10 @@ public class ScalaChooseByNameContributor implements ChooseByNameContributor {
     }
   }
 
+  public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
+    return new NavigationItem[0];
+  }
+
   public NavigationItem[] getItemsByName(String name, Project project, boolean includeNonProjectItems) {
     final GlobalSearchScope scope = includeNonProjectItems ? GlobalSearchScope.allScope(project) : GlobalSearchScope.projectScope(project);
 
