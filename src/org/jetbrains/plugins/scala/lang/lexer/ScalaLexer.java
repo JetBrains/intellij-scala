@@ -21,6 +21,7 @@ import com.intellij.lexer.LexerState;
 import com.intellij.lexer.XmlLexer;
 import com.intellij.psi.tree.IElementType;
 import static com.intellij.psi.xml.XmlTokenType.*;
+import com.intellij.util.containers.Stack;
 import com.intellij.util.text.CharArrayCharSequence;
 import gnu.trove.TIntStack;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +29,6 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaLexer.TAG_STATE.NONEMP
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaLexer.TAG_STATE.UNDEFINED;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.*;
 
-import java.util.Stack;
 
 /**
  * @author ilyas
