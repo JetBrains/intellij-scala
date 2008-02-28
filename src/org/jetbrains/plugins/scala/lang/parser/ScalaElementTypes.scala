@@ -120,6 +120,7 @@ object ScalaElementTypes {
   val TYPE_ARGS = new ScalaElementType("type arguments")
   val ANNOT_TYPE = new ScalaElementType("annotation type")
   val SELF_TYPE = new ScalaElementType("self type")
+  val EXISTENTIAL_CLAUSE = new ScalaElementType("existential clause")
 
   /*************************************************************************************/
   /*********************************** IDENTIFIER **************************************/

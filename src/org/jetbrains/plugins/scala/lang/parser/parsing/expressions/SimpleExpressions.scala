@@ -129,7 +129,7 @@ object SimpleExpr {
         closeMarker(stringRes, simpleMarker1)
 
         var res = TypeArgs.parse(builder)
-        if (res.eq(ScalaElementTypes.TYPE_ARGS)) {
+        if (res) {
           deepCount = deepCount + 1
           subParse(ScalaElementTypes.SIMPLE_EXPR, "typeargs", nextMarker)
         }

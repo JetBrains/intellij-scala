@@ -1,0 +1,38 @@
+package a.b.c;class a{}
+object b {}
+-----
+ScalaFile
+  ScPackageStatement
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    Qualified identifier
+      Qualified identifier
+        Qualified identifier
+          PsiElement(identifier)('a')
+        PsiElement(.)('.')
+        PsiElement(identifier)('b')
+      PsiElement(.)('.')
+      PsiElement(identifier)('c')
+    PsiElement(;)(';')
+  ScClass
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiElement(})('}')
+  PsiElement(newline)('\n')
+  ScObject
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('b')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiElement(})('}')

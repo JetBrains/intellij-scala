@@ -25,7 +25,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 
 object StableId {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: PsiBuilder) : Boolean = parse(builder,false)
+  def parse(builder: PsiBuilder,dot: Boolean): Boolean = {
     var stableMarker = builder.mark
     def parseQualId(qualMarker: PsiBuilder.Marker): Boolean = {
       //parsing first identifier
@@ -35,6 +36,20 @@ object StableId {
           //Look for dot
           builder.getTokenType match {
             case ScalaTokenTypes.tDOT => {
+              if (dot) {
+                val dotMarker = builder.mark
+                builder.advanceLexer //Ate .
+                builder.getTokenType match {
+                  case ScalaTokenTypes.tIDENTIFIER => {
+                    dotMarker.rollbackTo
+                  }
+                  case _ => {
+                    dotMarker.rollbackTo
+                    qualMarker.done(ScalaElementTypes.STABLE_ID)
+                    return true
+                  }
+                }
+              }
               val newMarker = qualMarker.precede
               val qual2Marker = qualMarker.precede
               qualMarker.done(ScalaElementTypes.STABLE_ID)

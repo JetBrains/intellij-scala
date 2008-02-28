@@ -24,7 +24,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 
 object Path {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: PsiBuilder): Boolean = parse(builder,false)
+  def parse(builder: PsiBuilder,dot: Boolean): Boolean = {
     val pathMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
@@ -50,7 +51,7 @@ object Path {
           case _ => {
             val newMarker = pathMarker.precede
             pathMarker.rollbackTo
-            StableId parse builder
+            StableId parse (builder,dot)
             newMarker.done(ScalaElementTypes.PATH)
             return true
           }
