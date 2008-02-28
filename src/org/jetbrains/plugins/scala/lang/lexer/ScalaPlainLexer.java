@@ -15,16 +15,17 @@
 
 package org.jetbrains.plugins.scala.lang.lexer;
 
-import com.intellij.lexer.*;
+import com.intellij.lexer.Lexer;
+import com.intellij.lexer.LexerPosition;
+import com.intellij.lexer.LexerState;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.text.CharArrayCharSequence;
-
-import java.util.Queue;
-import java.util.LinkedList;
-
-import org.jetbrains.plugins.scala.lang.lexer.core.ScalaSplittingLexer;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.SCALA_PLAIN_CONTENT;
 import org.jetbrains.plugins.scala.lang.lexer.core.ScalaCoreLexer;
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.*;
+import org.jetbrains.plugins.scala.lang.lexer.core.ScalaSplittingLexer;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * @author ilyas

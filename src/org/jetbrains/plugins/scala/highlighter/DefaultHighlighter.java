@@ -16,7 +16,7 @@
 package org.jetbrains.plugins.scala.highlighter;
 
 import com.intellij.openapi.editor.HighlighterColors;
-import com.intellij.openapi.editor.JavaHighlighterColors;
+import com.intellij.openapi.editor.SyntaxHighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NonNls;
 
@@ -49,15 +49,15 @@ public class DefaultHighlighter {
 
   // Registering TextAttributes
   static {
-    TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID, JavaHighlighterColors.JAVA_LINE_COMMENT.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(BLOCK_COMMENT_ID, JavaHighlighterColors.JAVA_BLOCK_COMMENT.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(KEYWORD_ID, JavaHighlighterColors.JAVA_KEYWORD.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(NUMBER_ID, JavaHighlighterColors.JAVA_NUMBER.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(STRING_ID, JavaHighlighterColors.JAVA_STRING.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(BRACKETS_ID, JavaHighlighterColors.JAVA_BRACKETS.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID, SyntaxHighlighterColors.LINE_COMMENT.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(BLOCK_COMMENT_ID, SyntaxHighlighterColors.JAVA_BLOCK_COMMENT.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(KEYWORD_ID, SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(NUMBER_ID, SyntaxHighlighterColors.NUMBER.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(STRING_ID, SyntaxHighlighterColors.STRING.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(BRACKETS_ID, SyntaxHighlighterColors.BRACKETS.getDefaultAttributes());
 
 
-    TextAttributesKey.createTextAttributesKey(OPERATION_SIGN_ID, JavaHighlighterColors.JAVA_OPERATION_SIGN.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(OPERATION_SIGN_ID, SyntaxHighlighterColors.OPERATION_SIGN.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID, HighlighterColors.BAD_CHARACTER.getDefaultAttributes());
   }
 

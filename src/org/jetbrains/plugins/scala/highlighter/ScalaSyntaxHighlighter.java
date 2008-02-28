@@ -22,10 +22,8 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.tree.xml.IXmlLeafElementType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.lang.lexer.core.ScalaFlexLexer;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.SCALA_XML_CONTENT;
 
 import java.util.HashMap;

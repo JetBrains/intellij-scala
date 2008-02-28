@@ -14,6 +14,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
+import org.jetbrains.plugins.scala.lang.lexer.core.ScalaCoreLexer
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile
 
