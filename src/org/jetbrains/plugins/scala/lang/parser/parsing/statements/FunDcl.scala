@@ -61,7 +61,7 @@ object FunDcl {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON => {
         builder.advanceLexer //Ate :
-        if (Type.parse(builder) != ScalaElementTypes.WRONGWAY) {
+        if (Type.parse(builder)) {
           returnMarker.drop
           return true
         }

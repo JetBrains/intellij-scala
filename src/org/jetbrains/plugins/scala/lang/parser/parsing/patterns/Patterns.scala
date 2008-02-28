@@ -171,7 +171,7 @@ object SimplePattern {
         }
       }
     } // Literal
-    else if (Literal.parse(builder) == ScalaElementTypes.LITERAL) {
+    else if (Literal.parse(builder)) {
       spMarker.done(ScalaElementTypes.LITERAL_PATTERN)
       ScalaElementTypes.SIMPLE_PATTERN
       /*  | varid
@@ -270,7 +270,7 @@ class Pattern2 {
 }
 
 
-object Pattern1 {
+/*object Pattern1 {
   /*
   Pattern1 ::=    varid : TypePattern
                 | _� : TypePattern
@@ -336,9 +336,9 @@ object Pattern1 {
     }
 
   }
-}
+}*/
 
-object Pattern {
+/*object Pattern {
   /*                               
     Pattern ::= Pattern1 { | Pattern1 }
   */
@@ -384,7 +384,7 @@ object Pattern {
       ScalaElementTypes.WRONGWAY
     }
   }
-}
+}*/
 
 object Patterns {
   /*
@@ -470,7 +470,7 @@ object Patterns {
 
 
 
-object CaseClause {
+/*object CaseClause {
 
   def parse(builder: PsiBuilder): ScalaElementType = {
     val caseMarker = builder.mark()
@@ -514,9 +514,9 @@ object CaseClause {
       ScalaElementTypes.WRONGWAY
     }
   }
-}
+}*/
 
-object CaseClauses {
+/*object CaseClauses {
   /*
     CaseClauses ::= CaseClause { CaseClause }
   */
@@ -541,5 +541,5 @@ object CaseClauses {
     ccMarker.done(ScalaElementTypes.CASE_CLAUSES)
     ScalaElementTypes.CASE_CLAUSES
   }
-}
+}*/
 

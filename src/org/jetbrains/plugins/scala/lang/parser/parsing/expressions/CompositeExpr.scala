@@ -89,7 +89,7 @@ object CompositeExpr {
               var braceMarker = builder.mark()
               ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
               var result = CaseClauses.parse(builder)
-              if (ScalaElementTypes.CASE_CLAUSES.equals(result)) {
+              if (result) {
                 if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){
                   ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
                   braceMarker.done(ScalaElementTypes.BLOCK_EXPR)
@@ -506,7 +506,7 @@ object CompositeExpr {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tLBRACE)
           /* { CaseClauses } */
           var result = CaseClauses.parse(builder)
-          if (result.equals(ScalaElementTypes.CASE_CLAUSES)) {
+          if (result) {
             if (builder.getTokenType.eq(ScalaTokenTypes.tRBRACE)){
               ParserUtils.eatElement(builder, ScalaTokenTypes.tRBRACE)
             } else {
