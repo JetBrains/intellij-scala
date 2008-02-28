@@ -12,6 +12,6 @@ import com.intellij.lang.ASTNode
 * To change this template use File | Settings | File Templates.
 */
 
-class ScCaseClasesImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScCaseClauses{
+class ScCaseClausesImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScCaseClauses{
   override def toString: String = "CaseClauses"
 }

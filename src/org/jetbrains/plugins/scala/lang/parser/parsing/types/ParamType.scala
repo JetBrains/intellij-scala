@@ -24,14 +24,13 @@ import org.jetbrains.plugins.scala.ScalaBundle
  *               Type '*'
  */
 
-//TODO: rewrite when rewrite Type
 object ParamType {
   def parse(builder: PsiBuilder): Boolean = {
     val paramTypeMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE => {
         builder.advanceLexer //Ate '=>'
-        if (Type.parse(builder) == ScalaElementTypes.WRONGWAY) {
+        if (!Type.parse(builder)) {
           paramTypeMarker.rollbackTo
           return false
         }
@@ -41,7 +40,7 @@ object ParamType {
         }
       }
       case _ => {
-        if (Type.parse(builder) == ScalaElementTypes.WRONGWAY) {
+        if (!Type.parse(builder)) {
           paramTypeMarker.rollbackTo
           return false
         }

@@ -46,7 +46,6 @@ import org.jetbrains.plugins.scala.ScalaBundle
  * VarDcl ::= ids ':' Type
  */
 
-//TODO: rewrite when rewrite type
 object VarDcl {
   def parse(builder: PsiBuilder): Boolean = {
     val returnMarker = builder.mark
@@ -66,7 +65,7 @@ object VarDcl {
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON => {
             builder.advanceLexer //Ate :
-            if (Type.parse(builder) != ScalaElementTypes.WRONGWAY) {
+            if (Type.parse(builder)) {
               returnMarker.drop
               return true
             }

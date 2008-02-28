@@ -63,7 +63,7 @@ object BlockExpr {
         }
       } else {
         var result = CaseClauses.parse(builder)
-        if (result.equals(ScalaElementTypes.CASE_CLAUSES)) {
+        if (result) {
           if (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType)){
             builder.advanceLexer
             blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)

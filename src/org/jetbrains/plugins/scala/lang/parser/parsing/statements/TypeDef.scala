@@ -77,7 +77,7 @@ object TypeDef {
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN => {
         builder.advanceLexer //Ate =
-        if (Type.parse(builder) != ScalaElementTypes.WRONGWAY) {
+        if (Type.parse(builder)) {
           faultMarker.drop
           return true
         }

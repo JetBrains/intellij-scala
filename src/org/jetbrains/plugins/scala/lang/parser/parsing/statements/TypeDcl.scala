@@ -80,7 +80,7 @@ object TypeDcl {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tLOWER_BOUND => {
-        if (Type.parse(builder) != ScalaElementTypes.WRONGWAY) {
+        if (Type.parse(builder)) {
           returnMarker.drop
           return true
         }
@@ -94,7 +94,7 @@ object TypeDcl {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tUPPER_BOUND => {
-        if (Type.parse(builder) != ScalaElementTypes.WRONGWAY) {
+        if (Type.parse(builder)) {
           returnMarker.drop
           return true
         }

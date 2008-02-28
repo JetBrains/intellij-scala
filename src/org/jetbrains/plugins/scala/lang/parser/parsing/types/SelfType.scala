@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.ScalaBundle
  *              'this' ':' Type '=>'
  */
 
-//TODO: rewrite when rewrite Type
 object SelfType {
   def parse(builder: PsiBuilder) {
     val selfTypeMarker = builder.mark
@@ -33,7 +32,7 @@ object SelfType {
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON => {
             builder.advanceLexer //Ate ':'
-            if (Type.parse(builder) == ScalaElementTypes.WRONGWAY) {
+            if (!Type.parse(builder)) {
              selfTypeMarker.rollbackTo
               return
             }
@@ -62,7 +61,7 @@ object SelfType {
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON => {
             builder.advanceLexer //Ate ':'
-            if (Type.parse(builder) == ScalaElementTypes.WRONGWAY) {
+            if (!Type.parse(builder)) {
              selfTypeMarker.rollbackTo
               return
             }

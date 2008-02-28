@@ -64,7 +64,7 @@ object FunDef {
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON => {
             builder.advanceLexer //Ate :
-            if (Type.parse(builder) != ScalaElementTypes.WRONGWAY) {
+            if (Type.parse(builder)) {
               builder.getTokenType match {
                 case ScalaTokenTypes.tASSIGN => {
                   builder.advanceLexer //Ate =

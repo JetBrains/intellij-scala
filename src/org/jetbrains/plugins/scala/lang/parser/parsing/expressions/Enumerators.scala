@@ -34,11 +34,10 @@ abstract class EnumTemplate(elemType: ScalaElementType,
 
     if (ScalaTokenTypes.kVAL.equals(builder.getTokenType)){
       ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL)
-      var res = Pattern1.parse(builder)
-      if (ScalaElementTypes.PATTERN1.equals(res)){
+      if (Pattern1.parse(builder)){
         if (assignType.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL)
-          res = Expr.parse(builder)
+          val res = Expr.parse(builder)
           if (ScalaElementTypes.EXPR.equals(res)){
             if (ScalaElementTypes.GENERATOR.equals(elemType)){
               genMarker.done(ScalaElementTypes.ENUMERATOR)
@@ -73,11 +72,10 @@ abstract class GenTemplate(elemType: ScalaElementType,
       elemType
     }
 
-      var res = Pattern1.parse(builder)
-      if (ScalaElementTypes.PATTERN1.equals(res)){
+      if (Pattern1.parse(builder)){
         if (assignType.equals(builder.getTokenType)){
           ParserUtils.eatElement(builder, ScalaTokenTypes.kVAL)
-          res = Expr.parse(builder)
+          val res = Expr.parse(builder)
           if (ScalaElementTypes.EXPR.equals(res)){
             if (ScalaElementTypes.GENERATOR.equals(elemType)){
               genMarker.done(ScalaElementTypes.ENUMERATOR)
