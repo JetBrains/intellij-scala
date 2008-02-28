@@ -33,9 +33,9 @@ ArgTypePattern ::=  varid
       }
       case _ => {
         val res = Type.parse(builder)
-        if (!ScalaElementTypes.WRONGWAY.equals(res))
+        if (!res)
           ScalaElementTypes.ARG_TYPE_PATTERN
-        else res
+        else ScalaElementTypes.WRONGWAY
       }
     }
   }

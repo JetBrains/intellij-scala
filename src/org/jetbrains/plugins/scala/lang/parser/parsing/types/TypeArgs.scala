@@ -25,7 +25,7 @@ import com.intellij.psi.tree.IElementType
  *  typeArgs ::= '[' Types ']'
  */
 
-object TypeArgsTemp {
+object TypeArgs {
   def parse(builder: PsiBuilder): Boolean = {
     val typeArgsMarker = builder.mark
     builder.getTokenType match {
@@ -37,20 +37,9 @@ object TypeArgsTemp {
         return false
       }
     }
-    //parse Type {',' Type}
-    val typesMarker = builder.mark
-    if (Type.parse(builder) != ScalaElementTypes.WRONGWAY) {
-      while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-        builder.advanceLexer //Ate ,
-        if (Type.parse(builder) == ScalaElementTypes.WRONGWAY) {
-          builder error ScalaBundle.message("wrong.type",new Array[Object](0))
-        }
-      }
+    if (!Types.parse(builder)) {
+      builder error ScalaBundle.message("wrong.type", new Array[Object](0))
     }
-    else {
-      builder error ScalaBundle.message("wrong.type",new Array[Object](0))
-    }
-    typesMarker.done(ScalaElementTypes.TYPES)
     builder.getTokenType match {
       case ScalaTokenTypes.tRSQBRACKET => {
         builder.advanceLexer //Ate ]

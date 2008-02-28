@@ -11,33 +11,47 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixTemplate
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Dcl
+import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
 
 /** 
 * Created by IntelliJ IDEA.
 * User: Alexander.Podkhalyuz
 * Date: 28.02.2008
-* Time: 15:10:33
+* Time: 12:36:41
 * To change this template use File | Settings | File Templates.
 */
 
 /*
- *  Types ::= Type {',' Type}
+ * RefineStat ::= Dcl
+ *              | 'type' TypeDef
  */
 
-object Types {
-  def parse(builder: PsiBuilder): Boolean ={
-    val typesMarker = builder.mark
-    if (!Type.parse(builder)) {
-      typesMarker.drop
-      return false
-    }
-    while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-      builder.advanceLexer //Ate ,
-      if (!Type.parse(builder)) {
-        builder error ScalaBundle.message("wrong.type",new Array[Object](0))
+object RefineStat {
+  def parse(builder: PsiBuilder): Boolean = {
+    val refineStatMarker = builder.mark
+    builder.getTokenType match {
+      case ScalaTokenTypes.kTYPE => {
+        if (!Def.parse(builder,false)){
+          Dcl.parse(builder,false)
+        }
+        refineStatMarker.done(ScalaElementTypes.REFINE_STAT)
+        return true
+      }
+      case ScalaTokenTypes.kVAR | ScalaTokenTypes.kVAL
+         | ScalaTokenTypes.kDEF => {
+        if (Dcl.parse(builder,false)) {
+          refineStatMarker.done(ScalaElementTypes.REFINE_STAT)
+          return true
+        }
+        else {
+          refineStatMarker.drop
+          return false
+        }
+      }
+      case _ => {
+        refineStatMarker.drop
+        return false
       }
     }
-    typesMarker.done(ScalaElementTypes.TYPES)
-    return true
   }
 }

@@ -16,28 +16,39 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Dcl
 * Created by IntelliJ IDEA.
 * User: Alexander.Podkhalyuz
 * Date: 28.02.2008
-* Time: 15:10:33
+* Time: 14:35:19
 * To change this template use File | Settings | File Templates.
 */
 
 /*
- *  Types ::= Type {',' Type}
+ * ExistentialDclSeq ::= ExistentialDcl {semi ExistentialDcl}
+ *
+ * ExistentialDcl ::= 'type' TypeDcl
+ *                  | 'val' ValDcl
  */
 
-object Types {
-  def parse(builder: PsiBuilder): Boolean ={
-    val typesMarker = builder.mark
-    if (!Type.parse(builder)) {
-      typesMarker.drop
-      return false
-    }
-    while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-      builder.advanceLexer //Ate ,
-      if (!Type.parse(builder)) {
-        builder error ScalaBundle.message("wrong.type",new Array[Object](0))
+object ExistentialDclSeq {
+  def parse(builder: PsiBuilder) {
+    builder.getTokenType match {
+      case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL => {
+        Dcl parse (builder,false)
+      }
+      case _ => {
+        builder error ScalaBundle.message("wrong.existential.declaration", new Array[Object](0))
+        return
       }
     }
-    typesMarker.done(ScalaElementTypes.TYPES)
-    return true
+    while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON
+          || builder.getTokenType == ScalaTokenTypes.tLINE_TERMINATOR) {
+      builder.advanceLexer //Ate semi
+      builder.getTokenType match {
+        case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL => {
+          Dcl parse (builder,false)
+        }
+        case _ => {
+          builder error ScalaBundle.message("wrong.existential.declaration", new Array[Object](0))
+        }
+      }
+    }
   }
 }
