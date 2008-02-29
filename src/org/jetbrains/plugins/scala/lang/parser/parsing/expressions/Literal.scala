@@ -32,7 +32,7 @@ object Literal{
   def parse(builder : PsiBuilder) : Boolean = {
     val marker = builder.mark()
     builder.getTokenType match {
-      /*case ScalaTokenTypes.tIDENTIFIER  => {
+      case ScalaTokenTypes.tIDENTIFIER  => {
         if (builder.getTokenText == "-") {
           builder.advanceLexer //Ate -
           builder.getTokenType match {
@@ -48,7 +48,7 @@ object Literal{
           marker.rollbackTo
           return false
         }
-      }*/
+      }
       case ScalaTokenTypes.tINTEGER | ScalaTokenTypes.tFLOAT |
            ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE |
            ScalaTokenTypes.tCHAR | ScalaTokenTypes.tSYMBOL |

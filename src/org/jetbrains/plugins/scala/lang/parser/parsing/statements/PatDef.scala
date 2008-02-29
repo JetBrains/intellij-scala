@@ -41,7 +41,7 @@ object PatDef {
     val pattern2sMarker = builder.mark
 
       if (BNF.firstPattern2.contains(builder.getTokenType)){
-          (new Pattern2()).parse(builder)
+          Pattern2.parse(builder)
       } else {
         builder error "pattern expected"
         pattern2sMarker.rollbackTo()
@@ -55,7 +55,7 @@ object PatDef {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
         if (BNF.firstPattern2.contains(builder.getTokenType)){
-            (new Pattern2()).parse(builder)
+            Pattern2.parse(builder)
           numberOfPattern2s = numberOfPattern2s + 1;
 
         } else {
