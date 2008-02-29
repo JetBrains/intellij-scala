@@ -12,23 +12,23 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template._
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import org.jetbrains.plugins.scala.lang.parser.bnf._
 
+
 /** 
 * Created by IntelliJ IDEA.
 * User: Alexander.Podkhalyuz
-* Date: 28.02.2008
-* Time: 18:21:08
+* Date: 29.02.2008
+* Time: 12:31:03
 * To change this template use File | Settings | File Templates.
 */
 
 /*
- * Pattern1 ::= varid ':' TypePat
- *            | '_' ':' TypePat
- *            | Pattern2
+ * Pattern2 ::= varid '@' Pattern3
+ *            | Pattern3
  */
 
-object Pattern1 {
+object Pattern2 {
   def parse(builder: PsiBuilder): Boolean = {
-    val pattern1Marker = builder.mark
+    val pattern2Marker = builder.mark
     val backupMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
@@ -39,13 +39,13 @@ object Pattern1 {
         else {
           builder.advanceLexer //Ate id
           builder.getTokenType match {
-            case ScalaTokenTypes.tCOLON => {
-              builder.advanceLexer //Ate :
+            case ScalaTokenTypes.tAT => {
+              builder.advanceLexer //Ate @
               backupMarker.drop
-              if (!TypePattern.parse(builder)) {
-                builder error ScalaBundle.message("wrong.type",new Array[Object](0))
+              if (!Pattern3.parse(builder)) {
+                builder error ScalaBundle.message("wrong.pattern", new Array[Object](0))
               }
-              pattern1Marker.done(ScalaElementTypes.PATTERN1)
+              pattern2Marker.done(ScalaElementTypes.PATTERN2)
               return true
             }
             case _ => {
@@ -54,29 +54,12 @@ object Pattern1 {
           }
         }
       }
-      case ScalaTokenTypes.tUNDER => {
-        builder.advanceLexer //Ate _
-        builder.getTokenType match {
-          case ScalaTokenTypes.tCOLON => {
-            builder.advanceLexer //Ate :
-            backupMarker.drop
-            if (!TypePattern.parse(builder)) {
-              builder error ScalaBundle.message("wrong.type",new Array[Object](0))
-            }
-            pattern1Marker.done(ScalaElementTypes.PATTERN1)
-            return true
-          }
-          case _ => {
-            backupMarker.rollbackTo
-          }
-        }
-      }
       case _ => {
         backupMarker.drop
       }
     }
-    pattern1Marker.drop
-    if (!Pattern2.parse(builder)) return false
-    else return true
+    pattern2Marker.drop
+    if (Pattern3.parse(builder)) return true
+    else return false
   }
 }

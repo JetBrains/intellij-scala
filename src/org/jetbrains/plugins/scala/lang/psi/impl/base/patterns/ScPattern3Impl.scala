@@ -13,5 +13,5 @@ import com.intellij.lang.ASTNode
 */
 
 class ScPattern3Impl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPattern3{
-  override def toString: String = "InfixTemplatePattern"
+  override def toString: String = "InfixPattern"
 }

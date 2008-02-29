@@ -25,13 +25,42 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 
 object InfixType {
   def parse(builder: PsiBuilder): Boolean = {
-    val infixTypeMarker = builder.mark
+    var infixTypeMarker = builder.mark
+    var markerList = List[PsiBuilder.Marker]() //This list consist of markers for right-associated op
+    markerList = markerList.::(infixTypeMarker)
     if (!CompoundType.parse(builder)) {
       infixTypeMarker.rollbackTo
       return false
     }
+    var assoc: Int = 0  //this mark associativity: left - 1, right - -1
     while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
+      //need to know associativity
+      val s = builder.getTokenText
+      s.charAt(s.length-1) match {
+        case ':' => {
+          assoc match {
+            case 0 => assoc = -1
+            case 1 => {
+              builder error ScalaBundle.message("wrong.type.associativity", new Array[Object](0))
+            }
+            case -1 => {}
+          }
+        }
+        case _ => {
+          assoc match {
+            case 0 => assoc = 1
+            case 1 => {}
+            case -1 => {
+              builder error ScalaBundle.message("wrong.type.associativity", new Array[Object](0))
+            }
+          }
+        }
+      }
       builder.advanceLexer //Ate id
+      if (assoc == -1) {
+        val newMarker = builder.mark
+        markerList = markerList.::(newMarker)
+      }
       builder.getTokenType match {
         case ScalaTokenTypes.tLINE_TERMINATOR => {
           if (!LineTerminator(builder.getTokenText)) {
@@ -46,8 +75,19 @@ object InfixType {
       if (!CompoundType.parse(builder)) {
         builder error ScalaBundle.message("compound.type.expected", new Array[Object](0))
       }
+      if (assoc == 1) {
+        val newMarker = infixTypeMarker.precede
+        infixTypeMarker.done(ScalaElementTypes.INFIX_TYPE)
+        infixTypeMarker = newMarker
+      }
     }
-    infixTypeMarker.done(ScalaElementTypes.INFIX_TYPE)
+    //final ops closing
+    if (assoc == 1) {
+      infixTypeMarker.drop
+    }
+    else {
+      for (x: PsiBuilder.Marker <- markerList) x.done(ScalaElementTypes.INFIX_TYPE)
+    }
     return true
   }
 }

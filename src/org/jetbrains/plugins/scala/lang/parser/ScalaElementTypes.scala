@@ -290,6 +290,7 @@ object ScalaElementTypes {
   val LITERAL_PATTERN = new ScalaElementType("literal pattern")
   val REFERENCE_PATTERN = new ScalaElementType("reference pattern")
   val XML_PATTERN = new ScalaElementType("xml pattern")
+  val PATTERN_IN_PARENTHESIS = new ScalaElementType("pattern in parenthesis")
 
   /************************************** TYPE PATTERNS ********************************/
 
