@@ -68,7 +68,7 @@ object FunDef {
               builder.getTokenType match {
                 case ScalaTokenTypes.tASSIGN => {
                   builder.advanceLexer //Ate =
-                  if (Expr.parse(builder) != ScalaElementTypes.WRONGWAY) {
+                  if (Expr.parse(builder)) {
                     faultMarker.drop
                     return true
                   }
@@ -91,7 +91,7 @@ object FunDef {
           }
           case ScalaTokenTypes.tASSIGN => {
             builder.advanceLexer //Ate =
-            if (Expr.parse(builder) != ScalaElementTypes.WRONGWAY) {
+            if (Expr.parse(builder)) {
               faultMarker.drop
               return true
             }

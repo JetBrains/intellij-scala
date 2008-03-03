@@ -47,7 +47,7 @@ object TemplateStat {
         } else if (Dcl parse builder) {
           return true
         }
-        else if (Expr.parse(builder) != ScalaElementTypes.WRONGWAY) {
+        else if (Expr.parse(builder)) {
           return true
         }
         else {

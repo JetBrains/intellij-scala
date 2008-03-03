@@ -309,7 +309,7 @@ FIRST(PrefixExpression) = ScalaTokenTypes.tPLUS
                         ScalaTokenTypes.tNOT
    union                SimpleExpression.FIRST
 */
-object PrefixExpr {
+/*object PrefixExpr {
 
 
   val tPREFIXES: TokenSet = TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER))
@@ -412,7 +412,7 @@ object PrefixExpr {
   }
 
 
-}
+} */
 
 /*
 INFIX EXPRESSION
@@ -431,9 +431,9 @@ InfixExpr ::= PrefixExpr
 FIRST(InfixExpression) =  PrefixExpression.FIRST
 
 */
-object InfixExpr extends InfixTemplate(ScalaElementTypes.INFIX_EXPR, PrefixExpr.parse, PrefixExpr.exprOrArgsParse){
-  val INFIX_FIRST = PrefixExpr.PREFIX_FIRST
-}
+//object InfixExpr extends InfixTemplate(ScalaElementTypes.INFIX_EXPR, PrefixExpr.parse, PrefixExpr.exprOrArgsParse){
+//  val INFIX_FIRST = PrefixExpr.PREFIX_FIRST
+//}
 
 /*
 POSTFIX EXPRESSION
@@ -449,9 +449,9 @@ PostfixExpr ::= InfixExpr [id [NewLine]]
 
 FIRST(PostfixExpression) =  InffixExpression.FIRST
 */
-object PostfixExpr {
+/*object PostfixExpr {
 
-  val POSTFIX_FIRST = InfixExpr.INFIX_FIRST
+  //val POSTFIX_FIRST = InfixExpr.INFIX_FIRST
 
   def parse(builder: PsiBuilder): ScalaElementType = {
     val marker = builder.mark()
@@ -496,15 +496,17 @@ object PostfixExpr {
       }
       else {
         marker.drop()
-        result
+        if (result) ScalaElementTypes.INFIX_EXPR
+        else ScalaElementTypes.WRONGWAY
       }
     }
     else {
       builder.error("Wrong postfix expression!")
       marker.done(ScalaElementTypes.POSTFIX_EXPR)
-      result
+      if (result) ScalaElementTypes.INFIX_EXPR
+      else ScalaElementTypes.WRONGWAY
     }
   }
 
-}
+} */
 
