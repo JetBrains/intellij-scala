@@ -12,6 +12,8 @@ import com.intellij.lang.ParserDefinition
 
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
+import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
+import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.util.DebugPrint
@@ -32,51 +34,42 @@ import com.intellij.psi.impl.source.CharTableImpl
 * Created by IntelliJ IDEA.
 * User: Alexander.Podkhalyuz
 * Date: 03.03.2008
-* Time: 15:53:49
+* Time: 18:09:35
 * To change this template use File | Settings | File Templates.
 */
 
-/*
- * Expr ::= (Bindings | id) '=>' Expr
- *        | Expr1
- */
-
-object Expr {
+object Ascription {
   def parse(builder: PsiBuilder): Boolean = {
-    val exprMarker = builder.mark
+    val ascriptionMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
-        builder.advanceLexer //Ate id
-        builder.getTokenType match {
-          case ScalaTokenTypes.tFUNTYPE => {
-            builder.advanceLexer //Ate =>
-            if (!Expr.parse(builder)) builder error ScalaBundle.message("wtong.expression",new Array[Object](0))
-            exprMarker.done(ScalaElementTypes.EXPR)
-            return true
+      case ScalaTokenTypes.tCOLON => {
+        builder.advanceLexer //Ate :
+      }
+      case _ => {
+        ascriptionMarker.drop
+        return false
+      }
+    }
+    builder.getTokenType match {
+      case ScalaTokenTypes.tUNDER => {
+        builder.advanceLexer //Ate _
+        builder.getTokenText match {
+          case "*" => {
+            builder.advanceLexer //Ate *
           }
           case _ => {
-            exprMarker.rollbackTo
+            builder error ScalaBundle.message("star.expected", new Array[Object](0))
           }
         }
+        ascriptionMarker.done(ScalaElementTypes.ASCRIPTION)
+        return true
       }
-      case ScalaTokenTypes.tLPARENTHESIS => {
-        if (Bindings.parse(builder)!=ScalaElementTypes.WRONGWAY) {
-          builder.getTokenType match {
-            case ScalaTokenTypes.tFUNTYPE => {
-              builder.advanceLexer //Ate =>
-              if (!Expr.parse(builder)) builder error ScalaBundle.message("wtong.expression",new Array[Object](0))
-              exprMarker.done(ScalaElementTypes.EXPR)
-              return true
-            }
-            case _ => exprMarker.rollbackTo
-          }
-        }
-        else {
-          exprMarker.drop
-        }
-      }
-      case _ => exprMarker.drop
+      case _ => {}
     }
-    return Expr1.parse(builder)
+    if (!CompoundType.parse(builder)) {
+      //TODO: parse annotations
+    }
+    ascriptionMarker.done(ScalaElementTypes.ASCRIPTION)
+    return true
   }
 }

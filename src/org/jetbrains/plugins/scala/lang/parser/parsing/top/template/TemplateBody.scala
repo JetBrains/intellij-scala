@@ -65,6 +65,7 @@ object TemplateBody {
               }
               case _ => {
                 builder error ScalaBundle.message("semi.expected", new Array[Object](0))
+                builder.advanceLexer //Ate something
                 return subparse
               }
             }

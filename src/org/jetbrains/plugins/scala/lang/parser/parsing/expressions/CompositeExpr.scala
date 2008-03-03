@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 
-object CompositeExpr {
+/*object CompositeExpr {
   /*
   Composite Expression
   Default grammar
@@ -728,4 +728,4 @@ object CompositeExpr {
 
   }
 
-}
+}        */

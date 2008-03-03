@@ -95,7 +95,7 @@ object Block {
   /*
     Moreover, in this case we'll consider a tuple case
   */
-
+  def parse(builder: PsiBuilder): Boolean = !(parse(builder,false)==ScalaElementTypes.WRONGWAY)
   def parse(builder: PsiBuilder, withBrace: Boolean): ScalaElementType = {
 
     // TODO
@@ -135,8 +135,8 @@ object Block {
       tmAlive = false
       if (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
         builder.advanceLexer
-        val res : ScalaElementType = CompositeExpr.parse(builder)
-        if (ScalaElementTypes.EXPR1.equals(res)) {
+        val res = Expr1.parse(builder)
+        if (res) {
           builder.getTokenType match {
             case ScalaTokenTypes.tCOMMA => tupleParse
             case ScalaTokenTypes.tRBRACE => tupleMarker.done(ScalaElementTypes.TUPLE)
