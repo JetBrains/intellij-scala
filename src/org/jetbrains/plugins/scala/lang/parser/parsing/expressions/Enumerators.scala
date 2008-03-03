@@ -132,7 +132,7 @@ object Enumerator{
       if (builder.getTokenType==ScalaTokenTypes.kIF){
         builder.advanceLexer
         val res = PostfixExpr.parse(builder)
-        if (res!=ScalaElementTypes.WRONGWAY){
+        if (res){
           enMarker.done(ScalaElementTypes.GUARD)
           ScalaElementTypes.GUARD
         }

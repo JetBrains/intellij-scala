@@ -312,7 +312,7 @@ object Expr1 {
             }
           }
         }
-        if (PostfixExpr.parse(builder) == ScalaElementTypes.WRONGWAY) {
+        if (!PostfixExpr.parse(builder)) {
           exprMarker.rollbackTo
           return false
         }
