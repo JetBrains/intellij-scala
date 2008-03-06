@@ -20,12 +20,12 @@ import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParam
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.VariantTypeParam
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClause
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClause
+
+
+
+import org.jetbrains.plugins.scala.lang.parser.parsing.params._
+
+
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ArgumentExprs
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockStat
@@ -72,7 +72,7 @@ object TypeDef {
     }
     var isTypeParamClause = false;
     if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
-      isTypeParamClause = ScalaElementTypes.TYPE_PARAM_CLAUSE.equals(new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder)
+      isTypeParamClause = TypeParamClause parse builder
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN => {

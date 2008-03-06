@@ -1,7 +1,5 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing.expressions{
-/**
-* @author Ilya Sergey
-*/
+package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
+
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
@@ -11,101 +9,49 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 
-  object Bindings {
-  /*
-      Bindings ::= ( Binding {, Binding} )
-      Binding ::= id [: Type]
-  */
+/** 
+* Created by IntelliJ IDEA.
+* User: Alexander.Podkhalyuz
+* Date: 06.03.2008
+* Time: 12:48:28
+* To change this template use File | Settings | File Templates.
+*/
 
-    def parse(builder : PsiBuilder) : ScalaElementType = {
-        var bindMarker = builder.mark()
+/*
+ * Bindings ::= '(' Binding {',' Binding } ')'
+ */
 
-        /* Parses one binding */
-        def oneBindingParse: ScalaElementType = {
-
-          var oneBindMarker = builder.mark()
-          if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)){
-            val vm = builder.mark()
-            ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-            vm.done(ScalaElementTypes.REFERENCE)
-            if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)){
-              ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-              var res = Type.parse(builder)
-              if (res.equals(ScalaElementTypes.TYPE)) {
-                oneBindMarker.done(ScalaElementTypes.BINDING)
-                ScalaElementTypes.BINDING
-              } else {
-                oneBindMarker.rollbackTo()
-                ScalaElementTypes.WRONGWAY
-              }
-            } else {
-              oneBindMarker.done(ScalaElementTypes.BINDING)
-              ScalaElementTypes.BINDING
-            }
-          } else {
-            oneBindMarker.rollbackTo()
-            ScalaElementTypes.WRONGWAY
-          }
-        }
-
-        def subParse: ScalaElementType = {
-          var res = oneBindingParse
-          if (res.equals(ScalaElementTypes.BINDING)){
-            builder.getTokenType match {
-              case ScalaTokenTypes.tRPARENTHESIS => {
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
-                bindMarker.drop()
-                ScalaElementTypes.BINDINGS
-              }
-              case ScalaTokenTypes.tCOMMA => {
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
-                subParse
-              }
-              case _ => {
-                builder.error("Wrong symbol: ',' of ')' expected")
-                bindMarker.drop()
-                ScalaElementTypes.BINDINGS
-              }
-            }
-          } else {
-            builder.error("binding expected")
-            bindMarker.drop()
-            ScalaElementTypes.BINDINGS
-
-          }
-        }
-
-        if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType)){
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tLPARENTHESIS)
-          var res = oneBindingParse
-          if (res.equals(ScalaElementTypes.BINDING)){
-            builder.getTokenType match {
-              case ScalaTokenTypes.tRPARENTHESIS => {
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tRPARENTHESIS)
-                bindMarker.drop()
-                ScalaElementTypes.BINDINGS
-              }
-              case ScalaTokenTypes.tCOMMA => {
-                ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
-                subParse
-              }
-              case _ => {
-                bindMarker.rollbackTo()
-                ScalaElementTypes.WRONGWAY
-              }
-            }
-          } else {
-            bindMarker.rollbackTo()
-            ScalaElementTypes.WRONGWAY
-          }
-        } else {
-          bindMarker.rollbackTo()
-          ScalaElementTypes.WRONGWAY
-        }
+object Bindings {
+  def parse(builder: PsiBuilder): Boolean = {
+    val bindingsMarker = builder.mark
+    builder.getTokenType match {
+      case ScalaTokenTypes.tLPARENTHESIS => {
+        builder.advanceLexer //Ate (
       }
-
+      case _ => {
+        bindingsMarker.drop
+        return false
+      }
+    }
+    if (!Binding.parse(builder)) {
+      bindingsMarker.rollbackTo
+      return false
+    }
+    while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+      builder.advanceLexer //Ate ,
+      if (!Binding.parse(builder)) {
+        builder error ScalaBundle.message("wrong.binding", new Array[Object](0))
+      }
+    }
+    builder.getTokenType match {
+      case ScalaTokenTypes.tRPARENTHESIS => {
+        builder.advanceLexer //Ate )
+      }
+      case _ => {
+        builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+      }
+    }
+    bindingsMarker.done(ScalaElementTypes.BINDINGS)
+    return true
   }
-
-
-
 }

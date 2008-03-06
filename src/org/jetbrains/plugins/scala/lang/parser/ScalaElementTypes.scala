@@ -205,6 +205,13 @@ object ScalaElementTypes {
   val MODIFIERS = new ScalaElementType("modifiers")
   val ACCESS_MODIFIER = new ScalaElementType("access modifier")
 
+  /******************* annotation *********************/
+
+  val NAME_VALUE_PAIR = new ScalaElementType("name value pair")
+  val ANNOTATION_EXPR = new ScalaElementType("annotation expression")
+  val ANNOTATION = new ScalaElementType("annotation")
+  val ANNOTATIONS = new ScalaElementType("annotations")
+
   /*************************************************************************************/
   /************************************** LITERALS *************************************/
   /*************************************************************************************/

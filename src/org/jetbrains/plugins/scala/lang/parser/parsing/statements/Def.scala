@@ -20,12 +20,12 @@ import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParam
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.VariantTypeParam
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClause
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClause
+
+
+
+
+
+
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ArgumentExprs
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockStat
@@ -52,16 +52,23 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 
 object Def {
   def parse(builder: PsiBuilder): Boolean = parse(builder,true)
-  def parse(builder: PsiBuilder, isMod: Boolean): Boolean = {
+  def parse(builder: PsiBuilder, isMod: Boolean): Boolean = parse(builder,isMod,false)
+  def parse(builder: PsiBuilder, isMod: Boolean,isImplicit: Boolean): Boolean = {
     val defMarker = builder.mark
-    if (isMod) {
+    if (isMod || isImplicit) {
       //TODO: parse annotations
       //parse modifiers
       val modifierMarker = builder.mark
-      var isModifier = false
-      while (BNF.firstModifier.contains(builder.getTokenType)) {
-        Modifier.parse(builder)
-        isModifier = true
+      if (isMod) {
+        while (BNF.firstModifier.contains(builder.getTokenType)) {
+          Modifier.parse(builder)
+        }
+      }
+      else {
+        builder.getTokenType match {
+          case ScalaTokenTypes.kIMPLICIT => builder.advanceLexer //Ate implicit
+          case _ => {}
+        }
       }
       modifierMarker.done(ScalaElementTypes.MODIFIERS)
     }

@@ -20,12 +20,10 @@ import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParam
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.VariantTypeParam
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClause
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClause
+
+import org.jetbrains.plugins.scala.lang.parser.parsing.params._
+
+
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ArgumentExprs
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockStat
@@ -50,11 +48,11 @@ object FunSig extends ConstrWithoutNode {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         vm.done(ScalaElementTypes.REFERENCE)
         if (BNF.firstFunTypeParam.contains(builder.getTokenType)) {
-          new TypeParamClause[TypeParam](new TypeParam) parse builder
+          FunTypeParamClause parse builder
         }
 
         if (BNF.firstParamClauses.contains(builder.getTokenType)) {
-          new ParamClauses[FunParam] (new FunParam) parse builder
+          ParamClauses parse builder
         }
 
       } else {
@@ -64,7 +62,3 @@ object FunSig extends ConstrWithoutNode {
 
     }
   }
-
-class FunParam extends Param {
-    override def getElementType: IElementType = ScalaElementTypes.FUN_PARAM
-}
