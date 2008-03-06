@@ -44,6 +44,13 @@ import com.intellij.psi.impl.source.CharTableImpl
  *         | 'try' '{' Block '}' [catch '{' CaseClauses '}'] ['finally' Expr ]
  *         | 'do' Expr [semi] 'while' '(' Expr ')'
  *         | 'for' ('(' Enumerators ')' | '{' Enumerators '}') {nl} ['yield'] Expr
+ *         | 'throw' Expr
+ *         | 'return' [Expr]
+ *         | [SimpleExpr '.'] id '=' Expr
+ *         | SimpleExpr1 ArgumentExprs '=' Expr
+ *         | PostfixExpr
+ *         | PostfixExpr Ascription
+ *         | PostfixExpr 'match' '{' CaseClauses '}'
  */
 
 object Expr1 {
@@ -99,9 +106,9 @@ object Expr1 {
           case _ => {
             rollbackMarker.rollbackTo
           }
-          exprMarker.done(ScalaElementTypes.IF_STMT)
-          return true
         }
+        exprMarker.done(ScalaElementTypes.IF_STMT)
+        return true
       }
       //--------------------while statement-----------------------//
       case ScalaTokenTypes.kWHILE => {
@@ -252,10 +259,24 @@ object Expr1 {
         builder.advanceLexer //Ate for
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE => {
-
+            builder.advanceLexer //Ate {
+            if (!Enumerators.parse(builder)) {
+              builder error ScalaBundle.message("enumerators.expected", new Array[Object](0))
+            }
+            builder.getTokenType match {
+              case ScalaTokenTypes.tRBRACE => builder.advanceLexer
+              case _ => builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+            }
           }
           case ScalaTokenTypes.tLPARENTHESIS => {
-
+            builder.advanceLexer //Ate (
+            if (!Enumerators.parse(builder)) {
+              builder error ScalaBundle.message("enumerators.expected", new Array[Object](0))
+            }
+            builder.getTokenType match {
+              case ScalaTokenTypes.tRPARENTHESIS => builder.advanceLexer
+              case _ => builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+            }
           }
           case _ => {
             builder error ScalaBundle.message("enumerators.expected", new Array[Object](0))
@@ -298,7 +319,7 @@ object Expr1 {
       //---------other cases--------------//
       case _ => {
         val rollbackMarker = builder.mark
-        if (SimpleExpr.parse(builder,null,false)!=ScalaElementTypes.WRONGWAY) {
+        if (SimpleExpr.parse(builder)) {
           builder.getTokenType match {
             case ScalaTokenTypes.tASSIGN => {
               builder.advanceLexer //Ate =

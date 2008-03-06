@@ -17,81 +17,41 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top._
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
 
+/** 
+* Created by IntelliJ IDEA.
+* User: Alexander.Podkhalyuz
+* Date: 06.03.2008
+* Time: 11:41:01
+* To change this template use File | Settings | File Templates.
+*/
 
-/**
-BLOCK STATEMENTS
-BlockStat ::= Import
-          | [implicit] Def
-          | {LocalModifier} TmplDef
-          | Expr1
-          |
-**/
+/*
+ * BlockStat ::= Import
+ *             | ['implicit'] Def
+ *             | {LocalModifier} TmplDef
+ *             | Expr1
+ */
+
 object BlockStat {
-
-  def parse(builder: PsiBuilder): ScalaElementType = {
-    val blockStatMarker = builder.mark()
-
-    /* Expr1 */
-    def parseExpr1: ScalaElementType = {
-      var result = Expr1.parse(builder)
-      if (result) {
-        blockStatMarker.drop
-        ScalaElementTypes.EXPR1
+  def parse(builder: PsiBuilder) : Boolean = {
+    val blockStatMarker = builder.mark
+    builder.getTokenType match {
+      case ScalaTokenTypes.kIMPORT => {
+        Import parse builder
+        blockStatMarker.done(ScalaElementTypes.BLOCK_STAT)
+        return true
       }
-      else {
-        blockStatMarker.rollbackTo()
-        ScalaElementTypes.BLOCK_STAT
+      case _ => {}
+    }
+    if (!Def.parse(builder,false,true)) {
+      if (!TmplDef.parse(builder)) {
+        if (!Expr1.parse(builder)) {
+          blockStatMarker.drop
+          return false
+        }
       }
     }
-
-    /* Def */
-    def parseDef(isImplicit: Boolean): ScalaElementType = {
-      var rbMarker = builder.mark()
-      var first = builder.getTokenType
-      builder.advanceLexer
-      ParserUtils.rollForward(builder)
-      var second = builder.getTokenType
-      rbMarker.rollbackTo()
-      if ((ScalaTokenTypes.kCASE.equals(first) &&
-      (ScalaTokenTypes.kCLASS.equals(second) ||
-      ScalaTokenTypes.kOBJECT.equals(second) ||
-      ScalaTokenTypes.kTRAIT.equals(second))) ||
-      BNF.firstDef.contains(builder.getTokenType) ){
-        val defRes = Def.parse(builder);
-        blockStatMarker.drop
-        ScalaElementTypes.BLOCK_STAT
-      } else if (! isImplicit)  {
-        parseExpr1
-      } else {
-        builder.error("Definition expected")
-        blockStatMarker.rollbackTo
-        ScalaElementTypes.WRONGWAY
-      }
-    }
-
-    if (ScalaTokenTypes.kIMPORT.equals(builder.getTokenType)){
-      Import.parse(builder)
-      blockStatMarker.drop
-      ScalaElementTypes.BLOCK_STAT
-    } else if (builder.getTokenType != null && BNF.firstLocalModifier.contains(builder.getTokenType)) {
-      var localModSet = new HashSet[IElementType]
-      while (builder.getTokenType != null &&
-      BNF.firstLocalModifier.contains(builder.getTokenType) &&
-      ! localModSet.contains(builder.getTokenType)){
-
-        localModSet += builder.getTokenType
-        builder.advanceLexer
-      }
-      if (builder.getTokenType != null && BNF.firstLocalModifier.contains(builder.getTokenType)){
-        builder.error("Repeated modifier!")
-        blockStatMarker.drop
-        ScalaElementTypes.BLOCK_STAT
-      } else parseDef(true)
-    } else if (builder.getTokenType != null && ScalaTokenTypes.kIMPLICIT.equals(builder.getTokenType)){
-      builder.advanceLexer
-      parseDef(true)
-    } else {
-      parseDef(false)
-    }
+    blockStatMarker.done(ScalaElementTypes.BLOCK_STAT)
+    return true
   }
 }

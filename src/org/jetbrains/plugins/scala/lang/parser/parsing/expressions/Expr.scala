@@ -60,7 +60,7 @@ object Expr {
         }
       }
       case ScalaTokenTypes.tLPARENTHESIS => {
-        if (Bindings.parse(builder)!=ScalaElementTypes.WRONGWAY) {
+        if (Bindings.parse(builder)) {
           builder.getTokenType match {
             case ScalaTokenTypes.tFUNTYPE => {
               builder.advanceLexer //Ate =>

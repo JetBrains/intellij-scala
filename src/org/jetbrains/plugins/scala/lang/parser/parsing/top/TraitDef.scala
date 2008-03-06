@@ -14,10 +14,10 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.VariantTypeParam
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.TypeParamClause
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.Param
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ParamClauses
+
+import org.jetbrains.plugins.scala.lang.parser.parsing.params._
+
+
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.AccessModifier
 
@@ -41,7 +41,7 @@ object TraitDef {
       }
     //parsing type parameters
     builder.getTokenType match {
-      case ScalaTokenTypes.tLSQBRACKET => new TypeParamClause[VariantTypeParam](new VariantTypeParam) parse builder
+      case ScalaTokenTypes.tLSQBRACKET => TypeParamClause parse builder
       case _ => {/*it could be without type parameters*/}
     }
     TraitTemplateOpt parse builder

@@ -51,7 +51,7 @@ object PrefixExpr {
       }
       case _ => {}
     }
-    if (SimpleExpr.parse(builder,null,false) == ScalaElementTypes.WRONGWAY) {
+    if (!SimpleExpr.parse(builder)) {
       prefixMarker.rollbackTo
       return false
     }
