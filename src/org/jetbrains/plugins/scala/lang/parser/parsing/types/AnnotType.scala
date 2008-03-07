@@ -8,6 +8,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
 /** 
 * Created by IntelliJ IDEA.
@@ -24,7 +25,9 @@ import org.jetbrains.plugins.scala.ScalaBundle
 object AnnotType {
   def parse(builder: PsiBuilder): Boolean = {
     val annotMarker = builder.mark
-    //TODO: parse annotations
+    val annotationsMarker = builder.mark
+    while (Annotation.parse(builder)) {}
+    annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
     //parse Simple type
     if (BNF.firstSimpleType.contains(builder.getTokenType)){
       SimpleType parse builder

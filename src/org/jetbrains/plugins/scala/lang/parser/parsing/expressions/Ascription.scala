@@ -67,7 +67,11 @@ object Ascription {
       case _ => {}
     }
     if (!CompoundType.parse(builder)) {
-      //TODO: parse annotations
+      var x = 0;
+      val annotationsMarker = builder.mark
+      while (Annotation.parse(builder)) {x+=1}
+      annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+      if (x==0) builder error ScalaBundle.message("annotation.expected", new Array[Object](0))
     }
     ascriptionMarker.done(ScalaElementTypes.ASCRIPTION)
     return true

@@ -67,21 +67,21 @@ object SimpleType {
             builder.getTokenType match {
               case ScalaTokenTypes.tRPARENTHESIS => {
                 builder.advanceLexer //Ate )
-                tupleMarker.done(ScalaElementTypes.TUPLE)
+                tupleMarker.done(ScalaElementTypes.TUPLE_TYPE)
               }
               case _ => {
                 builder error ScalaBundle.message("rparenthesis.expacted", new Array[Object](0))
-                tupleMarker.done(ScalaElementTypes.TUPLE)
+                tupleMarker.done(ScalaElementTypes.TUPLE_TYPE)
               }
             }
           }
           case ScalaTokenTypes.tRPARENTHESIS => {
             builder.advanceLexer //Ate )
-            tupleMarker.done(ScalaElementTypes.TUPLE)
+            tupleMarker.done(ScalaElementTypes.TUPLE_TYPE)
           }
           case _ => {
             builder error ScalaBundle.message("rparenthesis.expacted", new Array[Object](0))
-            tupleMarker.done(ScalaElementTypes.TUPLE)
+            tupleMarker.done(ScalaElementTypes.TUPLE_TYPE)
           }
         }
       }

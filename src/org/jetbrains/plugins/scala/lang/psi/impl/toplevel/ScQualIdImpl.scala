@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 */
 
 class ScQualIdImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScQualId{
-  override def toString = "Qualified identifier"
+  override def toString = "QualifiedIdentifier"
 
   def getFullName = getText
 }

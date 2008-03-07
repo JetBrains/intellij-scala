@@ -151,10 +151,16 @@ object ScalaPsiCreator {
 
       /************** modifiers **************/
       case ScalaElementTypes.MODIFIERS => new ScModifiersImpl(node)
+      case ScalaElementTypes.ACCESS_MODIFIER => new ScAccessModifierImpl(node)
       /************** attributes **************/
       case ScalaElementTypes.ATTRIBUTE => new ScAttribute(node) //not used
       case ScalaElementTypes.ATTRIBUTE_CLAUSE => new ScAttributeClause(node) //not used
       case ScalaElementTypes.ATTRIBUTE_CLAUSES => new ScAttributeClauses(node) //not used
+      /************* annotation *************/
+      case ScalaElementTypes.ANNOTATION => new ScAnnotationImpl(node)
+      case ScalaElementTypes.ANNOTATION_EXPR => new ScAnnotationExprImpl(node)
+      case ScalaElementTypes.ANNOTATIONS => new ScAnnotationsImpl(node)
+      case ScalaElementTypes.NAME_VALUE_PAIR => new ScNameValuePairImpl(node)
 
       case _ => inner(node)
     }
@@ -175,13 +181,19 @@ object ScalaPsiCreator {
     case ScalaElementTypes.STABLE_ID_ID => new ScStableIdImpl(node) //not used
     case ScalaElementTypes.PATH => new ScPathImpl(node)
     case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeImpl(node)
+    case ScalaElementTypes.TUPLE_TYPE => new ScTupleTypeImpl(node)
     case ScalaElementTypes.TYPE => new ScFunctionalTypeImpl(node)
     case ScalaElementTypes.COMPOUND_TYPE => new ScCompoundTypeImpl(node)
     case ScalaElementTypes.INFIX_TYPE => new ScInfixTypeImpl(node)
     case ScalaElementTypes.REFINE_STAT => new ScRefineStatImpl(node)
+    case ScalaElementTypes.REFINEMENT => new ScRefinementImpl(node)
     case ScalaElementTypes.REFINEMENTS => new ScRefinementsImpl(node)
     case ScalaElementTypes.TYPES => new ScTypesImpl(node)
     case ScalaElementTypes.TYPE_ARGS => new ScTypeArgsImpl(node)
+    case ScalaElementTypes.ASCRIPTION => new ScAscriptionImpl(node)
+    case ScalaElementTypes.ANNOT_TYPE => new ScAnnotTypeImpl(node)
+    case ScalaElementTypes.EXISTENTIAL_CLAUSE => new ScExistentialClauseImpl(node)
+    case ScalaElementTypes.SELF_TYPE => new ScSelfTypeImpl(node)
 
     /******************* EXPRESSIONS*********************/
 
@@ -201,12 +213,15 @@ object ScalaPsiCreator {
     case ScalaElementTypes.EXPR => new ScCommonExprImpl(node)
     case ScalaElementTypes.RESULT_EXPR => new ScResExprImpl(node)
     case ScalaElementTypes.BINDING => new ScBindingImpl(node)
+    case ScalaElementTypes.BINDINGS => new ScBindingsImpl(node)
     case ScalaElementTypes.ENUMERATOR => new ScEnumeratorImpl(node)
     case ScalaElementTypes.ENUMERATORS => new ScEnumeratorsImpl(node)
+    case ScalaElementTypes.GENERATOR => new ScGeneratorImpl(node)
     case ScalaElementTypes.GUARD => new ScGuardImpl(node)
     case ScalaElementTypes.AN_FUN => new ScAnFunImpl(node)
     case ScalaElementTypes.EXPRS => new ScExprsImpl(node)
     case ScalaElementTypes.ARG_EXPRS => new ScArgumentExprsImpl(node)
+    case ScalaElementTypes.ARG_EXPRS_LIST => new ScArgumentExprListImpl(node)
     case ScalaElementTypes.BLOCK_EXPR => new ScBlockExprImpl(node)
     case ScalaElementTypes.BLOCK => new ScBlockImpl(node)
     case ScalaElementTypes.TUPLE => new ScTupleImpl(node)
@@ -242,13 +257,14 @@ object ScalaPsiCreator {
     case ScalaElementTypes.CASE_CLAUSES => new ScCaseClausesImpl(node)
     case ScalaElementTypes.LITERAL_PATTERN => new ScLiteralPatternImpl(node)
     case ScalaElementTypes.REFERENCE_PATTERN => new ScReferencePatternImpl(node)
+    case ScalaElementTypes.PATTERN_IN_PARENTHESIS => new ScParenthesisedPatternImpl(node)
 
     case ScalaElementTypes.TYPE_PATTERN => new ScTypePatternImpl(node)
     case ScalaElementTypes.SIMPLE_TYPE_PATTERN => new ScSimpleTypePatternImpl(node)
     case ScalaElementTypes.SIMPLE_TYPE_PATTERN1 => new ScSimpleTypePattern1Impl(node)
     case ScalaElementTypes.TYPE_PATTERN_ARGS => new ScTypePatternArgsImpl(node)
 
-    case ScalaElementTypes.TRASH => new ScTrash(node)
+    case ScalaElementTypes.TRASH => new ScTrashImpl(node)
 
     case _ => new ScalaPsiElementImpl(node)
 

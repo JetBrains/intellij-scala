@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
 /** 
 * Created by IntelliJ IDEA.
@@ -41,7 +42,9 @@ import org.jetbrains.plugins.scala.ScalaBundle
 object TmplDef {
   def parse(builder: PsiBuilder): Boolean = {
     val templateMarker = builder.mark
-    //TODO: parsing annotations
+    val annotationsMarker = builder.mark
+    while (Annotation.parse(builder)) {}
+    annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
     //parsing modifiers
     val modifierMarker = builder.mark
     while (BNF.firstModifier.contains(builder.getTokenType)) {

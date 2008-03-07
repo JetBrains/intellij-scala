@@ -122,6 +122,7 @@ object ScalaElementTypes {
   val SELF_TYPE = new ScalaElementType("self type")
   val EXISTENTIAL_CLAUSE = new ScalaElementType("existential clause")
   val ASCRIPTION = new ScalaElementType("ascription")
+  val TUPLE_TYPE = new ScalaElementType("tuple type")
 
   /*************************************************************************************/
   /*********************************** IDENTIFIER **************************************/
