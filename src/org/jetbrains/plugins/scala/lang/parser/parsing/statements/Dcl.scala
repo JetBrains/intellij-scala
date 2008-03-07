@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
 
 
@@ -55,7 +56,9 @@ object Dcl {
   def parse(builder: PsiBuilder, isMod: Boolean): Boolean = {
     val dclMarker = builder.mark
     if (isMod) {
-      //TODO: parse annotations
+      val annotationsMarker = builder.mark
+      while (Annotation.parse(builder)) {}
+      annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
       //parse modifiers
       val modifierMarker = builder.mark
       var isModifier = false

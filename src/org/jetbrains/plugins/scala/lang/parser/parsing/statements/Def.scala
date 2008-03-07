@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
 /** 
 * Created by IntelliJ IDEA.
@@ -56,7 +57,11 @@ object Def {
   def parse(builder: PsiBuilder, isMod: Boolean,isImplicit: Boolean): Boolean = {
     val defMarker = builder.mark
     if (isMod || isImplicit) {
-      //TODO: parse annotations
+      if (!isImplicit) {
+        val annotationsMarker = builder.mark
+        while (Annotation.parse(builder)) {}
+        annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+      }
       //parse modifiers
       val modifierMarker = builder.mark
       if (isMod) {

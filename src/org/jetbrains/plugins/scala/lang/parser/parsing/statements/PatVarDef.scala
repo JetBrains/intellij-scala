@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
 
 
@@ -38,7 +39,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 object PatVarDef {
   def parse(builder: PsiBuilder):Boolean = {
     val patVarMarker = builder.mark
-    //TODO: parse annotations
+    val annotationsMarker = builder.mark
+    while (Annotation.parse(builder)) {}
+    annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
     //parse modifiers
     val modifierMarker = builder.mark
     while (BNF.firstModifier.contains(builder.getTokenType)) {

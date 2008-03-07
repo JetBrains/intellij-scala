@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
 /** 
 * Created by IntelliJ IDEA.
@@ -32,8 +33,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 
 object ClassParam {
   def parse(builder: PsiBuilder): Boolean = {
-    //TODO: parse annotations
     val classParamMarker = builder.mark
+    val annotationsMarker = builder.mark
+    while (Annotation.parse(builder)) {}
+    annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
     //parse modifiers
     val modifierMarker = builder.mark
     var isModifier = false

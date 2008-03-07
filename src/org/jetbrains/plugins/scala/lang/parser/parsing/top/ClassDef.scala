@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
 import org.jetbrains.plugins.scala.lang.parser.parsing.params._
-
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
 
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -45,7 +45,6 @@ object ClassDef {
       case ScalaTokenTypes.tLSQBRACKET => TypeParamClause parse builder
       case _ => {/*it could be without type parameters*/}
     }
-    //TODO: parse annotations
     //parse AccessModifier
     builder.getTokenType match {
       case ScalaTokenTypes.kPRIVATE
