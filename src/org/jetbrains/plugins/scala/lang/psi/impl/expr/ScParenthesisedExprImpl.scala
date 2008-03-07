@@ -4,7 +4,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.psi.impl.primitives._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
@@ -25,11 +24,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 /** 
 * Created by IntelliJ IDEA.
 * User: Alexander.Podkhalyuz
-* Date: 06.03.2008
-* Time: 18:39:24
+* Date: 07.03.2008
+* Time: 9:24:19
 * To change this template use File | Settings | File Templates.
 */
 
-class ScAnFunImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScAnFun {
-  override def toString: String = "AnonymusFunction"
+class ScParenthesisedExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParenthesisedExpr {
+  override def toString: String = "ExpressionInParenthesis"
 }

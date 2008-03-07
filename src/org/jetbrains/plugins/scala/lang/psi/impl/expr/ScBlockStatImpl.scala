@@ -29,3 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:40:39
 * To change this template use File | Settings | File Templates.
 */
+
+class ScBlockStatImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlockStat {
+  override def toString: String = "BlockStatement"
+}

@@ -6,7 +6,6 @@ import com.intellij.psi.tree.IElementType
 
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
@@ -14,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
 import org.jetbrains.plugins.scala.lang.psi.impl.top._, org.jetbrains.plugins.scala.lang.psi.impl.primitives._
 import org.jetbrains.plugins.scala.lang.psi.impl.specialNodes.ScTrash
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions.simpleExprs._
 
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging._
@@ -187,7 +185,7 @@ object ScalaPsiCreator {
 
     /******************* EXPRESSIONS*********************/
 
-    case ScalaElementTypes.PARENT_EXPR => new ScParenthesisedExpr(node)
+    case ScalaElementTypes.PARENT_EXPR => new ScParenthesisedExprImpl(node)
     case ScalaElementTypes.METHOD_CALL => new ScMethodCallImpl(node)
     case ScalaElementTypes.REFERENCE_EXPRESSION => new ScReferenceExpressionImpl(node)
     case ScalaElementTypes.THIS_REFERENCE_EXPRESSION => new ScThisReferenceExpressionImpl(node)
@@ -229,7 +227,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.ASSIGN_STMT => new ScAssignStmtImpl(node)
     case ScalaElementTypes.TYPED_EXPR_STMT => new ScTypedStmtImpl(node)
     case ScalaElementTypes.MATCH_STMT => new ScMatchStmtImpl(node)
-    case ScalaElementTypes.NEW_TEMPLATE => new ScNewTemplateDefinition(node)
+    case ScalaElementTypes.NEW_TEMPLATE => new ScNewTemplateDefinitionImpl(node)
 
     /******************* PATTERNS *********************/
     case ScalaElementTypes.SIMPLE_PATTERN => new ScTuplePatternImpl(node)

@@ -4,7 +4,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.psi.impl.primitives._
 import org.jetbrains.plugins.scala.lang.psi.impl.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
@@ -29,3 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:40:16
 * To change this template use File | Settings | File Templates.
 */
+
+class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock {
+  override def toString: String = "Block"
+}

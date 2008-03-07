@@ -29,3 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:39:33
 * To change this template use File | Settings | File Templates.
 */
+
+class ScExprsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExprs {
+  override def toString: String = "ExpressionsList"
+}

@@ -29,3 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:40:00
 * To change this template use File | Settings | File Templates.
 */
+
+class ScBlockExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlockExpr {
+  override def toString: String = "BlockExpression"
+}

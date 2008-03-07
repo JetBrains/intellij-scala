@@ -29,3 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:41:49
 * To change this template use File | Settings | File Templates.
 */
+
+class ScDoStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDoStmt {
+  override def toString: String = "DoStatement"
+}

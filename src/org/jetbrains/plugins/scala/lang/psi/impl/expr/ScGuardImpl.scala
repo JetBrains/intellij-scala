@@ -29,3 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:39:14
 * To change this template use File | Settings | File Templates.
 */
+
+class ScGuardImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScGuard {
+  override def toString: String = "Guard"
+}

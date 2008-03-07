@@ -29,3 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:42:58
 * To change this template use File | Settings | File Templates.
 */
+
+class ScClosureImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScClosure {
+  override def toString: String = "MethodClosure"
+}

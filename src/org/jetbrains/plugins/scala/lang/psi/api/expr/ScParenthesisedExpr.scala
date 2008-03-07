@@ -5,11 +5,11 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 /** 
 * Created by IntelliJ IDEA.
 * User: Alexander.Podkhalyuz
-* Date: 06.03.2008
-* Time: 18:48:38
+* Date: 07.03.2008
+* Time: 9:23:28
 * To change this template use File | Settings | File Templates.
 */
 
-trait ScArgumentExprs extends ScalaPsiElement {
+trait ScParenthesisedExpr extends ScalaPsiElement {
 
 }
