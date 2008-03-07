@@ -29,3 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:42:19
 * To change this template use File | Settings | File Templates.
 */
+
+class ScCatchBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScCatchBlock {
+  override def toString: String = "CatchBlock"
+}

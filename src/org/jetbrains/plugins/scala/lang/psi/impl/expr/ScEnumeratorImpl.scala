@@ -29,3 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:38:52
 * To change this template use File | Settings | File Templates.
 */
+
+class ScEnumeratorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnumerator {
+  override def toString: String = "Enumerator"
+}

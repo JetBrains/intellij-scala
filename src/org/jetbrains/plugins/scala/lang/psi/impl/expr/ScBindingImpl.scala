@@ -29,3 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:38:42
 * To change this template use File | Settings | File Templates.
 */
+
+class ScBindingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBinding {
+  override def toString: String = "Binding"
+}

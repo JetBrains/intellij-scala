@@ -29,3 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:43:42
 * To change this template use File | Settings | File Templates.
 */
+
+class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScAssignStmt {
+  override def toString: String = "AssignStatement"
+}

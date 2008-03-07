@@ -29,3 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:37:08
 * To change this template use File | Settings | File Templates.
 */
+
+class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScGenericCall {
+  override def toString: String = "GenericCall"
+}

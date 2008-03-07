@@ -29,3 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:38:19
 * To change this template use File | Settings | File Templates.
 */
+
+class ScCommonExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScCommonExpr {
+  override def toString: String = "CommonExpression"
+}

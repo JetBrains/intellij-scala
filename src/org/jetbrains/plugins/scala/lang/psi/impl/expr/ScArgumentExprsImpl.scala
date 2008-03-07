@@ -29,3 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:39:44
 * To change this template use File | Settings | File Templates.
 */
+
+class ScArgumentExprsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScArgumentExprs {
+  override def toString: String = "ArgumentExpressions"
+}

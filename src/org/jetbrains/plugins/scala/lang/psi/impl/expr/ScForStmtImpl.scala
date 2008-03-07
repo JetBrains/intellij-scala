@@ -29,3 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:41:40
 * To change this template use File | Settings | File Templates.
 */
+
+class ScForStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScForStmt {
+  override def toString: String = "ForStatement"
+}

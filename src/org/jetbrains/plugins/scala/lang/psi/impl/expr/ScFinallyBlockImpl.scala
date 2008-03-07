@@ -29,3 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Time: 18:42:33
 * To change this template use File | Settings | File Templates.
 */
+
+class ScFinallyBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFinallyBlock {
+  override def toString: String = "FinallyBlock"
+}
