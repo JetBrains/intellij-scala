@@ -96,8 +96,7 @@ object TmplDef {
       //it's error
       case _ => {
         templateMarker.rollbackTo
-        //TODO: clear this
-        builder.advanceLexer //Ate something
+        //builder.advanceLexer //Ate something
         return false
       }
     }

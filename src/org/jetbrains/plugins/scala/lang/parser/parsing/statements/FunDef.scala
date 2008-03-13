@@ -34,6 +34,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.nl._
+import org.jetbrains.plugins.scala.lang.parser.parsing.params._
+import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
 
 /** 
 * Created by IntelliJ IDEA.
@@ -51,7 +53,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl._
  */
 
 
-//TODO: add third case
 object FunDef {
   def parse(builder: PsiBuilder): Boolean = {
     val faultMarker = builder.mark;
@@ -133,6 +134,45 @@ object FunDef {
           case _ => {
             faultMarker.rollbackTo
             return false
+          }
+        }
+      }
+      case ScalaTokenTypes.kTHIS => {
+        builder.advanceLexer //Ate this
+        if (!ParamClause.parse(builder)) {
+          builder error ScalaBundle.message("param.clause.expected", new Array[Object](0))
+        }
+        ParamClauses parse builder
+        builder.getTokenType match {
+          case ScalaTokenTypes.tASSIGN => {
+            builder.advanceLexer //Ate =
+            if (!ConstrExpr.parse(builder)) {
+              builder error ScalaBundle.message("wrong.constr.expression", new Array[Object](0))
+            }
+            faultMarker.drop
+            return true
+          }
+          case ScalaTokenTypes.tLINE_TERMINATOR => {
+            if (LineTerminator(builder.getTokenText)) {
+              builder.advanceLexer //Ate nl
+            }
+            else {
+              builder error ScalaBundle.message("constr.block.expected", new Array[Object](0))
+              faultMarker.drop
+              return true
+            }
+            if (!ConstrBlock.parse(builder)) {
+              builder error ScalaBundle.message("constr.block.expected", new Array[Object](0))
+            }
+            faultMarker.drop
+            return true
+          }
+          case _ => {
+            if (!ConstrBlock.parse(builder)) {
+              builder error ScalaBundle.message("constr.block.expected", new Array[Object](0))
+            }
+            faultMarker.drop
+            return true
           }
         }
       }

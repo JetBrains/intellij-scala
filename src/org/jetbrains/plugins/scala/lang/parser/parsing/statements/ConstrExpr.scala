@@ -44,7 +44,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 
 /*
  * ConstrExpr ::= SelfInvocation
- *              | '{' SelfInvocation {semi Blockstat} '}'
+ *              | '{' SelfInvocation {semi BlockStat} '}'
  */
 
 object ConstrExpr {
@@ -52,27 +52,9 @@ object ConstrExpr {
     val constrExprMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => {
-        builder.advanceLexer //Ate {
-        SelfInvocation parse builder
-        while (true) {
-          builder.getTokenType match {
-            case ScalaTokenTypes.tRBRACE => {
-              builder.advanceLexer //Ate }
-              constrExprMarker.done(ScalaElementTypes.CONSTR_EXPR)
-              return true
-            }
-            case ScalaTokenTypes.tLINE_TERMINATOR
-               | ScalaTokenTypes.tSEMICOLON => {
-              builder.advanceLexer //Ate semi
-              BlockStat parse builder
-            }
-            case _ => {
-              builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
-              constrExprMarker.done(ScalaElementTypes.CONSTR_EXPR)
-              return true
-            }
-          }
-        }
+        ConstrBlock parse builder
+        constrExprMarker.done(ScalaElementTypes.CONSTR_EXPR)
+        return true
       }
       case _ => {
         SelfInvocation parse builder
