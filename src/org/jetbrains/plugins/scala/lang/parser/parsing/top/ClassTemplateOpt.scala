@@ -49,8 +49,10 @@ object ClassTemplateOpt {
         return
       }
       case ScalaTokenTypes.tLINE_TERMINATOR => {
+        val rollbackMarker = builder.mark
         if (!LineTerminator(builder.getTokenText)) {
-          builder.advanceLexer //Ate nl
+          //builder.advanceLexer //Ate nl
+          rollbackMarker.drop
           val templateMarker = builder.mark
           templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
           extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
@@ -60,11 +62,13 @@ object ClassTemplateOpt {
           builder.advanceLexer //Ate nl
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => {
+              rollbackMarker.drop
               TemplateBody parse builder
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
             case _ => {
+              rollbackMarker.rollbackTo
               val templateMarker = builder.mark
               templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
@@ -95,8 +99,10 @@ object ClassTemplateOpt {
               return
             }
             case ScalaTokenTypes.tLINE_TERMINATOR => {
+              val rollbackMarker = builder.mark
               if (!LineTerminator(builder.getTokenText)) {
-                builder.advanceLexer //Ate nl
+                //builder.advanceLexer //Ate nl
+                rollbackMarker.drop
                 val templateMarker = builder.mark
                 templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
                 extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
@@ -106,11 +112,13 @@ object ClassTemplateOpt {
                 builder.advanceLexer //Ate nl
                 builder.getTokenType match {
                   case ScalaTokenTypes.tLBRACE => {
+                    rollbackMarker.drop
                     TemplateBody parse builder
                     extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                     return
                   }
                   case _ => {
+                    rollbackMarker.rollbackTo
                     val templateMarker = builder.mark
                     templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
                     extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
@@ -156,8 +164,10 @@ object ClassTemplateOpt {
             return
           }
           case ScalaTokenTypes.tLINE_TERMINATOR => {
+              val rollbackMarker = builder.mark
               if (!LineTerminator(builder.getTokenText)) {
-                builder.advanceLexer //Ate nl
+                //builder.advanceLexer //Ate nl
+                rollbackMarker.drop
                 val templateMarker = builder.mark
                 templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
                 extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
@@ -167,11 +177,13 @@ object ClassTemplateOpt {
                 builder.advanceLexer //Ate nl
                 builder.getTokenType match {
                   case ScalaTokenTypes.tLBRACE => {
+                    rollbackMarker.drop
                     TemplateBody parse builder
                     extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                     return
                   }
                   case _ => {
+                    rollbackMarker.rollbackTo
                     val templateMarker = builder.mark
                     templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
                     extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)

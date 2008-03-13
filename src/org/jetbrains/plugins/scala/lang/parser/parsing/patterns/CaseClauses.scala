@@ -27,7 +27,10 @@ import org.jetbrains.plugins.scala.lang.parser.bnf._
 object CaseClauses {
   def parse(builder: PsiBuilder): Boolean = {
     val caseClausesMarker = builder.mark
-    if (!CaseClause.parse(builder)) return false
+    if (!CaseClause.parse(builder)) {
+      caseClausesMarker.drop
+      return false
+    }
     while (CaseClause parse builder) {}
     caseClausesMarker.done(ScalaElementTypes.CASE_CLAUSES)
     return true

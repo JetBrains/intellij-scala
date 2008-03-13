@@ -48,6 +48,7 @@ import com.intellij.psi.impl.source.CharTableImpl
 
 object InfixExpr {
   def parse(builder: PsiBuilder): Boolean = {
+    assoc = 0
     val markerStack = new Stack[PsiBuilder.Marker]
     val opStack = new Stack[String]
     val infixMarker = builder.mark

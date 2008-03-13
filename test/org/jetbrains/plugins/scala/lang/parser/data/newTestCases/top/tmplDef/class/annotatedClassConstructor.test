@@ -1,0 +1,2 @@
+class a @bad private[C] (b: Int)
+-----

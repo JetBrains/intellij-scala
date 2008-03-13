@@ -1,0 +1,5 @@
+class a {
+  var a : Type
+  var f,t,y : Type
+}
+-----

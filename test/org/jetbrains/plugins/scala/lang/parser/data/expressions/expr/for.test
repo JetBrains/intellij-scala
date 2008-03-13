@@ -5,82 +5,128 @@ class a{
   } yield (i, j)
 }
 -----
-Scala file
-  type template definition: class
+ScalaFil
+  ScClass
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n  ')
-      FOR statement
-        PsiElement(for)('for')
-        PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
         PsiElement({)('{')
-        PsiWhiteSpace(' ')
-        Enumerators
-          Enumerator
-            Reference identifier pattern
-              PsiElement(identifier)('i')
-            PsiWhiteSpace(' ')
-            PsiElement(<-)('<-')
-            PsiWhiteSpace(' ')
-            Infix expression
-              Literal
-                PsiElement(integer)('1')
-              PsiWhiteSpace(' ')
-              PsiElement(identifier)('until')
-              PsiWhiteSpace(' ')
-              Reference expression
-                PsiElement(identifier)('n')
-          PsiElement(newline)('\n        ')
-          Enumerator
-            Reference identifier pattern
-              PsiElement(identifier)('j')
-            PsiWhiteSpace(' ')
-            PsiElement(<-)('<-')
-            PsiWhiteSpace(' ')
-            Infix expression
-              Literal
-                PsiElement(integer)('1')
-              PsiWhiteSpace(' ')
-              PsiElement(identifier)('until')
-              PsiWhiteSpace(' ')
-              Reference expression
-                PsiElement(identifier)('i')
-          PsiElement(newline)('\n        ')
-          Guard
-            PsiElement(if)('if')
-            PsiWhiteSpace(' ')
-            Method call
-              Reference expression
-                PsiElement(identifier)('isPrime')
-              Argument expressions
-                PsiElement(()('(')
-                Infix expression
-                  Reference expression
-                    PsiElement(identifier)('i')
-                  PsiElement(identifier)('+')
-                  Reference expression
-                    PsiElement(identifier)('j')
-                PsiElement())(')')
         PsiWhiteSpace('\n  ')
-        PsiElement(})('}')
-        PsiWhiteSpace(' ')
-        PsiElement(yield)('yield')
-        PsiWhiteSpace(' ')
-        Expression list
-          PsiElement(()('(')
-          Reference expression
-            PsiElement(identifier)('i')
-          PsiElement(,)(',')
+        ForStatement
+          PsiElement(for)('for')
           PsiWhiteSpace(' ')
-          Reference expression
-            PsiElement(identifier)('j')
-          PsiElement())(')')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          Enumerators
+            Generator
+              InfixPattern
+                ReferenceIdentifierPattern
+                  StableIdentifier
+                    PsiElement(identifier)('i')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              PostfixExpression
+                InfixExpression
+                  InfixExpression
+                    PrefixExpression
+                      SimpleExpression
+                        Literal
+                          PsiElement(integer)('1')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('until')
+                    PsiWhiteSpace(' ')
+                    PrefixExpression
+                      SimpleExpression
+                        Path
+                          StableIdentifier
+                            PsiElement(identifier)('n')
+            PsiElement(newline)('\n        ')
+            Generator
+              InfixPattern
+                ReferenceIdentifierPattern
+                  StableIdentifier
+                    PsiElement(identifier)('j')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              PostfixExpression
+                InfixExpression
+                  InfixExpression
+                    PrefixExpression
+                      SimpleExpression
+                        Literal
+                          PsiElement(integer)('1')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('until')
+                    PsiWhiteSpace(' ')
+                    PrefixExpression
+                      SimpleExpression
+                        Path
+                          StableIdentifier
+                            PsiElement(identifier)('i')
+            PsiElement(newline)('\n        ')
+            Guard
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              PostfixExpression
+                InfixExpression
+                  PrefixExpression
+                    MethodCall
+                      SimpleExpression
+                        Path
+                          StableIdentifier
+                            PsiElement(identifier)('isPrime')
+                      ArgumentExpressions
+                        PsiElement(()('(')
+                        PostfixExpression
+                          InfixExpression
+                            InfixExpression
+                              PrefixExpression
+                                SimpleExpression
+                                  Path
+                                    StableIdentifier
+                                      PsiElement(identifier)('i')
+                              PsiElement(identifier)('+')
+                              PrefixExpression
+                                SimpleExpression
+                                  Path
+                                    StableIdentifier
+                                      PsiElement(identifier)('j')
+                        PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(yield)('yield')
+          PsiWhiteSpace(' ')
+          PostfixExpression
+            InfixExpression
+              PrefixExpression
+                Tuple
+                  PsiElement(()('(')
+                  ExpressionsList
+                    PostfixExpression
+                      InfixExpression
+                        PrefixExpression
+                          SimpleExpression
+                            Path
+                              StableIdentifier
+                                PsiElement(identifier)('i')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    PostfixExpression
+                      InfixExpression
+                        PrefixExpression
+                          SimpleExpression
+                            Path
+                              StableIdentifier
+                                PsiElement(identifier)('j')
+                  PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -107,6 +107,7 @@ object ScalaPsiCreator {
       case ScalaElementTypes.SELF_INVOCATION => new ScSelfInvocationImpl(node)
       case ScalaElementTypes.CONSTR_EXPR => new ScConstrExprImpl(node)
       case ScalaElementTypes.SUPPLEMENTARY_CONSTRUCTOR => new ScSupplementaryConstructor(node) //not used
+      case ScalaElementTypes.PRIMARY_CONSTRUCTOR => new ScPrimaryConstructorImpl(node)
 
       /**************** function ******************/
       case ScalaElementTypes.CONSTRUCTOR => new ScConstructorImpl(node)

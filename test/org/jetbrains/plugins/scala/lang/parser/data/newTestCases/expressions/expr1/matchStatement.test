@@ -1,0 +1,8 @@
+class a {
+  a match {
+    case 1 => 2
+    case 2 => 3
+    case _ => 4
+  }
+}
+-----

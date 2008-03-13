@@ -1,0 +1,4 @@
+class a {
+  var x,y,z: Boolean = _
+}
+-----

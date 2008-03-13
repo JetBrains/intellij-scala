@@ -160,7 +160,7 @@ symbolLiteral = "\'" {plainid}
 
 notFollowNewLine =   "catch" | "else" | "extends" | "forSome" | "finally" | "match" | "requires"
                     | "with" | "yield" | "," | "." | ";" | ":" | "_" | "=" | "=>" | "<-" | "<:" | "<%"
-                    | ">:" | "#" | "@" | "["  | ")" | "]" |"}"
+                    | ">:" | "#" | "["  | ")" | "]" |"}"
 specNotFollow    =  "_" | "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,6 @@
+object a
+object b extends a
+object c {
+
+}
+-----

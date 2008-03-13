@@ -78,8 +78,8 @@ object TypeDcl {
     if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
       isTypeParamClause = TypeParamClause parse builder
     }
-    builder.getTokenType match {
-      case ScalaTokenTypes.tLOWER_BOUND => {
+    builder.getTokenText match {
+      case ">:" => {
         if (Type.parse(builder)) {
           returnMarker.drop
           return true
@@ -92,8 +92,8 @@ object TypeDcl {
       }
       case _ => {} //nothing
     }
-    builder.getTokenType match {
-      case ScalaTokenTypes.tUPPER_BOUND => {
+    builder.getTokenText match {
+      case "<:" => {
         if (Type.parse(builder)) {
           returnMarker.drop
           return true

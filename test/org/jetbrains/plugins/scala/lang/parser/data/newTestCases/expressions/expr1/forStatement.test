@@ -1,0 +1,4 @@
+class a {
+  for (i <- 1 until n if i!=5) res+=1.0/(i-5)
+}
+-----

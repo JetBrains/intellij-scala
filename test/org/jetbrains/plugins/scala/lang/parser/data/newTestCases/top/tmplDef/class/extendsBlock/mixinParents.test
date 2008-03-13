@@ -1,0 +1,3 @@
+class a extends @t(b)
+                 {val d = -f} C with D
+-----

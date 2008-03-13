@@ -1,0 +1,4 @@
+class a {
+  val a: Type[Arg,Arg]
+}
+-----

@@ -1,0 +1,6 @@
+class a {
+  val x: T op
+  T op
+  T
+}
+-----

@@ -1,0 +1,4 @@
+class a {
+  val x: a.b.c.Type
+}
+-----

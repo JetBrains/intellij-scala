@@ -1,0 +1,4 @@
+class a {
+  def foo = id => 2+2.0
+}
+-----

@@ -1,0 +1,2 @@
+class a extends @t A(2+2,3)
+-----

@@ -1,0 +1,5 @@
+class a {
+  val b,c : Type
+  val e : Type
+}
+-----

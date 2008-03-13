@@ -1,0 +1,9 @@
+class a {
+  import a.b
+
+  val x: Int
+  @a
+  sealed var t = 3
+  x+t
+}
+-----

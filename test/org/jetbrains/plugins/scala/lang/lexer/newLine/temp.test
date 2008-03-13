@@ -1,0 +1,34 @@
+class a {
+  import a.b
+  @t
+  var g = 4
+}
+-----
+class {class}
+white space in line { }
+identifier {a}
+white space in line { }
+{ {{}
+white space in line {
+  }
+import {import}
+white space in line { }
+identifier {a}
+. {.}
+identifier {b}
+newline {
+  }
+@ {@}
+identifier {t}
+newline {
+  }
+var {var}
+white space in line { }
+identifier {g}
+white space in line { }
+= {=}
+white space in line { }
+integer {4}
+white space in line {
+}
+} {}}

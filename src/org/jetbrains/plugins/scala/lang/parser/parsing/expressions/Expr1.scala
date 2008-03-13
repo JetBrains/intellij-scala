@@ -79,12 +79,7 @@ object Expr1 {
         }
         builder.getTokenType match {
           case ScalaTokenTypes.tLINE_TERMINATOR => {
-            if (LineTerminator(builder.getTokenText)) builder.advanceLexer
-            else {
-              builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
-              exprMarker.done(ScalaElementTypes.IF_STMT)
-              return true
-            }
+            builder.advanceLexer //Ate nl
           }
           case _ => {}
         }
@@ -102,6 +97,7 @@ object Expr1 {
           case ScalaTokenTypes.kELSE => {
             builder.advanceLexer
             if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+            rollbackMarker.drop
           }
           case _ => {
             rollbackMarker.rollbackTo
@@ -132,12 +128,7 @@ object Expr1 {
         }
         builder.getTokenType match {
           case ScalaTokenTypes.tLINE_TERMINATOR => {
-            if (LineTerminator(builder.getTokenText)) builder.advanceLexer
-            else {
-              builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
-              exprMarker.done(ScalaElementTypes.WHILE_STMT)
-              return true
-            }
+            builder.advanceLexer //Ate nl
           }
           case _ => {}
         }
@@ -364,7 +355,7 @@ object Expr1 {
                 builder error ScalaBundle.message("case.clauses.expected", new Array[Object](0))
               }
             }
-          exprMarker.done(ScalaElementTypes.MATCH_STMT)
+            exprMarker.done(ScalaElementTypes.MATCH_STMT)
             return true
           }
           case _ => {
@@ -374,6 +365,7 @@ object Expr1 {
         }
       }
     }
+    exprMarker.rollbackTo
     return false
   }
 }

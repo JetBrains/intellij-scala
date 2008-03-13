@@ -1,0 +1,4 @@
+trait a
+trait a extends b
+trait b
+-----

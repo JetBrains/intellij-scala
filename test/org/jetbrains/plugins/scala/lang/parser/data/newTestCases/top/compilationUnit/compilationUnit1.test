@@ -1,13 +1,13 @@
-package a.b.c;class a{}
+package a.b.c;@Nullable class a{}
 object b {}
 -----
-ScalaFile
+ScalaFil
   ScPackageStatement
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    Qualified identifier
-      Qualified identifier
-        Qualified identifier
+    QualifiedIdentifier
+      QualifiedIdentifier
+        QualifiedIdentifier
           PsiElement(identifier)('a')
         PsiElement(.)('.')
         PsiElement(identifier)('b')
@@ -15,6 +15,20 @@ ScalaFile
       PsiElement(identifier)('c')
     PsiElement(;)(';')
   ScClass
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          Constructor
+            TypeWithAnnotation
+              AnnotationsList
+                <empty list>
+              SimpleType
+                StableIdentifier
+                  PsiElement(identifier)('Nullable')
+            PsiWhiteSpace(' ')
+            ListOfArgumentExpressions
+              <empty list>
     Modifiers
       <empty list>
     PsiElement(class)('class')
@@ -26,6 +40,8 @@ ScalaFile
         PsiElement(})('}')
   PsiElement(newline)('\n')
   ScObject
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(object)('object')

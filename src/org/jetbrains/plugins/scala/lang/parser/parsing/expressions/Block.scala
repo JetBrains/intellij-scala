@@ -31,10 +31,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
 //TODO: fix this bad style
 object Block {
   def parse(builder: PsiBuilder): Boolean = {
+    //System.out.println(builder.getTokenText)
     val blockMarker = builder.mark
     var exit = true
     var rollbackMarker = builder.mark
-    while (BlockStat.parse(builder) && true) {
+    while (BlockStat.parse(builder) && exit) {
       var exit2 = true
       while (exit2) {
         var flag = false
@@ -60,15 +61,18 @@ object Block {
     else rollbackMarker.drop
     ResultExpr parse builder
     blockMarker.done(ScalaElementTypes.BLOCK)
+    //System.out.println(builder.getTokenText)
     return true
   }
   def parse(builder: PsiBuilder, hasBrace: Boolean) : Boolean = {
     if (hasBrace) {
+      val blockMarker = builder.mark
       builder.getTokenType match {
         case ScalaTokenTypes.tLBRACE => {
           builder.advanceLexer
         }
         case _ => {
+          blockMarker.drop
           return false
         }
       }
@@ -81,6 +85,7 @@ object Block {
           builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
         }
       }
+      blockMarker.done(ScalaElementTypes.BLOCK)
     }
     else {
       parse(builder)

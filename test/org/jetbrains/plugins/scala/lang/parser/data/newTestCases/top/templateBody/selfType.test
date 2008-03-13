@@ -1,0 +1,4 @@
+class a {
+  id : Type => import a.b
+}
+-----

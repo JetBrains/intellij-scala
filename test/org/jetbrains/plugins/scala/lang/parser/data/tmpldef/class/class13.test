@@ -1,37 +1,58 @@
 case class ServerThread(socket: Socket) extends Thread("ServerThread")
 -----
-Scala file
-  type template definition: class
-    Modifiers
+ScalaFile
+  ScClass
+    AnnotationsList
       <empty list>
-    PsiElement(case)('case')
+    Modifiers
+      PsiElement(case)('case')
     PsiWhiteSpace(' ')
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('ServerThread')
-    parameters clause
-      PsiElement(()('(')
-      parameter
-        Reference identifier
+    ClassParametersClauses
+      ClassParametersClause
+        PsiElement(()('(')
+        ClassParameter
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
           PsiElement(identifier)('socket')
-        PsiElement(:)(':')
-        PsiWhiteSpace(' ')
-        Simple Type
-          Stable Identifier
-            PsiElement(identifier)('Socket')
-      PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            FunctionalType
+              InfixType
+                CompoundType
+                  TypeWithAnnotation
+                    AnnotationsList
+                      <empty list>
+                    SimpleType
+                      StableIdentifier
+                        PsiElement(identifier)('Socket')
+        PsiElement())(')')
     PsiWhiteSpace(' ')
-    extends block
+    ExtendsBlock
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
-      template parents
-        constuctor
-          Stable Identifier
-            PsiElement(identifier)('Thread')
-          PsiElement(()('(')
-          Argument expressions
-            Literal
-              PsiElement(string content)('"ServerThread"')
-          PsiElement())(')')
-    template body
-      <empty list>
+      ClassParents
+        Constructor
+          TypeWithAnnotation
+            AnnotationsList
+              <empty list>
+            SimpleType
+              StableIdentifier
+                PsiElement(identifier)('Thread')
+          ListOfArgumentExpressions
+            ArgumentExpressions
+              PsiElement(()('(')
+              PostfixExpression
+                InfixExpression
+                  PrefixExpression
+                    SimpleExpression
+                      Literal
+                        PsiElement(string content)('"ServerThread"')
+              PsiElement())(')')
+      ScTemplateBody
+        <empty list>
