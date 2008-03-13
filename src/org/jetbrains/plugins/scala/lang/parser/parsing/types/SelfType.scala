@@ -8,6 +8,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 
 /** 
 * Created by IntelliJ IDEA.
@@ -31,7 +32,7 @@ object SelfType {
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON => {
             builder.advanceLexer //Ate ':'
-            if (!Type.parse(builder)) {
+            if (!TypePattern.parse(builder)) {
              selfTypeMarker.rollbackTo
               return
             }
@@ -60,7 +61,7 @@ object SelfType {
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON => {
             builder.advanceLexer //Ate ':'
-            if (!Type.parse(builder)) {
+            if (!TypePattern.parse(builder)) {
              selfTypeMarker.rollbackTo
               return
             }

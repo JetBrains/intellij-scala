@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
 
 object CompilationUnit {
   def parse(builder: PsiBuilder) = {
+    builder.setDebugMode(true)
     //look for file package
     builder.getTokenType match {
       case ScalaTokenTypes.kPACKAGE => {
@@ -100,9 +101,17 @@ object CompilationUnit {
             packChooseMarker.done(ScalaElementTypes.PACKAGE_STMT)
           }
         }
-        TopStatSeq parse builder
+        while (builder.getTokenType!=null) {
+          TopStatSeq parse builder
+          builder.advanceLexer
+        }
       }
-      case _ => TopStatSeq parse builder
+      case _ => {
+        while (builder.getTokenType!=null) {
+          TopStatSeq parse builder
+          builder.advanceLexer
+        }
+      }
     }
   }
 }

@@ -1,0 +1,17 @@
+package scala.test.org.jetbrains
+-----
+ScalaFile
+  ScPackageStatement
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    QualifiedIdentifier
+      QualifiedIdentifier
+        QualifiedIdentifier
+          QualifiedIdentifier
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('test')
+        PsiElement(.)('.')
+        PsiElement(identifier)('org')
+      PsiElement(.)('.')
+      PsiElement(identifier)('jetbrains')

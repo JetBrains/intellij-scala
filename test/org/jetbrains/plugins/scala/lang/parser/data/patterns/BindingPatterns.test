@@ -10,128 +10,181 @@ object A {
   }
 }
 -----
-Scala file
-  type template definition: class
-    PsiElement(case)('case')
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
     PsiWhiteSpace(' ')
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('Some')
-    parameters clause
-      PsiElement(()('(')
-      parameter
-        Reference identifier
+    ClassParametersClauses
+      ClassParametersClause
+        PsiElement(()('(')
+        ClassParameter
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
           PsiElement(identifier)('n')
-        PsiWhiteSpace(' ')
-        PsiElement(:)(':')
-        Simple Type
-          Stable Identifier
-            PsiElement(identifier)('int')
-      PsiElement())(')')
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          ParameterType
+            FunctionalType
+              InfixType
+                CompoundType
+                  TypeWithAnnotation
+                    AnnotationsList
+                      <empty list>
+                    SimpleType
+                      StableIdentifier
+                        PsiElement(identifier)('int')
+        PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
   PsiElement(newline)('\n')
-  type template definition: class
-    PsiElement(case)('case')
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
     PsiWhiteSpace(' ')
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('Some2')
     PsiWhiteSpace(' ')
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
   PsiElement(newline)('\n')
-  template definition: object
+  ScObject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
     PsiWhiteSpace(' ')
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n  ')
-      pattern definition
-        PsiElement(val)('val')
-        PsiWhiteSpace(' ')
-        Reference identifier pattern
-          PsiElement(identifier)('x')
-        PsiWhiteSpace(' ')
-        PsiElement(=)('=')
-        PsiWhiteSpace(' ')
-        Literal
-          PsiElement(integer)('1')
-      PsiElement(newline)('\n')
-      PsiWhiteSpace('  ')
-      function definition
-        PsiElement(def)('def')
-        PsiWhiteSpace(' ')
-        Reference identifier
-          PsiElement(identifier)('foo')
-        parameters clause
-          PsiElement(()('(')
-          PsiElement())(')')
-        PsiWhiteSpace(' ')
-        PsiElement(=)('=')
-        PsiWhiteSpace(' ')
-        MATCH statement
-          Reference expression
-            PsiElement(identifier)('a')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          PsiElement(match)('match')
+          InfixPattern
+            ReferenceIdentifierPattern
+              StableIdentifier
+                PsiElement(identifier)('x')
           PsiWhiteSpace(' ')
-          Block expression
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          PostfixExpression
+            InfixExpression
+              PrefixExpression
+                SimpleExpression
+                  Literal
+                    PsiElement(integer)('1')
+        PsiElement(newline)('\n  ')
+        ScFunctionDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          ScScalaCodeReferenseElement
+            PsiElement(identifier)('foo')
+          ParametersClauses
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            PostfixExpression
+              InfixExpression
+                PrefixExpression
+                  SimpleExpression
+                    Path
+                      StableIdentifier
+                        PsiElement(identifier)('a')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
             PsiElement({)('{')
             PsiWhiteSpace('\n    ')
-            Case Clauses
-              Case Clause
+            CaseClauses
+              CaseClause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                Binding pattern
-                  Reference identifier
+                CompositePattern
+                  BindingPattern
                     PsiElement(identifier)('x')
-                  PsiElement(@)('@')
-                  Tuple pattern
-                    PsiElement(()('(')
-                    Reference identifier pattern
-                      PsiElement(identifier)('y')
-                    PsiElement(,)(',')
-                    Reference identifier pattern
-                      PsiElement(identifier)('z')
-                    PsiElement())(')')
+                    PsiElement(@)('@')
+                    InfixPattern
+                      TuplePattern
+                        PsiElement(()('(')
+                        ArgumentPatterns
+                          CompositePattern
+                            InfixPattern
+                              ReferenceIdentifierPattern
+                                StableIdentifier
+                                  PsiElement(identifier)('y')
+                          PsiElement(,)(',')
+                          CompositePattern
+                            InfixPattern
+                              ReferenceIdentifierPattern
+                                StableIdentifier
+                                  PsiElement(identifier)('z')
+                        PsiElement())(')')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
+                PsiElement({)('{')
                 Block
-                  unit
-                    PsiElement({)('{')
-                    PsiElement(})('}')
+                  PsiElement(})('}')
+                PsiErrorElement:'}' expected
+                  <empty list>
               PsiWhiteSpace('\n    ')
-              Case Clause
+              CaseClause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                Binding pattern
-                  Reference identifier
+                CompositePattern
+                  BindingPattern
                     PsiElement(identifier)('x')
-                  PsiElement(@)('@')
-                  Simple pattern
-                    Stable Identifier
-                      PsiElement(identifier)('Some')
-                    Argument patterns
-                      PsiElement(()('(')
-                      Reference identifier pattern
-                        PsiElement(identifier)('y')
-                      PsiElement())(')')
+                    PsiElement(@)('@')
+                    InfixPattern
+                      SimplePattern
+                        StableIdentifier
+                          PsiElement(identifier)('Some')
+                        PsiElement(()('(')
+                        CompositePattern
+                          InfixPattern
+                            ReferenceIdentifierPattern
+                              StableIdentifier
+                                PsiElement(identifier)('y')
+                        PsiElement())(')')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
+                PsiElement({)('{')
                 Block
-                  unit
-                    PsiElement({)('{')
-                    PsiElement(})('}')
-            PsiWhiteSpace('\n  ')
+                  PsiElement(})('}')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+            PsiWhiteSpace('\n')
             PsiElement(})('}')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')

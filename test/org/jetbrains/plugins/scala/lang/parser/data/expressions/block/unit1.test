@@ -2,28 +2,36 @@ class A{
 def f = ()
 }
 -----
-Scala file
-  type template definition: class
+ScalaFil
+  ScClass
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n')
-      function definition
-        PsiElement(def)('def')
-        PsiWhiteSpace(' ')
-        Reference identifier
-          PsiElement(identifier)('f')
-        PsiWhiteSpace(' ')
-        PsiElement(=)('=')
-        PsiWhiteSpace(' ')
-        unit
-          PsiElement(()('(')
-          PsiElement())(')')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        ScFunctionDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          ScScalaCodeReferenseElement
+            PsiElement(identifier)('f')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          PostfixExpression
+            InfixExpression
+              PrefixExpression
+                Unit
+                  PsiElement(()('(')
+                  PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

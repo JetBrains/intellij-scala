@@ -1,0 +1,2 @@
+class a extends {@e val g = 3; var h = 4} with C {}
+-----

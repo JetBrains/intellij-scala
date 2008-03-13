@@ -1,0 +1,4 @@
+class a {
+  type g[T] >: Any <: Boolean
+}
+-----

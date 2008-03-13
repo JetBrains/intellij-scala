@@ -1,0 +1,7 @@
+class a {
+  for {i <- 1 to n
+      val x = 5
+      if true}
+   yield true
+}
+-----

@@ -1,0 +1,5 @@
+class a {
+  this : Type =>
+  var b = c
+}
+-----

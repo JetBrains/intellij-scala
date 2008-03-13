@@ -1,0 +1,2 @@
+trait a[b <: c] extends {val d = 2} with F with G {}
+-----

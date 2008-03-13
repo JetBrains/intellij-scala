@@ -1,0 +1,12 @@
+class a {
+  try {
+    val x = 2/0
+  }
+  catch {
+    case 1 => 2
+  }
+  finally {
+    return 0
+  }
+}
+-----

@@ -43,22 +43,22 @@ object TypeParam {
       }
       case _ => {}
     }
-    builder.getTokenType match {
-      case ScalaTokenTypes.tLOWER_BOUND => {
+    builder.getTokenText match {
+      case ">:" => {
         builder.advanceLexer
         if (!Type.parse(builder)) builder error ScalaBundle.message("wrong.type", new Array[Object](0))
       }
       case _ => {}
     }
-    builder.getTokenType match {
-      case ScalaTokenTypes.tUPPER_BOUND => {
+    builder.getTokenText match {
+      case "<:" => {
         builder.advanceLexer
         if (!Type.parse(builder)) builder error ScalaBundle.message("wrong.type", new Array[Object](0))
       }
       case _ => {}
     }
-    builder.getTokenType match {
-      case ScalaTokenTypes.tVIEW => {
+    builder.getTokenText match {
+      case "<%" => {
         builder.advanceLexer
         if (!Type.parse(builder)) builder error ScalaBundle.message("wrong.type", new Array[Object](0))
       }

@@ -1,0 +1,4 @@
+class a[T] {
+ def foo[T]
+}
+-----

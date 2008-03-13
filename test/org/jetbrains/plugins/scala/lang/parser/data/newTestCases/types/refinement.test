@@ -1,0 +1,4 @@
+class a {
+  val x: {type x = Boolean; val z: Int}
+}
+-----

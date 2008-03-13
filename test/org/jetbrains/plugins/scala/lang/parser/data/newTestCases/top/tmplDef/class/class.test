@@ -1,0 +1,6 @@
+class a
+case class b
+class c {}
+class d
+{}
+-----

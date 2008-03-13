@@ -1,0 +1,4 @@
+class a {
+  val x: id.super[C].id.Type
+}
+------
