@@ -1,0 +1,7 @@
+class a {
+ val x = a
+ def foo() = {
+   val a = 1
+ }
+}
+-----

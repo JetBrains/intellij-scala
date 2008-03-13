@@ -34,6 +34,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
 
 object BlockStat {
   def parse(builder: PsiBuilder) : Boolean = {
+    Block.flag = false
     val blockStatMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kIMPORT => {
@@ -45,6 +46,7 @@ object BlockStat {
     }
     if (!Def.parse(builder,false,true)) {
       if (!TmplDef.parse(builder)) {
+        Block.flag = true
         if (!Expr1.parse(builder)) {
           blockStatMarker.drop
           return false
