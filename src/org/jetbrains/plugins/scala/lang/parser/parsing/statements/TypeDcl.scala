@@ -45,7 +45,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
  * TypeDcl ::= id [TypeParamClause] ['>;' Type] ['<:' Type]
  */
 
-//TODO: rewrite when rewrite type
 object TypeDcl {
   def parse(builder: PsiBuilder): Boolean = {
     val returnMarker = builder.mark

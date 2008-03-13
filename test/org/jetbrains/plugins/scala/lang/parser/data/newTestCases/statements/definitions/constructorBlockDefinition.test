@@ -1,0 +1,8 @@
+class a {
+  def this(a: Int, b: Int)
+  {
+    this(a)
+    a = true
+  }
+}
+-----

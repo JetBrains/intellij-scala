@@ -126,6 +126,7 @@ object SimpleExpr {
         state = true
         if (!Literal.parse(builder)) {
           if (!Path.parse(builder)) {
+            simpleMarker.drop
             return false
           }
         }

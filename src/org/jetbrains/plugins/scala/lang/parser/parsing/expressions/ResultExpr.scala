@@ -57,6 +57,7 @@ object ResultExpr {
               Block parse (builder,false)
               backupMarker.drop
               resultMarker.done(ScalaElementTypes.RESULT_EXPR)
+              return true
             }
             case _ => {
               backupMarker.rollbackTo
@@ -81,6 +82,7 @@ object ResultExpr {
             Block parse (builder,false)
             backupMarker.drop
             resultMarker.done(ScalaElementTypes.RESULT_EXPR)
+            return true
           }
           case _ => {
             backupMarker.rollbackTo
