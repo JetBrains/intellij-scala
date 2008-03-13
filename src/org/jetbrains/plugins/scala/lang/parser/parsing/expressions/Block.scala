@@ -30,12 +30,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
 
 //TODO: fix this bad style
 object Block {
+  var flag = false
   def parse(builder: PsiBuilder): Boolean = {
-    //System.out.println(builder.getTokenText)
     val blockMarker = builder.mark
     var exit = true
     var rollbackMarker = builder.mark
-    while (BlockStat.parse(builder) && exit) {
+    while (exit && BlockStat.parse(builder)) {
       var exit2 = true
       while (exit2) {
         var flag = false
@@ -57,7 +57,7 @@ object Block {
         rollbackMarker = builder.mark
       }
     }
-    if (!exit) rollbackMarker.rollbackTo
+    if (!exit && flag) rollbackMarker.rollbackTo
     else rollbackMarker.drop
     ResultExpr parse builder
     blockMarker.done(ScalaElementTypes.BLOCK)
