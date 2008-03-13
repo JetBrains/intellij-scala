@@ -183,6 +183,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.PATH => new ScPathImpl(node)
     case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeImpl(node)
     case ScalaElementTypes.TUPLE_TYPE => new ScTupleTypeImpl(node)
+    case ScalaElementTypes.TYPE_IN_PARENTHESIS => new ScParenthesisedTypeImpl(node)
     case ScalaElementTypes.TYPE => new ScFunctionalTypeImpl(node)
     case ScalaElementTypes.COMPOUND_TYPE => new ScCompoundTypeImpl(node)
     case ScalaElementTypes.INFIX_TYPE => new ScInfixTypeImpl(node)

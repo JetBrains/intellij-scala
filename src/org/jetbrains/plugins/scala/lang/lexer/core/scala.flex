@@ -161,7 +161,7 @@ symbolLiteral = "\'" {plainid}
 notFollowNewLine =   "catch" | "else" | "extends" | "forSome" | "finally" | "match" | "requires"
                     | "with" | "yield" | "," | "." | ";" | ":" | "_" | "=" | "=>" | "<-" | "<:" | "<%"
                     | ">:" | "#" | "["  | ")" | "]" |"}"
-specNotFollow    =  "_" | "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield"
+specNotFollow    =  "_" | "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield" | "case"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Common symbols //////////////////////////////////////////////////////////////////////////////////////////////
@@ -232,7 +232,9 @@ XML_BEGIN = "<" ("_" | [:jletter:])
 {END_OF_LINE_COMMENT}                           {  return process(tLINE_COMMENT); }
 
 
-{mNLS} / {specNotFollow} ([:jletter:] | [:jletterdigit:])
+
+
+{mNLS} / "case" ({LineTerminator}|{WhiteSpace})+("class" | "object")
                                                 {   changeState();
                                                     if(newLineAllowed()){
                                                       return process(tLINE_TERMINATOR);
@@ -241,7 +243,7 @@ XML_BEGIN = "<" ("_" | [:jletter:])
                                                     }
                                                 }
 
-{mNLS} / "case" ({LineTerminator}|{WhiteSpace})+("class" | "object")
+{mNLS} / {specNotFollow} ([:jletter:] | [:jletterdigit:])
                                                 {   changeState();
                                                     if(newLineAllowed()){
                                                       return process(tLINE_TERMINATOR);

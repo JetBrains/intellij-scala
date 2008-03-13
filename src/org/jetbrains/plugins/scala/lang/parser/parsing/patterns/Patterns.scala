@@ -22,7 +22,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 */
 
 object Patterns {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: PsiBuilder): Boolean = parse(builder,false)
+  def parse(builder: PsiBuilder, underParams: Boolean): Boolean = {
     val patternsMarker = builder.mark
     if (!Pattern.parse(builder)) {
       patternsMarker.rollbackTo
@@ -40,6 +41,15 @@ object Patterns {
               patternsMarker.done(ScalaElementTypes.PATTERNS)
               return true
             }
+          }
+        }
+        if (underParams) {
+          builder.getTokenType match {
+            case ScalaTokenTypes.tUNDER => {
+              builder.advanceLexer //Ate _
+              builder.advanceLexer //Ate *
+            }
+            case _ => {}
           }
         }
         patternsMarker.done(ScalaElementTypes.PATTERNS)

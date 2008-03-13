@@ -306,6 +306,7 @@ object Expr1 {
         builder.advanceLexer //Ate return
         Expr parse builder
         exprMarker.done(ScalaElementTypes.RETURN_STMT)
+        return true
       }
       //---------other cases--------------//
       case _ => {

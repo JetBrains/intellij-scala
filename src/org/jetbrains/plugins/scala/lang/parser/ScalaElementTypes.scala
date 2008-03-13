@@ -123,6 +123,7 @@ object ScalaElementTypes {
   val EXISTENTIAL_CLAUSE = new ScalaElementType("existential clause")
   val ASCRIPTION = new ScalaElementType("ascription")
   val TUPLE_TYPE = new ScalaElementType("tuple type")
+  val TYPE_IN_PARENTHESIS = new ScalaElementType("type in parenthesis")
   val PRIMARY_CONSTRUCTOR = new ScalaElementType("primary constructor")
 
   /*************************************************************************************/

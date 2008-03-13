@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 
 object SimpleType {
+  var isTuple = false
   def parse(builder: PsiBuilder): Boolean = {
     def parseTale(curMarker: PsiBuilder.Marker) {
       builder.getTokenType match {
@@ -77,11 +78,13 @@ object SimpleType {
           }
           case ScalaTokenTypes.tRPARENTHESIS => {
             builder.advanceLexer //Ate )
-            tupleMarker.done(ScalaElementTypes.TUPLE_TYPE)
+            if (isTuple) tupleMarker.done(ScalaElementTypes.TUPLE_TYPE)
+            else tupleMarker.done(ScalaElementTypes.TYPE_IN_PARENTHESIS)
           }
           case _ => {
             builder error ScalaBundle.message("rparenthesis.expacted", new Array[Object](0))
-            tupleMarker.done(ScalaElementTypes.TUPLE_TYPE)
+            if (isTuple) tupleMarker.done(ScalaElementTypes.TUPLE_TYPE)
+            else tupleMarker.done(ScalaElementTypes.TYPE_IN_PARENTHESIS)
           }
         }
       }
