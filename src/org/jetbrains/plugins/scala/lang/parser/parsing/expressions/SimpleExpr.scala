@@ -51,7 +51,7 @@ import com.intellij.psi.impl.source.CharTableImpl
  *               | SimpleExpr '.' id
  *               | SimpleExpr TypeArgs
  *               | SimpleExpr1 ArgumentExprs
- *               | XmlExpr
+ *               | XmlExpr //Todo: xmlExpression
  */
 
 object SimpleExpr {

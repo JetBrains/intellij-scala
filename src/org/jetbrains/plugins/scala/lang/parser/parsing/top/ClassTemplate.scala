@@ -54,13 +54,13 @@ object ClassTemplate {
             }
             case ScalaTokenTypes.tLINE_TERMINATOR => {
               if (!LineTerminator(builder.getTokenText)) {
-                builder.advanceLexer //Ate nl
                 val templateMarker = builder.mark
                 templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
                 extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                 return
               }
               else {
+                val backup = builder.mark
                 builder.advanceLexer //Ate nl
                 builder.getTokenType match {
                   case ScalaTokenTypes.tLBRACE => {
@@ -69,6 +69,7 @@ object ClassTemplate {
                     return
                   }
                   case _ => {
+                    backup.rollbackTo
                     val templateMarker = builder.mark
                     templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
                     extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
@@ -105,13 +106,13 @@ object ClassTemplate {
           }
           case ScalaTokenTypes.tLINE_TERMINATOR => {
               if (!LineTerminator(builder.getTokenText)) {
-                builder.advanceLexer //Ate nl
                 val templateMarker = builder.mark
                 templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
                 extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                 return
               }
               else {
+                val backup = builder.mark
                 builder.advanceLexer //Ate nl
                 builder.getTokenType match {
                   case ScalaTokenTypes.tLBRACE => {
@@ -120,6 +121,7 @@ object ClassTemplate {
                     return
                   }
                   case _ => {
+                    backup.rollbackTo
                     val templateMarker = builder.mark
                     templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
                     extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)

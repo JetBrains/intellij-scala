@@ -38,6 +38,13 @@ object SimplePattern {
     builder.getTokenType match {
       case ScalaTokenTypes.tUNDER => {
         builder.advanceLexer //Ate _
+        builder getTokenText match {
+          case "*" => {
+            simplePatternMarker.rollbackTo
+            return false
+          }
+          case _ => {}
+        }
         simplePatternMarker.done(ScalaElementTypes.WILD_PATTERN)
         return true
       }
@@ -88,9 +95,15 @@ object SimplePattern {
       builder.getTokenType match {
         case ScalaTokenTypes.tLPARENTHESIS => {
           builder.advanceLexer //Ate (
-          if (!Patterns.parse(builder))
+          if (!Patterns.parse(builder,true))
           if (!Pattern.parse(builder)) {
-            builder error ScalaBundle.message("wrong.pattern", new Array[Object](0))
+            builder.getTokenType match {
+              case ScalaTokenTypes.tUNDER => {
+                builder.advanceLexer //Ate _
+                builder.advanceLexer //Ate *
+              }
+              case _ => {}
+            }
           }
           builder.getTokenType match {
             case ScalaTokenTypes.tRPARENTHESIS => {

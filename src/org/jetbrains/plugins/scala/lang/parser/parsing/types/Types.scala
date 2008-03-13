@@ -25,15 +25,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Dcl
 
 object Types {
   def parse(builder: PsiBuilder): Boolean ={
+    SimpleType.isTuple = false
     val typesMarker = builder.mark
     if (!Type.parse(builder)) {
       typesMarker.drop
       return false
     }
-    while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+    var exit = true
+    while (exit && builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+      SimpleType.isTuple = true
       builder.advanceLexer //Ate ,
       if (!Type.parse(builder)) {
-        builder error ScalaBundle.message("wrong.type",new Array[Object](0))
+        exit = false
+        //builder error ScalaBundle.message("wrong.type",new Array[Object](0))
       }
     }
     typesMarker.done(ScalaElementTypes.TYPES)

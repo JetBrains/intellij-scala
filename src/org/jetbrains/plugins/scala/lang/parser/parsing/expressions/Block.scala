@@ -30,15 +30,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
 
 //TODO: fix this bad style
 object Block {
-  var flag = false
+  var flag2 = false
   def parse(builder: PsiBuilder): Boolean = {
     val blockMarker = builder.mark
     var exit = true
     var rollbackMarker = builder.mark
     while (exit && BlockStat.parse(builder)) {
       var exit2 = true
+      var flag = false
       while (exit2) {
-        var flag = false
         builder.getTokenType match {
           case ScalaTokenTypes.tLINE_TERMINATOR | ScalaTokenTypes.tSEMICOLON => {
             builder.advanceLexer //Ate semi
@@ -57,7 +57,7 @@ object Block {
         rollbackMarker = builder.mark
       }
     }
-    if (!exit && flag) rollbackMarker.rollbackTo
+    if (!exit && flag2) rollbackMarker.rollbackTo
     else rollbackMarker.drop
     ResultExpr parse builder
     blockMarker.done(ScalaElementTypes.BLOCK)
