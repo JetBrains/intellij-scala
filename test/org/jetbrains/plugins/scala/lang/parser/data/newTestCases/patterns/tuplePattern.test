@@ -1,0 +1,7 @@
+class a {
+  {
+    case (a,b,c) => a
+    case (a+c) => a
+  }
+}
+-----

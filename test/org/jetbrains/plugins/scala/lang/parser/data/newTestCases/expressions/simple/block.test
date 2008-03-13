@@ -1,0 +1,7 @@
+class a{
+  {
+    case f => g
+    case g => f
+  }
+}
+-----

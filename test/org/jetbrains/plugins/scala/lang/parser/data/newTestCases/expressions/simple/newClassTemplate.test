@@ -1,0 +1,4 @@
+class a {
+  new z(1) with h
+}
+-----

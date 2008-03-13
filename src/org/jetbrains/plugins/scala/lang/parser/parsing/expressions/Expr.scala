@@ -50,7 +50,7 @@ object Expr {
         builder.getTokenType match {
           case ScalaTokenTypes.tFUNTYPE => {
             builder.advanceLexer //Ate =>
-            if (!Expr.parse(builder)) builder error ScalaBundle.message("wtong.expression",new Array[Object](0))
+            if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression",new Array[Object](0))
             exprMarker.done(ScalaElementTypes.EXPR)
             return true
           }
@@ -64,7 +64,7 @@ object Expr {
           builder.getTokenType match {
             case ScalaTokenTypes.tFUNTYPE => {
               builder.advanceLexer //Ate =>
-              if (!Expr.parse(builder)) builder error ScalaBundle.message("wtong.expression",new Array[Object](0))
+              if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression",new Array[Object](0))
               exprMarker.done(ScalaElementTypes.EXPR)
               return true
             }

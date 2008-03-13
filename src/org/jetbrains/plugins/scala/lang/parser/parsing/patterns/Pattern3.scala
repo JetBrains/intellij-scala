@@ -37,6 +37,7 @@ object Pattern3 {
     var backupMarker = builder.mark
     if (!SimplePattern.parse(builder)) {
       infixMarker.drop
+      backupMarker.drop
       return false
     }
     while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && builder.getTokenText != "|") {

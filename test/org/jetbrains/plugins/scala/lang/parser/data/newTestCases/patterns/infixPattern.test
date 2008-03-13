@@ -1,0 +1,6 @@
+class a {
+  {
+    case f op f op f => f
+  }
+}
+-----

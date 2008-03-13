@@ -1,0 +1,7 @@
+class a {
+  {
+    case a: Int => b
+    case _: Boolean => c
+  }
+}
+-----

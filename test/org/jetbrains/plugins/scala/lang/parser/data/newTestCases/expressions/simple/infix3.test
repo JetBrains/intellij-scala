@@ -1,0 +1,4 @@
+class a {
+  a | b op1 c op2 d op3
+}
+-----

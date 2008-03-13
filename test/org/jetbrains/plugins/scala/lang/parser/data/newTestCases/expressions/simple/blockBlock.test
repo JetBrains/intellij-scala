@@ -1,0 +1,10 @@
+class a {
+  {
+    import a.b.c
+    implicit def foo() = 3
+    sealed class b {}
+    if (true) return "it must be true"
+    return 0
+  }
+}
+-----

@@ -1,0 +1,7 @@
+class a {
+  new {
+    var a: Int
+    a = 3
+  }
+}
+-----

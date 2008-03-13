@@ -44,8 +44,8 @@ object ParamType {
           return false
         }
         else {
-          builder.getTokenType match {
-            case ScalaTokenTypes.tSTAR => builder.advanceLexer // Ate '*'
+          builder.getTokenText match {
+            case "*" => builder.advanceLexer // Ate '*'
             case _ => {/*nothing needs to do*/}
           }
           paramTypeMarker.done(ScalaElementTypes.PARAM_TYPE)

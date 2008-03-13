@@ -1,0 +1,7 @@
+class a {
+  {
+    import t.s
+    (a: Int, b: Int) => import s.t
+  }
+}
+-----
