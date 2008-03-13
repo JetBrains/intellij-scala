@@ -45,9 +45,11 @@ import com.intellij.psi.impl.source.CharTableImpl
 object PrefixExpr {
   def parse(builder: PsiBuilder): Boolean = {
     val prefixMarker = builder.mark
+    var isPrefix = false
     builder.getTokenText match {
       case "-" | "+" | "~" | "!" => {
         builder.advanceLexer //Ate this
+        isPrefix = true
       }
       case _ => {}
     }
@@ -55,7 +57,8 @@ object PrefixExpr {
       prefixMarker.rollbackTo
       return false
     }
-    prefixMarker.done(ScalaElementTypes.PREFIX_EXPR)
+    if (isPrefix) prefixMarker.done(ScalaElementTypes.PREFIX_EXPR)
+    else prefixMarker.drop
     return true
   }
 }

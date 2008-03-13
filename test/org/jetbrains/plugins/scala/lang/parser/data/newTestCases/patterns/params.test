@@ -1,0 +1,7 @@
+class a {
+  {
+    case Some(a@Some(),_*) => a
+    case Some(_*) => a
+  }
+}
+-----

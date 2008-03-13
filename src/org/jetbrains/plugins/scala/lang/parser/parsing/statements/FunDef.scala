@@ -46,6 +46,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl._
 /*
  * FunDef ::= FunSig [':' Type] '=' Expr
  *          | FunSig [nl] '{' Block '}'
+ *          | 'this' ParamClause ParamClauses
+ *            ('=' ConstrExpr | [nl] ConstrBlock)
  */
 
 

@@ -50,6 +50,13 @@ object ParamClause {
         return false
       }
     }
+    builder.getTokenType match {
+      case ScalaTokenTypes.kIMPLICIT => {
+        paramMarker.rollbackTo
+        return false
+      }
+      case _ => {}
+    }
     Params parse builder
     builder.getTokenType match {
       case ScalaTokenTypes.tRPARENTHESIS => {

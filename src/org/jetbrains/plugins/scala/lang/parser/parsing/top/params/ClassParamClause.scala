@@ -50,6 +50,13 @@ object ClassParamClause {
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
         builder.advanceLexer //Ate '('
+        builder.getTokenType match {
+          case ScalaTokenTypes.kIMPLICIT => {
+            classParamMarker.rollbackTo
+            return false
+          }
+          case _ => {}
+        }
         //ok, let's parse parameters
         if (ClassParam parse builder) {
           while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {

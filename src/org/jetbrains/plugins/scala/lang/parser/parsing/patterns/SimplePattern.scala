@@ -109,6 +109,7 @@ object SimplePattern {
         }
       }
     }
+    simplePatternMarker.rollbackTo
     return false
   }
 }

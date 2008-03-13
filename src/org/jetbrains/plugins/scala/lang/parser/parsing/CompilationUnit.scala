@@ -31,7 +31,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
 
 object CompilationUnit {
   def parse(builder: PsiBuilder) = {
-    builder.setDebugMode(true)
     //look for file package
     builder.getTokenType match {
       case ScalaTokenTypes.kPACKAGE => {

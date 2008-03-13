@@ -1,0 +1,4 @@
+class a {
+  a.foo(a,a,a)
+}
+-----

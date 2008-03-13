@@ -53,6 +53,7 @@ object InfixExpr {
     val opStack = new Stack[String]
     val infixMarker = builder.mark
     var backupMarker = builder.mark
+    var count = 0
     if (!PrefixExpr.parse(builder)) {
       infixMarker.drop
       return false
@@ -119,7 +120,10 @@ object InfixExpr {
               setMarker.rollbackTo
               exitOf=false
             }
-            else setMarker.drop
+            else {
+              count = count + 1
+              setMarker.drop
+            }
           }
         }
         case _ => {
@@ -129,15 +133,26 @@ object InfixExpr {
             setMarker.rollbackTo
             exitOf = false
           }
-          else setMarker.drop
+          else {
+            setMarker.drop
+            count = count + 1
+          }
         }
       }
     }
-    backupMarker.drop
-    while (!markerStack.isEmpty) {
-      markerStack.pop.done(ScalaElementTypes.INFIX_EXPR)
+    if (exitOf) backupMarker.drop
+    if (count > 0) {
+      while (!markerStack.isEmpty) {
+        markerStack.pop.done(ScalaElementTypes.INFIX_EXPR)
+      }
+      infixMarker.drop
     }
-    infixMarker.done(ScalaElementTypes.INFIX_EXPR)
+    else {
+      while (!markerStack.isEmpty) {
+        markerStack.pop.drop
+      }
+      infixMarker.drop
+    }
     return true
   }
   private var assoc: Int = 0  //this mark associativity: left - 1, right - -1
