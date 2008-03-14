@@ -1,3 +1,18 @@
 package a.b.c
 {}
 -----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    QualifiedIdentifier
+      QualifiedIdentifier
+        QualifiedIdentifier
+          PsiElement(identifier)('a')
+        PsiElement(.)('.')
+        PsiElement(identifier)('b')
+      PsiElement(.)('.')
+      PsiElement(identifier)('c')
+    PsiElement(newline)('\n')
+    PsiElement({)('{')
+    PsiElement(})('}')
