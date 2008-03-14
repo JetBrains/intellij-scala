@@ -1,7 +1,7 @@
 package a.b.c;@Nullable class a{}
 object b {}
 -----
-ScalaFil
+ScalaFile
   ScPackageStatement
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
@@ -20,20 +20,22 @@ ScalaFil
         PsiElement(@)('@')
         AnnotationExpression
           Constructor
-            TypeWithAnnotation
-              AnnotationsList
-                <empty list>
-              SimpleType
-                StableIdentifier
-                  PsiElement(identifier)('Nullable')
+            AnnotationsList
+              <empty list>
+            TypeElement
+              CodeReferenceElement
+                PsiElement(identifier)('Nullable')
             PsiWhiteSpace(' ')
-            ListOfArgumentExpressions
+            ArgumentList
               <empty list>
     Modifiers
       <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
     ExtendsBlock
       ScTemplateBody
         PsiElement({)('{')

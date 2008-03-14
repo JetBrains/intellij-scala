@@ -1,2 +1,24 @@
 abstract private[C] class a
 -----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+      PsiWhiteSpace(' ')
+      AccessModifier
+        PsiElement(private)('private')
+        PsiElement([)('[')
+        PsiElement(identifier)('C')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        <empty list>
