@@ -61,7 +61,7 @@ object Ascription {
             builder error ScalaBundle.message("star.expected", new Array[Object](0))
           }
         }
-        ascriptionMarker.done(ScalaElementTypes.ASCRIPTION)
+        ascriptionMarker.done(ScalaElementTypes.SEQUENCE_ARG)
         return true
       }
       case _ => {}
@@ -73,7 +73,7 @@ object Ascription {
       annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
       if (x==0) builder error ScalaBundle.message("annotation.expected", new Array[Object](0))
     }
-    ascriptionMarker.done(ScalaElementTypes.ASCRIPTION)
+    ascriptionMarker.drop
     return true
   }
 }

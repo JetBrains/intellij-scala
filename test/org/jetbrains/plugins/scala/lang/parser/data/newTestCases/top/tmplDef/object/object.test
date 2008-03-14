@@ -14,8 +14,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
     ExtendsBlock
-      ScTemplateBody
-        <empty list>
+      <empty list>
   PsiElement(newline)('\n')
   ScObject
     AnnotationsList
@@ -38,8 +37,6 @@ ScalaFile
               PsiElement(identifier)('a')
           ArgumentList
             <empty list>
-      ScTemplateBody
-        <empty list>
   PsiElement(newline)('\n')
   ScObject
     AnnotationsList

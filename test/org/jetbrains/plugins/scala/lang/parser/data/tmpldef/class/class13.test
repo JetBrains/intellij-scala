@@ -54,5 +54,3 @@ ScalaFile
                       Literal
                         PsiElement(string content)('"ServerThread"')
               PsiElement())(')')
-      ScTemplateBody
-        <empty list>

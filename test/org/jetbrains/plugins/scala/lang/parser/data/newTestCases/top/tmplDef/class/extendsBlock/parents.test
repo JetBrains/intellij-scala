@@ -10,9 +10,6 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
-    PrimaryConstructor
-      AnnotationsList
-        <empty list>
     ExtendsBlock
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
@@ -48,5 +45,3 @@ ScalaFile
                 Literal
                   PsiElement(integer)('3')
               PsiElement())(')')
-      ScTemplateBody
-        <empty list>

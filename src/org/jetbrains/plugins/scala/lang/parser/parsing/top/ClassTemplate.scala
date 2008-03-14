@@ -54,8 +54,6 @@ object ClassTemplate {
             }
             case ScalaTokenTypes.tLINE_TERMINATOR => {
               if (!LineTerminator(builder.getTokenText)) {
-                val templateMarker = builder.mark
-                templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
                 extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                 return
               }
@@ -70,8 +68,6 @@ object ClassTemplate {
                   }
                   case _ => {
                     backup.rollbackTo
-                    val templateMarker = builder.mark
-                    templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
                     extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                     return
                   }
@@ -79,8 +75,6 @@ object ClassTemplate {
               }
             }
             case _ => {
-              val templateMarker = builder.mark
-              templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
@@ -106,8 +100,6 @@ object ClassTemplate {
           }
           case ScalaTokenTypes.tLINE_TERMINATOR => {
               if (!LineTerminator(builder.getTokenText)) {
-                val templateMarker = builder.mark
-                templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
                 extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                 return
               }
@@ -122,8 +114,6 @@ object ClassTemplate {
                   }
                   case _ => {
                     backup.rollbackTo
-                    val templateMarker = builder.mark
-                    templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
                     extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                     return
                   }
@@ -131,8 +121,6 @@ object ClassTemplate {
               }
             }
           case _ => {
-            val templateMarker = builder.mark
-            templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
             extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
             return
           }

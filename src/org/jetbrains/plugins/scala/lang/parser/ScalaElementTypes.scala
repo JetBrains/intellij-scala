@@ -128,6 +128,7 @@ object ScalaElementTypes {
   val EXISTENTIAL_TYPE = new ScalaElementType("existential type")
   val TYPE_PROJECTION = new ScalaElementType("type projection")
   val TYPE_GENERIC_CALL = new ScalaElementType("type generic call")
+  val SEQUENCE_ARG = new ScalaElementType("sequence argument type")
 
   /*************************************************************************************/
   /*********************************** IDENTIFIER **************************************/

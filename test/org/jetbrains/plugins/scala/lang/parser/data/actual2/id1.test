@@ -4,3 +4,65 @@ object A extends B {
   }
 }
 -----
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      ClassParents
+        Constructor
+          AnnotationsList
+            <empty list>
+          TypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('B')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            <empty list>
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          ParametersClauses
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          Block
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            Block
+              ResultExpression
+                ReferenceExpression
+                  ReferenceExpression
+                    ReferenceExpression
+                      ReferenceExpression
+                        ReferenceExpression
+                          PsiElement(identifier)('a')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('b')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('c')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('d')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('e')
+            PsiWhiteSpace('  \n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -49,5 +49,4 @@ ScalaFile
                   PsiElement(identifier)('Int')
           PsiElement())(')')
     ExtendsBlock
-      ScTemplateBody
-        <empty list>
+      <empty list>

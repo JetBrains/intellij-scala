@@ -28,9 +28,11 @@ import org.jetbrains.plugins.scala.util.DebugPrint
 object VariantTypeParam {
   def parse(builder: PsiBuilder): Boolean = {
     val paramMarker = builder.mark
+    var isVariant = false
     builder.getTokenText match {
       case "+" | "-" => {
         builder.advanceLexer //Ate sign
+        isVariant = true
       }
       case _ => {}
     }
@@ -38,7 +40,8 @@ object VariantTypeParam {
       paramMarker.rollbackTo
       return false
     }
-    paramMarker.done(ScalaElementTypes.VARIANT_TYPE_PARAM)
+    if (isVariant) paramMarker.done(ScalaElementTypes.VARIANT_TYPE_PARAM)
+    else paramMarker.drop
     return true
   }
 }

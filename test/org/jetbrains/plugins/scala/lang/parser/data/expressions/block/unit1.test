@@ -2,7 +2,7 @@ class A{
 def f = ()
 }
 -----
-ScalaFil
+ScalaFile
   ScClass
     AnnotationsList
       <empty list>
@@ -22,16 +22,12 @@ ScalaFil
             <empty list>
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
-          ScScalaCodeReferenseElement
-            PsiElement(identifier)('f')
+          PsiElement(identifier)('f')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          PostfixExpression
-            InfixExpression
-              PrefixExpression
-                Unit
-                  PsiElement(()('(')
-                  PsiElement())(')')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

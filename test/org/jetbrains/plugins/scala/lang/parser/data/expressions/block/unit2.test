@@ -15,14 +15,11 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        PostfixExpression
-          InfixExpression
-            PrefixExpression
-              PropertySelection
-                Unit
-                  PsiElement(()('(')
-                  PsiElement())(')')
-                PsiElement(.)('.')
-                PsiElement(identifier)('toString')
+        PropertySelection
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('toString')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

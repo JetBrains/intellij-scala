@@ -26,12 +26,15 @@ object AnnotType {
   def parse(builder: PsiBuilder): Boolean = {
     val annotMarker = builder.mark
     val annotationsMarker = builder.mark
-    while (Annotation.parse(builder)) {}
-    annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+    var isAnnotation = false
+    while (Annotation.parse(builder)) {isAnnotation = true}
+    if (isAnnotation) annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+    else annotationsMarker.drop
     //parse Simple type
     if (BNF.firstSimpleType.contains(builder.getTokenType)){
       SimpleType parse builder
-      annotMarker.drop
+      if (isAnnotation) annotMarker.done(ScalaElementTypes.ANNOT_TYPE)
+      else annotMarker.drop
       return true
     }
     else {

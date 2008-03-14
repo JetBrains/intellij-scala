@@ -79,6 +79,7 @@ object TypeDcl {
     }
     builder.getTokenText match {
       case ">:" => {
+        builder.advanceLexer
         if (Type.parse(builder)) {
           returnMarker.drop
           return true
@@ -93,6 +94,7 @@ object TypeDcl {
     }
     builder.getTokenText match {
       case "<:" => {
+        builder.advanceLexer
         if (Type.parse(builder)) {
           returnMarker.drop
           return true

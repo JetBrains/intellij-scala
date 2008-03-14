@@ -4,8 +4,10 @@ object A /**/ { /**
 
 */  }
 -----
-Scala file
-  template definition: object
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(object)('object')
@@ -14,8 +16,8 @@ Scala file
     PsiWhiteSpace(' ')
     PsiComment(BlockComment)('/**/')
     PsiWhiteSpace(' ')
-    extends block
-      template body
+    ExtendsBlock
+      ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace(' ')
         PsiComment(DocComment)('/**\n\n/*\n\n*/  }')

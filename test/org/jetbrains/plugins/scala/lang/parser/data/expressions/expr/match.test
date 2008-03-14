@@ -5,52 +5,54 @@ class a{
   }
 }
 -----
-Scala file
-  type template definition: class
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n  ')
-      MATCH statement
-        Reference expression
-          PsiElement(identifier)('b')
-        PsiWhiteSpace(' ')
-        PsiElement(match)('match')
-        PsiWhiteSpace(' ')
-        Block expression
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          ReferenceExpression
+            PsiElement(identifier)('b')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
           PsiElement({)('{')
           PsiWhiteSpace('\n    ')
-          Case Clauses
-            Case Clause
+          CaseClauses
+            CaseClause
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
-              Reference identifier pattern
+              ReferencePattern
                 PsiElement(identifier)('e')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
               Block
-                Literal
-                  PsiElement(float)('2.71828')
+                ResultExpression
+                  Literal
+                    PsiElement(float)('2.71828')
             PsiWhiteSpace('\n    ')
-            Case Clause
+            CaseClause
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
-              Stable Identifier
+              ReferencePattern
                 PsiElement(identifier)('Pi')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
               Block
-                Literal
-                  PsiElement(float)('3.1415')
+                ResultExpression
+                  Literal
+                    PsiElement(float)('3.1415')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
