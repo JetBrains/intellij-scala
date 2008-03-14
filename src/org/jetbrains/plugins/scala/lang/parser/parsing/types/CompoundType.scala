@@ -28,7 +28,7 @@ object CompoundType {
     builder.getTokenType match {
       case ScalaTokenTypes.tLINE_TERMINATOR | ScalaTokenTypes.tLBRACE => {
         if (Refinement parse builder){
-          compoundMarker.done(ScalaElementTypes.COMPOUND_TYPE)
+          compoundMarker.drop
           return true
         }
         else {
@@ -42,14 +42,17 @@ object CompoundType {
           return false
         }
         else {
+          var isCompound = false
           while (builder.getTokenType == ScalaTokenTypes.kWITH) {
+            isCompound = true
             builder.advanceLexer //Ate with
             if (!AnnotType.parse(builder)) {
               builder error ScalaBundle.message("wrong.type", new Array[Object](0))
             }
           }
           Refinement parse builder
-          compoundMarker.done(ScalaElementTypes.COMPOUND_TYPE)
+          if (isCompound) compoundMarker.done(ScalaElementTypes.COMPOUND_TYPE)
+          else compoundMarker.drop
           return true
         }
       }

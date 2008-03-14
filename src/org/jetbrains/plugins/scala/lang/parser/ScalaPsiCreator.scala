@@ -196,6 +196,9 @@ object ScalaPsiCreator {
     case ScalaElementTypes.ANNOT_TYPE => new ScAnnotTypeImpl(node)
     case ScalaElementTypes.EXISTENTIAL_CLAUSE => new ScExistentialClauseImpl(node)
     case ScalaElementTypes.SELF_TYPE => new ScSelfTypeImpl(node)
+    case ScalaElementTypes.EXISTENTIAL_TYPE => new ScExistentialTypeImpl(node)
+    case ScalaElementTypes.TYPE_PROJECTION => new ScTypeProjectionImpl(node)
+    case ScalaElementTypes.TYPE_GENERIC_CALL => new ScTypeGenericCallImpl(node)
 
     /******************* EXPRESSIONS*********************/
 
@@ -212,7 +215,7 @@ object ScalaPsiCreator {
     //    case ScalaElementTypes.PREFIX => new ScPrefixImpl(node)
     case ScalaElementTypes.INFIX_EXPR => new ScInfixExprImpl(node)
     case ScalaElementTypes.POSTFIX_EXPR => new ScPostfixExprImpl(node)
-    case ScalaElementTypes.EXPR => new ScCommonExprImpl(node)
+    case ScalaElementTypes.FUNCTION_EXPR => new ScFunctionExprImpl(node)
     case ScalaElementTypes.RESULT_EXPR => new ScResExprImpl(node)
     case ScalaElementTypes.BINDING => new ScBindingImpl(node)
     case ScalaElementTypes.BINDINGS => new ScBindingsImpl(node)

@@ -30,6 +30,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * To change this template use File | Settings | File Templates.
 */
 
-class ScCommonExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScCommonExpr {
-  override def toString: String = "CommonExpression"
+class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionExpr {
+  override def toString: String = "FunctionExpr"
 }

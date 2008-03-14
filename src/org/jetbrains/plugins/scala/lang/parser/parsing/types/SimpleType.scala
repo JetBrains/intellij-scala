@@ -32,27 +32,26 @@ object SimpleType {
       builder.getTokenType match {
         case ScalaTokenTypes.tLSQBRACKET => {
           val newMarker = curMarker.precede
-          curMarker.done(ScalaElementTypes.SIMPLE_TYPE)
           TypeArgs parse builder
+          curMarker.done(ScalaElementTypes.TYPE_GENERIC_CALL)
           parseTale(newMarker)
         }
         case ScalaTokenTypes.tINNER_CLASS => {
           val newMarker = curMarker.precede
-          curMarker.done(ScalaElementTypes.SIMPLE_TYPE)
           builder.advanceLexer //Ate #
           builder.getTokenType match {
             case ScalaTokenTypes.tIDENTIFIER => {
               builder.advanceLexer //Ate id
-              parseTale(newMarker)
             }
             case _ => {
               builder error ScalaBundle.message("identifier.expected",new Array[Object](0))
-              parseTale(newMarker)
             }
           }
+          curMarker.done(ScalaElementTypes.TYPE_PROJECTION)
+          parseTale(newMarker)
         }
         case _ => {
-          curMarker.done(ScalaElementTypes.SIMPLE_TYPE)
+          curMarker.drop
         }
       }
     }

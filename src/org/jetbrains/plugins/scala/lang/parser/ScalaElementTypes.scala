@@ -125,6 +125,9 @@ object ScalaElementTypes {
   val TUPLE_TYPE = new ScalaElementType("tuple type")
   val TYPE_IN_PARENTHESIS = new ScalaElementType("type in parenthesis")
   val PRIMARY_CONSTRUCTOR = new ScalaElementType("primary constructor")
+  val EXISTENTIAL_TYPE = new ScalaElementType("existential type")
+  val TYPE_PROJECTION = new ScalaElementType("type projection")
+  val TYPE_GENERIC_CALL = new ScalaElementType("type generic call")
 
   /*************************************************************************************/
   /*********************************** IDENTIFIER **************************************/
@@ -245,7 +248,7 @@ object ScalaElementTypes {
   //val MINUS = new ScalaElementType("minus")
 
   val EXPR1 = new ScalaElementType("composite expression ")
-  val EXPR = new ScalaElementType("expression")
+  val FUNCTION_EXPR = new ScalaElementType("expression")
   //val WRONG_EXPR = new ScalaElementType("wrong expression")
   val RESULT_EXPR = new ScalaElementType("result expression")
   val AN_FUN = new ScalaElementType("anonymous function")
@@ -401,7 +404,7 @@ object ScalaElementTypes {
           INFIX_EXPR,
           SIMPLE_EXPR,
           EXPR1,
-          EXPR,
+          FUNCTION_EXPR,
           RESULT_EXPR,
           AN_FUN,
           BINDING,

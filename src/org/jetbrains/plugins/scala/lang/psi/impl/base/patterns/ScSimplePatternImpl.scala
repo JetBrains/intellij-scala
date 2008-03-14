@@ -13,5 +13,5 @@ import com.intellij.lang.ASTNode
 */
 
 class ScSimplePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScSimplePattern{
-  override def toString: String = "SimplePattern"
+  override def toString: String = "ConstructorPattern"
 }

@@ -26,6 +26,7 @@ object InfixType {
   def parse(builder: PsiBuilder): Boolean = {
     var infixTypeMarker = builder.mark
     var markerList = List[PsiBuilder.Marker]() //This list consist of markers for right-associated op
+    var count = 0
     markerList = markerList.::(infixTypeMarker)
     if (!CompoundType.parse(builder)) {
       infixTypeMarker.rollbackTo
@@ -33,6 +34,7 @@ object InfixType {
     }
     var assoc: Int = 0  //this mark associativity: left - 1, right - -1
     while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
+      count = count+1
       //need to know associativity
       val s = builder.getTokenText
       s.charAt(s.length-1) match {
@@ -81,11 +83,21 @@ object InfixType {
       }
     }
     //final ops closing
-    if (assoc == 1) {
-      infixTypeMarker.drop
+    if (count>0) {
+      if (assoc == 1) {
+        infixTypeMarker.drop
+      }
+      else {
+        for (x: PsiBuilder.Marker <- markerList) x.done(ScalaElementTypes.INFIX_TYPE)
+      }
     }
     else {
-      for (x: PsiBuilder.Marker <- markerList) x.done(ScalaElementTypes.INFIX_TYPE)
+      if (assoc == 1) {
+        infixTypeMarker.drop
+      }
+      else {
+        for (x: PsiBuilder.Marker <- markerList) x.drop
+      }
     }
     return true
   }

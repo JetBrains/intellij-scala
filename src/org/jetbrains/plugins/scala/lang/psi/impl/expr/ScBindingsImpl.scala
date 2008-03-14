@@ -31,5 +31,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 */
 
 class ScBindingsImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScBindings{
-  override def toString: String = "BindingsList"
+  override def toString: String = "ParameterList"
 }
