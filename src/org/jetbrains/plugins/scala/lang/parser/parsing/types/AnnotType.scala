@@ -31,7 +31,7 @@ object AnnotType {
     //parse Simple type
     if (BNF.firstSimpleType.contains(builder.getTokenType)){
       SimpleType parse builder
-      annotMarker.done(ScalaElementTypes.ANNOT_TYPE)
+      annotMarker.drop
       return true
     }
     else {

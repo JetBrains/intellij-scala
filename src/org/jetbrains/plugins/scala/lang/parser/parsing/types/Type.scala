@@ -82,11 +82,11 @@ object Type {
       }
       case ScalaTokenTypes.kFOR_SOME => {
         ExistentialClause parse builder
-        typeMarker.done(ScalaElementTypes.TYPE)
+        typeMarker.done(ScalaElementTypes.EXISTENTIAL_TYPE)
         return true
       }
       case _ => {
-        typeMarker.done(ScalaElementTypes.TYPE)
+        typeMarker.drop
         return true
       }
     }

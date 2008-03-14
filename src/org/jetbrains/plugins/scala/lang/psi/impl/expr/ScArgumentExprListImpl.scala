@@ -31,5 +31,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 */
 
 class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScArgumentExprList{
-  override def toString: String = "ListOfArgumentExpressions"
+  override def toString: String = "ArgumentList"
 }

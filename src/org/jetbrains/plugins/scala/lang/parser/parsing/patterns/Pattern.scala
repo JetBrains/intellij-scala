@@ -31,13 +31,16 @@ object Pattern {
       patternMarker.drop
       return false
     }
+    var isComposite = false
     while (builder.getTokenText == "|") {
+      isComposite = true
       builder.advanceLexer //Ate |
       if (!Pattern1.parse(builder)) {
         builder error ScalaBundle.message("wrong.pattern", new Array[Object](0))
       }
     }
-    patternMarker.done(ScalaElementTypes.PATTERN)
+    if (isComposite) patternMarker.done(ScalaElementTypes.PATTERN)
+    else patternMarker.drop
     return true
   }
 }

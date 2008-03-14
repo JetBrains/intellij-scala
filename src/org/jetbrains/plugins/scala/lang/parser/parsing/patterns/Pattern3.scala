@@ -35,12 +35,14 @@ object Pattern3 {
     val opStack = new Stack[String]
     val infixMarker = builder.mark
     var backupMarker = builder.mark
+    var count = 0
     if (!SimplePattern.parse(builder)) {
       infixMarker.drop
       backupMarker.drop
       return false
     }
     while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && builder.getTokenText != "|") {
+      count = count + 1
       //need to know associativity
       val s = builder.getTokenText
       s.charAt(s.length-1) match {
@@ -104,10 +106,18 @@ object Pattern3 {
       }
     }
     backupMarker.drop
-    while (!markerStack.isEmpty) {
-      markerStack.pop.done(ScalaElementTypes.PATTERN3)
+    if (count>0) {
+      while (!markerStack.isEmpty) {
+        markerStack.pop.done(ScalaElementTypes.PATTERN3)
+      }
+      infixMarker.done(ScalaElementTypes.PATTERN3)
     }
-    infixMarker.done(ScalaElementTypes.PATTERN3)
+    else {
+      while (!markerStack.isEmpty) {
+        markerStack.pop.drop
+      }
+      infixMarker.drop
+    }
     return true
   }
   private var assoc: Int = 0  //this mark associativity: left - 1, right - -1

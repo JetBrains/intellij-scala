@@ -53,5 +53,5 @@ class ScSimpleTypeImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScS
 
   }*/
 
-  override def toString: String = "SimpleType"
+  override def toString: String = "TypeElement"
 }
