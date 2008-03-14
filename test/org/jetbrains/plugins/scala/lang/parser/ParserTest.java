@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 
 public class ParserTest extends BaseScalaFileSetTestCase {
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/data/actual";
+  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/data/newTestCases/";
 
   public ParserTest() {
     super(  System.getProperty("path")!=null ?
@@ -36,7 +36,6 @@ public class ParserTest extends BaseScalaFileSetTestCase {
 
   public String transform(String testName, String[] data) throws Exception {
     String fileText = data[0];
-                                            
     PsiFile psiFile = TestUtils.createPseudoPhysicalFile(project, fileText);
 
     String psiTree = DebugUtil.psiToString(psiFile, false);
