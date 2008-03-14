@@ -2,3 +2,20 @@ package a.b.c
 
 {}
 -----
+ScalaFile
+  ScPackageStatement
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    QualifiedIdentifier
+      QualifiedIdentifier
+        QualifiedIdentifier
+          PsiElement(identifier)('a')
+        PsiElement(.)('.')
+        PsiElement(identifier)('b')
+      PsiElement(.)('.')
+      PsiElement(identifier)('c')
+    PsiElement(newline)('\n\n')
+  PsiErrorElement:Wrong top statement declaration
+    <empty list>
+  PsiElement({)('{')
+  PsiElement(})('}')
