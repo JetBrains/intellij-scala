@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * To change this template use File | Settings | File Templates.
 */
 
-class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSuperReference {
+class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSuperReference
+  with ScReferenceExpression{
   override def toString: String = "SuperReference"
 }

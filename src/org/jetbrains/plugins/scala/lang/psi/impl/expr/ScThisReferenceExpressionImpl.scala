@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * To change this template use File | Settings | File Templates.
 */
 
-class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScThisReference {
+class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScThisReference
+  with ScReferenceExpression{
   override def toString: String = "ThisReference"
 }

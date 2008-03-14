@@ -4,3 +4,55 @@ class a {
   T
 }
 -----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType
+            InfixType
+              AnnotationsList
+                <empty list>
+              TypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('op')
+              PsiElement(newline)('\n  ')
+              AnnotationsList
+                <empty list>
+              TypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('T')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('op')
+            PsiElement(newline)('\n  ')
+            AnnotationsList
+              <empty list>
+            TypeElement
+              CodeReferenceElement
+                PsiElement(identifier)('T')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

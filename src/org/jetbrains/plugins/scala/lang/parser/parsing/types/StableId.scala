@@ -76,15 +76,17 @@ object StableId {
       builder.getTokenType match {
         //In this case we of course know - Path.id
         case ScalaTokenTypes.kTHIS => {
-          Path parse (builder,element)
+          builder.advanceLexer //Ate this
+          val newMarker = stableMarker.precede
+          stableMarker.done(ScalaElementTypes.THIS_REFERENCE)
           builder.getTokenType match {
             case ScalaTokenTypes.tDOT => {
               builder.advanceLexer //Ate .
-              return parseQualId(stableMarker)
+              return parseQualId(newMarker)
             }
             case _ => {
               builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
-              stableMarker.done(element)
+              newMarker.done(element)
               return true
             }
           }
