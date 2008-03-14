@@ -94,7 +94,7 @@ object SimpleExpr {
               }
             }
             newMarker = simpleMarker.precede
-            simpleMarker.done(ScalaElementTypes.UNIT)
+            simpleMarker.done(ScalaElementTypes.UNIT_EXPR)
           }
           else {
             builder.getTokenType match {
@@ -125,13 +125,13 @@ object SimpleExpr {
       case _ => {
         state = true
         if (!Literal.parse(builder)) {
-          if (!Path.parse(builder)) {
+          if (!Path.parse(builder,ScalaElementTypes.REFERENCE_EXPRESSION)) {
             simpleMarker.drop
             return false
           }
         }
         newMarker = simpleMarker.precede
-        simpleMarker.done(ScalaElementTypes.SIMPLE_EXPR)
+        simpleMarker.drop
       }
     }
     def subparse(marker: PsiBuilder.Marker) {

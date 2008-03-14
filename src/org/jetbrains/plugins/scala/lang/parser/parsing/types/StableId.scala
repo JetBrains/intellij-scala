@@ -24,8 +24,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 
 object StableId {
-  def parse(builder: PsiBuilder) : Boolean = parse(builder,false)
-  def parse(builder: PsiBuilder,dot: Boolean): Boolean = {
+  def parse(builder: PsiBuilder,element: ScalaElementType) : Boolean = parse(builder,false,element)
+  def parse(builder: PsiBuilder,dot: Boolean,element: ScalaElementType): Boolean = {
     var stableMarker = builder.mark
     def parseQualId(qualMarker: PsiBuilder.Marker): Boolean = {
       //parsing first identifier
@@ -44,15 +44,15 @@ object StableId {
                   }
                   case _ => {
                     dotMarker.rollbackTo
-                    qualMarker.done(ScalaElementTypes.STABLE_ID)
+                    qualMarker.done(element)
                     return true
                   }
                 }
               }
               val newMarker = qualMarker.precede
               val qual2Marker = qualMarker.precede
-              qualMarker.done(ScalaElementTypes.STABLE_ID)
-              qual2Marker.done(ScalaElementTypes.PATH)
+              qualMarker.done(element)
+              qual2Marker.drop
               builder.advanceLexer//Ate dot
               //recursively parse qualified identifier
               parseQualId(newMarker)
@@ -60,14 +60,14 @@ object StableId {
             }
             case _ => {
               //It's OK, let's close marker
-              qualMarker.done(ScalaElementTypes.STABLE_ID)
+              qualMarker.done(element)
               return true
             }
           }
         }
         case _ => {
           builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
-          qualMarker.done(ScalaElementTypes.STABLE_ID)
+          qualMarker.done(element)
           return true
         }
       }
@@ -76,7 +76,7 @@ object StableId {
       builder.getTokenType match {
         //In this case we of course know - Path.id
         case ScalaTokenTypes.kTHIS => {
-          Path parse builder
+          Path parse (builder,element)
           builder.getTokenType match {
             case ScalaTokenTypes.tDOT => {
               builder.advanceLexer //Ate .
@@ -84,7 +84,7 @@ object StableId {
             }
             case _ => {
               builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
-              stableMarker.done(ScalaElementTypes.STABLE_ID)
+              stableMarker.done(element)
               return true
             }
           }
@@ -115,21 +115,23 @@ object StableId {
                   builder error ScalaBundle.message("rsqbracket.expected", new Array[Object](0))
                 }
               }
+              val stableMarker2 = stableMarker.precede
+              stableMarker.done(ScalaElementTypes.SUPER_REFERENCE)
               builder.getTokenType match {
                 case ScalaTokenTypes.tDOT => {
                   builder.advanceLexer //Ate .
-                  return parseQualId(stableMarker)
+                  return parseQualId(stableMarker2)
                 }
                 case _ => {
                   builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
-                  stableMarker.done(ScalaElementTypes.STABLE_ID)
+                  stableMarker2.done(element)
                   return true
                 }
               }
             }
             case _ => {
               builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
-              stableMarker.done(ScalaElementTypes.STABLE_ID)
+              stableMarker.done(ScalaElementTypes.SUPER_REFERENCE)
               return true
             }
           }
@@ -158,7 +160,7 @@ object StableId {
             }
           }
           case _ => {
-            stableMarker.done(ScalaElementTypes.STABLE_ID)
+            stableMarker.done(element)
             return true
           }
         }

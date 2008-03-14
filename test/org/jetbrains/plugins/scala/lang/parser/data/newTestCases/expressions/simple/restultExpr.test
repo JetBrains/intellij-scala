@@ -5,3 +5,77 @@ class a {
   }
 }
 -----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        BlockExpression
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          Block
+            BlockStatement
+              ScImportStatement
+                PsiElement(import)('import')
+                PsiWhiteSpace(' ')
+                ImportExpression
+                  StableIdentifier
+                    PsiElement(identifier)('t') //WRONG
+                  PsiElement(.)('.')
+                  CodeReferenceElement
+                    PsiElement(identifier)('s')
+            PsiElement(newline)('\n    ')
+            ResultExpression
+              ParameterList
+                PsiElement(()('(')
+                Parameter
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  AnnotationsList
+                    <empty list>
+                  TypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter
+                  PsiElement(identifier)('b')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  AnnotationsList
+                    <empty list>
+                  TypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('Int')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              Block
+                BlockStatement
+                  ScImportStatement
+                    PsiElement(import)('import')
+                    PsiWhiteSpace(' ')
+                    ImportExpression
+                      StableIdentifier
+                        PsiElement(identifier)('s')
+                      PsiElement(.)('.')
+                      CodeReferenceElement
+                        PsiElement(identifier)('t')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

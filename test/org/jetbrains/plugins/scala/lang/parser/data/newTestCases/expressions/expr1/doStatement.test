@@ -3,3 +3,34 @@ class a {
   while (alive)
 }
 -----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        DoStatement
+          PsiElement(do)('do')
+          PsiWhiteSpace(' ')
+          ReferenceExpression
+            PsiElement(identifier)('work')
+          PsiElement(newline)('\n  ')
+          PsiElement(while)('while')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          ReferenceExpression
+            PsiElement(identifier)('alive')
+          PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

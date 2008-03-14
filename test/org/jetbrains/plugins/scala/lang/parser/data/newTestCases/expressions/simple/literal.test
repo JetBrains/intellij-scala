@@ -8,3 +8,46 @@ class a {
   'a'
 }
 -----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        Literal
+          PsiElement(integer)('1')
+        PsiElement(newline)('\n  ')
+        Literal
+          PsiElement(null)('null')
+        PsiElement(newline)('\n  ')
+        Literal
+          PsiElement(true)('true')
+        PsiElement(newline)('\n  ')
+        Literal
+          PsiElement(string content)('"one"')
+        PsiElement(newline)('\n  ')
+        PrefixExpression
+          PsiElement(identifier)('-')
+          Literal
+            PsiElement(integer)('1')
+        PsiElement(newline)('\n  ')
+        PrefixExpression
+          PsiElement(identifier)('-')
+          Literal
+            PsiElement(float)('1.0')
+        PsiElement(newline)('\n  ')
+        Literal
+          PsiElement(Character)(''a'')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -2,3 +2,70 @@ class a {
   for (i <- 1 until n if i!=5) res+=1.0/(i-5)
 }
 -----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          Enumerators
+            Generator
+              ReferencePattern
+                PsiElement(identifier)('i')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                Literal
+                  PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('until')
+                PsiWhiteSpace(' ')
+                ReferenceExpression
+                  PsiElement(identifier)('n')
+              PsiWhiteSpace(' ')
+              Guard
+                PsiElement(if)('if')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  ReferenceExpression
+                    PsiElement(identifier)('i')
+                  PsiElement(identifier)('!=')
+                  Literal
+                    PsiElement(integer)('5')
+          PsiElement())(')')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression
+              PsiElement(identifier)('res')
+            PsiElement(identifier)('+=')
+            InfixExpression
+              Literal
+                PsiElement(float)('1.0')
+              PsiElement(identifier)('/')
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                InfixExpression
+                  ReferenceExpression
+                    PsiElement(identifier)('i')
+                  PsiElement(identifier)('-')
+                  Literal
+                    PsiElement(integer)('5')
+                PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

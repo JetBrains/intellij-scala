@@ -56,5 +56,5 @@ class ScReferenceIdImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   override def getName = getText
 
-  override def toString: String = "ScScalaCodeReferenseElement"
+  override def toString: String = "CodeReferenceElement"
 }

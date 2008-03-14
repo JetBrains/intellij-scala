@@ -135,6 +135,7 @@ object ScalaElementTypes {
 
   //  val IDENTIFIER = new ScalaElementType("identifier")
   val UNIT = new ScalaElementType("unit")
+  val UNIT_EXPR = new ScalaElementType("unit expression")
   val IDENTIFIER_LIST = new ScalaElementType("list of identifiers")
   val REFERENCE = new ScalaElementType("reference")
 
@@ -240,7 +241,8 @@ object ScalaElementTypes {
   val PARENT_EXPR = new ScalaElementType("Expression in parentheses")
   val METHOD_CALL = new ScalaElementType("Method call")
   val REFERENCE_EXPRESSION= new ScalaElementType("Reference expression")
-  val THIS_REFERENCE_EXPRESSION= new ScalaElementType("This reference expression")
+  val THIS_REFERENCE = new ScalaElementType("This reference")
+  val SUPER_REFERENCE = new ScalaElementType("Super reference")
   val PROPERTY_SELECTION = new ScalaElementType("Property selection")
   val GENERIC_CALL = new ScalaElementType("Generified call")
 

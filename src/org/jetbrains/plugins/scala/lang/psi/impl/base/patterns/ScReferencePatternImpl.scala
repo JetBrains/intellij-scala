@@ -13,5 +13,5 @@ import com.intellij.lang.ASTNode
 */
 
 class ScReferencePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScReferencePattern{
-  override def toString: String = "ReferenceIdentifierPattern"
+  override def toString: String = "ReferencePattern"
 }

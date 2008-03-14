@@ -10,6 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * To change this template use File | Settings | File Templates.
 */
 
-trait ScTryStmt extends ScalaPsiElement {
+trait ScTryStmt extends ScCommonExpression {
 
 }

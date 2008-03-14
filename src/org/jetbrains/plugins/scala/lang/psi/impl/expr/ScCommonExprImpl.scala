@@ -31,5 +31,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 */
 
 class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionExpr {
-  override def toString: String = "FunctionExpr"
+  override def toString: String = "FunctionExpression"
 }
