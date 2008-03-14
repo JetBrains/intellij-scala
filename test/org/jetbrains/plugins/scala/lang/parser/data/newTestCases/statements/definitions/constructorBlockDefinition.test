@@ -6,3 +6,85 @@ class a {
   }
 }
 -----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(this)('this')
+          ParametersClause     //?
+            PsiElement(()('(')
+            Parameters
+              Parameter
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  AnnotationsList
+                    <empty list>
+                  TypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  AnnotationsList
+                    <empty list>
+                  TypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('Int')
+            PsiElement())(')')
+          ParametersClauses
+            <empty list>
+          PsiElement(newline)('\n  ')
+          Block
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            SelfInvocation
+              PsiElement(this)('this')
+              ArgumentExpressions
+                PsiElement(()('(')
+                ReferenceExpression
+                  PsiElement(identifier)('a')
+                PsiElement())(')')
+            PsiElement(newline)('\n    ')
+            BlockStatement
+              AssignStatement
+                ReferenceExpression
+                  PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                Literal
+                  PsiElement(true)('true')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

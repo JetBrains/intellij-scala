@@ -2,3 +2,80 @@ class a {
   val (a,b),c:(Int,Int) = (2+1*2,3)
 }
 -----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            TuplePattern
+              PsiElement(()('(')
+              ArgumentPatterns
+                ReferencePattern
+                  PsiElement(identifier)('a')
+                PsiElement(,)(',')
+                ReferencePattern
+                  PsiElement(identifier)('b')
+              PsiElement())(')')
+            PsiElement(,)(',')
+            ReferencePattern
+              PsiElement(identifier)('c')
+          PsiElement(:)(':')
+          AnnotationsList
+            <empty list>
+          TupleType
+            PsiElement(()('(')
+            TypesList
+              AnnotationsList
+                <empty list>
+              TypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              AnnotationsList
+                <empty list>
+              TypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Int')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            ExpressionsList
+              InfixExpression
+                Literal
+                  PsiElement(integer)('2')
+                PsiElement(identifier)('+')
+                InfixExpression
+                  Literal
+                    PsiElement(integer)('1')
+                  PsiElement(identifier)('*')
+                  Literal
+                    PsiElement(integer)('2')
+              PsiElement(,)(',')
+              Literal
+                PsiElement(integer)('3')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

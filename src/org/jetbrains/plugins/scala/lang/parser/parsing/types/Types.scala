@@ -40,7 +40,8 @@ object Types {
         //builder error ScalaBundle.message("wrong.type",new Array[Object](0))
       }
     }
-    typesMarker.done(ScalaElementTypes.TYPES)
+    if (SimpleType.isTuple) typesMarker.done(ScalaElementTypes.TYPES)
+    else typesMarker.drop
     return true
   }
 }
