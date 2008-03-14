@@ -2,7 +2,7 @@ class a{
   do "hard work"; while (true)
 }
 -----
-ScalaFil
+ScalaFile
   ScClass
     AnnotationsList
       <empty list>
@@ -18,23 +18,15 @@ ScalaFil
         DoStatement
           PsiElement(do)('do')
           PsiWhiteSpace(' ')
-          PostfixExpression
-            InfixExpression
-              PrefixExpression
-                SimpleExpression
-                  Literal
-                    PsiElement(string content)('"hard work"')
+          Literal
+            PsiElement(string content)('"hard work"')
           PsiElement(;)(';')
           PsiWhiteSpace(' ')
           PsiElement(while)('while')
           PsiWhiteSpace(' ')
           PsiElement(()('(')
-          PostfixExpression
-            InfixExpression
-              PrefixExpression
-                SimpleExpression
-                  Literal
-                    PsiElement(true)('true')
+          Literal
+            PsiElement(true)('true')
           PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

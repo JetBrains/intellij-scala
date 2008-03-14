@@ -6,43 +6,50 @@ try {
     }
 }
 -----
-Scala file
-  type template definition: class
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n')
-      TRY statement
-        Try block
-          PsiElement(try)('try')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        TryStatement
+          TryBlock
+            PsiElement(try)('try')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n        ')
+            Block
+              ResultExpression
+                ReferenceExpression
+                  PsiElement(identifier)('abc')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
           PsiWhiteSpace(' ')
-          PsiElement({)('{')
-          PsiWhiteSpace('\n        ')
-          Block
-            Reference expression
-              PsiElement(identifier)('abc')
-          PsiWhiteSpace('\n    ')
-          PsiElement(})('}')
-        PsiWhiteSpace(' ')
-        Catch block
-          PsiElement(catch)('catch')
-          PsiWhiteSpace(' ')
-          PsiElement({)('{')
-          PsiWhiteSpace('\n    ')
-          Case Clauses
-            Case Clause
-              PsiElement(case)('case')
-              PsiWhiteSpace(' ')
-              Reference identifier pattern
-                PsiElement(identifier)('a')
-              PsiElement(=>)('=>')
-              Block
-                Reference expression
-                  PsiElement(identifier)('b')
-          PsiWhiteSpace('\n    ')
-          PsiElement(})('}')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+          CatchBlock
+            PsiElement(catch)('catch')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ReferencePattern
+                  PsiElement(identifier)('a')
+                PsiElement(=>)('=>')
+                Block
+                  ResultExpression
+                    ReferenceExpression
+                      PsiElement(identifier)('b')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

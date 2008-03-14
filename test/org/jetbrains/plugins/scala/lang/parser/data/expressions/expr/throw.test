@@ -2,22 +2,23 @@ class a{
   throw Exception
 }
 -----
-Scala file
-  type template definition: class
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n  ')
-      THROW statement
-        PsiElement(throw)('throw')
-        PsiWhiteSpace(' ')
-        Reference expression
-          PsiElement(identifier)('Exception')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ThrowStatement
+          PsiElement(throw)('throw')
+          PsiWhiteSpace(' ')
+          ReferenceExpression
+            PsiElement(identifier)('Exception')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

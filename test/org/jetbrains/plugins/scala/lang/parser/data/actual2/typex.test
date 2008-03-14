@@ -2,7 +2,7 @@ class A{
   val a: T = k
 }
 -----
-ScalaFil
+ScalaFile
   ScClass
     AnnotationsList
       <empty list>
@@ -22,30 +22,19 @@ ScalaFil
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          InfixPattern
-            ReferenceIdentifierPattern
-              StableIdentifier
-                PsiElement(identifier)('a')
+          ReferencePattern
+            PsiElement(identifier)('a')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          FunctionalType
-            InfixType
-              CompoundType
-                TypeWithAnnotation
-                  AnnotationsList
-                    <empty list>
-                  SimpleType
-                    StableIdentifier
-                      PsiElement(identifier)('T')
+          AnnotationsList
+            <empty list>
+          TypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('T')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          PostfixExpression
-            InfixExpression
-              PrefixExpression
-                SimpleExpression
-                  Path
-                    StableIdentifier
-                      PsiElement(identifier)('k')
+          ReferenceExpression
+            PsiElement(identifier)('k')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

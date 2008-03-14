@@ -1,43 +1,65 @@
 class A(a:(a=>(c,d)=>e))
 -----
-Scala file
-  type template definition: class
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
-    parameters clause
-      PsiElement(()('(')
-      parameter
-        Reference identifier
-          PsiElement(identifier)('a')
-        PsiElement(:)(':')
-        Simple Type
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      ClassParametersClauses
+        ClassParametersClause
           PsiElement(()('(')
-          Functional type
-            Simple Type
-              Stable Identifier
-                PsiElement(identifier)('a')
-            PsiElement(=>)('=>')
-            Functional type
-              Types list
+          ClassParameter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            ParameterType
+              AnnotationsList
+                <empty list>
+              TupleType               //WRONG
                 PsiElement(()('(')
-                Simple Type
-                  Stable Identifier
-                    PsiElement(identifier)('c')
-                PsiElement(,)(',')
-                Simple Type
-                  Stable Identifier
-                    PsiElement(identifier)('d')
+                TypesList
+                  FunctionalType
+                    AnnotationsList
+                      <empty list>
+                    TypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('a')
+                    PsiElement(=>)('=>')
+                    FunctionalType
+                      AnnotationsList
+                        <empty list>
+                      TupleType
+                        PsiElement(()('(')
+                        TypesList
+                          AnnotationsList
+                            <empty list>
+                          TypeElement
+                            CodeReferenceElement
+                              PsiElement(identifier)('c')
+                          PsiElement(,)(',')
+                          AnnotationsList
+                            <empty list>
+                          TypeElement
+                            CodeReferenceElement
+                              PsiElement(identifier)('d')
+                        PsiElement())(')')
+                      PsiElement(=>)('=>')
+                      AnnotationsList
+                        <empty list>
+                      TypeElement
+                        CodeReferenceElement
+                          PsiElement(identifier)('e')
                 PsiElement())(')')
-              PsiElement(=>)('=>')
-              Simple Type
-                Stable Identifier
-                  PsiElement(identifier)('e')
           PsiElement())(')')
-      PsiElement())(')')
-    extends block
-      <empty list>
-    template body
+    ExtendsBlock
       <empty list>

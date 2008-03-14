@@ -12,8 +12,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
     ExtendsBlock
-      ScTemplateBody
-        <empty list>
+      <empty list>
   PsiElement(newline)('\n')
   ScTrait
     AnnotationsList
@@ -33,8 +32,7 @@ ScalaFile
         TypeElement
           CodeReferenceElement
             PsiElement(identifier)('b')
-      ScTemplateBody
-        <empty list>
+      <empty list>
   PsiElement(newline)('\n')
   ScTrait
     AnnotationsList
@@ -45,5 +43,4 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(identifier)('b')
     ExtendsBlock
-      ScTemplateBody
-        <empty list>
+      <empty list>

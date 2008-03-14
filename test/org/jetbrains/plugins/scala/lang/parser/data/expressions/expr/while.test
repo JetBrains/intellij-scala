@@ -3,31 +3,32 @@ class a{
     "Stay here"
 }
 -----
-Scala file
-  type template definition: class
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n  ')
-      WHILE statement
-        PsiElement(while)('while')
-        PsiWhiteSpace(' ')
-        PsiElement(()('(')
-        Infix expression
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        WhileStatement
+          PsiElement(while)('while')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          InfixExpression
+            Literal
+              PsiElement(true)('true')
+            PsiElement(identifier)('==')
+            Literal
+              PsiElement(false)('false')
+          PsiElement())(')')
+          PsiElement(newline)('\n    ')
           Literal
-            PsiElement(true)('true')
-          PsiElement(identifier)('==')
-          Literal
-            PsiElement(false)('false')
-        PsiElement())(')')
-        PsiElement(newline)('\n    ')
-        Literal
-          PsiElement(string content)('"Stay here"')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+            PsiElement(string content)('"Stay here"')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

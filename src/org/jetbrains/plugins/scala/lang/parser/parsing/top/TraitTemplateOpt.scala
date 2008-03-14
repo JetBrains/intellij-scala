@@ -51,8 +51,6 @@ object TraitTemplateOpt {
         if (!LineTerminator(builder.getTokenText)) {
           //builder.advanceLexer //Ate nl
           rollbackMarker.drop
-          val templateMarker = builder.mark
-          templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
           extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
           return
         }
@@ -67,8 +65,6 @@ object TraitTemplateOpt {
             }
             case _ => {
               rollbackMarker.rollbackTo
-              val templateMarker = builder.mark
-              templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
@@ -76,8 +72,6 @@ object TraitTemplateOpt {
         }
       }
       case _ => {
-        val templateMarker = builder.mark
-        templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
         extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
         return
       }
@@ -101,8 +95,6 @@ object TraitTemplateOpt {
               if (!LineTerminator(builder.getTokenText)) {
                 //builder.advanceLexer //Ate nl
                 rollbackMarker.drop
-                val templateMarker = builder.mark
-                templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
                 extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                 return
               }
@@ -117,8 +109,6 @@ object TraitTemplateOpt {
                   }
                   case _ => {
                     rollbackMarker.rollbackTo
-                    val templateMarker = builder.mark
-                    templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
                     extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                     return
                   }
@@ -126,8 +116,6 @@ object TraitTemplateOpt {
               }
             }
             case _ => {
-              val templateMarker = builder.mark
-              templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
@@ -142,8 +130,6 @@ object TraitTemplateOpt {
               return
             }
             case _ => {
-              val templateMarker = builder.mark
-              templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
@@ -166,8 +152,6 @@ object TraitTemplateOpt {
             if (!LineTerminator(builder.getTokenText)) {
               //builder.advanceLexer //Ate nl
               rollbackMarker.drop
-              val templateMarker = builder.mark
-              templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
@@ -182,8 +166,6 @@ object TraitTemplateOpt {
                 }
                 case _ => {
                   rollbackMarker.rollbackTo
-                  val templateMarker = builder.mark
-                  templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
                   extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                   return
                 }
@@ -191,8 +173,6 @@ object TraitTemplateOpt {
             }
           }
           case _ => {
-            val templateMarker = builder.mark
-            templateMarker.done(ScalaElementTypes.TEMPLATE_BODY)
             extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
             return
           }

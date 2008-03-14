@@ -6,90 +6,109 @@ class C {
   val e=(1,2,)
 }
 -----
-Scala file
-  type template definition: class
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('C')
     PsiWhiteSpace(' ')
-    top definition template
-      template body
+    ExtendsBlock
+      ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        pattern definition
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          Reference identifier
+          ReferencePattern
             PsiElement(identifier)('b')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          Block expression
-            PsiElement({)('{')
-            Block
-              Literal
-                PsiElement(integer)('1')
-            PsiElement(})('}')
-        PsiElement(newline)('\n')
-        PsiWhiteSpace('  ')
-        pattern definition
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            Literal
+              PsiElement(integer)('1')
+            PsiElement())(')')
+        PsiElement(newline)('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          Reference identifier
+          ReferencePattern
             PsiElement(identifier)('a')
           PsiElement(=)('=')
-          unit
-            PsiElement({)('{')
-            PsiElement(})('}')
-        PsiElement(newline)('\n')
-        PsiWhiteSpace('  ')
-        pattern definition
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiElement(newline)('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          Reference identifier
+          ReferencePattern
             PsiElement(identifier)('c')
           PsiElement(=)('=')
-          Block expression
-            PsiElement({)('{')
-            Tuple
+          Tuple
+            PsiElement(()('(')
+            ExpressionsList
               Literal
                 PsiElement(integer)('1')
               PsiElement(,)(',')
-            PsiElement(})('}')
-        PsiElement(newline)('\n')
-        PsiWhiteSpace('  ')
-        pattern definition
+            PsiElement())(')')
+        PsiElement(newline)('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          Reference identifier
+          ReferencePattern
             PsiElement(identifier)('d')
           PsiElement(=)('=')
-          Block expression
-            PsiElement({)('{')
-            Tuple
+          Tuple
+            PsiElement(()('(')
+            ExpressionsList
               Literal
                 PsiElement(integer)('1')
               PsiElement(,)(',')
               Literal
                 PsiElement(integer)('2')
-            PsiElement(})('}')
-        PsiElement(newline)('\n')
-        PsiWhiteSpace('  ')
-        pattern definition
+            PsiElement())(')')
+        PsiElement(newline)('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          Reference identifier
+          ReferencePattern
             PsiElement(identifier)('e')
           PsiElement(=)('=')
-          Block expression
-            PsiElement({)('{')
-            Tuple
+          Tuple
+            PsiElement(()('(')
+            ExpressionsList
               Literal
                 PsiElement(integer)('1')
               PsiElement(,)(',')
               Literal
                 PsiElement(integer)('2')
               PsiElement(,)(',')
-            PsiElement(})('}')
+            PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

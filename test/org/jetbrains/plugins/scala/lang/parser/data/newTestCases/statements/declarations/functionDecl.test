@@ -12,9 +12,6 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(identifier)(''override'')
     PsiWhiteSpace(' ')
-    PrimaryConstructor
-      AnnotationsList
-        <empty list>
     ExtendsBlock
       ScTemplateBody
         PsiElement({)('{')

@@ -194,6 +194,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.TYPE_ARGS => new ScTypeArgsImpl(node)
     case ScalaElementTypes.ASCRIPTION => new ScAscriptionImpl(node)
     case ScalaElementTypes.ANNOT_TYPE => new ScAnnotTypeImpl(node)
+    case ScalaElementTypes.SEQUENCE_ARG => new ScSequenceArgImpl(node)
     case ScalaElementTypes.EXISTENTIAL_CLAUSE => new ScExistentialClauseImpl(node)
     case ScalaElementTypes.SELF_TYPE => new ScSelfTypeImpl(node)
     case ScalaElementTypes.EXISTENTIAL_TYPE => new ScExistentialTypeImpl(node)

@@ -4,40 +4,43 @@ class a{
     true; else false
 }
 -----
-Scala file
-  type template definition: class
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n  ')
-      IF statement
-        PsiElement(if)('if')
-        PsiWhiteSpace(' ')
-        PsiElement(()('(')
-        Block expression
-          PsiElement({)('{')
-          Block
-            Literal
-              PsiElement(string content)('"hello"')
-            PsiElement(newline)('\n    ')
-            Literal
-              PsiElement(true)('true')
-          PsiElement(})('}')
-        PsiElement())(')')
-        PsiElement(newline)('\n    ')
-        Literal
-          PsiElement(true)('true')
-        PsiElement(;)(';')
-        PsiWhiteSpace(' ')
-        PsiElement(else)('else')
-        PsiWhiteSpace(' ')
-        Literal
-          PsiElement(false)('false')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        IfStatement
+          PsiElement(if)('if')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          BlockExpression
+            PsiElement({)('{')
+            Block
+              BlockStatement
+                Literal
+                  PsiElement(string content)('"hello"')
+              PsiElement(newline)('\n    ')
+              ResultExpression
+                Literal
+                  PsiElement(true)('true')
+            PsiElement(})('}')
+          PsiElement())(')')
+          PsiElement(newline)('\n    ')
+          Literal
+            PsiElement(true)('true')
+          PsiElement(;)(';')
+          PsiWhiteSpace(' ')
+          PsiElement(else)('else')
+          PsiWhiteSpace(' ')
+          Literal
+            PsiElement(false)('false')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

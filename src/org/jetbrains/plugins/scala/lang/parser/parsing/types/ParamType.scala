@@ -39,7 +39,7 @@ object ParamType {
         }
       }
       case _ => {
-        if (!Type.parse(builder)) {
+        if (!Type.parse(builder,true)) {
           paramTypeMarker.rollbackTo
           return false
         }

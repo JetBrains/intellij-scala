@@ -25,7 +25,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
  */
 
 object Type {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: PsiBuilder): Boolean = parse(builder,false)
+  def parse(builder: PsiBuilder,star: Boolean): Boolean = {
     val typeMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
@@ -67,7 +68,7 @@ object Type {
       }
       case _ => {}
     }
-    if (!InfixType.parse(builder)) {
+    if (!InfixType.parse(builder,star)) {
       typeMarker.drop
       return false
     }

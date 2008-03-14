@@ -2,9 +2,9 @@ package
 
 
 -----
-Scala file
-  Package statement
+ScalaFile
+  ScPackageStatement
     PsiElement(package)('package')
     PsiWhiteSpace('\n\n')
-    PsiErrorElement:qualified identifier expected
+    PsiErrorElement:Package qualified identifier expected
       <empty list>

@@ -16,52 +16,32 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        PostfixExpression
+        InfixExpression
           InfixExpression
-            InfixExpression
-              InfixExpression
-                PrefixExpression
-                  SimpleExpression
-                    Path
-                      StableIdentifier
-                        PsiElement(identifier)('foo')
-                PsiWhiteSpace(' ')
-                PsiElement(identifier)('add')
-                PsiWhiteSpace(' ')
-                PrefixExpression
-                  PropertySelection
-                    Unit
-                      PsiElement(()('(')
-                      PostfixExpression
-                        InfixExpression
-                          PrefixExpression
-                            SimpleExpression
-                              Path
-                                StableIdentifier
-                                  PsiElement(identifier)('x')
-                      PsiElement())(')')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('toString')
-              PsiWhiteSpace(' ')
-              PsiElement(identifier)('sub')
-              PsiWhiteSpace(' ')
-              PrefixExpression
-                Tuple
-                  PsiElement(()('(')
-                  ExpressionsList
-                    PostfixExpression
-                      InfixExpression
-                        PrefixExpression
-                          SimpleExpression
-                            Literal
-                              PsiElement(integer)('2')
-                    PsiElement(,)(',')
-                    PostfixExpression
-                      InfixExpression
-                        PrefixExpression
-                          SimpleExpression
-                            Literal
-                              PsiElement(integer)('3')
-                  PsiElement())(')')
+            ReferenceExpression
+              PsiElement(identifier)('foo')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('add')
+            PsiWhiteSpace(' ')
+            PropertySelection
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                ReferenceExpression
+                  PsiElement(identifier)('x')
+                PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('toString')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('sub')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            ExpressionsList
+              Literal
+                PsiElement(integer)('2')
+              PsiElement(,)(',')
+              Literal
+                PsiElement(integer)('3')
+            PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

@@ -56,11 +56,16 @@ object ClassDef {
       case _ => {/*it could be without acces modifier*/}
     }
     //parse class parameters clauses
+    var isPrimary = false
     builder.getTokenType match {
-      case ScalaTokenTypes.tLPARENTHESIS => ClassParamClauses parse builder
+      case ScalaTokenTypes.tLPARENTHESIS => {
+        ClassParamClauses parse builder
+        isPrimary = true
+      }
       case _ => {/*it could be without class parameters clausese*/}
     }
-    constructorMarker.done(ScalaElementTypes.PRIMARY_CONSTRUCTOR)
+    if (isPrimary) constructorMarker.done(ScalaElementTypes.PRIMARY_CONSTRUCTOR)
+    else constructorMarker.rollbackTo
     //parse requires block
     builder.getTokenType match {
       case ScalaTokenTypes.kREQUIRES => Requires parse builder

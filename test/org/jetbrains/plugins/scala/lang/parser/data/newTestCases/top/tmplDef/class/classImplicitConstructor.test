@@ -44,5 +44,4 @@ calaFile
             PsiElement(identifier)('c')
           PsiElement())(')')
     ExtendsBlock
-      ScTemplateBody
-        <empty list>
+      <empty list>

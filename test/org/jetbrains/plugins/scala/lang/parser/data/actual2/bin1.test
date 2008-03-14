@@ -4,7 +4,7 @@ class Dsl {
 
 }
 -----
-ScalaFil
+ScalaFile
   ScClass
     AnnotationsList
       <empty list>
@@ -25,44 +25,32 @@ ScalaFil
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          InfixPattern
-            ReferenceIdentifierPattern
-              StableIdentifier
-                PsiElement(identifier)('boo')
+          ReferencePattern
+            PsiElement(identifier)('boo')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          CommonExpression
-            BindingsList
+          FunctionExpression
+            ParameterList
               PsiElement(()('(')
-              Binding
+              Parameter
                 PsiElement(identifier)('ven')
                 PsiWhiteSpace(' ')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                FunctionalType
-                  InfixType
-                    CompoundType
-                      TypeWithAnnotation
-                        AnnotationsList
-                          <empty list>
-                        SimpleType
-                          StableIdentifier
-                            PsiElement(identifier)('Ven')
+                AnnotationsList
+                  <empty list>
+                TypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('Ven')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')
-            PostfixExpression
-              InfixExpression
-                PrefixExpression
-                  SimpleExpression
-                    Path
-                      StableIdentifier
-                        Path
-                          StableIdentifier
-                            PsiElement(identifier)('ven')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('foo')
+            ReferenceExpression
+              ReferenceExpression
+                PsiElement(identifier)('ven')
+              PsiElement(.)('.')
+              PsiElement(identifier)('foo')
         PsiWhiteSpace('\n\n')
         PsiElement(})('}')

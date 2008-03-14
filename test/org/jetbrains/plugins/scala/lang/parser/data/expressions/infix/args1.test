@@ -3,7 +3,7 @@ class C {
   foo add 1 add 2
 }
 -----
-ScalaFil
+ScalaFile
   ScClass
     AnnotationsList
       <empty list>
@@ -17,62 +17,38 @@ ScalaFil
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        PostfixExpression
-          InfixExpression
-            InfixExpression
-              PrefixExpression
-                SimpleExpression
-                  Path
-                    StableIdentifier
-                      Path
-                        StableIdentifier
-                          PsiElement(identifier)('foo')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('pair')
-              PsiWhiteSpace(' ')
-              PsiElement(identifier)('add')
-              PsiWhiteSpace(' ')
-              PrefixExpression
-                Tuple
-                  PsiElement(()('(')
-                  ExpressionsList
-                    PostfixExpression
-                      InfixExpression
-                        PrefixExpression
-                          SimpleExpression
-                            Literal
-                              PsiElement(integer)('1')
-                    PsiElement(,)(',')
-                    PostfixExpression
-                      InfixExpression
-                        PrefixExpression
-                          SimpleExpression
-                            Literal
-                              PsiElement(integer)('2')
-                  PsiElement())(')')
+        InfixExpression
+          ReferenceExpression
+            ReferenceExpression
+              PsiElement(identifier)('foo')
+            PsiElement(.)('.')
+            PsiElement(identifier)('pair')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('add')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            ExpressionsList
+              Literal
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              Literal
+                PsiElement(integer)('2')
+            PsiElement())(')')
         PsiElement(newline)('\n  ')
-        PostfixExpression
+        InfixExpression
           InfixExpression
-            InfixExpression
-              InfixExpression
-                PrefixExpression
-                  SimpleExpression
-                    Path
-                      StableIdentifier
-                        PsiElement(identifier)('foo')
-                PsiWhiteSpace(' ')
-                PsiElement(identifier)('add')
-                PsiWhiteSpace(' ')
-                PrefixExpression
-                  SimpleExpression
-                    Literal
-                      PsiElement(integer)('1')
-              PsiWhiteSpace(' ')
-              PsiElement(identifier)('add')
-              PsiWhiteSpace(' ')
-              PrefixExpression
-                SimpleExpression
-                  Literal
-                    PsiElement(integer)('2')
+            ReferenceExpression
+              PsiElement(identifier)('foo')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('add')
+            PsiWhiteSpace(' ')
+            Literal
+              PsiElement(integer)('1')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('add')
+          PsiWhiteSpace(' ')
+          Literal
+            PsiElement(integer)('2')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

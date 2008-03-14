@@ -18,35 +18,22 @@ ScalaFile
         ReturnStatement
           PsiElement(return)('return')
           PsiWhiteSpace(' ')
-          PostfixExpression
-            InfixExpression
+          InfixExpression
+            ExpressionInParenthesis
+              PsiElement(()('(')
               InfixExpression
-                PrefixExpression
-                  Unit
-                    PsiElement(()('(')
-                    PostfixExpression
-                      InfixExpression
-                        InfixExpression
-                          PrefixExpression
-                            SimpleExpression
-                              Literal
-                                PsiElement(integer)('2')
-                          PsiElement(identifier)('+')
-                          PrefixExpression
-                            SimpleExpression
-                              Literal
-                                PsiElement(integer)('2')
-                    PsiElement())(')')
-                PsiElement(identifier)('-')
-                InfixExpression
-                  PrefixExpression
-                    SimpleExpression
-                      Literal
-                        PsiElement(integer)('1')
-                  PsiElement(identifier)('*')
-                  PrefixExpression
-                    SimpleExpression
-                      Literal
-                        PsiElement(integer)('2')
+                Literal
+                  PsiElement(integer)('2')
+                PsiElement(identifier)('+')
+                Literal
+                  PsiElement(integer)('2')
+              PsiElement())(')')
+            PsiElement(identifier)('-')
+            InfixExpression
+              Literal
+                PsiElement(integer)('1')
+              PsiElement(identifier)('*')
+              Literal
+                PsiElement(integer)('2')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

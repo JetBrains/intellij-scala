@@ -2,31 +2,31 @@ class A {
   (a+b).id
 }
 -----
-Scala file
-  type template definition: class
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
     PsiWhiteSpace(' ')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n  ')
-      Property selection
-        expression in parentheses
-          Expression list
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        PropertySelection
+          ExpressionInParenthesis
             PsiElement(()('(')
-            Infix expression
-              Reference expression
+            InfixExpression
+              ReferenceExpression
                 PsiElement(identifier)('a')
               PsiElement(identifier)('+')
-              Reference expression
+              ReferenceExpression
                 PsiElement(identifier)('b')
             PsiElement())(')')
-        PsiElement(.)('.')
-        PsiElement(identifier)('id')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+          PsiElement(.)('.')
+          PsiElement(identifier)('id')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
