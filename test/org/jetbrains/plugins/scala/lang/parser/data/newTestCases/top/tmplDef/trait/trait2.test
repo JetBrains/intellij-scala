@@ -2,3 +2,48 @@ trait a
 trait a extends b
 trait b
 -----
+ScalaFile
+  ScTrait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    ExtendsBlock
+      ScTemplateBody
+        <empty list>
+  PsiElement(newline)('\n')
+  ScTrait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TraitParents
+        AnnotationsList
+          <empty list>
+        TypeElement
+          CodeReferenceElement
+            PsiElement(identifier)('b')
+      ScTemplateBody
+        <empty list>
+  PsiElement(newline)('\n')
+  ScTrait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('b')
+    ExtendsBlock
+      ScTemplateBody
+        <empty list>

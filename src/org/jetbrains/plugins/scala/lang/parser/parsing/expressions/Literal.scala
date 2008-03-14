@@ -42,6 +42,10 @@ object Literal{
               marker.done(ScalaElementTypes.LITERAL)
               return true
             }
+            case _ => {
+              marker.rollbackTo
+              return false
+            }
           }
         }
         else {

@@ -2,3 +2,45 @@ class a {
   id : Type => import a.b
 }
 -----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        SelfType
+          PsiElement(identifier)('id')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypePattern
+            AnnotationsList
+              <empty list>
+            TypeElement
+              CodeReferenceElement
+                PsiElement(identifier)('Type')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace(' ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            StableIdentifier //WRONG
+              PsiElement(identifier)('a')
+            PsiElement(.)('.')
+            CodeReferenceElement
+              PsiElement(identifier)('b')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
