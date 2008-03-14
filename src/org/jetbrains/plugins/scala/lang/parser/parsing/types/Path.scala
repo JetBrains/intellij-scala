@@ -23,9 +23,54 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 
 object Path {
-  def parse(builder: PsiBuilder): Boolean = parse(builder,false)
-  def parse(builder: PsiBuilder,dot: Boolean): Boolean = {
+  def parse(builder: PsiBuilder,element: ScalaElementType): Boolean = parse(builder,false,element)
+  def parse(builder: PsiBuilder,dot: Boolean,element: ScalaElementType): Boolean = {
     val pathMarker = builder.mark
+    def parseQualId(qualMarker: PsiBuilder.Marker): Boolean = {
+      //parsing first identifier
+      builder.getTokenType match {
+        case ScalaTokenTypes.tIDENTIFIER => {
+          builder.advanceLexer//Ate identifier
+          //Look for dot
+          builder.getTokenType match {
+            case ScalaTokenTypes.tDOT => {
+              if (dot) {
+                val dotMarker = builder.mark
+                builder.advanceLexer //Ate .
+                builder.getTokenType match {
+                  case ScalaTokenTypes.tIDENTIFIER => {
+                    dotMarker.rollbackTo
+                  }
+                  case _ => {
+                    dotMarker.rollbackTo
+                    qualMarker.done(element)
+                    return true
+                  }
+                }
+              }
+              val newMarker = qualMarker.precede
+              val qual2Marker = qualMarker.precede
+              qualMarker.done(element)
+              qual2Marker.drop
+              builder.advanceLexer//Ate dot
+              //recursively parse qualified identifier
+              parseQualId(newMarker)
+              return true
+            }
+            case _ => {
+              //It's OK, let's close marker
+              qualMarker.done(element)
+              return true
+            }
+          }
+        }
+        case _ => {
+          builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
+          qualMarker.done(element)
+          return true
+        }
+      }
+    }
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
         builder.advanceLexer //Ate identifier
@@ -35,14 +80,24 @@ object Path {
             builder.getTokenType match {
               case ScalaTokenTypes.kTHIS => {
                 builder.advanceLexer //Ate this
-                pathMarker.done(ScalaElementTypes.PATH)
+                val newMarker = pathMarker.precede
+                pathMarker.done(ScalaElementTypes.THIS_REFERENCE)
+                builder.getTokenType match {
+                  case ScalaTokenTypes.tDOT => {
+                    builder.advanceLexer //Ate .
+                    parseQualId(newMarker)
+                  }
+                  case _ => {
+                    newMarker.drop
+                  }
+                }
                 return true
               }
               case _ => {
                 val newMarker = pathMarker.precede
                 pathMarker.rollbackTo
-                StableId parse builder
-                newMarker.done(ScalaElementTypes.PATH)
+                StableId parse (builder,element)
+                newMarker.drop
                 return true
               }
             }
@@ -50,15 +105,25 @@ object Path {
           case _ => {
             val newMarker = pathMarker.precede
             pathMarker.rollbackTo
-            StableId parse (builder,dot)
-            newMarker.done(ScalaElementTypes.PATH)
+            StableId parse (builder,dot,element)
+            newMarker.drop
             return true
           }
         }
       }
       case ScalaTokenTypes.kTHIS => {
         builder.advanceLexer //Ate this
-        pathMarker.done(ScalaElementTypes.PATH)
+        val newMarker = pathMarker.precede
+        pathMarker.done(ScalaElementTypes.THIS_REFERENCE)
+        builder.getTokenType match {
+          case ScalaTokenTypes.tDOT => {
+            builder.advanceLexer //Ate .
+            parseQualId(newMarker)
+          }
+          case _ => {
+            newMarker.drop
+          }
+        }
         return true
       }
       case _ => {

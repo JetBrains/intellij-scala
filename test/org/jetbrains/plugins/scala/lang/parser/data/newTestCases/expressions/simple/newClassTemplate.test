@@ -2,3 +2,49 @@ class a {
   new z(1) with h
 }
 -----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        NewTemplateDefinition
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ClassParents
+              Constructor
+                AnnotationsList
+                  <empty list>
+                TypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('z')
+                ArgumentList
+                  ArgumentExpressions
+                    PsiElement(()('(')
+                    Literal
+                      PsiElement(integer)('1')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(with)('with')
+              PsiWhiteSpace(' ')
+              AnnotationsList
+                <empty list>
+              TypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('h')
+            PsiWhiteSpace('\n')
+            ScTemplateBody
+              <empty list>
+        PsiElement(})('}')

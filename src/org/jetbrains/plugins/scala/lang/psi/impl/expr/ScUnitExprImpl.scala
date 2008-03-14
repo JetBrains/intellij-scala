@@ -25,11 +25,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 /** 
 * Created by IntelliJ IDEA.
 * User: Alexander.Podkhalyuz
-* Date: 06.03.2008
-* Time: 18:36:39
+* Date: 14.03.2008
+* Time: 11:07:36
 * To change this template use File | Settings | File Templates.
 */
 
-class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScThisReference {
-  override def toString: String = "ThisReference"
+class ScUnitExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScUnitExpr {
+  override def toString: String = "UnitExpression"
 }

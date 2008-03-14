@@ -54,7 +54,7 @@ object Exprs {
         builder.advanceLexer //Ate ,
       }
       case _ => {
-        exprsMarker.drop
+        exprsMarker.rollbackTo
         return false
       }
     }

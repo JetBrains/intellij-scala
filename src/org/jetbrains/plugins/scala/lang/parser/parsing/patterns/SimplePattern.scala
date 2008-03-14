@@ -91,7 +91,7 @@ object SimplePattern {
       simplePatternMarker.done(ScalaElementTypes.LITERAL_PATTERN)
       return true
     }
-    if (StableId parse builder) {
+    if (StableId parse (builder,ScalaElementTypes.REFERENCE_PATTERN)) {
       builder.getTokenType match {
         case ScalaTokenTypes.tLPARENTHESIS => {
           builder.advanceLexer //Ate (
@@ -117,7 +117,7 @@ object SimplePattern {
           return true
         }
         case _ => {
-          simplePatternMarker.done(ScalaElementTypes.REFERENCE_PATTERN)
+          simplePatternMarker.drop
           return true
         }
       }

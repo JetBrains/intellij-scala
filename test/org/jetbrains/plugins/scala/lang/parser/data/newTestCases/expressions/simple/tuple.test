@@ -2,3 +2,35 @@ class a {
   (a,b,c,)
 }
 -----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        Tuple
+          PsiElement(()('(')
+          ExpressionsList
+            ReferenceExpression
+              PsiElement(identifier)('a')
+            PsiElement(,)(',')
+            ReferenceExpression
+              PsiElement(identifier)('b')
+            PsiElement(,)(',')
+            ReferenceExpression
+              PsiElement(identifier)('c')
+            PsiElement(,)(',')
+          PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

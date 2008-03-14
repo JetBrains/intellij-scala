@@ -89,24 +89,28 @@ object SimpleType {
       }
       case ScalaTokenTypes.kTHIS | ScalaTokenTypes.tIDENTIFIER => {
         val newMarker = builder.mark
-        Path parse (builder,true)
+        Path parse (builder,true,ScalaElementTypes.REFERENCE)
         builder.getTokenType match {
           case ScalaTokenTypes.tDOT => {
             builder.advanceLexer //Ate .
             builder.getTokenType match {
               case ScalaTokenTypes.kTYPE => {
                 builder.advanceLexer //Ate type
-                newMarker.drop
+                newMarker.done(ScalaElementTypes.SIMPLE_TYPE)
               }
               case _ => {
                 newMarker.rollbackTo
-                StableId parse builder
+                val fMarker = builder.mark
+                StableId parse (builder,ScalaElementTypes.REFERENCE)
+                fMarker.done(ScalaElementTypes.SIMPLE_TYPE)
               }
             }
           }
           case _ => {
             newMarker.rollbackTo
-            StableId parse builder
+            val fMarker = builder.mark
+            StableId parse (builder,ScalaElementTypes.REFERENCE)
+            fMarker.done(ScalaElementTypes.SIMPLE_TYPE)
           }
         }
       }
