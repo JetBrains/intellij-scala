@@ -139,10 +139,7 @@ object FunDef {
       }
       case ScalaTokenTypes.kTHIS => {
         builder.advanceLexer //Ate this
-        if (!ParamClause.parse(builder)) {
-          builder error ScalaBundle.message("param.clause.expected", new Array[Object](0))
-        }
-        ParamClauses parse builder
+        ParamClauses parse (builder, true)
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN => {
             builder.advanceLexer //Ate =

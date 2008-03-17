@@ -24,23 +24,22 @@ ScalaFile
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
           PsiElement(this)('this')
-          ParametersClause //?
-            PsiElement(()('(')
-            Parameters
-              Parameter
-                AnnotationsList
-                  <empty list>
-                PsiElement(identifier)('x')
-                PsiElement(:)(':')
-                PsiWhiteSpace(' ')
-                ParameterType
-                  TypeElement
-                    CodeReferenceElement
-                      PsiElement(identifier)('Int')
-            PsiElement())(')')
-          PsiWhiteSpace(' ')
           ParametersClauses
-            <empty list>
+            ParametersClause
+              PsiElement(()('(')
+              Parameters
+                Parameter
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    TypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           ConstructorExpression

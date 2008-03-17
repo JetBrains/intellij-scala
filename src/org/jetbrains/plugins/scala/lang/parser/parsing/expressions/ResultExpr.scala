@@ -47,21 +47,17 @@ object ResultExpr {
     val backupMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
-        if (!Bindings.parse(builder)) {
-          backupMarker.drop
-        }
-        else {
-          builder.getTokenType match {
-            case ScalaTokenTypes.tFUNTYPE => {
-              builder.advanceLexer //Ate =>
-              Block parse (builder,false)
-              backupMarker.drop
-              resultMarker.done(ScalaElementTypes.RESULT_EXPR)
-              return true
-            }
-            case _ => {
-              backupMarker.rollbackTo
-            }
+        Bindings parse builder
+        builder.getTokenType match {
+          case ScalaTokenTypes.tFUNTYPE => {
+            builder.advanceLexer //Ate =>
+            Block parse (builder,false)
+            backupMarker.drop
+            resultMarker.done(ScalaElementTypes.RESULT_EXPR)
+            return true
+          }
+          case _ => {
+            backupMarker.rollbackTo
           }
         }
       }

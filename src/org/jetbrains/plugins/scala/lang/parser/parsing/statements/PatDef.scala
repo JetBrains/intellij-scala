@@ -88,10 +88,7 @@ object PatDef {
       } else {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
 
-        if (BNF.firstExpr.contains(builder.getTokenType)) {
-          Expr parse builder
-        } else {
-          builder error "wrong start of expression"
+        if (!Expr.parse(builder)) {
           someMarker.rollbackTo
           return false
         }

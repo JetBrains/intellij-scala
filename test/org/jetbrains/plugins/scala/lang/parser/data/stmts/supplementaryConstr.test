@@ -27,12 +27,11 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(this)('this')
           PsiWhiteSpace(' ')
-          ParametersClause
-            PsiElement(()('(')
-            PsiElement())(')')
-          PsiWhiteSpace(' ')
           ParametersClauses
-            <empty list>
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           ConstructorExpression

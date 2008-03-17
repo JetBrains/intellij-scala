@@ -33,10 +33,7 @@ object Bindings {
         return false
       }
     }
-    if (!Binding.parse(builder)) {
-      bindingsMarker.rollbackTo
-      return false
-    }
+    Binding parse builder
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
       builder.advanceLexer //Ate ,
       if (!Binding.parse(builder)) {
