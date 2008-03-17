@@ -29,11 +29,10 @@ ScalaFile
           TypeElement
             CodeReferenceElement
               PsiElement(identifier)('Int')
-        PsiErrorElement:';' or new-line expected  //WRONG
-          <empty list>
-        PsiWhiteSpace(' ')
-        PsiElement(<:)('<:')
-        ReferenceExpression
-          PsiElement(identifier)('Any')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          TypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('Any')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

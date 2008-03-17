@@ -27,8 +27,6 @@ ScalaFile
           PsiElement(identifier)('m')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          AnnotationsList
-            <empty list>
           TypeElement
             CodeReferenceElement
               PsiElement(identifier)('MAX')
@@ -45,15 +43,14 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          UnitExpression
-            PsiElement(()('(')
-            PsiElement())(')')
-        PsiErrorElement:';' or new-line expected   //WRONG
-          <empty list>
-        PsiWhiteSpace(' ')
-        PsiElement(=>)('=>')
-        PsiWhiteSpace(' ')
-        ReferenceExpression
-          PsiElement(identifier)('m')
+          FunctionExpression
+            ParameterList
+              PsiElement(()('(')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            ReferenceExpression
+              PsiElement(identifier)('m')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

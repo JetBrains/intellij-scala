@@ -15,26 +15,24 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScVariableDeclaration
+        ScVariableDefinition
           AnnotationsList
             <empty list>
           Modifiers
             <empty list>
           PsiElement(var)('var')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('Some')
-          PsiErrorElement:Wrong variable declaration //WRONG
-            <empty list>
-        PsiElement(()('(')
-        ReferenceExpression
-          PsiElement(identifier)('x')
-        PsiErrorElement:';' or new-line expected
-          <empty list>
-        PsiElement())(')')
-        PsiElement(:)(':')
-        AssignStatement
-          ReferenceExpression
-            PsiElement(identifier)('Int')
+          ConstructorPattern
+            ReferencePattern
+              PsiElement(identifier)('Some')
+            PsiElement(()('(')
+            ReferencePattern
+              PsiElement(identifier)('x')
+            PsiElement())(')')
+          PsiElement(:)(':')
+          TypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('Int')
           PsiElement(=)('=')
           SimpleExpression
             PsiElement(_)('_')

@@ -26,7 +26,6 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 
 object SimpleType {
-  var isTuple = false
   def parse(builder: PsiBuilder): Boolean = {
     def parseTale(curMarker: PsiBuilder.Marker) {
       builder.getTokenType match {
@@ -60,7 +59,7 @@ object SimpleType {
       case ScalaTokenTypes.tLPARENTHESIS => {
         val tupleMarker = builder.mark
         builder.advanceLexer
-        Types parse builder
+        val (_,isTuple) = Types parse builder
         builder.getTokenType match {
           case ScalaTokenTypes.tCOMMA => {
             builder.advanceLexer //Ate ,

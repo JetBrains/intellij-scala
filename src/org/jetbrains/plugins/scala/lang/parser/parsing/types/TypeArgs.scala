@@ -37,7 +37,8 @@ object TypeArgs {
         return false
       }
     }
-    if (!Types.parse(builder)) {
+    val (is,_) = Types.parse(builder)
+    if (!is) {
       builder error ScalaBundle.message("wrong.type", new Array[Object](0))
     }
     builder.getTokenType match {

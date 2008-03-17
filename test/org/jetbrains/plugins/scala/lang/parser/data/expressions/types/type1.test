@@ -23,30 +23,29 @@ ScalaFile
             PsiElement(identifier)('a')
             PsiElement(:)(':')
             ParameterType
-              TupleType               //WRONG
+              TypeInParenthesis
                 PsiElement(()('(')
-                TypesList
+                FunctionalType
+                  TypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('a')
+                  PsiElement(=>)('=>')
                   FunctionalType
+                    TupleType
+                      PsiElement(()('(')
+                      TypesList
+                        TypeElement
+                          CodeReferenceElement
+                            PsiElement(identifier)('c')
+                        PsiElement(,)(',')
+                        TypeElement
+                          CodeReferenceElement
+                            PsiElement(identifier)('d')
+                      PsiElement())(')')
+                    PsiElement(=>)('=>')
                     TypeElement
                       CodeReferenceElement
-                        PsiElement(identifier)('a')
-                    PsiElement(=>)('=>')
-                    FunctionalType
-                      TupleType
-                        PsiElement(()('(')
-                        TypesList
-                          TypeElement
-                            CodeReferenceElement
-                              PsiElement(identifier)('c')
-                          PsiElement(,)(',')
-                          TypeElement
-                            CodeReferenceElement
-                              PsiElement(identifier)('d')
-                        PsiElement())(')')
-                      PsiElement(=>)('=>')
-                      TypeElement
-                        CodeReferenceElement
-                          PsiElement(identifier)('e')
+                        PsiElement(identifier)('e')
                 PsiElement())(')')
           PsiElement())(')')
     ExtendsBlock

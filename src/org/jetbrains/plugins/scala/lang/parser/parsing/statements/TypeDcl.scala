@@ -80,14 +80,8 @@ object TypeDcl {
     builder.getTokenText match {
       case ">:" => {
         builder.advanceLexer
-        if (Type.parse(builder)) {
-          returnMarker.drop
-          return true
-        }
-        else {
+        if (!Type.parse(builder)) {
           builder error ScalaBundle.message("wrong.type", new Array[Object](0))
-          returnMarker.drop
-          return true
         }
       }
       case _ => {} //nothing
@@ -95,14 +89,8 @@ object TypeDcl {
     builder.getTokenText match {
       case "<:" => {
         builder.advanceLexer
-        if (Type.parse(builder)) {
-          returnMarker.drop
-          return true
-        }
-        else {
+        if (!Type.parse(builder)) {
           builder error ScalaBundle.message("wrong.type", new Array[Object](0))
-          returnMarker.drop
-          return true
         }
       }
       case _ => {} //nothing

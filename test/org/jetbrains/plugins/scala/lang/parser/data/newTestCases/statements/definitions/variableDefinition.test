@@ -23,12 +23,15 @@ ScalaFile
             <empty list>
           PsiElement(var)('var')
           PsiWhiteSpace(' ')
-          ListOfIdentifiers
-            PsiElement(identifier)('x')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('x')
             PsiElement(,)(',')
-            PsiElement(identifier)('y')
+            ReferencePattern
+              PsiElement(identifier)('y')
             PsiElement(,)(',')
-            PsiElement(identifier)('z')
+            ReferencePattern
+              PsiElement(identifier)('z')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           TypeElement
@@ -37,6 +40,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          PsiElement(_)('_')
+          SimpleExpression
+            PsiElement(_)('_')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
