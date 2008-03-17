@@ -25,8 +25,6 @@ ScalaFile
             PsiElement(identifier)('asInstanceOf')
           TypeArgumentsList
             PsiElement([)('[')
-            AnnotationsList
-              <empty list>
             TypeElement
               CodeReferenceElement
                 PsiElement(identifier)('T')

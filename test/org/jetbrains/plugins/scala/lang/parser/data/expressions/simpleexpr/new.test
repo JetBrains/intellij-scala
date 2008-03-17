@@ -42,14 +42,10 @@ ScalaFile
           ExtendsBlock
             ClassParents
               Constructor
-                AnnotationsList
-                  <empty list>
                 TypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('b')
                 PsiWhiteSpace('\n')
                 ArgumentList
                   <empty list>
-            ScTemplateBody
-              <empty list>
         PsiElement(})('}')

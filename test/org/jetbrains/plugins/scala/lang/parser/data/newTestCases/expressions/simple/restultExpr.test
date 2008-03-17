@@ -28,10 +28,10 @@ ScalaFile
                 PsiElement(import)('import')
                 PsiWhiteSpace(' ')
                 ImportExpression
-                  StableIdentifier
-                    PsiElement(identifier)('t') //WRONG
-                  PsiElement(.)('.')
                   CodeReferenceElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('t')
+                    PsiElement(.)('.')
                     PsiElement(identifier)('s')
             PsiElement(newline)('\n    ')
             ResultExpression
@@ -41,8 +41,6 @@ ScalaFile
                   PsiElement(identifier)('a')
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
-                  AnnotationsList
-                    <empty list>
                   TypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('Int')
@@ -52,8 +50,6 @@ ScalaFile
                   PsiElement(identifier)('b')
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
-                  AnnotationsList
-                    <empty list>
                   TypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('Int')
@@ -67,10 +63,10 @@ ScalaFile
                     PsiElement(import)('import')
                     PsiWhiteSpace(' ')
                     ImportExpression
-                      StableIdentifier
-                        PsiElement(identifier)('s')
-                      PsiElement(.)('.')
                       CodeReferenceElement
+                        CodeReferenceElement
+                          PsiElement(identifier)('s')
+                        PsiElement(.)('.')
                         PsiElement(identifier)('t')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')

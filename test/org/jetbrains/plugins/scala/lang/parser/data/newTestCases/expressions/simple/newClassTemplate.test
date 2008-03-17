@@ -22,8 +22,6 @@ ScalaFile
           ExtendsBlock
             ClassParents
               Constructor
-                AnnotationsList
-                  <empty list>
                 TypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('z')
@@ -36,12 +34,8 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(with)('with')
               PsiWhiteSpace(' ')
-              AnnotationsList
-                <empty list>
               TypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('h')
-            PsiWhiteSpace('\n')
-            ScTemplateBody
-              <empty list>
+        PsiWhiteSpace('\n')
         PsiElement(})('}')

@@ -34,8 +34,6 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  AnnotationsList
-                    <empty list>
                   TypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('Int')

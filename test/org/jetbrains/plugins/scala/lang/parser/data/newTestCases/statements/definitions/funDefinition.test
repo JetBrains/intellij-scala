@@ -26,9 +26,8 @@ ScalaFile
           PsiElement(identifier)('foo')
           TypeParameterClause
             PsiElement([)('[')
-            VariantTypeParameter
-              TypeParameter
-                PsiElement(identifier)('T')
+            TypeParameter
+              PsiElement(identifier)('T')
             PsiElement(])(']')
           PsiWhiteSpace(' ')
           ParametersClauses
@@ -42,8 +41,6 @@ ScalaFile
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
                   ParameterType
-                    AnnotationsList
-                      <empty list>
                     TypeElement
                       CodeReferenceElement
                         PsiElement(identifier)('T')
@@ -51,8 +48,6 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          AnnotationsList
-            <empty list>
           TypeElement
             CodeReferenceElement
               PsiElement(identifier)('Boolean')

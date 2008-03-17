@@ -22,8 +22,6 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           TypePattern
-            AnnotationsList
-              <empty list>
             TypeElement
               CodeReferenceElement
                 PsiElement(identifier)('Type')
@@ -34,10 +32,10 @@ ScalaFile
           PsiElement(import)('import')
           PsiWhiteSpace(' ')
           ImportExpression
-            StableIdentifier //WRONG
-              PsiElement(identifier)('a')
-            PsiElement(.)('.')
             CodeReferenceElement
+              CodeReferenceElement
+                PsiElement(identifier)('a')
+              PsiElement(.)('.')
               PsiElement(identifier)('b')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

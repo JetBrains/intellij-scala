@@ -27,12 +27,9 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TraitParents
-        AnnotationsList
-          <empty list>
         TypeElement
           CodeReferenceElement
             PsiElement(identifier)('b')
-      <empty list>
   PsiElement(newline)('\n')
   ScTrait
     AnnotationsList

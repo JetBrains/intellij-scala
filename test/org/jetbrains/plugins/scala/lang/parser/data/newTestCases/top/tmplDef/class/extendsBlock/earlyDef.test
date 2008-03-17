@@ -21,8 +21,6 @@ ScalaFile
               PsiElement(@)('@')
               AnnotationExpression
                 Constructor
-                  AnnotationsList
-                    <empty list>
                   TypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('e')
@@ -62,8 +60,6 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          AnnotationsList
-            <empty list>
           TypeElement
             CodeReferenceElement
               PsiElement(identifier)('C')

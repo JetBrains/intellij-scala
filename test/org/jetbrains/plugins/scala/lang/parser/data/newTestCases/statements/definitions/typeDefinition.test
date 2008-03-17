@@ -30,15 +30,12 @@ ScalaFile
           PsiWhiteSpace(' ')
           TypeParameterClause
             PsiElement([)('[')
-            VariantTypeParameter
-              TypeParameter
-                PsiElement(identifier)('T')
+            TypeParameter
+              PsiElement(identifier)('T')
             PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          AnnotationsList
-            <empty list>
           TypeElement
             CodeReferenceElement
               PsiElement(identifier)('Type')

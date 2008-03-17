@@ -36,18 +36,17 @@ ScalaFile
                     PsiElement(integer)('0')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
-        PsiErrorElement:';' or new-line expected //WRONG
-          <empty list>
-        PsiWhiteSpace('\n  ')
-        PsiElement(finally)('finally')
-        BlockExpression
-          PsiElement({)('{')
-          PsiWhiteSpace('\n    ')
-          Block
-            ResultExpression
-              Literal
-                PsiElement(string content)('"do nothing"')
           PsiWhiteSpace('\n  ')
-          PsiElement(})('}')
+          FinallyBlock
+            PsiElement(finally)('finally')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              Block
+                ResultExpression
+                  Literal
+                    PsiElement(string content)('"do nothing"')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

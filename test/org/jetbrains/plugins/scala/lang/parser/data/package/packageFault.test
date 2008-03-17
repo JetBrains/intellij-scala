@@ -3,18 +3,15 @@ package a
 {
 }
 -----
-Scala file
-  Package statement
+ScalaFile
+  ScPackageStatement
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    Qualified identifier
+    CodeReferenceElement
       PsiElement(identifier)('a')
     PsiElement(newline)('\n\n')
-  PsiErrorElement:wrong top statement declaration
+  PsiErrorElement:Wrong top statement declaration
     <empty list>
   PsiElement({)('{')
   PsiWhiteSpace('\n')
-  trash
-    PsiErrorElement:out of compilation unit
-      <empty list>
-    PsiElement(})('}')
+  PsiElement(})('}')

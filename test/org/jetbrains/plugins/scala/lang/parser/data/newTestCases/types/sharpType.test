@@ -26,8 +26,6 @@ ScalaFile
           PsiElement(identifier)('x')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          AnnotationsList
-            <empty list>
           TypeProjection
             TypeElement
               CodeReferenceElement

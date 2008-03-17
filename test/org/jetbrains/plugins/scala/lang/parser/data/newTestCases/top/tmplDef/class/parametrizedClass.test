@@ -16,39 +16,31 @@ ScalaFile
         TypeParameter
           PsiElement(identifier)('b')
       PsiElement(,)(',')
-      VariantTypeParameter
-        TypeParameter
-          PsiElement(identifier)('c')
+      TypeParameter
+        PsiElement(identifier)('c')
       PsiElement(,)(',')
-      VariantTypeParameter
-        TypeParameter
-          PsiElement(_)('_')
-          TypeParameterClause
-            PsiElement([)('[')
-            VariantTypeParameter
-              TypeParameter
-                PsiElement(identifier)('d')
-            PsiElement(])(']')
+      TypeParameter
+        PsiElement(_)('_')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter
+            PsiElement(identifier)('d')
+          PsiElement(])(']')
       PsiElement(,)(',')
-      VariantTypeParameter
-        TypeParameter
-          PsiElement(identifier)('f')
-          PsiWhiteSpace(' ')
-          PsiElement(>:)('>:')
-          PsiWhiteSpace(' ')
-          AnnotationsList
-            <empty list>
-          TypeElement
-            CodeReferenceElement
-              PsiElement(identifier)('g')
-          PsiWhiteSpace(' ')
-          PsiElement(<%)('<%')
-          PsiWhiteSpace(' ')
-          AnnotationsList
-            <empty list>
-          TypeElement
-            CodeReferenceElement
-              PsiElement(identifier)('h')
+      TypeParameter
+        PsiElement(identifier)('f')
+        PsiWhiteSpace(' ')
+        PsiElement(>:)('>:')
+        PsiWhiteSpace(' ')
+        TypeElement
+          CodeReferenceElement
+            PsiElement(identifier)('g')
+        PsiWhiteSpace(' ')
+        PsiElement(<%)('<%')
+        PsiWhiteSpace(' ')
+        TypeElement
+          CodeReferenceElement
+            PsiElement(identifier)('h')
       PsiElement(])(']')
     ExtendsBlock
       <empty list>

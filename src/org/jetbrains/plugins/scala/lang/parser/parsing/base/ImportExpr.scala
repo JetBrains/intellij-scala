@@ -33,18 +33,19 @@ object ImportExpr {
   def parse(builder: PsiBuilder): Boolean = {
     builder.setDebugMode(true)
     val importExprMarker = builder.mark
+    val endMarker = builder.mark
     if (!StableIdInImport.parse(builder)) {
         builder error ScalaBundle.message("identifier.expected",new Array[Object](0))
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tDOT => builder.advanceLexer //Ate .
       case _ => {
+        endMarker.drop
         builder error ScalaBundle.message("dot.expected",new Array[Object](0))
         importExprMarker.done(ScalaElementTypes.IMPORT_EXPR)
         return true
       }
     }
-    val endMarker = builder.mark()
     builder.getTokenType() match {
       case ScalaTokenTypes.tIDENTIFIER => {
         builder.advanceLexer // Ate identifier

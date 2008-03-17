@@ -19,8 +19,6 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          AnnotationsList
-            <empty list>
           TypeElement
             CodeReferenceElement
               PsiElement(identifier)('B')

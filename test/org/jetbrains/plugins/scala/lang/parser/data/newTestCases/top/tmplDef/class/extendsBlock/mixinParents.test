@@ -15,33 +15,30 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          AnnotationsList
-            Annotation
-              PsiElement(@)('@')
-              AnnotationExpression
-                Constructor
-                  AnnotationsList
-                    <empty list>
-                  TypeElement
-                    CodeReferenceElement
-                      PsiElement(identifier)('t')
-                  ArgumentList
-                    ArgumentExpressions
-                      PsiElement(()('(')
-                      ReferenceExpression
-                        PsiElement(identifier)('b')
-                      PsiElement())(')')
-          PsiWhiteSpace(' ')
-          TypeElement
-            CodeReferenceElement
-              PsiElement(identifier)('C')
+          TypeWithAnnotation
+            AnnotationsList
+              Annotation
+                PsiElement(@)('@')
+                AnnotationExpression
+                  Constructor
+                    TypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('t')
+                    ArgumentList
+                      ArgumentExpressions
+                        PsiElement(()('(')
+                        ReferenceExpression
+                          PsiElement(identifier)('b')
+                        PsiElement())(')')
+            PsiWhiteSpace(' ')
+            TypeElement
+              CodeReferenceElement
+                PsiElement(identifier)('C')
           PsiWhiteSpace(' ')
           ArgumentList
             <empty list>
         PsiElement(with)('with')
         PsiWhiteSpace(' ')
-        AnnotationsList
-          <empty list>
         TypeElement
           CodeReferenceElement
             PsiElement(identifier)('D')

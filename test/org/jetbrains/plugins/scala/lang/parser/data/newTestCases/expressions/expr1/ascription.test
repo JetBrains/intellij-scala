@@ -20,9 +20,9 @@ ScalaFile
           ReferenceExpression
             PsiElement(identifier)('x')
           PsiWhiteSpace(' ')
-          Ascription
-            PsiElement(:)(':')
-            PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SequenceArgumentType
             PsiElement(_)('_')
             PsiElement(identifier)('*')
         PsiWhiteSpace('\n')

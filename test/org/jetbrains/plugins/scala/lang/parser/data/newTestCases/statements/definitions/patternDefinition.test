@@ -37,19 +37,13 @@ ScalaFile
             ReferencePattern
               PsiElement(identifier)('c')
           PsiElement(:)(':')
-          AnnotationsList
-            <empty list>
           TupleType
             PsiElement(()('(')
             TypesList
-              AnnotationsList
-                <empty list>
               TypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('Int')
               PsiElement(,)(',')
-              AnnotationsList
-                <empty list>
               TypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('Int')
