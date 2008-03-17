@@ -1,4 +1,0 @@
-trait Vector[N] {
-  def a(x: Int*)
-}
------
