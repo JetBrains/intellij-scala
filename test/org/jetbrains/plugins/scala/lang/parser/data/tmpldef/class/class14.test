@@ -2,36 +2,42 @@ private[C] class a{
   private[C] val m = 5
 }
 -----
-Scala file
-  type template definition: class
-    Modifiers
-      PsiElement(private)('private')
-      PsiElement([)('[')
-      PsiElement(identifier)('C')
-      PsiElement(])(']')
-    PsiWhiteSpace(' ')
-    PsiElement(class)('class')
-    PsiWhiteSpace(' ')
-    PsiElement(identifier)('a')
-    extends block
+ScalaFile
+  ScClass
+    AnnotationsList
       <empty list>
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n  ')
-      pattern definition
+    Modifiers
+      AccessModifier
         PsiElement(private)('private')
         PsiElement([)('[')
         PsiElement(identifier)('C')
         PsiElement(])(']')
-        PsiWhiteSpace(' ')
-        PsiElement(val)('val')
-        PsiWhiteSpace(' ')
-        Reference identifier pattern
-          PsiElement(identifier)('m')
-        PsiWhiteSpace(' ')
-        PsiElement(=)('=')
-        PsiWhiteSpace(' ')
-        Literal
-          PsiElement(integer)('5')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+              PsiElement([)('[')
+              PsiElement(identifier)('C')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ReferencePattern
+            PsiElement(identifier)('m')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Literal
+            PsiElement(integer)('5')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

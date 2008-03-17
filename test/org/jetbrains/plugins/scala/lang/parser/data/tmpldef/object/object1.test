@@ -2,20 +2,20 @@ package a
 
 object b
 -----
-Scala file
-  Package statement
+ScalaFile
+  ScPackageStatement
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    Qualified identifier
+    CodeReferenceElement
       PsiElement(identifier)('a')
     PsiElement(newline)('\n\n')
-  template definition: object
+  ScObject
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('b')
-    extends block
-      <empty list>
-    template body
+    ExtendsBlock
       <empty list>

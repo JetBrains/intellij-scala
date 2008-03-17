@@ -1,26 +1,27 @@
 import a.q; object Object {}
 -----
-Scala file
-  Import statement
+ScalaFile
+  ScImportStatement
     PsiElement(import)('import')
     PsiWhiteSpace(' ')
-    Import expression
-      Stable Identifier
-        PsiElement(identifier)('a')
-      PsiElement(.)('.')
-      Reference identifier
+    ImportExpression
+      CodeReferenceElement
+        CodeReferenceElement
+          PsiElement(identifier)('a')
+        PsiElement(.)('.')
         PsiElement(identifier)('q')
   PsiElement(;)(';')
   PsiWhiteSpace(' ')
-  template definition: object
+  ScObject
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('Object')
     PsiWhiteSpace(' ')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiElement(})('}')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiElement(})('}')

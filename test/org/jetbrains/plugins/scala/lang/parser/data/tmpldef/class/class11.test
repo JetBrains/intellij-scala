@@ -1,18 +1,19 @@
 implicit implicit private class A
 -----
-Scala file
-  type template definition: class
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
     Modifiers
       PsiElement(implicit)('implicit')
       PsiWhiteSpace(' ')
       PsiElement(implicit)('implicit')
       PsiWhiteSpace(' ')
-      PsiElement(private)('private')
+      AccessModifier
+        PsiElement(private)('private')
     PsiWhiteSpace(' ')
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
-    extends block
-      <empty list>
-    template body
+    ExtendsBlock
       <empty list>

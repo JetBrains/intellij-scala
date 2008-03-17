@@ -3,13 +3,13 @@ package a.b.c {
   }
 }
 -----
-Scala file
-  Packaging
+ScalaFile
+  ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    Qualified identifier
-      Qualified identifier
-        Qualified identifier
+    CodeReferenceElement
+      CodeReferenceElement
+        CodeReferenceElement
           PsiElement(identifier)('a')
         PsiElement(.)('.')
         PsiElement(identifier)('b')
@@ -18,18 +18,19 @@ Scala file
     PsiWhiteSpace(' ')
     PsiElement({)('{')
     PsiWhiteSpace('\n  ')
-    template definition: object
+    ScObject
+      AnnotationsList
+        <empty list>
       Modifiers
         <empty list>
       PsiElement(object)('object')
       PsiWhiteSpace(' ')
       PsiElement(identifier)('a')
       PsiWhiteSpace(' ')
-      extends block
-        <empty list>
-      template body
-        PsiElement({)('{')
-        PsiWhiteSpace('\n  ')
-        PsiElement(})('}')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
     PsiWhiteSpace('\n')
     PsiElement(})('}')

@@ -1,11 +1,11 @@
 package t {
 }
 -----
-Scala file
-  Packaging
+ScalaFile
+  ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    Qualified identifier
+    CodeReferenceElement
       PsiElement(identifier)('t')
     PsiWhiteSpace(' ')
     PsiElement({)('{')

@@ -5,35 +5,35 @@ import com.ert
 
 }
 -----
-Scala file
-  Packaging
+ScalaFile
+  ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    Qualified identifier
+    CodeReferenceElement
       PsiElement(identifier)('org')
     PsiWhiteSpace(' ')
     PsiElement({)('{')
     PsiWhiteSpace('\n\n')
-    Import statement
+    ScImportStatement
       PsiElement(import)('import')
       PsiWhiteSpace(' ')
-      Import expression
-        Stable Identifier
-          Stable Identifier
+      ImportExpression
+        CodeReferenceElement
+          CodeReferenceElement
             PsiElement(identifier)('com')
           PsiElement(.)('.')
           PsiElement(identifier)('ert')
         PsiElement(.)('.')
         PsiElement(_)('_')
     PsiElement(newline)('\n')
-    Import statement
+    ScImportStatement
       PsiElement(import)('import')
       PsiWhiteSpace(' ')
-      Import expression
-        Stable Identifier
-          PsiElement(identifier)('com')
-        PsiElement(.)('.')
-        Import end
+      ImportExpression
+        CodeReferenceElement
+          CodeReferenceElement
+            PsiElement(identifier)('com')
+          PsiElement(.)('.')
           PsiElement(identifier)('ert')
     PsiWhiteSpace('\n\n')
     PsiElement(})('}')

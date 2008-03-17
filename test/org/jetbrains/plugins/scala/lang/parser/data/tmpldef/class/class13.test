@@ -10,47 +10,37 @@ ScalaFile
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('ServerThread')
-    ClassParametersClauses
-      ClassParametersClause
-        PsiElement(()('(')
-        ClassParameter
-          AnnotationsList
-            <empty list>
-          Modifiers
-            <empty list>
-          PsiElement(identifier)('socket')
-          PsiElement(:)(':')
-          PsiWhiteSpace(' ')
-          ParameterType
-            FunctionalType
-              InfixType
-                CompoundType
-                  TypeWithAnnotation
-                    AnnotationsList
-                      <empty list>
-                    SimpleType
-                      StableIdentifier
-                        PsiElement(identifier)('Socket')
-        PsiElement())(')')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      ClassParametersClauses
+        ClassParametersClause
+          PsiElement(()('(')
+          ClassParameter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('socket')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              TypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Socket')
+          PsiElement())(')')
     PsiWhiteSpace(' ')
     ExtendsBlock
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          TypeWithAnnotation
-            AnnotationsList
-              <empty list>
-            SimpleType
-              StableIdentifier
-                PsiElement(identifier)('Thread')
-          ListOfArgumentExpressions
+          TypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('Thread')
+          ArgumentList
             ArgumentExpressions
               PsiElement(()('(')
-              PostfixExpression
-                InfixExpression
-                  PrefixExpression
-                    SimpleExpression
-                      Literal
-                        PsiElement(string content)('"ServerThread"')
+              Literal
+                PsiElement(string content)('"ServerThread"')
               PsiElement())(')')

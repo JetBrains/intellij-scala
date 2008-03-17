@@ -20,28 +20,25 @@ ScalaFile
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('Some')
-    ClassParametersClauses
-      ClassParametersClause
-        PsiElement(()('(')
-        ClassParameter
-          AnnotationsList
-            <empty list>
-          Modifiers
-            <empty list>
-          PsiElement(identifier)('n')
-          PsiWhiteSpace(' ')
-          PsiElement(:)(':')
-          ParameterType
-            FunctionalType
-              InfixType
-                CompoundType
-                  TypeWithAnnotation
-                    AnnotationsList
-                      <empty list>
-                    SimpleType
-                      StableIdentifier
-                        PsiElement(identifier)('int')
-        PsiElement())(')')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      ClassParametersClauses
+        ClassParametersClause
+          PsiElement(()('(')
+          ClassParameter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('n')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            ParameterType
+              TypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('int')
+          PsiElement())(')')
     ExtendsBlock
       ScTemplateBody
         PsiElement({)('{')
@@ -84,19 +81,13 @@ ScalaFile
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          InfixPattern
-            ReferenceIdentifierPattern
-              StableIdentifier
-                PsiElement(identifier)('x')
+          ReferencePattern
+            PsiElement(identifier)('x')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          PostfixExpression
-            InfixExpression
-              PrefixExpression
-                SimpleExpression
-                  Literal
-                    PsiElement(integer)('1')
+          Literal
+            PsiElement(integer)('1')
         PsiElement(newline)('\n  ')
         ScFunctionDefinition
           AnnotationsList
@@ -105,8 +96,7 @@ ScalaFile
             <empty list>
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
-          ScScalaCodeReferenseElement
-            PsiElement(identifier)('foo')
+          PsiElement(identifier)('foo')
           ParametersClauses
             ParametersClause
               PsiElement(()('(')
@@ -115,13 +105,8 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           MatchStatement
-            PostfixExpression
-              InfixExpression
-                PrefixExpression
-                  SimpleExpression
-                    Path
-                      StableIdentifier
-                        PsiElement(identifier)('a')
+            ReferenceExpression
+              PsiElement(identifier)('a')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
             PsiWhiteSpace(' ')
@@ -131,60 +116,53 @@ ScalaFile
               CaseClause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                CompositePattern
-                  BindingPattern
-                    PsiElement(identifier)('x')
-                    PsiElement(@)('@')
-                    InfixPattern
-                      TuplePattern
-                        PsiElement(()('(')
-                        ArgumentPatterns
-                          CompositePattern
-                            InfixPattern
-                              ReferenceIdentifierPattern
-                                StableIdentifier
-                                  PsiElement(identifier)('y')
-                          PsiElement(,)(',')
-                          CompositePattern
-                            InfixPattern
-                              ReferenceIdentifierPattern
-                                StableIdentifier
-                                  PsiElement(identifier)('z')
-                        PsiElement())(')')
+                BindingPattern
+                  PsiElement(identifier)('x')
+                  PsiElement(@)('@')
+                  TuplePattern
+                    PsiElement(()('(')
+                    ArgumentPatterns
+                      ReferencePattern
+                        PsiElement(identifier)('y')
+                      PsiElement(,)(',')
+                      ReferencePattern
+                        PsiElement(identifier)('z')
+                    PsiElement())(')')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
-                PsiElement({)('{')
                 Block
-                  PsiElement(})('}')
-                PsiErrorElement:'}' expected
-                  <empty list>
+                  ResultExpression
+                    BlockExpression
+                      PsiElement({)('{')
+                      Block
+                        <empty list>
+                      PsiElement(})('}')
               PsiWhiteSpace('\n    ')
               CaseClause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                CompositePattern
-                  BindingPattern
-                    PsiElement(identifier)('x')
-                    PsiElement(@)('@')
-                    InfixPattern
-                      SimplePattern
-                        StableIdentifier
-                          PsiElement(identifier)('Some')
-                        PsiElement(()('(')
-                        CompositePattern
-                          InfixPattern
-                            ReferenceIdentifierPattern
-                              StableIdentifier
-                                PsiElement(identifier)('y')
-                        PsiElement())(')')
+                BindingPattern
+                  PsiElement(identifier)('x')
+                  PsiElement(@)('@')
+                  ConstructorPattern
+                    ReferencePattern
+                      PsiElement(identifier)('Some')
+                    PsiElement(()('(')
+                    ReferencePattern
+                      PsiElement(identifier)('y')
+                    PsiElement())(')')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
-                PsiElement({)('{')
                 Block
-                  PsiElement(})('}')
-                PsiWhiteSpace('\n  ')
-                PsiElement(})('}')
-            PsiWhiteSpace('\n')
+                  ResultExpression
+                    BlockExpression
+                      PsiElement({)('{')
+                      Block
+                        <empty list>
+                      PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
             PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

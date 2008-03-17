@@ -4,118 +4,124 @@ object impl{
       else m.add(xs.head, sum(xs.tail))
 }
 -----
-Scala file
-  template definition: object
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('impl')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n  ')
-      function definition
-        PsiElement(def)('def')
-        PsiWhiteSpace(' ')
-        Reference identifier
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
           PsiElement(identifier)('sum')
-        type parameter clause
-          PsiElement([)('[')
-          type parameter
-            PsiElement(identifier)('A')
-          PsiElement(])(']')
-        parameters clause
-          PsiElement(()('(')
-          parameter
-            Reference identifier
-              PsiElement(identifier)('xs')
-            PsiElement(:)(':')
-            PsiWhiteSpace(' ')
-            Simple Type
-              Stable Identifier
-                PsiElement(identifier)('List')
-          PsiElement())(')')
-        parameters clause
-          PsiElement(()('(')
-          PsiElement(implicit)('implicit')
-          PsiWhiteSpace(' ')
-          parameter
-            Reference identifier
-              PsiElement(identifier)('m')
-            PsiElement(:)(':')
-            PsiWhiteSpace(' ')
-            Simple Type
-              Simple Type
-                Stable Identifier
-                  PsiElement(identifier)('Monoid')
-              Type arguments list
-                PsiElement([)('[')
-                Simple Type
-                  Stable Identifier
-                    PsiElement(identifier)('A')
-                PsiElement(])(']')
-          PsiElement())(')')
-        PsiElement(:)(':')
-        PsiWhiteSpace(' ')
-        Simple Type
-          Stable Identifier
-            PsiElement(identifier)('A')
-        PsiWhiteSpace(' ')
-        PsiElement(=)('=')
-        PsiWhiteSpace('\n      ')
-        IF statement
-          PsiElement(if)('if')
-          PsiWhiteSpace(' ')
-          PsiElement(()('(')
-          Property selection
-            Reference expression
-              Reference expression
-                PsiElement(identifier)('xs')
-            PsiElement(.)('.')
-            PsiElement(identifier)('isEmpty')
-          PsiElement())(')')
-          PsiWhiteSpace(' ')
-          Property selection
-            Reference expression
-              Reference expression
-                PsiElement(identifier)('m')
-            PsiElement(.)('.')
-            PsiElement(identifier)('unit')
-          PsiWhiteSpace('\n      ')
-          PsiElement(else)('else')
-          PsiWhiteSpace(' ')
-          Method call
-            Property selection
-              Reference expression
-                Reference expression
-                  PsiElement(identifier)('m')
-              PsiElement(.)('.')
-              PsiElement(identifier)('add')
-            Argument expressions
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          ParametersClauses
+            ParametersClause
               PsiElement(()('(')
-              Property selection
-                Reference expression
-                  Reference expression
-                    PsiElement(identifier)('xs')
-                PsiElement(.)('.')
-                PsiElement(identifier)('head')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              Method call
-                Reference expression
-                  Reference expression
-                    PsiElement(identifier)('sum')
-                Argument expressions
-                  PsiElement(()('(')
-                  Property selection
-                    Reference expression
-                      Reference expression
-                        PsiElement(identifier)('xs')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('tail')
-                  PsiElement())(')')
+              Parameters
+                Parameter
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('xs')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    TypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('List')
               PsiElement())(')')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameters
+                Parameter
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('m')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    GenericCall
+                      TypeElement
+                        CodeReferenceElement
+                          PsiElement(identifier)('Monoid')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeElement
+                          CodeReferenceElement
+                            PsiElement(identifier)('A')
+                        PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('A')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n      ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            ReferenceExpression
+              ReferenceExpression
+                PsiElement(identifier)('xs')
+              PsiElement(.)('.')
+              PsiElement(identifier)('isEmpty')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression
+              ReferenceExpression
+                PsiElement(identifier)('m')
+              PsiElement(.)('.')
+              PsiElement(identifier)('unit')
+            PsiWhiteSpace('\n      ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression
+                ReferenceExpression
+                  PsiElement(identifier)('m')
+                PsiElement(.)('.')
+                PsiElement(identifier)('add')
+              ArgumentExpressions
+                PsiElement(()('(')
+                ExpressionsList
+                  ReferenceExpression
+                    ReferenceExpression
+                      PsiElement(identifier)('xs')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('head')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression
+                      PsiElement(identifier)('sum')
+                    ArgumentExpressions
+                      PsiElement(()('(')
+                      ReferenceExpression
+                        ReferenceExpression
+                          PsiElement(identifier)('xs')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('tail')
+                      PsiElement())(')')
+                PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

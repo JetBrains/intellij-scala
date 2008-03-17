@@ -1,39 +1,46 @@
 class C {
-  val {a,b}={1,2}
+  val (a,b)=(1,2)
 }
 -----
-Scala file
-  type template definition: class
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('C')
     PsiWhiteSpace(' ')
-    top definition template
-      template body
+    ExtendsBlock
+      ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        pattern definition
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          Tuple pattern
-            PsiElement({)('{')
-            Common pattern
-              Reference identifier
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              ReferencePattern
                 PsiElement(identifier)('a')
-            PsiElement(,)(',')
-            Common pattern
-              Reference identifier
+              PsiElement(,)(',')
+              ReferencePattern
                 PsiElement(identifier)('b')
-            PsiElement(})('}')
+            PsiElement())(')')
           PsiElement(=)('=')
-          Block expression
-            PsiElement({)('{')
-            Tuple
+          Tuple
+            PsiElement(()('(')
+            ExpressionsList
               Literal
                 PsiElement(integer)('1')
               PsiElement(,)(',')
               Literal
                 PsiElement(integer)('2')
-            PsiElement(})('}')
+            PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

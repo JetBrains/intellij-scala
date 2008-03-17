@@ -1,19 +1,22 @@
 class a extends b
 -----
-Scala file
-  type template definition: class
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
-    extends block
+    ExtendsBlock
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
-      template parents
-        constuctor
-          Stable Identifier
-            PsiElement(identifier)('b')
-    template body
-      <empty list>
+      ClassParents
+        Constructor
+          TypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('b')
+          ArgumentList
+            <empty list>

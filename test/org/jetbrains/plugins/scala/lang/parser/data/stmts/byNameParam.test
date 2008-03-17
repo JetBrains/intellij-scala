@@ -2,56 +2,66 @@ object main{
   def whileLoop (cond: => Boolean) (stat: => Unit): Unit
 }
 -----
-Scala file
-  template definition: object
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('main')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n  ')
-      function declaration
-        PsiElement(def)('def')
-        PsiWhiteSpace(' ')
-        Reference identifier
-          PsiElement(identifier)('whileLoop')
-        PsiWhiteSpace(' ')
-        parameters clauses
-          parameters clause
-            PsiElement(()('(')
-            parameter
-              Reference identifier
-                PsiElement(identifier)('cond')
-              PsiElement(:)(':')
-              PsiWhiteSpace(' ')
-              PsiElement(=>)('=>')
-              PsiWhiteSpace(' ')
-              Simple Type
-                Stable Identifier
-                  PsiElement(identifier)('Boolean')
-            PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
           PsiWhiteSpace(' ')
-          parameters clause
-            PsiElement(()('(')
-            parameter
-              Reference identifier
-                PsiElement(identifier)('stat')
-              PsiElement(:)(':')
-              PsiWhiteSpace(' ')
-              PsiElement(=>)('=>')
-              PsiWhiteSpace(' ')
-              Simple Type
-                Stable Identifier
-                  PsiElement(identifier)('Unit')
-            PsiElement())(')')
-        PsiElement(:)(':')
-        PsiWhiteSpace(' ')
-        Simple Type
-          Stable Identifier
-            PsiElement(identifier)('Unit')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+          PsiElement(identifier)('whileLoop')
+          PsiWhiteSpace(' ')
+          ParametersClauses
+            ParametersClause
+              PsiElement(()('(')
+              Parameters
+                Parameter
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('cond')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    TypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('Boolean')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ParametersClause
+              PsiElement(()('(')
+              Parameters
+                Parameter
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('stat')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    TypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('Unit')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('Unit')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
