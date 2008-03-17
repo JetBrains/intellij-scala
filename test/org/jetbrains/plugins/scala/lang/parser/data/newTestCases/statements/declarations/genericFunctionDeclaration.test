@@ -13,9 +13,8 @@ ScalaFile
     PsiElement(identifier)('a')
     TypeParameterClause
       PsiElement([)('[')
-      VariantTypeParameter
-        TypeParameter
-          PsiElement(identifier)('T')
+      TypeParameter
+        PsiElement(identifier)('T')
       PsiElement(])(']')
     PsiWhiteSpace(' ')
     ExtendsBlock
@@ -32,9 +31,8 @@ ScalaFile
           PsiElement(identifier)('foo')
           TypeParameterClause
             PsiElement([)('[')
-            VariantTypeParameter
-              TypeParameter
-                PsiElement(identifier)('T')
+            TypeParameter
+              PsiElement(identifier)('T')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

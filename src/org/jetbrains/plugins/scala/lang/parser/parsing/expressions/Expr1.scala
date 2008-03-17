@@ -186,22 +186,22 @@ object Expr1 {
               }
             }
             catchMarker.done(ScalaElementTypes.CATCH_BLOCK)
-            val finallyMarker = builder.mark
-            builder.getTokenType match {
-              case ScalaTokenTypes.kFINALLY => {
-                builder.advanceLexer//Ate finally
-                if (!Expr.parse(builder)) {
-                  builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
-                }
-                finallyMarker.done(ScalaElementTypes.FINALLY_BLOCK)
-              }
-              case _ => {
-                finallyMarker.drop
-              }
-            }
           }
           case _ => {
             catchMarker.drop
+          }
+        }
+        val finallyMarker = builder.mark
+        builder.getTokenType match {
+          case ScalaTokenTypes.kFINALLY => {
+            builder.advanceLexer//Ate finally
+            if (!Expr.parse(builder)) {
+              builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+            }
+            finallyMarker.done(ScalaElementTypes.FINALLY_BLOCK)
+          }
+          case _ => {
+            finallyMarker.drop
           }
         }
         exprMarker.done(ScalaElementTypes.TRY_STMT)

@@ -4,10 +4,10 @@ ScalaFile
   ScPackageStatement
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    QualifiedIdentifier
-      QualifiedIdentifier
-        QualifiedIdentifier
-          QualifiedIdentifier
+    CodeReferenceElement
+      CodeReferenceElement
+        CodeReferenceElement
+          CodeReferenceElement
             PsiElement(identifier)('scala')
           PsiElement(.)('.')
           PsiElement(identifier)('test')

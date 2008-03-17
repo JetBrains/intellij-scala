@@ -28,24 +28,18 @@ ScalaFile
           PsiWhiteSpace(' ')
           InfixType
             InfixType
-              AnnotationsList
-                <empty list>
               TypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('T')
               PsiWhiteSpace(' ')
               PsiElement(identifier)('op')
               PsiWhiteSpace(' ')
-              AnnotationsList
-                <empty list>
               TypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('T')
             PsiWhiteSpace(' ')
             PsiElement(identifier)('op')
             PsiWhiteSpace(' ')
-            AnnotationsList
-              <empty list>
             TypeElement
               CodeReferenceElement
                 PsiElement(identifier)('T')

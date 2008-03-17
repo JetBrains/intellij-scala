@@ -1,0 +1,42 @@
+trait Vector[N] {
+  (c :: cs) foldRight ""
+}
+-----
+ScalaFile
+  ScTrait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Vector')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter
+        PsiElement(identifier)('N')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression
+                PsiElement(identifier)('c')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('::')
+              PsiWhiteSpace(' ')
+              ReferenceExpression
+                PsiElement(identifier)('cs')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foldRight')
+          PsiWhiteSpace(' ')
+          Literal
+            PsiElement(string content)('""')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

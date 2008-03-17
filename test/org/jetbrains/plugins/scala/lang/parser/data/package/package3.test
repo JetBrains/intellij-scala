@@ -1,2 +1,14 @@
 package a.b.c
 -----
+ScalaFile
+  ScPackageStatement
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement
+      CodeReferenceElement
+        CodeReferenceElement
+          PsiElement(identifier)('a')
+        PsiElement(.)('.')
+        PsiElement(identifier)('b')
+      PsiElement(.)('.')
+      PsiElement(identifier)('c')

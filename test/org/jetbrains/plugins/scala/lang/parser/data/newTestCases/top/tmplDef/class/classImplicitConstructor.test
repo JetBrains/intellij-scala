@@ -1,6 +1,6 @@
 class a(b:Int)()(implicit c)
 -----
-calaFile
+ScalaFile
   ScClass
     AnnotationsList
       <empty list>
@@ -23,8 +23,6 @@ calaFile
             PsiElement(identifier)('b')
             PsiElement(:)(':')
             ParameterType
-              AnnotationsList
-                <empty list>
               TypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('Int')

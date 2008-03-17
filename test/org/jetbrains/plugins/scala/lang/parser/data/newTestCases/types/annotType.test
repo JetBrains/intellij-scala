@@ -26,24 +26,23 @@ ScalaFile
           PsiElement(identifier)('x')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          AnnotationsList
-            Annotation
-              PsiElement(@)('@')
-              AnnotationExpression
-                Constructor
-                  AnnotationsList
-                    <empty list>
-                  TypeElement
-                    CodeReferenceElement
-                      PsiElement(identifier)('annot')
-                  PsiWhiteSpace(' ')
-                  ArgumentList
-                    <empty list>
-          TypeProjection
-            TypeElement
-              CodeReferenceElement
-                PsiElement(identifier)('Type')
-            PsiElement(#)('#')
-            PsiElement(identifier)('id')
+          TypeWithAnnotation
+            AnnotationsList
+              Annotation
+                PsiElement(@)('@')
+                AnnotationExpression
+                  Constructor
+                    TypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('annot')
+                    PsiWhiteSpace(' ')
+                    ArgumentList
+                      <empty list>
+            TypeProjection
+              TypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Type')
+              PsiElement(#)('#')
+              PsiElement(identifier)('id')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

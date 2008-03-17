@@ -26,18 +26,16 @@ ScalaFile
           PsiElement(identifier)('g')
           TypeParameterClause
             PsiElement([)('[')
-            VariantTypeParameter
-              TypeParameter
-                PsiElement(identifier)('T')
+            TypeParameter
+              PsiElement(identifier)('T')
             PsiElement(])(']')
-          PsiErrorElement:Wrong type  //WRONG
-            <empty list>
-        PsiWhiteSpace(' ')
-        PsiElement(>:)('>:')
-        PsiWhiteSpace(' ')
-        ReferenceExpression
-          PsiElement(identifier)('Any')
-        PsiErrorElement:';' or new-line expected
+          PsiWhiteSpace(' ')
+          PsiElement(>:)('>:')
+          PsiWhiteSpace(' ')
+          TypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('Any')
+        PsiErrorElement:';' or new-line expected   //WRONG
           <empty list>
         PsiWhiteSpace(' ')
         PsiElement(<:)('<:')

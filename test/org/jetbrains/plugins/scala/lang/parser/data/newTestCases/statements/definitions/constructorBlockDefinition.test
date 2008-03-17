@@ -28,7 +28,7 @@ ScalaFile
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
           PsiElement(this)('this')
-          ParametersClause     //?
+          ParametersClause  //WRONG
             PsiElement(()('(')
             Parameters
               Parameter
@@ -38,8 +38,6 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  AnnotationsList
-                    <empty list>
                   TypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('Int')
@@ -52,8 +50,6 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  AnnotationsList
-                    <empty list>
                   TypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('Int')

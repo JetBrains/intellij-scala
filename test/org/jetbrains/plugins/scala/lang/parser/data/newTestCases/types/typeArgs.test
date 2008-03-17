@@ -26,8 +26,6 @@ ScalaFile
           PsiElement(identifier)('a')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          AnnotationsList
-            <empty list>
           GenericCall
             TypeElement
               CodeReferenceElement
@@ -35,14 +33,10 @@ ScalaFile
             TypeArgumentsList
               PsiElement([)('[')
               TypesList
-                AnnotationsList
-                  <empty list>
                 TypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('Arg')
                 PsiElement(,)(',')
-                AnnotationsList
-                  <empty list>
                 TypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('Arg')

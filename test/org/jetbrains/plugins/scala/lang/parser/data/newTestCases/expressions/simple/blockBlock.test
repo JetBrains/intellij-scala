@@ -31,13 +31,13 @@ ScalaFile
                 PsiElement(import)('import')
                 PsiWhiteSpace(' ')
                 ImportExpression
-                  StableIdentifier     //WRONG
-                    StableIdentifier
-                      PsiElement(identifier)('a')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('b')
-                  PsiElement(.)('.')
                   CodeReferenceElement
+                    CodeReferenceElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('a')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('b')
+                    PsiElement(.)('.')
                     PsiElement(identifier)('c')
             PsiElement(newline)('\n    ')
             BlockStatement
@@ -69,9 +69,6 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 PsiElement(identifier)('b')
                 PsiWhiteSpace(' ')
-                PrimaryConstructor
-                  AnnotationsList
-                    <empty list>
                 ExtendsBlock
                   ScTemplateBody
                     PsiElement({)('{')

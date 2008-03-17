@@ -8,8 +8,6 @@ ScalaFile
         PsiElement(@)('@')
         AnnotationExpression
           Constructor
-            AnnotationsList
-              <empty list>
             TypeElement
               CodeReferenceElement
                 PsiElement(identifier)('Nullable')

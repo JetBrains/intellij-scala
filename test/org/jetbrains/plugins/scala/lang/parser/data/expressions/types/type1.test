@@ -23,39 +23,27 @@ ScalaFile
             PsiElement(identifier)('a')
             PsiElement(:)(':')
             ParameterType
-              AnnotationsList
-                <empty list>
               TupleType               //WRONG
                 PsiElement(()('(')
                 TypesList
                   FunctionalType
-                    AnnotationsList
-                      <empty list>
                     TypeElement
                       CodeReferenceElement
                         PsiElement(identifier)('a')
                     PsiElement(=>)('=>')
                     FunctionalType
-                      AnnotationsList
-                        <empty list>
                       TupleType
                         PsiElement(()('(')
                         TypesList
-                          AnnotationsList
-                            <empty list>
                           TypeElement
                             CodeReferenceElement
                               PsiElement(identifier)('c')
                           PsiElement(,)(',')
-                          AnnotationsList
-                            <empty list>
                           TypeElement
                             CodeReferenceElement
                               PsiElement(identifier)('d')
                         PsiElement())(')')
                       PsiElement(=>)('=>')
-                      AnnotationsList
-                        <empty list>
                       TypeElement
                         CodeReferenceElement
                           PsiElement(identifier)('e')

@@ -1,10 +1,10 @@
 package a
 
 -----
-Scala file
-  Package statement
+ScalaFile
+  ScPackageStatement
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    Qualified identifier
+    CodeReferenceElement
       PsiElement(identifier)('a')
-    PsiElement(newline)('\n')
+    PsiElement(newline)('\n'

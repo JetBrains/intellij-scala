@@ -1,10 +1,10 @@
 package org {}
 -----
-Scala file
-  Packaging
+ScalaFile
+  ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    Qualified identifier
+    CodeReferenceElement
       PsiElement(identifier)('org')
     PsiWhiteSpace(' ')
     PsiElement({)('{')

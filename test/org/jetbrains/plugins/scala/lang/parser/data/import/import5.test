@@ -1,20 +1,20 @@
 import first.item, second.item
 -----
-Scala file
-  Import statement
+ScalaFile
+  ScImportStatement
     PsiElement(import)('import')
     PsiWhiteSpace(' ')
-    Import expression
-      Stable Identifier
-        PsiElement(identifier)('first')
-      PsiElement(.)('.')
-      Reference identifier
+    ImportExpression
+      CodeReferenceElement
+        CodeReferenceElement
+          PsiElement(identifier)('first')
+        PsiElement(.)('.')
         PsiElement(identifier)('item')
     PsiElement(,)(',')
     PsiWhiteSpace(' ')
-    Import expression
-      Stable Identifier
-        PsiElement(identifier)('second')
-      PsiElement(.)('.')
-      Reference identifier
+    ImportExpression
+      CodeReferenceElement
+        CodeReferenceElement
+          PsiElement(identifier)('second')
+        PsiElement(.)('.')
         PsiElement(identifier)('item')

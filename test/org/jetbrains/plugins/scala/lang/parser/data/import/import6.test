@@ -1,24 +1,24 @@
 import a.b.{item1, item2}
 -----
-Scala file
-  Import statement
+ScalaFile
+  ScImportStatement
     PsiElement(import)('import')
     PsiWhiteSpace(' ')
-    Import expression
-      Stable Identifier
-        Stable Identifier
+    ImportExpression
+      CodeReferenceElement
+        CodeReferenceElement
           PsiElement(identifier)('a')
         PsiElement(.)('.')
         PsiElement(identifier)('b')
       PsiElement(.)('.')
-      Import selectors
+      ImportSelectors
         PsiElement({)('{')
-        Import selector
-          Reference identifier
+        ImportSelector
+          CodeReferenceElement
             PsiElement(identifier)('item1')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        Import selector
-          Reference identifier
+        ImportSelector
+          CodeReferenceElement
             PsiElement(identifier)('item2')
         PsiElement(})('}')

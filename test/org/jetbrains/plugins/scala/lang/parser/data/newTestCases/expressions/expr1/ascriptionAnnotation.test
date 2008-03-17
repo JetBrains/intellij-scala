@@ -20,20 +20,17 @@ ScalaFile
           ReferenceExpression
             PsiElement(identifier)('x')
           PsiWhiteSpace(' ')
-          Ascription
-            PsiElement(:)(':')
-            PsiWhiteSpace(' ')
-            AnnotationsList
-              Annotation
-                PsiElement(@)('@')
-                AnnotationExpression
-                  Constructor
-                    AnnotationsList
-                      <empty list>
-                    TypeElement
-                      CodeReferenceElement
-                        PsiElement(identifier)('throwable')
-                    PsiWhiteSpace('\n')
-                    ArgumentList
-                      <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                Constructor
+                  TypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('throwable')
+                  PsiWhiteSpace('\n')
+                  ArgumentList
+                    <empty list>
         PsiElement(})('}')

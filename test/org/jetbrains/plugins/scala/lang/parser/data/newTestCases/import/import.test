@@ -8,11 +8,11 @@ ScalaFile
       CodeReferenceElement
         CodeReferenceElement
           CodeReferenceElement
-            PsiElement(identifier)('a')
+            CodeReferenceElement
+              PsiElement(identifier)('a')
+            PsiElement(.)('.')
+            PsiElement(identifier)('b')
           PsiElement(.)('.')
-          PsiElement(identifier)('b')
+          PsiElement(identifier)('c')
         PsiElement(.)('.')
-        PsiElement(identifier)('c')
-      PsiElement(.)('.')
-      CodeReferenceElement
         PsiElement(identifier)('d')

@@ -1,2 +1,16 @@
 import a.this.a
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement
+        ThisReference
+          PsiElement(identifier)('a')
+          PsiElement(.)('.')
+          PsiElement(this)('this')
+        PsiElement(.)('.')
+        PsiElement(identifier)('a')
+      PsiErrorElement:Dot expected
+        <empty list>

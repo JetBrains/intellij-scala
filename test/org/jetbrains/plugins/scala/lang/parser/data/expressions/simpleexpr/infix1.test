@@ -29,18 +29,66 @@ ScalaFile
         PsiElement({)('{')
         PsiWhiteSpace('\n')
         InfixExpression
-          InfixExpression
-            MethodCall
+          MethodCall
+            ReferenceExpression
               ReferenceExpression
-                ReferenceExpression
-                  PsiElement(identifier)('List')
-                PsiElement(.)('.')
-                PsiElement(identifier)('flatten')
-              ArgumentExpressions
-                PsiElement(()('(')
-                PsiWhiteSpace('\n  ')
-                MethodCall
-                  PropertySelection
+                PsiElement(identifier)('List')
+              PsiElement(.)('.')
+              PsiElement(identifier)('flatten')
+            ArgumentExpressions
+              PsiElement(()('(')
+              PsiWhiteSpace('\n  ')
+              MethodCall
+                PropertySelection
+                  MethodCall
+                    ReferenceExpression
+                      PsiElement(identifier)('List')
+                    ArgumentExpressions
+                      PsiElement(()('(')
+                      ExpressionsList
+                        ReferenceExpression
+                          ReferenceExpression
+                            PsiElement(identifier)('settings')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('outdir')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression
+                          ReferenceExpression
+                            PsiElement(identifier)('settings')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('classpath')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression
+                          ReferenceExpression
+                            PsiElement(identifier)('settings')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('bootclasspath')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace('\n       ')
+                        ReferenceExpression
+                          ReferenceExpression
+                            PsiElement(identifier)('settings')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('extdirs')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression
+                          ReferenceExpression
+                            PsiElement(identifier)('settings')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('encoding')
+                      PsiElement())(')')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('map')
+                ArgumentExpressions
+                  PsiElement(()('(')
+                  FunctionExpression
+                    PsiElement(identifier)('s')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
                     MethodCall
                       ReferenceExpression
                         PsiElement(identifier)('List')
@@ -49,114 +97,66 @@ ScalaFile
                         ExpressionsList
                           ReferenceExpression
                             ReferenceExpression
-                              PsiElement(identifier)('settings')
+                              PsiElement(identifier)('s')
                             PsiElement(.)('.')
-                            PsiElement(identifier)('outdir')
+                            PsiElement(identifier)('nme')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
                           ReferenceExpression
                             ReferenceExpression
-                              PsiElement(identifier)('settings')
+                              PsiElement(identifier)('s')
                             PsiElement(.)('.')
-                            PsiElement(identifier)('classpath')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          ReferenceExpression
-                            ReferenceExpression
-                              PsiElement(identifier)('settings')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('bootclasspath')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace('\n       ')
-                          ReferenceExpression
-                            ReferenceExpression
-                              PsiElement(identifier)('settings')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('extdirs')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          ReferenceExpression
-                            ReferenceExpression
-                              PsiElement(identifier)('settings')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('encoding')
+                            PsiElement(identifier)('value')
                         PsiElement())(')')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('map')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)(':::')
+          PsiElement(newline)('\n')
+          PsiComment(comment)('// '-server' option')
+          PsiWhiteSpace('\n')
+          InfixExpression
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              IfStatement
+                PsiElement(if)('if')
+                PsiWhiteSpace(' ')
+                PsiElement(()('(')
+                ReferenceExpression
+                  ReferenceExpression
+                    PsiElement(identifier)('serverAddr')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('isEmpty')
+                PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ReferenceExpression
+                  PsiElement(identifier)('Nil')
+                PsiWhiteSpace(' ')
+                PsiElement(else)('else')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression
+                    PsiElement(identifier)('List')
                   ArgumentExpressions
                     PsiElement(()('(')
-                    FunctionExpression
-                      PsiElement(identifier)('s')
+                    ExpressionsList
+                      Literal
+                        PsiElement(string content)('"-server"')
+                      PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace(' ')
-                      MethodCall
+                      ReferenceExpression
                         ReferenceExpression
-                          PsiElement(identifier)('List')
-                        ArgumentExpressions
-                          PsiElement(()('(')
-                          ExpressionsList
-                            ReferenceExpression
-                              ReferenceExpression
-                                PsiElement(identifier)('s')
-                              PsiElement(.)('.')
-                              PsiElement(identifier)('nme')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            ReferenceExpression
-                              ReferenceExpression
-                                PsiElement(identifier)('s')
-                              PsiElement(.)('.')
-                              PsiElement(identifier)('value')
-                          PsiElement())(')')
+                          PsiElement(identifier)('serverAddr')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('get')
                     PsiElement())(')')
-                PsiElement())(')')
+              PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(identifier)(':::')
             PsiElement(newline)('\n')
-            PsiComment(comment)('// '-server' option')
+            PsiComment(comment)('// ChoiceSetting')
             PsiWhiteSpace('\n')
             InfixExpression
-              ExpressionInParenthesis
-                PsiElement(()('(')
-                IfStatement
-                  PsiElement(if)('if')
-                  PsiWhiteSpace(' ')
-                  PsiElement(()('(')
-                  ReferenceExpression
-                    ReferenceExpression
-                      PsiElement(identifier)('serverAddr')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('isEmpty')
-                  PsiElement())(')')
-                  PsiWhiteSpace(' ')
-                  ReferenceExpression
-                    PsiElement(identifier)('Nil')
-                  PsiWhiteSpace(' ')
-                  PsiElement(else)('else')
-                  PsiWhiteSpace(' ')
-                  MethodCall
-                    ReferenceExpression
-                      PsiElement(identifier)('List')
-                    ArgumentExpressions
-                      PsiElement(()('(')
-                      ExpressionsList
-                        Literal
-                          PsiElement(string content)('"-server"')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        ReferenceExpression
-                          ReferenceExpression
-                            PsiElement(identifier)('serverAddr')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('get')
-                      PsiElement())(')')
-                PsiElement())(')')
-              PsiWhiteSpace(' ')
-              PsiElement(identifier)(':::')
-              PsiElement(newline)('\n')
-              PsiComment(comment)('// ChoiceSetting')
-              PsiWhiteSpace('\n')
               ExpressionInParenthesis
                 PsiElement(()('(')
                 MethodCall
@@ -211,168 +211,166 @@ ScalaFile
                           PsiElement(identifier)('value')
                     PsiElement())(')')
                 PsiElement())(')')
-              PsiErrorElement:Wrong associativity. All operators should have the same associativity
-                <empty list>
-          PsiWhiteSpace(' ')
-          PsiElement(identifier)(':::')
-          PsiElement(newline)('\n')
-          PsiComment(comment)('// BooleanSetting')
-          PsiWhiteSpace('\n')
-          InfixExpression
-            MethodCall
-              ReferenceExpression
-                PsiElement(identifier)('trim')
-              ArgumentExpressions
-                PsiElement(()('(')
-                PsiWhiteSpace('\n  ')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)(':::')
+              PsiElement(newline)('\n')
+              PsiComment(comment)('// BooleanSetting')
+              PsiWhiteSpace('\n')
+              InfixExpression
                 MethodCall
-                  PropertySelection
-                    MethodCall
-                      ReferenceExpression
-                        PsiElement(identifier)('List')
-                      ArgumentExpressions
-                        PsiElement(()('(')
-                        ExpressionsList
-                          ReferenceExpression
-                            ReferenceExpression
-                              PsiElement(identifier)('settings')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('debug')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          ReferenceExpression
-                            ReferenceExpression
-                              PsiElement(identifier)('settings')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('deprecation')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          ReferenceExpression
-                            ReferenceExpression
-                              PsiElement(identifier)('settings')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('nopredefs')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace('\n       ')
-                          ReferenceExpression
-                            ReferenceExpression
-                              PsiElement(identifier)('settings')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('verbose')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          ReferenceExpression
-                            PsiElement(identifier)('reset')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          ReferenceExpression
-                            PsiElement(identifier)('shutdown')
-                        PsiElement())(')')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('map')
+                  ReferenceExpression
+                    PsiElement(identifier)('trim')
                   ArgumentExpressions
                     PsiElement(()('(')
-                    FunctionExpression
-                      PsiElement(identifier)('s')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace(' ')
-                      IfStatement
-                        PsiElement(if)('if')
-                        PsiWhiteSpace(' ')
-                        PsiElement(()('(')
-                        ReferenceExpression
-                          ReferenceExpression
-                            PsiElement(identifier)('s')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('value')
-                        PsiElement())(')')
-                        PsiWhiteSpace(' ')
-                        ReferenceExpression
-                          ReferenceExpression
-                            PsiElement(identifier)('s')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('nme')
-                        PsiWhiteSpace(' ')
-                        PsiElement(else)('else')
-                        PsiWhiteSpace(' ')
-                        Literal
-                          PsiElement(string content)('""')
-                    PsiElement())(')')
-                PsiElement())(')')
-            PsiWhiteSpace(' ')
-            PsiElement(identifier)(':::')
-            PsiElement(newline)('\n')
-            PsiComment(comment)('// PhaseSetting')
-            PsiWhiteSpace('\n')
-            MethodCall
-              ReferenceExpression
-                PsiElement(identifier)('trim')
-              ArgumentExpressions
-                PsiElement(()('(')
-                PsiWhiteSpace('\n  ')
-                MethodCall
-                  PropertySelection
+                    PsiWhiteSpace('\n  ')
                     MethodCall
-                      ReferenceExpression
-                        PsiElement(identifier)('List')
+                      PropertySelection
+                        MethodCall
+                          ReferenceExpression
+                            PsiElement(identifier)('List')
+                          ArgumentExpressions
+                            PsiElement(()('(')
+                            ExpressionsList
+                              ReferenceExpression
+                                ReferenceExpression
+                                  PsiElement(identifier)('settings')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('debug')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression
+                                ReferenceExpression
+                                  PsiElement(identifier)('settings')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('deprecation')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression
+                                ReferenceExpression
+                                  PsiElement(identifier)('settings')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('nopredefs')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace('\n       ')
+                              ReferenceExpression
+                                ReferenceExpression
+                                  PsiElement(identifier)('settings')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('verbose')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression
+                                PsiElement(identifier)('reset')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression
+                                PsiElement(identifier)('shutdown')
+                            PsiElement())(')')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('map')
                       ArgumentExpressions
                         PsiElement(()('(')
-                        ReferenceExpression
-                          ReferenceExpression
-                            PsiElement(identifier)('settings')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('log')
-                        PsiElement())(')')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('map')
-                  ArgumentExpressions
-                    PsiElement(()('(')
-                    FunctionExpression
-                      PsiElement(identifier)('s')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace(' ')
-                      IfStatement
-                        PsiElement(if)('if')
-                        PsiWhiteSpace(' ')
-                        PsiElement(()('(')
-                        ReferenceExpression
-                          ReferenceExpression
+                        FunctionExpression
+                          PsiElement(identifier)('s')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          IfStatement
+                            PsiElement(if)('if')
+                            PsiWhiteSpace(' ')
+                            PsiElement(()('(')
                             ReferenceExpression
-                              PsiElement(identifier)('s')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('value')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('isEmpty')
-                        PsiElement())(')')
-                        PsiWhiteSpace(' ')
-                        Literal
-                          PsiElement(string content)('""')
-                        PsiWhiteSpace(' ')
-                        PsiElement(else)('else')
-                        PsiWhiteSpace(' ')
-                        InfixExpression
-                          InfixExpression
+                              ReferenceExpression
+                                PsiElement(identifier)('s')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('value')
+                            PsiElement())(')')
+                            PsiWhiteSpace(' ')
                             ReferenceExpression
                               ReferenceExpression
                                 PsiElement(identifier)('s')
                               PsiElement(.)('.')
                               PsiElement(identifier)('nme')
                             PsiWhiteSpace(' ')
-                            PsiElement(identifier)('+')
+                            PsiElement(else)('else')
                             PsiWhiteSpace(' ')
                             Literal
-                              PsiElement(string content)('":"')
-                          PsiWhiteSpace(' ')
-                          PsiElement(identifier)('+')
-                          PsiWhiteSpace(' ')
-                          ReferenceExpression
-                            ReferenceExpression
-                              PsiElement(identifier)('s')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('value')
+                              PsiElement(string content)('""')
+                        PsiElement())(')')
                     PsiElement())(')')
-                PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)(':::')
+                PsiElement(newline)('\n')
+                PsiComment(comment)('// PhaseSetting')
+                PsiWhiteSpace('\n')
+                MethodCall
+                  ReferenceExpression
+                    PsiElement(identifier)('trim')
+                  ArgumentExpressions
+                    PsiElement(()('(')
+                    PsiWhiteSpace('\n  ')
+                    MethodCall
+                      PropertySelection
+                        MethodCall
+                          ReferenceExpression
+                            PsiElement(identifier)('List')
+                          ArgumentExpressions
+                            PsiElement(()('(')
+                            ReferenceExpression
+                              ReferenceExpression
+                                PsiElement(identifier)('settings')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('log')
+                            PsiElement())(')')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('map')
+                      ArgumentExpressions
+                        PsiElement(()('(')
+                        FunctionExpression
+                          PsiElement(identifier)('s')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          IfStatement
+                            PsiElement(if)('if')
+                            PsiWhiteSpace(' ')
+                            PsiElement(()('(')
+                            ReferenceExpression
+                              ReferenceExpression
+                                ReferenceExpression
+                                  PsiElement(identifier)('s')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('value')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('isEmpty')
+                            PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            Literal
+                              PsiElement(string content)('""')
+                            PsiWhiteSpace(' ')
+                            PsiElement(else)('else')
+                            PsiWhiteSpace(' ')
+                            InfixExpression
+                              InfixExpression
+                                ReferenceExpression
+                                  ReferenceExpression
+                                    PsiElement(identifier)('s')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('nme')
+                                PsiWhiteSpace(' ')
+                                PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                Literal
+                                  PsiElement(string content)('":"')
+                              PsiWhiteSpace(' ')
+                              PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression
+                                ReferenceExpression
+                                  PsiElement(identifier)('s')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('value')
+                        PsiElement())(')')
+                    PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

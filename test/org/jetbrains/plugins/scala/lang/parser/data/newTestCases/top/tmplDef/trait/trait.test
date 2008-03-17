@@ -11,17 +11,14 @@ ScalaFile
     PsiElement(identifier)('a')
     TypeParameterClause
       PsiElement([)('[')
-      VariantTypeParameter
-        TypeParameter
-          PsiElement(identifier)('b')
-          PsiWhiteSpace(' ')
-          PsiElement(<:)('<:')
-          PsiWhiteSpace(' ')
-          AnnotationsList
-            <empty list>
-          TypeElement
-            CodeReferenceElement
-              PsiElement(identifier)('c')
+      TypeParameter
+        PsiElement(identifier)('b')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        TypeElement
+          CodeReferenceElement
+            PsiElement(identifier)('c')
       PsiElement(])(']')
     PsiWhiteSpace(' ')
     ExtendsBlock
@@ -48,16 +45,12 @@ ScalaFile
       PsiElement(with)('with')
       PsiWhiteSpace(' ')
       TraitParents
-        AnnotationsList
-          <empty list>
         TypeElement
           CodeReferenceElement
             PsiElement(identifier)('F')
         PsiWhiteSpace(' ')
         PsiElement(with)('with')
         PsiWhiteSpace(' ')
-        AnnotationsList
-          <empty list>
         TypeElement
           CodeReferenceElement
             PsiElement(identifier)('G')

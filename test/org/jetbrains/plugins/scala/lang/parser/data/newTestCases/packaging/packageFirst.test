@@ -18,8 +18,8 @@ ScalaFile
   ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    QualifiedIdentifier
-      QualifiedIdentifier
+    CodeReferenceElement
+      CodeReferenceElement
         PsiElement(identifier)('a')
       PsiElement(.)('.')
       PsiElement(identifier)('b')

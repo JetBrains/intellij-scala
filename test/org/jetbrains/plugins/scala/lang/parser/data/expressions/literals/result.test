@@ -31,8 +31,6 @@ ScalaFile
               Parameter
                 PsiElement(identifier)('a')
                 PsiElement(:)(':')
-                AnnotationsList
-                  <empty list>
                 TypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('T')
@@ -40,8 +38,6 @@ ScalaFile
               Parameter
                 PsiElement(identifier)('b')
                 PsiElement(:)(':')
-                AnnotationsList
-                  <empty list>
                 TypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('S')

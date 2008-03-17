@@ -27,29 +27,21 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           FunctionalType
-            AnnotationsList
-              <empty list>
             TypeElement
               CodeReferenceElement
                 PsiElement(identifier)('Type')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')
-            AnnotationsList
-              <empty list>
             TypeInParenthesis
               PsiElement(()('(')
               FunctionalType
-                AnnotationsList
-                  <empty list>
                 TypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('Type')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
-                AnnotationsList
-                  <empty list>
                 TypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('Type')

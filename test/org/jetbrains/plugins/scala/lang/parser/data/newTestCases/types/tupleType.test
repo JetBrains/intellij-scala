@@ -26,19 +26,13 @@ ScalaFile
           PsiElement(identifier)('x')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          AnnotationsList
-            <empty list>
           TupleType
             PsiElement(()('(')
             TypesList
-              AnnotationsList
-                <empty list>
               TypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('Type')
               PsiElement(,)(',')
-              AnnotationsList
-                <empty list>
               TypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('Type')

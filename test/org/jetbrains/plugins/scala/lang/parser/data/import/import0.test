@@ -5,8 +5,8 @@ ScalaFile
     PsiElement(import)('import')
     PsiWhiteSpace(' ')
     ImportExpression
-      StableIdentifier
-        PsiElement(identifier)('a')
-      PsiElement(.)('.')
-      ScScalaCodeReferenseElement
+      CodeReferenceElement
+        CodeReferenceElement
+          PsiElement(identifier)('a')
+        PsiElement(.)('.')
         PsiElement(identifier)('b')
