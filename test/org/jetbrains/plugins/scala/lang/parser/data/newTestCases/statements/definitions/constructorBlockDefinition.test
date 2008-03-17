@@ -67,15 +67,14 @@ ScalaFile
                   PsiElement(identifier)('a')
                 PsiElement())(')')
             PsiElement(newline)('\n    ')
-            BlockStatement
-              AssignStatement
-                ReferenceExpression
-                  PsiElement(identifier)('a')
-                PsiWhiteSpace(' ')
-                PsiElement(=)('=')
-                PsiWhiteSpace(' ')
-                Literal
-                  PsiElement(true)('true')
+            AssignStatement
+              ReferenceExpression
+                PsiElement(identifier)('a')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              Literal
+                PsiElement(true)('true')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
         PsiWhiteSpace('\n')

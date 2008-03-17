@@ -18,9 +18,8 @@ ScalaFile
         BlockExpression
           PsiElement({)('{')
           Block
-            ResultExpression
-              Literal
-                PsiElement(string content)('"this is a block"')
+            Literal
+              PsiElement(string content)('"this is a block"')
           PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

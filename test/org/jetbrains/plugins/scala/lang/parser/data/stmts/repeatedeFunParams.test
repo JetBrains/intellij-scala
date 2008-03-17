@@ -51,51 +51,48 @@ ScalaFile
             PsiElement({)('{')
             PsiWhiteSpace('\n    ')
             Block
-              BlockStatement
-                ScVariableDefinition
-                  Modifiers
-                    <empty list>
-                  PsiElement(var)('var')
-                  PsiWhiteSpace(' ')
-                  ReferencePattern
+              ScVariableDefinition
+                Modifiers
+                  <empty list>
+                PsiElement(var)('var')
+                PsiWhiteSpace(' ')
+                ReferencePattern
+                  PsiElement(identifier)('result')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                Literal
+                  PsiElement(integer)('0')
+              PsiElement(newline)('\n    ')
+              ForStatement
+                PsiElement(for)('for')
+                PsiWhiteSpace(' ')
+                PsiElement(()('(')
+                Enumerators
+                  Generator
+                    ReferencePattern
+                      PsiElement(identifier)('arg')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<-)('<-')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression
+                      ReferenceExpression
+                        PsiElement(identifier)('args')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('elements')
+                PsiElement())(')')
+                PsiElement(newline)('\n      ')
+                InfixExpression
+                  ReferenceExpression
                     PsiElement(identifier)('result')
                   PsiWhiteSpace(' ')
-                  PsiElement(=)('=')
+                  PsiElement(identifier)('+=')
                   PsiWhiteSpace(' ')
-                  Literal
-                    PsiElement(integer)('0')
+                  ReferenceExpression
+                    PsiElement(identifier)('arg')
               PsiElement(newline)('\n    ')
-              BlockStatement
-                ForStatement
-                  PsiElement(for)('for')
-                  PsiWhiteSpace(' ')
-                  PsiElement(()('(')
-                  Enumerators
-                    Generator
-                      ReferencePattern
-                        PsiElement(identifier)('arg')
-                      PsiWhiteSpace(' ')
-                      PsiElement(<-)('<-')
-                      PsiWhiteSpace(' ')
-                      ReferenceExpression
-                        ReferenceExpression
-                          PsiElement(identifier)('args')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('elements')
-                  PsiElement())(')')
-                  PsiElement(newline)('\n      ')
-                  InfixExpression
-                    ReferenceExpression
-                      PsiElement(identifier)('result')
-                    PsiWhiteSpace(' ')
-                    PsiElement(identifier)('+=')
-                    PsiWhiteSpace(' ')
-                    ReferenceExpression
-                      PsiElement(identifier)('arg')
-              PsiElement(newline)('\n    ')
-              ResultExpression
-                ReferenceExpression
-                  PsiElement(identifier)('result')
+              ReferenceExpression
+                PsiElement(identifier)('result')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
         PsiWhiteSpace('\n')

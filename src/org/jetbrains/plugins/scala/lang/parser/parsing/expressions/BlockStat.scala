@@ -33,27 +33,25 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
  */
 
 object BlockStat {
-  def parse(builder: PsiBuilder) : Boolean = {
-    Block.flag2 = false
-    val blockStatMarker = builder.mark
+  def parse(builder: PsiBuilder) :Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.kIMPORT => {
         Import parse builder
-        blockStatMarker.done(ScalaElementTypes.BLOCK_STAT)
+        return true
+      }
+      case ScalaTokenTypes.tLINE_TERMINATOR | ScalaTokenTypes.tSEMICOLON => {
+        builder.advanceLexer
         return true
       }
       case _ => {}
     }
     if (!Def.parse(builder,false,true)) {
       if (!TmplDef.parse(builder)) {
-        Block.flag2 = true
         if (!Expr1.parse(builder)) {
-          blockStatMarker.drop
           return false
         }
       }
     }
-    blockStatMarker.done(ScalaElementTypes.BLOCK_STAT)
     return true
   }
 }

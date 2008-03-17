@@ -89,11 +89,7 @@ object ResultExpr {
         backupMarker.drop
       }
     }
-    if (!Expr1.parse(builder)) {
-      resultMarker.drop
-      return false
-    }
-    resultMarker.done(ScalaElementTypes.RESULT_EXPR)
-    return true
+    resultMarker.drop
+    return false
   }
 }

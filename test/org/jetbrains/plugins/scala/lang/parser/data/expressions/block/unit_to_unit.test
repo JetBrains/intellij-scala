@@ -56,10 +56,9 @@ ScalaFile
                     PsiElement(=>)('=>')
                     PsiWhiteSpace(' ')
                     Block
-                      BlockStatement
-                        UnitExpression
-                          PsiElement(()('(')
-                          PsiElement())(')')
+                      UnitExpression
+                        PsiElement(()('(')
+                        PsiElement())(')')
                       PsiElement(;)(';')
               PsiWhiteSpace('\n        ')
               CaseClause

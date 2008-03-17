@@ -23,16 +23,15 @@ ScalaFile
           PsiElement({)('{')
           PsiWhiteSpace('\n    ')
           Block
-            BlockStatement
-              ScImportStatement
-                PsiElement(import)('import')
-                PsiWhiteSpace(' ')
-                ImportExpression
+            ScImportStatement
+              PsiElement(import)('import')
+              PsiWhiteSpace(' ')
+              ImportExpression
+                CodeReferenceElement
                   CodeReferenceElement
-                    CodeReferenceElement
-                      PsiElement(identifier)('t')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('s')
+                    PsiElement(identifier)('t')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('s')
             PsiElement(newline)('\n    ')
             ResultExpression
               ParameterList
@@ -58,16 +57,15 @@ ScalaFile
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
               Block
-                BlockStatement
-                  ScImportStatement
-                    PsiElement(import)('import')
-                    PsiWhiteSpace(' ')
-                    ImportExpression
+                ScImportStatement
+                  PsiElement(import)('import')
+                  PsiWhiteSpace(' ')
+                  ImportExpression
+                    CodeReferenceElement
                       CodeReferenceElement
-                        CodeReferenceElement
-                          PsiElement(identifier)('s')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('t')
+                        PsiElement(identifier)('s')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('t')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
         PsiWhiteSpace('\n')
