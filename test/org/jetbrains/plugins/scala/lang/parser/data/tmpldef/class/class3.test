@@ -1,14 +1,15 @@
 private class a
 -----
-Scala file
-  type template definition: class
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
     Modifiers
-      PsiElement(private)('private')
+      AccessModifier
+        PsiElement(private)('private')
     PsiWhiteSpace(' ')
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    extends block
-      <empty list>
-    template body
+    ExtendsBlock
       <empty list>

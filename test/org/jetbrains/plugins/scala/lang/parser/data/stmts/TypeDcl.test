@@ -2,32 +2,36 @@ object s{
   type T[S] <:Int
 }
 -----
-Scala file
-  template definition: object
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('s')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n  ')
-      type declaration
-        PsiElement(type)('type')
-        PsiWhiteSpace(' ')
-        PsiElement(identifier)('T')
-        type parameter clause
-          PsiElement([)('[')
-          type parameter
-            PsiElement(identifier)('S')
-          PsiElement(])(']')
-        PsiWhiteSpace(' ')
-        Upper bound type
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter
+              PsiElement(identifier)('S')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
-          Simple Type
-            Stable Identifier
+          TypeElement
+            CodeReferenceElement
               PsiElement(identifier)('Int')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,13 +1,13 @@
 object a
 -----
-Scala file
-  template definition: object
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    extends block
-      <empty list>
-    template body
+    ExtendsBlock
       <empty list>

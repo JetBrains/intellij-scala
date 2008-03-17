@@ -1,15 +1,14 @@
 case class a
 -----
-Scala file
-  type template definition: class
-    Modifiers
+ScalaFile
+  ScClass
+    AnnotationsList
       <empty list>
-    PsiElement(case)('case')
+    Modifiers
+      PsiElement(case)('case')
     PsiWhiteSpace(' ')
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    extends block
-      <empty list>
-    template body
+    ExtendsBlock
       <empty list>

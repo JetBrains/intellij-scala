@@ -1,85 +1,103 @@
 case class If[T](c: Term[Boolean], t1: Term[T], t2: Term[T]) extends Term[T]
 -----
-Scala file
-  type template definition: class
-    Modifiers
+ScalaFile
+  ScClass
+    AnnotationsList
       <empty list>
-    PsiElement(case)('case')
+    Modifiers
+      PsiElement(case)('case')
     PsiWhiteSpace(' ')
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('If')
-    type parameter clause
+    TypeParameterClause
       PsiElement([)('[')
-      type parameter
+      TypeParameter
         PsiElement(identifier)('T')
       PsiElement(])(']')
-    parameters clause
-      PsiElement(()('(')
-      parameter
-        Reference identifier
-          PsiElement(identifier)('c')
-        PsiElement(:)(':')
-        PsiWhiteSpace(' ')
-        Simple Type
-          Simple Type
-            Stable Identifier
-              PsiElement(identifier)('Term')
-          Type arguments list
-            PsiElement([)('[')
-            Simple Type
-              Stable Identifier
-                PsiElement(identifier)('Boolean')
-            PsiElement(])(']')
-      PsiElement(,)(',')
-      PsiWhiteSpace(' ')
-      parameter
-        Reference identifier
-          PsiElement(identifier)('t1')
-        PsiElement(:)(':')
-        PsiWhiteSpace(' ')
-        Simple Type
-          Simple Type
-            Stable Identifier
-              PsiElement(identifier)('Term')
-          Type arguments list
-            PsiElement([)('[')
-            Simple Type
-              Stable Identifier
-                PsiElement(identifier)('T')
-            PsiElement(])(']')
-      PsiElement(,)(',')
-      PsiWhiteSpace(' ')
-      parameter
-        Reference identifier
-          PsiElement(identifier)('t2')
-        PsiElement(:)(':')
-        PsiWhiteSpace(' ')
-        Simple Type
-          Simple Type
-            Stable Identifier
-              PsiElement(identifier)('Term')
-          Type arguments list
-            PsiElement([)('[')
-            Simple Type
-              Stable Identifier
-                PsiElement(identifier)('T')
-            PsiElement(])(']')
-      PsiElement())(')')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      ClassParametersClauses
+        ClassParametersClause
+          PsiElement(()('(')
+          ClassParameter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('c')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              GenericCall
+                TypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('Term')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('Boolean')
+                  PsiElement(])(']')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('t1')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              GenericCall
+                TypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('Term')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('T')
+                  PsiElement(])(']')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('t2')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              GenericCall
+                TypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('Term')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('T')
+                  PsiElement(])(']')
+          PsiElement())(')')
     PsiWhiteSpace(' ')
-    extends block
+    ExtendsBlock
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
-      template parents
-        constuctor
-          Stable Identifier
-            PsiElement(identifier)('Term')
-          Type arguments list
-            PsiElement([)('[')
-            Types list
-              Simple Type
-                Stable Identifier
+      ClassParents
+        Constructor
+          GenericCall
+            TypeElement
+              CodeReferenceElement
+                PsiElement(identifier)('Term')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeElement
+                CodeReferenceElement
                   PsiElement(identifier)('T')
-            PsiElement(])(']')
-    template body
-      <empty list>
+              PsiElement(])(']')
+          ArgumentList
+            <empty list>

@@ -7,84 +7,96 @@ object main{
   }
 }
 -----
-Scala file
-  template definition: object
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('main')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n  ')
-      function definition
-        PsiElement(def)('def')
-        PsiWhiteSpace(' ')
-        Reference identifier
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
           PsiElement(identifier)('sum')
-        parameters clause
-          PsiElement(()('(')
-          parameter
-            Reference identifier
-              PsiElement(identifier)('args')
-            PsiElement(:)(':')
-            PsiWhiteSpace(' ')
-            parameter scala psi element
-              Simple Type
-                Stable Identifier
-                  PsiElement(identifier)('Int')
-              PsiElement(identifier)('*')
-          PsiElement())(')')
-        PsiWhiteSpace(' ')
-        PsiElement(=)('=')
-        PsiWhiteSpace(' ')
-        Block expression
-          PsiElement({)('{')
-          PsiWhiteSpace('\n    ')
-          Block
-            variable definition
-              PsiElement(var)('var')
-              PsiWhiteSpace(' ')
-              Reference identifier pattern
-                PsiElement(identifier)('result')
-              PsiWhiteSpace(' ')
-              PsiElement(=)('=')
-              PsiWhiteSpace(' ')
-              Literal
-                PsiElement(integer)('0')
-            PsiElement(newline)('\n    ')
-            FOR statement
-              PsiElement(for)('for')
-              PsiWhiteSpace(' ')
+          ParametersClauses
+            ParametersClause
               PsiElement(()('(')
-              Enumerators
-                Enumerator
-                  Reference identifier pattern
-                    PsiElement(identifier)('arg')
+              Parameters
+                Parameter
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('args')
+                  PsiElement(:)(':')
                   PsiWhiteSpace(' ')
-                  PsiElement(<-)('<-')
-                  PsiWhiteSpace(' ')
-                  Property selection
-                    Reference expression
-                      PsiElement(identifier)('args')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('elements')
+                  ParameterType
+                    TypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('Int')
+                    PsiElement(identifier)('*')
               PsiElement())(')')
-              PsiElement(newline)('\n      ')
-              Infix expression
-                Reference expression
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            Block
+              BlockStatement
+                ScVariableDefinition
+                  Modifiers
+                    <empty list>
+                  PsiElement(var)('var')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern
+                    PsiElement(identifier)('result')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  Literal
+                    PsiElement(integer)('0')
+              PsiElement(newline)('\n    ')
+              BlockStatement
+                ForStatement
+                  PsiElement(for)('for')
+                  PsiWhiteSpace(' ')
+                  PsiElement(()('(')
+                  Enumerators
+                    Generator
+                      ReferencePattern
+                        PsiElement(identifier)('arg')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<-)('<-')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression
+                        ReferenceExpression
+                          PsiElement(identifier)('args')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('elements')
+                  PsiElement())(')')
+                  PsiElement(newline)('\n      ')
+                  InfixExpression
+                    ReferenceExpression
+                      PsiElement(identifier)('result')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('+=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression
+                      PsiElement(identifier)('arg')
+              PsiElement(newline)('\n    ')
+              ResultExpression
+                ReferenceExpression
                   PsiElement(identifier)('result')
-                PsiWhiteSpace(' ')
-                PsiElement(identifier)('+=')
-                PsiWhiteSpace(' ')
-                Reference expression
-                  PsiElement(identifier)('arg')
-            PsiElement(newline)('\n    ')
-            Reference expression
-              PsiElement(identifier)('result')
-          PsiWhiteSpace('\n  ')
-          PsiElement(})('}')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

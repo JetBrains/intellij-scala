@@ -1,42 +1,58 @@
 class A(a: T with S with U {val i:T})
 -----
-Scala file
-  type template definition: class
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
-    parameters clause
-      PsiElement(()('(')
-      parameter
-        Reference identifier
-          PsiElement(identifier)('a')
-        PsiElement(:)(':')
-        PsiWhiteSpace(' ')
-        Simple type
-          Stable Identifier
-            PsiElement(identifier)('T')
-          PsiWhiteSpace(' ')
-          PsiElement(with)('with')
-          PsiWhiteSpace(' ')
-          Stable Identifier
-            PsiElement(identifier)('S')
-          PsiWhiteSpace(' ')
-          PsiElement(with)('with')
-          PsiWhiteSpace(' ')
-          Stable Identifier
-            PsiElement(identifier)('U')
-          PsiWhiteSpace(' ')
-          Refinements
-            PsiElement({)('{')
-            Refinement statement
-              value declaration
-                PsiElement(val)('val')
-                PsiWhiteSpace(' ')
-                Reference identifier
-                  PsiElement(identifier)('i')
-                PsiElement(:)(':')
-                Simple type
-                  Stable Identifier
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      ClassParametersClauses
+        ClassParametersClause
+          PsiElement(()('(')
+          ClassParameter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              CompoundType
+                TypeElement
+                  CodeReferenceElement
                     PsiElement(identifier)('T')
-            PsiElement(})('}')
-      PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                TypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('S')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                TypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('U')
+                PsiWhiteSpace(' ')
+                Refinement
+                  PsiElement({)('{')
+                  RefinementStatement
+                    ScValueDeclaration
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('i')
+                      PsiElement(:)(':')
+                      TypeElement
+                        CodeReferenceElement
+                          PsiElement(identifier)('T')
+                  PsiElement(})('}')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>

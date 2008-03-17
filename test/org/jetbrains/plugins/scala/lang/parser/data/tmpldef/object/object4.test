@@ -1,26 +1,19 @@
 object a [T]
 -----
-Scala file
-  template definition: object
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
-    extends block
+    ExtendsBlock
       <empty list>
-    template body
-      <empty list>
-  Attribute clauses
-    Attribute clause
-      PsiElement([)('[')
-      Attribute
-        constuctor
-          Stable Identifier
-            PsiElement(identifier)('T')
-      PsiElement(])(']')
-  Modifiers
+  PsiErrorElement:';' or new-line expected
     <empty list>
-  PsiErrorElement:wrong type declaration
-    <empty list>
+  PsiElement([)('[')
+  PsiElement(identifier)('T')
+  PsiElement(])(']')

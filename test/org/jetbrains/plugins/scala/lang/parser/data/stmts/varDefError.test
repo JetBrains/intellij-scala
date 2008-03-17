@@ -2,38 +2,41 @@ object y{
   var Some(x):Int=_
 }
 -----
-Scala file
-  template definition: object
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('y')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n  ')
-      variable declaration
-        PsiElement(var)('var')
-        PsiWhiteSpace(' ')
-        Reference identifier
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScVariableDeclaration
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
           PsiElement(identifier)('Some')
-        PsiErrorElement:wrong value declaration
+          PsiErrorElement:Wrong variable declaration //WRONG
+            <empty list>
+        PsiElement(()('(')
+        ReferenceExpression
+          PsiElement(identifier)('x')
+        PsiErrorElement:';' or new-line expected
           <empty list>
-      Typed statement
-        Expression list
-          PsiElement(()('(')
-          Reference expression
-            PsiElement(identifier)('x')
-          PsiElement())(')')
+        PsiElement())(')')
         PsiElement(:)(':')
-        Simple Type
-          Stable Identifier
+        AssignStatement
+          ReferenceExpression
             PsiElement(identifier)('Int')
-      PsiErrorElement:Definition or declaration expected
-        <empty list>
-      PsiElement(=)('=')
-      PsiElement(_)('_')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+          PsiElement(=)('=')
+          SimpleExpression
+            PsiElement(_)('_')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

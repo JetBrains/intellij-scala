@@ -3,62 +3,71 @@ object main{
   val x,y,z,t: Int
 }
 -----
-Scala file
-  type template definition: class
-    Modifiers
+ScalaFile
+  ScClass
+    AnnotationsList
       <empty list>
-    PsiElement(case)('case')
+    Modifiers
+      PsiElement(case)('case')
     PsiWhiteSpace(' ')
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('Some')
-    parameters clause
-      PsiElement(()('(')
-      parameter
-        Reference identifier
-          PsiElement(identifier)('x')
-        PsiElement(:)(':')
-        PsiWhiteSpace(' ')
-        Simple Type
-          Stable Identifier
-            PsiElement(identifier)('Int')
-      PsiElement())(')')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiElement(})('}')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      ClassParametersClauses
+        ClassParametersClause
+          PsiElement(()('(')
+          ClassParameter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              TypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiElement(})('}')
   PsiElement(newline)('\n')
-  template definition: object
+  ScObject
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('main')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n  ')
-      value declaration
-        PsiElement(val)('val')
-        PsiWhiteSpace(' ')
-        list of identifiers
-          Reference identifier
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
             PsiElement(identifier)('x')
-          PsiElement(,)(',')
-          Reference identifier
+            PsiElement(,)(',')
             PsiElement(identifier)('y')
-          PsiElement(,)(',')
-          Reference identifier
+            PsiElement(,)(',')
             PsiElement(identifier)('z')
-          PsiElement(,)(',')
-          Reference identifier
+            PsiElement(,)(',')
             PsiElement(identifier)('t')
-        PsiElement(:)(':')
-        PsiWhiteSpace(' ')
-        Simple Type
-          Stable Identifier
-            PsiElement(identifier)('Int')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('Int')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

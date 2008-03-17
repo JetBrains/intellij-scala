@@ -3,48 +3,54 @@ object Main{
   var x : Int = _
 }
 -----
-Scala file
-  template definition: object
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
     Modifiers
       <empty list>
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('Main')
-    extends block
-      <empty list>
-    template body
-      PsiElement({)('{')
-      PsiWhiteSpace('\n  ')
-      variable declaration
-        PsiElement(var)('var')
-        PsiWhiteSpace(' ')
-        list of identifiers
-          Reference identifier
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScVariableDeclaration
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
             PsiElement(identifier)('x')
-          PsiElement(,)(',')
-          Reference identifier
+            PsiElement(,)(',')
             PsiElement(identifier)('y')
-        PsiWhiteSpace(' ')
-        PsiElement(:)(':')
-        PsiWhiteSpace(' ')
-        Simple Type
-          Stable Identifier
-            PsiElement(identifier)('Int')
-      PsiElement(newline)('\n  ')
-      variable declaration
-        PsiElement(var)('var')
-        PsiWhiteSpace(' ')
-        Reference identifier
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('Int')
+        PsiElement(newline)('\n  ')
+        ScVariableDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
           PsiElement(identifier)('x')
-        PsiWhiteSpace(' ')
-        PsiElement(:)(':')
-        PsiWhiteSpace(' ')
-        Simple Type
-          Stable Identifier
-            PsiElement(identifier)('Int')
-        PsiWhiteSpace(' ')
-        PsiElement(=)('=')
-        PsiWhiteSpace(' ')
-        PsiElement(_)('_')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          PsiElement(_)('_')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
