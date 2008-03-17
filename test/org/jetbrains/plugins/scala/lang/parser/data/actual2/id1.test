@@ -45,21 +45,20 @@ ScalaFile
             PsiElement({)('{')
             PsiWhiteSpace('\n    ')
             Block
-              ResultExpression
+              ReferenceExpression
                 ReferenceExpression
                   ReferenceExpression
                     ReferenceExpression
                       ReferenceExpression
-                        ReferenceExpression
-                          PsiElement(identifier)('a')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('b')
+                        PsiElement(identifier)('a')
                       PsiElement(.)('.')
-                      PsiElement(identifier)('c')
+                      PsiElement(identifier)('b')
                     PsiElement(.)('.')
-                    PsiElement(identifier)('d')
+                    PsiElement(identifier)('c')
                   PsiElement(.)('.')
-                  PsiElement(identifier)('e')
+                  PsiElement(identifier)('d')
+                PsiElement(.)('.')
+                PsiElement(identifier)('e')
             PsiWhiteSpace('  \n  ')
             PsiElement(})('}')
         PsiWhiteSpace('\n')

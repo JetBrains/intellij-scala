@@ -34,12 +34,11 @@ ScalaFile
           Block
             PsiElement({)('{')
             Block
-              ResultExpression
-                ReturnStatement
-                  PsiElement(return)('return')
-                  PsiWhiteSpace(' ')
-                  ReferenceExpression
-                    PsiElement(identifier)('a')
+              ReturnStatement
+                PsiElement(return)('return')
+                PsiWhiteSpace(' ')
+                ReferenceExpression
+                  PsiElement(identifier)('a')
             PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

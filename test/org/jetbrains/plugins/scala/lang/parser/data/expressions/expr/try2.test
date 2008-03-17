@@ -27,13 +27,12 @@ ScalaFile
             PsiElement({)('{')
             PsiWhiteSpace('\n    ')
             Block
-              ResultExpression
-                InfixExpression
-                  Literal
-                    PsiElement(integer)('0')
-                  PsiElement(identifier)('/')
-                  Literal
-                    PsiElement(integer)('0')
+              InfixExpression
+                Literal
+                  PsiElement(integer)('0')
+                PsiElement(identifier)('/')
+                Literal
+                  PsiElement(integer)('0')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
           PsiWhiteSpace('\n  ')
@@ -43,9 +42,8 @@ ScalaFile
               PsiElement({)('{')
               PsiWhiteSpace('\n    ')
               Block
-                ResultExpression
-                  Literal
-                    PsiElement(string content)('"do nothing"')
+                Literal
+                  PsiElement(string content)('"do nothing"')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
         PsiWhiteSpace('\n')
