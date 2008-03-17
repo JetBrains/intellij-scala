@@ -48,7 +48,7 @@ import com.intellij.psi.impl.source.CharTableImpl
 
 object InfixExpr {
   def parse(builder: PsiBuilder): Boolean = {
-    assoc = 0
+    var assoc = 0
     val markerStack = new Stack[PsiBuilder.Marker]
     val opStack = new Stack[String]
     val infixMarker = builder.mark
@@ -91,7 +91,7 @@ object InfixExpr {
           markerStack += newMarker
           exit = true
         }
-        else if (!compar(s, opStack.top)) {
+        else if (!compar(s, opStack.top, assoc)) {
           opStack.pop
           backupMarker.drop
           backupMarker = markerStack.top.precede
@@ -155,7 +155,7 @@ object InfixExpr {
     }
     return true
   }
-  private var assoc: Int = 0  //this mark associativity: left - 1, right - -1
+  //private var assoc: Int = 0  //this mark associativity: left - 1, right - -1
   //Defines priority
   private def priority(id: String) : Int = {
     id.charAt(0) match {
@@ -172,7 +172,7 @@ object InfixExpr {
     }
   }
   //compares two operators
-  private def compar(id1: String, id2: String): Boolean = {
+  private def compar(id1: String, id2: String,assoc: Int): Boolean = {
     if (priority(id1) < priority(id2)) return true        //  a * b + c  =((a * b) + c)
     else if (priority(id1) > priority(id2)) return false  //  a + b * c = (a + (b * c))
     else if (assoc == -1) return true
