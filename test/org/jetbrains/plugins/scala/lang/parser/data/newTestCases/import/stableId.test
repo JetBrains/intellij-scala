@@ -1,2 +1,17 @@
 import a.this.b.c
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement
+        ThisReference
+          PsiElement(identifier)('a')
+          PsiElement(.)('.')
+          PsiElement(this)('this')
+        PsiElement(.)('.')
+        PsiElement(identifier)('b')
+      PsiElement(.)('.')
+      CodeReferenceElement
+        PsiElement(identifier)('c')

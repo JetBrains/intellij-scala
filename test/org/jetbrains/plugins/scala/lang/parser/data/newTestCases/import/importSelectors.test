@@ -1,2 +1,33 @@
 import a.{b=>c,z,n => _, _}
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement
+        PsiElement(identifier)('a')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement
+            PsiElement(identifier)('b')
+          PsiElement(=>)('=>')
+          PsiElement(identifier)('c')
+        PsiElement(,)(',')
+        ImportSelector
+          CodeReferenceElement
+            PsiElement(identifier)('z')
+        PsiElement(,)(',')
+        ImportSelector
+          CodeReferenceElement
+            PsiElement(identifier)('n')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          PsiElement(_)('_')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        PsiElement(_)('_')
+        PsiElement(})('}')

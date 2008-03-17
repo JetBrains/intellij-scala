@@ -31,16 +31,10 @@ import com.intellij.psi.tree.IElementType
 
 object ImportExpr {
   def parse(builder: PsiBuilder): Boolean = {
+    builder.setDebugMode(true)
     val importExprMarker = builder.mark
-    builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
-        StableIdInImport parse builder
-      }
-      case _ => {
+    if (!StableIdInImport.parse(builder)) {
         builder error ScalaBundle.message("identifier.expected",new Array[Object](0))
-        importExprMarker.done(ScalaElementTypes.IMPORT_EXPR)
-        return true
-      }
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tDOT => builder.advanceLexer //Ate .

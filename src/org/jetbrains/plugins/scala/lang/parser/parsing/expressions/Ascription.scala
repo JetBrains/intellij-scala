@@ -52,6 +52,8 @@ object Ascription {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tUNDER => {
+        val seqArgMarker = builder.mark
+        ascriptionMarker.drop
         builder.advanceLexer //Ate _
         builder.getTokenText match {
           case "*" => {
@@ -61,7 +63,7 @@ object Ascription {
             builder error ScalaBundle.message("star.expected", new Array[Object](0))
           }
         }
-        ascriptionMarker.done(ScalaElementTypes.SEQUENCE_ARG)
+        seqArgMarker.done(ScalaElementTypes.SEQUENCE_ARG)
         return true
       }
       case _ => {}

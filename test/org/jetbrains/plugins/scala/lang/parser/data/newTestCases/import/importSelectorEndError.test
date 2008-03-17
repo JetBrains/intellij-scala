@@ -1,2 +1,30 @@
 import a.{a,b,_,z}
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement
+        PsiElement(identifier)('a')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement
+            PsiElement(identifier)('a')
+        PsiElement(,)(',')
+        ImportSelector
+          CodeReferenceElement
+            PsiElement(identifier)('b')
+        PsiElement(,)(',')
+        PsiElement(_)('_')
+        PsiErrorElement:'}' expected
+          <empty list>
+    PsiElement(,)(',')
+    ImportExpression
+      CodeReferenceElement
+        PsiElement(identifier)('z')
+      PsiErrorElement:Dot expected
+        <empty list>
+  PsiElement(})('}')

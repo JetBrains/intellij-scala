@@ -1,2 +1,20 @@
 import a.super[g].b.c
 -----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement
+        SuperReference
+          PsiElement(identifier)('a')
+          PsiElement(.)('.')
+          PsiElement(super)('super')
+          PsiElement([)('[')
+          PsiElement(identifier)('g')
+          PsiElement(])(']')
+        PsiElement(.)('.')
+        PsiElement(identifier)('b')
+      PsiElement(.)('.')
+      CodeReferenceElement
+        PsiElement(identifier)('c')
