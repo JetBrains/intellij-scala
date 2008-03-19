@@ -1,5 +1,5 @@
-class Человек{
-val лицо=(a:T,b:S)=>true
+class A{
+val foo=(a:T,b:S)=>true
 }
 -----
 ScalaFile
@@ -10,7 +10,7 @@ ScalaFile
       <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
-    PsiElement(identifier)('Человек')
+    PsiElement(identifier)('A')
     ExtendsBlock
       ScTemplateBody
         PsiElement({)('{')
@@ -23,7 +23,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ReferencePattern
-            PsiElement(identifier)('лицо')
+            PsiElement(identifier)('foo')
           PsiElement(=)('=')
           FunctionExpression
             ParameterList
