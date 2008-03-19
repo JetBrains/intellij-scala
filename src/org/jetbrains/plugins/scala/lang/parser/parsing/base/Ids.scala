@@ -49,7 +49,7 @@ object Ids {
           builder.advanceLexer //Ate identifier
         }
         case _ => {
-          builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
+          builder error ErrMsg("identifier.expected")
           idListMarker.done(ScalaElementTypes.IDENTIFIER_LIST)
           return true
         }

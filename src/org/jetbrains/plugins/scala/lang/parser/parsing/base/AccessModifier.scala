@@ -34,9 +34,7 @@ object AccessModifier {
     val accessMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kPRIVATE |
-           ScalaTokenTypes.kPROTECTED => {
-        builder.advanceLexer //Ate modifier
-      }
+           ScalaTokenTypes.kPROTECTED => builder.advanceLexer //Ate modifier
       case _ => {
         accessMarker.drop
         return false
@@ -47,20 +45,12 @@ object AccessModifier {
         builder.advanceLexer //Ate [
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER |
-               ScalaTokenTypes.kTHIS => {
-            builder.advanceLexer //Ate identifier or this
-          }
-          case _ => {
-            builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
-          }
+               ScalaTokenTypes.kTHIS => builder.advanceLexer //Ate identifier or this
+          case _ => builder error ErrMsg("identifier.expected")
         }
         builder.getTokenType match {
-          case ScalaTokenTypes.tRSQBRACKET => {
-            builder.advanceLexer //Ate ]
-          }
-          case _ => {
-            builder error ScalaBundle.message("rsqbracket.expected", new Array[Object](0))
-          }
+          case ScalaTokenTypes.tRSQBRACKET => builder.advanceLexer //Ate ]
+          case _ => builder error ErrMsg("rsqbracket.expected")
         }
         accessMarker.done(ScalaElementTypes.ACCESS_MODIFIER)
         return true

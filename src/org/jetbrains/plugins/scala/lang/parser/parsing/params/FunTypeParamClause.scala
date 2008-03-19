@@ -29,30 +29,26 @@ object FunTypeParamClause {
   def parse(builder: PsiBuilder): Boolean = {
     val funMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tLSQBRACKET => {
-        builder.advanceLexer //Ate [
-      }
+      case ScalaTokenTypes.tLSQBRACKET => builder.advanceLexer //Ate [
       case _ => {
         funMarker.drop
         return false
       }
     }
     if (!VariantTypeParam.parse(builder)) {
-      builder error ScalaBundle.message("wrong.parameter", new Array[Object](0))
+      builder error ErrMsg("wrong.parameter")
     }
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
       builder.advanceLexer //Ate
       if (!TypeParam.parse(builder)) {
-        builder error ScalaBundle.message("wrong.parameter", new Array[Object](0))
+        builder error ErrMsg("wrong.parameter")
       }
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tRSQBRACKET => {
         builder.advanceLexer //Ate ]
       }
-      case _ => {
-        builder error ScalaBundle.message("rsqbracket.expected", new Array[Object](0))
-      }
+      case _ => builder error ErrMsg("wrong.parameter")
     }
     funMarker.done(ScalaElementTypes.TYPE_PARAM_CLAUSE)
     return true

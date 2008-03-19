@@ -46,7 +46,7 @@ object Param {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON => {
         builder.advanceLexer //Ate :
-        if (!ParamType.parse(builder)) builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+        if (!ParamType.parse(builder)) builder error ErrMsg("wrong.type")
       }
       case _ => {}
     }
