@@ -39,17 +39,7 @@ object Modifier {
         builder.advanceLexer //Ate override
         return true
       }
-      case _ => {
-        if (LocalModifier parse builder) {
-          return true
-        }
-        else if (AccessModifier parse builder) {
-          return true
-        }
-        else {
-          return false
-        }
-      }
+      case _ => (LocalModifier parse builder) || (AccessModifier parse builder)
     }
   }
 }

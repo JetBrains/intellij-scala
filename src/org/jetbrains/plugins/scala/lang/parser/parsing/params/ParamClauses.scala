@@ -31,10 +31,10 @@ object ParamClauses {
     val paramMarker = builder.mark
     if (flag) {
       if (!ParamClause.parse(builder)) {
-        builder error ScalaBundle.message("param.clause.expected", new Array[Object](0))
+        builder error ErrMsg("param.clause.expected")
       }
     }
-    while (ParamClause.parse(builder)) {}
+    while (ParamClause.parse(builder)){}
     ImplicitParamClause parse builder
     paramMarker.done(ScalaElementTypes.PARAM_CLAUSES)
     return true

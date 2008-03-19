@@ -49,7 +49,7 @@ object ImportSelector {
             return true
           }
           case _ => {
-            builder error ScalaBundle.message("identifier.or.wild.sign.expected", new Array[Object](0))
+            builder error ErrMsg("identifier.or.wild.sign.expected")
             importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTOR)
             return true
           }

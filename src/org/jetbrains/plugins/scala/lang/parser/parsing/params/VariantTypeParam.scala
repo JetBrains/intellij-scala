@@ -34,14 +34,18 @@ object VariantTypeParam {
         builder.advanceLexer //Ate sign
         isVariant = true
       }
-      case _ => {}
+      case _ =>
     }
     if (!TypeParam.parse(builder)) {
       paramMarker.rollbackTo
       return false
     }
-    if (isVariant) paramMarker.done(ScalaElementTypes.VARIANT_TYPE_PARAM)
-    else paramMarker.drop
+    if (isVariant) {
+      paramMarker.done(ScalaElementTypes.VARIANT_TYPE_PARAM)
+    }
+    else {
+      paramMarker.drop
+    }
     return true
   }
 }

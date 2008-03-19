@@ -41,28 +41,28 @@ object TypeParam {
       case ScalaTokenTypes.tLSQBRACKET => {
         TypeParamClause parse builder
       }
-      case _ => {}
+      case _ => 
     }
     builder.getTokenText match {
       case ">:" => {
         builder.advanceLexer
-        if (!Type.parse(builder)) builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+        if (!Type.parse(builder)) builder error ErrMsg("wrong.type")
       }
-      case _ => {}
+      case _ => 
     }
     builder.getTokenText match {
       case "<:" => {
         builder.advanceLexer
-        if (!Type.parse(builder)) builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+        if (!Type.parse(builder)) builder error ErrMsg("wrong.type")
       }
-      case _ => {}
+      case _ =>
     }
     builder.getTokenText match {
       case "<%" => {
         builder.advanceLexer
-        if (!Type.parse(builder)) builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+        if (!Type.parse(builder)) builder error ErrMsg("wrong.type")
       }
-      case _ => {}
+      case _ =>
     }
     paramMarker.done(ScalaElementTypes.TYPE_PARAM)
     return true
