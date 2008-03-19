@@ -20,7 +20,7 @@
   <description>Plugin for Scala language</description>
   <version>0.1</version>
   <vendor>SmartTeam</vendor>
-  <idea-version since-build="8163"/>
+  <idea-version since-build="8187"/>
   <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
   <extensions defaultExtensionNs="com.intellij">

@@ -152,7 +152,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
         if (type instanceof IXmlLeafElementType) {
           return SCALA_XML_CONTENT;
         }
-        return type;
+         return type;
       }
     };
   }

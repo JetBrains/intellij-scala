@@ -16,7 +16,6 @@
 package org.jetbrains.plugins.scala.highlighter;
 
 import com.intellij.lang.StdLanguages;
-import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.XmlHighlighterColors;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.ex.util.LayerDescriptor;
@@ -25,7 +24,6 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.plugins.scala.ScalaFileType;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.SCALA_XML_CONTENT;
 
 /**
@@ -38,12 +36,8 @@ public class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter{
 
     //Register XML highlighter
     SyntaxHighlighter xmlHighlighter = SyntaxHighlighterFactory.getSyntaxHighlighter(StdLanguages.XML, project, virtualFile);
-    LayerDescriptor xmlLayer = new LayerDescriptor(xmlHighlighter, "\n", XmlHighlighterColors.HTML_TAG);
+    final LayerDescriptor xmlLayer = new LayerDescriptor(xmlHighlighter, "\n", XmlHighlighterColors.HTML_TAG);
     registerLayer(SCALA_XML_CONTENT, xmlLayer);
   }
 
-
-  protected boolean updateLayers() {
-    return super.updateLayers();
-  }
 }
