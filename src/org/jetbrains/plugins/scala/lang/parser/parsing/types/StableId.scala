@@ -8,6 +8,8 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
+import ScalaElementTypes._
 
 /** 
 * Created by IntelliJ IDEA.
@@ -23,153 +25,140 @@ import org.jetbrains.plugins.scala.ScalaBundle
  *            | [id '.'] 'super' [ClassQualifier] '.' id
  */
 
-object StableId {
-  def parse(builder: PsiBuilder,element: ScalaElementType) : Boolean = parse(builder,false,element)
-  def parse(builder: PsiBuilder,dot: Boolean,element: ScalaElementType): Boolean = {
-    var stableMarker = builder.mark
-    def parseQualId(qualMarker: PsiBuilder.Marker): Boolean = {
-      //parsing first identifier
-      builder.getTokenType match {
-        case ScalaTokenTypes.tIDENTIFIER => {
-          builder.advanceLexer//Ate identifier
-          //Look for dot
-          builder.getTokenType match {
-            case ScalaTokenTypes.tDOT => {
-              if (dot) {
-                val dotMarker = builder.mark
-                builder.advanceLexer //Ate .
-                builder.getTokenType match {
-                  case ScalaTokenTypes.tIDENTIFIER => {
-                    dotMarker.rollbackTo
-                  }
-                  case _ => {
-                    dotMarker.rollbackTo
-                    qualMarker.done(element)
-                    return true
-                  }
-                }
-              }
-              val newMarker = qualMarker.precede
-              val qual2Marker = qualMarker.precede
-              qualMarker.done(element)
-              qual2Marker.drop
-              builder.advanceLexer//Ate dot
-              //recursively parse qualified identifier
-              parseQualId(newMarker)
-              return true
-            }
-            case _ => {
-              //It's OK, let's close marker
-              qualMarker.done(element)
-              return true
-            }
-          }
-        }
-        case _ => {
-          builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
-          qualMarker.done(element)
-          return true
-        }
-      }
-    }
-    def parseOtherCases(stableMarker: PsiBuilder.Marker): Boolean = {
-      builder.getTokenType match {
-        //In this case we of course know - Path.id
-        case ScalaTokenTypes.kTHIS => {
-          builder.advanceLexer //Ate this
-          val newMarker = stableMarker.precede
-          stableMarker.done(ScalaElementTypes.THIS_REFERENCE)
-          builder.getTokenType match {
-            case ScalaTokenTypes.tDOT => {
-              builder.advanceLexer //Ate .
-              return parseQualId(newMarker)
-            }
-            case _ => {
-              builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
-              newMarker.done(element)
-              return true
-            }
-          }
-        }
-        //In this case of course it's super[id].id
-        case ScalaTokenTypes.kSUPER => {
-          builder.advanceLexer //Ate super
-          builder.getTokenType match {
-            case ScalaTokenTypes.tDOT => {
-              builder.advanceLexer //Ate .
-              return parseQualId(stableMarker)
-            }
-            case ScalaTokenTypes.tLSQBRACKET => {
-              builder.advanceLexer //Ate [
-              builder.getTokenType match {
-                case ScalaTokenTypes.tIDENTIFIER => {
-                  builder.advanceLexer //Ate id
-                }
-                case _ => {
-                  builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
-                }
-              }
-              builder.getTokenType match {
-                case ScalaTokenTypes.tRSQBRACKET => {
-                  builder.advanceLexer //Ate ]
-                }
-                case _ => {
-                  builder error ScalaBundle.message("rsqbracket.expected", new Array[Object](0))
-                }
-              }
-              val stableMarker2 = stableMarker.precede
-              stableMarker.done(ScalaElementTypes.SUPER_REFERENCE)
-              builder.getTokenType match {
-                case ScalaTokenTypes.tDOT => {
-                  builder.advanceLexer //Ate .
-                  return parseQualId(stableMarker2)
-                }
-                case _ => {
-                  builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
-                  stableMarker2.done(element)
-                  return true
-                }
-              }
-            }
-            case _ => {
-              builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
-              stableMarker.done(ScalaElementTypes.SUPER_REFERENCE)
-              return true
-            }
-          }
-        }
-        case _ => {
-          stableMarker.rollbackTo
-          return false
-        }
-      }
-    }
+object StableId extends ParserNode {
+
+  def parse(builder: PsiBuilder, element: ScalaElementType): Boolean = parse(builder, false, element)
+
+  def parse(builder: PsiBuilder, forImport: Boolean, element: ScalaElementType): Boolean = {
+    val marker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
-        builder.advanceLexer //Ate identifier
-        builder.getTokenType match {
-          case ScalaTokenTypes.tDOT => {
-            builder.advanceLexer //Ate .
-            val newMarker = stableMarker.precede
-            if (parseOtherCases(stableMarker)) {
-              newMarker.drop
+        builder.advanceLexer
+        if (stopAtImportEnd(builder, forImport)) {
+          marker.done(element)
+          return true
+        } else if (builder.getTokenType == tDOT) {
+          val nm = marker.precede
+          marker.done(element)
+          builder.advanceLexer
+          builder.getTokenType match {
+            case ScalaTokenTypes.tIDENTIFIER => return parseQualId(builder, nm, element, forImport)
+            case ScalaTokenTypes.kTHIS => return parseThisReference(builder, nm, element, forImport)
+            case ScalaTokenTypes.kSUPER => return parseSuperReference(builder, nm, element, forImport)
+            case _ => {
+              builder error ErrMsg("identifier.expected")
+              nm.done(element)
               return true
             }
-            else {
-              newMarker.rollbackTo
-              stableMarker = builder.mark
-              return parseQualId(stableMarker)
-            }
-          }
-          case _ => {
-            stableMarker.done(element)
-            return true
           }
         }
+        marker.done(element)
+        return true
       }
+      case ScalaTokenTypes.kTHIS => return parseThisReference(builder, marker, element, forImport)
+      case ScalaTokenTypes.kSUPER => return parseSuperReference(builder, marker, element, forImport)
       case _ => {
-        return parseOtherCases(stableMarker)
+        marker.drop
+        return false
       }
+
     }
   }
+
+  def parseThisReference(builder: PsiBuilder, marker: PsiBuilder.Marker, element: ScalaElementType, forImport: Boolean): Boolean = {
+    val nm = marker.precede()
+    builder.advanceLexer
+    if (builder.getTokenType != tDOT) {
+      builder.error(ErrMsg("dot.expected"))
+      marker.done(THIS_REFERENCE)
+      return true
+    }
+    marker.done(THIS_REFERENCE)
+    return parseEndIdentifier(builder, nm, element, forImport)
+  }
+
+  def parseSuperReference(builder: PsiBuilder, marker: PsiBuilder.Marker, element: ScalaElementType, forImport: Boolean): Boolean = {
+    val nm = marker.precede()
+    builder.advanceLexer
+    if (builder.getTokenType != tDOT && builder.getTokenType != tLSQBRACKET) {
+      builder.error(ErrMsg("dot.or.cq.expected"))
+      nm.drop
+      marker.done(SUPER_REFERENCE)
+      return true
+    }
+    parseClassQualifier(builder)
+    marker.done(SUPER_REFERENCE)
+    return parseEndIdentifier(builder, nm, element, forImport)
+  }
+
+  def parseClassQualifier(builder: PsiBuilder): Unit = {
+    if (builder.getTokenType != tLSQBRACKET) return
+    builder.advanceLexer
+    if (builder.getTokenType != tIDENTIFIER) {
+      builder.error(ErrMsg("identifier.expected"))
+    }
+    else {
+      builder.advanceLexer
+    }
+
+    if (builder.getTokenType != tRSQBRACKET) {
+      builder.error(ErrMsg("rsqbracket.expected"))
+    }
+    else {
+      builder.advanceLexer
+    }
+  }
+
+
+  // For endings of 'this' and 'super' references
+  def parseEndIdentifier(builder: PsiBuilder, nm: PsiBuilder.Marker, element: ScalaElementType, forImport: Boolean): Boolean = {
+    builder.advanceLexer
+    if (builder.getTokenType != tIDENTIFIER) {
+      builder.error(ErrMsg("identifier.expected"))
+      nm.done(element)
+      return true
+    }
+    builder.advanceLexer()
+    if (stopAtImportEnd(builder, forImport)) {
+      nm.done(element)
+      return true
+    } else if (builder.getTokenType == tDOT) {
+      val nm1 = nm.precede()
+      nm.done(element)
+      builder.advanceLexer
+      parseQualId(builder, nm1, element, forImport)
+    } else {
+      nm.done(element)
+      return true
+    }
+  }
+
+  // Begins from next id (not form dot)
+  def parseQualId(builder: PsiBuilder, marker: PsiBuilder.Marker, element: ScalaElementType, forImport: Boolean): Boolean = {
+    if (builder.getTokenType != tIDENTIFIER) {
+      builder.error(ErrMsg("identifier.expected"))
+      marker.done(element)
+      return true
+    }
+    builder.advanceLexer // ate identifier
+    if (stopAtImportEnd(builder, forImport)){
+      marker.done(element)
+      true
+    } else if (builder.getTokenType == tDOT) {
+      val nm = marker.precede
+      marker.done(element)
+      builder.advanceLexer // ate dot
+      parseQualId(builder, nm, element, forImport)
+    } else {
+      marker.done(element)
+      true
+    }
+  }
+
+  def stopAtImportEnd(builder: PsiBuilder, forImport: Boolean) = forImport && isImportEnd(builder)
+
+  def isImportEnd(builder: PsiBuilder): Boolean = {
+    lookAhead(builder, tDOT, tUNDER) || lookAhead(builder, tDOT, tLBRACE)
+  }
+
 }

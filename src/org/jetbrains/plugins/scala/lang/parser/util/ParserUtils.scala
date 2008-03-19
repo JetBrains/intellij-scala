@@ -10,10 +10,25 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.Constr
 import org.jetbrains.plugins.scala.util.DebugPrint
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.TokenSet
-
 import com.intellij.lang.PsiBuilder
 
+
 object ParserUtils {
+
+  def lookAhead(builder: PsiBuilder, elems: IElementType*): Boolean = {
+    val rb = builder.mark
+    for (val elem <- elems) {
+      if (!builder.eof && elem == builder.getTokenType) {
+        builder.advanceLexer
+      } else {
+        rb.rollbackTo()
+        return false
+      }
+    }
+    rb.rollbackTo()
+    true
+  }
+
 
   /* rolls forward until token from elems encountered */
   def rollPanic(builder: PsiBuilder, elems: HashSet[IElementType]) = {

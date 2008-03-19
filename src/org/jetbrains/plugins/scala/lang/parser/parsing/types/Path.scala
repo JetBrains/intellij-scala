@@ -7,7 +7,9 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
-import org.jetbrains.plugins.scala.ScalaBundle
+import ScalaElementTypes._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
+
 
 /** 
 * Created by IntelliJ IDEA.
@@ -22,114 +24,24 @@ import org.jetbrains.plugins.scala.ScalaBundle
  *        | [id '.'] 'this'
  */
 
-object Path {
-  def parse(builder: PsiBuilder,element: ScalaElementType): Boolean = parse(builder,false,element)
-  def parse(builder: PsiBuilder,dot: Boolean,element: ScalaElementType): Boolean = {
-    val pathMarker = builder.mark
-    def parseQualId(qualMarker: PsiBuilder.Marker): Boolean = {
-      //parsing first identifier
-      builder.getTokenType match {
-        case ScalaTokenTypes.tIDENTIFIER => {
-          builder.advanceLexer//Ate identifier
-          //Look for dot
-          builder.getTokenType match {
-            case ScalaTokenTypes.tDOT => {
-              if (dot) {
-                val dotMarker = builder.mark
-                builder.advanceLexer //Ate .
-                builder.getTokenType match {
-                  case ScalaTokenTypes.tIDENTIFIER => {
-                    dotMarker.rollbackTo
-                  }
-                  case _ => {
-                    dotMarker.rollbackTo
-                    qualMarker.done(element)
-                    return true
-                  }
-                }
-              }
-              val newMarker = qualMarker.precede
-              val qual2Marker = qualMarker.precede
-              qualMarker.done(element)
-              qual2Marker.drop
-              builder.advanceLexer//Ate dot
-              //recursively parse qualified identifier
-              parseQualId(newMarker)
-              return true
-            }
-            case _ => {
-              //It's OK, let's close marker
-              qualMarker.done(element)
-              return true
-            }
-          }
-        }
-        case _ => {
-          builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
-          qualMarker.done(element)
-          return true
-        }
+object Path extends ParserNode with ScalaTokenTypes {
+  def parse(builder: PsiBuilder, element: ScalaElementType): Boolean = {
+    if (lookAhead(builder, tIDENTIFIER, tDOT, kTHIS)) {
+      val thisMarker = builder.mark
+      val refMarker = builder.mark
+      builder.advanceLexer
+      refMarker.done(REFERENCE)
+      builder.advanceLexer
+      builder.advanceLexer
+      val nm = thisMarker.precede
+      thisMarker.done(THIS_REFERENCE)
+      if (lookAhead(builder, tDOT, tIDENTIFIER)) {
+        builder.advanceLexer
+        StableId parseQualId(builder, nm, element, false)
       }
-    }
-    builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
-        builder.advanceLexer //Ate identifier
-        builder.getTokenType match {
-          case ScalaTokenTypes.tDOT => {
-            builder.advanceLexer //Ate .
-            builder.getTokenType match {
-              case ScalaTokenTypes.kTHIS => {
-                builder.advanceLexer //Ate this
-                val newMarker = pathMarker.precede
-                pathMarker.done(ScalaElementTypes.THIS_REFERENCE)
-                builder.getTokenType match {
-                  case ScalaTokenTypes.tDOT => {
-                    builder.advanceLexer //Ate .
-                    parseQualId(newMarker)
-                  }
-                  case _ => {
-                    newMarker.drop
-                  }
-                }
-                return true
-              }
-              case _ => {
-                val newMarker = pathMarker.precede
-                pathMarker.rollbackTo
-                StableId parse (builder,element)
-                newMarker.drop
-                return true
-              }
-            }
-          }
-          case _ => {
-            val newMarker = pathMarker.precede
-            pathMarker.rollbackTo
-            StableId parse (builder,dot,element)
-            newMarker.drop
-            return true
-          }
-        }
-      }
-      case ScalaTokenTypes.kTHIS => {
-        builder.advanceLexer //Ate this
-        val newMarker = pathMarker.precede
-        pathMarker.done(ScalaElementTypes.THIS_REFERENCE)
-        builder.getTokenType match {
-          case ScalaTokenTypes.tDOT => {
-            builder.advanceLexer //Ate .
-            parseQualId(newMarker)
-          }
-          case _ => {
-            newMarker.drop
-          }
-        }
-        return true
-      }
-      case _ => {
-        pathMarker.rollbackTo
-        return false
-      }
+      true
+    } else {
+      StableId parse(builder, element)
     }
   }
 }

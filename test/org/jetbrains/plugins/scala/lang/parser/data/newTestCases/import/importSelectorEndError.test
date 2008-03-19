@@ -25,6 +25,4 @@ ScalaFile
     ImportExpression
       CodeReferenceElement
         PsiElement(identifier)('z')
-      PsiErrorElement:Dot expected
-        <empty list>
   PsiElement(})('}')

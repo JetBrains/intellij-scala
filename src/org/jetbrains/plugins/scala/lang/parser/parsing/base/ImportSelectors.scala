@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.base
 
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -30,14 +31,14 @@ import com.intellij.psi.tree.IElementType
  */
 
 
-object ImportSelectors {
+object ImportSelectors extends ParserNode{
   def parse(builder: PsiBuilder): Boolean = {
     val importSelectorMarker = builder.mark
     //Look for {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => builder.advanceLexer //Ate {
       case _ => {
-        builder error ScalaBundle.message("lbrace.expected", new Array[Object](0))
+        builder error ErrMsg("lbrace.expected")
         importSelectorMarker.drop
         return false
       }
@@ -46,7 +47,7 @@ object ImportSelectors {
     while (true){
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE => {
-          builder error ScalaBundle.message("import.selector.expected", new Array[Object](0))
+          builder error ErrMsg("import.selector.expected")
           builder.advanceLexer //Ate }
           importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
           return true
@@ -60,7 +61,7 @@ object ImportSelectors {
               return true
             }
             case _ => {
-              builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+              builder error ErrMsg("rbrace.expected")
               importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
               return true
             }
@@ -78,14 +79,14 @@ object ImportSelectors {
               return true
             }
             case _ => {
-              builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+              builder error ErrMsg("rbrace.expected")
               importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
               return true
             }
           }
         }
         case _ => {
-          builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+          builder error ErrMsg("rbrace.expected")
           importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
           return true
         }

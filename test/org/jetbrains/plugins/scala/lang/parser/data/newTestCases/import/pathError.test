@@ -7,10 +7,9 @@ ScalaFile
     ImportExpression
       CodeReferenceElement
         ThisReference
-          PsiElement(identifier)('a')
+          CodeReferenceElement
+            PsiElement(identifier)('a')
           PsiElement(.)('.')
           PsiElement(this)('this')
         PsiElement(.)('.')
         PsiElement(identifier)('a')
-      PsiErrorElement:Dot expected
-        <empty list>

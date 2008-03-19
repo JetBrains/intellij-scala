@@ -88,7 +88,7 @@ object SimpleType {
       }
       case ScalaTokenTypes.kTHIS | ScalaTokenTypes.tIDENTIFIER => {
         val newMarker = builder.mark
-        Path parse (builder,true,ScalaElementTypes.REFERENCE)
+        Path parse (builder, ScalaElementTypes.REFERENCE)
         builder.getTokenType match {
           case ScalaTokenTypes.tDOT => {
             builder.advanceLexer //Ate .
