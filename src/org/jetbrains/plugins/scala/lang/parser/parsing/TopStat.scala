@@ -35,17 +35,13 @@ object TopStat {
     builder.getTokenType match {
       case ScalaTokenTypes.kIMPORT => {
         Import parse builder
-        return true
+        true
       }
       case ScalaTokenTypes.kPACKAGE => {
         Packaging parse builder
-        return true
       }
       case _ => {
-        if (TmplDef parse builder)
-          return true
-        else
-          return false
+        TmplDef parse builder
       }
     }
   }
