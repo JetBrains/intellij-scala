@@ -63,18 +63,18 @@ object Expr1 {
         builder.getTokenType match {
           case ScalaTokenTypes.tLPARENTHESIS => {
             builder.advanceLexer //Ate (
-            if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression",new Array[Object](0))
+            if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
             builder.getTokenType match {
               case ScalaTokenTypes.tRPARENTHESIS => {
                 builder.advanceLexer //Ate )
               }
               case _ => {
-                builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+                builder error ErrMsg("rparenthesis.expected")
               }
             }
           }
           case _ => {
-            builder error ScalaBundle.message("condition.expected", new Array[Object](0))
+            builder error ErrMsg("condition.expected")
           }
         }
         builder.getTokenType match {
@@ -84,7 +84,7 @@ object Expr1 {
           case _ => {}
         }
         if (!Expr.parse(builder)) {
-          builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+          builder error ErrMsg("wrong.expression")
         }
         val rollbackMarker = builder.mark
         builder.getTokenType match {
@@ -96,7 +96,7 @@ object Expr1 {
         builder.getTokenType match {
           case ScalaTokenTypes.kELSE => {
             builder.advanceLexer
-            if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+            if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
             rollbackMarker.drop
           }
           case _ => {
@@ -112,18 +112,18 @@ object Expr1 {
         builder.getTokenType match {
           case ScalaTokenTypes.tLPARENTHESIS => {
             builder.advanceLexer //Ate (
-            if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression",new Array[Object](0))
+            if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
             builder.getTokenType match {
               case ScalaTokenTypes.tRPARENTHESIS => {
                 builder.advanceLexer //Ate )
               }
               case _ => {
-                builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+                builder error ErrMsg("rparenthesis.expected")
               }
             }
           }
           case _ => {
-            builder error ScalaBundle.message("condition.expected", new Array[Object](0))
+            builder error ErrMsg("condition.expected")
           }
         }
         builder.getTokenType match {
@@ -133,7 +133,7 @@ object Expr1 {
           case _ => {}
         }
         if (!Expr.parse(builder)) {
-          builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+          builder error ErrMsg("wrong.expression")
         }
         exprMarker.done(ScalaElementTypes.WHILE_STMT)
         return true
@@ -146,19 +146,19 @@ object Expr1 {
           case ScalaTokenTypes.tLBRACE => {
             builder.advanceLexer //Ate {
             if (!Block.parse(builder)) {
-              builder error ScalaBundle.message("block.expected", new Array[Object](0))
+              builder error ErrMsg("block.expected")
             }
             builder.getTokenType match {
               case ScalaTokenTypes.tRBRACE => {
                 builder.advanceLexer //Ate }
               }
               case _ => {
-                builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+                builder error ErrMsg("rbrace.expected")
               }
             }
           }
           case _ => {
-            builder error ScalaBundle.message("block.expected", new Array[Object](0))
+            builder error ErrMsg("block.expected")
           }
         }
         tryMarker.done(ScalaElementTypes.TRY_BLOCK)
@@ -170,19 +170,19 @@ object Expr1 {
               case ScalaTokenTypes.tLBRACE => {
                 builder.advanceLexer //Ate }
                 if (!CaseClauses.parse(builder)) {
-                  builder error ScalaBundle.message("case.clauses.expected",new Array[Object](0))
+                  builder error ErrMsg("case.clauses.expected")
                 }
                 builder.getTokenType match {
                   case ScalaTokenTypes.tRBRACE => {
                     builder.advanceLexer //Ate }
                   }
                   case _ => {
-                    builder error ScalaBundle.message("rbrace.expected",new Array[Object](0))
+                    builder error ErrMsg("rbrace.expected")
                   }
                 }
               }
               case _ => {
-                builder error ScalaBundle.message("case.clauses.expected", new Array[Object](0))
+                builder error ErrMsg("case.clauses.expected")
               }
             }
             catchMarker.done(ScalaElementTypes.CATCH_BLOCK)
@@ -196,7 +196,7 @@ object Expr1 {
           case ScalaTokenTypes.kFINALLY => {
             builder.advanceLexer//Ate finally
             if (!Expr.parse(builder)) {
-              builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+              builder error ErrMsg("wrong.expression")
             }
             finallyMarker.done(ScalaElementTypes.FINALLY_BLOCK)
           }
@@ -210,7 +210,7 @@ object Expr1 {
       //----------------do statement----------------//
       case ScalaTokenTypes.kDO => {
         builder.advanceLexer //Ate do
-        if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+        if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
         builder.getTokenType match {
           case ScalaTokenTypes.tSEMICOLON | ScalaTokenTypes.tLINE_TERMINATOR => {
             builder.advanceLexer //Ate semi
@@ -223,23 +223,23 @@ object Expr1 {
             builder.getTokenType match {
               case ScalaTokenTypes.tLPARENTHESIS => {
                 builder.advanceLexer //Ate (
-                if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression",new Array[Object](0))
+                if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
                 builder.getTokenType match {
                   case ScalaTokenTypes.tRPARENTHESIS => {
                     builder.advanceLexer //Ate )
                   }
                   case _ => {
-                    builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+                    builder error ErrMsg("rparenthesis.expected")
                   }
                 }
               }
               case _ => {
-                builder error ScalaBundle.message("condition.expected", new Array[Object](0))
+                builder error ErrMsg("condition.expected")
               }
             }
           }
           case _ => {
-            builder error ScalaBundle.message("while.expected", new Array[Object](0))
+            builder error ErrMsg("while.expected")
           }
         }
         exprMarker.done(ScalaElementTypes.DO_STMT)
@@ -252,32 +252,32 @@ object Expr1 {
           case ScalaTokenTypes.tLBRACE => {
             builder.advanceLexer //Ate {
             if (!Enumerators.parse(builder)) {
-              builder error ScalaBundle.message("enumerators.expected", new Array[Object](0))
+              builder error ErrMsg("enumerators.expected")
             }
             builder.getTokenType match {
               case ScalaTokenTypes.tRBRACE => builder.advanceLexer
-              case _ => builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+              case _ => builder error ErrMsg("rbrace.expected")
             }
           }
           case ScalaTokenTypes.tLPARENTHESIS => {
             builder.advanceLexer //Ate (
             if (!Enumerators.parse(builder)) {
-              builder error ScalaBundle.message("enumerators.expected", new Array[Object](0))
+              builder error ErrMsg("enumerators.expected")
             }
             builder.getTokenType match {
               case ScalaTokenTypes.tRPARENTHESIS => builder.advanceLexer
-              case _ => builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+              case _ => builder error ErrMsg("rparenthesis.expected")
             }
           }
           case _ => {
-            builder error ScalaBundle.message("enumerators.expected", new Array[Object](0))
+            builder error ErrMsg("enumerators.expected")
           }
         }
         builder.getTokenType match {
           case ScalaTokenTypes.tLINE_TERMINATOR => {
             if (LineTerminator(builder.getTokenText)) builder.advanceLexer
             else {
-              builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+              builder error ErrMsg("wrong.expression")
               exprMarker.done(ScalaElementTypes.FOR_STMT)
               return true
             }
@@ -290,14 +290,16 @@ object Expr1 {
           }
           case _ => {}
         }
-        if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+        if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
         exprMarker.done(ScalaElementTypes.FOR_STMT)
         return true
       }
       //----------------throw statment--------------//
       case ScalaTokenTypes.kTHROW => {
         builder.advanceLexer //Ate throw
-        if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+        if (!Expr.parse(builder)) {
+          builder error ErrMsg("wrong.expression")
+        }
         exprMarker.done(ScalaElementTypes.THROW_STMT)
         return true
       }
@@ -315,7 +317,9 @@ object Expr1 {
           builder.getTokenType match {
             case ScalaTokenTypes.tASSIGN => {
               builder.advanceLexer //Ate =
-              if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+              if (!Expr.parse(builder)) {
+                builder error ErrMsg("wrong.expression")
+              }
               rollbackMarker.drop
               exprMarker.done(ScalaElementTypes.ASSIGN_STMT)
               return true
@@ -341,20 +345,16 @@ object Expr1 {
               case ScalaTokenTypes.tLBRACE => {
                 builder.advanceLexer //Ate }
                 if (!CaseClauses.parse(builder)) {
-                  builder error ScalaBundle.message("case.clauses.expected",new Array[Object](0))
+                  builder error ErrMsg("case.clauses.expected")
                 }
                 builder.getTokenType match {
                   case ScalaTokenTypes.tRBRACE => {
                     builder.advanceLexer //Ate }
                   }
-                  case _ => {
-                    builder error ScalaBundle.message("rbrace.expected",new Array[Object](0))
-                  }
+                  case _ => builder error ErrMsg("rbrace.expected")
                 }
               }
-              case _ => {
-                builder error ScalaBundle.message("case.clauses.expected", new Array[Object](0))
-              }
+              case _ => builder error ErrMsg("case.clauses.expected")
             }
             exprMarker.done(ScalaElementTypes.MATCH_STMT)
             return true

@@ -36,7 +36,7 @@ object CaseClause {
         return false
       }
     }
-    if (!Pattern.parse(builder)) builder error ScalaBundle.message("pattern.expected",new Array[Object](0))
+    if (!Pattern.parse(builder)) builder error ErrMsg("pattern.expected")
     builder.getTokenType match {
       case ScalaTokenTypes.kIF => {
         Guard parse builder
@@ -48,13 +48,13 @@ object CaseClause {
         builder.advanceLexer
       }
       case _ => {
-        builder error ScalaBundle.message("fun.sign.expected", new Array[Object](0))
+        builder error ErrMsg("fun.sign.expected")
         caseClauseMarker.done(ScalaElementTypes.CASE_CLAUSE)
         return true
       }
     }
     if (!Block.parse(builder,false)) {
-      builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+      builder error ErrMsg("wrong.expression")
     }
     caseClauseMarker.done(ScalaElementTypes.CASE_CLAUSE)
     return true
