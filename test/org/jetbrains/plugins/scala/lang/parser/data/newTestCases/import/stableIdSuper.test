@@ -8,7 +8,8 @@ ScalaFile
       CodeReferenceElement
         CodeReferenceElement
           SuperReference
-            PsiElement(identifier)('a')
+            CodeReferenceElement
+              PsiElement(identifier)('a')
             PsiElement(.)('.')
             PsiElement(super)('super')
             PsiElement([)('[')

@@ -12,17 +12,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 import org.jetbrains.plugins.scala.ScalaBundle
+import ScalaElementTypes._
 
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
-* Date: 11.02.2008
-* Time: 16:40:05
-* To change this template use File | Settings | File Templates.
+* User: Alexander.Podkhalyuzin
 */
 
 /*
@@ -33,44 +30,22 @@ object ImportExpr {
   def parse(builder: PsiBuilder): Boolean = {
     builder.setDebugMode(true)
     val importExprMarker = builder.mark
-    val endMarker = builder.mark
-    if (!StableIdInImport.parse(builder)) {
-        builder error ScalaBundle.message("identifier.expected",new Array[Object](0))
+    if (!StableId.parse(builder, true, REFERENCE)) {
+      builder error ErrMsg("identifier.expected")
     }
-    builder.getTokenType match {
-      case ScalaTokenTypes.tDOT => builder.advanceLexer //Ate .
-      case _ => {
-        endMarker.drop
-        builder error ScalaBundle.message("dot.expected",new Array[Object](0))
-        importExprMarker.done(ScalaElementTypes.IMPORT_EXPR)
-        return true
-      }
+
+    if (builder.getTokenType != ScalaTokenTypes.tDOT) {
+      importExprMarker.done(IMPORT_EXPR)
+      return true
     }
+    builder.advanceLexer
+
     builder.getTokenType() match {
-      case ScalaTokenTypes.tIDENTIFIER => {
-        builder.advanceLexer // Ate identifier
-        endMarker.done(ScalaElementTypes.REFERENCE)
-        importExprMarker.done(ScalaElementTypes.IMPORT_EXPR)
-        return true
-      }
-      case ScalaTokenTypes.tUNDER => {
-        endMarker.drop()
-        builder.advanceLexer //Ate _
-        importExprMarker.done(ScalaElementTypes.IMPORT_EXPR)
-        return true
-      }
-      case ScalaTokenTypes.tLBRACE => {
-        endMarker.drop
-        ImportSelectors parse builder
-        importExprMarker.done(ScalaElementTypes.IMPORT_EXPR)
-        return true
-      }
-      case _ => {
-        endMarker.drop
-        builder error ScalaBundle.message("wrong.import.statment.end", new Array[Object](0))
-        importExprMarker.done(ScalaElementTypes.IMPORT_EXPR)
-        return true
-      }
+      case ScalaTokenTypes.tUNDER => builder.advanceLexer //Ate _
+      case ScalaTokenTypes.tLBRACE => ImportSelectors parse builder
+      case _ => builder error ErrMsg("wrong.import.statment.end")
     }
+    importExprMarker.done(IMPORT_EXPR)
+    true
   }
 }
