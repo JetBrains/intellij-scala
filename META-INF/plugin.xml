@@ -17,13 +17,14 @@
 <idea-plugin>
   <id>org.intellij.scala</id>
   <name>Scala</name>
-  <description>Plugin for Scala language</description>
+  <description>Plugin for Scala language support</description>
   <version>0.1</version>
-  <vendor>SmartTeam</vendor>
+  <vendor url="http://www.jetbrains.com">JetBrains Inc.</vendor>
   <idea-version since-build="8187"/>
   <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
   <extensions defaultExtensionNs="com.intellij">
+    <errorHandler implementation="org.jetbrains.plugins.scala.error.ErrorReportSubmitter"/>
     <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
     <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
     <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
@@ -37,6 +38,10 @@
 
 
   <application-components>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.error.ErrorReportConfigurable</implementation-class>
+      <interface-class>org.jetbrains.plugins.scala.error.ErrorReportConfigurable</interface-class>
+    </component>
     <component>
       <interface-class>org.jetbrains.plugins.scala.util.ScalaToolsFactory</interface-class>
       <implementation-class>org.jetbrains.plugins.scala.util.ScalaToolsFactoryImpl</implementation-class>
