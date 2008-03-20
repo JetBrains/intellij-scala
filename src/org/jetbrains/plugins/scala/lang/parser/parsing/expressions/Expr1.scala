@@ -312,28 +312,19 @@ object Expr1 {
       }
       //---------other cases--------------//
       case _ => {
-        val rollbackMarker = builder.mark
-        if (SimpleExpr.parse(builder)) {
-          builder.getTokenType match {
-            case ScalaTokenTypes.tASSIGN => {
-              builder.advanceLexer //Ate =
-              if (!Expr.parse(builder)) {
-                builder error ErrMsg("wrong.expression")
-              }
-              rollbackMarker.drop
-              exprMarker.done(ScalaElementTypes.ASSIGN_STMT)
-              return true
-            }
-            case _ => {
-              rollbackMarker.rollbackTo
-            }
-          }
-        }
         if (!PostfixExpr.parse(builder)) {
           exprMarker.rollbackTo
           return false
         }
         builder.getTokenType match {
+          case ScalaTokenTypes.tASSIGN => {
+              builder.advanceLexer //Ate =
+              if (!Expr.parse(builder)) {
+                builder error ErrMsg("wrong.expression")
+              }
+              exprMarker.done(ScalaElementTypes.ASSIGN_STMT)
+              return true
+            }
           case ScalaTokenTypes.tCOLON => {
             Ascription parse builder
             exprMarker.done(ScalaElementTypes.TYPED_EXPR_STMT)
