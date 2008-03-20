@@ -6,7 +6,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr.aux
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.PsiElement
 
-trait ScConditional extends ScalaPsiElement {
+trait ScConditional extends ScalaPsiElement {  
   
   def isCondition = (e: PsiElement) => {
     e.isInstanceOf[ScExpression] &&
