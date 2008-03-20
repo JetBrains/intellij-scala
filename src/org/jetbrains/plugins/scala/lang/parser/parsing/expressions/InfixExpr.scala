@@ -28,7 +28,6 @@ import com.intellij.psi.impl.source.tree.CompositeElement
 import com.intellij.util.CharTable
 import com.intellij.lexer.Lexer
 import com.intellij.lang.impl.PsiBuilderImpl
-//import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.psi._
 import com.intellij.psi.impl.source.CharTableImpl
 
@@ -67,7 +66,7 @@ object InfixExpr {
           assoc match {
             case 0 => assoc = -1
             case 1 => {
-              builder error ScalaBundle.message("wrong.type.associativity", new Array[Object](0))
+              builder error ErrMsg("wrong.type.associativity")
             }
             case -1 => {}
           }
@@ -77,7 +76,7 @@ object InfixExpr {
             case 0 => assoc = 1
             case 1 => {}
             case -1 => {
-              builder error ScalaBundle.message("wrong.type.associativity", new Array[Object](0))
+              builder error ErrMsg("wrong.type.associativity")
             }
           }
         }
