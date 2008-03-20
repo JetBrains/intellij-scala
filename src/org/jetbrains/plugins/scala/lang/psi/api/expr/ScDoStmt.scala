@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import expr.aux._
 
 /** 
 * Created by IntelliJ IDEA.
@@ -10,6 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * To change this template use File | Settings | File Templates.
 */
 
-trait ScDoStmt extends ScExpression {
+trait ScDoStmt extends ScExpression with ScConditional {
 
 }

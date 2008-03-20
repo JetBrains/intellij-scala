@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiManager
 
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTemplateStatement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes

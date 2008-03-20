@@ -11,9 +11,9 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._;
 import org.jetbrains.plugins.scala.lang.formatting.patterns.spacing._
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+import lang.psi.api.expr._
+
 import com.intellij.formatting.Spacing;
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
@@ -37,9 +37,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (SpacingTokens.SPACING_BEFORE.contains(right.getElementType))
       return SINGLE_SPACING
 
-    if ((left.getPsi.isInstanceOf[ScInfixExprImpl] &&
+    if ((left.getPsi.isInstanceOf[ScInfixExpr] &&
     right.getElementType.equals(ScalaTokenTypes.tIDENTIFIER)) ||
-    (right.getPsi.isInstanceOf[ScInfixExprImpl] &&
+    (right.getPsi.isInstanceOf[ScInfixExpr] &&
     left.getElementType.equals(ScalaTokenTypes.tIDENTIFIER)))
       return SINGLE_SPACING
 

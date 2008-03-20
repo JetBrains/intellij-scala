@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+
 
 /** 
 * Created by IntelliJ IDEA.

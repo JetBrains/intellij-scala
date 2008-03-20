@@ -21,12 +21,12 @@ import java.util.Collection
 import java.util.Collections
 import javax.swing._
 
-import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
+import psi.api.toplevel.typedef._
 
 /**
 * @author ven
 */
-case class ScJavaClass(scClass: ScTmplDef, parent: PsiElement) extends ScJavaElement(scClass, parent) with PsiClass {
+case class ScJavaClass(scClass: ScTypeDefinition, parent: PsiElement) extends ScJavaElement(scClass, parent) with PsiClass {
 
   def getQualifiedName: String = scClass.getQualifiedName
 

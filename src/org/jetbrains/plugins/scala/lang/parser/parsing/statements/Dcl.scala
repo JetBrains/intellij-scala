@@ -9,10 +9,7 @@ import com.intellij.lang.ParserDefinition
 import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiManager
-
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTemplateStatement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
@@ -21,13 +18,6 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
-
-
-
-
-
-
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ArgumentExprs
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockStat
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2

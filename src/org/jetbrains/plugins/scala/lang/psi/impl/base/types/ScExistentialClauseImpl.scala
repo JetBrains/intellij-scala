@@ -3,9 +3,9 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
-import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
+
+
+
 
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode

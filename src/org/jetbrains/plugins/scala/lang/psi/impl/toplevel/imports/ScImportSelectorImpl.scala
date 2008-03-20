@@ -7,18 +7,12 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.Template
-import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScTypeParamClause
-import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTemplateStatement
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.resolve.references._
+
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 
 /** 
@@ -36,21 +30,5 @@ class ScImportSelectorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     ! getText.contains("=>") && getText.contains("_")
   }
 
-  def getRealName(name: String): String = {
-    if (getText.contains("_")) return null
-    if (! getText.contains("=>")) {
-      if (ScalaElementTypes.IMPORT_SELECTOR_BEGIN.equals(getFirstChild.getNode.getElementType) &&
-      getFirstChild.getText.equals(name))
-        return name
-      else
-        return null
-    }
-    val realName = getFirstChild
-    val pseudoName = getLastChild
-    if (ScalaElementTypes.IMPORT_SELECTOR_BEGIN.equals(realName.getNode.getElementType) &&
-    ScalaTokenTypes.tIDENTIFIER.equals(pseudoName.getNode.getElementType) &&
-    pseudoName.getText.equals(name)){
-      realName.getText
-    } else null
-  }
+  def getRealName(name: String): String = null
 }

@@ -30,10 +30,7 @@ object ScalaElementTypes {
   /*************************************************************************************/
   /************************************** TYPE DECLARATION *****************************/
   /*************************************************************************************/
-  val COMPILATION_UNIT = new ScalaElementType("compilation unit")
-
   val PACKAGING = new ScalaElementType("packaging")
-
   val TMPL_DEF = new ScalaElementType("template definition")
   val TOP_TMPL_DEF = new ScalaElementType("top template definition")
 
@@ -61,10 +58,6 @@ object ScalaElementTypes {
 
   val REQUIRES_BLOCK = new ScalaElementType("requires block")
   val EXTENDS_BLOCK = new ScalaElementType("extends block")
-
-  //  val CLASS_TEMPLATE = new ScalaElementType("class template")
-  val TOP_DEF_TEMPLATE = new ScalaElementType("top definition template")
-
   val NEW_TEMPLATE = new ScalaElementType("new template")
 
 
@@ -143,23 +136,16 @@ object ScalaElementTypes {
   /********************************* PACKAGE GROUP *************************************/
   /*************************************************************************************/
 
-  //Package
-  //val PACKAGE_GROUP = new ScalaElementType("package group")
-  //val PACKAGE = new ScalaElementType("package token")
   val PACKAGE_STMT = new ScalaElementType("package statement")
-  val QUAL_ID = new ScalaElementType("Qualification identifier")
 
   /*************************************************************************************/
   /********************************* IMPORT GROUP **************************************/
   /*************************************************************************************/
 
   val IMPORT_SELECTOR = new ScalaElementType("import selector")
-  val IMPORT_SELECTOR_BEGIN = new ScalaElementType("import selector begin")
   val IMPORT_SELECTOR_LIST = new ScalaElementType("import selector list")
   val IMPORT_SELECTORS = new ScalaElementType("import selectors")
-  val IMPORT_END = new ScalaElementType("import end id")
   val IMPORT_EXPR = new ScalaElementType("import expression")
-  val IMPORT_EXPRS = new ScalaElementType("import expressions")
   val IMPORT_STMT = new ScalaElementType("import statement")
   val IMPORT = new ScalaElementType("import")
   val STABLE_ID_LIST = new ScalaElementType("stable id list")
@@ -193,8 +179,6 @@ object ScalaElementTypes {
   val CONSTR_EXPR = new ScalaElementType("constructor expression")
   val SELF_INVOCATION = new ScalaElementType("self invocation")
 
-  val SUPPLEMENTARY_CONSTRUCTOR = new ScalaElementType("supplementary constructor")
-
   /***************** types ******************/
   val LOWER_BOUND_TYPE = new ScalaElementType("lower bound type")
   val UPPER_BOUND_TYPE = new ScalaElementType("upper bound type")
@@ -202,11 +186,6 @@ object ScalaElementTypes {
   /*************************************************************************************/
   /******************************* MODIFIERS AND ATTRIBUTES ****************************/
   /*************************************************************************************/
-
-  /****************** attributes **********************/
-  val ATTRIBUTE_CLAUSE = new ScalaElementType("attribute clause")
-  val ATTRIBUTE_CLAUSES = new ScalaElementType("attribute clauses")
-  val ATTRIBUTE = new ScalaElementType("attribute")
 
   /******************* modifiers **********************/
   val MODIFIERS = new ScalaElementType("modifiers")
@@ -351,16 +330,6 @@ object ScalaElementTypes {
 
 
   val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create(Array.apply(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
-
-  val TMPL_STMT_BIT_SET = TokenSet.create(Array.apply(PATTERN_DEFINITION,
-      VARIABLE_DEFINITION,
-      TYPE_DEFINITION,
-      FUNCTION_DEFINITION,
-      VALUE_DECLARATION,
-      VARIABLE_DECLARATION,
-      FUNCTION_DECLARATION,
-      TYPE_DECLARATION,
-      SUPPLEMENTARY_CONSTRUCTOR))
 
   //todo: add cases
   val EXPR1_BIT_SET: TokenSet = TokenSet.create(Array.apply(IF_STMT,
