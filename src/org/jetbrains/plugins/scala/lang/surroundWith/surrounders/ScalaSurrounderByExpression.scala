@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /*
- * ScalaSurrounderByExpression surround smth and return an expression 
+ * ScalaSurrounderByExpression surround smth and return an expression
  */
 
 abstract class ScalaSurrounderByExpression extends Surrounder {

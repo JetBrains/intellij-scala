@@ -11,8 +11,14 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
-import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._;
+
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi.impl.source.tree.PsiErrorElementImpl
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
 
 
@@ -20,32 +26,44 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
 
   def getChildIndent(parent: ScalaBlock, child: ASTNode): Indent =
     parent.getNode.getPsi match {
-/*      case _: ScalaFile => Indent.getNoneIndent()
-      case _: BlockedIndent => {
+      case _: ScalaFile => Indent.getNoneIndent()
+      case _: ScPackaging => {
         child.getElementType match {
           case ScalaTokenTypes.tLBRACE |
           ScalaTokenTypes.tRBRACE |
           ScalaTokenTypes.kPACKAGE |
-          ScalaElementTypes.QUAL_ID =>
+          ScalaElementTypes.REFERENCE =>
             Indent.getNoneIndent()
           case _ => Indent.getNormalIndent()
         }
       }
-      case x: ScPatternImpl => Indent.getNormalIndent
-      case _: ContiniousIndent => Indent.getContinuationWithoutFirstIndent()
-      case _: IfElseIndent => {
-        child.getPsi match {
-          case _: ScCaseClausesImpl => Indent.getNormalIndent()
-          case _: ScalaExpression => {
-            if (! child.getPsi.isInstanceOf[ScBlockExprImpl])
-              Indent.getNormalIndent()
-            else
-              Indent.getNoneIndent()
-          }
-          case _: ScBlockImpl => Indent.getNormalIndent()
-          case _ => Indent.getNoneIndent()
+      case _: ScMatchStmt => {
+        child.getElementType match {
+         case ScalaTokenTypes.tLBRACE |
+          ScalaTokenTypes.tRBRACE |
+          ScalaTokenTypes.kMATCH |
+          ScalaElementTypes.POSTFIX_EXPR =>
+            Indent.getNoneIndent()
+         case _ => Indent.getNormalIndent()
         }
-      }*/
+      }
+      case _: ScBlockExpr | _: ScTemplateBody => {
+        child.getElementType match {
+          case ScalaTokenTypes.tLBRACE |
+          ScalaTokenTypes.tRBRACE => {
+            Indent.getNoneIndent()
+          }
+          case _ => Indent.getNormalIndent()
+        }
+      }
+      case _: ScPattern => Indent.getNormalIndent
+      case _: ScParamClauses | _: ScClassParamClauses
+          | _ :ScParamClause | _:ScClassParamClause
+          | _:ScArgumentExprs=> Indent.getContinuationWithoutFirstIndent()
+      case _: ScCaseClauses => Indent.getNormalIndent()
+      case _: ScExpression => {
+        Indent.getNoneIndent()
+      }
       case _ => Indent.getNoneIndent()
     }
 }

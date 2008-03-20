@@ -11,9 +11,10 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
-import org.jetbrains.plugins.scala.lang.formatting.patterns.spacing._
-import lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._;
+import org.jetbrains.plugins.scala.lang.formatting.patterns._
 
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.formatting.Spacing;
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
