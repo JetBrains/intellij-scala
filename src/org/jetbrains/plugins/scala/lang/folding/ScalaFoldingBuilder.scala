@@ -10,7 +10,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /*
 *

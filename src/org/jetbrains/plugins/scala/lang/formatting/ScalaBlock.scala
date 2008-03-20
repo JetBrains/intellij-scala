@@ -11,8 +11,10 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.formatting.processors._
-import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
-import lang.psi.api.expr._
+
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 
 
 import java.util.List;
@@ -46,12 +48,13 @@ extends Object with ScalaTokenTypes with Block {
 
   def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val parent = getNode.getPsi
-    if (parent.isInstanceOf[BlockedIndent] ||
-    parent.isInstanceOf[ScTryBlock] ||
-    parent.isInstanceOf[ScCatchBlock]) {
-      return new ChildAttributes(Indent.getNormalIndent(), null)
+    parent match {
+      case _:ScBlockExpr | _:ScTemplateBody |
+           _:ScTryBlock | _:ScCatchBlock | _:ScPackaging | _:ScMatchStmt => {
+        return new ChildAttributes(Indent.getNormalIndent(), null)
+      }
+      case _ => new ChildAttributes(Indent.getNoneIndent(), null)
     }
-    new ChildAttributes(Indent.getNoneIndent(), null)
   }
 
   def getSpacing(child1: Block, child2: Block) = {
