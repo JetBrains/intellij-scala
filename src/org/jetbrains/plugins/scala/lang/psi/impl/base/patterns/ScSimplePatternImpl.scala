@@ -12,6 +12,8 @@ import com.intellij.lang.ASTNode
 * To change this template use File | Settings | File Templates.
 */
 
-class ScSimplePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScSimplePattern{
+class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScConstructorPattern{
+
   override def toString: String = "ConstructorPattern"
+
 }

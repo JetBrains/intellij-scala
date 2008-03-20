@@ -13,7 +13,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiElement(})('}')
-  PsiErrorElement:';' or new-line expected
+  PsiErrorElement:';' or newline expected
     <empty list>
   PsiWhiteSpace(' ')
   ScTrait

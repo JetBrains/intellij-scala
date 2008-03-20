@@ -66,7 +66,7 @@ object PatDef {
         }
       }
 
-      if (numberOfPattern2s > 1) pattern2sMarker.done(ScalaElementTypes.PATTERN2_LIST)
+      if (numberOfPattern2s > 1) pattern2sMarker.done(ScalaElementTypes.PATTERN_LIST)
       else pattern2sMarker.drop
 
       var hasTypeDcl = false

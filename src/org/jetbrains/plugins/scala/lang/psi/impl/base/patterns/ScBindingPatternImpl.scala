@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 
-/** 
+/**
 * Created by IntelliJ IDEA.
 * User: Alexander.Podkhalyuz
 * Date: 28.02.2008
@@ -12,6 +12,6 @@ import com.intellij.lang.ASTNode
 * To change this template use File | Settings | File Templates.
 */
 
-class ScPattern2Impl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPattern2{
+class ScBindingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScBindingPattern{
   override def toString: String = "BindingPattern"
 }

@@ -45,7 +45,7 @@ object Pattern2 {
               if (!Pattern3.parse(builder)) {
                 builder error ScalaBundle.message("wrong.pattern", new Array[Object](0))
               }
-              pattern2Marker.done(ScalaElementTypes.PATTERN2)
+              pattern2Marker.done(ScalaElementTypes.BINDING_PATTERN)
               return true
             }
             case _ => {

@@ -12,7 +12,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     ExtendsBlock
       <empty list>
-  PsiErrorElement:';' or new-line expected
+  PsiErrorElement:';' or newline expected
     <empty list>
   PsiElement([)('[')
   PsiElement(identifier)('T')

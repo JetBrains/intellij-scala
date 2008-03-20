@@ -31,9 +31,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.types._
 
 trait ScalaValue extends ScTemplateStatement with ScReferenceIdContainer{
 
-  override def isManyDeclarations = (getChild(ScalaElementTypes.PATTERN2_LIST) != null)
+  override def isManyDeclarations = (getChild(ScalaElementTypes.PATTERN_LIST) != null)
 
-  override def getDeclarations: ScalaPsiElement = getChild(ScalaElementTypes.PATTERN2_LIST).asInstanceOf[ScalaPsiElement]
+  override def getDeclarations: ScalaPsiElement = getChild(ScalaElementTypes.PATTERN_LIST).asInstanceOf[ScalaPsiElement]
 
   override def getIcon(flags: Int) = Icons.VAL
 

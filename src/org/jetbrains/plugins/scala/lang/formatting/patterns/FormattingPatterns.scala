@@ -62,7 +62,7 @@ package spacing {
 
     val SINGLE_SPACING_BETWEEN = TokenSet.create(Array(ScalaElementTypes.INFIX_EXPR,
             ScalaTokenTypes.tIDENTIFIER,
-            ScalaElementTypes.PATTERN3))
+            ScalaElementTypes.INFIX_PATTERN))
 
     val SPACING_BEFORE = TokenSet.create(Array(ScalaTokenTypes.tASSIGN))
 

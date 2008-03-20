@@ -109,7 +109,6 @@ object ScalaElementTypes {
   /*************************************************************************************/
   val STABLE_ID = new ScalaElementType("stable id")
   val STABLE_ID_ID = new ScalaElementType("stable id")
-  val PATH = new ScalaElementType("path")
   val SIMPLE_TYPE = new ScalaElementType("simple type")
   val COMPOUND_TYPE = new ScalaElementType("Compound type")
   val INFIX_TYPE = new ScalaElementType("Infix type")
@@ -169,7 +168,6 @@ object ScalaElementTypes {
   /*************************************************************************************/
   /********************************* METHODS, VARIABLES and ETC ************************/
   /*************************************************************************************/
-  //val TEMPLATE_STAT_LIST = new ScalaElementType("template statements list")
   val STATEMENT_TEMPLATE = new ScalaElementType("template statement")
 
   /*************************************************************************************/
@@ -184,6 +182,7 @@ object ScalaElementTypes {
   /************************************ DEFINITION *************************************/
   /*************************************************************************************/
   val PATTERN_DEFINITION = new ScalaElementType("pattern definition")
+  val PATTERN_LIST = new ScalaElementType("List of patterns")
   val VARIABLE_DEFINITION = new ScalaElementType("variable definition")
   val TYPE_DEFINITION = new ScalaElementType("type definition")
   val EARLY_DEFINITION = new ScalaElementType("early definition")
@@ -252,7 +251,6 @@ object ScalaElementTypes {
 
   val EXPR1 = new ScalaElementType("composite expression ")
   val FUNCTION_EXPR = new ScalaElementType("expression")
-  //val WRONG_EXPR = new ScalaElementType("wrong expression")
   val RESULT_EXPR = new ScalaElementType("result expression")
   val AN_FUN = new ScalaElementType("anonymous function")
   val BINDING = new ScalaElementType("binding")
@@ -293,13 +291,12 @@ object ScalaElementTypes {
   /************************************** PATTERNS *************************************/
   /*************************************************************************************/
 
-  val SIMPLE_PATTERN = new ScalaElementType("simple pattern")
-  val SIMPLE_PATTERN1 = new ScalaElementType("simple pattern")
-  val PATTERN3 = new ScalaElementType("pattern 3")
-  val PATTERN2 = new ScalaElementType("pattern 2")
-  val PATTERN2_LIST = new ScalaElementType("pattern 2 list")
-  val PATTERN1 = new ScalaElementType("pattern 1")
-  val PATTERN = new ScalaElementType("pattern")
+  val TUPLE_PATTERN = new ScalaElementType("Tuple Pattern")
+  val CONSTRUCTOR_PATTERN = new ScalaElementType("Constructor Pattern")
+  val INFIX_PATTERN = new ScalaElementType("Infix pattern")
+  val BINDING_PATTERN = new ScalaElementType("Binding Pattern")
+  val TYPED_PATTERN = new ScalaElementType("Typed Pattern")
+  val PATTERN = new ScalaElementType("Composite Pattern")
   val PATTERNS = new ScalaElementType("patterns")
   val WILD_PATTERN = new ScalaElementType("any sequence")
   val CASE_CLAUSE = new ScalaElementType("case clause")
@@ -314,8 +311,6 @@ object ScalaElementTypes {
   val ARG_TYPE_PATTERN = new ScalaElementType("Argument type pattern")
   val ARG_TYPE_PATTERNS = new ScalaElementType("Argument type patterns")
   val TYPE_PATTERN_ARGS = new ScalaElementType("Type pattern arguments")
-  val SIMPLE_TYPE_PATTERN1 = new ScalaElementType("Simple type pattern 1")
-  val SIMPLE_TYPE_PATTERN = new ScalaElementType("Simple type pattern")
   val TYPE_PATTERN = new ScalaElementType("Type pattern")
 
 
@@ -425,25 +420,7 @@ object ScalaElementTypes {
 
   val SIMPLE_EXPR_BIT_SET = TokenSet.create(Array.apply(SIMPLE_EXPR,
       LITERAL,
-      PATH,
       BLOCK_EXPR))
-
-  val XML_PATTERN_BIT_SET = TokenSet.create(Array())
-
-  val SIMPLE_PATTERN_BIT_SET = TokenSet.orSet(Array(XML_PATTERN_BIT_SET,
-      TokenSet.create(Array.apply(SIMPLE_PATTERN, SIMPLE_PATTERN1, STABLE_ID, ScalaTokenTypes.tUNDER, LITERAL, UNIT, ScalaTokenTypes.tIDENTIFIER))))
-
-  val PATTERN3_BIT_SET = TokenSet.orSet(Array(SIMPLE_PATTERN_BIT_SET,
-      TokenSet.create(Array.apply(PATTERN3))))
-
-  val PATTERN2_BIT_SET = TokenSet.orSet(Array(PATTERN3_BIT_SET,
-      TokenSet.create(Array.apply(PATTERN2, STABLE_ID))))
-
-  val PATTERN1_BIT_SET = TokenSet.orSet(Array(PATTERN2_BIT_SET,
-      TokenSet.create(Array.apply(PATTERN1, STABLE_ID, ScalaTokenTypes.tUNDER))))
-
-  val PATTERN_BIT_SET = TokenSet.orSet(Array(PATTERN1_BIT_SET,
-      TokenSet.create(Array.apply(PATTERN))))
 
   val REFERENCE_SET = TokenSet.create(Array(ScalaElementTypes.REFERENCE))
 }

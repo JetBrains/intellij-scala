@@ -62,7 +62,7 @@ ScalaFile
         PsiElement(()('(')
         ReferenceExpression
           PsiElement(identifier)('x')
-        PsiErrorElement:';' or new-line expected
+        PsiErrorElement:';' or newline expected
           <empty list>
         PsiElement())(')')
         PsiElement(:)(':')

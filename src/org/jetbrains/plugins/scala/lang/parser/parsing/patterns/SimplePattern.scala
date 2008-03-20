@@ -53,7 +53,7 @@ object SimplePattern {
         builder.getTokenType match {
           case ScalaTokenTypes.tRPARENTHESIS => {
             builder.advanceLexer //Ate )
-            simplePatternMarker.done(ScalaElementTypes.SIMPLE_PATTERN)
+            simplePatternMarker.done(ScalaElementTypes.TUPLE_PATTERN)
             return true
           }
           case _ => {}
@@ -62,12 +62,12 @@ object SimplePattern {
           builder.getTokenType match {
             case ScalaTokenTypes.tRPARENTHESIS => {
               builder.advanceLexer //Ate )
-              simplePatternMarker.done(ScalaElementTypes.SIMPLE_PATTERN)
+              simplePatternMarker.done(ScalaElementTypes.TUPLE_PATTERN)
               return true
             }
             case _ => {
               builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
-              simplePatternMarker.done(ScalaElementTypes.SIMPLE_PATTERN)
+              simplePatternMarker.done(ScalaElementTypes.TUPLE_PATTERN)
               return true
             }
           }
@@ -113,7 +113,7 @@ object SimplePattern {
               builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
             }
           }
-          simplePatternMarker.done(ScalaElementTypes.SIMPLE_PATTERN1)
+          simplePatternMarker.done(ScalaElementTypes.CONSTRUCTOR_PATTERN)
           return true
         }
         case _ => {

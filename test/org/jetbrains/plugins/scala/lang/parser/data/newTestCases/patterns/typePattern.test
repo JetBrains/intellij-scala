@@ -26,7 +26,7 @@ ScalaFile
             CaseClause
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
-              CommonPattern
+              TypedPattern
                 PsiElement(identifier)('a')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
@@ -44,7 +44,7 @@ ScalaFile
             CaseClause
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
-              CommonPattern
+              TypedPattern
                 PsiElement(_)('_')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')

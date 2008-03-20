@@ -12,6 +12,8 @@ import com.intellij.lang.ASTNode
 * To change this template use File | Settings | File Templates.
 */
 
-class ScPattern3Impl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPattern3{
+class ScInfixPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScInfixPattern{
+
   override def toString: String = "InfixPattern"
+
 }

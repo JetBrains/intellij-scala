@@ -117,7 +117,7 @@ object ScalaPsiCreator {
       case ScalaElementTypes.REFERENCE => new ScReferenceIdImpl(node)
 
       /**************** pattern ******************/
-      case ScalaElementTypes.PATTERN2_LIST => new ScPatternListImpl(node)
+      case ScalaElementTypes.PATTERN_LIST => new ScPatternListImpl(node)
 
       /**************** bounds *******************/
       case ScalaElementTypes.LOWER_BOUND_TYPE => new ScLowerBoundImpl(node) //not used
@@ -180,7 +180,6 @@ object ScalaPsiCreator {
 
     case ScalaElementTypes.STABLE_ID => new ScStableIdImpl(node)
     case ScalaElementTypes.STABLE_ID_ID => new ScStableIdImpl(node) //not used
-    case ScalaElementTypes.PATH => new ScPathImpl(node)
     case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeImpl(node)
     case ScalaElementTypes.TUPLE_TYPE => new ScTupleTypeImpl(node)
     case ScalaElementTypes.TYPE_IN_PARENTHESIS => new ScParenthesisedTypeImpl(node)
@@ -253,12 +252,12 @@ object ScalaPsiCreator {
     case ScalaElementTypes.NEW_TEMPLATE => new ScNewTemplateDefinitionImpl(node)
 
     /******************* PATTERNS *********************/
-    case ScalaElementTypes.SIMPLE_PATTERN => new ScTuplePatternImpl(node)
-    case ScalaElementTypes.SIMPLE_PATTERN1 => new ScSimplePatternImpl(node)
-    case ScalaElementTypes.PATTERN1 => new ScPattern1Impl(node)
-    case ScalaElementTypes.PATTERN2 => new ScPattern2Impl(node)
-    case ScalaElementTypes.PATTERN3 => new ScPattern3Impl(node)
-    case ScalaElementTypes.PATTERN => new ScPatternImpl(node)
+    case ScalaElementTypes.TUPLE_PATTERN => new ScTuplePatternImpl(node)
+    case ScalaElementTypes.CONSTRUCTOR_PATTERN => new ScConstructorPatternImpl(node)
+    case ScalaElementTypes.TYPED_PATTERN => new ScTypedPatternImpl(node)
+    case ScalaElementTypes.BINDING_PATTERN => new ScBindingPatternImpl(node)
+    case ScalaElementTypes.INFIX_PATTERN => new ScInfixPatternImpl(node)
+    case ScalaElementTypes.PATTERN => new ScCompositePatternImpl(node)
     case ScalaElementTypes.PATTERNS => new ScPatternsImpl(node)
     case ScalaElementTypes.WILD_PATTERN => new ScWildPatternImpl(node)
     case ScalaElementTypes.CASE_CLAUSE => new ScCaseClauseImpl(node)
@@ -268,11 +267,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.PATTERN_IN_PARENTHESIS => new ScParenthesisedPatternImpl(node)
 
     case ScalaElementTypes.TYPE_PATTERN => new ScTypePatternImpl(node)
-    case ScalaElementTypes.SIMPLE_TYPE_PATTERN => new ScSimpleTypePatternImpl(node)
-    case ScalaElementTypes.SIMPLE_TYPE_PATTERN1 => new ScSimpleTypePattern1Impl(node)
     case ScalaElementTypes.TYPE_PATTERN_ARGS => new ScTypePatternArgsImpl(node)
-
-    case ScalaElementTypes.TRASH => new ScTrashImpl(node)
 
     case _ => new ScalaPsiElementImpl(node)
 

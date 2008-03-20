@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.typechecker._
 
 abstract class ScalaExpression( node : ASTNode ) extends ScalaPsiElementImpl(node) with IScalaExpression {
+
   import com.intellij.psi._
 
   def getAbstractType = (new ScalaTypeChecker).getTypeByTerm(this)
