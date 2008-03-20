@@ -28,7 +28,6 @@ import com.intellij.psi.tree.IElementType
 
 object ImportExpr {
   def parse(builder: PsiBuilder): Boolean = {
-    builder.setDebugMode(true)
     val importExprMarker = builder.mark
     if (!StableId.parse(builder, true, REFERENCE)) {
       builder error ErrMsg("identifier.expected")

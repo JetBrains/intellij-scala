@@ -38,7 +38,7 @@ object ClassDef {
   def parse(builder: PsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer //Ate identifier
-      case _ => builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
+      case _ => builder error ErrMsg("identifier.expected")
     }
     //parsing type parameters
     builder.getTokenType match {

@@ -63,7 +63,7 @@ object AnnotationExpr {
           return true
         }
       }
-      case _ => {}
+      case _ => 
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => {

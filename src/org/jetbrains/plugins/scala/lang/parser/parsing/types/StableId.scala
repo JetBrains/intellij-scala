@@ -71,6 +71,7 @@ object StableId extends ParserNode {
     if (builder.getTokenType != tDOT) {
       builder.error(ErrMsg("dot.expected"))
       marker.done(THIS_REFERENCE)
+      nm.drop
       return true
     }
     marker.done(THIS_REFERENCE)
