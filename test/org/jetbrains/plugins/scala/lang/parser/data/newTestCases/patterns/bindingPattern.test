@@ -40,9 +40,8 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
-              Block
-                ReferenceExpression
-                  PsiElement(identifier)('x')
+              ReferenceExpression
+                PsiElement(identifier)('x')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
         PsiWhiteSpace('\n')

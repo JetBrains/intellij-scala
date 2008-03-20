@@ -131,12 +131,9 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
-                Block
-                  BlockExpression
-                    PsiElement({)('{')
-                    Block
-                      <empty list>
-                    PsiElement(})('}')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiElement(})('}')
               PsiWhiteSpace('\n    ')
               CaseClause
                 PsiElement(case)('case')
@@ -154,12 +151,9 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
-                Block
-                  BlockExpression
-                    PsiElement({)('{')
-                    Block
-                      <empty list>
-                    PsiElement(})('}')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiElement(})('}')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
         PsiWhiteSpace('\n')

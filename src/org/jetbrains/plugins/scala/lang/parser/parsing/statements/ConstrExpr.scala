@@ -53,7 +53,7 @@ object ConstrExpr {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => {
         ConstrBlock parse builder
-        constrExprMarker.done(ScalaElementTypes.CONSTR_EXPR)
+        constrExprMarker.drop
         return true
       }
       case _ => {

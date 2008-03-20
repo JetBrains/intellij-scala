@@ -23,12 +23,11 @@ ScalaFile
           PsiElement(()('(')
           BlockExpression
             PsiElement({)('{')
-            Block
-              Literal
-                PsiElement(string content)('"hello"')
-              PsiElement(newline)('\n    ')
-              Literal
-                PsiElement(true)('true')
+            Literal
+              PsiElement(string content)('"hello"')
+            PsiElement(newline)('\n    ')
+            Literal
+              PsiElement(true)('true')
             PsiElement(})('}')
           PsiElement())(')')
           PsiElement(newline)('\n    ')

@@ -263,6 +263,7 @@ object ScalaElementTypes {
   val ARG_EXPRS = new ScalaElementType("arguments of function")
   val ARG_EXPRS_LIST = new ScalaElementType("list function arguments")
   val BLOCK_EXPR = new ScalaElementType("block of expressions")
+  val CONSTR_BLOCK = new ScalaElementType("constructor block")
   val ERROR_STMT = new ScalaElementType("error statement")
   val BLOCK = new ScalaElementType("block")
   val TUPLE = new ScalaElementType("Tuple")

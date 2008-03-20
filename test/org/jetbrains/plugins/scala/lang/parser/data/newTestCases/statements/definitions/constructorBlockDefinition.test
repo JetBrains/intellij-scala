@@ -56,7 +56,7 @@ ScalaFile
                         PsiElement(identifier)('Int')
               PsiElement())(')')
           PsiElement(newline)('\n  ')
-          Block
+          ConstructorBlock
             PsiElement({)('{')
             PsiWhiteSpace('\n    ')
             SelfInvocation

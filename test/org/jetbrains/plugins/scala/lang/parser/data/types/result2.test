@@ -17,17 +17,15 @@ ScalaFile
         PsiWhiteSpace('\n  ')
         BlockExpression
           PsiElement({)('{')
-          Block
-            ResultExpression
-              PsiElement(identifier)('x')
-              PsiErrorElement:':' expected
-                <empty list>
-              PsiWhiteSpace(' ')
-              PsiElement(=>)('=>')
-              PsiWhiteSpace(' ')
-              Block
-                Literal
-                  PsiElement(integer)('3')
+          ResultExpression
+            PsiElement(identifier)('x')
+            PsiErrorElement:':' expected
+              <empty list>
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            Literal
+              PsiElement(integer)('3')
           PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

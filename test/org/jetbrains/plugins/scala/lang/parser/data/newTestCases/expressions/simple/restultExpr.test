@@ -22,50 +22,48 @@ ScalaFile
         BlockExpression
           PsiElement({)('{')
           PsiWhiteSpace('\n    ')
-          Block
+          ScImportStatement
+            PsiElement(import)('import')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement
+                CodeReferenceElement
+                  PsiElement(identifier)('t')
+                PsiElement(.)('.')
+                PsiElement(identifier)('s')
+          PsiElement(newline)('\n    ')
+          ResultExpression
+            ParameterList
+              PsiElement(()('(')
+              Parameter
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('Int')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
             ScImportStatement
               PsiElement(import)('import')
               PsiWhiteSpace(' ')
               ImportExpression
                 CodeReferenceElement
                   CodeReferenceElement
-                    PsiElement(identifier)('t')
+                    PsiElement(identifier)('s')
                   PsiElement(.)('.')
-                  PsiElement(identifier)('s')
-            PsiElement(newline)('\n    ')
-            ResultExpression
-              ParameterList
-                PsiElement(()('(')
-                Parameter
-                  PsiElement(identifier)('a')
-                  PsiElement(:)(':')
-                  PsiWhiteSpace(' ')
-                  TypeElement
-                    CodeReferenceElement
-                      PsiElement(identifier)('Int')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                Parameter
-                  PsiElement(identifier)('b')
-                  PsiElement(:)(':')
-                  PsiWhiteSpace(' ')
-                  TypeElement
-                    CodeReferenceElement
-                      PsiElement(identifier)('Int')
-                PsiElement())(')')
-              PsiWhiteSpace(' ')
-              PsiElement(=>)('=>')
-              PsiWhiteSpace(' ')
-              Block
-                ScImportStatement
-                  PsiElement(import)('import')
-                  PsiWhiteSpace(' ')
-                  ImportExpression
-                    CodeReferenceElement
-                      CodeReferenceElement
-                        PsiElement(identifier)('s')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('t')
+                  PsiElement(identifier)('t')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
         PsiWhiteSpace('\n')

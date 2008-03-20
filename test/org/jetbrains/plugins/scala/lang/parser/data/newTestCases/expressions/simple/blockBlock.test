@@ -25,71 +25,70 @@ ScalaFile
         BlockExpression
           PsiElement({)('{')
           PsiWhiteSpace('\n    ')
-          Block
-            ScImportStatement
-              PsiElement(import)('import')
-              PsiWhiteSpace(' ')
-              ImportExpression
+          ScImportStatement
+            PsiElement(import)('import')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement
                 CodeReferenceElement
                   CodeReferenceElement
-                    CodeReferenceElement
-                      PsiElement(identifier)('a')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('b')
+                    PsiElement(identifier)('a')
                   PsiElement(.)('.')
-                  PsiElement(identifier)('c')
-            PsiElement(newline)('\n    ')
-            ScFunctionDefinition
-              Modifiers
-                PsiElement(implicit)('implicit')
-              PsiWhiteSpace(' ')
-              PsiElement(def)('def')
-              PsiWhiteSpace(' ')
-              PsiElement(identifier)('foo')
-              ParametersClauses
-                ParametersClause
-                  PsiElement(()('(')
-                  PsiElement())(')')
-              PsiWhiteSpace(' ')
-              PsiElement(=)('=')
-              PsiWhiteSpace(' ')
-              Literal
-                PsiElement(integer)('3')
-            PsiElement(newline)('\n    ')
-            ScClass
-              AnnotationsList
-                <empty list>
-              Modifiers
-                PsiElement(sealed)('sealed')
-              PsiWhiteSpace(' ')
-              PsiElement(class)('class')
-              PsiWhiteSpace(' ')
-              PsiElement(identifier)('b')
-              PsiWhiteSpace(' ')
-              ExtendsBlock
-                ScTemplateBody
-                  PsiElement({)('{')
-                  PsiElement(})('}')
-            PsiElement(newline)('\n    ')
-            IfStatement
-              PsiElement(if)('if')
-              PsiWhiteSpace(' ')
-              PsiElement(()('(')
-              Literal
-                PsiElement(true)('true')
-              PsiElement())(')')
-              PsiWhiteSpace(' ')
-              ReturnStatement
-                PsiElement(return)('return')
-                PsiWhiteSpace(' ')
-                Literal
-                  PsiElement(string content)('"it must be true"')
-            PsiElement(newline)('\n    ')
+                  PsiElement(identifier)('b')
+                PsiElement(.)('.')
+                PsiElement(identifier)('c')
+          PsiElement(newline)('\n    ')
+          ScFunctionDefinition
+            Modifiers
+              PsiElement(implicit)('implicit')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('foo')
+            ParametersClauses
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            Literal
+              PsiElement(integer)('3')
+          PsiElement(newline)('\n    ')
+          ScClass
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(sealed)('sealed')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('b')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+          PsiElement(newline)('\n    ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            Literal
+              PsiElement(true)('true')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
             ReturnStatement
               PsiElement(return)('return')
               PsiWhiteSpace(' ')
               Literal
-                PsiElement(integer)('0')
+                PsiElement(string content)('"it must be true"')
+          PsiElement(newline)('\n    ')
+          ReturnStatement
+            PsiElement(return)('return')
+            PsiWhiteSpace(' ')
+            Literal
+              PsiElement(integer)('0')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
         PsiWhiteSpace('\n')

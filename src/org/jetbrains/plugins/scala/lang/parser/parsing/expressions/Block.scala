@@ -31,9 +31,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
 //TODO: fix this bad style
 object Block {
   def parse(builder: PsiBuilder): Boolean = {
-    val blockMarker = builder.mark
     while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {}
-    blockMarker.done(ScalaElementTypes.BLOCK)
     return true
   }
   def parse(builder: PsiBuilder, hasBrace: Boolean) : Boolean = {
@@ -57,7 +55,7 @@ object Block {
           builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
         }
       }
-      blockMarker.done(ScalaElementTypes.BLOCK)
+      blockMarker.done(ScalaElementTypes.BLOCK_EXPR)
     }
     else {
       parse(builder)

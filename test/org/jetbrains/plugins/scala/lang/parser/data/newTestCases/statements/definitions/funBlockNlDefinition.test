@@ -28,10 +28,8 @@ ScalaFile
           ParametersClauses
             <empty list>
           PsiElement(newline)('\n  ')
-          Block
+          BlockExpression
             PsiElement({)('{')
-            Block
-              <empty list>
             PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
