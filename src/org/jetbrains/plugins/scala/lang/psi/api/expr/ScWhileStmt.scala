@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import aux._
+import util._
 
 /** 
 * Created by IntelliJ IDEA.
