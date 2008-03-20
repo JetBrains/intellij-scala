@@ -21,6 +21,7 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.tree.xml.IXmlLeafElementType;
+import com.intellij.psi.xml.XmlTokenType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
@@ -38,95 +39,95 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
   // Comments
   static final TokenSet tCOMMENTS = TokenSet.create(
-    ScalaTokenTypes.tLINE_COMMENT,
-    ScalaTokenTypes.tBLOCK_COMMENT,
-    ScalaTokenTypes.tDOC_COMMENT
+      ScalaTokenTypes.tLINE_COMMENT,
+      ScalaTokenTypes.tBLOCK_COMMENT,
+      ScalaTokenTypes.tDOC_COMMENT
   );
 
   // XML tags
   static final TokenSet tXML_TAGS = TokenSet.create(
-    ScalaTokenTypes.tOPENXMLTAG
+      ScalaTokenTypes.tOPENXMLTAG
   );
 
   // Variables
   static final TokenSet tVARIABLES = TokenSet.create(
-    ScalaTokenTypes.tIDENTIFIER
+      ScalaTokenTypes.tIDENTIFIER
   );
 
   // Numbers
   static final TokenSet tNUMBERS = TokenSet.create(
-    ScalaTokenTypes.tINTEGER,
-    ScalaTokenTypes.tFLOAT
+      ScalaTokenTypes.tINTEGER,
+      ScalaTokenTypes.tFLOAT
   );
 
   // Braces
   static final TokenSet tBRACES = TokenSet.create(
-    ScalaTokenTypes.tLBRACE,
-    ScalaTokenTypes.tRBRACE,
-    ScalaTokenTypes.tLPARENTHESIS,
-    ScalaTokenTypes.tRPARENTHESIS,
-    ScalaTokenTypes.tLSQBRACKET,
-    ScalaTokenTypes.tRSQBRACKET
+      ScalaTokenTypes.tLBRACE,
+      ScalaTokenTypes.tRBRACE,
+      ScalaTokenTypes.tLPARENTHESIS,
+      ScalaTokenTypes.tRPARENTHESIS,
+      ScalaTokenTypes.tLSQBRACKET,
+      ScalaTokenTypes.tRSQBRACKET
   );
 
   // Strings
   static final TokenSet tSTRINGS = TokenSet.create(
-    ScalaTokenTypes.tSTRING,
-    ScalaTokenTypes.tWRONG_STRING,
-    ScalaTokenTypes.tCHAR,
-    ScalaTokenTypes.tSYMBOL
+      ScalaTokenTypes.tSTRING,
+      ScalaTokenTypes.tWRONG_STRING,
+      ScalaTokenTypes.tCHAR,
+      ScalaTokenTypes.tSYMBOL
   );
 
   // Keywords
   public static final TokenSet kRESWORDS = TokenSet.create(
-    ScalaTokenTypes.kABSTRACT,
-    ScalaTokenTypes.kCASE,
-    ScalaTokenTypes.kCATCH,
-    ScalaTokenTypes.kCLASS,
-    ScalaTokenTypes.kDEF,
-    ScalaTokenTypes.kDO,
-    ScalaTokenTypes.kELSE,
-    ScalaTokenTypes.kEXTENDS,
-    ScalaTokenTypes.kFALSE,
-    ScalaTokenTypes.kFINAL,
-    ScalaTokenTypes.kFINALLY,
-    ScalaTokenTypes.kFOR,
-    ScalaTokenTypes.kFOR_SOME,
-    ScalaTokenTypes.kIF,
-    ScalaTokenTypes.kIMPLICIT,
-    ScalaTokenTypes.kIMPORT,
-    ScalaTokenTypes.kLAZY,
-    ScalaTokenTypes.kMATCH,
-    ScalaTokenTypes.kNEW,
-    ScalaTokenTypes.kNULL,
-    ScalaTokenTypes.kOBJECT,
-    ScalaTokenTypes.kOVERRIDE,
-    ScalaTokenTypes.kPACKAGE,
-    ScalaTokenTypes.kPRIVATE,
-    ScalaTokenTypes.kPROTECTED,
-    ScalaTokenTypes.kREQUIRES,
-    ScalaTokenTypes.kRETURN,
-    ScalaTokenTypes.kSEALED,
-    ScalaTokenTypes.kSUPER,
-    ScalaTokenTypes.kTHIS,
-    ScalaTokenTypes.kTHROW,
-    ScalaTokenTypes.kTRAIT,
-    ScalaTokenTypes.kTRY,
-    ScalaTokenTypes.kTRUE,
-    ScalaTokenTypes.kTYPE,
-    ScalaTokenTypes.kVAL,
-    ScalaTokenTypes.kVAR,
-    ScalaTokenTypes.kWHILE,
-    ScalaTokenTypes.kWITH,
-    ScalaTokenTypes.kYIELD
+      ScalaTokenTypes.kABSTRACT,
+      ScalaTokenTypes.kCASE,
+      ScalaTokenTypes.kCATCH,
+      ScalaTokenTypes.kCLASS,
+      ScalaTokenTypes.kDEF,
+      ScalaTokenTypes.kDO,
+      ScalaTokenTypes.kELSE,
+      ScalaTokenTypes.kEXTENDS,
+      ScalaTokenTypes.kFALSE,
+      ScalaTokenTypes.kFINAL,
+      ScalaTokenTypes.kFINALLY,
+      ScalaTokenTypes.kFOR,
+      ScalaTokenTypes.kFOR_SOME,
+      ScalaTokenTypes.kIF,
+      ScalaTokenTypes.kIMPLICIT,
+      ScalaTokenTypes.kIMPORT,
+      ScalaTokenTypes.kLAZY,
+      ScalaTokenTypes.kMATCH,
+      ScalaTokenTypes.kNEW,
+      ScalaTokenTypes.kNULL,
+      ScalaTokenTypes.kOBJECT,
+      ScalaTokenTypes.kOVERRIDE,
+      ScalaTokenTypes.kPACKAGE,
+      ScalaTokenTypes.kPRIVATE,
+      ScalaTokenTypes.kPROTECTED,
+      ScalaTokenTypes.kREQUIRES,
+      ScalaTokenTypes.kRETURN,
+      ScalaTokenTypes.kSEALED,
+      ScalaTokenTypes.kSUPER,
+      ScalaTokenTypes.kTHIS,
+      ScalaTokenTypes.kTHROW,
+      ScalaTokenTypes.kTRAIT,
+      ScalaTokenTypes.kTRY,
+      ScalaTokenTypes.kTRUE,
+      ScalaTokenTypes.kTYPE,
+      ScalaTokenTypes.kVAL,
+      ScalaTokenTypes.kVAR,
+      ScalaTokenTypes.kWHILE,
+      ScalaTokenTypes.kWITH,
+      ScalaTokenTypes.kYIELD
   );
 
   static final TokenSet tOPS = TokenSet.create(
-    ScalaTokenTypes.tASSIGN,
-    ScalaTokenTypes.tDIV,
-    ScalaTokenTypes.tMINUS,
-    ScalaTokenTypes.tPLUS,
-    ScalaTokenTypes.tSTAR
+      ScalaTokenTypes.tASSIGN,
+      ScalaTokenTypes.tDIV,
+      ScalaTokenTypes.tMINUS,
+      ScalaTokenTypes.tPLUS,
+      ScalaTokenTypes.tSTAR
   );
 
   private static final Map<IElementType, TextAttributesKey> ATTRIBUTES = new HashMap<IElementType, TextAttributesKey>();
@@ -149,10 +150,10 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     return new ScalaLexer() {
       public IElementType getTokenType() {
         IElementType type = super.getTokenType();
-        if (type instanceof IXmlLeafElementType) {
+        if (type instanceof IXmlLeafElementType || XmlTokenType.XML_WHITE_SPACE == type) {
           return SCALA_XML_CONTENT;
         }
-         return type;
+        return type;
       }
     };
   }
