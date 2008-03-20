@@ -34,16 +34,15 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          ConstructorExpression
-            Block
-              PsiElement({)('{')
-              PsiWhiteSpace('\n    ')
-              SelfInvocation
-                PsiElement(this)('this')
-                ArgumentExpressions
-                  PsiElement(()('(')
-                  PsiElement())(')')
-              PsiWhiteSpace('\n  ')
-              PsiElement(})('}')
+          ConstructorBlock
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            SelfInvocation
+              PsiElement(this)('this')
+              ArgumentExpressions
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

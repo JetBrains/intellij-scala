@@ -20,12 +20,6 @@ import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
-
-
-
-
-
-
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ArgumentExprs
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockStat
@@ -53,7 +47,7 @@ object ConstrBlock {
           builder.getTokenType match {
             case ScalaTokenTypes.tRBRACE => {
               builder.advanceLexer //Ate }
-              constrExprMarker.done(ScalaElementTypes.BLOCK)
+              constrExprMarker.done(ScalaElementTypes.CONSTR_BLOCK)
               return true
             }
             case ScalaTokenTypes.tLINE_TERMINATOR
@@ -63,7 +57,7 @@ object ConstrBlock {
             }
             case _ => {
               builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
-              constrExprMarker.done(ScalaElementTypes.BLOCK)
+              constrExprMarker.done(ScalaElementTypes.CONSTR_BLOCK)
               return true
             }
           }

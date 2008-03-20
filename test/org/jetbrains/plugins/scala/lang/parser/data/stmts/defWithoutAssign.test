@@ -31,14 +31,13 @@ ScalaFile
               PsiElement(()('(')
               PsiElement())(')')
           PsiElement(newline)('\n  ')
-          Block
+          BlockExpression
             PsiElement({)('{')
-            Block
-              ReturnStatement
-                PsiElement(return)('return')
-                PsiWhiteSpace(' ')
-                ReferenceExpression
-                  PsiElement(identifier)('a')
+            ReturnStatement
+              PsiElement(return)('return')
+              PsiWhiteSpace(' ')
+              ReferenceExpression
+                PsiElement(identifier)('a')
             PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

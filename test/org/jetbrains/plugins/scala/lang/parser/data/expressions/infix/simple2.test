@@ -26,9 +26,8 @@ ScalaFile
           PropertySelection
             BlockExpression
               PsiElement({)('{')
-              Block
-                Literal
-                  PsiElement(integer)('2')
+              Literal
+                PsiElement(integer)('2')
               PsiElement(})('}')
             PsiElement(.)('.')
             PsiElement(identifier)('toString')
@@ -41,9 +40,8 @@ ScalaFile
           PsiWhiteSpace(' ')
           BlockExpression
             PsiElement({)('{')
-            Block
-              Literal
-                PsiElement(integer)('3')
+            Literal
+              PsiElement(integer)('3')
             PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

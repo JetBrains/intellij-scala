@@ -30,23 +30,22 @@ ScalaFile
             PsiWhiteSpace(' ')
             PsiElement({)('{')
             PsiWhiteSpace('\n    ')
-            Block
-              ScPatternDefinition
-                Modifiers
-                  <empty list>
-                PsiElement(val)('val')
-                PsiWhiteSpace(' ')
-                ReferencePattern
-                  PsiElement(identifier)('x')
-                PsiWhiteSpace(' ')
-                PsiElement(=)('=')
-                PsiWhiteSpace(' ')
-                InfixExpression
-                  Literal
-                    PsiElement(integer)('2')
-                  PsiElement(identifier)('/')
-                  Literal
-                    PsiElement(integer)('0')
+            ScPatternDefinition
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ReferencePattern
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                Literal
+                  PsiElement(integer)('2')
+                PsiElement(identifier)('/')
+                Literal
+                  PsiElement(integer)('0')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
           PsiWhiteSpace('\n  ')
@@ -65,9 +64,8 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
-                Block
-                  Literal
-                    PsiElement(integer)('2')
+                Literal
+                  PsiElement(integer)('2')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
           PsiWhiteSpace('\n  ')
@@ -77,12 +75,11 @@ ScalaFile
             BlockExpression
               PsiElement({)('{')
               PsiWhiteSpace('\n    ')
-              Block
-                ReturnStatement
-                  PsiElement(return)('return')
-                  PsiWhiteSpace(' ')
-                  Literal
-                    PsiElement(integer)('0')
+              ReturnStatement
+                PsiElement(return)('return')
+                PsiWhiteSpace(' ')
+                Literal
+                  PsiElement(integer)('0')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
         PsiWhiteSpace('\n')

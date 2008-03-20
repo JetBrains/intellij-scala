@@ -230,6 +230,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.ARG_EXPRS => new ScArgumentExprsImpl(node)
     case ScalaElementTypes.ARG_EXPRS_LIST => new ScArgumentExprListImpl(node)
     case ScalaElementTypes.BLOCK_EXPR => new ScBlockExprImpl(node)
+    case ScalaElementTypes.CONSTR_BLOCK => new ScConstrBlockImpl(node)
     case ScalaElementTypes.BLOCK => new ScBlockImpl(node)
     case ScalaElementTypes.TUPLE => new ScTupleImpl(node)
     case ScalaElementTypes.BLOCK_STAT => new ScBlockStatImpl(node)

@@ -44,15 +44,14 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
-              Block
-                MethodCall
+              MethodCall
+                ReferenceExpression
+                  PsiElement(identifier)('traverse1')
+                ArgumentExpressions
+                  PsiElement(()('(')
                   ReferenceExpression
-                    PsiElement(identifier)('traverse1')
-                  ArgumentExpressions
-                    PsiElement(()('(')
-                    ReferenceExpression
-                      PsiElement(identifier)('xs')
-                    PsiElement())(')')
+                    PsiElement(identifier)('xs')
+                  PsiElement())(')')
             PsiWhiteSpace('\n ')
             CaseClause
               PsiElement(case)('case')
@@ -82,18 +81,17 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
-              Block
-                MethodCall
+              MethodCall
+                ReferenceExpression
                   ReferenceExpression
-                    ReferenceExpression
-                      PsiElement(identifier)('c')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('toString')
-                  ArgumentExpressions
-                    PsiElement(()('(')
-                    ReferenceExpression
-                      PsiElement(identifier)('sb')
-                    PsiElement())(')')
+                    PsiElement(identifier)('c')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('toString')
+                ArgumentExpressions
+                  PsiElement(()('(')
+                  ReferenceExpression
+                    PsiElement(identifier)('sb')
+                  PsiElement())(')')
           PsiWhiteSpace('\n ')
           PsiElement(})('}')
         PsiWhiteSpace('\n')
