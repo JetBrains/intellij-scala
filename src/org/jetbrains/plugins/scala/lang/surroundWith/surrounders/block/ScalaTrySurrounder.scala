@@ -10,7 +10,8 @@ import com.intellij.openapi.util.TextRange
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+import lang.psi.api.expr._
+
 
 /*
  * Surrounds block with try: try { Block } <Cursor>
@@ -27,11 +28,11 @@ class ScalaWithTrySurrounder extends ScalaBlockSurrounder {
   override def getTemplateDescription = "try"
 
   override def getSurroundSelectionRange (withTryNode : ASTNode ) : TextRange = {
-    def isTryStmt = (e : PsiElement) => e.isInstanceOf[ScTryStmtImpl]
+    def isTryStmt = (e : PsiElement) => e.isInstanceOf[ScTryStmt]
 
     val tryStmt = if (isNeedBraces(withTryNode)) withTryNode.getPsi.asInstanceOf[ScalaPsiElementImpl].
-                      childSatisfyPredicateForPsiElement(isTryStmt).asInstanceOf[ScTryStmtImpl]
-                    else withTryNode.getPsi.asInstanceOf[ScTryStmtImpl]
+                      childSatisfyPredicateForPsiElement(isTryStmt).asInstanceOf[ScTryStmt]
+                    else withTryNode.getPsi.asInstanceOf[ScTryStmt]
 
     val offset = tryStmt.getTextRange.getEndOffset
     new TextRange(offset, offset)

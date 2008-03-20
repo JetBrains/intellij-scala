@@ -17,7 +17,7 @@ import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory

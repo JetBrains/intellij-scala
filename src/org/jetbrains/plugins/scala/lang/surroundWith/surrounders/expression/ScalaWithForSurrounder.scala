@@ -10,7 +10,8 @@ import com.intellij.openapi.util.TextRange
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+import lang.psi.api.expr._
+
 
 /*
  * Surrounds expression with for: for { <Cursor> } yield Expression
@@ -25,12 +26,12 @@ class ScalaWithForSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateDescription = "for / yield"
 
   override def getSurroundSelectionRange (withForNode : ASTNode ) : TextRange = {
-    def isForStmt = (e : PsiElement) => e.isInstanceOf[ScForStmtImpl]
+    def isForStmt = (e : PsiElement) => e.isInstanceOf[ScForStmt]
 
-    val forStmt = if (isNeedBraces(withForNode)) withForNode.getPsi.asInstanceOf[ScalaPsiElementImpl].childSatisfyPredicateForPsiElement(isForStmt).asInstanceOf[ScForStmtImpl]
-                else withForNode.getPsi.asInstanceOf[ScForStmtImpl]
+    val forStmt = if (isNeedBraces(withForNode)) withForNode.getPsi.asInstanceOf[ScalaPsiElementImpl].childSatisfyPredicateForPsiElement(isForStmt).asInstanceOf[ScForStmt]
+                else withForNode.getPsi.asInstanceOf[ScForStmt]
 
-    val enums = forStmt.asInstanceOf[ScForStmtImpl].enumerators.getNode
+    val enums = forStmt.asInstanceOf[ScForStmt].enumerators.getNode
 
     val offset = enums.getTextRange.getStartOffset
     forStmt.getNode.removeChild(enums)

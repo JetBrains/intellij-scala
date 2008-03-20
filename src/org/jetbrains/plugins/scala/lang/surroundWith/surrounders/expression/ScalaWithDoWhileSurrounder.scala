@@ -8,9 +8,10 @@ import com.intellij.psi.PsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import lang.psi.api.expr._
 
 /*
  * Surrounds expression with do - while: do { Expression } while { <Cursor> }
@@ -27,11 +28,11 @@ class ScalaWithDoWhileSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateDescription = "do / while"
 
   override def getSurroundSelectionRange (withDoWhileNode : ASTNode ) : TextRange = {
-    def isDoWhileStmt = (e : PsiElement) => e.isInstanceOf[ScDoStmtImpl]
+    def isDoWhileStmt = (e : PsiElement) => e.isInstanceOf[ScDoStmt]
 
     val doWhileStmt = if (isNeedBraces(withDoWhileNode)) withDoWhileNode.getPsi.asInstanceOf[ScalaPsiElementImpl].
-                        childSatisfyPredicateForPsiElement(isDoWhileStmt).asInstanceOf[ScDoStmtImpl]
-                      else withDoWhileNode.getPsi.asInstanceOf[ScDoStmtImpl]
+                        childSatisfyPredicateForPsiElement(isDoWhileStmt).asInstanceOf[ScDoStmt]
+                      else withDoWhileNode.getPsi.asInstanceOf[ScDoStmt]
 
     val conditionNode : ASTNode = doWhileStmt.condition.getNode
 

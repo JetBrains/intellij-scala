@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.util.DebugPrint
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /*
  * Surrounds an expression and return an expression
@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 abstract class ScalaExpressionSurrounder extends ScalaSurrounderByExpression {
   override def isApplicable(element : PsiElement) : Boolean = {
     element match {
-      case expr : ScalaExpression => true
+      case expr : ScExpression => true
       case _ => false
     }
   }

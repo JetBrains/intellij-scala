@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.lang.formatting.patterns
 
+import lang.psi.api.expr._
+
 package indent {
 
-  import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+
   /**
   *  For blocks & composite expressions
   */
@@ -27,7 +29,7 @@ package indent {
   *   For conditions
   */
   trait CondIndent {
-    def condition: ScalaExpression
+    def condition: ScExpression
   }
 
 
@@ -39,7 +41,7 @@ package spacing {
   import com.intellij.psi.tree.TokenSet
   import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
   import org.jetbrains.plugins.scala.lang.parser._
-  import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+
   import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter
 
   object SpacingTokens extends ScalaTokenTypes {

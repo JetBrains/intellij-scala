@@ -7,7 +7,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.annotations.{Nullable, NotNull}
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
+import lang.psi.api.toplevel._
+import lang.psi.api.toplevel.typedef._
 
 object ScalaFindUsagesProvider extends FindUsagesProvider {
   [Nullable]
@@ -16,8 +17,8 @@ object ScalaFindUsagesProvider extends FindUsagesProvider {
      ScalaTokenTypes.COMMENTS_TOKEN_SET,
      ScalaTokenTypes.STRING_LITERAL_TOKEN_SET);
 
-  override def canFindUsagesFor(element: PsiElement): Boolean = element.isInstanceOf[ScTmplDef] &&
-                                                                !element.isInstanceOf[ScObjectDefinition] //todo
+  override def canFindUsagesFor(element: PsiElement): Boolean = element.isInstanceOf[ScTypeDefinition] &&
+                                                                !element.isInstanceOf[ScObject] //todo
 
   [Nullable]
   override def getHelpId(psiElement: PsiElement): String = null //todo
@@ -26,9 +27,9 @@ object ScalaFindUsagesProvider extends FindUsagesProvider {
   [NotNull]
   override def getType(element: PsiElement): String = {
     element match {
-      case _ : ScClassDefinition => "class"
-      case _ : ScObjectDefinition => "object"
-      case _ : ScTraitDefinition => "trait"
+      case _ : ScClass=> "class"
+      case _ : ScObject=> "object"
+      case _ : ScTrait=> "trait"
       case _ => ""
     }
   }
@@ -39,7 +40,7 @@ object ScalaFindUsagesProvider extends FindUsagesProvider {
   [NotNull]
   override def getDescriptiveName(element: PsiElement): String = {
     element match {
-      case c : ScTmplDef => c.getName
+      case c : ScTypeDefinition => c.getName
       case _ => ""
     }
   }
@@ -48,7 +49,7 @@ object ScalaFindUsagesProvider extends FindUsagesProvider {
   [NotNull]
   override def getNodeText(element: PsiElement, useFullName : Boolean): String = {
     element match {
-      case c : ScTmplDef => c.getName
+      case c : ScTypeDefinition => c.getName
       case _ => ""
     }
   }

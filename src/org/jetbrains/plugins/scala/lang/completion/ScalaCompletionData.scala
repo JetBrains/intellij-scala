@@ -11,12 +11,7 @@ import com.intellij.psi.filters.position._;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.completion.filters._;
 import _root_.scala.collection.mutable._;
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
 import org.jetbrains.plugins.scala.lang.psi._
-import org.jetbrains.plugins.scala.lang.psi.impl.top._
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
-import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
 import org.jetbrains.plugins.scala.lang.parser._
 
 /*

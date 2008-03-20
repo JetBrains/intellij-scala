@@ -6,14 +6,6 @@ import com.intellij.psi.tree.IElementType
 
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.impl.types._
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
-import org.jetbrains.plugins.scala.lang.psi.impl.top.defs._
-import org.jetbrains.plugins.scala.lang.psi.impl.top.params._
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
-import org.jetbrains.plugins.scala.lang.psi.impl.top._, org.jetbrains.plugins.scala.lang.psi.impl.primitives._
-import org.jetbrains.plugins.scala.lang.psi.impl.specialNodes.ScTrash
-
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
@@ -35,16 +27,10 @@ object ScalaPsiCreator {
     node.getElementType() match {
 
       /*****************************************************/
-      /************* COMPILATION UNIT **********************/
-
-      case ScalaElementTypes.COMPILATION_UNIT => new ScCompilationUnit(node) //not used
-
-      /*****************************************************/
       /********************** TOP **************************/
       /*****************************************************/
 
       case ScalaElementTypes.PACKAGING => new ScPackagingImpl(node)
-      case ScalaElementTypes.QUAL_ID => new ScQualIdImpl(node)
 
       /***************************************************/
       /********************* IMPORT **********************/
@@ -52,12 +38,8 @@ object ScalaPsiCreator {
 
       case ScalaElementTypes.IMPORT_STMT => new ScImportStmtImpl(node)
       case ScalaElementTypes.IMPORT_EXPR => new ScImportExprImpl(node)
-      case ScalaElementTypes.IMPORT_EXPRS => new ScImportExprs(node) //not used
-      case ScalaElementTypes.IMPORT_END => new ScImportEndId(node) //not used
-
       case ScalaElementTypes.IMPORT_SELECTORS => new ScImportSelectorsImpl(node)
       case ScalaElementTypes.IMPORT_SELECTOR => new ScImportSelectorImpl(node)
-      case ScalaElementTypes.IMPORT_SELECTOR_BEGIN => new ScSelectorBeginId(node) //not used
 
       /***************************************************/
       /********************** DEF ************************/
@@ -75,8 +57,6 @@ object ScalaPsiCreator {
       /***************************************************/
       /******************** TEMPLATES ********************/
       /***************************************************/
-
-      case ScalaElementTypes.TOP_DEF_TEMPLATE => new ScTopDefTemplate(node) //not used
 
       /******************* parents ****************/
       case ScalaElementTypes.TEMPLATE_PARENTS => new ScTemplateParentsImpl(node)
@@ -106,7 +86,6 @@ object ScalaPsiCreator {
       /********** function definition: supplementary constructor *************/
       case ScalaElementTypes.SELF_INVOCATION => new ScSelfInvocationImpl(node)
       case ScalaElementTypes.CONSTR_EXPR => new ScConstrExprImpl(node)
-      case ScalaElementTypes.SUPPLEMENTARY_CONSTRUCTOR => new ScSupplementaryConstructor(node) //not used
       case ScalaElementTypes.PRIMARY_CONSTRUCTOR => new ScPrimaryConstructorImpl(node)
 
       /**************** function ******************/
@@ -118,10 +97,6 @@ object ScalaPsiCreator {
 
       /**************** pattern ******************/
       case ScalaElementTypes.PATTERN_LIST => new ScPatternListImpl(node)
-
-      /**************** bounds *******************/
-      case ScalaElementTypes.LOWER_BOUND_TYPE => new ScLowerBoundImpl(node) //not used
-      case ScalaElementTypes.UPPER_BOUND_TYPE => new ScUpperBoundImpl(node) //not used
 
       /***************************************************/
       /********* PARAMETERS AND TYPE PARAMETERS **********/
@@ -153,10 +128,7 @@ object ScalaPsiCreator {
       /************** modifiers **************/
       case ScalaElementTypes.MODIFIERS => new ScModifiersImpl(node)
       case ScalaElementTypes.ACCESS_MODIFIER => new ScAccessModifierImpl(node)
-      /************** attributes **************/
-      case ScalaElementTypes.ATTRIBUTE => new ScAttribute(node) //not used
-      case ScalaElementTypes.ATTRIBUTE_CLAUSE => new ScAttributeClause(node) //not used
-      case ScalaElementTypes.ATTRIBUTE_CLAUSES => new ScAttributeClauses(node) //not used
+
       /************* annotation *************/
       case ScalaElementTypes.ANNOTATION => new ScAnnotationImpl(node)
       case ScalaElementTypes.ANNOTATION_EXPR => new ScAnnotationExprImpl(node)

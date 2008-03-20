@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import com.intellij.psi.PsiElement
 
 /** 
 * Created by IntelliJ IDEA.
@@ -11,5 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScForStmt extends ScExpression {
+
+  def isEnumerators = (e: PsiElement) => e.isInstanceOf[ScEnumerators]
+  def enumerators: ScEnumerators = childSatisfyPredicateForPsiElement(isEnumerators).asInstanceOf[ScEnumerators]
+
 
 }

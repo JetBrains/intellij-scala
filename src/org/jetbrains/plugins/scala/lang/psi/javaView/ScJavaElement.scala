@@ -10,7 +10,7 @@ package org.jetbrains.plugins.scala.lang.psi.javaView {
   /**
   * @author ven
   */
-  abstract class ScJavaElement(scElement: ScalaPsiElementImpl, parent: PsiElement) extends PsiElementBase with PsiElement {
+  abstract class ScJavaElement(scElement: ScalaPsiElement, parent: PsiElement) extends PsiElementBase with PsiElement {
     def getLanguage: Language = StdLanguages.JAVA
 
     def getParent: PsiElement = parent

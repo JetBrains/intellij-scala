@@ -15,9 +15,9 @@ import com.intellij.lang.ParserDefinition
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements._
-import org.jetbrains.plugins.scala.lang.psi.impl.patterns._
+
+
+
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElementImpl,ScalaFile}
 

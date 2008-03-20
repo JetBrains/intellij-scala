@@ -7,18 +7,12 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.Template
-import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScTypeParamClause
-import org.jetbrains.plugins.scala.lang.psi.impl.top.params.ScParamClauses
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templateStatements.ScTemplateStatement
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templates.ScTopDefTemplate
-import org.jetbrains.plugins.scala.lang.psi.impl.top.templates._
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.resolve.references._
+
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 
 /** 
@@ -79,12 +73,12 @@ class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
     } else null
   }
 
-  def getTailId = {
+  def getTailId = null /*{
     if (getChild(ScalaElementTypes.IMPORT_END) != null) {
       getChild(ScalaElementTypes.IMPORT_END).getText
     }
     else null
-  }
+  }*/
 
   def isExplicit = ! getText.contains("_") && ! getText.contains("{")
 

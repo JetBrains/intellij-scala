@@ -12,7 +12,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.patterns.indent._
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+import lang.psi.api.expr._
+
 
 import java.util.List;
 import java.util.ArrayList;
@@ -46,8 +47,8 @@ extends Object with ScalaTokenTypes with Block {
   def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val parent = getNode.getPsi
     if (parent.isInstanceOf[BlockedIndent] ||
-    parent.isInstanceOf[ScTryBlockImpl] ||
-    parent.isInstanceOf[ScCatchBlockImpl]) {
+    parent.isInstanceOf[ScTryBlock] ||
+    parent.isInstanceOf[ScCatchBlock]) {
       return new ChildAttributes(Indent.getNormalIndent(), null)
     }
     new ChildAttributes(Indent.getNoneIndent(), null)

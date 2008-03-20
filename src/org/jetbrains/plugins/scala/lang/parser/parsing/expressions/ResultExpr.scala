@@ -13,7 +13,7 @@ import com.intellij.lang.ParserDefinition
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 

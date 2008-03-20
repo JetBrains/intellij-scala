@@ -9,7 +9,6 @@ import com.intellij.lang.StdLanguages
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.util.ArrayUtil
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.lang.psi.impl.top._
 import java.io.Serializable
 
 /**

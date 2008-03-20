@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassTemplate
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Constructor
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.lang.psi.impl.expressions._
+
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
