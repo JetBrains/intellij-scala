@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi.api.expr.aux
+package org.jetbrains.plugins.scala.lang.psi.api.expr.util
 /**
 * @author ilyas
 */
