@@ -94,11 +94,11 @@ case class ScReferencePatternImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
 */
 case class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with IfElseIndent with LocalContainer{
 
-  val PATTERN_SET = TokenSet.create(Array(ScalaElementTypes.SIMPLE_PATTERN,
-              ScalaElementTypes.SIMPLE_PATTERN1,
-              ScalaElementTypes.PATTERN3,
-              ScalaElementTypes.PATTERN2,
-              ScalaElementTypes.PATTERN1,
+  val PATTERN_SET = TokenSet.create(Array(ScalaElementTypes.TUPLE_PATTERN,
+              ScalaElementTypes.CONSTRUCTOR_PATTERN,
+              ScalaElementTypes.INFIX_PATTERN,
+              ScalaElementTypes.BINDING_PATTERN,
+              ScalaElementTypes.TYPED_PATTERN,
               ScalaElementTypes.PATTERN))
 
 

@@ -45,9 +45,10 @@ object Pattern1 {
               if (!TypePattern.parse(builder)) {
                 builder error ScalaBundle.message("wrong.type",new Array[Object](0))
               }
-              pattern1Marker.done(ScalaElementTypes.PATTERN1)
+              pattern1Marker.done(ScalaElementTypes.TYPED_PATTERN)
               return true
             }
+            
             case _ => {
               backupMarker.rollbackTo
             }
@@ -63,7 +64,7 @@ object Pattern1 {
             if (!TypePattern.parse(builder)) {
               builder error ScalaBundle.message("wrong.type",new Array[Object](0))
             }
-            pattern1Marker.done(ScalaElementTypes.PATTERN1)
+            pattern1Marker.done(ScalaElementTypes.TYPED_PATTERN)
             return true
           }
           case _ => {

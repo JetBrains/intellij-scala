@@ -28,12 +28,10 @@ class Program {
     }
 
     if (!builder.eof()) {
-      val trashMarker = builder.mark
       while (!builder.eof()) {
-        builder error ScalaBundle.message("out.of.compilation.unit", new Array[Object](0))
+        builder error ErrMsg("out.of.compilation.unit")
         builder.advanceLexer
       }
-      trashMarker.done(ScalaElementTypes.TRASH)
     }
 
   }

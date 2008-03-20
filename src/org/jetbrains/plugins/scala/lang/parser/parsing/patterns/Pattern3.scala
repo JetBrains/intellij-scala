@@ -79,7 +79,7 @@ object Pattern3 {
           opStack.pop
           backupMarker.drop
           backupMarker = markerStack.top.precede
-          markerStack.pop.done(ScalaElementTypes.PATTERN3)
+          markerStack.pop.done(ScalaElementTypes.INFIX_PATTERN)
         }
         else {
           opStack+=s
@@ -109,9 +109,9 @@ object Pattern3 {
     backupMarker.drop
     if (count>0) {
       while (!markerStack.isEmpty) {
-        markerStack.pop.done(ScalaElementTypes.PATTERN3)
+        markerStack.pop.done(ScalaElementTypes.INFIX_PATTERN)
       }
-      infixMarker.done(ScalaElementTypes.PATTERN3)
+      infixMarker.done(ScalaElementTypes.INFIX_PATTERN)
     }
     else {
       while (!markerStack.isEmpty) {
