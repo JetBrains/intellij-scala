@@ -47,6 +47,10 @@ object Enumerator {
             builder.advanceLexer //Ate =
           }
           case _ => {
+            if (builder.getTokenText == "<-") {
+              enumMarker.rollbackTo
+              return Generator parse builder
+            }
             builder error ScalaBundle.message("assign.expected", new Array[Object](0))
           }
         }
