@@ -54,7 +54,14 @@ object AnnotationExpr {
     val rollbackMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLINE_TERMINATOR => {
-
+        if (LineTerminator(builder.getTokenText)) {
+          builder.advanceLexer
+        }
+        else {
+          rollbackMarker.drop
+          annotExprMarker.done(ScalaElementTypes.ANNOTATION_EXPR)
+          return true
+        }
       }
       case _ => {}
     }
