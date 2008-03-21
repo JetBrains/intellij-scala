@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 
@@ -67,13 +69,17 @@ extends Object with ScalaTokenTypes with Block {
     val subBlocks = new ArrayList[Block]
     var prevChild: ASTNode = null
     myNode.getPsi match {
-      case _: ScInfixExpr => {
-        if (myNode.getLastChildNode.getElementType == ScalaElementTypes.INFIX_EXPR) {
+      case _: ScInfixExpr | _: ScInfixPattern | _: ScInfixType => {
+        if (myNode.getLastChildNode.getElementType == ScalaElementTypes.INFIX_EXPR ||
+            myNode.getLastChildNode.getElementType == ScalaElementTypes.INFIX_PATTERN ||
+            myNode.getLastChildNode.getElementType == ScalaElementTypes.INFIX_TYPE) {
           def getInfixBlocks(node: ASTNode): ArrayList[Block] = {
             val subBlocks = new ArrayList[Block]
             children = node.getChildren(null)
             for (child <- children) {
-              if (child.getElementType == ScalaElementTypes.INFIX_EXPR) {
+              if (child.getElementType == ScalaElementTypes.INFIX_EXPR ||
+                  child.getElementType == ScalaElementTypes.INFIX_PATTERN ||
+                  child.getElementType == ScalaElementTypes.INFIX_TYPE) {
                 subBlocks.addAll(getInfixBlocks(child))
               }
               else if (isCorrectBlock(child)){

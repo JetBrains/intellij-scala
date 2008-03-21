@@ -1,0 +1,11 @@
+class a {
+  x: T op
+  T op
+  T
+}
+-----
+class a {
+  x: T op
+    T op
+    T
+}
