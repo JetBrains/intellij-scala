@@ -10,7 +10,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /*
 *
@@ -29,14 +29,12 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     if (isMultiline(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaElementTypes.TEMPLATE_BODY |
-             ScalaTokenTypes.tDOC_COMMENT =>
-          descriptors += (new FoldingDescriptor(node, node.getTextRange()))
+             ScalaTokenTypes.tDOC_COMMENT => descriptors += (new FoldingDescriptor(node, node.getTextRange()))
         case _ =>
       }
       if (node.getTreeParent() != null && ScalaElementTypes.FUNCTION_DEFINITION == node.getTreeParent().getElementType) {
         node.getPsi match {
-          case _:ScExpression =>
-               descriptors += (new FoldingDescriptor(node, node.getTextRange()))
+          case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange())
           case _ =>
         }
       }
@@ -62,14 +60,14 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case ScalaElementTypes.TEMPLATE_BODY => return "{...}"
         case _ =>
       }
-      if (node.getTreeParent() != null && ScalaElementTypes.FUNCTION_DEFINITION == node.getTreeParent().getElementType) {
-        node.getPsi match {
-          case _ :ScExpression =>
-               return "{...}"
-          case _ => return null
-        }
+    }
+    if (node.getTreeParent() != null && ScalaElementTypes.FUNCTION_DEFINITION == node.getTreeParent().getElementType) {
+      node.getPsi match {
+        case _ : ScBlockExpr => return "{...}"
+        case _ => return null
       }
     }
+
     return null
   }
 

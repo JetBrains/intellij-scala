@@ -230,7 +230,6 @@ object ScalaElementTypes {
 
   val EXPR1 = new ScalaElementType("composite expression ")
   val FUNCTION_EXPR = new ScalaElementType("expression")
-  val RESULT_EXPR = new ScalaElementType("result expression")
   val AN_FUN = new ScalaElementType("anonymous function")
   val BINDING = new ScalaElementType("binding")
   val GENERATOR = new ScalaElementType("generator")
@@ -373,7 +372,6 @@ object ScalaElementTypes {
           SIMPLE_EXPR,
           EXPR1,
           FUNCTION_EXPR,
-          RESULT_EXPR,
           AN_FUN,
           BINDING,
           GENERATOR,

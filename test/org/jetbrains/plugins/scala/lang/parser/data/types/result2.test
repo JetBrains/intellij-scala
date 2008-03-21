@@ -17,10 +17,8 @@ ScalaFile
         PsiWhiteSpace('\n  ')
         BlockExpression
           PsiElement({)('{')
-          ResultExpression
+          FunctionExpression
             PsiElement(identifier)('x')
-            PsiErrorElement:':' expected
-              <empty list>
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')

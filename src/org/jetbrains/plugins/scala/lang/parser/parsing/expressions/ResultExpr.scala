@@ -45,21 +45,26 @@ object ResultExpr {
   def parse(builder: PsiBuilder): Boolean = {
     val resultMarker = builder.mark
     val backupMarker = builder.mark
+
+    def parseFunctionEnd() = builder.getTokenType match {
+      case ScalaTokenTypes.tFUNTYPE => {
+        builder.advanceLexer //Ate =>
+        Block parse(builder, false)
+        backupMarker.drop
+        resultMarker.done(ScalaElementTypes.FUNCTION_EXPR)
+        true
+      }
+      case _ => {
+        resultMarker.drop
+        backupMarker.rollbackTo
+        false
+      }
+    }
+
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
         Bindings parse builder
-        builder.getTokenType match {
-          case ScalaTokenTypes.tFUNTYPE => {
-            builder.advanceLexer //Ate =>
-            Block parse (builder,false)
-            backupMarker.drop
-            resultMarker.done(ScalaElementTypes.RESULT_EXPR)
-            return true
-          }
-          case _ => {
-            backupMarker.rollbackTo
-          }
-        }
+        return parseFunctionEnd
       }
       case ScalaTokenTypes.tIDENTIFIER => {
         builder.advanceLexer //Ate id
@@ -67,23 +72,17 @@ object ResultExpr {
           case ScalaTokenTypes.tCOLON => {
             builder.advanceLexer //Ate :
           }
+          case ScalaTokenTypes.tFUNTYPE => {
+            return parseFunctionEnd
+          }
           case _ => {
             builder error ScalaBundle.message("colon.expected", new Array[Object](0))
           }
         }
-        if (!CompoundType.parse(builder)) builder error ScalaBundle.message("wrong.type", new Array[Object](0))
-        builder.getTokenType match {
-          case ScalaTokenTypes.tFUNTYPE => {
-            builder.advanceLexer //Ate =>
-            Block parse (builder,false)
-            backupMarker.drop
-            resultMarker.done(ScalaElementTypes.RESULT_EXPR)
-            return true
-          }
-          case _ => {
-            backupMarker.rollbackTo
-          }
+        if (!CompoundType.parse(builder)) {
+          builder error ScalaBundle.message("wrong.type", new Array[Object](0))
         }
+        return parseFunctionEnd
       }
       case _ => {
         backupMarker.drop

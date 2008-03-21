@@ -32,7 +32,7 @@ ScalaFile
                 PsiElement(.)('.')
                 PsiElement(identifier)('s')
           PsiElement(newline)('\n    ')
-          ResultExpression
+          FunctionExpression
             ParameterList
               PsiElement(()('(')
               Parameter
