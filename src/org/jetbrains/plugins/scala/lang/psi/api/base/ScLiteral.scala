@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /** 
 * Created by IntelliJ IDEA.
@@ -10,6 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * To change this template use File | Settings | File Templates.
 */
 
-trait ScLiteral extends ScalaPsiElement {
+trait ScLiteral extends ScExpression {
 
 }

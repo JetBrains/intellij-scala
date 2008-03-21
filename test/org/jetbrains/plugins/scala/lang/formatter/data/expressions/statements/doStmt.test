@@ -1,0 +1,18 @@
+class a{
+  do {
+  x => 1
+  2
+  2
+  } +
+  5 ; while ( ture )
+}
+-----
+class a {
+  do {
+    x => 1
+    2
+    2
+  } +
+    5;
+  while (ture)
+}
