@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi.impl.source.tree.PsiErrorElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 
 
@@ -43,7 +44,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
          case _ => Indent.getNoneIndent
         }
       }
-      case _: ScBlockExpr | _: ScTemplateBody => {
+      case _: ScBlockExpr | _: ScTemplateBody | _: ScRefinement=> {
         child.getElementType match {
           case ScalaTokenTypes.tLBRACE |
           ScalaTokenTypes.tRBRACE => {
@@ -52,10 +53,9 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNormalIndent()
         }
       }
-      case _: ScPattern => Indent.getNormalIndent
       case _: ScParameters => Indent.getContinuationWithoutFirstIndent()
       case _: ScCaseClauses => Indent.getNormalIndent()
-      case _: ScInfixExpr => {
+      case _: ScInfixExpr | _:ScInfixPattern | _:ScInfixType=> {
         Indent.getContinuationWithoutFirstIndent()
       }
       case _: ScIfStmt | _: ScWhileStmt  | _: ScDoStmt=> {

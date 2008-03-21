@@ -69,6 +69,9 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
         });
       }
     }, null, null);
+    System.out.println("------------------------ "+testName+" ------------------------");
+    System.out.println(psiFile.getText());
+    System.out.println("");
     return psiFile.getText();
   }
 

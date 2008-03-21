@@ -1,0 +1,11 @@
+class a {
+  b match {
+    case - 2 =>
+  }
+}
+-----
+class a {
+  b match {
+    case -2 =>
+  }
+}

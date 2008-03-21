@@ -37,9 +37,18 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val rightNode = right.getNode
 
     leftNode.getElementType match {
+      case ScalaTokenTypes.tIDENTIFIER => {
+        leftNode.getTreeParent.getElementType match {
+          case ScalaElementTypes.LITERAL | ScalaElementTypes.PREFIX_EXPR | ScalaElementTypes.VARIANT_TYPE_PARAM => {
+            return NO_SPACING
+          }
+          case _ =>
+        }
+      }
+      case ScalaElementTypes.ANNOTATION => return IMPORT_BETWEEN_SPACING
       case ScalaTokenTypes.tLBRACE => {
         leftNode.getTreeParent().getElementType match {
-          case ScalaElementTypes.TEMPLATE_BODY | ScalaElementTypes.MATCH_STMT => {
+          case ScalaElementTypes.TEMPLATE_BODY | ScalaElementTypes.MATCH_STMT | ScalaElementTypes.REFINEMENT=> {
             return IMPORT_BETWEEN_SPACING
           }
           case  _:ScBlockExpr => {
@@ -91,7 +100,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     rightNode.getElementType match {
       case ScalaTokenTypes.tRBRACE => {
         rightNode.getTreeParent().getElementType match {
-          case ScalaElementTypes.TEMPLATE_BODY | ScalaElementTypes.MATCH_STMT=> {
+          case ScalaElementTypes.TEMPLATE_BODY | ScalaElementTypes.MATCH_STMT | ScalaElementTypes.REFINEMENT=> {
             return IMPORT_BETWEEN_SPACING
           }
           case  _:ScBlockExpr => {
