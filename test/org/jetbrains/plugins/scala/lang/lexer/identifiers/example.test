@@ -1,5 +1,5 @@
-big_bob++='def'
+big_bob++=`def`
 -----
 identifier {big_bob}
 identifier {++=}
-identifier {'def'}
+identifier {`def`}

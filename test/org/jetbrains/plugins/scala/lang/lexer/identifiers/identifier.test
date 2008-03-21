@@ -1,6 +1,6 @@
 object a{
-  'yield'
-  'dghfghd'
+  `yield`
+  `dghfghd`
 }
 -----
 object {object}
@@ -9,10 +9,10 @@ identifier {a}
 { {{}
 white space in line {
   }
-identifier {'yield'}
+identifier {`yield`}
 newline {
   }
-identifier {'dghfghd'}
+identifier {`dghfghd`}
 white space in line {
 }
 } {}}
