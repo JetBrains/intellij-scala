@@ -9,6 +9,7 @@ import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 
@@ -61,10 +62,33 @@ extends Object with ScalaTokenTypes with Block {
     ScalaSpacingProcessor.getSpacing(child1.asInstanceOf[ScalaBlock], child2.asInstanceOf[ScalaBlock])
   }
 
-  private def getDummyBlocks = {
+  private def getDummyBlocks: ArrayList[Block] = {
     var children = myNode.getChildren(null)
     val subBlocks = new ArrayList[Block]
     var prevChild: ASTNode = null
+    myNode.getPsi match {
+      case _: ScInfixExpr => {
+        if (myNode.getLastChildNode.getElementType == ScalaElementTypes.INFIX_EXPR) {
+          def getInfixBlocks(node: ASTNode): ArrayList[Block] = {
+            val subBlocks = new ArrayList[Block]
+            children = node.getChildren(null)
+            for (child <- children) {
+              if (child.getElementType == ScalaElementTypes.INFIX_EXPR) {
+                subBlocks.addAll(getInfixBlocks(child))
+              }
+              else if (isCorrectBlock(child)){
+                 val indent = ScalaIndentProcessor.getChildIndent(this, child)
+                 subBlocks.add(new ScalaBlock(this,child,myAlignment,indent,myWrap,mySettings))
+              }
+            }
+            subBlocks
+          }
+          subBlocks.addAll(getInfixBlocks(myNode))
+          return subBlocks
+        }
+      }
+      case _ =>
+    }
     for (val child <- children) {
       if (isCorrectBlock(child)) {
         val indent = ScalaIndentProcessor.getChildIndent(this, child)
