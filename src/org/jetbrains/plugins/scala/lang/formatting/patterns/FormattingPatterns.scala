@@ -7,6 +7,12 @@ import org.jetbrains.plugins.scala.lang.parser._
 
 object SpacingTokens extends ScalaTokenTypes {
 
+  val LEFT_BRACES = TokenSet.create(Array(ScalaTokenTypes.tLBRACE,
+      ScalaTokenTypes.tLPARENTHESIS,ScalaTokenTypes.tLSQBRACKET))
+
+  val RIGHT_BRACES = TokenSet.create(Array(ScalaTokenTypes.tRBRACE,
+      ScalaTokenTypes.tRPARENTHESIS,ScalaTokenTypes.tRSQBRACKET))
+
   val NO_SPACING_BEFORE = TokenSet.create(Array(ScalaTokenTypes.tDOT,
           ScalaTokenTypes.tCOMMA,
           ScalaTokenTypes.tSEMICOLON,
