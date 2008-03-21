@@ -17,6 +17,8 @@ package org.jetbrains.plugins.scala.facet;
 
 import com.intellij.facet.impl.ui.FacetTypeFrameworkSupportProvider;
 import com.intellij.openapi.roots.ModifiableRootModel;
+import com.intellij.openapi.roots.libraries.Library;
+import org.jetbrains.plugins.scala.config.ScalaConfiguration;
 
 /**
  * @author ilyas
@@ -28,6 +30,12 @@ public class ScalaFacetSupportProvider extends FacetTypeFrameworkSupportProvider
   }
 
   protected void setupConfiguration(ScalaFacet facet, ModifiableRootModel rootModel, String version) {
+    final ScalaConfiguration configuration = ScalaConfiguration.getInstance();
+
+    Library lib = configuration.getScalaLib();
+    if (lib != null) {
+      rootModel.addLibraryEntry(lib);
+    }
 
   }
 }
