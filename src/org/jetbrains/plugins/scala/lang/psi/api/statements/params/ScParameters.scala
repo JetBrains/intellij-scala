@@ -5,11 +5,11 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 /** 
 * Created by IntelliJ IDEA.
 * User: Alexander.Podkhalyuz
-* Date: 22.02.2008
-* Time: 11:17:33
+* Date: 21.03.2008
+* Time: 11:13:44
 * To change this template use File | Settings | File Templates.
 */
 
-trait ScClassParamClauses extends ScParameters {
+trait ScParameters extends ScalaPsiElement {
 
 }

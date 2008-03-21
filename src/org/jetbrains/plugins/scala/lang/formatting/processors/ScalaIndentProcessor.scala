@@ -39,12 +39,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       }
       case _: ScMatchStmt => {
         child.getElementType match {
-         case ScalaTokenTypes.tLBRACE |
-          ScalaTokenTypes.tRBRACE |
-          ScalaTokenTypes.kMATCH |
-          ScalaElementTypes.POSTFIX_EXPR =>
-            Indent.getNoneIndent()
-         case _ => Indent.getNormalIndent()
+         case _: ScCaseClauses => Indent.getNormalIndent()
+         case _ => Indent.getNoneIndent
         }
       }
       case _: ScBlockExpr | _: ScTemplateBody => {
@@ -57,9 +53,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         }
       }
       case _: ScPattern => Indent.getNormalIndent
-      case _: ScParamClauses | _: ScClassParamClauses
-          | _ :ScParamClause | _:ScClassParamClause
-          | _:ScArgumentExprs=> Indent.getContinuationWithoutFirstIndent()
+      case _: ScParameters => Indent.getContinuationWithoutFirstIndent()
       case _: ScCaseClauses => Indent.getNormalIndent()
       case _: ScExpression => {
         Indent.getNoneIndent()

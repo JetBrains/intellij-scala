@@ -58,7 +58,7 @@ extends Object with ScalaTokenTypes with Block {
   }
 
   def getSpacing(child1: Block, child2: Block) = {
-    ScalaSpacingProcessor.getSpacing((child1.asInstanceOf[ScalaBlock]).getNode, (child2.asInstanceOf[ScalaBlock]).getNode)
+    ScalaSpacingProcessor.getSpacing(child1.asInstanceOf[ScalaBlock], child2.asInstanceOf[ScalaBlock])
   }
 
   private def getDummyBlocks = {
