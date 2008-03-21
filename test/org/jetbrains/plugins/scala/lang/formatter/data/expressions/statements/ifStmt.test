@@ -1,0 +1,13 @@
+class a {
+  if ( a )
+  2+2
+  else
+      true
+}
+-----
+class a {
+  if (a)
+    2 + 2
+  else
+    true
+}
