@@ -17,22 +17,15 @@ package org.jetbrains.plugins.scala.sdk;
 
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.projectRoots.*;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.JarFileSystem;
-import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.util.SystemInfo;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.ScalaIcons;
 
 import javax.swing.*;
 import java.io.File;
-import java.util.Collections;
-import java.util.Arrays;
 
 /**
  * @author ven
@@ -289,11 +282,11 @@ public class ScalaSdkType extends SdkType implements ApplicationComponent {
   }
 
   public Icon getIcon() {
-    return ScalaFileType.SCALA_LOGO;
+    return ScalaIcons.FILE_TYPE_LOGO;
   }
 
   public Icon getIconForAddAction() {
-    return ScalaFileType.SCALA_LOGO;
+    return ScalaIcons.FILE_TYPE_LOGO;
   }
 
   @NonNls

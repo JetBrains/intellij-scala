@@ -24,14 +24,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerAdapter;
 import com.intellij.debugger.DebuggerManager;
+import com.intellij.facet.FacetTypeRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.compiler.ScalaCompiler;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
+import org.jetbrains.plugins.scala.facet.ScalaFacetType;
 
 /**
- * Author: Ilya Sergey
- * Date: 20.09.2006
- * Time: 16:31:20
+ * @author ilyas
  */
 public class ScalaLoader implements ApplicationComponent {
   public ScalaLoader() {}
@@ -61,6 +61,9 @@ public class ScalaLoader implements ApplicationComponent {
         DebuggerManager.getInstance(project).addClassNameMapper(ScalaToolsFactory.getInstance().createJVMNameMapper());
       }
     });
+
+
+    FacetTypeRegistry.getInstance().registerFacetType(ScalaFacetType.INSTANCE);
     
 
   }

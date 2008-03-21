@@ -16,7 +16,6 @@
 package org.jetbrains.plugins.scala;
 
 import com.intellij.openapi.fileTypes.LanguageFileType;
-import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
@@ -30,15 +29,12 @@ import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 import javax.swing.*;
 
 /**
- * Author: Ilya Sergey
- * Date: 20.09.2006
- * Time: 16:25:12
+ * @author ilyas
  */
 public class ScalaFileType extends LanguageFileType {
 
   public static final ScalaFileType SCALA_FILE_TYPE = new ScalaFileType();
   public static final Language SCALA_LANGUAGE = SCALA_FILE_TYPE.getLanguage();
-  public static final Icon SCALA_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_logo.png");
 
   private ScalaFileType() {
     super(new ScalaLanguage());
@@ -62,7 +58,7 @@ public class ScalaFileType extends LanguageFileType {
   }
 
   public Icon getIcon() {
-    return SCALA_LOGO;
+    return ScalaIcons.FILE_TYPE_LOGO;
   }
 
   public boolean isJVMDebuggingSupported() {
