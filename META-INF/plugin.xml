@@ -32,6 +32,7 @@
     <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
     <lang.foldingBuilder language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder"/>
     <lang.formatter language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.formatting.ScalaFormattingModelBuilder"/>
+    <frameworkSupport implementation="org.jetbrains.plugins.scala.facet.ScalaFacetSupportProvider"/>
     <!--<lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>-->
     <!--    <annotator language="Scala" implementationClass=""/>-->
   </extensions>

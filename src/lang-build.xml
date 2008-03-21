@@ -32,6 +32,13 @@
     </unzip>
   </target>
 
+  <path id="idea.lib.path">
+    <fileset dir="${idea.lib}">
+      <include name="**/*.jar"/>
+      <exclude name="boot.jar"/>
+    </fileset>
+  </path>
+
   <path id="base.path">
     <fileset dir="${scala.home}/lib">
       <include name="**/*.jar"/>
@@ -88,16 +95,18 @@
       <fileset dir="../resources/"/>
     </copy>
 
-    <mkdir dir="../classes/production/Scala"/>
+    <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.lib.path"/>
+
+    <mkdir dir="${project.lib}"/>
 
     <javac srcdir="."
-           destdir="../classes/production/Scala"
+           destdir="${project.lib}"
            verbose="yes" debug="true">
       <classpath refid="base.path"/>
     </javac>
 
     <javac srcdir="./../util"
-           destdir="../classes/production/Scala" debug="true">
+           destdir="${project.lib}" debug="true">
       <classpath refid="base.path"/>
     </javac>
 
@@ -126,7 +135,6 @@
       <fileset dir="${project.lib}" includes="**/AntScalaCompiler*, **/*MyAnt*, **/*AntRunner*"/>
     </delete>
   </target>
-
 
   <target name="jar.plugin" depends="make.project" description="Makes jar">
     <mkdir dir="${base.dir}/tempjar/Scala/lib"/>
@@ -217,11 +225,10 @@
 
       <batchtest todir="${base.dir}/logs">
         <fileset dir="${base.dir}/test">
-
-                    <include name="**/FormatterTest.java"/>
           <!--
                     <include name="**/EnterActionTest.java"/>
           -->
+          <include name="**/FormatterTest.java"/>
           <include name="**/ParserTest.java"/>
           <include name="**/LexerTest.java"/>
         </fileset>

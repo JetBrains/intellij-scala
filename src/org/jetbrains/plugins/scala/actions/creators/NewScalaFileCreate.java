@@ -17,7 +17,7 @@ package org.jetbrains.plugins.scala.actions.creators;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.util.IconLoader;
+import org.jetbrains.plugins.scala.ScalaIcons;
 
 /**
  * Author: Ilya Sergey
@@ -29,7 +29,7 @@ public class NewScalaFileCreate extends AnAction {
   public NewScalaFileCreate() {
     super("Scala file",
       "Create new Scala file",
-      IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_logo.png"));
+      ScalaIcons.FILE_TYPE_LOGO);
   }
 
   public void actionPerformed(AnActionEvent e) {
