@@ -1,4 +1,4 @@
-class 'override' {
+class `override` {
   def foo
 }
 -----
@@ -10,7 +10,7 @@ ScalaFile
       <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
-    PsiElement(identifier)(''override'')
+    PsiElement(identifier)('`override`')
     PsiWhiteSpace(' ')
     ExtendsBlock
       ScTemplateBody
