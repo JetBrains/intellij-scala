@@ -22,6 +22,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.config.ScalaConfiguration;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
@@ -47,6 +48,11 @@ public class ScalaConfigurationTab extends FacetEditorTab {
   }
 
   public JComponent createComponent() {
+    myConfButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        ShowSettingsUtil.getInstance().editConfigurable(myEditorContext.getProject(), ScalaConfiguration.getInstance());
+      }
+    });
     return myMainPanel;
   }
 

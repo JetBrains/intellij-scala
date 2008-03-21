@@ -59,12 +59,19 @@
     <component>
       <implementation-class>org.jetbrains.plugins.scala.components.ScalaIconProvider</implementation-class>
     </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.config.ScalaConfiguration</implementation-class>
+    </component>
+
   </application-components>
 
 
   <module-components>
     <component>
       <implementation-class>org.jetbrains.plugins.scala.cache.module.ScalaModuleCachesManager</implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.facet.ScalaFacetListener</implementation-class>
     </component>
   </module-components>
 

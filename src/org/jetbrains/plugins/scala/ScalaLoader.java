@@ -63,9 +63,6 @@ public class ScalaLoader implements ApplicationComponent {
     });
 
 
-    FacetTypeRegistry.getInstance().registerFacetType(ScalaFacetType.INSTANCE);
-    
-
   }
 
   public void disposeComponent() {}

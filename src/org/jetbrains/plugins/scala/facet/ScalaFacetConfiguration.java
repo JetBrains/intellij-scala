@@ -36,7 +36,6 @@ public class ScalaFacetConfiguration implements FacetConfiguration {
   public FacetEditorTab[] createEditorTabs(final FacetEditorContext editorContext, final FacetValidatorsManager validatorsManager) {
 
 //    LibraryInfo[] libraryInfos = {new LibraryInfo("javaee.jar", "5", "lib://javaee.jar", "Local Libraries", "javax.persistence.Entity")};
-
     final FacetLibrariesValidator validator = FacetEditorsFactory.getInstance().
         createLibrariesValidator(LibraryInfo.EMPTY_ARRAY,
             new FacetLibrariesValidatorDescription("scala"),
