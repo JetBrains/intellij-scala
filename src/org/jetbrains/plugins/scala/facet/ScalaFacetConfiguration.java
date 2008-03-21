@@ -25,7 +25,6 @@ import com.intellij.facet.ui.libraries.FacetLibrariesValidatorDescription;
 import com.intellij.facet.ui.libraries.LibraryInfo;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
-import com.intellij.spring.model.actions.patterns.frameworks.util.LibrariesConfigurationManager;
 import org.jdom.Element;
 
 /**
