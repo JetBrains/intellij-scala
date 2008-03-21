@@ -52,8 +52,8 @@ extends Object with ScalaTokenTypes with Block {
   def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val parent = getNode.getPsi
     parent match {
-      case _:ScBlockExpr | _:ScTemplateBody |
-           _:ScTryBlock | _:ScCatchBlock | _:ScPackaging | _:ScMatchStmt => {
+      case _: ScBlockExpr | _: ScTemplateBody |
+           _: ScTryBlock | _: ScCatchBlock | _: ScPackaging | _: ScMatchStmt => {
         return new ChildAttributes(Indent.getNormalIndent(), null)
       }
       case _ => new ChildAttributes(Indent.getNoneIndent(), null)
@@ -64,50 +64,9 @@ extends Object with ScalaTokenTypes with Block {
     ScalaSpacingProcessor.getSpacing(child1.asInstanceOf[ScalaBlock], child2.asInstanceOf[ScalaBlock])
   }
 
-  private def getDummyBlocks: ArrayList[Block] = {
-    var children = myNode.getChildren(null)
-    val subBlocks = new ArrayList[Block]
-    var prevChild: ASTNode = null
-    myNode.getPsi match {
-      case _: ScInfixExpr | _: ScInfixPattern | _: ScInfixType => {
-        if (myNode.getLastChildNode.getElementType == ScalaElementTypes.INFIX_EXPR ||
-            myNode.getLastChildNode.getElementType == ScalaElementTypes.INFIX_PATTERN ||
-            myNode.getLastChildNode.getElementType == ScalaElementTypes.INFIX_TYPE) {
-          def getInfixBlocks(node: ASTNode): ArrayList[Block] = {
-            val subBlocks = new ArrayList[Block]
-            children = node.getChildren(null)
-            for (child <- children) {
-              if (child.getElementType == ScalaElementTypes.INFIX_EXPR ||
-                  child.getElementType == ScalaElementTypes.INFIX_PATTERN ||
-                  child.getElementType == ScalaElementTypes.INFIX_TYPE) {
-                subBlocks.addAll(getInfixBlocks(child))
-              }
-              else if (isCorrectBlock(child)){
-                 val indent = ScalaIndentProcessor.getChildIndent(this, child)
-                 subBlocks.add(new ScalaBlock(this,child,myAlignment,indent,myWrap,mySettings))
-              }
-            }
-            subBlocks
-          }
-          subBlocks.addAll(getInfixBlocks(myNode))
-          return subBlocks
-        }
-      }
-      case _ =>
-    }
-    for (val child <- children) {
-      if (isCorrectBlock(child)) {
-        val indent = ScalaIndentProcessor.getChildIndent(this, child)
-        subBlocks.add(new ScalaBlock(this, child, myAlignment, indent, myWrap, mySettings))
-        prevChild = child
-      }
-    }
-    subBlocks
-  }
-
   def getSubBlocks: List[Block] = {
     if (mySubBlocks == null) {
-      mySubBlocks = getDummyBlocks
+      mySubBlocks = getDummyBlocks(myNode, this)
     }
     mySubBlocks
   }
@@ -131,10 +90,6 @@ extends Object with ScalaTokenTypes with Block {
       return true;
     }
     return isIncomplete(lastChild);
-  }
-
-  def isCorrectBlock(node: ASTNode) = {
-    node.getText().trim().length() > 0
   }
 
 }

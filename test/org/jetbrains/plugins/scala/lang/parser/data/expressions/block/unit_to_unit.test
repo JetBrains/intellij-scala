@@ -47,7 +47,7 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
-                ResultExpression
+                FunctionExpression
                   ParameterList
                     PsiElement(()('(')
                     PsiElement())(')')

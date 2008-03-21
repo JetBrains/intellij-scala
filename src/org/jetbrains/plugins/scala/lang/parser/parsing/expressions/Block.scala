@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
  * Block ::= {BlockStat semi}[ResultExpr]
  */
 
-//TODO: fix this bad style
 object Block {
   def parse(builder: PsiBuilder): Boolean = {
     while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {}

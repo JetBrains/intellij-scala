@@ -1,0 +1,35 @@
+object A {
+  find {x => null}
+}
+-----
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression
+            PsiElement(identifier)('find')
+          PsiWhiteSpace(' ')
+          ArgumentExpressions
+            BlockExpression
+              PsiElement({)('{')
+              FunctionExpression
+                PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                Literal
+                  PsiElement(null)('null')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

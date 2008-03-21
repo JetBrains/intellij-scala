@@ -17,7 +17,7 @@ ScalaFile
         PsiWhiteSpace('\n  ')
         BlockExpression
           PsiElement({)('{')
-          ResultExpression
+          FunctionExpression
             PsiElement(identifier)('x')
             PsiWhiteSpace(' ')
             PsiElement(:)(':')
