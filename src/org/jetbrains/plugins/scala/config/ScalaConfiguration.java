@@ -15,36 +15,36 @@
 
 package org.jetbrains.plugins.scala.config;
 
+import com.intellij.facet.FacetManager;
+import com.intellij.facet.FacetTypeId;
+import com.intellij.facet.FacetTypeRegistry;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.util.JDOMExternalizable;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.JDOMExternalizer;
-import com.intellij.openapi.util.WriteExternalException;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.roots.libraries.LibraryUtil;
-import com.intellij.openapi.roots.*;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.util.InvalidDataException;
+import com.intellij.openapi.util.JDOMExternalizable;
+import com.intellij.openapi.util.JDOMExternalizer;
+import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.facet.FacetTypeRegistry;
-import com.intellij.facet.FacetTypeId;
-import com.intellij.facet.FacetManager;
+import org.jdom.Element;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.facet.ScalaFacetType;
-import org.jetbrains.plugins.scala.facet.ScalaFacet;
 import org.jetbrains.plugins.scala.ScalaBundle;
-import org.jdom.Element;
+import org.jetbrains.plugins.scala.facet.ScalaFacet;
+import org.jetbrains.plugins.scala.facet.ScalaFacetType;
 
 import javax.swing.*;
 import java.io.File;
@@ -299,14 +299,16 @@ public class ScalaConfiguration implements ApplicationComponent, JDOMExternaliza
     return false;
   }
 
-    public boolean isGroovyConfigured() {
+  public String getScalaInstallPath() {
+    return scalaPath;
+  }
+
+  public boolean isScalaConfigured() {
     return scalaPath != null && scalaPath.length() > 0;
   }
 
-  public boolean isGroovyConfigured(Module module) {
-    return
-        scalaPath.length() != 0 &&
-            (module == null || FacetManager.getInstance(module).getFacetByType(ScalaFacet.FACET_TYPE_ID) != null);
+  public boolean isScalaConfigured(Module module) {
+    return scalaPath.length() != 0 && (module == null || FacetManager.getInstance(module).getFacetByType(ScalaFacet.FACET_TYPE_ID) != null);
   }
 
 
