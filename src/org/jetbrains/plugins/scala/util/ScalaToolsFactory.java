@@ -16,7 +16,9 @@
 package org.jetbrains.plugins.scala.util;
 
 import com.intellij.codeInsight.completion.CompletionData;
+import com.intellij.debugger.NameMapper;
 import com.intellij.formatting.FormattingModelBuilder;
+import com.intellij.ide.structureView.StructureViewBuilder;
 import com.intellij.lang.ParserDefinition;
 import com.intellij.lang.findUsages.FindUsagesProvider;
 import com.intellij.lang.folding.FoldingBuilder;
@@ -24,16 +26,12 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
-import com.intellij.ide.structureView.StructureViewBuilder;
-import com.intellij.debugger.NameMapper;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.surroundWith.SurroundDescriptors;
 
 /**
- * Author: Ilya Sergey
- * Date: 09.10.2006
- * Time: 21:23:48
+ * @author ilyas
  */
 public abstract class ScalaToolsFactory implements ApplicationComponent {
 

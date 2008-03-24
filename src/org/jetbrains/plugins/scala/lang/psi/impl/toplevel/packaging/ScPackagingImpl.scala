@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.icons.Icons
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 /** 
 * Created by IntelliJ IDEA.
@@ -24,10 +25,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 */
 
 class ScPackagingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPackaging{
+
   override def toString = "ScPackaging"
 
+  [NotNull]
+  def getFullPackageName: String = findChildByClass(classOf[ScReferenceElement]).getText
+
+
   /**
-  *
   * @retruns Template definitions inside current packaging
   */
  /* def getTmplDefs: Iterable[ScTmplDef] = {
@@ -60,8 +65,5 @@ class ScPackagingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
 
 
   def getInnerPackagings: Iterable[ScPackaging] = childrenOfType[ScPackaging](ScalaElementTypes.PACKAGING_BIT_SET)
-
-  //[NotNull]
-  //def getFullPackageName: String = getChild(ScalaElementTypes.QUAL_ID).asInstanceOf[ScQualId].getFullName
 
 }

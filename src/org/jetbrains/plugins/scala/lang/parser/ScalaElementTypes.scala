@@ -294,22 +294,19 @@ object ScalaElementTypes {
 
 
 
-
-
   val STATEMENT_SEPARATOR = new ScalaElementType("statement separator")
-
   val IMPLICIT_END = new ScalaElementType("implicit end")
-
   val COMPOSITE_TYPE = new ScalaElementType("type with =>")
-
   val TYPE_WITH_TYPES = new ScalaElementType("type WITH types")
   val REFINEMENT = new ScalaElementType("refinement")
-
   val ARGUMENT_EXPR = new ScalaElementType("argument expr")
 
   /*************************************************************************************/
-  /***************************** PACKAGINGS & TEMPLATES ********************************/
+  /********************************** USEFUL BITSETS ***********************************/
   /*************************************************************************************/
+
+
+  val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create(Array.apply(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
 
   val PACKAGING_BIT_SET = TokenSet.create(Array.apply(PACKAGING))
 
@@ -326,9 +323,6 @@ object ScalaElementTypes {
       TRAIT_DEF,
       TYPE_DEFINITION,
       TYPE_DECLARATION))
-
-
-  val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create(Array.apply(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
 
   //todo: add cases
   val EXPR1_BIT_SET: TokenSet = TokenSet.create(Array.apply(IF_STMT,
