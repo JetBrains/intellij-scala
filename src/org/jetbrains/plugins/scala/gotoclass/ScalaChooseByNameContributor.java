@@ -17,22 +17,17 @@ package org.jetbrains.plugins.scala.gotoclass;
 
 import com.intellij.navigation.ChooseByNameContributor;
 import com.intellij.navigation.NavigationItem;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.search.GlobalSearchScope;
-import org.jetbrains.plugins.scala.cache.module.ScalaModuleCachesManager;
-import org.jetbrains.plugins.scala.cache.module.ScalaModuleCaches;
-import org.jetbrains.plugins.scala.cache.ScalaFilesCache;
-import org.jetbrains.plugins.scala.cache.ScalaSDKCachesManager;
-import org.jetbrains.plugins.scala.cache.ScalaLibraryCachesManager;
-import org.jetbrains.plugins.scala.components.ScalaComponents;
+import org.jetbrains.plugins.scala.caches.project.ScalaCachesManager;
+import org.jetbrains.plugins.scala.caches.project.ScalaCachesManagerImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -41,74 +36,38 @@ import java.util.Collection;
  * @author Ilya.Sergey
  */
 public class ScalaChooseByNameContributor implements ChooseByNameContributor {
+  private static final String[] EMPTY_ARRAY = new String[0];
 
   public String[] getNames(Project project, boolean includeNonProjectItems) {
     ArrayList<String> acc = new ArrayList<String>();
+    ScalaCachesManager manager = ScalaCachesManagerImpl.getInstance(project);
     Module[] modules = ModuleManager.getInstance(project).getModules();
     for (Module module : modules) {
-      ScalaModuleCachesManager manager =
-              (ScalaModuleCachesManager) module.getComponent(ScalaComponents.SCALA_CACHE_MANAGER);
-      ScalaModuleCaches caches = manager.getModuleFilesCache();
-      acc.addAll(caches.getAllClassShortNames());
-    }
-
-    if (includeNonProjectItems) {
-      Collection<ScalaFilesCache> sdkCaches = ((ScalaSDKCachesManager) project.getComponent(ScalaComponents.SCALA_SDK_CACHE_MANAGER)).
-              getSdkFilesCaches().values();
-      for (ScalaFilesCache sdkCache : sdkCaches) {
-        acc.addAll(sdkCache.getAllClassShortNames());
-      }
-
-      Collection<ScalaFilesCache> libCaches = ((ScalaLibraryCachesManager) project.getComponent(ScalaComponents.SCALA_LIBRARY_CACHE_MANAGER)).
-              getLibraryFilesCaches().values();
-      for (ScalaFilesCache libCache : libCaches) {
-        acc.addAll(libCache.getAllClassShortNames());
-      }
+      final Collection<String> allShortNames = manager.getModuleFilesCache(module).getAllClassShortNames();
+      acc.addAll(allShortNames);
     }
 
     if (acc.size() > 0) {
       return acc.toArray(new String[acc.size()]);
     } else {
-      return new String[0];
+      return EMPTY_ARRAY;
     }
   }
 
   public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
-    return new NavigationItem[0];
-  }
-
-  public NavigationItem[] getItemsByName(String name, Project project, boolean includeNonProjectItems) {
-    final GlobalSearchScope scope = includeNonProjectItems ? GlobalSearchScope.allScope(project) : GlobalSearchScope.projectScope(project);
-
     ArrayList<PsiClass> acc = new ArrayList<PsiClass>();
+    ScalaCachesManager manager = ScalaCachesManagerImpl.getInstance(project);
     Module[] modules = ModuleManager.getInstance(project).getModules();
     for (Module module : modules) {
-      ScalaModuleCachesManager manager =
-              (ScalaModuleCachesManager) module.getComponent(ScalaComponents.SCALA_CACHE_MANAGER);
-      ScalaModuleCaches caches = manager.getModuleFilesCache();
-      acc.addAll(Arrays.asList(caches.getClassesByShortClassName(name)));
+      final PsiClass[] classesByShortName = manager.getModuleFilesCache(module).getClassesByShortClassName(name);
+      acc.addAll(Arrays.asList(classesByShortName));
     }
 
-    if (includeNonProjectItems) {
-      Collection<ScalaFilesCache> sdkCaches = ((ScalaSDKCachesManager) project.getComponent(ScalaComponents.SCALA_SDK_CACHE_MANAGER)).
-              getSdkFilesCaches().values();
-      for (ScalaFilesCache sdkCache : sdkCaches) {
-        acc.addAll(Arrays.asList(sdkCache.getClassesByShortClassName(name)));
-      }
-
-      Collection<ScalaFilesCache> libCaches = ((ScalaLibraryCachesManager) project.getComponent(ScalaComponents.SCALA_LIBRARY_CACHE_MANAGER)).
-              getLibraryFilesCaches().values();
-      for (ScalaFilesCache libCache : libCaches) {
-        acc.addAll(Arrays.asList(libCache.getClassesByShortClassName(name)));
-      }
-    }
-
-    PsiClass[] candidats = acc.toArray(PsiClass.EMPTY_ARRAY);
-    return filterUnshowable(candidats);
+    return filterUnshowable(acc);
   }
 
-  private static NavigationItem[] filterUnshowable(PsiClass[] items) {
-    ArrayList<NavigationItem> list = new ArrayList<NavigationItem>(items.length);
+  private static NavigationItem[] filterUnshowable(List<PsiClass> items) {
+    ArrayList<NavigationItem> list = new ArrayList<NavigationItem>(items.size());
     for (PsiClass item : items) {
       if (item.getContainingFile().getVirtualFile() == null) continue;
       list.add(item);

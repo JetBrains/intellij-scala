@@ -1,4 +1,6 @@
 /*
+*/
+/*
  * Copyright 2000-2008 JetBrains s.r.o.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
 
 package org.jetbrains.plugins.scala.lang.actions.editor.resolve;
 
 import org.jetbrains.plugins.scala.lang.actions.ActionTest;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.jetbrains.plugins.scala.components.ScalaComponents;
-import org.jetbrains.plugins.scala.cache.module.ScalaModuleCachesManager;
 import org.jetbrains.annotations.NonNls;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
@@ -42,9 +44,11 @@ import java.io.IOException;
 
 import junit.framework.Test;
 
+*/
 /**
  * @author Ilya.Sergey
  */
+/*
 public class GoToClassActionTest extends ActionTest {
 
   @NonNls
@@ -113,3 +117,4 @@ public class GoToClassActionTest extends ActionTest {
     return new GoToClassActionTest();
   }
 }
+*/
