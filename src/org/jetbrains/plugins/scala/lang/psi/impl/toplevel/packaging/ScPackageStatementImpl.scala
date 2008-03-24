@@ -12,8 +12,8 @@ import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 import org.jetbrains.plugins.scala.icons.Icons
-
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 /** 
 * Created by IntelliJ IDEA.
@@ -26,9 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 class ScPackageStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPackageStatement{
   override def toString = "ScPackageStatement"
 
- /* @Nullable
-  def getFullPackageName: String = {
-    val qualId = getChild(ScalaElementTypes.QUAL_ID).asInstanceOf[ScQualId]
-    if (qualId == null) null else qualId.getFullName
-  }*/
+  [NotNull]
+  def getFullPackageName: String = findChildByClass(classOf[ScReferenceElement]).getText
 }

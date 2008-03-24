@@ -13,7 +13,7 @@ class ScalaIconProvider extends IconProvider {
     if (element.isInstanceOf[ScalaFile]) {
       val file = element.asInstanceOf[ScalaFile]
       val name = file.getVirtualFile.getNameWithoutExtension
-      val defs = file.getTmplDefs
+      val defs = file.getTypeDefinitions
       for (val clazz <- defs) {
         if (name.equals(clazz.getName)) return clazz.getIcon(flags)
       }

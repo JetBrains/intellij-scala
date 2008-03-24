@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import psi.api.toplevel.typedef._
+import org.jetbrains.annotations._
 
-/** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
-* Date: 20.02.2008
-* Time: 18:26:27
-* To change this template use File | Settings | File Templates.
-*/
+trait ScPackaging extends ScTypeDefinitionOwner {
 
-trait ScPackaging extends ScalaPsiElement {
+  [NotNull]
+  def getFullPackageName: String
 
 }

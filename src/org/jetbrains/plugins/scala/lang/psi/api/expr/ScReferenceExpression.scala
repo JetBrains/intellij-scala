@@ -11,6 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 * To change this template use File | Settings | File Templates.
 */
 
-trait ScReferenceExpression extends ScExpression with ScReferenceId{
+trait ScReferenceExpression extends ScExpression with ScReferenceElement{
 
 }

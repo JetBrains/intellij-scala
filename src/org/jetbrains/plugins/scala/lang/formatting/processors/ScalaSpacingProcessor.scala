@@ -84,7 +84,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case _: ScParameters => {
         if (leftNode.getElementType == ScalaTokenTypes.tIDENTIFIER) return NO_SPACING
         leftNode.getPsi match {
-          case _: ScReferenceId => return NO_SPACING
+          case _: ScReferenceElement => return NO_SPACING
           case _ =>
         }
       }

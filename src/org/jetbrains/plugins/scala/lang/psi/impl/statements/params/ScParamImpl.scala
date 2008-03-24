@@ -42,8 +42,8 @@ class ScParamImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParam{
     }
   }*/
 
- /* override def getExplicitType(id: ScReferenceId) =
-    if (getNames.exists((elem: ScReferenceId) => elem.equals(id))){
+ /* override def getExplicitType(id: ScReferenceElement) =
+    if (getNames.exists((elem: ScReferenceElement) => elem.equals(id))){
       val child = childSatisfyPredicateForASTNode((node: ASTNode) => node.getPsi.isInstanceOf[ScalaType])
       if (child != null) {
         child.asInstanceOf[ScalaType].getAbstractType
@@ -59,11 +59,11 @@ class ScParamImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParam{
   *  Returns references to binded values
   */
   /*def getNames = {
-    val children = allChildrenOfType[ScReferenceId](ScalaElementTypes.REFERENCE_SET)
+    val children = allChildrenOfType[ScReferenceElement](ScalaElementTypes.REFERENCE_SET)
     if (children != null) {
       children.toList
     } else {
-      Nil: List[ScReferenceId]
+      Nil: List[ScReferenceElement]
     }
   }*/
 

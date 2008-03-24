@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
-/** 
+/**
 * Created by IntelliJ IDEA.
 * User: Alexander.Podkhalyuz
 * Date: 22.02.2008
@@ -10,6 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * To change this template use File | Settings | File Templates.
 */
 
-trait ScReferenceId extends ScalaPsiElement {
+trait ScReferenceElement extends ScalaPsiElement {
 
 }
