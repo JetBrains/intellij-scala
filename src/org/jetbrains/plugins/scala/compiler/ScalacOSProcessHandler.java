@@ -15,35 +15,33 @@
 
 package org.jetbrains.plugins.scala.compiler;
 
-import com.intellij.execution.process.OSProcessHandler;
-import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.ExecutionException;
-import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.Computable;
+import com.intellij.execution.configurations.GeneralCommandLine;
+import com.intellij.execution.process.OSProcessHandler;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompilerMessageCategory;
 import com.intellij.openapi.compiler.TranslatingCompiler;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.application.Application;
-import com.intellij.util.containers.HashSet;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.PsiClass;
+import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.util.Key;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.util.containers.HashSet;
 
 import javax.swing.*;
 import java.io.File;
-import java.util.Set;
-import java.util.Collections;
-import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * @author ven
@@ -139,7 +137,8 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
             }
           } catch (InvocationTargetException e) {
           } catch (InterruptedException e) {
-                      } }
+          }
+        }
       }
     }
   }

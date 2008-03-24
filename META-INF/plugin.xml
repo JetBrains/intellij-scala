@@ -51,9 +51,6 @@
       <implementation-class>org.jetbrains.plugins.scala.ScalaLoader</implementation-class>
     </component>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.sdk.ScalaSdkType</implementation-class>
-    </component>
-    <component>
       <implementation-class>org.jetbrains.plugins.scala.components.ScalaFileCreator</implementation-class>
     </component>
     <component>

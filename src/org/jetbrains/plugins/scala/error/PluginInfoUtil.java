@@ -21,7 +21,7 @@ public class PluginInfoUtil {// The same as in manifest
   @NonNls
   public static final String JIRA_BROWSE = JIRA + "/browse/";
   @NonNls
-  public static final String JIRA_BROWSE_RUBY_URL = JIRA_BROWSE + "/" + SCALA_KEY;
+  public static final String JIRA_BROWSE_SCALA_URL = JIRA_BROWSE + "/" + SCALA_KEY;
   @NonNls
   static final String JIRA_RPC = JIRA + "/rpc/xmlrpc";
   @NonNls

@@ -23,36 +23,34 @@ import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.TranslatingCompiler;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
-import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.SystemInfo;
+import com.intellij.openapi.vfs.JarFileSystem;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.JarFileSystem;
-import com.intellij.openapi.project.Project;
 import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.sdk.ScalaSdkType;
+import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
+import org.jetbrains.plugins.scala.config.ScalaConfiguration;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.*;
-import java.util.HashMap;
-import java.util.HashSet;
 
 /**
  * @author ven
  */
 public class ScalaCompiler implements TranslatingCompiler {
   private static final Logger LOG = Logger.getInstance("org.jetbrains.plugins.scala.compiler.ScalaCompiler");
-  private static final String CLASS_PATH_LIST_SEPARATOR = SystemInfo.isWindows ? ";" : ":";
+  private static final String XMX_COMPILER_PROPERTY = "-Xmx300m";
   private Project myProject;
 
   public ScalaCompiler(Project project) {
@@ -81,99 +79,212 @@ public class ScalaCompiler implements TranslatingCompiler {
     }
   }
 
-  private static final String SCALAC_RUNNER_QUALIFIED_NAME = "org.jetbrains.plugins.scala.compiler.rt.ScalacRunner";
 
   public ExitStatus compile(CompileContext compileContext, final VirtualFile[] virtualFiles) {
-    Map<Module, Set<VirtualFile>> map = buildModuleToFilesMap(compileContext, virtualFiles);
-    Set<OutputItem> compiledItems = new HashSet<OutputItem>();
+    Set<OutputItem> successfullyCompiled = new HashSet<OutputItem>();
     Set<VirtualFile> allCompiling = new HashSet<VirtualFile>();
-    for (Map.Entry<Module, Set<VirtualFile>> entry : map.entrySet()) {
+
+    Map<Module, Set<VirtualFile>> mapModulesToVirtualFiles = buildModuleToFilesMap(compileContext, virtualFiles);
+
+    for (Map.Entry<Module, Set<VirtualFile>> entry : mapModulesToVirtualFiles.entrySet()) {
+      GeneralCommandLine commandLine = new GeneralCommandLine();
       Module module = entry.getKey();
+
       Set<VirtualFile> files = entry.getValue();
       allCompiling.addAll(files);
-      ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
-      Sdk sdk = rootManager.getSdk();
-      assert sdk != null && sdk.getSdkType() instanceof ScalaSdkType;
-      String scalaCompilerPath = ((ScalaSdkType) sdk.getSdkType()).getScalaCompilerPath(sdk);
-      String javaExe = sdk.getHomePath() + File.separator + "java";
-      GeneralCommandLine commandLine = new GeneralCommandLine();
-      commandLine.setExePath(javaExe);
+
+      ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
+      Sdk sdk = moduleRootManager.getSdk();
+      assert sdk != null && sdk.getSdkType() instanceof JavaSdk;
+
+      String javaExecutablePath = ((JavaSdk) sdk.getSdkType()).getVMExecutablePath(sdk);
+      commandLine.setExePath(javaExecutablePath);
+
       commandLine.addParameter("-Xss128m");
       commandLine.addParameter("-cp");
-      String myJarPath = PathUtil.getJarPathForClass(getClass());
-      commandLine.addParameter(new StringBuilder().append(myJarPath).
-                                                   append(CLASS_PATH_LIST_SEPARATOR).
-                                                   append(scalaCompilerPath).toString());
 
-      commandLine.addParameter(SCALAC_RUNNER_QUALIFIED_NAME);
+      String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
+      final StringBuilder classPathBuilder = new StringBuilder();
+      classPathBuilder.append(rtJarPath);
+      classPathBuilder.append(File.pathSeparator);
+
+      String scalaPath = ScalaConfiguration.getInstance().getScalaInstallPath();
+      String libPath = (scalaPath + "/lib").replace(File.separatorChar, '/');
+
+      VirtualFile lib = LocalFileSystem.getInstance().findFileByPath(libPath);
+      if (lib != null) {
+        for (VirtualFile file : lib.getChildren()) {
+          if (required(file.getName())) {
+            classPathBuilder.append(file.getPath());
+            classPathBuilder.append(File.pathSeparator);
+          }
+        }
+      }
+
+      commandLine.addParameter(classPathBuilder.toString());
+      commandLine.addParameter(XMX_COMPILER_PROPERTY);
+      commandLine.addParameter(ScalacRunner.class.getName());
 
       try {
-        File f = File.createTempFile("toCompile", "");
-        PrintStream printer = new PrintStream(new FileOutputStream(f));
+        File fileWithParams = File.createTempFile("toCompile", "");
+        fillFileWithScalacParams(module, files, fileWithParams);
 
-        //printer.println("-Xgenerics");
-        //printer.println("-Xexperimental");
-        //printer.println("-target:jvm-1.5");
-        printer.println("-verbose");
+        commandLine.addParameter(fileWithParams.getPath());
+      } catch (IOException e) {
+        LOG.error(e);
+      }
 
-        //write output dir
-        CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
-        VirtualFile virtualFile = compilerModuleExtension.getCompilerOutputPath();
-        LOG.assertTrue(virtualFile != null);
-        String outputPath = VirtualFileManager.extractPath(virtualFile.getUrl());
-        printer.println("-d");
-        printer.println(outputPath);
+      final ScalacOSProcessHandler processHandler;
 
-        //write classpath
-        OrderEntry[] entries = rootManager.getOrderEntries();
-        Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
-        for (OrderEntry orderEntry : entries) {
-          cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)));
-        }
-
-        printer.println("-cp");
-        VirtualFile[] filesArray = cpVFiles.toArray(new VirtualFile[cpVFiles.size()]);
-        for (int i = 0; i < filesArray.length; i++) {
-          VirtualFile file = filesArray[i];
-          String path = file.getPath();
-          int jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR);
-          if (jarSeparatorIndex > 0) {
-            path = path.substring(0, jarSeparatorIndex);
-          }
-          printer.print(path);
-          if (i < filesArray.length - 1) {
-            printer.print(CLASS_PATH_LIST_SEPARATOR);
-          }
-        }
-
-        printer.println();
-
-        for (VirtualFile file : files) {
-          printer.println(file.getPath());
-        }
-
-        printer.close();
-
-        commandLine.addParameter(f.getPath());
-        final ScalacOSProcessHandler processHandler = new ScalacOSProcessHandler(commandLine, compileContext, myProject);
+      try {
+        processHandler = new ScalacOSProcessHandler(commandLine, compileContext, myProject);
         processHandler.startNotify();
         processHandler.waitFor();
-        compiledItems.addAll(processHandler.getSuccessfullyCompiled());
-      } catch (IOException e) {
-        LOG.error (e);
-        return new RecompileExitStatus(virtualFiles);
+        successfullyCompiled.addAll(processHandler.getSuccessfullyCompiled());
+
       } catch (ExecutionException e) {
-        LOG.error (e);
-        return new RecompileExitStatus(virtualFiles);
+        LOG.error(e);
+      }
+
+    }
+
+    VirtualFile[] toRecompile = successfullyCompiled.size() > 0 ? VirtualFile.EMPTY_ARRAY : allCompiling.toArray(new VirtualFile[allCompiling.size()]);
+    return new ScalaCompileExitStatus(successfullyCompiled, toRecompile);
+  }
+
+  private void fillFileWithScalacParams(Module module, Set<VirtualFile> files, File fileWithParameters)
+      throws FileNotFoundException {
+
+    PrintStream printer = new PrintStream(new FileOutputStream(fileWithParameters));
+
+    printer.println("-verbose");
+
+    //write output dir
+    CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
+    VirtualFile virtualFile = compilerModuleExtension.getCompilerOutputPath();
+
+    LOG.assertTrue(virtualFile != null);
+
+    String outputPath = VirtualFileManager.extractPath(virtualFile.getUrl());
+    printer.println("-d");
+    printer.println(outputPath);
+
+    //write classpath
+    ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
+    OrderEntry[] entries = moduleRootManager.getOrderEntries();
+    Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
+    for (OrderEntry orderEntry : entries) {
+      cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)));
+    }
+
+    printer.println("-cp");
+    VirtualFile[] filesArray = cpVFiles.toArray(new VirtualFile[cpVFiles.size()]);
+    for (int i = 0; i < filesArray.length; i++) {
+      VirtualFile file = filesArray[i];
+      String path = file.getPath();
+      int jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR);
+      if (jarSeparatorIndex > 0) {
+        path = path.substring(0, jarSeparatorIndex);
+      }
+      printer.print(path);
+      if (i < filesArray.length - 1) {
+        printer.print(File.pathSeparator);
       }
     }
 
-    VirtualFile[] toRecompile = compiledItems.size() > 0 ?
-        VirtualFile.EMPTY_ARRAY :
-        allCompiling.toArray(new VirtualFile[allCompiling.size()]);
+    printer.println();
 
-    return new ScalaCompileExitStatus(compiledItems, toRecompile);
+    for (VirtualFile file : files) {
+      printer.println(file.getPath());
+    }
+
+    printer.close();
   }
+
+  @NotNull
+  public String getDescription() {
+    return "Scala compiler";
+  }
+
+  public boolean validateConfiguration(CompileScope compileScope) {
+    if (compileScope.getFiles(ScalaFileType.SCALA_FILE_TYPE, true).length == 0) return true;
+
+    final String groovyInstallPath = ScalaConfiguration.getInstance().getScalaInstallPath();
+    if ((groovyInstallPath == null || groovyInstallPath.length() == 0)) {
+      Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.facet"), ScalaBundle.message("cannot.compile"));
+      return false;
+    }
+
+    Set<Module> nojdkModules = new HashSet<Module>();
+    for (Module module : compileScope.getAffectedModules()) {
+      Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
+      if (sdk == null || !(sdk.getSdkType() instanceof JavaSdk)) {
+        nojdkModules.add(module);
+      }
+    }
+
+    if (!nojdkModules.isEmpty()) {
+      final Module[] modules = nojdkModules.toArray(new Module[nojdkModules.size()]);
+      if (modules.length == 1) {
+        Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.sdk", modules[0].getName()), ScalaBundle.message("cannot.compile"));
+      } else {
+        StringBuffer modulesList = new StringBuffer();
+        for (int i = 0; i < modules.length; i++) {
+          if (i > 0) modulesList.append(", ");
+          modulesList.append(modules[i].getName());
+        }
+        Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.sdk.mult", modulesList.toString()), ScalaBundle.message("cannot.compile"));
+      }
+      return false;
+    }
+
+    return true;
+  }
+
+  private static class RecompileExitStatus implements ExitStatus {
+
+    private final VirtualFile[] myVirtualFiles;
+
+    public RecompileExitStatus(VirtualFile[] virtualFiles) {
+      myVirtualFiles = virtualFiles;
+    }
+
+    public OutputItem[] getSuccessfullyCompiled() {
+      return new OutputItem[0];
+    }
+
+    public VirtualFile[] getFilesToRecompile() {
+      return myVirtualFiles;
+    }
+
+  }
+
+
+  static HashSet<String> required = new HashSet<String>();
+
+  static {
+    required.add("scala");
+    required.add("sbaz");
+  }
+
+  private static boolean required(String name) {
+    name = name.toLowerCase();
+    if (!name.endsWith(".jar"))
+      return false;
+
+    name = name.substring(0, name.lastIndexOf('.'));
+    int ind = name.lastIndexOf('-');
+    if (ind != -1 && name.length() > ind + 1 && Character.isDigit(name.charAt(ind + 1))) {
+      name = name.substring(0, ind);
+    }
+
+    for (String requiredStr : required) {
+      if (name.contains(requiredStr)) return true;
+    }
+
+    return false;
+  }
+
 
   private static Map<Module, Set<VirtualFile>> buildModuleToFilesMap(final CompileContext context, final VirtualFile[] files) {
     final Map<Module, Set<VirtualFile>> map = new HashMap<Module, Set<VirtualFile>>();
@@ -196,41 +307,5 @@ public class ScalaCompiler implements TranslatingCompiler {
       }
     });
     return map;
-  }
-
-  @NotNull
-  public String getDescription() {
-    return "Scala compiler";
-  }
-
-  public boolean validateConfiguration(CompileScope compileScope) {
-    VirtualFile[] scalaFiles = compileScope.getFiles(ScalaFileType.SCALA_FILE_TYPE, true);
-    if (scalaFiles.length == 0) return true;
-    Module[] modules = compileScope.getAffectedModules();
-    for (Module module : modules) {
-      Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
-      if (sdk == null || !(sdk.getSdkType() instanceof ScalaSdkType)) {
-        Messages.showErrorDialog("Cannot compile scala files.\nPlease set up scala sdk", "Cannot compile");
-        return false;
-      }
-
-    }
-    return true;
-  }
-
-  private static class RecompileExitStatus implements ExitStatus {
-    private final VirtualFile[] myVirtualFiles;
-
-    public RecompileExitStatus(VirtualFile[] virtualFiles) {
-      myVirtualFiles = virtualFiles;
-    }
-
-    public OutputItem[] getSuccessfullyCompiled() {
-      return new OutputItem[0];
-    }
-
-    public VirtualFile[] getFilesToRecompile() {
-      return myVirtualFiles;
-    }
   }
 }

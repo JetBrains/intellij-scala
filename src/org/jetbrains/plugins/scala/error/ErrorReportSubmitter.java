@@ -110,7 +110,7 @@ public class ErrorReportSubmitter extends com.intellij.openapi.diagnostic.ErrorR
       final Vector<Hashtable> components = (Vector<Hashtable>) rpcClient.execute(JIRA_GET_COMPONENTS_COMMAND, getComponentsVector);
 
       Hashtable pluginReportsComponent = null;
-      for (int i = 0; i < components.capacity(); i++) {
+      for (int i = 0; i < components.size(); i++) {
         Hashtable t = components.get(i);
         if (t.get("name").equals(PLUGIN_REPORTS)) {
           pluginReportsComponent = t;
