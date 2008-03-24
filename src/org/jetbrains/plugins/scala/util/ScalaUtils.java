@@ -15,11 +15,11 @@
 
 package org.jetbrains.plugins.scala.util;
 
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
-import org.jetbrains.plugins.scala.ScalaFileType;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.ScalaFileType;
 
 /**
  * @author Ilya.Sergey
@@ -88,5 +88,15 @@ public abstract class ScalaUtils {
     }
     return urls;
   }
+
+  /**
+   * @param file
+   * @return true if current file is true groovy file
+   */
+
+  public static boolean isScalaFileOrDirectory(final @NotNull VirtualFile file) {
+    return isScalaFile(file) || file.isDirectory();
+  }
+
 
 }

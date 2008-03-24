@@ -32,6 +32,8 @@
     <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
     <lang.foldingBuilder language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder"/>
     <lang.formatter language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.formatting.ScalaFormattingModelBuilder"/>
+    <lang.fileViewProviderFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.ScalaFileViewProviderFactory"/>
+    <lang.gotoClassContributor language="Scala" implementationClass="org.jetbrains.plugins.scala.gotoclass.ScalaChooseByNameContributor"/>
     <frameworkSupport implementation="org.jetbrains.plugins.scala.facet.ScalaFacetSupportProvider"/>
     <!--<lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>-->
     <!--    <annotator language="Scala" implementationClass=""/>-->
@@ -65,26 +67,18 @@
 
   <module-components>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.cache.module.ScalaModuleCachesManager</implementation-class>
-    </component>
-    <component>
       <implementation-class>org.jetbrains.plugins.scala.facet.ScalaFacetListener</implementation-class>
     </component>
   </module-components>
 
   <project-components>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.cache.ScalaSDKCachesManager</implementation-class>
-    </component>
-    <component>
-      <implementation-class>org.jetbrains.plugins.scala.cache.ScalaLibraryCachesManager</implementation-class>
-    </component>
-    <component>
-      <implementation-class>org.jetbrains.plugins.scala.finder.ScalaPsiElementFinder</implementation-class>
-    </component>
-    <component>
       <interface-class>com.intellij.ide.projectView.TreeStructureProvider</interface-class>
       <implementation-class>org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider</implementation-class>
+    </component>
+    <component>
+      <interface-class>org.jetbrains.plugins.scala.caches.project.ScalaCachesManager</interface-class>
+      <implementation-class>org.jetbrains.plugins.scala.caches.project.ScalaCachesManagerImpl</implementation-class>
     </component>
   </project-components>
 

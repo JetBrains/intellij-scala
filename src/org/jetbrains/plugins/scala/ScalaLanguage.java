@@ -15,21 +15,13 @@
 
 package org.jetbrains.plugins.scala;
 
-import com.intellij.formatting.FormattingModelBuilder;
-import com.intellij.lang.*;
+import com.intellij.ide.structureView.StructureViewBuilder;
+import com.intellij.lang.Language;
 import com.intellij.lang.findUsages.FindUsagesProvider;
 import com.intellij.lang.surroundWith.SurroundDescriptor;
-import com.intellij.lang.folding.FoldingBuilder;
-import com.intellij.openapi.fileTypes.SyntaxHighlighter;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
-import com.intellij.ide.structureView.StructureViewBuilder;
+import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher;
-import org.jetbrains.plugins.scala.highlighter.ScalaCommenter;
-import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
 
 /**
@@ -39,34 +31,9 @@ import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
  */
 public class ScalaLanguage extends Language {
 
-  @Nullable
-  public FoldingBuilder getFoldingBuilder() {
-    return ScalaToolsFactory.getInstance().createScalaFoldingBuilder();
-  }
-
   @NotNull
   public FindUsagesProvider getFindUsagesProvider() {
     return ScalaToolsFactory.getInstance().createFindUsagesProvider();
-  }
-
-  @Nullable
-  public ParserDefinition getParserDefinition() {
-    return ScalaToolsFactory.getInstance().createScalaParserDefinition();
-  }
-
-  @Nullable
-  public FormattingModelBuilder getFormattingModelBuilder() {
-    return ScalaToolsFactory.getInstance().createScalaFormattingModelBuilder();
-  }
-
-  @Nullable
-  public PairedBraceMatcher getPairedBraceMatcher() {
-    return new ScalaBraceMatcher();
-  }
-
-  @NotNull
-  public SyntaxHighlighter getSyntaxHighlighter(Project project, VirtualFile virtualFile) {
-    return new ScalaSyntaxHighlighter();
   }
 
   @Nullable
@@ -74,33 +41,9 @@ public class ScalaLanguage extends Language {
     return ScalaToolsFactory.getInstance().createStructureViewBuilder(file);
   }
 
-  @Nullable
-  public Commenter getCommenter() {
-    return new ScalaCommenter();
-  }
-
   @NotNull
   public SurroundDescriptor[] getSurroundDescriptors() {
     return ScalaToolsFactory.getInstance().createSurroundDescriptors().getSurroundDescriptors();
-  }
-
-  @Nullable
-  public FileViewProvider createViewProvider(VirtualFile file, PsiManager manager, boolean physical) {
-    return new SingleRootFileViewProvider(manager, file, physical) {
-      @Nullable
-      protected PsiFile getPsiInner(Language target) {
-        if (target == StdLanguages.JAVA) return myJavaRoot;
-        return super.getPsiInner(target);
-      }
-
-      PsiFile myJavaRoot = ScalaToolsFactory.getInstance().createJavaView(this);
-
-      public PsiElement findElementAt(int offset, Language language) {
-        if (language == StdLanguages.JAVA) return myJavaRoot.findElementAt(offset);
-        return super.findElementAt(offset, language);
-      }
-    };
-
   }
 
   public ScalaLanguage() {

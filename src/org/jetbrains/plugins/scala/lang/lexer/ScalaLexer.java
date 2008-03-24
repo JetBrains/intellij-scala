@@ -35,7 +35,6 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.*;
  */
 public class ScalaLexer implements Lexer {
 
-
   private final Lexer myScalaPlainLexer = new ScalaPlainLexer();
   private final Lexer myXmlLexer = new XmlLexer();
 

@@ -1,4 +1,6 @@
 /*
+*/
+/*
  * Copyright 2000-2008 JetBrains s.r.o.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,35 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
 
 package org.jetbrains.plugins.scala.finder;
 
-import com.intellij.psi.*;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.util.containers.HashMap;
 import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.Module;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiElementFinder;
+import com.intellij.psi.PsiPackage;
+import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.components.ScalaComponents;
-import org.jetbrains.plugins.scala.cache.module.ScalaModuleCachesManager;
-import org.jetbrains.plugins.scala.cache.module.ScalaModuleCaches;
-import org.jetbrains.plugins.scala.cache.info.ScalaFileInfo;
-import org.jetbrains.plugins.scala.cache.VirtualFileScanner;
-import org.jetbrains.plugins.scala.cache.ScalaSDKCachesManager;
-import org.jetbrains.plugins.scala.cache.ScalaFilesCache;
-import org.jetbrains.plugins.scala.cache.ScalaLibraryCachesManager;
+import org.jetbrains.plugins.scala.caches.ScalaFilesCache;
 
-import java.util.Map;
 import java.util.ArrayList;
 import java.util.Collection;
 
+*/
 /**
  * @author Ilya.Sergey
  */
+/*
 public class ScalaPsiElementFinder implements PsiElementFinder, ProjectComponent {
 
   private Project myProject;
@@ -135,6 +134,7 @@ public class ScalaPsiElementFinder implements PsiElementFinder, ProjectComponent
   public PsiClass[] getClasses(PsiPackage psiPackage, GlobalSearchScope scope) {
     ArrayList<PsiClass> list = new ArrayList<PsiClass>();
     final PsiDirectory[] dirs = psiPackage.getDirectories(scope);
+*/
 /*
     for (PsiDirectory dir : dirs) {
       PsiClass[] classes = dir.get;
@@ -143,6 +143,7 @@ public class ScalaPsiElementFinder implements PsiElementFinder, ProjectComponent
       }
     }
 */
+/*
     return list.toArray(new PsiClass[list.size()]);
   }
 
@@ -166,3 +167,4 @@ public class ScalaPsiElementFinder implements PsiElementFinder, ProjectComponent
 
   }
 }
+*/
