@@ -22,9 +22,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 * To change this template use File | Settings | File Templates.
 */
 
-class ScObjectImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScObject{
+class ScObjectImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScObject{
 
   override def toString: String = "ScObject"
   override def getIcon(flags: Int) = Icons.OBJECT
-  def setName(s: String) = this
+  override def setName(s: String) = this
 }

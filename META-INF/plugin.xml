@@ -32,7 +32,6 @@
     <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
     <lang.foldingBuilder language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder"/>
     <lang.formatter language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.formatting.ScalaFormattingModelBuilder"/>
-    <lang.fileViewProviderFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.ScalaFileViewProviderFactory"/>
     <lang.gotoClassContributor language="Scala" implementationClass="org.jetbrains.plugins.scala.gotoclass.ScalaChooseByNameContributor"/>
     <frameworkSupport implementation="org.jetbrains.plugins.scala.facet.ScalaFacetSupportProvider"/>
     <!--<lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>-->

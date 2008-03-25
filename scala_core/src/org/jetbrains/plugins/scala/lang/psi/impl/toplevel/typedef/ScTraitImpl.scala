@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 * To change this template use File | Settings | File Templates.
 */
 
-class ScTraitImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTrait {
+class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait {
 
   def getExtendsBlock = getChild(ScalaElementTypes.EXTENDS_BLOCK).asInstanceOf[ScExtendsBlock]
 
@@ -49,7 +49,7 @@ class ScTraitImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTrait 
     }
   } */
 
-  def setName(s: String) = this
+  override def setName(s: String) = this
 
 
   override def toString: String = "ScTrait"

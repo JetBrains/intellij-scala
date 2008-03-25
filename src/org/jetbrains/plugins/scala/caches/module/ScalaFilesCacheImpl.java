@@ -42,6 +42,8 @@ import org.jetbrains.plugins.scala.caches.info.impl.NameInfo;
 import org.jetbrains.plugins.scala.caches.info.impl.ScalaFilesStorageImpl;
 import org.jetbrains.plugins.scala.caches.info.impl.ScalaInfoFactory;
 import org.jetbrains.plugins.scala.caches.listeners.ScalaPsiTreeListener;
+import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 
 import java.io.*;
@@ -230,13 +232,14 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
     Collection<String> urls = myScalaFilesStorage.getFileUrlsByClassName(qualifiedClassName);
     for (String url : urls) {
       VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
+      final PsiManager myPsiManager = PsiManager.getInstance(myProject);
       if (file != null) {
-        PsiFile psiFile = getJavaFile(file);
-        if (psiFile instanceof PsiJavaFile) {
-          PsiJavaFile javaFile = (PsiJavaFile) psiFile;
-          PsiClass[] typeDefs = javaFile.getClasses();
-          for (PsiClass typeDef : typeDefs) {
-            if (name.equals(typeDef.getName())) return typeDef;
+        PsiFile psiFile = myPsiManager.findFile(file);
+        if (psiFile instanceof ScalaFile) {
+          ScalaFile scalaFile = (ScalaFile) psiFile;
+          ScTypeDefinition[] typeDefs = scalaFile.getTypeDefinitionsArray();
+          for (ScTypeDefinition typeDef : typeDefs) {
+            if (typeDef.getName().equals(name)) return typeDef;
           }
         }
       }
@@ -258,11 +261,13 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
     List<PsiClass> result = new ArrayList<PsiClass>();
     for (String url : urls) {
       VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl(url);
+      final PsiManager myPsiManager = PsiManager.getInstance(myProject);
       if (virtualFile != null) {
-        PsiFile file = getJavaFile(virtualFile);
-        if (file instanceof PsiJavaFile) {
+        PsiFile file = myPsiManager.findFile(virtualFile);
+        if (file instanceof ScalaFile) {
+
           NextClass:
-          for (PsiClass aClass : ((PsiJavaFile) file).getClasses()) {
+          for (PsiClass aClass : ((ScalaFile) file).getClasses()) {
             for (PsiClassType type : aClass.getSuperTypes()) {
               if (name.equals(type.getClassName())) {
                 result.add(aClass);
@@ -292,13 +297,14 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
     Collection<String> urls = myScalaFilesStorage.getFileUrlsByClassName(qualifiedClassName);
     for (String url : urls) {
       VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
+      final PsiManager myPsiManager = PsiManager.getInstance(myProject);
       if (file != null) {
-        PsiFile psiFile = getJavaFile(file);
-        if (psiFile instanceof PsiJavaFile) {
-          PsiJavaFile groovyFile = (PsiJavaFile) psiFile;
-          PsiClass[] typeDefs = groovyFile.getClasses();
-          for (PsiClass typeDef : typeDefs) {
-            if (name.equals(typeDef.getName())) acc.add(typeDef);
+        PsiFile psiFile = myPsiManager.findFile(file);
+        if (psiFile instanceof ScalaFile) {
+          ScalaFile scalaFile = (ScalaFile) psiFile;
+          ScTypeDefinition[] typeDefs = scalaFile.getTypeDefinitionsArray();
+          for (ScTypeDefinition typeDef : typeDefs) {
+            if (typeDef.getName().equals(name)) acc.add(typeDef);
           }
         }
       }
@@ -344,12 +350,13 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
     ArrayList<PsiClass> acc = new ArrayList<PsiClass>();
     for (String url : myScalaFilesStorage.getFileUrlsByShortClassName(shortName)) {
       VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
+      final PsiManager myPsiManager = PsiManager.getInstance(myProject);
       if (file != null) {
-        PsiFile psiFile = getJavaFile(file);
-        if (psiFile instanceof PsiJavaFile) {
-          PsiJavaFile groovyFile = (PsiJavaFile) psiFile;
-          PsiClass[] typeDefinitions = groovyFile.getClasses();
-          for (PsiClass typeDefinition : typeDefinitions) {
+        PsiFile psiFile = myPsiManager.findFile(file);
+        if (psiFile instanceof ScalaFile) {
+          ScalaFile groovyFile = (ScalaFile) psiFile;
+          ScTypeDefinition[] typeDefinitions = groovyFile.getTypeDefinitionsArray();
+          for (ScTypeDefinition typeDefinition : typeDefinitions) {
             if (shortName.equals(typeDefinition.getName())) {
               acc.add(typeDefinition);
             }

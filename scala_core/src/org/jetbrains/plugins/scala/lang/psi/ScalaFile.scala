@@ -13,19 +13,32 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import psi.api.toplevel._
 import psi.api.toplevel.typedef._
 import psi.api.toplevel.packaging._
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.lang.StdLanguages
+import com.intellij.openapi.fileTypes.StdFileTypes
+import com.intellij.util.ArrayUtil
+
 
 
 
 class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase (viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage()) 
-with ScalaPsiElement with ScTypeDefinitionOwner {
+with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner{
 
   override def getViewProvider = viewProvider
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE
   override def toString = "ScalaFile"
 
-  def getPackaging: Iterable[ScPackaging] = childrenOfType[ScPackaging](ScalaElementTypes.PACKAGING_BIT_SET)
+  def getPackaging: Iterable[ScPackaging] = childrenOfType[ScPackaging](TokenSets.PACKAGING_BIT_SET)
 
-  def getUpperDefs = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_DEF_BIT_SET)
+  def getUpperDefs = childrenOfType[ScalaPsiElementImpl](TokenSets.TMPL_DEF_BIT_SET)
+
+  def setPackageName(name:String) = {}
+
+  //todo
+  def getPackageName = ""
+
+  override def getClasses = getTypeDefinitionsArray.map((t: ScTypeDefinition) => t.asInstanceOf[PsiClass])
+
 
   /*
     override def processDeclarations(processor: PsiScopeProcessor,
