@@ -16,6 +16,7 @@
 <project name="Generate various scala packages for parser needs" default="rebuild.all">
   <!--<property file="scala.properties"/>-->
   <property name="base.dir" value="${project.lib}/../../.."/>
+  <property name="scala_core.dir" value="${project.lib}/../../../scala_core"/>
   <property name="idea.lib" value="${idea.pack}/lib"/>
   <property name="output" value="${project.lib}/dist"/>
   <property name="test.lib" value="${project.lib}/../../test/Scala"/>
@@ -77,7 +78,7 @@
   </target>
 
   <target name="create.lexer" description="Makes lexer file">
-    <ant dir="org/jetbrains/plugins/scala/lang/lexer/core"
+    <ant dir="${scala_core.dir}/src/org/jetbrains/plugins/scala/lang/lexer/core"
          antfile="build.xml" target="generate.lexer"/>
   </target>
 
@@ -95,22 +96,7 @@
       <fileset dir="../resources/"/>
     </copy>
 
-    <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.lib.path"/>
-
-    <mkdir dir="${project.lib}"/>
-
-    <javac srcdir="."
-           destdir="${project.lib}"
-           verbose="yes" debug="true">
-      <classpath refid="base.path"/>
-    </javac>
-
-    <javac srcdir="./../util"
-           destdir="${project.lib}" debug="true">
-      <classpath refid="base.path"/>
-    </javac>
-
-    <!--Scala taskdef-->
+    <!--Scalac taskdef-->
     <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
         <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
@@ -118,7 +104,20 @@
       </classpath>
     </taskdef>
 
-    <scalac srcdir="."
+    <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.lib.path"/>
+
+    <mkdir dir="${project.lib}"/>
+
+    <!-- Compile scala_core module -->
+    <javac srcdir="${scala_core.dir}/src"
+           destdir="${project.lib}"
+           verbose="yes"
+           debug="true">
+      <classpath refid="base.path"/>
+    </javac>
+
+
+    <scalac srcdir="${scala_core.dir}/src"
             destdir="${project.lib}"
             logging="debug"
             addparams="-g:notc"
@@ -128,7 +127,20 @@
       <include name="**/*.scala"/>
     </scalac>
 
-    <copy file="./org/jetbrains/plugins/scala/ScalaBundle.properties"
+    <!--Compile Scala module -->
+    <javac srcdir="."
+           destdir="${project.lib}"
+           verbose="yes"
+           debug="true">
+      <classpath refid="base.path"/>
+    </javac>
+
+    <javac2  srcdir="./../util"
+           destdir="${project.lib}" debug="true">
+      <classpath refid="base.path"/>
+    </javac2>
+
+    <copy file="../scala_core/src/org/jetbrains/plugins/scala/ScalaBundle.properties"
           tofile="${project.lib}/org/jetbrains/plugins/scala/ScalaBundle.properties"/>
 
     <delete>
