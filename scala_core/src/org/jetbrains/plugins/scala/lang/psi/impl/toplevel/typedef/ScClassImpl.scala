@@ -20,9 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 * @autor Alexander.Podkhalyuzin
 */
 
-class ScClassImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScClass{
+class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass{
 
-  def setName(s: String) = this
+  override def setName(s: String) = this
 
   def getExtendsBlock = getChild(ScalaElementTypes.EXTENDS_BLOCK).asInstanceOf[ScExtendsBlock]
 

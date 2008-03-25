@@ -46,7 +46,7 @@ class ScPackagingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
 
   }  */
 
-  def getTypeDefs = childrenOfType[ScalaPsiElementImpl](ScalaElementTypes.TMPL_OR_TYPE_BIT_SET)
+  def getTypeDefs = childrenOfType[ScalaPsiElementImpl](TokenSets.TMPL_OR_TYPE_BIT_SET)
 
 /*
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -64,6 +64,6 @@ class ScPackagingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
 */
 
 
-  def getInnerPackagings: Iterable[ScPackaging] = childrenOfType[ScPackaging](ScalaElementTypes.PACKAGING_BIT_SET)
+  def getInnerPackagings: Iterable[ScPackaging] = childrenOfType[ScPackaging](TokenSets.PACKAGING_BIT_SET)
 
 }

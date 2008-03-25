@@ -5,7 +5,6 @@ import psi.api.toplevel.typedef._
 import psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.parser._
 
-
 /**
  * Trait that implements logic by some type definitions aggregation
  *
@@ -18,12 +17,14 @@ trait ScTypeDefinitionOwner extends ScalaPsiElement {
   * @return Type definitions inside current packaging
   */
   def getTypeDefinitions: List[ScTypeDefinition] = {
-    val children = childrenOfType[ScTypeDefinition](ScalaElementTypes.TMPL_OR_PACKAGING_DEF_BIT_SET)
-      (children :\ (Nil: List[ScTypeDefinition]))((y: ScalaPsiElement, x: List[ScTypeDefinition]) =>
+    val children = childrenOfType[ScTypeDefinition](TokenSets.TMPL_OR_PACKAGING_DEF_BIT_SET)
+    (children :\ (Nil: List[ScTypeDefinition]))((y: ScalaPsiElement, x: List[ScTypeDefinition]) =>
       y match {
         case p: ScPackaging => p.getTypeDefinitions.toList ::: x
         case t: ScTypeDefinition => t :: t.getTypeDefinitions.toList ::: x
       })
   }
+
+  def getTypeDefinitionsArray: Array[ScTypeDefinition] = getTypeDefinitions.toArray[ScTypeDefinition]
 
 }

@@ -29,6 +29,6 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
   *    Returns All import expression in current import statement
   *
   */
-  def getImportExprs = childrenOfType[ScImportExpr](ScalaElementTypes.IMPORT_EXPR_BIT_SET).toList
+  def getImportExprs = childrenOfType[ScImportExpr](TokenSets.IMPORT_EXPR_BIT_SET).toList
 
 }

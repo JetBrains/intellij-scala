@@ -30,7 +30,7 @@ class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
 
   private def getImportSelectors = {
     val selectorSet = getChild(ScalaElementTypes.IMPORT_SELECTORS).asInstanceOf[ScImportSelectorsImpl]
-    if (selectorSet != null) selectorSet.childrenOfType[ScImportSelectorImpl](ScalaElementTypes.SELECTOR_BIT_SET).toList
+    if (selectorSet != null) selectorSet.childrenOfType[ScImportSelectorImpl](TokenSets.SELECTOR_BIT_SET).toList
     else null
   }
 
@@ -86,7 +86,7 @@ class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
     if (getChild(ScalaTokenTypes.tUNDER) != null) return true
     val selectorSet = getChild(ScalaElementTypes.IMPORT_SELECTORS).asInstanceOf[ScImportSelectorsImpl]
     if (selectorSet != null) {
-      val ss = selectorSet.childrenOfType[ScImportSelectorImpl](ScalaElementTypes.SELECTOR_BIT_SET).toList
+      val ss = selectorSet.childrenOfType[ScImportSelectorImpl](TokenSets.SELECTOR_BIT_SET).toList
       for (val selector <- ss) {
         if (selector.isWildcard) return true
       }
