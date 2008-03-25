@@ -1,0 +1,95 @@
+package org.jetbrains.plugins.scala.lang.formatting
+ 
+import com.intellij.formatting._;
+import com.intellij.lang.ASTNode;
+import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiComment;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiErrorElement;
+import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.codeStyle.CodeStyleSettings;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
+import org.jetbrains.plugins.scala.lang.formatting.processors._
+
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+
+
+import java.util.List;
+import java.util.ArrayList;
+
+class ScalaBlock(private val myParentBlock: ScalaBlock,
+        private val myNode: ASTNode,
+        private var myAlignment: Alignment,
+        private var myIndent: Indent,
+        private var myWrap: Wrap,
+        private val mySettings: CodeStyleSettings)
+extends Object with ScalaTokenTypes with Block {
+
+  private var mySubBlocks: List[Block] = null
+
+  def getNode = myNode
+
+  def getSettings = mySettings
+
+  def getTextRange = myNode.getTextRange
+
+  def getIndent = myIndent
+
+  def getWrap = myWrap
+
+  def getAlignment = myAlignment
+
+  def isLeaf = isLeaf(myNode)
+
+  def isIncomplete = isIncomplete(myNode)
+
+  def getChildAttributes(newChildIndex: Int): ChildAttributes = {
+    val parent = getNode.getPsi
+    parent match {
+      case _: ScBlockExpr | _: ScTemplateBody |
+           _: ScTryBlock | _: ScCatchBlock | _: ScPackaging | _: ScMatchStmt => {
+        return new ChildAttributes(Indent.getNormalIndent(), null)
+      }
+      case _ => new ChildAttributes(Indent.getNoneIndent(), null)
+    }
+  }
+
+  def getSpacing(child1: Block, child2: Block) = {
+    ScalaSpacingProcessor.getSpacing(child1.asInstanceOf[ScalaBlock], child2.asInstanceOf[ScalaBlock])
+  }
+
+  def getSubBlocks: List[Block] = {
+    if (mySubBlocks == null) {
+      mySubBlocks = getDummyBlocks(myNode, this)
+    }
+    mySubBlocks
+  }
+
+  def isLeaf(node: ASTNode) = {
+    node.getFirstChildNode() == null
+  }
+
+  def isIncomplete(node: ASTNode): Boolean = {
+    if (node.getPsi.isInstanceOf[PsiErrorElement])
+      return true;
+    var lastChild = node.getLastChildNode();
+    while (lastChild != null &&
+    (lastChild.getPsi.isInstanceOf[PsiWhiteSpace] || lastChild.getPsi.isInstanceOf[PsiComment])) {
+      lastChild = lastChild.getTreePrev();
+    }
+    if (lastChild == null){
+      return false;
+    }
+    if (lastChild.getPsi.isInstanceOf[PsiErrorElement]) {
+      return true;
+    }
+    return isIncomplete(lastChild);
+  }
+
+}
