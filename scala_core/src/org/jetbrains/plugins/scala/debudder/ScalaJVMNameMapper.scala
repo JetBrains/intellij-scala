@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.debugger
 
 import com.intellij.debugger._
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.javaView._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 /**

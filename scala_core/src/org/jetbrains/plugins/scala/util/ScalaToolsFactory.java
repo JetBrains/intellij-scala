@@ -24,7 +24,6 @@ import com.intellij.lang.findUsages.FindUsagesProvider;
 import com.intellij.lang.folding.FoldingBuilder;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -56,8 +55,6 @@ public abstract class ScalaToolsFactory implements ApplicationComponent {
   public abstract FoldingBuilder createScalaFoldingBuilder();
 
   public abstract SurroundDescriptors createSurroundDescriptors();
-
-  public abstract PsiFile createJavaView(FileViewProvider viewProvider);
 
   public abstract CompletionData createScalaCompletionData();
 
