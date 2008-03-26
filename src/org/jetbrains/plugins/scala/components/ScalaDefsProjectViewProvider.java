@@ -15,33 +15,29 @@
 
 package org.jetbrains.plugins.scala.components;
 
+import com.intellij.ide.DeleteProvider;
+import com.intellij.ide.projectView.PresentationData;
+import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.projectView.TreeStructureProvider;
 import com.intellij.ide.projectView.ViewSettings;
-import com.intellij.ide.projectView.ProjectViewNode;
-import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
-import com.intellij.ide.DeleteProvider;
+import com.intellij.openapi.actionSystem.DataConstants;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DataConstants;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import com.intellij.lang.StdLanguages;
-import com.intellij.refactoring.actions.MoveAction;
 import com.intellij.refactoring.RefactoringActionHandler;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-
-import org.jetbrains.annotations.Nullable;
+import com.intellij.refactoring.actions.MoveAction;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author ven
@@ -80,14 +76,16 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
     List<AbstractTreeNode> result = new ArrayList<AbstractTreeNode>();
     for (final AbstractTreeNode child : children) {
       Object value = child.getValue();
-      if (value instanceof PsiFile && ((PsiFile) value).getLanguage().equals(ScalaFileType.SCALA_FILE_TYPE.getLanguage())) {
-        PsiJavaFile javaPsi = (PsiJavaFile) ((PsiFile) value).getViewProvider().getPsi(StdLanguages.JAVA);
-        if (javaPsi != null) {
-          PsiClass[] classes = javaPsi.getClasses();
+      if (value instanceof ScalaFile) {
+        ScalaFile scalaFile = (ScalaFile) value;
+        if (scalaFile != null) {
+          PsiClass[] classes = scalaFile.getClasses();
           if (classes.length > 0) {
             for (final PsiClass aClass : classes) {
               result.add(new Node(aClass, settings));
             }
+          } else {
+            result.add(child);
           }
         } else {
           result.add(child);
