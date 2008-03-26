@@ -12,11 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
-* Date: 15.02.2008
-* Time: 15:43:28
-* To change this template use File | Settings | File Templates.
+* @author Alexander Podkhalyuzin
 */
 
 /*
@@ -39,6 +35,12 @@ object Path extends ParserNode with ScalaTokenTypes {
         builder.advanceLexer
         StableId parseQualId(builder, nm, element, false)
       }
+      true
+    } else if (builder.getTokenType == kTHIS &&
+               !lookAhead(builder, kTHIS, tDOT)) {
+      val thisMarker = builder.mark
+      builder.advanceLexer
+      thisMarker.done(THIS_REFERENCE)
       true
     } else {
       StableId parse(builder, element)
