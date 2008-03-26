@@ -24,7 +24,6 @@ import com.intellij.openapi.compiler.TranslatingCompiler;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.CompilerModuleExtension;
@@ -96,9 +95,9 @@ public class ScalaCompiler implements TranslatingCompiler {
 
       ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
       Sdk sdk = moduleRootManager.getSdk();
-      assert sdk != null && sdk.getSdkType() instanceof JavaSdk;
+      assert sdk != null && sdk.getSdkType() instanceof JavaSdkType;
 
-      String javaExecutablePath = ((JavaSdk) sdk.getSdkType()).getVMExecutablePath(sdk);
+      String javaExecutablePath = ((JavaSdkType) sdk.getSdkType()).getVMExecutablePath(sdk);
       commandLine.setExePath(javaExecutablePath);
 
       commandLine.addParameter("-Xss128m");
