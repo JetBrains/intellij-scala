@@ -15,16 +15,16 @@
 
 package org.jetbrains.plugins.scala.caches.info.impl;
 
-import com.intellij.lang.Language;
-import com.intellij.lang.StdLanguages;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.caches.info.ScalaInfoBase;
+import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 
 import java.util.ArrayList;
@@ -60,24 +60,23 @@ public class ScalaInfoFactory {
 
     } else {
 
-      Language language = ScalaFileType.SCALA_LANGUAGE;
-      final FileViewProviderFactory factory = LanguageFileViewProviders.INSTANCE.forLanguage(language);
       final PsiManager manager = PsiManager.getInstance(project);
-      FileViewProvider provider = factory != null ? factory.createFileViewProvider(file, language, manager, true) : null;
-      PsiFile psiFile = provider != null ? provider.getPsi(StdLanguages.JAVA) : manager.findFile(file);
+      PsiFile psiFile = manager.findFile(file);
 
       ArrayList<String> classNames = new ArrayList<String>();
       ArrayList<String> namesInExtends = new ArrayList<String>();
-      if (psiFile instanceof PsiJavaFile) {
-        PsiJavaFile javaFile = (PsiJavaFile) psiFile;
-        final String packageName = javaFile.getPackageName();
-        for (PsiClass clazz : javaFile.getClasses()) {
+      if (psiFile instanceof ScalaFile) {
+        ScalaFile scalaFile = (ScalaFile) psiFile;
+        final String packageName = scalaFile.getPackageName();
+        for (ScTypeDefinition clazz : scalaFile.getTypeDefinitionsArray()) {
           classNames.add(clazz.getName());
-          for (PsiClass superClass : clazz.getSupers()) {
-            namesInExtends.add(superClass.getName());
+          for (String superName : clazz.getSuperClassNames()) {
+            namesInExtends.add(superName);
           }
         }
-        return create(file.getName(),
+
+        return create(
+            file.getName(),
             file.getUrl(),
             file.getTimeStamp(),
             packageName,
