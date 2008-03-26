@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang
 
 /**
- * @author ilyas 
+ * @author ilyas
  */
 
 import com.intellij.psi.tree.IElementType

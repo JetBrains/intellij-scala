@@ -85,7 +85,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
               result.add(new Node(aClass, settings));
             }
           } else {
-            result.add(child);
+            result.add(child);                          
           }
         } else {
           result.add(child);
