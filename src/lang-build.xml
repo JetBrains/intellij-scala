@@ -109,12 +109,12 @@
     <mkdir dir="${project.lib}"/>
 
     <!-- Compile scala_core module -->
-    <javac srcdir="${scala_core.dir}/src"
+    <javac2 srcdir="${scala_core.dir}/src"
            destdir="${project.lib}"
            verbose="yes"
            debug="true">
       <classpath refid="base.path"/>
-    </javac>
+    </javac2>
 
 
     <scalac srcdir="${scala_core.dir}/src"
@@ -128,15 +128,10 @@
     </scalac>
 
     <!--Compile Scala module -->
-    <javac srcdir="."
+    <javac2 srcdir="."
            destdir="${project.lib}"
            verbose="yes"
            debug="true">
-      <classpath refid="base.path"/>
-    </javac>
-
-    <javac2  srcdir="./../util"
-           destdir="${project.lib}" debug="true">
       <classpath refid="base.path"/>
     </javac2>
 
