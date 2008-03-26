@@ -78,14 +78,10 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
       Object value = child.getValue();
       if (value instanceof ScalaFile) {
         ScalaFile scalaFile = (ScalaFile) value;
-        if (scalaFile != null) {
-          PsiClass[] classes = scalaFile.getClasses();
-          if (classes.length > 0) {
-            for (final PsiClass aClass : classes) {
-              result.add(new Node(aClass, settings));
-            }
-          } else {
-            result.add(child);                          
+        PsiClass[] classes = scalaFile.getClasses();
+        if (classes.length > 0) {
+          for (final PsiClass aClass : classes) {
+            result.add(new Node(aClass, settings));
           }
         } else {
           result.add(child);
