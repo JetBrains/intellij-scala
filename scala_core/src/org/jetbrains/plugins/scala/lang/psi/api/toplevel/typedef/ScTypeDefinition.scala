@@ -39,6 +39,8 @@ trait ScTypeDefinition extends ScalaPsiElement
 
   def getNameIdentifierScala(): PsiElement
 
+  def getSuperClassNames() = Array[String]()
+
   def getContainingClass: PsiClass = getParent match {
     case clazz: PsiClass => clazz.asInstanceOf[PsiClass]
     case _ => null
