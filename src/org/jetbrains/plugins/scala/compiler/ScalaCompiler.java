@@ -25,6 +25,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
+import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
@@ -218,7 +219,7 @@ public class ScalaCompiler implements TranslatingCompiler {
     Set<Module> nojdkModules = new HashSet<Module>();
     for (Module module : compileScope.getAffectedModules()) {
       Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
-      if (sdk == null || !(sdk.getSdkType() instanceof JavaSdk)) {
+      if (sdk == null || !(sdk.getSdkType() instanceof JavaSdkType)) {
         nojdkModules.add(module);
       }
     }
