@@ -16,7 +16,6 @@
 package org.jetbrains.plugins.scala;
 
 import com.intellij.codeInsight.completion.CompletionUtil;
-import com.intellij.debugger.DebuggerManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.components.ApplicationComponent;
@@ -57,7 +56,7 @@ public class ScalaLoader implements ApplicationComponent {
         compilerManager.addCompiler(new ScalaCompiler(project));
         compilerManager.addCompilableFileType(ScalaFileType.SCALA_FILE_TYPE);
 
-        DebuggerManager.getInstance(project).addClassNameMapper(ScalaToolsFactory.getInstance().createJVMNameMapper());
+//        DebuggerManager.getInstance(project).addClassNameMapper(ScalaToolsFactory.getInstance().createJVMNameMapper());
       }
     });
 
