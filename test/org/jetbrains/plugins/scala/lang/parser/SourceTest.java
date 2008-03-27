@@ -15,24 +15,23 @@
 
 package org.jetbrains.plugins.scala.lang.parser;
 
-import com.intellij.psi.*;
-import com.intellij.psi.impl.DebugUtil;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiElementFactory;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
+import com.intellij.psi.impl.DebugUtil;
 import junit.framework.Assert;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 
 import java.io.File;
-import java.util.List;
-import java.util.ArrayList;
 
 public class SourceTest extends BaseScalaFileSetTestCase {
   @NonNls
-  //private static final String DATA_PATH = "C:/Work/src/scala/collection";
-//  private static final String DATA_PATH = "src";
-  private static final String DATA_PATH = "../test/org/jetbrains/plugins/scala/lang/formatter/data/";
+  private static final String DATA_PATH = "/home/ilya/Work/scala-2.7.0-final/src";
   protected static final String TEST_FILE_PATTERN = "(.*)\\.scala";
 
   public SourceTest() {
@@ -44,8 +43,7 @@ public class SourceTest extends BaseScalaFileSetTestCase {
 
 
   public String transform(String testName, String[] data) throws Exception {
-    //throw new UnsupportedOperationException("transform not implemented in org.jetbrains.plugins.scala.lang.parser.SourceTest");
-    return "bugaga";
+    throw new UnsupportedOperationException("transform not implemented in org.jetbrains.plugins.scala.lang.parser.SourceTest");
   }
 
   protected void runTest(final File myTestFile) throws Throwable {

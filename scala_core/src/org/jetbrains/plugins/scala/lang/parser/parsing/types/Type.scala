@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 
 object Type {
   def parse(builder: PsiBuilder): Boolean = parse(builder,false)
+
   def parse(builder: PsiBuilder,star: Boolean): Boolean = {
     val typeMarker = builder.mark
     builder.getTokenType match {
@@ -59,8 +60,8 @@ object Type {
             if (!Type.parse(builder)) {
               builder error ScalaBundle.message("wrong.type", new Array[Object](0))
             }
-            typeMarker.done(ScalaElementTypes.TYPE)
             parMarker.drop
+            typeMarker.done(ScalaElementTypes.TYPE)
             return true
           }
           case _ => {parMarker.rollbackTo}

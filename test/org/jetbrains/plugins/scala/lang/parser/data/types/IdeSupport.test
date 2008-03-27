@@ -1,0 +1,54 @@
+trait IdeSupport {
+  def unpickleIDEHook : (( => Type) => Type) = 42
+}
+-----
+ScalaFile
+  ScTrait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IdeSupport')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unpickleIDEHook')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypeInParenthesis
+            PsiElement(()('(')
+            FunctionalType
+              PsiElement(()('(')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              TypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Type')
+              PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              TypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Type')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Literal
+            PsiElement(integer)('42')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

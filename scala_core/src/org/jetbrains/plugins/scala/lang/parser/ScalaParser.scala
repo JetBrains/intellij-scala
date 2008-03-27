@@ -10,6 +10,8 @@ class ScalaParser extends PsiParser {
 
     def parse(root : IElementType, builder : PsiBuilder ) : ASTNode = {
 
+        builder.setDebugMode(true)
+
         var rootMarker = builder.mark()
 
         new Program parse(builder)

@@ -40,62 +40,62 @@ object PatDef {
     val someMarker = builder.mark
     val pattern2sMarker = builder.mark
 
-      if (BNF.firstPattern2.contains(builder.getTokenType)){
-          Pattern2.parse(builder)
+    if (BNF.firstPattern2.contains(builder.getTokenType)) {
+      Pattern2.parse(builder)
+    } else {
+      builder error "pattern expected"
+      pattern2sMarker.rollbackTo()
+      someMarker.drop
+      return false
+    }
+
+    var numberOfPattern2s = 1;
+
+    while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
+      ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+
+      if (BNF.firstPattern2.contains(builder.getTokenType)) {
+        Pattern2.parse(builder)
+        numberOfPattern2s = numberOfPattern2s + 1;
+
       } else {
         builder error "pattern expected"
         pattern2sMarker.rollbackTo()
         someMarker.drop
         return false
       }
+    }
 
-      var numberOfPattern2s = 1;
+    if (numberOfPattern2s > 1) pattern2sMarker.done(ScalaElementTypes.PATTERN_LIST)
+    else pattern2sMarker.drop
 
-      while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+    var hasTypeDcl = false
 
-        if (BNF.firstPattern2.contains(builder.getTokenType)){
-            Pattern2.parse(builder)
-          numberOfPattern2s = numberOfPattern2s + 1;
+    if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
+      ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
 
-        } else {
-          builder error "pattern expected"
-          pattern2sMarker.rollbackTo()
-          someMarker.drop
-          return false
-        }
+      if (BNF.firstType.contains(builder.getTokenType)) {
+        Type parse builder
+      } else {
+        builder error "type declaration expected"
       }
 
-      if (numberOfPattern2s > 1) pattern2sMarker.done(ScalaElementTypes.PATTERN_LIST)
-      else pattern2sMarker.drop
+      hasTypeDcl = true
+    }
+    if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
+      someMarker.rollbackTo
+      return false
+    } else {
+      ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
 
-      var hasTypeDcl = false
-
-      if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-
-        if (BNF.firstType.contains(builder.getTokenType)) {
-          Type parse builder
-        } else {
-          builder error "type declaration expected"
-        }
-
-        hasTypeDcl = true
-      }
-     if (! ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
+      if (!Expr.parse(builder)) {
         someMarker.rollbackTo
         return false
-      } else {
-        ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
-
-        if (!Expr.parse(builder)) {
-          someMarker.rollbackTo
-          return false
-        }
-        someMarker.drop
-        return true
       }
-
-      return false
+      someMarker.drop
+      return true
     }
+
+    return false
   }
+}

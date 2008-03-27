@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 
 object SimpleType {
   def parse(builder: PsiBuilder): Boolean = {
+
     def parseTale(curMarker: PsiBuilder.Marker) {
       builder.getTokenType match {
         case ScalaTokenTypes.tLSQBRACKET => {
@@ -54,6 +55,7 @@ object SimpleType {
         }
       }
     }
+
     val simpleMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
