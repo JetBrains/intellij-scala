@@ -12,22 +12,28 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Dcl
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
-* Date: 28.02.2008
-* Time: 15:10:33
-* To change this template use File | Settings | File Templates.
+* @author Alexander Podkhalyuzin
 */
 
 /*
  *  Types ::= Type {',' Type}
  */
 
-object Types {
-  def parse(builder: PsiBuilder): (Boolean,Boolean) ={
+object Types extends ParserNode{
+  def parse(builder: PsiBuilder): (Boolean, Boolean) ={
     var isTuple = false
+
+    def typesParse() = if (Type.parse(builder)){
+      true
+    } else if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
+      builder.advanceLexer
+      true
+    } else {
+      false
+    }
+
     val typesMarker = builder.mark
-    if (!Type.parse(builder)) {
+    if (!typesParse) {
       typesMarker.drop
       return (false,isTuple)
     }
@@ -35,7 +41,7 @@ object Types {
     while (exit && builder.getTokenType == ScalaTokenTypes.tCOMMA) {
       isTuple = true
       builder.advanceLexer //Ate ,
-      if (!Type.parse(builder)) {
+      if (!typesParse) {
         exit = false
         //builder error ScalaBundle.message("wrong.type",new Array[Object](0))
       }

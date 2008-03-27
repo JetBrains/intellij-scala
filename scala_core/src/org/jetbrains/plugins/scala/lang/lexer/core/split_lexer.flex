@@ -41,10 +41,11 @@ hexDigit = [0-9A-Fa-f]
 ESCAPE_SEQUENCE=\\[^\r\n]
 UNICODE_ESCAPE=!(!(\\u{hexDigit}{hexDigit}{hexDigit}{hexDigit}) | \\u000A)
 SOME_ESCAPE=\\{octalDigit} {octalDigit}? {octalDigit}?
-CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{UNICODE_ESCAPE}|{SOME_ESCAPE})("'"|\\)
+CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{UNICODE_ESCAPE}|{SOME_ESCAPE})("'"|\\) | \'\\u000A\'
 STRING_LITERAL=\"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*(\"|\\)? |
                \"\"\" ( (\"(\")?)? [^\"] )* \"\"\"                                                 // Multi-line string
 
+END_OF_LINE_COMMENT="/""/"[^\r\n]*
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,8 +58,8 @@ STRING_LITERAL=\"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*(\"|\\)? |
 <YYINITIAL>{
 
 {CHARACTER_LITERAL}        {  return SCALA_PLAIN_CONTENT; }
-
 {STRING_LITERAL}           {  return SCALA_PLAIN_CONTENT; }
+{END_OF_LINE_COMMENT}      {  return SCALA_PLAIN_CONTENT; }
 
 {SIMPLE_BLOCK_COMMENT}   {  return tBLOCK_COMMENT; }
 

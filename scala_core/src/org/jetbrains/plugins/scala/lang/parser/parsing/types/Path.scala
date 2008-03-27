@@ -38,8 +38,9 @@ object Path extends ParserNode with ScalaTokenTypes {
         nm.drop()
       }
       true
-    } else if (builder.getTokenType == kTHIS &&
-               !lookAhead(builder, kTHIS, tDOT)) {
+    } else if (lookAhead(builder, kTHIS, tDOT, kTYPE) ||
+                 builder.getTokenType == kTHIS &&
+                 !lookAhead(builder, kTHIS, tDOT)) {
       val thisMarker = builder.mark
       builder.advanceLexer
       thisMarker.done(THIS_REFERENCE)
