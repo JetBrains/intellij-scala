@@ -11,5 +11,4 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScSelfInvocation extends ScalaPsiElement {
-
 }

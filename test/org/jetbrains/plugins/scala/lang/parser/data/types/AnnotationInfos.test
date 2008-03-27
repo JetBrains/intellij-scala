@@ -1,0 +1,38 @@
+object reifiers {
+  val symbols: aaa.this.type
+}
+-----
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('reifiers')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('symbols')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypeElement
+            ThisReference
+              CodeReferenceElement
+                PsiElement(identifier)('aaa')
+              PsiElement(.)('.')
+              PsiElement(this)('this')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

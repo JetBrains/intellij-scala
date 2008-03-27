@@ -36,18 +36,31 @@ SIMPLE_BLOCK_COMMENT = "/**/"
 DOC_COMMENT_BEGIN = "/*""*"
 COMMENT_END = "*/"
 
+octalDigit = [0-7]
+hexDigit = [0-9A-Fa-f]
+ESCAPE_SEQUENCE=\\[^\r\n]
+UNICODE_ESCAPE=!(!(\\u{hexDigit}{hexDigit}{hexDigit}{hexDigit}) | \\u000A)
+SOME_ESCAPE=\\{octalDigit} {octalDigit}? {octalDigit}?
+CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{UNICODE_ESCAPE}|{SOME_ESCAPE})("'"|\\)
+STRING_LITERAL=\"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*(\"|\\)? |
+               \"\"\" ( (\"(\")?)? [^\"] )* \"\"\"                                                 // Multi-line string
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////  states ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 %xstate IN_BLOCK_COMMENT
-
 %%
 
 <YYINITIAL>{
 
-{SIMPLE_BLOCK_COMMENT}   {  return(tBLOCK_COMMENT); }
+{CHARACTER_LITERAL}        {  return SCALA_PLAIN_CONTENT; }
+
+{STRING_LITERAL}           {  return SCALA_PLAIN_CONTENT; }
+
+{SIMPLE_BLOCK_COMMENT}   {  return tBLOCK_COMMENT; }
 
 {DOC_COMMENT_BEGIN}      {  commentType = tDOC_COMMENT;
                             braceCount++;
@@ -84,6 +97,3 @@ COMMENT_END = "*/"
 [^]                      {  return(commentType); }
 
 }
-
-
-
