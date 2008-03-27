@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ArgumentExprs
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockStat
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
-import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 import org.jetbrains.plugins.scala.ScalaBundle
 
 /** 
@@ -40,8 +39,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
 */
 
 //TODO: rewrite this
-object FunSig extends ConstrWithoutNode {
-    override def parseBody(builder: PsiBuilder): Unit = {
+object FunSig {
+    def parse(builder: PsiBuilder): Unit = {
       if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
         ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
         if (BNF.firstFunTypeParam.contains(builder.getTokenType)) {
