@@ -21,7 +21,6 @@ import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
-import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 
 /** 

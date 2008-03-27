@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ArgumentExprs
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockStat
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
-import org.jetbrains.plugins.scala.lang.parser.parsing.ConstrUnpredict
 
 /** 
 * Created by IntelliJ IDEA.

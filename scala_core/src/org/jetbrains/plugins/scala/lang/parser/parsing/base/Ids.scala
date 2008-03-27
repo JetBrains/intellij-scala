@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableIdInImport
+
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Exprs
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.util.DebugPrint
