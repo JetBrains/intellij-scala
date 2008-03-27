@@ -88,7 +88,9 @@ object SimpleType {
           }
         }
       }
-      case ScalaTokenTypes.kTHIS | ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.kTHIS |
+           ScalaTokenTypes.tIDENTIFIER |
+           ScalaTokenTypes.kSUPER => {
         val newMarker = builder.mark
         Path parse (builder, ScalaElementTypes.REFERENCE)
         builder.getTokenType match {

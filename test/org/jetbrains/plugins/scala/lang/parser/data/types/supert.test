@@ -1,0 +1,25 @@
+class MapProjection extends super.MapProjection
+-----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MapProjection')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      ClassParents
+        Constructor
+          TypeElement
+            CodeReferenceElement
+              SuperReference
+                PsiElement(super)('super')
+              PsiElement(.)('.')
+              PsiElement(identifier)('MapProjection')
+          ArgumentList
+            <empty list>
