@@ -30,7 +30,7 @@ object Guard {
       }
     }
     if (!PostfixExpr.parse(builder)) {
-      builder error ScalaBundle.message("wrong.postfix.expression", new Array[Object](0))
+      builder error ErrMsg("wrong.postfix.expression")
     }
     guardMarker.done(ScalaElementTypes.GUARD)
     return true

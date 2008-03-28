@@ -8,6 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 * Date: 06.03.2008
 */
 
-trait ScArgumentExprs extends ScParameters {
+trait ScArgumentExprs extends ScalaPsiElement {
 
 }

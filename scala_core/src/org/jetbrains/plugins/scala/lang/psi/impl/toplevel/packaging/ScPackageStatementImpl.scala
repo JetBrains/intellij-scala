@@ -24,5 +24,5 @@ class ScPackageStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   override def toString = "ScPackageStatement"
 
   [NotNull]
-  def getFullPackageName: String = findChildByClass(classOf[ScReferenceElement]).getText
+  def getPackageName: String = findChildByClass(classOf[ScReferenceElement]).getText
 }

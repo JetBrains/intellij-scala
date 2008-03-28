@@ -21,11 +21,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 
 object InfixType {
   def parse(builder: PsiBuilder): Boolean = parse(builder, false)
+
   def parse(builder: PsiBuilder, star: Boolean): Boolean = {
     var infixTypeMarker = builder.mark
     var markerList = List[PsiBuilder.Marker]() //This list consist of markers for right-associated op
     var count = 0
-    markerList = markerList.::(infixTypeMarker)
+    markerList = infixTypeMarker :: markerList
     if (!CompoundType.parse(builder)) {
       infixTypeMarker.rollbackTo
       return false
@@ -58,7 +59,7 @@ object InfixType {
       builder.advanceLexer //Ate id
       if (assoc == -1) {
         val newMarker = builder.mark
-        markerList = markerList.::(newMarker)
+        markerList = newMarker :: markerList
       }
       builder.getTokenType match {
         case ScalaTokenTypes.tLINE_TERMINATOR => {

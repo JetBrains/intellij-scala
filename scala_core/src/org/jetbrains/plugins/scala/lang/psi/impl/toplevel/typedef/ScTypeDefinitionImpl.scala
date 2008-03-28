@@ -30,14 +30,48 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import _root_.java.util.Collection;
-import _root_.java.util.Collections;
-import _root_.java.util.List;
+abstract class ScTypeDefinitionImpl (node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeDefinition {
 
-abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeDefinition{
-  
-  override def getTextOffset() = getNameIdentifierScala().getTextRange().getStartOffset()
+  override def getTextOffset() = getNameIdentifierScala().getTextRange ().getStartOffset ()
 
   def getNameIdentifierScala() = findChildByType(TokenSets.PROPERTY_NAMES)
+
+
+  def getQualifiedName: String = {
+
+    type Named = {val name: String}
+    var parent = getParent
+    // todo improve formatter
+    var nameList = List[Named]()
+    while (parent != null) {
+      parent match {
+        case t: ScTypeDefinition => nameList = new {val name= t.getName} :: nameList
+        case p: ScPackaging => nameList = new {val name = p.getPackageName} :: nameList
+        case f: ScalaFile if f.getPackageName.length > 0 => nameList = new {val name = f.getPackageName} :: nameList
+        case _ =>
+      }
+      parent = parent.getParent
+    }
+    return (nameList :\ getName)((x:Named, s:String) => x.name + "." + s)
+  }
+
+  override def getPresentation(): ItemPresentation = {
+    new ItemPresentation () {
+
+      import org.jetbrains.plugins.scala._
+      import org.jetbrains.plugins.scala.icons._
+
+      def getPresentableText(): String = {
+        getName
+      }
+      override def getTextAttributesKey(): TextAttributesKey = null
+      override def getLocationString(): String = getPath match {
+        case "" => ""
+        case _ => '(' + getPath + ')'
+      }
+      override def getIcon(open: Boolean) = ScTypeDefinitionImpl.this.getIcon(0)
+    }
+  }
+
 
 }

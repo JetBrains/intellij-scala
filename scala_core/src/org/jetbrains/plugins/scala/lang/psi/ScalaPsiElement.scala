@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable
 import java.util.List;
 
 trait ScalaPsiElement extends PsiElement {
+
   def childSatisfyPredicateForPsiElement(predicate: PsiElement => Boolean): PsiElement = {
     childSatisfyPredicateForPsiElement(predicate, getFirstChild, (e: PsiElement) => e.getNextSibling)
   }
@@ -59,9 +60,6 @@ trait ScalaPsiElement extends PsiElement {
       }
     }
   }
-
-
-
 
   def allChildrenOfType[T >: Null <: PsiElement](tokSet: TokenSet): Iterable[T] = new Iterable[T] () {
     def elements = new Iterator[T] () {

@@ -21,21 +21,26 @@ import com.intellij.util.ArrayUtil
 
 
 
-class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase (viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage()) 
-with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner{
+class ScalaFile (viewProvider: FileViewProvider) extends PsiFileBase (viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
+with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner {
 
   override def getViewProvider = viewProvider
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE
   override def toString = "ScalaFile"
 
-  def getPackaging: Iterable[ScPackaging] = childrenOfType[ScPackaging](TokenSets.PACKAGING_BIT_SET)
 
-  def getUpperDefs = childrenOfType[ScalaPsiElementImpl](TokenSets.TMPL_DEF_BIT_SET)
+  def getUpperDefs = childrenOfType[ScalaPsiElementImpl] (TokenSets.TMPL_DEF_BIT_SET)
 
-  def setPackageName(name:String) = {}
+  def setPackageName(name: String) = {}
 
-  //todo
-  def getPackageName = ""
+  def getPackagings: Iterable [ScPackaging] = childrenOfType[ScPackaging] (TokenSets.PACKAGING_BIT_SET)
+
+  def getPackageName = {
+    val p = getPackageStatement
+    if (p != null) p.getPackageName else ""
+  }
+  
+  def getPackageStatement = findChildByClass(classOf[ScPackageStatement])
 
   override def getClasses = getTypeDefinitionsArray.map((t: ScTypeDefinition) => t.asInstanceOf[PsiClass])
 
