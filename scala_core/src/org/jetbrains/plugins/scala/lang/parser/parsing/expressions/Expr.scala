@@ -29,11 +29,8 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.CharTableImpl
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 03.03.2008
-* Time: 15:53:49
-* To change this template use File | Settings | File Templates.
 */
 
 /*

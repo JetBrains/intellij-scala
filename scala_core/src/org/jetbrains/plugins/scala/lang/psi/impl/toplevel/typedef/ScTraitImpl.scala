@@ -17,11 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 20.02.2008
-* Time: 18:48:18
-* To change this template use File | Settings | File Templates.
 */
 
 class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait {

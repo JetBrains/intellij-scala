@@ -4,11 +4,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 06.03.2008
-* Time: 18:45:01
-* To change this template use File | Settings | File Templates.
 */
 
 trait ScReferenceExpression extends ScExpression with ScReferenceElement{

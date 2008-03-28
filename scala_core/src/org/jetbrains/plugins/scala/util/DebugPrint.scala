@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.util
 
 /**
- * Author: Ilya Sergey
+ * @author ilyas
  */
 object DebugPrint {
 

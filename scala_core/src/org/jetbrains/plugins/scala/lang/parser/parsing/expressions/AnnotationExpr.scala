@@ -33,11 +33,8 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.CharTableImpl
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 06.03.2008
-* Time: 14:11:40
-* To change this template use File | Settings | File Templates.
 */
 
 /*

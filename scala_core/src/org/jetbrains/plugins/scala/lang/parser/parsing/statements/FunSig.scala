@@ -31,11 +31,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import org.jetbrains.plugins.scala.ScalaBundle
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 11.02.2008
-* Time: 18:59:38
-* To change this template use File | Settings | File Templates.
 */
 
 //TODO: rewrite this

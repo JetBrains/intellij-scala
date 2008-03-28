@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.surroundWith.descriptors;
 /**
  * User: Dmitry.Krasilschikov
  * Date: 09.01.2007
- * Time: 16:36:32
+ *
  */
 import com.intellij.lang.surroundWith.SurroundDescriptor;
 import com.intellij.lang.surroundWith.Surrounder;

@@ -33,11 +33,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 13.02.2008
-* Time: 17:04:46
-* To change this template use File | Settings | File Templates.
 */
 
 object TypeDef {

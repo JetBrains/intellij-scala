@@ -16,11 +16,8 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 20.02.2008
-* Time: 17:50:19
-* To change this template use File | Settings | File Templates.
 */
 
 class ScImportSelectorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScImportSelectors{

@@ -13,11 +13,8 @@ import org.jetbrains.plugins.scala.util.DebugPrint
 
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 06.03.2008
-* Time: 16:23:59
-* To change this template use File | Settings | File Templates.
 */
 
 /*

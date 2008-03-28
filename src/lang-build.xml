@@ -25,6 +25,11 @@
 
   <property name="output" value="${basedir}/dist"/>
 
+  <property name="0" value="unknown"/>
+  <property name="build.vcs.number.1" value="unknown"/>
+  <property name="plugin.revision" value="${build.vcs.number.1}"/>
+  <property name="plugin.version" value="${scala.plugin.version}.${plugin.revision}"/>
+
   <target name="unzip.last.successful.IDEA.build">
     <unzip dest="${idea.pack}">
       <fileset dir="${idea.pack}">
@@ -110,9 +115,9 @@
 
     <!-- Compile scala_core module -->
     <javac2 srcdir="${scala_core.dir}/src"
-           destdir="${project.lib}"
-           verbose="yes"
-           debug="true">
+            destdir="${project.lib}"
+            verbose="yes"
+            debug="true">
       <classpath refid="base.path"/>
     </javac2>
 
@@ -129,9 +134,9 @@
 
     <!--Compile Scala module -->
     <javac2 srcdir="."
-           destdir="${project.lib}"
-           verbose="yes"
-           debug="true">
+            destdir="${project.lib}"
+            verbose="yes"
+            debug="true">
       <classpath refid="base.path"/>
     </javac2>
 
@@ -141,13 +146,23 @@
     <delete>
       <fileset dir="${project.lib}" includes="**/AntScalaCompiler*, **/*MyAnt*, **/*AntRunner*"/>
     </delete>
+
+    <replace file="${project.lib}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
+
   </target>
 
   <target name="jar.plugin" depends="make.project" description="Makes jar">
     <mkdir dir="${base.dir}/tempjar/Scala/lib"/>
+
     <jar destfile="${base.dir}/Scala.jar">
       <fileset dir="${project.lib}" excludes="**/*build.xml, **/scala.properties"/>
+
+      <manifest>
+        <attribute name="Revision" value="${plugin.revision}"/>
+        <attribute name="Build" value="${plugin.version}"/>
+      </manifest>
     </jar>
+
     <copy todir="${base.dir}/tempjar/Scala/lib">
       <fileset dir="${base.dir}">
         <include name="Scala.jar"/>
@@ -156,6 +171,7 @@
         <include name="**/*scala-library.jar"/>
       </fileset>
     </copy>
+
     <delete>
       <fileset dir="${base.dir}" includes="Scala.jar"/>
     </delete>
@@ -180,7 +196,7 @@
          resources/**/*.png,
          META-INF/**/*.xml"
          excludes="src/**/*junit*"
-        />
+            />
   </target>
 
   <target name="build.tests" depends="make.project">

@@ -19,9 +19,9 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 
 /**
- * Author: Ilya Sergey
- * Date: 24.09.2006 {  }
- * Time: 12:39:38
+ * @author ilyas
+ * Date: 24.09.2006
+ *
  */
 public interface ScalaTokenTypes {
 

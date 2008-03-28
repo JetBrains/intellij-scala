@@ -17,11 +17,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 06.03.2008
-* Time: 11:34:28
-* To change this template use File | Settings | File Templates.
 */
 
 /*

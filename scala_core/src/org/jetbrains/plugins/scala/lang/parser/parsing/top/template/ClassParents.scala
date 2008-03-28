@@ -17,11 +17,8 @@ import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 08.02.2008
-* Time: 14:01:16
-* To change this template use File | Settings | File Templates.
 */
 
 /*

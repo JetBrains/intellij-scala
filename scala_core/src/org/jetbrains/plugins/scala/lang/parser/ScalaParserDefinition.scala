@@ -20,9 +20,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile
 
 /**
- * Author: Ilya Sergey
+ * @author ilyas
  * Date: 25.09.2006
- * Time: 14:23:22
+ *
  */
 class ScalaParserDefinition extends ParserDefinition {
 

@@ -16,11 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 20.02.2008
-* Time: 18:35:16
-* To change this template use File | Settings | File Templates.
 */
 
 class ScPackageStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPackageStatement{

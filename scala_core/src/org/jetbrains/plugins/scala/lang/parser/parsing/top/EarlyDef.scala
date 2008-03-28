@@ -23,11 +23,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.AccessModifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.PatVarDef
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 06.02.2008
-* Time: 14:33:51
-* To change this template use File | Settings | File Templates.
 */
 
 /*

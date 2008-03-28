@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder
 import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors
 import org.jetbrains.plugins.scala.lang.surroundWith._
 import org.jetbrains.plugins.scala.lang.formatting._
-import org.jetbrains.plugins.scala.debugger.ScalaJVMNameMapper
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionData
 import org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider
 import com.intellij.codeInsight.completion._
@@ -17,9 +16,9 @@ import com.intellij.psi.PsiFile
 import com.intellij.lang.findUsages.FindUsagesProvider
 
 /**
- * Author: Ilya Sergey
+ * @author ilyas
  * Date: 09.10.2006
- * Time: 21:26:04
+ *
  */
 class ScalaToolsFactoryImpl extends ScalaToolsFactory {
 
@@ -36,7 +35,5 @@ class ScalaToolsFactoryImpl extends ScalaToolsFactory {
   def createStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder = null //new ScalaStructureViewBuilder(psiFile)
 
   def createFindUsagesProvider = ScalaFindUsagesProvider
-
-  def createJVMNameMapper = ScalaJVMNameMapper
 
 }

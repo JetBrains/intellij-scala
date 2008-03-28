@@ -23,11 +23,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.AccessModifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 06.02.2008
-* Time: 16:57:20
-* To change this template use File | Settings | File Templates.
 */
 
 /*

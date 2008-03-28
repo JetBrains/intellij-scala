@@ -13,11 +13,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 06.03.2008
-* Time: 13:04:54
-* To change this template use File | Settings | File Templates.
 */
 
 /*

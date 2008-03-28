@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.nl
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 05.02.2008
-* Time: 14:26:19
-* To change this template use File | Settings | File Templates.
 */
 
 object LineTerminator {

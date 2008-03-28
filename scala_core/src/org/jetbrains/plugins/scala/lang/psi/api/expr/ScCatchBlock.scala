@@ -6,11 +6,8 @@ import lang.parser.ScalaElementTypes
 import com.intellij.psi.tree._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 06.03.2008
-* Time: 18:50:19
-* To change this template use File | Settings | File Templates.
 */
 
 trait ScCatchBlock extends ScalaPsiElement {

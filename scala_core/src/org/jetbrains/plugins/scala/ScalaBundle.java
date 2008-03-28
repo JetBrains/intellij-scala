@@ -26,7 +26,7 @@ import java.util.ResourceBundle;
 /**
  * User: Dmitry.Krasilschikov
  * Date: 02.10.2006
- * Time: 11:14:45
+ *
  */
 public class ScalaBundle {
 

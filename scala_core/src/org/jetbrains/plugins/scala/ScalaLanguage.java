@@ -25,9 +25,9 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
 
 /**
- * Author: Ilya Sergey
- * Date: 20.09.2006
- * Time: 15:01:34
+ * @author ilyas
+* Date: 20.09.2006
+ *
  */
 public class ScalaLanguage extends Language {
 

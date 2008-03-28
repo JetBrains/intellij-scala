@@ -14,11 +14,8 @@ import org.jetbrains.plugins.scala.lang.parser.bnf._
 
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 29.02.2008
-* Time: 12:31:03
-* To change this template use File | Settings | File Templates.
 */
 
 /*

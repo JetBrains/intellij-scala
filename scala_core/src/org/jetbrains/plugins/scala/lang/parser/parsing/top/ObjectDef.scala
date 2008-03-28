@@ -22,11 +22,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.AccessModifier
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 06.02.2008
-* Time: 16:45:11
-* To change this template use File | Settings | File Templates.
 */
 
 /*

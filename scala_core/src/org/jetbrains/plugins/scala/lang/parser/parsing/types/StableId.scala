@@ -12,11 +12,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import ScalaElementTypes._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 15.02.2008
-* Time: 15:47:11
-* To change this template use File | Settings | File Templates.
 */
 
 /*

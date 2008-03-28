@@ -9,11 +9,8 @@ import com.intellij.psi._
 
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 15.02.2008
-* Time: 11:08:30
-* To change this template use File | Settings | File Templates.
 */
 
 /*

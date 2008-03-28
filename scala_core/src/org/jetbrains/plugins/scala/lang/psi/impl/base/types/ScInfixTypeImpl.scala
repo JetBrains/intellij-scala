@@ -21,11 +21,8 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 22.02.2008
-* Time: 13:55:12
-* To change this template use File | Settings | File Templates.
 */
 
 class ScInfixTypeImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixType{
