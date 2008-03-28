@@ -13,11 +13,8 @@ import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 05.02.2008
-* Time: 15:36:31
-* To change this template use File | Settings | File Templates.
 */
 
 /*

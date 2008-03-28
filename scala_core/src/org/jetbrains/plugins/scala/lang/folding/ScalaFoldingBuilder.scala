@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 /*
 *
 @author Ilya Sergey
-*
 */
 
 class ScalaFoldingBuilder extends FoldingBuilder {

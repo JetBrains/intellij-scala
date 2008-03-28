@@ -18,11 +18,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 08.02.2008
-* Time: 11:46:18
-* To change this template use File | Settings | File Templates.
 */
 
 /*

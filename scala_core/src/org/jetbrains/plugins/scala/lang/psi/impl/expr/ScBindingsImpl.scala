@@ -22,11 +22,8 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 07.03.2008
-* Time: 10:11:03
-* To change this template use File | Settings | File Templates.
 */
 
 class ScBindingsImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScBindings{

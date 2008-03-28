@@ -16,11 +16,8 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 22.02.2008
-* Time: 10:27:11
-* To change this template use File | Settings | File Templates.
 */
 
 class ScEarlyDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEarlyDefinition {

@@ -18,11 +18,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 05.02.2008
-* Time: 16:06:05
-* To change this template use File | Settings | File Templates.
 */
 
 /*

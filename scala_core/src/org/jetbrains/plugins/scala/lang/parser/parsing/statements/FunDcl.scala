@@ -32,11 +32,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 11.02.2008
-* Time: 18:40:56
-* To change this template use File | Settings | File Templates.
 */
 
 /*

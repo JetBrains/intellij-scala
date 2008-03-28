@@ -17,11 +17,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 05.02.2008
-* Time: 16:41:31
-* To change this template use File | Settings | File Templates.
 */
 
 /*

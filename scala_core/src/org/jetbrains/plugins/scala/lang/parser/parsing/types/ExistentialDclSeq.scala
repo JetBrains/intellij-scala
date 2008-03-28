@@ -12,11 +12,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Dcl
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 28.02.2008
-* Time: 14:35:19
-* To change this template use File | Settings | File Templates.
 */
 
 /*

@@ -16,11 +16,8 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 20.02.2008
-* Time: 19:07:26
-* To change this template use File | Settings | File Templates.
 */
 
 class ScRequiresBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScRequiresBlock{

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 /**
  * User: Dmitry.Krasilschikov
  * Date: 02.10.2006
- * Time: 12:53:26
+ *
  */
 object ScalaElementTypes {
 

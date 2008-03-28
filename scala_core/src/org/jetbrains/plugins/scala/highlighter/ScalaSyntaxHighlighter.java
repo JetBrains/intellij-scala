@@ -31,9 +31,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Author: Ilya Sergey
+ * @author ilyas
  * Date: 24.09.2006
- * Time: 14:52:13
+ *
  */
 public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 

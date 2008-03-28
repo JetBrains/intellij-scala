@@ -18,11 +18,8 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 15.02.2008
-* Time: 11:58:40
-* To change this template use File | Settings | File Templates.
 */
 
 /*

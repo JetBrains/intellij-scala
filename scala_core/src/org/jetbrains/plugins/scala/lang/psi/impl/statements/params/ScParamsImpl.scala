@@ -23,11 +23,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 22.02.2008
-* Time: 11:22:33
-* To change this template use File | Settings | File Templates.
 */
 
 class ScParamsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParams {

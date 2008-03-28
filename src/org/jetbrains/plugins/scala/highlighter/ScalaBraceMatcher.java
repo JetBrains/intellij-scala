@@ -15,16 +15,16 @@
 
 package org.jetbrains.plugins.scala.highlighter;
 
-import com.intellij.lang.PairedBraceMatcher;
 import com.intellij.lang.BracePair;
-import com.intellij.psi.tree.IElementType;
+import com.intellij.lang.PairedBraceMatcher;
 import com.intellij.psi.PsiFile;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
+import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 /**
- * Author: Ilya Sergey
+ * @author ilyas
  * Date: 29.09.2006
  * Time: 20:26:52
  */

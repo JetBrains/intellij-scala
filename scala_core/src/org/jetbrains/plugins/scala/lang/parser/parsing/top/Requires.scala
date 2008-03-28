@@ -21,11 +21,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
 import org.jetbrains.plugins.scala.ScalaBundle
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 06.02.2008
-* Time: 17:52:50
-* To change this template use File | Settings | File Templates.
 */
 
 object Requires {

@@ -11,11 +11,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 08.02.2008
-* Time: 15:49:44
-* To change this template use File | Settings | File Templates.
 */
 
 /*

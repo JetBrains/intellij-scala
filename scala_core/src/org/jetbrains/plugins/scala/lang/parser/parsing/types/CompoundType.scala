@@ -10,11 +10,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.ScalaBundle
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 28.02.2008
-* Time: 11:50:55
-* To change this template use File | Settings | File Templates.
 */
 
 /*

@@ -20,11 +20,8 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 13.03.2008
-* Time: 16:00:11
-* To change this template use File | Settings | File Templates.
 */
 
 class ScParenthesisedTypeImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParenthesisedType{

@@ -18,11 +18,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 06.03.2008
-* Time: 11:41:01
-* To change this template use File | Settings | File Templates.
 */
 
 /*

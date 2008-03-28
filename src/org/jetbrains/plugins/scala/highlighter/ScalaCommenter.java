@@ -16,10 +16,9 @@
 package org.jetbrains.plugins.scala.highlighter;
 
 import com.intellij.lang.Commenter;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * Author: Ilya Sergey
+ * @author ilyas
  * Date: 29.09.2006
  * Time: 20:48:30
  */

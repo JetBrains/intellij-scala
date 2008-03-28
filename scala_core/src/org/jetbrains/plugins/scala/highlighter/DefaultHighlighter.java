@@ -21,9 +21,9 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NonNls;
 
 /**
- * Author: Ilya Sergey
+ * @author ilyas
  * Date: 24.09.2006
- * Time: 15:08:24
+ *
  */
 public class DefaultHighlighter {
   // Comments

@@ -19,9 +19,9 @@ import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.scala.ScalaFileType;
 
 /**
- * Author: Ilya Sergey
+ * @author ilyas
  * Date: 24.09.2006
- * Time: 12:47:37
+ *
  */
 public class ScalaElementType extends IElementType {
   private String debugName = null;

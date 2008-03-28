@@ -13,11 +13,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import org.jetbrains.plugins.scala.lang.parser.bnf._
 
 /** 
-* Created by IntelliJ IDEA.
-* User: Alexander.Podkhalyuz
+* @author Alexander Podkhalyuzin
 * Date: 28.02.2008
-* Time: 17:35:01
-* To change this template use File | Settings | File Templates.
 */
 
 object Guard {
