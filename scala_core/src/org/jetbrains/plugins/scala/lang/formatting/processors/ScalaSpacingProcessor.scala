@@ -48,11 +48,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case ScalaElementTypes.ANNOTATION => return IMPORT_BETWEEN_SPACING
       case ScalaTokenTypes.tLBRACE => {
         leftNode.getTreeParent().getElementType match {
-          case ScalaElementTypes.TEMPLATE_BODY | ScalaElementTypes.MATCH_STMT | ScalaElementTypes.REFINEMENT=> {
-            return IMPORT_BETWEEN_SPACING
+          case ScalaElementTypes.TEMPLATE_BODY | ScalaElementTypes.MATCH_STMT | ScalaElementTypes.REFINEMENT => {
+            return Spacing.createSpacing(1, 1, 0, true, 100)
           }
-          case  _:ScBlockExpr => {
-            return IMPORT_BETWEEN_SPACING
+          case _: ScBlockExpr => {
+            return Spacing.createSpacing(1, 1, 0, true, 100)
           }
           case _ => {}
         }
@@ -81,6 +81,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     rightNode.getPsi match {
+      case _: ScArgumentExprList => return NO_SPACING
       case _: ScParameters => {
         if (leftNode.getElementType == ScalaTokenTypes.tIDENTIFIER) return NO_SPACING
         leftNode.getPsi match {
@@ -100,19 +101,19 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     rightNode.getElementType match {
       case ScalaTokenTypes.tRBRACE => {
         rightNode.getTreeParent().getElementType match {
-          case ScalaElementTypes.TEMPLATE_BODY | ScalaElementTypes.MATCH_STMT | ScalaElementTypes.REFINEMENT=> {
-            return IMPORT_BETWEEN_SPACING
+          case ScalaElementTypes.TEMPLATE_BODY | ScalaElementTypes.MATCH_STMT | ScalaElementTypes.REFINEMENT => {
+            return Spacing.createSpacing(1, 1, 0, true, 100)
           }
-          case  _:ScBlockExpr => {
-            return IMPORT_BETWEEN_SPACING
+          case _: ScBlockExpr => {
+            return Spacing.createSpacing(1, 1, 0, true, 100)
           }
           case _ => {}
         }
         return NO_SPACING_WITH_NEWLINE
       }
       case ScalaTokenTypes.tDOT | ScalaTokenTypes.tCOMMA | ScalaTokenTypes.tCOLON |
-           ScalaTokenTypes.tSEMICOLON | ScalaTokenTypes.tRPARENTHESIS |
-           ScalaTokenTypes.tRSQBRACKET => {
+      ScalaTokenTypes.tSEMICOLON | ScalaTokenTypes.tRPARENTHESIS |
+      ScalaTokenTypes.tRSQBRACKET => {
         return NO_SPACING
       }
       case _ =>

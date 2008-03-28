@@ -8,7 +8,7 @@ import org.jetbrains.annotations._
 
 trait ScPackageStatement extends ScalaPsiElement {
 
-  [NotNull]
-  def getFullPackageName: String
+  @NotNull
+  def getPackageName: String
 
 }

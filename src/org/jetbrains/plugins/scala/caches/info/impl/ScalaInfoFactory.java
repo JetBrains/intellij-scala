@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ScalaInfoFactory {
 
@@ -70,9 +71,7 @@ public class ScalaInfoFactory {
         final String packageName = scalaFile.getPackageName();
         for (ScTypeDefinition clazz : scalaFile.getTypeDefinitionsArray()) {
           classNames.add(clazz.getName());
-          for (String superName : clazz.getSuperClassNames()) {
-            namesInExtends.add(superName);
-          }
+          namesInExtends.addAll(Arrays.asList(clazz.getSuperClassNames()));
         }
 
         return create(

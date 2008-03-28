@@ -26,7 +26,7 @@ class ScPackagingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
   override def toString = "ScPackaging"
 
   [NotNull]
-  def getFullPackageName: String = findChildByClass(classOf[ScReferenceElement]).getText
+  def getPackageName: String = findChildByClass(classOf[ScReferenceElement]).getText
 
 
   /**

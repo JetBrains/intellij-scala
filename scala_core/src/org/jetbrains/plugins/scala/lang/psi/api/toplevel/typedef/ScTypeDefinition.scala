@@ -55,50 +55,6 @@ trait ScTypeDefinition extends ScalaPsiElement
       qualName.substring(0, index);
   }
 
-  override def getPresentation(): ItemPresentation = {
-    new ItemPresentation() {
-
-      import org.jetbrains.plugins.scala._
-      import org.jetbrains.plugins.scala.icons._
-
-      def getPresentableText(): String = {
-        getName
-      }
-      override def getTextAttributesKey(): TextAttributesKey = null
-      override def getLocationString(): String = getPath match {
-        case "" => ""
-        case _  => '(' + getPath + ')'
-      }
-      override def getIcon(open: Boolean) = ScTypeDefinition.this.getIcon(0)
-    }
-  }
-
-
-  def getQualifiedName: String = {
-    def append(s1: String, s2: String) = {if (s1 == "")  s2 else s1 + "." + s2}
-    def iAmInner(e: PsiElement): String = {
-      val parent = e.getParent
-      parent match {
-        case pack: ScPackaging => append(iAmInner(parent), pack.getFullPackageName)
-        case tmplBody: ScTemplateBody => {
-          append(iAmInner(tmplBody.getParent.getParent),
-              tmplBody.getParent.getParent.asInstanceOf[ScTypeDefinition].getName)
-        }
-        case f: ScalaFile => {
-          val packageStatement = f.getChild(ScalaElementTypes.PACKAGE_STMT).asInstanceOf[ScPackageStatement]
-          if (packageStatement == null) "" else {
-            val packageName = packageStatement.getFullPackageName
-            if (packageName == null) "" else packageName
-          }
-        }
-        case null => ""
-        case x if x.getParent != null => iAmInner(x)
-        case _ => ""
-      }
-    }
-    append(iAmInner(this), getName)
-  }
-
   override def getName = if (nameNode != null) nameNode.getText else ""
 
   def nameNode = {

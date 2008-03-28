@@ -16,6 +16,9 @@
 package org.jetbrains.plugins.scala;
 
 import com.intellij.codeInsight.completion.CompletionUtil;
+import com.intellij.debugger.DebuggerManager;
+import com.intellij.debugger.PositionManager;
+import com.intellij.debugger.engine.DebugProcess;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.components.ApplicationComponent;
@@ -23,15 +26,33 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerAdapter;
+import com.intellij.util.Function;
+import com.intellij.util.containers.HashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.compiler.ScalaCompiler;
+import org.jetbrains.plugins.scala.debugger.ScalaJVMNameMapper;
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
+
+import java.util.Set;
 
 /**
  * @author ilyas
  */
 public class ScalaLoader implements ApplicationComponent {
-  public ScalaLoader() {}
+
+  @NotNull
+  public static final String SCALA_EXTENSION = "scala";
+
+  @NotNull
+  public static final Set<String> SCALA_EXTENSIONS = new HashSet<String>();
+
+  static {
+    SCALA_EXTENSIONS.add(SCALA_EXTENSION);
+  }
+
+  public ScalaLoader() {
+  }
 
   public void initComponent() {
     loadScala();
@@ -42,7 +63,7 @@ public class ScalaLoader implements ApplicationComponent {
             new Runnable() {
               public void run() {
                 FileTypeManager.getInstance().registerFileType(ScalaFileType.SCALA_FILE_TYPE, "scala");
-              }  
+              }
             }
     );
 
@@ -56,14 +77,21 @@ public class ScalaLoader implements ApplicationComponent {
         compilerManager.addCompiler(new ScalaCompiler(project));
         compilerManager.addCompilableFileType(ScalaFileType.SCALA_FILE_TYPE);
 
-//        DebuggerManager.getInstance(project).addClassNameMapper(ScalaToolsFactory.getInstance().createJVMNameMapper());
+        DebuggerManager.getInstance(project).addClassNameMapper(new ScalaJVMNameMapper());
+        DebuggerManager.getInstance(project).registerPositionManagerFactory(new Function<DebugProcess, PositionManager>() {
+          public PositionManager fun(DebugProcess debugProcess) {
+            return new ScalaPositionManager(debugProcess);
+          }
+        });
+
       }
     });
 
 
   }
 
-  public void disposeComponent() {}
+  public void disposeComponent() {
+  }
 
   @NotNull
   public String getComponentName() {
