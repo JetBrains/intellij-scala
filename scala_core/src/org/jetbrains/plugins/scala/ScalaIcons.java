@@ -24,5 +24,6 @@ import javax.swing.*;
  */
 public interface ScalaIcons {
 
-  Icon FILE_TYPE_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_logo.png");
+  Icon FILE_TYPE_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala16.png");
+  Icon SETTINGS_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala32.png");
 }

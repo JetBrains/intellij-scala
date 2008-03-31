@@ -43,6 +43,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.ScalaIcons;
 import org.jetbrains.plugins.scala.facet.ScalaFacet;
 import org.jetbrains.plugins.scala.facet.ScalaFacetType;
 
@@ -120,7 +121,7 @@ public class ScalaConfiguration implements ApplicationComponent, JDOMExternaliza
 
   @Nullable
   public Icon getIcon() {
-    return null;
+    return ScalaIcons.SETTINGS_LOGO;
   }
 
   @Nullable
