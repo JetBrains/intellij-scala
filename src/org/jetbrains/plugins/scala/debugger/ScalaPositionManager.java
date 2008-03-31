@@ -1,290 +1,126 @@
 package org.jetbrains.plugins.scala.debugger;
 
-import com.intellij.debugger.NoDataException;
-import com.intellij.debugger.PositionManager;
-import com.intellij.debugger.SourcePosition;
-import com.intellij.debugger.engine.CompoundPositionManager;
 import com.intellij.debugger.engine.DebugProcess;
 import com.intellij.debugger.engine.DebugProcessImpl;
-import com.intellij.debugger.engine.jdi.VirtualMachineProxy;
-import com.intellij.debugger.requests.ClassPrepareRequestor;
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.debugger.engine.JSR45PositionManager;
+import com.intellij.debugger.engine.SourcesFinder;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.impl.DirectoryIndex;
-import com.intellij.openapi.util.Computable;
-import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.util.Processor;
-import com.intellij.util.Query;
-import com.intellij.util.containers.HashSet;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
-import com.sun.jdi.request.ClassPrepareRequest;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.ScalaLoader;
-import org.jetbrains.plugins.scala.caches.project.ScalaCachesManager;
+import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author ilyas
  */
-public class ScalaPositionManager implements PositionManager {
+public class ScalaPositionManager extends JSR45PositionManager {
 
-  private static final Logger LOG = Logger.getInstance("#com.intellij.debugger.engine.PositionManagerImpl");
+  private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.debugger.ScalaPositionManager");
+  protected final String SCALA_FILE_SUFFIX = ".scala";
+  private Project myProject;
+  private static final String URL_PREFIX = "URL:";
 
-  private final DebugProcess myDebugProcess;
 
   public ScalaPositionManager(DebugProcess debugProcess) {
-    myDebugProcess = debugProcess;
+    super(debugProcess,
+            GlobalSearchScope.allScope(debugProcess.getProject()),
+            DebugProcessImpl.JAVA_STRATUM,
+            new LanguageFileType[]{ScalaFileType.SCALA_FILE_TYPE},
+            new MySourceFinder());
+
+    myProject = debugProcess.getProject();
+  }
+
+
+  protected String getGeneratedClassesPackage() {
+    return "";
+  }
+
+  protected List getRelativeSourePathsByType(ReferenceType type) throws AbsentInformationException {
+    String fileName = type.sourceName();
+    String className = type.name();
+    ArrayList<String> paths = new ArrayList<String>();
+    if (fileName != null && className != null && fileName.endsWith(SCALA_FILE_SUFFIX)) {
+      PsiFile[] files = FilenameIndex.getFilesByName(myProject, fileName, GlobalSearchScope.allScope(myDebugProcess.getProject()));
+      for (PsiFile file : files) {
+        VirtualFile virtualFile = file.getVirtualFile();
+        if (file instanceof ScalaFile && virtualFile != null) {
+          for (PsiClass clazz : ((ScalaFile) file).getClasses()) {
+            if (className.startsWith(clazz.getQualifiedName())) {
+              String url = virtualFile.getUrl();
+              paths.add(URL_PREFIX + url);
+            }
+          }
+        }
+      }
+      return paths;
+    } else {
+      return super.getRelativeSourePathsByType(type);
+    }
+  }
+
+  protected String getRelativeSourcePathByLocation(final Location location) throws AbsentInformationException {
+    ReferenceType type = location.declaringType();
+    String className = type.name();
+    String fileName = type.sourceName();
+    if (className != null && fileName != null && fileName.endsWith(SCALA_FILE_SUFFIX)) {
+      PsiFile[] files = FilenameIndex.getFilesByName(myProject, fileName, GlobalSearchScope.allScope(myDebugProcess.getProject()));
+      for (PsiFile file : files) {
+        VirtualFile virtualFile = file.getVirtualFile();
+        if (file instanceof ScalaFile && virtualFile != null) {
+          for (PsiClass clazz : ((ScalaFile) file).getClasses()) {
+            if (className.startsWith(clazz.getQualifiedName())) {
+              String url = virtualFile.getUrl();
+              return URL_PREFIX + url;
+            }
+          }
+        }
+      }
+    }
+    return super.getRelativeSourcePathByLocation(location);
+  }
+
+
+  protected String getRelativePath(String sourcePath) {
+    if (sourcePath != null) {
+      sourcePath = sourcePath.trim();
+    }
+    return sourcePath;
+  }
+
+  private static class MySourceFinder implements SourcesFinder {
+
+    public PsiFile findSourceFile(String relPath, Project project, Object o) {
+      if (relPath.startsWith(URL_PREFIX)) {
+        String url = relPath.substring(URL_PREFIX.length());
+        VirtualFileManager fileManager = VirtualFileManager.getInstance();
+        VirtualFile virtualFile = fileManager.findFileByUrl(url);
+        if (virtualFile == null) return null;
+        PsiManager manager = PsiManager.getInstance(project);
+        return manager.findFile(virtualFile);
+      } else {
+        PsiFile[] files = FilenameIndex.getFilesByName(project, relPath, GlobalSearchScope.allScope(project));
+        if (files.length > 0) return files[0];
+        return null;
+      }
+    }
   }
 
   public DebugProcess getDebugProcess() {
     return myDebugProcess;
   }
-
-  @NotNull
-  public List<Location> locationsOfLine(ReferenceType type, SourcePosition position) throws NoDataException {
-    try {
-      int line = position.getLine() + 1;
-      List<Location> locations = getDebugProcess().getVirtualMachineProxy().versionHigher("1.4") ? type.locationsOfLine(DebugProcessImpl.JAVA_STRATUM, null, line) : type.locationsOfLine(line);
-      if (locations == null || locations.isEmpty()) throw new NoDataException();
-      return locations;
-    }
-    catch (AbsentInformationException e) {
-      throw new NoDataException();
-    }
-  }
-
-  private ScalaPsiElement findReferenceTypeSourceImage(SourcePosition position) {
-    PsiFile file = position.getFile();
-    if (!(file instanceof ScalaFile)) return null;
-    PsiElement element = file.findElementAt(position.getOffset());
-    if (element == null) return null;
-    return PsiTreeUtil.getParentOfType(element, ScFunctionExpr.class, ScTypeDefinition.class);
-  }
-
-  private ScTypeDefinition findEnclosingTypeDefinition(SourcePosition position) {
-    PsiFile file = position.getFile();
-    if (!(file instanceof ScalaFile)) return null;
-    PsiElement element = file.findElementAt(position.getOffset());
-    if (element == null) return null;
-    return PsiTreeUtil.getParentOfType(element, ScTypeDefinition.class);
-  }
-
-
-  public ClassPrepareRequest createPrepareRequest(final ClassPrepareRequestor requestor, final SourcePosition position) throws NoDataException {
-    ScalaPsiElement sourceImage = findReferenceTypeSourceImage(position);
-    String qualifiedNamePattern = getQualifiedNamePattern(sourceImage, position);
-
-    String waitPrepareFor;
-    ClassPrepareRequestor waitRequestor;
-
-    if (qualifiedNamePattern == null) {
-      ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
-
-      if (typeDefinition != null) {
-        qualifiedNamePattern = typeDefinition.getQualifiedName();
-      } else {
-        throw new NoDataException();
-      }
-
-      waitPrepareFor = qualifiedNamePattern + "$*";
-      waitRequestor = new ClassPrepareRequestor() {
-        public void processClassPrepare(DebugProcess debuggerProcess, ReferenceType referenceType) {
-          final CompoundPositionManager positionManager = ((DebugProcessImpl) debuggerProcess).getPositionManager();
-          if (positionManager.locationsOfLine(referenceType, position).size() > 0) {
-            requestor.processClassPrepare(debuggerProcess, referenceType);
-          } else {
-            final List<ReferenceType> positionClasses = positionManager.getAllClasses(position);
-            if (positionClasses.contains(referenceType)) {
-              requestor.processClassPrepare(debuggerProcess, referenceType);
-            }
-          }
-        }
-      };
-    } else {
-      waitPrepareFor = qualifiedNamePattern;
-      waitRequestor = requestor;
-    }
-
-    return myDebugProcess.getRequestsManager().createClassPrepareRequest(waitRequestor, waitPrepareFor);
-  }
-
-  private static String getQualifiedNamePattern(ScalaPsiElement sourceImage, SourcePosition position) throws NoDataException {
-
-    if (sourceImage == null){
-      throw new NoDataException();
-    }
-
-    if (sourceImage instanceof ScTypeDefinition) {
-      if (sourceImage instanceof ScObject) {
-        return ((ScObject) sourceImage).getQualifiedName() + "$";
-      }
-      if (sourceImage instanceof ScClass) {
-        return ((ScClass) sourceImage).getQualifiedName();
-      }
-      if (sourceImage instanceof ScTrait) {
-        //todo implement for trait initializer
-        return ((ScTrait) sourceImage).getQualifiedName() + "$";
-      }
-    }
-
-    return null;
-  }
-
-  public SourcePosition getSourcePosition(Location location) throws NoDataException {
-    if (location == null) throw new NoDataException();
-
-    PsiFile psiFile = getPsiFileByLocation(getDebugProcess().getProject(), location);
-    if (psiFile == null) throw new NoDataException();
-
-    int lineNumber = calcLineIndex(location);
-    if (lineNumber < 0) throw new NoDataException();
-    return SourcePosition.createFromLine(psiFile, lineNumber);
-  }
-
-  private int calcLineIndex(Location location) {
-    LOG.assertTrue(myDebugProcess != null);
-    if (location == null) return -1;
-
-    try {
-      return location.lineNumber() - 1;
-    }
-    catch (InternalError e) {
-      return -1;
-    }
-  }
-
-  private PsiFile getPsiFileByLocation(final Project project, Location location) {
-    if (location == null) return null;
-
-    final ReferenceType refType = location.declaringType();
-    if (refType == null) return null;
-
-    final String originalQName = refType.name().replace('/', '.');
-    int dollar = originalQName.indexOf('$');
-    final String qName = dollar >= 0 ? originalQName.substring(0, dollar) : originalQName;
-    final GlobalSearchScope searchScope = myDebugProcess.getSearchScope();
-
-    PsiClass clazz = ScalaCachesManager.getInstance(project).getClassByName(qName, searchScope);
-    if (clazz != null) return clazz.getContainingFile();
-
-    DirectoryIndex directoryIndex = DirectoryIndex.getInstance(project);
-    int dotIndex = qName.lastIndexOf(".");
-    String packageName = dotIndex > 0 ? qName.substring(0, dotIndex) : "";
-    Query<VirtualFile> query = directoryIndex.getDirectoriesByPackageName(packageName, true);
-    String fileNameWithoutExtension = dotIndex > 0 ? qName.substring(dotIndex + 1) : qName;
-    final Set<String> fileNames = new HashSet<String>();
-    for (final String extention : ScalaLoader.SCALA_EXTENSIONS) {
-      fileNames.add(fileNameWithoutExtension + "." + extention);
-    }
-
-    final Ref<PsiFile> result = new Ref<PsiFile>();
-    query.forEach(new Processor<VirtualFile>() {
-      public boolean process(VirtualFile vDir) {
-        for (final String fileName : fileNames) {
-          VirtualFile vFile = vDir.findChild(fileName);
-          if (vFile != null) {
-            PsiFile psiFile = PsiManager.getInstance(project).findFile(vFile);
-            if (psiFile instanceof ScalaFile) {
-              result.set(psiFile);
-              return false;
-            }
-          }
-        }
-
-        return true;
-      }
-    });
-
-    return result.get();
-  }
-
-  @NotNull
-  public List<ReferenceType> getAllClasses(final SourcePosition position) throws NoDataException {
-    List<ReferenceType> result = ApplicationManager.getApplication().runReadAction(new Computable<List<ReferenceType>>() {
-      public List<ReferenceType> compute() {
-        ScalaPsiElement sourceImage = findReferenceTypeSourceImage(position);
-        if (sourceImage instanceof ScTypeDefinition) {
-          String qName = ((ScTypeDefinition) sourceImage).getQualifiedName();
-          if (qName != null) return myDebugProcess.getVirtualMachineProxy().classesByName(qName);
-        } else {
-          final ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
-          String enclosingName = null;
-          if (typeDefinition != null) enclosingName = typeDefinition.getQualifiedName();
-          if (enclosingName == null) return Collections.emptyList();
-
-          final List<ReferenceType> outers = myDebugProcess.getVirtualMachineProxy().classesByName(enclosingName);
-          final List<ReferenceType> result = new ArrayList<ReferenceType>(outers.size());
-          for (ReferenceType outer : outers) {
-            final ReferenceType nested = findNested(outer, sourceImage, position);
-            if (nested != null) {
-              result.add(nested);
-            }
-          }
-          return result;
-        }
-        return Collections.emptyList();
-      }
-    });
-
-    if (result == null || result.isEmpty()) throw new NoDataException();
-    return result;
-  }
-
-  @Nullable
-  private ReferenceType findNested(ReferenceType fromClass, final ScalaPsiElement toFind, SourcePosition classPosition) {
-    final VirtualMachineProxy vmProxy = myDebugProcess.getVirtualMachineProxy();
-    if (fromClass.isPrepared()) {
-
-      final List<ReferenceType> nestedTypes = vmProxy.nestedTypes(fromClass);
-
-      for (ReferenceType nested : nestedTypes) {
-        final ReferenceType found = findNested(nested, toFind, classPosition);
-        if (found != null) {
-          return found;
-        }
-      }
-
-      try {
-        final int lineNumber = classPosition.getLine() + 1;
-        if (fromClass.locationsOfLine(lineNumber).size() > 0) {
-          return fromClass;
-        }
-        //noinspection LoopStatementThatDoesntLoop
-        for (Location location : fromClass.allLineLocations()) {
-          final SourcePosition candidateFirstPosition = SourcePosition.createFromLine(toFind.getContainingFile(), location.lineNumber() - 1);
-          if (toFind.equals(findReferenceTypeSourceImage(candidateFirstPosition))) {
-            return fromClass;
-          }
-          break; // check only the first location
-        }
-      }
-      catch (AbsentInformationException ignored) {
-      }
-    }
-    return null;
-  }
-
 
 }
