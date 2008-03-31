@@ -21,6 +21,8 @@ object TokenSets {
 
   val PACKAGING_BIT_SET = TokenSet.create(Array.apply(PACKAGING))
 
+  val PACKAGE_STMT_BIT_SET = TokenSet.create(Array.apply(PACKAGE_STMT))
+
   val IMPORT_STMT_BIT_SET = TokenSet.create(Array.apply(IMPORT_STMT))
 
   val IMPORT_EXPR_BIT_SET = TokenSet.create(Array.apply(IMPORT_EXPR))
