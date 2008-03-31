@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
  * Date: 02.10.2006
  *
  */
-object pagScalaElementTypes {
+object ScalaElementTypes {
 
   /*************************************************************************************/
   /************************************** FILE *****************************************/
