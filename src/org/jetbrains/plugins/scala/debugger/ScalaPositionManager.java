@@ -1,26 +1,31 @@
 package org.jetbrains.plugins.scala.debugger;
 
+import com.intellij.debugger.NoDataException;
+import com.intellij.debugger.SourcePosition;
 import com.intellij.debugger.engine.DebugProcess;
 import com.intellij.debugger.engine.DebugProcessImpl;
 import com.intellij.debugger.engine.JSR45PositionManager;
 import com.intellij.debugger.engine.SourcesFinder;
+import com.intellij.debugger.requests.ClassPrepareRequestor;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
+import com.intellij.psi.*;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -116,6 +121,67 @@ public class ScalaPositionManager extends JSR45PositionManager {
         if (files.length > 0) return files[0];
         return null;
       }
+    }
+  }
+
+  @NotNull
+  public List<ReferenceType> getAllClasses(SourcePosition classPosition) throws NoDataException {
+    List<ReferenceType> referenceTypes = super.getAllClasses(classPosition);
+    if (referenceTypes.size() > 1 && classPosition.getFile() instanceof ScalaFile) {
+      return filterReferences(referenceTypes, classPosition);
+    }
+    return referenceTypes;
+  }
+
+  private static List<ReferenceType> filterReferences(List<ReferenceType> referenceTypes, SourcePosition classPosition) {
+    PsiFile file = classPosition.getFile();
+    if (!(file instanceof ScalaFile)) return referenceTypes;
+    ScalaFile scalaFile = (ScalaFile) file;
+    PsiElement element = scalaFile.findElementAt(classPosition.getOffset());
+    while (element != null && !(element instanceof PsiClass)) {
+      element = element.getParent();
+    }
+    if (element == null) return referenceTypes;
+    PsiClass clazz = (PsiClass) element;
+    String name = clazz.getQualifiedName();
+
+    Iterator<ReferenceType> iterator = referenceTypes.iterator();
+    while (iterator.hasNext()) {
+      ReferenceType type = iterator.next();
+      if (!(getSpecificName(name, clazz.getClass())).equals(type.name())) {
+        iterator.remove();
+      }
+    }
+
+    return referenceTypes;
+  }
+
+  private static String getSpecificName(String name, Class<? extends PsiClass> clazzClass) {
+    if (ScObject.class.isAssignableFrom(clazzClass)) return name + "$";
+    if (ScTrait.class.isAssignableFrom(clazzClass)) return name + "$class";
+    return name;
+  }
+
+  protected void onClassPrepare(final DebugProcess debuggerProcess, final ReferenceType referenceType,
+                                final SourcePosition position, final ClassPrepareRequestor requestor) {
+    final PsiFile file = position.getFile();
+    if (file instanceof ScalaFile) {
+      Runnable runnable = new Runnable() {
+        public void run() {
+          PsiElement element = file.findElementAt(position.getOffset());
+          while (element != null && !(element instanceof PsiClass)) {
+            element = element.getParent();
+          }
+          if (element == null) return;
+          PsiClass clazz = (PsiClass) element;
+          if (referenceType.name().startsWith(getSpecificName(clazz.getQualifiedName(), clazz.getClass()))) {
+            requestor.processClassPrepare(debuggerProcess, referenceType);
+          }
+        }
+      };
+      PsiDocumentManager.getInstance(myProject).commitAndRunReadAction(runnable);
+    } else {
+      super.onClassPrepare(debuggerProcess, referenceType, position, requestor);
     }
   }
 
