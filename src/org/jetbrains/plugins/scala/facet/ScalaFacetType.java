@@ -15,14 +15,14 @@
 
 package org.jetbrains.plugins.scala.facet;
 
-import com.intellij.facet.FacetType;
 import com.intellij.facet.Facet;
+import com.intellij.facet.FacetType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.module.StdModuleTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.ScalaIcons;
+import org.jetbrains.plugins.scala.icons.Icons;
 
 import javax.swing.*;
 
@@ -46,7 +46,7 @@ public class ScalaFacetType extends FacetType<ScalaFacet, ScalaFacetConfiguratio
   }
 
   public Icon getIcon() {
-    return ScalaIcons.FILE_TYPE_LOGO;
+    return Icons.FILE_TYPE_LOGO;
   }
 
   public boolean isOnlyOneFacetAllowed() {

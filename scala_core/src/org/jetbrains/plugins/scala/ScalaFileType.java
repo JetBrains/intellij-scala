@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
+import org.jetbrains.plugins.scala.icons.Icons;
 
 import javax.swing.*;
 
@@ -58,7 +59,7 @@ public class ScalaFileType extends LanguageFileType {
   }
 
   public Icon getIcon() {
-    return ScalaIcons.FILE_TYPE_LOGO;
+    return Icons.FILE_TYPE_LOGO;
   }
 
   public boolean isJVMDebuggingSupported() {
