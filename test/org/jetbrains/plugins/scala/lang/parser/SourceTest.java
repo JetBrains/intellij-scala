@@ -41,7 +41,6 @@ public class SourceTest extends BaseScalaFileSetTestCase {
     );
   }
 
-
   public String transform(String testName, String[] data) throws Exception {
     throw new UnsupportedOperationException("transform not implemented in org.jetbrains.plugins.scala.lang.parser.SourceTest");
   }
@@ -61,16 +60,13 @@ public class SourceTest extends BaseScalaFileSetTestCase {
 
 
   public String transform(String testName, String fileText) throws Exception {
-
     JavaPsiFacade facade = JavaPsiFacade.getInstance(project);
     PsiElementFactory psiElementFactory = facade.getElementFactory();
     Assert.assertNotNull(psiElementFactory);
     Assert.assertNotNull(TEMP_FILE);
     Assert.assertNotNull(fileText);
     PsiFile psiFile = PsiFileFactory.getInstance(project).createFileFromText(TEMP_FILE, fileText);
-    String psiTree = DebugUtil.psiToString(psiFile, false);
-    return psiTree;
-
+    return DebugUtil.psiToString(psiFile, false);
   }
 
   public static Test suite() {
