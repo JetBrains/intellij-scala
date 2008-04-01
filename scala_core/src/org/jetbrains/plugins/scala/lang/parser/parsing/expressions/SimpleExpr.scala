@@ -30,6 +30,7 @@ import com.intellij.lang.impl.PsiBuilderImpl
 //import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.psi._
 import com.intellij.psi.impl.source.CharTableImpl
+import org.jetbrains.plugins.scala.lang.lexer._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -52,7 +53,7 @@ import com.intellij.psi.impl.source.CharTableImpl
  *               | XmlExpr //Todo: xmlExpression
  */
 
-object SimpleExpr {
+object SimpleExpr extends ParserNode with ScalaTokenTypes{
   def parse(builder: PsiBuilder): Boolean = {
     var simpleMarker = builder.mark
     var newMarker: PsiBuilder.Marker = null
@@ -80,44 +81,41 @@ object SimpleExpr {
       }
       case ScalaTokenTypes.tLPARENTHESIS => {
         state = true
-        builder.advanceLexer //Ate (
-        if (!Exprs.parse(builder)) {
-          if (!Expr.parse(builder)) {
-            builder.getTokenType match {
-              case ScalaTokenTypes.tRPARENTHESIS => {
-                builder.advanceLexer //Ate )
-              }
-              case _ => {
-                builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
-              }
-            }
+        builder.advanceLexer
+        builder.getTokenType match {
+          case ScalaTokenTypes.tRPARENTHESIS => {
+            builder.advanceLexer
             newMarker = simpleMarker.precede
             simpleMarker.done(ScalaElementTypes.UNIT_EXPR)
           }
-          else {
-            builder.getTokenType match {
-              case ScalaTokenTypes.tRPARENTHESIS => {
-                builder.advanceLexer //Ate )
+          case _ => {
+            if (!Expr.parse(builder)) {
+              builder error ErrMsg("rparenthesis.expected")
+              newMarker = simpleMarker.precede
+              simpleMarker.done(ScalaElementTypes.UNIT_EXPR)
+            } else {
+              var isTuple = false
+              while (builder.getTokenType == ScalaTokenTypes.tCOMMA &&
+                !lookAhead(builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tRPARENTHESIS)) {
+                isTuple = true
+                builder.advanceLexer
+                if (!Expr.parse(builder)) {
+                  builder error ErrMsg("wrong.expression")
+                }
               }
-              case _ => {
-                builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+              if (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+                builder.advanceLexer
+                isTuple = true
               }
-            }
-            newMarker = simpleMarker.precede
-            simpleMarker.done(ScalaElementTypes.PARENT_EXPR)
-          }
-        }
-        else {
-          builder.getTokenType match {
-            case ScalaTokenTypes.tRPARENTHESIS => {
-              builder.advanceLexer //Ate )
-            }
-            case _ => {
-              builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+              if (builder.getTokenType != ScalaTokenTypes.tRPARENTHESIS) {
+                builder error ErrMsg("rparenthesis.expected")
+              } else {
+                builder.advanceLexer
+              }
+              newMarker = simpleMarker.precede
+              simpleMarker.done(if (isTuple) ScalaElementTypes.TUPLE else ScalaElementTypes.PARENT_EXPR)
             }
           }
-          newMarker = simpleMarker.precede
-          simpleMarker.done(ScalaElementTypes.TUPLE)
         }
       }
       case _ => {

@@ -31,11 +31,11 @@ import java.io.File;
 
 public class SourceTest extends BaseScalaFileSetTestCase {
   @NonNls
-  private static final String DATA_PATH = "/home/ilya/Work/scala-2.7.0-final/src";
+  protected static final String DATA_PATH = "/home/ilya/Work/scala-2.7.0-final/src";
   protected static final String TEST_FILE_PATTERN = "(.*)\\.scala";
 
   public SourceTest() {
-    super(  System.getProperty("path")!=null ?
+    super(System.getProperty("path") != null ?
             System.getProperty("path") :
             DATA_PATH
     );
@@ -53,7 +53,7 @@ public class SourceTest extends BaseScalaFileSetTestCase {
 
     content = StringUtil.replace(content, "\r", ""); // for MACs
     String temp = transform(testName, content);
-    String transformed = StringUtil.replace(temp ,"\r", "");
+    String transformed = StringUtil.replace(temp, "\r", "");
 
     Assert.assertFalse(testName, transformed.contains("PsiErrorElement"));
   }
