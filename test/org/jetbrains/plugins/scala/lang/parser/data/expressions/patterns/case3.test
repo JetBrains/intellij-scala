@@ -48,7 +48,7 @@ ScalaFile
               MethodCall
                 ReferenceExpression
                   PsiElement(identifier)('traverse1')
-                ArgumentExpressions
+                ArgumentList
                   PsiElement(()('(')
                   ReferenceExpression
                     PsiElement(identifier)('xs')
@@ -90,7 +90,7 @@ ScalaFile
                     PsiElement(identifier)('c')
                   PsiElement(.)('.')
                   PsiElement(identifier)('toString')
-                ArgumentExpressions
+                ArgumentList
                   PsiElement(()('(')
                   ReferenceExpression
                     PsiElement(identifier)('sb')

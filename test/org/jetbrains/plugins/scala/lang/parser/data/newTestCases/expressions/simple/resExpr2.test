@@ -20,7 +20,7 @@ ScalaFile
           ReferenceExpression
             PsiElement(identifier)('find')
           PsiWhiteSpace(' ')
-          ArgumentExpressions
+          ArgumentList
             BlockExpression
               PsiElement({)('{')
               FunctionExpression

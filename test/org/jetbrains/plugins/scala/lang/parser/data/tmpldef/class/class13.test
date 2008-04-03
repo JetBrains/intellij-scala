@@ -39,8 +39,7 @@ ScalaFile
             CodeReferenceElement
               PsiElement(identifier)('Thread')
           ArgumentList
-            ArgumentExpressions
-              PsiElement(()('(')
-              Literal
-                PsiElement(string content)('"ServerThread"')
-              PsiElement())(')')
+            PsiElement(()('(')
+            Literal
+              PsiElement(string content)('"ServerThread"')
+            PsiElement())(')')

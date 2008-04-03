@@ -141,7 +141,7 @@ ScalaFile
                           PsiElement(identifier)('Parser')
                         PsiElement(.)('.')
                         PsiElement(this)('this')
-                      ArgumentExpressions
+                      ArgumentList
                         PsiElement(()('(')
                         ReferenceExpression
                           PsiElement(identifier)('in')
@@ -225,7 +225,7 @@ ScalaFile
                           MethodCall
                             ReferenceExpression
                               PsiElement(identifier)('q')
-                            ArgumentExpressions
+                            ArgumentList
                               PsiElement(()('(')
                               ReferenceExpression
                                 PsiElement(identifier)('in')

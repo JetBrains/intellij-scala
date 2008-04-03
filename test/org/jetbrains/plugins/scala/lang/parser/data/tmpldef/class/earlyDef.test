@@ -105,7 +105,7 @@ ScalaFile
         MethodCall
           ReferenceExpression
             PsiElement(identifier)('println')
-          ArgumentExpressions
+          ArgumentList
             PsiElement(()('(')
             ReferenceExpression
               PsiElement(identifier)('msg')

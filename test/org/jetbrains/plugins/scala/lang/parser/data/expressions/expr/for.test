@@ -60,7 +60,7 @@ ScalaFile
               MethodCall
                 ReferenceExpression
                   PsiElement(identifier)('isPrime')
-                ArgumentExpressions
+                ArgumentList
                   PsiElement(()('(')
                   InfixExpression
                     ReferenceExpression

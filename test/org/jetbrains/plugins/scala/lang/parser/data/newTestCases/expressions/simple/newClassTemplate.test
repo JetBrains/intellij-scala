@@ -26,11 +26,10 @@ ScalaFile
                   CodeReferenceElement
                     PsiElement(identifier)('z')
                 ArgumentList
-                  ArgumentExpressions
-                    PsiElement(()('(')
-                    Literal
-                      PsiElement(integer)('1')
-                    PsiElement())(')')
+                  PsiElement(()('(')
+                  Literal
+                    PsiElement(integer)('1')
+                  PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(with)('with')
               PsiWhiteSpace(' ')
