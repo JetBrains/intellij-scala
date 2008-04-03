@@ -88,9 +88,7 @@ public class ScalaLexer implements Lexer {
 
   public int getState() {
     locateToken();
-    int scalaState = myScalaPlainLexer.getState();
-    int xmlState = myXmlLexer.getState();
-    return scalaState | (xmlState << XML_SHIFT) + 13;
+    return Integer.MAX_VALUE;
   }
 
   @Nullable
