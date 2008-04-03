@@ -1,5 +1,3 @@
 class a{val b=3}
 -----
-class a {
-  val b = 3
-}
+class a { val b = 3 }
