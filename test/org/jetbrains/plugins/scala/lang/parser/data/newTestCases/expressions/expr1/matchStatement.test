@@ -6,7 +6,6 @@ class a {
   }
 }
 -----
-
 ScalaFile
   ScClass
     AnnotationsList
@@ -57,7 +56,7 @@ ScalaFile
             CaseClause
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
-              WildPattern
+              WildcardPattern
                 PsiElement(_)('_')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')

@@ -252,6 +252,7 @@
                     <include name="**/EnterActionTest.java"/>
           -->
           <include name="**/FormatterTest.java"/>
+          <include name="**/DragSearchTest.java"/>
           <include name="**/ParserTest.java"/>
           <include name="**/LexerTest.java"/>
         </fileset>

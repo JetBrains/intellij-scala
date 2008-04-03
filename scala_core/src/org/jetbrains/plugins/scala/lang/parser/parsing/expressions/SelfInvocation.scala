@@ -59,7 +59,7 @@ object SelfInvocation {
       numberOfArgExprs = numberOfArgExprs + 1
     }
 
-    if (numberOfArgExprs > 1) argExprsMarker.done(ScalaElementTypes.ARG_EXPRS_LIST)
+    if (numberOfArgExprs > 1) argExprsMarker.done(ScalaElementTypes.ARG_EXPRS)
     else argExprsMarker.drop
     selfMarker.done(ScalaElementTypes.SELF_INVOCATION)
     return true

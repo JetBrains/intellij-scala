@@ -33,14 +33,13 @@ ScalaFile
           ArgumentList
             ArgumentExpressions
               PsiElement(()('(')
-              ExpressionsList
-                InfixExpression
-                  Literal
-                    PsiElement(integer)('2')
-                  PsiElement(identifier)('+')
-                  Literal
-                    PsiElement(integer)('2')
-                PsiElement(,)(',')
+              InfixExpression
                 Literal
-                  PsiElement(integer)('3')
+                  PsiElement(integer)('2')
+                PsiElement(identifier)('+')
+                Literal
+                  PsiElement(integer)('2')
+              PsiElement(,)(',')
+              Literal
+                PsiElement(integer)('3')
               PsiElement())(')')

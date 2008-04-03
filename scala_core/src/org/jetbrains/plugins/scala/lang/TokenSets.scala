@@ -87,7 +87,6 @@ object TokenSets {
           BINDINGS,
           EXPRS,
           ARG_EXPRS,
-          ARG_EXPRS_LIST,
           BLOCK_EXPR,
           ERROR_STMT,
           BLOCK,

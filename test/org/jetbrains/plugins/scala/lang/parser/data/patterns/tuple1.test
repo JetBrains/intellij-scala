@@ -35,12 +35,11 @@ ScalaFile
           PsiElement(=)('=')
           Tuple
             PsiElement(()('(')
-            ExpressionsList
-              Literal
-                PsiElement(integer)('1')
-              PsiElement(,)(',')
-              Literal
-                PsiElement(integer)('2')
+            Literal
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
+            Literal
+              PsiElement(integer)('2')
             PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

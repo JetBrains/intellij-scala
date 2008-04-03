@@ -17,18 +17,17 @@ ScalaFile
         PsiWhiteSpace('\n  ')
         Tuple
           PsiElement(()('(')
-          ExpressionsList
-            PrefixExpression
-              PsiElement(identifier)('+')
-              Literal
-                PsiElement(integer)('2')
-            PsiElement(,)(',')
-            InfixExpression
-              Literal
-                PsiElement(integer)('3')
-              PsiElement(identifier)('+')
-              Literal
-                PsiElement(integer)('9')
+          PrefixExpression
+            PsiElement(identifier)('+')
+            Literal
+              PsiElement(integer)('2')
+          PsiElement(,)(',')
+          InfixExpression
+            Literal
+              PsiElement(integer)('3')
+            PsiElement(identifier)('+')
+            Literal
+              PsiElement(integer)('9')
           PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

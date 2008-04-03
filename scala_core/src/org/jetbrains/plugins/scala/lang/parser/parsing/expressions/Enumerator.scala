@@ -26,6 +26,34 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 object Enumerator {
   def parse(builder: PsiBuilder): Boolean = {
     val enumMarker = builder.mark
+
+    def parseNonGuard(): Boolean = {
+      if (!Pattern1.parse (builder)) {
+        builder error ErrMsg ("wrong.pattern")
+        enumMarker.done (ScalaElementTypes.ENUMERATOR)
+        return true
+      }
+      builder.getTokenType match {
+        case ScalaTokenTypes.tASSIGN => {
+          builder.advanceLexer //Ate =
+        }
+        case ScalaTokenTypes.tCHOOSE => {
+          enumMarker.rollbackTo
+          return Generator parse builder
+        }
+        case _ => {
+          builder error ErrMsg ("choose.expected")
+          enumMarker.done (ScalaElementTypes.ENUMERATOR)
+          return true
+        }
+      }
+      if (!Expr.parse (builder)) {
+        builder error ErrMsg ("wrong.expression")
+      }
+      enumMarker.done (ScalaElementTypes.ENUMERATOR)
+      true
+    }
+
     builder.getTokenType match {
       case ScalaTokenTypes.kIF => {
         Guard parse builder
@@ -34,30 +62,10 @@ object Enumerator {
       }
       case ScalaTokenTypes.kVAL => {
         builder.advanceLexer //Ate val
-        if (!Pattern1.parse(builder)) {
-          builder error ScalaBundle.message("wrong.pattern", new Array[Object](0))
-          enumMarker.done(ScalaElementTypes.ENUMERATOR)
-          return true
-        }
-        builder.getTokenType match {
-          case ScalaTokenTypes.tASSIGN => {
-            builder.advanceLexer //Ate =
-          }
-          case _ => {
-            if (builder.getTokenText == "<-") {
-              enumMarker.rollbackTo
-              return Generator parse builder
-            }
-            builder error ScalaBundle.message("assign.expected", new Array[Object](0))
-          }
-        }
-        if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
-        enumMarker.done(ScalaElementTypes.ENUMERATOR)
-        return true
+        return parseNonGuard
       }
       case _ => {
-        enumMarker.drop
-        return Generator.parse(builder)
+        return parseNonGuard
       }
     }
   }

@@ -27,24 +27,22 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 Tuple
                   PsiElement(()('(')
-                  ExpressionsList
-                    Literal
-                      PsiElement(integer)('1')
-                    PsiElement(,)(',')
-                    Literal
-                      PsiElement(integer)('2')
+                  Literal
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  Literal
+                    PsiElement(integer)('2')
                   PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(identifier)('sub')
               PsiWhiteSpace(' ')
               Tuple
                 PsiElement(()('(')
-                ExpressionsList
-                  Literal
-                    PsiElement(integer)('3')
-                  PsiElement(,)(',')
-                  Literal
-                    PsiElement(integer)('4')
+                Literal
+                  PsiElement(integer)('3')
+                PsiElement(,)(',')
+                Literal
+                  PsiElement(integer)('4')
                 PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(identifier)('mul')

@@ -9,6 +9,6 @@ import com.intellij.lang.ASTNode
 * Date: 28.02.2008
 */
 
-class ScWildPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScWildPattern{
-  override def toString: String = "WildPattern"
+class ScWildcardPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScWildcardPattern{
+  override def toString: String = "WildcardPattern"
 }

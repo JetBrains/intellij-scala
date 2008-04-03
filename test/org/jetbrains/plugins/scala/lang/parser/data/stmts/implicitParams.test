@@ -103,25 +103,24 @@ ScalaFile
                 PsiElement(identifier)('add')
               ArgumentExpressions
                 PsiElement(()('(')
-                ExpressionsList
+                ReferenceExpression
                   ReferenceExpression
+                    PsiElement(identifier)('xs')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('head')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression
+                    PsiElement(identifier)('sum')
+                  ArgumentExpressions
+                    PsiElement(()('(')
                     ReferenceExpression
-                      PsiElement(identifier)('xs')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('head')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  MethodCall
-                    ReferenceExpression
-                      PsiElement(identifier)('sum')
-                    ArgumentExpressions
-                      PsiElement(()('(')
                       ReferenceExpression
-                        ReferenceExpression
-                          PsiElement(identifier)('xs')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('tail')
-                      PsiElement())(')')
+                        PsiElement(identifier)('xs')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('tail')
+                    PsiElement())(')')
                 PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

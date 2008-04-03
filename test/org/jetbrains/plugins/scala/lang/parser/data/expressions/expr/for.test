@@ -76,13 +76,12 @@ ScalaFile
           PsiWhiteSpace(' ')
           Tuple
             PsiElement(()('(')
-            ExpressionsList
-              ReferenceExpression
-                PsiElement(identifier)('i')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              ReferenceExpression
-                PsiElement(identifier)('j')
+            ReferenceExpression
+              PsiElement(identifier)('i')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression
+              PsiElement(identifier)('j')
             PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

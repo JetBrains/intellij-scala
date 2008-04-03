@@ -37,7 +37,7 @@ object Constructor {
     while (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
       ArgumentExprs parse builder
     }
-    argExprsMarker.done(ScalaElementTypes.ARG_EXPRS_LIST)
+    argExprsMarker.done(ScalaElementTypes.ARG_EXPRS)
     constrMarker.done(ScalaElementTypes.CONSTRUCTOR)
     return true
   }

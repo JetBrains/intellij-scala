@@ -22,12 +22,11 @@ ScalaFile
               PsiElement(identifier)('a')
             ArgumentExpressions
               PsiElement(()('(')
-              ExpressionsList
-                ReferenceExpression
-                  PsiElement(identifier)('x')
-                PsiElement(,)(',')
-                ReferenceExpression
-                  PsiElement(identifier)('y')
+              ReferenceExpression
+                PsiElement(identifier)('x')
+              PsiElement(,)(',')
+              ReferenceExpression
+                PsiElement(identifier)('y')
               PsiElement())(')')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
