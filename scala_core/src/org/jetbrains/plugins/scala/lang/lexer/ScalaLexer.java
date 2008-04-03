@@ -74,9 +74,8 @@ public class ScalaLexer implements Lexer {
   }
 
   public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
-    initialState = 0;
     myCurrentLexer = myScalaPlainLexer;
-    myCurrentLexer.start(buffer, startOffset, endOffset, initialState & MASK);
+    myCurrentLexer.start(buffer, 0, endOffset, initialState & MASK);
     myBraceStack.clear();
     myLayeredTagStack.clear();
     myXmlState = (initialState >> XML_SHIFT) & MASK;
@@ -88,7 +87,9 @@ public class ScalaLexer implements Lexer {
 
   public int getState() {
     locateToken();
-    return Integer.MAX_VALUE;
+    int scalaState = myScalaPlainLexer.getState();
+    int xmlState = myXmlLexer.getState();
+    return scalaState | (xmlState << XML_SHIFT);
   }
 
   @Nullable
