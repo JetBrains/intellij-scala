@@ -80,5 +80,8 @@
       <interface-class>org.jetbrains.plugins.scala.caches.project.ScalaCachesManager</interface-class>
       <implementation-class>org.jetbrains.plugins.scala.caches.project.ScalaCachesManagerImpl</implementation-class>
     </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.finder.ScalaClassFinder</implementation-class>
+    </component>
   </project-components>
 </idea-plugin>
