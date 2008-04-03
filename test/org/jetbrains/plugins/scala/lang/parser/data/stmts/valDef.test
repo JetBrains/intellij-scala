@@ -82,10 +82,9 @@ ScalaFile
                     CodeReferenceElement
                       PsiElement(identifier)('Some')
                   ArgumentList
-                    ArgumentExpressions
-                      PsiElement(()('(')
-                      Literal
-                        PsiElement(integer)('2')
-                      PsiElement())(')')
+                    PsiElement(()('(')
+                    Literal
+                      PsiElement(integer)('2')
+                    PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

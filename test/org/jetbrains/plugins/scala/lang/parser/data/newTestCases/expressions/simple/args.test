@@ -22,7 +22,7 @@ ScalaFile
               PsiElement(identifier)('a')
             PsiElement(.)('.')
             PsiElement(identifier)('foo')
-          ArgumentExpressions
+          ArgumentList
             PsiElement(()('(')
             ReferenceExpression
               PsiElement(identifier)('a')

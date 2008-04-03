@@ -101,7 +101,7 @@ ScalaFile
                   PsiElement(identifier)('m')
                 PsiElement(.)('.')
                 PsiElement(identifier)('add')
-              ArgumentExpressions
+              ArgumentList
                 PsiElement(()('(')
                 ReferenceExpression
                   ReferenceExpression
@@ -113,7 +113,7 @@ ScalaFile
                 MethodCall
                   ReferenceExpression
                     PsiElement(identifier)('sum')
-                  ArgumentExpressions
+                  ArgumentList
                     PsiElement(()('(')
                     ReferenceExpression
                       ReferenceExpression

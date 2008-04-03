@@ -39,7 +39,7 @@ ScalaFile
             PsiWhiteSpace('\n    ')
             SelfInvocation
               PsiElement(this)('this')
-              ArgumentExpressions
+              ArgumentList
                 PsiElement(()('(')
                 PsiElement())(')')
             PsiWhiteSpace('\n  ')

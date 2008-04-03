@@ -25,19 +25,19 @@ import com.intellij.psi.tree.IElementType
  */
 
 object Constructor {
-  def parse(builder: PsiBuilder): Boolean ={
+  def parse(builder: PsiBuilder): Boolean = {
     val constrMarker = builder.mark
     if (!AnnotType.parse(builder)) {
       builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
       constrMarker.done(ScalaElementTypes.CONSTRUCTOR)
       return true
     }
-    val argExprsMarker = builder.mark
-
-    while (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
-      ArgumentExprs parse builder
+    if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
+      while (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
+        ArgumentExprs parse builder
+      }
     }
-    argExprsMarker.done(ScalaElementTypes.ARG_EXPRS)
+    else builder.mark.done(ScalaElementTypes.ARG_EXPRS)
     constrMarker.done(ScalaElementTypes.CONSTRUCTOR)
     return true
   }

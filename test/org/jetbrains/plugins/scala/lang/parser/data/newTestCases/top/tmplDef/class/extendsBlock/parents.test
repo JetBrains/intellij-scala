@@ -31,15 +31,14 @@ ScalaFile
               CodeReferenceElement
                 PsiElement(identifier)('A')
           ArgumentList
-            ArgumentExpressions
-              PsiElement(()('(')
-              InfixExpression
-                Literal
-                  PsiElement(integer)('2')
-                PsiElement(identifier)('+')
-                Literal
-                  PsiElement(integer)('2')
-              PsiElement(,)(',')
+            PsiElement(()('(')
+            InfixExpression
               Literal
-                PsiElement(integer)('3')
-              PsiElement())(')')
+                PsiElement(integer)('2')
+              PsiElement(identifier)('+')
+              Literal
+                PsiElement(integer)('2')
+            PsiElement(,)(',')
+            Literal
+              PsiElement(integer)('3')
+            PsiElement())(')')

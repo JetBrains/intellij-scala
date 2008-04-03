@@ -20,7 +20,7 @@ ScalaFile
           MethodCall
             ReferenceExpression
               PsiElement(identifier)('a')
-            ArgumentExpressions
+            ArgumentList
               PsiElement(()('(')
               ReferenceExpression
                 PsiElement(identifier)('x')

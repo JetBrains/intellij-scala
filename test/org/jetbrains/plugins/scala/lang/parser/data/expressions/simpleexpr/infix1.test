@@ -35,7 +35,7 @@ ScalaFile
                 PsiElement(identifier)('List')
               PsiElement(.)('.')
               PsiElement(identifier)('flatten')
-            ArgumentExpressions
+            ArgumentList
               PsiElement(()('(')
               PsiWhiteSpace('\n  ')
               MethodCall
@@ -43,7 +43,7 @@ ScalaFile
                   MethodCall
                     ReferenceExpression
                       PsiElement(identifier)('List')
-                    ArgumentExpressions
+                    ArgumentList
                       PsiElement(()('(')
                       ReferenceExpression
                         ReferenceExpression
@@ -81,7 +81,7 @@ ScalaFile
                       PsiElement())(')')
                   PsiElement(.)('.')
                   PsiElement(identifier)('map')
-                ArgumentExpressions
+                ArgumentList
                   PsiElement(()('(')
                   FunctionExpression
                     PsiElement(identifier)('s')
@@ -91,7 +91,7 @@ ScalaFile
                     MethodCall
                       ReferenceExpression
                         PsiElement(identifier)('List')
-                      ArgumentExpressions
+                      ArgumentList
                         PsiElement(()('(')
                         ReferenceExpression
                           ReferenceExpression
@@ -135,7 +135,7 @@ ScalaFile
                 MethodCall
                   ReferenceExpression
                     PsiElement(identifier)('List')
-                  ArgumentExpressions
+                  ArgumentList
                     PsiElement(()('(')
                     Literal
                       PsiElement(string content)('"-server"')
@@ -161,7 +161,7 @@ ScalaFile
                     MethodCall
                       ReferenceExpression
                         PsiElement(identifier)('List')
-                      ArgumentExpressions
+                      ArgumentList
                         PsiElement(()('(')
                         ReferenceExpression
                           ReferenceExpression
@@ -178,7 +178,7 @@ ScalaFile
                         PsiElement())(')')
                     PsiElement(.)('.')
                     PsiElement(identifier)('map')
-                  ArgumentExpressions
+                  ArgumentList
                     PsiElement(()('(')
                     FunctionExpression
                       PsiElement(identifier)('s')
@@ -216,7 +216,7 @@ ScalaFile
                 MethodCall
                   ReferenceExpression
                     PsiElement(identifier)('trim')
-                  ArgumentExpressions
+                  ArgumentList
                     PsiElement(()('(')
                     PsiWhiteSpace('\n  ')
                     MethodCall
@@ -224,7 +224,7 @@ ScalaFile
                         MethodCall
                           ReferenceExpression
                             PsiElement(identifier)('List')
-                          ArgumentExpressions
+                          ArgumentList
                             PsiElement(()('(')
                             ReferenceExpression
                               ReferenceExpression
@@ -263,7 +263,7 @@ ScalaFile
                             PsiElement())(')')
                         PsiElement(.)('.')
                         PsiElement(identifier)('map')
-                      ArgumentExpressions
+                      ArgumentList
                         PsiElement(()('(')
                         FunctionExpression
                           PsiElement(identifier)('s')
@@ -301,7 +301,7 @@ ScalaFile
                 MethodCall
                   ReferenceExpression
                     PsiElement(identifier)('trim')
-                  ArgumentExpressions
+                  ArgumentList
                     PsiElement(()('(')
                     PsiWhiteSpace('\n  ')
                     MethodCall
@@ -309,7 +309,7 @@ ScalaFile
                         MethodCall
                           ReferenceExpression
                             PsiElement(identifier)('List')
-                          ArgumentExpressions
+                          ArgumentList
                             PsiElement(()('(')
                             ReferenceExpression
                               ReferenceExpression
@@ -319,7 +319,7 @@ ScalaFile
                             PsiElement())(')')
                         PsiElement(.)('.')
                         PsiElement(identifier)('map')
-                      ArgumentExpressions
+                      ArgumentList
                         PsiElement(()('(')
                         FunctionExpression
                           PsiElement(identifier)('s')

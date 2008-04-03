@@ -25,11 +25,10 @@ ScalaFile
                       CodeReferenceElement
                         PsiElement(identifier)('t')
                     ArgumentList
-                      ArgumentExpressions
-                        PsiElement(()('(')
-                        ReferenceExpression
-                          PsiElement(identifier)('b')
-                        PsiElement())(')')
+                      PsiElement(()('(')
+                      ReferenceExpression
+                        PsiElement(identifier)('b')
+                      PsiElement())(')')
             PsiWhiteSpace(' ')
             TypeElement
               CodeReferenceElement
