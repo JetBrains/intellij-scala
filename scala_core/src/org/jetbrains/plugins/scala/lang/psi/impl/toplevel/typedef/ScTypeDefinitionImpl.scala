@@ -30,33 +30,32 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-abstract class ScTypeDefinitionImpl (node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeDefinition {
+abstract class ScTypeDefinitionImpl (node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeDefinition {
 
-  override def getTextOffset() = getNameIdentifierScala().getTextRange ().getStartOffset ()
+  override def getTextOffset() = getNameIdentifierScala().getTextRange().getStartOffset()
 
   def getNameIdentifierScala() = findChildByType(TokenSets.PROPERTY_NAMES)
 
-
   def getQualifiedName: String = {
 
-    type Named = {val name: String}
     var parent = getParent
     // todo improve formatter
-    var nameList = List[Named]()
+    var nameList: List[String] = Nil
+    // todo type-pattern matchin bug
     while (parent != null) {
       parent match {
-        case t: ScTypeDefinition => nameList = new {val name= t.getName} :: nameList
-        case p: ScPackaging => nameList = new {val name = p.getPackageName} :: nameList
-        case f: ScalaFile if f.getPackageName.length > 0 => nameList = new {val name = f.getPackageName} :: nameList
+        case t: ScTypeDefinition => nameList = t.getName :: nameList
+        case p: ScPackaging => nameList = p.getPackageName :: nameList
+        case f: ScalaFile if f.getPackageName.length > 0 => nameList = f.getPackageName :: nameList
         case _ =>
       }
       parent = parent.getParent
     }
-    return (nameList :\ getName)((x:Named, s:String) => x.name + "." + s)
+    return (nameList :\ getName)((x: String, s: String) => x + "." + s)
   }
 
   override def getPresentation(): ItemPresentation = {
-    new ItemPresentation () {
+    new ItemPresentation() {
 
       import org.jetbrains.plugins.scala._
       import org.jetbrains.plugins.scala.icons._

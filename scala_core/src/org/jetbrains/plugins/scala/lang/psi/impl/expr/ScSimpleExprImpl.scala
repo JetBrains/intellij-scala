@@ -27,6 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Date: 06.03.2008
 */
 
-class ScSimpleExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleExpr {
-  override def toString: String = "SimpleExpression"
+class ScPlaceholderExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPlaceholderExpr {
+  override def toString: String = "PlaceholderExpression"
 }

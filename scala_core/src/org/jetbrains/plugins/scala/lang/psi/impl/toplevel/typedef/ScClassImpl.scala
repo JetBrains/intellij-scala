@@ -29,6 +29,7 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
   def getTemplateParents = null
 
   def getMainParentName = null
+
   override def toString: String = "ScClass"
 
   override def getIcon(flags: Int) = Icons.CLASS
