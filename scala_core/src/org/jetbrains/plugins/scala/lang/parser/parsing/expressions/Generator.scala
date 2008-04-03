@@ -34,10 +34,10 @@ object Generator {
         builder.advanceLexer
       }
       case _ => {
-        builder error ScalaBundle.message("choose.expected", new Array[Object](0))
+        builder error ErrMsg("choose.expected")
       }
     }
-    if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+    if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
     builder.getTokenType match {
       case ScalaTokenTypes.kIF => Guard parse builder
       case _ => {}

@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
  *                 | XmlPattern //Todo: xmlPattern
  */
 
-object SimplePattern {
+object SimplePattern extends ParserNode {
   def parse(builder: PsiBuilder): Boolean = {
     val simplePatternMarker = builder.mark
     builder.getTokenType match {
@@ -42,7 +42,7 @@ object SimplePattern {
           }
           case _ => {}
         }
-        simplePatternMarker.done(ScalaElementTypes.WILD_PATTERN)
+        simplePatternMarker.done (ScalaElementTypes.WILDCARD_PATTERN)
         return true
       }
       case ScalaTokenTypes.tLPARENTHESIS => {
@@ -50,7 +50,7 @@ object SimplePattern {
         builder.getTokenType match {
           case ScalaTokenTypes.tRPARENTHESIS => {
             builder.advanceLexer //Ate )
-            simplePatternMarker.done(ScalaElementTypes.TUPLE_PATTERN)
+            simplePatternMarker.done (ScalaElementTypes.TUPLE_PATTERN)
             return true
           }
           case _ => {}
@@ -59,12 +59,12 @@ object SimplePattern {
           builder.getTokenType match {
             case ScalaTokenTypes.tRPARENTHESIS => {
               builder.advanceLexer //Ate )
-              simplePatternMarker.done(ScalaElementTypes.TUPLE_PATTERN)
+              simplePatternMarker.done (ScalaElementTypes.TUPLE_PATTERN)
               return true
             }
             case _ => {
-              builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
-              simplePatternMarker.done(ScalaElementTypes.TUPLE_PATTERN)
+              builder error ScalaBundle.message ("rparenthesis.expected", new Array [Object](0))
+              simplePatternMarker.done (ScalaElementTypes.TUPLE_PATTERN)
               return true
             }
           }
@@ -75,31 +75,49 @@ object SimplePattern {
               builder.advanceLexer //Ate )
             }
             case _ => {
-              builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+              builder error ScalaBundle.message ("rparenthesis.expected", new Array [Object](0))
             }
           }
-          simplePatternMarker.done(ScalaElementTypes.PATTERN_IN_PARENTHESIS)
+          simplePatternMarker.done (ScalaElementTypes.PATTERN_IN_PARENTHESIS)
           return true
         }
       }
       case _ => {}
     }
     if (Literal parse builder) {
-      simplePatternMarker.done(ScalaElementTypes.LITERAL_PATTERN)
+      simplePatternMarker.done (ScalaElementTypes.LITERAL_PATTERN)
       return true
     }
-    if (StableId parse (builder,ScalaElementTypes.REFERENCE_PATTERN)) {
+    if (StableId parse (builder, ScalaElementTypes.REFERENCE_PATTERN)) {
       builder.getTokenType match {
         case ScalaTokenTypes.tLPARENTHESIS => {
+          val args = builder.mark
           builder.advanceLexer //Ate (
-          if (!Patterns.parse(builder,true))
-          if (!Pattern.parse(builder)) {
-            builder.getTokenType match {
-              case ScalaTokenTypes.tUNDER => {
-                builder.advanceLexer //Ate _
-                builder.advanceLexer //Ate *
+
+          def parseSeqWildcard(withComma: Boolean) = {
+            if (if (withComma)
+                  lookAhead (builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
+                  else lookAhead (builder, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
+              val wild = builder.mark
+              if (withComma) builder.advanceLexer
+              builder.advanceLexer
+              if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && "*".equals (builder.getTokenText)) {
+                builder.advanceLexer
+                wild.done (ScalaElementTypes.SEQ_WILDCARD)
+                true
+              } else {
+                wild.rollbackTo
+                false
               }
-              case _ => {}
+            } else {
+              false
+            }
+          }
+
+          if (parseSeqWildcard(false) || Pattern.parse (builder)) {
+            while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !parseSeqWildcard(true)) {
+              builder.advanceLexer // eat comma
+              Pattern.parse (builder)
             }
           }
           builder.getTokenType match {
@@ -107,10 +125,11 @@ object SimplePattern {
               builder.advanceLexer //Ate )
             }
             case _ => {
-              builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+              builder error ErrMsg ("rparenthesis.expected")
             }
           }
-          simplePatternMarker.done(ScalaElementTypes.CONSTRUCTOR_PATTERN)
+          args.done (ScalaElementTypes.PATTERN_ARGS)
+          simplePatternMarker.done (ScalaElementTypes.CONSTRUCTOR_PATTERN)
           return true
         }
         case _ => {

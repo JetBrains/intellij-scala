@@ -32,15 +32,16 @@ ScalaFile
               ConstructorPattern
                 ReferencePattern
                   PsiElement(identifier)('Alt')
-                PsiElement(()('(')
-                BindingPattern
-                  PsiElement(identifier)('xs')
-                  PsiWhiteSpace(' ')
-                  PsiElement(@)('@')
-                  PsiWhiteSpace(' ')
-                  WildPattern
-                    PsiElement(_)('_')
-                PsiElement())(')')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  BindingPattern
+                    PsiElement(identifier)('xs')
+                    PsiWhiteSpace(' ')
+                    PsiElement(@)('@')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                  PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
@@ -60,24 +61,26 @@ ScalaFile
                 ConstructorPattern
                   ReferencePattern
                     PsiElement(identifier)('ELEMENTS')
-                  PsiElement(()('(')
-                  PsiWhiteSpace(' ')
-                  WildPattern
-                    PsiElement(_)('_')
-                  PsiWhiteSpace(' ')
-                  PsiElement())(')')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    PsiElement())(')')
                 PsiWhiteSpace(' ')
                 PsiElement(identifier)('|')
                 PsiWhiteSpace(' ')
                 ConstructorPattern
                   ReferencePattern
                     PsiElement(identifier)('MIXED')
-                  PsiElement(()('(')
-                  PsiWhiteSpace(' ')
-                  WildPattern
-                    PsiElement(_)('_')
-                  PsiWhiteSpace(' ')
-                  PsiElement())(')')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')

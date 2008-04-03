@@ -53,20 +53,19 @@ ScalaFile
           PsiWhiteSpace(' ')
           Tuple
             PsiElement(()('(')
-            ExpressionsList
+            InfixExpression
+              Literal
+                PsiElement(integer)('2')
+              PsiElement(identifier)('+')
               InfixExpression
                 Literal
+                  PsiElement(integer)('1')
+                PsiElement(identifier)('*')
+                Literal
                   PsiElement(integer)('2')
-                PsiElement(identifier)('+')
-                InfixExpression
-                  Literal
-                    PsiElement(integer)('1')
-                  PsiElement(identifier)('*')
-                  Literal
-                    PsiElement(integer)('2')
-              PsiElement(,)(',')
-              Literal
-                PsiElement(integer)('3')
+            PsiElement(,)(',')
+            Literal
+              PsiElement(integer)('3')
             PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

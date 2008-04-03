@@ -239,7 +239,6 @@ object ScalaElementTypes {
   val BINDINGS = new ScalaElementType("bindings")
   val EXPRS = new ScalaElementType("list of expressions")
   val ARG_EXPRS = new ScalaElementType("arguments of function")
-  val ARG_EXPRS_LIST = new ScalaElementType("list function arguments")
   val BLOCK_EXPR = new ScalaElementType("block of expressions")
   val CONSTR_BLOCK = new ScalaElementType("constructor block")
   val ERROR_STMT = new ScalaElementType("error statement")
@@ -251,9 +250,9 @@ object ScalaElementTypes {
 
   /******************************** COMPOSITE EXPRESSIONS *****************************/
   val IF_STMT = new ScalaElementType("if statement")
-  val FOR_STMT = new ScalaElementType("if statement")
+  val FOR_STMT = new ScalaElementType("for statement")
   val WHILE_STMT = new ScalaElementType("while statement")
-  val DO_STMT = new ScalaElementType("while statement")
+  val DO_STMT = new ScalaElementType("do-while statement")
   val TRY_STMT = new ScalaElementType("try statement")
   val TRY_BLOCK = new ScalaElementType("try block")
   val CATCH_BLOCK = new ScalaElementType("catch block")
@@ -271,13 +270,15 @@ object ScalaElementTypes {
   /*************************************************************************************/
 
   val TUPLE_PATTERN = new ScalaElementType("Tuple Pattern")
+  val SEQ_WILDCARD = new ScalaElementType("Sequence Wildcard")
   val CONSTRUCTOR_PATTERN = new ScalaElementType("Constructor Pattern")
+  val PATTERN_ARGS = new ScalaElementType("Pattern arguments")
   val INFIX_PATTERN = new ScalaElementType("Infix pattern")
   val BINDING_PATTERN = new ScalaElementType("Binding Pattern")
   val TYPED_PATTERN = new ScalaElementType("Typed Pattern")
   val PATTERN = new ScalaElementType("Composite Pattern")
   val PATTERNS = new ScalaElementType("patterns")
-  val WILD_PATTERN = new ScalaElementType("any sequence")
+  val WILDCARD_PATTERN = new ScalaElementType("any sequence")
   val CASE_CLAUSE = new ScalaElementType("case clause")
   val CASE_CLAUSES = new ScalaElementType("case clauses")
   val LITERAL_PATTERN = new ScalaElementType("literal pattern")

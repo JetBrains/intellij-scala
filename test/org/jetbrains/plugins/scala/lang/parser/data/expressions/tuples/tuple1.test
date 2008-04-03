@@ -64,10 +64,9 @@ ScalaFile
           PsiElement(=)('=')
           Tuple
             PsiElement(()('(')
-            ExpressionsList
-              Literal
-                PsiElement(integer)('1')
-              PsiElement(,)(',')
+            Literal
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
             PsiElement())(')')
         PsiElement(newline)('\n  ')
         ScPatternDefinition
@@ -82,12 +81,11 @@ ScalaFile
           PsiElement(=)('=')
           Tuple
             PsiElement(()('(')
-            ExpressionsList
-              Literal
-                PsiElement(integer)('1')
-              PsiElement(,)(',')
-              Literal
-                PsiElement(integer)('2')
+            Literal
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
+            Literal
+              PsiElement(integer)('2')
             PsiElement())(')')
         PsiElement(newline)('\n  ')
         ScPatternDefinition
@@ -102,13 +100,12 @@ ScalaFile
           PsiElement(=)('=')
           Tuple
             PsiElement(()('(')
-            ExpressionsList
-              Literal
-                PsiElement(integer)('1')
-              PsiElement(,)(',')
-              Literal
-                PsiElement(integer)('2')
-              PsiElement(,)(',')
+            Literal
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
+            Literal
+              PsiElement(integer)('2')
+            PsiElement(,)(',')
             PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

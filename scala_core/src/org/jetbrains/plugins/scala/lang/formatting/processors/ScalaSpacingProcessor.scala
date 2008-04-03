@@ -81,7 +81,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     rightNode.getPsi match {
-      case _: ScArgumentExprList => return NO_SPACING
+      case _: ScArguments => return NO_SPACING
       case _: ScParameters => {
         if (leftNode.getElementType == ScalaTokenTypes.tIDENTIFIER) return NO_SPACING
         leftNode.getPsi match {

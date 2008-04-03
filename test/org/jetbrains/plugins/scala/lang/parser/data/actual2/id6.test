@@ -31,10 +31,11 @@ ScalaFile
                 ReferencePattern
                   PsiElement(identifier)('Some')
                 PsiWhiteSpace(' ')
-                PsiElement(()('(')
-                ReferencePattern
-                  PsiElement(identifier)('`m`')
-                PsiElement())(')')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern
+                    PsiElement(identifier)('`m`')
+                  PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')

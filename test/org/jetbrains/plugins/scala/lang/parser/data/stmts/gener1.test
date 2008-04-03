@@ -1,0 +1,74 @@
+object A {
+  for (b <- m.code.blocks.toList;
+       (g, k) = genAndKill(b)) {
+  }
+}
+-----
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          Enumerators
+            Generator
+              ReferencePattern
+                PsiElement(identifier)('b')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression
+                ReferenceExpression
+                  ReferenceExpression
+                    ReferenceExpression
+                      PsiElement(identifier)('m')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('code')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('blocks')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toList')
+            PsiElement(;)(';')
+            PsiWhiteSpace('\n       ')
+            Enumerator
+              TuplePattern
+                PsiElement(()('(')
+                ArgumentPatterns
+                  ReferencePattern
+                    PsiElement(identifier)('g')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern
+                    PsiElement(identifier)('k')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression
+                  PsiElement(identifier)('genAndKill')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression
+                    PsiElement(identifier)('b')
+                  PsiElement())(')')
+          PsiElement())(')')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

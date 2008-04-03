@@ -31,16 +31,12 @@ import java.util.List;
  * @author ilyas
  */
 public class DragSearchTest extends BaseScalaFileSetTestCase {
-  protected static final int MAX_ROLLBACKS = 17;
+  protected static final int MAX_ROLLBACKS = 11;
 
   @NonNls
-/*
-  private static final String DATA_PATH = "/home/ilya/Work/scala/test/org/jetbrains/plugins/scala/lang/parser/stress/data";
+  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/stress/data/";
   protected static final String TEST_FILE_PATTERN = "(.*)\\.test";
-*/
 
-  private static final String DATA_PATH = "/home/ilya/Work/scala-2.7.0-final/src";
-  protected static final String TEST_FILE_PATTERN = "(.*)\\.scala";
 
   public DragSearchTest() {
     super(System.getProperty("path") != null ?
@@ -123,31 +119,7 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
       int start = range.getStartOffset();
       int end = range.getEndOffset();
       buffer.append(end < fileText.length() ? fileText.substring(range.getStartOffset(), end) : fileText.substring(start));
-/*
-
-    for (int i = 0; i < infos.length; i++) {
-      TextRange range = infos[i].getFirst();
-      if (i == 0) {
-        int endOffset = range.getEndOffset();
-        String str = endOffset < fileText.length() ? fileText.substring(range.getStartOffset(), endOffset) : fileText.substring(range.getStartOffset());
-        buffer.append(str);
-      } else {
-        String currentText = range.getEndOffset() < fileText.length() ?
-                fileText.substring(range.getStartOffset(), range.getEndOffset()) :
-                fileText.substring(range.getStartOffset());
-
-        TextRange prevRange = infos[i - 1].getFirst();
-        int offset = prevRange.getEndOffset();
-        String trimmed = fileText.substring(offset).trim();
-
-        if (trimmed.equals(currentText)) {
-          int endOffset = range.getEndOffset();
-          String str = endOffset < fileText.length() ? fileText.substring(offset, endOffset) : fileText.substring(offset);
-          buffer.append(str);
-        }
-      }
-    }
-*/
+      buffer.append("\n");
     }
 
     return buffer.toString();

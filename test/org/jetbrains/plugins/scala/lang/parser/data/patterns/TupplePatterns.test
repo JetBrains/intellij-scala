@@ -103,7 +103,7 @@ ScalaFile
                       Literal
                         PsiElement(string content)('"abc"')
                     PsiElement(,)(',')
-                    WildPattern
+                    WildcardPattern
                       PsiElement(_)('_')
                   PsiElement())(')')
                 PsiWhiteSpace(' ')

@@ -18,16 +18,15 @@ ScalaFile
         PsiWhiteSpace('\n  ')
         Tuple
           PsiElement(()('(')
-          ExpressionsList
-            ReferenceExpression
-              PsiElement(identifier)('a')
-            PsiElement(,)(',')
-            ReferenceExpression
-              PsiElement(identifier)('b')
-            PsiElement(,)(',')
-            ReferenceExpression
-              PsiElement(identifier)('c')
-            PsiElement(,)(',')
+          ReferenceExpression
+            PsiElement(identifier)('a')
+          PsiElement(,)(',')
+          ReferenceExpression
+            PsiElement(identifier)('b')
+          PsiElement(,)(',')
+          ReferenceExpression
+            PsiElement(identifier)('c')
+          PsiElement(,)(',')
           PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
