@@ -19,8 +19,6 @@ import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.util.ArrayUtil
 
 
-
-
 class ScalaFile (viewProvider: FileViewProvider) extends PsiFileBase (viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
 with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner {
 

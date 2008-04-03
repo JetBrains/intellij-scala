@@ -148,6 +148,17 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   @NotNull
   public Lexer getHighlightingLexer() {
     return new ScalaLexer() {
+      public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
+        myCurrentLexer = myScalaPlainLexer;
+        myCurrentLexer.start(buffer, startOffset, endOffset, initialState);
+        myBraceStack.clear();
+        myLayeredTagStack.clear();
+        myXmlState = 0;
+        myBuffer = buffer;
+        myBufferEnd = buffer.length();
+        myTokenType = null;
+      }
+
       public IElementType getTokenType() {
         IElementType type = super.getTokenType();
         if (type instanceof IXmlLeafElementType || XmlTokenType.XML_WHITE_SPACE == type) {

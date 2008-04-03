@@ -35,23 +35,24 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.*;
  */
 public class ScalaLexer implements Lexer {
 
-  private final Lexer myScalaPlainLexer = new ScalaPlainLexer();
+  protected final Lexer myScalaPlainLexer = new ScalaPlainLexer();
   private final Lexer myXmlLexer = new XmlLexer();
 
-  private Lexer myCurrentLexer;
+  protected Lexer myCurrentLexer;
 
-  private static final int MASK = 0x3F;
-  private static final int XML_SHIFT = 6;
-  TIntStack myBraceStack = new TIntStack();
-  Stack<Stack<MyOpenXmlTag>> myLayeredTagStack = new Stack<Stack<MyOpenXmlTag>>();
+  protected static final int MASK = 0x3F;
+  protected static final int XML_SHIFT = 6;
+  protected TIntStack myBraceStack = new TIntStack();
+  protected Stack<Stack<MyOpenXmlTag>> myLayeredTagStack = new Stack<Stack<MyOpenXmlTag>>();
 
 
-  private int myBufferEnd;
-  private CharSequence myBuffer;
-  private int myXmlState;
+  protected int myBufferEnd;
+  protected int myBufferStart;
+  protected CharSequence myBuffer;
+  protected int myXmlState;
   private int myTokenStart;
   private int myTokenEnd;
-  private IElementType myTokenType;
+  protected IElementType myTokenType;
   public final String XML_BEGIN_PATTERN = "<\\w";
 
   public ScalaLexer() {
@@ -75,21 +76,19 @@ public class ScalaLexer implements Lexer {
 
   public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
     myCurrentLexer = myScalaPlainLexer;
-    myCurrentLexer.start(buffer, 0, endOffset, initialState & MASK);
+    myCurrentLexer.start(buffer, startOffset, endOffset, initialState & MASK);
     myBraceStack.clear();
     myLayeredTagStack.clear();
     myXmlState = (initialState >> XML_SHIFT) & MASK;
     myBuffer = buffer;
+    myBufferStart = startOffset;
     myBufferEnd = endOffset;
     myTokenType = null;
-
   }
 
   public int getState() {
     locateToken();
-    int scalaState = myScalaPlainLexer.getState();
-    int xmlState = myXmlLexer.getState();
-    return scalaState | (xmlState << XML_SHIFT);
+    return myTokenStart == 0 ? 0 : 239;
   }
 
   @Nullable
