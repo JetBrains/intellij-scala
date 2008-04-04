@@ -13,6 +13,7 @@ import com.intellij.lang.PsiBuilder
 
 object ParserUtils {
 
+  // Do not use it! (Very slow). Use Java version instead
   def lookAhead(builder: PsiBuilder, elems: IElementType*): Boolean = {
     val rb = builder.mark
     for (val elem <- elems) {
