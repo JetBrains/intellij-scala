@@ -20,8 +20,8 @@ trait ScTypeDefinitionOwner extends ScalaPsiElement {
     val children = childrenOfType[ScTypeDefinition](TokenSets.TMPL_OR_PACKAGING_DEF_BIT_SET)
     (children :\ (Nil: List[ScTypeDefinition]))((y: ScalaPsiElement, x: List[ScTypeDefinition]) =>
       y match {
-        case p: ScPackaging => p.getTypeDefinitions.toList ::: x
-        case t: ScTypeDefinition => t :: t.getTypeDefinitions.toList ::: x
+        case p: ScPackaging => p.getTypeDefinitions ::: x
+        case t: ScTypeDefinition => t :: t.getTypeDefinitions ::: x
       })
   }
 
