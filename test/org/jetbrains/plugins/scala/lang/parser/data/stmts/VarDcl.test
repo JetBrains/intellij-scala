@@ -52,7 +52,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          SimpleExpression
+          PlaceholderExpression
             PsiElement(_)('_')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
