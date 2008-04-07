@@ -40,7 +40,19 @@ object BlockExpr {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.kCASE => {
-        CaseClauses parse builder
+        val backMarker = builder.mark
+        builder.advanceLexer
+        builder.getTokenType match {
+          case ScalaTokenTypes.kCLASS |
+               ScalaTokenTypes.kOBJECT => {
+             backMarker.rollbackTo
+            Block parse builder
+          }
+          case _ => {
+            backMarker.rollbackTo
+            CaseClauses parse builder
+          }
+        }
       }
       case _ => {
         Block parse builder

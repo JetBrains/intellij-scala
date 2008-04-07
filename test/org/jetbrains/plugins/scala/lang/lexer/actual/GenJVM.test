@@ -1,0 +1,10 @@
+class a {
+private def isSideEffecting(sym: Symbol): Boolean = {
+      !((sym.isGetter && !sym.hasFlag(Flags.LAZY)) // for testing only
+       || (sym.isConstructor
+           && sym.owner.owner == definitions.getModule("scala.runtime").moduleClass)
+       || (sym.isConstructor && inliner.isClosureClass(sym.owner))
+/*       || definitions.isBox(sym)
+       || definitions.isUnbox(sym)*/)
+    } }
+------
