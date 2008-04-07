@@ -1,0 +1,4 @@
+class a {
+  ctx1 = ctx1.Try(List((NoSymbol => {})));
+}
+-----
