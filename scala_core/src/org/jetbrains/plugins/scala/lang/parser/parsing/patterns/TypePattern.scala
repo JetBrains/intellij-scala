@@ -31,7 +31,7 @@ object TypePattern {
           case ScalaTokenTypes.tFUNTYPE | ScalaTokenTypes.tRPARENTHESIS => {
             if (builder.getTokenType == ScalaTokenTypes.tFUNTYPE) {
               builder.advanceLexer //Ate =>
-              if (!Type.parse(builder)) {
+              if (!Type.parse(builder,false,true)) {
                 builder error ScalaBundle.message("wrong.type", new Array[Object](0))
               }
             }
@@ -51,7 +51,7 @@ object TypePattern {
                 builder error ScalaBundle.message("fun.sign.expected", new Array[Object](0))
               }
             }
-            if (!Type.parse(builder)) {
+            if (!Type.parse(builder,false,true)) {
               builder error ScalaBundle.message("wrong.type", new Array[Object](0))
             }
             typeMarker.done(ScalaElementTypes.TYPE_PATTERN)
@@ -63,7 +63,7 @@ object TypePattern {
       }
       case _ => {}
     }
-    if (!InfixType.parse(builder)) {
+    if (!InfixType.parse(builder,false,true)) {
       typeMarker.drop
       return false
     }

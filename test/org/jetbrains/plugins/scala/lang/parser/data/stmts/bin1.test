@@ -1,0 +1,54 @@
+class Dsl {
+
+  val boo = (ven : Ven) => ven.foo
+
+}
+-----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Dsl')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ReferencePattern
+            PsiElement(identifier)('boo')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          FunctionExpression
+            ParameterList
+              PsiElement(()('(')
+              Parameter
+                PsiElement(identifier)('ven')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('Ven')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            ReferenceExpression
+              ReferenceExpression
+                PsiElement(identifier)('ven')
+              PsiElement(.)('.')
+              PsiElement(identifier)('foo')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

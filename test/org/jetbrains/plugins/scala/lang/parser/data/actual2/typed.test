@@ -1,4 +1,0 @@
-class a {
-  { case _: Type | _: Type=> }
-}
------

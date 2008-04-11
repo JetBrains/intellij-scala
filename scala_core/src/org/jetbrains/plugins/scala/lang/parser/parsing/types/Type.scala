@@ -23,8 +23,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 
 object Type {
   def parse(builder: PsiBuilder): Boolean = parse(builder,false)
-
-  def parse(builder: PsiBuilder,star: Boolean): Boolean = {
+  def parse(builder: PsiBuilder,star: Boolean): Boolean = parse(builder,star,false)
+  def parse(builder: PsiBuilder,star: Boolean,isPattern: Boolean): Boolean = {
     val typeMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
@@ -34,7 +34,7 @@ object Type {
           case ScalaTokenTypes.tFUNTYPE | ScalaTokenTypes.tRPARENTHESIS => {
             if (builder.getTokenType == ScalaTokenTypes.tFUNTYPE) {
               builder.advanceLexer //Ate =>
-              if (!Type.parse(builder)) {
+              if (!Type.parse(builder,false,isPattern)) {
                 builder error ScalaBundle.message("wrong.type", new Array[Object](0))
               }
             }
@@ -54,7 +54,7 @@ object Type {
                 builder error ScalaBundle.message("fun.sign.expected", new Array[Object](0))
               }
             }
-            if (!Type.parse(builder)) {
+            if (!Type.parse(builder,false,isPattern)) {
               builder error ScalaBundle.message("wrong.type", new Array[Object](0))
             }
             parMarker.drop
@@ -66,14 +66,14 @@ object Type {
       }
       case _ => {}
     }
-    if (!InfixType.parse(builder,star)) {
+    if (!InfixType.parse(builder,star,isPattern)) {
       typeMarker.drop
       return false
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE => {
         builder.advanceLexer //Ate =>
-        if (!Type.parse(builder)) {
+        if (!Type.parse(builder,false,isPattern)) {
           builder error ScalaBundle.message("wrong.type", new Array[Object](0))
         }
         typeMarker.done(ScalaElementTypes.TYPE)
