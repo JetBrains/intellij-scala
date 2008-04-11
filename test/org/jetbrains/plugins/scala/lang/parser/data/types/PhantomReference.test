@@ -1,0 +1,192 @@
+class PhantomReference[+T <: AnyRef](value: T, queue: ReferenceQueue[T]) extends ReferenceWrapper[T] {
+  val underlying: java.lang.ref.PhantomReference[_ <: T] =
+    new java.lang.ref.PhantomReference[T](value, queue.underlying.asInstanceOf[java.lang.ref.ReferenceQueue[T]])
+}
+-----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('PhantomReference')
+    TypeParameterClause
+      PsiElement([)('[')
+      VariantTypeParameter
+        PsiElement(identifier)('+')
+        TypeParameter
+          PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          TypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('AnyRef')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      ClassParametersClauses
+        ClassParametersClause
+          PsiElement(()('(')
+          ClassParameter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('value')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              TypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('T')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('queue')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              GenericCall
+                TypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('ReferenceQueue')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('T')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      ClassParents
+        Constructor
+          GenericCall
+            TypeElement
+              CodeReferenceElement
+                PsiElement(identifier)('ReferenceWrapper')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            <empty list>
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ReferencePattern
+            PsiElement(identifier)('underlying')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          GenericCall
+            TypeElement
+              CodeReferenceElement
+                CodeReferenceElement
+                  CodeReferenceElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('java')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('lang')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('ref')
+                PsiElement(.)('.')
+                PsiElement(identifier)('PhantomReference')
+            TypeArgumentsList
+              PsiElement([)('[')
+              WildcardType
+                PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                TypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          NewTemplateDefinition
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ClassParents
+                Constructor
+                  GenericCall
+                    TypeElement
+                      CodeReferenceElement
+                        CodeReferenceElement
+                          CodeReferenceElement
+                            CodeReferenceElement
+                              PsiElement(identifier)('java')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('lang')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('ref')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('PhantomReference')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeElement
+                        CodeReferenceElement
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression
+                      PsiElement(identifier)('value')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    GenericCall
+                      ReferenceExpression
+                        ReferenceExpression
+                          ReferenceExpression
+                            PsiElement(identifier)('queue')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('underlying')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('asInstanceOf')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        GenericCall
+                          TypeElement
+                            CodeReferenceElement
+                              CodeReferenceElement
+                                CodeReferenceElement
+                                  CodeReferenceElement
+                                    PsiElement(identifier)('java')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('lang')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('ref')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('ReferenceQueue')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeElement
+                              CodeReferenceElement
+                                PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

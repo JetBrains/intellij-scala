@@ -59,10 +59,16 @@ object Def {
         }
       }
       else {
-        builder.getTokenType match {
-          case ScalaTokenTypes.kIMPLICIT => builder.advanceLexer //Ate implicit
-          case _ => {}
+        def getAll() {
+          builder.getTokenType match {
+            case ScalaTokenTypes.kIMPLICIT | ScalaTokenTypes.kLAZY => {
+              builder.advanceLexer //Ate implicit
+              getAll()
+            }
+            case _ => return
+          }
         }
+        getAll()
       }
       modifierMarker.done(ScalaElementTypes.MODIFIERS)
     }

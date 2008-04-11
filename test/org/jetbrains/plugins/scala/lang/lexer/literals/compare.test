@@ -1,0 +1,20 @@
+class a {
+  41.compare(43)
+}
+-----
+class {class}
+white space in line { }
+identifier {a}
+white space in line { }
+{ {{}
+white space in line {
+  }
+integer {41}
+. {.}
+identifier {compare}
+( {(}
+integer {43}
+) {)}
+white space in line {
+}
+} {}}

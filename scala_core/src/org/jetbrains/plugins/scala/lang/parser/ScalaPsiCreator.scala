@@ -169,6 +169,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.EXISTENTIAL_CLAUSE => new ScExistentialClauseImpl(node)
     case ScalaElementTypes.SELF_TYPE => new ScSelfTypeImpl(node)
     case ScalaElementTypes.EXISTENTIAL_TYPE => new ScExistentialTypeImpl(node)
+    case ScalaElementTypes.WILDCARD_TYPE => new ScWildcardTypeImpl(node)
     case ScalaElementTypes.TYPE_PROJECTION => new ScTypeProjectionImpl(node)
     case ScalaElementTypes.TYPE_GENERIC_CALL => new ScTypeGenericCallImpl(node)
 

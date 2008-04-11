@@ -11,7 +11,7 @@ import lang.psi.api.toplevel._
 import lang.psi.api.toplevel.typedef._
 
 object ScalaFindUsagesProvider extends FindUsagesProvider {
-  [Nullable]
+  @Nullable
   override def getWordsScanner(): WordsScanner = new DefaultWordsScanner(new ScalaLexer(),
      ScalaTokenTypes.IDENTIFIER_TOKEN_SET,
      ScalaTokenTypes.COMMENTS_TOKEN_SET,
@@ -20,11 +20,11 @@ object ScalaFindUsagesProvider extends FindUsagesProvider {
   override def canFindUsagesFor(element: PsiElement): Boolean = element.isInstanceOf[ScTypeDefinition] &&
                                                                 !element.isInstanceOf[ScObject] //todo
 
-  [Nullable]
+  @Nullable
   override def getHelpId(psiElement: PsiElement): String = null //todo
 
   //todo
-  [NotNull]
+  @NotNull
   override def getType(element: PsiElement): String = {
     element match {
       case _ : ScClass=> "class"
@@ -37,7 +37,7 @@ object ScalaFindUsagesProvider extends FindUsagesProvider {
 
 
   //todo
-  [NotNull]
+  @NotNull
   override def getDescriptiveName(element: PsiElement): String = {
     element match {
       case c : ScTypeDefinition => c.getName
@@ -46,7 +46,7 @@ object ScalaFindUsagesProvider extends FindUsagesProvider {
   }
 
   //todo
-  [NotNull]
+  @NotNull
   override def getNodeText(element: PsiElement, useFullName : Boolean): String = {
     element match {
       case c : ScTypeDefinition => c.getName

@@ -113,6 +113,7 @@ object ScalaElementTypes {
   val ANNOT_TYPE = new ScalaElementType("annotation type")
   val SELF_TYPE = new ScalaElementType("self type")
   val EXISTENTIAL_CLAUSE = new ScalaElementType("existential clause")
+  val WILDCARD_TYPE = new ScalaElementType("wildcard type")
   val ASCRIPTION = new ScalaElementType("ascription")
   val TUPLE_TYPE = new ScalaElementType("tuple type")
   val TYPE_IN_PARENTHESIS = new ScalaElementType("type in parenthesis")

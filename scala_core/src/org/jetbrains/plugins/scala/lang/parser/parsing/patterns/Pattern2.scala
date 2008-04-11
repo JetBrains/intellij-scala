@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.parser.bnf._
 
 /*
  * Pattern2 ::= varid '@' Pattern3
+ *            | _ '@' Pattern3
  *            | Pattern3
  */
 
@@ -48,6 +49,23 @@ object Pattern2 {
             case _ => {
               backupMarker.rollbackTo
             }
+          }
+        }
+      }
+      case ScalaTokenTypes.tUNDER => {
+        builder.advanceLexer //Ate id
+        builder.getTokenType match {
+          case ScalaTokenTypes.tAT => {
+            builder.advanceLexer //Ate @
+            backupMarker.drop
+            if (!Pattern3.parse(builder)) {
+              builder error ScalaBundle.message("wrong.pattern", new Array[Object](0))
+            }
+            pattern2Marker.done(ScalaElementTypes.BINDING_PATTERN)
+            return true
+          }
+          case _ => {
+            backupMarker.rollbackTo
           }
         }
       }

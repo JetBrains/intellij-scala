@@ -6,7 +6,7 @@ import org.jetbrains.annotations._
 
 trait ScPackaging extends ScTypeDefinitionOwner {
 
-  [NotNull]
+  @NotNull
   def getPackageName: String
 
 }

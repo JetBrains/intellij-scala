@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
  * Type ::= InfixType '=>' Type
  *        | '(' ['=>' Type] ')' => Type
  *        | InfixType [ExistentialClause]
+ *        | _ [>: Type] [<: Type]
  */
 
 object Type {
@@ -63,6 +64,29 @@ object Type {
           }
           case _ => {parMarker.rollbackTo}
         }
+      }
+      case ScalaTokenTypes.tUNDER => {
+        builder.advanceLexer()
+        builder.getTokenText match {
+          case ">:" => {
+            builder.advanceLexer
+            if (!Type.parse(builder)) {
+              builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+            }
+          }
+          case _ => {} //nothing
+        }
+        builder.getTokenText match {
+          case "<:" => {
+            builder.advanceLexer
+            if (!Type.parse(builder)) {
+              builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+            }
+          }
+          case _ => {} //nothing
+        }
+        typeMarker.done(ScalaElementTypes.WILDCARD_TYPE)
+        return true
       }
       case _ => {}
     }

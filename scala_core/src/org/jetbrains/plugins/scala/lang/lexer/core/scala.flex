@@ -441,6 +441,9 @@ XML_BEGIN = "<" ("_" | [:jletter:])
 
 {identifier}                            {   yybegin(PROCESS_NEW_LINE);
                                             return process(tIDENTIFIER); }
+{integerLiteral} / "." ({LineTerminator}|{WhiteSpace})* {identifier}
+                                        {   yybegin(PROCESS_NEW_LINE);
+                                            return process(tINTEGER);  }
 {floatingPointLiteral}                  {   yybegin(PROCESS_NEW_LINE);
                                             return process(tFLOAT);      }
 {integerLiteral}                        {   yybegin(PROCESS_NEW_LINE);
