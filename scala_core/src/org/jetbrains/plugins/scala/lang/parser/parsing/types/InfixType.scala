@@ -21,8 +21,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 
 object InfixType {
   def parse(builder: PsiBuilder): Boolean = parse(builder, false)
-
-  def parse(builder: PsiBuilder, star: Boolean): Boolean = {
+  def parse(builder:PsiBuilder, star: Boolean): Boolean = parse(builder,star,false)
+  def parse(builder: PsiBuilder, star: Boolean, isPattern: Boolean): Boolean = {
     var infixTypeMarker = builder.mark
     var markerList = List[PsiBuilder.Marker]() //This list consist of markers for right-associated op
     var count = 0
@@ -32,7 +32,7 @@ object InfixType {
       return false
     }
     var assoc: Int = 0  //this mark associativity: left - 1, right - -1
-    while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && (!star || builder.getTokenText != "*")) {
+    while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && (!star || builder.getTokenText != "*") && (!isPattern || builder.getTokenText != "|")) {
       count = count+1
       //need to know associativity
       val s = builder.getTokenText

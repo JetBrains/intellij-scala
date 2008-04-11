@@ -1,0 +1,10 @@
+package
+
+
+-----
+ScalaFile
+  ScPackageStatement
+    PsiElement(package)('package')
+    PsiWhiteSpace('\n\n')
+    PsiErrorElement:Package qualified identifier expected
+      <empty list>
