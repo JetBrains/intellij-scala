@@ -42,7 +42,8 @@ object Bindings {
         builder.advanceLexer //Ate )
       }
       case _ => {
-        builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+        bindingsMarker.rollbackTo
+        return false
       }
     }
     bindingsMarker.done(ScalaElementTypes.BINDINGS)

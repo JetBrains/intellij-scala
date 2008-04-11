@@ -23,6 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 class ScPackageStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPackageStatement{
   override def toString = "ScPackageStatement"
 
-  [NotNull]
+  @NotNull
   def getPackageName: String = findChildByClass(classOf[ScReferenceElement]).getText
 }

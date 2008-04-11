@@ -17,20 +17,20 @@ ScalaFile
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
         InfixExpression
-          ReferenceExpression
-            PsiElement(identifier)('a')
-          PsiWhiteSpace(' ')
-          PsiElement(identifier)('::')
-          PsiWhiteSpace(' ')
           InfixExpression
+            ReferenceExpression
+              PsiElement(identifier)('a')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('::')
+            PsiWhiteSpace(' ')
             ReferenceExpression
               PsiElement(identifier)('b')
             PsiErrorElement:Wrong associativity. All operators should have the same associativity
               <empty list>
-            PsiWhiteSpace(' ')
-            PsiElement(identifier)(':+')
-            PsiWhiteSpace(' ')
-            ReferenceExpression
-              PsiElement(identifier)('c')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)(':+')
+          PsiWhiteSpace(' ')
+          ReferenceExpression
+            PsiElement(identifier)('c')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

@@ -7,7 +7,7 @@ import com.intellij.ide.IconProvider
 import org.jetbrains.annotations.Nullable
 
 class ScalaIconProvider extends IconProvider {
-  [Nullable]
+  @Nullable
   override def getIcon(element: PsiElement, flags: Int): Icon = {
 
     if (element.isInstanceOf[ScalaFile]) {

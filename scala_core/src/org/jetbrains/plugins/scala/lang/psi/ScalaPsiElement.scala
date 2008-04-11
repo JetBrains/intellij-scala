@@ -136,17 +136,17 @@ trait ScalaPsiElement extends PsiElement {
     return getChild(elemType) != null
   }
 
-  [Nullable]
+  @Nullable
   def getChild(elemType: IElementType): PsiElement = {
     getChild(elemType, getFirstChild, (e: PsiElement) => e.getNextSibling)
   }
 
-  [Nullable]
+  @Nullable
   def getChild(elemType: IElementType, startsWith: PsiElement): PsiElement = {
     getChild(elemType, startsWith, (e: PsiElement) => e.getNextSibling)
   }
 
-  [Nullable]
+  @Nullable
   def getChild(elemType: IElementType, startsWith: PsiElement, direction: PsiElement => PsiElement): PsiElement = {
     def inner(e: PsiElement): PsiElement = e match {
       case null => null
