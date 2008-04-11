@@ -1,0 +1,8 @@
+class a {
+  def foo = {
+     }
+}
+-----
+class a {
+  def foo = {}
+}

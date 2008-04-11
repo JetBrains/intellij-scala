@@ -37,6 +37,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val rightNode = right.getNode
 
     leftNode.getElementType match {
+      case ScalaTokenTypes.tAT => return NO_SPACING
       case ScalaTokenTypes.tIDENTIFIER => {
         leftNode.getTreeParent.getElementType match {
           case ScalaElementTypes.LITERAL | ScalaElementTypes.PREFIX_EXPR | ScalaElementTypes.VARIANT_TYPE_PARAM => {
@@ -47,12 +48,20 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
       case ScalaElementTypes.ANNOTATION => return IMPORT_BETWEEN_SPACING
       case ScalaTokenTypes.tLBRACE => {
+        rightNode.getElementType match {
+          case ScalaTokenTypes.tRBRACE => return NO_SPACING
+          case _ =>
+        }
         leftNode.getTreeParent().getElementType match {
-          case ScalaElementTypes.TEMPLATE_BODY | ScalaElementTypes.MATCH_STMT | ScalaElementTypes.REFINEMENT => {
-            return Spacing.createSpacing(1, 1, 0, true, 100)
+          case ScalaElementTypes.TEMPLATE_BODY | ScalaElementTypes.MATCH_STMT | ScalaElementTypes.REFINEMENT |
+            ScalaElementTypes.EXISTENTIAL_CLAUSE => {
+            return IMPORT_BETWEEN_SPACING
           }
+          case _ => {}
+        }
+        leftNode.getTreeParent().getPsi match {
           case _: ScBlockExpr => {
-            return Spacing.createSpacing(1, 1, 0, true, 100)
+            return IMPORT_BETWEEN_SPACING
           }
           case _ => {}
         }
@@ -101,11 +110,15 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     rightNode.getElementType match {
       case ScalaTokenTypes.tRBRACE => {
         rightNode.getTreeParent().getElementType match {
-          case ScalaElementTypes.TEMPLATE_BODY | ScalaElementTypes.MATCH_STMT | ScalaElementTypes.REFINEMENT => {
-            return Spacing.createSpacing(1, 1, 0, true, 100)
+          case ScalaElementTypes.TEMPLATE_BODY | ScalaElementTypes.MATCH_STMT | ScalaElementTypes.REFINEMENT |
+            ScalaElementTypes.EXISTENTIAL_CLAUSE => {
+            return IMPORT_BETWEEN_SPACING
           }
+          case _ => {}
+        }
+        rightNode.getTreeParent().getPsi match {
           case _: ScBlockExpr => {
-            return Spacing.createSpacing(1, 1, 0, true, 100)
+            return IMPORT_BETWEEN_SPACING
           }
           case _ => {}
         }

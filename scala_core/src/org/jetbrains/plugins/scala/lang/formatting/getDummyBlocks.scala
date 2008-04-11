@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 object getDummyBlocks{
 
   def apply(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
-    var children = node.getChildren(null)
+    val children = node.getChildren(null)
     val subBlocks = new ArrayList[Block]
     var prevChild: ASTNode = null
     node.getPsi match {

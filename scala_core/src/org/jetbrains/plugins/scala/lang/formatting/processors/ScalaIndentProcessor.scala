@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi.impl.source.tree.PsiErrorElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 
 
 
@@ -27,36 +28,52 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
 
   def getChildIndent(parent: ScalaBlock, child: ASTNode): Indent =
     parent.getNode.getPsi match {
-      case _: ScalaFile => Indent.getNoneIndent()
+      case _: ScalaFile => Indent.getNoneIndent
       case _: ScPackaging => {
         child.getElementType match {
           case ScalaTokenTypes.tLBRACE |
           ScalaTokenTypes.tRBRACE |
           ScalaTokenTypes.kPACKAGE |
           ScalaElementTypes.REFERENCE =>
-            Indent.getNoneIndent()
-          case _ => Indent.getNormalIndent()
+            Indent.getNoneIndent
+          case _ => Indent.getNormalIndent
         }
       }
       case _: ScMatchStmt => {
         child.getElementType match {
-         case _: ScCaseClauses => Indent.getNormalIndent()
+         case _: ScCaseClauses => Indent.getNormalIndent
          case _ => Indent.getNoneIndent
         }
       }
-      case _: ScBlockExpr | _: ScTemplateBody | _: ScRefinement=> {
+      case _: ScBlockExpr | _: ScTemplateBody | _: ScRefinement | _: ScExistentialClause=> {
         child.getElementType match {
           case ScalaTokenTypes.tLBRACE |
           ScalaTokenTypes.tRBRACE => {
-            Indent.getNoneIndent()
+            Indent.getNoneIndent
           }
-          case _ => Indent.getNormalIndent()
+          case _ => Indent.getNormalIndent
         }
       }
-      case _: ScParameters => Indent.getContinuationWithoutFirstIndent()
-      case _: ScCaseClauses => Indent.getNormalIndent()
-      case _: ScInfixExpr | _:ScInfixPattern | _:ScInfixType=> {
-        Indent.getContinuationWithoutFirstIndent()
+      case _: ScParameters => Indent.getContinuationWithoutFirstIndent
+      case _: ScCaseClauses => Indent.getNormalIndent
+      case _: ScCaseClause => {
+        child.getElementType match {
+          case ScalaTokenTypes.kCASE | ScalaTokenTypes.tFUNTYPE => Indent.getNoneIndent
+          case _ =>
+            child.getPsi match {
+              case _: ScPattern => Indent.getNoneIndent
+              case _ => Indent.getNormalIndent
+            }
+        }
+      }
+      case _: ScInfixExpr | _:ScPattern | _:ScInfixType => {
+        Indent.getContinuationWithoutFirstIndent
+      }
+      case _: ScFunction => {
+        child.getPsi match {
+          case _: ScExpression => Indent.getNormalIndent
+          case _ => Indent.getNoneIndent
+        }
       }
       case _: ScIfStmt | _: ScWhileStmt  | _: ScDoStmt=> {
         child.getPsi match {
@@ -65,6 +82,6 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         }
       }
       case _: ScExpression => Indent.getNoneIndent
-      case _ => Indent.getNoneIndent()
+      case _ => Indent.getNoneIndent
     }
 }

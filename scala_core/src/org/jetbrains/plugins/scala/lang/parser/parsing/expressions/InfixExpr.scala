@@ -44,7 +44,6 @@ import com.intellij.psi.impl.source.CharTableImpl
 
 object InfixExpr {
   def parse(builder: PsiBuilder): Boolean = {
-    var assoc = 0
     val markerStack = new Stack[PsiBuilder.Marker]
     val opStack = new Stack[String]
     val infixMarker = builder.mark
@@ -58,26 +57,6 @@ object InfixExpr {
     while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && exitOf) {
       //need to know associativity
       val s = builder.getTokenText
-      s.charAt(s.length-1) match {
-        case ':' => {
-          assoc match {
-            case 0 => assoc = -1
-            case 1 => {
-              builder error ErrMsg("wrong.type.associativity")
-            }
-            case -1 => {}
-          }
-        }
-        case _ => {
-          assoc match {
-            case 0 => assoc = 1
-            case 1 => {}
-            case -1 => {
-              builder error ErrMsg("wrong.type.associativity")
-            }
-          }
-        }
-      }
 
       var exit = false
       while (!exit) {
@@ -87,7 +66,7 @@ object InfixExpr {
           markerStack += newMarker
           exit = true
         }
-        else if (!compar(s, opStack.top, assoc)) {
+        else if (!compar(s, opStack.top, builder)) {
           opStack.pop
           backupMarker.drop
           backupMarker = markerStack.top.precede
@@ -167,13 +146,19 @@ object InfixExpr {
       case _                                      => 9
     }
   }
-  //compares two operators
-  private def compar(id1: String, id2: String,assoc: Int): Boolean = {
+  //compares two operators a id2 b id1 c
+  private def compar(id1: String, id2: String, builder: PsiBuilder): Boolean = {
     if (priority(id1) < priority(id2)) return true        //  a * b + c  =((a * b) + c)
     else if (priority(id1) > priority(id2)) return false  //  a + b * c = (a + (b * c))
-    else if (assoc == -1) return true
-    else return false
+    else if (associate(id1) == associate(id2))
+      if (associate(id1) == -1) return true
+      else return false
+    else {
+      builder error ErrMsg("wrong.type.associativity")
+      return false
+    }
   }
+  private def opeq(id1: String, id2: String): Boolean = priority(id1) == priority(id2)
   //Associations of operator
   private def associate(id: String): Int = {
     id.charAt(id.length-1) match {
