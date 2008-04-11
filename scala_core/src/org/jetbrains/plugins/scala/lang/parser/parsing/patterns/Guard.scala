@@ -18,18 +18,25 @@ import org.jetbrains.plugins.scala.lang.parser.bnf._
 */
 
 object Guard {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: PsiBuilder): Boolean = parse(builder, false) //deprecated if true
+  def parse(builder: PsiBuilder, noIf: Boolean): Boolean = {
     val guardMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kIF => {
         builder.advanceLexer //Ate if
       }
       case _ => {
-        guardMarker.drop
-        return false
+        if (!noIf) {
+          guardMarker.drop()
+          return false
+        }
       }
     }
     if (!PostfixExpr.parse(builder)) {
+      if (noIf) {
+        guardMarker.drop()
+        return false
+      }
       builder error ErrMsg("wrong.postfix.expression")
     }
     guardMarker.done(ScalaElementTypes.GUARD)

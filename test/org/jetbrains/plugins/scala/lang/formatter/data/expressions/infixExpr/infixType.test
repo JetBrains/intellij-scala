@@ -1,11 +1,11 @@
 class a {
-  x: T op
+  var x: T op
   T op
-  T
+  T = 5
 }
 -----
 class a {
-  x: T op
+  var x: T op
     T op
-    T
+    T = 5
 }

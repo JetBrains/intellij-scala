@@ -1,5 +1,5 @@
 class a {
-  a :: b :+ c
+  a :: b + c
 }
 -----
 ScalaFile
@@ -25,10 +25,8 @@ ScalaFile
           InfixExpression
             ReferenceExpression
               PsiElement(identifier)('b')
-            PsiErrorElement:Wrong associativity. All operators should have the same associativity
-              <empty list>
             PsiWhiteSpace(' ')
-            PsiElement(identifier)(':+')
+            PsiElement(identifier)('+')
             PsiWhiteSpace(' ')
             ReferenceExpression
               PsiElement(identifier)('c')

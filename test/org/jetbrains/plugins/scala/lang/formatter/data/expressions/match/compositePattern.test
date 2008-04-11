@@ -9,7 +9,7 @@ class a {
 class a {
   a match {
     case 1 | 2 |
-         3 | 4 =>
+      3 | 4 =>
       true
   }
 }
