@@ -30,7 +30,7 @@ object Block {
     while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {}
     return true
   }
-  def parse(builder: PsiBuilder, hasBrace: Boolean) : Boolean = {
+  def parse(builder: PsiBuilder, hasBrace: Boolean): Boolean = {
     if (hasBrace) {
       val blockMarker = builder.mark
       builder.getTokenType match {

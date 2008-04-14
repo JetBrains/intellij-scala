@@ -53,7 +53,7 @@ object Expr1 {
   def parse(builder: PsiBuilder): Boolean = {
     val exprMarker = builder.mark
     builder.getTokenType match {
-      //----------------------if statement------------------------//
+    //----------------------if statement------------------------//
       case ScalaTokenTypes.kIF => {
         builder.advanceLexer //Ate if
         builder.getTokenType match {
@@ -190,7 +190,7 @@ object Expr1 {
         val finallyMarker = builder.mark
         builder.getTokenType match {
           case ScalaTokenTypes.kFINALLY => {
-            builder.advanceLexer//Ate finally
+            builder.advanceLexer //Ate finally
             if (!Expr.parse(builder)) {
               builder error ErrMsg("wrong.expression")
             }
@@ -314,13 +314,13 @@ object Expr1 {
         }
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN => {
-              builder.advanceLexer //Ate =
-              if (!Expr.parse(builder)) {
-                builder error ErrMsg("wrong.expression")
-              }
-              exprMarker.done(ScalaElementTypes.ASSIGN_STMT)
-              return true
+            builder.advanceLexer //Ate =
+            if (!Expr.parse(builder)) {
+              builder error ErrMsg("wrong.expression")
             }
+            exprMarker.done(ScalaElementTypes.ASSIGN_STMT)
+            return true
+          }
           case ScalaTokenTypes.tCOLON => {
             Ascription parse builder
             exprMarker.done(ScalaElementTypes.TYPED_EXPR_STMT)

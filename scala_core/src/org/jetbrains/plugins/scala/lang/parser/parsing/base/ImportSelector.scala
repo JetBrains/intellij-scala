@@ -21,7 +21,7 @@ import com.intellij.psi.tree.IElementType
 */
 
 object ImportSelector {
-  def parse(builder:PsiBuilder): Boolean = {
+  def parse(builder: PsiBuilder): Boolean = {
     val importSelectorMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {

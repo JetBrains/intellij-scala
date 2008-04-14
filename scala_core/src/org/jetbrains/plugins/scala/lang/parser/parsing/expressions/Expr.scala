@@ -24,6 +24,7 @@ import com.intellij.psi.impl.source.tree.CompositeElement
 import com.intellij.util.CharTable
 import com.intellij.lexer.Lexer
 import com.intellij.lang.impl.PsiBuilderImpl
+
 //import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.psi._
 import com.intellij.psi.impl.source.CharTableImpl
@@ -47,7 +48,7 @@ object Expr {
         builder.getTokenType match {
           case ScalaTokenTypes.tFUNTYPE => {
             builder.advanceLexer //Ate =>
-            if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression",new Array[Object](0))
+            if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
             exprMarker.done(ScalaElementTypes.FUNCTION_EXPR)
             return true
           }
@@ -61,7 +62,7 @@ object Expr {
           builder.getTokenType match {
             case ScalaTokenTypes.tFUNTYPE => {
               builder.advanceLexer //Ate =>
-              if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression",new Array[Object](0))
+              if (!Expr.parse(builder)) builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
               exprMarker.done(ScalaElementTypes.FUNCTION_EXPR)
               return true
             }

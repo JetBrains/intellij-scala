@@ -53,7 +53,7 @@ object Enumerator {
           }
           else {
             enumMarker.rollbackTo
-            Guard.parse(builder,true)
+            Guard.parse(builder, true)
           }
           return true
         }

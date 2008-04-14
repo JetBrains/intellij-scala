@@ -51,8 +51,8 @@ object ArgumentExprs {
         Expr parse builder
         while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
           builder.advanceLexer
-          if (!Expr.parse (builder)) {
-            builder error ErrMsg ("wrong.expression")
+          if (!Expr.parse(builder)) {
+            builder error ErrMsg("wrong.expression")
           }
         }
         builder.getTokenType match {
@@ -60,16 +60,16 @@ object ArgumentExprs {
             builder.advanceLexer //Ate )
           }
           case _ => {
-            builder error ScalaBundle.message ("rparenthesis.expected", new Array [Object](0))
+            builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
           }
         }
-        argMarker.done (ScalaElementTypes.ARG_EXPRS)
+        argMarker.done(ScalaElementTypes.ARG_EXPRS)
         return true
       }
       case ScalaTokenTypes.tLINE_TERMINATOR | ScalaTokenTypes.tLBRACE => {
         builder.getTokenType match {
           case ScalaTokenTypes.tLINE_TERMINATOR => {
-            if (!LineTerminator (builder.getTokenText)) {
+            if (!LineTerminator(builder.getTokenText)) {
               argMarker.drop
               return false
             }
@@ -82,7 +82,7 @@ object ArgumentExprs {
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE => {
             BlockExpr parse builder
-            argMarker.done (ScalaElementTypes.ARG_EXPRS)
+            argMarker.done(ScalaElementTypes.ARG_EXPRS)
             return true
           }
           case _ => {

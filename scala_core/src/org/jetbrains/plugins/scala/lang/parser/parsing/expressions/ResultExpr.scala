@@ -24,6 +24,7 @@ import com.intellij.psi.impl.source.tree.CompositeElement
 import com.intellij.util.CharTable
 import com.intellij.lexer.Lexer
 import com.intellij.lang.impl.PsiBuilderImpl
+
 //import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.psi._
 import com.intellij.psi.impl.source.CharTableImpl
@@ -46,7 +47,7 @@ object ResultExpr {
     def parseFunctionEnd() = builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE => {
         builder.advanceLexer //Ate =>
-        Block parse(builder, false)
+        Block parse (builder, false)
         backupMarker.drop
         resultMarker.done(ScalaElementTypes.FUNCTION_EXPR)
         true

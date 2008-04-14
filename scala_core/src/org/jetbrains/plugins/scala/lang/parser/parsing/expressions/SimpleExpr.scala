@@ -27,6 +27,7 @@ import com.intellij.psi.impl.source.tree.CompositeElement
 import com.intellij.util.CharTable
 import com.intellij.lexer.Lexer
 import com.intellij.lang.impl.PsiBuilderImpl
+
 //import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.psi._
 import com.intellij.psi.impl.source.CharTableImpl
@@ -53,7 +54,7 @@ import org.jetbrains.plugins.scala.lang.lexer._
  *               | XmlExpr //Todo: xmlExpression
  */
 
-object SimpleExpr extends ParserNode with ScalaTokenTypes{
+object SimpleExpr extends ParserNode with ScalaTokenTypes {
   def parse(builder: PsiBuilder): Boolean = {
     var simpleMarker = builder.mark
     var newMarker: PsiBuilder.Marker = null
@@ -121,7 +122,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes{
       case _ => {
         state = true
         if (!Literal.parse(builder)) {
-          if (!Path.parse(builder,ScalaElementTypes.REFERENCE_EXPRESSION)) {
+          if (!Path.parse(builder, ScalaElementTypes.REFERENCE_EXPRESSION)) {
             simpleMarker.drop
             return false
           }

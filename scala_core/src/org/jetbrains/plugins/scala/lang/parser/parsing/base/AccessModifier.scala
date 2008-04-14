@@ -25,7 +25,7 @@ import com.intellij.psi.tree.IElementType
  */
 
 object AccessModifier {
-  def parse(builder: PsiBuilder) : Boolean = {
+  def parse(builder: PsiBuilder): Boolean = {
     val accessMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kPRIVATE |
