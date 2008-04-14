@@ -61,7 +61,7 @@ object InfixExpr {
       var exit = false
       while (!exit) {
         if (opStack.isEmpty) {
-          opStack+=s
+          opStack += s
           val newMarker = backupMarker.precede
           markerStack += newMarker
           exit = true
@@ -73,7 +73,7 @@ object InfixExpr {
           markerStack.pop.done(ScalaElementTypes.INFIX_EXPR)
         }
         else {
-          opStack+=s
+          opStack += s
           val newMarker = backupMarker.precede
           markerStack += newMarker
           exit = true
@@ -93,7 +93,7 @@ object InfixExpr {
             backupMarker = builder.mark
             if (!PrefixExpr.parse(builder)) {
               setMarker.rollbackTo
-              exitOf=false
+              exitOf = false
             }
             else {
               count = count + 1
@@ -132,24 +132,24 @@ object InfixExpr {
   }
   //private var assoc: Int = 0  //this mark associativity: left - 1, right - -1
   //Defines priority
-  private def priority(id: String) : Int = {
+  private def priority(id: String): Int = {
     id.charAt(0) match {
-      case '~' | '#' | '@' | '$' | '?' | '\\'     => 0
-      case '*' | '/' | '%'                        => 1
-      case '+' | '-'                              => 2
-      case ':'                                    => 3
-      case '=' | '!'                              => 4
-      case '<' | '>'                              => 5
-      case '&'                                    => 6
-      case '^'                                    => 7
-      case '|'                                    => 8
-      case _                                      => 9
+      case '~' | '#' | '@' | '$' | '?' | '\\' => 0
+      case '*' | '/' | '%' => 1
+      case '+' | '-' => 2
+      case ':' => 3
+      case '=' | '!' => 4
+      case '<' | '>' => 5
+      case '&' => 6
+      case '^' => 7
+      case '|' => 8
+      case _ => 9
     }
   }
   //compares two operators a id2 b id1 c
   private def compar(id1: String, id2: String, builder: PsiBuilder): Boolean = {
-    if (priority(id1) < priority(id2)) return true        //  a * b + c  =((a * b) + c)
-    else if (priority(id1) > priority(id2)) return false  //  a + b * c = (a + (b * c))
+    if (priority(id1) < priority(id2)) return true //  a * b + c  =((a * b) + c)
+    else if (priority(id1) > priority(id2)) return false //  a + b * c = (a + (b * c))
     else if (associate(id1) == associate(id2))
       if (associate(id1) == -1) return true
       else return false
@@ -161,9 +161,9 @@ object InfixExpr {
   private def opeq(id1: String, id2: String): Boolean = priority(id1) == priority(id2)
   //Associations of operator
   private def associate(id: String): Int = {
-    id.charAt(id.length-1) match {
-      case ':' => return -1   // right
-      case _   => return +1  // left
+    id.charAt(id.length - 1) match {
+      case ':' => return -1 // right
+      case _ => return +1 // left
     }
   }
 }

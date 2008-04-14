@@ -26,7 +26,7 @@ import com.intellij.psi.tree.IElementType
  */
 
 
-object ImportSelectors extends ParserNode{
+object ImportSelectors extends ParserNode {
   def parse(builder: PsiBuilder): Boolean = {
     val importSelectorMarker = builder.mark
     //Look for {
@@ -39,7 +39,7 @@ object ImportSelectors extends ParserNode{
       }
     }
     //Let's parse Import selectors while we will not see Import selector or will see '}'
-    while (true){
+    while (true) {
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE => {
           builder error ErrMsg("import.selector.expected")

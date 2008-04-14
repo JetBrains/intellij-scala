@@ -25,11 +25,11 @@ Literal ::= ['-']integerLiteral
             | null
 */
 
-object Literal{
-  def parse(builder : PsiBuilder) : Boolean = {
+object Literal {
+  def parse(builder: PsiBuilder): Boolean = {
     val marker = builder.mark()
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER  => {
+      case ScalaTokenTypes.tIDENTIFIER => {
         if (builder.getTokenText == "-") {
           builder.advanceLexer //Ate -
           builder.getTokenType match {
@@ -58,7 +58,8 @@ object Literal{
         marker.done(ScalaElementTypes.LITERAL)
         return true
       }
-      case ScalaTokenTypes.tWRONG_STRING => { //wrong string literal
+      case ScalaTokenTypes.tWRONG_STRING => {
+        //wrong string literal
         builder.advanceLexer //Ate wrong string
         builder.error("Wrong string literal")
         marker.done(ScalaElementTypes.LITERAL)

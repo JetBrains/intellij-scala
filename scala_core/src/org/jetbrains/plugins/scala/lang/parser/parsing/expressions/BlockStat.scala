@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
  */
 
 object BlockStat {
-  def parse(builder: PsiBuilder) :Boolean = {
+  def parse(builder: PsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.kIMPORT => {
         Import parse builder
@@ -42,7 +42,7 @@ object BlockStat {
       }
       case _ => {}
     }
-    if (!Def.parse(builder,false,true)) {
+    if (!Def.parse(builder, false, true)) {
       if (!TmplDef.parse(builder)) {
         if (!Expr1.parse(builder)) {
           return false
