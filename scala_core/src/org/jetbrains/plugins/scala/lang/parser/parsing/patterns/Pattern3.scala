@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 
 object Pattern3 {
   def parse(builder: PsiBuilder): Boolean = {
-    var assoc = 0
     val markerStack = new Stack[PsiBuilder.Marker]
     val opStack = new Stack[String]
     val infixMarker = builder.mark
@@ -41,28 +40,7 @@ object Pattern3 {
     }
     while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && builder.getTokenText != "|") {
       count = count + 1
-      //need to know associativity
       val s = builder.getTokenText
-      s.charAt(s.length-1) match {
-        case ':' => {
-          assoc match {
-            case 0 => assoc = -1
-            case 1 => {
-              builder error ScalaBundle.message("wrong.type.associativity", new Array[Object](0))
-            }
-            case -1 => {}
-          }
-        }
-        case _ => {
-          assoc match {
-            case 0 => assoc = 1
-            case 1 => {}
-            case -1 => {
-              builder error ScalaBundle.message("wrong.type.associativity", new Array[Object](0))
-            }
-          }
-        }
-      }
 
       var exit = false
       while (!exit) {
@@ -72,7 +50,7 @@ object Pattern3 {
           markerStack += newMarker
           exit = true
         }
-        else if (!compar(s, opStack.top,assoc)) {
+        else if (!compar(s, opStack.top,builder)) {
           opStack.pop
           backupMarker.drop
           backupMarker = markerStack.top.precede
@@ -118,7 +96,6 @@ object Pattern3 {
     }
     return true
   }
-  //private var assoc: Int = 0  //this mark associativity: left - 1, right - -1
   //Defines priority
   private def priority(id: String) : Int = {
     id.charAt(0) match {
@@ -134,13 +111,19 @@ object Pattern3 {
       case _                                      => 9
     }
   }
-  //compares two operators
-  private def compar(id1: String, id2: String, assoc: Int): Boolean = {
+  //compares two operators a id2 b id1 c
+  private def compar(id1: String, id2: String, builder: PsiBuilder): Boolean = {
     if (priority(id1) < priority(id2)) return true        //  a * b + c  =((a * b) + c)
     else if (priority(id1) > priority(id2)) return false  //  a + b * c = (a + (b * c))
-    else if (assoc == -1) return true
-    else return false
+    else if (associate(id1) == associate(id2))
+      if (associate(id1) == -1) return true
+      else return false
+    else {
+      builder error ErrMsg("wrong.type.associativity")
+      return false
+    }
   }
+  private def opeq(id1: String, id2: String): Boolean = priority(id1) == priority(id2)
   //Associations of operator
   private def associate(id: String): Int = {
     id.charAt(id.length-1) match {
