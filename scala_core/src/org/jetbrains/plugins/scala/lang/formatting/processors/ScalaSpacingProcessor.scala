@@ -36,10 +36,16 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val leftNode = left.getNode
     val rightNode = right.getNode
 
+    val (leftString,rightString) = (leftNode.toString,rightNode.toString)
+
     (leftNode.getElementType, rightNode.getElementType,
       leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
       //Type*
-      case (_,ScalaTokenTypes.tIDENTIFIER,ScalaElementTypes.PARAM_TYPE,_) if (leftNode.getText == "*") => NO_SPACING
+      case (_,ScalaTokenTypes.tIDENTIFIER,_,ScalaElementTypes.PARAM_TYPE) if (rightNode.getText == "*") => return NO_SPACING
+      //Parameters
+      case (ScalaTokenTypes.tIDENTIFIER, ScalaElementTypes.PARAM_CLAUSES,_,_) => return NO_SPACING
+      case (_, ScalaElementTypes.TYPE_ARGS,_,(ScalaElementTypes.TYPE_GENERIC_CALL | ScalaElementTypes.GENERIC_CALL)) => return NO_SPACING
+      case (_, ScalaElementTypes.PATTERN_ARGS,_,ScalaElementTypes.CONSTRUCTOR_PATTERN) => return NO_SPACING
       //Annotation
       case (ScalaTokenTypes.tAT,_,_,_) => return NO_SPACING
       case (ScalaTokenTypes.tIDENTIFIER,ScalaTokenTypes.tAT,ScalaElementTypes.BINDING_PATTERN,_) => return NO_SPACING
@@ -73,6 +79,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       //Parenthesises and Brackets
       case ((ScalaTokenTypes.tLPARENTHESIS | ScalaTokenTypes.tLSQBRACKET),_,_,_) => return NO_SPACING_WITH_NEWLINE
       case (_,ScalaTokenTypes.tLSQBRACKET,_,_) => return NO_SPACING
+      case (_, ScalaTokenTypes.tLPARENTHESIS,ScalaElementTypes.CONSTRUCTOR_PATTERN,_) => return NO_SPACING
       case (_,ScalaTokenTypes.tLPARENTHESIS,_,_) if (rightNode.getPsi match {
         case _: ScArguments | _: ScParameters => true
         case _ => false
@@ -83,10 +90,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (ScalaElementTypes.CASE_CLAUSE,_,_,_) => return IMPORT_BETWEEN_SPACING
       case (_,ScalaElementTypes.CASE_CLAUSE,_,_) => return IMPORT_BETWEEN_SPACING
       //Colon
-      case (_,ScalaTokenTypes.tCOLON,_,_) => NO_SPACING
+      case (_,ScalaTokenTypes.tCOLON,_,_) => return NO_SPACING
       //#
-      case (ScalaTokenTypes.tINNER_CLASS,_,_,_) => NO_SPACING
-      case (_,ScalaTokenTypes.tINNER_CLASS,_,_) => NO_SPACING
+      case (ScalaTokenTypes.tINNER_CLASS,_,_,_) => return NO_SPACING
+      case (_,ScalaTokenTypes.tINNER_CLASS,_,_) => return NO_SPACING
       //Other cases
       case _ => return COMMON_SPACING
     }

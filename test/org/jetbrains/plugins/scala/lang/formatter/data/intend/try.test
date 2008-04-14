@@ -15,6 +15,7 @@ class a {
     while (true)
   }
   catch {
+
     case _ =>
   }
   finally true

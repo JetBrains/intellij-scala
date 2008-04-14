@@ -110,8 +110,11 @@ object StableId extends ParserNode {
 
   // For endings of 'this' and 'super' references
   def parseEndIdentifier(builder: PsiBuilder, nm: PsiBuilder.Marker, element: ScalaElementType, forImport: Boolean): Boolean = {
+    if (builder.getTokenType!=ScalaTokenTypes.tDOT) {
+      builder.error(ErrMsg("dot.expected"))
+    }
     builder.advanceLexer
-    if (builder.getTokenType != tIDENTIFIER) {
+    if (builder.getTokenType != ScalaTokenTypes.tIDENTIFIER) {
       builder.error(ErrMsg("identifier.expected"))
       nm.done(element)
       return true
