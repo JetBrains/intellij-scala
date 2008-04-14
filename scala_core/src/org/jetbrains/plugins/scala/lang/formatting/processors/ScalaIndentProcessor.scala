@@ -32,23 +32,23 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: ScPackaging => {
         child.getElementType match {
           case ScalaTokenTypes.tLBRACE |
-          ScalaTokenTypes.tRBRACE |
-          ScalaTokenTypes.kPACKAGE |
-          ScalaElementTypes.REFERENCE =>
+            ScalaTokenTypes.tRBRACE |
+            ScalaTokenTypes.kPACKAGE |
+            ScalaElementTypes.REFERENCE =>
             Indent.getNoneIndent
           case _ => Indent.getNormalIndent
         }
       }
       case _: ScMatchStmt => {
         child.getElementType match {
-         case _: ScCaseClauses => Indent.getNormalIndent
-         case _ => Indent.getNoneIndent
+          case _: ScCaseClauses => Indent.getNormalIndent
+          case _ => Indent.getNoneIndent
         }
       }
-      case _: ScBlockExpr | _: ScTemplateBody | _: ScRefinement | _: ScExistentialClause=> {
+      case _: ScBlockExpr | _: ScTemplateBody | _: ScRefinement | _: ScExistentialClause => {
         child.getElementType match {
           case ScalaTokenTypes.tLBRACE |
-          ScalaTokenTypes.tRBRACE => {
+                  ScalaTokenTypes.tRBRACE => {
             Indent.getNoneIndent
           }
           case _ => Indent.getNormalIndent
@@ -66,7 +66,14 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
             }
         }
       }
-      case _: ScInfixExpr | _:ScPattern | _:ScInfixType => {
+      case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScTryBlock
+        | _: ScFinallyBlock | _: ScCatchBlock => {
+        child.getPsi match {
+          case _: ScExpression | _: ScCaseClauses => Indent.getNormalIndent
+          case _ => Indent.getNoneIndent
+        }
+      }
+      case _: ScExpression | _: ScPattern | _: ScType => {
         Indent.getContinuationWithoutFirstIndent
       }
       case _: ScFunction => {
@@ -75,13 +82,6 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNoneIndent
         }
       }
-      case _: ScIfStmt | _: ScWhileStmt  | _: ScDoStmt=> {
-        child.getPsi match {
-          case _: ScExpression => Indent.getNormalIndent
-          case _ => Indent.getNoneIndent
-        }
-      }
-      case _: ScExpression => Indent.getNoneIndent
       case _ => Indent.getNoneIndent
     }
 }
