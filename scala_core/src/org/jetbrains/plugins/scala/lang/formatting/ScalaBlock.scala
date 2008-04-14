@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatting
- 
+
 import com.intellij.formatting._;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import java.util.List;
 import java.util.ArrayList;
 
-class ScalaBlock(private val myParentBlock: ScalaBlock,
+class ScalaBlock (private val myParentBlock: ScalaBlock,
         private val myNode: ASTNode,
         private var myAlignment: Alignment,
         private var myIndent: Indent,
@@ -80,10 +80,10 @@ extends Object with ScalaTokenTypes with Block {
       return true;
     var lastChild = node.getLastChildNode();
     while (lastChild != null &&
-    (lastChild.getPsi.isInstanceOf[PsiWhiteSpace] || lastChild.getPsi.isInstanceOf[PsiComment])) {
+      (lastChild.getPsi.isInstanceOf[PsiWhiteSpace] || lastChild.getPsi.isInstanceOf[PsiComment])) {
       lastChild = lastChild.getTreePrev();
     }
-    if (lastChild == null){
+    if (lastChild == null) {
       return false;
     }
     if (lastChild.getPsi.isInstanceOf[PsiErrorElement]) {
