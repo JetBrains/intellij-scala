@@ -4,3 +4,11 @@ class a {
   type G}
 }
 -----
+class a {
+  val x: Type forSome {
+    type K;
+    type C
+
+    type G
+  }
+}

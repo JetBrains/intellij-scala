@@ -7,6 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Date: 22.02.2008
 */
 
-trait ScInfixType extends ScalaPsiElement {
+trait ScInfixType extends ScType {
 
 }

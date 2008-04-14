@@ -3,3 +3,7 @@ class a {
   @ann3 @ann4
 }
 -----
+class a {
+  x: @ann1 @ann2
+    @ann3 @ann4
+}

@@ -3,3 +3,7 @@ class A {
    def foo
 }
 -----
+class A {
+  @annot
+  def foo
+}

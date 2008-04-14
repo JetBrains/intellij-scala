@@ -1,0 +1,19 @@
+class a {
+  for (
+  x <-   xes
+   if true
+       ) {
+    a match {case _ => }
+  }
+}
+-----
+class a {
+  for (
+    x <- xes
+    if true
+    ) {
+    a match {
+      case _ =>
+    }
+  }
+}

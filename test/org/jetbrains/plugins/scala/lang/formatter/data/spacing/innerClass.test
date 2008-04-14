@@ -1,0 +1,7 @@
+class a {
+  x: T  #  x
+}
+-----
+class a {
+  x: T#x
+}
