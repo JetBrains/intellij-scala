@@ -50,6 +50,7 @@ object InfixExpr {
     var backupMarker = builder.mark
     var count = 0
     if (!PrefixExpr.parse(builder)) {
+      backupMarker.drop
       infixMarker.drop
       return false
     }

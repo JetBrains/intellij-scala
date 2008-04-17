@@ -28,6 +28,7 @@ object Path extends ParserNode with ScalaTokenTypes {
       builder.advanceLexer
       refMarker.done(REFERENCE)
       builder.advanceLexer
+      builder.getTokenType()
       builder.advanceLexer
       val nm = thisMarker.precede
       thisMarker.done(THIS_REFERENCE)

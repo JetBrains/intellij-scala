@@ -100,6 +100,7 @@ object SimplePattern extends ParserNode {
                   else lookAhead (builder, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
               val wild = builder.mark
               if (withComma) builder.advanceLexer
+              builder.getTokenType()
               builder.advanceLexer
               if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && "*".equals (builder.getTokenText)) {
                 builder.advanceLexer
