@@ -39,7 +39,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNormalIndent
         }
       }
-      case _: ScMatchStmt  => {
+      case _: ScMatchStmt => {
         child.getElementType match {
           case _: ScCaseClauses => Indent.getNormalIndent
           case _ => Indent.getNoneIndent
@@ -59,7 +59,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           }
         }
       }
-      case  _: ScTemplateBody | _: ScRefinement | _: ScExistentialClause => {
+      case _: ScTemplateBody | _: ScRefinement | _: ScExistentialClause => {
         child.getElementType match {
           case ScalaTokenTypes.tLBRACE |
                   ScalaTokenTypes.tRBRACE => {
