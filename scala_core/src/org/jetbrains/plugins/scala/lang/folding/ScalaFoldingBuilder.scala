@@ -72,7 +72,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 
   def isCollapsedByDefault(node: ASTNode): Boolean = {
     if (node.getTreeParent.getElementType == ScalaElementTypes.FILE &&
-      node.getTreeParent.getFirstChildNode == node) true
+      node.getTreePrev == null) true
     else false
   }
 
