@@ -1,0 +1,25 @@
+class a {
+  def foo() =
+    b match {
+      case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt
+      | _: ScFinallyBlock | _: ScCatchBlock => {
+        child.getPsi match {
+          case _: ScExpression => Indent.getNormalIndent
+          case _ => Indent.getNoneIndent
+        }
+      }
+    }
+}
+-----
+class a {
+  def foo() =
+    b match {
+      case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt
+        | _: ScFinallyBlock | _: ScCatchBlock => {
+        child.getPsi match {
+          case _: ScExpression => Indent.getNormalIndent
+          case _ => Indent.getNoneIndent
+        }
+      }
+    }
+}

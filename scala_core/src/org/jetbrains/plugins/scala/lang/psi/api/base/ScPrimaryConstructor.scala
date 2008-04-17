@@ -8,5 +8,17 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScPrimaryConstructor extends ScalaPsiElement {
+  /**
+   *  Returns does constructor have annotation
+   *
+   *  @return has annotation
+   */
+  def hasAnnotation: Boolean
 
+  /**
+   *  Returns does constructor have access modifier
+   *
+   *  @return has access modifier
+   */
+  def hasModifier: Boolean
 }

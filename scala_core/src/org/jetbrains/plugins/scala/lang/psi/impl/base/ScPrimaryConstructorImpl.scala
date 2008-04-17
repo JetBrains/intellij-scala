@@ -26,5 +26,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 */
 
 class ScPrimaryConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPrimaryConstructor{
+  override def hasAnnotation: Boolean = {
+    return !(node.getFirstChildNode.getFirstChildNode == null)
+  }
+
+  override def hasModifier: Boolean = {
+    return node.getFirstChildNode.getTreeNext.getElementType != ScalaElementTypes.CLASS_PARAM_CLAUSES
+  }
+
   override def toString: String = "PrimaryConstructor"
 }

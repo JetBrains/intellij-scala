@@ -36,10 +36,14 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val leftNode = left.getNode
     val rightNode = right.getNode
 
-    val (leftString,rightString) = (leftNode.toString,rightNode.toString)
+    val (leftString,rightString) = (leftNode.toString,rightNode.toString)//for debug
 
     (leftNode.getElementType, rightNode.getElementType,
       leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
+      //class params
+      case (ScalaTokenTypes.tIDENTIFIER | ScalaElementTypes.TYPE_PARAM_CLAUSE, ScalaElementTypes.PRIMARY_CONSTRUCTOR,_,_)
+        if !rightNode.getPsi.asInstanceOf[ScPrimaryConstructor].hasAnnotation &&
+           !rightNode.getPsi.asInstanceOf[ScPrimaryConstructor].hasModifier => return NO_SPACING
       //Type*
       case (_,ScalaTokenTypes.tIDENTIFIER,_,ScalaElementTypes.PARAM_TYPE) if (rightNode.getText == "*") => return NO_SPACING
       //Parameters
