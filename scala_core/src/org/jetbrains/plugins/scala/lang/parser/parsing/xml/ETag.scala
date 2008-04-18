@@ -16,17 +16,6 @@ import com.intellij.psi.xml.XmlTokenType
 * Date: 17.04.2008
 */
 
-/*
- * Element::= EmptyElementTag
- *            | STag Content ETag
- */
-
-object Element {
-  def parse(builder: PsiBuilder): Boolean = {
-    if (EmptyElemTag.parse(builder)) return true
-    if (!STag.parse(builder)) return false
-    Content parse builder
-    if (!ETag.parse(builder)) builder error ErrMsg("xml.end.tag.expected") //TODO: add this error
-    return true
-  }
+object ETag {
+  def parse(builder: PsiBuilder): Boolean = false
 }
