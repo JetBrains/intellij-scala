@@ -10,31 +10,32 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import com.intellij.psi.xml.XmlTokenType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 18.04.2008
 */
 
-object CDSect {
+/*
+ * ScalaExpr ::= '{' Expr '}'
+ */
+
+object ScalaExpr {
   def parse(builder: PsiBuilder): Boolean = {
-    val cDataMarker = builder.mark()
     builder.getTokenType match {
-      case XmlTokenType.XML_CDATA_START => builder.advanceLexer()
-      case _ => {
-        cDataMarker.drop
-        return false
+      case ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START => {
+        builder.advanceLexer()
       }
+      case _ => return false
     }
+    if (!Expr.parse(builder)) builder error ErrMsg("xml.scala.expression.exected") //todo
     builder.getTokenType match {
-      case XmlTokenType.XML_DATA_CHARACTERS => builder.advanceLexer
-      case _ =>
+      case ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END => {
+        builder.advanceLexer()
+      }
+      case _ => builder error ErrMsg("xml.scala.injection.end.expected") //todo
     }
-    builder.getTokenType match {
-      case XmlTokenType.XML_CDATA_END => builder.advanceLexer()
-      case _ => builder error ErrMsg("xml.cdata.end.expected") //todo
-    }
-    cDataMarker.drop //todo
     return true
   }
 }

@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template._
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import org.jetbrains.plugins.scala.lang.parser.bnf._
 import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
+import org.jetbrains.plugins.scala.lang.parser.parsing.xml.pattern.XmlPattern
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -86,6 +87,10 @@ object SimplePattern extends ParserNode {
     }
     if (Literal parse builder) {
       simplePatternMarker.done (ScalaElementTypes.LITERAL_PATTERN)
+      return true
+    }
+    if (XmlPattern.parse(builder)) {
+      simplePatternMarker.drop
       return true
     }
     if (StableId parse (builder, ScalaElementTypes.REFERENCE_PATTERN)) {

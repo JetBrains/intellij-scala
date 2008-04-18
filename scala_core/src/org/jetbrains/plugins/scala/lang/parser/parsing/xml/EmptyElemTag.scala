@@ -17,7 +17,7 @@ import com.intellij.psi.xml.XmlTokenType
 */
 
 /*
- * EmptyElemTag ::= '<' Name {Attribute} '/>'
+ * EmptyElemTag ::= '<' Name {Attribute} [S]'/>'
  */
 
 object EmptyElemTag {

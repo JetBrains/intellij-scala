@@ -16,6 +16,49 @@ import com.intellij.psi.xml.XmlTokenType
 * Date: 18.04.2008
 */
 
+/*
+ *  Content ::= [CharData] {Content1 [CharData]}
+ *
+ *  Content1 ::= XmlContent
+ *             | Reference
+ *             | ScalaExpr
+ */
+
 object Content {
-  def parse(builder: PsiBuilder): Boolean = false
+  def parse(builder: PsiBuilder): Boolean = {
+    builder.getTokenType match {
+      case XmlTokenType.XML_WHITE_SPACE => builder.advanceLexer()
+      case _ =>
+    }
+    val contentMarker = builder.mark()
+    builder.getTokenType match {
+      case XmlTokenType.XML_DATA_CHARACTERS => {
+        builder.advanceLexer()
+      }
+      case _ =>
+    }
+    def subparse() {
+      builder.getTokenType match {
+        case XmlTokenType.XML_WHITE_SPACE => builder.advanceLexer()
+        case _ =>
+      }
+      if (!XmlContent.parse(builder) &&
+        !Reference.parse(builder) &&
+        !ScalaExpr.parse(builder)) return
+      builder.getTokenType match {
+        case XmlTokenType.XML_DATA_CHARACTERS => {
+          builder.advanceLexer()
+        }
+        case _ =>
+      }
+      subparse()
+    }
+    subparse()
+    builder.getTokenType match {
+      case XmlTokenType.XML_WHITE_SPACE => builder.advanceLexer()
+      case _ =>
+    }
+    contentMarker.drop //todo
+    return true
+  }
 }
