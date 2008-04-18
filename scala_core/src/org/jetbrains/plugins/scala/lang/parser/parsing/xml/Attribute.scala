@@ -17,11 +17,15 @@ import com.intellij.psi.xml.XmlTokenType
 */
 
 /*
- * Attribute ::= Name Eq AttValue
+ * Attribute ::= S Name Eq AttValue
  */
 
 object Attribute {
   def parse(builder: PsiBuilder): Boolean = {
+    builder.getTokenType match {
+      case XmlTokenType.XML_WHITE_SPACE => builder.advanceLexer()
+      case _ => return false
+    }
     val attributeMarker = builder.mark
     builder.getTokenType match {
       case XmlTokenType.XML_NAME => {

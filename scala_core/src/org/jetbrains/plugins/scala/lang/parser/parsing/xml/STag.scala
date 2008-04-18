@@ -16,6 +16,39 @@ import com.intellij.psi.xml.XmlTokenType
 * Date: 18.04.2008
 */
 
+/*
+ * STag ::= < Name {Attribute} [S] >
+ */
+
 object STag {
-  def parse(builder: PsiBuilder): Boolean = false
+  def parse(builder: PsiBuilder): Boolean = {
+    val tagMarker = builder.mark()
+    builder.getTokenType match {
+      case XmlTokenType.XML_START_TAG_START => {
+        builder.advanceLexer()
+      }
+      case _ => {
+        tagMarker.drop()
+        return false
+      }
+    }
+    builder.getTokenType match {
+      case XmlTokenType.XML_NAME => {
+        builder.advanceLexer()
+      }
+      case _ => builder error ErrMsg("xml.name.expected") //TODO: add this error
+    }
+    while (Attribute.parse(builder)) {}
+    builder.getTokenType match {
+      case XmlTokenType.XML_TAG_END => {
+        builder.advanceLexer()
+        tagMarker.drop //todo: should be done
+        return true
+      }
+      case _ => {
+        tagMarker.rollbackTo
+        return false
+      }
+    }
+  }
 }
