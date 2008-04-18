@@ -32,6 +32,7 @@ import com.intellij.lang.impl.PsiBuilderImpl
 import com.intellij.psi._
 import com.intellij.psi.impl.source.CharTableImpl
 import org.jetbrains.plugins.scala.lang.lexer._
+import org.jetbrains.plugins.scala.lang.parser.parsing.xml.XmlExpr
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -121,10 +122,12 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
       }
       case _ => {
         state = true
-        if (!Literal.parse(builder)) {
-          if (!Path.parse(builder, ScalaElementTypes.REFERENCE_EXPRESSION)) {
-            simpleMarker.drop
-            return false
+        if (!Literal.parse(builder)){
+          if (!XmlExpr.parse(builder)) {
+            if (!Path.parse(builder, ScalaElementTypes.REFERENCE_EXPRESSION)) {
+              simpleMarker.drop
+              return false
+            }
           }
         }
         newMarker = simpleMarker.precede

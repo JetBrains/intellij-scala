@@ -17,29 +17,38 @@ import com.intellij.psi.xml.XmlTokenType
 */
 
 /*
- * XmlContent ::= Element
- *              | CDSect
- *              | PI
- *              | Comment
+ * EmptyElemTag ::= '<' Name {Attribute} '/>'
  */
 
-object XmlContent {
+object EmptyElemTag {
   def parse(builder: PsiBuilder): Boolean = {
+    val tagMarker = builder.mark()
     builder.getTokenType match {
       case XmlTokenType.XML_START_TAG_START => {
-        Element parse builder
+        builder.advanceLexer()
       }
-      case XmlTokenType.XML_COMMENT_START => {
-        Comment parse builder
+      case _ => {
+        tagMarker.drop()
+        return false
       }
-      case XmlTokenType.XML_CDATA_START => {
-        CDSect parse builder
+    }
+    builder.getTokenType match {
+      case XmlTokenType.XML_NAME => {
+        builder.advanceLexer()
       }
-      case XmlTokenType.XML_PI_START => {
-        PI parse builder
+      case _ => builder error ErrMsg("xml.name.expected") //TODO: add this error
+    }
+    while (Attribute.parse(builder)) {}
+    builder.getTokenType match {
+      case XmlTokenType.XML_EMPTY_ELEMENT_END => {
+        builder.advanceLexer()
+        tagMarker.drop //todo: should be done
+        return true
       }
-      case _ => false
+      case _ => {
+        tagMarker.rollbackTo
+        return false
+      }
     }
   }
 }
-
