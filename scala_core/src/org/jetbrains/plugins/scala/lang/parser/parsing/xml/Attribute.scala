@@ -13,9 +13,35 @@ import com.intellij.psi.xml.XmlTokenType
 
 /**
 * @author Alexander Podkhalyuzin
-* Date: 17.04.2008
+* Date: 18.04.2008
 */
 
+/*
+ * Attribute ::= Name Eq AttValue
+ */
+
 object Attribute {
-  def parse(builder: PsiBuilder): Boolean = false
+  def parse(builder: PsiBuilder): Boolean = {
+    val attributeMarker = builder.mark
+    builder.getTokenType match {
+      case XmlTokenType.XML_NAME => {
+        builder.advanceLexer()
+      }
+      case _ => {
+        attributeMarker.drop()
+        return false
+      }
+    }
+    builder.getTokenType match {
+      case XmlTokenType.XML_EQ => builder.advanceLexer()
+      case _ => {
+        builder error ErrMsg("xml.eq.expected") //todo: add this error
+        attributeMarker.drop() //todo: should be done
+        return true
+      }
+    }
+    if (!AttrValue.parse(builder)) builder error ErrMsg("xml.attribute.value.expected") //todo: add this error
+    attributeMarker.drop() //todo: should be done
+    return true
+  }
 }

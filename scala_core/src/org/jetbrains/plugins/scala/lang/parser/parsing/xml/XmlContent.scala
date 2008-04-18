@@ -13,7 +13,7 @@ import com.intellij.psi.xml.XmlTokenType
 
 /**
 * @author Alexander Podkhalyuzin
-* Date: 17.04.2008
+* Date: 18.04.2008
 */
 
 /*
