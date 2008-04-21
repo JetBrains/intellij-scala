@@ -284,7 +284,6 @@ object ScalaElementTypes {
   val CASE_CLAUSES = new ScalaElementType("case clauses")
   val LITERAL_PATTERN = new ScalaElementType("literal pattern")
   val REFERENCE_PATTERN = new ScalaElementType("reference pattern")
-  val XML_PATTERN = new ScalaElementType("xml pattern")
   val PATTERN_IN_PARENTHESIS = new ScalaElementType("pattern in parenthesis")
 
   /************************************** TYPE PATTERNS ********************************/
@@ -302,5 +301,18 @@ object ScalaElementTypes {
   val TYPE_WITH_TYPES = new ScalaElementType("type WITH types")
   val REFINEMENT = new ScalaElementType("refinement")
   val ARGUMENT_EXPR = new ScalaElementType("argument expr")
+
+  /*************************************** XML *************************************/
+
+  val XML_EXPR = new ScalaElementType("Xml expr")
+  val XML_START_TAG = new ScalaElementType("Xml start tag")
+  val XML_END_TAG = new ScalaElementType("Xml end tag")
+  val XML_EMPTY_TAG = new ScalaElementType("Xml empty tag")
+  val XML_PI = new ScalaElementType("Xml proccessing instruction")
+  val XML_CD_SECT = new ScalaElementType("Xml cdata section")
+  val XML_ATTRIBUTE = new ScalaElementType("Xml attribute")
+  val XML_PATTERN = new ScalaElementType("Xml pattern")
+  val XML_COMMENT = new ScalaElementType("Xml comment")
+  val XML_ELEMENT = new ScalaElementType("Xml element")
 
 }

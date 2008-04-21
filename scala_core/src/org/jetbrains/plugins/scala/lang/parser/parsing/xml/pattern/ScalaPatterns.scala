@@ -11,6 +11,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml._
 import com.intellij.psi.xml.XmlTokenType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx
+import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,5 +20,20 @@ import com.intellij.psi.xml.XmlTokenType
 */
 
 object ScalaPatterns {
-  def parse(builder: PsiBuilder): Boolean = false
+  def parse(builder: PsiBuilder): Boolean = {
+    builder.getTokenType match {
+      case ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START => {
+        builder.advanceLexer()
+      }
+      case _ => return false
+    }
+    if (!Patterns.parse(builder)) builder error ErrMsg("xml.scala.patterns.exected")
+    builder.getTokenType match {
+      case ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END => {
+        builder.advanceLexer()
+      }
+      case _ => builder error ErrMsg("xml.scala.injection.end.expected")
+    }
+    return true
+  }
 }

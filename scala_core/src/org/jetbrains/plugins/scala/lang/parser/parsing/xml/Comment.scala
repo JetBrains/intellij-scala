@@ -31,14 +31,14 @@ object Comment {
       }
     }
     while (builder.getTokenType!=XmlTokenType.XML_COMMENT_END && builder.getTokenType != null) {
-      if (builder.getTokenType == XmlTokenType.XML_BAD_CHARACTER) builder error ErrMsg("xml.wrong.character") //todo
+      if (builder.getTokenType == XmlTokenType.XML_BAD_CHARACTER) builder error ErrMsg("xml.wrong.character")
       builder.advanceLexer()
     }
     builder.getTokenType match {
       case XmlTokenType.XML_COMMENT_END => builder.advanceLexer()
-      case _ => builder error ErrMsg("xml.comment.end.expected") //todo
+      case _ => builder error ErrMsg("xml.comment.end.expected")
     }
-    commentMarker.drop() //todo
+    commentMarker.done(ScalaElementTypes.XML_COMMENT)
     return true
   }
 }

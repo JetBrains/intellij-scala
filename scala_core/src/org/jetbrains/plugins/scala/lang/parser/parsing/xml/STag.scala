@@ -36,7 +36,7 @@ object STag {
       case XmlTokenType.XML_NAME => {
         builder.advanceLexer()
       }
-      case _ => builder error ErrMsg("xml.name.expected") //TODO: add this error
+      case _ => builder error ErrMsg("xml.name.expected")
     }
     while (Attribute.parse(builder)) {}
     builder.getTokenType match {
@@ -48,10 +48,10 @@ object STag {
         builder.advanceLexer()
       }
       case _ => {
-        builder error ErrMsg("xml.tag.end.expected") //TODO
+        builder error ErrMsg("xml.tag.end.expected")
       }
     }
-    tagMarker.drop //todo
+    tagMarker.done(ScalaElementTypes.XML_START_TAG)
     return true
   }
 }

@@ -24,9 +24,14 @@ import com.intellij.psi.xml.XmlTokenType
 object Element {
   def parse(builder: PsiBuilder): Boolean = {
     if (EmptyElemTag.parse(builder)) return true
-    if (!STag.parse(builder)) return false
+    val elemMarker = builder.mark()
+    if (!STag.parse(builder)) {
+      elemMarker.drop()
+      return false
+    }
     Content parse builder
-    if (!ETag.parse(builder)) builder error ErrMsg("xml.end.tag.expected") //TODO: add this error
+    if (!ETag.parse(builder)) builder error ErrMsg("xml.end.tag.expected")
+    elemMarker.done(ScalaElementTypes.XML_ELEMENT)
     return true
   }
 }

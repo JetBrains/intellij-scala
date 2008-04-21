@@ -23,6 +23,19 @@ object Patterns {
   def parse(builder: PsiBuilder, underParams: Boolean): Boolean = {
     val patternsMarker = builder.mark
     if (!Pattern.parse(builder)) {
+      builder.getTokenType match {
+        case ScalaTokenTypes.tUNDER => {
+          builder.advanceLexer()
+          builder.getTokenText match {
+            case "*" => {
+              patternsMarker.done(ScalaElementTypes.SEQ_WILDCARD)
+              return true
+            }
+            case _ =>
+          }
+        }
+        case _=>
+      }
       patternsMarker.rollbackTo
       return false
     }

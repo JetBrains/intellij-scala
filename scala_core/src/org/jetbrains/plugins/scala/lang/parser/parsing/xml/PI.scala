@@ -32,7 +32,7 @@ object PI {
     }
     builder.getTokenType match {
       case XmlTokenType.XML_NAME => builder.advanceLexer()
-      case _ => builder error ErrMsg("xml.name.expected") //todo
+      case _ => builder error ErrMsg("xml.name.expected")
     }
     builder.getTokenType match {
       case XmlTokenType.XML_TAG_CHARACTERS => builder.advanceLexer()
@@ -40,9 +40,9 @@ object PI {
     }
     builder.getTokenType match {
       case XmlTokenType.XML_PI_END => builder.advanceLexer()
-      case _ => builder error ErrMsg("xml.PI.end.expected") //todo
+      case _ => builder error ErrMsg("xml.PI.end.expected")
     }
-    PIMarker.drop //todo
+    PIMarker.done(ScalaElementTypes.XML_PI)
     return true
   }
 }

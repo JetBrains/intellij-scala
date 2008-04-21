@@ -49,7 +49,7 @@ object Content {
       subparse()
     }
     subparse()
-    contentMarker.drop //todo
+    contentMarker.drop
     return true
   }
 }

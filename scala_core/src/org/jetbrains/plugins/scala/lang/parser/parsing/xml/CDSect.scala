@@ -32,9 +32,9 @@ object CDSect {
     }
     builder.getTokenType match {
       case XmlTokenType.XML_CDATA_END => builder.advanceLexer()
-      case _ => builder error ErrMsg("xml.cdata.end.expected") //todo
+      case _ => builder error ErrMsg("xml.cdata.end.expected")
     }
-    cDataMarker.drop //todo
+    cDataMarker.done(ScalaElementTypes.XML_CD_SECT)
     return true
   }
 }
