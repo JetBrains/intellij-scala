@@ -46,8 +46,9 @@ object STag {
         return true
       }
       case _ => {
-        tagMarker.rollbackTo
-        return false
+        builder error ErrMsg("xml.tag.end.expected") //TODO
+        tagMarker.drop //todo
+        return true
       }
     }
   }

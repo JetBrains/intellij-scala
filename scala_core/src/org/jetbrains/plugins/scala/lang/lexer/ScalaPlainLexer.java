@@ -159,8 +159,8 @@ public class ScalaPlainLexer implements Lexer {
       return start;
     }
 
-    public LexerState getState() {
-      return state;
+    public int getState() {
+      return state.scalaState;
     }
   }
 
