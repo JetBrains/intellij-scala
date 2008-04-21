@@ -40,6 +40,10 @@ object EmptyElemTag {
     }
     while (Attribute.parse(builder)) {}
     builder.getTokenType match {
+      case XmlTokenType.XML_WHITE_SPACE => builder.advanceLexer()
+      case _ =>
+    }
+    builder.getTokenType match {
       case XmlTokenType.XML_EMPTY_ELEMENT_END => {
         builder.advanceLexer()
         tagMarker.drop //todo: should be done

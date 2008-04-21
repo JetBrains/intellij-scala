@@ -40,6 +40,10 @@ object STagP {
       case _ => builder error ErrMsg("xml.name.expected") //TODO: add this error
     }
     builder.getTokenType match {
+      case XmlTokenType.XML_WHITE_SPACE => builder.advanceLexer()
+      case _ =>
+    }
+    builder.getTokenType match {
       case XmlTokenType.XML_TAG_END => {
         builder.advanceLexer()
         tagMarker.drop //todo: should be done
