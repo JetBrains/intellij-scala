@@ -34,7 +34,7 @@ object AttrValue {
         }
         builder.getTokenType match {
           case XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER => builder.advanceLexer()
-          case _ => builder error ErrMsg("xml.attribute.end.expected") //todo
+          case _ => builder error ErrMsg("xml.attribute.end.expected")
         }
       }
       case _ => {
@@ -44,7 +44,7 @@ object AttrValue {
         }
       }
     }
-    attrValueMarker.drop //todo
+    attrValueMarker.drop
     return true
   }
 }

@@ -37,7 +37,7 @@ object EmptyElemTagP {
       case XmlTokenType.XML_NAME => {
         builder.advanceLexer()
       }
-      case _ => builder error ErrMsg("xml.name.expected") //TODO: add this error
+      case _ => builder error ErrMsg("xml.name.expected")
     }
     builder.getTokenType match {
       case XmlTokenType.XML_WHITE_SPACE => builder.advanceLexer()
@@ -46,7 +46,7 @@ object EmptyElemTagP {
     builder.getTokenType match {
       case XmlTokenType.XML_EMPTY_ELEMENT_END => {
         builder.advanceLexer()
-        tagMarker.drop //todo: should be done
+        tagMarker.done(ScalaElementTypes.XML_EMPTY_TAG)
         return true
       }
       case _ => {

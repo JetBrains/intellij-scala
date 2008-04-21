@@ -56,7 +56,7 @@ object ContentP {
       subparse()
     }
     subparse()
-    contentMarker.drop //todo
+    contentMarker.drop
     return true
   }
 }

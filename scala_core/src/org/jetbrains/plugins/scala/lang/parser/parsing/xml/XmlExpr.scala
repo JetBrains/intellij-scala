@@ -27,7 +27,7 @@ object XmlExpr {
       return false
     }
     while (Element.parse(builder)) {}
-    xmlMarker.drop //TODO: should be done
+    xmlMarker.done(ScalaElementTypes.XML_EXPR)
     return true
   }
 }

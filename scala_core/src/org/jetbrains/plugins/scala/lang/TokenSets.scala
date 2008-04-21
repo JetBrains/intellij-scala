@@ -37,7 +37,6 @@ object TokenSets {
       TYPE_DEFINITION,
       TYPE_DECLARATION))
 
-  //todo: add cases
   val EXPR1_BIT_SET: TokenSet = TokenSet.create(Array.apply(IF_STMT,
       FOR_STMT,
       WHILE_STMT,
