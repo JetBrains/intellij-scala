@@ -195,6 +195,8 @@ public class ScalaLexer implements Lexer {
           myTokenEnd = myTokenStart + scalaToken;
           myCurrentLexer.start(getBufferSequence(),myTokenEnd,myBufferEnd,myCurrentLexer.getState());
         }
+      } else if (type == XML_REAL_WHITE_SPACE) {
+        type = ScalaTokenTypes.tWHITE_SPACE_IN_LINE;
       }
       if (myTokenType == null) {
         myTokenType = type;
@@ -311,8 +313,8 @@ public class ScalaLexer implements Lexer {
       return start;
     }
 
-    public LexerState getState() {
-      return state;
+    public int getState() {
+      return state.currentLexer.getState();
     }
   }
 

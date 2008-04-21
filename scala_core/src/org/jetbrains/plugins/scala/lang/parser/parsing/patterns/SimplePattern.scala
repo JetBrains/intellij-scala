@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.xml.pattern.XmlPattern
  *                 | StableId '(' [Patterns [',']] ')'
  *                 | StableId '(' [Patterns ','] '-' '*'')'
  *                 |'(' [Patterns [',']] ')'
- *                 | XmlPattern //Todo: xmlPattern
+ *                 | XmlPattern
  */
 
 object SimplePattern extends ParserNode {

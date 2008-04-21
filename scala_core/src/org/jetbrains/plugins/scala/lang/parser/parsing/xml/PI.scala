@@ -35,18 +35,12 @@ object PI {
       case _ => builder error ErrMsg("xml.name.expected") //todo
     }
     builder.getTokenType match {
-      case XmlTokenType.XML_WHITE_SPACE => {
-        builder.advanceLexer()
-        builder.getTokenType match {
-          case XmlTokenType.XML_TAG_CHARACTERS => builder.advanceLexer()
-          case _ => builder error ErrMsg("xml.tag.character.expected")
-        }
-      }
+      case XmlTokenType.XML_TAG_CHARACTERS => builder.advanceLexer()
       case _ =>
     }
     builder.getTokenType match {
       case XmlTokenType.XML_PI_END => builder.advanceLexer()
-      case _ => builder error ErrMsg("xml.PI.end.expected")
+      case _ => builder error ErrMsg("xml.PI.end.expected") //todo
     }
     PIMarker.drop //todo
     return true

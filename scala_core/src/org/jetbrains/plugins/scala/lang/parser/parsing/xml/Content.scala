@@ -26,10 +26,6 @@ import com.intellij.psi.xml.XmlTokenType
 
 object Content {
   def parse(builder: PsiBuilder): Boolean = {
-    builder.getTokenType match {
-      case XmlTokenType.XML_WHITE_SPACE => builder.advanceLexer()
-      case _ =>
-    }
     val contentMarker = builder.mark()
     builder.getTokenType match {
       case XmlTokenType.XML_DATA_CHARACTERS => {
@@ -38,10 +34,6 @@ object Content {
       case _ =>
     }
     def subparse() {
-      builder.getTokenType match {
-        case XmlTokenType.XML_WHITE_SPACE => builder.advanceLexer()
-        case _ =>
-      }
       if (!XmlContent.parse(builder) &&
         !Reference.parse(builder) &&
         !ScalaExpr.parse(builder)) return
@@ -54,10 +46,6 @@ object Content {
       subparse()
     }
     subparse()
-    builder.getTokenType match {
-      case XmlTokenType.XML_WHITE_SPACE => builder.advanceLexer()
-      case _ =>
-    }
     contentMarker.drop //todo
     return true
   }

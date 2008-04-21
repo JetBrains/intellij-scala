@@ -14,20 +14,9 @@ import com.intellij.psi.xml.XmlTokenType
 
 /**
 * @author Alexander Podkhalyuzin
-* Date: 18.04.2008
+* Date: 21.04.2008
 */
 
-/*
- * XmlPattern ::= EmptyElemTagP
- *              | STagP ContentP ETagP
- */
-
-object XmlPattern {
-  def parse(builder: PsiBuilder): Boolean = {
-    if (EmptyElemTagP.parse(builder)) return true
-    if (!STagP.parse(builder)) return false
-    ContentP parse builder
-    if (!ETagP.parse(builder)) builder error ErrMsg("xml.pattern.end.tag.expected") //TODO: add this error
-    return true
-  }
+object ScalaPatterns {
+  def parse(builder: PsiBuilder): Boolean = false
 }
