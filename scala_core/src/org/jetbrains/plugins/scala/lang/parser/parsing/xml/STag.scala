@@ -40,16 +40,18 @@ object STag {
     }
     while (Attribute.parse(builder)) {}
     builder.getTokenType match {
+      case XmlTokenType.XML_WHITE_SPACE => builder.advanceLexer()
+      case _ =>
+    }
+    builder.getTokenType match {
       case XmlTokenType.XML_TAG_END => {
         builder.advanceLexer()
-        tagMarker.drop //todo: should be done
-        return true
       }
       case _ => {
         builder error ErrMsg("xml.tag.end.expected") //TODO
-        tagMarker.drop //todo
-        return true
       }
     }
+    tagMarker.drop //todo
+    return true
   }
 }

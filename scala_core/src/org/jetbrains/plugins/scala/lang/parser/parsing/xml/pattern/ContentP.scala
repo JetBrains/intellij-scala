@@ -38,17 +38,20 @@ object ContentP {
       case _ =>
     }
     def subparse() {
+      var isReturn = false
       if (!CDSect.parse(builder) &&
         !Comment.parse(builder) &&
         !PI.parse(builder) &&
         !Reference.parse(builder) &&
         !ScalaPatterns.parse(builder) &&
-        !XmlPattern.parse(builder)) return
+        !XmlPattern.parse(builder)) isReturn = true
       builder.getTokenType match {
         case XmlTokenType.XML_DATA_CHARACTERS => {
           builder.advanceLexer()
         }
-        case _ =>
+        case _ => {
+          if (isReturn) return
+        }
       }
       subparse()
     }
