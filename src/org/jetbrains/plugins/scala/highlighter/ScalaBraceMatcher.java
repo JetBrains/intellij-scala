@@ -25,8 +25,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 /**
  * @author ilyas
- * Date: 29.09.2006
- * Time: 20:26:52
+ *         Date: 29.09.2006
+ *         Time: 20:26:52
  */
 public class ScalaBraceMatcher implements PairedBraceMatcher {
 
@@ -37,7 +37,7 @@ public class ScalaBraceMatcher implements PairedBraceMatcher {
   };
 
   public BracePair[] getPairs() {
-    
+
     return PAIRS;
   }
 

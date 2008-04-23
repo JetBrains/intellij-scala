@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.caches.ScalaFilesCache;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author ilyas
@@ -76,6 +77,15 @@ class ScalaShortNamesCache implements PsiShortNamesCache {
   }
 
   @NotNull
+  public String[] getAllClassNames() {
+    return getAllClassNames(true);
+  }
+
+  public void getAllClassNames(@NotNull HashSet<String> dest) {
+    Collections.addAll(dest, getAllClassNames());
+  }
+
+  @NotNull
   public String[] getAllClassNames(boolean searchInLibraries) {
     ArrayList<String> acc = new ArrayList<String>();
     ScalaCachesManager manager = ScalaCachesManager.getInstance(myProject);
@@ -84,7 +94,7 @@ class ScalaShortNamesCache implements PsiShortNamesCache {
       ScalaFilesCache cache = manager.getModuleFilesCache(module);
       acc.addAll(cache.getAllClassShortNames());
     }
-    return acc.toArray(new String[0]);
+    return acc.toArray(new String[acc.size()]);
   }
 
 
@@ -111,6 +121,15 @@ class ScalaShortNamesCache implements PsiShortNamesCache {
   }
 
   @NotNull
+  public String[] getAllMethodNames() {
+    return new String[0];
+  }
+
+  public void getAllMethodNames(@NotNull HashSet<String> set) {
+
+  }
+
+  @NotNull
   public String[] getAllMethodNames(boolean searchInLibraries) {
     return new String[0];
   }
@@ -122,6 +141,15 @@ class ScalaShortNamesCache implements PsiShortNamesCache {
   @NotNull
   public PsiField[] getFieldsByName(@NotNull @NonNls String name, @NotNull GlobalSearchScope scope) {
     return new PsiField[0];
+  }
+
+  @NotNull
+  public String[] getAllFieldNames() {
+    return new String[0];
+  }
+
+  public void getAllFieldNames(@NotNull HashSet<String> set) {
+
   }
 
   @NotNull

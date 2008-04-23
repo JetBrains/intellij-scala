@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.parser.stress;
 
-import com.intellij.lang.ITokenTypeRemapper;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.LanguageDialect;
 import com.intellij.lang.LighterASTNode;
@@ -50,9 +49,11 @@ public class DragBuilderWrapper implements PsiBuilder {
     return myBuilder.getOriginalText();
   }
 
+/*
   public void setTokenTypeRemapper(ITokenTypeRemapper remapper)  {
     myBuilder.setTokenTypeRemapper(remapper);
   }
+*/
 
   public IElementType getTokenType() {
     return myBuilder.getTokenType();
