@@ -120,5 +120,5 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   }
 
-  //override def getReference = this
+  override def getReference = this
 }
