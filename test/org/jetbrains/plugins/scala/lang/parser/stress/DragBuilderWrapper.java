@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.stress;
 
-import com.intellij.lang.ASTNode;
-import com.intellij.lang.LanguageDialect;
-import com.intellij.lang.LighterASTNode;
-import com.intellij.lang.PsiBuilder;
+import com.intellij.lang.*;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
@@ -65,6 +62,10 @@ public class DragBuilderWrapper implements PsiBuilder {
 
   public int getCurrentOffset() {
     return myBuilder.getCurrentOffset();
+  }
+
+  public void setTokenTypeRemapper(ITokenTypeRemapper remapper) {
+    myBuilder.setTokenTypeRemapper(remapper);
   }
 
   public Marker mark() {
