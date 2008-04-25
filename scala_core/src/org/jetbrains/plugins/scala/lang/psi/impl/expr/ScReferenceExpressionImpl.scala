@@ -113,11 +113,12 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             }
           }
         }
-
         return treeWalkUp(this, null)
       }
       case e => null
     }
 
   }
+
+  //override def getReference = this
 }

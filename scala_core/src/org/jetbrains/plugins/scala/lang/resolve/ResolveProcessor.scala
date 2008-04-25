@@ -5,14 +5,15 @@ import com.intellij.psi._
 import java.util.Set
 import java.util.HashSet
 
-class ResolveProcessor(val kinds : _root_.java.util.Set[ResolveTargets], val name : String) extends PsiScopeProcessor {
+class ResolveProcessor(val kinds : Set[ResolveTargets], val name : String) extends PsiScopeProcessor {
 
   val candidates : Set[ScalaResolveResult] = new HashSet[ScalaResolveResult]
 
   def getCandidates = candidates
 
   def execute(element : PsiElement, state : ResolveState) : Boolean = {
-    candidates add new ScalaResolveResult(element)
+    if (element.isInstanceOf[PsiNamedElement])
+      candidates add new ScalaResolveResult(element)
     return true
   }
 
