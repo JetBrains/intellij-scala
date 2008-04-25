@@ -29,4 +29,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 class ScParamClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParamClause {
   override def toString: String = "ParametersClause"
+  def getParameters: Array[ScParam] = findChildByClass(classOf[ScParams]).getParameters
 }

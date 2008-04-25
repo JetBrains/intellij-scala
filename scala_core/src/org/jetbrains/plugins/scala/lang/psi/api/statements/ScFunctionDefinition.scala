@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import com.intellij.psi._
+
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -7,5 +10,6 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 */
 
 trait ScFunctionDefinition extends ScFunction {
-
+  def getBody: PsiElement
+  def getParameters: Array[ScParam]
 }

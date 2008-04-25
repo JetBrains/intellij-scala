@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -48,23 +50,24 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
     return true
   }
 
-  /**
-  *  Process declarations of parameters
-  */
-/*
   override def processDeclarations(processor: PsiScopeProcessor,
-      substitutor: PsiSubstitutor,
+      state : ResolveState,
       lastParent: PsiElement,
       place: PsiElement): Boolean = {
-    import org.jetbrains.plugins.scala.lang.resolve.processors._
+    import org.jetbrains.plugins.scala.lang.resolve._
 
-    if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){
-        this.varOffset = processor.asInstanceOf[ScalaLocalVariableResolveProcessor].offset
-      getVariable(processor, substitutor)
-    } else true
+    if (lastParent == getBody) {
+      for (p <- getParameters) {
+        if (!processor.execute(p, state)) return false
+      }
+      true
+    }
+    else false
   }
-*/
 
   override def toString: String = "ScFunctionDefinition"
 
+  def getBody: PsiElement = findChildByClass(classOf[ScExpression])
+
+  def getParameters = findChildByClass(classOf[ScParamClauses]).getParameters
 }
