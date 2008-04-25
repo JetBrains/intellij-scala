@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import com.intellij.psi._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -9,5 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 */
 
 trait ScReferenceExpression extends ScExpression with ScReferenceElement{
-
+  /*
+   * @return expression qualifier
+   */
+  def getQualifier: PsiElement
 }
