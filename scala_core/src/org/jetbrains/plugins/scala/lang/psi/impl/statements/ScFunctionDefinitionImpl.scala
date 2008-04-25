@@ -57,7 +57,8 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
     import org.jetbrains.plugins.scala.lang.resolve._
 
     if (lastParent == getBody) {
-      for (p <- getParameters) {
+      val ps = getParameters()
+      for (p <- ps) {
         if (!processor.execute(p, state)) return false
       }
       true
@@ -69,5 +70,5 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
 
   def getBody: PsiElement = findChildByClass(classOf[ScExpression])
 
-  def getParameters = findChildByClass(classOf[ScParamClauses]).getParameters
+  def getParameters():Array[ScParam] = findChildByClass(classOf[ScParamClauses]).getParameters
 }
