@@ -29,22 +29,23 @@ import com.intellij.util.CharTable
 import com.intellij.lexer.Lexer
 import com.intellij.lang.impl.PsiBuilderImpl
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.impl.source.CharTableImpl
 
 object ScalaPsiElementFactory {
 
   private val DUMMY = "dummy." 
-/*
-  def createExpressionFromText(buffer: String, manager: PsiManager): ASTNode = {
-    def isExpr = (elementType: IElementType) => (ScalaElementTypes.EXPRESSION_BIT_SET.contains(elementType))
 
-    val definition: ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
+  def createExpressionFromText(buffer: String, manager: PsiManager): ASTNode = {
+    def isExpr = (elementType: IElementType) => (TokenSets.EXPRESSION_BIT_SET.contains(elementType))
+
+    //val definition: ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
     //    if (definition != null) ...
 
     val facade = JavaPsiFacade.getInstance(manager.getProject)
     val text = "class a {" + buffer + "}"
 
-    val dummyFile: PsiFile = facade.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
+    val dummyFile: PsiFile = PsiFileFactory.getInstance(manager.getProject()).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
 
     val classDef = dummyFile.getFirstChild
     val topDefTmpl = classDef.getLastChild
@@ -54,9 +55,10 @@ object ScalaPsiElementFactory {
 
     if (expression == null) return null
 
-    expression.asInstanceOf[ScalaExpression].getNode
+    expression.asInstanceOf[ScExpression].getNode
   }
-*/
+
+
 
 /*
   def createIdentifierFromText(id: String, manager: PsiManager): ASTNode = {

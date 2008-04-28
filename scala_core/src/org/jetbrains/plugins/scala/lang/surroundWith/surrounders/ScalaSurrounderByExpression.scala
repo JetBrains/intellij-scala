@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /*
  * ScalaSurrounderByExpression surround smth and return an expression
@@ -40,25 +41,33 @@ abstract class ScalaSurrounderByExpression extends Surrounder {
   }
 
   override def surroundElements(project : Project, editor : Editor, elements : Array[PsiElement]) : TextRange = {
-/*
-      var newNode : ASTNode = null
-      var childNode : ASTNode = null
+    val newNode: ASTNode = ScalaPsiElementFactory.createExpressionFromText(getTemplateAsString(elements),
+      elements(0).getManager)
+    var childNode: ASTNode = null
 
-      for (val child <- elements) {
+    for (child <- elements) {
+      if (childNode == null) {
         childNode = child.getNode
-        newNode = ScalaPsiElementFactory.createExpressionFromText(getExpressionTemplateAsString(childNode), child.getManager)
-
-        childNode.getTreeParent.replaceChild(childNode, newNode)
+        childNode.getTreeParent.replaceChild(childNode,newNode)
       }
-
-      return getSurroundSelectionRange(newNode);
-*/
-    return null
+      else {
+        childNode = child.getNode
+        childNode.getTreeParent.removeChild(childNode)
+      }
+    }
+    return getSurroundSelectionRange(newNode);
   }
 
   def isApplicable(expr : PsiElement) : Boolean
 
   def getExpressionTemplateAsString (exprString : ASTNode) : String
+  def getTemplateAsString(elements: Array[PsiElement]): String = {
+    var s: String = ""
+    for (element <- elements) {
+      s = s + element.getNode.getText
+    }
+    return s
+  }
 
   def getSurroundSelectionRange (node : ASTNode) : TextRange
 }

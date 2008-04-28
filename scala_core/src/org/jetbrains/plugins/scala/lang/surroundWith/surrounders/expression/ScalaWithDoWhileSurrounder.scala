@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.surroundWith.surrounders
+package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 /**
  * @author: Dmitry Krasilschikov
@@ -25,16 +25,18 @@ class ScalaWithDoWhileSurrounder extends ScalaExpressionSurrounder {
     else "(" + exprAsString + ")"
   }
 
+  override def getTemplateAsString(elements: Array[PsiElement]): String = {
+    return "do {" + super.getTemplateAsString(elements) + "} while (true)"
+  }
+
   override def getTemplateDescription = "do / while"
 
   override def getSurroundSelectionRange (withDoWhileNode : ASTNode ) : TextRange = {
     def isDoWhileStmt = (e : PsiElement) => e.isInstanceOf[ScDoStmt]
 
-    val doWhileStmt = if (isNeedBraces(withDoWhileNode)) withDoWhileNode.getPsi.asInstanceOf[ScalaPsiElementImpl].
-                        childSatisfyPredicateForPsiElement(isDoWhileStmt).asInstanceOf[ScDoStmt]
-                      else withDoWhileNode.getPsi.asInstanceOf[ScDoStmt]
+    val doWhileStmt = withDoWhileNode.getPsi.asInstanceOf[ScDoStmt]
 
-    val conditionNode : ASTNode = doWhileStmt.condition.getNode
+    val conditionNode : ASTNode = doWhileStmt.getNode.getLastChildNode.getTreePrev
 
     val startOffset = conditionNode.getTextRange.getStartOffset
     val endOffset = conditionNode.getTextRange.getEndOffset

@@ -59,7 +59,7 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
     if (lastParent == getBody) {
       val ps = getParameters()
       for (p <- ps) {
-        if (!processor.execute(p, state)) return false
+        if (!processor.execute(p.getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER).getPsi, state)) return false
       }
       true
     }
