@@ -9,7 +9,7 @@ white space in line { }
 XML_START_TAG_START {<}
 XML_NAME {a}
 XML_EMPTY_ELEMENT_END {/>}
-XML_WHITE_SPACE {   }
+white space in line {   }
 XML_START_TAG_START {<}
 XML_NAME {b}
 XML_EMPTY_ELEMENT_END {/>}

@@ -40,38 +40,38 @@ newline {
       }
 XML_START_TAG_START {<}
 XML_NAME {table}
-WHITE_SPACE { }
+white space in line { }
 XML_NAME {cellpadding}
 XML_EQ {=}
 XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
 XML_ATTRIBUTE_VALUE_TOKEN {3}
 XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
-WHITE_SPACE { }
+white space in line { }
 XML_NAME {class}
 XML_EQ {=}
 XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
 XML_ATTRIBUTE_VALUE_TOKEN {member}
 XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
-WHITE_SPACE { }
+white space in line { }
 XML_NAME {summary}
 XML_EQ {=}
 XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
 XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
 XML_TAG_END {>}
-XML_WHITE_SPACE {
+white space in line {
         }
 XML_START_TAG_START {<}
 XML_NAME {tr}
 XML_TAG_END {>}
 XML_START_TAG_START {<}
 XML_NAME {td}
-WHITE_SPACE { }
+white space in line { }
 XML_NAME {colspan}
 XML_EQ {=}
 XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
 XML_ATTRIBUTE_VALUE_TOKEN {2}
 XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
-WHITE_SPACE { }
+white space in line { }
 XML_NAME {class}
 XML_EQ {=}
 XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
@@ -79,7 +79,7 @@ XML_ATTRIBUTE_VALUE_TOKEN {title}
 XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
 XML_TAG_END {>}
 XML_DATA_CHARACTERS {Package}
-XML_WHITE_SPACE { }
+white space in line { }
 XML_DATA_CHARACTERS {Summary}
 XML_END_TAG_START {</}
 XML_NAME {td}
@@ -87,7 +87,7 @@ XML_TAG_END {>}
 XML_END_TAG_START {</}
 XML_NAME {tr}
 XML_TAG_END {>}
-XML_WHITE_SPACE {
+white space in line {
         }
 ScalaXmlInjectionStart {{}
 identifier {sort}
@@ -113,20 +113,20 @@ XML_NAME {tr}
 XML_TAG_END {>}
 XML_START_TAG_START {<}
 XML_NAME {td}
-WHITE_SPACE { }
+white space in line { }
 XML_NAME {class}
 XML_EQ {=}
 XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
 XML_ATTRIBUTE_VALUE_TOKEN {signature}
 XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
 XML_TAG_END {>}
-XML_WHITE_SPACE {
+white space in line {
           }
 XML_START_TAG_START {<}
 XML_NAME {code}
 XML_TAG_END {>}
 XML_DATA_CHARACTERS {package}
-XML_WHITE_SPACE {
+white space in line {
           }
 ScalaXmlInjectionStart {{}
 identifier {aref}
@@ -154,12 +154,12 @@ Character {'.'}
 ) {)}
 ) {)}
 ScalaXmlInjection End {}}
-XML_WHITE_SPACE {
+white space in line {
           }
 XML_END_TAG_START {</}
 XML_NAME {code}
 XML_TAG_END {>}
-XML_WHITE_SPACE {
+white space in line {
         }
 XML_END_TAG_START {</}
 XML_NAME {td}
@@ -169,7 +169,7 @@ XML_NAME {tr}
 XML_TAG_END {>}
 ) {)}
 ScalaXmlInjection End {}}
-XML_WHITE_SPACE {
+white space in line {
       }
 XML_END_TAG_START {</}
 XML_NAME {table}

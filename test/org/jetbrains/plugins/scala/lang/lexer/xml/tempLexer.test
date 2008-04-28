@@ -1,0 +1,23 @@
+class a {
+  <code> with </code>
+}
+-----
+class {class}
+white space in line { }
+identifier {a}
+white space in line { }
+{ {{}
+white space in line {
+  }
+XML_START_TAG_START {<}
+XML_NAME {code}
+XML_TAG_END {>}
+white space in line { }
+XML_DATA_CHARACTERS {with}
+white space in line { }
+XML_END_TAG_START {</}
+XML_NAME {code}
+XML_TAG_END {>}
+white space in line {
+}
+} {}}
