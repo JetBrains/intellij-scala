@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 /**
-* @author Alexander.Podkhalyuzin
-* Date: 28.04.2008
-*/
+ * @author: Dmitry Krasilschikov
+ */
 
 import com.intellij.psi.PsiElement
 import com.intellij.lang.ASTNode
@@ -13,17 +12,22 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import lang.psi.api.expr._
 
-class ScalaWithForSurrounder extends ScalaExpressionSurrounder {
+
+/*
+ * Surrounds expression with for: for { <Cursor> } yield Expression
+ */
+
+class ScalaWithForYieldSurrounder extends ScalaExpressionSurrounder {
 
   override def getExpressionTemplateAsString (expr : ASTNode ) =
     if (!isNeedBraces(expr)) "for (val a <- as) yield " + expr.getText
     else "(" + "for (val a <- as) yield " + expr.getText + ")"
 
-  override def getTemplateDescription = "for"
-
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
-    return "for (a <- as) {" + super.getTemplateAsString(elements) + "}"
+    return "for (a <- as) yield {" + super.getTemplateAsString(elements) + "}"
   }
+
+  override def getTemplateDescription = "for / yield"
 
   override def getSurroundSelectionRange (withForNode : ASTNode ) : TextRange = {
     val forStmt = withForNode.getPsi.asInstanceOf[ScForStmt]
@@ -36,3 +40,7 @@ class ScalaWithForSurrounder extends ScalaExpressionSurrounder {
     new TextRange(offset, offset);
   }
 }
+
+
+
+

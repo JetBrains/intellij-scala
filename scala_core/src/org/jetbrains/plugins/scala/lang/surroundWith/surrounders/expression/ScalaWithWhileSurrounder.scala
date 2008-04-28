@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.surroundWith.surrounders
+package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 /**
  * @author: Dmitry Krasilschikov
@@ -24,14 +24,16 @@ class ScalaWithWhileSurrounder extends ScalaExpressionSurrounder {
     else "(" + exprAsString + ")"
   }
 
+  override def getTemplateAsString(elements: Array[PsiElement]): String = {
+    return "while (true) {" + super.getTemplateAsString(elements) + "}"
+  }
+
   override def getTemplateDescription = "while"
 
   override def getSurroundSelectionRange (withWhileNode : ASTNode ) : TextRange = {
     def isWhileStmt = (e : PsiElement) => e.isInstanceOf[ScWhileStmtImpl]
 
-    val whileStmt = if (isNeedBraces(withWhileNode)) withWhileNode.getPsi.asInstanceOf[ScalaPsiElementImpl].
-                      childSatisfyPredicateForPsiElement(isWhileStmt).asInstanceOf[ScWhileStmtImpl]
-                    else withWhileNode.getPsi.asInstanceOf[ScWhileStmtImpl]
+    val whileStmt = withWhileNode.getPsi.asInstanceOf[ScWhileStmtImpl]
 
     val conditionNode : ASTNode = whileStmt.condition.getNode
 

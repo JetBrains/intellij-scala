@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.surroundWith.surrounders;
+package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 /**
  * User: Dmitry.Krasilschikov
@@ -16,6 +16,7 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.util.DebugPrint
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
+import com.intellij.psi.PsiWhiteSpace;
 
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -28,8 +29,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 abstract class ScalaExpressionSurrounder extends ScalaSurrounderByExpression {
   override def isApplicable(element : PsiElement) : Boolean = {
     element match {
-      case expr : ScExpression => true
-      case _ => false
+      case _ : ScExpression | _: PsiWhiteSpace => true
+      case e => {
+        e.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR
+      }
     }
   }
 }

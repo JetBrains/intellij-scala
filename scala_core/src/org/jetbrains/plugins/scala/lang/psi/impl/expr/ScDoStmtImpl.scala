@@ -29,13 +29,4 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 class ScDoStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDoStmt {
   override def toString: String = "DoStatement"
-
-  override def isCondition = (e: PsiElement) => {
-    e.isInstanceOf[ScExpression] &&
-    {
-      val parent = e.getParent
-      val last = for (val child <- parent.getChildren; child.isInstanceOf[ScExpression]) child
-      parent == last
-    }
-  }
 }
