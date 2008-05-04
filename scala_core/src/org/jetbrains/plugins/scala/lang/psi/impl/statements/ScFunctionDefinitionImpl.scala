@@ -32,8 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 class ScFunctionDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionDefinition{
 
-  //def getParameters = (paramClauses :\ (Nil: List[ScParam]))((y: ScParamClause, x: List[ScParam]) =>
-  //  y.params.toList ::: x)
+  def getNameNode: ASTNode = node.findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
   import com.intellij.psi.scope._
   def getVariable(processor: PsiScopeProcessor,
@@ -65,6 +64,8 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
     }
     else false
   }
+
+  override def getIcon(flags: Int) = Icons.FUNCTION
 
   override def toString: String = "ScFunctionDefinition"
 

@@ -27,4 +27,6 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   //def getMixinParents = getChild(ScalaElementTypes.MIXIN_PARENTS).asInstanceOf[ScMixinParents]
 
   override def toString: String = "ExtendsBlock"
+
+  def getTemplateBody: ScTemplateBody = getNode.findChildByType(ScalaElementTypes.TEMPLATE_BODY).getPsi.asInstanceOf[ScTemplateBody] 
 }

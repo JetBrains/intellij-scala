@@ -17,6 +17,9 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.lang.StdLanguages
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.util.ArrayUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+
+import _root_.scala.collection.mutable._
 
 
 class ScalaFile (viewProvider: FileViewProvider) extends PsiFileBase (viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
@@ -42,6 +45,11 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner {
 
   override def getClasses = getTypeDefinitionsArray.map((t: ScTypeDefinition) => t.asInstanceOf[PsiClass])
 
+  def getTopStatements: Array[ScTopStatement] = {
+    val res = new ArrayBuffer[ScTopStatement]
+    for (child <- getChildren() if child.isInstanceOf[ScTopStatement]) res+=child.asInstanceOf[ScTopStatement]
+    return res.toArray
+  }
 
   /*
     override def processDeclarations(processor: PsiScopeProcessor,

@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.surroundWith._
 import org.jetbrains.plugins.scala.lang.formatting._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionData
 import org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider
+import org.jetbrains.plugins.scala.lang.structureView._
 import com.intellij.codeInsight.completion._
 import com.intellij.ide.structureView.StructureViewBuilder
 import com.intellij.formatting.FormattingModelBuilder
@@ -32,7 +33,7 @@ class ScalaToolsFactoryImpl extends ScalaToolsFactory {
 
   def createScalaFormattingModelBuilder: FormattingModelBuilder = new ScalaFormattingModelBuilder()
 
-  def createStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder = null //new ScalaStructureViewBuilder(psiFile)
+  def createStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder = null
 
   def createFindUsagesProvider = ScalaFindUsagesProvider
 
