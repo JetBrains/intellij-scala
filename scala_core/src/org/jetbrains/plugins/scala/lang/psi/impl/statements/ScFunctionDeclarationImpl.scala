@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 */
 
 class ScFunctionDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionDeclaration {
+  def getNameNode: ASTNode = node.findChildByType(ScalaTokenTypes.tIDENTIFIER)
   override def toString: String = "ScFunctionDeclaration"
 
   override def getIcon(flags: Int) = Icons.FUNCTION

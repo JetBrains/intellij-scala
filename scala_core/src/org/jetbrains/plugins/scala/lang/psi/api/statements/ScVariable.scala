@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -8,6 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Time: 9:45:29
 */
 
-trait ScVariable extends ScalaPsiElement {
+trait ScVariable extends ScalaPsiElement with ScField{
 
 }
