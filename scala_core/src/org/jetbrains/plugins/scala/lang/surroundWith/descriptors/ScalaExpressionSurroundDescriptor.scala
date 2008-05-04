@@ -22,23 +22,21 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
            
 class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
-  val PARENTHESES_SURROUDNER = 9
   val IF_SURROUNDER = 0
-  val BRACES_SURROUNDER = 8
   val IF_ELSE_SURROUNDER = 1
+  val WHILE_SURROUNDER = 2
+  val DO_WHILE_SURROUNDER = 3
   val FOR_SURROUNDER = 4
   val FOR_YIELD_SURROUNDER = 5
   val MATCH_SURROUNDER = 6
-  val WHILE_SURROUNDER = 2
-  val DO_WHILE_SURROUNDER = 3
-  val TRY_SURROUNDER = 7
   val TRY_CATCH_SURROUNDER = 7
   val TRY_FINALLY_SURROUNDER = 8
+  val TRY_CATCH_FINALLY_SURROUNDER = 9
+  val BRACES_SURROUNDER = 10
 
   private val SURROUNDERS : Array[Surrounder] = {
-    val surrounders = new Array[Surrounder](9)
+    val surrounders = new Array[Surrounder](11)
     surrounders(BRACES_SURROUNDER) = new ScalaWithBracesSurrounder
-    //surrounders(PARENTHESES_SURROUDNER) = new ScalaWithParnthesisesSurrounder
     surrounders(IF_SURROUNDER) = new ScalaWithIfSurrounder()
     surrounders(IF_ELSE_SURROUNDER) = new ScalaWithIfElseSurrounder()
     surrounders(FOR_SURROUNDER) = new ScalaWithForSurrounder()
@@ -46,7 +44,7 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
     surrounders(WHILE_SURROUNDER) = new ScalaWithWhileSurrounder()
     surrounders(DO_WHILE_SURROUNDER) = new ScalaWithDoWhileSurrounder()
     surrounders(MATCH_SURROUNDER) = new ScalaWithMatchSurrounder()
-    //surrounders(TRY_SURROUNDER) = new ScalaWithTrySurrounder()
+    surrounders(TRY_CATCH_FINALLY_SURROUNDER) = new ScalaWithTryCatchFinallySurrounder()
     surrounders(TRY_CATCH_SURROUNDER) = new ScalaWithTryCatchSurrounder()
     surrounders(TRY_FINALLY_SURROUNDER) = new ScalaWithTryFinallySurrounder()
     surrounders
@@ -85,7 +83,10 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
     def findAllInRange(file : PsiFile, startOffset : Int, endOffset : Int): Array[PsiElement] = {
       var element = file.findElementAt(startOffset)
       while (element != null && !element.isInstanceOf[ScExpression] && !element.isInstanceOf[PsiWhiteSpace] &&
-        element.getNode.getElementType != ScalaTokenTypes.tLINE_TERMINATOR) {
+        element.getNode.getElementType != ScalaTokenTypes.tLINE_TERMINATOR ||
+        (element.getParent().getTextRange().getStartOffset() == startOffset &&
+          element.getParent().isInstanceOf[ScExpression] &&
+          element.getParent().getTextRange().getEndOffset <= endOffset)) {
         element = element.getParent()
         if (element.getTextRange().getStartOffset() != startOffset) return null
       }

@@ -15,6 +15,12 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import lang.psi.api.expr._
 
 class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
+  override def isApplicable(elements : Array[PsiElement]) : Boolean = {
+    if (elements.length > 1) return false
+    for (val element <- elements)
+      if (!isApplicable(element)) return false
+    return true
+  }
   override def getExpressionTemplateAsString (expr : ASTNode) = {
     val exprAsString = "while (true) { \n " + expr.getText + "\n" + "}"
 
