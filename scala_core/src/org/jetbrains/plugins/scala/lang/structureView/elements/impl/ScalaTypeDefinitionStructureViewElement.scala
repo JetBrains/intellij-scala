@@ -30,6 +30,10 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScalaPsiEleme
         case _: ScFunction => {
           children += new ScalaFunctionStructureViewElement (field, false)
         }
+        case field: ScVariable => {
+          for (f <- field.getIdentifierNodes)
+            children += new ScalaVariableStructureViewElement(f)
+        }
         case _ =>
       }
     }

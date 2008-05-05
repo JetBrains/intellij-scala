@@ -44,5 +44,9 @@ class ScFunctionDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def getTypeParam: ScTypeParamClause = {
     findChildByClass(classOf[ScTypeParamClause])
   }
+
+  def getFunctionsAndTypeDefs: Array[ScalaPsiElement] = {
+    return new Array[ScalaPsiElement](0)
+  }
 }
 

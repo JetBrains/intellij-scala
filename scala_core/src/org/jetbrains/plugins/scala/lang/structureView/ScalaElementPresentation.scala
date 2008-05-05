@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.structureView
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -13,8 +14,14 @@ object ScalaElementPresentation {
   def getFilePresentableText(file: ScalaFile): String = {
     return file.getName()
   }
+  def getPackagingPresentableText(packaging: ScPackaging): String = {
+    return packaging.getPackageName
+  }
   def getTypeDefinitionPresentableText(typeDefinition: ScTypeDefinition): String = {
-    return typeDefinition.nameNode.getText();
+    if (typeDefinition.nameNode != null)
+      return typeDefinition.nameNode.getText()
+    else
+      return "unnamed"
   }
   def getMethodPresentableText(function: ScFunction): String = {
     val presentableText: StringBuffer = new StringBuffer("")
@@ -28,5 +35,8 @@ object ScalaElementPresentation {
       presentableText.append(function.getReturnTypeNode.getText)
     }
     return presentableText.toString()
+  }
+  def getVariablePresentableText(variable: ScalaPsiElement): String = {
+    return variable.getText
   }
 }

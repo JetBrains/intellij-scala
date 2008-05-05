@@ -16,6 +16,11 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+
+import _root_.scala.collection.mutable._
+
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008
@@ -28,6 +33,12 @@ class ScPackagingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
   @NotNull
   def getPackageName: String = findChildByClass(classOf[ScReferenceElement]).getText
 
+  @NotNull
+  def getTopStatements: Array[ScTopStatement] = {
+    val res = new ArrayBuffer[ScTopStatement]
+    for (child <- getChildren() if child.isInstanceOf[ScTopStatement]) res+=child.asInstanceOf[ScTopStatement]
+    return res.toArray
+  }
 
   /**
   * @retruns Template definitions inside current packaging

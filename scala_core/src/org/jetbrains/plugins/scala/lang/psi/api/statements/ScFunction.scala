@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import com.intellij.psi._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -18,4 +19,7 @@ trait ScFunction extends ScalaPsiElement with ScTopStatement with ScField{
   def getParametersClauses: ScParamClauses
   def getReturnTypeNode: ScType
   def getTypeParam: ScTypeParamClause
+  def getFunctionsAndTypeDefs: Array[ScalaPsiElement]
+  override def getTextOffset(): Int = getNameNode.getTextRange.getStartOffset //todo
+  override def getNavigationElement: PsiElement = getNameNode.getPsi
 }

@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import _root_.scala.collection.mutable._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -29,4 +30,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 class ScIdListImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScIdList{
   override def toString: String = "ListOfIdentifiers"
+  def getIdentifiers: Array[ScalaPsiElement] = {
+    val res = new ArrayBuffer[ScalaPsiElement]
+    for (child <- getChildren() if child.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) res+=child.asInstanceOf[ScalaPsiElement]
+    return res.toArray
+  }
 }

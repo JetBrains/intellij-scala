@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -31,4 +31,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 class ScVariableDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScVariableDeclaration {
   override def toString: String = "ScVariableDeclaration"
   override def getIcon(flags: Int) = Icons.VAR
+  def getIdentifierNodes: Array[ScalaPsiElement] = {
+    if (getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) != null) {
+      val res = new Array[ScalaPsiElement](1);
+      res(1) = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER).getPsi.asInstanceOf[ScalaPsiElement]
+      return res
+    }
+    else if (findChildByClass(classOf[ScIdList]) != null){
+      return findChildByClass(classOf[ScIdList]).getIdentifiers
+    }
+    else return new Array[ScalaPsiElement](0)
+  }
 }
