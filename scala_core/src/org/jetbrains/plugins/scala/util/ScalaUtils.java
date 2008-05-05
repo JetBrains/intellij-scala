@@ -95,7 +95,7 @@ public abstract class ScalaUtils {
 
   /**
    * @param file
-   * @return true if current file is true groovy file
+   * @return true if current file is true scala file
    */
 
   public static boolean isScalaFileOrDirectory(final @NotNull VirtualFile file) {

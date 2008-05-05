@@ -217,8 +217,8 @@ public class ScalaCompiler implements TranslatingCompiler {
     }
 
     for (Module module : modules) {
-      final String groovyInstallPath = ScalaConfigUtils.getScalaInstallPath(module);
-      if (groovyInstallPath.length() == 0) {
+      final String installPath = ScalaConfigUtils.getScalaInstallPath(module);
+      if (installPath.length() == 0) {
         Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.facet"), ScalaBundle.message("cannot.compile"));
         return false;
       }

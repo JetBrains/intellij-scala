@@ -227,11 +227,11 @@ public class ScalaPositionManager implements PositionManager {
     return result;
   }
 
-  private String getScriptFQName(ScalaFile groovyFile) {
+  private String getScriptFQName(ScalaFile scalaFile) {
     String qName;
-    VirtualFile vFile = groovyFile.getVirtualFile();
+    VirtualFile vFile = scalaFile.getVirtualFile();
     assert vFile != null;
-    String packageName = groovyFile.getPackageName();
+    String packageName = scalaFile.getPackageName();
     String fileName = vFile.getNameWithoutExtension();
     qName = packageName.length() > 0 ? packageName + "." + fileName : fileName;
     return qName;

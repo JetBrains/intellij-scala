@@ -163,24 +163,24 @@ public class ScalaFacetEditor {
 
   private class MyLibraryListener implements LibraryTable.Listener {
     public void afterLibraryAdded(Library library) {
-      for (Library groovyLib : ScalaConfigUtils.getScalaLibraries()) {
-        if (groovyLib == library) {
+      for (Library lib : ScalaConfigUtils.getScalaLibraries()) {
+        if (lib == library) {
           myComboBox.addItem(library.getName());
         }
       }
     }
 
     public void afterLibraryRenamed(Library library) {
-      for (Library groovyLib : ScalaConfigUtils.getScalaLibraries()) {
-        if (groovyLib == library) {
+      for (Library lib : ScalaConfigUtils.getScalaLibraries()) {
+        if (lib == library) {
           myComboBox.addItem(library.getName());
         }
       }
     }
 
     public void beforeLibraryRemoved(Library library) {
-      for (Library groovyLib : ScalaConfigUtils.getScalaLibraries()) {
-        if (groovyLib == library) {
+      for (Library lib : ScalaConfigUtils.getScalaLibraries()) {
+        if (lib == library) {
           myComboBox.removeItem(library.getName());
         }
       }

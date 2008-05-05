@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.icons.Icons;
 import javax.swing.*;
 
 /**
- * Pointer to added but not registered Groovy SDK
+ * Pointer to added but not registered Scala SDK
  *
  * @author ilyas
  */

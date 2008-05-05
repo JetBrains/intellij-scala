@@ -38,7 +38,7 @@ public class ScalaInfoFactory {
    * @param project Current project
    * @param file    current file
    * @return ScalaFileInfo object containing information about file
-   *         or null if file cannot be found or isn`t groovy file
+   *         or null if file cannot be found or isn`t scala file
    */
 
   @Nullable
