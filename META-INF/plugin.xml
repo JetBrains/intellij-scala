@@ -24,6 +24,8 @@
   <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
   <extensions defaultExtensionNs="com.intellij">
+    <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"
+                        serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
     <errorHandler implementation="org.jetbrains.plugins.scala.error.ErrorReportSubmitter"/>
     <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
     <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
@@ -36,7 +38,7 @@
     <lang.gotoClassContributor language="Scala" implementationClass="org.jetbrains.plugins.scala.gotoclass.ScalaChooseByNameContributor"/>
     <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor"/>
     <lang.psiStructureViewFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewFactory"/>
-    <frameworkSupport implementation="org.jetbrains.plugins.scala.facet.ScalaFacetSupportProvider"/>
+    <frameworkSupport implementation="org.jetbrains.plugins.scala.config.ScalaFacetSupportProvider"/>
     <!--<lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>-->
     <!--    <annotator language="Scala" implementationClass=""/>-->
   </extensions>
@@ -61,15 +63,15 @@
       <implementation-class>org.jetbrains.plugins.scala.components.ScalaIconProvider</implementation-class>
     </component>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.config.ScalaConfiguration</implementation-class>
+      <implementation-class>org.jetbrains.plugins.scala.config.ScalaFacetLoader</implementation-class>
+      <interface-class>org.jetbrains.plugins.scala.config.ScalaFacetLoader</interface-class>
     </component>
-
   </application-components>
 
 
   <module-components>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.facet.ScalaFacetListener</implementation-class>
+      <implementation-class>org.jetbrains.plugins.scala.config.ScalaFacetListener</implementation-class>
     </component>
   </module-components>
 

@@ -21,6 +21,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.regex.Pattern;
+
 /**
  * @author Ilya.Sergey
  */
@@ -97,6 +101,18 @@ public abstract class ScalaUtils {
   public static boolean isScalaFileOrDirectory(final @NotNull VirtualFile file) {
     return isScalaFile(file) || file.isDirectory();
   }
+
+  public static File[] getFilesInDirectoryByPattern(String dirPath, final String patternString) {
+    File distDir = new File(dirPath);
+    final Pattern pattern = Pattern.compile(patternString);
+    File[] files = distDir.listFiles(new FilenameFilter() {
+      public boolean accept(File dir, String name) {
+        return pattern.matcher(name).matches();
+      }
+    });
+    return files != null ? files : new File[0];
+  }
+
 
 
 }
