@@ -11,9 +11,10 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.PsiBuilder
 
 
-object ParserUtils {
+object ParserUtils extends ParserUtilsBase{
 
   // Do not use it! (Very slow). Use Java version instead
+/*
   def lookAhead(builder: PsiBuilder, elems: IElementType*): Boolean = {
     val rb = builder.mark
     for (val elem <- elems) {
@@ -27,6 +28,7 @@ object ParserUtils {
     rb.rollbackTo()
     true
   }
+*/
 
 
   /* rolls forward until token from elems encountered */
