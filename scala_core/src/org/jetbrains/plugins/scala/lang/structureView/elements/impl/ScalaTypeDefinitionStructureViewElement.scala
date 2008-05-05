@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi._
 
 import _root_.scala.collection.mutable._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import com.intellij.psi._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -21,11 +22,10 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScalaPsiEleme
 
   def getChildren(): Array[TreeElement] = {
     val children = new ArrayBuffer[ScalaStructureViewElement]
-    val f = myElement.asInstanceOf[ScTypeDefinition].getFieldes
-    for (field <- myElement.asInstanceOf[ScTypeDefinition].getFieldes) {
+    for (field <- myElement.asInstanceOf[ScTypeDefinition].getFieldsAndMethods) {
       field match {
         case _: ScTypeDefinition => {
-          children += new ScalaTypeDefinitionStructureViewElement (field)
+          children += new ScalaTypeDefinitionStructureViewElement(field)
         }
         case _: ScFunction => {
           children += new ScalaFunctionStructureViewElement (field, false)

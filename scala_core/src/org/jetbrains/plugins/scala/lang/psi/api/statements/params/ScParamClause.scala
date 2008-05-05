@@ -9,4 +9,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScParamClause extends ScParameters {
   def getParameters: Array[ScParam]
+  def getParametersAsString: String
 }

@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -72,4 +73,14 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
   def getBody: PsiElement = findChildByClass(classOf[ScExpression])
 
   def getParameters():Array[ScParam] = findChildByClass(classOf[ScParamClauses]).getParameters
+
+  def getParametersClauses: ScParamClauses = {
+    findChildByClass(classOf[ScParamClauses])
+  }
+  def getReturnTypeNode: ScType = {
+    findChildByClass(classOf[ScType])
+  }
+  def getTypeParam: ScTypeParamClause = {
+    findChildByClass(classOf[ScTypeParamClause])
+  }
 }

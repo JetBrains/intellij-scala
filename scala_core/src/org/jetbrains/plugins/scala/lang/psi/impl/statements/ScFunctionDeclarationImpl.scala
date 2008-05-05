@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -33,5 +35,14 @@ class ScFunctionDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   override def toString: String = "ScFunctionDeclaration"
 
   override def getIcon(flags: Int) = Icons.FUNCTION
+
+  def getParametersClauses: ScParamClauses = findChildByClass(classOf[ScParamClauses])
+
+  def getReturnTypeNode: ScType = {
+    findChildByClass(classOf[ScType]) 
+  }
+  def getTypeParam: ScTypeParamClause = {
+    findChildByClass(classOf[ScTypeParamClause])
+  }
 }
 

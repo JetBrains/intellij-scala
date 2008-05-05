@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import _root_.java.util.Collection;
 import _root_.java.util.Collections;
 import _root_.java.util.List;
+import com.intellij.psi._
 
 import _root_.scala.collection.mutable._
 
@@ -42,13 +43,14 @@ trait ScTypeDefinition extends ScalaPsiElement
 
   def getNameIdentifierScala(): PsiElement
 
-  def getFieldes(): Array[ScField] = {
+  def getFieldsAndMethods(): Array[ScField] = {
     val res = new ArrayBuffer[ScField]
     for (child <- getChildren) if (child.isInstanceOf[ScField])   res += child.asInstanceOf[ScField]
     for (child <- getExtendsBlock.getTemplateBody.getChildren
       if child.isInstanceOf[ScField]) res+=child.asInstanceOf[ScField]
     return res.toArray
   }
+
   def getExtendsBlock: ScExtendsBlock = getNode.findChildByType(ScalaElementTypes.EXTENDS_BLOCK).getPsi.asInstanceOf[ScExtendsBlock] 
 
   def getSuperClassNames() = Array[String]()

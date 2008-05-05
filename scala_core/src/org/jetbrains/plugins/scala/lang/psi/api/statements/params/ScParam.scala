@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScParam extends ScalaPsiElement {
-
+  def getTypeNode: ScalaPsiElement
 }

@@ -40,4 +40,18 @@ class ScParamClausesImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
     return res
   }
+  def getParametersAsString: String = {
+    val res: StringBuffer = new StringBuffer("")
+    for (child <- getChildren) {
+      child match {
+        case e: ScParamClause => {
+          res.append("(")
+          res.append(e.getParametersAsString)
+          res.append(")")
+        }
+        case _ =>
+      }
+    }
+    return res.toString()
+  }
 }

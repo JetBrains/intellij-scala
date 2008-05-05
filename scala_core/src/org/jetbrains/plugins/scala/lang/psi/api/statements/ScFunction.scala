@@ -4,6 +4,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -13,4 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 trait ScFunction extends ScalaPsiElement with ScTopStatement with ScField{
   def getNameNode: ASTNode
+  def getParametersClauses: ScParamClauses
+  def getReturnTypeNode: ScType
+  def getTypeParam: ScTypeParamClause
 }

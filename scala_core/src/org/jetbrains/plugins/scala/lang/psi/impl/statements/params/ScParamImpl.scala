@@ -64,5 +64,8 @@ class ScParamImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParam{
     }
   }*/
 
+  def getTypeNode: ScalaPsiElement = {
+    return findChildByClass(classOf[ScParamType])
+  }
 
 }
