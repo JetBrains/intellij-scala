@@ -10,5 +10,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 */
 
 trait ScVariable extends ScalaPsiElement with ScField{
-
+  def getIdentifierNodes: Array[ScalaPsiElement]
 }

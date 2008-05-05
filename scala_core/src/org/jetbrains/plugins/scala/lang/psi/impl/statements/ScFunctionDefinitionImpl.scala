@@ -24,6 +24,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import _root_.scala.collection.mutable._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -82,5 +84,11 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
   }
   def getTypeParam: ScTypeParamClause = {
     findChildByClass(classOf[ScTypeParamClause])
+  }
+  def getFunctionsAndTypeDefs: Array[ScalaPsiElement] = {
+    val res = new ArrayBuffer[ScalaPsiElement]
+    for (child <- getBody.getChildren() if (child.isInstanceOf[ScTypeDefinition] || child.isInstanceOf[ScFunction]))
+      res+=child.asInstanceOf[ScalaPsiElement]
+    return res.toArray
   }
 }

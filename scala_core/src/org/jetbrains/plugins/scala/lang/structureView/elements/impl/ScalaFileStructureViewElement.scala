@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import com.intellij.psi._
 
 import _root_.scala.collection.mutable._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -25,6 +26,9 @@ class ScalaFileStructureViewElement(private val element: ScalaPsiElement) extend
       topStatement match {
         case _: ScTypeDefinition => {
           children += new ScalaTypeDefinitionStructureViewElement(topStatement)
+        }
+        case _: ScPackaging => {
+          children += new ScalaPackagingStructureViewElement(topStatement)
         }
         case _ =>
       }

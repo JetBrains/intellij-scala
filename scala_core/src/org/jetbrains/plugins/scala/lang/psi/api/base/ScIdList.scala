@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScIdList extends ScalaPsiElement {
-
+  def getIdentifiers: Array[ScalaPsiElement]
 }
