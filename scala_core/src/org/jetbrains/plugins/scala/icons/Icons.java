@@ -25,7 +25,13 @@ import javax.swing.*;
 public interface Icons {
 
   Icon FILE_TYPE_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala16.png");
-  Icon SETTINGS_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala32.png");
+  Icon BIG_ICON = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala32.png");
+  Icon SCALA_SDK = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_sdk.png");
+  Icon NO_SCALA_SDK = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/no_scala_sdk.png");
+  
+  /*
+  Nodes
+   */
   Icon CLASS = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/class_scala.png");
   Icon TRAIT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/trait_scala.png");
   Icon OBJECT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/object_scala.png");

@@ -26,10 +26,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.CompilerModuleExtension;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.OrderEntry;
-import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.*;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -40,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
-import org.jetbrains.plugins.scala.config.ScalaConfiguration;
+import org.jetbrains.plugins.scala.config.ScalaConfigUtils;
 
 import java.io.*;
 import java.util.*;
@@ -108,7 +105,7 @@ public class ScalaCompiler implements TranslatingCompiler {
       classPathBuilder.append(rtJarPath);
       classPathBuilder.append(File.pathSeparator);
 
-      String scalaPath = ScalaConfiguration.getInstance().getScalaInstallPath();
+      String scalaPath = ScalaConfigUtils.getScalaInstallPath(module);
       String libPath = (scalaPath + "/lib").replace(File.separatorChar, '/');
 
       VirtualFile lib = LocalFileSystem.getInstance().findFileByPath(libPath);
@@ -153,7 +150,7 @@ public class ScalaCompiler implements TranslatingCompiler {
   }
 
   private void fillFileWithScalacParams(Module module, Set<VirtualFile> files, File fileWithParameters)
-      throws FileNotFoundException {
+          throws FileNotFoundException {
 
     PrintStream printer = new PrintStream(new FileOutputStream(fileWithParameters));
 
@@ -207,12 +204,24 @@ public class ScalaCompiler implements TranslatingCompiler {
   }
 
   public boolean validateConfiguration(CompileScope compileScope) {
-    if (compileScope.getFiles(ScalaFileType.SCALA_FILE_TYPE, true).length == 0) return true;
+    VirtualFile[] files = compileScope.getFiles(ScalaFileType.SCALA_FILE_TYPE, true);
+    if (files.length == 0) return true;
 
-    final String groovyInstallPath = ScalaConfiguration.getInstance().getScalaInstallPath();
-    if ((groovyInstallPath == null || groovyInstallPath.length() == 0)) {
-      Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.facet"), ScalaBundle.message("cannot.compile"));
-      return false;
+    final ProjectFileIndex index = ProjectRootManager.getInstance(myProject).getFileIndex();
+    Set<Module> modules = new HashSet<Module>();
+    for (VirtualFile file : files) {
+      Module module = index.getModuleForFile(file);
+      if (module != null) {
+        modules.add(module);
+      }
+    }
+
+    for (Module module : modules) {
+      final String groovyInstallPath = ScalaConfigUtils.getScalaInstallPath(module);
+      if (groovyInstallPath.length() == 0) {
+        Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.facet"), ScalaBundle.message("cannot.compile"));
+        return false;
+      }
     }
 
     Set<Module> nojdkModules = new HashSet<Module>();
@@ -224,14 +233,14 @@ public class ScalaCompiler implements TranslatingCompiler {
     }
 
     if (!nojdkModules.isEmpty()) {
-      final Module[] modules = nojdkModules.toArray(new Module[nojdkModules.size()]);
-      if (modules.length == 1) {
-        Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.sdk", modules[0].getName()), ScalaBundle.message("cannot.compile"));
+      final Module[] noJdkArray = nojdkModules.toArray(new Module[nojdkModules.size()]);
+      if (noJdkArray.length == 1) {
+        Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.sdk", noJdkArray[0].getName()), ScalaBundle.message("cannot.compile"));
       } else {
         StringBuffer modulesList = new StringBuffer();
-        for (int i = 0; i < modules.length; i++) {
+        for (int i = 0; i < noJdkArray.length; i++) {
           if (i > 0) modulesList.append(", ");
-          modulesList.append(modules[i].getName());
+          modulesList.append(noJdkArray[i].getName());
         }
         Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.sdk.mult", modulesList.toString()), ScalaBundle.message("cannot.compile"));
       }
