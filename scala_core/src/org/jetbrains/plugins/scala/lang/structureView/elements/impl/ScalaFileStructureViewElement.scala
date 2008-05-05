@@ -5,6 +5,7 @@ import com.intellij.navigation.ItemPresentation;
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import com.intellij.psi._
 
 import _root_.scala.collection.mutable._
 

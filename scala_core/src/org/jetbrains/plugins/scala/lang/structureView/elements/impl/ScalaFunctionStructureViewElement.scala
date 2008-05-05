@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import com.intellij.psi._
 
 /**
 * @author Alexander Podkhalyuzin
