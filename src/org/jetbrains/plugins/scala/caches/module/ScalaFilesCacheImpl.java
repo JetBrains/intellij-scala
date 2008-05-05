@@ -53,7 +53,7 @@ import java.util.*;
  * @author ilyas
  */
 public class ScalaFilesCacheImpl implements ScalaFilesCache {
-  private static final Logger LOG = Logger.getInstance("org.jetbrains.plugins.groovy.caches.module.ScalaFilesCacheImpl");
+  private static final Logger LOG = Logger.getInstance("org.jetbrains.plugins.scala.caches.module.ScalaFilesCacheImpl");
 
   protected final Project myProject;
   private String[] myCacheUrls;
@@ -354,8 +354,8 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
       if (file != null) {
         PsiFile psiFile = myPsiManager.findFile(file);
         if (psiFile instanceof ScalaFile) {
-          ScalaFile groovyFile = (ScalaFile) psiFile;
-          ScTypeDefinition[] typeDefinitions = groovyFile.getTypeDefinitionsArray();
+          ScalaFile scalaFile = (ScalaFile) psiFile;
+          ScTypeDefinition[] typeDefinitions = scalaFile.getTypeDefinitionsArray();
           for (ScTypeDefinition typeDefinition : typeDefinitions) {
             if (shortName.equals(typeDefinition.getName())) {
               acc.add(typeDefinition);

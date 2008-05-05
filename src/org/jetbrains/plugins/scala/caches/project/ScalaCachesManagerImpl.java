@@ -55,9 +55,9 @@ public class ScalaCachesManagerImpl extends ScalaCachesManager {
   private static final Logger LOG = Logger.getInstance(ScalaCachesManagerImpl.class.getName());
 
   @NonNls
-  private static final String GROOVY_CACHE_DIR = "scala_caches";
+  private static final String SCALA_CACHE_DIR = "scala_caches";
   @NonNls
-  private static final String GROOVY_CACHE_FILE = "project";
+  private static final String SCALA_CACHE_FILE = "project";
   private Project myProject;
   private ModuleRootListener myModuleRootListener;
   private MessageBusConnection myRootConnection;
@@ -121,8 +121,8 @@ public class ScalaCachesManagerImpl extends ScalaCachesManager {
 
   @NotNull
   private String generateProjectCacheFilePath() {
-    return PathManager.getSystemPath() + "/" + GROOVY_CACHE_DIR + "/" +
-            GROOVY_CACHE_FILE + "/" + getProject().getName() + "_" +
+    return PathManager.getSystemPath() + "/" + SCALA_CACHE_DIR + "/" +
+            SCALA_CACHE_FILE + "/" + getProject().getName() + "_" +
             getProject().getPresentableUrl().hashCode();
 
   }
