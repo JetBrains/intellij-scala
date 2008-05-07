@@ -38,10 +38,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
       }
     }
 
-    private static boolean endsByWhiteSpace(String s) {
-      return s != null && (s.endsWith(" ") || s.endsWith("\t") || s.endsWith("\f"));
-    }
-
     /* Changes state depending on brace stack */
     private void changeState(){
       if (braceStack.isEmpty()) {
@@ -291,7 +287,11 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
                                                 }
 
 {mNLS}                                          {   changeState();
-                                                    return process(tLINE_TERMINATOR);
+                                                    if(newLineAllowed()){
+                                                      return process(tLINE_TERMINATOR);
+                                                    } else {
+                                                      return process(tWHITE_SPACE_IN_LINE);
+                                                    }
                                                 }
 
 .                                               {   yypushback(yylength());
