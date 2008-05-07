@@ -27,7 +27,7 @@ public class ParserTest extends BaseScalaFileSetTestCase {
   private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/data/";
 
   public ParserTest() {
-    super(  System.getProperty("path")!=null ?
+    super(System.getProperty("path") != null ?
             System.getProperty("path") :
             DATA_PATH
     );
@@ -39,7 +39,7 @@ public class ParserTest extends BaseScalaFileSetTestCase {
     PsiFile psiFile = TestUtils.createPseudoPhysicalFile(project, fileText);
 
     String psiTree = DebugUtil.psiToString(psiFile, false);
-    System.out.println("------------------------ "+testName+" ------------------------");
+    System.out.println("------------------------ " + testName + " ------------------------");
     System.out.println(psiTree);
     System.out.println("");
 
