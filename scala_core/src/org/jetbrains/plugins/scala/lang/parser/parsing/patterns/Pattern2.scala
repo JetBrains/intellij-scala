@@ -40,8 +40,12 @@ object Pattern2 {
             case ScalaTokenTypes.tAT => {
               builder.advanceLexer //Ate @
               backupMarker.drop
+              if (ParserUtils.eatSeqWildcardNext(builder)) {
+                pattern2Marker.done(ScalaElementTypes.BINDING_PATTERN)
+                return true
+              }
               if (!Pattern3.parse(builder)) {
-                builder error ScalaBundle.message("wrong.pattern", new Array[Object](0))
+                builder error ErrMsg("wrong.pattern")
               }
               pattern2Marker.done(ScalaElementTypes.BINDING_PATTERN)
               return true
@@ -59,7 +63,7 @@ object Pattern2 {
             builder.advanceLexer //Ate @
             backupMarker.drop
             if (!Pattern3.parse(builder)) {
-              builder error ScalaBundle.message("wrong.pattern", new Array[Object](0))
+              builder error ErrMsg("wrong.pattern")
             }
             pattern2Marker.done(ScalaElementTypes.BINDING_PATTERN)
             return true
