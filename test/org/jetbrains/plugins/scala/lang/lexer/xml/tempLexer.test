@@ -18,6 +18,6 @@ white space in line { }
 XML_END_TAG_START {</}
 XML_NAME {code}
 XML_TAG_END {>}
-white space in line {
+newline {
 }
 } {}}

@@ -45,6 +45,6 @@ ScalaXmlInjection End {}}
 XML_END_TAG_START {</}
 XML_NAME {test}
 XML_TAG_END {>}
-white space in line {
+newline {
 }
 } {}}
