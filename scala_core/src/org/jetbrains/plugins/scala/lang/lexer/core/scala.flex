@@ -45,7 +45,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
       } else if ( tLPARENTHESIS.equals(braceStack.peek()) || tLSQBRACKET.equals(braceStack.peek()) ){
         yybegin(NEW_LINE_DEPRECATED);
       } else {
-        yybegin(NEW_LINE_ALLOWED);
+        yybegin(COMMON_STATE);
       }
     }
 
@@ -176,6 +176,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 %state NEW_LINE_DEPRECATED
 %state NEW_LINE_ALLOWED
+%state COMMON_STATE
 
 // Valid preceding token for newline encountered
 %xstate PROCESS_NEW_LINE
@@ -299,6 +300,15 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
                                                 }
 }
 
+// END OF <PROCESS_LINE> STATE
+
+
+<NEW_LINE_ALLOWED> {
+{mNLS}                                  { yybegin(WAIT_FOR_XML); return process(tLINE_TERMINATOR); }
+}
+
+
+
 {END_OF_LINE_COMMENT}                   { return process(tLINE_COMMENT); }
 
 
@@ -323,7 +333,6 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
                                             return popBraceStack(tRSQBRACKET); }
 
 "{"                                     {   braceStack.push(tLBRACE);
-                                            yybegin(NEW_LINE_ALLOWED);
                                             return process(tLBRACE); }
 "{"{XML_BEGIN}                          {   braceStack.push(tLBRACE);
                                             yypushback(yytext().length() - 1);
