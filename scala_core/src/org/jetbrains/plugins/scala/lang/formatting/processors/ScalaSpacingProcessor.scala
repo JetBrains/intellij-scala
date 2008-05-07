@@ -106,6 +106,12 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
       //#
       case (ScalaTokenTypes.tINNER_CLASS, _, _, _) => return NO_SPACING
+      case (ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER, _, _) => {
+        leftNode.getPsi.getNextSibling match {
+          case _ : PsiWhiteSpace => return COMMON_SPACING
+          case _ => return NO_SPACING
+        }
+      }
       case (_, ScalaTokenTypes.tINNER_CLASS, _, _) => return NO_SPACING
       //Other cases
       case _ => return COMMON_SPACING

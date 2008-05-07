@@ -9,4 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScBindingPattern extends ScPattern {
 
+  def isSeqBindingPattern: Boolean
+
 }

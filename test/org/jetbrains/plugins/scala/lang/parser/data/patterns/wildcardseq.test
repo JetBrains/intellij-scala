@@ -1,0 +1,51 @@
+class AAA {
+
+  42 match {
+    case foo @_*  => {}
+  }
+
+}
+-----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AAA')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        MatchStatement
+          Literal
+            PsiElement(integer)('42')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              BindingPattern
+                PsiElement(identifier)('foo')
+                PsiWhiteSpace(' ')
+                PsiElement(@)('@')
+                Sequence Wildcard
+                  PsiElement(_)('_')
+                  PsiElement(identifier)('*')
+              PsiWhiteSpace('  ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

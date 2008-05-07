@@ -10,5 +10,10 @@ import com.intellij.lang.ASTNode
 */
 
 class ScBindingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScBindingPattern{
+
   override def toString: String = "BindingPattern"
+
+  //todo implement me!
+  def isSeqBindingPattern: Boolean = false
+
 }
