@@ -32,10 +32,10 @@ import java.util.Queue;
  */
 public class ScalaPlainLexer implements Lexer {
 
-  private static final int SCALA_CORE_MASK = 0x38;
-  private static final int SPLIT_MASK = 0x7;
+  public static final int SCALA_CORE_MASK = 0x38;
+  public static final int SPLIT_MASK = 0x7;
 
-  private static final int SCALA_CORE_SHIFT = 3;
+  public static final int SCALA_CORE_SHIFT = 3;
   public static final int SCALA_SHIFT = 6;
 
 
