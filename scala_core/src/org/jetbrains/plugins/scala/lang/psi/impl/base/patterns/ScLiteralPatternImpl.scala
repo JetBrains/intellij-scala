@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
+import com.intellij.psi._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -11,4 +12,8 @@ import com.intellij.lang.ASTNode
 
 class ScLiteralPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScLiteralPattern{
   override def toString: String = "LiteralPattern"
+
+  def getIdentifierNodes: Array[PsiElement] = {
+    return new Array[PsiElement](0)
+  }
 }

@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -32,4 +34,18 @@ class ScValueDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   override def toString: String = "ScValueDeclaration"
 
   override def getIcon(flags: Int) = Icons.VAL
+
+  def getIdentifierNodes: Array[PsiElement] = {
+    if (findChildByClass(classOf[ScPattern]) != null) {
+      return findChildByClass(classOf[ScPattern]).getIdentifierNodes
+    }
+    else if (findChildByClass(classOf[ScPatternList]) != null) {
+      var res = new Array[PsiElement](0)
+      for (pat <- findChildByClass(classOf[ScPatternList]).getPatterns) {
+        res = res ++ pat.getIdentifierNodes
+      }
+      return res
+    }
+    else return new Array[PsiElement](0)
+  }
 }

@@ -8,6 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Time: 9:46:18
 */
 
-trait ScPatternDefinition extends ScalaPsiElement {
+trait ScPatternDefinition extends ScValue {
 
 }

@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import com.intellij.psi._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -36,7 +37,7 @@ object ScalaElementPresentation {
     }
     return presentableText.toString()
   }
-  def getVariablePresentableText(variable: ScalaPsiElement): String = {
-    return variable.getText
+  def getPresentableText(elem: PsiElement): String = {
+    return elem.getText
   }
 }

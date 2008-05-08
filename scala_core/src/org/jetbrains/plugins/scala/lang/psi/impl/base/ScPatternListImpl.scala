@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import api.base.patterns._
+import _root_.scala.collection.mutable._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -29,4 +31,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 class ScPatternListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatternList{
   override def toString: String = "ListOfPatterns"
+
+  def getPatterns: Array[ScPattern] = {
+    val res = new ArrayBuffer[ScPattern]
+    for (child <- getChildren if child.isInstanceOf[ScPattern]) {
+      res.append(child.asInstanceOf[ScPattern])
+    }
+    return res.toArray
+  }
 }

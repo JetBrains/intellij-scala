@@ -14,12 +14,12 @@ import com.intellij.psi._
 
 /**
 * @author Alexander Podkhalyuzin
-* Date: 05.05.2008
+* Date: 08.05.2008
 */
 
-class ScalaVariableStructureViewElement(private val element: PsiElement) extends ScalaStructureViewElement(element) {
+class ScalaValueStructureViewElement(private val element: PsiElement) extends ScalaStructureViewElement(element) {
   def getPresentation(): ItemPresentation = {
-    return new ScalaVariableItemPresentation(myElement);
+    return new ScalaValueItemPresentation(myElement);
   }
 
   def getChildren(): Array[TreeElement] = {
