@@ -30,9 +30,10 @@ import _root_.scala.collection.mutable._
 
 class ScIdListImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScIdList{
   override def toString: String = "ListOfIdentifiers"
-  def getIdentifiers: Array[ScalaPsiElement] = {
-    val res = new ArrayBuffer[ScalaPsiElement]
-    for (child <- getChildren() if child.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) res+=child.asInstanceOf[ScalaPsiElement]
-    return res.toArray
+  def getIdentifiers: Array[PsiElement] = {
+    val res = new ArrayBuffer[PsiElement]
+    for (child <- getChildren if child.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER)
+        res.append(child.asInstanceOf[PsiElement])
+    return res.toArray  //todo
   }
 }

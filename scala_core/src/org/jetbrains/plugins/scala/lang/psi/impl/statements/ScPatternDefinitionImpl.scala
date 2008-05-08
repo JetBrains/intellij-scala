@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 
 
@@ -21,6 +23,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -30,4 +33,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 
 class ScPatternDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatternDefinition {
   override def toString: String = "ScPatternDefinition"
+  def getIdentifierNodes: Array[PsiElement] = {
+    if (findChildByClass(classOf[ScPattern]) != null) {
+      return findChildByClass(classOf[ScPattern]).getIdentifierNodes
+    }
+    else if (findChildByClass(classOf[ScPatternList]) != null) {
+      var res = new Array[PsiElement](0)
+      for (pat <- findChildByClass(classOf[ScPatternList]).getPatterns) {
+        res = res ++ pat.getIdentifierNodes
+      }
+      return res
+    }
+    else return new Array[PsiElement](0)
+  }
+
 }

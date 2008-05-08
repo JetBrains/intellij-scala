@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -32,15 +33,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 class ScVariableDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScVariableDefinition{
   override def toString: String = "ScVariableDefinition"
   override def getIcon(flags: Int) = Icons.VAR
-  def getIdentifierNodes: Array[ScalaPsiElement] = {
-    if (getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) != null) {
-      val res = new Array[ScalaPsiElement](1);
-      res(1) = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER).getPsi.asInstanceOf[ScalaPsiElement]
+  def getIdentifierNodes: Array[PsiElement] = {
+    if (findChildByClass(classOf[ScPattern]) != null) {
+      return findChildByClass(classOf[ScPattern]).getIdentifierNodes
+    }
+    else if (findChildByClass(classOf[ScPatternList]) != null) {
+      var res = new Array[PsiElement](0)
+      for (pat <- findChildByClass(classOf[ScPatternList]).getPatterns) {
+        res = res ++ pat.getIdentifierNodes
+      }
       return res
     }
-    else if (findChildByClass(classOf[ScIdList]) != null){
-      return findChildByClass(classOf[ScIdList]).getIdentifiers
-    }
-    else return new Array[ScalaPsiElement](0)
+    else return new Array[PsiElement](0)
   }
 }

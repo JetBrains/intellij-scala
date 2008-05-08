@@ -9,15 +9,15 @@ import javax.swing._;
 
 /**
 * @author Alexander Podkhalyuzin
-* Date: 05.05.2008
+* Date: 08.05.2008
 */
 
-class ScalaVariableItemPresentation(private val element: PsiElement) extends ScalaItemPresentation(element) {
+class ScalaValueItemPresentation(private val element: PsiElement) extends ScalaItemPresentation(element) {
   def getPresentableText(): String = {
     return ScalaElementPresentation.getPresentableText(myElement)
   }
 
   override def getIcon(open: Boolean): Icon = {
-    Icons.VAR
+    Icons.VAL
   }
 }

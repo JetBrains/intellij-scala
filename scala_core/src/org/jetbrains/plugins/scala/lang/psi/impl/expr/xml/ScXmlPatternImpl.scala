@@ -20,4 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 
 class ScXmlPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXmlPattern{
   override def toString: String = "XmlPattern"
+  def getIdentifierNodes: Array[PsiElement] = {
+    return new Array[PsiElement](0)
+  }
 }
