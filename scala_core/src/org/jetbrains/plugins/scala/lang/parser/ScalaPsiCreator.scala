@@ -151,9 +151,6 @@ object ScalaPsiCreator {
 
     /********************** TYPES ************************/
 
-    case ScalaElementTypes.STABLE_ID => new ScStableIdImpl (node)
-    case ScalaElementTypes.STABLE_ID_ID => new ScStableIdImpl (node)
-    //not used
     case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeImpl (node)
     case ScalaElementTypes.TUPLE_TYPE => new ScTupleTypeImpl (node)
     case ScalaElementTypes.TYPE_IN_PARENTHESIS => new ScParenthesisedTypeImpl (node)

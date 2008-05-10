@@ -12,18 +12,22 @@ import com.intellij.psi._
 */
 
 object ScalaElementPresentation {
+
   def getFilePresentableText(file: ScalaFile): String = {
     return file.getName()
   }
+
   def getPackagingPresentableText(packaging: ScPackaging): String = {
     return packaging.getPackageName
   }
+
   def getTypeDefinitionPresentableText(typeDefinition: ScTypeDefinition): String = {
     if (typeDefinition.nameNode != null)
       return typeDefinition.nameNode.getText()
     else
       return "unnamed"
   }
+
   def getMethodPresentableText(function: ScFunction): String = {
     val presentableText: StringBuffer = new StringBuffer("")
     presentableText.append(function.getNameNode.getText)
@@ -37,6 +41,7 @@ object ScalaElementPresentation {
     }
     return presentableText.toString()
   }
+
   def getPresentableText(elem: PsiElement): String = {
     return elem.getText
   }

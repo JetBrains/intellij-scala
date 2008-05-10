@@ -13,5 +13,5 @@ trait ScReferenceExpression extends ScExpression with ScReferenceElement{
   /*
    * @return expression qualifier
    */
-  def getQualifier: PsiElement
+  def getQualifier: ScExpression
 }
