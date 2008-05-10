@@ -27,9 +27,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScConstructor{
 
-  //def getClassName = getChild(ScalaElementTypes.STABLE_ID).asInstanceOf[ScStableId]
-
-  //def getArguments = getChild(ScalaElementTypes.ARG_EXPRS ).asInstanceOf[ScArgumentExprsImpl]
-
   override def toString: String = "Constructor"
 }

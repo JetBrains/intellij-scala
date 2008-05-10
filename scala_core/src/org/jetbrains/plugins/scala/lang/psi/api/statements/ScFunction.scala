@@ -20,6 +20,7 @@ trait ScFunction extends ScalaPsiElement with ScTopStatement with ScField{
   def getReturnTypeNode: ScType
   def getTypeParam: ScTypeParamClause
   def getFunctionsAndTypeDefs: Array[ScalaPsiElement]
+
   override def getTextOffset(): Int = getNameNode.getTextRange.getStartOffset //todo
   override def getNavigationElement: PsiElement = getNameNode.getPsi
 }

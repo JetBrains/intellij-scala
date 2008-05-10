@@ -56,13 +56,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
 
-  def getQualifier: PsiElement = {
-    if (node.getFirstChildNode.getElementType != ScalaTokenTypes.tIDENTIFIER) {
-      node.getFirstChildNode.getPsi
-    }
-    else null
-  }
-
+  def getQualifier() = findChildByClass(classOf[ScExpression])
+  
   def getCanonicalText: String = null
 
   def  handleElementRename(newElementName: String): PsiElement = {
