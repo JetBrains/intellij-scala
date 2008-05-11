@@ -1,0 +1,15 @@
+6
+class a {
+  ABC
+  deF
+}
+-----
+class a {
+  try {
+    ABC
+    deF
+  }
+  catch {
+    case =>
+  }
+}

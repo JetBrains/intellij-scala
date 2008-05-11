@@ -1,0 +1,10 @@
+10
+class a {
+  true
+}
+-----
+class a {
+  true match {
+    case =>
+  }
+}

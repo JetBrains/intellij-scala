@@ -1,0 +1,14 @@
+0
+class a {
+  a + c
+  c - b
+  var t: Int = 4
+}
+-----
+class a {
+  if () {
+    a + c
+    c - b
+    var t: Int = 4
+  }
+}

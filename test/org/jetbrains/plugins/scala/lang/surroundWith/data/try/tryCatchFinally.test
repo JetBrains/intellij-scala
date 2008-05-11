@@ -1,0 +1,14 @@
+8 
+class a {
+  CNN
+}
+-----
+class a {
+  try {
+    CNN
+  }
+  catch {
+    case =>
+  }
+  finally {}
+}

@@ -17,6 +17,8 @@ package org.jetbrains.plugins.scala.lang.surroundWith;
 
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.openapi.project.Project;
@@ -28,12 +30,13 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler;
 import com.intellij.lang.surroundWith.Surrounder;
+import junit.framework.Test;
 
 /**
  * @autor: Dmitry.Krasilschikov
  * @date: 22.01.2007
  */
-abstract public class SurroundWithTester extends BaseScalaFileSetTestCase {
+public class SurroundWithTester extends BaseScalaFileSetTestCase {
   private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/surroundWith/data/";
 
   protected String getDataPath() {
@@ -44,6 +47,10 @@ abstract public class SurroundWithTester extends BaseScalaFileSetTestCase {
 //    return "test/org/jetbrains/plugins/scala/lang/surroundWith/data/";
 //  }
 //  private Surrounder surrounder;
+
+  public static Test suite() {
+    return new SurroundWithTester(DATA_PATH);
+  }
 
   public SurroundWithTester(String datePath) {
     super(datePath);
@@ -56,7 +63,7 @@ abstract public class SurroundWithTester extends BaseScalaFileSetTestCase {
 
     PsiElement expression = templateBody.getChildren()[0];
 
-    editor.getSelectionModel().setSelection(expression.getTextRange().getStartOffset(), expression.getTextRange().getEndOffset());
+    editor.getSelectionModel().setSelection(templateBody.getTextRange().getStartOffset()+1, templateBody.getTextRange().getEndOffset()-1);
   }
 
   protected void doSurround(final Project project, final PsiFile file, Surrounder surrounder) throws IncorrectOperationException {
@@ -83,17 +90,18 @@ abstract public class SurroundWithTester extends BaseScalaFileSetTestCase {
   }
 
   public String transform(String testName, String[] data) throws Exception {
-    String fileText = data[0];
+    final int surroundType = Integer.parseInt(data[0].substring(0,2).trim());
+    String fileText = data[0].substring(2,data[0].length()).trim();
     final PsiFile psiFile = TestUtils.createPseudoPhysicalFile(project, fileText);
 
-    final Surrounder surrounder = surrounder();
+    final Surrounder[] surrounder = surrounder();
 //    for (final Surrounder surrounder : surrounders) {
     CommandProcessor.getInstance().executeCommand(project, new Runnable() {
       public void run() {
         ApplicationManager.getApplication().runWriteAction(new Runnable() {
           public void run() {
             try {
-              doSurround(project, psiFile, surrounder);
+              doSurround(project, psiFile, surrounder[surroundType]);
             } catch (IncorrectOperationException e) {
               e.printStackTrace();
             }
@@ -103,10 +111,14 @@ abstract public class SurroundWithTester extends BaseScalaFileSetTestCase {
     }, null, null);
 
 //    }
+
+    System.out.println("------------------------ " + testName + " ------------------------");
+    System.out.println(psiFile.getText().toString());
+    System.out.println("");
     return psiFile.getText();
   }
 
-  abstract public Surrounder surrounder();
-//    return ScalaToolsFactory.getInstance().createSurroundDescriptors().getSurroundDescriptors()[0].getSurrounders();
-
+  public Surrounder[] surrounder() {
+    return ScalaToolsFactory.getInstance().createSurroundDescriptors().getSurroundDescriptors()[0].getSurrounders();
+  }
 }

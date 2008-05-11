@@ -1,9 +1,10 @@
+5
 class a {
   abc
 }
 -----
 class a {
-  do {
+  for () yield {
     abc
-  } while (true)
+  }
 }

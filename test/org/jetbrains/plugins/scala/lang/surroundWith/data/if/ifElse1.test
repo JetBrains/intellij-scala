@@ -1,0 +1,14 @@
+1
+class a {
+  if (true) {
+    again
+  }
+}
+-----
+class a {
+  if () {
+    if (true) {
+      again
+    }
+  } else {}
+}

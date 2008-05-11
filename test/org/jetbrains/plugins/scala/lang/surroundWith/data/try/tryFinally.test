@@ -1,10 +1,11 @@
-9
+7
 class a {
-  if (a) abc
+  tt
 }
 -----
 class a {
-  {
-    if (a) abc
+  try {
+    tt
   }
+  finally
 }
