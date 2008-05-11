@@ -1,7 +1,7 @@
 class AAA {
 
   42 match {
-    case foo @_*  => {}
+    case List(a,foo @_*)  => {}
   }
 
 }
@@ -32,13 +32,22 @@ ScalaFile
             CaseClause
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
-              BindingPattern
-                PsiElement(identifier)('foo')
-                PsiWhiteSpace(' ')
-                PsiElement(@)('@')
-                Sequence Wildcard
-                  PsiElement(_)('_')
-                  PsiElement(identifier)('*')
+              ConstructorPattern
+                ReferencePattern
+                  PsiElement(identifier)('List')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern
+                    PsiElement(identifier)('a')
+                  BindingPattern
+                    PsiElement(,)(',')
+                    PsiElement(identifier)('foo')
+                    PsiWhiteSpace(' ')
+                    PsiElement(@)('@')
+                    Sequence Wildcard
+                      PsiElement(_)('_')
+                      PsiElement(identifier)('*')
+                  PsiElement())(')')
               PsiWhiteSpace('  ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
