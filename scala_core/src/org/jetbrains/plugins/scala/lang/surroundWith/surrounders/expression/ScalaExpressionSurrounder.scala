@@ -21,6 +21,7 @@ import com.intellij.psi.PsiWhiteSpace;
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import lang.psi.api.statements._
 
 /*
  * Surrounds an expression and return an expression
@@ -29,7 +30,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 abstract class ScalaExpressionSurrounder extends ScalaSurrounderByExpression {
   override def isApplicable(element : PsiElement) : Boolean = {
     element match {
-      case _ : ScExpression | _: PsiWhiteSpace => true
+      case _ : ScExpression | _: PsiWhiteSpace | _: ScValue | _: ScVariable => {
+        true
+      }
       case e => {
         e.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR
       }
