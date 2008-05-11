@@ -1,0 +1,10 @@
+3
+class a {
+  abc
+}
+-----
+class a {
+  do {
+    abc
+  } while (true)
+}

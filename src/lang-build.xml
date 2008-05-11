@@ -255,6 +255,7 @@
           <include name="**/DragSearchTest.java"/>
           <include name="**/ParserTest.java"/>
           <include name="**/LexerTest.java"/>
+          <include name="**/SurroundWithTester.java"/>
         </fileset>
       </batchtest>
 
