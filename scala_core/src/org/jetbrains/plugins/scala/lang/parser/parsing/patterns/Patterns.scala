@@ -28,6 +28,7 @@ object Patterns {
           builder.advanceLexer()
           builder.getTokenText match {
             case "*" => {
+              builder.advanceLexer
               patternsMarker.done(ScalaElementTypes.SEQ_WILDCARD)
               return true
             }
@@ -42,10 +43,13 @@ object Patterns {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOMMA => {
         builder.advanceLexer //Ate ,
-        while (Pattern.parse(builder)) {
+        var end = false
+        while (!end && Pattern.parse(builder)) {
           builder.getTokenType match {
             case ScalaTokenTypes.tCOMMA => {
               builder.advanceLexer //Ate ,
+              val roll = builder.mark
+              if (ParserUtils.eatSeqWildcardNext(builder)) end = true
             }
             case _ => {
               patternsMarker.done(ScalaElementTypes.PATTERNS)
@@ -54,13 +58,7 @@ object Patterns {
           }
         }
         if (underParams) {
-          builder.getTokenType match {
-            case ScalaTokenTypes.tUNDER => {
-              builder.advanceLexer //Ate _
-              builder.advanceLexer //Ate *
-            }
-            case _ => {}
-          }
+          ParserUtils.eatSeqWildcardNext(builder)
         }
         patternsMarker.done(ScalaElementTypes.PATTERNS)
         return true

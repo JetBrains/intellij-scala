@@ -27,7 +27,7 @@ object ScalaPatterns {
       }
       case _ => return false
     }
-    if (!Patterns.parse(builder)) builder error ErrMsg("xml.scala.patterns.exected")
+    if (!Patterns.parse(builder, true) && !Pattern.parse(builder)) builder error ErrMsg("xml.scala.patterns.exected")
     builder.getTokenType match {
       case ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END => {
         builder.advanceLexer()
