@@ -1,7 +1,10 @@
+4
 class a {
   abc
 }
 -----
 class a {
-  for () yield abc
+  for () {
+    abc
+  }
 }

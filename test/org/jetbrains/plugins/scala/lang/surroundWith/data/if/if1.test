@@ -1,7 +1,10 @@
+0
 class a {
   abc
 }
 -----
 class a {
-  if () abc
+  if () {
+    abc
+  }
 }

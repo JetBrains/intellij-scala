@@ -1,7 +1,10 @@
+9
 class a {
   abc
 }
 -----
 class a {
-  {abc}
+  {
+    abc
+  }
 }

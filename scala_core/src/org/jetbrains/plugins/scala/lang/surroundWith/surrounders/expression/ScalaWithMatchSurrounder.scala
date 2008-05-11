@@ -41,7 +41,7 @@ class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
   }
 
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
-    return super.getTemplateAsString(elements) + " match {\ncase a  => {  }\ncase _ =>\n}"
+    return super.getTemplateAsString(elements) + " match {\ncase a  =>\n}"
   }
 
   override def getTemplateDescription = "match"
