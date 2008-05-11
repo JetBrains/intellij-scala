@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.xml.pattern.XmlPattern
  *                 | Literal
  *                 | StableId
  *                 | StableId '(' [Patterns [',']] ')'
- *                 | StableId '(' [Patterns ','] '-' '*'')'
+ *                 | StableId '(' [Patterns ','] '_' '*'')'
  *                 |'(' [Patterns [',']] ')'
  *                 | XmlPattern
  */
@@ -99,7 +99,7 @@ object SimplePattern extends ParserNode {
           val args = builder.mark
           builder.advanceLexer //Ate (
 
-          def parseSeqWildcard(withComma: Boolean) = {
+          def parseSeqWildcard(withComma: Boolean): Boolean = {
             if (if (withComma)
                   lookAhead (builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
                   else lookAhead (builder, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
@@ -120,8 +120,38 @@ object SimplePattern extends ParserNode {
             }
           }
 
-          if (parseSeqWildcard(false) || Pattern.parse (builder)) {
-            while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !parseSeqWildcard(true)) {
+          def parseSeqWildcardBinding(withComma: Boolean): Boolean = {
+            if (if (withComma) lookAhead(builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
+                ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
+                else lookAhead(builder, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
+                ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
+              val wild = builder.mark
+              if (withComma) builder.advanceLexer // ,
+              builder.getTokenType
+              if (builder.getTokenText.substring(0, 1).toLowerCase ==
+                builder.getTokenText.substring(0, 1)) {
+                builder.advanceLexer // id
+              } else {
+                wild.rollbackTo
+                return false
+              }
+              builder.getTokenType
+              builder.advanceLexer // @
+              builder.getTokenType
+              if (ParserUtils.eatSeqWildcardNext(builder)) {
+                wild.done(ScalaElementTypes.BINDING_PATTERN)
+                return true
+              }
+              else {
+                wild.rollbackTo
+                return false
+              }
+            }
+            return false
+          }
+
+          if (!parseSeqWildcard(false) && !parseSeqWildcardBinding(false) && Pattern.parse (builder)) {
+            while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !parseSeqWildcard(true) && !parseSeqWildcardBinding(true)) {
               builder.advanceLexer // eat comma
               Pattern.parse (builder)
             }
