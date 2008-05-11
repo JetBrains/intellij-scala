@@ -36,15 +36,14 @@ class ScValueDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   override def getIcon(flags: Int) = Icons.VAL
 
   def getIdentifierNodes: Array[PsiElement] = {
-    if (findChildByClass(classOf[ScPattern]) != null) {
-      return findChildByClass(classOf[ScPattern]).getIdentifierNodes
-    }
-    else if (findChildByClass(classOf[ScPatternList]) != null) {
-      var res = new Array[PsiElement](0)
-      for (pat <- findChildByClass(classOf[ScPatternList]).getPatterns) {
-        res = res ++ pat.getIdentifierNodes
-      }
+    if (getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) != null) {
+      val res = new Array[PsiElement](1);
+      val temp = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER).getPsi
+      res(0) = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER).getPsi
       return res
+    }
+    else if (findChildByClass(classOf[ScIdList]) != null){
+      return findChildByClass(classOf[ScIdList]).getIdentifiers
     }
     else return new Array[PsiElement](0)
   }

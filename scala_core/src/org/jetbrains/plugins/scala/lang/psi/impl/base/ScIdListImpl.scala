@@ -32,8 +32,8 @@ class ScIdListImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScIdLi
   override def toString: String = "ListOfIdentifiers"
   def getIdentifiers: Array[PsiElement] = {
     val res = new ArrayBuffer[PsiElement]
-    for (child <- getChildren if child.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER)
-        res.append(child.asInstanceOf[PsiElement])
+    for (child <- getNode.getChildren(null) if child.getElementType == ScalaTokenTypes.tIDENTIFIER)
+        res.append(child.getPsi.asInstanceOf[PsiElement])
     return res.toArray  //todo
   }
 }
