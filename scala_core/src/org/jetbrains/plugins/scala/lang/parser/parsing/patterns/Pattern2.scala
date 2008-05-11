@@ -40,10 +40,10 @@ object Pattern2 {
             case ScalaTokenTypes.tAT => {
               builder.advanceLexer //Ate @
               backupMarker.drop
-              if (ParserUtils.eatSeqWildcardNext(builder)) {
+              /*if (ParserUtils.eatSeqWildcardNext(builder)) {
                 pattern2Marker.done(ScalaElementTypes.BINDING_PATTERN)
                 return true
-              }
+              }*/
               if (!Pattern3.parse(builder)) {
                 builder error ErrMsg("wrong.pattern")
               }
