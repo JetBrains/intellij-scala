@@ -53,14 +53,6 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     return getNode().findChildByType(ScalaTokenTypes.tIDENTIFIER);
   }
 
-
-  def getQualifier: PsiElement = {
-    if (node.getFirstChildNode.getElementType != ScalaTokenTypes.tIDENTIFIER) {
-      node.getFirstChildNode.getPsi
-    }
-    else null
-  }
-
   def getCanonicalText: String = null
 
   def  handleElementRename(newElementName: String): PsiElement = {
