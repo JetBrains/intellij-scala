@@ -1,22 +1,16 @@
 = <li/>;
-1
+1;
+
 ------
-if {if}
-white space in line { }
-( {(}
-identifier {x}
-) {)}
+= {=}
 white space in line { }
 XML_START_TAG_START {<}
 XML_NAME {li}
-XML_TAG_END {>}
-ScalaXmlInjectionStart {{}
-identifier {seq}
-ScalaXmlInjection End {}}
-XML_END_TAG_START {</}
-XML_NAME {li}
-XML_TAG_END {>}
+XML_EMPTY_ELEMENT_END {/>}
 ; {;}
 white space in line {
 }
-identifier {a}
+integer {1}
+; {;}
+white space in line {
+}
