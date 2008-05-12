@@ -44,12 +44,11 @@ object Patterns {
       case ScalaTokenTypes.tCOMMA => {
         builder.advanceLexer //Ate ,
         var end = false
-        while (!end && Pattern.parse(builder)) {
+        while ((!end || !underParams) && Pattern.parse(builder)) {
           builder.getTokenType match {
             case ScalaTokenTypes.tCOMMA => {
               builder.advanceLexer //Ate ,
-              val roll = builder.mark
-              if (ParserUtils.eatSeqWildcardNext(builder)) end = true
+              if (ParserUtils.eatSeqWildcardNext(builder) && underParams) end = true
             }
             case _ => {
               patternsMarker.done(ScalaElementTypes.PATTERNS)
