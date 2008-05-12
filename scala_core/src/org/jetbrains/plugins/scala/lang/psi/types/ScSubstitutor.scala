@@ -3,7 +3,6 @@
 */
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import _root_.scala.collection.immutable.{EmptyMap, HashMap}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 
 class ScSubstitutor {
