@@ -16,7 +16,6 @@
 package org.jetbrains.plugins.scala.config;
 
 import com.intellij.facet.impl.ui.FacetTypeFrameworkSupportProvider;
-import com.intellij.facet.impl.ui.VersionedFrameworkSupportProvider;
 import com.intellij.facet.ui.ValidationResult;
 import com.intellij.facet.ui.libraries.LibraryInfo;
 import com.intellij.openapi.module.Module;
@@ -75,7 +74,7 @@ public class ScalaFacetSupportProvider extends FacetTypeFrameworkSupportProvider
   @NotNull
   @NonNls
   public String getLibraryName(final String name) {
-    return name;
+    return name != null ? name : super.getLibraryName(name);
   }
 
   @NotNull
