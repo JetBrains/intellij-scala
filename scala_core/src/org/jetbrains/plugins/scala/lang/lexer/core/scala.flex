@@ -305,6 +305,8 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 <NEW_LINE_ALLOWED> {
 {mNLS}                                  { yybegin(WAIT_FOR_XML); return process(tLINE_TERMINATOR); }
+
+.                                       { yypushback(1);  yybegin(YYINITIAL); }
 }
 
 
