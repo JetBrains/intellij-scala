@@ -1,0 +1,45 @@
+class a {
+  <name fi="gg"/> <name di={scala}/>
+}
+-----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        XmlExpression
+          XmlEmptyTag
+            XmlToken:XML_START_TAG_START('<')
+            XmlToken:XML_NAME('name')
+            PsiWhiteSpace(' ')
+            XmlAttribute
+              XmlToken:XML_NAME('fi')
+              XmlToken:XML_EQ('=')
+              XmlToken:XML_ATTRIBUTE_VALUE_START_DELIMITER('"')
+              XmlToken:XML_ATTRIBUTE_VALUE_TOKEN('gg')
+              XmlToken:XML_ATTRIBUTE_VALUE_END_DELIMITER('"')
+            XmlToken:XML_EMPTY_ELEMENT_END('/>')
+          PsiWhiteSpace(' ')
+          XmlEmptyTag
+            XmlToken:XML_START_TAG_START('<')
+            XmlToken:XML_NAME('name')
+            PsiWhiteSpace(' ')
+            XmlAttribute
+              XmlToken:XML_NAME('di')
+              XmlToken:XML_EQ('=')
+              PsiElement(ScalaXmlInjectionStart)('{')
+              ReferenceExpression
+                PsiElement(identifier)('scala')
+              PsiElement(ScalaXmlInjection End)('}')
+            XmlToken:XML_EMPTY_ELEMENT_END('/>')
+        PsiElement(newline)('\n')
+        PsiElement(})('}')
