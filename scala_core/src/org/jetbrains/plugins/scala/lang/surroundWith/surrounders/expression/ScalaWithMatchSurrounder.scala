@@ -48,7 +48,7 @@ class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
 
   override def getSurroundSelectionRange (withMatchNode : ASTNode ) : TextRange = {
     val whileStmt = withMatchNode.getPsi.asInstanceOf[ScMatchStmt]
-
+    //val r = whileStmt.getNode.getLastChildNode.getTreePrev.getFirstChildNode
     val patternNode : ASTNode = whileStmt.getNode.getLastChildNode.getTreePrev.getTreePrev.getFirstChildNode.getFirstChildNode.getTreeNext.getTreeNext
     val offset = patternNode.getTextRange.getStartOffset
     patternNode.getTreeParent.removeChild(patternNode)
