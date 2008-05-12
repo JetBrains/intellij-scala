@@ -54,13 +54,6 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
   }
 
 
-  def getQualifier: PsiElement = {
-    if (node.getFirstChildNode.getElementType != ScalaTokenTypes.tIDENTIFIER) {
-      node.getFirstChildNode.getPsi
-    }
-    else null
-  }
-
   def getCanonicalText: String = null
 
   def  handleElementRename(newElementName: String): PsiElement = {

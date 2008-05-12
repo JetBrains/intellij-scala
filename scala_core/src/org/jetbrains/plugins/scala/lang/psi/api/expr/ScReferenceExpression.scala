@@ -9,9 +9,9 @@ import com.intellij.psi._
 * Date: 06.03.2008
 */
 
-trait ScReferenceExpression extends ScExpression with ScReferenceElement{
+trait ScReferenceExpression extends ScalaPsiElementImpl with ScExpression with ScReferenceElement{
   /*
    * @return expression qualifier
    */
-  def getQualifier: PsiElement //todo: this is changed to restore build
+  def getQualifier() = findChildByClass(classOf[ScExpression])
 }
