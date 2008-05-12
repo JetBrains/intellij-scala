@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 
 import java.util.List;
@@ -56,6 +57,10 @@ extends Object with ScalaTokenTypes with Block {
            _: ScTryBlock | _: ScCatchBlock | _: ScPackaging | _: ScMatchStmt => {
         return new ChildAttributes(Indent.getNormalIndent(), null)
       }
+      case _: ScalaFile => return new ChildAttributes(Indent.getNoneIndent, null)
+      case _: ScCaseClause => return new ChildAttributes(Indent.getNormalIndent, null)
+      case _: ScExpression | _: ScPattern | _: ScParameters | _: ScParam =>
+        return new ChildAttributes(Indent.getContinuationWithoutFirstIndent, null)
       case _ => new ChildAttributes(Indent.getNoneIndent(), null)
     }
   }
