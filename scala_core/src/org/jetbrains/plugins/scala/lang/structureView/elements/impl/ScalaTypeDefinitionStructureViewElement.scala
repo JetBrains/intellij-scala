@@ -16,6 +16,7 @@ import com.intellij.psi._
 */
 
 class ScalaTypeDefinitionStructureViewElement(private val element: ScalaPsiElement) extends ScalaStructureViewElement (element) {
+
   def getPresentation(): ItemPresentation = {
     return new ScalaTypeDefinitionItemPresentation (myElement.asInstanceOf[ScTypeDefinition]);
   }

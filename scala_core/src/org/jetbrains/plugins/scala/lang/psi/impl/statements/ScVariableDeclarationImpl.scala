@@ -30,8 +30,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 */
 
 class ScVariableDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScVariableDeclaration {
+
   override def toString: String = "ScVariableDeclaration"
+
   override def getIcon(flags: Int) = Icons.VAR
+
   def getIdentifierNodes: Array[PsiElement] = {
     if (getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) != null) {
       val res = new Array[PsiElement](1);

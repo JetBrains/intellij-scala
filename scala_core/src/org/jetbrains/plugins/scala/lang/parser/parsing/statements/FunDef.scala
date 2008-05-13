@@ -162,7 +162,7 @@ object FunDef {
         }
       }
       case _ => {
-        faultMarker.rollbackTo
+        faultMarker.drop
         return false
       }
     }
