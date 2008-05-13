@@ -92,6 +92,4 @@ class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   override def toString: String = "CodeReferenceElement"
 
   def resolve(): PsiElement = bind.element
-
-  def bind() = new ScalaClassRefResolveResult(null, ScSubstitutor.empty)
 }
