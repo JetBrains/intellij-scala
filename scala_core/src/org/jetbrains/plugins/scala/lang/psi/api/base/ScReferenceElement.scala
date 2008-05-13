@@ -5,6 +5,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import com.intellij.psi.PsiPolyVariantReference
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
 * @author Alexander Podkhalyuzin
@@ -21,4 +22,6 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   }
 
   def resolve(): PsiElement = bind.element
+
+  def getType() : ScType
 }

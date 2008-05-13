@@ -26,6 +26,8 @@ import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
 * @author Alexander Podkhalyuzin
@@ -90,4 +92,13 @@ class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   override def toString: String = "CodeReferenceElement"
 
   def multiResolve (incomplete : Boolean) = new Array[ResolveResult](0) //todo
+
+  def getType() = {
+    val result = bind
+    result.element match {
+      case null => null
+      case td: ScTypeDefinition => new ScParameterizedType (td, result.substitutor)
+      case p => new ScDesignatorType (p)
+    }
+  }
 }
