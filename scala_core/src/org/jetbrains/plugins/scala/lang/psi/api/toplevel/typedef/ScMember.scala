@@ -8,6 +8,6 @@ import com.intellij.psi._
 * Date: 04.05.2008
 */
 
-trait ScField extends ScalaPsiElement{
-  
+trait ScMember extends ScalaPsiElement{
+
 }

@@ -10,6 +10,6 @@ import com.intellij.psi._
 * Time: 9:45:29
 */
 
-trait ScVariable extends ScalaPsiElement with ScField{
+trait ScVariable extends ScalaPsiElement with ScMember{
   def getIdentifierNodes: Array[PsiElement]
 }
