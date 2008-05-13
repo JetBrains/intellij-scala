@@ -10,8 +10,11 @@ import com.intellij.psi._
 */
 
 trait ScReferenceExpression extends ScalaPsiElementImpl with ScExpression with ScReferenceElement{
-  /*
-   * @return expression qualifier
-   */
-  def getQualifier() = findChildByClass(classOf[ScExpression])
+  def qualifier = findChildByClass(classOf[ScExpression])
+
+  def stable() : Boolean = qualifier match {
+    case null => true
+    case q : ScReferenceExpression => q.stable
+    case _ => false
+  }
 }

@@ -8,13 +8,4 @@ trait ScType {
   def equiv(t: ScType): Boolean = false
 
   def conforms(t: ScType): Boolean = false
-  
-  def create (ref : ScReferenceElement) {
-    val rr = ref.bind
-    rr.element match {
-      case null => null
-      case td : ScTypeDefinition => new ScParameterizedType(td, rr.substitutor)
-      case e => new ScDesignatorType(e)
-    }
-  }
 }

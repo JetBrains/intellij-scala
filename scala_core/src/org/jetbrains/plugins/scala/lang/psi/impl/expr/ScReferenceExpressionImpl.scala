@@ -33,6 +33,8 @@ import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -87,7 +89,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
 
   def resolve(): PsiElement = {
-    getQualifier match {
+    qualifier match {
       case null => {
         val processor = new ResolveProcessor(null,node.getText)
         def treeWalkUp (place : PsiElement, lastParent : PsiElement): PsiElement = {
@@ -112,5 +114,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   }
 
-  //override def getReference = this
+  override def getType() : ScType = {
+    if (stable) return new ScSingletonType(this)
+    
+    val result = bind
+    result.element match {
+      case null => null
+      case td : ScTypeDefinition => new ScParameterizedType(td, result.substitutor)
+      case e => new ScDesignatorType(e)
+    }
+  }
 }
