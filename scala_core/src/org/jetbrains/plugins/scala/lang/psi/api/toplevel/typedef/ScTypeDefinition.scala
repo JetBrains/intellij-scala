@@ -38,8 +38,7 @@ import _root_.scala.collection.mutable._
 */
 
 trait ScTypeDefinition extends ScalaPsiElement
-  with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTypeDefinitionBase with ScTopStatement with ScNamedElement
-  with ScField {
+  with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTypeDefinitionBase with ScTopStatement with ScNamedElement {
 
   def getNameIdentifierScala(): PsiElement
 
@@ -51,12 +50,12 @@ trait ScTypeDefinition extends ScalaPsiElement
     return res.toArray
   }
 
-  def getExtendsBlock: ScExtendsBlock = getNode.findChildByType(ScalaElementTypes.EXTENDS_BLOCK).getPsi.asInstanceOf[ScExtendsBlock] 
+  def getExtendsBlock: ScExtendsBlock = getNode.findChildByType(ScalaElementTypes.EXTENDS_BLOCK).getPsi.asInstanceOf[ScExtendsBlock]
 
   def getSuperClassNames() = Array[String]()
 
   def getContainingClass: PsiClass = getParent match {
-    case clazz: PsiClass => clazz.asInstanceOf[PsiClass]
+    case clazz: PsiClass => clazz
     case _ => null
   }
 
