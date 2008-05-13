@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.base
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaClassRefResolveResult
+import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 
 /**
 * @author Alexander Podkhalyuzin
