@@ -26,6 +26,8 @@ import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.lang.resolve.ScalaClassRefResolveResult
+import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 
 /**
 * @author Alexander Podkhalyuzin
@@ -89,5 +91,7 @@ class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
 
   override def toString: String = "CodeReferenceElement"
 
-  def resolve(): PsiElement = null
+  def resolve(): PsiElement = bind.element
+
+  def bind() = new ScalaClassRefResolveResult(null, ScSubstitutor.empty)
 }

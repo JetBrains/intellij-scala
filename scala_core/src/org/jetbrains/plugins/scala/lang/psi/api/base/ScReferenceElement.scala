@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaClassRefResolveResult
 
 /**
 * @author Alexander Podkhalyuzin
@@ -9,5 +10,5 @@ import com.intellij.psi._
 */
 
 trait ScReferenceElement extends ScalaPsiElement with PsiReference {
-
+  def bind() : ScalaClassRefResolveResult
 }

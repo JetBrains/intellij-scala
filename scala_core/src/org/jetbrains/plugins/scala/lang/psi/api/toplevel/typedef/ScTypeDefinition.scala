@@ -38,7 +38,7 @@ import _root_.scala.collection.mutable._
 */
 
 trait ScTypeDefinition extends ScalaPsiElement
-  with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTypeDefinitionBase with ScTopStatement
+  with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTypeDefinitionBase with ScTopStatement with ScDesignated
   with ScField {
 
   def getNameIdentifierScala(): PsiElement
@@ -69,11 +69,8 @@ trait ScTypeDefinition extends ScalaPsiElement
       qualName.substring(0, index);
   }
 
-  override def getName = if (nameNode != null) nameNode.getText else ""
-
-  def nameNode = {
-    def isName = (elementType: IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
-    childSatisfyPredicateForElementType(isName)
+  override def getName = nameNode match {
+    case null => null
+    case e => e.getText()
   }
-
 }
