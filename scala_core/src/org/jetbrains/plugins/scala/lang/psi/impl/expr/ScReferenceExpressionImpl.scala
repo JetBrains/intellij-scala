@@ -115,7 +115,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     result.element match {
       case null => null
       case td : ScTypeDefinition => new ScParameterizedType(td, result.substitutor)
-      case e => new ScDesignatorType(e)
+      case p : PsiPackage => new ScDesignatorType(p)
+      case _ => null //todo
     }
   }
 }
