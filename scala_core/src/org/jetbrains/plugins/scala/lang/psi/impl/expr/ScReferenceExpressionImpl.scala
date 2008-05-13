@@ -4,11 +4,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
-
-
-
-
-
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
@@ -88,13 +83,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
 
-  def resolve(): PsiElement = {
+  def multiResolve(incomplete : Boolean): Array[ResolveResult] = {
     qualifier match {
       case null => {
         val processor = new ResolveProcessor(null,node.getText)
-        def treeWalkUp (place : PsiElement, lastParent : PsiElement): PsiElement = {
+        def treeWalkUp (place : PsiElement, lastParent : PsiElement) : Unit = {
           place match {
-            case null => null
+            case null => ()
             case p => {
               if (!p.processDeclarations(processor,
                 ResolveState.initial(),
@@ -102,16 +97,15 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
               treeWalkUp(place.getParent, place)
 
-              val candidates = processor.getCandidates
-              if (candidates.size == 1) (candidates.toArray(new Array[ScalaResolveResult](0)))(0).getElement else null
+
             }
           }
         }
-        return treeWalkUp(this, null)
+        treeWalkUp(this, null)
+        processor.getCandidates.toArray(new Array[ResolveResult](0))
       }
       case e => null
     }
-
   }
 
   override def getType() : ScType = {
