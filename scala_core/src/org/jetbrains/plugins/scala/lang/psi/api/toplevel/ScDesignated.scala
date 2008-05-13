@@ -5,7 +5,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
-trait ScDesignated extends ScalaPsiElement with PsiNamedElement {
+trait ScNamedElement extends ScalaPsiElement with PsiNamedElement {
   def name() : String = nameNode match {
     case null => null
     case e => e.getText()

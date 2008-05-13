@@ -26,7 +26,6 @@ import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.lang.resolve.ScalaClassRefResolveResult
 
 /**
 * @author Alexander Podkhalyuzin
