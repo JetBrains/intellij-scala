@@ -62,7 +62,7 @@ object TypeDef {
       case _ => {
         builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
         faultMarker.drop
-        return true
+        return false
       }
     }
     var isTypeParamClause = false;

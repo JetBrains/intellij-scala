@@ -78,7 +78,7 @@ object VarDef {
         }
       }
       case _ => {
-        valDefMarker.rollbackTo
+        valDefMarker.drop
         return false
       }
     }

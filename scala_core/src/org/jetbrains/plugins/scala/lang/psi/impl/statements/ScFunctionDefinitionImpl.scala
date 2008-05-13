@@ -85,10 +85,16 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
   def getTypeParam: ScTypeParamClause = {
     findChildByClass(classOf[ScTypeParamClause])
   }
+
   def getFunctionsAndTypeDefs: Array[ScalaPsiElement] = {
     val res = new ArrayBuffer[ScalaPsiElement]
     for (child <- getBody.getChildren() if (child.isInstanceOf[ScTypeDefinition] || child.isInstanceOf[ScFunction]))
       res+=child.asInstanceOf[ScalaPsiElement]
     return res.toArray
   }
+
+  override def getTextOffset(): Int = getNameNode.getTextRange.getStartOffset
+
+  override def getNavigationElement: PsiElement = getNameNode.getPsi
+
 }
