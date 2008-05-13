@@ -14,7 +14,7 @@ trait ScType {
     rr.element match {
       case null => null
       case td : ScTypeDefinition => new ScParameterizedType(td, rr.substitutor)
-      case e : ScDesignated => new ScDesignatorType(e)
+      case e => new ScDesignatorType(e)
     }
   }
 }

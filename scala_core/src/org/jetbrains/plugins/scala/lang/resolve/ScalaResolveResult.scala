@@ -11,4 +11,6 @@ class ScalaResolveResult(element : PsiElement) extends ResolveResult  {
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScDesignated
 
-class ScalaClassRefResolveResult(val element : ScDesignated, val substitutor : ScSubstitutor) extends ScalaResolveResult(element)
+class ScalaClassRefResolveResult(val element : ScDesignated, val substitutor : ScSubstitutor) extends ScalaResolveResult(element) {
+  def this(element : ScDesignated) = this(element, ScSubstitutor.empty)
+}
