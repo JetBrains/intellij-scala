@@ -10,5 +10,5 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaClassRefResolveResult
 */
 
 trait ScReferenceElement extends ScalaPsiElement with PsiReference {
-  def bind() : ScalaClassRefResolveResult
+  def bind() : ScalaClassRefResolveResult = new ScalaClassRefResolveResult(null, ScSubstitutor.empty) //todo
 }
