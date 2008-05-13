@@ -5,10 +5,14 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 
+object ScSubstitutor {
+  val empty = new ScSubstitutor
+}
+
 class ScSubstitutor {
   private var map : Map[ScTypeParam, ScType] = Map.empty[ScTypeParam, ScType]
-  
-  def this(_map :  Map[ScTypeParam, ScType]) = {
+
+  private def this(_map :  Map[ScTypeParam, ScType]) = {
     this()
     map = _map
   }
