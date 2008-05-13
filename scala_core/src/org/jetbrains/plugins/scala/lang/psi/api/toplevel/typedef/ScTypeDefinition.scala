@@ -38,7 +38,7 @@ import _root_.scala.collection.mutable._
 */
 
 trait ScTypeDefinition extends ScalaPsiElement
-  with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTypeDefinitionBase with ScTopStatement with ScDesignated
+  with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTypeDefinitionBase with ScTopStatement with ScNamedElement
   with ScField {
 
   def getNameIdentifierScala(): PsiElement
