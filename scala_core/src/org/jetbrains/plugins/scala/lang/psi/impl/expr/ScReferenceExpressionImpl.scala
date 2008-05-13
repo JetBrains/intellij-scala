@@ -29,7 +29,6 @@ import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -111,12 +110,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   override def getType() : ScType = {
     if (stable) return new ScSingletonType(this)
     
-    val result = bind
-    result.element match {
-      case null => null
-      case td : ScTypeDefinition => new ScParameterizedType(td, result.substitutor)
-      case p : PsiPackage => new ScDesignatorType(p)
-      case _ => null //todo
-    }
+    return null //todo
   }
 }
