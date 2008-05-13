@@ -84,8 +84,6 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
     return false;
   }
 
-  override def resolve(): PsiElement = null
-
   def multiResolve (incomplete : Boolean) = new Array[ResolveResult](0) //todo
 
   override def toString: String = "ThisReference"
