@@ -12,7 +12,7 @@ object ScSubstitutor {
 class ScSubstitutor(val map : Map[ScTypeParam, ScType]) {
 
   def this() = {
-    this(Map.empty[ScTypeParam, ScType])
+    this(Map.empty)
   }
 
   def put(p : ScTypeParam, t : ScType) = new ScSubstitutor(map + ((p, t)))
