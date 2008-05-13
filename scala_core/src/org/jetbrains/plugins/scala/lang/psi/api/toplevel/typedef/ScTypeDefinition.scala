@@ -42,11 +42,11 @@ trait ScTypeDefinition extends ScalaPsiElement
 
   def getNameIdentifierScala(): PsiElement
 
-  def getFieldsAndMethods(): Array[ScField] = {
-    val res = new ArrayBuffer[ScField]
-    for (child <- getChildren) if (child.isInstanceOf[ScField])   res += child.asInstanceOf[ScField]
+  def getFieldsAndMethods(): Array[ScMember] = {
+    val res = new ArrayBuffer[ScMember]
+    for (child <- getChildren) if (child.isInstanceOf[ScMember])   res += child.asInstanceOf[ScMember]
     for (child <- getExtendsBlock.getTemplateBody.getChildren
-      if child.isInstanceOf[ScField]) res+=child.asInstanceOf[ScField]
+      if child.isInstanceOf[ScMember]) res+=child.asInstanceOf[ScMember]
     return res.toArray
   }
 

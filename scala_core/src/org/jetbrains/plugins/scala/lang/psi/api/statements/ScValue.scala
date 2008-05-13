@@ -9,6 +9,6 @@ import com.intellij.psi._
 * Date: 08.04.2008
 */
 
-trait ScValue extends ScalaPsiElement with ScField {
+trait ScValue extends ScalaPsiElement with ScMember {
   def getIdentifierNodes: Array[PsiElement]
 }
