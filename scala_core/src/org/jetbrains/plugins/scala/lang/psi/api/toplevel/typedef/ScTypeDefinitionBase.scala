@@ -122,7 +122,4 @@ trait ScTypeDefinitionBase extends PsiElement{
 
   def getTypeParameters: Array[PsiTypeParameter] = PsiTypeParameter.EMPTY_ARRAY
 
-  def setName(name: String): PsiElement = this //todo
-
-
 }

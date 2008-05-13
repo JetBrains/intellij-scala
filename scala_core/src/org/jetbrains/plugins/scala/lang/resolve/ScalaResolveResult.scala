@@ -7,3 +7,8 @@ class ScalaResolveResult(element : PsiElement) extends ResolveResult  {
 
   def isValidResult() = true
 }
+
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScDesignated
+
+class ScalaClassRefResolveResult(val element : ScDesignated, val substitutor : ScSubstitutor) extends ScalaResolveResult(element)
