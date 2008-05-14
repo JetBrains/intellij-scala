@@ -45,15 +45,15 @@ trait ScTypeDefinition extends ScalaPsiElement
 
   def getFieldsAndMethods(): Array[ScMember] = {
     val res = new ArrayBuffer[ScMember]
-    for (child <- getChildren) if (child.isInstanceOf[ScMember])   res += child.asInstanceOf[ScMember]
+    for (child <- getChildren) if (child.isInstanceOf[ScMember]) res += child.asInstanceOf[ScMember]
     for (child <- getExtendsBlock.getTemplateBody.getChildren
-      if child.isInstanceOf[ScMember]) res+=child.asInstanceOf[ScMember]
+    if child.isInstanceOf[ScMember]) res += child.asInstanceOf[ScMember]
     return res.toArray
   }
 
-  def getExtendsBlock: ScExtendsBlock = getNode.findChildByType(ScalaElementTypes.EXTENDS_BLOCK).getPsi.asInstanceOf[ScExtendsBlock]
+  def getExtendsBlock: ScExtendsBlock = getNode.findChildByType (ScalaElementTypes.EXTENDS_BLOCK).getPsi.asInstanceOf[ScExtendsBlock]
 
-  def getSuperClassNames() = Array[String]()
+  def getSuperClassNames() = Array[String] ()
 
   def getContainingClass: PsiClass = getParent match {
     case clazz: PsiClass => clazz
@@ -62,19 +62,26 @@ trait ScTypeDefinition extends ScalaPsiElement
 
   def getPath: String = {
     var qualName = getQualifiedName;
-    val index = qualName.lastIndexOf('.');
-    if (index < 0 || index >= (qualName.length() - 1))
+    val index = qualName.lastIndexOf ('.');
+    if (index < 0 || index >= (qualName.length () - 1))
       ""
     else
-      qualName.substring(0, index);
+      qualName.substring (0, index);
   }
 
   override def getName = nameNode match {
     case null => null
-    case e => e.getText()
+    case e => e.getText ()
   }
 
-  def typeParametersClause() : ScTypeParamClause
+  def typeParametersClause(): ScTypeParamClause
 
   def typeParameters() = typeParametersClause.typeParameters
+
+  def getTypeDefinitions(): Seq[ScTypeDefinition] = {
+    val body = getExtendsBlock.getTemplateBody
+    if (body == null) return Seq.empty
+    body.getChildren.flatMap (collectTypeDefs(_))
+  }
+
 }

@@ -51,21 +51,12 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner {
     return res.toArray
   }
 
-  /*
-    override def processDeclarations(processor: PsiScopeProcessor,
-            substitutor: PsiSubstitutor,
-            lastParent: PsiElement,
-            place: PsiElement): Boolean = {
+  override def getTypeDefinitions(): Seq[ScTypeDefinition] = getChildren.flatMap (collectTypeDefs)
 
-      import org.jetbrains.plugins.scala.lang.resolve.processors._
-
-      if (processor.isInstanceOf[ScalaClassResolveProcessor]) {
-          this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
-          this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
-        getClazz(getUpperDefs, processor, substitutor)
-      } else true
-    }
-  */
-
+  override def collectTypeDefs (child: PsiElement) = child match {
+    case p: ScPackaging => p.getTypeDefinitions
+    case t: ScTypeDefinition => List (t) ++ t.getTypeDefinitions
+    case _ => Seq.empty
+  }
 
 }
