@@ -9,5 +9,5 @@ import api.base.patterns._
 */
 
 trait ScPatternList extends ScalaPsiElement {
-  def getPatterns: Seq[ScPattern]
+  def patterns: Seq[ScPattern]
 }

@@ -4,9 +4,11 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /** 
 * @author Alexander Podkhalyuzin
-* Date: 28.02.2008
+* Patterns, introduced by case classes or extractors
 */
 
 trait ScConstructorPattern extends ScPattern {
+
+  def args: ScPatternArgumentList
 
 }

@@ -10,21 +10,12 @@ import com.intellij.psi._
 * Date: 28.02.2008
 */
 
-class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScConstructorPattern{
+class ScConstructorPatternImpl(node: ASTNode) extends ScPatternImpl (node) with ScConstructorPattern {
 
   override def toString: String = "ConstructorPattern"
 
-  def getIdentifierNodes: Array[PsiElement] = {
-    if (findChildByClass(classOf[ScPatternArgumentList]) != null) {
-      var res = new Array[PsiElement](0)
-      for (pat <- findChildByClass(classOf[ScPatternArgumentList]).getPatterns) {
-        res = res ++ pat.getIdentifierNodes
-      }
-      return res
-    }
-    else {
-      return  new Array[PsiElement](0)
-    }
-  }
+  def args = findChildByClass (classOf[ScPatternArgumentList])
 
+  override def bindings = if (args == null) super.bindings
+  else super.bindings ++ args.patterns.flatMap ((p: ScPattern) => p.bindings)
 }

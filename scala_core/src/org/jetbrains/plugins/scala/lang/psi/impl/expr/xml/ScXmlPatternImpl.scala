@@ -12,15 +12,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
+import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternImpl
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 21.04.2008
 */
 
-class ScXmlPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXmlPattern{
+class ScXmlPatternImpl(node: ASTNode) extends ScPatternImpl (node) with ScXmlPattern{
   override def toString: String = "XmlPattern"
-  def getIdentifierNodes: Array[PsiElement] = {
-    return new Array[PsiElement](0)
-  }
 }

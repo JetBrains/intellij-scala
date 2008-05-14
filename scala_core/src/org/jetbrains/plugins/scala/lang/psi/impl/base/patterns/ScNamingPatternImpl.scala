@@ -10,8 +10,10 @@ import com.intellij.psi._
 * Date: 28.02.2008
 */
 
-class ScCompositePatternImpl(node: ASTNode) extends ScPatternImpl (node) with ScCompositePattern{
+class ScNamingPatternImpl(node: ASTNode) extends ScBindingPatternImpl (node) with ScNamingPattern{
 
-  override def toString: String = "CompositePattern"
+  override def toString: String = "BindingPattern"
 
+  //todo implement me!
+  def isSeqBindingPattern: Boolean = false
 }

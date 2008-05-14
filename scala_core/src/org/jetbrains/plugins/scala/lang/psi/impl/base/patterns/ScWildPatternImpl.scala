@@ -10,10 +10,6 @@ import com.intellij.psi._
 * Date: 28.02.2008
 */
 
-class ScWildcardPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScWildcardPattern{
+class ScWildcardPatternImpl(node: ASTNode) extends ScPatternImpl (node) with ScWildcardPattern{
   override def toString: String = "WildcardPattern"
-
-  def getIdentifierNodes: Array[PsiElement] = {
-    return new Array[PsiElement](0)
-  }
 }

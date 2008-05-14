@@ -1,14 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.patterns
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import com.intellij.psi.PsiElement
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 28.02.2008
-*/
-
-trait ScBindingPattern extends ScPattern {
-
-  def isSeqBindingPattern: Boolean
-
+trait ScBindingPattern extends ScPattern with ScNamedElement {
+  def nameId : PsiElement
 }

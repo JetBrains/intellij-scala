@@ -11,13 +11,7 @@ import org.jetbrains.plugins.scala.lang.lexer._
 * Date: 28.02.2008
 */
 
-class ScReferencePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScReferencePattern{
+class ScReferencePatternImpl(node: ASTNode) extends ScBindingPatternImpl (node) with ScReferencePattern{
   override def toString: String = "ReferencePattern"
 
-  def getIdentifierNodes: Array[PsiElement] = {
-    if (getFirstChild.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER)
-      return Array.apply(getFirstChild.asInstanceOf[PsiElement])
-    else
-      return new Array[PsiElement](0)
-  }
 }

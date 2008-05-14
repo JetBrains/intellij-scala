@@ -13,7 +13,7 @@ class ResolveProcessor(val kinds : Set[ResolveTargets], val name : String) exten
 
   def execute(element : PsiElement, state : ResolveState) : Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
-    if (named != null) {
+    if (named != null && named.getName == name) {
       candidates add new ScalaResolveResult (named)
     }
     return true

@@ -63,13 +63,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   def isReferenceTo(element: PsiElement): Boolean = {
     if (element.isInstanceOf[PsiNamedElement]) { 
-      if (Comparing.equal(getReferencedName(), element.asInstanceOf[PsiNamedElement].getName())) return resolve() == element;
+      if (Comparing.equal(refName, element.asInstanceOf[PsiNamedElement].getName())) return resolve() == element;
     }
     return false;
   }
 
   @Nullable
-  def getReferencedName(): String = { 
+  def refName() : String = {
      val nameElement: ASTNode = getNameElement();
      return if (nameElement != null) nameElement.getText() else null;
    }
@@ -85,7 +85,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def multiResolve(incomplete : Boolean): Array[ResolveResult] = {
     qualifier match {
       case null => {
-        val processor = new ResolveProcessor(null,node.getText)
+        val processor = new ResolveProcessor(null, refName)
         def treeWalkUp (place : PsiElement, lastParent : PsiElement) : Unit = {
           place match {
             case null => ()

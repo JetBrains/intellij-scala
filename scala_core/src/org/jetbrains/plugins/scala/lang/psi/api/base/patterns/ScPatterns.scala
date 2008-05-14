@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScPatterns extends ScalaPsiElement {
-  def getPatterns: Seq[ScPattern]
+  def patterns: Seq[ScPattern]
 }
