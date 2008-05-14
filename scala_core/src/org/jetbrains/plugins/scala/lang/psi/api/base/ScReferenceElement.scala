@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 */
 
 trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
+
   def bind() : ScalaResolveResult = {
     val results = multiResolve(false)
     results.length match {

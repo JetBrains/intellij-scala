@@ -9,12 +9,13 @@ import com.intellij.psi._
 * Date: 06.03.2008
 */
 
-trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScReferenceElement{
-  def qualifier : ScExpression
+trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScReferenceElement {
 
-  def stable() : Boolean = qualifier match {
+  def qualifier: ScExpression
+
+  def stable(): Boolean = qualifier match {
     case null => true
-    case q : ScReferenceExpression => q.stable
+    case q: ScReferenceExpression => q.stable
     case _ => false
   }
 }
