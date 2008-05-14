@@ -11,4 +11,6 @@ import com.intellij.lang.ASTNode
 
 class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScCaseClause{
   override def toString: String = "CaseClause"
+  
+  def pattern = findChildByClass(classOf[ScPattern])
 }

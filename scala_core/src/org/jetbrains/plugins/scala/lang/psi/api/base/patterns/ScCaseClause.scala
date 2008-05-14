@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.patterns
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -8,5 +11,15 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScCaseClause extends ScalaPsiElement {
+  def pattern : ScPattern
 
+  override def processDeclarations(processor: PsiScopeProcessor,
+      state : ResolveState,
+      lastParent: PsiElement,
+      place: PsiElement): Boolean = {
+
+    val p = pattern
+    if (p != null) p.processDeclarations (processor, state, lastParent, place)
+    else true
+  }
 }
