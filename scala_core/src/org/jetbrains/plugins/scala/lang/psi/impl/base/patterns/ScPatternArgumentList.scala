@@ -13,12 +13,6 @@ class ScPatternArgumentListImpl(node: ASTNode) extends ScalaPsiElementImpl (node
 
   override def toString: String = "Pattern Argument List"
 
-  def getPatterns: Array[ScPattern] = {
-    val res = new ArrayBuffer[ScPattern]
-    for (child <- getChildren if child.isInstanceOf[ScPattern]) {
-      res.append(child.asInstanceOf[ScPattern])
-    }
-    return res.toArray
-  }
+  def getPatterns: Seq[ScPattern] = findChildrenByClass(classOf[ScPattern])
 
 }
