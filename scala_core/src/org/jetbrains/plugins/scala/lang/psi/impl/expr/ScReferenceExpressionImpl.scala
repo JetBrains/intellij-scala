@@ -112,4 +112,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     
     return null //todo
   }
+
+  def qualifier = findChildByClass(classOf[ScExpression])
 }
