@@ -19,7 +19,7 @@ trait ScCaseClause extends ScalaPsiElement {
       place: PsiElement): Boolean = {
 
     val p = pattern
-    if (p != null) p.processDeclarations (processor, state, lastParent, place)
+    if (p != null && p != lastParent) p.processDeclarations (processor, state, lastParent, place)
     else true
   }
 }
