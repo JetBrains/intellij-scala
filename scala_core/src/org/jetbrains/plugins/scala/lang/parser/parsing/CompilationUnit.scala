@@ -50,7 +50,7 @@ object CompilationUnit {
           case ScalaTokenTypes.tLBRACE =>  {
             builder.advanceLexer //Ate '{'
             //parse packaging body
-            TopStatSeq parse builder
+            TopStatSeq parse (builder, true)
             //Look for '}'
             builder.getTokenType match {
               case ScalaTokenTypes.tRBRACE => builder.advanceLexer //Ate '}'
@@ -68,7 +68,7 @@ object CompilationUnit {
                 case ScalaTokenTypes.tLBRACE =>  {
                   builder.advanceLexer //Ate '{'
                   //parse packaging body
-                  TopStatSeq parse builder
+                  TopStatSeq parse (builder, true)
                   //Look for '}'
                   builder.getTokenType match {
                     case ScalaTokenTypes.tRBRACE => builder.advanceLexer //Ate '}'

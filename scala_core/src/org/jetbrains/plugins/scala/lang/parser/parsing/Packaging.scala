@@ -38,7 +38,7 @@ object Packaging {
           case ScalaTokenTypes.tLBRACE => {
             builder.advanceLexer //Ate '{'
             //parse packaging body
-            TopStatSeq parse builder
+            TopStatSeq parse (builder, true)
             //Look for '}'
             builder.getTokenType match {
               case ScalaTokenTypes.tRBRACE => {
@@ -66,7 +66,7 @@ object Packaging {
                 case ScalaTokenTypes.tLBRACE => {
                    builder.advanceLexer //Ate '{'
                   //parse packaging body
-                  TopStatSeq parse builder
+                  TopStatSeq parse (builder, true)
                   //Look for '}'
                   builder.getTokenType match {
                     case ScalaTokenTypes.tRBRACE => {

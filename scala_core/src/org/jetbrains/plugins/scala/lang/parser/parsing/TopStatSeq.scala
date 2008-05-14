@@ -22,11 +22,13 @@ import org.jetbrains.plugins.scala.ScalaBundle
 */
 
 object TopStatSeq {
-  def parse(builder: PsiBuilder): Unit ={
+  def parse(builder: PsiBuilder): Unit = parse(builder, false)
+  def parse(builder: PsiBuilder, waitBrace: Boolean): Unit ={
     while (true) {
       builder.getTokenType match {
         //end of parsing when find } or builder.eof
-        case ScalaTokenTypes.tRBRACE | null => return
+        case ScalaTokenTypes.tRBRACE if waitBrace => return
+        case null => return
         case ScalaTokenTypes.tLINE_TERMINATOR |
              ScalaTokenTypes.tSEMICOLON => builder.advanceLexer //not interesting case
         //otherwise parse TopStat
@@ -39,7 +41,8 @@ object TopStatSeq {
             builder.getTokenType match {
               case ScalaTokenTypes.tSEMICOLON |
                    ScalaTokenTypes.tLINE_TERMINATOR => builder.advanceLexer //it is good
-              case null | ScalaTokenTypes.tRBRACE => return
+              case ScalaTokenTypes.tRBRACE if waitBrace => return
+              case null => return
               case _ => builder error ScalaBundle.message("semi.expected", new Array[Object](0))
             }
           }
