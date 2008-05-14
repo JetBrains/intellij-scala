@@ -19,7 +19,7 @@ trait ScTypeDefinitionOwner extends ScalaPsiElement {
   * @return Type definitions inside current packaging
   */
   def getTypeDefinitions: List[ScTypeDefinition] = {
-    val children = childrenOfType[ScTypeDefinition](TokenSets.TMPL_OR_PACKAGING_DEF_BIT_SET).toList.toArray
+    val children = childrenOfType[ScTypeDefinition](TokenSets.TMPL_OR_PACKAGING_DEF_BIT_SET)
     val list = new ListBuffer[ScTypeDefinition]
     for (child <- getChildren) {
       child match {
