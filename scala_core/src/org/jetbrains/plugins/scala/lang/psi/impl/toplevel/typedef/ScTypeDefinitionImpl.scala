@@ -18,18 +18,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamCla
 import psi.api.toplevel.packaging._
 import psi.api.toplevel.templates._
 
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
-import com.intellij.lang.ASTNode;
-import com.intellij.openapi.util.Pair;
-import com.intellij.psi._;
-import com.intellij.navigation._;
-import com.intellij.psi.javadoc.PsiDocComment;
-import com.intellij.psi.meta.PsiMetaData;
-import com.intellij.util.IncorrectOperationException;
+import com.intellij.extapi.psi.ASTWrapperPsiElement
+import com.intellij.lang.ASTNode
+import com.intellij.openapi.util.Pair
+import com.intellij.psi._
+import com.intellij.navigation._
+import com.intellij.psi.javadoc.PsiDocComment
+import com.intellij.psi.meta.PsiMetaData
+import com.intellij.util.IncorrectOperationException
 
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations._
 
 abstract class ScTypeDefinitionImpl (node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeDefinition {
 
