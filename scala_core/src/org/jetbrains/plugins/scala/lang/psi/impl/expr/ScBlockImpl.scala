@@ -12,6 +12,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
+import com.intellij.psi.scope.PsiScopeProcessor
 
 import org.jetbrains.annotations._
 
@@ -28,4 +29,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock {
   override def toString: String = "Block"
+
+  def exprs = findChildrenByClass(classOf[ScExpression])
+
+  override def processDeclarations(processor: PsiScopeProcessor,
+      state : ResolveState,
+      lastParent: PsiElement,
+      place: PsiElement): Boolean = {
+    import org.jetbrains.plugins.scala.lang.resolve._
+
+    var run = if (lastParent == null) getLastChild else lastParent.getPrevSibling
+    while (run != null) {
+      if (!run.processDeclarations(processor, state, lastParent, place)) return false
+      run = run.getPrevSibling
+    }
+    true
+  }
 }

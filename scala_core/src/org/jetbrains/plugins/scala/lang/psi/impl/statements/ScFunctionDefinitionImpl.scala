@@ -73,7 +73,7 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
       }
       true
     }
-    else false
+    else true
   }
 
   override def getIcon(flags: Int) = Icons.FUNCTION
@@ -90,9 +90,7 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
   def getReturnTypeNode: ScType = {
     findChildByClass(classOf[ScType])
   }
-  def typeParametersClause: ScTypeParamClause = {
-    findChildByClass(classOf[ScTypeParamClause])
-  }
+  def typeParametersClause: ScTypeParamClause = findChildByClass(classOf[ScTypeParamClause])
 
   def getFunctionsAndTypeDefs: Array[ScalaPsiElement] = {
     val res = new ArrayBuffer[ScalaPsiElement]
