@@ -10,14 +10,6 @@ import com.intellij.psi._
 * Date: 07.03.2008
 */
 
-class ScParenthesisedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParenthesisedPattern {
+class ScParenthesisedPatternImpl(node: ASTNode) extends ScPatternImpl (node) with ScParenthesisedPattern {
   override def toString: String = "PatternInParenthesis"
-
-  def getIdentifierNodes: Array[PsiElement] = {
-    if (findChildByClass (classOf[ScPattern]) != null) {
-      return findChildByClass (classOf[ScPattern]).getIdentifierNodes
-    }
-    return new Array[PsiElement](0)
-  }
-
 }

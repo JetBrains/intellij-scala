@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLiteral{
   override def toString: String = "Literal"
 
-  def getIdentifierNodes: Array[ScalaPsiElement] = {
+  def bindings: Array[ScalaPsiElement] = {
     return new Array[ScalaPsiElement](0)
   }
 }

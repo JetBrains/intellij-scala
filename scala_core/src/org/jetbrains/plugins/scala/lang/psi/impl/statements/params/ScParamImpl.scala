@@ -31,38 +31,9 @@ class ScParamImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParam{
 
   override def toString: String = "Parameter"
 
- /* def paramType(): ScalaType = {
-    val child = getLastChild
-    child match {
-      case paramType: ScalaType => paramType
-      case _ => null
-    }
-  }*/
+  def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
- /* override def getExplicitType(id: ScReferenceElement) =
-    if (getNames.exists((elem: ScReferenceElement) => elem.equals(id))){
-      val child = childSatisfyPredicateForASTNode((node: ASTNode) => node.getPsi.isInstanceOf[ScalaType])
-      if (child != null) {
-        child.asInstanceOf[ScalaType].getAbstractType
-      } else {
-        null
-      }
-    } else {
-      null
-    } */
-
-
-  /**
-  *  Returns references to binded values
-  */
-  /*def getNames = {
-    val children = allChildrenOfType[ScReferenceElement](ScalaElementTypes.REFERENCE_SET)
-    if (children != null) {
-      children.toList
-    } else {
-      Nil: List[ScReferenceElement]
-    }
-  }*/
+  override def getName = nameId.getText
 
   def getTypeNode: ScalaPsiElement = {
     return findChildByClass(classOf[ScParamType])

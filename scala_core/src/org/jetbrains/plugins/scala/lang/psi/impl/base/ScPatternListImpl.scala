@@ -32,5 +32,5 @@ import _root_.scala.collection.mutable._
 class ScPatternListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatternList{
   override def toString: String = "ListOfPatterns"
 
-  def getPatterns: Seq[ScPattern] = findChildrenByClass(classOf[ScPattern])
+  def patterns: Seq[ScPattern] = findChildrenByClass(classOf[ScPattern])
 }

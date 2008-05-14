@@ -32,11 +32,11 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScalaPsiEleme
           children += new ScalaFunctionStructureViewElement (field, false)
         }
         case field: ScVariable => {
-          for (f <- field.getIdentifierNodes)
+          for (f <- field.bindings)
             children += new ScalaVariableStructureViewElement(f)
         }
         case field: ScValue => {
-          for (f <- field.getIdentifierNodes)
+          for (f <- field.bindings)
             children += new ScalaValueStructureViewElement(f)
         }
         case _ =>

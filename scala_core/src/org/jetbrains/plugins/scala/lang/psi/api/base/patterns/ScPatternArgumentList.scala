@@ -9,5 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 */
 
 trait ScPatternArgumentList extends ScArguments {
-  def getPatterns: Seq[ScPattern]
+
+  def patterns: Seq[ScPattern]
+
 }

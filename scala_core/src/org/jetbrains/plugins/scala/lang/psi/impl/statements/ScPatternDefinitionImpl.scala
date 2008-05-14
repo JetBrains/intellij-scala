@@ -5,25 +5,17 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-
-
-
-
-
-
+import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
-
 import org.jetbrains.annotations._
-
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
-
-
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -33,18 +25,25 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
 class ScPatternDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatternDefinition {
   override def toString: String = "ScPatternDefinition"
-  def getIdentifierNodes: Array[PsiElement] = {
+
+  def bindings: Seq[ScBindingPattern] = {
     if (findChildByClass(classOf[ScPattern]) != null) {
-      return findChildByClass(classOf[ScPattern]).getIdentifierNodes
+      return findChildByClass(classOf[ScPattern]).bindings
     }
     else if (findChildByClass(classOf[ScPatternList]) != null) {
-      var res = new Array[PsiElement](0)
-      for (pat <- findChildByClass(classOf[ScPatternList]).getPatterns) {
-        res = res ++ pat.getIdentifierNodes
-      }
-      return res
+      return findChildByClass(classOf[ScPatternList]).patterns.flatMap((p:ScPattern) => p.bindings)
     }
-    else return new Array[PsiElement](0)
+    else return List()
+  }
+
+  override def processDeclarations(processor: PsiScopeProcessor,
+      state : ResolveState,
+      lastParent: PsiElement,
+      place: PsiElement): Boolean = {
+    import org.jetbrains.plugins.scala.lang.resolve._
+
+    for (b <- bindings) if (!processor.execute(b, state)) return false
+    true
   }
 
 }

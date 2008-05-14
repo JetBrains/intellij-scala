@@ -10,10 +10,6 @@ import com.intellij.psi._
 * Date: 28.02.2008
 */
 
-class ScLiteralPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScLiteralPattern{
+class ScLiteralPatternImpl(node: ASTNode) extends ScPatternImpl (node) with ScLiteralPattern{
   override def toString: String = "LiteralPattern"
-
-  def getIdentifierNodes: Array[PsiElement] = {
-    return new Array[PsiElement](0)
-  }
 }

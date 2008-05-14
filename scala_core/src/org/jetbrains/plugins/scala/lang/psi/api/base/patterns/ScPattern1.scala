@@ -7,6 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Date: 28.02.2008
 */
 
-trait ScTypedPattern extends ScPattern  {
+trait ScTypedPattern extends ScBindingPattern  {
 
 }

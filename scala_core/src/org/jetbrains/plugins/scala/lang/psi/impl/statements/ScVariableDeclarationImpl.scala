@@ -35,7 +35,7 @@ class ScVariableDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   override def getIcon(flags: Int) = Icons.VAR
 
-  def getIdentifierNodes: Array[PsiElement] = {
+  def bindings: Array[PsiElement] = {
     if (getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) != null) {
       val res = new Array[PsiElement](1);
       val temp = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER).getPsi
