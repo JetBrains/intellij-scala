@@ -4,6 +4,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi._
+
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
@@ -13,4 +16,14 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
   override def toString: String = "CaseClause"
   
   def pattern = findChildByClass(classOf[ScPattern])
+
+  override def processDeclarations(processor: PsiScopeProcessor,
+      state : ResolveState,
+      lastParent: PsiElement,
+      place: PsiElement): Boolean = {
+
+    val p = pattern
+    if (p != null && p != lastParent) p.processDeclarations (processor, state, lastParent, place)
+    else true
+  }
 }
