@@ -6,6 +6,8 @@ import psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import _root_.scala.collection.mutable._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import com.intellij.psi._
 
 /**
  * Trait that implements logic by some type definitions aggregation
@@ -18,56 +20,16 @@ trait ScTypeDefinitionOwner extends ScalaPsiElement {
   /**
   * @return Type definitions inside current packaging
   */
-  def getTypeDefinitions: List[ScTypeDefinition] = {
-    val children = childrenOfType[ScTypeDefinition](TokenSets.TMPL_OR_PACKAGING_DEF_BIT_SET)
-    val list = new ListBuffer[ScTypeDefinition]
-    for (child <- getChildren) {
-      child match {
-        case f: ScFunctionDefinition => {
-          list.appendAll(f.getTypeDefinitions)
-        }
-        case p: ScPackaging => list.appendAll(p.getTypeDefinitions)
-        case t: ScTypeDefinition => {
-          list.append(t)
-          list.appendAll(t.getTypeDefinitions)
-        }
-        case _ =>
-      }
-    }
-    if (this.isInstanceOf[ScTypeDefinition]) {
-      for (child <- this.asInstanceOf[ScTypeDefinition].getExtendsBlock.getTemplateBody.getChildren) {
-        child match {
-          case f: ScFunctionDefinition => {
-            list.appendAll(f.getTypeDefinitions)
-          }
-          case p: ScPackaging => list.appendAll(p.getTypeDefinitions)
-          case t: ScTypeDefinition => {
-            list.append(t)
-            list.appendAll(t.getTypeDefinitions)
-          }
-          case _ =>
-        }
-      }
-    }
-    if (this.isInstanceOf[ScFunctionDefinition]) {
-      for (child <- this.asInstanceOf[ScFunctionDefinition].getBody.getChildren) {
-        child match {
-          case f: ScFunctionDefinition => {
-            list.appendAll(f.getTypeDefinitions)
-          }
-          case p: ScPackaging => list.appendAll(p.getTypeDefinitions)
-          case t: ScTypeDefinition => {
-            list.append(t)
-            list.appendAll(t.getTypeDefinitions)
-          }
-          case _ =>
-        }
-      }
-    }
-    val t = list.length
-    return list.toList
-  }
+  def getTypeDefinitions: Seq[ScTypeDefinition]
 
   def getTypeDefinitionsArray: Array[ScTypeDefinition] = getTypeDefinitions.toArray[ScTypeDefinition]
+
+  def collectTypeDefs (child: PsiElement) = child match {
+    case f: ScFunctionDefinition => f.getTypeDefinitions
+    case p: ScPackaging => p.getTypeDefinitions
+    case t: ScTypeDefinition => List(t) ++ t.getTypeDefinitions
+    case _ => Seq.empty
+  }
+
 
 }
