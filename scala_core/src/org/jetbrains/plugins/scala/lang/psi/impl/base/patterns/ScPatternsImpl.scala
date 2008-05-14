@@ -13,11 +13,5 @@ import _root_.scala.collection.mutable._
 class ScPatternsImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPatterns{
   override def toString: String = "ArgumentPatterns"
 
-  def getPatterns: Array[ScPattern] = {
-    val res = new ArrayBuffer[ScPattern]
-    for (child <- getChildren if child.isInstanceOf[ScPattern]) {
-      res.append(child.asInstanceOf[ScPattern])
-    }
-    return res.toArray
-  }
+  def getPatterns: Seq[ScPattern] = findChildrenByClass(classOf[ScPattern])
 }
