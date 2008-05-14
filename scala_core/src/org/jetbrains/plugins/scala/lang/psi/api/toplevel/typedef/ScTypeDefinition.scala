@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.colors._
 
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.lexer._
 import psi.api.toplevel.packaging._
 import psi.api.toplevel.templates._
@@ -38,7 +39,7 @@ import _root_.scala.collection.mutable._
 */
 
 trait ScTypeDefinition extends ScalaPsiElement
-  with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTypeDefinitionBase with ScTopStatement with ScNamedElement {
+  with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTypeDefinitionBase with ScTopStatement with ScNamedElement with ScTypeParametersOwner {
 
   def getNameIdentifierScala(): PsiElement
 
@@ -72,4 +73,8 @@ trait ScTypeDefinition extends ScalaPsiElement
     case null => null
     case e => e.getText()
   }
+
+  def typeParametersClause() : ScTypeParamClause
+
+  def typeParameters() = typeParametersClause.typeParameters
 }

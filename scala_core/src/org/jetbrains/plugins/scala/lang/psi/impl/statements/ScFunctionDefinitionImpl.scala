@@ -90,7 +90,7 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
   def getReturnTypeNode: ScType = {
     findChildByClass(classOf[ScType])
   }
-  def getTypeParam: ScTypeParamClause = {
+  def typeParametersClause: ScTypeParamClause = {
     findChildByClass(classOf[ScTypeParamClause])
   }
 

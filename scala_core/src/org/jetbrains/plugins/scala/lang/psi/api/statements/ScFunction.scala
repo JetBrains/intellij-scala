@@ -14,10 +14,11 @@ import com.intellij.psi._
 * Time: 9:45:38
 */
 
-trait ScFunction extends ScalaPsiElement with ScTopStatement with ScMember{
+trait ScFunction extends ScalaPsiElement with ScTopStatement with ScMember with ScTypeParametersOwner {
   def getNameNode: ASTNode
   def getParametersClauses: ScParamClauses
   def getReturnTypeNode: ScType
-  def getTypeParam: ScTypeParamClause
+  def typeParametersClause: ScTypeParamClause
   def getFunctionsAndTypeDefs: Array[ScalaPsiElement]
+  def typeParameters : Seq[ScTypeParam] = typeParametersClause.typeParameters
 }
