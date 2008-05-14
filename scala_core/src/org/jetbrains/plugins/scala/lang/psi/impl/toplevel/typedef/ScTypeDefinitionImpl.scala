@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import psi.api.toplevel.packaging._
 import psi.api.toplevel.templates._
 
@@ -72,5 +73,5 @@ abstract class ScTypeDefinitionImpl (node: ASTNode) extends ScalaPsiElementImpl(
     }
   }
 
-
+  def typeParametersClause() = findChildByClass(classOf[ScTypeParamClause])
 }

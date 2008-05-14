@@ -34,8 +34,8 @@ object ScalaElementPresentation {
       presentableText.append(function.getNameNode.getText)
     else
       presentableText.append("unnamed")
-    if (function.getTypeParam != null)
-      presentableText.append(function.getTypeParam.getText)
+    if (function.typeParametersClause != null)
+      presentableText.append(function.typeParametersClause.getText)
     if (function.getParametersClauses != null)
       presentableText.append(function.getParametersClauses.getParametersAsString)
     if (function.getReturnTypeNode != null) {
