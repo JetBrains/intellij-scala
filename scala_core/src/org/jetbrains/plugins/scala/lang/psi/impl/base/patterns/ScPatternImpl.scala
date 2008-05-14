@@ -24,7 +24,7 @@ class ScPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatt
     }
   }
 
-  def subpatterns = findChildrenByClass(classOf[ScPattern])
+  def subpatterns : Seq[ScPattern] = findChildrenByClass(classOf[ScPattern])
 
   override def processDeclarations(processor: PsiScopeProcessor,
       state : ResolveState,

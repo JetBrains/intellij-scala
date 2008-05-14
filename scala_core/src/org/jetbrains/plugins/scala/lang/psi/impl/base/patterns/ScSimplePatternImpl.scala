@@ -14,8 +14,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScPatternImpl (node) with 
 
   override def toString: String = "ConstructorPattern"
 
-  def args = findChildByClass (classOf[ScPatternArgumentList])
+  def args = findChildByClass(classOf[ScPatternArgumentList])
 
-  override def bindings = if (args == null) super.bindings
-  else super.bindings ++ args.patterns.flatMap ((p: ScPattern) => p.bindings)
+  override def subpatterns : Seq[ScPattern]= if (args != null) args.patterns else Seq.empty
 }
