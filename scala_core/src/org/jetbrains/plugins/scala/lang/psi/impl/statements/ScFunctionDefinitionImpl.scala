@@ -35,7 +35,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 class ScFunctionDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionDefinition{
 
-  def getNameNode: ASTNode = node.findChildByType(ScalaTokenTypes.tIDENTIFIER)
+  def getNameNode: ASTNode = {
+    val name = node.findChildByType(ScalaTokenTypes.tIDENTIFIER)
+    if (name == null) {
+      if (node.getTreeParent.getElementType == ScalaElementTypes.TEMPLATE_BODY) {
+        return node.getTreeParent.getTreeParent.getTreeParent.getPsi.asInstanceOf[ScTypeDefinition].getNameIdentifierScala.getNode
+      }
+      else return null
+    } else return name
+  }
 
   import com.intellij.psi.scope._
   def getVariable(processor: PsiScopeProcessor,
