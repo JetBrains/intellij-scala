@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -9,7 +10,7 @@ import com.intellij.psi._
 * Time: 9:49:36
 */
 
-trait ScFunctionDefinition extends ScFunction {
+trait ScFunctionDefinition extends ScFunction with ScTypeDefinitionOwner {
   def getBody: PsiElement
   def getParameters: Array[ScParam]
 }
