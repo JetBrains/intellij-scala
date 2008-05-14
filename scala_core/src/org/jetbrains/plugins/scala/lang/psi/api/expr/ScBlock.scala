@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScBlock extends ScalaPsiElement {
-
+  def exprs : Seq[ScExpression]
 }

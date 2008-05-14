@@ -20,6 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * @author Alexander.Podkhalyuzin 
 */
 
-class ScConstrBlockImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScConstrBlock {
+class ScConstrBlockImpl(node: ASTNode) extends ScBlockImpl (node) with ScConstrBlock {
   override def toString: String = "ConstructorBlock"
 }

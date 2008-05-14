@@ -7,6 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Date: 06.03.2008
 */
 
-trait ScBlockExpr extends ScExpression {
+trait ScBlockExpr extends ScExpression with ScBlock {
 
 }
