@@ -17,7 +17,7 @@ object TokenSets {
 
   val PROPERTY_NAMES = TokenSet.create(Array(tIDENTIFIER))
 
-  val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create(Array.apply(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF))
+  val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create(Array.apply(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF, FUNCTION_DEFINITION))
 
   val PACKAGING_BIT_SET = TokenSet.create(Array.apply(PACKAGING))
 
