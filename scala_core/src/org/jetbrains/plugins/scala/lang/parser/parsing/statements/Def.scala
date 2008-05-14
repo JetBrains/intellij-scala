@@ -81,7 +81,7 @@ object Def {
           return true
         }
         else {
-          defMarker.drop
+          defMarker.rollbackTo
           return false
         }
       }
@@ -92,7 +92,7 @@ object Def {
           return true
         }
         else {
-          defMarker.drop
+          defMarker.rollbackTo
           return false
         }
       }
@@ -102,7 +102,7 @@ object Def {
           return true
         }
         else {
-          defMarker.drop
+          defMarker.rollbackTo
           return false
         }
       }
@@ -112,7 +112,7 @@ object Def {
           return true
         }
         else {
-          defMarker.drop
+          defMarker.rollbackTo
           return false
         }
       }
