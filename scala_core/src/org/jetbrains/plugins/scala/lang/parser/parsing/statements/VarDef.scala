@@ -33,12 +33,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
  *  ValDef ::= PatDef |
  *             ids ':' Type '=' '_'
  */
-//TODO: rewrite this
 object VarDef {
   def parse(builder: PsiBuilder): Boolean = {
     if (PatDef parse builder) {
       return true
     }
+
+    // Parsing specifig wildcard definition
     val valDefMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
@@ -53,21 +54,20 @@ object VarDef {
           } else {
             builder error "type declaration expected"
           }
-
           hasTypeDcl = true
         }
         else {
           valDefMarker.rollbackTo
           return false
         }
-       if (! ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
+        if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
           valDefMarker.rollbackTo
           return false
         } else {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
-
           builder.getTokenType match {
-            case ScalaTokenTypes.tUNDER => builder.advanceLexer //Ate _
+            case ScalaTokenTypes.tUNDER => builder.advanceLexer
+            //Ate _
             case _ => {
               valDefMarker.rollbackTo
               return false

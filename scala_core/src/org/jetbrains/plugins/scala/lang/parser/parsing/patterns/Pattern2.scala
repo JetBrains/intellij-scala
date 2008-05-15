@@ -41,13 +41,13 @@ object Pattern2 {
               builder.advanceLexer //Ate @
               backupMarker.drop
               /*if (ParserUtils.eatSeqWildcardNext(builder)) {
-                pattern2Marker.done(ScalaElementTypes.BINDING_PATTERN)
+                pattern2Marker.done(ScalaElementTypes.NAMING_PATTERN)
                 return true
               }*/
               if (!Pattern3.parse(builder)) {
                 builder error ErrMsg("wrong.pattern")
               }
-              pattern2Marker.done(ScalaElementTypes.BINDING_PATTERN)
+              pattern2Marker.done(ScalaElementTypes.NAMING_PATTERN)
               return true
             }
             case _ => {
@@ -65,7 +65,7 @@ object Pattern2 {
             if (!Pattern3.parse(builder)) {
               builder error ErrMsg("wrong.pattern")
             }
-            pattern2Marker.done(ScalaElementTypes.BINDING_PATTERN)
+            pattern2Marker.done(ScalaElementTypes.NAMING_PATTERN)
             return true
           }
           case _ => {

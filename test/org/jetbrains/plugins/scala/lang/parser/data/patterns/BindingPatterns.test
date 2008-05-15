@@ -116,7 +116,7 @@ ScalaFile
               CaseClause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                BindingPattern
+                NamingPattern
                   PsiElement(identifier)('x')
                   PsiElement(@)('@')
                   TuplePattern
@@ -138,7 +138,7 @@ ScalaFile
               CaseClause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                BindingPattern
+                NamingPattern
                   PsiElement(identifier)('x')
                   PsiElement(@)('@')
                   ConstructorPattern

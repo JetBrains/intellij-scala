@@ -11,5 +11,11 @@ import com.intellij.psi._
 */
 
 trait ScVariable extends ScalaPsiElement with ScMember{
-  def bindings: Seq[PsiElement]
+
+  /**
+  * @return all binded identifiers
+  */
+  def ids: Seq[PsiElement]
+
+
 }

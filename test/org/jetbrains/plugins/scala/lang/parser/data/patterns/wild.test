@@ -155,7 +155,7 @@ ScalaFile
                       CaseClause
                         PsiElement(case)('case')
                         PsiWhiteSpace(' ')
-                        BindingPattern
+                        NamingPattern
                           PsiElement(identifier)('s1')
                           PsiWhiteSpace(' ')
                           PsiElement(@)('@')
@@ -171,7 +171,7 @@ ScalaFile
                       CaseClause
                         PsiElement(case)('case')
                         PsiWhiteSpace(' ')
-                        BindingPattern
+                        NamingPattern
                           PsiElement(identifier)('e1')
                           PsiWhiteSpace(' ')
                           PsiElement(@)('@')
@@ -201,7 +201,7 @@ ScalaFile
                       CaseClause
                         PsiElement(case)('case')
                         PsiWhiteSpace(' ')
-                        BindingPattern
+                        NamingPattern
                           PsiElement(identifier)('f1')
                           PsiWhiteSpace(' ')
                           PsiElement(@)('@')
@@ -239,7 +239,7 @@ ScalaFile
                             CaseClause
                               PsiElement(case)('case')
                               PsiWhiteSpace(' ')
-                              BindingPattern
+                              NamingPattern
                                 PsiElement(identifier)('s2')
                                 PsiWhiteSpace(' ')
                                 PsiElement(@)('@')
@@ -265,7 +265,7 @@ ScalaFile
                             CaseClause
                               PsiElement(case)('case')
                               PsiWhiteSpace(' ')
-                              BindingPattern
+                              NamingPattern
                                 PsiElement(identifier)('f2')
                                 PsiWhiteSpace(' ')
                                 PsiElement(@)('@')
@@ -316,7 +316,7 @@ ScalaFile
                             CaseClause
                               PsiElement(case)('case')
                               PsiWhiteSpace(' ')
-                              BindingPattern
+                              NamingPattern
                                 PsiElement(identifier)('e2')
                                 PsiWhiteSpace(' ')
                                 PsiElement(@)('@')

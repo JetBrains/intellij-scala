@@ -25,7 +25,7 @@ ScalaFile
             CaseClause
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
-              BindingPattern
+              NamingPattern
                 PsiElement(identifier)('x')
                 PsiElement(@)('@')
                 InfixPattern

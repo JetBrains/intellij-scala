@@ -31,7 +31,7 @@ ScalaFile
                   PsiElement(identifier)('Some')
                 Pattern Argument List
                   PsiElement(()('(')
-                  BindingPattern
+                  NamingPattern
                     PsiElement(identifier)('a')
                     PsiElement(@)('@')
                     ConstructorPattern
