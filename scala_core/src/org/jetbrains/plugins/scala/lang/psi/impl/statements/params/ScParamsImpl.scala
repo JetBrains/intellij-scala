@@ -29,5 +29,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 class ScParamsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParams {
   override def toString: String = "Parameters"
-  def getParameters: Array[ScParam] = for (child <- getChildren) yield child.asInstanceOf[ScParam]
+
+  def getParameters: Seq[ScParam] = for (child <- getChildren) yield child.asInstanceOf[ScParam]
 }
