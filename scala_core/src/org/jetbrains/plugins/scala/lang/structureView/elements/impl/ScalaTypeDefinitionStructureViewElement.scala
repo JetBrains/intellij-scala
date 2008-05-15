@@ -15,29 +15,30 @@ import com.intellij.psi._
 * Date: 04.05.2008
 */
 
-class ScalaTypeDefinitionStructureViewElement(private val element: ScalaPsiElement) extends ScalaStructureViewElement (element) {
+class ScalaTypeDefinitionStructureViewElement(private val element: ScalaPsiElement) extends ScalaStructureViewElement(element) {
 
   def getPresentation(): ItemPresentation = {
-    return new ScalaTypeDefinitionItemPresentation (myElement.asInstanceOf[ScTypeDefinition]);
+    return new ScalaTypeDefinitionItemPresentation(myElement.asInstanceOf[ScTypeDefinition]);
   }
 
   def getChildren(): Array[TreeElement] = {
     val children = new ArrayBuffer[ScalaStructureViewElement]
-    for (field <- myElement.asInstanceOf[ScTypeDefinition].getFieldsAndMethods) {
-      field match {
+
+    for (member <- element.asInstanceOf[ScTypeDefinition].getFieldsAndMethods) {
+      member match {
         case _: ScTypeDefinition => {
-          children += new ScalaTypeDefinitionStructureViewElement(field)
+          children += new ScalaTypeDefinitionStructureViewElement(member)
         }
         case _: ScFunction => {
-          children += new ScalaFunctionStructureViewElement (field, false)
+          children += new ScalaFunctionStructureViewElement(member, false)
         }
-        case field: ScVariable => {
-          for (f <- field.bindings)
-            children += new ScalaVariableStructureViewElement(f)
+        case member: ScVariable => {
+          for (f <- member.ids)
+                  children += new ScalaVariableStructureViewElement(f)
         }
-        case field: ScValue => {
-          for (f <- field.bindings)
-            children += new ScalaValueStructureViewElement(f)
+        case member: ScValue => {
+          for (f <- member.ids)
+                  children += new ScalaValueStructureViewElement(f)
         }
         case _ =>
       }

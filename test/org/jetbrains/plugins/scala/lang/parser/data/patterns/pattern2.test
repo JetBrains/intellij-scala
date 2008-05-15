@@ -23,7 +23,7 @@ ScalaFile
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          BindingPattern
+          NamingPattern
             PsiElement(identifier)('a')
             PsiWhiteSpace(' ')
             PsiElement(@)('@')

@@ -35,9 +35,7 @@ object Ids {
         return false
       }
     }
-    var hasIds = false
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-      hasIds = true
       builder.advanceLexer //Ate ,
       builder.getTokenType match {
         case ScalaTokenTypes.tIDENTIFIER => {
@@ -50,11 +48,7 @@ object Ids {
         }
       }
     }
-    if (hasIds) {
-      idListMarker.done(ScalaElementTypes.IDENTIFIER_LIST)
-      return true
-    }
-    idListMarker.drop
+    idListMarker.done(ScalaElementTypes.IDENTIFIER_LIST)
     return true
   }
 }

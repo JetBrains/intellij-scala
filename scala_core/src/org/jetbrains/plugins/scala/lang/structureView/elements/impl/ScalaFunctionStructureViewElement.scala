@@ -16,6 +16,7 @@ import _root_.scala.collection.mutable._
 */
 
 class ScalaFunctionStructureViewElement(private val element: ScalaPsiElement, isInherited: Boolean) extends ScalaStructureViewElement(element) {
+
   def getPresentation(): ItemPresentation = {
     return new ScalaFunctionItemPresentation(myElement.asInstanceOf[ScFunction], isInherited);
   }

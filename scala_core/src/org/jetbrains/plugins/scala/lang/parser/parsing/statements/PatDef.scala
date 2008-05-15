@@ -41,20 +41,16 @@ object PatDef {
       Pattern2.parse(builder)
     } else {
       builder error "pattern expected"
-      pattern2sMarker.rollbackTo()
-      someMarker.drop
+      pattern2sMarker.rollbackTo
+      someMarker.rollbackTo
       return false
     }
-
-    var numberOfPattern2s = 1;
 
     while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
       if (BNF.firstPattern2.contains(builder.getTokenType)) {
         Pattern2.parse(builder)
-        numberOfPattern2s = numberOfPattern2s + 1;
-
       } else {
         builder error "pattern expected"
         pattern2sMarker.rollbackTo()
@@ -63,8 +59,7 @@ object PatDef {
       }
     }
 
-    if (numberOfPattern2s > 1) pattern2sMarker.done(ScalaElementTypes.PATTERN_LIST)
-    else pattern2sMarker.drop
+    pattern2sMarker.done(ScalaElementTypes.PATTERN_LIST)
 
     var hasTypeDcl = false
 

@@ -12,7 +12,7 @@ import com.intellij.psi._
 
 class ScNamingPatternImpl(node: ASTNode) extends ScBindingPatternImpl (node) with ScNamingPattern{
 
-  override def toString: String = "BindingPattern"
+  override def toString: String = "NamingPattern"
 
   //todo implement me!
   def isSeqBindingPattern: Boolean = false

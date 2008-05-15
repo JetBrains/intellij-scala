@@ -27,14 +27,11 @@ class ScPatternDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   override def toString: String = "ScPatternDefinition"
 
   def bindings: Seq[ScBindingPattern] = {
-    if (findChildByClass(classOf[ScPattern]) != null) {
-      return findChildByClass(classOf[ScPattern]).bindings
-    }
-    else if (findChildByClass(classOf[ScPatternList]) != null) {
-      return findChildByClass(classOf[ScPatternList]).patterns.flatMap((p:ScPattern) => p.bindings)
-    }
-    else return List()
+    val plist = findChildByClass(classOf[ScPatternList])
+    if (plist != null) plist.patterns.flatMap[ScBindingPattern]((p: ScPattern) => p.bindings) else Seq.empty
   }
+
+  def ids = for (b <- bindings) yield b.nameId
 
   override def processDeclarations(processor: PsiScopeProcessor,
       state : ResolveState,

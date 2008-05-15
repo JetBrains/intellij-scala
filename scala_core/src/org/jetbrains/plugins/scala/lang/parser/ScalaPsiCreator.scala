@@ -225,7 +225,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.TUPLE_PATTERN => new ScTuplePatternImpl (node)
     case ScalaElementTypes.CONSTRUCTOR_PATTERN => new ScConstructorPatternImpl (node)
     case ScalaElementTypes.TYPED_PATTERN => new ScTypedPatternImpl (node)
-    case ScalaElementTypes.BINDING_PATTERN => new ScNamingPatternImpl (node)
+    case ScalaElementTypes.NAMING_PATTERN => new ScNamingPatternImpl (node)
     case ScalaElementTypes.INFIX_PATTERN => new ScInfixPatternImpl (node)
     case ScalaElementTypes.PATTERN => new ScCompositePatternImpl (node)
     case ScalaElementTypes.PATTERN_ARGS => new ScPatternArgumentListImpl (node)

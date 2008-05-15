@@ -5,6 +5,7 @@ import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile
 import com.intellij.ide.IconProvider
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 class ScalaIconProvider extends IconProvider {
   @Nullable
@@ -17,10 +18,7 @@ class ScalaIconProvider extends IconProvider {
       for (val clazz <- defs) {
         if (name.equals(clazz.getName)) return clazz.getIcon(flags)
       }
-      return defs match {
-        case clazz::_ => clazz.getIcon(flags)
-        case _ => file.icon
-      }
+      if (!defs.isEmpty) return defs.first.getIcon(flags)
     }
     null
   }

@@ -34,7 +34,7 @@ ScalaFile
                   PsiElement(identifier)('Alt')
                 Pattern Argument List
                   PsiElement(()('(')
-                  BindingPattern
+                  NamingPattern
                     PsiElement(identifier)('xs')
                     PsiWhiteSpace(' ')
                     PsiElement(@)('@')

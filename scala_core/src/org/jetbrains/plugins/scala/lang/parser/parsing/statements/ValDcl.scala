@@ -56,20 +56,20 @@ object ValDcl {
               return true
             }
             else {
-              builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+              builder error ErrMsg("wrong.type")
               returnMarker.drop
               return true
             }
           }
           case _ => {
-            builder error ScalaBundle.message("wrong.val.declaration", new Array[Object](0))
+            builder error ErrMsg("wrong.val.declaration")
             returnMarker.drop
             return true
           }
         }
       }
       case _ => {
-        builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
+        builder error ErrMsg("identifier.expected")
         returnMarker.drop
         return true
       }

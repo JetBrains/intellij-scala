@@ -80,7 +80,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (_, ScalaElementTypes.PATTERN_ARGS, _, ScalaElementTypes.CONSTRUCTOR_PATTERN) => return NO_SPACING
       //Annotation
       case (ScalaTokenTypes.tAT, _, _, _) => return NO_SPACING
-      case (ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT, ScalaElementTypes.BINDING_PATTERN, _) => return NO_SPACING
+      case (ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT, ScalaElementTypes.NAMING_PATTERN, _) => return NO_SPACING
       case (_, ScalaTokenTypes.tAT, _, _) => return NO_SPACING_WITH_NEWLINE
       case (ScalaElementTypes.ANNOTATION, _, _, _) => return COMMON_SPACING
       //Prefix Identifier

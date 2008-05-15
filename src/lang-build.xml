@@ -125,7 +125,6 @@
     <scalac srcdir="${scala_core.dir}/src"
             destdir="${project.lib}"
             logging="debug"
-            addparams="-g:notc"
             scalacdebugging="yes"
             force="changed">
       <classpath refid="base.path"/>

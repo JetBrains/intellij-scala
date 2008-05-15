@@ -9,5 +9,5 @@ import com.intellij.psi._
 */
 
 trait ScIdList extends ScalaPsiElement {
-  def getIdentifiers: Array[PsiElement]
+  def getIdentifiers: Seq[PsiElement]
 }

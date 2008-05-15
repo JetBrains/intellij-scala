@@ -21,26 +21,24 @@ import com.intellij.psi.scope.PsiScopeProcessor
 * Time: 9:56:07
 */
 
-class ScVariableDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScVariableDefinition{
+class ScVariableDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScVariableDefinition {
 
   override def toString: String = "ScVariableDefinition"
   override def getIcon(flags: Int) = Icons.VAR
 
   def bindings: Seq[ScBindingPattern] = {
-    if (findChildByClass(classOf[ScPattern]) != null) {
-      return findChildByClass(classOf[ScPattern]).bindings
-    }
-    else if (findChildByClass(classOf[ScPatternList]) != null) {
-      return findChildByClass(classOf[ScPatternList]).patterns.flatMap[ScBindingPattern]((p:ScPattern) => p.bindings)
-    }
-    else return List()
+    val plist = findChildByClass(classOf[ScPatternList])
+    if (plist != null) plist.patterns.flatMap[ScBindingPattern]((p: ScPattern) => p.bindings) else Seq.empty
   }
 
+  def ids = for (b <- bindings) yield b.nameId
+
   override def processDeclarations(processor: PsiScopeProcessor,
-      state : ResolveState,
-      lastParent: PsiElement,
-      place: PsiElement): Boolean = {
+    state: ResolveState,
+    lastParent: PsiElement,
+    place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
+
     for (b <- bindings) if (!processor.execute(b, state)) return false
     true
   }

@@ -275,7 +275,7 @@ object ScalaElementTypes {
   val CONSTRUCTOR_PATTERN = new ScalaElementType("Constructor Pattern")
   val PATTERN_ARGS = new ScalaElementType("Pattern arguments")
   val INFIX_PATTERN = new ScalaElementType("Infix pattern")
-  val BINDING_PATTERN = new ScalaElementType("Binding Pattern")
+  val NAMING_PATTERN = new ScalaElementType("Binding Pattern")
   val TYPED_PATTERN = new ScalaElementType("Typed Pattern")
   val PATTERN = new ScalaElementType("Composite Pattern")
   val PATTERNS = new ScalaElementType("patterns")
