@@ -30,7 +30,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
-* Time: 9:54:29
 */
 
 class ScFunctionDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScFunctionDefinition {
