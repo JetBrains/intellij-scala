@@ -7,6 +7,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.icons.Icons
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -58,5 +59,7 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner {
     case t: ScTypeDefinition => List (t) ++ t.getTypeDefinitions
     case _ => Seq.empty
   }
+
+  def icon = Icons.FILE_TYPE_LOGO
 
 }

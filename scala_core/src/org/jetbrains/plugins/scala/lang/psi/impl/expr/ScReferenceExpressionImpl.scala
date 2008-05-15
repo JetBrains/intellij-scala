@@ -103,7 +103,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         treeWalkUp(this, null)
         processor.getCandidates.toArray(new Array[ResolveResult](0))
       }
-      case e => null
+      case e => new Array[ResolveResult](0)
     }
   }
 
