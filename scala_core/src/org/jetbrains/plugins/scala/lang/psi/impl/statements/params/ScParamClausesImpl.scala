@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import com.intellij.psi.PsiElement
 
 
 /** 
@@ -28,18 +29,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 class ScParamClausesImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParamClauses {
   override def toString: String = "ParametersClauses"
-  def getParameters: Array[ScParam] = {
-    var res = new Array[ScParam](0)
-    for (child <- getChildren) {
-      child match {
-        case e: ScParamClause => {
-          res = res ++ e.getParameters
-        }
-        case _ =>
-      }
-    }
-    return res
+  def getParameters: Seq[ScParam] = {
+    getChildren.flatMap((child: PsiElement) =>
+            child match {
+              case e: ScParamClause => e.getParameters
+              case _ => Seq.empty
+            }
+    )
   }
+
   def getParametersAsString: String = {
     val res: StringBuffer = new StringBuffer("")
     for (child <- getChildren) {

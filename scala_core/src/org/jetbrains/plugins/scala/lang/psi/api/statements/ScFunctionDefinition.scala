@@ -12,5 +12,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 
 trait ScFunctionDefinition extends ScFunction with ScTypeDefinitionOwner {
   def getBody: PsiElement
-  def getParameters: Array[ScParam]
+  def getParameters: Seq[ScParam]
 }

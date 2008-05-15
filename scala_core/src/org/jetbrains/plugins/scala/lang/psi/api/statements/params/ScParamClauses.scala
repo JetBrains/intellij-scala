@@ -8,6 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScParamClauses extends ScParameters {
-  def getParameters: Array[ScParam]
+  def getParameters: Seq[ScParam]
   def getParametersAsString: String
 }
