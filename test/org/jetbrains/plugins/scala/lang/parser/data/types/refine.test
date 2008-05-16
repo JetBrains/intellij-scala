@@ -47,7 +47,8 @@ ScalaFile
                     ScValueDeclaration
                       PsiElement(val)('val')
                       PsiWhiteSpace(' ')
-                      PsiElement(identifier)('i')
+                      ListOfIdentifiers
+                        PsiElement(identifier)('i')
                       PsiElement(:)(':')
                       TypeElement
                         CodeReferenceElement

@@ -94,8 +94,9 @@ ScalaFile
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          ReferencePattern
-            PsiElement(identifier)('underlying')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('underlying')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           GenericCall

@@ -27,8 +27,9 @@ ScalaFile
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          ReferencePattern
-            PsiElement(identifier)('b')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('b')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -45,8 +46,9 @@ ScalaFile
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          ReferencePattern
-            PsiElement(identifier)('a')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('a')
           PsiElement(=)('=')
           UnitExpression
             PsiElement(()('(')
@@ -59,8 +61,9 @@ ScalaFile
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          ReferencePattern
-            PsiElement(identifier)('c')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('c')
           PsiElement(=)('=')
           Tuple
             PsiElement(()('(')
@@ -76,8 +79,9 @@ ScalaFile
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          ReferencePattern
-            PsiElement(identifier)('d')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('d')
           PsiElement(=)('=')
           Tuple
             PsiElement(()('(')
@@ -95,8 +99,9 @@ ScalaFile
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          ReferencePattern
-            PsiElement(identifier)('e')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('e')
           PsiElement(=)('=')
           Tuple
             PsiElement(()('(')

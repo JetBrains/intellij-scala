@@ -23,14 +23,15 @@ ScalaFile
             <empty list>
           PsiElement(var)('var')
           PsiWhiteSpace(' ')
-          InfixPattern
+          ListOfPatterns
             InfixPattern
-              ReferencePattern
-                PsiElement(identifier)('Any_==:')
-              PsiWhiteSpace(' ')
-              PsiElement(identifier)('Symbol')
-              PsiErrorElement:Illegal start of simple pattern
-                <empty list>
+              InfixPattern
+                CodeReferenceElement
+                  PsiElement(identifier)('Any_==:')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Symbol')
+                PsiErrorElement:Illegal start of simple pattern
+                  <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')

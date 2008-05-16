@@ -160,7 +160,7 @@ ScalaFile
                           PsiWhiteSpace(' ')
                           PsiElement(@)('@')
                           PsiWhiteSpace(' ')
-                          ReferencePattern
+                          CodeReferenceElement
                             PsiElement(identifier)('Success')
                         PsiWhiteSpace(' ')
                         PsiElement(=>)('=>')
@@ -177,7 +177,7 @@ ScalaFile
                           PsiElement(@)('@')
                           PsiWhiteSpace(' ')
                           ConstructorPattern
-                            ReferencePattern
+                            CodeReferenceElement
                               PsiElement(identifier)('Error')
                             Pattern Argument List
                               PsiElement(()('(')
@@ -207,7 +207,7 @@ ScalaFile
                           PsiElement(@)('@')
                           PsiWhiteSpace(' ')
                           ConstructorPattern
-                            ReferencePattern
+                            CodeReferenceElement
                               PsiElement(identifier)('Failure')
                             Pattern Argument List
                               PsiElement(()('(')
@@ -245,7 +245,7 @@ ScalaFile
                                 PsiElement(@)('@')
                                 PsiWhiteSpace(' ')
                                 ConstructorPattern
-                                  ReferencePattern
+                                  CodeReferenceElement
                                     PsiElement(identifier)('Success')
                                   Pattern Argument List
                                     PsiElement(()('(')
@@ -271,7 +271,7 @@ ScalaFile
                                 PsiElement(@)('@')
                                 PsiWhiteSpace(' ')
                                 ConstructorPattern
-                                  ReferencePattern
+                                  CodeReferenceElement
                                     PsiElement(identifier)('Failure')
                                   Pattern Argument List
                                     PsiElement(()('(')
@@ -322,7 +322,7 @@ ScalaFile
                                 PsiElement(@)('@')
                                 PsiWhiteSpace(' ')
                                 ConstructorPattern
-                                  ReferencePattern
+                                  CodeReferenceElement
                                     PsiElement(identifier)('Error')
                                   Pattern Argument List
                                     PsiElement(()('(')

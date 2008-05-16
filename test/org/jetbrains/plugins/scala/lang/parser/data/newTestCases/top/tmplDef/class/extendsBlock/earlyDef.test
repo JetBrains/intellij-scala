@@ -31,8 +31,9 @@ ScalaFile
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          ReferencePattern
-            PsiElement(identifier)('g')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('g')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -47,8 +48,9 @@ ScalaFile
             <empty list>
           PsiElement(var)('var')
           PsiWhiteSpace(' ')
-          ReferencePattern
-            PsiElement(identifier)('h')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('h')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')

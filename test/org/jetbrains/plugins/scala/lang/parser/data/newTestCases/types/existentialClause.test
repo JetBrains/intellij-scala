@@ -23,7 +23,8 @@ ScalaFile
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('x')
+          ListOfIdentifiers
+            PsiElement(identifier)('x')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ExistentialType
@@ -44,7 +45,8 @@ ScalaFile
               ScValueDeclaration
                 PsiElement(val)('val')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('y')
+                ListOfIdentifiers
+                  PsiElement(identifier)('y')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 TypeElement

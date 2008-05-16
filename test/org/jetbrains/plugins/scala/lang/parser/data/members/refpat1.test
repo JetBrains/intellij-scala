@@ -2,6 +2,7 @@ class A {
   val scala.temp.Some(foo) = null
 }
 -----
+
 ScalaFile
   ScClass
     AnnotationsList
@@ -35,7 +36,7 @@ ScalaFile
                 PsiElement(identifier)('Some')
               Pattern Argument List
                 PsiElement(()('(')
-                CodeReferenceElement
+                ReferencePattern
                   PsiElement(identifier)('foo')
                 PsiElement())(')')
           PsiWhiteSpace(' ')

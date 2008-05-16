@@ -23,7 +23,8 @@ ScalaFile
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('symbols')
+          ListOfIdentifiers
+            PsiElement(identifier)('symbols')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           TypeElement

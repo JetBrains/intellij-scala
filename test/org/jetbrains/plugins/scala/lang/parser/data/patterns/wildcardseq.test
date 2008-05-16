@@ -33,7 +33,7 @@ ScalaFile
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
               ConstructorPattern
-                ReferencePattern
+                CodeReferenceElement
                   PsiElement(identifier)('List')
                 Pattern Argument List
                   PsiElement(()('(')
