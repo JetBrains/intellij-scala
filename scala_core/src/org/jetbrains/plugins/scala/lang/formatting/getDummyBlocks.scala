@@ -42,7 +42,7 @@ object getDummyBlocks{
         subBlocks.addAll(getInfixBlocks(node, block))
         return subBlocks
       }
-      case _: ScParameters => {
+      case _: ScParameters | _: ScParents => {
         val alignment = if (mustAlignment(node,block.getSettings))
           Alignment.createAlignment
         else null
@@ -84,6 +84,7 @@ object getDummyBlocks{
   private def mustAlignment(node: ASTNode, mySettings: CodeStyleSettings) = {
     node.getPsi match {
       case _: ScParameters if mySettings.ALIGN_MULTILINE_PARAMETERS => true
+      case _: ScParents if mySettings.ALIGN_MULTILINE_EXTENDS_LIST => true
       case _ => false
     }
   }
