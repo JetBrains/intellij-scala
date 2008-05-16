@@ -25,6 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import com.intellij.psi.codeStyle.CodeStyleSettings
 
 
 
@@ -40,6 +42,17 @@ object getDummyBlocks{
         subBlocks.addAll(getInfixBlocks(node, block))
         return subBlocks
       }
+      case _: ScParameters => {
+        val alignment = if (mustAlignment(node,block.getSettings))
+          Alignment.createAlignment
+        else null
+        for (val child <- children if isCorrectBlock(child)) {
+          val indent = ScalaIndentProcessor.getChildIndent(block, child)
+          subBlocks.add(new ScalaBlock(block, child, alignment, indent, block.getWrap, block.getSettings))
+          prevChild = child
+        }
+        return subBlocks
+      }
       case _ =>
     }
     for (val child <- children if isCorrectBlock(child)) {
@@ -47,7 +60,7 @@ object getDummyBlocks{
       subBlocks.add(new ScalaBlock(block, child, block.getAlignment, indent, block.getWrap, block.getSettings))
       prevChild = child
     }
-    subBlocks
+    return subBlocks
   }
 
   private def getInfixBlocks(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
@@ -66,6 +79,13 @@ object getDummyBlocks{
 
   private def isCorrectBlock(node: ASTNode) = {
     node.getText().trim().length() > 0
+  }
+
+  private def mustAlignment(node: ASTNode, mySettings: CodeStyleSettings) = {
+    node.getPsi match {
+      case _: ScParameters if mySettings.ALIGN_MULTILINE_PARAMETERS => true
+      case _ => false
+    }
   }
 
   private val INFIX_ELEMENTS = TokenSet.create(Array(ScalaElementTypes.INFIX_EXPR,
