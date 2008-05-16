@@ -139,9 +139,9 @@ class ScalaCompletionData extends CompletionData {
     /* Special cases */
     //    afterDotCompletion
     topDefinitionsCompletion
-    requiresCompletion
-    extendsCompletion
-    inExpressionCompletion
+    //requiresCompletion
+    //extendsCompletion
+    //inExpressionCompletion
 
 
 

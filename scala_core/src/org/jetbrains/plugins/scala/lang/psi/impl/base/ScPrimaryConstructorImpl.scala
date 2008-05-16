@@ -19,6 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
 
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -34,5 +36,16 @@ class ScPrimaryConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
     return node.getFirstChildNode.getTreeNext.getElementType != ScalaElementTypes.CLASS_PARAM_CLAUSES
   }
 
+  def getClassNameText: String = {
+    return node.getTreeParent.getPsi.asInstanceOf[ScTypeDefinition].getName
+  }
+
+  def getParametersClauses: ScClassParamClauses = {
+    findChildByClass(classOf[ScClassParamClauses])
+  }
+
+  def typeParametersClause: ScTypeParamClause = {
+    node.getTreeParent.getPsi.asInstanceOf[ScTypeDefinition].typeParametersClause
+  }
   override def toString: String = "PrimaryConstructor"
 }

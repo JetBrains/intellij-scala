@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -26,6 +27,19 @@ object ScalaElementPresentation {
       return typeDefinition.nameNode.getText()
     else
       return "unnamed"
+  }
+
+  def getPrimaryConstructorPresentableText(constructor: ScPrimaryConstructor): String = {
+    val presentableText: StringBuffer = new StringBuffer("")
+    if (constructor.getClassNameText != null)
+      presentableText.append(constructor.getClassNameText)
+    else
+      presentableText.append("unnamed")
+    if (constructor.typeParametersClause != null)
+      presentableText.append(constructor.typeParametersClause.getText)
+    if (constructor.getParametersClauses != null)
+      presentableText.append(constructor.getParametersClauses.getParametersAsString)
+    return presentableText.toString()
   }
 
   def getMethodPresentableText(function: ScFunction): String = {
