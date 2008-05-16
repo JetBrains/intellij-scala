@@ -29,4 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 class ScClassParamImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScClassParam {
   override def toString: String = "ClassParameter"
+  def getTypeNode: ScalaPsiElement = {
+    return findChildByClass(classOf[ScParamType])
+  }
 }

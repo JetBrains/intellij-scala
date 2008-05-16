@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi._
 import _root_.scala.collection.mutable._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -24,24 +25,32 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScalaPsiEleme
   def getChildren(): Array[TreeElement] = {
     val children = new ArrayBuffer[ScalaStructureViewElement]
 
-    for (member <- element.asInstanceOf[ScTypeDefinition].getFieldsAndMethods) {
-      member match {
-        case _: ScTypeDefinition => {
-          children += new ScalaTypeDefinitionStructureViewElement(member)
+    try {
+      for (member <- element.asInstanceOf[ScTypeDefinition].getFieldsAndMethods) {
+        member match {
+          case _: ScTypeDefinition => {
+            children += new ScalaTypeDefinitionStructureViewElement (member)
+          }
+          case _: ScFunction => {
+            children += new ScalaFunctionStructureViewElement (member, false)
+          }
+          case _: ScPrimaryConstructor => {
+            children += new ScalaPrimaryConstructorStructureViewElement (member)
+          }
+          case member: ScVariable => {
+            for (f <- member.ids)
+                    children += new ScalaVariableStructureViewElement (f)
+          }
+          case member: ScValue => {
+            for (f <- member.ids)
+                    children += new ScalaValueStructureViewElement (f)
+          }
+          case _ =>
         }
-        case _: ScFunction => {
-          children += new ScalaFunctionStructureViewElement(member, false)
-        }
-        case member: ScVariable => {
-          for (f <- member.ids)
-                  children += new ScalaVariableStructureViewElement(f)
-        }
-        case member: ScValue => {
-          for (f <- member.ids)
-                  children += new ScalaValueStructureViewElement(f)
-        }
-        case _ =>
       }
+    }
+    catch {
+      case e => print (e)
     }
     return children.toArray
   }

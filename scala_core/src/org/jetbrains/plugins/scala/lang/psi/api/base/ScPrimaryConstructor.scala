@@ -1,13 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 07.03.2008
 */
 
-trait ScPrimaryConstructor extends ScalaPsiElement {
+trait ScPrimaryConstructor extends ScMember {
   /**
    *  Returns does constructor have annotation
    *
@@ -21,4 +24,7 @@ trait ScPrimaryConstructor extends ScalaPsiElement {
    *  @return has access modifier
    */
   def hasModifier: Boolean
+  def getClassNameText: String
+  def getParametersClauses: ScClassParamClauses
+  def typeParametersClause: ScTypeParamClause
 }
