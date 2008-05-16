@@ -96,10 +96,6 @@ public class DragBuilderWrapper implements PsiBuilder {
     myBuilder.enforceCommentTokens(tokens);
   }
 
-  public LanguageDialect getLanguageDialect() {
-    return myBuilder.getLanguageDialect();
-  }
-
   public <T> T getUserData(Key<T> key) {
     return myBuilder.getUserData(key);
   }
