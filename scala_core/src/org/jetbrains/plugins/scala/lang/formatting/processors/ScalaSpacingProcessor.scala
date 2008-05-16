@@ -43,7 +43,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (rightNode != null) {
       rightNode.getPsi match {
         case _: ScArguments | _: ScParameters => {
-          return NO_SPACING
+          return NO_SPACING_WITH_NEWLINE
         }
         case _ => 
       }
