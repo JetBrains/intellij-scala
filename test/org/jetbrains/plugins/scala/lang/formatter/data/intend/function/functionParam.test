@@ -5,7 +5,7 @@ class a {
 }
 -----
 class a {
-  abstract def foo() ()
+  abstract def foo()()
     () =
     true
 }
