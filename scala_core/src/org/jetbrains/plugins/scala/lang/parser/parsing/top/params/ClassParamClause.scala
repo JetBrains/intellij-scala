@@ -59,8 +59,7 @@ object ClassParamClause {
           while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
             builder.advanceLexer //Ate ,
             if (!(ClassParam parse builder)) {
-              classParamMarker.rollbackTo
-              return false
+              builder error ErrMsg("wrong.parameter")
             }
           }
         }

@@ -54,8 +54,7 @@ object ImplicitClassParamClause {
             builder.advanceLexer //Ate implicit
           }
           case _ => {
-            classParamMarker.rollbackTo
-            return false
+            builder error ErrMsg("wrong.parameter")
           }
         }
         //ok, let's parse parameters
