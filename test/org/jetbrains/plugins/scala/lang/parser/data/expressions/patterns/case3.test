@@ -30,7 +30,7 @@ ScalaFile
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
               ConstructorPattern
-                ReferencePattern
+                CodeReferenceElement
                   PsiElement(identifier)('Alt')
                 Pattern Argument List
                   PsiElement(()('(')
@@ -59,7 +59,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               CompositePattern
                 ConstructorPattern
-                  ReferencePattern
+                  CodeReferenceElement
                     PsiElement(identifier)('ELEMENTS')
                   Pattern Argument List
                     PsiElement(()('(')
@@ -72,7 +72,7 @@ ScalaFile
                 PsiElement(identifier)('|')
                 PsiWhiteSpace(' ')
                 ConstructorPattern
-                  ReferencePattern
+                  CodeReferenceElement
                     PsiElement(identifier)('MIXED')
                   Pattern Argument List
                     PsiElement(()('(')

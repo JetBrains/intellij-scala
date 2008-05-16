@@ -42,7 +42,7 @@ ScalaFile
               CaseClause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                ReferencePattern
+                CodeReferenceElement
                   PsiElement(identifier)('None')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -63,12 +63,12 @@ ScalaFile
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
                 ConstructorPattern
-                  ReferencePattern
+                  CodeReferenceElement
                     PsiElement(identifier)('Some')
                   Pattern Argument List
                     PsiElement(()('(')
                     ConstructorPattern
-                      ReferencePattern
+                      CodeReferenceElement
                         PsiElement(identifier)('Pair')
                       Pattern Argument List
                         PsiElement(()('(')

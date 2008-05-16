@@ -18,7 +18,7 @@ class ScalaIconProvider extends IconProvider {
       for (val clazz <- defs) {
         if (name.equals(clazz.getName)) return clazz.getIcon(flags)
       }
-      if (!defs.isEmpty) return defs.first.getIcon(flags)
+      if (!defs.isEmpty) return defs.toArray(0).getIcon(flags)
     }
     null
   }

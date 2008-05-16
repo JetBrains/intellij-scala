@@ -27,7 +27,7 @@ ScalaFile
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
               ConstructorPattern
-                ReferencePattern
+                CodeReferenceElement
                   PsiElement(identifier)('Some')
                 Pattern Argument List
                   PsiElement(()('(')
@@ -35,7 +35,7 @@ ScalaFile
                     PsiElement(identifier)('a')
                     PsiElement(@)('@')
                     ConstructorPattern
-                      ReferencePattern
+                      CodeReferenceElement
                         PsiElement(identifier)('Some')
                       Pattern Argument List
                         PsiElement(()('(')
@@ -55,7 +55,7 @@ ScalaFile
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
               ConstructorPattern
-                ReferencePattern
+                CodeReferenceElement
                   PsiElement(identifier)('Some')
                 Pattern Argument List
                   PsiElement(()('(')

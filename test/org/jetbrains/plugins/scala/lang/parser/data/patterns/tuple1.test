@@ -23,15 +23,16 @@ ScalaFile
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          TuplePattern
-            PsiElement(()('(')
-            ArgumentPatterns
-              ReferencePattern
-                PsiElement(identifier)('a')
-              PsiElement(,)(',')
-              ReferencePattern
-                PsiElement(identifier)('b')
-            PsiElement())(')')
+          ListOfPatterns
+            TuplePattern
+              PsiElement(()('(')
+              ArgumentPatterns
+                ReferencePattern
+                  PsiElement(identifier)('a')
+                PsiElement(,)(',')
+                ReferencePattern
+                  PsiElement(identifier)('b')
+              PsiElement())(')')
           PsiElement(=)('=')
           Tuple
             PsiElement(()('(')

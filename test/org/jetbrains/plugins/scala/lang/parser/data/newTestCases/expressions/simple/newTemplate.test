@@ -33,7 +33,8 @@ ScalaFile
                   <empty list>
                 PsiElement(var)('var')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('a')
+                ListOfIdentifiers
+                  PsiElement(identifier)('a')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 TypeElement

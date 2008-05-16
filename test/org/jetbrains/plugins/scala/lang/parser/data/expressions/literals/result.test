@@ -22,8 +22,9 @@ ScalaFile
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          ReferencePattern
-            PsiElement(identifier)('foo')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('foo')
           PsiElement(=)('=')
           FunctionExpression
             ParameterList

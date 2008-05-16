@@ -29,7 +29,7 @@ ScalaFile
                 PsiElement(identifier)('Some')
               Pattern Argument List
                 PsiElement(()('(')
-                CodeReferenceElement
+                ReferencePattern
                   PsiElement(identifier)('foo')
                 PsiElement())(')')
           PsiWhiteSpace(' ')

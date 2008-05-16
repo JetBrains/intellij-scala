@@ -56,14 +56,15 @@ ScalaFile
             <empty list>
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
-          ConstructorPattern
-            ReferencePattern
-              PsiElement(identifier)('Some')
-            Pattern Argument List
-              PsiElement(()('(')
-              ReferencePattern
-                PsiElement(identifier)('x')
-              PsiElement())(')')
+          ListOfPatterns
+            ConstructorPattern
+              CodeReferenceElement
+                PsiElement(identifier)('Some')
+              Pattern Argument List
+                PsiElement(()('(')
+                ReferencePattern
+                  PsiElement(identifier)('x')
+                PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           TypeElement
