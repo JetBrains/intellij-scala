@@ -32,7 +32,10 @@ object Packaging {
     builder.getTokenType match {
       case ScalaTokenTypes.kPACKAGE => {
         builder.advanceLexer //Ate package
-        Qual_Id parse builder
+        if (!(Qual_Id parse builder)) {
+          packMarker.drop
+          return false
+        }
         //parsing body of packaging
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE => {

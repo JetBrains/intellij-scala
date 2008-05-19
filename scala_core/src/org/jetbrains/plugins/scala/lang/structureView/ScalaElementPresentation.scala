@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 object ScalaElementPresentation {
 
+  //TODO refactor with name getters
+
   def getFilePresentableText(file: ScalaFile): String = {
     return file.getName()
   }

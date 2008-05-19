@@ -66,7 +66,7 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
 
   def getParameters: Seq[ScParam] = {
     val pcs = findChildByClass(classOf[ScParamClauses])
-    if (pcs == null) pcs.getParameters else Seq.empty
+    if (pcs != null) pcs.getParameters else Seq.empty
   }
 
   def getParametersClauses: ScParamClauses = {

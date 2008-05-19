@@ -4,9 +4,17 @@ import com.intellij.ide.structureView.StructureViewTreeElement
 import com.intellij.ide.structureView.TextEditorBasedStructureViewModel
 import com.intellij.ide.util.treeView.smartTree._
 import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 
 /**
 * @author Alexander.Podkhalyuz
@@ -30,7 +38,7 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile) extends Text
   }
 
   @NotNull
- def getSorters(): Array[Sorter] = {
+  def getSorters(): Array[Sorter] = {
     val res = new Array[Sorter](1)
     res(0) = Sorter.ALPHA_SORTER
     return res
@@ -40,4 +48,33 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile) extends Text
   def getFilters(): Array[Filter] = {
     return Filter.EMPTY_ARRAY;
   }
+
+  override def isSuitable(element: PsiElement) = element != null && isSuitableElementImpl(element)
+
+  override def shouldEnterElement(o: Object) = o match {
+    case t : ScTypeDefinition => t.getFieldsAndMethods.length > 0 || t.getTypeDefinitions.size > 0
+    case _ => false
+  }
+
+  def isSuitableElementImpl(e: PsiElement): Boolean = e match {
+    case t: ScTypeDefinition => t.getParent match {
+      case _: ScalaFile | _: ScPackaging => true
+      case _ => false
+    }
+    case f: ScFunction => f.getParent match {
+      case b: ScBlockExpr => b.getParent.isInstanceOf[ScFunction]
+      case tb: ScTemplateBody if (tb.getParent.isInstanceOf[ScExtendsBlock]) => {
+        isSuitableElementImpl(tb.getParent.getParent)
+      }
+      case _ => false
+    }
+    case m: ScMember => m.getParent match {
+      case tb: ScTemplateBody if (tb.getParent.isInstanceOf[ScExtendsBlock]) => {
+        isSuitableElementImpl(tb.getParent.getParent)
+      }
+      case _ => false
+    }
+    case _ => false
+  }
+
 }
