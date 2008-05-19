@@ -57,16 +57,22 @@ object TmplDef {
         caseMarker.drop
         modifierMarker.done(ScalaElementTypes.MODIFIERS)
         builder.advanceLexer //Ate class
-        ClassDef parse builder
-        templateMarker.done(ScalaElementTypes.CLASS_DEF)
+        if (ClassDef parse builder) {
+          templateMarker.done(ScalaElementTypes.CLASS_DEF)
+        } else {
+          templateMarker.drop
+        }
         return true
       }
       case ScalaTokenTypes.kOBJECT => {
         caseMarker.drop
         modifierMarker.done(ScalaElementTypes.MODIFIERS)
         builder.advanceLexer //Ate object
-        ObjectDef parse builder
-        templateMarker.done(ScalaElementTypes.OBJECT_DEF)
+        if (ObjectDef parse builder) {
+          templateMarker.done(ScalaElementTypes.OBJECT_DEF)
+        } else {
+          templateMarker.drop
+        }
         return true
       }
       case ScalaTokenTypes.kTRAIT => {
@@ -75,8 +81,11 @@ object TmplDef {
         builder.getTokenType match {
           case ScalaTokenTypes.kTRAIT => {
             builder.advanceLexer //Ate trait
-            TraitDef.parse(builder)
-            templateMarker.done(ScalaElementTypes.TRAIT_DEF)
+            if (TraitDef.parse(builder)) {
+              templateMarker.done(ScalaElementTypes.TRAIT_DEF)
+            } else {
+              templateMarker.drop
+            }
             return true
           }
           // In this way wrong case modifier

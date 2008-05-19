@@ -22,10 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 
 class ScExtendsBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExtendsBlock{
 
-  //def getTemplateParents = getChild(ScalaElementTypes.TEMPLATE_PARENTS).asInstanceOf[ScTemplateParents]
-
-  //def getMixinParents = getChild(ScalaElementTypes.MIXIN_PARENTS).asInstanceOf[ScMixinParents]
-
   override def toString: String = "ExtendsBlock"
 
   def getTemplateBody: ScTemplateBody = findChildByClass(classOf[ScTemplateBody]) 
