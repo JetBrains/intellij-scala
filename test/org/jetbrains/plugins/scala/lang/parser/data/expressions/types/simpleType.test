@@ -25,6 +25,8 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(identifier)('getType')
           PsiWhiteSpace(' ')
+          ParametersClauses
+            <empty list>
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           SimpleTypeElement

@@ -24,6 +24,8 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(identifier)('f')
           PsiWhiteSpace(' ')
+          ParametersClauses
+            <empty list>
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           UnitExpression
