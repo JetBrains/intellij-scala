@@ -32,13 +32,13 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(>:)('>:')
         PsiWhiteSpace(' ')
-        TypeElement
+        SimpleTypeElement
           CodeReferenceElement
             PsiElement(identifier)('g')
         PsiWhiteSpace(' ')
         PsiElement(<%)('<%')
         PsiWhiteSpace(' ')
-        TypeElement
+        SimpleTypeElement
           CodeReferenceElement
             PsiElement(identifier)('h')
       PsiElement(])(']')

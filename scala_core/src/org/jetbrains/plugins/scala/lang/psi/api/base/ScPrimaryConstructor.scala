@@ -25,6 +25,6 @@ trait ScPrimaryConstructor extends ScMember {
    */
   def hasModifier: Boolean
   def getClassNameText: String
-  def getParametersClauses: ScClassParamClauses
+  def paramClauses: ScClassParamClauses
   def typeParametersClause: ScTypeParamClause
 }

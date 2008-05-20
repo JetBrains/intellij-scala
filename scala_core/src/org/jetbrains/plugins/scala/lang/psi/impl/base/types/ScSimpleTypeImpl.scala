@@ -11,14 +11,12 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
-
 import org.jetbrains.annotations._
-
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
-
-
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -27,28 +25,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleTypeElement {
 
-  /*override def getAbstractType : AbstractType= {
-    val children = getChildren
-    // For explicit type specification
-/*
-    if (children.length >0 && children(0).isInstanceOf[ScSimpleTypeElementImpl]) {
-      return children(0).asInstanceOf[ScSimpleTypeElementImpl].getAbstractType
-    }
-*/
-    if (children.length == 1 && children(0).isInstanceOf[ScStableId] &&
-    children(0).asInstanceOf[ScStableId].getReference != null){
-      val classType = children(0).asInstanceOf[ScStableId].getReference.resolve
-      if (classType.isInstanceOf[ScTypeDefinition]) {
-        new ValueType(classType.asInstanceOf[ScTypeDefinition], null)
-      } else {
-        null
-      }
-    } else {
-      // TODO implement other cases
-      null
-    }
+  override def toString: String = "SimpleTypeElement"
 
-  }*/
+  def reference: ScReferenceElement = findChildByClass(classOf[ScReferenceElement])
 
-  override def toString: String = "TypeElement"
+  def singleton = node.findChildByType(ScalaTokenTypes.kTYPE) != null
+
 }

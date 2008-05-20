@@ -11,20 +11,22 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
-
 import org.jetbrains.annotations._
-
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
-
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
 
-class ScTypeGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeGenericCall{
-  override def toString: String = "GenericCall"
+class ScParametrizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParametrizedTypeElement{
+
+  override def toString: String = "ParametrizedTypeElement"
+
+  def getTypeArgs = findChildByClass(classOf[ScTypeArgs])
+
+  def getSimpleTypeElement = findChildByClass(classOf[ScSimpleTypeElement])
 }

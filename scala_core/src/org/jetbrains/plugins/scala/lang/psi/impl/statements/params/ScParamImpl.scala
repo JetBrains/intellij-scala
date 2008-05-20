@@ -50,7 +50,7 @@ class ScParameterImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
 
   def getInitializer = null
 
-  def getType = Bottom.BOTTOM
+  def getType: PsiType = PsiType.INT
 
   def getModifierList = findChildByClass(classOf[ScModifierList])
 

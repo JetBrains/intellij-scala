@@ -37,7 +37,7 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
                 PsiWhiteSpace(' ')
-                TypeElement
+                SimpleTypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('Boolean')
             PsiElement(;)(';')
@@ -50,7 +50,7 @@ ScalaFile
                   PsiElement(identifier)('z')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                TypeElement
+                SimpleTypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('Int')
             PsiElement(})('}')

@@ -33,7 +33,7 @@ import com.intellij.openapi.util.Iconable
 import javax.swing.Icon
 
 
-abstract class ScTypeDefinitionImpl (node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeDefinition {
+abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeDefinition {
 
   override def getTextOffset() = getNameIdentifierScala.getTextRange().getStartOffset()
 
@@ -77,7 +77,7 @@ abstract class ScTypeDefinitionImpl (node: ASTNode) extends ScalaPsiElementImpl(
 
   def typeParametersClause() = findChildByClass(classOf[ScTypeParamClause])
 
-  protected def getIconInner : Icon
+  protected def getIconInner: Icon
 
   override def getIcon(flags: Int): Icon = {
     if (!isValid) return null
@@ -89,4 +89,12 @@ abstract class ScTypeDefinitionImpl (node: ASTNode) extends ScalaPsiElementImpl(
     }
     rowIcon;
   }
+
+  def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = methods.filter((m: PsiMethod) =>
+          m.getName == name // todo check base classes
+  ).toArray
+
+  def getMethods: Array[PsiMethod] = methods.toArray
+
+
 }

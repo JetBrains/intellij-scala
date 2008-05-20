@@ -1,12 +1,17 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.types
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
 
-trait ScTypeGenericCall extends ScTypeElement {
+trait ScParametrizedTypeElement extends ScTypeElement {
+
+  def getTypeArgs: ScTypeArgs
+
+  def getSimpleTypeElement: ScSimpleTypeElement
 
 }

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.types
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -8,5 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScSimpleTypeElement extends ScTypeElement {
+
+  def reference: ScReferenceElement
+
+  def singleton: Boolean
 
 }

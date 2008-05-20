@@ -23,7 +23,7 @@ ScalaFile
               PsiElement(identifier)('id')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              TypeElement
+              SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('Type')
             PsiElement(,)(',')

@@ -15,7 +15,7 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          TypeElement
+          SimpleTypeElement
             CodeReferenceElement
               SuperReference
                 PsiElement(super)('super')

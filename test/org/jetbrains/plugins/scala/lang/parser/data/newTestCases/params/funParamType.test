@@ -37,7 +37,7 @@ ScalaFile
                   ParameterType
                     PsiElement(=>)('=>')
                     PsiWhiteSpace(' ')
-                    TypeElement
+                    SimpleTypeElement
                       CodeReferenceElement
                         PsiElement(identifier)('Type')
               PsiElement())(')')

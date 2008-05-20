@@ -27,7 +27,7 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TraitParents
-        TypeElement
+        SimpleTypeElement
           CodeReferenceElement
             PsiElement(identifier)('b')
   PsiElement(newline)('\n')

@@ -34,7 +34,7 @@ import _root_.java.util.List;
  * @author ilyas
  */
 
-trait ScTypeDefinitionBase extends PsiElement{
+trait ScTypeDefinitionBase extends PsiClass{
 
   def isInterface: Boolean = false
 
@@ -60,8 +60,6 @@ trait ScTypeDefinitionBase extends PsiElement{
 
   def getFields: Array[PsiField] = PsiField.EMPTY_ARRAY // todo
 
-  def getMethods: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY // todo
-
   def getConstructors: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY // todo
 
   def getInnerClasses: Array[PsiClass] = PsiClass.EMPTY_ARRAY // todo
@@ -79,8 +77,6 @@ trait ScTypeDefinitionBase extends PsiElement{
   def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod = null
 
   def findMethodsBySignature(patternMethod: PsiMethod, checkBases: Boolean): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
-
-  def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
   def findMethodsAndTheirSubstitutorsByName(nmae: String, checkBases: Boolean): List[Pair[PsiMethod, PsiSubstitutor]] = Collections.emptyList[Pair[PsiMethod, PsiSubstitutor]]
 

@@ -58,15 +58,7 @@ public class ScalaFileInfoImpl extends ScalaInfoBaseImpl implements ScalaFileInf
 
   public String[] getQualifiedClassNames() {
     if (isDirectory()) return ArrayUtil.EMPTY_STRING_ARRAY;
-
-    if (myPackageName.length() == 0) return getClassNames();
-
-    String[] result = new String[myClassNames.length];
-    for (int i = 0; i < result.length; i++) {
-      result[i] = myPackageName + "." + myClassNames[i];
-    }
-
-    return result;
+    return getClassNames();
   }
 
   public String[] getExtendedNames() {

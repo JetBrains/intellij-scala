@@ -41,7 +41,7 @@ class ScPrimaryConstructorImpl(node: ASTNode) extends ScMemberImpl(node) with Sc
     return node.getTreeParent.getPsi.asInstanceOf[ScTypeDefinition].getName
   }
 
-  def getParametersClauses: ScClassParamClauses = {
+  def paramClauses: ScClassParamClauses = {
     findChildByClass(classOf[ScClassParamClauses])
   }
 

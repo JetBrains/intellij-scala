@@ -27,7 +27,7 @@ ScalaFile
             PsiElement(identifier)('symbols')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          TypeElement
+          SimpleTypeElement
             ThisReference
               CodeReferenceElement
                 PsiElement(identifier)('aaa')

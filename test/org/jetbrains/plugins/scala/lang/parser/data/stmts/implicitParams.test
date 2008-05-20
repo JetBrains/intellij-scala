@@ -41,7 +41,7 @@ ScalaFile
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
                   ParameterType
-                    TypeElement
+                    SimpleTypeElement
                       CodeReferenceElement
                         PsiElement(identifier)('List')
               PsiElement())(')')
@@ -57,20 +57,20 @@ ScalaFile
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
                   ParameterType
-                    GenericCall
-                      TypeElement
+                    ParametrizedTypeElement
+                      SimpleTypeElement
                         CodeReferenceElement
                           PsiElement(identifier)('Monoid')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        TypeElement
+                        SimpleTypeElement
                           CodeReferenceElement
                             PsiElement(identifier)('A')
                         PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          TypeElement
+          SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('A')
           PsiWhiteSpace(' ')
