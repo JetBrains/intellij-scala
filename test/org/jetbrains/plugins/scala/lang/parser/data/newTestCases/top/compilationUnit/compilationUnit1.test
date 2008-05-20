@@ -13,7 +13,7 @@ ScalaFile
         PsiElement(identifier)('b')
       PsiElement(.)('.')
       PsiElement(identifier)('c')
-    PsiElement(;)(';')
+  PsiElement(;)(';')
   ScClass
     AnnotationsList
       Annotation
