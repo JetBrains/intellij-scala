@@ -28,7 +28,7 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           TypeProjection
-            TypeElement
+            SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('Type')
             PsiElement(#)('#')

@@ -29,7 +29,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           TypeInParenthesis
             PsiElement(()('(')
-            TypeElement
+            SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('Type')
             PsiElement())(')')

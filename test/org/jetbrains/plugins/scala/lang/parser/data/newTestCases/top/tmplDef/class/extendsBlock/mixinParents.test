@@ -21,7 +21,7 @@ ScalaFile
                 PsiElement(@)('@')
                 AnnotationExpression
                   Constructor
-                    TypeElement
+                    SimpleTypeElement
                       CodeReferenceElement
                         PsiElement(identifier)('t')
                     ArgumentList
@@ -30,7 +30,7 @@ ScalaFile
                         PsiElement(identifier)('b')
                       PsiElement())(')')
             PsiWhiteSpace(' ')
-            TypeElement
+            SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('C')
           PsiWhiteSpace(' ')
@@ -38,7 +38,7 @@ ScalaFile
             <empty list>
         PsiElement(with)('with')
         PsiWhiteSpace(' ')
-        TypeElement
+        SimpleTypeElement
           CodeReferenceElement
             PsiElement(identifier)('D')
       PsiWhiteSpace(' ')

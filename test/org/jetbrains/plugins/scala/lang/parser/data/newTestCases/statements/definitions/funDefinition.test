@@ -41,14 +41,14 @@ ScalaFile
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
                   ParameterType
-                    TypeElement
+                    SimpleTypeElement
                       CodeReferenceElement
                         PsiElement(identifier)('T')
               PsiElement())(')')
           PsiWhiteSpace(' ')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          TypeElement
+          SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('Boolean')
           PsiWhiteSpace(' ')

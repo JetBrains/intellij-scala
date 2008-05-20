@@ -24,7 +24,7 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
 
   override def getIcon(flags: Int) = Icons.FUNCTION
 
-  def getParametersClauses: ScParamClauses = findChildByClass(classOf[ScParamClauses])
+  def paramClauses: ScParamClauses = findChildByClass(classOf[ScParamClauses])
 
   def getReturnScTypeElement: ScTypeElement = findChildByClass(classOf[ScTypeElement])
 
@@ -37,7 +37,7 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
 
   override def getNavigationElement: PsiElement = getId
 
-  def getReturnType = null
+  def getReturnType = if (isMainMethod) PsiType.VOID else null
 
   def getNameIdentifier = null
 
@@ -62,6 +62,10 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
 
   def getSignature(substitutor: PsiSubstitutor) = MethodSignatureBackedByPsiMethod.create(this, substitutor)
 
+  override def hasModifierProperty(prop: String) =
+    if (isMainMethod && prop == PsiModifier.STATIC || prop == PsiModifier.PUBLIC) true
+    else super.hasModifierProperty(prop)
+
   //todo implement me!
   def isVarArgs = false
 
@@ -75,8 +79,11 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
 
   def getTypeParameterList = null
 
-  def hasTypeParameters  = false
+  def hasTypeParameters = false
 
   def getParameterList = findChildByClass(classOf[ScParamClauses])
+
+  // Fake method to implement simple application running
+  def isMainMethod: Boolean = false
 
 }

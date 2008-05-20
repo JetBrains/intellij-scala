@@ -32,7 +32,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          TypeElement
+          SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('Type')
         PsiErrorElement:';' or newline expected

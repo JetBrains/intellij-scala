@@ -21,7 +21,7 @@ ScalaFile
     RequiresBlock
       PsiElement(requires)('requires')
       PsiWhiteSpace(' ')
-      TypeElement
+      SimpleTypeElement
         CodeReferenceElement
           PsiElement(identifier)('B')
     ExtendsBlock

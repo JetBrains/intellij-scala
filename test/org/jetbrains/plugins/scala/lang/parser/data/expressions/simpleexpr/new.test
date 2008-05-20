@@ -43,7 +43,7 @@ ScalaFile
           ExtendsBlock
             ClassParents
               Constructor
-                TypeElement
+                SimpleTypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('b')
                 PsiWhiteSpace('\n')

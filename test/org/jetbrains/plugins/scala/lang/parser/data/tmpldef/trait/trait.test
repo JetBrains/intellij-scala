@@ -14,13 +14,13 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TraitParents
-        TypeElement
+        SimpleTypeElement
           CodeReferenceElement
             PsiElement(identifier)('b')
         PsiWhiteSpace(' ')
         PsiElement(with)('with')
         PsiWhiteSpace(' ')
-        TypeElement
+        SimpleTypeElement
           CodeReferenceElement
             PsiElement(identifier)('c')
       PsiWhiteSpace(' ')

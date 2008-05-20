@@ -33,14 +33,14 @@ ScalaFile
                 PsiElement(@)('@')
                 AnnotationExpression
                   Constructor
-                    TypeElement
+                    SimpleTypeElement
                       CodeReferenceElement
                         PsiElement(identifier)('annot')
                     PsiWhiteSpace(' ')
                     ArgumentList
                       <empty list>
             TypeProjection
-              TypeElement
+              SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('Type')
               PsiElement(#)('#')

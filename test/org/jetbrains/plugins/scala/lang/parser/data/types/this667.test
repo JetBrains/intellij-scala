@@ -30,7 +30,7 @@ ScalaFile
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          TypeElement
+          SimpleTypeElement
             ThisReference
               PsiElement(this)('this')
             PsiElement(.)('.')

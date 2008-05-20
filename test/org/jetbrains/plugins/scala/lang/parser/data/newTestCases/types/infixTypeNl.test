@@ -31,19 +31,19 @@ ScalaFile
           PsiWhiteSpace(' ')
           InfixType
             InfixType
-              TypeElement
+              SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('T')
               PsiWhiteSpace(' ')
               PsiElement(identifier)('op')
               PsiElement(newline)('\n  ')
-              TypeElement
+              SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('T')
             PsiWhiteSpace(' ')
             PsiElement(identifier)('op')
             PsiElement(newline)('\n  ')
-            TypeElement
+            SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('T')
         PsiWhiteSpace('\n')

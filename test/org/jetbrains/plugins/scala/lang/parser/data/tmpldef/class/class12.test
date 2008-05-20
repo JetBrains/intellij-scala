@@ -30,13 +30,13 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              GenericCall
-                TypeElement
+              ParametrizedTypeElement
+                SimpleTypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('Term')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  TypeElement
+                  SimpleTypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('Boolean')
                   PsiElement(])(']')
@@ -51,13 +51,13 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              GenericCall
-                TypeElement
+              ParametrizedTypeElement
+                SimpleTypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('Term')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  TypeElement
+                  SimpleTypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('T')
                   PsiElement(])(']')
@@ -72,13 +72,13 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              GenericCall
-                TypeElement
+              ParametrizedTypeElement
+                SimpleTypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('Term')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  TypeElement
+                  SimpleTypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('T')
                   PsiElement(])(']')
@@ -89,13 +89,13 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          GenericCall
-            TypeElement
+          ParametrizedTypeElement
+            SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('Term')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeElement
+              SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('T')
               PsiElement(])(']')

@@ -22,11 +22,11 @@ ScalaFile
           TypeArgumentsList
             PsiElement([)('[')
             TypesList
-              TypeElement
+              SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('A')
               PsiElement(,)(',')
-              TypeElement
+              SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('B')
             PsiElement(])(']')

@@ -43,7 +43,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(>:)('>:')
               PsiWhiteSpace(' ')
-              TypeElement
+              SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('T')
             PsiElement(])(']')
@@ -60,26 +60,26 @@ ScalaFile
                   ParameterType
                     PsiElement(=>)('=>')
                     PsiWhiteSpace(' ')
-                    GenericCall
-                      TypeElement
+                    ParametrizedTypeElement
+                      SimpleTypeElement
                         CodeReferenceElement
                           PsiElement(identifier)('Parser')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        TypeElement
+                        SimpleTypeElement
                           CodeReferenceElement
                             PsiElement(identifier)('U')
                         PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          GenericCall
-            TypeElement
+          ParametrizedTypeElement
+            SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('Parser')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeElement
+              SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('U')
               PsiElement(])(']')
@@ -92,13 +92,13 @@ ScalaFile
             ExtendsBlock
               ClassParents
                 Constructor
-                  GenericCall
-                    TypeElement
+                  ParametrizedTypeElement
+                    SimpleTypeElement
                       CodeReferenceElement
                         PsiElement(identifier)('Parser')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      TypeElement
+                      SimpleTypeElement
                         CodeReferenceElement
                           PsiElement(identifier)('U')
                       PsiElement(])(']')
@@ -127,7 +127,7 @@ ScalaFile
                           PsiElement(:)(':')
                           PsiWhiteSpace(' ')
                           ParameterType
-                            TypeElement
+                            SimpleTypeElement
                               CodeReferenceElement
                                 PsiElement(identifier)('Input')
                       PsiElement())(')')

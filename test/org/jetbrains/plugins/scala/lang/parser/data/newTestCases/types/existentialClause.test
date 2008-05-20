@@ -28,7 +28,7 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ExistentialType
-            TypeElement
+            SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('Type')
             PsiWhiteSpace(' ')
@@ -49,7 +49,7 @@ ScalaFile
                   PsiElement(identifier)('y')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                TypeElement
+                SimpleTypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('Int')
               PsiElement(})('}')

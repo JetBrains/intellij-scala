@@ -21,7 +21,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
           PsiWhiteSpace(' ')
-          TypeElement
+          SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('AnyRef')
       PsiElement(])(']')
@@ -40,7 +40,7 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              TypeElement
+              SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('T')
           PsiElement(,)(',')
@@ -54,13 +54,13 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              GenericCall
-                TypeElement
+              ParametrizedTypeElement
+                SimpleTypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('ReferenceQueue')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  TypeElement
+                  SimpleTypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('T')
                   PsiElement(])(']')
@@ -71,13 +71,13 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          GenericCall
-            TypeElement
+          ParametrizedTypeElement
+            SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('ReferenceWrapper')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeElement
+              SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('T')
               PsiElement(])(']')
@@ -99,8 +99,8 @@ ScalaFile
               PsiElement(identifier)('underlying')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          GenericCall
-            TypeElement
+          ParametrizedTypeElement
+            SimpleTypeElement
               CodeReferenceElement
                 CodeReferenceElement
                   CodeReferenceElement
@@ -119,7 +119,7 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 PsiElement(<:)('<:')
                 PsiWhiteSpace(' ')
-                TypeElement
+                SimpleTypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('T')
               PsiElement(])(']')
@@ -132,8 +132,8 @@ ScalaFile
             ExtendsBlock
               ClassParents
                 Constructor
-                  GenericCall
-                    TypeElement
+                  ParametrizedTypeElement
+                    SimpleTypeElement
                       CodeReferenceElement
                         CodeReferenceElement
                           CodeReferenceElement
@@ -147,7 +147,7 @@ ScalaFile
                         PsiElement(identifier)('PhantomReference')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      TypeElement
+                      SimpleTypeElement
                         CodeReferenceElement
                           PsiElement(identifier)('T')
                       PsiElement(])(']')
@@ -157,7 +157,7 @@ ScalaFile
                       PsiElement(identifier)('value')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    GenericCall
+                    ParametrizedTypeElement
                       ReferenceExpression
                         ReferenceExpression
                           ReferenceExpression
@@ -168,8 +168,8 @@ ScalaFile
                         PsiElement(identifier)('asInstanceOf')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        GenericCall
-                          TypeElement
+                        ParametrizedTypeElement
+                          SimpleTypeElement
                             CodeReferenceElement
                               CodeReferenceElement
                                 CodeReferenceElement
@@ -183,7 +183,7 @@ ScalaFile
                               PsiElement(identifier)('ReferenceQueue')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            TypeElement
+                            SimpleTypeElement
                               CodeReferenceElement
                                 PsiElement(identifier)('T')
                             PsiElement(])(']')

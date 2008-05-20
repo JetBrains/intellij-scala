@@ -16,7 +16,7 @@ ScalaFile
           PsiElement(@)('@')
           AnnotationExpression
             Constructor
-              TypeElement
+              SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('bad')
               PsiWhiteSpace(' ')
@@ -40,7 +40,7 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              TypeElement
+              SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('Int')
           PsiElement())(')')

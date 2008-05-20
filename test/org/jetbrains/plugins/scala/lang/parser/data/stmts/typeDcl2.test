@@ -26,12 +26,12 @@ ScalaFile
           PsiElement(identifier)('f')
           PsiWhiteSpace(' ')
           PsiElement(>:)('>:')
-          TypeElement
+          SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('Int')
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
-          TypeElement
+          SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('Any')
         PsiWhiteSpace('\n')

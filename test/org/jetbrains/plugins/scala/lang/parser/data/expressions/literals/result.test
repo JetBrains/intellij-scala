@@ -32,14 +32,14 @@ ScalaFile
               Parameter
                 PsiElement(identifier)('a')
                 PsiElement(:)(':')
-                TypeElement
+                SimpleTypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('T')
               PsiElement(,)(',')
               Parameter
                 PsiElement(identifier)('b')
                 PsiElement(:)(':')
-                TypeElement
+                SimpleTypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('S')
               PsiElement())(')')

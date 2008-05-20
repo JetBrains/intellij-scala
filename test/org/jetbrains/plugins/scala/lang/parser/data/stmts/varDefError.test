@@ -32,7 +32,7 @@ ScalaFile
                   PsiElement(identifier)('x')
                 PsiElement())(')')
           PsiElement(:)(':')
-          TypeElement
+          SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('Int')
           PsiElement(=)('=')

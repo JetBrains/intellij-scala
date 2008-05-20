@@ -28,7 +28,7 @@ ScalaFile
             PsiElement(identifier)('m')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          TypeElement
+          SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('MAX')
         PsiElement(newline)('\n  ')

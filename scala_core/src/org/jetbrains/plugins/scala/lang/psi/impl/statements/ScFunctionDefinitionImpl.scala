@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import _root_.scala.collection.mutable._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import com.intellij.psi.scope._
 
 /** 
@@ -61,6 +62,31 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl(node) with 
     case f: ScFunctionDefinition => f.getTypeDefinitions
     case t: ScTypeDefinition => List(t) ++ t.getTypeDefinitions
     case _ => Seq.empty
+  }
+
+  /**
+  * Fake method to provide type-unsafe Scala Run Configuration
+  */
+  override def isMainMethod: Boolean = {
+    val obj = getContainingClass
+    if (!getName.equals("main") || !obj.isInstanceOf[ScObject]) return false
+    obj.getParent match {
+      case _: PsiFile | _: ScPackaging => {}
+      case _ => return false
+    }
+    val pc = paramClauses
+    if (pc == null) return false
+    val params = pc.params
+    if (params.length != 1) return false
+    params(0).getTypeElement match {
+      case g: ScParametrizedTypeElement => {
+        if (!"Array".equals(g.getSimpleTypeElement.getText)) return false
+        val args = g.getTypeArgs.typeArgs
+        if (args.length != 1) return false
+        args(0).getText == "String"
+      }
+      case _ => return false
+    }
   }
 
 

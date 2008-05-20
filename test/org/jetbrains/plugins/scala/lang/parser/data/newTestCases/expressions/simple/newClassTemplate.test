@@ -22,7 +22,7 @@ ScalaFile
           ExtendsBlock
             ClassParents
               Constructor
-                TypeElement
+                SimpleTypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('z')
                 ArgumentList
@@ -33,7 +33,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(with)('with')
               PsiWhiteSpace(' ')
-              TypeElement
+              SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('h')
         PsiWhiteSpace('\n')

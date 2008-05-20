@@ -16,7 +16,7 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(<:)('<:')
         PsiWhiteSpace(' ')
-        TypeElement
+        SimpleTypeElement
           CodeReferenceElement
             PsiElement(identifier)('c')
       PsiElement(])(']')
@@ -46,13 +46,13 @@ ScalaFile
       PsiElement(with)('with')
       PsiWhiteSpace(' ')
       TraitParents
-        TypeElement
+        SimpleTypeElement
           CodeReferenceElement
             PsiElement(identifier)('F')
         PsiWhiteSpace(' ')
         PsiElement(with)('with')
         PsiWhiteSpace(' ')
-        TypeElement
+        SimpleTypeElement
           CodeReferenceElement
             PsiElement(identifier)('G')
       PsiWhiteSpace(' ')

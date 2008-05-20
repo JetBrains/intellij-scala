@@ -21,13 +21,13 @@ ScalaFile
                 PsiElement(@)('@')
                 AnnotationExpression
                   Constructor
-                    TypeElement
+                    SimpleTypeElement
                       CodeReferenceElement
                         PsiElement(identifier)('t')
                     PsiWhiteSpace(' ')
                     ArgumentList
                       <empty list>
-            TypeElement
+            SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('A')
           ArgumentList

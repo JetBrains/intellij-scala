@@ -28,19 +28,19 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           CompoundType
-            TypeElement
+            SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('T')
             PsiWhiteSpace(' ')
             PsiElement(with)('with')
             PsiWhiteSpace(' ')
-            TypeElement
+            SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('T')
             PsiWhiteSpace(' ')
             PsiElement(with)('with')
             PsiWhiteSpace(' ')
-            TypeElement
+            SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('T')
         PsiWhiteSpace('\n')
