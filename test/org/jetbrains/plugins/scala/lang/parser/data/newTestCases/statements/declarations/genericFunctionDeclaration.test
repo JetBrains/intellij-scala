@@ -34,5 +34,7 @@ ScalaFile
             TypeParameter
               PsiElement(identifier)('T')
             PsiElement(])(']')
-        PsiWhiteSpace('\n')
+          PsiWhiteSpace('\n')
+          ParametersClauses
+            <empty list>
         PsiElement(})('}')

@@ -28,6 +28,8 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(identifier)('tryMatch')
           PsiWhiteSpace(' ')
+          ParametersClauses
+            <empty list>
           PsiElement(=)('=')
           PsiWhiteSpace('\n      ')
           MatchStatement

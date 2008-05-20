@@ -26,6 +26,8 @@ ScalaFile
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('foo')
+          ParametersClauses
+            <empty list>
           PsiElement(=)('=')
           BlockExpression
             PsiElement({)('{')

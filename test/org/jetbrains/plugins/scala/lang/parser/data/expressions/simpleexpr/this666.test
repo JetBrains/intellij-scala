@@ -25,6 +25,8 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(identifier)('bar')
           PsiWhiteSpace(' ')
+          ParametersClauses
+            <empty list>
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           ThisReference

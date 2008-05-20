@@ -157,7 +157,7 @@ ScalaFile
                       PsiElement(identifier)('value')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    ParametrizedTypeElement
+                    GenericCall
                       ReferenceExpression
                         ReferenceExpression
                           ReferenceExpression
