@@ -32,5 +32,8 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
 
   override def toString: String = "ScClass"
 
-  override def getIcon(flags: Int) = Icons.CLASS
+  override def getIconInner = Icons.CLASS
+
+  //todo implement me!
+  def getParameters = Seq.empty
 }

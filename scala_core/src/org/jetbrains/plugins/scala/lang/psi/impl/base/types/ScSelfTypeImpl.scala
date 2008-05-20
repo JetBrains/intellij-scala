@@ -24,6 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 * Date: 07.03.2008
 */
 
-class ScSelfTypeImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScSelfType{
+class ScSelfTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScSelfTypeElement{
   override def toString: String = "SelfType"
 }

@@ -28,8 +28,10 @@ import com.intellij.psi.PsiElement
 */
 
 class ScParamClausesImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParamClauses {
+
   override def toString: String = "ParametersClauses"
-  def getParameters: Seq[ScParam] = {
+
+  def params: Seq[ScParameter] = {
     getChildren.flatMap((child: PsiElement) =>
             child match {
               case e: ScParamClause => e.getParameters
@@ -52,4 +54,9 @@ class ScParamClausesImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
     return res.toString()
   }
+
+  def getParameterIndex(p: PsiParameter) = params.indexOf(List(p))
+
+  def getParametersCount = params.length
+
 }

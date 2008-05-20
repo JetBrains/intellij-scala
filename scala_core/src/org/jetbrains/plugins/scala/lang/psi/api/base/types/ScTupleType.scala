@@ -7,6 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Date: 07.03.2008
 */
 
-trait ScTupleType extends ScType {
+trait ScTupleTypeElement extends ScTypeElement {
 
 }

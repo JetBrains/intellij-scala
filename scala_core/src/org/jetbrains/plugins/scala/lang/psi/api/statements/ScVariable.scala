@@ -10,7 +10,7 @@ import com.intellij.psi._
 * Time: 9:45:29
 */
 
-trait ScVariable extends ScalaPsiElement with ScMember{
+trait ScVariable extends ScalaPsiElement with ScMember {
 
   /**
   * @return all binded identifiers

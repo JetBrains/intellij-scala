@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -11,6 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 */
 
 trait ScFunctionDefinition extends ScFunction with ScTypeDefinitionOwner {
-  def getBody: PsiElement
-  def getParameters: Seq[ScParam]
+
+  def getBodyExpr: ScExpression
+
+  def getParameters: Seq[ScParameter]
 }

@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 * Time: 9:55:28
 */
 
-class ScValueDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScValueDeclaration{
+class ScValueDeclarationImpl(node: ASTNode) extends ScMemberImpl(node) with ScValueDeclaration{
   override def toString: String = "ScValueDeclaration"
 
   override def getIcon(flags: Int) = Icons.VAL

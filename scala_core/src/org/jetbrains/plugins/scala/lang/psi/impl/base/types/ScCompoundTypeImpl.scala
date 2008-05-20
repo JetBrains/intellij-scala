@@ -24,6 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 * Date: 22.02.2008
 */
 
-class ScCompoundTypeImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScCompoundType {
+class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScCompoundTypeElement {
   override def toString: String = "CompoundType"
 }

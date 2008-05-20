@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScParams extends ScalaPsiElement {
-  def getParameters: Seq[ScParam]
+  def getParameters: Seq[ScParameter]
 }

@@ -24,6 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 * Date: 13.03.2008
 */
 
-class ScParenthesisedTypeImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParenthesisedType{
+class ScParenthesisedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParenthesisedTypeElement{
   override def toString: String = "TypeInParenthesis"
 }

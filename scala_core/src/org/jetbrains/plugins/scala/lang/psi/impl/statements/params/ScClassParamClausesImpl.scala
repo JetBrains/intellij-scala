@@ -29,7 +29,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 class ScClassParamClausesImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScClassParamClauses {
   override def toString: String = "ClassParametersClauses"
-  def getParameters: Seq[ScClassParam] = {
+
+  def getParameters: Seq[ScParameter] = {
     getChildren.flatMap((child: PsiElement) =>
             child match {
               case e: ScClassParamClause => e.getParameters

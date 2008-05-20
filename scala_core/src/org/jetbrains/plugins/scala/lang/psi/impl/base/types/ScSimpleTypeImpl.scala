@@ -25,14 +25,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 * Date: 22.02.2008
 */
 
-class ScSimpleTypeImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleType {
+class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleTypeElement {
 
   /*override def getAbstractType : AbstractType= {
     val children = getChildren
     // For explicit type specification
 /*
-    if (children.length >0 && children(0).isInstanceOf[ScSimpleTypeImpl]) {
-      return children(0).asInstanceOf[ScSimpleTypeImpl].getAbstractType
+    if (children.length >0 && children(0).isInstanceOf[ScSimpleTypeElementImpl]) {
+      return children(0).asInstanceOf[ScSimpleTypeElementImpl].getAbstractType
     }
 */
     if (children.length == 1 && children(0).isInstanceOf[ScStableId] &&

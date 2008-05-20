@@ -25,6 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 * Date: 22.02.2008
 */
 
-class ScFunctionalTypeImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionalType {
+class ScFunctionalTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionalTypeElement {
   override def toString: String = "FunctionalType"
 }

@@ -7,6 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Date: 11.04.2008
 */
 
-trait ScWildcardType extends ScType {
+trait ScWildcardTypeElement extends ScTypeElement {
 
 }

@@ -7,6 +7,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Date: 22.02.2008
 */
 
-trait ScClassParam extends ScalaPsiElement {
-  def getTypeNode: ScalaPsiElement
+trait ScClassParameter extends ScParameter {
 }
