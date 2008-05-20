@@ -52,7 +52,10 @@ object FunDcl {
         return false
       }
     }
-    FunSig parse builder
+    if (!(FunSig parse builder)) {
+      returnMarker.drop
+      return false
+    }
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON => {
         builder.advanceLexer //Ate :
