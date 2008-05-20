@@ -8,6 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 * Date: 22.02.2008
 */
 
-trait ScConstructor extends ScFunction {
+trait ScConstructor extends ScalaPsiElement {
 
 }

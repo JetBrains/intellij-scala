@@ -27,9 +27,5 @@ import com.intellij.psi.tree._
 class ScTemplateParentsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTemplateParents {
   val STABLE_ID_BIT_SET = TokenSet.create(Array(ScalaElementTypes.STABLE_ID))
 
-  //def getMainConstructor = getChild(ScalaElementTypes.CONSTRUCTOR).asInstanceOf[ScConstructor]
-
-  //def getMixinParents = childrenOfType[ScStableId](STABLE_ID_BIT_SET)
-
   override def toString: String = "ClassParents"
 }
