@@ -24,6 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 * Date: 07.03.2008
 */
 
-class ScAnnotTypeImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScAnnotType{
+class ScAnnotTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScAnnotTypeElement{
   override def toString: String = "TypeWithAnnotation"
 }

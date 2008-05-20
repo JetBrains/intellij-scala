@@ -59,7 +59,7 @@ extends Object with ScalaTokenTypes with Block {
       }
       case _: ScalaFile => return new ChildAttributes(Indent.getNoneIndent, null)
       case _: ScCaseClause => return new ChildAttributes(Indent.getNormalIndent, null)
-      case _: ScExpression | _: ScPattern | _: ScParameters | _: ScParam =>
+      case _: ScExpression | _: ScPattern | _: ScParameters | _: ScParameter =>
         return new ChildAttributes(Indent.getContinuationWithoutFirstIndent, null)
       case _ => new ChildAttributes(Indent.getNoneIndent(), null)
     }

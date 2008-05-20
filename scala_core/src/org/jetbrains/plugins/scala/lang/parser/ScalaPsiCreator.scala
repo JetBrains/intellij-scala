@@ -107,12 +107,12 @@ object ScalaPsiCreator {
       case ScalaElementTypes.PARAM_CLAUSE => new ScParamClauseImpl (node)
       case ScalaElementTypes.PARAM_CLAUSES => new ScParamClausesImpl (node)
       /*********** class ************/
-      case ScalaElementTypes.CLASS_PARAM => new ScClassParamImpl (node)
+      case ScalaElementTypes.CLASS_PARAM => new ScClassParameterImpl (node)
       case ScalaElementTypes.CLASS_PARAM_CLAUSE => new ScClassParamClauseImpl (node)
       case ScalaElementTypes.CLASS_PARAM_CLAUSES => new ScClassParamClausesImpl (node)
       /********** function **********/
-      case ScalaElementTypes.PARAM => new ScParamImpl (node)
-      case ScalaElementTypes.PARAM_TYPE => new ScParamTypeImpl (node)
+      case ScalaElementTypes.PARAM => new ScParameterImpl (node)
+      case ScalaElementTypes.PARAM_TYPE => new ScParameterTypeImpl (node)
       /***************** type parameters ****************/
       case ScalaElementTypes.TYPE_PARAM_CLAUSE => new ScTypeParamClauseImpl (node)
       /*********** class ************/
@@ -127,7 +127,7 @@ object ScalaPsiCreator {
       /***************************************************/
 
       /************** modifiers **************/
-      case ScalaElementTypes.MODIFIERS => new ScModifiersImpl (node)
+      case ScalaElementTypes.MODIFIERS => new ScModifierListImpl (node)
       case ScalaElementTypes.ACCESS_MODIFIER => new ScAccessModifierImpl (node)
 
       /************* annotation *************/
@@ -151,24 +151,24 @@ object ScalaPsiCreator {
 
     /********************** TYPES ************************/
 
-    case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeImpl (node)
-    case ScalaElementTypes.TUPLE_TYPE => new ScTupleTypeImpl (node)
-    case ScalaElementTypes.TYPE_IN_PARENTHESIS => new ScParenthesisedTypeImpl (node)
-    case ScalaElementTypes.TYPE => new ScFunctionalTypeImpl (node)
-    case ScalaElementTypes.COMPOUND_TYPE => new ScCompoundTypeImpl (node)
-    case ScalaElementTypes.INFIX_TYPE => new ScInfixTypeImpl (node)
+    case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeElementImpl(node)
+    case ScalaElementTypes.TUPLE_TYPE => new ScTupleTypeElementImpl(node)
+    case ScalaElementTypes.TYPE_IN_PARENTHESIS => new ScParenthesisedTypeElementImpl(node)
+    case ScalaElementTypes.TYPE => new ScFunctionalTypeElementImpl(node)
+    case ScalaElementTypes.COMPOUND_TYPE => new ScCompoundTypeElementImpl(node)
+    case ScalaElementTypes.INFIX_TYPE => new ScInfixTypeElementImpl(node)
     case ScalaElementTypes.REFINE_STAT => new ScRefineStatImpl (node)
     case ScalaElementTypes.REFINEMENT => new ScRefinementImpl (node)
     case ScalaElementTypes.REFINEMENTS => new ScRefinementsImpl (node)
     case ScalaElementTypes.TYPES => new ScTypesImpl (node)
     case ScalaElementTypes.TYPE_ARGS => new ScTypeArgsImpl (node)
     case ScalaElementTypes.ASCRIPTION => new ScAscriptionImpl (node)
-    case ScalaElementTypes.ANNOT_TYPE => new ScAnnotTypeImpl (node)
+    case ScalaElementTypes.ANNOT_TYPE => new ScAnnotTypeElementImpl(node)
     case ScalaElementTypes.SEQUENCE_ARG => new ScSequenceArgImpl (node)
     case ScalaElementTypes.EXISTENTIAL_CLAUSE => new ScExistentialClauseImpl (node)
-    case ScalaElementTypes.SELF_TYPE => new ScSelfTypeImpl (node)
-    case ScalaElementTypes.EXISTENTIAL_TYPE => new ScExistentialTypeImpl (node)
-    case ScalaElementTypes.WILDCARD_TYPE => new ScWildcardTypeImpl (node)
+    case ScalaElementTypes.SELF_TYPE => new ScSelfTypeElementImpl(node)
+    case ScalaElementTypes.EXISTENTIAL_TYPE => new ScExistentialTypeElementImpl(node)
+    case ScalaElementTypes.WILDCARD_TYPE => new ScWildcardTypeElementImpl(node)
     case ScalaElementTypes.TYPE_PROJECTION => new ScTypeProjectionImpl (node)
     case ScalaElementTypes.TYPE_GENERIC_CALL => new ScTypeGenericCallImpl (node)
 
@@ -186,7 +186,6 @@ object ScalaPsiCreator {
     case ScalaElementTypes.SIMPLE_EXPR => new ScPlaceholderExprImpl (node)
     case ScalaElementTypes.UNIT => new ScUnitImpl (node)
     case ScalaElementTypes.UNIT_EXPR => new ScUnitExprImpl (node)
-    //    case ScalaElementTypes.PREFIX => new ScPrefixImpl(node)
     case ScalaElementTypes.INFIX_EXPR => new ScInfixExprImpl (node)
     case ScalaElementTypes.POSTFIX_EXPR => new ScPostfixExprImpl (node)
     case ScalaElementTypes.FUNCTION_EXPR => new ScFunctionExprImpl (node)

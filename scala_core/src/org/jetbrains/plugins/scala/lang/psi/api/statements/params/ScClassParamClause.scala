@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Date: 22.02.2008
 */
 
-trait ScClassParamClause extends ScParameters {
-  def getParameters: Seq[ScClassParam]
-  def getParametersAsString: String
+trait ScClassParamClause extends ScParamClause {
+
 }

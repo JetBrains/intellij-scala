@@ -46,17 +46,14 @@ object ScalaElementPresentation {
 
   def getMethodPresentableText(function: ScFunction): String = {
     val presentableText: StringBuffer = new StringBuffer("")
-    if (function.getNameNode != null)
-      presentableText.append(function.getNameNode.getText)
-    else
-      presentableText.append("unnamed")
+      presentableText.append(function.getName)
     if (function.typeParametersClause != null)
       presentableText.append(function.typeParametersClause.getText)
     if (function.getParametersClauses != null)
       presentableText.append(function.getParametersClauses.getParametersAsString)
-    if (function.getReturnTypeNode != null) {
+    if (function.getReturnScTypeElement != null) {
       presentableText.append(": ")
-      presentableText.append(function.getReturnTypeNode.getText)
+      presentableText.append(function.getReturnScTypeElement.getText)
     }
     return presentableText.toString()
   }

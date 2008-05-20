@@ -24,6 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 * Date: 13.03.2008
 */
 
-class ScExistentialTypeImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScExistentialType{
+class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScExistentialTypeElement{
   override def toString: String = "ExistentialType"
 }

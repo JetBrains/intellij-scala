@@ -37,7 +37,7 @@ object getDummyBlocks{
     val subBlocks = new ArrayList[Block]
     var prevChild: ASTNode = null
     node.getPsi match {
-      case _: ScInfixExpr | _: ScInfixPattern | _: ScInfixType
+      case _: ScInfixExpr | _: ScInfixPattern | _: ScInfixTypeElement
       if (INFIX_ELEMENTS.contains(node.getLastChildNode.getElementType)) => {
         subBlocks.addAll(getInfixBlocks(node, block))
         return subBlocks

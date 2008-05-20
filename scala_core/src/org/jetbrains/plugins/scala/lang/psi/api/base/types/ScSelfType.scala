@@ -7,6 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Date: 07.03.2008
 */
 
-trait ScSelfType extends ScalaPsiElement {
+trait ScSelfTypeElement extends ScalaPsiElement {
 
 }

@@ -24,6 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 * Date: 07.03.2008
 */
 
-class ScTupleTypeImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTupleType{
+class ScTupleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTupleTypeElement{
   override def toString: String = "TupleType"
 }

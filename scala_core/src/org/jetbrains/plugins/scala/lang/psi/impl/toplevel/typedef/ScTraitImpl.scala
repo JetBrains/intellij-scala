@@ -48,8 +48,7 @@ class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait
 
   override def setName(s: String) = this
 
-
   override def toString: String = "ScTrait"
 
-  override def getIcon(flags: Int) = Icons.TRAIT
+  override def getIconInner = Icons.TRAIT
 }

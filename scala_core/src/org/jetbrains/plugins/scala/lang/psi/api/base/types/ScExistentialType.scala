@@ -7,6 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Date: 13.03.2008
 */
 
-trait ScExistentialType extends ScType {
+trait ScExistentialTypeElement extends ScTypeElement {
 
 }

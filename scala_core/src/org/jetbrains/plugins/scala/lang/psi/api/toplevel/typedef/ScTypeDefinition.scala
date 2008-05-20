@@ -30,6 +30,7 @@ import _root_.java.util.Collection;
 import _root_.java.util.Collections;
 import _root_.java.util.List;
 import com.intellij.psi._
+import com.intellij.openapi.util.Iconable
 
 import _root_.scala.collection.mutable._
 
@@ -39,9 +40,9 @@ import _root_.scala.collection.mutable._
 */
 
 trait ScTypeDefinition extends ScalaPsiElement
-  with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTypeDefinitionBase with ScTopStatement with ScNamedElement with ScTypeParametersOwner {
+  with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTypeDefinitionBase with ScTopStatement with ScNamedElement with ScTypeParametersOwner with Iconable {
 
-  def getNameIdentifierScala(): PsiElement
+  def getNameIdentifierScala: PsiElement
 
   def getFieldsAndMethods(): Array[ScMember] = {
     val res = new ArrayBuffer[ScMember]

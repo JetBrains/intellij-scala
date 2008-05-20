@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScNamedElement extends ScalaPsiElement with PsiNamedElement {
+
   def name() : String = nameNode match {
     case null => null
     case e => e.getText()

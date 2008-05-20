@@ -26,23 +26,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 * Date: 22.02.2008
 */
 
-class ScClassParamClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScClassParamClause {
+class ScClassParamClauseImpl(node: ASTNode) extends ScParamClauseImpl(node) with ScClassParamClause {
+
   override def toString: String = "ClassParametersClause"
-  def getParameters: Seq[ScClassParam] = {
-    for (child <- getChildren) yield child.asInstanceOf[ScClassParam]
+
+  def params: Seq[ScClassParameter] = {
+    for (child <- getChildren) yield child.asInstanceOf[ScClassParameter]
   }
 
-  def getParametersAsString: String = {
-    val res = new StringBuffer("");
-    for (param <- getParameters) {
-      if (param.getTypeNode != null)
-        res.append(param.getTypeNode.getText())
-      else
-        res.append("AnyRef")
-      res.append(", ")
-    }
-    if (res.length >= 2)
-      res.delete(res.length - 2, res.length)
-    return res.toString
-  }
 }

@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 * Time: 9:55:53
 */
 
-class ScVariableDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScVariableDeclaration {
+class ScVariableDeclarationImpl(node: ASTNode) extends ScMemberImpl(node) with ScVariableDeclaration {
 
   override def toString: String = "ScVariableDeclaration"
 

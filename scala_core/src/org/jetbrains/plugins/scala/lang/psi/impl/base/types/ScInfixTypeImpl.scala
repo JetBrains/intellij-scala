@@ -25,6 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 * Date: 22.02.2008
 */
 
-class ScInfixTypeImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixType{
+class ScInfixTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixTypeElement{
   override def toString: String = "InfixType"
 }

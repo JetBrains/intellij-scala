@@ -30,23 +30,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 * Time: 9:49:08
 */
 
-class ScFunctionDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionDeclaration {
-  def getNameNode: ASTNode = node.findChildByType(ScalaTokenTypes.tIDENTIFIER)
+class ScFunctionDeclarationImpl(node: ASTNode) extends ScFunctionImpl(node) with ScFunctionDeclaration {
+
   override def toString: String = "ScFunctionDeclaration"
 
-  override def getIcon(flags: Int) = Icons.FUNCTION
+  def getFunctionsAndTypeDefs = Seq.empty
 
-  def getParametersClauses: ScParamClauses = findChildByClass(classOf[ScParamClauses])
-
-  def getReturnTypeNode: ScType = {
-    findChildByClass(classOf[ScType]) 
-  }
-  def typeParametersClause: ScTypeParamClause = {
-    findChildByClass(classOf[ScTypeParamClause])
-  }
-
-  def getFunctionsAndTypeDefs: Array[ScalaPsiElement] = {
-    return new Array[ScalaPsiElement](0)
-  }
 }
 

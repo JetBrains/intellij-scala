@@ -22,6 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 class ScObjectImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScObject{
 
   override def toString: String = "ScObject"
-  override def getIcon(flags: Int) = Icons.OBJECT
+
+  override def getIconInner = Icons.OBJECT
+
   override def setName(s: String) = this
 }

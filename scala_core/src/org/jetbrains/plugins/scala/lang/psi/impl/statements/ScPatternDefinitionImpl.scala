@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 * Time: 9:55:42
 */
 
-class ScPatternDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatternDefinition {
+class ScPatternDefinitionImpl(node: ASTNode) extends ScMemberImpl(node) with ScPatternDefinition {
   override def toString: String = "ScPatternDefinition"
 
   def bindings: Seq[ScBindingPattern] = {

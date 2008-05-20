@@ -21,7 +21,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 * Time: 9:56:07
 */
 
-class ScVariableDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScVariableDefinition {
+class ScVariableDefinitionImpl(node: ASTNode) extends ScMemberImpl(node) with ScVariableDefinition {
 
   override def toString: String = "ScVariableDefinition"
   override def getIcon(flags: Int) = Icons.VAR
