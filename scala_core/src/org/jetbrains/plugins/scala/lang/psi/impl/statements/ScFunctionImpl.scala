@@ -12,13 +12,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
-/**
+/**                                                                                                                                            (ScalaTokenTypes.tIDENTIFIER)
  * @author ilyas
  */
 
 abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScFunction {
 
-  def getId = node.findChildByType(ScalaTokenTypes.tIDENTIFIER).getPsi
+  def getId = {
+    val n = node.findChildByType(ScalaTokenTypes.tIDENTIFIER)
+    (if (n == null) {
+      node.findChildByType(ScalaTokenTypes.kTHIS)
+    } else n).getPsi
+  }
 
   override def getName = getId.getText
 
@@ -69,7 +74,7 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
   //todo implement me!
   def isVarArgs = false
 
-  def isConstructor = false
+  def isConstructor = getId.getNode.getElementType == ScalaTokenTypes.kTHIS
 
   def getBody = null
 

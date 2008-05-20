@@ -30,6 +30,4 @@ trait ScTypeDefinitionOwner extends ScalaPsiElement {
     case t: ScTypeDefinition => List(t) ++ t.getTypeDefinitions
     case _ => Seq.empty
   }
-
-
 }

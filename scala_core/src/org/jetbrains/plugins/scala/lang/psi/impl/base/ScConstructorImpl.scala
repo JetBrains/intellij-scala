@@ -20,25 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 * Date: 22.02.2008
 */
 
-class ScConstructorImpl(node: ASTNode) extends ScFunctionImpl(node) with ScConstructor {
+class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScConstructor {
 
   override def toString: String = "Constructor"
-
-  def getFunctionsAndTypeDefs = Seq.empty
-
-  override def getId: PsiElement = {
-    val name = super.getId
-    if (name == null) {
-      if (node.getTreeParent.getElementType == ScalaElementTypes.TEMPLATE_BODY) {
-        val parent = node.getTreeParent.getTreeParent.getTreeParent
-        if (!parent.getPsi.isInstanceOf[ScTypeDefinition]) return null
-        return parent.getPsi.asInstanceOf[ScTypeDefinition].getNameIdentifierScala
-      } else null
-    } else name
-  }
-
-  override def getName = "this"
-
-  override def isConstructor = true
 
 }
