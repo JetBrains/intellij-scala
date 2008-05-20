@@ -37,18 +37,17 @@ import org.jetbrains.plugins.scala.ScalaBundle
 
 //TODO: rewrite this
 object FunSig {
-  def parse(builder: PsiBuilder): Unit = {
+  def parse(builder: PsiBuilder): Boolean = {
     if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
       if (BNF.firstFunTypeParam.contains(builder.getTokenType)) {
         FunTypeParamClause parse builder
       }
-
       ParamClauses parse builder
-
+      true
     } else {
       builder error "identifier expected"
-      return
+      false
     }
 
   }
