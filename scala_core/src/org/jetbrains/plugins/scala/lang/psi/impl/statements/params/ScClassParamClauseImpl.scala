@@ -34,4 +34,22 @@ class ScClassParamClauseImpl(node: ASTNode) extends ScParamClauseImpl(node) with
     for (child <- getChildren) yield child.asInstanceOf[ScClassParameter]
   }
 
+  override def getParameters: Seq[ScParameter] = {
+    for (child <- getChildren if child.isInstanceOf[ScParameter]) yield child.asInstanceOf[ScParameter]
+  }
+
+  override def getParametersAsString: String = {
+    val res = new StringBuffer("");
+    for (param <- getParameters) {
+      if (param.getTypeElement != null)
+        res.append(param.getTypeElement.getText())
+      else
+        res.append("AnyRef")
+      res.append(", ")
+    }
+    if (res.length >= 2)
+      res.delete(res.length - 2, res.length)
+    return res.toString
+  }
+
 }

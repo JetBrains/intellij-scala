@@ -82,12 +82,13 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
   override def getIcon(flags: Int): Icon = {
     if (!isValid) return null
     val icon = getIconInner
-    val isLocked = (flags & Iconable.ICON_FLAG_READ_STATUS) != 0 && !isWritable()
+    /*val isLocked = (flags & Iconable.ICON_FLAG_READ_STATUS) != 0 && !isWritable()
     val rowIcon = ElementBase.createLayeredIcon(icon, ElementPresentationUtil.getFlags(this, isLocked))
     if ((flags & Iconable.ICON_FLAG_VISIBILITY) != 0) {
       VisibilityIcons.setVisibilityIcon(getModifierList, rowIcon);
     }
-    rowIcon;
+    rowIcon;*/
+    icon
   }
 
   def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = methods.filter((m: PsiMethod) =>
