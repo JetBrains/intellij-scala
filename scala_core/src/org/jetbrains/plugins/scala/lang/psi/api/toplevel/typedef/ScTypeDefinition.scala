@@ -46,10 +46,11 @@ trait ScTypeDefinition extends ScalaPsiElement
 
   def getFieldsAndMethods(): Seq[ScMember] = {
     val eb = getExtendsBlock
-    if (eb != null && eb.getTemplateBody != null) {
+    val res = if (eb != null && eb.getTemplateBody != null) {
       for (child <- getExtendsBlock.getTemplateBody.getChildren if child.isInstanceOf[ScMember])
               yield child.asInstanceOf[ScMember]
     } else Seq.empty
+    return res ++ (for (child <- getChildren if child.isInstanceOf[ScMember]) yield child.asInstanceOf[ScMember])
   }
 
   def methods = for (m <- getFieldsAndMethods if m.isInstanceOf[PsiMethod]) yield m.asInstanceOf[PsiMethod]
