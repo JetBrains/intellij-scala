@@ -15,14 +15,18 @@
 
 package org.jetbrains.plugins.scala.highlighter;
 
-import com.intellij.lang.Commenter;
+import com.intellij.lang.CodeDocumentationAwareCommenter;
+import com.intellij.psi.PsiComment;
+import com.intellij.psi.tree.IElementType;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 /**
  * @author ilyas
  * Date: 29.09.2006
  * Time: 20:48:30
  */
-public class ScalaCommenter implements Commenter {
+public class ScalaCommenter implements CodeDocumentationAwareCommenter, ScalaTokenTypes {
   public String getLineCommentPrefix() {
     return "//";
   }
@@ -37,5 +41,39 @@ public class ScalaCommenter implements Commenter {
 
   public String getBlockCommentSuffix() {
     return "*/";
+  }
+
+  @Nullable
+  public IElementType getLineCommentTokenType() {
+    return tLINE_COMMENT;
+  }
+
+  @Nullable
+  public IElementType getBlockCommentTokenType() {
+    return tBLOCK_COMMENT;
+  }
+
+  @Nullable
+  public IElementType getDocumentationCommentTokenType() {
+    return tDOC_COMMENT;
+  }
+
+  @Nullable
+  public String getDocumentationCommentPrefix() {
+    return "/**";
+  }
+
+  @Nullable
+  public String getDocumentationCommentLinePrefix() {
+    return "*";
+  }
+
+  @Nullable
+  public String getDocumentationCommentSuffix() {
+    return "*/";
+  }
+
+  public boolean isDocumentationComment(PsiComment element) {
+    return element.getText().startsWith(getDocumentationCommentPrefix());
   }
 }

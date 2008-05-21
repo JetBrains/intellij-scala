@@ -37,12 +37,18 @@ public class ScalaBraceMatcher implements PairedBraceMatcher {
   };
 
   public BracePair[] getPairs() {
-
     return PAIRS;
   }
 
-  public boolean isPairedBracesAllowedBeforeType(@NotNull IElementType type, @Nullable IElementType type1) {
-    return false;
+  public boolean isPairedBracesAllowedBeforeType(@NotNull IElementType type, @Nullable IElementType tokenType) {
+    return tokenType == null
+        || ScalaTokenTypes.tWHITE_SPACE_IN_LINE == tokenType
+        || ScalaSyntaxHighlighter.tCOMMENTS.contains(tokenType)
+        || tokenType == ScalaTokenTypes.tSEMICOLON
+        || tokenType == ScalaTokenTypes.tCOMMA
+        || tokenType == ScalaTokenTypes.tRPARENTHESIS
+        || tokenType == ScalaTokenTypes.tRSQBRACKET
+        || tokenType == ScalaTokenTypes.tRBRACE;
   }
 
   public int getCodeConstructStart(PsiFile file, int openingBraceOffset) {

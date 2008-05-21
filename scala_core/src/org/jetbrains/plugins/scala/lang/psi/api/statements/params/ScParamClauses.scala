@@ -15,7 +15,7 @@ trait ScParamClauses extends ScParameters with PsiParameterList {
 
   def params: Seq[ScParameter]
 
-  // todo hack for applictiation running
+  // todo hack for applictiation running                                                                                     
   def getParameters = getParent match {
     case m: ScFunctionImpl => {
       if (m.isMainMethod) {
@@ -23,8 +23,9 @@ trait ScParamClauses extends ScParameters with PsiParameterList {
         val p = new ScParameterImpl(params(0).getNode) {
           override def getType(): PsiType = new PsiArrayType(
           JavaPsiFacade.getInstance(m.getProject).getElementFactory.createTypeByFQClassName(
-            "java.lang.String",
-            GlobalSearchScope.allScope(m.getProject))
+          "java.lang.String",
+          GlobalSearchScope.allScope(m.getProject)
+          )
           )
         }
         ps(0) = p
