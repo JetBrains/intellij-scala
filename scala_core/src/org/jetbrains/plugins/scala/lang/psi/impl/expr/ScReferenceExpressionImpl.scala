@@ -43,60 +43,59 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def getRangeInElement: TextRange = {
     val nameElement: ASTNode = getNameElement()
     val startOffset: Int = if (nameElement != null) nameElement.getStartOffset()
-      else getNode().getTextRange().getEndOffset(); 
+    else getNode().getTextRange().getEndOffset();
     return new TextRange(startOffset - getNode().getStartOffset(), getTextLength());
   }
 
   def getNameElement(): ASTNode = {
-    return getNode().findChildByType(ScalaTokenTypes.tIDENTIFIER); 
+    return getNode().findChildByType(ScalaTokenTypes.tIDENTIFIER);
   }
 
   def getCanonicalText: String = null
 
-  def  handleElementRename(newElementName: String): PsiElement = {
-    return this; //todo
+  def handleElementRename(newElementName: String): PsiElement = {
+    return this;
+    //todo
   }
 
-  def  bindToElement(element: PsiElement):PsiElement = {
-    return this; //todo
+  def bindToElement(element: PsiElement): PsiElement = {
+    return this;
+    //todo
   }
 
   def isReferenceTo(element: PsiElement): Boolean = {
-    if (element.isInstanceOf[PsiNamedElement]) { 
+    if (element.isInstanceOf[PsiNamedElement]) {
       if (Comparing.equal(refName, element.asInstanceOf[PsiNamedElement].getName())) return resolve() == element;
     }
     return false;
   }
 
   @Nullable
-  def refName() : String = {
-     val nameElement: ASTNode = getNameElement();
-     return if (nameElement != null) nameElement.getText() else null;
-   }
+  def refName(): String = {
+    val nameElement: ASTNode = getNameElement();
+    return if (nameElement != null) nameElement.getText() else null;
+  }
 
   def getVariants(): Array[Object] = {
     return null
   }
-  def isSoft(): Boolean = { 
+  def isSoft(): Boolean = {
     return false;
   }
 
 
-  def multiResolve(incomplete : Boolean): Array[ResolveResult] = {
+  def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
     qualifier match {
       case null => {
         val processor = new ResolveProcessor(null, refName)
-        def treeWalkUp (place : PsiElement, lastParent : PsiElement) : Unit = {
+        def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
           place match {
             case null => ()
             case p => {
               if (!p.processDeclarations(processor,
-                ResolveState.initial(),
-                lastParent, ScReferenceExpressionImpl.this)) return null
-
+              ResolveState.initial(),
+              lastParent, ScReferenceExpressionImpl.this)) return null
               treeWalkUp(place.getParent, place)
-
-
             }
           }
         }
@@ -107,9 +106,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
   }
 
-  override def getType() : ScType = {
+  override def getType(): ScType = {
     if (stable) return new ScSingletonType(this)
-    
+
     return null //todo
   }
 

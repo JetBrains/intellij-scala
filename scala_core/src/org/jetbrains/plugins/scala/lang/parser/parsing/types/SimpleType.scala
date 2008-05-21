@@ -41,7 +41,7 @@ object SimpleType {
               builder.advanceLexer //Ate id
             }
             case _ => {
-              builder error ScalaBundle.message("identifier.expected",new Array[Object](0))
+              builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
             }
           }
           curMarker.done(ScalaElementTypes.TYPE_PROJECTION)
@@ -58,7 +58,7 @@ object SimpleType {
       case ScalaTokenTypes.tLPARENTHESIS => {
         val tupleMarker = builder.mark
         builder.advanceLexer
-        val (_,isTuple) = Types parse builder
+        val (_, isTuple) = Types parse builder
         builder.getTokenType match {
           case ScalaTokenTypes.tCOMMA => {
             builder.advanceLexer //Ate ,
@@ -86,8 +86,8 @@ object SimpleType {
         }
       }
       case ScalaTokenTypes.kTHIS |
-           ScalaTokenTypes.tIDENTIFIER |
-           ScalaTokenTypes.kSUPER => {
+              ScalaTokenTypes.tIDENTIFIER |
+              ScalaTokenTypes.kSUPER => {
         val newMarker = builder.mark
         Path parse (builder, ScalaElementTypes.REFERENCE)
         builder.getTokenType match {
@@ -101,7 +101,7 @@ object SimpleType {
               case _ => {
                 newMarker.rollbackTo
                 val fMarker = builder.mark
-                StableId parse (builder,ScalaElementTypes.REFERENCE)
+                StableId parse (builder, ScalaElementTypes.REFERENCE)
                 fMarker.done(ScalaElementTypes.SIMPLE_TYPE)
               }
             }
@@ -109,7 +109,7 @@ object SimpleType {
           case _ => {
             newMarker.rollbackTo
             val fMarker = builder.mark
-            StableId parse (builder,ScalaElementTypes.REFERENCE)
+            StableId parse (builder, ScalaElementTypes.REFERENCE)
             fMarker.done(ScalaElementTypes.SIMPLE_TYPE)
           }
         }
