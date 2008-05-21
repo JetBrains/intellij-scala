@@ -205,7 +205,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.ERROR_STMT => new ScErrorStatImpl(node)
 
     case ScalaElementTypes.IF_STMT => new ScIfStmtImpl(node)
-    case ScalaElementTypes.FOR_STMT => new ScForStmtImpl(node)
+    case ScalaElementTypes.FOR_STMT => new ScForStatementImpl(node)
     case ScalaElementTypes.DO_STMT => new ScDoStmtImpl(node)
     case ScalaElementTypes.TRY_STMT => new ScTryStmtImpl(node)
     case ScalaElementTypes.TRY_BLOCK => new ScTryBlockImpl(node)

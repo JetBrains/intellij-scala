@@ -2,16 +2,17 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
 
-trait ScForStmt extends ScExpression {
+trait ScForStatement extends ScExpression {
 
-  def isEnumerators = (e: PsiElement) => e.isInstanceOf[ScEnumerators]
-  def enumerators: ScEnumerators = childSatisfyPredicateForPsiElement(isEnumerators).asInstanceOf[ScEnumerators]
+  def enumerators: ScEnumerators
 
+  def patterns: Seq[ScPattern]
 
 }

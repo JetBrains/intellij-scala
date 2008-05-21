@@ -11,6 +11,6 @@ trait ScModifierListOwner extends PsiModifierListOwner {
 
   def getModifierList: ScModifierList
 
-  def hasModifierProperty(name:String) = getModifierList.hasModifierProperty(name:String)
+  def hasModifierProperty(name: String) = if (getModifierList != null) getModifierList.hasModifierProperty(name: String) else false
 
 }

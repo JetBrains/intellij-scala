@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -8,5 +9,13 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScEnumerators extends ScalaPsiElement {
+
+  def enumerators: Seq[ScEnumerator]
+
+  def generators: Seq[ScGenerator]
+
+  def guargs: Seq[ScGuard]
+
+  def namings: Seq[{def pattern: ScPattern}]
 
 }

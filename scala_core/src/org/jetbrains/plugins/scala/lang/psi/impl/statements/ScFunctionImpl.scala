@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
-/**                                                                                                                                            (ScalaTokenTypes.tIDENTIFIER)
+/**
  * @author ilyas
  */
 
@@ -74,7 +74,7 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
   //todo implement me!
   def isVarArgs = false
 
-  def isConstructor = getId.getNode.getElementType == ScalaTokenTypes.kTHIS
+  def isConstructor = false
 
   def getBody = null
 

@@ -30,9 +30,9 @@ class ScalaWithForYieldSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateDescription = "for / yield"
 
   override def getSurroundSelectionRange (withForNode : ASTNode ) : TextRange = {
-    val forStmt = withForNode.getPsi.asInstanceOf[ScForStmt]
+    val forStmt = withForNode.getPsi.asInstanceOf[ScForStatement]
 
-    val enums = forStmt.asInstanceOf[ScForStmt].enumerators.getNode
+    val enums = forStmt.asInstanceOf[ScForStatement].enumerators.getNode
 
     val offset = enums.getTextRange.getStartOffset
     forStmt.getNode.removeChild(enums)

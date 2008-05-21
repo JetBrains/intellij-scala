@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -8,5 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScEnumerator extends ScalaPsiElement {
+  
+  def pattern: ScPattern
+
+  def rvalue: ScExpression
 
 }

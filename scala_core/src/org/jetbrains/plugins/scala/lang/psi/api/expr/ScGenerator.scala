@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -8,5 +11,11 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScGenerator extends ScalaPsiElement {
+
+  def pattern: ScPattern
+
+  def guard: ScGuard
+
+  def rvalue: ScExpression
 
 }
