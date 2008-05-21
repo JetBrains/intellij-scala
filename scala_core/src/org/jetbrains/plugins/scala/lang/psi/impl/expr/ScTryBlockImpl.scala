@@ -27,6 +27,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Date: 06.03.2008
 */
 
-class ScTryBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryBlock {
+class ScTryBlockImpl(node: ASTNode) extends ScBlockImpl(node) with ScTryBlock {
+
   override def toString: String = "TryBlock"
+
 }

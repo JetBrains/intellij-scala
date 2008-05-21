@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-class ResolveTargets(n: Int)
+case class ResolveTargets(n: Int)
 
 object ResolveTargets {
   val METHOD = new ResolveTargets(0)

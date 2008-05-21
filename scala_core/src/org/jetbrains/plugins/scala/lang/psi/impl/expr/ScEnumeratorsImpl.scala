@@ -3,24 +3,17 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-
-
-
-
-
-
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
-
 import org.jetbrains.annotations._
-
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.icons.Icons
-
-
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import com.intellij.psi.scope._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -28,5 +21,36 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 */
 
 class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnumerators {
+
   override def toString: String = "Enumerators"
+
+  def enumerators = List.fromArray(findChildrenByClass(classOf[ScEnumerator]))
+
+  def generators = List.fromArray(findChildrenByClass(classOf[ScGenerator]))
+
+  def guargs = List.fromArray(findChildrenByClass(classOf[ScGuard]))
+
+  def namings = for (c <- getChildren if c.isInstanceOf[ScGenerator] || c.isInstanceOf[ScEnumerator])
+          yield c.asInstanceOf[{
+    def pattern: ScPattern
+  }]
+
+  type Patterned = {
+    def pattern: ScPattern
+  }
+
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
+    import org.jetbrains.plugins.scala.lang.resolve._
+
+    val ns = namings.reverse
+    val tail = if (ns.contains(lastParent)) ns.drop(ns.indexOf(lastParent)) else ns
+    val patts = tail.map((ns: Patterned) => ns.pattern)
+    val binds = patts.flatMap[ScBindingPattern]((p: ScPattern) => p.bindings)
+    for (b <- binds) if (!processor.execute(b, state)) return false
+    true
+  }
+
 }

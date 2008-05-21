@@ -9,6 +9,8 @@ import com.intellij.psi._
 */
 
 trait ScPattern extends ScalaPsiElement {
+
   def bindings: Seq[ScBindingPattern]
+
   def subpatterns : Seq[ScPattern]
 }
