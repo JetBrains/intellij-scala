@@ -11,6 +11,7 @@ import com.intellij.psi.filters.position._;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.completion.filters._;
 import org.jetbrains.plugins.scala.lang.completion.filters.toplevel._
+import org.jetbrains.plugins.scala.lang.completion.filters.expression._
 import _root_.scala.collection.mutable._;
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.parser._
@@ -36,10 +37,15 @@ class ScalaCompletionData extends CompletionData {
     //extendsCompletion
     //inExpressionCompletion
     registerPackageCompletion
+    registerExpressionCompletion
   }
 
   def registerPackageCompletion {
     registerStandardCompletion(new PackageFilter(), "package")
+  }
+
+  def registerExpressionCompletion {
+    registerStandardCompletion(new ExpressionFilter, "true", "false", "null", "new", "super", "this")
   }
 
   def registerStandardCompletion(filter: ElementFilter, keywords: String*) {
@@ -66,15 +72,15 @@ class ScalaCompletionData extends CompletionData {
     }
 
     register(ScalaTokenTypes.tIDENTIFIER,
-            new DefaultInsertHandler(),
-            ScalaKeyword.THIS,
-            ScalaKeyword.SUPER)
+    new DefaultInsertHandler(),
+    ScalaKeyword.THIS,
+    ScalaKeyword.SUPER)
     register(ScalaTokenTypes.tIDENTIFIER,
-            null,
-            ScalaKeyword.TYPE)
+    null,
+    ScalaKeyword.TYPE)
     register(ScalaTokenTypes.kTHIS,
-            null,
-            ScalaKeyword.TYPE)
+    null,
+    ScalaKeyword.TYPE)
   }
 
   /*
@@ -89,17 +95,17 @@ class ScalaCompletionData extends CompletionData {
     */
     variant.includeScopeClass(classOf[LeafPsiElement].asInstanceOf[java.lang.Class[LeafPsiElement]], true);
     addCompletions(variant,
-            ScalaKeyword.CLASS,
-            ScalaKeyword.OBJECT,
-            ScalaKeyword.TRAIT,
-            ScalaKeyword.IMPORT,
-            ScalaKeyword.PACKAGE,
-            ScalaKeyword.ABSTRACT,
-            ScalaKeyword.SEALED,
-            ScalaKeyword.FINAL,
-            ScalaKeyword.IMPLICIT,
-            ScalaKeyword.PRIVATE,
-            ScalaKeyword.PROTECTED)
+    ScalaKeyword.CLASS,
+    ScalaKeyword.OBJECT,
+    ScalaKeyword.TRAIT,
+    ScalaKeyword.IMPORT,
+    ScalaKeyword.PACKAGE,
+    ScalaKeyword.ABSTRACT,
+    ScalaKeyword.SEALED,
+    ScalaKeyword.FINAL,
+    ScalaKeyword.IMPLICIT,
+    ScalaKeyword.PRIVATE,
+    ScalaKeyword.PROTECTED)
     registerVariant(variant)
   }
 
@@ -150,9 +156,9 @@ class ScalaCompletionData extends CompletionData {
     val afterDotFilter = new LeftNeighbour(new TextFilter("."))
     var variant = new CompletionVariant(new NotFilter(afterDotFilter));
     variant.includeScopeClass(classOf[LeafPsiElement].asInstanceOf[java.lang.Class[LeafPsiElement]], true);
-//    variant.addCompletionFilterOnElement(TrueFilter.INSTANCE)
+    //    variant.addCompletionFilterOnElement(TrueFilter.INSTANCE)
     var keywords = Array("true", "false", "null", "case", "catch", "def", "else", "finally", "for", "if", "match",
-            "new", "override", "return", "super", "this", "throw", "try", "type", "while", "with", "yield")
+    "new", "override", "return", "super", "this", "throw", "try", "type", "while", "with", "yield")
     variant.addCompletion(keywords)
     registerVariant(variant)
   }

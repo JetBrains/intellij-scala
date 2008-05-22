@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamCla
 import org.jetbrains.plugins.scala.lang.lexer._
 import psi.api.toplevel.packaging._
 import psi.api.toplevel.templates._
+import psi.api.statements.params._
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
@@ -71,9 +72,9 @@ trait ScTypeDefinition extends ScalaPsiElement
     case e => e.getText()
   }
 
-  def typeParametersClause() = findChildByClass(classOf[ScTypeParamClause])
+  def typeParametersClause():ScTypeParamClause
 
-  def typeParameters() = typeParametersClause.typeParameters
+  def typeParameters(): Seq[ScTypeParam]
 
   def getTypeDefinitions(): Seq[ScTypeDefinition] =
     extendsBlock.templateBody match {

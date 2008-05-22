@@ -86,6 +86,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
       VisibilityIcons.setVisibilityIcon(getModifierList, rowIcon);
     }
     rowIcon
+    //icon
   }
 
   def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = methods.filter((m: PsiMethod) =>
@@ -106,4 +107,8 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     } else Seq.empty
     return res ++ findChildrenByClass(classOf[ScMember])
   }
+
+  def typeParametersClause() = findChildByClass(classOf[ScTypeParamClause])
+
+  def typeParameters() = typeParametersClause.typeParameters
 }
