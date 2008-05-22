@@ -10,12 +10,14 @@ import com.intellij.psi.PsiElement;
 object ScalaCompletionUtil {
   def getLeafByOffset(offset: Int, element: PsiElement): PsiElement = {
     if (offset < 0) {
-      return null;
+      return null
     }
-    var candidate: PsiElement = element.getContainingFile();
+    var candidate: PsiElement = element.getContainingFile()
     while (candidate.getNode().getChildren(null).length > 0) {
-      candidate = candidate.findElementAt(offset);
+      candidate = candidate.findElementAt(offset)
     }
-    return candidate;
+    return candidate
   }
+
+  val DUMMY_IDENTIFIER = "IntellijIdeaRulezzz"
 }

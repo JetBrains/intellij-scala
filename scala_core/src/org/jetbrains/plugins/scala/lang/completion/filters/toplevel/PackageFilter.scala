@@ -7,6 +7,7 @@ import com.intellij.psi.filters.ElementFilter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.lang.psi._
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -15,8 +16,8 @@ import com.intellij.psi._
 
 class PackageFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
-    val leaf = ScalaCompletionUtil.getLeafByOffset(context.getTextRange().getStartOffset(), context);
     if (context.isInstanceOf[PsiComment]) return false
+    val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
     if (leaf != null) {
       val parent = leaf.getParent();
       if (parent.isInstanceOf[ScalaFile]) {
@@ -25,6 +26,7 @@ class PackageFilter extends ElementFilter {
     }
     return false;
   }
+
   def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
     return true;
   }
