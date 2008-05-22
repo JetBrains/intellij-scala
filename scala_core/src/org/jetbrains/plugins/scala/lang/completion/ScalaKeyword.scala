@@ -10,7 +10,7 @@ object ScalaKeyword {
   val FALSE = "false"     //yes
   val NULL = "null"        //yes
   val ABSTRACT = "abstract" //yes
-  val CASE = "case"
+  val CASE = "case"         // yes
   val CATCH = "catch"
   val CLASS = "class"
   val DEF = "def"
