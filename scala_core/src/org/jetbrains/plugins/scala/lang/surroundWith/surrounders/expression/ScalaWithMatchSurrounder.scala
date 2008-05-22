@@ -33,6 +33,7 @@ class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
       }
     }
   }
+  // todo WTF?
   override def getExpressionTemplateAsString (expr : ASTNode) = {
     val exprAsString = "while (true) { \n " + expr.getText + "\n" + "}"
 
