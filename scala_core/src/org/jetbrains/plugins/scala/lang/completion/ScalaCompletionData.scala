@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.completion.filters._;
 import org.jetbrains.plugins.scala.lang.completion.filters.toplevel._
 import org.jetbrains.plugins.scala.lang.completion.filters.expression._
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers._
+import org.jetbrains.plugins.scala.lang.completion.filters.definitions._
 import _root_.scala.collection.mutable._;
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.parser._
@@ -43,6 +44,9 @@ class ScalaCompletionData extends CompletionData {
     registerCaseCompletion
     registerImportCompletion
     registerTemplateDefinitionCompletion
+    registerDefinitionsCompletion
+    registerValueDefinitionCompletion
+    registerStatementCompletion
   }
 
   def registerPackageCompletion {
@@ -68,6 +72,18 @@ class ScalaCompletionData extends CompletionData {
 
   def registerTemplateDefinitionCompletion {
     registerStandardCompletion(new TemplateFilter, "class", "object", "trait")
+  }
+
+  def registerDefinitionsCompletion {
+    registerStandardCompletion(new DefinitionsFilter, "val", "var")
+  }
+
+  def registerValueDefinitionCompletion {
+    registerStandardCompletion(new ValueDefinitionFilter, "val")
+  }
+
+  def registerStatementCompletion {
+    registerStandardCompletion(new StatementFilter, "for", "while", "do", "try", "return", "throw")
   }
 
   def registerStandardCompletion(filter: ElementFilter, keywords: String*) {

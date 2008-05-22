@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.completion.filters.toplevel
+package org.jetbrains.plugins.scala.lang.completion.filters.definitions
 
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
@@ -19,20 +19,20 @@ import org.jetbrains.plugins.scala.lang.parser._
 * Date: 22.05.2008
 */
 
-class TemplateFilter extends ElementFilter {
+class DefinitionsFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
     val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
     if (leaf != null) {
       val parent = leaf.getParent();
       parent match {
-        case _: ScalaFile => {
+        case  _: ScClassParameter=> {
           return true
         }
         case _ =>
       }
       parent.getParent match {
-        case _: ScBlockExpr | _: ScTemplateBody => {
+        case _: ScBlockExpr | _: ScTemplateBody | _: ScClassParameter  => {
           if ((leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
                   leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF) && (parent.getPrevSibling == null ||
               parent.getPrevSibling.getPrevSibling == null ||
@@ -51,6 +51,6 @@ class TemplateFilter extends ElementFilter {
 
   @NonNls
   override def toString(): String = {
-    return "template definitions keyword filter";
+    return "val, var keyword filter";
   }
 }

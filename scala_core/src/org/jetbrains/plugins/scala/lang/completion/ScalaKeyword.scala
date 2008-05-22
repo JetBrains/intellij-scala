@@ -41,8 +41,8 @@ object ScalaKeyword {
   val TRAIT = "trait"                  //yes
   val TRY = "try"
   val TYPE = "type"
-  val VAL = "val"
-  val VAR = "var"
+  val VAL = "val"      //yes
+  val VAR = "var"        //yes
   val WHILE = "while"
   val WITH = "with"
   val YIELD = "yield"
