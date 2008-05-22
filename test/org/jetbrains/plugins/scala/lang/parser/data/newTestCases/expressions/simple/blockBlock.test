@@ -45,7 +45,7 @@ ScalaFile
             PsiElement(def)('def')
             PsiWhiteSpace(' ')
             PsiElement(identifier)('foo')
-            ParametersClauses
+            Parameters
               ParametersClause
                 PsiElement(()('(')
                 PsiElement())(')')

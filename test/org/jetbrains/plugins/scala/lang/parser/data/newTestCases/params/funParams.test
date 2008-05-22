@@ -24,37 +24,35 @@ ScalaFile
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('foo')
-          ParametersClauses
+          Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameters
-                Parameter
-                  AnnotationsList
-                    <empty list>
-                  PsiElement(identifier)('a')
-                  PsiElement(:)(':')
-                  PsiWhiteSpace(' ')
-                  ParameterType
-                    SimpleTypeElement
-                      CodeReferenceElement
-                        PsiElement(identifier)('Type')
+              Parameter
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleTypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('Type')
               PsiElement())(')')
             ParametersClause
               PsiElement(()('(')
-              Parameters
-                Parameter
-                  AnnotationsList
-                    Annotation
-                      PsiElement(@)('@')
-                      AnnotationExpression
-                        Constructor
-                          SimpleTypeElement
-                            CodeReferenceElement
-                              PsiElement(identifier)('annotation')
-                          PsiWhiteSpace(' ')
-                          ArgumentList
-                            <empty list>
-                  PsiElement(identifier)('b')
+              Parameter
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      Constructor
+                        SimpleTypeElement
+                          CodeReferenceElement
+                            PsiElement(identifier)('annotation')
+                        PsiWhiteSpace(' ')
+                        ArgumentList
+                          <empty list>
+                PsiElement(identifier)('b')
               PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

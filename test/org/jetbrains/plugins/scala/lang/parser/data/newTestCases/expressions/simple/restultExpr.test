@@ -33,25 +33,32 @@ ScalaFile
                 PsiElement(identifier)('s')
           PsiElement(newline)('\n    ')
           FunctionExpression
-            ParameterList
-              PsiElement(()('(')
-              Parameter
-                PsiElement(identifier)('a')
-                PsiElement(:)(':')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('Int')
+                PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement
-                  CodeReferenceElement
-                    PsiElement(identifier)('Int')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              Parameter
-                PsiElement(identifier)('b')
-                PsiElement(:)(':')
-                PsiWhiteSpace(' ')
-                SimpleTypeElement
-                  CodeReferenceElement
-                    PsiElement(identifier)('Int')
-              PsiElement())(')')
+                Parameter
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('b')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')

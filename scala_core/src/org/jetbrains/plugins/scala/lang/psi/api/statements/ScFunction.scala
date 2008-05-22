@@ -20,7 +20,7 @@ trait ScFunction extends ScalaPsiElement with ScTopStatement with ScTypeParamete
 
   def getId: PsiElement
 
-  def paramClauses: ScParamClauses
+  def paramClauses: ScParameters
 
   def getReturnScTypeElement: ScTypeElement
 

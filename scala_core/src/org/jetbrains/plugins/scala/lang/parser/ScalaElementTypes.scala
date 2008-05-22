@@ -67,23 +67,11 @@ object ScalaElementTypes {
 
   val PARAM_TYPE = new ScalaElementType("parameter type")
   val PARAM = new ScalaElementType("parameter")
-  val PARAMS = new ScalaElementType("parameters")
-
-
   val PARAM_CLAUSE = new ScalaElementType("parameters clause")
   val PARAM_CLAUSES = new ScalaElementType("parameters clause")
 
   /************ class ***************/
   val CLASS_PARAM = new ScalaElementType("class parameter")
-  //val CLASS_PARAMS = new ScalaElementType("class parameters")
-  val CLASS_PARAM_CLAUSE = new ScalaElementType("class parameter clause")
-  val CLASS_PARAM_CLAUSES = new ScalaElementType("class parameter clauses")
-
-  /************ function *************/
-  val FUN_PARAM = PARAM
-  //val FUN_PARAMS = new ScalaElementType("function parameters")
-  //  val FUN_PARAM_CLAUSE = new ScalaElementType("function parameter clause")
-  //  val FUN_PARAM_CLAUSES = new ScalaElementType("function parameter clauses")
 
   /*************************************************************************************/
   /************************* TYPE PARAMETERS OF CLASS AND FUNCTIONS *************************/
@@ -232,12 +220,10 @@ object ScalaElementTypes {
   val EXPR1 = new ScalaElementType("composite expression ")
   val FUNCTION_EXPR = new ScalaElementType("expression")
   val AN_FUN = new ScalaElementType("anonymous function")
-  val BINDING = new ScalaElementType("binding")
   val GENERATOR = new ScalaElementType("generator")
   val ENUMERATOR = new ScalaElementType("enumerator")
   val ENUMERATORS = new ScalaElementType("enumerator")
   val GUARD = new ScalaElementType("guard")
-  val BINDINGS = new ScalaElementType("bindings")
   val EXPRS = new ScalaElementType("list of expressions")
   val ARG_EXPRS = new ScalaElementType("arguments of function")
   val BLOCK_EXPR = new ScalaElementType("block of expressions")

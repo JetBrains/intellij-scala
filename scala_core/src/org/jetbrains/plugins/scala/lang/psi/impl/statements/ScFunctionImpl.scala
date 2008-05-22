@@ -29,14 +29,14 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
 
   override def getIcon(flags: Int) = Icons.FUNCTION
 
-  def paramClauses: ScParamClauses = findChildByClass(classOf[ScParamClauses])
+  def paramClauses: ScParameters = findChildByClass(classOf[ScParameters])
 
   def getReturnScTypeElement: ScTypeElement = findChildByClass(classOf[ScTypeElement])
 
   def typeParametersClause: ScTypeParamClause = findChildByClass(classOf[ScTypeParamClause])
 
   def getParameters: Seq[ScParameter] = {
-    val pcs = findChildByClass(classOf[ScParamClauses])
+    val pcs = getParameterList
     if (pcs != null) pcs.params else Seq.empty
   }
 
@@ -86,7 +86,7 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
 
   def hasTypeParameters = false
 
-  def getParameterList = findChildByClass(classOf[ScParamClauses])
+  def getParameterList = findChildByClass(classOf[ScParameters])
 
   // Fake method to implement simple application running
   def isMainMethod: Boolean = false

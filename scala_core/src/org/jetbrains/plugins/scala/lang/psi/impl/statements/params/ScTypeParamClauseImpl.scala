@@ -27,7 +27,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 * Date: 22.02.2008
 */
 
-class ScTypeParamClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeParamClause{
+class ScTypeParamClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeParamClause {
+
   override def toString: String = "TypeParameterClause"
+
   def typeParameters() = findChildrenByClass(classOf[ScTypeParam])
 }

@@ -23,8 +23,8 @@ ScalaFile
     PrimaryConstructor
       AnnotationsList
         <empty list>
-      ClassParametersClauses
-        ClassParametersClause
+      Parameters
+        ParametersClause
           PsiElement(()('(')
           ClassParameter
             AnnotationsList
@@ -98,7 +98,7 @@ ScalaFile
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('foo')
-          ParametersClauses
+          Parameters
             ParametersClause
               PsiElement(()('(')
               PsiElement())(')')

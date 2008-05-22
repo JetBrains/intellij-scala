@@ -28,7 +28,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(identifier)('tryMatch')
           PsiWhiteSpace(' ')
-          ParametersClauses
+          Parameters
             <empty list>
           PsiElement(=)('=')
           PsiWhiteSpace('\n      ')
@@ -50,9 +50,10 @@ ScalaFile
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
                 FunctionExpression
-                  ParameterList
-                    PsiElement(()('(')
-                    PsiElement())(')')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      PsiElement())(')')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')

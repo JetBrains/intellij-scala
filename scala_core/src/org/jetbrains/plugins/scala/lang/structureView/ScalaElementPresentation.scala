@@ -39,8 +39,8 @@ object ScalaElementPresentation {
       presentableText.append("unnamed")
     if (constructor.typeParametersClause != null)
       presentableText.append(constructor.typeParametersClause.getText)
-    if (constructor.paramClauses != null)
-      presentableText.append(constructor.paramClauses.getParametersAsString)
+    if (constructor.parameters != null)
+      presentableText.append(constructor.parameters.getParametersAsString)
     return presentableText.toString()
   }
 

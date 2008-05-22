@@ -8,6 +8,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
+import org.jetbrains.plugins.scala.lang.parser.parsing.params._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -30,11 +31,11 @@ object Bindings {
         return false
       }
     }
-    Binding parse builder
+    Param parse builder
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
       builder.advanceLexer //Ate ,
-      if (!Binding.parse(builder)) {
-        builder error ScalaBundle.message("wrong.binding", new Array[Object](0))
+      if (!Param.parse(builder)) {
+        builder error ErrMsg("wrong.binding")
       }
     }
     builder.getTokenType match {
@@ -46,7 +47,9 @@ object Bindings {
         return false
       }
     }
-    bindingsMarker.done(ScalaElementTypes.BINDINGS)
+    val pm = bindingsMarker.precede
+    bindingsMarker.done(ScalaElementTypes.PARAM_CLAUSE)
+    pm.done(ScalaElementTypes.PARAM_CLAUSES)
     return true
   }
 }

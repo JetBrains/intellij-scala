@@ -79,7 +79,7 @@ object ImplicitClassParamClause {
     builder.getTokenType match {
       case ScalaTokenTypes.tRPARENTHESIS => {
         builder.advanceLexer //Ate )
-        classParamMarker.done(ScalaElementTypes.CLASS_PARAM_CLAUSE)
+        classParamMarker.done(ScalaElementTypes.PARAM_CLAUSE)
         return true
       }
       case _ => {

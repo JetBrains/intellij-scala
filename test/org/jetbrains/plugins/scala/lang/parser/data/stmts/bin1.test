@@ -32,17 +32,21 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           FunctionExpression
-            ParameterList
-              PsiElement(()('(')
-              Parameter
-                PsiElement(identifier)('ven')
-                PsiWhiteSpace(' ')
-                PsiElement(:)(':')
-                PsiWhiteSpace(' ')
-                SimpleTypeElement
-                  CodeReferenceElement
-                    PsiElement(identifier)('Ven')
-              PsiElement())(')')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('ven')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('Ven')
+                PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')

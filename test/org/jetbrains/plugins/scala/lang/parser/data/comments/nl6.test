@@ -28,7 +28,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(identifier)('isSideEffecting')
           PsiWhiteSpace(' ')
-          ParametersClauses
+          Parameters
             <empty list>
           PsiElement(=)('=')
           PsiWhiteSpace(' ')

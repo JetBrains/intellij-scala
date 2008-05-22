@@ -47,29 +47,28 @@ ScalaFile
                 CodeReferenceElement
                   PsiElement(identifier)('T')
             PsiElement(])(']')
-          ParametersClauses
+          Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameters
-                Parameter
-                  AnnotationsList
-                    <empty list>
-                  PsiElement(identifier)('q')
-                  PsiElement(:)(':')
+              Parameter
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('q')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')
-                  ParameterType
-                    PsiElement(=>)('=>')
-                    PsiWhiteSpace(' ')
-                    ParametrizedTypeElement
+                  ParametrizedTypeElement
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('Parser')
+                    TypeArgumentsList
+                      PsiElement([)('[')
                       SimpleTypeElement
                         CodeReferenceElement
-                          PsiElement(identifier)('Parser')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleTypeElement
-                          CodeReferenceElement
-                            PsiElement(identifier)('U')
-                        PsiElement(])(']')
+                          PsiElement(identifier)('U')
+                      PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
@@ -116,20 +115,19 @@ ScalaFile
                   PsiElement(def)('def')
                   PsiWhiteSpace(' ')
                   PsiElement(identifier)('apply')
-                  ParametersClauses
+                  Parameters
                     ParametersClause
                       PsiElement(()('(')
-                      Parameters
-                        Parameter
-                          AnnotationsList
-                            <empty list>
-                          PsiElement(identifier)('in')
-                          PsiElement(:)(':')
-                          PsiWhiteSpace(' ')
-                          ParameterType
-                            SimpleTypeElement
-                              CodeReferenceElement
-                                PsiElement(identifier)('Input')
+                      Parameter
+                        AnnotationsList
+                          <empty list>
+                        PsiElement(identifier)('in')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleTypeElement
+                            CodeReferenceElement
+                              PsiElement(identifier)('Input')
                       PsiElement())(')')
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
@@ -378,7 +376,7 @@ ScalaFile
                   PsiWhiteSpace(' ')
                   PsiElement(identifier)('toString')
                   PsiWhiteSpace(' ')
-                  ParametersClauses
+                  Parameters
                     <empty list>
                   PsiElement(=)('=')
                   PsiWhiteSpace(' ')

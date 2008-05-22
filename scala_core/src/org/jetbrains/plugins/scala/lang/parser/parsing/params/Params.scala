@@ -23,9 +23,7 @@ import org.jetbrains.plugins.scala.util.DebugPrint
 
 object Params {
   def parse(builder: PsiBuilder): Boolean = {
-    val paramsMarker = builder.mark
     if (!Param.parse(builder)) {
-      paramsMarker.drop
       return false
     }
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
@@ -34,7 +32,6 @@ object Params {
         builder error ScalaBundle.message("wrong.parameter", new Array[Object](0))
       }
     }
-    paramsMarker.done(ScalaElementTypes.PARAMS)
     return true
   }
 }

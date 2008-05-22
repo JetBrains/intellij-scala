@@ -27,7 +27,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(this)('this')
           PsiWhiteSpace(' ')
-          ParametersClauses
+          Parameters
             ParametersClause
               PsiElement(()('(')
               PsiElement())(')')

@@ -24,24 +24,22 @@ ScalaFile
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('foo')
-          ParametersClauses
+          Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameters
-                Parameter
-                  AnnotationsList
-                    <empty list>
-                  PsiElement(identifier)('x')
+              Parameter
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('x')
               PsiElement())(')')
             ParametersClause
               PsiElement(()('(')
               PsiElement(implicit)('implicit')
               PsiWhiteSpace(' ')
-              Parameters
-                Parameter
-                  AnnotationsList
-                    <empty list>
-                  PsiElement(identifier)('x')
+              Parameter
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('x')
               PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

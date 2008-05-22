@@ -22,35 +22,28 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
 
-class ScClassParamClausesImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScClassParamClauses {
-  override def toString: String = "ClassParametersClauses"
+class ScParameterClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParameterClause {
 
-  def getParameters: Seq[ScParameter] = {
-    getChildren.flatMap((child: PsiElement) =>
-            child match {
-              case e: ScClassParamClause => e.getParameters
-              case _ => Seq.empty
-            }
-    )
-  }
+  override def toString: String = "ParametersClause"
+
+  def getParameters: Seq[ScParameter] = List.fromArray(findChildrenByClass(classOf[ScParameter]))
 
   def getParametersAsString: String = {
-    val res: StringBuffer = new StringBuffer("")
-    for (child <- getChildren) {
-      child match {
-        case e: ScClassParamClause => {
-          res.append("(")
-          res.append(e.getParametersAsString)
-          res.append(")")
-        }
-        case _ =>
-      }
+    val res = new StringBuffer("");
+    for (param <- getParameters) {
+      if (param.paramType != null)
+        res.append(param.paramType.getText())
+      else
+        res.append("AnyRef")
+      res.append(", ")
     }
-    return res.toString()
+    if (res.length >= 2)
+      res.delete(res.length - 2, res.length)
+    return res.toString
   }
 }

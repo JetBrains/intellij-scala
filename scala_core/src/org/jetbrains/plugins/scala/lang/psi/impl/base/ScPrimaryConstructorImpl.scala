@@ -33,17 +33,14 @@ class ScPrimaryConstructorImpl(node: ASTNode) extends ScMemberImpl(node) with Sc
     return !(node.getFirstChildNode.getFirstChildNode == null)
   }
 
-  override def hasModifier: Boolean = {
-    return node.getFirstChildNode.getTreeNext.getElementType != ScalaElementTypes.CLASS_PARAM_CLAUSES
-  }
+  //todo rewrite me!
+  override def hasModifier: Boolean = false
 
   def getClassNameText: String = {
     return node.getTreeParent.getPsi.asInstanceOf[ScTypeDefinition].getName
   }
 
-  def paramClauses: ScClassParamClauses = {
-    findChildByClass(classOf[ScClassParamClauses])
-  }
+  def parameters = findChildByClass(classOf[ScParameters])
 
   def typeParametersClause: ScTypeParamClause = {
     node.getTreeParent.getPsi.asInstanceOf[ScTypeDefinition].typeParametersClause
