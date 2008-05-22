@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -9,5 +10,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScTemplateBody extends ScalaPsiElement {
-
+  def members : Seq[ScMember]
 }

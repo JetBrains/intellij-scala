@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -26,6 +27,8 @@ class ScTemplateBodyImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   def getTypes = {
     childrenOfType[ScalaPsiElementImpl](TokenSets.TMPL_OR_TYPE_BIT_SET)
   }
+
+  def members = findChildrenByClass(classOf[ScMember])
 
   //
 
