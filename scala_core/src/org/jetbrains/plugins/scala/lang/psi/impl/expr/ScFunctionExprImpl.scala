@@ -27,10 +27,7 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   def params = findChildByClass(classOf[ScParameters])
 
-  def result = findChildByClass(classOf[ScExpression]) match {
-    case null => None
-    case x => Some(x)
-  }
+  def result = findChild(classOf[ScExpression])
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
