@@ -35,7 +35,6 @@ class ScalaCompletionData extends CompletionData {
     //requiresCompletion
     //extendsCompletion
     //inExpressionCompletion
-
     registerPackageCompletion
   }
 
@@ -44,13 +43,10 @@ class ScalaCompletionData extends CompletionData {
   }
 
   def registerStandardCompletion(filter: ElementFilter, keywords: String*) {
-    val afterDotFilter = new LeftNeighbour(new TextFilter("."));
-    val variant = new CompletionVariant(new AndFilter(new NotFilter(afterDotFilter), filter));
-    variant.includeScopeClass(classOf[LeafPsiElement]);
-    //variant.addCompletionFilterOnElement(TrueFilter.INSTANCE);
-    //val handlers = InsertHandlerRegistry.getInstance().getSpecificInsertHandlers();
-    //variant.setInsertHandler(new GroovyInsertHandlerAdapter(handlers));
-    addCompletions(variant, keywords: _*);
+    val afterDotFilter = new LeftNeighbour(new TextFilter("."))
+    val variant = new CompletionVariant(new AndFilter(new NotFilter(afterDotFilter), filter))
+    variant.includeScopeClass(classOf[LeafPsiElement])
+    addCompletions(variant, keywords: _*)
     registerVariant(variant);
   }
 
