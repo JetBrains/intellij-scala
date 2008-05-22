@@ -77,17 +77,19 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   def getVariants(): Array[Object] = {
-    return null
+    _resolve(new CompletionProcessor(null)).map (r => r.getElement)
   }
+  
   def isSoft(): Boolean = {
     return false;
   }
 
+  def multiResolve(incomplete: Boolean): Array[ResolveResult] =
+    _resolve(new ResolveProcessor(null, refName))
 
-  def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
+  private def _resolve(processor : BaseProcessor) =
     qualifier match {
       case null => {
-        val processor = new ResolveProcessor(null, refName)
         def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
           place match {
             case null => ()
@@ -104,7 +106,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
       case e => new Array[ResolveResult](0)
     }
-  }
 
   override def getType(): ScType = {
     if (stable) return new ScSingletonType(this)
