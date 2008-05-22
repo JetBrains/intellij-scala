@@ -77,8 +77,9 @@ object ClassParamClause {
         return true
       }
       case _ => {
-        classParamMarker.rollbackTo
-        return false
+        classParamMarker.done(ScalaElementTypes.CLASS_PARAM_CLAUSE)
+        builder error ErrMsg("rparenthesis.expected")
+        return true
       }
     }
   }

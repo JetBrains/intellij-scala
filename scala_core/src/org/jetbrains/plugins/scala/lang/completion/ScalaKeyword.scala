@@ -6,9 +6,9 @@ package org.jetbrains.plugins.scala.lang.completion
  */
 object ScalaKeyword {
 
-  val TRUE = "true"
-  val FALSE = "false"
-  val NULL = "null"
+  val TRUE = "true"  //yes
+  val FALSE = "false"     //yes
+  val NULL = "null"        //yes
   val ABSTRACT = "abstract"
   val CASE = "case"
   val CATCH = "catch"
@@ -26,17 +26,17 @@ object ScalaKeyword {
   val IMPORT = "import"
   val LAZY = "lazy"
   val MATCH = "match"
-  val NEW = "new"
+  val NEW = "new"              //yes
   val OBJECT = "object"
   val OVERRIDE = "override"
-  val PACKAGE = "package"
+  val PACKAGE = "package"           //yes
   val PRIVATE = "private"
   val PROTECTED = "protected"
   val REQUIRES = "requires"
   val RETURN = "return"
   val SEALED = "sealed"
-  val SUPER = "super"
-  val THIS = "this"
+  val SUPER = "super"                    //yes
+  val THIS = "this"                       //yes
   val THROW = "throw"
   val TRAIT = "trait"
   val TRY = "try"
