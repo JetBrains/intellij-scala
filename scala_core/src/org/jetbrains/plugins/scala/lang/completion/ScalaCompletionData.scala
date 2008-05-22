@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.completion.filters._;
 import org.jetbrains.plugins.scala.lang.completion.filters.toplevel._
 import org.jetbrains.plugins.scala.lang.completion.filters.expression._
+import org.jetbrains.plugins.scala.lang.completion.filters.modifiers._
 import _root_.scala.collection.mutable._;
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.parser._
@@ -38,6 +39,7 @@ class ScalaCompletionData extends CompletionData {
     //inExpressionCompletion
     registerPackageCompletion
     registerExpressionCompletion
+    registerModifiersCompletion
   }
 
   def registerPackageCompletion {
@@ -46,6 +48,11 @@ class ScalaCompletionData extends CompletionData {
 
   def registerExpressionCompletion {
     registerStandardCompletion(new ExpressionFilter, "true", "false", "null", "new", "super", "this")
+  }
+
+  def registerModifiersCompletion {
+    registerStandardCompletion(new ModifiersFilter, "private", "protected", "override",
+      "abstract", "final", "sealed", "implicit", "lazy")
   }
 
   def registerStandardCompletion(filter: ElementFilter, keywords: String*) {

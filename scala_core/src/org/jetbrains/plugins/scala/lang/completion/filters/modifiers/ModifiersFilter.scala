@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.completion.filters.expression
+package org.jetbrains.plugins.scala.lang.completion.filters.modifiers
 
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
@@ -8,24 +8,36 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.lang.psi._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
+import org.jetbrains.plugins.scala.lang.lexer._
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 22.05.2008
 */
 
-class ExpressionFilter extends ElementFilter {
+class ModifiersFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
     val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
     if (leaf != null) {
       val parent = leaf.getParent();
-      if (parent.isInstanceOf[ScExpression]) {
-        return true
+      parent match {
+        case _: ScalaFile | _: ScParameter => return true
+        case _ =>
+      }
+      parent.getParent match {
+        case _: ScBlockExpr | _: ScTemplateBody | _: ScClassParameter => {
+          if (leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
+                  leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF)
+            return true
+        }
+        case _ =>
       }
     }
-    return false;
+    return false; 
   }
 
   def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
