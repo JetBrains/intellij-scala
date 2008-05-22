@@ -75,8 +75,6 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     }
   }
 
-  def typeParametersClause() = findChildByClass(classOf[ScTypeParamClause])
-
   protected def getIconInner: Icon
 
   override def getIcon(flags: Int): Icon = {

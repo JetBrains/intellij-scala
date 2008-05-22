@@ -71,7 +71,7 @@ trait ScTypeDefinition extends ScalaPsiElement
     case e => e.getText()
   }
 
-  def typeParametersClause(): ScTypeParamClause
+  def typeParametersClause() = findChildByClass(classOf[ScTypeParamClause])
 
   def typeParameters() = typeParametersClause.typeParameters
 
