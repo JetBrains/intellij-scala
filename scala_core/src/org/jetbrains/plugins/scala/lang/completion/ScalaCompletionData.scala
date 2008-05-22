@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.completion.filters.definitions._
 import _root_.scala.collection.mutable._;
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.parser._
+import org.jetbrains.plugins.scala.lang.completion.filters.other._
 
 /*
 * @author Ilya Sergey
@@ -47,6 +48,10 @@ class ScalaCompletionData extends CompletionData {
     registerDefinitionsCompletion
     registerValueDefinitionCompletion
     registerStatementCompletion
+    registerCatchCompletion
+    registerFinallyCompletion
+    registerElseCompletion
+    registerExtendsCompletion
   }
 
   def registerPackageCompletion {
@@ -83,7 +88,23 @@ class ScalaCompletionData extends CompletionData {
   }
 
   def registerStatementCompletion {
-    registerStandardCompletion(new StatementFilter, "for", "while", "do", "try", "return", "throw")
+    registerStandardCompletion(new StatementFilter, "for", "while", "do", "try", "return", "throw", "if")
+  }
+
+  def registerCatchCompletion {
+    registerStandardCompletion(new CatchFilter, "catch")
+  }
+
+  def registerFinallyCompletion {
+    registerStandardCompletion(new FinallyFilter, "finally")
+  }
+
+  def registerElseCompletion {
+    registerStandardCompletion(new ElseFilter, "else")
+  }
+
+  def registerExtendsCompletion {
+    registerStandardCompletion(new ExtendsFilter, "extends")
   }
 
   def registerStandardCompletion(filter: ElementFilter, keywords: String*) {

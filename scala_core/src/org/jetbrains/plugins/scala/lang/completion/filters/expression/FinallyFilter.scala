@@ -16,15 +16,16 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 * Date: 22.05.2008
 */
 
-class StatementFilter extends ElementFilter {
+class FinallyFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
     val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
     if (leaf != null) {
-      val parent = leaf.getParent();
-      if (parent.isInstanceOf[ScExpression] && (!parent.getParent.isInstanceOf[ScInfixExpr]) && (parent.getPrevSibling == null ||
-              parent.getPrevSibling.getPrevSibling == null ||
-              parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT)) {
+      val parent = leaf.getParent()
+      if (parent.isInstanceOf[ScExpression] && parent.getPrevSibling != null &&
+              parent.getPrevSibling.getPrevSibling != null &&
+              parent.getPrevSibling.getPrevSibling.getNode.getElementType == ScalaElementTypes.TRY_STMT &&
+              parent.getPrevSibling.getPrevSibling.getLastChild.getNode.getElementType != ScalaElementTypes.FINALLY_BLOCK) {
         return true
       }
     }
