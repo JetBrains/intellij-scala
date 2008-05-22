@@ -31,9 +31,7 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   def guargs = List.fromArray(findChildrenByClass(classOf[ScGuard]))
 
   def namings = for (c <- getChildren if c.isInstanceOf[ScGenerator] || c.isInstanceOf[ScEnumerator])
-          yield c.asInstanceOf[{
-    def pattern: ScPattern
-  }]
+          yield c.asInstanceOf[{def pattern: ScPattern}]
 
   type Patterned = {
     def pattern: ScPattern
