@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.lexer._
+import org.jetbrains.plugins.scala.lang.parser._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -25,13 +26,17 @@ class ModifiersFilter extends ElementFilter {
     if (leaf != null) {
       val parent = leaf.getParent();
       parent match {
-        case _: ScalaFile | _: ScParameter => return true
+        case _: ScalaFile | _: ScParameter=> {
+          return true
+        }
         case _ =>
       }
       parent.getParent match {
         case _: ScBlockExpr | _: ScTemplateBody | _: ScClassParameter => {
-          if (leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
-                  leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF)
+          if ((leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
+                  leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF) && (parent.getPrevSibling == null ||
+              parent.getPrevSibling.getPrevSibling == null ||
+              parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT))
             return true
         }
         case _ =>
@@ -41,11 +46,11 @@ class ModifiersFilter extends ElementFilter {
   }
 
   def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
-    return true;
+    return true
   }
 
   @NonNls
   override def toString(): String = {
-    return "simple expressions keyword filter";
+    return "modifiers keyword filter";
   }
 }
