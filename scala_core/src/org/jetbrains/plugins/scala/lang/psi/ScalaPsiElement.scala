@@ -156,10 +156,10 @@ trait ScalaPsiElement extends PsiElement {
     inner(startsWith)
   }
 
-  def findChildByClass[T >: Null <: ScalaPsiElement](clazz : Class[T]) : T
+  /*def findChildByClass[T >: Null <: ScalaPsiElement](clazz : Class[T]) : T
 
   def findChild[T >: Null <: ScalaPsiElement](clazz : Class[T]) : Option[T] = findChildByClass(clazz) match {
     case null => None
     case e => Some(e)
-  }
+  } */
 }

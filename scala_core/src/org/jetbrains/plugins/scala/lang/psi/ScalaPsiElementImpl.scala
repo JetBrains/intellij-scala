@@ -28,5 +28,10 @@ class ScalaPsiElementImpl ( node : ASTNode ) extends ASTWrapperPsiElement( node 
 
   def getASTNode() : ASTNode = node
 
+  def findChild[T >: Null <: ScalaPsiElement](clazz : Class[T]) : Option[T] = findChildByClass(clazz) match {
+    case null => None
+    case e => Some(e)
+  }
+
   override def toString : String = "scala psi element"
 }
