@@ -75,10 +75,9 @@ trait ScTypeDefinition extends ScalaPsiElement
 
   def typeParameters() = typeParametersClause.typeParameters
 
-  def getTypeDefinitions(): Seq[ScTypeDefinition] = {
+  def getTypeDefinitions(): Seq[ScTypeDefinition] =
     extendsBlock.templateBody match {
       case None => Seq.empty
       case Some(body) => body.getChildren.flatMap(collectTypeDefs(_))
     }
-  }
 }
