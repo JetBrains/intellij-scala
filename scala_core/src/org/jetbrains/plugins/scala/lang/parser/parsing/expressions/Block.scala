@@ -26,10 +26,23 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
  */
 
 object Block {
+
   def parse(builder: PsiBuilder): Boolean = {
     while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {}
     return true
   }
+
+  private def parseImpl(builder: PsiBuilder): Int = {
+    var i: Int = 0;
+    while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
+      val t = builder.getTokenType
+      if (!(t == ScalaTokenTypes.tLINE_TERMINATOR || t == ScalaTokenTypes.tSEMICOLON)) {
+        i = i + 1;
+      }
+    }
+    i
+  }
+
   def parse(builder: PsiBuilder, hasBrace: Boolean): Boolean = {
     if (hasBrace) {
       val blockMarker = builder.mark
@@ -54,7 +67,12 @@ object Block {
       blockMarker.done(ScalaElementTypes.BLOCK_EXPR)
     }
     else {
-      parse(builder)
+      val bm = builder.mark()
+      if (parseImpl(builder) > 1) {
+        bm.done(ScalaElementTypes.BLOCK)
+      } else {
+        bm.drop
+      }
     }
     return true
   }

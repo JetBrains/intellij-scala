@@ -87,7 +87,6 @@ object TokenSets {
           BLOCK_EXPR,
           ERROR_STMT,
           BLOCK,
-          BLOCK_STAT,
           PARENT_EXPR))))
 
   val SIMPLE_EXPR_BIT_SET = TokenSet.create(Array.apply(SIMPLE_EXPR,

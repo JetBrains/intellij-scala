@@ -193,7 +193,6 @@ object ScalaPsiCreator {
     case ScalaElementTypes.CONSTR_BLOCK => new ScConstrBlockImpl(node)
     case ScalaElementTypes.BLOCK => new ScBlockImpl(node)
     case ScalaElementTypes.TUPLE => new ScTupleImpl(node)
-    case ScalaElementTypes.BLOCK_STAT => new ScBlockStatImpl(node)
     case ScalaElementTypes.ERROR_STMT => new ScErrorStatImpl(node)
 
     case ScalaElementTypes.IF_STMT => new ScIfStmtImpl(node)

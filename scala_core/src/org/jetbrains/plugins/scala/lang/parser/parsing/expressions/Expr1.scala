@@ -141,7 +141,7 @@ object Expr1 {
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE => {
             builder.advanceLexer //Ate {
-            if (!Block.parse(builder)) {
+            if (!Block.parse(builder, false)) {
               builder error ErrMsg("block.expected")
             }
             builder.getTokenType match {
