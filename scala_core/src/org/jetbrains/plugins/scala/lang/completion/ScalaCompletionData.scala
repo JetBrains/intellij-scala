@@ -10,6 +10,7 @@ import com.intellij.psi.filters._;
 import com.intellij.psi.filters.position._;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.completion.filters._;
+import org.jetbrains.plugins.scala.lang.completion.filters.toplevel._
 import _root_.scala.collection.mutable._;
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.parser._
@@ -22,7 +23,36 @@ class ScalaCompletionData extends CompletionData {
 
   /* Adding variants */
 
-  init
+  registerAllCompletions
+
+  /*
+  *   Main initialization
+  */
+  def registerAllCompletions = {
+    /* Special cases */
+    //    afterDotCompletion
+    //topDefinitionsCompletion
+    //requiresCompletion
+    //extendsCompletion
+    //inExpressionCompletion
+
+    registerPackageCompletion
+  }
+
+  def registerPackageCompletion {
+    registerStandardCompletion(new PackageFilter(), "package")
+  }
+
+  def registerStandardCompletion(filter: ElementFilter, keywords: String*) {
+    val afterDotFilter = new LeftNeighbour(new TextFilter("."));
+    val variant = new CompletionVariant(new AndFilter(new NotFilter(afterDotFilter), filter));
+    variant.includeScopeClass(classOf[LeafPsiElement]);
+    //variant.addCompletionFilterOnElement(TrueFilter.INSTANCE);
+    //val handlers = InsertHandlerRegistry.getInstance().getSpecificInsertHandlers();
+    //variant.setInsertHandler(new GroovyInsertHandlerAdapter(handlers));
+    addCompletions(variant, keywords: _*);
+    registerVariant(variant);
+  }
 
   /*
   * Adding completion variants after dot
@@ -131,21 +161,7 @@ class ScalaCompletionData extends CompletionData {
     registerVariant(variant)
   }
 
-  /*
-  *   Main initialization
-  */
-  def init = {
 
-    /* Special cases */
-    //    afterDotCompletion
-    topDefinitionsCompletion
-    //requiresCompletion
-    //extendsCompletion
-    //inExpressionCompletion
-
-
-
-  }
 
   override def findPrefix(insertedElement: PsiElement, offset: Int): String = {
     WordCompletionData.findPrefixSimple(insertedElement, offset)
@@ -155,7 +171,7 @@ class ScalaCompletionData extends CompletionData {
   * Adds all completion variants in sequence
   */
   def addCompletions(variant: CompletionVariant, comps: String*) = {
-    for (val el <- comps) variant.addCompletion(el)
+    for (val completion <- comps) variant.addCompletion(completion, TailType.SPACE)
   }
 
 }
