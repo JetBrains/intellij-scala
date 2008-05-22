@@ -40,6 +40,7 @@ class ScalaCompletionData extends CompletionData {
     registerPackageCompletion
     registerExpressionCompletion
     registerModifiersCompletion
+    registerCaseCompletion
   }
 
   def registerPackageCompletion {
@@ -53,6 +54,10 @@ class ScalaCompletionData extends CompletionData {
   def registerModifiersCompletion {
     registerStandardCompletion(new ModifiersFilter, "private", "protected", "override",
       "abstract", "final", "sealed", "implicit", "lazy")
+  }
+
+  def registerCaseCompletion {
+    registerStandardCompletion(new CaseFilter, "case")
   }
 
   def registerStandardCompletion(filter: ElementFilter, keywords: String*) {
