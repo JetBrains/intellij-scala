@@ -12,7 +12,7 @@ object ScalaKeyword {
   val ABSTRACT = "abstract" //yes
   val CASE = "case"         // yes
   val CATCH = "catch"
-  val CLASS = "class"
+  val CLASS = "class"  //yes
   val DEF = "def"
   val DO = "do"
   val ELSE = "else"
@@ -23,11 +23,11 @@ object ScalaKeyword {
   val FOR_SOME = "forSome"
   val IF = "if"
   val IMPLICIT = "implicit"      //yes
-  val IMPORT = "import"
+  val IMPORT = "import"           //yes
   val LAZY = "lazy"                   //yes
   val MATCH = "match"
   val NEW = "new"              //yes
-  val OBJECT = "object"
+  val OBJECT = "object"                    //yes
   val OVERRIDE = "override"                //yes
   val PACKAGE = "package"           //yes
   val PRIVATE = "private"                  //yes
@@ -38,7 +38,7 @@ object ScalaKeyword {
   val SUPER = "super"                    //yes
   val THIS = "this"                       //yes
   val THROW = "throw"
-  val TRAIT = "trait"
+  val TRAIT = "trait"                  //yes
   val TRY = "try"
   val TYPE = "type"
   val VAL = "val"
