@@ -46,9 +46,10 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           FunctionExpression
-            ParameterList
-              PsiElement(()('(')
-              PsiElement())(')')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')
@@ -56,3 +57,4 @@ ScalaFile
               PsiElement(identifier)('m')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
+

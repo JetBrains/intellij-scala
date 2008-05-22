@@ -1,15 +1,19 @@
 package org.jetbrains.plugins.scala.lang.completion;
 
 import com.intellij.codeInsight.CodeInsightActionHandler;
-import com.intellij.codeInsight.completion.*;
-import com.intellij.codeInsight.completion.impl.CamelHumpMatcher;
+import com.intellij.codeInsight.completion.CompletionData;
+import com.intellij.codeInsight.completion.CompletionUtil;
+import com.intellij.codeInsight.completion.CompletionVariant;
 import com.intellij.codeInsight.completion.actions.CodeCompletionAction;
+import com.intellij.codeInsight.completion.impl.CamelHumpMatcher;
 import com.intellij.codeInsight.lookup.LookupItem;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.plugins.scala.lang.actions.ActionTest;
 import org.jetbrains.plugins.scala.util.TestUtils;
@@ -19,7 +23,6 @@ import java.util.*;
 
 /**
  * @author Alexander Podkhalyuzin
- * @dat 22.05.2008
  */
 public abstract class CompletionTestBase extends ActionTest {
   protected Editor myEditor;
@@ -104,13 +107,13 @@ public abstract class CompletionTestBase extends ActionTest {
      */
     PsiFile newFile = createFile(newFileText);
     PsiElement insertedElement = newFile.findElementAt(myOffset + 1);
-    String prefix = newFile.getText().substring(insertedElement.getTextRange().getStartOffset(),myOffset);
+    String prefix = newFile.getText().substring(insertedElement.getTextRange().getStartOffset(), myOffset);
     if (lookupSet.size() == 0) {
       final PsiReference ref = newFile.findReferenceAt(myOffset + 1);
       if (addKeywords(ref)) {
         final Set<CompletionVariant> keywordVariants = new HashSet<CompletionVariant>();
         completionData.addKeywordVariants(keywordVariants, insertedElement, newFile);
-        completionData.completeKeywordsBySet(lookupSet, keywordVariants,insertedElement,new CamelHumpMatcher("p"), newFile);
+        completionData.completeKeywordsBySet(lookupSet, keywordVariants, insertedElement, new CamelHumpMatcher("p"), newFile);
       }
       //todo: add variant for reference completion
     }

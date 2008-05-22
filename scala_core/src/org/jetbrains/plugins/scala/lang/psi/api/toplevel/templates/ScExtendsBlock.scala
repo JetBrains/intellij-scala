@@ -8,5 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScExtendsBlock extends ScalaPsiElement {
+
   def templateBody: Option[ScTemplateBody]
+
 }

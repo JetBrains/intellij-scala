@@ -28,21 +28,20 @@ ScalaFile
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('sum')
-          ParametersClauses
+          Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameters
-                Parameter
-                  AnnotationsList
-                    <empty list>
-                  PsiElement(identifier)('args')
-                  PsiElement(:)(':')
-                  PsiWhiteSpace(' ')
-                  ParameterType
-                    SimpleTypeElement
-                      CodeReferenceElement
-                        PsiElement(identifier)('Int')
-                    PsiElement(identifier)('*')
+              Parameter
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleTypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('Int')
+                  PsiElement(identifier)('*')
               PsiElement())(')')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

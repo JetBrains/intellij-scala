@@ -22,15 +22,15 @@ import org.jetbrains.plugins.scala.util.DebugPrint
  */
 
 object ParamClauses {
-  def parse(builder: PsiBuilder): Boolean = parse(builder,false)
-  def parse(builder: PsiBuilder,flag: Boolean): Boolean = {
+  def parse(builder: PsiBuilder): Boolean = parse(builder, false)
+  def parse(builder: PsiBuilder, flag: Boolean): Boolean = {
     val paramMarker = builder.mark
     if (flag) {
       if (!ParamClause.parse(builder)) {
         builder error ErrMsg("param.clause.expected")
       }
     }
-    while (ParamClause.parse(builder)){}
+    while (ParamClause.parse(builder)) {}
     ImplicitParamClause parse builder
     paramMarker.done(ScalaElementTypes.PARAM_CLAUSES)
     return true

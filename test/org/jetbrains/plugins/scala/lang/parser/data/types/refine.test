@@ -12,8 +12,8 @@ ScalaFile
     PrimaryConstructor
       AnnotationsList
         <empty list>
-      ClassParametersClauses
-        ClassParametersClause
+      Parameters
+        ParametersClause
           PsiElement(()('(')
           ClassParameter
             AnnotationsList

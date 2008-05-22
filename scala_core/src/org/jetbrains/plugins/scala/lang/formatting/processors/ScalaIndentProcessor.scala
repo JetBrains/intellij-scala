@@ -68,8 +68,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNormalIndent
         }
       }
-      case _: ScParamClauses | _: ScClassParamClauses => Indent.getNormalIndent
-      case _: ScParameters | _: ScPattern  => Indent.getContinuationWithoutFirstIndent
+      case _: ScParameters  => Indent.getNormalIndent
+      case _: ScParameterClause | _: ScPattern  => Indent.getContinuationWithoutFirstIndent
       case  _: ScParameter | _: ScParents  => {
         Indent.getNormalIndent
       }

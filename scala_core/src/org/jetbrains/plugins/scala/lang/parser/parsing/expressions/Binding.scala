@@ -39,7 +39,7 @@ object Binding {
       }
       case _ => {}
     }
-    bindingMarker.done(ScalaElementTypes.BINDING)
+    bindingMarker.done(ScalaElementTypes.PARAM)
     return true
   }
 }

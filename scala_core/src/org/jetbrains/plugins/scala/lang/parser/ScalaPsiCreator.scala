@@ -104,13 +104,10 @@ object ScalaPsiCreator {
       /***************************************************/
 
       /******************** parameters *******************/
-      case ScalaElementTypes.PARAM_CLAUSE => new ScParamClauseImpl(node)
-      case ScalaElementTypes.PARAM_CLAUSES => new ScParamClausesImpl(node)
+      case ScalaElementTypes.PARAM_CLAUSE => new ScParameterClauseImpl(node)
+      case ScalaElementTypes.PARAM_CLAUSES => new ScParametersImpl(node)
       /*********** class ************/
       case ScalaElementTypes.CLASS_PARAM => new ScClassParameterImpl(node)
-      case ScalaElementTypes.CLASS_PARAM_CLAUSE => new ScClassParamClauseImpl(node)
-      case ScalaElementTypes.CLASS_PARAM_CLAUSES => new ScClassParamClausesImpl(node)
-      /********** function **********/
       case ScalaElementTypes.PARAM => new ScParameterImpl(node)
       case ScalaElementTypes.PARAM_TYPE => new ScParameterTypeImpl(node)
       /***************** type parameters ****************/
@@ -119,9 +116,6 @@ object ScalaPsiCreator {
       case ScalaElementTypes.VARIANT_TYPE_PARAM => new ScVariantTypeParamImpl(node)
       /********** function **********/
       case ScalaElementTypes.TYPE_PARAM => new ScTypeParamImpl(node)
-
-      case ScalaElementTypes.PARAMS => new ScParamsImpl(node)
-
       /***************************************************/
       /************* MODIFIERS AND ATTRIBUTES ************/
       /***************************************************/
@@ -189,8 +183,6 @@ object ScalaPsiCreator {
     case ScalaElementTypes.INFIX_EXPR => new ScInfixExprImpl(node)
     case ScalaElementTypes.POSTFIX_EXPR => new ScPostfixExprImpl(node)
     case ScalaElementTypes.FUNCTION_EXPR => new ScFunctionExprImpl(node)
-    case ScalaElementTypes.BINDING => new ScBindingImpl(node)
-    case ScalaElementTypes.BINDINGS => new ScBindingsImpl(node)
     case ScalaElementTypes.ENUMERATOR => new ScEnumeratorImpl(node)
     case ScalaElementTypes.ENUMERATORS => new ScEnumeratorsImpl(node)
     case ScalaElementTypes.GENERATOR => new ScGeneratorImpl(node)

@@ -32,6 +32,6 @@ object ClassParamClauses {
     val classParamClausesMarker = builder.mark
     while (ClassParamClause parse builder) {/*parse while parsed*/}
     ImplicitClassParamClause parse builder
-    classParamClausesMarker.done(ScalaElementTypes.CLASS_PARAM_CLAUSES)
+    classParamClausesMarker.done(ScalaElementTypes.PARAM_CLAUSES)
   }
 }

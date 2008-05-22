@@ -27,22 +27,29 @@ ScalaFile
               PsiElement(identifier)('foo')
           PsiElement(=)('=')
           FunctionExpression
-            ParameterList
-              PsiElement(()('(')
-              Parameter
-                PsiElement(identifier)('a')
-                PsiElement(:)(':')
-                SimpleTypeElement
-                  CodeReferenceElement
-                    PsiElement(identifier)('T')
-              PsiElement(,)(',')
-              Parameter
-                PsiElement(identifier)('b')
-                PsiElement(:)(':')
-                SimpleTypeElement
-                  CodeReferenceElement
-                    PsiElement(identifier)('S')
-              PsiElement())(')')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  ParameterType
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('T')
+                PsiElement(,)(',')
+                Parameter
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('b')
+                  PsiElement(:)(':')
+                  ParameterType
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('S')
+                PsiElement())(')')
             PsiElement(=>)('=>')
             Literal
               PsiElement(true)('true')

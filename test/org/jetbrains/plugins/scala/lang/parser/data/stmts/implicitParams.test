@@ -30,43 +30,41 @@ ScalaFile
             TypeParameter
               PsiElement(identifier)('A')
             PsiElement(])(']')
-          ParametersClauses
+          Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameters
-                Parameter
-                  AnnotationsList
-                    <empty list>
-                  PsiElement(identifier)('xs')
-                  PsiElement(:)(':')
-                  PsiWhiteSpace(' ')
-                  ParameterType
-                    SimpleTypeElement
-                      CodeReferenceElement
-                        PsiElement(identifier)('List')
+              Parameter
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleTypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('List')
               PsiElement())(')')
             ParametersClause
               PsiElement(()('(')
               PsiElement(implicit)('implicit')
               PsiWhiteSpace(' ')
-              Parameters
-                Parameter
-                  AnnotationsList
-                    <empty list>
-                  PsiElement(identifier)('m')
-                  PsiElement(:)(':')
-                  PsiWhiteSpace(' ')
-                  ParameterType
-                    ParametrizedTypeElement
+              Parameter
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('m')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedTypeElement
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('Monoid')
+                    TypeArgumentsList
+                      PsiElement([)('[')
                       SimpleTypeElement
                         CodeReferenceElement
-                          PsiElement(identifier)('Monoid')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleTypeElement
-                          CodeReferenceElement
-                            PsiElement(identifier)('A')
-                        PsiElement(])(']')
+                          PsiElement(identifier)('A')
+                      PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')

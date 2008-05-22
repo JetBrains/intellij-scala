@@ -1,21 +1,23 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements.params
 
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.impl.statements._
 import com.intellij.psi._
 import com.intellij.psi.search._
-import org.jetbrains.plugins.scala.lang.psi._
-import org.jetbrains.plugins.scala.lang.psi.impl.statements._
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterImpl
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
-* Date: 22.02.2008
+* Date: 21.03.2008
 */
 
-trait ScParamClauses extends ScParameters with PsiParameterList {
+trait ScParameters extends ScalaPsiElement with PsiParameterList {
 
   def params: Seq[ScParameter]
 
-  // todo hack for applictiation running                                                                                     
+  def clauses: Seq[ScParameterClause]
+
+  // todo hack for applictiation running
   def getParameters = getParent match {
     case m: ScFunctionImpl => {
       if (m.isMainMethod) {

@@ -12,8 +12,8 @@ ScalaFile
     PrimaryConstructor
       AnnotationsList
         <empty list>
-      ClassParametersClauses
-        ClassParametersClause
+      Parameters
+        ParametersClause
           PsiElement(()('(')
           ClassParameter
             AnnotationsList
@@ -27,10 +27,10 @@ ScalaFile
                 CodeReferenceElement
                   PsiElement(identifier)('Int')
           PsiElement())(')')
-        ClassParametersClause
+        ParametersClause
           PsiElement(()('(')
           PsiElement())(')')
-        ClassParametersClause
+        ParametersClause
           PsiElement(()('(')
           PsiElement(implicit)('implicit')
           PsiWhiteSpace(' ')

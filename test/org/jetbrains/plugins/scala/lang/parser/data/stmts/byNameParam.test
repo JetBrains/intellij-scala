@@ -24,39 +24,37 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(identifier)('whileLoop')
           PsiWhiteSpace(' ')
-          ParametersClauses
+          Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameters
-                Parameter
-                  AnnotationsList
-                    <empty list>
-                  PsiElement(identifier)('cond')
-                  PsiElement(:)(':')
+              Parameter
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('cond')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')
-                  ParameterType
-                    PsiElement(=>)('=>')
-                    PsiWhiteSpace(' ')
-                    SimpleTypeElement
-                      CodeReferenceElement
-                        PsiElement(identifier)('Boolean')
+                  SimpleTypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('Boolean')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             ParametersClause
               PsiElement(()('(')
-              Parameters
-                Parameter
-                  AnnotationsList
-                    <empty list>
-                  PsiElement(identifier)('stat')
-                  PsiElement(:)(':')
+              Parameter
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('stat')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')
-                  ParameterType
-                    PsiElement(=>)('=>')
-                    PsiWhiteSpace(' ')
-                    SimpleTypeElement
-                      CodeReferenceElement
-                        PsiElement(identifier)('Unit')
+                  SimpleTypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('Unit')
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
