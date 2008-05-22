@@ -214,9 +214,6 @@ object ScalaElementTypes {
   val PROPERTY_SELECTION = new ScalaElementType("Property selection")
   val GENERIC_CALL = new ScalaElementType("Generified call")
 
-  //Various prefixes
-  //val MINUS = new ScalaElementType("minus")
-
   val EXPR1 = new ScalaElementType("composite expression ")
   val FUNCTION_EXPR = new ScalaElementType("expression")
   val AN_FUN = new ScalaElementType("anonymous function")
@@ -231,9 +228,6 @@ object ScalaElementTypes {
   val ERROR_STMT = new ScalaElementType("error statement")
   val BLOCK = new ScalaElementType("block")
   val TUPLE = new ScalaElementType("Tuple")
-  val BLOCK_STAT = new ScalaElementType("block statements")
-
-  //  val PARENTHESIZED_EXPR = new ScalaElementType("parenthesized expression")
 
   /******************************** COMPOSITE EXPRESSIONS *****************************/
   val IF_STMT = new ScalaElementType("if statement")

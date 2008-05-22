@@ -13,13 +13,13 @@ import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.formatting.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
-
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.ScCodeBlockImpl
 
 /**
 * @author Alexander.Podkhalyuzin 
 */
 
-class ScConstrBlockImpl(node: ASTNode) extends ScBlockImpl (node) with ScConstrBlock {
+class ScConstrBlockImpl(node: ASTNode) extends ScCodeBlockImpl (node) with ScConstrBlock {
   override def toString: String = "ConstructorBlock"
 }

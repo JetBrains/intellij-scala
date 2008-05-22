@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+/**
+ * @authoe ilyas
+ */
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
+trait ScBlock extends ScExpression {
 
-trait ScBlock extends ScalaPsiElement {
   def exprs : Seq[ScExpression]
+
 }
