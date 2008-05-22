@@ -41,6 +41,7 @@ class ScalaCompletionData extends CompletionData {
     registerExpressionCompletion
     registerModifiersCompletion
     registerCaseCompletion
+    registerImportCompletion
   }
 
   def registerPackageCompletion {
@@ -58,6 +59,10 @@ class ScalaCompletionData extends CompletionData {
 
   def registerCaseCompletion {
     registerStandardCompletion(new CaseFilter, "case")
+  }
+
+  def registerImportCompletion {
+    registerStandardCompletion(new ImportFilter,"import")
   }
 
   def registerStandardCompletion(filter: ElementFilter, keywords: String*) {
