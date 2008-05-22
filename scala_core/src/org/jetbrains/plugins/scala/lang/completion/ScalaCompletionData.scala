@@ -42,6 +42,7 @@ class ScalaCompletionData extends CompletionData {
     registerModifiersCompletion
     registerCaseCompletion
     registerImportCompletion
+    registerTemplateDefinitionCompletion
   }
 
   def registerPackageCompletion {
@@ -54,7 +55,7 @@ class ScalaCompletionData extends CompletionData {
 
   def registerModifiersCompletion {
     registerStandardCompletion(new ModifiersFilter, "private", "protected", "override",
-      "abstract", "final", "sealed", "implicit", "lazy")
+    "abstract", "final", "sealed", "implicit", "lazy")
   }
 
   def registerCaseCompletion {
@@ -62,7 +63,11 @@ class ScalaCompletionData extends CompletionData {
   }
 
   def registerImportCompletion {
-    registerStandardCompletion(new ImportFilter,"import")
+    registerStandardCompletion(new ImportFilter, "import")
+  }
+
+  def registerTemplateDefinitionCompletion {
+    registerStandardCompletion(new TemplateFilter, "class", "object", "trait")
   }
 
   def registerStandardCompletion(filter: ElementFilter, keywords: String*) {
