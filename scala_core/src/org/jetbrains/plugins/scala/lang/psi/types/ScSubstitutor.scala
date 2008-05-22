@@ -26,7 +26,7 @@ class ScSubstitutor(val map : Map[ScTypeParam, ScType]) {
 
   def subst (t : ScType) : ScType = {
     t match {
-      case ScFunctionType(ret, params) => new ScFunctionType(subst(ret), params map ((p : Tuple2[ScType, Boolean]) => (subst(p._1), p._2)))
+      case ScFunctionType(ret, params) => new ScFunctionType(subst(ret), params map (t => subst(t)))
       case ScParameterizedType (td, s) => td match {
         case tp : ScTypeParam => subst(tp)
         case _ => {
