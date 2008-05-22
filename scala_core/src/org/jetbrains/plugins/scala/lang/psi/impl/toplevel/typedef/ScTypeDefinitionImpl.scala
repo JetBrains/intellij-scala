@@ -102,7 +102,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     val res = if (eb != null) {
       eb.templateBody match {
         case None => Seq.empty
-        case Some (body) => body.members
+        case Some(body) => body.members
       }
     } else Seq.empty
     return res ++ findChildrenByClass(classOf[ScMember])
@@ -111,4 +111,30 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
   def typeParametersClause() = findChildByClass(classOf[ScTypeParamClause])
 
   def typeParameters() = typeParametersClause.typeParameters
+
+  override def delete() = {
+    var parent = getParent
+    while (parent.isInstanceOf[ScPackaging]) {
+      parent = parent.getParent
+    }
+    parent match {
+      case f: ScalaFile => {
+        if (f.getTypeDefinitions.length == 1) {
+          f.delete
+        } else {
+          val node = f.getNode
+          if (node != null){
+            node.removeChild(getNode)
+          }
+        }
+      }
+      case e: ScalaPsiElement => {
+        val node = e.getNode
+        if (node != null){
+          node.removeChild(getNode)
+        }
+      }
+      case _ => throw new IncorrectOperationException("Invalid type definition")
+    }
+  }
 }
