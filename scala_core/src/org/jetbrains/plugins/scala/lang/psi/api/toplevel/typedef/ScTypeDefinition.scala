@@ -44,18 +44,11 @@ trait ScTypeDefinition extends ScalaPsiElement
 
   def getNameIdentifierScala: PsiElement
 
-  def getFieldsAndMethods(): Seq[ScMember] = {
-    val eb = getExtendsBlock
-    val res = if (eb != null && eb.getTemplateBody != null) {
-      for (child <- getExtendsBlock.getTemplateBody.getChildren if child.isInstanceOf[ScMember])
-              yield child.asInstanceOf[ScMember]
-    } else Seq.empty
-    return res ++ (for (child <- getChildren if child.isInstanceOf[ScMember]) yield child.asInstanceOf[ScMember])
-  }
+  def getFieldsAndMethods(): Seq[ScMember]
 
   def methods = for (m <- getFieldsAndMethods if m.isInstanceOf[PsiMethod]) yield m.asInstanceOf[PsiMethod]
 
-  def getExtendsBlock: ScExtendsBlock = getNode.findChildByType(ScalaElementTypes.EXTENDS_BLOCK).getPsi.asInstanceOf[ScExtendsBlock]
+  def extendsBlock: ScExtendsBlock
 
   def getSuperClassNames() = Array[String]()
 
@@ -83,9 +76,9 @@ trait ScTypeDefinition extends ScalaPsiElement
   def typeParameters() = typeParametersClause.typeParameters
 
   def getTypeDefinitions(): Seq[ScTypeDefinition] = {
-    val body = getExtendsBlock.getTemplateBody
-    if (body == null) return Seq.empty
-    body.getChildren.flatMap(collectTypeDefs(_))
+    extendsBlock.templateBody match {
+      case None => Seq.empty
+      case Some(body) => body.getChildren.flatMap(collectTypeDefs(_))
+    }
   }
-
 }

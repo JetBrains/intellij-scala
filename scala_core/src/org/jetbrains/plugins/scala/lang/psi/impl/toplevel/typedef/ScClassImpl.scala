@@ -24,7 +24,7 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
 
   override def setName(s: String) = this
 
-  //def getExtendsBlock = getChild(ScalaElementTypes.EXTENDS_BLOCK).asInstanceOf[ScExtendsBlock]
+  //def extendsBlock = getChild(ScalaElementTypes.EXTENDS_BLOCK).asInstanceOf[ScExtendsBlock]
 
   def getTemplateParents = null
 

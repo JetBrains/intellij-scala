@@ -96,5 +96,16 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   def getMethods: Array[PsiMethod] = methods.toArray
 
+  def extendsBlock: ScExtendsBlock = findChildByClass(classOf[ScExtendsBlock])
 
+  def getFieldsAndMethods(): Seq[ScMember] = {
+    val eb = extendsBlock
+    val res = if (eb != null) {
+      eb.templateBody match {
+        case None => Seq.empty
+        case Some (body) => body.members
+      }
+    } else Seq.empty
+    return res ++ findChildrenByClass(classOf[ScMember])
+  }
 }
