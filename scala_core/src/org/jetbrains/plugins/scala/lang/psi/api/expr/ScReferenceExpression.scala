@@ -11,7 +11,7 @@ import com.intellij.psi._
 
 trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScReferenceElement {
 
-  def qualifier: ScExpression
+  def qualifier: Option[ScExpression] = findChild(classOf[ScExpression])
 
   def stable(): Boolean = qualifier match {
     case null => true

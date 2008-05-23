@@ -34,14 +34,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 * Date: 22.02.2008
 */
 
-class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReferenceElement{
+class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReferenceElement {
 
   def getElement = this
 
   def getRangeInElement: TextRange = {
     val nameElement: ASTNode = getNameElement()
     val startOffset: Int = if (nameElement != null) nameElement.getStartOffset()
-      else getNode().getTextRange().getEndOffset();
+    else getNode().getTextRange().getEndOffset();
     return new TextRange(startOffset - getNode().getStartOffset(), getTextLength());
   }
 
@@ -59,12 +59,14 @@ class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
 
   def getCanonicalText: String = null
 
-  def  handleElementRename(newElementName: String): PsiElement = {
-    return this; //todo
+  def handleElementRename(newElementName: String): PsiElement = {
+    return this;
+    //todo
   }
 
-  def  bindToElement(element: PsiElement):PsiElement = {
-    return this; //todo
+  def bindToElement(element: PsiElement): PsiElement = {
+    return this;
+    //todo
   }
 
   def isReferenceTo(element: PsiElement): Boolean = {
@@ -76,29 +78,60 @@ class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
 
   @Nullable
   def getReferencedName(): String = {
-     val nameElement: ASTNode = getNameElement();
-     return if (nameElement != null) nameElement.getText() else null;
-   }
+    val nameElement: ASTNode = getNameElement()
+    return if (nameElement != null) nameElement.getText() else null
+  }
 
   def getVariants(): Array[Object] = {
     return null
   }
-  def isSoft(): Boolean = {
-    return false;
-  }
-  
+  def isSoft(): Boolean = false
+
   override def getName = getText
 
   override def toString: String = "CodeReferenceElement"
 
-  def multiResolve (incomplete : Boolean) = new Array[ResolveResult](0) //todo
+  def multiResolve(incomplete: Boolean) = {
+    val processor = new StableMemberProcessor(refName)
+    qualifierRef match {
+      case None => {
+        def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
+          place match {
+            case null => ()
+            case p => {
+              if (!p.processDeclarations(processor,
+              ResolveState.initial(),  //todo
+              lastParent, ScReferenceElementImpl.this)) return ()
+              treeWalkUp(place.getParent, place)
+            }
+          }
+        }
+        treeWalkUp(this, null)
+      }
+      case Some(q) => {
+        q.bind match {
+          case None =>
+          case Some(other) => {
+            other.element.processDeclarations(processor, ResolveState.initial(), //todo
+            null, ScReferenceElementImpl.this)
+          }
+        }
+      }
+    }
+    processor.getCandidates.toArray(new Array[ResolveResult](0))
+  }
 
   def getType() = {
-    val result = bind
-    result.element match {
-      case null => null
-      case td: ScTypeDefinition => new ScParameterizedType (td, result.substitutor)
-      case p => new ScDesignatorType (p)
+    bind match {
+      case None => null
+      case Some(ScalaResolveResult(td: ScTypeDefinition, s)) => new ScParameterizedType(td, s)
+      case Some(ScalaResolveResult(other, _)) => new ScDesignatorType(other)
     }
   }
+
+  def nameNode: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+
+  def refName: String = nameNode.getText
+
+  def qualifierRef = findChild(classOf[ScReferenceElement])
 }

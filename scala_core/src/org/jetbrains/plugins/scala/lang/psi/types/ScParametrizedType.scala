@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
-//for packages
+//for packages & objects
 case class ScDesignatorType (element : PsiNamedElement) extends ScType {
   override def equiv(t : ScType) = t match {
     case ScDesignatorType(element1) => element eq element1

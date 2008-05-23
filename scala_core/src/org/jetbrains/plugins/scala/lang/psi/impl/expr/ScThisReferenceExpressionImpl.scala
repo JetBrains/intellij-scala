@@ -71,8 +71,6 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
     return false;
   }
 
-  def qualifier = findChildByClass(classOf[ScExpression])
-
   @Nullable
   def getReferencedName(): String = {
      val nameElement: ASTNode = getNameElement();

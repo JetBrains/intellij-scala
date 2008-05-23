@@ -14,15 +14,18 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
 
-  def bind() : ScalaResolveResult = {
+  def bind() : Option[ScalaResolveResult] = {
     val results = multiResolve(false)
     results.length match {
-      case 1 => results(0).asInstanceOf[ScalaResolveResult]
-      case _ => ScalaResolveResult.empty
+      case 1 => Some(results(0).asInstanceOf[ScalaResolveResult])
+      case _ => None
     }
   }
 
-  def resolve(): PsiElement = bind.element
+  def resolve(): PsiElement = bind match {
+    case None => null
+    case Some(res) => res.element
+  }
 
   def getType() : ScType
 

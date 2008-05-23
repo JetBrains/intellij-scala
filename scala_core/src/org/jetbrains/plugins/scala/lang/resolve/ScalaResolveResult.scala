@@ -6,6 +6,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 object ScalaResolveResult {
   def empty = new ScalaResolveResult(null, ScSubstitutor.empty)
+
+  def unapply(r : ScalaResolveResult) = Some(r.element, r.substitutor)
 }
 
 class ScalaResolveResult(val element : PsiNamedElement, val substitutor : ScSubstitutor) extends ResolveResult  {

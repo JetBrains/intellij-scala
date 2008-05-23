@@ -48,7 +48,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   def getNameElement(): ASTNode = {
-    return getNode().findChildByType(ScalaTokenTypes.tIDENTIFIER);
+    return getNode().findChildByType(ScalaTokenTypes.tIDENTIFIER)
   }
 
   def getCanonicalText: String = null
@@ -89,14 +89,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   private def _resolve(processor : BaseProcessor) =
     qualifier match {
-      case null => {
+      case None => {
         def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
           place match {
             case null => ()
             case p => {
               if (!p.processDeclarations(processor,
               ResolveState.initial(),
-              lastParent, ScReferenceExpressionImpl.this)) return null
+              lastParent, ScReferenceExpressionImpl.this)) return ()
               treeWalkUp(place.getParent, place)
             }
           }
@@ -104,7 +104,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         treeWalkUp(this, null)
         processor.getCandidates.toArray(new Array[ResolveResult](0))
       }
-      case e => new Array[ResolveResult](0)
+      case Some(e) => new Array[ResolveResult](0)
     }
 
   override def getType(): ScType = {
@@ -112,6 +112,4 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
     return null //todo
   }
-
-  def qualifier = findChildByClass(classOf[ScExpression])
 }
