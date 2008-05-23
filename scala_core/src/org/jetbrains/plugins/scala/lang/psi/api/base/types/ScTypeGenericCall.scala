@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.types
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 
 /** 
 * @author Alexander Podkhalyuzin
