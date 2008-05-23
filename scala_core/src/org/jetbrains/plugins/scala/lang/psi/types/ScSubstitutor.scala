@@ -30,7 +30,7 @@ class ScSubstitutor(val map : Map[ScTypeParam, ScType]) {
       case ScParameterizedType (td, s) => td match {
         case tp : ScTypeParam => subst(tp)
         case _ => {
-          val newMap = map transform ((tp : ScTypeParam, t : ScType) => subst(t))
+          val newMap = map transform ((tp : ScTypeParam, t : ScType) => subst(s.subst(t)))
           new ScParameterizedType(td, new ScSubstitutor(newMap))
         }
       }
