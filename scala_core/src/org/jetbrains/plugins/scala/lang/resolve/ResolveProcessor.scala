@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.psi.scope._
 import com.intellij.psi._
+import com.intellij.lang.StdLanguages
 import java.util.Set
 import java.util.HashSet
 
@@ -15,4 +16,14 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String
     }
     return true
   }
+}
+
+class StableMemberProcessor(override val name: String) extends ResolveProcessor (null, name) {
+  override def execute(element: PsiElement, state: ResolveState): Boolean =
+    element match {
+      case clazz : PsiClass =>
+        if ((clazz.getLanguage eq StdLanguages.JAVA) && clazz.getContainingClass != null &&
+         !clazz.hasModifierProperty(PsiModifier.STATIC)) true else super.execute(element, state)
+      case _ => super.execute(element, state)
+    }
 }
