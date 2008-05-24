@@ -38,7 +38,10 @@ ScalaFile
                   ExpressionInParenthesis
                     PsiElement(()('(')
                     FunctionExpression
-                      PsiElement(identifier)('NoSymbol')
+                      Parameters
+                        ParametersClause
+                          Parameter
+                            PsiElement(identifier)('NoSymbol')
                       PsiWhiteSpace(' ')
                       PsiElement(=>)('=>')
                       PsiWhiteSpace(' ')

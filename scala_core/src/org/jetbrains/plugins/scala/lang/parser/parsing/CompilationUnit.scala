@@ -13,8 +13,6 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.ScalaBundle
-
-//import org.jetbrains.plugins.scala.ScalaBundleImpl
 import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
 

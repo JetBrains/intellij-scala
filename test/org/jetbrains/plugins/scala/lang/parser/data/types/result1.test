@@ -18,13 +18,17 @@ ScalaFile
         BlockExpression
           PsiElement({)('{')
           FunctionExpression
-            PsiElement(identifier)('x')
-            PsiWhiteSpace(' ')
-            PsiElement(:)(':')
-            PsiWhiteSpace(' ')
-            SimpleTypeElement
-              CodeReferenceElement
-                PsiElement(identifier)('String')
+            Parameters
+              ParametersClause
+                Parameter
+                  PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('String')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')

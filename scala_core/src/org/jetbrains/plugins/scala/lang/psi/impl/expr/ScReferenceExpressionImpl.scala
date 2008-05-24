@@ -77,9 +77,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   def getVariants(): Array[Object] = {
-    _resolve(new CompletionProcessor(null)).map (r => r.getElement)
+    _resolve(new CompletionProcessor(null)).map(r => r.getElement)
   }
-  
+
   def isSoft(): Boolean = {
     return false;
   }
@@ -87,7 +87,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def multiResolve(incomplete: Boolean): Array[ResolveResult] =
     _resolve(new ResolveProcessor(null, refName))
 
-  private def _resolve(processor : BaseProcessor) =
+  private def _resolve(processor: BaseProcessor) =
     qualifier match {
       case None => {
         def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {

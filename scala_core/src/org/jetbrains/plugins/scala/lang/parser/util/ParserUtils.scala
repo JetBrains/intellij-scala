@@ -30,6 +30,15 @@ object ParserUtils extends ParserUtilsBase {
     }
   */
 
+  def roll(builder: PsiBuilder) {
+    while (!builder.eof && !(
+            ScalaTokenTypes.tLINE_TERMINATOR.eq(builder.getTokenType) ||
+                    ScalaTokenTypes.tLBRACE.eq(builder.getTokenType)
+            )) {
+      builder.advanceLexer
+    }
+  }
+
 
   /* rolls forward until token from elems encountered */
   def rollPanic(builder: PsiBuilder, elems: HashSet[IElementType]) = {
@@ -37,30 +46,30 @@ object ParserUtils extends ParserUtilsBase {
     val stack = new Stack[IElementType]
     var flag = true
 
-    while (flag && !builder.eof && !elems.contains (builder.getTokenType)) {
+    while (flag && !builder.eof && !elems.contains(builder.getTokenType)) {
 
-      if (ScalaTokenTypes.tLPARENTHESIS.equals (builder.getTokenType) ||
-              ScalaTokenTypes.tLBRACE.equals (builder.getTokenType) ||
-              ScalaTokenTypes.tLSQBRACKET.equals (builder.getTokenType)) {
+      if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType) ||
+              ScalaTokenTypes.tLBRACE.equals(builder.getTokenType) ||
+              ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)) {
         stack += builder.getTokenType
         builder.advanceLexer
         //eatElement(builder , builder.getTokenType)
       }
       else if (!stack.isEmpty &&
-              ((ScalaTokenTypes.tRPARENTHESIS.equals (builder.getTokenType) &&
-                      ScalaTokenTypes.tLPARENTHESIS.equals (stack.top)) ||
-                      (ScalaTokenTypes.tRBRACE.equals (builder.getTokenType) &&
-                              ScalaTokenTypes.tLBRACE.equals (stack.top)) ||
-                      (ScalaTokenTypes.tRSQBRACKET.equals (builder.getTokenType) &&
-                              ScalaTokenTypes.tLSQBRACKET.equals (stack.top)))) {
+              ((ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType) &&
+                      ScalaTokenTypes.tLPARENTHESIS.equals(stack.top)) ||
+                      (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) &&
+                              ScalaTokenTypes.tLBRACE.equals(stack.top)) ||
+                      (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType) &&
+                              ScalaTokenTypes.tLSQBRACKET.equals(stack.top)))) {
         stack.pop
         builder.advanceLexer
         //eatElement(builder , builder.getTokenType)
       }
       else if (stack.isEmpty &&
-              (ScalaTokenTypes.tRPARENTHESIS.equals (builder.getTokenType) ||
-                      ScalaTokenTypes.tRBRACE.equals (builder.getTokenType) ||
-                      ScalaTokenTypes.tRSQBRACKET.equals (builder.getTokenType))) {
+              (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType) ||
+                      ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) ||
+                      ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType))) {
         flag = false
       } else {
         builder.advanceLexer
@@ -73,7 +82,7 @@ object ParserUtils extends ParserUtilsBase {
   /* Roll forward throug line terminators*/
   def rollForward(builder: PsiBuilder): Boolean = {
     var counter = 0
-    while (!builder.eof ()) {
+    while (!builder.eof()) {
       builder.getTokenType match {
         case ScalaTokenTypes.tLINE_TERMINATOR => {
           builder.advanceLexer
@@ -87,7 +96,7 @@ object ParserUtils extends ParserUtilsBase {
 
   //Write element node
   def eatElement(builder: PsiBuilder, elem: IElementType): Unit = {
-    if (!builder.eof ()) {
+    if (!builder.eof()) {
       builder.advanceLexer // Ate something
     }
     ()
@@ -95,25 +104,25 @@ object ParserUtils extends ParserUtilsBase {
   }
 
   def parseTillLast(builder: PsiBuilder, lastSet: TokenSet): Unit = {
-    while (!builder.eof () && !lastSet.contains (builder.getTokenType)) {
+    while (!builder.eof() && !lastSet.contains(builder.getTokenType)) {
       builder.advanceLexer
       DebugPrint println "an error"
     }
 
-    if (builder.eof ()) /*builder error "unexpected end of file"; */ return
+    if (builder.eof()) /*builder error "unexpected end of file"; */ return
 
-    if (lastSet.contains (builder.getTokenType)) builder advanceLexer;
+    if (lastSet.contains(builder.getTokenType)) builder advanceLexer;
     return
   }
 
   //Write element node
   def errorToken(builder: PsiBuilder,
-  marker: PsiBuilder.Marker,
-  msg: String,
-  elem: ScalaElementType): ScalaElementType = {
-    builder.error (msg)
+                marker: PsiBuilder.Marker,
+                msg: String,
+                elem: ScalaElementType): ScalaElementType = {
+    builder.error(msg)
     //marker.done(elem)
-    marker.rollbackTo ()
+    marker.rollbackTo()
     ScalaElementTypes.WRONGWAY
   }
 

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import com.intellij.psi.PsiParameter
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 /** 
@@ -13,9 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 trait ScParameter extends ScNamedElement with PsiParameter {
 
-  def getTypeElement: ScTypeElement
+  def getTypeElement: PsiTypeElement
 
-  def paramType: ScParameterType
+  def typeElement: Option[ScTypeElement]
+
+  def paramType: Option[ScParameterType]
 
   //todo implement me!
   def hasModifierProperty(p: String) = false
