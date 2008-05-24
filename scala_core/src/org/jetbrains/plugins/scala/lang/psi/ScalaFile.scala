@@ -61,4 +61,18 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScDeclar
   }
 
   def icon = Icons.FILE_TYPE_LOGO
+
+  override def processDeclarations(processor: PsiScopeProcessor,
+      state : ResolveState,
+      lastParent: PsiElement,
+      place: PsiElement): Boolean = {
+    import org.jetbrains.plugins.scala.lang.resolve._
+    if (!super[ScDeclarationSequenceHolder].processDeclarations(processor,
+          state, lastParent, place)) return false
+
+    //todo process implicitly imported packages
+
+
+    true
+  }
 }
