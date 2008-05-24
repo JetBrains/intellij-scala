@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 * Date: 22.02.2008
 */
 
-class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReferenceElement {
+class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScStableCodeReferenceElement {
 
   def getElement = this
 
@@ -94,7 +94,7 @@ class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
 
   def multiResolve(incomplete: Boolean) = {
     val processor = new StableMemberProcessor(refName)
-    qualifierRef match {
+    qualifier match {
       case None => {
         def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
           place match {
@@ -102,7 +102,7 @@ class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
             case p => {
               if (!p.processDeclarations(processor,
               ResolveState.initial(),  //todo
-              lastParent, ScReferenceElementImpl.this)) return ()
+              lastParent, ScStableCodeReferenceElementImpl.this)) return ()
               treeWalkUp(place.getParent, place)
             }
           }
@@ -114,7 +114,7 @@ class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
           case None =>
           case Some(other) => {
             other.element.processDeclarations(processor, ResolveState.initial(), //todo
-            null, ScReferenceElementImpl.this)
+            null, ScStableCodeReferenceElementImpl.this)
           }
         }
       }
@@ -133,6 +133,4 @@ class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   def nameNode: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
   def refName: String = nameNode.getText
-
-  def qualifierRef = findChild(classOf[ScReferenceElement])
 }

@@ -94,7 +94,7 @@ object ScalaPsiCreator {
 
       /**************** variable ******************/
       case ScalaElementTypes.IDENTIFIER_LIST => new ScIdListImpl(node)
-      case ScalaElementTypes.REFERENCE => new ScReferenceElementImpl(node)
+      case ScalaElementTypes.REFERENCE => new ScStableCodeReferenceElementImpl(node)
 
       /**************** pattern ******************/
       case ScalaElementTypes.PATTERN_LIST => new ScPatternListImpl(node)
