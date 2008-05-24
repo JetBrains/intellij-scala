@@ -8,11 +8,8 @@ import com.intellij.psi._
 * Date: 14.04.2008
 */
 
-trait ScTypeElement extends ScalaPsiElement with PsiTypeElement{
+trait ScTypeElement extends ScalaPsiElement {
 
-  def getInnermostComponentReferenceElement = null
-
-  //Stub for java compatibility
-  def getType = Bottom.BOTTOM
+  def getType() = null
 
 }

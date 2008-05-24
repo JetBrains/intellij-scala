@@ -31,7 +31,7 @@ class ScParameterClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wit
 
   override def toString: String = "ParametersClause"
 
-  def getParameters: Seq[ScParameter] = List.fromArray(findChildrenByClass(classOf[ScParameter]))
+  def getParameters: Seq[ScParameter] = findChildrenByClass(classOf[ScParameter])
 
   def getParametersAsString: String = {
     val res = new StringBuffer("");
