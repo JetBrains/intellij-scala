@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -8,5 +9,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScImportExpr extends ScalaPsiElement {
-
+  def reference = findChild(classOf[ScStableCodeReferenceElement])
 }
