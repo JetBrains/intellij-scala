@@ -10,4 +10,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElemen
 
 trait ScImportExpr extends ScalaPsiElement {
   def reference = findChild(classOf[ScStableCodeReferenceElement])
+
+  def selectorSet = findChild(classOf[ScImportSelectors])
+
+  def selectors = {
+    selectorSet match {
+      case None => Seq.empty
+      case Some(s) => s.selectors
+    }
+  }
 }
