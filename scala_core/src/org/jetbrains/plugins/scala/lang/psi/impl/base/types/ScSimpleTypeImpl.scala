@@ -27,8 +27,6 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   override def toString: String = "SimpleTypeElement"
 
-  def reference: ScReferenceElement = findChildByClass(classOf[ScReferenceElement])
-
   def singleton = node.findChildByType(ScalaTokenTypes.kTYPE) != null
 
 }
