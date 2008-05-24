@@ -27,7 +27,5 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
     case Some(res) => res.element
   }
 
-  def getType() : ScType
-
   override def getReference = this
 }
