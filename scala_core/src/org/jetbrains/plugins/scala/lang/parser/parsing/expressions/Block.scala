@@ -61,7 +61,7 @@ object Block {
           builder.advanceLexer
         }
         case _ => {
-          builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+          builder error ErrMsg("rbrace.expected")
         }
       }
       blockMarker.done(ScalaElementTypes.BLOCK_EXPR)

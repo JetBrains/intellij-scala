@@ -24,7 +24,10 @@ ScalaFile
             BlockExpression
               PsiElement({)('{')
               FunctionExpression
-                PsiElement(identifier)('x')
+                Parameters
+                  ParametersClause
+                    Parameter
+                      PsiElement(identifier)('x')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')

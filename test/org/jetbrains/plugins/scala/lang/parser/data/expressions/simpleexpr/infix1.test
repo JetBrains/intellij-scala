@@ -84,7 +84,10 @@ ScalaFile
                 ArgumentList
                   PsiElement(()('(')
                   FunctionExpression
-                    PsiElement(identifier)('s')
+                    Parameters
+                      ParametersClause
+                        Parameter
+                          PsiElement(identifier)('s')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')
                     PsiWhiteSpace(' ')
@@ -181,7 +184,10 @@ ScalaFile
                   ArgumentList
                     PsiElement(()('(')
                     FunctionExpression
-                      PsiElement(identifier)('s')
+                      Parameters
+                        ParametersClause
+                          Parameter
+                            PsiElement(identifier)('s')
                       PsiWhiteSpace(' ')
                       PsiElement(=>)('=>')
                       PsiWhiteSpace(' ')
@@ -266,7 +272,10 @@ ScalaFile
                       ArgumentList
                         PsiElement(()('(')
                         FunctionExpression
-                          PsiElement(identifier)('s')
+                          Parameters
+                            ParametersClause
+                              Parameter
+                                PsiElement(identifier)('s')
                           PsiWhiteSpace(' ')
                           PsiElement(=>)('=>')
                           PsiWhiteSpace(' ')
@@ -322,7 +331,10 @@ ScalaFile
                       ArgumentList
                         PsiElement(()('(')
                         FunctionExpression
-                          PsiElement(identifier)('s')
+                          Parameters
+                            ParametersClause
+                              Parameter
+                                PsiElement(identifier)('s')
                           PsiWhiteSpace(' ')
                           PsiElement(=>)('=>')
                           PsiWhiteSpace(' ')

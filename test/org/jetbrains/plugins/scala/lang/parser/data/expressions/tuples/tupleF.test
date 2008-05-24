@@ -25,7 +25,10 @@ ScalaFile
             PsiElement(identifier)('b')
           PsiElement(,)(',')
           FunctionExpression
-            PsiElement(identifier)('c')
+            Parameters
+              ParametersClause
+                Parameter
+                  PsiElement(identifier)('c')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')

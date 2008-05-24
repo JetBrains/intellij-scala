@@ -49,7 +49,8 @@ object ConstrBlock {
               BlockStat parse builder
             }
             case _ => {
-              builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+              builder error ErrMsg("rbrace.expected")
+              ParserUtils.roll(builder)
               constrExprMarker.done(ScalaElementTypes.CONSTR_BLOCK)
               return true
             }

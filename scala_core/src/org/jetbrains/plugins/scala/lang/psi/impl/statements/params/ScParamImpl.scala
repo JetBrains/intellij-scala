@@ -31,13 +31,18 @@ class ScParameterImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
 
   override def getName = nameId.getText
 
-  def paramType = findChildByClass(classOf[ScParameterType])
+  def paramType = findChild(classOf[ScParameterType])
 
   def getDeclarationScope = PsiTreeUtil.getParentOfType(this, classOf[ScParameterOwner])
 
   def getAnnotations = PsiAnnotation.EMPTY_ARRAY
 
   def getTypeElement = null
+
+  def typeElement = paramType match {
+    case Some(x) => Some(x.typeElement)
+    case None => None
+  }
 
   // todo implement me!
   def isVarArgs = false

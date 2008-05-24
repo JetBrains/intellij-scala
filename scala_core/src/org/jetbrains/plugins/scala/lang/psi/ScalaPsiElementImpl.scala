@@ -15,7 +15,7 @@ import javax.swing.Icon
 */
 class ScalaPsiElementImpl ( node : ASTNode ) extends ASTWrapperPsiElement( node )
   with ScalaPsiElement {
-
+     
   override def replace(newElement : PsiElement) : PsiElement = {
     val parent : ScalaPsiElementImpl = getParent().asInstanceOf[ScalaPsiElementImpl]
     val parentNode = parent.getNode()
@@ -28,7 +28,7 @@ class ScalaPsiElementImpl ( node : ASTNode ) extends ASTWrapperPsiElement( node 
 
   def getASTNode() : ASTNode = node
 
-  def findChild[T >: Null <: ScalaPsiElement](clazz : Class[T]) : Option[T] = findChildByClass(clazz) match {
+  override def findChild[T >: Null <: ScalaPsiElement](clazz : Class[T]) : Option[T] = findChildByClass(clazz) match {
     case null => None
     case e => Some(e)
   }

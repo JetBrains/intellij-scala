@@ -65,20 +65,27 @@ object ResultExpr {
         return parseFunctionEnd
       }
       case ScalaTokenTypes.tIDENTIFIER => {
+        val pmarker = builder.mark
         builder.advanceLexer //Ate id
+        if (ScalaTokenTypes.tCOLON == builder.getTokenType) {
+          builder.advanceLexer // ate ':'
+          val pt = builder.mark
+          CompoundType.parse(builder)
+          pt.done(ScalaElementTypes.PARAM_TYPE)
+        }
         builder.getTokenType match {
-          case ScalaTokenTypes.tCOLON => {
-            builder.advanceLexer //Ate :
-          }
           case ScalaTokenTypes.tFUNTYPE => {
+            val psm = pmarker.precede // 'parameter clause'
+            val pssm = psm.precede // 'parameter list'
+            psm.done(ScalaElementTypes.PARAM_CLAUSE)
+            pssm.done(ScalaElementTypes.PARAM_CLAUSES)
+            pmarker.done(ScalaElementTypes.PARAM)
+            
             return parseFunctionEnd
           }
           case _ => {
-            builder error ScalaBundle.message("colon.expected", new Array[Object](0))
+            builder error ErrMsg("fun.sign.expected")
           }
-        }
-        if (!CompoundType.parse(builder)) {
-          builder error ScalaBundle.message("wrong.type", new Array[Object](0))
         }
         return parseFunctionEnd
       }
