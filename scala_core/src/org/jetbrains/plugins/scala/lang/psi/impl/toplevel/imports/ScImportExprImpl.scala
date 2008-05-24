@@ -20,10 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 * Date: 20.02.2008
 */
 
-class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScImportExpr{
+class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScImportExpr {
   override def toString: String = "ImportExpression"
-
-  def getImportReference = getChild(ScalaElementTypes.STABLE_ID)
 
   private def getImportSelectors = {
     val selectorSet = getChild(ScalaElementTypes.IMPORT_SELECTORS).asInstanceOf[ScImportSelectorsImpl]
@@ -32,42 +30,44 @@ class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
   }
 
   def getExplicitName(name: String, prefix: String, stick: Boolean): String = {
+    reference match {
+      case None => null
+      case Some(ref) => {
+        var refText = ref.getText
 
-    if (getImportReference != null){
-      var refText = getImportReference.getText
-
-      def stickNames = {
-        if (refText.length > 7 && refText.substring(0, 7).equals("_root_.")) {
-          refText = refText.substring(7)
-        } else {
-          val importBegin = if (refText.contains(".")) {
-            refText.substring(0, refText.indexOf("."))
-          } else refText
-          val index = prefix.indexOf(importBegin)
-          if (index > 0 &&
-          prefix.charAt(index - 1) == '.' &&
-          prefix.length > index + importBegin.length &&
-          prefix.charAt(index + importBegin.length) == '.'){
-            refText = prefix.substring(0, index) + refText
+        def stickNames = {
+          if (refText.length > 7 && refText.substring(0, 7).equals("_root_.")) {
+            refText = refText.substring(7)
           } else {
-            refText = prefix + refText
+            val importBegin = if (refText.contains(".")) {
+              refText.substring(0, refText.indexOf("."))
+            } else refText
+            val index = prefix.indexOf(importBegin)
+            if (index > 0 &&
+                    prefix.charAt(index - 1) == '.' &&
+                    prefix.length > index + importBegin.length &&
+                    prefix.charAt(index + importBegin.length) == '.') {
+              refText = prefix.substring(0, index) + refText
+            } else {
+              refText = prefix + refText
+            }
           }
         }
-      }
 
-      if (getTailId != null && getTailId.equals(name)) {
-        if (stick) stickNames
-        return refText + "." + name
-      } else if (getImportSelectors != null) {
-        if (stick) stickNames
-        for (val selector <- getImportSelectors) {
-          if (selector.getRealName(name) != null) {
-            return getImportReference.getText + "." + selector.getRealName(name)
+        if (getTailId != null && getTailId.equals(name)) {
+          if (stick) stickNames
+          return refText + "." + name
+        } else if (getImportSelectors != null) {
+          if (stick) stickNames
+          for (val selector <- getImportSelectors) {
+            if (selector.getRealName(name) != null) {
+              return ref.getText + "." + selector.getRealName(name)
+            }
           }
-        }
-        null
-      } else null
-    } else null
+          null
+        } else null
+      }
+    }
   }
 
   def getTailId = null /*{
@@ -77,7 +77,7 @@ class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
     else null
   }*/
 
-  def isExplicit = ! getText.contains("_") && ! getText.contains("{")
+  def isExplicit = !getText.contains("_") && !getText.contains("{")
 
   def hasWildcard: Boolean = {
     if (getChild(ScalaTokenTypes.tUNDER) != null) return true
