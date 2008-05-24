@@ -62,4 +62,19 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner {
 
   def icon = Icons.FILE_TYPE_LOGO
 
+  override def processDeclarations(processor: PsiScopeProcessor,
+      state : ResolveState,
+      lastParent: PsiElement,
+      place: PsiElement): Boolean = {
+    import org.jetbrains.plugins.scala.lang.resolve._
+
+    if (lastParent != null) { //we are ascending from this file
+      var run = lastParent.getPrevSibling
+      while (run != null) {
+        if (!run.processDeclarations(processor, state, lastParent, place)) return false
+        run = run.getPrevSibling
+      }
+    }
+    true
+  }
 }
