@@ -1,8 +1,15 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang._
+import lexer.ScalaTokenTypes
+import parser.ScalaElementTypes
+import psi.ScalaPsiElementImpl
+import psi.api.base._
+import psi.types._
+import psi.api.toplevel.typedef.ScTypeDefinition
+import psi.impl.ScalaPsiElementFactory
+import resolve._
+
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
@@ -10,13 +17,9 @@ import com.intellij.psi._
 
 import org.jetbrains.annotations._
 
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
 
-
-import org.jetbrains.plugins.scala.lang.psi.api.base._
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.openapi.util._
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.TextRange;
@@ -26,8 +29,6 @@ import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
 * @author Alexander Podkhalyuzin

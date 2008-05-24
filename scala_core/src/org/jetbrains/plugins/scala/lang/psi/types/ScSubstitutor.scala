@@ -4,9 +4,12 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import com.intellij.openapi.util.Key
 
 object ScSubstitutor {
   val empty = new ScSubstitutor
+
+  val key : Key[ScSubstitutor] = Key.create("scala substitutor key")
 }
 
 class ScSubstitutor(val map : Map[ScTypeParam, ScType]) {

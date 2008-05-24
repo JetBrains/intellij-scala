@@ -37,7 +37,7 @@ class ScParameterImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
 
   def getAnnotations = PsiAnnotation.EMPTY_ARRAY
 
-  def getTypeElement = if (paramType != null) paramType.typeElement else null
+  def getTypeElement = null
 
   // todo implement me!
   def isVarArgs = false

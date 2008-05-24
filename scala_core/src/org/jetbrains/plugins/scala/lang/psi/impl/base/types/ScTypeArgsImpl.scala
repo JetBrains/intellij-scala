@@ -21,5 +21,5 @@ class ScTypeArgsImpl( node : ASTNode ) extends ScalaPsiElementImpl(node) with Sc
 
   override def toString: String = "TypeArgumentsList"
   
-  def typeArgs: Seq[ScTypeElement] = List.fromArray(findChildrenByClass(classOf[ScTypeElement]))
+  def typeArgs: Seq[ScTypeElement] = findChildrenByClass(classOf[ScTypeElement])
 }
