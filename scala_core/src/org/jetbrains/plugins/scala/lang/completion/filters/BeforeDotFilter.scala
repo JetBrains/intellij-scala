@@ -13,13 +13,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 class BeforeDotFilter(elems : IElementType*) extends LeftNeighbour {
 
-  def contains[T](seq: Seq[T], elem: T): Boolean = {
-    seq.toList.contains(elem)
-  }
+  def contains[T](seq: Seq[T], elem: T): Boolean = seq.contains(elem)
 
-  override def isAcceptable (element: java.lang.Object, context: PsiElement): Boolean = {
-    if (!(element.isInstanceOf[PsiElement])) return false
-    val elementType = element.asInstanceOf[PsiElement].getNode().getElementType()
-    contains(elems, elementType)
-  }
+  override def isAcceptable (element: java.lang.Object, context: PsiElement): Boolean =
+    element match {
+      case psi : PsiElement => contains(elems, psi.getNode.getElementType)
+      case _ => false
+    }
 }
