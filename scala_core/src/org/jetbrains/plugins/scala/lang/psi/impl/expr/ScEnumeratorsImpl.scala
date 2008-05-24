@@ -44,7 +44,7 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     import org.jetbrains.plugins.scala.lang.resolve._
 
     val ns = namings.reverse
-    val begin = if (ns.contains(lastParent)) ns.drop(ns.indexOf(lastParent) + 1) else ns
+    val begin = if (ns.contains(lastParent)) ns.drop(ns.indexOf(lastParent)) else ns
     val patts = begin.map((ns: Patterned) => ns.pattern)
     val binds = patts.flatMap[ScBindingPattern]((p: ScPattern) => p.bindings)
     for (b <- binds) if (!processor.execute(b, state)) return false
