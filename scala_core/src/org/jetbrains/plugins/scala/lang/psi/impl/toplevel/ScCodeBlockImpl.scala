@@ -29,10 +29,12 @@ abstract class ScCodeBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
       place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
 
-    var run = if (lastParent == null) getLastChild else lastParent.getPrevSibling
-    while (run != null) {
-      if (!run.processDeclarations(processor, state, lastParent, place)) return false
-      run = run.getPrevSibling
+    if (lastParent != null) {
+      var run = lastParent.getPrevSibling
+      while (run != null) {
+        if (!run.processDeclarations(processor, state, lastParent, place)) return false
+        run = run.getPrevSibling
+      }
     }
     true
   }
