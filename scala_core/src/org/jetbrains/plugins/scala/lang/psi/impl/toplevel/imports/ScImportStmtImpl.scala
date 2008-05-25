@@ -24,7 +24,7 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
   import com.intellij.psi._
   import scope._
 
-  override def processDeclarations(processor: PsiScopeProcessor,
+  /*override def processDeclarations(processor: PsiScopeProcessor,
       state : ResolveState,
       lastParent: PsiElement,
       place: PsiElement): Boolean = {
@@ -40,5 +40,5 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
     }
 
     true
-  }
+  }*/
 }
