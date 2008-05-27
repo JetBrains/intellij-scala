@@ -37,21 +37,18 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScDeclar
 
   def getPackagings: Iterable [ScPackaging] = childrenOfType[ScPackaging] (TokenSets.PACKAGING_BIT_SET)
 
-  def getPackageName = {
-    val p = getPackageStatement
-    if (p != null) p.getPackageName else ""
-  }
-  
-  def getPackageStatement = findChildByClass(classOf[ScPackageStatement])
+  def getPackageName =
+    packageStatement match {
+      case None => ""
+      case Some(stat) => stat.getPackageName
+    }
+
+  def packageStatement = findChild(classOf[ScPackageStatement])
 
   override def getClasses = getTypeDefinitionsArray.map((t: ScTypeDefinition) => t.asInstanceOf[PsiClass])
 
-  def getTopStatements: Array[ScTopStatement] = {
-    val res = new ArrayBuffer[ScTopStatement]
-    for (child <- getChildren() if child.isInstanceOf[ScTopStatement]) res+=child.asInstanceOf[ScTopStatement]
-    return res.toArray
-  }
-
+  def getTopStatements: Array[ScTopStatement] = findChildrenByClass(classOf[ScTopStatement])
+  
   override def getTypeDefinitions(): Seq[ScTypeDefinition] = getChildren.flatMap (collectTypeDefs)
 
   override def collectTypeDefs (child: PsiElement) = child match {
