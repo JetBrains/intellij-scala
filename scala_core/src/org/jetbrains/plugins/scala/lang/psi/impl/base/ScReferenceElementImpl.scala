@@ -9,11 +9,13 @@ import psi.types._
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.impl.ScalaPsiElementFactory
 import resolve._
+import com.intellij.psi.impl.source.resolve.ResolveCache
 
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
+import com.intellij.psi.impl._
 
 import org.jetbrains.annotations._
 
@@ -92,34 +94,40 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   override def toString: String = "CodeReferenceElement"
 
-  def multiResolve(incomplete: Boolean) = {
-    val processor = new StableMemberProcessor(refName)
-    qualifier match {
-      case None => {
-        def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
-          place match {
-            case null => ()
-            case p => {
-              if (!p.processDeclarations(processor,
-              ResolveState.initial(),  //todo
-              lastParent, ScStableCodeReferenceElementImpl.this)) return ()
-              treeWalkUp(place.getParent, place)
+  object MyResolver extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElementImpl] {
+    def resolve(ref: ScStableCodeReferenceElementImpl, incomplete: Boolean) = {
+      val processor = new StableMemberProcessor(refName)
+      qualifier match {
+        case None => {
+          def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
+            place match {
+              case null => ()
+              case p => {
+                if (!p.processDeclarations(processor,
+                ResolveState.initial(), //todo
+                lastParent, ref)) return ()
+                treeWalkUp(place.getParent, place)
+              }
+            }
+          }
+          treeWalkUp(ref, null)
+        }
+        case Some(q) => {
+          q.bind match {
+            case None =>
+            case Some(other) => {
+              other.element.processDeclarations(processor, ResolveState.initial(), //todo
+              null, ScStableCodeReferenceElementImpl.this)
             }
           }
         }
-        treeWalkUp(this, null)
       }
-      case Some(q) => {
-        q.bind match {
-          case None =>
-          case Some(other) => {
-            other.element.processDeclarations(processor, ResolveState.initial(), //todo
-            null, ScStableCodeReferenceElementImpl.this)
-          }
-        }
-      }
+      processor.getCandidates.toArray(new Array[ResolveResult](0))
     }
-    processor.getCandidates.toArray(new Array[ResolveResult](0))
+  }
+
+  def multiResolve(incomplete: Boolean) = {
+    getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, false, incomplete)
   }
 
   def getType() = {
