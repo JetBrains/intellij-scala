@@ -28,15 +28,10 @@ class ScParametersImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScP
 
   def getParametersAsString: String = {
     val res: StringBuffer = new StringBuffer("")
-    for (child <- getChildren) {
-      child match {
-        case e: ScParameters => {
-          res.append("(")
-          res.append(e.getParametersAsString)
-          res.append(")")
-        }
-        case _ =>
-      }
+    for (child <- clauses) {
+      res.append("(")
+      res.append(child.getParametersAsString)
+      res.append(")")
     }
     return res.toString()
   }

@@ -47,6 +47,12 @@ trait ScTypeDefinition extends ScalaPsiElement
 
   def getFieldsAndMethods(): Seq[ScMember]
 
+  /**
+   * Return sequence of inner type definitions
+   * @return inner classes object and traits
+   */
+  def getInnerTypeDefinitions(): Seq[ScTypeDefinition]
+
   def methods = for (m <- getFieldsAndMethods if m.isInstanceOf[PsiMethod]) yield m.asInstanceOf[PsiMethod]
 
   def extendsBlock: ScExtendsBlock

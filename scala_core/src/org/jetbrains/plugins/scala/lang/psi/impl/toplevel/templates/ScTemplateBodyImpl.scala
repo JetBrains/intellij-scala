@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -30,6 +31,7 @@ class ScTemplateBodyImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   def members = findChildrenByClass(classOf[ScMember])
 
+  def typeDefinitions: Seq[ScTypeDefinition] = findChildrenByClass(classOf[ScTypeDefinition])
   //
 
   /*def getTemplateStatements = {

@@ -25,33 +25,28 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScalaPsiEleme
   def getChildren(): Array[TreeElement] = {
     val children = new ArrayBuffer[ScalaStructureViewElement]
 
-    try {
-      for (member <- element.asInstanceOf[ScTypeDefinition].getFieldsAndMethods) {
-        member match {
-          case _: ScTypeDefinition => {
-            children += new ScalaTypeDefinitionStructureViewElement (member)
-          }
-          case _: ScFunction => {
-            children += new ScalaFunctionStructureViewElement (member, false)
-          }
-          case _: ScPrimaryConstructor => {
-            children += new ScalaPrimaryConstructorStructureViewElement (member)
-          }
-          case member: ScVariable => {
-            for (f <- member.ids)
-                    children += new ScalaVariableStructureViewElement (f)
-          }
-          case member: ScValue => {
-            for (f <- member.ids)
-                    children += new ScalaValueStructureViewElement (f)
-          }
-          case _ =>
+    for (member <- element.asInstanceOf[ScTypeDefinition].getFieldsAndMethods) {
+      member match {
+        case _: ScFunction => {
+          children += new ScalaFunctionStructureViewElement (member, false)
         }
+        case _: ScPrimaryConstructor => {
+          children += new ScalaPrimaryConstructorStructureViewElement (member)
+        }
+        case member: ScVariable => {
+          for (f <- member.ids)
+                  children += new ScalaVariableStructureViewElement (f)
+        }
+        case member: ScValue => {
+          for (f <- member.ids)
+                  children += new ScalaValueStructureViewElement (f)
+        }
+        case _ =>
       }
     }
-    catch {
-      case e => print (e)
-    }
+
+    for (typeDef <- element.asInstanceOf[ScTypeDefinition].getInnerTypeDefinitions)
+      children += new ScalaTypeDefinitionStructureViewElement(typeDef)
     return children.toArray
   }
 }

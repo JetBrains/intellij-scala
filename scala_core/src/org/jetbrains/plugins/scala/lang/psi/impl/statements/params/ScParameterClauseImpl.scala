@@ -28,7 +28,7 @@ class ScParameterClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wit
     val res = new StringBuffer("");
     for (param <- getParameters) {
       param.paramType match {
-        case Some(pt) => res.append(pt.getText())
+        case Some(pt) => res.append(pt.getText()).append(", ")
         case None => res.append("AnyRef").append(", ")
       }
     }

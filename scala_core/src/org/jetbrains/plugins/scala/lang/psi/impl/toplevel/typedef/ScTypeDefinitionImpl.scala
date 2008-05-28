@@ -86,7 +86,17 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
       VisibilityIcons.setVisibilityIcon(getModifierList, rowIcon);
     }
     rowIcon
-    //icon
+  }
+
+  def getInnerTypeDefinitions: Seq[ScTypeDefinition] = {
+    val eb = extendsBlock
+    val res = if (eb != null) {
+      eb.templateBody match {
+        case None => Seq.empty
+        case Some(body) => body.typeDefinitions
+      }
+    } else Seq.empty
+    return res
   }
 
   def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = methods.filter((m: PsiMethod) =>
