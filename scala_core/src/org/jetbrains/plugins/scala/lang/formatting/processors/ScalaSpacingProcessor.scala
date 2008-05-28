@@ -16,6 +16,7 @@ import com.intellij.psi.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.formatting.patterns._
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -98,6 +99,136 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         rightNode.getTreeParent.getPsi.isInstanceOf[ScConstructorPattern]) {
       if (settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES) return WITH_SPACING //todo: add setting
       else return WITHOUT_SPACING
+    }
+
+    //processing left parenthesis (if it's from left)
+    if (leftNode.getElementType == ScalaTokenTypes.tLPARENTHESIS) {
+      if (rightNode.getElementType == ScalaTokenTypes.tRPARENTHESIS)
+        return WITHOUT_SPACING
+      leftNode.getTreeParent.getPsi match {
+        case _: ScForStatement => {
+          if (settings.SPACE_WITHIN_FOR_PARENTHESES) return WITH_SPACING
+          else return WITHOUT_SPACING
+        }
+        case _: ScIfStmt => {
+          if (settings.SPACE_WITHIN_IF_PARENTHESES) return WITH_SPACING
+          else return WITHOUT_SPACING
+        }
+        case _: ScWhileStmt => {
+          if (settings.SPACE_WITHIN_WHILE_PARENTHESES) return WITH_SPACING
+          else return WITHOUT_SPACING
+        }
+        case _: ScParenthesisedExpr => {
+          if (settings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING
+          else return WITHOUT_SPACING
+        }
+        case x: ScParameterClause if x.getParent.getParent.isInstanceOf[ScFunction] => {
+          if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING
+          else return WITHOUT_SPACING
+        }
+        case x: ScParameterClause if x.getParent.getParent.isInstanceOf[ScPrimaryConstructor] => {
+          if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING  //todo: add setting
+          else return WITHOUT_SPACING
+        }
+        case _: ScPatternArgumentList => {
+          if (settings.SPACE_WITHIN_METHOD_CALL_PARENTHESES) return WITH_SPACING //todo: add setting
+          else return WITHOUT_SPACING
+        }
+        case _: ScArguments => {
+          if (settings.SPACE_WITHIN_METHOD_CALL_PARENTHESES) return WITH_SPACING
+          else return WITHOUT_SPACING
+        }
+        case _: ScParenthesisedPattern => {
+          if (settings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING //todo: add setting
+          else return WITHOUT_SPACING
+        }
+        case _: ScTuplePattern => {
+          WITHOUT_SPACING //todo: add setting
+        }
+        case _: ScParenthesisedTypeElement => {
+          if (settings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING //todo: add setting
+          else return WITHOUT_SPACING
+        }
+        case _: ScTupleTypeElement => {
+          WITHOUT_SPACING //todo: add setting
+        }
+        case _: ScTuple => {
+          WITHOUT_SPACING //todo: add setting
+        }
+        case _: ScBindings => {
+          if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING  //todo: add setting
+          else return WITHOUT_SPACING
+        }
+        case _: ScFunctionalTypeElement => {
+          if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING  //todo: add setting
+          else return WITHOUT_SPACING
+        }
+      }
+    }
+
+    //processing right parenthesis (if it's from right)
+    if (rightNode.getElementType == ScalaTokenTypes.tRPARENTHESIS) {
+      if (leftNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
+        return WITHOUT_SPACING
+      rightNode.getTreeParent.getPsi match {
+        case _: ScForStatement => {
+          if (settings.SPACE_WITHIN_FOR_PARENTHESES) return WITH_SPACING
+          else return WITHOUT_SPACING
+        }
+        case _: ScIfStmt => {
+          if (settings.SPACE_WITHIN_IF_PARENTHESES) return WITH_SPACING
+          else return WITHOUT_SPACING
+        }
+        case _: ScWhileStmt => {
+          if (settings.SPACE_WITHIN_WHILE_PARENTHESES) return WITH_SPACING
+          else return WITHOUT_SPACING
+        }
+        case _: ScParenthesisedExpr => {
+          if (settings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING
+          else return WITHOUT_SPACING
+        }
+        case x: ScParameterClause if x.getParent.getParent.isInstanceOf[ScFunction] => {
+          if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING
+          else return WITHOUT_SPACING
+        }
+        case x: ScParameterClause if x.getParent.getParent.isInstanceOf[ScPrimaryConstructor] => {
+          if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING  //todo: add setting
+          else return WITHOUT_SPACING
+        }
+        case _: ScPatternArgumentList => {
+          if (settings.SPACE_WITHIN_METHOD_CALL_PARENTHESES) return WITH_SPACING //todo: add setting
+          else return WITHOUT_SPACING
+        }
+        case _: ScArguments => {
+          if (settings.SPACE_WITHIN_METHOD_CALL_PARENTHESES) return WITH_SPACING
+          else return WITHOUT_SPACING
+        }
+        case _: ScParenthesisedPattern => {
+          if (settings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING //todo: add setting
+          else return WITHOUT_SPACING
+        }
+        case _: ScTuplePattern => {
+          WITHOUT_SPACING //todo: add setting
+        }
+        case _: ScParenthesisedTypeElement => {
+          if (settings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING //todo: add setting
+          else return WITHOUT_SPACING
+        }
+        case _: ScTupleTypeElement => {
+          WITHOUT_SPACING //todo: add setting
+        }
+        case _: ScTuple => {
+          WITHOUT_SPACING //todo: add setting
+        }
+        case _: ScBindings => {
+          if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING  //todo: add setting
+          else return WITHOUT_SPACING
+        }
+        case _: ScFunctionalTypeElement => {
+          if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING  //todo: add setting
+          else return WITHOUT_SPACING
+        }
+      }
     }
 
     (leftNode.getElementType, rightNode.getElementType,
