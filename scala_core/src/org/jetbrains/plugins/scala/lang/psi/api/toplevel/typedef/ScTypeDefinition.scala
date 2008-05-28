@@ -81,4 +81,10 @@ trait ScTypeDefinition extends ScalaPsiElement
       case None => Seq.empty
       case Some(body) => body.getChildren.flatMap(collectTypeDefs(_))
     }
+
+  /*
+   * Return does type definition have extends keyword.
+   * @return has extends keyword
+   */
+  def hasExtendsKeyword: Boolean
 }

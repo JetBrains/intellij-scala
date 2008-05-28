@@ -12,17 +12,27 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.types._
 
 /** 
 * @author Alexander Podkhalyuzin
-* Date: 22.05.2008
+* Date: 28.05.2008
 */
 
-class ExtendsFilter extends ElementFilter {
+class WithFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
     val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
     if (leaf != null) {
+      val parent = leaf.getParent
+      leaf.getPrevSibling match {
+        case null => parent.getPrevSibling match {
+          case _: ScType => return true
+          case _ =>
+        }
+        case _: ScType => return true
+        case _ =>
+      }
       val prev = leaf.getPrevSibling
       prev match {
         case _: PsiErrorElement =>
@@ -43,6 +53,6 @@ class ExtendsFilter extends ElementFilter {
 
   @NonNls
   override def toString(): String = {
-    return "'extends' keyword filter"
+    return "'with' keyword filter"
   }
 }

@@ -24,21 +24,11 @@ import org.jetbrains.plugins.scala.lang.completion.filters.other._
 */
 
 class ScalaCompletionData extends CompletionData {
-
-  /* Adding variants */
-
+  
+  /* Initialization */
   registerAllCompletions
 
-  /*
-  *   Main initialization
-  */
-  def registerAllCompletions = {
-    /* Special cases */
-    //    afterDotCompletion
-    //topDefinitionsCompletion
-    //requiresCompletion
-    //extendsCompletion
-    //inExpressionCompletion
+  private def registerAllCompletions = {
     registerPackageCompletion
     registerExpressionCompletion
     registerModifiersCompletion
@@ -52,62 +42,92 @@ class ScalaCompletionData extends CompletionData {
     registerFinallyCompletion
     registerElseCompletion
     registerExtendsCompletion
+    registerYieldCompletion
+    registerWithCompletion
+    registerRequiresCompletion
+    registerIfCompletion
+    registerDefTypeCompletion
+    registerForSomeCompletion
   }
 
-  def registerPackageCompletion {
+  private def registerPackageCompletion {
     registerStandardCompletion(new PackageFilter(), "package")
   }
 
-  def registerExpressionCompletion {
+  private def registerExpressionCompletion {
     registerStandardCompletion(new ExpressionFilter, "true", "false", "null", "new", "super", "this")
   }
 
-  def registerModifiersCompletion {
+  private def registerModifiersCompletion {
     registerStandardCompletion(new ModifiersFilter, "private", "protected", "override",
     "abstract", "final", "sealed", "implicit", "lazy")
   }
 
-  def registerCaseCompletion {
+  private def registerCaseCompletion {
     registerStandardCompletion(new CaseFilter, "case")
   }
 
-  def registerImportCompletion {
+  private def registerImportCompletion {
     registerStandardCompletion(new ImportFilter, "import")
   }
 
-  def registerTemplateDefinitionCompletion {
+  private def registerTemplateDefinitionCompletion {
     registerStandardCompletion(new TemplateFilter, "class", "object", "trait")
   }
 
-  def registerDefinitionsCompletion {
+  private def registerDefinitionsCompletion {
     registerStandardCompletion(new DefinitionsFilter, "val", "var")
   }
 
-  def registerValueDefinitionCompletion {
+  private def registerValueDefinitionCompletion {
     registerStandardCompletion(new ValueDefinitionFilter, "val")
   }
 
-  def registerStatementCompletion {
+  private def registerStatementCompletion {
     registerStandardCompletion(new StatementFilter, "for", "while", "do", "try", "return", "throw", "if")
   }
 
-  def registerCatchCompletion {
+  private def registerCatchCompletion {
     registerStandardCompletion(new CatchFilter, "catch")
   }
 
-  def registerFinallyCompletion {
+  private def registerFinallyCompletion {
     registerStandardCompletion(new FinallyFilter, "finally")
   }
 
-  def registerElseCompletion {
+  private def registerElseCompletion {
     registerStandardCompletion(new ElseFilter, "else")
   }
 
-  def registerExtendsCompletion {
+  private def registerExtendsCompletion {
     registerStandardCompletion(new ExtendsFilter, "extends")
   }
 
-  def registerStandardCompletion(filter: ElementFilter, keywords: String*) {
+  private def registerYieldCompletion {
+    registerStandardCompletion(new YieldFilter, "yield")
+  }
+
+  private def registerWithCompletion {
+    registerStandardCompletion(new WithFilter, "with")
+  }
+
+  private def registerRequiresCompletion {
+    registerStandardCompletion(new RequiresFilter, "requires")
+  }
+
+  private def registerIfCompletion {
+    registerStandardCompletion(new IfFilter, "if")
+  }
+
+  private def registerDefTypeCompletion {
+    registerStandardCompletion(new DefTypeFilter, "def", "type")
+  }
+
+  private def registerForSomeCompletion {
+    registerStandardCompletion(new ForSomeFilter, "forSome")
+  }
+
+  private def registerStandardCompletion(filter: ElementFilter, keywords: String*) {
     val afterDotFilter = new LeftNeighbour(new TextFilter("."))
     val variant = new CompletionVariant(new AndFilter(new NotFilter(afterDotFilter), filter))
     variant.includeScopeClass(classOf[LeafPsiElement])

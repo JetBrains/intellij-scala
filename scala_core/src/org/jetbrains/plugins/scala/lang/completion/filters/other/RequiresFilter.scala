@@ -15,10 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 /** 
 * @author Alexander Podkhalyuzin
-* Date: 22.05.2008
+* Date: 28.05.2008
 */
 
-class ExtendsFilter extends ElementFilter {
+class RequiresFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
     val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
@@ -30,7 +30,7 @@ class ExtendsFilter extends ElementFilter {
       }
       val prev2 = prev.getPrevSibling
       prev2 match {
-        case x: ScTypeDefinition => return !x.hasExtendsKeyword
+        case x: ScTypeDefinition => return x.extendsBlock.empty
         case _ => return false
       }
     }
@@ -43,6 +43,6 @@ class ExtendsFilter extends ElementFilter {
 
   @NonNls
   override def toString(): String = {
-    return "'extends' keyword filter"
+    return "'requires' keyword filter"
   }
 }

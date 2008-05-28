@@ -25,4 +25,8 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   override def toString: String = "ExtendsBlock"
 
   def templateBody: Option[ScTemplateBody] = findChild(classOf[ScTemplateBody])
+
+  def empty: Boolean = {
+    return getNode.getFirstChildNode == null
+  }
 }
