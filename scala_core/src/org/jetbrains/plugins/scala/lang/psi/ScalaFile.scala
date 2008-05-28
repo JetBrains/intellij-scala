@@ -67,9 +67,24 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScDeclar
     if (!super[ScDeclarationSequenceHolder].processDeclarations(processor,
           state, lastParent, place)) return false
 
-    //todo process implicitly imported packages
+    val curr = JavaPsiFacade.getInstance(getProject()).findPackage(getPackageName)
+    if (curr != null && !curr.processDeclarations(processor, state, null, place)) return false
 
+    for (implP <- ScalaFile.implicitlyImportedPackages) {
+      val pack = JavaPsiFacade.getInstance(getProject()).findPackage(implP)
+      if (pack != null && !pack.processDeclarations(processor, state, null, place)) return false
+    }
+
+    for (implObj <- ScalaFile.implicitlyImportedObjects) {
+      val clazz = JavaPsiFacade.getInstance(getProject()).findClass(implObj, getResolveScope)
+      if (clazz != null && !clazz.processDeclarations(processor, state, null, place)) return false
+    }
 
     true
   }
+}
+
+object ScalaFile {
+  val implicitlyImportedPackages = Array("java.lang", "scala")
+  val implicitlyImportedObjects = Array("scala.Predef")
 }
