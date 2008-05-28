@@ -48,7 +48,7 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScDeclar
   override def getClasses = getTypeDefinitionsArray.map((t: ScTypeDefinition) => t.asInstanceOf[PsiClass])
 
   def getTopStatements: Array[ScTopStatement] = findChildrenByClass(classOf[ScTopStatement])
-  
+
   override def getTypeDefinitions(): Seq[ScTypeDefinition] = getChildren.flatMap (collectTypeDefs)
 
   override def collectTypeDefs (child: PsiElement) = child match {
@@ -70,12 +70,12 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScDeclar
     val curr = JavaPsiFacade.getInstance(getProject()).findPackage(getPackageName)
     if (curr != null && !curr.processDeclarations(processor, state, null, place)) return false
 
-    for (implP <- ScalaFile.implicitlyImportedPackages) {
+    for (implP <- ImplicitlyImported.packages) {
       val pack = JavaPsiFacade.getInstance(getProject()).findPackage(implP)
       if (pack != null && !pack.processDeclarations(processor, state, null, place)) return false
     }
 
-    for (implObj <- ScalaFile.implicitlyImportedObjects) {
+    for (implObj <- ImplicitlyImported.objects) {
       val clazz = JavaPsiFacade.getInstance(getProject()).findClass(implObj, getResolveScope)
       if (clazz != null && !clazz.processDeclarations(processor, state, null, place)) return false
     }
@@ -84,7 +84,7 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScDeclar
   }
 }
 
-object ScalaFile {
-  val implicitlyImportedPackages = Array("java.lang", "scala")
-  val implicitlyImportedObjects = Array("scala.Predef")
+object ImplicitlyImported {
+  val packages = Array("java.lang", "scala")
+  val objects = Array("scala.Predef")
 }
