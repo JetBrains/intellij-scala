@@ -46,16 +46,22 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl(node) with 
 
   override def toString: String = "ScFunctionDefinition"
 
-  def getBodyExpr = findChildByClass(classOf[ScExpression])
+  def getBodyExpr: Option[ScExpression] = findChild(classOf[ScExpression])
 
-  def getFunctionsAndTypeDefs = for (child <- getBodyExpr.getChildren() if (child.isInstanceOf[ScTypeDefinition] || child.isInstanceOf[ScFunction]))
+  def getFunctionsAndTypeDefs: Seq[ScalaPsiElement] =
+    getBodyExpr match {
+      case None => Seq.empty
+      case Some(elem) => for (child <- elem.getChildren() if (child.isInstanceOf[ScTypeDefinition] || child.isInstanceOf[ScFunction]))
           yield child.asInstanceOf[ScalaPsiElement]
+    }
 
   override def getTextOffset(): Int = getId.getTextRange.getStartOffset
 
   def getTypeDefinitions(): Seq[ScTypeDefinition] = {
-    if (getBodyExpr == null) return Seq.empty
-    getBodyExpr.getChildren.flatMap(collectTypeDefs(_))
+    getBodyExpr match {
+      case None => return Seq.empty
+      case Some(body) => body.getChildren.flatMap(collectTypeDefs(_))
+    }
   }
 
   override def collectTypeDefs(child: PsiElement) = child match {
