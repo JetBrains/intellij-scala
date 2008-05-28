@@ -1,2 +1,13 @@
 class A(<caret>)
 ------
+abstract
+final
+implicit
+import
+lazy
+override
+private
+protected
+sealed
+val
+var

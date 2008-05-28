@@ -24,7 +24,7 @@ class ExpressionFilter extends ElementFilter {
       val parent = leaf.getParent();
       if (parent.isInstanceOf[ScExpression] && (parent.getPrevSibling == null ||
               parent.getPrevSibling.getPrevSibling == null ||
-              parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT)) {
+              (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT || !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement]))) {
         return true
       }
     }

@@ -1,24 +1,20 @@
-class a {
-  try {
-
-  }
-  <caret>
+class a{
+  a <caret>
 }
------
+------
 abstract
 case
-catch
 class
 def
 do
 false
 final
-finally
 for
 if
 implicit
 import
 lazy
+match
 new
 null
 object

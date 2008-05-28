@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.lexer._
+import org.jetbrains.plugins.scala.lang.parser._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -39,6 +40,11 @@ class CaseFilter extends ElementFilter {
         }
         case _ =>
       }
+      if (leaf.getPrevSibling != null &&
+              leaf.getPrevSibling.getPrevSibling != null &&
+              leaf.getPrevSibling.getPrevSibling.getNode.getElementType == ScalaElementTypes.MATCH_STMT &&
+              leaf.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement])
+        return true
     }
     return false;
   }

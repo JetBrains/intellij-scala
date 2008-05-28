@@ -48,6 +48,7 @@ class ScalaCompletionData extends CompletionData {
     registerIfCompletion
     registerDefTypeCompletion
     registerForSomeCompletion
+    registerMatchCompletion
   }
 
   private def registerPackageCompletion {
@@ -125,6 +126,10 @@ class ScalaCompletionData extends CompletionData {
 
   private def registerForSomeCompletion {
     registerStandardCompletion(new ForSomeFilter, "forSome")
+  }
+
+  private def registerMatchCompletion {
+    registerStandardCompletion(new MatchFilter, "match")
   }
 
   private def registerStandardCompletion(filter: ElementFilter, keywords: String*) {
