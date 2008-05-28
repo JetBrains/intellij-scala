@@ -30,47 +30,33 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     for (e <- importExprs) {
-      if (lastParent != e) {
-        val elem = e.reference match {
-          case None => null
-          case Some(ref) =>
-            ref.qualifier match {
-              case None => ref.refName match {
-                case "_root_" => JavaPsiFacade.getInstance(getProject()).findPackage("")
-                case name => ref.bind match {
-                  case None => JavaPsiFacade.getInstance(getProject()).findPackage(name)
-                  case Some(r) => r.element
-                }
-              }
-              case Some(q) => q.bind match {
-                case None => null
-                case Some(result) => findNested(result.element, ref.refName)
+      if (lastParent == e) return true
+    }
+
+    for (e <- importExprs) {
+      val elem = e.reference match {
+        case None => null
+        case Some(ref) =>
+          ref.qualifier match {
+            case None => ref.refName match {
+              case "_root_" => JavaPsiFacade.getInstance(getProject()).findPackage("")
+              case name => ref.bind match {
+                case None => JavaPsiFacade.getInstance(getProject()).findPackage(name)
+                case Some(r) => r.element
               }
             }
-        }
+            case Some(q) => ref.bind match {
+              case None => null
+              case Some(result) => result.element
+            }
+          }
+      }
 
-        if (elem != null) {
-          //todo actually process import selectors
-        }
+      if (elem != null) {
+        //todo actually process import selectors
       }
     }
 
     true
-  }
-
-  def findNested(e: PsiElement, name: String): PsiElement = {
-    val scope = getResolveScope()
-    e match {
-      case p: PsiPackage => {
-        for (subc <- p.getClasses(scope)) {
-          if (name == subc.getName()) return subc
-        }
-        for (subp <- p.getSubPackages(scope)) {
-          if (name == subp.getName()) return subp
-        }
-      }
-      //todo other cases
-    }
-    null
   }
 }

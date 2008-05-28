@@ -12,7 +12,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
   def getCandidates = candidates
 
   def getHint[T](hintClass: Class[T]): T = {
-    return this.asInstanceOf[T]
+    return null.asInstanceOf[T]
   }
 
   def handleEvent(event: PsiScopeProcessor.Event, associated: Object) = {}
