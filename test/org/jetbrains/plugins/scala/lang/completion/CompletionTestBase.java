@@ -55,11 +55,11 @@ public abstract class CompletionTestBase extends ActionTest {
     LookupItem[] items = getAcceptableItems(data);
 
     try {
-      performAction(project, new Runnable() {
+      /*performAction(project, new Runnable() {
         public void run() {
           handler.invoke(project, myEditor, myFile);
         }
-      });
+      });*/
 
       offset = myEditor.getCaretModel().getOffset();
 
@@ -113,7 +113,7 @@ public abstract class CompletionTestBase extends ActionTest {
       if (addKeywords(ref)) {
         final Set<CompletionVariant> keywordVariants = new HashSet<CompletionVariant>();
         completionData.addKeywordVariants(keywordVariants, insertedElement, newFile);
-        completionData.completeKeywordsBySet(lookupSet, keywordVariants, insertedElement, new CamelHumpMatcher("p"), newFile);
+        completionData.completeKeywordsBySet(lookupSet, keywordVariants, insertedElement, new CamelHumpMatcher(prefix), newFile);
       }
       //todo: add variant for reference completion
     }

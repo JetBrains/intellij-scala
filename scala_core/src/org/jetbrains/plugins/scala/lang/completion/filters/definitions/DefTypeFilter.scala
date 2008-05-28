@@ -16,21 +16,15 @@ import org.jetbrains.plugins.scala.lang.parser._
 
 /** 
 * @author Alexander Podkhalyuzin
-* Date: 22.05.2008
+* Date: 28.05.2008
 */
 
-class DefinitionsFilter extends ElementFilter {
+class DefTypeFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
     val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
     if (leaf != null) {
       val parent = leaf.getParent();
-      parent match {
-        case  _: ScClassParameter=> {
-          return true
-        }
-        case _ =>
-      }
       parent.getParent match {
         case _: ScBlockExpr | _: ScTemplateBody | _: ScClassParameter  => {
           if ((leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
@@ -51,6 +45,6 @@ class DefinitionsFilter extends ElementFilter {
 
   @NonNls
   override def toString(): String = {
-    return "val, var, type keyword filter";
+    return "'def' keyword filter";
   }
 }

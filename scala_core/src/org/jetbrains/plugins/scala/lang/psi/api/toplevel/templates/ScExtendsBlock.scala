@@ -11,4 +11,11 @@ trait ScExtendsBlock extends ScalaPsiElement {
 
   def templateBody: Option[ScTemplateBody]
 
+
+  /*
+   * Return true if extends block is empty
+   * @return is block empty
+   */
+  def empty: Boolean
+
 }
