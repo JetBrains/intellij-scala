@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.formatting.patterns._
 
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._;
 import com.intellij.formatting.Spacing;
@@ -34,19 +35,69 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
 
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
-
+    val settings = left.getSettings
+    val WITHOUT_SPACING = if (settings.KEEP_LINE_BREAKS)
+        Spacing.createSpacing (0, 0, 0, true, 100)
+      else
+        Spacing.createSpacing(0, 0, 0, false, 0)
+    val WITH_SPACING = if (settings.KEEP_LINE_BREAKS)
+        Spacing.createSpacing (1, 1, 0, true, 100)
+      else
+        Spacing.createSpacing(1, 1, 0, false, 0)
     val leftNode = left.getNode
     val rightNode = right.getNode
     val (leftString, rightString) = (leftNode.toString, rightNode.toString) //for debug
 
-
-    if (rightNode != null) {
-      rightNode.getPsi match {
-        case _: ScArguments | _: ScParameters => {
-          return NO_SPACING_WITH_NEWLINE
+    //processing left parenthesis (if it's from right) as Java cases
+    if (rightNode.getElementType == ScalaTokenTypes.tLPARENTHESIS) {
+      leftNode.getElementType match {
+        case ScalaTokenTypes.kIF => {
+          if (settings.SPACE_BEFORE_IF_PARENTHESES) return WITH_SPACING
+          else return WITHOUT_SPACING
         }
-        case _ => 
+        case ScalaTokenTypes.kWHILE => {
+          if (settings.SPACE_BEFORE_WHILE_PARENTHESES) return WITH_SPACING
+          else return WITHOUT_SPACING
+        }
+        case ScalaTokenTypes.kFOR => {
+          if (settings.SPACE_BEFORE_FOR_PARENTHESES) return WITH_SPACING
+          else return WITHOUT_SPACING
+        }
       }
+    }
+    if (rightNode.getPsi.isInstanceOf[ScParameters] &&
+        leftNode.getTreeParent.getPsi.isInstanceOf[ScFunction]) {
+      if (settings.SPACE_BEFORE_METHOD_PARENTHESES) return WITH_SPACING
+      else return WITHOUT_SPACING
+    }
+    if (rightNode.getPsi.isInstanceOf[ScArguments] &&
+        leftNode.getTreeParent.getPsi.isInstanceOf[ScMethodCall]) {
+      if (settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES) return WITH_SPACING
+      else return WITHOUT_SPACING
+    }
+
+    //processing left parenthesis (if it's from right) only Scala cases
+    if (rightNode.getPsi.isInstanceOf[ScParameters] &&
+        leftNode.getTreeParent.getPsi.isInstanceOf[ScPrimaryConstructor]) {
+      if (settings.SPACE_BEFORE_METHOD_PARENTHESES) return WITH_SPACING  //todo: add setting
+      else return WITHOUT_SPACING
+    }
+    if (rightNode.getPsi.isInstanceOf[ScPrimaryConstructor] &&
+        rightNode.getText.length > 0 &&
+        rightNode.getText.substring(0,1) == "(") {
+      if (settings.SPACE_BEFORE_METHOD_PARENTHESES) return WITH_SPACING  //todo: add setting
+      else return WITHOUT_SPACING
+    } else if (rightNode.getPsi.isInstanceOf[ScPrimaryConstructor]) {
+      return WITH_SPACING
+    }
+    if (leftNode.getPsi.isInstanceOf[ScParameterClause] &&
+        rightNode.getPsi.isInstanceOf[ScParameterClause]) {
+      return WITHOUT_SPACING //todo: add setting
+    }
+    if (rightNode.getPsi.isInstanceOf[ScPatternArgumentList] &&
+        rightNode.getTreeParent.getPsi.isInstanceOf[ScConstructorPattern]) {
+      if (settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES) return WITH_SPACING //todo: add setting
+      else return WITHOUT_SPACING
     }
 
     (leftNode.getElementType, rightNode.getElementType,
