@@ -1,19 +1,17 @@
 class a {
-  try {
-
+  a match {
+    case to => from
   }
   <caret>
 }
------
+------
 abstract
 case
-catch
 class
 def
 do
 false
 final
-finally
 for
 if
 implicit
