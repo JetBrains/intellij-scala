@@ -338,7 +338,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (rightNode.getText.length > 0 && rightNode.getText()(0) == ';') {
       if (settings.SPACE_BEFORE_SEMICOLON && !(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
           rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
-      else return WITHOUT_SPACING
+      else if (!(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
+          rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
     }
     if (leftNode.getText.length > 0 && leftNode.getText()(leftNode.getText.length - 1) == '.') {
       return WITHOUT_SPACING
@@ -354,7 +355,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (leftNode.getText.length > 0 && leftNode.getText()(leftNode.getText.length - 1) == ';') {
       if (settings.SPACE_AFTER_SEMICOLON && !(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
           rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
-      else return WITHOUT_SPACING
+      else if (!(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
+          rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
     }
     //todo: processing spasing operators
 
@@ -378,6 +380,22 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           else return WITH_SPACING
         }
         case _ =>
+      }
+    }
+    if (rightNode.getElementType == ScalaTokenTypes.tRBRACE) {
+      rightNode.getTreeParent.getPsi match {
+        case _: ScTemplateBody | _: ScPackaging=> {
+          return Spacing.createSpacing(0, 0, 1, true, settings.KEEP_BLANK_LINES_BEFORE_RBRACE)
+        }
+        case _ => return Spacing.createSpacing(0, 0, 0, true, settings.KEEP_BLANK_LINES_BEFORE_RBRACE)
+      }
+    }
+    if (leftNode.getElementType == ScalaTokenTypes.tLBRACE) {
+      leftNode.getTreeParent.getPsi match {
+        case _: ScTemplateBody | _: ScPackaging => {
+          return Spacing.createSpacing(0, 0, 1, true, settings.KEEP_BLANK_LINES_BEFORE_RBRACE)
+        }
+        case _ => return Spacing.createSpacing(0, 0, 0, true, settings.KEEP_BLANK_LINES_BEFORE_RBRACE)
       }
     }
 
