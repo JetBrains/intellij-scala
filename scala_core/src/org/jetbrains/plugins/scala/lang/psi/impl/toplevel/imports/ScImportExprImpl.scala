@@ -22,4 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 
 class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScImportExpr {
   override def toString: String = "ImportExpression"
+
+  def singleWildcard = findChildByType(ScalaTokenTypes.tUNDER) != null
 }

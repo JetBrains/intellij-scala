@@ -138,7 +138,6 @@ object ScalaElementTypes {
   val IMPORT_STMT = new ScalaElementType("import statement")
   val IMPORT = new ScalaElementType("import")
   val STABLE_ID_LIST = new ScalaElementType("stable id list")
-  val UNDER = new ScalaElementType("underline")
 
   /*************************************************************************************/
   /********************************* METHODS, VARIABLES and ETC ************************/
