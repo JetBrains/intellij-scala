@@ -32,30 +32,5 @@ class ScTemplateBodyImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   def members = findChildrenByClass(classOf[ScMember])
 
   def typeDefinitions: Seq[ScTypeDefinition] = findChildrenByClass(classOf[ScTypeDefinition])
-  //
-
-  /*def getTemplateStatements = {
-    val children = childrenOfType[ScTemplateStatement](ScalaElementTypes.TMPL_STMT_BIT_SET)
-    children
-  } */
-
-/*
-  override def processDeclarations(processor: PsiScopeProcessor,
-      substitutor: PsiSubstitutor,
-      lastParent: PsiElement,
-      place: PsiElement): Boolean = {
-
-    import org.jetbrains.plugins.scala.lang.resolve.processors._
-    if (processor.isInstanceOf[ScalaClassResolveProcessor]) { // GetClasses
-        this.canBeObject = processor.asInstanceOf[ScalaClassResolveProcessor].canBeObject
-        this.offset = processor.asInstanceOf[ScalaClassResolveProcessor].offset
-      getClazz(getTypes, processor, substitutor)
-    } else if (processor.isInstanceOf[ScalaLocalVariableResolveProcessor]){ // Get Local variables
-        this.varOffset = processor.asInstanceOf[ScalaLocalVariableResolveProcessor].offset
-      getVariable(processor, substitutor)
-    } else true
-
-  }
-*/
 
 }
