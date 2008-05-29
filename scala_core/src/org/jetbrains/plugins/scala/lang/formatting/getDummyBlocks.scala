@@ -42,22 +42,14 @@ object getDummyBlocks{
         subBlocks.addAll(getInfixBlocks(node, block))
         return subBlocks
       }
-      case _: ScParameters | _: ScParents => {
-        val alignment = if (mustAlignment(node,block.getSettings))
-          Alignment.createAlignment
-        else null
-        for (val child <- children if isCorrectBlock(child)) {
-          val indent = ScalaIndentProcessor.getChildIndent(block, child)
-          subBlocks.add(new ScalaBlock(block, child, alignment, indent, block.getWrap, block.getSettings))
-          prevChild = child
-        }
-        return subBlocks
-      }
       case _ =>
     }
+    val alignment = if (mustAlignment(node,block.getSettings))
+      Alignment.createAlignment
+    else null
     for (val child <- children if isCorrectBlock(child)) {
       val indent = ScalaIndentProcessor.getChildIndent(block, child)
-      subBlocks.add(new ScalaBlock(block, child, block.getAlignment, indent, block.getWrap, block.getSettings))
+      subBlocks.add(new ScalaBlock(block, child, alignment, indent, block.getWrap, block.getSettings))
       prevChild = child
     }
     return subBlocks
@@ -71,7 +63,10 @@ object getDummyBlocks{
         subBlocks.addAll(getInfixBlocks(child, block))
       } else if (isCorrectBlock(child)){
         val indent = ScalaIndentProcessor.getChildIndent(block, child)
-        subBlocks.add(new ScalaBlock(block, child, block.getAlignment, indent, block.getWrap, block.getSettings))
+        val alignment = if (mustAlignment(node,block.getSettings))
+          Alignment.createAlignment
+        else null
+        subBlocks.add(new ScalaBlock(block, child, alignment, indent, block.getWrap, block.getSettings))
       }
     }
     subBlocks
@@ -85,6 +80,16 @@ object getDummyBlocks{
     node.getPsi match {
       case _: ScParameters if mySettings.ALIGN_MULTILINE_PARAMETERS => true
       case _: ScParents if mySettings.ALIGN_MULTILINE_EXTENDS_LIST => true
+      case _: ScArguments if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => true
+      case _: ScPatternArgumentList if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => true
+      case _: ScEnumerators if mySettings.ALIGN_MULTILINE_FOR => true
+      case _: ScParenthesisedExpr if mySettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
+      case _: ScParenthesisedTypeElement if mySettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
+      case _: ScParenthesisedPattern if mySettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
+      case _: ScInfixExpr if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
+      case _: ScInfixPattern if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
+      case _: ScInfixTypeElement if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
+      case _: ScIdList if mySettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION => true
       case _ => false
     }
   }
