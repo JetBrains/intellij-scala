@@ -10,15 +10,14 @@ import com.intellij.psi._
 import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
-
-
+import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
 * @author ilyas
 */
 
-class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock {
+class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDeclarationSequenceHolder with ScBlock {
 
   override def toString: String = "BlockOfExpressions"
 
