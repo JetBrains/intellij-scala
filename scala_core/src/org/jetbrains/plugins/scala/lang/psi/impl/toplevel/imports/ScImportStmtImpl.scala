@@ -3,13 +3,17 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.lang.ASTNode
+
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.annotations._
+
 import org.jetbrains.plugins.scala.icons.Icons
+
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
+import util.PsiTreeUtil
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -19,7 +23,6 @@ import com.intellij.psi._
 class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScImportStmt {
   override def toString: String = "ScImportStatement"
 
-  import com.intellij.psi._
   import scope._
 
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -27,12 +30,8 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     for (e <- importExprs) {
-      if (lastParent == e) return true
-    }
-    for (e <- importExprs) {
       val elem = e.reference match {
-        case None => null
-        case Some(ref) =>
+        case Some(ref) if place != ref =>
           ref.qualifier match {
             case None => ref.refName match {
               case "_root_" => JavaPsiFacade.getInstance(getProject()).findPackage("")
@@ -41,15 +40,25 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
                 case Some(r) => r.element
               }
             }
-            case Some(q) => ref.bind match {
+            case Some(q) if !PsiTreeUtil.isAncestor(ref, place, true) => ref.bind match {
               case None => null
               case Some(result) => result.element
             }
+            case _ => null
           }
+        case _ => null
       }
 
       if (elem != null) {
-        //todo actually process import selectors
+        e.selectorSet match {
+          case None =>
+            if (e.singleWildcard) {
+              if (!elem.processDeclarations(processor, state, null, place)) return false
+            } else {
+              if (!processor.execute(elem, state)) return false
+            }
+          case Some(set) => //todo
+        }
       }
     }
 

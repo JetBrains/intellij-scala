@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -19,4 +20,6 @@ trait ScImportExpr extends ScalaPsiElement {
       case Some(s) => s.selectors
     }
   }
+
+  def singleWildcard : Boolean
 }
