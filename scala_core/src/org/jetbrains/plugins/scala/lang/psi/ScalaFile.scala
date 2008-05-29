@@ -72,12 +72,15 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScDeclar
     if (curr != null && !curr.processDeclarations(processor, state, null, place)) return false
 
     place match {
-      case ref : ScStableCodeReferenceElement if ref.qualifier == None && ref.refName == "_root_" => {
+      case ref : ScStableCodeReferenceElement if ref.refName == "_root_" => {
         val top = JavaPsiFacade.getInstance(getProject()).findPackage("")
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
       }
-      case _ =>
+      case _ => {
+        val top = JavaPsiFacade.getInstance(getProject()).findPackage("")
+        if (top != null && !top.processDeclarations(processor, state, null, place)) return false
+      }
     }
 
     for (implP <- ImplicitlyImported.packages) {
