@@ -155,6 +155,7 @@ public class ScalaCompiler implements TranslatingCompiler {
     PrintStream printer = new PrintStream(new FileOutputStream(fileWithParameters));
 
     printer.println("-verbose");
+    printer.println("-g:vars");
 
     //write output dir
     CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
