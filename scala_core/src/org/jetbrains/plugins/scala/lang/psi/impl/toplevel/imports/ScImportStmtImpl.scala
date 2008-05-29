@@ -33,12 +33,9 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
       val elem = e.reference match {
         case Some(ref) if place != ref =>
           ref.qualifier match {
-            case None => ref.refName match {
-              case "_root_" => JavaPsiFacade.getInstance(getProject()).findPackage("")
-              case name => ref.bind match {
-                case None => JavaPsiFacade.getInstance(getProject()).findPackage(name)
+            case None => ref.bind match {
+                case None => JavaPsiFacade.getInstance(getProject()).findPackage(ref.refName)
                 case Some(r) => r.element
-              }
             }
             case Some(q) if !PsiTreeUtil.isAncestor(ref, place, true) => ref.bind match {
               case None => null
