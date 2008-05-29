@@ -4,5 +4,6 @@ class a {
 }
 -----
 class a {
-  def foo = {}
+  def foo = {
+  }
 }

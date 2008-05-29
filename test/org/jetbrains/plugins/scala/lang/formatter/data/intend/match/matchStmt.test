@@ -5,6 +5,5 @@ class a{
 -----
 class a {
   a match {
-    case a =>
-  }
+    case a =>}
 }

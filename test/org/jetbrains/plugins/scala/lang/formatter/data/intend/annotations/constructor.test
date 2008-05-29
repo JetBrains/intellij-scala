@@ -2,4 +2,5 @@ class a @annot
 private () {}
 -----
 class a @annot
-private() {}
+private() {
+}

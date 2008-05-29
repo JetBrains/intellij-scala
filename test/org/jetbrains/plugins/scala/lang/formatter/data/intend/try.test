@@ -16,7 +16,7 @@ class a {
   }
   catch {
 
-    case _ =>
+  case _ =>
   }
   finally true
 }

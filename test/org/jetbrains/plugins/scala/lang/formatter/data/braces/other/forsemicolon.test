@@ -2,3 +2,6 @@ class a {
   for ( s <- t ;   d <- k) yield true
 }
 -----
+class a {
+  for (s <- t; d <- k) yield true
+}
