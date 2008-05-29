@@ -5,10 +5,7 @@ class a {
 }
 -----
 class a {
-  val x: Type forSome {
-    type K;
-    type C
+  val x: Type forSome {type K; type C
 
-    type G
-  }
+    type G}
 }

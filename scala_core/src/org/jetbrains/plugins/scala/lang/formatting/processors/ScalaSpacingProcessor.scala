@@ -399,6 +399,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
     }
 
+    //special else if treatment
+    if (leftNode.getElementType == ScalaTokenTypes.kELSE && rightNode.getPsi.isInstanceOf[ScIfStmt]) {
+      if (settings.SPECIAL_ELSE_IF_TREATMENT) {
+        return Spacing.createSpacing(1,1,0,false,0)
+      } else return ON_NEW_LINE
+    }
+
 
     (leftNode.getElementType, rightNode.getElementType,
             leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {

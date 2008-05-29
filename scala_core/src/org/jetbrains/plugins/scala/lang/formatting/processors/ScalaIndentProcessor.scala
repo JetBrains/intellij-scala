@@ -26,7 +26,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 
 object ScalaIndentProcessor extends ScalaTokenTypes {
 
-  def getChildIndent(parent: ScalaBlock, child: ASTNode): Indent =
+  def getChildIndent(parent: ScalaBlock, child: ASTNode): Indent = {
+    val settings = parent.getSettings
     parent.getNode.getPsi match {
       case _: ScalaFile => Indent.getNoneIndent
       case _: ScPackaging => {
@@ -40,14 +41,14 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         }
       }
       case _: ScMatchStmt => {
-        child.getElementType match {
-          case _: ScCaseClauses => Indent.getNormalIndent
+        child.getPsi match {
+          case _: ScCaseClauses if settings.INDENT_CASE_FROM_SWITCH => Indent.getNormalIndent
           case _ => Indent.getNoneIndent
         }
       }
       case _: ScBlockExpr | _: ScTryBlock => {
         child.getPsi match {
-          case _: ScCaseClauses => Indent.getNoneIndent
+          case _: ScCaseClauses => Indent.getNormalIndent
           case _ => {
             child.getElementType match {
               case ScalaTokenTypes.tLBRACE |
@@ -69,11 +70,10 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         }
       }
       case _: ScParameters  => Indent.getNormalIndent
-      case _: ScParameterClause | _: ScPattern  => Indent.getContinuationWithoutFirstIndent
-      case  _: ScParameter | _: ScParents  => {
+      case _: ScParameterClause | _: ScPattern  => Indent.getNormalIndent
+      case _: ScParents  => {
         Indent.getNormalIndent
       }
-      case _: ScCaseClauses => Indent.getNormalIndent
       case _: ScCaseClause => {
         child.getElementType match {
           case ScalaTokenTypes.kCASE | ScalaTokenTypes.tFUNTYPE => Indent.getNoneIndent
@@ -103,4 +103,5 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       }
       case _ => Indent.getNoneIndent
     }
+  }
 }

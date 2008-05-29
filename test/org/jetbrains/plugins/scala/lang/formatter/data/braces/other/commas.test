@@ -1,3 +1,4 @@
 class A {
   val a ,  b  , c = 5
 }
+-----
