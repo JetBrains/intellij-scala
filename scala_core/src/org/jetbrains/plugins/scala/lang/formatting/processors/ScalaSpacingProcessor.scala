@@ -39,12 +39,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
     val settings = left.getSettings
-    def getSpacing(x: Int,y: Int) = if (settings.KEEP_LINE_BREAKS)
-        Spacing.createSpacing (y, y, 0, true, x)
+    def getSpacing(x: Int,y: Int,z: Int) = if (settings.KEEP_LINE_BREAKS)
+        Spacing.createSpacing (y, y, z, true, x)
       else
-        Spacing.createSpacing(y, y, 0, false, 0)
-    val WITHOUT_SPACING = getSpacing(settings.KEEP_BLANK_LINES_IN_CODE,0)
-    val WITH_SPACING = getSpacing(settings.KEEP_BLANK_LINES_IN_CODE,1)
+        Spacing.createSpacing(y, y, z, false, 0)
+    val WITHOUT_SPACING = getSpacing(settings.KEEP_BLANK_LINES_IN_CODE,0,0)
+    val WITH_SPACING = getSpacing(settings.KEEP_BLANK_LINES_IN_CODE,1,0)
+    val ON_NEW_LINE = getSpacing(settings.KEEP_BLANK_LINES_IN_CODE,0,1)
     val leftNode = left.getNode
     val rightNode = right.getNode
     val (leftString, rightString) = (leftNode.toString, rightNode.toString) //for debug
@@ -339,10 +340,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
       else return WITHOUT_SPACING
     }
-    if (leftNode.getText.length > 0 && leftNode.getText()(0) == '.') {
+    if (leftNode.getText.length > 0 && leftNode.getText()(leftNode.getText.length - 1) == '.') {
       return WITHOUT_SPACING
     }
-    if (leftNode.getText.length > 0 && leftNode.getText()(0) == ',') {
+    if (leftNode.getText.length > 0 && leftNode.getText()(leftNode.getText.length - 1) == ',') {
       if (settings.SPACE_AFTER_COMMA) return WITH_SPACING
       else return WITHOUT_SPACING
     }
@@ -350,12 +351,36 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (settings.SPACE_AFTER_COLON) return WITH_SPACING
       else return WITHOUT_SPACING
     }
-    if (leftNode.getText.length > 0 && leftNode.getText()(0) == ';') {
+    if (leftNode.getText.length > 0 && leftNode.getText()(leftNode.getText.length - 1) == ';') {
       if (settings.SPACE_AFTER_SEMICOLON && !(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
           rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
       else return WITHOUT_SPACING
     }
     //todo: processing spasing operators
+
+    //processing right brace
+    if (leftNode.getText.length > 0 && leftNode.getText()(leftNode.getText.length - 1) == '}')  {
+      rightNode.getElementType match {
+        case ScalaTokenTypes.kELSE => {
+          if (settings.ELSE_ON_NEW_LINE) return ON_NEW_LINE
+          else return WITH_SPACING
+        }
+        case ScalaTokenTypes.kWHILE => {
+          if (settings.WHILE_ON_NEW_LINE) return ON_NEW_LINE
+          else return WITH_SPACING
+        }
+        case ScalaTokenTypes.kCATCH => {
+          if (settings.CATCH_ON_NEW_LINE) return ON_NEW_LINE
+          else return WITH_SPACING
+        }
+        case ScalaTokenTypes.kFINALLY => {
+          if (settings.FINALLY_ON_NEW_LINE) return ON_NEW_LINE
+          else return WITH_SPACING
+        }
+        case _ =>
+      }
+    }
+
 
     (leftNode.getElementType, rightNode.getElementType,
             leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
