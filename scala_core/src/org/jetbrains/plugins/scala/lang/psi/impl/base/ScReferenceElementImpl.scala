@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 * Date: 22.02.2008
 */
 
-class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScStableCodeReferenceElement {
+class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScStableCodeReferenceElement {
 
   def getElement = this
 
@@ -45,7 +45,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     val nameElement: ASTNode = getNameElement()
     val startOffset: Int = if (nameElement != null) nameElement.getStartOffset()
     else getNode().getTextRange().getEndOffset();
-    return new TextRange(startOffset - getNode().getStartOffset(), getTextLength());
+    return new TextRange (startOffset - getNode().getStartOffset(), getTextLength());
   }
 
   def getNameElement(): ASTNode = {
@@ -85,9 +85,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     return if (nameElement != null) nameElement.getText() else null
   }
 
-  def getVariants(): Array[Object] = {
-    return null
-  }
+  def getVariants(): Array[Object] =  _resolve(this, new CompletionProcessor (null)).map(r => r.getElement) //todo
   def isSoft(): Boolean = false
 
   override def getName = getText
@@ -96,34 +94,37 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElementImpl] {
     def resolve(ref: ScStableCodeReferenceElementImpl, incomplete: Boolean) = {
-      val processor = new StableMemberProcessor(refName)
-      qualifier match {
-        case None => {
-          def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
-            place match {
-              case null => ()
-              case p => {
-                if (!p.processDeclarations(processor,
-                ResolveState.initial(), //todo
-                lastParent, ref)) return ()
-                treeWalkUp(place.getParent, place)
-              }
+      _resolve(ref, new StableMemberProcessor (refName))
+    }
+  }
+
+  def _resolve(ref: ScStableCodeReferenceElementImpl, processor: BaseProcessor) : Array[ResolveResult] =  {
+    qualifier match {
+      case None => {
+        def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
+          place match {
+            case null => ()
+            case p => {
+              if (!p.processDeclarations(processor,
+              ResolveState.initial(), //todo
+              lastParent, ref)) return ()
+              treeWalkUp(place.getParent, place)
             }
           }
-          treeWalkUp(ref, null)
         }
-        case Some(q) => {
-          q.bind match {
-            case None =>
-            case Some(other) => {
-              other.element.processDeclarations(processor, ResolveState.initial(), //todo
-              null, ScStableCodeReferenceElementImpl.this)
-            }
+        treeWalkUp(ref, null)
+      }
+      case Some(q) => {
+        q.bind match {
+          case None =>
+          case Some(other) => {
+            other.element.processDeclarations(processor, ResolveState.initial(), //todo
+            null, ScStableCodeReferenceElementImpl.this)
           }
         }
       }
-      processor.getCandidates.toArray(new Array[ResolveResult](0))
     }
+    processor.getCandidates.toArray(new Array[ResolveResult] (0))
   }
 
   def multiResolve(incomplete: Boolean) = {
@@ -133,8 +134,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   def getType() = {
     bind match {
       case None => null
-      case Some(ScalaResolveResult(td: ScTypeDefinition, s)) => new ScParameterizedType(td, s)
-      case Some(ScalaResolveResult(other, _)) => new ScDesignatorType(other)
+      case Some(ScalaResolveResult(td: ScTypeDefinition, s)) => new ScParameterizedType (td, s)
+      case Some(ScalaResolveResult(other, _)) => new ScDesignatorType (other)
     }
   }
 
