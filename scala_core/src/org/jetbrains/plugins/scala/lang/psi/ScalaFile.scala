@@ -19,6 +19,7 @@ import com.intellij.lang.StdLanguages
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.util.ArrayUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 
 import _root_.scala.collection.mutable._
 
@@ -69,6 +70,15 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScDeclar
 
     val curr = JavaPsiFacade.getInstance(getProject()).findPackage(getPackageName)
     if (curr != null && !curr.processDeclarations(processor, state, null, place)) return false
+
+    place match {
+      case ref : ScStableCodeReferenceElement if ref.qualifier == None && ref.refName == "_root_" => {
+        val top = JavaPsiFacade.getInstance(getProject()).findPackage("")
+        if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
+        state.put(ResolverEnv.nameKey, null)
+      }
+      case _ =>
+    }
 
     for (implP <- ImplicitlyImported.packages) {
       val pack = JavaPsiFacade.getInstance(getProject()).findPackage(implP)
