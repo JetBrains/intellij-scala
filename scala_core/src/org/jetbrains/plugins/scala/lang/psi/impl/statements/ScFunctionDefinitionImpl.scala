@@ -41,7 +41,7 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
           if (!processor.execute(p, state)) return false
         }
         true
-      case None => true
+      case _ => true
     }
   }
 
