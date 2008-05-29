@@ -24,24 +24,25 @@ import com.intellij.psi.scope._
 * Date: 22.02.2008
 */
 
-class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl(node) with ScFunctionDefinition {
+class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with ScFunctionDefinition {
 
   def getVariable(processor: PsiScopeProcessor, substitutor: PsiSubstitutor): Boolean = true
 
   override def processDeclarations(processor: PsiScopeProcessor,
-    state: ResolveState,
-    lastParent: PsiElement,
-    place: PsiElement): Boolean = {
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
 
-    if (lastParent == getBodyExpr) {
-      val ps = getParameters
-      for (p <- ps) {
-        if (!processor.execute(p, state)) return false
-      }
-      true
+    getBodyExpr match {
+      case Some(x) if x == lastParent =>
+        val ps = getParameters
+        for (p <- ps) {
+          if (!processor.execute(p, state)) return false
+        }
+        true
+      case None => true
     }
-    else true
   }
 
   override def toString: String = "ScFunctionDefinition"
@@ -52,7 +53,7 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl(node) with 
     getBodyExpr match {
       case None => Seq.empty
       case Some(elem) => for (child <- elem.getChildren() if (child.isInstanceOf[ScTypeDefinition] || child.isInstanceOf[ScFunction]))
-          yield child.asInstanceOf[ScalaPsiElement]
+              yield child.asInstanceOf[ScalaPsiElement]
     }
 
   override def getTextOffset(): Int = getId.getTextRange.getStartOffset
