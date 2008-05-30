@@ -141,8 +141,12 @@ ESCAPE_SEQUENCE=\\[^\r\n]
 UNICODE_ESCAPE=!(!(\\u{hexDigit}{hexDigit}{hexDigit}{hexDigit}) | \\u000A)
 SOME_ESCAPE=\\{octalDigit} {octalDigit}? {octalDigit}?
 CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{UNICODE_ESCAPE}|{SOME_ESCAPE})("'"|\\) | \'\\u000A\'
-STRING_LITERAL=\"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*(\"|\\)? |
+
+STRING_BEGIN = \"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*
+STRING_LITERAL={STRING_BEGIN} \" |
                \"\"\" ( (\"(\")?)? [^\"] )* \"\"\"                                                 // Multi-line string
+
+WRONG_STRING = {STRING_BEGIN}
 
 charEscapeSeq = \\[^\r\n]
 charNoDoubleQuote = !( ![^"\""] | {LineTerminator})
@@ -316,6 +320,10 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 {STRING_LITERAL}                        {   yybegin(PROCESS_NEW_LINE);
                                             return process(tSTRING);
+                                        }
+
+{WRONG_STRING}                          {   yybegin(PROCESS_NEW_LINE);
+                                            return process(tWRONG_STRING);
                                         }
 
 

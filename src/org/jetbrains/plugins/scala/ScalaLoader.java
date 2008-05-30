@@ -16,6 +16,7 @@
 package org.jetbrains.plugins.scala;
 
 import com.intellij.codeInsight.completion.CompletionUtil;
+import com.intellij.codeInsight.editorActions.TypedHandler;
 import com.intellij.debugger.DebuggerManager;
 import com.intellij.debugger.PositionManager;
 import com.intellij.debugger.engine.DebugProcess;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.compiler.ScalaCompiler;
 import org.jetbrains.plugins.scala.debugger.ScalaJVMNameMapper;
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager;
+import org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
 
 import java.util.Set;
@@ -66,6 +68,8 @@ public class ScalaLoader implements ApplicationComponent {
               }
             }
     );
+
+    TypedHandler.registerQuoteHandler(ScalaFileType.SCALA_FILE_TYPE, new ScalaQuoteHandler());
 
     CompletionUtil.registerCompletionData(ScalaFileType.SCALA_FILE_TYPE,
             ScalaToolsFactory.getInstance().createScalaCompletionData());
