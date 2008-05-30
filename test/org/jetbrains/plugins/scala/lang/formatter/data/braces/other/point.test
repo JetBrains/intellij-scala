@@ -4,3 +4,8 @@ class a {
       d
 }
 ------
+class a {
+  a.b
+  c.
+    d
+}

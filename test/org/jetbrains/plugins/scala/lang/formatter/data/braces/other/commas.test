@@ -2,3 +2,6 @@ class A {
   val a ,  b  , c = 5
 }
 -----
+class A {
+  val a, b, c = 5
+}

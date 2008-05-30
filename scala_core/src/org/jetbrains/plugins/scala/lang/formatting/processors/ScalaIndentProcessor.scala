@@ -65,6 +65,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNormalIndent
         }
       }
+      case _: ScTryStmt => Indent.getNoneIndent
       case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScForStatement
         | _: ScFinallyBlock | _: ScCatchBlock | _: ScFunction => {
         child.getPsi match {
@@ -83,6 +84,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         }
       }
       case _: ScBlock => Indent.getNoneIndent
+      case _: ScEnumerators => Indent.getNormalIndent
       case _: ScParameters |  _: ScParameterClause | _: ScPattern | _: ScParents |
            _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScAnnotations => {
         Indent.getContinuationWithoutFirstIndent
