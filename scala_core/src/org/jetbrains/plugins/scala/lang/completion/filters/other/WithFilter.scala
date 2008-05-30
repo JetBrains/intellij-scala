@@ -33,14 +33,18 @@ class WithFilter extends ElementFilter {
         case _: ScType => return true
         case _ =>
       }
-      val prev = leaf.getPrevSibling
+      var prev = leaf.getPrevSibling
+      prev match {
+        case _: PsiWhiteSpace => prev = prev.getPrevSibling
+        case _ => 
+      }
       prev match {
         case _: PsiErrorElement =>
         case _ => return false
       }
       val prev2 = prev.getPrevSibling
       prev2 match {
-        case x: ScTypeDefinition => return !x.hasExtendsKeyword
+        case x: ScTypeDefinition => return x.hasExtendsKeyword
         case _ => return false
       }
     }
