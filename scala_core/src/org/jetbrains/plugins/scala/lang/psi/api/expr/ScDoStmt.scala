@@ -18,4 +18,16 @@ trait ScDoStmt extends ScExpression with ScConditional {
       parent == last
     }
   }
+  
+ /**
+   *  retrun loop expression of do statement
+   *  @return body of do statement
+   */
+  def getExprBody: Option[ScExpression]
+
+ /**
+   *  return does do statement has loop expression
+   *  @return has loop expression
+   */
+  def hasExprBody: Boolean
 }

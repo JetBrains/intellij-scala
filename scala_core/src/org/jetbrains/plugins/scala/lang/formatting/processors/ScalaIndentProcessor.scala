@@ -28,6 +28,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
 
   def getChildIndent(parent: ScalaBlock, child: ASTNode): Indent = {
     val settings = parent.getSettings
+    val node = parent.getNode
     parent.getNode.getPsi match {
       case _: ScalaFile => Indent.getNoneIndent
       case _: ScPackaging => {
@@ -46,21 +47,16 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNoneIndent
         }
       }
-      case _: ScBlockExpr | _: ScTryBlock => {
-        child.getPsi match {
-          case _: ScCaseClauses => Indent.getNormalIndent
-          case _ => {
-            child.getElementType match {
-              case ScalaTokenTypes.tLBRACE |
-                      ScalaTokenTypes.tRBRACE | ScalaTokenTypes.kTRY => {
-                Indent.getNoneIndent
-              }
-              case _ => Indent.getNormalIndent
-            }
+      case  _: ScTryBlock | _: ScCatchBlock=> {
+        child.getElementType match {
+          case ScalaTokenTypes.tLBRACE |  ScalaTokenTypes.kCATCH |
+                  ScalaTokenTypes.tRBRACE | ScalaTokenTypes.kTRY => {
+            Indent.getNoneIndent
           }
+          case _ => Indent.getNormalIndent
         }
       }
-      case _: ScTemplateBody | _: ScRefinement | _: ScExistentialClause => {
+      case _: ScTemplateBody | _: ScRefinement | _: ScExistentialClause | _: ScBlockExpr => {
         child.getElementType match {
           case ScalaTokenTypes.tLBRACE |
                   ScalaTokenTypes.tRBRACE => {
@@ -69,10 +65,12 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNormalIndent
         }
       }
-      case _: ScParameters  => Indent.getNormalIndent
-      case _: ScParameterClause | _: ScPattern  => Indent.getNormalIndent
-      case _: ScParents  => {
-        Indent.getNormalIndent
+      case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScForStatement
+        | _: ScFinallyBlock | _: ScCatchBlock | _: ScFunction => {
+        child.getPsi match {
+          case _: ScExpression => Indent.getNormalIndent
+          case _ => Indent.getNoneIndent
+        }
       }
       case _: ScCaseClause => {
         child.getElementType match {
@@ -84,22 +82,10 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
             }
         }
       }
-      case _: ScTryStmt => Indent.getNoneIndent
-      case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt
-        | _: ScFinallyBlock | _: ScCatchBlock => {
-        child.getPsi match {
-          case _: ScExpression => Indent.getNormalIndent
-          case _ => Indent.getNoneIndent
-        }
-      }
-      case _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScAnnotations => {
+      case _: ScBlock => Indent.getNoneIndent
+      case _: ScParameters |  _: ScParameterClause | _: ScPattern | _: ScParents |
+           _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScAnnotations => {
         Indent.getContinuationWithoutFirstIndent
-      }
-      case _: ScFunction => {
-        child.getPsi match {
-          case _: ScExpression => Indent.getNormalIndent
-          case _ => Indent.getNoneIndent
-        }
       }
       case _ => Indent.getNoneIndent
     }
