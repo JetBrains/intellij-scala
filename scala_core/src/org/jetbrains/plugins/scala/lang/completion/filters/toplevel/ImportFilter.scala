@@ -26,7 +26,7 @@ class ImportFilter extends ElementFilter {
     if (leaf != null) {
       val parent = leaf.getParent();
       parent match {
-        case _: ScalaFile | _: ScParameter=> {
+        case _: ScalaFile | _: ScParameter => {
           return true
         }
         case _ =>
@@ -35,8 +35,8 @@ class ImportFilter extends ElementFilter {
         case _: ScBlockExpr | _: ScTemplateBody | _: ScClassParameter => {
           if ((leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
                   leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF) && (parent.getPrevSibling == null ||
-              parent.getPrevSibling.getPrevSibling == null ||
-              (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT || !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement])))
+                  parent.getPrevSibling.getPrevSibling == null ||
+                  (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT || !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement])))
             return true
         }
         case _ =>

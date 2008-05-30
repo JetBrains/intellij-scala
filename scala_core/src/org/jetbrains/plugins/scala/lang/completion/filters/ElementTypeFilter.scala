@@ -13,17 +13,17 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.parser._
 
 
-class ElementTypeFilter(elem : IElementType, keyword: String) extends PositionElementFilter {
+class ElementTypeFilter(elem: IElementType, keyword: String) extends PositionElementFilter {
 
-  override def isAcceptable (element: java.lang.Object, context: PsiElement): Boolean = {
+  override def isAcceptable(element: java.lang.Object, context: PsiElement): Boolean = {
     if (!(element.isInstanceOf[PsiElement])) return false
     val elementType = element.asInstanceOf[PsiElement].getNode().getElementType()
-    val res = element.asInstanceOf[PsiElement].getText().contains(" "+keyword+" ")
+    val res = element.asInstanceOf[PsiElement].getText().contains(" " + keyword + " ")
     !res && (elementType equals elem)
   }
 
-  override def toString: String  = {
-    return "element type is ("+elem.toString+")"
+  override def toString: String = {
+    return "element type is (" + elem.toString + ")"
   }
 
 }
