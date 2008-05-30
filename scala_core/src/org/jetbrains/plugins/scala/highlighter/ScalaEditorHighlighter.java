@@ -29,7 +29,7 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.SCALA_XML
 /**
  * @author ilyas
  */
-public class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter{
+public class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter {
 
   public ScalaEditorHighlighter(Project project, VirtualFile virtualFile, EditorColorsScheme scheme) {
     super(new ScalaSyntaxHighlighter(), scheme);

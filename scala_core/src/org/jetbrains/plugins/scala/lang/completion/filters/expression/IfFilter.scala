@@ -28,7 +28,7 @@ class IfFilter extends ElementFilter {
       var parent = leaf.getParent()
       while (parent != null) {
         if (parent.getNode.getElementType == ScalaElementTypes.CASE_CLAUSE ||
-            parent.getNode.getElementType == ScalaElementTypes.FOR_STMT) return true
+                parent.getNode.getElementType == ScalaElementTypes.FOR_STMT) return true
         parent = parent.getParent
       }
     }
