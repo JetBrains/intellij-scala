@@ -10,5 +10,6 @@ class a {
     if (true) {
       again
     }
-  } else {}
+  } else {
+  }
 }
