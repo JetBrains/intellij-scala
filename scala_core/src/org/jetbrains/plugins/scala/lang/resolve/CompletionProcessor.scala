@@ -9,9 +9,9 @@ import _root_.scala.collection.immutable.HashSet
 class CompletionProcessor(override val kinds: Set[ResolveTargets]) extends BaseProcessor(kinds) {
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
-    val named = element.asInstanceOf[PsiNamedElement]
-    if (named != null) {
-      candidates += new ScalaResolveResult(named)
+    if (kindMatches(element)) {
+      val named = element.asInstanceOf[PsiNamedElement]
+      candidates += new ScalaResolveResult (named)
     }
     return true
   }
