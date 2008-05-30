@@ -116,7 +116,7 @@ object StableId extends ParserNode {
     builder.advanceLexer
     if (builder.getTokenType != ScalaTokenTypes.tIDENTIFIER) {
       builder.error(ErrMsg("identifier.expected"))
-      nm.done(element)
+      nm.drop
       return true
     }
     builder.advanceLexer()
@@ -138,7 +138,7 @@ object StableId extends ParserNode {
   def parseQualId(builder: PsiBuilder, marker: PsiBuilder.Marker, element: ScalaElementType, forImport: Boolean): Boolean = {
     if (builder.getTokenType != tIDENTIFIER) {
       builder.error(ErrMsg("identifier.expected"))
-      marker.done(element)
+      marker.drop
       return true
     }
     builder.advanceLexer // ate identifier

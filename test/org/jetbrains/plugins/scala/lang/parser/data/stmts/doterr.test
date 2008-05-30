@@ -1,0 +1,18 @@
+import a.b.c.
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement
+        CodeReferenceElement
+          CodeReferenceElement
+            PsiElement(identifier)('a')
+          PsiElement(.)('.')
+          PsiElement(identifier)('b')
+        PsiElement(.)('.')
+        PsiElement(identifier)('c')
+      PsiElement(.)('.')
+      PsiErrorElement:Identifier expected
+        <empty list>
