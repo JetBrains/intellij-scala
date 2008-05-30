@@ -10,17 +10,14 @@ import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.impl.ScalaPsiElementFactory
 import resolve._
 import com.intellij.psi.impl.source.resolve.ResolveCache
-
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
 import com.intellij.psi.impl._
-
 import org.jetbrains.annotations._
-
 import org.jetbrains.plugins.scala.icons.Icons
-
 import com.intellij.psi.PsiElement
 import com.intellij.openapi.util._
 import com.intellij.openapi.util.Comparing;
@@ -37,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 * Date: 22.02.2008
 */
 
-class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScStableCodeReferenceElement {
+class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScStableCodeReferenceElement {
 
   def getElement = this
 
@@ -45,7 +42,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     val nameElement: ASTNode = getNameElement()
     val startOffset: Int = if (nameElement != null) nameElement.getStartOffset()
     else getNode().getTextRange().getEndOffset();
-    return new TextRange (startOffset - getNode().getStartOffset(), getTextLength());
+    return new TextRange(startOffset - getNode().getStartOffset(), getTextLength());
   }
 
   def getNameElement(): ASTNode = {
@@ -85,7 +82,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     return if (nameElement != null) nameElement.getText() else null
   }
 
-  def getVariants(): Array[Object] =  _resolve(this, new CompletionProcessor (StdKinds.stableNotLastRef)).map(r => r.getElement) //todo
+  def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(StdKinds.stableNotLastRef)).map(r => r.getElement) //todo
   def isSoft(): Boolean = false
 
   override def getName = getText
@@ -94,16 +91,18 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElementImpl] {
     def resolve(ref: ScStableCodeReferenceElementImpl, incomplete: Boolean) = {
-      _resolve(ref, new ResolveProcessor (StdKinds.stableNotLastRef/*todo*/, refName))
+      _resolve(ref, new ResolveProcessor(StdKinds.stableNotLastRef /*todo*/, refName))
     }
   }
 
-  def _resolve(ref: ScStableCodeReferenceElementImpl, processor: BaseProcessor) : Array[ResolveResult] =  {
+  def _resolve(ref: ScStableCodeReferenceElementImpl, processor: BaseProcessor): Array[ResolveResult] = {
     qualifier match {
       case None => {
         def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
           place match {
             case null => ()
+            case ie: ScImportStmt =>
+              treeWalkUp(ie.getParent, ie)
             case p => {
               if (!p.processDeclarations(processor,
               ResolveState.initial(), //todo
@@ -134,8 +133,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   def getType() = {
     bind match {
       case None => null
-      case Some(ScalaResolveResult(td: ScTypeDefinition, s)) => new ScParameterizedType (td, s)
-      case Some(ScalaResolveResult(other, _)) => new ScDesignatorType (other)
+      case Some(ScalaResolveResult(td: ScTypeDefinition, s)) => new ScParameterizedType(td, s)
+      case Some(ScalaResolveResult(other, _)) => new ScDesignatorType(other)
     }
   }
 

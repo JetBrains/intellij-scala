@@ -42,11 +42,10 @@ object StableId extends ParserNode {
             case ScalaTokenTypes.tIDENTIFIER => return parseQualId(builder, nm, element, forImport)
             case ScalaTokenTypes.kTHIS => return parseThisReference(builder, nm, element, forImport)
             case ScalaTokenTypes.kSUPER => return parseSuperReference(builder, nm, element, forImport)
-            case _ => {
+            case _ =>
               builder error ErrMsg("identifier.expected")
               nm.done(element)
               return true
-            }
           }
         }
         marker.done(element)
@@ -110,7 +109,7 @@ object StableId extends ParserNode {
 
   // For endings of 'this' and 'super' references
   def parseEndIdentifier(builder: PsiBuilder, nm: PsiBuilder.Marker, element: ScalaElementType, forImport: Boolean): Boolean = {
-    if (builder.getTokenType!=ScalaTokenTypes.tDOT) {
+    if (builder.getTokenType != ScalaTokenTypes.tDOT) {
       builder.error(ErrMsg("dot.expected"))
     }
     builder.advanceLexer
@@ -142,7 +141,7 @@ object StableId extends ParserNode {
       return true
     }
     builder.advanceLexer // ate identifier
-    if (stopAtImportEnd(builder, forImport)){
+    if (stopAtImportEnd(builder, forImport)) {
       marker.done(element)
       true
     } else if (builder.getTokenType == tDOT && !lookAhead(builder, tDOT, kTYPE)) {
