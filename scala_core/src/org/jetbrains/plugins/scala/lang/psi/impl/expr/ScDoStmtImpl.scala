@@ -29,4 +29,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 class ScDoStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDoStmt {
   override def toString: String = "DoStatement"
+
+  def getExprBody: Option[ScExpression] = findChild(classOf[ScExpression])
+  def hasExprBody: Boolean = {
+    getExprBody match {
+      case None => false
+      case Some(_) => true
+    }
+  }
 }

@@ -328,7 +328,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       var left = leftNode
       // For operations like
       // var Object_!= : Symbol = _
-      if (settings.SPACE_BEFORE_COLON) return WITH_SPACING
+      //if (settings.SPACE_BEFORE_COLON) return WITH_SPACING
       while (left != null && left.getLastChildNode != null) {
         left = left.getLastChildNode
       }
@@ -392,7 +392,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     if (leftNode.getElementType == ScalaTokenTypes.tLBRACE) {
       leftNode.getTreeParent.getPsi match {
-        case _: ScTemplateBody | _: ScPackaging => {
+        case _: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
+             _: ScTryBlock | _: ScCatchBlock => {
           return Spacing.createSpacing(0, 0, 1, true, settings.KEEP_BLANK_LINES_BEFORE_RBRACE)
         }
         case _ => return Spacing.createSpacing(0, 0, 0, true, settings.KEEP_BLANK_LINES_BEFORE_RBRACE)
@@ -405,6 +406,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         return Spacing.createSpacing(1,1,0,false,0)
       } else return ON_NEW_LINE
     }
+
+    //special for "case <caret> =>" (for SurroundWith)
+    if (leftNode.getElementType == ScalaTokenTypes.kCASE &&
+        rightNode.getElementType == ScalaTokenTypes.tFUNTYPE) return Spacing.createSpacing(2,2,0,false,0)
 
 
     (leftNode.getElementType, rightNode.getElementType,
@@ -475,17 +480,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       //Case clauses
       case (ScalaElementTypes.CASE_CLAUSE, _, _, _) => return IMPORT_BETWEEN_SPACING
       case (_, ScalaElementTypes.CASE_CLAUSE, _, _) => return IMPORT_BETWEEN_SPACING
-      //Colon
-      case (_, ScalaTokenTypes.tCOLON, _, _) => {
-        var left = leftNode
-        // For operations like
-        // var Object_!= : Symbol = _
-        while (left != null && left.getLastChildNode != null) {
-          left = left.getLastChildNode
-        }
-        return if (left.getElementType == ScalaTokenTypes.tIDENTIFIER &&
-                !left.getText.matches (".*\\w")) COMMON_SPACING else NO_SPACING
-      }
       //#
       case (ScalaTokenTypes.tINNER_CLASS, _, _, _) => return NO_SPACING
       case (ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER, _, _) => {

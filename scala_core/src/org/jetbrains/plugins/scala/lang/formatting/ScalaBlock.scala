@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 
+import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -53,14 +54,19 @@ extends Object with ScalaTokenTypes with Block {
   def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val parent = getNode.getPsi
     parent match {
-      case _: ScBlockExpr | _: ScTemplateBody |
+      case _: ScBlockExpr | _: ScTemplateBody | _: ScForStatement | _: ScIfStmt | _: ScWhileStmt |
            _: ScTryBlock | _: ScCatchBlock | _: ScPackaging | _: ScMatchStmt => {
         return new ChildAttributes(Indent.getNormalIndent(), null)
+      }
+      case x: ScDoStmt => {
+        if (x.hasExprBody)
+          return new ChildAttributes(Indent.getNoneIndent(), null)
+        else return new ChildAttributes(Indent.getNormalIndent(), null)
       }
       case _: ScalaFile => return new ChildAttributes(Indent.getNoneIndent, null)
       case _: ScCaseClause => return new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScExpression | _: ScPattern | _: ScParameters | _: ScParameter =>
-        return new ChildAttributes(Indent.getContinuationWithoutFirstIndent, null)
+        return new ChildAttributes(Indent.getContinuationWithoutFirstIndent, this.getAlignment)
       case _ => new ChildAttributes(Indent.getNoneIndent(), null)
     }
   }
