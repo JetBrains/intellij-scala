@@ -38,7 +38,6 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
             }
         case _ => null
       }
-
       if (elem != null) {
         e.selectorSet match {
           case None =>

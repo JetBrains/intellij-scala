@@ -36,7 +36,6 @@ object ImportExpr {
       return true
     }
     builder.advanceLexer
-
     builder.getTokenType() match {
       case ScalaTokenTypes.tUNDER => builder.advanceLexer //Ate _
       case ScalaTokenTypes.tLBRACE => ImportSelectors parse builder
