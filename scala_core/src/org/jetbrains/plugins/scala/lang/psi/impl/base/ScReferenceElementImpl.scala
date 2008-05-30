@@ -85,7 +85,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     return if (nameElement != null) nameElement.getText() else null
   }
 
-  def getVariants(): Array[Object] =  _resolve(this, new CompletionProcessor (null)).map(r => r.getElement) //todo
+  def getVariants(): Array[Object] =  _resolve(this, new CompletionProcessor (StdKinds.stableNotLastRef)).map(r => r.getElement) //todo
   def isSoft(): Boolean = false
 
   override def getName = getText
@@ -94,7 +94,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElementImpl] {
     def resolve(ref: ScStableCodeReferenceElementImpl, incomplete: Boolean) = {
-      _resolve(ref, new StableMemberProcessor (refName))
+      _resolve(ref, new ResolveProcessor (StdKinds.stableNotLastRef/*todo*/, refName))
     }
   }
 
@@ -124,7 +124,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         }
       }
     }
-    processor.getCandidates.toArray(new Array[ResolveResult] (0))
+    processor.getCandidates.toArray
   }
 
   def multiResolve(incomplete: Boolean) = {
