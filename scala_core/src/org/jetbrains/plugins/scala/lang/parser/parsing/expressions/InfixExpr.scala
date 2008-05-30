@@ -86,14 +86,15 @@ object InfixExpr {
         case ScalaTokenTypes.tLINE_TERMINATOR => {
           if (!LineTerminator(builder.getTokenText)) {
             setMarker.rollbackTo
+            backupMarker.drop
             exitOf = false
-          }
-          else {
+          } else {
             builder.advanceLexer //Ale nl
             backupMarker.drop
             backupMarker = builder.mark
             if (!PrefixExpr.parse(builder)) {
               setMarker.rollbackTo
+              backupMarker.drop
               exitOf = false
             }
             else {
@@ -163,7 +164,8 @@ object InfixExpr {
   //Associations of operator
   private def associate(id: String): Int = {
     id.charAt(id.length - 1) match {
-      case ':' => return -1 // right
+      case ':' => return -1
+      // right
       case _ => return +1 // left
     }
   }
