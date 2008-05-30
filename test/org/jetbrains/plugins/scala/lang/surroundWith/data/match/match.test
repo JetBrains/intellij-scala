@@ -5,6 +5,6 @@ class a {
 -----
 class a {
   true match {
-    case =>
+    case  =>
   }
 }
