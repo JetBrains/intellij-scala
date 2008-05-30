@@ -384,7 +384,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     if (rightNode.getElementType == ScalaTokenTypes.tRBRACE) {
       rightNode.getTreeParent.getPsi match {
-        case _: ScTemplateBody | _: ScPackaging=> {
+        case _: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
+             _: ScTryBlock | _: ScCatchBlock => {
           return Spacing.createSpacing(0, 0, 1, true, settings.KEEP_BLANK_LINES_BEFORE_RBRACE)
         }
         case _ => return Spacing.createSpacing(0, 0, 0, true, settings.KEEP_BLANK_LINES_BEFORE_RBRACE)

@@ -3,6 +3,8 @@ class a {
 }
 -----
 class a {
-  a match {case a =>
-    case b =>}
+  a match {
+    case a =>
+    case b =>
+  }
 }
