@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
-import util.PsiTreeUtil
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -30,8 +29,10 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     for (e <- importExprs) {
+      if (e == lastParent) return true
+
       val elem = e.reference match {
-        case Some(ref) if !PsiTreeUtil.isAncestor(ref, place, false) =>
+        case Some(ref) =>
             ref.bind match {
               case None => null
               case Some(result) => result.element

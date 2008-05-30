@@ -101,8 +101,6 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
           place match {
             case null => ()
-            case ie: ScImportStmt =>
-              treeWalkUp(ie.getParent, ie)
             case p => {
               if (!p.processDeclarations(processor,
               ResolveState.initial(), //todo
