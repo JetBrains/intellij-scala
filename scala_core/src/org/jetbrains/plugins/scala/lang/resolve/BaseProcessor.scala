@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.psi.scope._
 import com.intellij.psi._
-import java.util.Set
-import java.util.HashSet
+
+import _root_.scala.collection.Set
+import _root_.scala.collection.mutable.HashSet
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopeProcessor {
 
-  protected val candidates: Set[ScalaResolveResult] = new HashSet[ScalaResolveResult]
+  protected val candidates: HashSet[ScalaResolveResult] = new HashSet[ScalaResolveResult]
 
   def getCandidates = candidates
 
