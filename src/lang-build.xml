@@ -191,13 +191,19 @@
          src/**/*.jar,
          src/**/*.skeleton,
          src/**/*.xml,
-         util/**/AntScalaCompiler*,
          resources/**/*.png,
-         META-INF/**/*.xml"
+         META-INF/**/*.xml,
+
+         scala_core/src/**/*.java,
+         scala_core/src/**/*.scala,
+         scala_core/src/**/*.properties,
+         scala_core/src/**/*.flex,
+         scala_core/src/**/*.jar,
+         scala_core/src/**/*.skeleton,
+         scala_core/src/**/*.xml"
          excludes="src/**/*junit*"
             />
   </target>
-
   <target name="build.tests" depends="make.project">
 
     <mkdir dir="${project.lib}/../../test"/>
