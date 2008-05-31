@@ -10,24 +10,20 @@ import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.impl.ScalaPsiElementFactory
 import resolve._
 import com.intellij.psi.impl.source.resolve.ResolveCache
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi._
 import com.intellij.psi.impl._
 import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.icons.Icons
 import com.intellij.psi.PsiElement
 import com.intellij.openapi.util._
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.PsiReference;
-import com.intellij.util.IncorrectOperationException;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.util.Comparing
+import com.intellij.openapi.util.TextRange
+import com.intellij.util.IncorrectOperationException
+import org.jetbrains.annotations.Nullable
 
 /**
 * @author Alexander Podkhalyuzin
@@ -95,8 +91,15 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
+  private def _qualifier() : Option[ScStableCodeReferenceElement] = {
+    if (getParent.isInstanceOf[ScImportSelector]) {
+      return getParent.getParent/*ScImportSelectors*/.getParent.asInstanceOf[ScImportExpr].reference
+    }
+    qualifier
+  }
+
   def _resolve(ref: ScStableCodeReferenceElementImpl, processor: BaseProcessor): Array[ResolveResult] = {
-    qualifier match {
+    _qualifier match {
       case None => {
         def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
           place match {

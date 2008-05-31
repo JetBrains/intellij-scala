@@ -12,7 +12,9 @@ import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.icons.Icons
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
+import org.jetbrains.plugins.scala.lang.resolve.ResolverEnv
 import com.intellij.psi._
+import _root_.scala.collection.mutable.HashSet
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -47,7 +49,31 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
             } else {
               if (!processor.execute(elem, state)) return false
             }
-          case Some(set) => //todo
+          case Some(set) => {
+            val shadowed : HashSet[PsiElement] = HashSet.empty
+            for (selector <- set.selectors) {
+              selector.reference.bind match {
+                case Some (result) => {
+                  shadowed += result.element
+                  if (!processor.execute(result.element, state.put(ResolverEnv.nameKey, selector.importedName))) return false
+                }
+                case _ =>
+              }
+            }
+            if (set.hasWildcard) {
+              val p1 = new PsiScopeProcessor {
+                def getHint [T](hintClass: Class[T]): T = processor.getHint(hintClass)
+
+                def handleEvent(event: PsiScopeProcessor.Event, associated: Object) =
+                  processor.handleEvent(event, associated)
+
+                def execute(element: PsiElement, state: ResolveState): Boolean = {
+                  if (shadowed.contains(element)) true else processor.execute(element, state)
+                }
+              }
+              if (!elem.processDeclarations(p1, state, null, place)) return false
+            }
+          }
         }
       }
     }
