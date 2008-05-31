@@ -69,7 +69,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     //todo
   }
 
-  def isReferenceTo(element: PsiElement): Boolean = {
+  def isReferenceTo(element: PsiElement): B = {
     if (element.isInstanceOf[PsiNamedElement]) {
       if (Comparing.equal(getReferencedName(), element.asInstanceOf[PsiNamedElement].getName())) return resolve() == element;
     }
