@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 
 import org.jetbrains.plugins.scala.icons.Icons
 
@@ -23,9 +24,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 class ScImportSelectorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScImportSelector{
   override def toString: String = "ImportSelector"
 
-  def isWildcard = {
-    ! getText.contains("=>") && getText.contains("_")
+  def importedName () = {
+    val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+    if (id == null) reference.refName else id.getText
   }
 
-  def getRealName(name: String): String = null
+
+  def reference () : ScStableCodeReferenceElement = findChildByClass(classOf[ScStableCodeReferenceElement])
 }

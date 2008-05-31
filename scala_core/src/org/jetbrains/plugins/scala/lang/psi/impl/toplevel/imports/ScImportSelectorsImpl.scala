@@ -22,4 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 
 class ScImportSelectorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScImportSelectors{
   override def toString: String = "ImportSelectors"
+
+  def hasWildcard = findChildByType(ScalaTokenTypes.tUNDER) != null
 }
