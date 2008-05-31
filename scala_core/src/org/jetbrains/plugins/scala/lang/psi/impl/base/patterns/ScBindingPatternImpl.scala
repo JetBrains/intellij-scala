@@ -6,7 +6,9 @@ import com.intellij.lang.ASTNode
 
 abstract class ScBindingPatternImpl(node: ASTNode) extends ScPatternImpl(node) with ScBindingPattern {
 
-  def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+  def nameId = if (!isWildcard) {
+    findChildByType(ScalaTokenTypes.tIDENTIFIER)
+  } else findChildByType(ScalaTokenTypes.tUNDER)
 
   override def getName = if (!isWildcard) nameId.getText else null
 
