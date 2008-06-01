@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import psi.api.toplevel._
 import psi.api.toplevel.typedef._
 import psi.api.toplevel.packaging._
-import com.intellij.pom.java.LanguageLevel
-import com.intellij.lang.StdLanguages
-import com.intellij.openapi.fileTypes.StdFileTypes
-import com.intellij.util.ArrayUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 
