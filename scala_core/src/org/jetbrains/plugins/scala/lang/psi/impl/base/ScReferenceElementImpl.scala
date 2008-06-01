@@ -32,47 +32,13 @@ import org.jetbrains.annotations.Nullable
 
 class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScStableCodeReferenceElement {
 
-  def getElement = this
-
-  def getRangeInElement: TextRange = {
-    val nameElement: ASTNode = getNameElement()
-    val startOffset: Int = if (nameElement != null) nameElement.getStartOffset()
-    else getNode().getTextRange().getEndOffset();
-    return new TextRange(startOffset - getNode().getStartOffset(), getTextLength());
-  }
-
-  def getNameElement(): ASTNode = {
-    return getNode().findChildByType(ScalaTokenTypes.tIDENTIFIER);
-  }
-
-
-  def getQualifier: PsiElement = {
-    if (node.getFirstChildNode.getElementType != ScalaTokenTypes.tIDENTIFIER) {
-      node.getFirstChildNode.getPsi
-    }
-    else null
-  }
-
-  def getCanonicalText: String = null
-
-  def handleElementRename(newElementName: String): PsiElement = {
-    return this;
-    //todo
-  }
-
   def bindToElement(element: PsiElement): PsiElement = {
     return this;
     //todo
   }
 
-  def isReferenceTo(element: PsiElement): Boolean = resolve() == element
-
   def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(StdKinds.stableNotLastRef)).map(r => r.getElement) //todo
   
-  def isSoft(): Boolean = false
-
-  override def getName = getText
-
   override def toString: String = "CodeReferenceElement"
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElementImpl] {
@@ -130,6 +96,4 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   }
 
   def nameNode: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
-
-  def refName: String = nameNode.getText
 }
