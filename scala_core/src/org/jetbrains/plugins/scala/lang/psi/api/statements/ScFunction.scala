@@ -24,13 +24,9 @@ trait ScFunction extends ScalaPsiElement with ScTopStatement with ScTypeParamete
 
   def getReturnScTypeElement: ScTypeElement
 
-  def typeParametersClause: ScTypeParamClause
-
   def getFunctionsAndTypeDefs: Seq[ScalaPsiElement]
 
-  def typeParameters: Seq[ScTypeParam] = typeParametersClause.typeParameters
-
-  def getParameters: Seq[ScParameter]
+  def parameters: Seq[ScParameter]
 
 
 }

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 trait ScFunctionDefinition extends ScFunction with ScTypeDefinitionOwner {
 
-  def getBodyExpr: Option[ScExpression]
+  def body: Option[ScExpression] = findChild(classOf[ScExpression])
 
-  def getParameters: Seq[ScParameter]
+  def parameters: Seq[ScParameter]
 }

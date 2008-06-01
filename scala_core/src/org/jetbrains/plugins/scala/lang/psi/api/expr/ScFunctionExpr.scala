@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 trait ScFunctionExpr extends ScExpression {
 
-  def getParameters: Seq[ScParameter]
+  def parameters: Seq[ScParameter]
 
   def params: ScParameters
 

@@ -15,8 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import _root_.scala.collection.mutable._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import typedef._
+import packaging.ScPackaging
 import com.intellij.psi.scope._
 
 /** 
@@ -26,18 +27,17 @@ import com.intellij.psi.scope._
 
 class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with ScFunctionDefinition {
 
-  def getVariable(processor: PsiScopeProcessor, substitutor: PsiSubstitutor): Boolean = true
-
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
+    //the following not compiling seems a bug in scalac
+    //if(!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
 
-    getBodyExpr match {
+    body match {
       case Some(x) if x == lastParent =>
-        val ps = getParameters
-        for (p <- ps) {
+        for (p <- parameters) {
           if (!processor.execute(p, state)) return false
         }
         true
@@ -47,10 +47,8 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
 
   override def toString: String = "ScFunctionDefinition"
 
-  def getBodyExpr: Option[ScExpression] = findChild(classOf[ScExpression])
-
   def getFunctionsAndTypeDefs: Seq[ScalaPsiElement] =
-    getBodyExpr match {
+    body match {
       case None => Seq.empty
       case Some(elem) => for (child <- elem.getChildren() if (child.isInstanceOf[ScTypeDefinition] || child.isInstanceOf[ScFunction]))
               yield child.asInstanceOf[ScalaPsiElement]
@@ -59,7 +57,7 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
   override def getTextOffset(): Int = getId.getTextRange.getStartOffset
 
   def getTypeDefinitions(): Seq[ScTypeDefinition] = {
-    getBodyExpr match {
+    body match {
       case None => return Seq.empty
       case Some(body) => body.getChildren.flatMap(collectTypeDefs(_))
     }
