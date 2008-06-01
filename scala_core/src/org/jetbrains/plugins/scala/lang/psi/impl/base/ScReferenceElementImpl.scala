@@ -65,20 +65,10 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     //todo
   }
 
-  def isReferenceTo(element: PsiElement): Boolean = {
-    if (element.isInstanceOf[PsiNamedElement]) {
-      if (Comparing.equal(getReferencedName(), element.asInstanceOf[PsiNamedElement].getName())) return resolve() == element;
-    }
-    return false;
-  }
-
-  @Nullable
-  def getReferencedName(): String = {
-    val nameElement: ASTNode = getNameElement()
-    return if (nameElement != null) nameElement.getText() else null
-  }
+  def isReferenceTo(element: PsiElement): Boolean = resolve() == element
 
   def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(StdKinds.stableNotLastRef)).map(r => r.getElement) //todo
+  
   def isSoft(): Boolean = false
 
   override def getName = getText
