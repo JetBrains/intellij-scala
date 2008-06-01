@@ -17,7 +17,7 @@ object ScalaElementTypes {
   /*************************************************************************************/
   /************************************** FILE *****************************************/
   /*************************************************************************************/
-  val FILE = new IFileElementType(Language.findInstance(classOf[ScalaLanguage].asInstanceOf[java.lang.Class[ScalaLanguage]]))
+  val FILE = new IFileElementType(Language.findInstance(classOf[ScalaLanguage]))
 
   /*************************************************************************************/
   /************************************** OTHER ****************************************/
