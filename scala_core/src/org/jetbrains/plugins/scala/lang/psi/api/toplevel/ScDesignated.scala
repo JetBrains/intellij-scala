@@ -7,15 +7,13 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScNamedElement extends ScalaPsiElement with PsiNamedElement {
 
-  def name() : String = nameNode match {
-    case null => null
-    case e => e.getText()
-  }
+  def name() : String = nameId.getText
 
-  def nameNode() : PsiElement = {
-    def isName = (elementType: IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
-    childSatisfyPredicateForElementType(isName)
-  }
+  override def getName = name
 
-  def setName(name: String): PsiElement = this //todo
+  def nameId() : PsiElement
+
+  override def getTextOffset() = nameId.getTextRange.getStartOffset
+
+  override def setName(name: String): PsiElement = this //todo
 }

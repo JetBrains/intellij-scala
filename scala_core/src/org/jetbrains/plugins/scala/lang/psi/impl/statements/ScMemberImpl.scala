@@ -19,10 +19,4 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 abstract class ScMemberImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScMember {
 
   def getModifierList = findChildByClass(classOf[ScModifierList])
-
-  def setName(name: String) = {
-    // todo implement me!
-    this
-  }
-
 }

@@ -29,8 +29,6 @@ class ScParameterImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
 
   def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
-  override def getName = nameId.getText
-
   def paramType = findChild(classOf[ScParameterType])
 
   def getDeclarationScope = PsiTreeUtil.getParentOfType(this, classOf[ScParameterOwner])

@@ -34,10 +34,7 @@ import javax.swing.Icon
 
 
 abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeDefinition {
-
-  override def getTextOffset() = getNameIdentifierScala.getTextRange().getStartOffset()
-
-  def getNameIdentifierScala = findChildByType(TokenSets.PROPERTY_NAMES)
+  def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
   def getQualifiedName: String = {
 
@@ -117,10 +114,6 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     } else Seq.empty
     return res ++ findChildrenByClass(classOf[ScMember])
   }
-
-  def typeParametersClause() = findChildByClass(classOf[ScTypeParamClause])
-
-  def typeParameters() = typeParametersClause.typeParameters
 
   override def delete() = {
     var parent = getParent

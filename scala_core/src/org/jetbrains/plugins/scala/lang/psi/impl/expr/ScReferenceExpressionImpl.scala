@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReferenceExpression {
   override def toString: String = "ReferenceExpression"
 
-  def nameNode: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+  def nameId: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
   def bindToElement(element: PsiElement): PsiElement = {
     return this;

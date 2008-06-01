@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -8,6 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Time: 9:46:00
 */
 
-trait ScTypeAlias extends ScalaPsiElement {
+trait ScTypeAlias extends ScNamedElement {
 
 }

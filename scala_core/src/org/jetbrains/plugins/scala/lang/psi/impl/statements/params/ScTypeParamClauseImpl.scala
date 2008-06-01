@@ -4,14 +4,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
-
-
-
-
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
+import com.intellij.psi.scope.PsiScopeProcessor
 
 import org.jetbrains.annotations._
 
@@ -31,5 +28,13 @@ class ScTypeParamClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wit
 
   override def toString: String = "TypeParameterClause"
 
-  def typeParameters() = findChildrenByClass(classOf[ScTypeParam])
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
+    for (tp <- typeParameters) {
+      if (!processor.execute(tp, state)) return false
+    }
+    true
+  }
 }
