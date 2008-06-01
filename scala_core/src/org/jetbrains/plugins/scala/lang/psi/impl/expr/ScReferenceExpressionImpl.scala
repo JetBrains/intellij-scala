@@ -21,7 +21,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.openapi.util._
 import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiNamedElement;
@@ -38,38 +37,15 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReferenceExpression {
   override def toString: String = "ReferenceExpression"
 
-  def getElement = this
-
-  def getRangeInElement: TextRange = {
-    val startOffset: Int = nameNode.getTextRange.getStartOffset
-    return new TextRange(startOffset - getNode.getStartOffset, getTextLength);
-  }
-
   def nameNode: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
-
-  def getCanonicalText: String = null
-
-  def handleElementRename(newElementName: String): PsiElement = {
-    return this;
-    //todo
-  }
 
   def bindToElement(element: PsiElement): PsiElement = {
     return this;
     //todo
   }
 
-  def isReferenceTo(element: PsiElement): Boolean = resolve() == element
-
-
-  def refName(): String = nameNode.getText
-
   def getVariants(): Array[Object] = {
     _resolve(new CompletionProcessor(null)).map(r => r.getElement)
-  }
-
-  def isSoft(): Boolean = {
-    return false;
   }
 
   def multiResolve(incomplete: Boolean): Array[ResolveResult] =

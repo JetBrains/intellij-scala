@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import com.intellij.psi.PsiPolyVariantReference
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import com.intellij.openapi.util.TextRange
 
 /**
 * @author Alexander Podkhalyuzin
@@ -28,4 +29,24 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   }
 
   override def getReference = this
+
+  def nameNode : PsiElement
+
+  def refName: String = nameNode.getText
+
+  def getElement = this
+
+  def getRangeInElement: TextRange =
+    new TextRange(nameNode.getTextRange.getStartOffset - getTextRange.getStartOffset, getTextLength)
+
+  def getCanonicalText: String = null
+
+  def isSoft(): Boolean = false
+
+  def handleElementRename(newElementName: String): PsiElement = {
+    return this;
+    //todo
+  }
+
+  def isReferenceTo(element: PsiElement): Boolean = resolve() == element
 }
