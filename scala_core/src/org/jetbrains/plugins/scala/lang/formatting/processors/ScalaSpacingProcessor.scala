@@ -65,6 +65,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           if (settings.SPACE_BEFORE_FOR_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         }
+        case _ => 
       }
     }
     if (rightNode.getPsi.isInstanceOf[ScParameters] &&
