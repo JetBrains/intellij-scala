@@ -23,7 +23,7 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   override def toString: String = "FunctionExpression"
 
-  def getParameters = params.params
+  def parameters = params.params
 
   def params = findChildByClass(classOf[ScParameters])
 
@@ -37,7 +37,7 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
     result match {
       case Some(x) if x == lastParent => {
-        for (p <- getParameters) {
+        for (p <- parameters) {
           if (!processor.execute(p, state)) return false
         }
         true

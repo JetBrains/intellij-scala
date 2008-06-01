@@ -7,5 +7,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 */
 
 trait ScParameterOwner extends ScalaPsiElement {
-  def getParameters: Seq[ScParameter]
+  def parameters: Seq[ScParameter]
 }
