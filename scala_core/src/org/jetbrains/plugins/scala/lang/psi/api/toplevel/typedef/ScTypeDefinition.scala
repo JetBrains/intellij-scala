@@ -40,10 +40,8 @@ import _root_.scala.collection.mutable._
 * @autor Alexander Podkhalyuzin
 */
 
-trait ScTypeDefinition extends ScalaPsiElement
-  with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTypeDefinitionBase with ScTopStatement with ScNamedElement with ScTypeParametersOwner with Iconable {
-
-  def getNameIdentifierScala: PsiElement
+trait ScTypeDefinition extends ScNamedElement
+  with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTypeDefinitionBase with ScTopStatement with ScTypeParametersOwner with Iconable {
 
   def getFieldsAndMethods(): Seq[ScMember]
 
@@ -72,15 +70,6 @@ trait ScTypeDefinition extends ScalaPsiElement
     else
       qualName.substring(0, index);
   }
-
-  override def getName = nameNode match {
-    case null => null
-    case e => e.getText()
-  }
-
-  def typeParametersClause():ScTypeParamClause
-
-  def typeParameters(): Seq[ScTypeParam]
 
   def getTypeDefinitions(): Seq[ScTypeDefinition] =
     extendsBlock.templateBody match {

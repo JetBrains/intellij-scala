@@ -32,17 +32,22 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
-    //the following not compiling seems a bug in scalac
-    //if(!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
 
     body match {
       case Some(x) if x == lastParent =>
         for (p <- parameters) {
           if (!processor.execute(p, state)) return false
         }
-        true
-      case _ => true
+      case _ => 
     }
+
+    if (lastParent != null) {
+      typeParametersClause match {
+        case Some(clause) => if (!clause.processDeclarations(processor, state, lastParent, place)) return false
+        case _ => ()
+      }
+    }
+    true
   }
 
   override def toString: String = "ScFunctionDefinition"
@@ -53,8 +58,6 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
       case Some(elem) => for (child <- elem.getChildren() if (child.isInstanceOf[ScTypeDefinition] || child.isInstanceOf[ScFunction]))
               yield child.asInstanceOf[ScalaPsiElement]
     }
-
-  override def getTextOffset(): Int = getId.getTextRange.getStartOffset
 
   def getTypeDefinitions(): Seq[ScTypeDefinition] = {
     body match {

@@ -68,7 +68,7 @@ object ScalaPsiElementFactory {
     val dummyFile: ScalaFile = manager.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
 
     val classDef = dummyFile.getTmplDefs.head
-    classDef.nameNode.getNode
+    classDef.nameId.getNode
   }
 */
 

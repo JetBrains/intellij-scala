@@ -42,8 +42,5 @@ class ScPrimaryConstructorImpl(node: ASTNode) extends ScMemberImpl(node) with Sc
 
   def parameters = findChildByClass(classOf[ScParameters])
 
-  def typeParametersClause: ScTypeParamClause = {
-    node.getTreeParent.getPsi.asInstanceOf[ScTypeDefinition].typeParametersClause
-  }
   override def toString: String = "PrimaryConstructor"
 }

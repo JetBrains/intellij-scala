@@ -24,6 +24,4 @@ class ScObjectImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScObje
   override def toString: String = "ScObject"
 
   override def getIconInner = Icons.OBJECT
-
-  override def setName(s: String) = this
 }

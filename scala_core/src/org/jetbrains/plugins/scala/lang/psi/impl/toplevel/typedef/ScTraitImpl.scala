@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.annotations._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 import org.jetbrains.plugins.scala.icons.Icons
 
@@ -45,8 +44,6 @@ class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait
       Nil: List[ScStableId]
     }
   } */
-
-  override def setName(s: String) = this
 
   override def toString: String = "ScTrait"
 

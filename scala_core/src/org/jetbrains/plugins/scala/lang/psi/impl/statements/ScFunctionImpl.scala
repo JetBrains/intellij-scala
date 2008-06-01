@@ -18,14 +18,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScFunction {
 
-  def getId = {
+  def nameId() = {
     val n = node.findChildByType(ScalaTokenTypes.tIDENTIFIER)
     (if (n == null) {
       node.findChildByType(ScalaTokenTypes.kTHIS)
     } else n).getPsi
   }
-
-  override def getName = getId.getText
 
   override def getIcon(flags: Int) = Icons.FUNCTION
 
@@ -37,8 +35,6 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
     val pcs = getParameterList
     if (pcs != null) pcs.params else Seq.empty
   }
-
-  override def getNavigationElement: PsiElement = getId
 
   def getReturnType = if (isMainMethod) PsiType.VOID else null
 

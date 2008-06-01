@@ -28,5 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 */
 
 class ScTypeParamImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeParam{
+  def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+
   override def toString: String = "TypeParameter"
 }

@@ -22,10 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 
 class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass{
 
-  override def setName(s: String) = this
-
-  //def extendsBlock = getChild(ScalaElementTypes.EXTENDS_BLOCK).asInstanceOf[ScExtendsBlock]
-
   def getTemplateParents = null
 
   def getMainParentName = null

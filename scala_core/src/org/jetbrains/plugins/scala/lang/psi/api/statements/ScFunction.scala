@@ -16,9 +16,7 @@ import com.intellij.psi._
 * Time: 9:45:38
 */
 
-trait ScFunction extends ScalaPsiElement with ScTopStatement with ScTypeParametersOwner with PsiMethod with ScParameterOwner with ScDocCommentOwner {
-
-  def getId: PsiElement
+trait ScFunction extends ScalaPsiElement with ScNamedElement with ScTopStatement with ScTypeParametersOwner with PsiMethod with ScParameterOwner with ScDocCommentOwner {
 
   def paramClauses: ScParameters
 

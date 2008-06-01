@@ -95,5 +95,5 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  def nameNode: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+  def nameId: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 }

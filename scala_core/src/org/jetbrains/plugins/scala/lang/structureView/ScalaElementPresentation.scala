@@ -25,8 +25,8 @@ object ScalaElementPresentation {
   }
 
   def getTypeDefinitionPresentableText(typeDefinition: ScTypeDefinition): String = {
-    if (typeDefinition.nameNode != null)
-      return typeDefinition.nameNode.getText()
+    if (typeDefinition.nameId != null)
+      return typeDefinition.nameId.getText()
     else
       return "unnamed"
   }
@@ -37,8 +37,6 @@ object ScalaElementPresentation {
       presentableText.append(constructor.getClassNameText)
     else
       presentableText.append("unnamed")
-    if (constructor.typeParametersClause != null)
-      presentableText.append(constructor.typeParametersClause.getText)
     if (constructor.parameters != null)
       presentableText.append(constructor.parameters.getParametersAsString)
     return presentableText.toString()
@@ -47,8 +45,12 @@ object ScalaElementPresentation {
   def getMethodPresentableText(function: ScFunction): String = {
     val presentableText: StringBuffer = new StringBuffer("")
       presentableText.append(function.getName)
-    if (function.typeParametersClause != null)
-      presentableText.append(function.typeParametersClause.getText)
+
+    function.typeParametersClause match {
+      case Some(clause) => presentableText.append(clause.getText)
+      case _ => ()
+    }
+
     if (function.paramClauses != null)
       presentableText.append(function.paramClauses.getParametersAsString)
     if (function.getReturnScTypeElement != null) {

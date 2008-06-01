@@ -29,12 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 */
 
 class ScTypeAliasDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeAliasDeclaration {
+  def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+  
   override def toString: String = "ScTypeAliasDeclaration"
-
-  def nameNode = {
-    def isName = (elementType: IElementType) => (elementType == ScalaTokenTypes.tIDENTIFIER)
-    childSatisfyPredicateForElementType(isName)
-  }
-
-  override def getName = nameNode.getText
 }
