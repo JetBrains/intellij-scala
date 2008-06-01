@@ -68,9 +68,6 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScDeclar
     if (!super[ScDeclarationSequenceHolder].processDeclarations(processor,
           state, lastParent, place)) return false
 
-    val curr = JavaPsiFacade.getInstance(getProject()).findPackage(getPackageName)
-    if (curr != null && !curr.processDeclarations(processor, state, null, place)) return false
-
     place match {
       case ref : ScStableCodeReferenceElement if ref.refName == "_root_" => {
         val top = JavaPsiFacade.getInstance(getProject()).findPackage("")
@@ -78,8 +75,11 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScDeclar
         state.put(ResolverEnv.nameKey, null)
       }
       case _ => {
-        val top = JavaPsiFacade.getInstance(getProject()).findPackage("")
-        if (top != null && !top.processDeclarations(processor, state, null, place)) return false
+        var curr = JavaPsiFacade.getInstance(getProject()).findPackage(getPackageName)
+        while (curr != null) {
+          if (!curr.processDeclarations(processor, state, null, place)) return false
+          curr = curr.getParentPackage
+        }
       }
     }
 
