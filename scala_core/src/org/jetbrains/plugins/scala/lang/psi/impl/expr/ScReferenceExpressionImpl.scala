@@ -41,15 +41,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def getElement = this
 
   def getRangeInElement: TextRange = {
-    val nameElement: ASTNode = getNameElement()
-    val startOffset: Int = if (nameElement != null) nameElement.getStartOffset()
-    else getNode().getTextRange().getEndOffset();
-    return new TextRange(startOffset - getNode().getStartOffset(), getTextLength());
+    val startOffset: Int = nameNode.getTextRange.getStartOffset
+    return new TextRange(startOffset - getNode.getStartOffset, getTextLength);
   }
 
-  def getNameElement(): ASTNode = {
-    return getNode().findChildByType(ScalaTokenTypes.tIDENTIFIER)
-  }
+  def nameNode: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
   def getCanonicalText: String = null
 
@@ -63,18 +59,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     //todo
   }
 
-  def isReferenceTo(element: PsiElement): Boolean = {
-    if (element.isInstanceOf[PsiNamedElement]) {
-      if (Comparing.equal(refName, element.asInstanceOf[PsiNamedElement].getName())) return resolve() == element;
-    }
-    return false;
-  }
+  def isReferenceTo(element: PsiElement): Boolean = resolve() == element
 
-  @Nullable
-  def refName(): String = {
-    val nameElement: ASTNode = getNameElement();
-    return if (nameElement != null) nameElement.getText() else null;
-  }
+
+  def refName(): String = nameNode.getText
 
   def getVariants(): Array[Object] = {
     _resolve(new CompletionProcessor(null)).map(r => r.getElement)
