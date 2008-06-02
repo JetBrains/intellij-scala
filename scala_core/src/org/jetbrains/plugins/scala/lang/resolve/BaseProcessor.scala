@@ -16,7 +16,20 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
 
   val candidates: HashSet[ScalaResolveResult] = new HashSet[ScalaResolveResult]
 
+  //java compatibility
+  object MyElementClassHint extends ElementClassHint {
+    def shouldProcess(c: Class[_]): Boolean =
+      if (c.isAssignableFrom(classOf[PsiPackage])) kinds contains ResolveTargets.PACKAGE
+      else if (c.isAssignableFrom(classOf[PsiClass])) (kinds contains ResolveTargets.CLASS) || (kinds contains ResolveTargets.OBJECT)
+      else if (c.isAssignableFrom(classOf[PsiVariable])) (kinds contains ResolveTargets.VAR) || (kinds contains ResolveTargets.VAL)
+      else if (c.isAssignableFrom(classOf[PsiMethod])) kinds contains (ResolveTargets.METHOD)
+      else false
+  }
+
   def getHint [T](hintClass: Class[T]): T = {
+    if (hintClass == classOf[ElementClassHint]) {
+      return MyElementClassHint.asInstanceOf[T]
+    }
     return null.asInstanceOf[T]
   }
 
