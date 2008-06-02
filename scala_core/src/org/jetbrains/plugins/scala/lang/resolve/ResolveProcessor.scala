@@ -23,8 +23,10 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String
 
 import ResolveTargets._
 object StdKinds {
-  val stableLastRef = HashSet.empty[ResolveTargets] + PACKAGE + OBJECT + VAL
-  val stableNotLastRef = stableLastRef + CLASS
+  val stableQualRef = HashSet.empty[ResolveTargets] + PACKAGE + OBJECT + VAL
+  val stableQualOrClass = stableQualRef + CLASS
+  val stableImportSelector = HashSet.empty[ResolveTargets] + OBJECT + VAL + VAR + METHOD + TYPE
+  val stableClass = HashSet.empty[ResolveTargets] + CLASS
 }
 
 object ResolverEnv {
