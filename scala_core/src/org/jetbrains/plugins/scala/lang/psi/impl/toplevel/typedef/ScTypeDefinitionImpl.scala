@@ -140,10 +140,4 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
       case _ => throw new IncorrectOperationException("Invalid type definition")
     }
   }
-
-  def hasExtendsKeyword: Boolean = {
-    for (element <- extendsBlock.getNode.getChildren(null) if element.getElementType == ScalaTokenTypes.kEXTENDS)
-     return true
-    return false
-  }
 }

@@ -65,10 +65,7 @@ trait ScTypeDefinition extends ScNamedElement
   def getPath: String = {
     var qualName = getQualifiedName;
     val index = qualName.lastIndexOf('.');
-    if (index < 0 || index >= (qualName.length() - 1))
-      ""
-    else
-      qualName.substring(0, index);
+    if (index < 0) "" else qualName.substring(0, index);
   }
 
   def getTypeDefinitions(): Seq[ScTypeDefinition] =
@@ -76,10 +73,4 @@ trait ScTypeDefinition extends ScNamedElement
       case None => Seq.empty
       case Some(body) => body.getChildren.flatMap(collectTypeDefs(_))
     }
-
-  /*
-   * Return does type definition have extends keyword.
-   * @return has extends keyword
-   */
-  def hasExtendsKeyword: Boolean
 }
