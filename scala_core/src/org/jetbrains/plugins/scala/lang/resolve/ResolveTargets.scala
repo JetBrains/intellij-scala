@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-case class ResolveTargets(n: Int)
+class ResolveTargets
 
 object ResolveTargets {
-  val METHOD = new ResolveTargets(0)
-  val VAR = new ResolveTargets(1)
-  val VAL = new ResolveTargets(2)
-  val OBJECT = new ResolveTargets(3)
-  val CLASS = new ResolveTargets(4)
-  val PACKAGE = new ResolveTargets(5)
+  val METHOD = new ResolveTargets
+  val VAR = new ResolveTargets
+  val VAL = new ResolveTargets
+  val OBJECT = new ResolveTargets
+  val CLASS = new ResolveTargets
+  val PACKAGE = new ResolveTargets
 }
