@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.lexer._
@@ -26,13 +27,13 @@ class TemplateFilter extends ElementFilter {
     if (leaf != null) {
       val parent = leaf.getParent();
       parent match {
-        case _: ScalaFile => {
+        case _: ScalaFile | _: ScPackaging | _: ScPackaging => {
           return true
         }
         case _ =>
       }
       parent.getParent match {
-        case _: ScBlockExpr | _: ScTemplateBody => {
+        case _: ScBlockExpr | _: ScTemplateBody  => {
           if ((leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
                   leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF) && (parent.getPrevSibling == null ||
                   parent.getPrevSibling.getPrevSibling == null ||
