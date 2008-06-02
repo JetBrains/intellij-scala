@@ -4,5 +4,5 @@ class C {
 -----
 class C {
   for 
-  <caret>
+    <caret>
 }
