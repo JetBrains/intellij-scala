@@ -10,5 +10,7 @@ trait ScPackaging extends ScTypeDefinitionOwner with ScTopStatement{
   @NotNull
   def getPackageName: String
 
-  def getTopStatements: Array[ScTopStatement]
+  def getTopStatements = findChildrenByClass(classOf[ScTopStatement]) 
+
+  def getInnerPackagings = findChildrenByClass(classOf[ScPackaging])
 }

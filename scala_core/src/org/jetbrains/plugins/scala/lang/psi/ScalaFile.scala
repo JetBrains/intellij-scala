@@ -20,20 +20,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElemen
 import _root_.scala.collection.mutable._
 
 
-class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
-        with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScDeclarationSequenceHolder {
+class ScalaFile (viewProvider: FileViewProvider) extends PsiFileBase (viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
+with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScDeclarationSequenceHolder {
 
   override def getViewProvider = viewProvider
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE
   override def toString = "ScalaFile"
 
-
-  def getUpperDefs = childrenOfType[ScalaPsiElementImpl](TokenSets.TMPL_DEF_BIT_SET)
-
   def setPackageName(name: String) = {
+    //todo
   }
 
-  def getPackagings: Iterable[ScPackaging] = childrenOfType[ScPackaging](TokenSets.PACKAGING_BIT_SET)
+  def getPackagings = findChildrenByClass(classOf[ScPackaging])
 
   def getPackageName =
     packageStatement match {
@@ -43,31 +41,24 @@ class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider
 
   def packageStatement = findChild(classOf[ScPackageStatement])
 
-  override def getClasses = getTypeDefinitionsArray.map((t: ScTypeDefinition) => t.asInstanceOf[PsiClass])
+  override def getClasses = getTypeDefinitionsArray.map(t => t.asInstanceOf[PsiClass])
 
   def getTopStatements: Array[ScTopStatement] = findChildrenByClass(classOf[ScTopStatement])
 
-  override def getTypeDefinitions(): Seq[ScTypeDefinition] = getChildren.flatMap(collectTypeDefs)
-
-  override def collectTypeDefs(child: PsiElement) = child match {
-    case p: ScPackaging => p.getTypeDefinitions
-    case t: ScTypeDefinition => List(t) ++ t.getTypeDefinitions
-    case _ => Seq.empty
-  }
+  override def getTypeDefinitions(): Seq[ScTypeDefinition] = findChildrenByClass(classOf[ScTypeDefinition])
 
   def icon = Icons.FILE_TYPE_LOGO
 
   override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
+      state : ResolveState,
+      lastParent: PsiElement,
+      place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
-
     if (!super[ScDeclarationSequenceHolder].processDeclarations(processor,
-    state, lastParent, place)) return false
+          state, lastParent, place)) return false
 
     place match {
-      case ref: ScStableCodeReferenceElement if ref.refName == "_root_" => {
+      case ref : ScStableCodeReferenceElement if ref.refName == "_root_" => {
         val top = JavaPsiFacade.getInstance(getProject()).findPackage("")
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
