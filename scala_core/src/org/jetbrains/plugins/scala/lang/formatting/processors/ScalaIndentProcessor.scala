@@ -89,7 +89,17 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
            _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScAnnotations => {
         Indent.getContinuationWithoutFirstIndent
       }
-      case _ => Indent.getNoneIndent
+      case _ => {
+        node.getElementType match {
+          case ScalaTokenTypes.kIF | ScalaTokenTypes.kELSE => {
+            child.getPsi match {
+              case _: ScExpression => Indent.getNormalIndent
+              case _ => Indent.getNoneIndent
+            }
+          }
+          case _ => Indent.getNoneIndent
+        }
+      }
     }
   }
 }
