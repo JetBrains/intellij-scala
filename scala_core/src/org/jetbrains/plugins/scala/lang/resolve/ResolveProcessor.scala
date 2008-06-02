@@ -25,7 +25,7 @@ import ResolveTargets._
 object StdKinds {
   val stableQualRef = HashSet.empty[ResolveTargets] + PACKAGE + OBJECT + VAL
   val stableQualOrClass = stableQualRef + CLASS
-  val stableImportSelector = HashSet.empty[ResolveTargets] + OBJECT + VAL + VAR + METHOD + TYPE
+  val stableImportSelector = HashSet.empty[ResolveTargets] + OBJECT + VAL + VAR + METHOD + TYPE + PACKAGE
   val stableClass = HashSet.empty[ResolveTargets] + CLASS
 }
 
