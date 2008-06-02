@@ -52,7 +52,7 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile) extends Text
   override def isSuitable(element: PsiElement) = element != null && isSuitableElementImpl(element)
 
   override def shouldEnterElement(o: Object) = o match {
-    case t : ScTypeDefinition => t.getFieldsAndMethods.length > 0 || t.getTypeDefinitions.size > 0
+    case t : ScTypeDefinition => t.members.length > 0 || t.getTypeDefinitions.size > 0
     case _ => false
   }
 

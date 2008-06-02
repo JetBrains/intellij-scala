@@ -43,15 +43,13 @@ import _root_.scala.collection.mutable._
 trait ScTypeDefinition extends ScNamedElement
   with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTypeDefinitionBase with ScTopStatement with ScTypeParametersOwner with Iconable {
 
-  def getFieldsAndMethods(): Seq[ScMember]
+  def members(): Seq[ScMember]
 
-  /**
-   * Return sequence of inner type definitions
-   * @return inner classes object and traits
-   */
-  def getInnerTypeDefinitions(): Seq[ScTypeDefinition]
+  def functions(): Seq[ScMember]
 
-  def methods = for (m <- getFieldsAndMethods if m.isInstanceOf[PsiMethod]) yield m.asInstanceOf[PsiMethod]
+  def typeDefinitions(): Seq[ScTypeDefinition]
+
+  def methods = for (m <- members if m.isInstanceOf[PsiMethod]) yield m.asInstanceOf[PsiMethod]
 
   def extendsBlock: ScExtendsBlock
 

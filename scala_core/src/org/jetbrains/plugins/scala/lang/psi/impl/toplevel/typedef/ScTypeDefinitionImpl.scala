@@ -31,6 +31,7 @@ import com.intellij.psi.impl._
 import com.intellij.util.VisibilityIcons
 import com.intellij.openapi.util.Iconable
 import javax.swing.Icon
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 
 abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeDefinition {
@@ -85,17 +86,6 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     rowIcon
   }
 
-  def getInnerTypeDefinitions: Seq[ScTypeDefinition] = {
-    val eb = extendsBlock
-    val res = if (eb != null) {
-      eb.templateBody match {
-        case None => Seq.empty
-        case Some(body) => body.typeDefinitions
-      }
-    } else Seq.empty
-    return res
-  }
-
   def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = methods.filter((m: PsiMethod) =>
           m.getName == name // todo check base classes
   ).toArray
@@ -104,16 +94,23 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   def extendsBlock: ScExtendsBlock = findChildByClass(classOf[ScExtendsBlock])
 
-  def getFieldsAndMethods(): Seq[ScMember] = {
-    val eb = extendsBlock
-    val res = if (eb != null) {
-      eb.templateBody match {
-        case None => Seq.empty
-        case Some(body) => body.members
-      }
-    } else Seq.empty
-    return res ++ findChildrenByClass(classOf[ScMember])
-  }
+  def members(): Seq[ScMember] =
+    (extendsBlock.templateBody match {
+      case None => Seq.empty
+      case Some(body) => body.members
+    }) ++ findChildrenByClass(classOf[ScMember])
+
+  def functions(): Seq[ScMember] =
+    (extendsBlock.templateBody match {
+      case None => Seq.empty
+      case Some(body) => body.functions
+    }) ++ findChildrenByClass(classOf[ScFunction])
+
+  def typeDefinitions: Seq[ScTypeDefinition] = 
+    (extendsBlock.templateBody match {
+      case None => Seq.empty
+      case Some(body) => body.typeDefinitions
+    })
 
   override def delete() = {
     var parent = getParent

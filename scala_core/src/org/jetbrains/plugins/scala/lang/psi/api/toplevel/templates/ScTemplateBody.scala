@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -11,7 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 */
 
 trait ScTemplateBody extends ScalaPsiElement {
-  def members : Seq[ScMember]
+  def members = findChildrenByClass(classOf[ScMember])
+
+  def functions = findChildrenByClass(classOf[ScFunction])
 
   /**
    * Inner type definitions array
