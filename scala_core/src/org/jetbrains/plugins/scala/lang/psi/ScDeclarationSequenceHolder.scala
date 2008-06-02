@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi._
-import com.intellij.psi.scope._
+import scope._
 
 trait ScDeclarationSequenceHolder extends ScalaPsiElement {
   override def processDeclarations(processor: PsiScopeProcessor,
