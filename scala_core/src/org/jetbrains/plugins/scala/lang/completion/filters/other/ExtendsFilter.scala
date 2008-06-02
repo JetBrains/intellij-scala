@@ -30,7 +30,7 @@ class ExtendsFilter extends ElementFilter {
       }
       val prev2 = prev.getPrevSibling
       prev2 match {
-        case x: ScTypeDefinition => return !x.hasExtendsKeyword
+        case x: ScTypeDefinition => x.extendsBlock.templateParents == None
         case _ => return false
       }
     }

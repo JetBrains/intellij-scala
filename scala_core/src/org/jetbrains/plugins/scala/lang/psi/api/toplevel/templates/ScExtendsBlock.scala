@@ -18,4 +18,6 @@ trait ScExtendsBlock extends ScalaPsiElement {
    */
   def empty: Boolean
 
+  def templateParents = findChild(classOf[ScTemplateParents])
+
 }

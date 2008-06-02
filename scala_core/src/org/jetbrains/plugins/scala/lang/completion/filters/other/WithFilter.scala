@@ -44,7 +44,7 @@ class WithFilter extends ElementFilter {
       }
       val prev2 = prev.getPrevSibling
       prev2 match {
-        case x: ScTypeDefinition => return x.hasExtendsKeyword
+        case x: ScTypeDefinition => return x.extendsBlock.templateParents != None
         case _ => return false
       }
     }
