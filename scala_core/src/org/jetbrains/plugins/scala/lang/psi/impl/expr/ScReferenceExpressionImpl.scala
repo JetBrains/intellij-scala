@@ -51,7 +51,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def multiResolve(incomplete: Boolean): Array[ResolveResult] =
     _resolve(new ResolveProcessor(null, refName))
 
-  private def _resolve(processor: BaseProcessor) =
+  private def _resolve(processor: BaseProcessor) : Array[ResolveResult] =
     qualifier match {
       case None => {
         def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
@@ -66,9 +66,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           }
         }
         treeWalkUp(this, null)
-        processor.getCandidates.toArray[ResolveResult]
+        processor.candidates.toArray
       }
-      case Some(e) => new Array[ResolveResult](0)
+      case Some(e) => new Array(0)
     }
 
   override def getType(): ScType = {
