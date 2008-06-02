@@ -163,7 +163,7 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
                 return facade.findClass(fqName, GlobalSearchScope.projectScope(myProject));
               }
             });
-            if (aClass == null) return null;
+            if (aClass == null || !aClass.isValid()) return null;
             final VirtualFile sourceFile = aClass.getContainingFile().getVirtualFile();
             return new TranslatingCompiler.OutputItem() {
               public String getOutputPath() {

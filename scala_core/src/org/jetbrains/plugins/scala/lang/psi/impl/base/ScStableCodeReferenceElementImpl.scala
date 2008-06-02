@@ -44,7 +44,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElementImpl] {
     def resolve(ref: ScStableCodeReferenceElementImpl, incomplete: Boolean) = {
-      _resolve(ref, new ResolveProcessor(ref.resolveKinds(false), refName))
+      _resolve(ref, new ResolveProcessor(ref.resolveKinds(false), refName, qualName))
     }
   }
 

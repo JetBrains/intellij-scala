@@ -58,7 +58,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
 
     public boolean contains(@NotNull VirtualFile file) {
       PsiClass clazz = getValue();
-      if (clazz.getParent() != null) {
+      if (clazz.isValid() && clazz.getParent() != null) {
         return file.equals(clazz.getContainingFile().getVirtualFile());
       }
       return false;
