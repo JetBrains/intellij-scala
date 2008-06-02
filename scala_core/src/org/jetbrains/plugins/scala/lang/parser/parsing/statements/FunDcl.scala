@@ -42,35 +42,35 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
 object FunDcl {
   def parse(builder: PsiBuilder): Boolean = {
-    val returnMarker = builder.mark
-    builder.getTokenType match {
+    //val returnMarker = builder.mark
+    builder.getTokenType() match {
       case ScalaTokenTypes.kDEF => {
         builder.advanceLexer //Ate def
       }
       case _ => {
-        returnMarker.drop
+        //returnMarker.drop
         return false
       }
     }
     if (!(FunSig parse builder)) {
-      returnMarker.drop
+      //returnMarker.drop
       return false
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON => {
         builder.advanceLexer //Ate :
         if (Type.parse(builder)) {
-          returnMarker.drop
+          //returnMarker.drop
           return true
         }
         else {
           builder error ScalaBundle.message("wrong.type", new Array[Object](0))
-          returnMarker.drop
+          //returnMarker.drop
           return true
         }
       }
       case _ => {
-        returnMarker.drop
+        //returnMarker.drop
         return true
       }
     }
