@@ -16,7 +16,6 @@ import javax.swing.Icon
 class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node)
         with ScalaPsiElement {
 
-
   // todo override in more specific cases
   override def replace(newElement: PsiElement): PsiElement = {
     newElement match {
