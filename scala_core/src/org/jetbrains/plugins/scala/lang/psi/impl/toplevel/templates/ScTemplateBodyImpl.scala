@@ -24,11 +24,4 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 class ScTemplateBodyImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTemplateBody{
   override def toString: String = "ScTemplateBody"
-
-  def getTypes = {
-    childrenOfType[ScalaPsiElementImpl](TokenSets.TMPL_OR_TYPE_BIT_SET)
-  }
-  
-  def typeDefinitions: Seq[ScTypeDefinition] = findChildrenByClass(classOf[ScTypeDefinition])
-
 }

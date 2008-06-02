@@ -16,9 +16,5 @@ trait ScTemplateBody extends ScalaPsiElement {
 
   def functions = findChildrenByClass(classOf[ScFunction])
 
-  /**
-   * Inner type definitions array
-   * @return inner classes objects and traits
-   */
-  def typeDefinitions: Seq[ScTypeDefinition]
+  def typeDefinitions: Seq[ScTypeDefinition] = findChildrenByClass(classOf[ScTypeDefinition])
 }

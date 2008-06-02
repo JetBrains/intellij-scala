@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import api.base.patterns._
 import lang.parser.ScalaElementTypes
 import com.intellij.psi.tree._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -11,10 +12,8 @@ import com.intellij.psi.tree._
 */
 
 trait ScCatchBlock extends ScalaPsiElement {
+  def caseClauseList = findChildByClass(classOf[ScCaseClauses])
 
-  def caseClauses: Iterable[ScCaseClause] = {
-    val caseClauses = getChild(ScalaElementTypes.CASE_CLAUSES).asInstanceOf[ScalaPsiElement]
-    caseClauses.childrenOfType[ScCaseClause](TokenSet.create(Array(ScalaElementTypes.CASE_CLAUSE)))
-  }
+  def caseClauses = caseClauseList.caseClauses
 
 }
