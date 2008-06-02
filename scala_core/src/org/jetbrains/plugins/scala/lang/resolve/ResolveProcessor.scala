@@ -7,7 +7,9 @@ import com.intellij.openapi.util.Key
 import _root_.scala.collection.Set
 import _root_.scala.collection.immutable.HashSet
 
-class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String) extends BaseProcessor(kinds) {
+class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String, val qualName: String) extends BaseProcessor(kinds)
+        with NameHint
+{
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
@@ -19,9 +21,21 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String
     }
     return true
   }
+
+  def getName = qualName
+
+/*
+  override def getHint[T](hintClass: Class[T]): T = {
+    if (hintClass == classOf[NameHint] && name != "") {
+      this.asInstanceOf[T]
+    } else
+      super.getHint(hintClass)
+  }
+*/
 }
 
 import ResolveTargets._
+
 object StdKinds {
   val stableQualRef = HashSet.empty[ResolveTargets] + PACKAGE + OBJECT + VAL
   val stableQualOrClass = stableQualRef + CLASS
@@ -30,5 +44,5 @@ object StdKinds {
 }
 
 object ResolverEnv {
-  val nameKey : Key[String] = Key.create("ResolverEnv.nameKey")
+  val nameKey: Key[String] = Key.create("ResolverEnv.nameKey")
 }

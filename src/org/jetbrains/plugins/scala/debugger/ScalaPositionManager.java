@@ -158,7 +158,7 @@ public class ScalaPositionManager implements PositionManager {
     final GlobalSearchScope searchScope = myDebugProcess.getSearchScope();
 
     PsiClass clazz = ScalaCachesManager.getInstance(project).getClassByName(qName, searchScope);
-    if (clazz != null) return clazz.getContainingFile();
+    if (clazz != null && clazz.isValid()) return clazz.getContainingFile();
 
     DirectoryIndex directoryIndex = DirectoryIndex.getInstance(project);
     int dotIndex = qName.lastIndexOf(".");

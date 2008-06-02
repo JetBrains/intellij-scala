@@ -69,7 +69,7 @@ public class ScalaChooseByNameContributor implements ChooseByNameContributor {
   private static NavigationItem[] filterUnshowable(List<PsiClass> items) {
     ArrayList<NavigationItem> list = new ArrayList<NavigationItem>(items.size());
     for (PsiClass item : items) {
-      if (item.getContainingFile().getVirtualFile() == null) continue;
+      if (!item.isValid() || item.getContainingFile().getVirtualFile() == null) continue;
       list.add(item);
     }
     return list.toArray(new NavigationItem[list.size()]);

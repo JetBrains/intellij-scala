@@ -49,7 +49,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   def multiResolve(incomplete: Boolean): Array[ResolveResult] =
-    _resolve(new ResolveProcessor(null, refName))
+    _resolve(new ResolveProcessor(null, refName, refName))
 
   private def _resolve(processor: BaseProcessor) : Array[ResolveResult] =
     qualifier match {

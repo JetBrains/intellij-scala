@@ -32,13 +32,12 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
                                   place: PsiElement): Boolean = {
     for (e <- importExprs) {
       if (e == lastParent) return true
-
       val elem = e.reference match {
         case Some(ref) =>
-            ref.bind match {
-              case None => null
-              case Some(result) => result.element
-            }
+          ref.bind match {
+            case None => null
+            case Some(result) => result.element
+          }
         case _ => null
       }
       if (elem != null) {
@@ -50,10 +49,10 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
               if (!processor.execute(elem, state)) return false
             }
           case Some(set) => {
-            val shadowed : HashSet[PsiElement] = HashSet.empty
+            val shadowed: HashSet[PsiElement] = HashSet.empty
             for (selector <- set.selectors) {
               selector.reference.bind match {
-                case Some (result) => {
+                case Some(result) => {
                   shadowed += result.element
                   if (!processor.execute(result.element, state.put(ResolverEnv.nameKey, selector.importedName))) return false
                 }
@@ -62,7 +61,7 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
             }
             if (set.hasWildcard) {
               val p1 = new PsiScopeProcessor {
-                def getHint [T](hintClass: Class[T]): T = processor.getHint(hintClass)
+                def getHint[T](hintClass: Class[T]): T = processor.getHint(hintClass)
 
                 def handleEvent(event: PsiScopeProcessor.Event, associated: Object) =
                   processor.handleEvent(event, associated)
