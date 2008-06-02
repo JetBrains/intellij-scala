@@ -59,19 +59,6 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
               yield child.asInstanceOf[ScalaPsiElement]
     }
 
-  def getTypeDefinitions(): Seq[ScTypeDefinition] = {
-    body match {
-      case None => return Seq.empty
-      case Some(body) => body.getChildren.flatMap(collectTypeDefs(_))
-    }
-  }
-
-  override def collectTypeDefs(child: PsiElement) = child match {
-    case f: ScFunctionDefinition => f.getTypeDefinitions
-    case t: ScTypeDefinition => List(t) ++ t.getTypeDefinitions
-    case _ => Seq.empty
-  }
-
   /**
   * Fake method to provide type-unsafe Scala Run Configuration
   */

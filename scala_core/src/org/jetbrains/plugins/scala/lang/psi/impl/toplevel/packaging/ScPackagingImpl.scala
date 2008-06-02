@@ -32,26 +32,4 @@ class ScPackagingImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScP
 
   @NotNull
   def getPackageName: String = findChildByClass (classOf[ScReferenceElement]).getText
-
-  @NotNull
-  def getTopStatements: Array[ScTopStatement] = {
-    val res = new ArrayBuffer[ScTopStatement]
-    for (child <- getChildren () if child.isInstanceOf[ScTopStatement]) res += child.asInstanceOf[ScTopStatement]
-    return res.toArray
-  }
-
-  def getTypeDefs = childrenOfType[ScalaPsiElementImpl] (TokenSets.TMPL_OR_TYPE_BIT_SET)
-
-  def getInnerPackagings: Iterable[ScPackaging] = childrenOfType[ScPackaging] (TokenSets.PACKAGING_BIT_SET)
-
-  override def getTypeDefinitions(): Seq[ScTypeDefinition] = getChildren.flatMap (collectTypeDefs)
-
-  override def collectTypeDefs (child: PsiElement) = child match {
-    case p: ScPackaging => p.getTypeDefinitions
-    case t: ScTypeDefinition => List (t) ++ t.getTypeDefinitions
-    case _ => Seq.empty
-  }
-
-
-
 }

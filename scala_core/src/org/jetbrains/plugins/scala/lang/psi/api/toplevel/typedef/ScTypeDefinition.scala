@@ -68,9 +68,9 @@ trait ScTypeDefinition extends ScNamedElement
     if (index < 0) "" else qualName.substring(0, index);
   }
 
-  def getTypeDefinitions(): Seq[ScTypeDefinition] =
+  override def getTypeDefinitions(): Seq[ScTypeDefinition] =
     extendsBlock.templateBody match {
       case None => Seq.empty
-      case Some(body) => body.getChildren.flatMap(collectTypeDefs(_))
+      case Some(body) => body.typeDefinitions
     }
 }

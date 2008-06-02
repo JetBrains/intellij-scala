@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 * Time: 9:49:36
 */
 
-trait ScFunctionDefinition extends ScFunction with ScTypeDefinitionOwner {
+trait ScFunctionDefinition extends ScFunction {
 
   def body: Option[ScExpression] = findChild(classOf[ScExpression])
 

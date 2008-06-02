@@ -17,17 +17,7 @@ import com.intellij.psi._
 
 trait ScTypeDefinitionOwner extends ScalaPsiElement {
 
-  /**
-  * @return Type definitions inside current packaging
-  */
-  def getTypeDefinitions: Seq[ScTypeDefinition]
+  def getTypeDefinitions: Seq[ScTypeDefinition] = findChildrenByClass(classOf[ScTypeDefinition])
 
   def getTypeDefinitionsArray: Array[ScTypeDefinition] = getTypeDefinitions.toArray[ScTypeDefinition]
-
-  def collectTypeDefs (child: PsiElement) = child match {
-    case f: ScFunctionDefinition => f.getTypeDefinitions
-    case p: ScPackaging => p.getTypeDefinitions
-    case t: ScTypeDefinition => List(t) ++ t.getTypeDefinitions
-    case _ => Seq.empty
-  }
 }
