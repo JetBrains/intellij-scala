@@ -253,15 +253,7 @@
 
       <batchtest todir="${base.dir}/logs">
         <fileset dir="${base.dir}/test">
-          <!--
-                    <include name="**/EnterActionTest.java"/>
-          -->
-          <include name="**/FormatterTest.java"/>
-          <include name="**/DragSearchTest.java"/>
-          <include name="**/ParserTest.java"/>
-          <include name="**/LexerTest.java"/>
-          <include name="**/SurroundWithTester.java"/>
-          <include name="**/KeywordCompletionTest.java"/>
+          <include name="**/*Test.java"/>
         </fileset>
       </batchtest>
 
