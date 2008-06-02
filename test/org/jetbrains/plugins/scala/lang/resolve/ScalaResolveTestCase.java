@@ -15,22 +15,28 @@
 
 package org.jetbrains.plugins.scala.lang.resolve;
 
-import com.intellij.testFramework.ResolveTestCase;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.projectRoots.JavaSdk;
+import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.ContentEntry;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.projectRoots.JavaSdk;
-import com.intellij.openapi.application.ApplicationManager;
-import org.jetbrains.plugins.scala.util.TestUtils;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.testFramework.ResolveTestCase;
 import org.jetbrains.plugins.scala.ScalaLoader;
+import org.jetbrains.plugins.scala.util.TestUtils;
+
+import java.io.File;
 
 /**
  * @author ilyas
  */
 public abstract class ScalaResolveTestCase extends ResolveTestCase {
-  private static String JDK_HOME = TestUtils.getTestDataPath() + "/mockJDK";
+  private static String JDK_HOME = TestUtils.getMockJdk();
 
   protected abstract String getTestDataPath();
 
@@ -39,15 +45,32 @@ public abstract class ScalaResolveTestCase extends ResolveTestCase {
     ScalaLoader.loadScala();
 
     final ModifiableRootModel rootModel = ModuleRootManager.getInstance(getModule()).getModifiableModel();
-    VirtualFile root = LocalFileSystem.getInstance().findFileByPath(getTestDataPath());
-    assertNotNull(root);
-    ContentEntry contentEntry = rootModel.addContentEntry(root);
+    VirtualFile sdkRoot = LocalFileSystem.getInstance().findFileByPath(getTestDataPath());
+    assertNotNull(sdkRoot);
+    ContentEntry contentEntry = rootModel.addContentEntry(sdkRoot);
     rootModel.setSdk(JavaSdk.getInstance().createJdk("java sdk", JDK_HOME, false));
-    contentEntry.addSourceFolder(root, false);
+    contentEntry.addSourceFolder(sdkRoot, false);
+
+    // Add Scala Library
+    LibraryTable libraryTable = rootModel.getModuleLibraryTable();
+    Library scalaLib = libraryTable.createLibrary("scala_lib");
+    final Library.ModifiableModel libModel = scalaLib.getModifiableModel();
+    File libRoot = new File(TestUtils.getMockScalaLib());
+    assertTrue(libRoot.exists());
+
+    File srcRoot = new File(TestUtils.getMockScalaSrc());
+    assertTrue(srcRoot.exists());
+
+    libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES);
+    libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
+
     ApplicationManager.getApplication().runWriteAction(new Runnable() {
       public void run() {
+        libModel.commit();
         rootModel.commit();
       }
     });
   }
+
+  
 }

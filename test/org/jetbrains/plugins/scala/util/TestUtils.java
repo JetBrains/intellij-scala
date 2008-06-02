@@ -15,19 +15,17 @@
 
 package org.jetbrains.plugins.scala.util;
 
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiFileFactory;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.LocalTimeCounter;
 
-import java.net.URL;
-import java.net.URISyntaxException;
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * Created by IntelliJ IDEA.
@@ -75,4 +73,15 @@ public class TestUtils {
   }
 
 
+  public static String getMockJdk() {
+    return getTestDataPath() + "/mockJDK";
+  }
+
+  public static String getMockScalaLib() {
+    return getTestDataPath() + "/mockScalaLib/scala.jar";
+  }
+
+  public static String getMockScalaSrc() {
+    return getTestDataPath() + "/mockScalaLib/scala-src.jar";
+  }
 }

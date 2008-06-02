@@ -1,0 +1,5 @@
+package org  {
+
+trait MyTrait
+
+}
