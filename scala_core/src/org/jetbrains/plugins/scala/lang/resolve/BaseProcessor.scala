@@ -14,9 +14,7 @@ import statements.params.ScTypeParam
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopeProcessor {
 
-  protected val candidates: HashSet[ScalaResolveResult] = new HashSet[ScalaResolveResult]
-
-  def getCandidates = candidates
+  val candidates: HashSet[ScalaResolveResult] = new HashSet[ScalaResolveResult]
 
   def getHint [T](hintClass: Class[T]): T = {
     return null.asInstanceOf[T]
