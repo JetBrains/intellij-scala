@@ -22,8 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 
 class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait {
 
-  //def extendsBlock = getChild(ScalaElementTypes.EXTENDS_BLOCK).asInstanceOf[ScExtendsBlock]
-
   def getMixinParents = null /*if (extendsBlock != null) {
     extendsBlock.getMixinParents
   } else null*/

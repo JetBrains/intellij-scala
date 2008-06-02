@@ -41,26 +41,6 @@ trait ScalaPsiElement extends PsiElement {
     childSatisfyPredicateForElementType(predicate, getFirstChild, (e: PsiElement) => e.getNextSibling)
   }
 
-  @Nullable
-  def getChild(elemType: IElementType): PsiElement = {
-    getChild(elemType, getFirstChild, (e: PsiElement) => e.getNextSibling)
-  }
-
-  @Nullable
-  def getChild(elemType: IElementType, startsWith: PsiElement): PsiElement = {
-    getChild(elemType, startsWith, (e: PsiElement) => e.getNextSibling)
-  }
-
-  @Nullable
-  def getChild(elemType: IElementType, startsWith: PsiElement, direction: PsiElement => PsiElement): PsiElement = {
-    def inner(e: PsiElement): PsiElement = e match {
-      case null => null
-      case _ => if (e.getNode.getElementType == elemType) e else inner(direction(e))
-    }
-
-    inner(startsWith)
-  }
-
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz : Class[T]) : T
 
   protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz : Class[T]) : Array[T]
