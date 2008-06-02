@@ -7,6 +7,7 @@ import psi.ScalaPsiElementImpl
 import psi.api.base._
 import psi.types._
 import psi.api.toplevel.typedef.ScTypeDefinition
+import psi.api.base.types.ScSimpleTypeElement
 import psi.impl.ScalaPsiElementFactory
 import resolve._
 import com.intellij.psi.impl.source.resolve.ResolveCache
@@ -37,14 +38,22 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     //todo
   }
 
-  def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(StdKinds.stableNotLastRef)).map(r => r.getElement) //todo
+  def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(resolveKinds(true))).map(r => r.getElement) //todo
   
   override def toString: String = "CodeReferenceElement"
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElementImpl] {
     def resolve(ref: ScStableCodeReferenceElementImpl, incomplete: Boolean) = {
-      _resolve(ref, new ResolveProcessor(StdKinds.stableNotLastRef /*todo*/, refName))
+      _resolve(ref, new ResolveProcessor(ref.resolveKinds(false), refName))
     }
+  }
+
+  private def resolveKinds(incomplete : Boolean) = getParent match {
+    case _: ScStableCodeReferenceElement => StdKinds.stableQualRef
+    case _: ScImportExpr => StdKinds.stableQualRef
+    case _: ScSimpleTypeElement => if (incomplete) StdKinds.stableQualOrClass else StdKinds.stableClass
+    case _: ScImportSelector => StdKinds.stableImportSelector
+    case _ => StdKinds.stableQualRef
   }
 
   private def _qualifier() : Option[ScStableCodeReferenceElement] = {
