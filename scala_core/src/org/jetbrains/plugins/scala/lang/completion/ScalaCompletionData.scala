@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.completion.filters.other._
 */
 
 class ScalaCompletionData extends CompletionData {
-  
+
   /* Initialization */
   registerAllCompletions
 
@@ -99,7 +99,7 @@ class ScalaCompletionData extends CompletionData {
   private def registerElseCompletion {
     registerStandardCompletion(new ElseFilter, "else")
   }
-
+  
   private def registerExtendsCompletion {
     registerStandardCompletion(new ExtendsFilter, "extends")
   }

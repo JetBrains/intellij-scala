@@ -27,6 +27,7 @@ import java.util.ArrayList;
 
 class ScalaBlock (private val myParentBlock: ScalaBlock,
         private val myNode: ASTNode,
+        val myLastNode: ASTNode,
         private var myAlignment: Alignment,
         private var myIndent: Indent,
         private var myWrap: Wrap,
@@ -39,7 +40,10 @@ extends Object with ScalaTokenTypes with Block {
 
   def getSettings = mySettings
 
-  def getTextRange = myNode.getTextRange
+  def getTextRange = if (myLastNode == null) myNode.getTextRange
+  else {
+    new TextRange(myNode.getTextRange.getStartOffset, myLastNode.getTextRange.getEndOffset)
+  }
 
   def getIndent = myIndent
 
@@ -54,10 +58,11 @@ extends Object with ScalaTokenTypes with Block {
   def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val parent = getNode.getPsi
     parent match {
-      case _: ScBlockExpr | _: ScTemplateBody | _: ScForStatement | _: ScIfStmt | _: ScWhileStmt |
+      case _: ScBlockExpr | _: ScTemplateBody | _: ScForStatement  | _: ScWhileStmt |
            _: ScTryBlock | _: ScCatchBlock | _: ScPackaging | _: ScMatchStmt => {
         return new ChildAttributes(Indent.getNormalIndent(), null)
       }
+      case _: ScIfStmt => return new ChildAttributes(Indent.getNormalIndent(), this.getAlignment)
       case x: ScDoStmt => {
         if (x.hasExprBody)
           return new ChildAttributes(Indent.getNoneIndent(), null)
@@ -76,14 +81,17 @@ extends Object with ScalaTokenTypes with Block {
   }
 
   def getSubBlocks: List[Block] = {
-    if (mySubBlocks == null) {
+    if (mySubBlocks == null && myLastNode == null) {
       mySubBlocks = getDummyBlocks(myNode, this)
+    } else if (mySubBlocks == null) {
+      mySubBlocks = getDummyBlocks(myNode, myLastNode, this)
     }
     mySubBlocks
   }
 
-  def isLeaf(node: ASTNode) = {
-    node.getFirstChildNode() == null
+  def isLeaf(node: ASTNode): Boolean = {
+    if (myLastNode == null) return node.getFirstChildNode() == null
+    else return false
   }
 
   def isIncomplete(node: ASTNode): Boolean = {

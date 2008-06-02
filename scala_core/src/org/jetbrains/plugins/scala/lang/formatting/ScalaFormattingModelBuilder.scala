@@ -12,7 +12,7 @@ sealed class ScalaFormattingModelBuilder extends FormattingModelBuilder {
 
   def createModel(element: PsiElement, settings: CodeStyleSettings) = {
     FormattingModelProvider.createFormattingModelForPsiFile(element.getContainingFile(),
-            new ScalaBlock(null, element.getNode(), null, null, null, settings), settings);
+            new ScalaBlock(null, element.getNode(),null, null, null, null, settings), settings);
   }
 
   def getRangeAffectingIndent(file: PsiFile, offset: Int, elementAtOffset: ASTNode): TextRange = {

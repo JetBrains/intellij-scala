@@ -31,27 +31,67 @@ import com.intellij.psi.codeStyle.CodeStyleSettings
 
 
 
-object getDummyBlocks{
+object getDummyBlocks {
 
   def apply(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
     val children = node.getChildren(null)
     val subBlocks = new ArrayList[Block]
     var prevChild: ASTNode = null
     node.getPsi match {
+      case _: ScIfStmt => {
+        subBlocks.addAll(getIfSubBlocks(node, block))
+        return subBlocks
+      }
       case _: ScInfixExpr | _: ScInfixPattern | _: ScInfixTypeElement
-      if (INFIX_ELEMENTS.contains(node.getLastChildNode.getElementType)) => {
+        if (INFIX_ELEMENTS.contains(node.getLastChildNode.getElementType)) => {
         subBlocks.addAll(getInfixBlocks(node, block))
         return subBlocks
       }
       case _ =>
     }
-    val alignment = if (mustAlignment(node,block.getSettings))
+    val alignment = if (mustAlignment(node, block.getSettings))
       Alignment.createAlignment
     else null
     for (val child <- children if isCorrectBlock(child)) {
       val indent = ScalaIndentProcessor.getChildIndent(block, child)
-      subBlocks.add(new ScalaBlock(block, child, alignment, indent, block.getWrap, block.getSettings))
+      subBlocks.add(new ScalaBlock (block, child, null, alignment, indent, block.getWrap, block.getSettings))
       prevChild = child
+    }
+    return subBlocks
+  }
+
+  def apply(node: ASTNode, lastNode: ASTNode, block: ScalaBlock): ArrayList[Block] = {
+    val subBlocks = new ArrayList[Block]
+    var child = node
+    while (child != lastNode) {
+      val indent = ScalaIndentProcessor.getChildIndent(block, child)
+      if (isCorrectBlock(child)) subBlocks.add(new ScalaBlock (block, child, null, null, indent, block.getWrap, block.getSettings))
+      child = child.getTreeNext
+    }
+    val indent = ScalaIndentProcessor.getChildIndent(block, lastNode)
+    if (isCorrectBlock(lastNode)) subBlocks.add(new ScalaBlock (block, lastNode, null, null, indent, block.getWrap, block.getSettings))
+    return subBlocks
+  }
+
+  private def getIfSubBlocks(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
+    val subBlocks = new ArrayList[Block]
+    var child = node.getFirstChildNode
+    while (child.getTreeNext != null && child.getTreeNext.getElementType != ScalaTokenTypes.kELSE) {
+      child = child.getTreeNext
+    }
+    //if (!isCorrectBlock(child)) child = child.getTreePrev
+    val alignment = Alignment.createAlignment
+    val indent = ScalaIndentProcessor.getChildIndent(block, node.getFirstChildNode)
+    val firstBlock = new ScalaBlock(block, node.getFirstChildNode, child, alignment, indent, block.getWrap, block.getSettings)
+    subBlocks.add(firstBlock)
+    if (child.getTreeNext != null) {
+      val firstChild = child.getTreeNext
+      child = firstChild
+      while (child.getTreeNext != null)
+        child = child.getTreeNext
+      //if (!isCorrectBlock(child)) child = child.getTreePrev
+      val secondBlock = new ScalaBlock (block, firstChild, child, alignment, indent, block.getWrap, block.getSettings)
+      subBlocks.add(secondBlock)
     }
     return subBlocks
   }
@@ -62,12 +102,12 @@ object getDummyBlocks{
     for (val child <- children) {
       if (INFIX_ELEMENTS.contains(child.getElementType)) {
         subBlocks.addAll(getInfixBlocks(child, block))
-      } else if (isCorrectBlock(child)){
+      } else if (isCorrectBlock(child)) {
         val indent = ScalaIndentProcessor.getChildIndent(block, child)
-        val alignment = if (mustAlignment(node,block.getSettings))
+        val alignment = if (mustAlignment(node, block.getSettings))
           Alignment.createAlignment
         else null
-        subBlocks.add(new ScalaBlock(block, child, alignment, indent, block.getWrap, block.getSettings))
+        subBlocks.add(new ScalaBlock (block, child, null, alignment, indent, block.getWrap, block.getSettings))
       }
     }
     subBlocks
@@ -92,12 +132,13 @@ object getDummyBlocks{
       case _: ScInfixPattern if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
       case _: ScInfixTypeElement if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
       case _: ScIdList if mySettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION => true
+      case _: ScIfStmt => true
       case _ => false
     }
   }
 
   private val INFIX_ELEMENTS = TokenSet.create(Array(ScalaElementTypes.INFIX_EXPR,
-      ScalaElementTypes.INFIX_PATTERN,
-      ScalaElementTypes.INFIX_TYPE))
+  ScalaElementTypes.INFIX_PATTERN,
+  ScalaElementTypes.INFIX_TYPE))
 
 }
