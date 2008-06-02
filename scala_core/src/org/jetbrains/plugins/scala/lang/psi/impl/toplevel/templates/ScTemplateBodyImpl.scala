@@ -28,9 +28,7 @@ class ScTemplateBodyImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   def getTypes = {
     childrenOfType[ScalaPsiElementImpl](TokenSets.TMPL_OR_TYPE_BIT_SET)
   }
-
-  def members = findChildrenByClass(classOf[ScMember])
-
+  
   def typeDefinitions: Seq[ScTypeDefinition] = findChildrenByClass(classOf[ScTypeDefinition])
 
 }
