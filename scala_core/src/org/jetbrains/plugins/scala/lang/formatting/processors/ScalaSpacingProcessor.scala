@@ -65,24 +65,24 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           if (settings.SPACE_BEFORE_FOR_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         }
-        case _ => 
+        case _ =>
       }
     }
     if (rightNode.getPsi.isInstanceOf[ScParameters] &&
-        leftNode.getTreeParent.getPsi.isInstanceOf[ScFunction]) {
+            leftNode.getTreeParent.getPsi.isInstanceOf[ScFunction]) {
       if (settings.SPACE_BEFORE_METHOD_PARENTHESES) return WITH_SPACING
       else return WITHOUT_SPACING
     }
     if (rightNode.getPsi.isInstanceOf[ScArguments] &&
-        (leftNode.getTreeParent.getPsi.isInstanceOf[ScMethodCall] ||
-         leftNode.getTreeParent.getPsi.isInstanceOf[ScConstructor])) {
+            (leftNode.getTreeParent.getPsi.isInstanceOf[ScMethodCall] ||
+                    leftNode.getTreeParent.getPsi.isInstanceOf[ScConstructor])) {
       if (settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES) return WITH_SPACING
       else return WITHOUT_SPACING
     }
 
     //processing left parenthesis (if it's from right) only Scala cases
     if (rightNode.getPsi.isInstanceOf[ScParameters] &&
-        leftNode.getTreeParent.getPsi.isInstanceOf[ScPrimaryConstructor]) {
+            leftNode.getTreeParent.getPsi.isInstanceOf[ScPrimaryConstructor]) {
       if (settings.SPACE_BEFORE_METHOD_PARENTHESES) return WITH_SPACING //todo: add setting
       else return WITHOUT_SPACING
     }
@@ -95,11 +95,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return WITH_SPACING
     }
     if (leftNode.getPsi.isInstanceOf[ScParameterClause] &&
-        rightNode.getPsi.isInstanceOf[ScParameterClause]) {
+            rightNode.getPsi.isInstanceOf[ScParameterClause]) {
       return WITHOUT_SPACING //todo: add setting
     }
     if (rightNode.getPsi.isInstanceOf[ScPatternArgumentList] &&
-        rightNode.getTreeParent.getPsi.isInstanceOf[ScConstructorPattern]) {
+            rightNode.getTreeParent.getPsi.isInstanceOf[ScConstructorPattern]) {
       if (settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES) return WITH_SPACING //todo: add setting
       else return WITHOUT_SPACING
     }
@@ -169,7 +169,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case _ =>
       }
     }
-
     //processing right parenthesis (if it's from right)
     if (rightNode.getElementType == ScalaTokenTypes.tRPARENTHESIS) {
       if (leftNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
@@ -335,13 +334,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         left = left.getLastChildNode
       }
       return if (left.getElementType == ScalaTokenTypes.tIDENTIFIER &&
-                 !left.getText.matches(".*\\w")) WITH_SPACING else WITHOUT_SPACING
+              !left.getText.matches(".*\\w")) WITH_SPACING else WITHOUT_SPACING
     }
     if (rightNode.getText.length > 0 && rightNode.getText()(0) == ';') {
       if (settings.SPACE_BEFORE_SEMICOLON && !(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
-          rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
+              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
       else if (!(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
-               rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
+              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
     }
     if (leftNode.getText.length > 0 && leftNode.getText()(leftNode.getText.length - 1) == '.') {
       return WITHOUT_SPACING
@@ -356,9 +355,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     if (leftNode.getText.length > 0 && leftNode.getText()(leftNode.getText.length - 1) == ';') {
       if (settings.SPACE_AFTER_SEMICOLON && !(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
-          rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
+              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
       else if (!(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
-               rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
+              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
     }
     //todo: processing spasing operators
 
@@ -437,7 +436,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       //class params
       case (ScalaTokenTypes.tIDENTIFIER | ScalaElementTypes.TYPE_PARAM_CLAUSE, ScalaElementTypes.PRIMARY_CONSTRUCTOR, _, _)
         if !rightNode.getPsi.asInstanceOf[ScPrimaryConstructor].hasAnnotation &&
-           !rightNode.getPsi.asInstanceOf[ScPrimaryConstructor].hasModifier => return NO_SPACING
+                !rightNode.getPsi.asInstanceOf[ScPrimaryConstructor].hasModifier => return NO_SPACING
       //Type*
       case (_, ScalaTokenTypes.tIDENTIFIER, _, ScalaElementTypes.PARAM_TYPE) if (rightNode.getText == "*") => return NO_SPACING
       //Parameters

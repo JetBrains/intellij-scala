@@ -13,25 +13,30 @@ import javax.swing.Icon
 /**
   @author ven
 */
-class ScalaPsiElementImpl ( node : ASTNode ) extends ASTWrapperPsiElement( node )
-  with ScalaPsiElement {
-     
-  override def replace(newElement : PsiElement) : PsiElement = {
-    val parent : ScalaPsiElementImpl = getParent().asInstanceOf[ScalaPsiElementImpl]
-    val parentNode = parent.getNode()
-    val myNode = this.getASTNode()
-    val newElementNode = newElement.asInstanceOf[ScalaPsiElementImpl].getASTNode()
+class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node)
+        with ScalaPsiElement {
 
-    parentNode.replaceChild(myNode, newElementNode)
-    newElement
+
+  // todo override in more specific cases
+  override def replace(newElement: PsiElement): PsiElement = {
+    newElement match {
+      case ne: ScalaPsiElementImpl =>
+        val parent: ScalaPsiElementImpl = getParent().asInstanceOf[ScalaPsiElementImpl]
+        val parentNode = parent.getNode()
+        val myNode = this.getASTNode()
+        val newElementNode = ne.getASTNode()
+        parentNode.replaceChild(myNode, newElementNode)
+        ne
+      case _ => null
+    }
   }
 
-  def getASTNode() : ASTNode = node
+  def getASTNode(): ASTNode = node
 
-  override def findChild[T >: Null <: ScalaPsiElement](clazz : Class[T]) : Option[T] = findChildByClass(clazz) match {
+  override def findChild[T >: Null <: ScalaPsiElement](clazz: Class[T]): Option[T] = findChildByClass(clazz) match {
     case null => None
     case e => Some(e)
   }
 
-  override def toString : String = "scala psi element"
+  override def toString: String = "scala psi element"
 }
