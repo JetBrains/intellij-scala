@@ -15,7 +15,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
-import org.jetbrains.plugins.scala.lang.actions.ActionTest;
+import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ import java.util.*;
 /**
  * @author Alexander Podkhalyuzin
  */
-public abstract class CompletionTestBase extends ActionTest {
+public abstract class CompletionTestBase extends ActionTestBase {
   protected Editor myEditor;
   protected FileEditorManager myFileEditorManager;
   protected PsiFile myFile;
