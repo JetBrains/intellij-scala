@@ -41,7 +41,7 @@ import _root_.scala.collection.mutable._
 */
 
 trait ScTypeDefinition extends ScNamedElement
-  with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTypeDefinitionBase with ScTopStatement with ScTypeParametersOwner with Iconable {
+  with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTopStatement with ScTypeParametersOwner with Iconable {
 
   def members(): Seq[ScMember]
 

@@ -5,7 +5,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 */
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.{PsiNamedElement, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 //for packages & objects
@@ -17,16 +17,14 @@ case class ScDesignatorType(element: PsiNamedElement) extends ScType {
 }
 
 //for classes
-case class ScParameterizedType(owner: ScTypeDefinition, subst: ScSubstitutor) extends ScType {
+case class ScParameterizedType(owner: PsiTypeParameterListOwner, subst: ScSubstitutor) extends ScType {
   override def equiv(t: ScType): boolean = t match {
     case ScParameterizedType(owner1, subst1) => {
-      if (!(owner eq owner1)) false
+      if (owner != owner1) false
       else {
-        val params = owner.typeParameters
-        for (param <- params) {
-          if (!subst.subst(param).equiv(subst1.subst(param))) return false
+        owner.getTypeParameters.equalsWith(owner1.getTypeParameters) {
+          (tp1, tp2) => subst.subst(tp1).equiv(subst1.subst(tp2))
         }
-        true
       }
     }
     case _ => false

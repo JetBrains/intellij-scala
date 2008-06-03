@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParamClause, ScTypeParam}
 import psi.api.toplevel.packaging._
 import psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -34,10 +34,10 @@ import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 
-abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeDefinition {
+abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeDefinition with PsiClassFake {
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
-  def getQualifiedName: String = {
+  override def getQualifiedName: String = {
 
     var parent = getParent
     // todo improve formatter
@@ -86,11 +86,11 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     rowIcon
   }
 
-  def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = methods.filter((m: PsiMethod) =>
+  override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = methods.filter((m: PsiMethod) =>
           m.getName == name // todo check base classes
   ).toArray
 
-  def getMethods: Array[PsiMethod] = methods.toArray
+  override def getMethods: Array[PsiMethod] = methods.toArray
 
   def extendsBlock: ScExtendsBlock = findChildByClass(classOf[ScExtendsBlock])
 
@@ -137,4 +137,6 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
       case _ => throw new IncorrectOperationException("Invalid type definition")
     }
   }
+
+  override def getTypeParameters = typeParameters.toArray
 }
