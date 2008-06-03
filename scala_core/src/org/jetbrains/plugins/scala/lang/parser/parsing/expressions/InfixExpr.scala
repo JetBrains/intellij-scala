@@ -94,7 +94,6 @@ object InfixExpr {
             backupMarker = builder.mark
             if (!PrefixExpr.parse(builder)) {
               setMarker.rollbackTo
-              backupMarker.drop
               exitOf = false
             }
             else {
