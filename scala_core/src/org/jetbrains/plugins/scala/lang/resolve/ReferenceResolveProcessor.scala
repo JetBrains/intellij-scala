@@ -6,6 +6,7 @@ import com.intellij.psi._
 abstract class ReferenceResolveProcessor extends PsiScopeProcessor {
 
   def execute(element : PsiElement, state : ResolveState) : Boolean = {
+
     return true
   }
 
