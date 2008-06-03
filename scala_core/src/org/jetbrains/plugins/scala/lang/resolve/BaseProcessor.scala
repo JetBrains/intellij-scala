@@ -9,8 +9,9 @@ import _root_.scala.collection.mutable.HashSet
 
 import org.jetbrains.plugins.scala.lang.psi.api._
 import toplevel.typedef. {ScObject, ScTypeDefinition}
-import statements. {ScValue, ScVariable}
-import statements.params.ScTypeParam
+import base.patterns.ScReferencePattern
+import statements.ScVariable
+import statements.params.{ScTypeParam, ScParameter}
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopeProcessor {
 
@@ -54,8 +55,11 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
                 isStaticCorrect(c)
               }
             }
-            case _: ScValue => kinds contains ResolveTargets.VAL
-            case _: ScVariable => kinds contains ResolveTargets.VAR
+            case patt: ScReferencePattern => {
+              if (patt.getParent/*list of ids*/.getParent.isInstanceOf[ScVariable])
+                kinds contains ResolveTargets.VAR else kinds contains ResolveTargets.VAL
+            }
+            case _: ScParameter => kinds contains ResolveTargets.VAL
             case _: PsiMethod => kinds contains ResolveTargets.METHOD
             case _ => false
           })
