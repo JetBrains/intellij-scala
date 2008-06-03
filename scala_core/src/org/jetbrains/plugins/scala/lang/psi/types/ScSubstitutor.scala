@@ -22,7 +22,7 @@ class ScSubstitutor(val map : Map[PsiTypeParameter, ScType]) {
 
   def subst(p : PsiTypeParameter) = {
     map.get(p) match {
-      case None => null //todo return type of type parameter itself
+      case None => new ScDesignatorType(p)
       case Some(v) => v
     }
   }
