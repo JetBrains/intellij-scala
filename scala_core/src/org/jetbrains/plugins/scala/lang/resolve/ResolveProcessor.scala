@@ -38,6 +38,9 @@ object StdKinds {
   val stableQualOrClass = stableQualRef + CLASS
   val stableImportSelector = HashSet.empty[ResolveTargets] + OBJECT + VAL + VAR + METHOD + TYPE + PACKAGE + CLASS
   val stableClass = HashSet.empty[ResolveTargets] + CLASS
+
+  val refExprLastRef = HashSet.empty[ResolveTargets] + OBJECT + VAL + VAR + METHOD
+  val refExprQualRef = refExprLastRef + PACKAGE
 }
 
 object ResolverEnv {
