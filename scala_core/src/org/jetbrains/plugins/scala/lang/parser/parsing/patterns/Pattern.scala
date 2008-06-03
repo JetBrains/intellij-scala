@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.parser.bnf._
  */
 
 object Pattern {
-  def parse(builder: PsiBuilder): boolean = {
+  def parse(builder: PsiBuilder): Boolean = {
     val patternMarker = builder.mark
     if (!Pattern1.parse(builder)) {
       patternMarker.drop
