@@ -18,7 +18,7 @@ import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.PsiClassFake
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 
