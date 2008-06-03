@@ -27,13 +27,13 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.lang.actions.ActionTest;
+import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.IOException;
 
 
-public class EnterActionTest extends ActionTest {
+public class EnterActionTest extends ActionTestBase {
 
   @NonNls
   private static final String DATA_PATH = "./test/org/jetbrains/plugins/scala/lang/actions/editor/enter/data/";
