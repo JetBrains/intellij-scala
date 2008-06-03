@@ -18,7 +18,7 @@ import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
 
-
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 
@@ -27,8 +27,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 * Date: 22.02.2008
 */
 
-class ScTypeParamImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeParam{
+class ScTypeParamImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeParam with PsiClassFake {
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
   override def toString: String = "TypeParameter"
+
+  def getIndex() : Int = 0
+  def getOwner() : PsiTypeParameterListOwner = null
+
+  def getContainingClass() = getParent.getParent match {
+    case c : PsiClass => c
+    case _ => null
+  }
 }

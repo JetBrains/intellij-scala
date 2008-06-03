@@ -34,7 +34,7 @@ import _root_.java.util.List;
  * @author ilyas
  */
 
-trait ScTypeDefinitionBase extends PsiClass{
+trait PsiClassFake extends PsiClass{
 
   def isInterface: Boolean = false
 
@@ -118,4 +118,9 @@ trait ScTypeDefinitionBase extends PsiClass{
 
   def getTypeParameters: Array[PsiTypeParameter] = PsiTypeParameter.EMPTY_ARRAY
 
+  def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = Array[PsiMethod]()
+
+  def getMethods() = Array[PsiMethod]()
+
+  def getQualifiedName() : String = null
 }
