@@ -15,7 +15,7 @@ import com.intellij.openapi.util.TextRange
 
 trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
 
-  def bind() : Option[ScalaResolveResult] = {
+  def bind(): Option[ScalaResolveResult] = {
     val results = multiResolve(false)
     results.length match {
       case 1 => Some(results(0).asInstanceOf[ScalaResolveResult])
@@ -30,14 +30,16 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
 
   override def getReference = this
 
-  def nameId : PsiElement
+  def nameId: PsiElement
 
   def refName: String = nameId.getText
 
   def getElement = this
 
   def getRangeInElement: TextRange =
-    new TextRange(nameId.getTextRange.getStartOffset - getTextRange.getStartOffset, getTextLength)
+    if (nameId != null)
+      new TextRange(nameId.getTextRange.getStartOffset - getTextRange.getStartOffset, getTextLength)
+    else getTextRange
 
   def getCanonicalText: String = null
 
