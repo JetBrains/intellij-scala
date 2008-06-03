@@ -18,7 +18,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends ScType {
 
 //for classes
 case class ScParameterizedType(owner: PsiTypeParameterListOwner, subst: ScSubstitutor) extends ScType {
-  override def equiv(t: ScType): boolean = t match {
+  override def equiv(t: ScType): Boolean = t match {
     case ScParameterizedType(owner1, subst1) => {
       if (owner != owner1) false
       else {
