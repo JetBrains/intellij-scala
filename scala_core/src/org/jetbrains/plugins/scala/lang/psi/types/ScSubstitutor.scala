@@ -43,7 +43,7 @@ class ScSubstitutor(val map : Map[PsiTypeParameter, ScType]) {
 }
 
 class Signature(val types : Seq[ScType], val substitutor : ScSubstitutor) {
-  def eq(other : Signature) : Boolean = {
+  def equiv(other : Signature) : Boolean = {
     types.equalsWith(other.types) {(t1, t2) => substitutor.subst(t1) equiv other.substitutor.subst(t2)}
   }
 }
