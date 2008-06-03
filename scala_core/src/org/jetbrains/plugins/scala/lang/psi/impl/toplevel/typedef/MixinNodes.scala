@@ -7,13 +7,15 @@ abstract class MixinNodes {
     val info : T
   }
   
-  case class AbstractMember(val info : T,
-                            var overrides : List[AbstractMember]) extends Node
+  case class AbstractMember(val info : T) extends Node {
+    var overrides : List[AbstractMember] = Nil
+  }
 
-  case class ConcreteMember(val info : T,
-                            var overrides : ConcreteMember,
-                            var implements : List[AbstractMember],
-                            var hides : List[ConcreteMember]) extends Node
+  case class ConcreteMember(val info : T) extends Node {
+    var overrides : Option[ConcreteMember] = None 
+    var implements : List[AbstractMember] = Nil
+    var hides : List[ConcreteMember] = Nil
+  }
 }
 
 import org.jetbrains.plugins.scala.lang.psi.types.Signature
