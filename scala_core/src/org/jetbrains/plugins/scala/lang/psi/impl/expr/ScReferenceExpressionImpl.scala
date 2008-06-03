@@ -45,11 +45,19 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   def getVariants(): Array[Object] = {
-    _resolve(new CompletionProcessor(null)).map(r => r.getElement)
+    _resolve(new CompletionProcessor(getKinds(true))).map(r => r.getElement)
   }
 
   def multiResolve(incomplete: Boolean): Array[ResolveResult] =
-    _resolve(new ResolveProcessor(null, refName))
+    _resolve(new ResolveProcessor(getKinds(incomplete), refName))
+
+  def getKinds(incomplete : Boolean) = {
+    if (incomplete) StdKinds.refExprQualRef
+    else getParent match {
+      case _ : ScReferenceExpression => StdKinds.refExprQualRef
+      case _ => StdKinds.refExprLastRef
+    }
+  }
 
   private def _resolve(processor: BaseProcessor) : Array[ResolveResult] =
     qualifier match {
