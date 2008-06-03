@@ -19,12 +19,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
   //java compatibility
   object MyElementClassHint extends ElementClassHint {
     def shouldProcess(c: Class[_]): Boolean = {
-      if (kinds == null) return true
-      if (c.isAssignableFrom(classOf[PsiPackage])) kinds contains ResolveTargets.PACKAGE
+      if (kinds == null)  true
+      else if (c.isAssignableFrom(classOf[PsiPackage])) kinds contains ResolveTargets.PACKAGE
       else if (c.isAssignableFrom(classOf[PsiClass])) (kinds contains ResolveTargets.CLASS) || (kinds contains ResolveTargets.OBJECT)
-           else if (c.isAssignableFrom(classOf[PsiVariable])) (kinds contains ResolveTargets.VAR) || (kinds contains ResolveTargets.VAL)
-                else if (c.isAssignableFrom(classOf[PsiMethod])) kinds contains (ResolveTargets.METHOD)
-                     else false
+      else if (c.isAssignableFrom(classOf[PsiVariable])) (kinds contains ResolveTargets.VAR) || (kinds contains ResolveTargets.VAL)
+      else if (c.isAssignableFrom(classOf[PsiMethod])) kinds contains (ResolveTargets.METHOD)
+      else false
     }
   }
 
