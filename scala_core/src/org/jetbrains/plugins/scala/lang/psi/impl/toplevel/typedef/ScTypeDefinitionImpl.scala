@@ -33,7 +33,6 @@ import com.intellij.openapi.util.Iconable
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
-
 abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeDefinition with PsiClassFake {
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
