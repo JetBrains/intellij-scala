@@ -73,7 +73,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Signature
 class MethodNodes extends MixinNodes {
   type T = Signature
   def equiv(s1 : Signature, s2 : Signature) = s1 equiv s2
-  def computeHashCode(s : Signature) = s.name.hashCode
+  def computeHashCode(s : Signature) = s.name.hashCode* 31 + s.types.length
 }
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
