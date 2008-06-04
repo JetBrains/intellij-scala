@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 import org.jetbrains.plugins.scala.icons.Icons
@@ -23,9 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 class ScPackageStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPackageStatement{
   override def toString = "ScPackageStatement"
 
-  @NotNull
   def getPackageName: String = {
-    val ref = findChildByClass(classOf[ScStableCodeReferenceElement])
     val buffer = new _root_.scala.StringBuilder
     def append(ref : ScStableCodeReferenceElement) {
       val name = ref.refName
@@ -37,7 +34,7 @@ class ScPackageStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
         }
       }
     }
-    append (ref)
+    append (reference)
     buffer.toString
   }
 }
