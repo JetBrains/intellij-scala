@@ -3,10 +3,8 @@ package org.jetbrains.plugins.scala.lang.resolve
 import com.intellij.psi.scope._
 import com.intellij.psi._
 import com.intellij.lang.StdLanguages
-
 import _root_.scala.collection.Set
 import _root_.scala.collection.mutable.HashSet
-
 import org.jetbrains.plugins.scala.lang.psi.api._
 import toplevel.typedef. {ScObject, ScTypeDefinition}
 import base.patterns.ScReferencePattern

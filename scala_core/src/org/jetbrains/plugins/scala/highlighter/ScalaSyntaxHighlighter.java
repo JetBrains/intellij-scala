@@ -21,7 +21,7 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.tree.xml.IXmlLeafElementType;
-import com.intellij.psi.xml.XmlTokenType;
+import static com.intellij.psi.xml.XmlTokenType.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
@@ -32,8 +32,7 @@ import java.util.Map;
 
 /**
  * @author ilyas
- * Date: 24.09.2006
- *
+ *         Date: 24.09.2006
  */
 public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
@@ -161,7 +160,10 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
       public IElementType getTokenType() {
         IElementType type = super.getTokenType();
-        if (type instanceof IXmlLeafElementType || XmlTokenType.XML_WHITE_SPACE == type) {
+        if (type instanceof IXmlLeafElementType ||
+                XML_WHITE_SPACE == type ||
+                type == XML_REAL_WHITE_SPACE ||
+                type == TAG_WHITE_SPACE) {
           return SCALA_XML_CONTENT;
         }
         return type;

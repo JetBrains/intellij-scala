@@ -17,11 +17,11 @@ package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
+import static com.intellij.psi.xml.XmlTokenType.*;
 
 /**
  * @author ilyas
- * Date: 24.09.2006
- *
+ *         Date: 24.09.2006
  */
 public interface ScalaTokenTypes {
 
@@ -68,7 +68,7 @@ public interface ScalaTokenTypes {
   IElementType tCHAR = new ScalaElementType("Character");
   IElementType tSYMBOL = new ScalaElementType("Symbol");
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// integer and float literals ///////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   IElementType tINTEGER = new ScalaElementType("integer");
@@ -103,7 +103,7 @@ public interface ScalaTokenTypes {
   IElementType tLPARENTHESIS = new ScalaElementType("(");
   IElementType tRPARENTHESIS = new ScalaElementType(")");
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   IElementType kABSTRACT = new ScalaElementType("abstract");
@@ -179,14 +179,17 @@ public interface ScalaTokenTypes {
   IElementType tQUESTION = new ScalaElementType("?");
 
   public static TokenSet WHITES_SPACES_TOKEN_SET = TokenSet.create(
-      tWHITE_SPACE_IN_LINE,
-      tNON_SIGNIFICANT_NEWLINE
+          tWHITE_SPACE_IN_LINE,
+          tNON_SIGNIFICANT_NEWLINE,
+          XML_REAL_WHITE_SPACE,
+          XML_WHITE_SPACE,
+          TAG_WHITE_SPACE
   );
 
   TokenSet COMMENTS_TOKEN_SET = TokenSet.create(
-      tLINE_COMMENT,
-      tBLOCK_COMMENT,
-      tDOC_COMMENT
+          tLINE_COMMENT,
+          tBLOCK_COMMENT,
+          tDOC_COMMENT
   );
 
   TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER);
