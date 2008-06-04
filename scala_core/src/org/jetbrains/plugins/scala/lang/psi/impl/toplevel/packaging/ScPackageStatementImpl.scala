@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
-
+                                                                          
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl

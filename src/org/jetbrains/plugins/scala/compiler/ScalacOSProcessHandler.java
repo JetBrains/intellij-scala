@@ -83,11 +83,6 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
 
   // Phases
   public static String PHASE = "running phase ";
-//  private static final String ourTyperPhaseMarker = PHASE + "typer on";
-//  private static final String ourSuperAccMarker = PHASE + "superaccessors on";
-//  private static final String ourPicklerMarker = PHASE + "pickler on";
-//  private static final String ourRefcheckMarker = PHASE + "refcheck on";
-//  private static final String ourLiftcodeMarker = PHASE + "liftcode on";
 
   private boolean mustProcessErrorMsg = false;
   private int myErrColumnMarker;
@@ -120,26 +115,26 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
       }
     } else { //verbose compiler output
       mustProcessErrorMsg = false;
-      String info = text.endsWith(ourInfoMarkerEnd) ?
-              text.substring(ourInfoMarkerStart.length(), text.length() - ourInfoMarkerEnd.length()) :
-              text.substring(ourInfoMarkerStart.length());
-      if (info.startsWith(ourParsingMarker)) { //parsing
-        myContext.getProgressIndicator().setText(info);
-      } else if (info.startsWith(PHASE)) { // typechecker phase
-        myContext.getProgressIndicator().setText(StringUtil.trimStart(info, PHASE));
-      } else if (info.startsWith(ourWroteMarker)) {
-        myContext.getProgressIndicator().setText(info);
-        String s = info.substring(ourWroteMarker.length());
-        int w = s.indexOf(' ');
-        String outputPath = w > 0 ? s.substring(0, w) : s;
-        try {
-          TranslatingCompiler.OutputItem item = getOutputItem(outputPath.replace(File.separatorChar, '/'));
-          if (item != null) {
-            mySuccessfullyCompiledSources.add(item);
+      if (text.endsWith(ourInfoMarkerEnd)) {
+        String info = text.substring(ourInfoMarkerStart.length(), text.length() - ourInfoMarkerEnd.length());
+        if (info.startsWith(ourParsingMarker)) { //parsing
+          myContext.getProgressIndicator().setText(info);
+        } else if (info.startsWith(PHASE)) { // typechecker phase
+          myContext.getProgressIndicator().setText(StringUtil.trimStart(info, PHASE));
+        } else if (info.startsWith(ourWroteMarker)) {
+          myContext.getProgressIndicator().setText(info);
+          String s = info.substring(ourWroteMarker.length());
+          int w = s.indexOf(' ');
+          String outputPath = w > 0 ? s.substring(0, w) : s;
+          try {
+            TranslatingCompiler.OutputItem item = getOutputItem(outputPath.replace(File.separatorChar, '/'));
+            if (item != null) {
+              mySuccessfullyCompiledSources.add(item);
+            }
+          } catch (InvocationTargetException e) {
+            // Normal behavior
+          } catch (InterruptedException e) {
           }
-        } catch (InvocationTargetException e) {
-          // Normal behaviior
-        } catch (InterruptedException e) {
         }
       }
     }
