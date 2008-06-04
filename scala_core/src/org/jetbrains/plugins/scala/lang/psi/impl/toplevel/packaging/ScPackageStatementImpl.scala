@@ -24,5 +24,20 @@ class ScPackageStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   override def toString = "ScPackageStatement"
 
   @NotNull
-  def getPackageName: String = findChildByClass(classOf[ScReferenceElement]).getText
+  def getPackageName: String = {
+    val ref = findChildByClass(classOf[ScStableCodeReferenceElement])
+    val buffer = new _root_.scala.StringBuilder
+    def append(ref : ScStableCodeReferenceElement) {
+      val name = ref.refName
+      ref.qualifier match {
+        case None => buffer append name
+        case Some(q) => {
+          append(q)
+          buffer.append ('.').append(name)
+        }
+      }
+    }
+    append (ref)
+    buffer.toString
+  }
 }
