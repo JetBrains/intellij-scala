@@ -42,9 +42,10 @@ class ScSubstitutor(val map : Map[PsiTypeParameter, ScType]) {
   }
 }
 
-class Signature(val name : String, val types : Seq[ScType], val substitutor : ScSubstitutor) {
+import com.intellij.psi.PsiMethod
+class Signature(val types : Seq[ScType], val method : PsiMethod, val substitutor : ScSubstitutor) {
   def equiv(other : Signature) : Boolean = {
-    name == other.name &&
+    method.getName == other.method.getName &&
     types.equalsWith(other.types) {(t1, t2) => substitutor.subst(t1) equiv other.substitutor.subst(t2)}
   }
 }
