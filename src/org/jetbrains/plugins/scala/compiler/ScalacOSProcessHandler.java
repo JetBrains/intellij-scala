@@ -27,6 +27,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -76,9 +77,17 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
   private static final String ourErrorMarker = " error:";
   private static final String ourInfoMarkerStart = "[";
   private static final String ourInfoMarkerEnd = "]";
-  private static final String ourParsingMarker = "parsing";
   private static final String ourWroteMarker = "wrote ";
   private static final String ourColumnMarker = "^";
+  private static final String ourParsingMarker = "parsing";
+
+  // Phases
+  public static String PHASE = "running phase ";
+//  private static final String ourTyperPhaseMarker = PHASE + "typer on";
+//  private static final String ourSuperAccMarker = PHASE + "superaccessors on";
+//  private static final String ourPicklerMarker = PHASE + "pickler on";
+//  private static final String ourRefcheckMarker = PHASE + "refcheck on";
+//  private static final String ourLiftcodeMarker = PHASE + "liftcode on";
 
   private boolean mustProcessErrorMsg = false;
   private int myErrColumnMarker;
@@ -114,8 +123,10 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
       String info = text.endsWith(ourInfoMarkerEnd) ?
               text.substring(ourInfoMarkerStart.length(), text.length() - ourInfoMarkerEnd.length()) :
               text.substring(ourInfoMarkerStart.length());
-      if (info.startsWith(ourParsingMarker)) {
+      if (info.startsWith(ourParsingMarker)) { //parsing
         myContext.getProgressIndicator().setText(info);
+      } else if (info.startsWith(PHASE)) { // typechecker phase
+        myContext.getProgressIndicator().setText(StringUtil.trimStart(info, PHASE));
       } else if (info.startsWith(ourWroteMarker)) {
         myContext.getProgressIndicator().setText(info);
         String s = info.substring(ourWroteMarker.length());
@@ -127,9 +138,8 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
             mySuccessfullyCompiledSources.add(item);
           }
         } catch (InvocationTargetException e) {
-          LOG.error(e);
+          // Normal behaviior
         } catch (InterruptedException e) {
-          LOG.error(e);
         }
       }
     }
