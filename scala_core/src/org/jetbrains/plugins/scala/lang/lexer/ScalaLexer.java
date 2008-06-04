@@ -199,11 +199,12 @@ public class ScalaLexer implements Lexer {
           myTokenEnd = myTokenStart + scalaToken;
           myCurrentLexer.start(getBufferSequence(),myTokenEnd,myBufferEnd,myCurrentLexer.getState());
         }
-      } /*else if (type == XML_REAL_WHITE_SPACE ||
+      } else if ((type == XML_REAL_WHITE_SPACE ||
               type == XML_WHITE_SPACE ||
-              type == XmlTokenType.TAG_WHITE_SPACE) {
-        //type = ScalaTokenTypes.tWHITE_SPACE_IN_LINE;
-      }*/
+              type == TAG_WHITE_SPACE) &&
+              tokenText.matches("\\s*\n(\n|\\s)*")) {
+        type = ScalaTokenTypes.tWHITE_SPACE_IN_LINE;
+      }
       if (myTokenType == null) {
         myTokenType = type;
         if (myTokenType == null) return;
