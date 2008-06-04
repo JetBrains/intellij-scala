@@ -29,7 +29,13 @@ object ScalaExpr {
       }
       case _ => return false
     }
-    if (!Expr.parse(builder)) builder error ErrMsg("xml.scala.expression.exected")
+    if (!Expr.parse(builder)) {
+      builder error ErrMsg("xml.scala.expression.exected")
+    }
+    while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON ||
+    builder.getTokenType == ScalaTokenTypes.tLINE_TERMINATOR) {
+      builder.advanceLexer
+    }
     builder.getTokenType match {
       case ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END => {
         builder.advanceLexer()

@@ -35,7 +35,8 @@ public class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter {
     super(new ScalaSyntaxHighlighter(), scheme);
 
     //Register XML highlighter
-    SyntaxHighlighter xmlHighlighter = SyntaxHighlighterFactory.getSyntaxHighlighter(StdLanguages.XML, project, virtualFile);
+    final SyntaxHighlighter xmlHighlighter = SyntaxHighlighterFactory.getSyntaxHighlighter(StdLanguages.XML, project, virtualFile);
+
     final LayerDescriptor xmlLayer = new LayerDescriptor(xmlHighlighter, "\n", XmlHighlighterColors.HTML_TAG);
     registerLayer(SCALA_XML_CONTENT, xmlLayer);
   }

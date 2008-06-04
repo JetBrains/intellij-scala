@@ -36,8 +36,8 @@ object Content {
     def subparse() {
       var isReturn = false
       if (!XmlContent.parse(builder) &&
-        !Reference.parse(builder) &&
-        !ScalaExpr.parse(builder)) isReturn = true
+              !Reference.parse(builder) &&
+              !ScalaExpr.parse(builder)) isReturn = true
       builder.getTokenType match {
         case XmlTokenType.XML_DATA_CHARACTERS => {
           builder.advanceLexer()

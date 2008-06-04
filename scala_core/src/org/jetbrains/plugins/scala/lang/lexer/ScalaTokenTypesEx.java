@@ -29,4 +29,6 @@ public interface ScalaTokenTypesEx extends ScalaTokenTypes {
   IElementType SCALA_IN_XML_INJECTION_START = new ScalaElementType("ScalaXmlInjectionStart");
   IElementType SCALA_IN_XML_INJECTION_END = new ScalaElementType("ScalaXmlInjection End");
 
+//  IElementType WHITESPACE_INTERMEDIATE = new ScalaElementType("Strange whitespace");
+
 }
