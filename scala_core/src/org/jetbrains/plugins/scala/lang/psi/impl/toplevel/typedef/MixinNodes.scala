@@ -11,11 +11,11 @@ abstract class MixinNodes {
   }
   
   case class AbstractMember(val info : T) extends Node {
-    var overrides : Option[AbstractMember] = None
+    var overrides : Option[Node] = None //abstract might override concrete
   }
 
   case class ConcreteMember(val info : T) extends Node {
-    var overrides : Option[ConcreteMember] = None 
+    var overrides : Option[ConcreteMember] = None
     var implements : Option[AbstractMember] = None
   }
 
@@ -54,10 +54,7 @@ abstract class MixinNodes {
         case Some(n2) =>
           n2 match {
             case a2 : AbstractMember =>
-              n1 match {
-                case a1 : AbstractMember => a2.overrides = Some(a1)
-                case c1 : ConcreteMember => //this is a compilation error to be catched elsewhere
-              }
+              a2.overrides = Some(n1)
             case c2 : ConcreteMember =>
               n1 match {
                 case a1 : AbstractMember => c2.implements = Some(a1)
