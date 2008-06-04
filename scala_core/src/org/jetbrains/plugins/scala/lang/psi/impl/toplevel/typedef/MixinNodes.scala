@@ -73,11 +73,11 @@ class MethodNodes extends MixinNodes {
   def computeHashCode(s : Signature) = s.name.hashCode* 31 + s.types.length
 }
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import com.intellij.psi.PsiNamedElement
 class FieldNodes extends MixinNodes {
-  type T = ScReferencePattern
-  def equiv(p1 : ScReferencePattern, p2 : ScReferencePattern) = p1.name == p2.name
-  def computeHashCode(patt : ScReferencePattern) = patt.name.hashCode
+  type T = PsiNamedElement
+  def equiv(p1 : PsiNamedElement, p2 : PsiNamedElement) = p1.getName == p2.getName
+  def computeHashCode(patt : PsiNamedElement) = patt.getName.hashCode
 }
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
