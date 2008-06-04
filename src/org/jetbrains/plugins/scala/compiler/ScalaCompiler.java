@@ -47,8 +47,16 @@ import java.util.*;
  */
 public class ScalaCompiler implements TranslatingCompiler {
   private static final Logger LOG = Logger.getInstance("org.jetbrains.plugins.scala.compiler.ScalaCompiler");
-  private static final String XMX_COMPILER_PROPERTY = "-Xmx300m";
   private Project myProject;
+
+  // VM properties
+  private static final String XMX_COMPILER_PROPERTY = "-Xmx300m";
+  private final String XSS_COMPILER_PROPERTY = "-Xss128m";
+
+  // Scalac parameters
+  private final String DEBUG_INFO_LEVEL_PROPEERTY = "-g:vars";
+  private final String VERBOSE_PROPERTY = "-verbose";
+  private final String DESTINATION_COMPILER_PROPERTY = "-d";
 
   public ScalaCompiler(Project project) {
     myProject = project;
@@ -97,7 +105,8 @@ public class ScalaCompiler implements TranslatingCompiler {
       String javaExecutablePath = ((JavaSdkType) sdk.getSdkType()).getVMExecutablePath(sdk);
       commandLine.setExePath(javaExecutablePath);
 
-      commandLine.addParameter("-Xss128m");
+      commandLine.addParameter(XSS_COMPILER_PROPERTY);
+      commandLine.addParameter(XMX_COMPILER_PROPERTY);
       commandLine.addParameter("-cp");
 
       String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
@@ -119,7 +128,6 @@ public class ScalaCompiler implements TranslatingCompiler {
       }
 
       commandLine.addParameter(classPathBuilder.toString());
-      commandLine.addParameter(XMX_COMPILER_PROPERTY);
       commandLine.addParameter(ScalacRunner.class.getName());
 
       try {
@@ -154,8 +162,8 @@ public class ScalaCompiler implements TranslatingCompiler {
 
     PrintStream printer = new PrintStream(new FileOutputStream(fileWithParameters));
 
-    printer.println("-verbose");
-    printer.println("-g:vars");
+    printer.println(VERBOSE_PROPERTY);
+    printer.println(DEBUG_INFO_LEVEL_PROPEERTY);
 
     //write output dir
     CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
@@ -164,7 +172,7 @@ public class ScalaCompiler implements TranslatingCompiler {
     LOG.assertTrue(virtualFile != null);
 
     String outputPath = VirtualFileManager.extractPath(virtualFile.getUrl());
-    printer.println("-d");
+    printer.println(DESTINATION_COMPILER_PROPERTY);
     printer.println(outputPath);
 
     //write classpath
@@ -185,9 +193,7 @@ public class ScalaCompiler implements TranslatingCompiler {
         path = path.substring(0, jarSeparatorIndex);
       }
       printer.print(path);
-      if (i < filesArray.length - 1) {
-        printer.print(File.pathSeparator);
-      }
+      printer.print(File.pathSeparator);
     }
 
     printer.println();

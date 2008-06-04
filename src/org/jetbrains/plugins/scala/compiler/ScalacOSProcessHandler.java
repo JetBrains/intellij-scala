@@ -51,7 +51,7 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
   private CompileContext myContext;
   private Project myProject;
   private Integer myLineNumber;
-  private String myMessage;
+  private String myErrMessage;
   private String myUrl;
 
   private Set<TranslatingCompiler.OutputItem> mySuccessfullyCompiledSources;
@@ -80,68 +80,89 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
   private static final String ourWroteMarker = "wrote ";
   private static final String ourColumnMarker = "^";
 
-  private boolean myColumnOnNextLine = false;
+  private boolean mustProcessErrorMsg = false;
+  private int myErrColumnMarker;
 
 
   private void parseOutput(String text) {
-    if (myMessage != null) {
-      if (myColumnOnNextLine) {
-        int column = text.indexOf(ourColumnMarker) + 1;
-        if (column < 0) column = 1;
-        myContext.addMessage(CompilerMessageCategory.ERROR, myMessage, myUrl, myLineNumber, column);
-        myMessage = null;
-        myColumnOnNextLine = false;
-      } else {
-        myColumnOnNextLine = true;
-      }
-      return;
-    }
 
     text = text.trim();
     if (text.endsWith("\r\n")) text = text.substring(0, text.length() - 2);
-    if (text.length() == 1 && text.charAt(0) == '^') return;
 
-    int i = text.indexOf(ourErrorMarker);
-    if (i > 0) {
-      String errorPlace = text.substring(0, i);
-      if (errorPlace.endsWith(":"))
-        errorPlace = errorPlace.substring(0, errorPlace.length() - 1); //hack over compiler output
-      int j = errorPlace.lastIndexOf(':');
-      if (j > 0) {
-        myUrl = VirtualFileManager.constructUrl(LocalFileSystem.PROTOCOL,
-            errorPlace.substring(0, j).replace(File.separatorChar, '/'));
+    // Add error message to output
+    if (myErrMessage != null && stopMsgProcessing(text) && mustProcessErrorMsg) {
+      myErrColumnMarker = myErrColumnMarker > 0 ? myErrColumnMarker : 1;
+      myContext.addMessage(CompilerMessageCategory.ERROR, myErrMessage, myUrl, myLineNumber, myErrColumnMarker);
+      myErrMessage = null;
+      mustProcessErrorMsg = false;
+    }
 
-        try {
-          myLineNumber = Integer.valueOf(errorPlace.substring(j + 1, errorPlace.length()));
-          myMessage = text.substring(i + 1).trim();
-        } catch (NumberFormatException e) {
-          myContext.addMessage(CompilerMessageCategory.INFORMATION, "", text, -1, -1);
+    if (text.indexOf(ourErrorMarker) > 0) { // new error occurred
+      processErrorMesssage(text, text.indexOf(ourErrorMarker));
+    } else if (!text.startsWith(ourInfoMarkerStart)) { //  continuing process [error] message
+      if (mustProcessErrorMsg) {
+        if (ourColumnMarker.equals(text.trim())) {
+          myErrColumnMarker = text.indexOf(ourColumnMarker) + 1;
+        } else if (myErrMessage != null) {
+          myErrMessage += "\n" + text;
+        } else {
+          mustProcessErrorMsg = false;
         }
-      } else {
-        myContext.addMessage(CompilerMessageCategory.INFORMATION, "", text, -1, -1);
       }
-    } else {
-      if (text.startsWith(ourInfoMarkerStart) && text.endsWith(ourInfoMarkerEnd)) {  //verbose compiler output
-        String info = text.substring(ourInfoMarkerStart.length(), text.length() - ourInfoMarkerEnd.length());
-        if (info.startsWith(ourParsingMarker)) {
-          myContext.getProgressIndicator().setText(info);
-        } else if (info.startsWith(ourWroteMarker)) {
-          myContext.getProgressIndicator().setText(info);
-          String s = info.substring(ourWroteMarker.length());
-          int w = s.indexOf(' ');
-          String outputPath = w > 0 ? s.substring(0, w) : s;
-          try {
-            TranslatingCompiler.OutputItem item = getOutputItem(outputPath.replace(File.separatorChar, '/'));
-            if (item != null) {
-              mySuccessfullyCompiledSources.add(item);
-            }
-          } catch (InvocationTargetException e) {
-          } catch (InterruptedException e) {
+    } else { //verbose compiler output
+      mustProcessErrorMsg = false;
+      String info = text.endsWith(ourInfoMarkerEnd) ?
+              text.substring(ourInfoMarkerStart.length(), text.length() - ourInfoMarkerEnd.length()) :
+              text.substring(ourInfoMarkerStart.length());
+      if (info.startsWith(ourParsingMarker)) {
+        myContext.getProgressIndicator().setText(info);
+      } else if (info.startsWith(ourWroteMarker)) {
+        myContext.getProgressIndicator().setText(info);
+        String s = info.substring(ourWroteMarker.length());
+        int w = s.indexOf(' ');
+        String outputPath = w > 0 ? s.substring(0, w) : s;
+        try {
+          TranslatingCompiler.OutputItem item = getOutputItem(outputPath.replace(File.separatorChar, '/'));
+          if (item != null) {
+            mySuccessfullyCompiledSources.add(item);
           }
+        } catch (InvocationTargetException e) {
+          LOG.error(e);
+        } catch (InterruptedException e) {
+          LOG.error(e);
         }
       }
     }
   }
+
+  private boolean stopMsgProcessing(String text) {
+    return text.startsWith(ourInfoMarkerStart) && !text.trim().equals(ourColumnMarker) || text.indexOf(ourErrorMarker) > 0;
+  }
+
+  /*
+  Collect information about error occurrence
+   */
+  private void processErrorMesssage(String text, int errIndex) {
+    String errorPlace = text.substring(0, errIndex);
+    if (errorPlace.endsWith(":"))
+      errorPlace = errorPlace.substring(0, errorPlace.length() - 1); //hack over compiler output
+    int j = errorPlace.lastIndexOf(':');
+    if (j > 0) {
+      myUrl = VirtualFileManager.constructUrl(LocalFileSystem.PROTOCOL, errorPlace.substring(0, j).replace(File.separatorChar, '/'));
+      try {
+        myLineNumber = Integer.valueOf(errorPlace.substring(j + 1, errorPlace.length()));
+        myErrMessage = text.substring(errIndex + 1).trim();
+        mustProcessErrorMsg = true;
+      } catch (NumberFormatException e) {
+        myContext.addMessage(CompilerMessageCategory.INFORMATION, "", text, -1, -1);
+        myErrMessage = null;
+        mustProcessErrorMsg = false;
+      }
+    } else {
+      myContext.addMessage(CompilerMessageCategory.INFORMATION, "", text, -1, -1);
+    }
+  }
+
 
   private TranslatingCompiler.OutputItem getOutputItem(final String outputPath) throws InvocationTargetException, InterruptedException {
     final Application application = ApplicationManager.getApplication();
