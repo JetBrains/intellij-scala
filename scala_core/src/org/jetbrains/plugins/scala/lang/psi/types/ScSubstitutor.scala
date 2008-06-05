@@ -14,19 +14,19 @@ object ScSubstitutor {
   val key : Key[ScSubstitutor] = Key.create("scala substitutor key")
 
   def create (psiSubst : PsiSubstitutor, project : Project) : ScSubstitutor = {
-    var map : Map[PsiTypeParameter, ScType] = new HashMap[PsiTypeParameter, ScType]
+    var substitutor = empty
     val it = psiSubst.getSubstitutionMap.entrySet.iterator
     while (it.hasNext) {
       val entry = it.next
       val tp = entry.getKey
       val t = entry.getValue
       if (t == null) {
-        map = map + ((tp, ScExistentialType.unbounded))
+        substitutor = substitutor + (tp, ScExistentialType.unbounded)
       } else {
-        map = map + ((tp, ScType.create(t, project)))
+        substitutor = substitutor + (tp, ScType.create(t, project))
       }
     }
-    new ScSubstitutor(map)
+    substitutor
   }
 }
 
@@ -36,7 +36,7 @@ class ScSubstitutor(val map : Map[PsiTypeParameter, ScType]) {
     this(Map.empty)
   }
 
-  def put(p : PsiTypeParameter, t : ScType) = new ScSubstitutor(map + ((p, t)))
+  def +(p : PsiTypeParameter, t : ScType) = new ScSubstitutor(map + ((p, t)))
 
   def subst(p : PsiTypeParameter) = {
     map.get(p) match {
