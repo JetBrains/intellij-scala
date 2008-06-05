@@ -1,66 +1,51 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
-import collection.mutable.{HashMap}
+import collection.mutable.{HashMap, ArrayBuffer, MultiMap, Set}
 
 abstract class MixinNodes {
   type T
   def equiv(t1 : T, t2 : T) : Boolean
   def computeHashCode(t : T) : Int
+  def isAbstract(t : T) = false//todo
   trait Node {
     val info : T
+    var supers : Seq[Node] = Seq.empty
+    var primarySuper : Option[Node] = None
   }
   
-  case class AbstractMember(val info : T) extends Node {
-    var overrides : Option[Node] = None //abstract might override concrete
-  }
-
-  case class ConcreteMember(val info : T) extends Node {
-    var overrides : Option[ConcreteMember] = None
-    var implements : Option[AbstractMember] = None
-  }
-
-  class Map extends HashMap[T, Node] {
+  class Map extends HashMap[T, Set[Node]] with MultiMap[T, Node] {
     override def elemHashCode(k : T) = computeHashCode(k)
     override def elemEquals(t1 : T, t2 : T) = equiv(t1, t2)
   }
 
   object Map {def empty = new Map}
 
-  def mergeSupers (maps : Map*) : Map = {
-    maps.foldLeft (Map.empty) {
-      (res, curr) =>
-        for ((key, node) <- curr) {
-          res.get(key) match {
-            case None => res += Pair(key, node)
-            case Some (node1) =>
-              node1 match {
-                case a1 : AbstractMember =>
-                  node match {
-                    case c : ConcreteMember => res += Pair(key, node) //overwrite
-                    case _ =>
-                  }
-                case _ =>
-              }
-          }
+  def mergeSupers (maps : HashMap[T, Node]*) : Map = {
+    maps.foldLeft(Map.empty){
+      (res, curr) => {
+        for ((k, node) <- curr) {
+          res.add(k, node)
         }
         res
+      }
     }
   }
 
-  def mergeWithSupers(thisMap : Map, supersMerged : Map) {
-    for ((key, n1) <- supersMerged) {
+  def mergeWithSupers(thisMap : HashMap[T, Node], supersMerged : Map) {
+    for ((key, nodes) <- supersMerged) {
+      val primarySuper = nodes.find {n => !isAbstract(n.info)} match {
+        case None => nodes.toArray(0)
+        case Some(concrete) => concrete
+      }
       thisMap.get(key) match {
-        case None => thisMap += Pair(key, n1)
-        case Some(n2) =>
-          n2 match {
-            case a2 : AbstractMember =>
-              a2.overrides = Some(n1)
-            case c2 : ConcreteMember =>
-              n1 match {
-                case a1 : AbstractMember => c2.implements = Some(a1)
-                case c1 : ConcreteMember => c2.overrides = Some(c1)
-              }
-          }
+        case Some(node) => {
+          node.primarySuper = Some(primarySuper)
+          node.supers = nodes.toArray
+        }
+        case None => {
+          nodes -= primarySuper
+          primarySuper.supers = nodes.toArray
+        }
       }
     }
   }
