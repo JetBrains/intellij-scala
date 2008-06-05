@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.types
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.psi._
 
 /**
@@ -10,6 +11,6 @@ import com.intellij.psi._
 
 trait ScTypeElement extends ScalaPsiElement {
 
-  def getType() = null
+  def getType() : Option[ScType] = None
 
 }
