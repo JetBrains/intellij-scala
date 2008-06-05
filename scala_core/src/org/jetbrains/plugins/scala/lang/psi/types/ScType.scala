@@ -12,6 +12,26 @@ trait ScType {
   def conforms(t: ScType): Boolean = false
 }
 
+case object Any extends ScType {
+  override def equiv(t : ScType) = t == Any
+  override def conforms(t: ScType) = true
+}
+
+case object AnyRef extends ScType {
+  override def equiv(t : ScType) = t == AnyRef
+  override def conforms(t: ScType) = t match {
+    case AnyRef => true
+    case _ : ScParameterizedType => true
+    case _ : ScSingletonType => true
+    case _ => false
+  }
+}
+
+case object Nothing extends ScType {
+  override def equiv(t : ScType) = t == Nothing
+  override def conforms(t: ScType) = t == Nothing
+}
+
 object ScType {
   def create(psiType : PsiType, project : Project) : ScType = {
     psiType match {
