@@ -6,13 +6,13 @@ white space in line { }
 white space in line { }
 XML_START_TAG_START {<}
 XML_NAME {a}
-white space in line { }
+WHITE_SPACE { }
 XML_NAME {target}
 XML_EQ {=}
 ScalaXmlInjectionStart {{}
 identifier {classesFrame}
 ScalaXmlInjection End {}}
-white space in line { }
+WHITE_SPACE { }
 XML_TAG_END {>}
 ScalaXmlInjectionStart {{}
 string content {"All objects and classes"}

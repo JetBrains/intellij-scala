@@ -17,16 +17,16 @@ white space in line { }
 white space in line { }
 XML_START_TAG_START {<}
 XML_NAME {test}
-white space in line { }
+WHITE_SPACE { }
 XML_NAME {attr}
-white space in line { }
+WHITE_SPACE { }
 XML_EQ {=}
 XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
 ScalaXmlInjectionStart {{}
 integer {42}
 ScalaXmlInjection End {}}
 XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
-white space in line { }
+WHITE_SPACE { }
 XML_TAG_END {>}
 XML_START_TAG_START {<}
 XML_NAME {bugoga}
