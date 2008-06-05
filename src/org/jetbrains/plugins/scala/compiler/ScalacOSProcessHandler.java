@@ -35,6 +35,7 @@ import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.containers.HashSet;
+import static org.jetbrains.plugins.scala.compiler.ScalacOSProcessHandler.MESSAGE_TYPE.*;
 
 import javax.swing.*;
 import java.io.File;
@@ -50,7 +51,7 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
   private CompileContext myContext;
   private Project myProject;
   private Integer myLineNumber;
-  private String myErrMessage;
+  private String myMessage;
   private String myUrl;
 
   private Set<TranslatingCompiler.OutputItem> mySuccessfullyCompiledSources;
@@ -66,53 +67,77 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
     mySuccessfullyCompiledSources = new HashSet<TranslatingCompiler.OutputItem>();
   }
 
-
   public void notifyTextAvailable(final String text, final Key outputType) {
     super.notifyTextAvailable(text, outputType);
     parseOutput(text);
   }
 
+
   private static final String ourErrorMarker = " error:";
+  private static final String ourWarningMarker = " warning:";
+
   private static final String ourInfoMarkerStart = "[";
   private static final String ourInfoMarkerEnd = "]";
   private static final String ourWroteMarker = "wrote ";
   private static final String ourColumnMarker = "^";
   private static final String ourParsingMarker = "parsing";
+  private static final String ourScalaInternalErrorMsg = "Scalac internal error";
 
   // Phases
-  public static String PHASE = "running phase ";
+  private static final String PHASE = "running phase ";
 
-  private boolean mustProcessErrorMsg = false;
-  private int myErrColumnMarker;
+  private boolean mustProcessMsg = false;
+  private boolean stopWarningProcessing = false;
+  private int myMsgColumnMarker;
+  private MESSAGE_TYPE myMsgType = PLAIN;
 
+  static enum MESSAGE_TYPE {
+    ERROR, WARNING, PLAIN
+  }
 
-  private void parseOutput(String text) {
+  private void parseOutput(String oldText) {
 
-    text = text.trim();
+    String text = oldText.trim();
     if (text.endsWith("\r\n")) text = text.substring(0, text.length() - 2);
 
+    if (text.startsWith(ourScalaInternalErrorMsg)) {
+      myContext.addMessage(CompilerMessageCategory.ERROR, ourScalaInternalErrorMsg, "", 0, 0);
+      return;
+    }
+
     // Add error message to output
-    if (myErrMessage != null && stopMsgProcessing(text) && mustProcessErrorMsg) {
-      myErrColumnMarker = myErrColumnMarker > 0 ? myErrColumnMarker : 1;
-      myContext.addMessage(CompilerMessageCategory.ERROR, myErrMessage, myUrl, myLineNumber, myErrColumnMarker);
-      myErrMessage = null;
-      mustProcessErrorMsg = false;
+    if (myMessage != null && stopMsgProcessing(text) && (mustProcessMsg || stopWarningProcessing)) {
+      myMsgColumnMarker = myMsgColumnMarker > 0 ? myMsgColumnMarker : 1;
+      if (myMsgType == ERROR) {
+        myContext.addMessage(CompilerMessageCategory.ERROR, myMessage, myUrl, myLineNumber, myMsgColumnMarker);
+      } else if (myMsgType == WARNING){
+        myContext.addMessage(CompilerMessageCategory.WARNING, myMessage, myUrl, myLineNumber, myMsgColumnMarker);
+      }
+      myMessage = null;
+      myMsgType = PLAIN;
+      mustProcessMsg = false;
+      stopWarningProcessing = false;
     }
 
     if (text.indexOf(ourErrorMarker) > 0) { // new error occurred
-      processErrorMesssage(text, text.indexOf(ourErrorMarker));
-    } else if (!text.startsWith(ourInfoMarkerStart)) { //  continuing process [error] message
-      if (mustProcessErrorMsg) {
+      processErrorMesssage(text, text.indexOf(ourErrorMarker), ERROR);
+    } else if (text.indexOf(ourWarningMarker) > 0){
+      processErrorMesssage(text, text.indexOf(ourWarningMarker), WARNING);
+    } else if (!text.startsWith(ourInfoMarkerStart)) { //  continuing process [error | warning] message
+      if (mustProcessMsg) {
         if (ourColumnMarker.equals(text.trim())) {
-          myErrColumnMarker = text.indexOf(ourColumnMarker) + 1;
-        } else if (myErrMessage != null) {
-          myErrMessage += "\n" + text;
+          myMsgColumnMarker = oldText.indexOf(ourColumnMarker) + 1;
+          if (myMsgType == WARNING) stopWarningProcessing = true;
+        } else if (myMessage != null) {
+          if (myMsgType != WARNING) {
+            myMessage += "\n" + text;
+          }
         } else {
-          mustProcessErrorMsg = false;
+          mustProcessMsg = false;
         }
       }
     } else { //verbose compiler output
-      mustProcessErrorMsg = false;
+      mustProcessMsg = false;
       if (text.endsWith(ourInfoMarkerEnd)) {
         String info = text.substring(ourInfoMarkerStart.length(), text.length() - ourInfoMarkerEnd.length());
         if (info.startsWith(ourParsingMarker)) { //parsing
@@ -139,13 +164,16 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
   }
 
   private boolean stopMsgProcessing(String text) {
-    return text.startsWith(ourInfoMarkerStart) && !text.trim().equals(ourColumnMarker) || text.indexOf(ourErrorMarker) > 0;
+    return text.startsWith(ourInfoMarkerStart) && !text.trim().equals(ourColumnMarker) ||
+            text.indexOf(ourErrorMarker) > 0 ||
+            text.indexOf(ourWarningMarker) > 0 ||
+            stopWarningProcessing;
   }
 
   /*
   Collect information about error occurrence
    */
-  private void processErrorMesssage(String text, int errIndex) {
+  private void processErrorMesssage(String text, int errIndex, ScalacOSProcessHandler.MESSAGE_TYPE msgType) {
     String errorPlace = text.substring(0, errIndex);
     if (errorPlace.endsWith(":"))
       errorPlace = errorPlace.substring(0, errorPlace.length() - 1); //hack over compiler output
@@ -154,15 +182,18 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
       myUrl = VirtualFileManager.constructUrl(LocalFileSystem.PROTOCOL, errorPlace.substring(0, j).replace(File.separatorChar, '/'));
       try {
         myLineNumber = Integer.valueOf(errorPlace.substring(j + 1, errorPlace.length()));
-        myErrMessage = text.substring(errIndex + 1).trim();
-        mustProcessErrorMsg = true;
+        myMessage = text.substring(errIndex + 1).trim();
+        mustProcessMsg = true;
+        myMsgType = msgType;
       } catch (NumberFormatException e) {
         myContext.addMessage(CompilerMessageCategory.INFORMATION, "", text, -1, -1);
-        myErrMessage = null;
-        mustProcessErrorMsg = false;
+        myMessage = null;
+        mustProcessMsg = false;
+        myMsgType = PLAIN;
       }
     } else {
       myContext.addMessage(CompilerMessageCategory.INFORMATION, "", text, -1, -1);
+      myMsgType = PLAIN;
     }
   }
 

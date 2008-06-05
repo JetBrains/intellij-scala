@@ -58,6 +58,7 @@ public class ScalaCompiler implements TranslatingCompiler {
   private static final String VERBOSE_PROPERTY = "-verbose";
   private static final String DESTINATION_COMPILER_PROPERTY = "-d";
   private static final String DEBUG_PROPERTY = "-Ydebug";
+  private static final String WARNINGS_PROPERTY = "-unchecked";
 
   public ScalaCompiler(Project project) {
     myProject = project;
@@ -170,6 +171,7 @@ public class ScalaCompiler implements TranslatingCompiler {
 
     printer.println(VERBOSE_PROPERTY);
     printer.println(DEBUG_PROPERTY);
+    printer.println(WARNINGS_PROPERTY);
     printer.println(DEBUG_INFO_LEVEL_PROPEERTY);
 
     //write output dir
