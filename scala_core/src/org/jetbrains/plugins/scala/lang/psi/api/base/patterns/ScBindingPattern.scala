@@ -6,6 +6,4 @@ import com.intellij.psi.PsiElement
 trait ScBindingPattern extends ScPattern with ScNamedElement {
 
   def isWildcard: Boolean
-
-  def nameId : PsiElement
 }
