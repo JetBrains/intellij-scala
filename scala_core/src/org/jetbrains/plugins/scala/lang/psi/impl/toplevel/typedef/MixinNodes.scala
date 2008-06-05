@@ -45,6 +45,7 @@ abstract class MixinNodes {
         case None => {
           nodes -= primarySuper
           primarySuper.supers = nodes.toArray
+          thisMap += ((key, primarySuper))
         }
       }
     }
