@@ -35,6 +35,7 @@ import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.containers.HashSet;
+import org.jetbrains.annotations.NotNull;
 import static org.jetbrains.plugins.scala.compiler.ScalacOSProcessHandler.MESSAGE_TYPE.*;
 
 import javax.swing.*;
@@ -242,7 +243,7 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
   private VirtualFile getOutputRoot(VirtualFile classFile) {
     final VirtualFile[] outputs = myContext.getAllOutputDirectories();
     for (final VirtualFile output : outputs) {
-      if (VfsUtil.isAncestor(output, classFile, true)) {
+      if (isAncestor(output, classFile, true)) {
         return output;
       }
     }
@@ -250,4 +251,17 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
     LOG.assertTrue(false);
     return null;
   }
+
+  private static boolean isAncestor(@NotNull VirtualFile ancestor, @NotNull VirtualFile file, boolean strict) {
+    if (!file.getFileSystem().equals(ancestor.getFileSystem())) return false;
+    VirtualFile parent = strict ? file.getParent() : file;
+    while (true) {
+      if (parent == null) return false;
+      if (parent.getUrl().equals(ancestor.getUrl())) return true;
+      parent = parent.getParent();
+    }
+  }
+
+
+
 }
