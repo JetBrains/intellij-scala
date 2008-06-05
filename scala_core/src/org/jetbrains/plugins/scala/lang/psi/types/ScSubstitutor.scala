@@ -4,12 +4,30 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.util.Key
-import com.intellij.psi.PsiTypeParameter
+import com.intellij.psi.{PsiTypeParameter, PsiSubstitutor}
+import collection.immutable.{Map, HashMap}
+import com.intellij.openapi.project.Project
 
 object ScSubstitutor {
   val empty = new ScSubstitutor
 
   val key : Key[ScSubstitutor] = Key.create("scala substitutor key")
+
+  def create (psiSubst : PsiSubstitutor, project : Project) : ScSubstitutor = {
+    var map : Map[PsiTypeParameter, ScType] = new HashMap[PsiTypeParameter, ScType]
+    val it = psiSubst.getSubstitutionMap.entrySet.iterator
+    while (it.hasNext) {
+      val entry = it.next
+      val tp = entry.getKey
+      val t = entry.getValue
+      if (t == null) {
+        map = map + ((tp, ScExistentialType.unbounded))
+      } else {
+        map = map + ((tp, ScType.create(t, project)))
+      }
+    }
+    new ScSubstitutor(map)
+  }
 }
 
 class ScSubstitutor(val map : Map[PsiTypeParameter, ScType]) {
