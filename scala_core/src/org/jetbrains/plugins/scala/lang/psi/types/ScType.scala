@@ -58,15 +58,15 @@ abstract case class ValType(val name : String, val tSuper : Option[ValType]) ext
   }
 }
 
-object UnitType extends ValType("Unit", None)
-object BooleanType extends ValType("Boolean", None)
-object CharType extends ValType("Char", Some(IntType))
-object IntType extends ValType("Int", Some(LongType))
-object LongType extends ValType("Long", Some(FloatType))
-object FloatType extends ValType("Float", Some(DoubleType))
-object DoubleType extends ValType("Double", None)
-object ByteType extends ValType("Byte", Some(ShortType))
-object ShortType extends ValType("Float", Some(IntType))
+object Unit extends ValType("Unit", None)
+object Boolean extends ValType("Boolean", None)
+object Char extends ValType("Char", Some(Int))
+object Int extends ValType("Int", Some(Long))
+object Long extends ValType("Long", Some(Float))
+object Float extends ValType("Float", Some(Double))
+object Double extends ValType("Double", None)
+object Byte extends ValType("Byte", Some(Short))
+object Short extends ValType("Float", Some(Int))
 
 object ScType {
   def create(psiType : PsiType, project : Project) : ScType = {
@@ -86,15 +86,15 @@ object ScType {
         }
       }
 
-      case PsiType.VOID => UnitType
-      case PsiType.BOOLEAN => BooleanType
-      case PsiType.CHAR => CharType
-      case PsiType.INT => IntType
-      case PsiType.LONG => LongType
-      case PsiType.FLOAT => FloatType
-      case PsiType.DOUBLE => DoubleType
-      case PsiType.BYTE => ByteType
-      case PsiType.SHORT => ShortType
+      case PsiType.VOID => Unit
+      case PsiType.BOOLEAN => Boolean
+      case PsiType.CHAR => Char
+      case PsiType.INT => Int
+      case PsiType.LONG => Long
+      case PsiType.FLOAT => Float
+      case PsiType.DOUBLE => Double
+      case PsiType.BYTE => Byte
+      case PsiType.SHORT => Short
       case PsiType.NULL => Null
     //todo other cases
     }
