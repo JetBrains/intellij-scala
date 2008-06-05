@@ -4,14 +4,17 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi._
+import api.statements.params._
+import types.ScType
+import api.toplevel.ScTyped
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
 
-trait ScParameter extends ScNamedElement with PsiParameter {
+trait ScParameter extends ScNamedElement with ScTyped with PsiParameter {
 
   def getTypeElement: PsiTypeElement
 
