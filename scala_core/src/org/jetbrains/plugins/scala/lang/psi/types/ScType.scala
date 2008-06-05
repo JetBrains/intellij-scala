@@ -98,6 +98,6 @@ object ScType {
       case PsiType.NULL => Null
     //todo other cases
     }
-    null
+    Nothing
   }
 }
