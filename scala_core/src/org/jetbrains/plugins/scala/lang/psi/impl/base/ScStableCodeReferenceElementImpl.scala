@@ -37,7 +37,6 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     return this;
     //todo
   }
-
   def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(resolveKinds(true))).map(r => r.getElement) //todo
   
   override def toString: String = "CodeReferenceElement"

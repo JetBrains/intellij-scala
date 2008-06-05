@@ -21,5 +21,5 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDeclar
 
   override def toString: String = "BlockOfExpressions"
 
-  def exprs = findChildrenByClass(classOf[ScExpression])
+  def exprs = findChildrenByClass(classOf[ScExpression]) 
 }

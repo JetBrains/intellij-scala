@@ -51,6 +51,7 @@ import java.util.*;
 
 /**
  * @author ilyas
+ *
  */
 public class ScalaFilesCacheImpl implements ScalaFilesCache {
   private static final Logger LOG = Logger.getInstance("org.jetbrains.plugins.scala.caches.module.ScalaFilesCacheImpl");
