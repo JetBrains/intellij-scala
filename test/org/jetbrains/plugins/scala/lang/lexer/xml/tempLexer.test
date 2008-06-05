@@ -12,9 +12,9 @@ white space in line {
 XML_START_TAG_START {<}
 XML_NAME {code}
 XML_TAG_END {>}
-white space in line { }
+XML_WHITE_SPACE { }
 XML_DATA_CHARACTERS {with}
-white space in line { }
+XML_WHITE_SPACE { }
 XML_END_TAG_START {</}
 XML_NAME {code}
 XML_TAG_END {>}
