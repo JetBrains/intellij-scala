@@ -54,9 +54,10 @@ public class ScalaCompiler implements TranslatingCompiler {
   private final String XSS_COMPILER_PROPERTY = "-Xss128m";
 
   // Scalac parameters
-  private final String DEBUG_INFO_LEVEL_PROPEERTY = "-g:vars";
-  private final String VERBOSE_PROPERTY = "-verbose";
-  private final String DESTINATION_COMPILER_PROPERTY = "-d";
+  private static final String DEBUG_INFO_LEVEL_PROPEERTY = "-g:vars";
+  private static final String VERBOSE_PROPERTY = "-verbose";
+  private static final String DESTINATION_COMPILER_PROPERTY = "-d";
+  private static final String DEBUG_PROPERTY = "-Ydebug";
 
   public ScalaCompiler(Project project) {
     myProject = project;
@@ -108,6 +109,11 @@ public class ScalaCompiler implements TranslatingCompiler {
       commandLine.addParameter(XSS_COMPILER_PROPERTY);
       commandLine.addParameter(XMX_COMPILER_PROPERTY);
       commandLine.addParameter("-cp");
+
+//      commandLine.addParameter("-Xnoagent");
+//      commandLine.addParameter("-Djava.compiler=NONE");
+//      commandLine.addParameter("-Xdebug");
+//      commandLine.addParameter("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=2239");
 
       String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
       final StringBuilder classPathBuilder = new StringBuilder();
@@ -163,6 +169,7 @@ public class ScalaCompiler implements TranslatingCompiler {
     PrintStream printer = new PrintStream(new FileOutputStream(fileWithParameters));
 
     printer.println(VERBOSE_PROPERTY);
+    printer.println(DEBUG_PROPERTY);
     printer.println(DEBUG_INFO_LEVEL_PROPEERTY);
 
     //write output dir

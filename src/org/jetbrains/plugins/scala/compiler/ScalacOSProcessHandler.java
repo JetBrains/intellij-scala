@@ -34,7 +34,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.containers.HashSet;
 
@@ -182,7 +181,6 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
             final String fileName = VfsUtil.getRelativePath(classFile, outputRoot, '.');
             assert fileName.endsWith(".class");
             final String fqName = fileName.substring(0, fileName.length() - ".class".length());
-            final PsiManager manager = PsiManager.getInstance(myProject);
             final JavaPsiFacade facade = JavaPsiFacade.getInstance(myProject);
             PsiClass aClass = application.runReadAction(new Computable<PsiClass>() {
               public PsiClass compute() {
