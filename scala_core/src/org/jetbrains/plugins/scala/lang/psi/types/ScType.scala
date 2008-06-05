@@ -25,7 +25,7 @@ object ScType {
         val arrayClass = JavaPsiFacade.getInstance(project).findClass("scala.Array", arrayType.getResolveScope)
         if (arrayClass != null) {
           val tps = arrayClass.getTypeParameters
-          val subst = ScSubstitutor.empty.put(tps(0), create(arrayType.getComponentType, project))
+          val subst = ScSubstitutor.empty + (tps(0), create(arrayType.getComponentType, project))
           return new ScParameterizedType(arrayClass, subst)
         }
       }
