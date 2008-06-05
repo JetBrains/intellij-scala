@@ -4,19 +4,16 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
-
-
-
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
-import org.jetbrains.annotations._
+import tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.psi.types._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -29,4 +26,11 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   def singleton = node.findChildByType(ScalaTokenTypes.kTYPE) != null
 
+  override def getType() = {
+    reference.bind match {
+      case None => None
+      case Some(ScalaResolveResult(owner: PsiTypeParameterListOwner, s)) => Some(new ScParameterizedType(owner, s))
+      case Some(ScalaResolveResult(other, _)) => Some(new ScDesignatorType(other))
+    }
+  }
 }

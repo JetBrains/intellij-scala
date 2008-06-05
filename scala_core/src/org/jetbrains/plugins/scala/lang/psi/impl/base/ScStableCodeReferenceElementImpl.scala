@@ -95,13 +95,5 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, false, incomplete)
   }
 
-  def getType() = {
-    bind match {
-      case None => null
-      case Some(ScalaResolveResult(td: ScTypeDefinition, s)) => new ScParameterizedType(td, s)
-      case Some(ScalaResolveResult(other, _)) => new ScDesignatorType(other)
-    }
-  }
-
   def nameId: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 }
