@@ -19,7 +19,7 @@ case object Any extends ScType {
 
 case object Null extends ScType {
   override def equiv(t : ScType) = t == Null
-  override def conforms(t: ScType) = t == Null
+  override def conforms(t: ScType) = t == Null || t == Nothing
 }
 
 case object AnyRef extends ScType {
