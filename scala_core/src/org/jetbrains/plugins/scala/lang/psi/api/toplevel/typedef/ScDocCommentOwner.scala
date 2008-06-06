@@ -4,9 +4,9 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 * @author ilyas
 */
 
-import com.intellij.psi._
+import com.intellij.psi.PsiDocCommentOwner
 
-trait ScDocCommentOwner extends PsiDocCommentOwner with ScMember {
+trait ScDocCommentOwner extends PsiDocCommentOwner {
 
   def getDocComment = null
 

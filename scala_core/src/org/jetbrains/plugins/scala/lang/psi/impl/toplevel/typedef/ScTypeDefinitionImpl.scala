@@ -99,7 +99,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
       case Some(body) => body.members
     }) ++ findChildrenByClass(classOf[ScMember])
 
-  def functions(): Seq[ScMember] =
+  def functions(): Seq[ScFunction] =
     (extendsBlock.templateBody match {
       case None => Seq.empty
       case Some(body) => body.functions

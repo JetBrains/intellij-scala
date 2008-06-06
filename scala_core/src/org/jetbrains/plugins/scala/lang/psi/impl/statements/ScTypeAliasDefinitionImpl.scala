@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -27,4 +28,6 @@ class ScTypeAliasDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
   
   override def toString: String = "ScTypeAliasDefinition"
+
+  def getModifierList: ScModifierList = null
 }

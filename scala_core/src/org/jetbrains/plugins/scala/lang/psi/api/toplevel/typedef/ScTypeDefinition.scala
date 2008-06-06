@@ -32,6 +32,7 @@ import _root_.java.util.Collections;
 import _root_.java.util.List;
 import com.intellij.psi._
 import com.intellij.openapi.util.Iconable
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 import _root_.scala.collection.mutable._
 
@@ -45,7 +46,7 @@ trait ScTypeDefinition extends ScNamedElement
 
   def members(): Seq[ScMember]
 
-  def functions(): Seq[ScMember]
+  def functions(): Seq[ScFunction]
 
   def typeDefinitions(): Seq[ScTypeDefinition]
 

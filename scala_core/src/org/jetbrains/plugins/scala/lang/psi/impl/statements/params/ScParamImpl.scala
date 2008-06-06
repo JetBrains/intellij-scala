@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.types.Nothing
 
 
 /** 
@@ -43,8 +44,8 @@ class ScParameterImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
   }
 
   def calcType() = typeElement match {
-    case None => None //todo inference here
-    case Some(e) => e.getType
+    case None => Nothing //todo inference here
+    case Some(e) => e.getType match {case Some(t) => t; case _ => Nothing}
   }
 
   // todo implement me!
