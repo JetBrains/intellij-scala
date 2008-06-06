@@ -32,6 +32,7 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
+    if (!super[ScFunctionImpl].processDeclarations(processor, state, lastParent, place)) return false
 
     body match {
       case Some(x) if x == lastParent =>
@@ -40,13 +41,7 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
         }
       case _ => 
     }
-
-    if (lastParent != null) {
-      typeParametersClause match {
-        case Some(clause) => if (!clause.processDeclarations(processor, state, lastParent, place)) return false
-        case _ => ()
-      }
-    }
+    
     true
   }
 
