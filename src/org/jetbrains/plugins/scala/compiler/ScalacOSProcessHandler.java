@@ -88,7 +88,7 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
   private static final String PHASE = "running phase ";
 
   private boolean mustProcessMsg = false;
-  private boolean stopWarningProcessing = false;
+  private boolean stopProcessing = false;
   private int myMsgColumnMarker;
   private MESSAGE_TYPE myMsgType = PLAIN;
 
@@ -107,7 +107,7 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
     }
 
     // Add error message to output
-    if (myMessage != null && stopMsgProcessing(text) && (mustProcessMsg || stopWarningProcessing)) {
+    if (myMessage != null && stopMsgProcessing(text) && (mustProcessMsg || stopProcessing)) {
       myMsgColumnMarker = myMsgColumnMarker > 0 ? myMsgColumnMarker : 1;
       if (myMsgType == ERROR) {
         myContext.addMessage(CompilerMessageCategory.ERROR, myMessage, myUrl, myLineNumber, myMsgColumnMarker);
@@ -117,7 +117,7 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
       myMessage = null;
       myMsgType = PLAIN;
       mustProcessMsg = false;
-      stopWarningProcessing = false;
+      stopProcessing = false;
     }
 
     if (text.indexOf(ourErrorMarker) > 0) { // new error occurred
@@ -128,7 +128,7 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
       if (mustProcessMsg) {
         if (ourColumnMarker.equals(text.trim())) {
           myMsgColumnMarker = oldText.indexOf(ourColumnMarker) + 1;
-          if (myMsgType == WARNING) stopWarningProcessing = true;
+          stopProcessing = true;
         } else if (myMessage != null) {
           if (myMsgType != WARNING) {
             myMessage += "\n" + text;
@@ -168,7 +168,7 @@ public class ScalacOSProcessHandler extends OSProcessHandler {
     return text.startsWith(ourInfoMarkerStart) && !text.trim().equals(ourColumnMarker) ||
             text.indexOf(ourErrorMarker) > 0 ||
             text.indexOf(ourWarningMarker) > 0 ||
-            stopWarningProcessing;
+            stopProcessing;
   }
 
   /*
