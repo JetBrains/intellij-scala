@@ -45,7 +45,7 @@ class ScParameterImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
 
   def calcType() = typeElement match {
     case None => Nothing //todo inference here
-    case Some(e) => e.getType match {case Some(t) => t; case _ => Nothing}
+    case Some(e) => e.getType
   }
 
   // todo implement me!
