@@ -225,7 +225,7 @@
       </classpath>
     </javac>
 
-    <copy toDir="${project.lib}/testdata">
+    <copy toDir="${test.lib}/testdata">
       <fileset dir="${base.dir}/testdata"/>
     </copy>
 
@@ -238,6 +238,7 @@
     <mkdir dir="${output}/system"/>
 
     <junit fork="yes"
+           showoutput="true"
            dir="${base.dir}"
            printsummary="yes"
            haltonfailure="no"
@@ -267,8 +268,8 @@
 
       <batchtest todir="${base.dir}/logs">
         <fileset dir="${base.dir}/test">
-          <!--<include name="**/FormatterTest.java"/>-->
-          <include name="**/EnterActionTest.java"/>
+          <include name="**/*ResolveClassTest.java"/>
+          <!--<include name="**/EnterActionTest.java"/>-->
           <!--<include name="**/ParserTest.java"/>-->
           <!--<include name="**/LexerTest.java"/>-->
         </fileset>
