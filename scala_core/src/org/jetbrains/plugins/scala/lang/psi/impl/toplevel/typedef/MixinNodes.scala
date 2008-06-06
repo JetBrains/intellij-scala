@@ -55,24 +55,3 @@ abstract class MixinNodes {
     }
   }
 }
-
-import org.jetbrains.plugins.scala.lang.psi.types.Signature
-object MethodNodes extends MixinNodes {
-  type T = Signature
-  def equiv(s1 : Signature, s2 : Signature) = s1 equiv s2
-  def computeHashCode(s : Signature) = s.name.hashCode* 31 + s.types.length
-}
-
-import com.intellij.psi.PsiNamedElement
-object ValueNodes extends MixinNodes {
-  type T = PsiNamedElement
-  def equiv(p1 : PsiNamedElement, p2 : PsiNamedElement) = p1.getName == p2.getName
-  def computeHashCode(patt : PsiNamedElement) = patt.getName.hashCode
-}
-
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-object TypeAliasNodes extends MixinNodes {
-  type T = ScTypeAlias
-  def equiv(al1 : ScTypeAlias, al2 : ScTypeAlias) = al1.name == al2.name
-  def computeHashCode(al : ScTypeAlias) = al.name.hashCode
-}
