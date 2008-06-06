@@ -85,4 +85,17 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
   // Fake method to implement simple application running
   def isMainMethod: Boolean = false
 
+  import com.intellij.psi.scope.PsiScopeProcessor
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
+    if (lastParent != null) {
+      typeParametersClause match {
+        case Some(clause) => if (!clause.processDeclarations(processor, state, lastParent, place)) return false
+        case _ => ()
+      }
+    }
+    true
+  }
 }

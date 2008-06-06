@@ -35,4 +35,10 @@ public class ResolveClassTest extends ScalaResolveTestCase {
     assertTrue(resolved instanceof ScTrait);
     assertEquals(((PsiClass) resolved).getQualifiedName(), "MyTrait");
   }
+
+  public void testClassLevelImport() throws Exception {
+    PsiReference ref = configureByFile("classLevelImport/classLevelImport.scala");
+    PsiElement resolved = ref.resolve();
+    assertEquals(((PsiClass) resolved).getQualifiedName(), "scala.collection.immutable.Map");
+  }
 }
