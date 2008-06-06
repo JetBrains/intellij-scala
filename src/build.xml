@@ -217,14 +217,15 @@
     <mkdir dir="${project.lib}/../../test"/>
     <mkdir dir="${project.lib}/../../test/Scala"/>
     <javac srcdir="../test"
-           destdir="../classes/test/Scala">
+           destdir="../classes/test/Scala"
+           debug="true">
       <classpath refid="base.path"/>
       <classpath>
         <path location="${project.lib}"/>
       </classpath>
     </javac>
 
-    <copy toDir="${test.lib}/testdata">
+    <copy toDir="${project.lib}/testdata">
       <fileset dir="${base.dir}/testdata"/>
     </copy>
 
