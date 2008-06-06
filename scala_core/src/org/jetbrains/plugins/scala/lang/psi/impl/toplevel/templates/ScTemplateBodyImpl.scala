@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -22,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 * Time: 9:38:04
 */
 
-class ScTemplateBodyImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTemplateBody{
+class ScTemplateBodyImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
+        with ScTemplateBody with ScDeclarationSequenceHolder{
   override def toString: String = "ScTemplateBody"
 }
