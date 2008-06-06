@@ -21,8 +21,6 @@ import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.icons.Icons
 import com.intellij.psi.PsiElement
 import com.intellij.openapi.util._
-import com.intellij.openapi.util.Comparing
-import com.intellij.openapi.util.TextRange
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.Nullable
 
