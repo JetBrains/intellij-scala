@@ -223,6 +223,11 @@
         <path location="${project.lib}"/>
       </classpath>
     </javac>
+
+    <copy toDir="${test.lib}/testdata">
+      <fileset dir="${base.dir}/testdata"/>
+    </copy>
+
   </target>
 
   <target name="run.tests" depends="build.tests">

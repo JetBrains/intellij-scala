@@ -216,8 +216,8 @@
       </classpath>
     </javac>
 
-    <copy toDir="${test.dest}/testdata">
-      <fileset dir="${project.dir}/testdata"/>
+    <copy toDir="${test.lib}/testdata">
+      <fileset dir="${base.dir}/testdata"/>
     </copy>
 
   </target>
