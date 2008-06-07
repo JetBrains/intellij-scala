@@ -15,6 +15,7 @@ import com.intellij.lang.ParserDefinition
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 
 
@@ -56,6 +57,17 @@ object ScalaPsiElementFactory {
     if (expression == null) return null
 
     expression.asInstanceOf[ScExpression].getNode
+  }
+
+  def createDummyParams(manager: PsiManager): ScParameters = {
+    val text = "class a {def foo()}"
+    val dummyFile: PsiFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
+    val classDef = dummyFile.getFirstChild
+    val topDefTmpl = classDef.getLastChild
+    val templateBody = topDefTmpl.getFirstChild.asInstanceOf[ScalaPsiElementImpl]
+    val function = templateBody.getFirstChild.getNextSibling
+    return function.getLastChild.asInstanceOf[ScParameters]
   }
 
 

@@ -80,7 +80,12 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
 
   def hasTypeParameters = false
 
-  def getParameterList = findChildByClass(classOf[ScParameters])
+  def getParameterList: ScParameters = {
+    findChild(classOf[ScParameters]) match {
+      case None => ScalaPsiElementFactory.createDummyParams(this.getManager)
+      case Some(x) => x
+    }
+  }
 
   // Fake method to implement simple application running
   def isMainMethod: Boolean = false
