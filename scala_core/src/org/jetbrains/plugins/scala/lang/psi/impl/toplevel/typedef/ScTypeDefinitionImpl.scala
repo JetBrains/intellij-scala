@@ -5,7 +5,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
  */
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{PsiElement, PsiClass}
+import com.intellij.psi._
 import com.intellij.psi.tree._
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.editor.colors._
@@ -19,13 +19,9 @@ import psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.icons.Icons
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.util.Pair
-import com.intellij.psi._
 import com.intellij.navigation._
 import com.intellij.psi.javadoc.PsiDocComment
-import com.intellij.psi.meta.PsiMetaData
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.annotations._
 import com.intellij.util.IconUtil
 import com.intellij.psi.impl._
 import com.intellij.util.VisibilityIcons
@@ -37,36 +33,24 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
   override def getQualifiedName: String = {
-
-    var parent = getParent
-    // todo improve formatter
-    var nameList: List[String] = Nil
-    // todo type-pattern matchin bug
-    while (parent != null) {
-      parent match {
-        case t: ScTypeDefinition => nameList = t.getName :: nameList
-        case p: ScPackaging => nameList = p.getPackageName :: nameList
-        case f: ScalaFile if f.getPackageName.length > 0 => nameList = f.getPackageName :: nameList
-        case _ =>
-      }
-      parent = parent.getParent
+    def _packageName (e : PsiElement) : String = e.getParent match {
+      case t: ScTypeDefinition => _packageName(t) + "." + t.name
+      case p: ScPackaging => _packageName(p) + "." + p.getPackageName
+      case f: ScalaFile => f.getPackageName
+      case null => ""
+      case parent => _packageName(parent)
     }
-    return (nameList :\ getName)((x: String, s: String) => x + "." + s)
+    val packageName = _packageName(this)
+    if (packageName.length > 0) packageName + "." + name else name
   }
 
   override def getPresentation(): ItemPresentation = {
     new ItemPresentation() {
-
-      import org.jetbrains.plugins.scala._
-      import org.jetbrains.plugins.scala.icons._
-
-      def getPresentableText(): String = {
-        getName
-      }
-      override def getTextAttributesKey(): TextAttributesKey = null
-      override def getLocationString(): String = getPath match {
-        case "" => ""
-        case _ => '(' + getPath + ')'
+      def getPresentableText(): String = name
+      def getTextAttributesKey(): TextAttributesKey = null
+      def getLocationString(): String = getPath match {
+        case "" => "<default>"
+        case p => '(' + p + ')'
       }
       override def getIcon(open: Boolean) = ScTypeDefinitionImpl.this.getIcon(0)
     }
@@ -85,11 +69,9 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     rowIcon
   }
 
-  override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = methods.filter((m: PsiMethod) =>
+  override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = functions.filter((m: PsiMethod) =>
           m.getName == name // todo check base classes
   ).toArray
-
-  override def getMethods: Array[PsiMethod] = methods.toArray
 
   def extendsBlock: ScExtendsBlock = findChildByClass(classOf[ScExtendsBlock])
 
@@ -113,7 +95,9 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   override def delete() = {
     var parent = getParent
+    var remove : PsiElement = this
     while (parent.isInstanceOf[ScPackaging]) {
+      remove = parent
       parent = parent.getParent
     }
     parent match {
@@ -121,21 +105,15 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
         if (f.getTypeDefinitions.length == 1) {
           f.delete
         } else {
-          val node = f.getNode
-          if (node != null){
-            node.removeChild(getNode)
-          }
+          f.getNode.removeChild(remove.getNode)
         }
       }
-      case e: ScalaPsiElement => {
-        val node = e.getNode
-        if (node != null){
-          node.removeChild(getNode)
-        }
-      }
+      case e: ScalaPsiElement => e.getNode.removeChild(remove.getNode)
       case _ => throw new IncorrectOperationException("Invalid type definition")
     }
   }
 
   override def getTypeParameters = typeParameters.toArray
+
+  override def getMethods = functions.toArray
 }

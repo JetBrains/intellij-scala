@@ -4,6 +4,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 
 import org.jetbrains.plugins.scala.lang.psi.types.Signature
 object MethodNodes extends MixinNodes {
@@ -33,20 +34,35 @@ object TypeDefinitionMembers {
       val aliasesMap = new TypeAliasNodes.Map
       val methodsMap = new MethodNodes.Map
       clazz match {
-        case td : ScTypeDefinitionImpl => {
+        case td : ScTypeDefinition => {
           for (member <- td.members) {
             member match {
               case method : ScFunction => {
                 val sig = new Signature(method, subst)
                 methodsMap += ((sig, new MethodNodes.Node(sig)))
               }
-              //case alias : ScTypeAlias => aliasesMap += ((alias, new TypeAliasNodes.Node(alias)))
+              case alias : ScTypeAlias => aliasesMap += ((alias, new TypeAliasNodes.Node(alias)))
               case obj : ScObject => valuesMap += ((obj, new ValueNodes.Node(obj)))
-              case _ => //todo
+              case patternDef : ScPatternDefinition => for (binding <- patternDef.bindings) {
+                valuesMap += ((binding, new ValueNodes.Node(binding)))
+              }
+              case varDef : ScVariableDefinition => for (binding <- varDef.bindings) {
+                valuesMap += ((binding, new ValueNodes.Node(binding)))
+              }
+              case _ =>
             }
           }
         }
-        case _ =>() //todo java case
+        case _ => {
+          for (method <- clazz.getMethods) {
+            val sig = new Signature(method, subst)
+            methodsMap += ((sig, new MethodNodes.Node(sig)))
+          }
+
+          for (field <- clazz.getFields) {
+            valuesMap += ((field, new ValueNodes.Node(field)))
+          }
+        }
       }
       (valuesMap, methodsMap, aliasesMap)
     }
