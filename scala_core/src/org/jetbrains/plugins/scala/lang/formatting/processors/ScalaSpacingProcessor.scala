@@ -53,7 +53,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     //; : . and , processing
     if (rightNode.getText.length > 0 && rightNode.getText()(0) == '.') {
-      return WITHOUT_SPACING
+      if (rightNode.getElementType != ScalaTokenTypes.tFLOAT && !rightNode.getPsi.isInstanceOf[ScLiteral]) return WITHOUT_SPACING
     }
     if (rightNode.getText.length > 0 && rightNode.getText()(0) == ',') {
       if (settings.SPACE_BEFORE_COMMA) return WITH_SPACING
