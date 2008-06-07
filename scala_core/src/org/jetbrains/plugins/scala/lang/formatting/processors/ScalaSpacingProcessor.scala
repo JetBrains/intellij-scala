@@ -48,7 +48,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val ON_NEW_LINE = getSpacing(settings.KEEP_BLANK_LINES_IN_CODE, 0, 1)
     val leftNode = left.getNode
     val rightNode = right.getNode
-    val (leftString, rightString) = (leftNode.toString, rightNode.toString) //for debug
+    //val (leftString, rightString) = (left.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText),
+    //        right.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText)) //for debug
 
     //processing left parenthesis (if it's from right) as Java cases
     if (rightNode.getElementType == ScalaTokenTypes.tLPARENTHESIS) {
