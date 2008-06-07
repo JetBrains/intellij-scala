@@ -51,6 +51,49 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     //val (leftString, rightString) = (left.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText),
     //        right.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText)) //for debug
 
+    //; : . and , processing
+    if (rightNode.getText.length > 0 && rightNode.getText()(0) == '.') {
+      return WITHOUT_SPACING
+    }
+    if (rightNode.getText.length > 0 && rightNode.getText()(0) == ',') {
+      if (settings.SPACE_BEFORE_COMMA) return WITH_SPACING
+      else return WITHOUT_SPACING
+    }
+    if (rightNode.getElementType == ScalaTokenTypes.tCOLON) {
+      var left = leftNode
+      // For operations like
+      // var Object_!= : Symbol = _
+      //if (settings.SPACE_BEFORE_COLON) return WITH_SPACING
+      while (left != null && left.getLastChildNode != null) {
+        left = left.getLastChildNode
+      }
+      return if (left.getElementType == ScalaTokenTypes.tIDENTIFIER &&
+              !left.getText.matches(".*\\w")) WITH_SPACING else WITHOUT_SPACING
+    }
+    if (rightNode.getText.length > 0 && rightNode.getText()(0) == ';') {
+      if (settings.SPACE_BEFORE_SEMICOLON && !(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
+              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
+      else if (!(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
+              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
+    }
+    if (leftNode.getText.length > 0 && leftNode.getText()(leftNode.getText.length - 1) == '.') {
+      return WITHOUT_SPACING
+    }
+    if (leftNode.getText.length > 0 && leftNode.getText()(leftNode.getText.length - 1) == ',') {
+      if (settings.SPACE_AFTER_COMMA) return WITH_SPACING
+      else return WITHOUT_SPACING
+    }
+    if (rightNode.getElementType == ScalaTokenTypes.tCOLON) {
+      if (settings.SPACE_AFTER_COLON) return WITH_SPACING
+      else return WITHOUT_SPACING
+    }
+    if (leftNode.getText.length > 0 && leftNode.getText()(leftNode.getText.length - 1) == ';') {
+      if (settings.SPACE_AFTER_SEMICOLON && !(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
+              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
+      else if (!(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
+              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
+    }
+
     //processing left parenthesis (if it's from right) as Java cases
     if (rightNode.getElementType == ScalaTokenTypes.tLPARENTHESIS) {
       leftNode.getElementType match {
@@ -318,48 +361,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
     }
 
-    //; : . and , processing
-    if (rightNode.getText.length > 0 && rightNode.getText()(0) == '.') {
-      return WITHOUT_SPACING
-    }
-    if (rightNode.getText.length > 0 && rightNode.getText()(0) == ',') {
-      if (settings.SPACE_BEFORE_COMMA) return WITH_SPACING
-      else return WITHOUT_SPACING
-    }
-    if (rightNode.getElementType == ScalaTokenTypes.tCOLON) {
-      var left = leftNode
-      // For operations like
-      // var Object_!= : Symbol = _
-      //if (settings.SPACE_BEFORE_COLON) return WITH_SPACING
-      while (left != null && left.getLastChildNode != null) {
-        left = left.getLastChildNode
-      }
-      return if (left.getElementType == ScalaTokenTypes.tIDENTIFIER &&
-              !left.getText.matches(".*\\w")) WITH_SPACING else WITHOUT_SPACING
-    }
-    if (rightNode.getText.length > 0 && rightNode.getText()(0) == ';') {
-      if (settings.SPACE_BEFORE_SEMICOLON && !(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
-              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
-      else if (!(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
-              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
-    }
-    if (leftNode.getText.length > 0 && leftNode.getText()(leftNode.getText.length - 1) == '.') {
-      return WITHOUT_SPACING
-    }
-    if (leftNode.getText.length > 0 && leftNode.getText()(leftNode.getText.length - 1) == ',') {
-      if (settings.SPACE_AFTER_COMMA) return WITH_SPACING
-      else return WITHOUT_SPACING
-    }
-    if (rightNode.getElementType == ScalaTokenTypes.tCOLON) {
-      if (settings.SPACE_AFTER_COLON) return WITH_SPACING
-      else return WITHOUT_SPACING
-    }
-    if (leftNode.getText.length > 0 && leftNode.getText()(leftNode.getText.length - 1) == ';') {
-      if (settings.SPACE_AFTER_SEMICOLON && !(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
-              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
-      else if (!(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
-              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
-    }
+
     //todo: processing spasing operators
 
     //processing right brace
