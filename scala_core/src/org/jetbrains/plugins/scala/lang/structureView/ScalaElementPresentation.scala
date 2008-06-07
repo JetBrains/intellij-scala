@@ -38,7 +38,7 @@ object ScalaElementPresentation {
     else
       presentableText.append("unnamed")
     if (constructor.parameters != null)
-      presentableText.append(constructor.parameters.getParametersAsString)
+      presentableText.append(StructureViewUtil.getParametersAsString(constructor.parameters))
     return presentableText.toString()
   }
 
@@ -52,7 +52,7 @@ object ScalaElementPresentation {
     }
 
     if (function.paramClauses != null)
-      presentableText.append(function.paramClauses.getParametersAsString)
+      presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses))
     if (function.getReturnScTypeElement != null) {
       presentableText.append(": ")
       presentableText.append(function.getReturnScTypeElement.getText)
