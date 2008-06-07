@@ -28,8 +28,6 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(identifier)('isSideEffecting')
           PsiWhiteSpace(' ')
-          Parameters
-            <empty list>
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           ExpressionInParenthesis

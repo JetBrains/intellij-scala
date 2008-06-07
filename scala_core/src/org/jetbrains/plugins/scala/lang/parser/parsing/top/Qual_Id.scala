@@ -58,7 +58,7 @@ object Qual_Id {
       }
       case _ => {
         builder error ScalaBundle.message("wrong.qual.identifier", new Array[Object](0))
-        qualMarker.done(ScalaElementTypes.REFERENCE)
+        qualMarker.drop
         return true
       }
     }
