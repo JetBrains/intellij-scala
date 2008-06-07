@@ -18,6 +18,8 @@ import _root_.scala.collection.mutable._;
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.completion.filters.other._
+import java.awt.Color
+import com.intellij.codeInsight.lookup._
 
 /*
 * @author Ilya Sergey
@@ -135,6 +137,7 @@ class ScalaCompletionData extends CompletionData {
   private def registerStandardCompletion(filter: ElementFilter, keywords: String*) {
     val afterDotFilter = new LeftNeighbour(new TextFilter("."))
     val variant = new CompletionVariant(new AndFilter(new NotFilter(afterDotFilter), filter))
+    variant.setItemProperty(LookupItem.HIGHLIGHTED_ATTR, "")
     variant.includeScopeClass(classOf[LeafPsiElement])
     addCompletions(variant, keywords: _*)
     registerVariant(variant);
@@ -226,6 +229,7 @@ class ScalaCompletionData extends CompletionData {
     filter1 = new AndFilter(filter1, new NotFilter(new LeftNeighbour(new TextFilter("."))))
     val variant = new CompletionVariant(filter1);
     //variant.includeScopeClass(classOf[ScalaFile].asInstanceOf[java.lang.Class[ScalaFile]], true);
+    variant.setItemProperty(LookupItem.TAIL_TEXT_SMALL_ATTR, "")
     variant.includeScopeClass(classOf[LeafPsiElement].asInstanceOf[java.lang.Class[LeafPsiElement]], true);
     // Exclude all unnecessary
 
