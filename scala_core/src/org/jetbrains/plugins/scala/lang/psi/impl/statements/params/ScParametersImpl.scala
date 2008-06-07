@@ -27,16 +27,6 @@ class ScParametersImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScP
 
   def clauses: Seq[ScParameterClause] = findChildrenByClass(classOf[ScParameterClause])
 
-  def getParametersAsString: String = {
-    val res: StringBuffer = new StringBuffer("")
-    for (child <- clauses) {
-      res.append("(")
-      res.append(child.getParametersAsString)
-      res.append(")")
-    }
-    return res.toString()
-  }
-
   def getParameterIndex(p: PsiParameter) = params.indexOf(List(p))
 
   def getParametersCount = params.length

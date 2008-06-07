@@ -16,6 +16,4 @@ trait ScParameters extends ScalaPsiElement with PsiParameterList {
 
   def clauses: Seq[ScParameterClause]
 
-  def getParametersAsString: String
-
 }

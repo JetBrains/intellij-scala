@@ -11,6 +11,4 @@ trait ScParameterClause extends ScalaPsiElement {
 
   def parameters: Seq[ScParameter]
 
-  def getParametersAsString: String
-
 }
