@@ -27,6 +27,8 @@ trait ScTypeDefinition extends ScNamedElement
 
   def extendsBlock: ScExtendsBlock
 
+  def getSuperClassNames() = Array[String]() //for build restore  
+
   def getContainingClass: PsiClass = getParent match {
     case clazz: PsiClass => clazz
     case _ => null
