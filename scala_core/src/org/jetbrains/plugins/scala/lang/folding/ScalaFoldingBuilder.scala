@@ -29,8 +29,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     if (isMultiline(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaElementTypes.TEMPLATE_BODY |
-             ScalaTokenTypes.tDOC_COMMENT | ScalaElementTypes.PACKAGING => descriptors += (new FoldingDescriptor(node,
-        new TextRange(node.getTextRange().getStartOffset,node.getTextRange.getEndOffset)))
+             ScalaTokenTypes.tDOC_COMMENT | ScalaElementTypes.PACKAGING => descriptors += (new FoldingDescriptor(node, node.getTextRange))
         case _ =>
       }
       if (node.getTreeParent() != null && node.getTreeParent().getPsi.isInstanceOf[ScFunction]) {

@@ -15,6 +15,6 @@ trait ScValueDeclaration extends ScValue {
   /**
   * @return non-null identifier list
   */
-  def getIdList: ScIdList
+  def getIdList: Option[ScIdList]
 
 }
