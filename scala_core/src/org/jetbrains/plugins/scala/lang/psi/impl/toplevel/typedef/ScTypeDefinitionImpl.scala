@@ -124,7 +124,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    val maps = TypeDefinitionMembers.getMembers(this)
+    /*val maps = TypeDefinitionMembers.getMembers(this)
     val classHint = processor.getHint(classOf[ElementClassHint])
     if (classHint == null || classHint.shouldProcess(classOf[PsiVariable])) {
       for ((v, _) <- maps._1) {
@@ -140,7 +140,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
       for ((t, _) <- maps._3) {
         if (!processor.execute(t, state)) return false
       }
-    }
+    }*/
     true
   }
 }
