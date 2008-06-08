@@ -5,8 +5,9 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-
 import org.jetbrains.plugins.scala.lang.psi.types.Signature
+import _root_.scala.collection.mutable.ListBuffer
+
 object MethodNodes extends MixinNodes {
   type T = Signature
   def equiv(s1 : Signature, s2 : Signature) = s1 equiv s2
@@ -29,11 +30,11 @@ object TypeAliasNodes extends MixinNodes {
 
 object TypeDefinitionMembers {
   def process(td : ScTypeDefinition) {
-    def inner(clazz : PsiClass, subst : ScSubstitutor) = {
+    def inner(clazz : PsiClass, subst : ScSubstitutor) : Tuple3[ValueNodes.Map, MethodNodes.Map, TypeAliasNodes.Map] = {
       val valuesMap = new ValueNodes.Map
       val aliasesMap = new TypeAliasNodes.Map
       val methodsMap = new MethodNodes.Map
-      clazz match {
+      val superTypes = clazz match {
         case td : ScTypeDefinition => {
           for (member <- td.members) {
             member match {
@@ -52,6 +53,8 @@ object TypeDefinitionMembers {
               case _ =>
             }
           }
+
+          td.superTypes
         }
         case _ => {
           for (method <- clazz.getMethods) {
@@ -62,10 +65,39 @@ object TypeDefinitionMembers {
           for (field <- clazz.getFields) {
             valuesMap += ((field, new ValueNodes.Node(field)))
           }
+
+          clazz.getSuperTypes.map {psiType => ScType.create(psiType, clazz.getProject)}
         }
       }
+
+      val superValsBuff = new ListBuffer[ValueNodes.Map]
+      val superMethodsBuff = new ListBuffer[MethodNodes.Map]
+      val superAliasesBuff = new ListBuffer[TypeAliasNodes.Map]
+      for (superType <- superTypes) {
+        superType match {
+          case ScParameterizedType(superClass : PsiClass, superSubst) => {
+            val (superVals, superMethods, superAliases) = inner (superClass, combine(superSubst, subst))
+            superValsBuff += superVals
+            superMethodsBuff += superMethods
+            superAliasesBuff += superAliases
+          }
+          case _ =>
+        }
+      }
+      ValueNodes.mergeWithSupers(valuesMap, ValueNodes.mergeSupers(superValsBuff.toList))
+      MethodNodes.mergeWithSupers(methodsMap, MethodNodes.mergeSupers(superMethodsBuff.toList))
+      TypeAliasNodes.mergeWithSupers(aliasesMap, TypeAliasNodes.mergeSupers(superAliasesBuff.toList))
+
       (valuesMap, methodsMap, aliasesMap)
     }
     inner(td, ScSubstitutor.empty)
+  }
+
+  def combine(superSubst : ScSubstitutor, derived : ScSubstitutor) = {
+    var res : ScSubstitutor = ScSubstitutor.empty
+    for ((tp, t) <- superSubst.map) {
+      res = res + (tp, derived.subst(t))
+    }
+    res
   }
 }

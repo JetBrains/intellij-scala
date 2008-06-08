@@ -11,6 +11,7 @@ import packaging._
 import templates._
 import statements.ScFunction
 import statements.params._
+import types.ScType
 
 /** 
 * @autor Alexander Podkhalyuzin
@@ -25,7 +26,9 @@ trait ScTypeDefinition extends ScNamedElement
 
   def typeDefinitions(): Seq[ScTypeDefinition]
 
-  def extendsBlock: ScExtendsBlock
+  def extendsBlock(): ScExtendsBlock
+
+  def superTypes(): Seq[ScType]
 
   def getSuperClassNames() = Array[String]() //for build restore  
 
