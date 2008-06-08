@@ -118,4 +118,29 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
   override def getMethods = functions.toArray
 
   def superTypes() = extendsBlock.superTypes
+
+  import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
+    val maps = TypeDefinitionMembers.getMembers(this)
+    val classHint = processor.getHint(classOf[ElementClassHint])
+    if (classHint == null || classHint.shouldProcess(classOf[PsiVariable])) {
+      for ((v, _) <- maps._1) {
+        if (!processor.execute(v, state)) return false
+      }
+    }
+    if (classHint == null || classHint.shouldProcess(classOf[PsiMethod])) {
+      for ((m, _) <- maps._2) {
+        if (!processor.execute(m.method, state)) return false
+      }
+    }
+    if (classHint == null || classHint.shouldProcess(classOf[PsiClass])) {
+      for ((t, _) <- maps._3) {
+        if (!processor.execute(t, state)) return false
+      }
+    }
+    true
+  }
 }

@@ -117,7 +117,7 @@ object TypeDefinitionMembers {
 
   def getMembers(td : ScTypeDefinition) = {
     var computed = td.getUserData(key)
-    if (computed != null) {
+    if (computed == null) {
       val manager = PsiManager.getInstance(td.getProject).getCachedValuesManager
       computed = manager.createCachedValue(new MyProvider(td), false)
     }
