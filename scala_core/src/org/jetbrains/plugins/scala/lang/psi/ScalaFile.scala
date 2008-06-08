@@ -21,7 +21,7 @@ import _root_.scala.collection.mutable._
 
 
 class ScalaFile (viewProvider: FileViewProvider) extends PsiFileBase (viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
-with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScDeclarationSequenceHolder {
+with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScImportsHolder {
 
   override def getViewProvider = viewProvider
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE
@@ -54,7 +54,7 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScDeclar
       lastParent: PsiElement,
       place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
-    if (!super[ScDeclarationSequenceHolder].processDeclarations(processor,
+    if (!super[ScImportsHolder].processDeclarations(processor,
           state, lastParent, place)) return false
 
     place match {

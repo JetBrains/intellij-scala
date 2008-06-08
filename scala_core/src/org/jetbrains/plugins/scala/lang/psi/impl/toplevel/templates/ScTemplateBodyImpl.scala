@@ -16,23 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 * Time: 9:38:04
 */
 
-class ScTemplateBodyImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTemplateBody {
+class ScTemplateBodyImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTemplateBody
+                                        with ScImportsHolder {
   override def toString: String = "ScTemplateBody"
-
-  override def processDeclarations(processor: PsiScopeProcessor,
-      state : ResolveState,
-      lastParent: PsiElement,
-      place: PsiElement): Boolean = {
-    import org.jetbrains.plugins.scala.lang.resolve._
-
-    if (lastParent != null) {
-      var run = lastParent.getPrevSibling
-      while (run != null) {
-        if (run.isInstanceOf[ScImportStmt] &&
-            !run.processDeclarations(processor, state, lastParent, place)) return false
-        run = run.getPrevSibling
-      }
-    }
-    true
-  }
 }
