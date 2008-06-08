@@ -116,4 +116,6 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
   override def getTypeParameters = typeParameters.toArray
 
   override def getMethods = functions.toArray
+
+  def superTypes() = Seq.empty //todo
 }
