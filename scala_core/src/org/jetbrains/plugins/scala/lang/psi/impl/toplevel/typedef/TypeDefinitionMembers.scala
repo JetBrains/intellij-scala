@@ -22,17 +22,17 @@ object ValueNodes extends MixinNodes {
 }
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-object TypeAliasNodes extends MixinNodes {
-  type T = ScTypeAlias
-  def equiv(al1 : ScTypeAlias, al2 : ScTypeAlias) = al1.name == al2.name
-  def computeHashCode(al : ScTypeAlias) = al.name.hashCode
+object TypeNodes extends MixinNodes {
+  type T = PsiNamedElement //class or type alias
+  def equiv(t1 : PsiNamedElement, t2 : PsiNamedElement) = t1.getName == t2.getName
+  def computeHashCode(t : PsiNamedElement) = t.getName.hashCode
 }
 
 object TypeDefinitionMembers {
   def process(td : ScTypeDefinition) {
-    def inner(clazz : PsiClass, subst : ScSubstitutor) : Tuple3[ValueNodes.Map, MethodNodes.Map, TypeAliasNodes.Map] = {
+    def inner(clazz : PsiClass, subst : ScSubstitutor) : Tuple3[ValueNodes.Map, MethodNodes.Map, TypeNodes.Map] = {
       val valuesMap = new ValueNodes.Map
-      val aliasesMap = new TypeAliasNodes.Map
+      val typesMap = new TypeNodes.Map
       val methodsMap = new MethodNodes.Map
       val superTypes = clazz match {
         case td : ScTypeDefinition => {
@@ -42,8 +42,9 @@ object TypeDefinitionMembers {
                 val sig = new Signature(method, subst)
                 methodsMap += ((sig, new MethodNodes.Node(sig)))
               }
-              case alias : ScTypeAlias => aliasesMap += ((alias, new TypeAliasNodes.Node(alias)))
+              case alias : ScTypeAlias => typesMap += ((alias, new TypeNodes.Node(alias)))
               case obj : ScObject => valuesMap += ((obj, new ValueNodes.Node(obj)))
+              case td : ScTypeDefinition => typesMap += ((td, new TypeNodes.Node(td)))
               case patternDef : ScPatternDefinition => for (binding <- patternDef.bindings) {
                 valuesMap += ((binding, new ValueNodes.Node(binding)))
               }
@@ -66,13 +67,17 @@ object TypeDefinitionMembers {
             valuesMap += ((field, new ValueNodes.Node(field)))
           }
 
+          for (inner <- clazz.getInnerClasses) {
+            typesMap += ((inner, new TypeNodes.Node(inner)))
+          }
+
           clazz.getSuperTypes.map {psiType => ScType.create(psiType, clazz.getProject)}
         }
       }
 
       val superValsBuff = new ListBuffer[ValueNodes.Map]
       val superMethodsBuff = new ListBuffer[MethodNodes.Map]
-      val superAliasesBuff = new ListBuffer[TypeAliasNodes.Map]
+      val superAliasesBuff = new ListBuffer[TypeNodes.Map]
       for (superType <- superTypes) {
         superType match {
           case ScParameterizedType(superClass : PsiClass, superSubst) => {
@@ -86,9 +91,9 @@ object TypeDefinitionMembers {
       }
       ValueNodes.mergeWithSupers(valuesMap, ValueNodes.mergeSupers(superValsBuff.toList))
       MethodNodes.mergeWithSupers(methodsMap, MethodNodes.mergeSupers(superMethodsBuff.toList))
-      TypeAliasNodes.mergeWithSupers(aliasesMap, TypeAliasNodes.mergeSupers(superAliasesBuff.toList))
+      TypeNodes.mergeWithSupers(typesMap, TypeNodes.mergeSupers(superAliasesBuff.toList))
 
-      (valuesMap, methodsMap, aliasesMap)
+      (valuesMap, methodsMap, typesMap)
     }
     inner(td, ScSubstitutor.empty)
   }
