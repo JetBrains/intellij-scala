@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import psi.ScalaPsiElement
+import statements.ScFunction
+import types.ScTypeElement
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -9,5 +10,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 */
 
 trait ScConstructor extends ScalaPsiElement {
-
+  def typeElement() = findChildByClass(classOf[ScTypeElement])
 }

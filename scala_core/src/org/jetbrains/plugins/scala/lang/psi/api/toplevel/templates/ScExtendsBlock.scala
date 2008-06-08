@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -20,4 +21,5 @@ trait ScExtendsBlock extends ScalaPsiElement {
 
   def templateParents = findChild(classOf[ScTemplateParents])
 
+  def superTypes : Seq[ScType]
 }
