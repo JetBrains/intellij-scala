@@ -10,27 +10,28 @@ import _root_.scala.collection.mutable.ListBuffer
 import com.intellij.openapi.util.Key
 import util._
 
-object MethodNodes extends MixinNodes {
-  type T = Signature
-  def equiv(s1 : Signature, s2 : Signature) = s1 equiv s2
-  def computeHashCode(s : Signature) = s.name.hashCode* 31 + s.types.length
-}
-
-import com.intellij.psi.PsiNamedElement
-object ValueNodes extends MixinNodes {
-  type T = PsiNamedElement
-  def equiv(p1 : PsiNamedElement, p2 : PsiNamedElement) = p1.getName == p2.getName
-  def computeHashCode(patt : PsiNamedElement) = patt.getName.hashCode
-}
-
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-object TypeNodes extends MixinNodes {
-  type T = PsiNamedElement //class or type alias
-  def equiv(t1 : PsiNamedElement, t2 : PsiNamedElement) = t1.getName == t2.getName
-  def computeHashCode(t : PsiNamedElement) = t.getName.hashCode
-}
 
 object TypeDefinitionMembers {
+  object MethodNodes extends MixinNodes {
+    type T = Signature
+    def equiv(s1 : Signature, s2 : Signature) = s1 equiv s2
+    def computeHashCode(s : Signature) = s.name.hashCode* 31 + s.types.length
+  }
+
+  import com.intellij.psi.PsiNamedElement
+  object ValueNodes extends MixinNodes {
+    type T = PsiNamedElement
+    def equiv(p1 : PsiNamedElement, p2 : PsiNamedElement) = p1.getName == p2.getName
+    def computeHashCode(patt : PsiNamedElement) = patt.getName.hashCode
+  }
+
+  import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+  object TypeNodes extends MixinNodes {
+    type T = PsiNamedElement //class or type alias
+    def equiv(t1 : PsiNamedElement, t2 : PsiNamedElement) = t1.getName == t2.getName
+    def computeHashCode(t : PsiNamedElement) = t.getName.hashCode
+  }
+
   import ValueNodes.{Map => Vmap}, MethodNodes.{Map => Mmap}, TypeNodes.{Map => Tmap}
   import ValueNodes.{Node => Vnode}, MethodNodes.{Node => Mnode}, TypeNodes.{Node => Tnode}
 
