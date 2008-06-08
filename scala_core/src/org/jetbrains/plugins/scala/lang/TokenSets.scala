@@ -95,4 +95,5 @@ object TokenSets {
 
   val REFERENCE_SET = TokenSet.create(Array(REFERENCE))
 
+  val IMPORTED_NAME_SET = TokenSet.create(Array(tIDENTIFIER, tUNDER))
 }
