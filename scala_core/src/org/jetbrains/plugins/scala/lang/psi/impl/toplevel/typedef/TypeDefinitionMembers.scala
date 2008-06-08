@@ -32,6 +32,7 @@ object TypeNodes extends MixinNodes {
 
 object TypeDefinitionMembers {
   import ValueNodes.{Map => Vmap}, MethodNodes.{Map => Mmap}, TypeNodes.{Map => Tmap}
+  import ValueNodes.{Node => Vnode}, MethodNodes.{Node => Mnode}, TypeNodes.{Node => Tnode}
 
   private def build(td : ScTypeDefinition) = {
     def inner(clazz : PsiClass, subst : ScSubstitutor) : Triple[Vmap, Mmap, Tmap] = {
@@ -44,17 +45,19 @@ object TypeDefinitionMembers {
             member match {
               case method : ScFunction => {
                 val sig = new Signature(method, subst)
-                methodsMap += ((sig, new MethodNodes.Node(sig)))
+                methodsMap += ((sig, new Mnode(sig)))
               }
-              case alias : ScTypeAlias => typesMap += ((alias, new TypeNodes.Node(alias)))
-              case obj : ScObject => valuesMap += ((obj, new ValueNodes.Node(obj)))
-              case td : ScTypeDefinition => typesMap += ((td, new TypeNodes.Node(td)))
-              case patternDef : ScPatternDefinition => for (binding <- patternDef.bindings) {
-                valuesMap += ((binding, new ValueNodes.Node(binding)))
-              }
-              case varDef : ScVariableDefinition => for (binding <- varDef.bindings) {
-                valuesMap += ((binding, new ValueNodes.Node(binding)))
-              }
+              case alias : ScTypeAlias => typesMap += ((alias, new Tnode(alias)))
+              case obj : ScObject => valuesMap += ((obj, new Vnode(obj)))
+              case td : ScTypeDefinition => typesMap += ((td, new Tnode(td)))
+              case patternDef : ScPatternDefinition =>
+                for (binding <- patternDef.bindings) {
+                  valuesMap += ((binding, new Vnode(binding)))
+                }
+              case varDef : ScVariableDefinition =>
+                for (binding <- varDef.bindings) {
+                  valuesMap += ((binding, new Vnode(binding)))
+                }
               case _ =>
             }
           }
@@ -64,15 +67,15 @@ object TypeDefinitionMembers {
         case _ => {
           for (method <- clazz.getMethods) {
             val sig = new Signature(method, subst)
-            methodsMap += ((sig, new MethodNodes.Node(sig)))
+            methodsMap += ((sig, new Mnode(sig)))
           }
 
           for (field <- clazz.getFields) {
-            valuesMap += ((field, new ValueNodes.Node(field)))
+            valuesMap += ((field, new Vnode(field)))
           }
 
           for (inner <- clazz.getInnerClasses) {
-            typesMap += ((inner, new TypeNodes.Node(inner)))
+            typesMap += ((inner, new Tnode(inner)))
           }
 
           clazz.getSuperTypes.map {psiType => ScType.create(psiType, clazz.getProject)}
