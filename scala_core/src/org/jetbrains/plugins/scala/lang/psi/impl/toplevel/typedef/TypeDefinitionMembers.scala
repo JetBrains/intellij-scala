@@ -122,9 +122,7 @@ object TypeDefinitionMembers {
 
   class MyProvider(td : ScTypeDefinition)
     extends CachedValueProvider[Tuple3[ValueNodes.Map, MethodNodes.Map, TypeNodes.Map]] {
-    def compute() = {
-      new CachedValueProvider.Result[Tuple3[ValueNodes.Map, MethodNodes.Map, TypeNodes.Map]] (build(td),
-        Array[Object](PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
-    }
+    def compute() = new CachedValueProvider.Result (build(td),
+                         Array[Object](PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
   }
 }
