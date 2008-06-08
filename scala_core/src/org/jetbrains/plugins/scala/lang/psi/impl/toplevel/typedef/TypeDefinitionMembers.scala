@@ -31,11 +31,13 @@ object TypeNodes extends MixinNodes {
 }
 
 object TypeDefinitionMembers {
+  import ValueNodes.{Map => Vmap}, MethodNodes.{Map => Mmap}, TypeNodes.{Map => Tmap}
+
   private def build(td : ScTypeDefinition) = {
-    def inner(clazz : PsiClass, subst : ScSubstitutor) : Tuple3[ValueNodes.Map, MethodNodes.Map, TypeNodes.Map] = {
-      val valuesMap = new ValueNodes.Map
-      val typesMap = new TypeNodes.Map
-      val methodsMap = new MethodNodes.Map
+    def inner(clazz : PsiClass, subst : ScSubstitutor) : Triple[Vmap, Mmap, Tmap] = {
+      val valuesMap = new Vmap
+      val methodsMap = new Mmap
+      val typesMap = new Tmap
       val superTypes = clazz match {
         case td : ScTypeDefinition => {
           for (member <- td.members) {
@@ -77,9 +79,9 @@ object TypeDefinitionMembers {
         }
       }
 
-      val superValsBuff = new ListBuffer[ValueNodes.Map]
-      val superMethodsBuff = new ListBuffer[MethodNodes.Map]
-      val superAliasesBuff = new ListBuffer[TypeNodes.Map]
+      val superValsBuff = new ListBuffer[Vmap]
+      val superMethodsBuff = new ListBuffer[Mmap]
+      val superAliasesBuff = new ListBuffer[Tmap]
       for (superType <- superTypes) {
         superType match {
           case ScParameterizedType(superClass : PsiClass, superSubst) => {
@@ -108,8 +110,7 @@ object TypeDefinitionMembers {
     res
   }
 
-  val key : Key[CachedValue[Tuple3[ValueNodes.Map, MethodNodes.Map, TypeNodes.Map]]] =
-    Key.create("members key")
+  val key : Key[CachedValue[Triple[Vmap, Mmap, Tmap]]] = Key.create("members key")
 
   def getMembers(td : ScTypeDefinition) = {
     var computed = td.getUserData(key)
@@ -121,7 +122,7 @@ object TypeDefinitionMembers {
   }
 
   class MyProvider(td : ScTypeDefinition)
-    extends CachedValueProvider[Tuple3[ValueNodes.Map, MethodNodes.Map, TypeNodes.Map]] {
+    extends CachedValueProvider[Triple[Vmap, Mmap, Tmap]] {
     def compute() = new CachedValueProvider.Result (build(td),
                          Array[Object](PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
   }
