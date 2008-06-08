@@ -24,6 +24,7 @@ import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.util.IncorrectOperationException
 import com.intellij.util.IconUtil
 import com.intellij.psi.impl._
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.VisibilityIcons
 import com.intellij.openapi.util.Iconable
 import javax.swing.Icon
@@ -33,7 +34,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
   override def getQualifiedName: String = {
-    def _packageName (e : PsiElement) : String = e.getParent match {
+    def _packageName(e: PsiElement): String = e.getParent match {
       case t: ScTypeDefinition => _packageName(t) + "." + t.name
       case p: ScPackaging => _packageName(p) + "." + p.getPackageName
       case f: ScalaFile => f.getPackageName
@@ -87,7 +88,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
       case Some(body) => body.functions
     }) ++ findChildrenByClass(classOf[ScFunction])
 
-  def typeDefinitions: Seq[ScTypeDefinition] = 
+  def typeDefinitions: Seq[ScTypeDefinition] =
     (extendsBlock.templateBody match {
       case None => Seq.empty
       case Some(body) => body.typeDefinitions
@@ -95,7 +96,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   override def delete() = {
     var parent = getParent
-    var remove : PsiElement = this
+    var remove: PsiElement = this
     while (parent.isInstanceOf[ScPackaging]) {
       remove = parent
       parent = parent.getParent
@@ -120,27 +121,32 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
   def superTypes() = extendsBlock.superTypes
 
   import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
+
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    /*val maps = TypeDefinitionMembers.getMembers(this)
-    val classHint = processor.getHint(classOf[ElementClassHint])
-    if (classHint == null || classHint.shouldProcess(classOf[PsiVariable])) {
-      for ((v, _) <- maps._1) {
-        if (!processor.execute(v, state)) return false
-      }
+    extendsBlock.templateParents match {
+      case Some(p) if (PsiTreeUtil.isAncestor(p, place, true)) => true
+      case _ =>
+        val maps = TypeDefinitionMembers.getMembers(this)
+        val classHint = processor.getHint(classOf[ElementClassHint])
+        if (classHint == null || classHint.shouldProcess(classOf[PsiVariable])) {
+          for ((v, _) <- maps._1) {
+            if (!processor.execute(v, state)) return false
+          }
+        }
+        if (classHint == null || classHint.shouldProcess(classOf[PsiMethod])) {
+          for ((m, _) <- maps._2) {
+            if (!processor.execute(m.method, state)) return false
+          }
+        }
+        if (classHint == null || classHint.shouldProcess(classOf[PsiClass])) {
+          for ((t, _) <- maps._3) {
+            if (!processor.execute(t, state)) return false
+          }
+        }
+        true
     }
-    if (classHint == null || classHint.shouldProcess(classOf[PsiMethod])) {
-      for ((m, _) <- maps._2) {
-        if (!processor.execute(m.method, state)) return false
-      }
-    }
-    if (classHint == null || classHint.shouldProcess(classOf[PsiClass])) {
-      for ((t, _) <- maps._3) {
-        if (!processor.execute(t, state)) return false
-      }
-    }*/
-    true
   }
 }

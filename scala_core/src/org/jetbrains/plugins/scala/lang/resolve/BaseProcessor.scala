@@ -7,7 +7,7 @@ import _root_.scala.collection.Set
 import _root_.scala.collection.mutable.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api._
 import toplevel.typedef. {ScObject, ScTypeDefinition}
-import statements.ScVariable
+import statements.{ScVariable, ScTypeAlias}
 import statements.params.{ScTypeParam, ScParameter}
 import base.patterns.ScBindingPattern
 
@@ -42,6 +42,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
             case _: PsiPackage => kinds contains ResolveTargets.PACKAGE
             case _: ScObject => kinds contains ResolveTargets.OBJECT
             case _: ScTypeParam => kinds contains ResolveTargets.CLASS
+            case _: ScTypeAlias => kinds contains ResolveTargets.CLASS
             case _: ScTypeDefinition => kinds contains ResolveTargets.CLASS
             case c: PsiClass if c.getLanguage == StdLanguages.JAVA => {
               if (kinds contains ResolveTargets.CLASS) true
