@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.types.Signature
 import _root_.scala.collection.mutable.ListBuffer
+import com.intellij.openapi.util.Key
+import util._
 
 object MethodNodes extends MixinNodes {
   type T = Signature
@@ -29,7 +31,7 @@ object TypeNodes extends MixinNodes {
 }
 
 object TypeDefinitionMembers {
-  def process(td : ScTypeDefinition) {
+  private def build(td : ScTypeDefinition) = {
     def inner(clazz : PsiClass, subst : ScSubstitutor) : Tuple3[ValueNodes.Map, MethodNodes.Map, TypeNodes.Map] = {
       val valuesMap = new ValueNodes.Map
       val typesMap = new TypeNodes.Map
@@ -104,5 +106,25 @@ object TypeDefinitionMembers {
       res = res + (tp, derived.subst(t))
     }
     res
+  }
+
+  val key : Key[CachedValue[Tuple3[ValueNodes.Map, MethodNodes.Map, TypeNodes.Map]]] =
+    Key.create("members key")
+
+  def getMembers(td : ScTypeDefinition) = {
+    var computed = td.getUserData(key)
+    if (computed != null) {
+      val manager = PsiManager.getInstance(td.getProject).getCachedValuesManager
+      computed = manager.createCachedValue(new MyProvider(td), false)
+    }
+    computed.getValue
+  }
+
+  class MyProvider(td : ScTypeDefinition)
+    extends CachedValueProvider[Tuple3[ValueNodes.Map, MethodNodes.Map, TypeNodes.Map]] {
+    def compute() = {
+      new CachedValueProvider.Result[Tuple3[ValueNodes.Map, MethodNodes.Map, TypeNodes.Map]] (build(td),
+        Array[Object](PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
+    }
   }
 }
