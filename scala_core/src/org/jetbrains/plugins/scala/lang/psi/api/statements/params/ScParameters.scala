@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements.params
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.impl.statements._
+import impl.statements.params._
 import com.intellij.psi._
 
 /**
