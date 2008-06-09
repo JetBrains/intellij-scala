@@ -11,6 +11,10 @@ import statements.{ScVariable, ScTypeAlias}
 import statements.params.{ScTypeParam, ScParameter}
 import base.patterns.ScBindingPattern
 
+object BaseProcessor {
+  def unapply(p : BaseProcessor) = Some(p.kinds)
+}
+
 abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopeProcessor {
 
   val candidates: HashSet[ScalaResolveResult] = new HashSet[ScalaResolveResult]

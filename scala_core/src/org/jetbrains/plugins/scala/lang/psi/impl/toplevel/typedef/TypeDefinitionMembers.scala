@@ -35,11 +35,50 @@ object TypeDefinitionMembers {
   import ValueNodes.{Map => Vmap}, MethodNodes.{Map => Mmap}, TypeNodes.{Map => Tmap}
   import ValueNodes.{Node => Vnode}, MethodNodes.{Node => Mnode}, TypeNodes.{Node => Tnode}
 
-  private def build(td : ScTypeDefinition) = {
-    def inner(clazz : PsiClass, subst : ScSubstitutor) : Triple[Vmap, Mmap, Tmap] = {
+  private def buildTypes(td : ScTypeDefinition) = {
+    def inner(clazz : PsiClass, subst : ScSubstitutor) : Tmap = {
+      val typesMap = new Tmap
+      val superTypes = clazz match {
+        case td : ScTypeDefinition => {
+          for (member <- td.members) {
+            member match {
+              case alias : ScTypeAlias => typesMap += ((alias, new Tnode(alias)))
+              case td : ScTypeDefinition => typesMap += ((td, new Tnode(td)))
+              case _ =>
+            }
+          }
+
+          td.superTypes
+        }
+        case _ => {
+          for (inner <- clazz.getInnerClasses) {
+            typesMap += ((inner, new Tnode(inner)))
+          }
+
+          clazz.getSuperTypes.map {psiType => ScType.create(psiType, clazz.getProject)}
+        }
+      }
+
+      val superTypesBuff = new ListBuffer[Tmap]
+      for (superType <- superTypes) {
+        superType match {
+          case ScParameterizedType(superClass : PsiClass, superSubst) => {
+            superTypesBuff += inner (superClass, combine(superSubst, subst))
+          }
+          case _ =>
+        }
+      }
+      TypeNodes.mergeWithSupers(typesMap, TypeNodes.mergeSupers(superTypesBuff.toList))
+
+      typesMap
+    }
+    inner(td, ScSubstitutor.empty)
+  }
+
+  private def buildVals(td : ScTypeDefinition) = {
+    def inner(clazz : PsiClass, subst : ScSubstitutor) : Pair[Vmap, Mmap] = {
       val valuesMap = new Vmap
       val methodsMap = new Mmap
-      val typesMap = new Tmap
       val superTypes = clazz match {
         case td : ScTypeDefinition => {
           for (member <- td.members) {
@@ -48,9 +87,7 @@ object TypeDefinitionMembers {
                 val sig = new Signature(method, subst)
                 methodsMap += ((sig, new Mnode(sig)))
               }
-              case alias : ScTypeAlias => typesMap += ((alias, new Tnode(alias)))
               case obj : ScObject => valuesMap += ((obj, new Vnode(obj)))
-              case td : ScTypeDefinition => typesMap += ((td, new Tnode(td)))
               case patternDef : ScPatternDefinition =>
                 for (binding <- patternDef.bindings) {
                   valuesMap += ((binding, new Vnode(binding)))
@@ -75,33 +112,26 @@ object TypeDefinitionMembers {
             valuesMap += ((field, new Vnode(field)))
           }
 
-          for (inner <- clazz.getInnerClasses) {
-            typesMap += ((inner, new Tnode(inner)))
-          }
-
           clazz.getSuperTypes.map {psiType => ScType.create(psiType, clazz.getProject)}
         }
       }
 
       val superValsBuff = new ListBuffer[Vmap]
       val superMethodsBuff = new ListBuffer[Mmap]
-      val superAliasesBuff = new ListBuffer[Tmap]
       for (superType <- superTypes) {
         superType match {
           case ScParameterizedType(superClass : PsiClass, superSubst) => {
-            val (superVals, superMethods, superAliases) = inner (superClass, combine(superSubst, subst))
+            val (superVals, superMethods) = inner (superClass, combine(superSubst, subst))
             superValsBuff += superVals
             superMethodsBuff += superMethods
-            superAliasesBuff += superAliases
           }
           case _ =>
         }
       }
       ValueNodes.mergeWithSupers(valuesMap, ValueNodes.mergeSupers(superValsBuff.toList))
       MethodNodes.mergeWithSupers(methodsMap, MethodNodes.mergeSupers(superMethodsBuff.toList))
-      TypeNodes.mergeWithSupers(typesMap, TypeNodes.mergeSupers(superAliasesBuff.toList))
 
-      (valuesMap, methodsMap, typesMap)
+      (valuesMap, methodsMap)
     }
     inner(td, ScSubstitutor.empty)
   }
@@ -114,20 +144,24 @@ object TypeDefinitionMembers {
     res
   }
 
-  val key : Key[CachedValue[Triple[Vmap, Mmap, Tmap]]] = Key.create("members key")
+  val valsKey : Key[CachedValue[Pair[Vmap, Mmap]]] = Key.create("members key")
+  val typesKey : Key[CachedValue[Tmap]] = Key.create("types key")
 
-  def getMembers(td : ScTypeDefinition) = {
+  def getVals (td : ScTypeDefinition) = get(td, valsKey, new MyProvider(td, {td => buildVals(td)}))
+  def getTypes(td : ScTypeDefinition) = get(td, typesKey, new MyProvider(td, {td => buildTypes(td)}))
+
+  private def get[T] (td : ScTypeDefinition, key : Key[CachedValue[T]], provider : CachedValueProvider[T]) = {
     var computed = td.getUserData(key)
     if (computed == null) {
       val manager = PsiManager.getInstance(td.getProject).getCachedValuesManager
-      computed = manager.createCachedValue(new MyProvider(td), false)
+      computed = manager.createCachedValue(provider, false)
+      td.putUserData(key, computed)
     }
     computed.getValue
   }
 
-  class MyProvider(td : ScTypeDefinition)
-    extends CachedValueProvider[Triple[Vmap, Mmap, Tmap]] {
-    def compute() = new CachedValueProvider.Result (build(td),
+  class MyProvider[T](td : ScTypeDefinition, builder : ScTypeDefinition => T) extends CachedValueProvider[T] {
+    def compute() = new CachedValueProvider.Result (builder(td),
                          Array[Object](PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
   }
 }
