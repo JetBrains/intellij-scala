@@ -8,6 +8,4 @@ trait ScStableCodeReferenceElement extends ScReferenceElement {
     case Some(x) => x.qualName + "."
     case _ => ""
   }) + refName 
-
-
 }
