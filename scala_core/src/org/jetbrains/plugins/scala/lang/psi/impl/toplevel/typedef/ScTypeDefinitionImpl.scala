@@ -122,6 +122,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
 
+/*
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,
@@ -149,4 +150,5 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
         true
     }
   }
+*/
 }
