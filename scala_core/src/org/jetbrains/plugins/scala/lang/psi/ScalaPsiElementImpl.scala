@@ -36,6 +36,5 @@ class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node)
     case null => None
     case e => Some(e)
   }
-
   override def toString: String = "scala psi element"
 }

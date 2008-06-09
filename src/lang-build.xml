@@ -41,7 +41,7 @@
     <fileset dir="${idea.lib}">
       <include name="**/*.jar"/>
       <exclude name="boot.jar"/>
-    </fileset>
+    </fileset>                                              
   </path>
 
   <path id="base.path">
