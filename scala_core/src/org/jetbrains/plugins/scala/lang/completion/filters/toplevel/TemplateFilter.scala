@@ -26,22 +26,8 @@ class TemplateFilter extends ElementFilter {
     val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
     if (leaf != null) {
       val parent = leaf.getParent();
-      parent match {
-        case _: ScalaFile | _: ScPackaging | _: ScPackaging => {
-          return true
-        }
-        case _ =>
-      }
-      parent.getParent match {
-        case _: ScBlockExpr | _: ScTemplateBody  => {
-          if ((leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
-                  leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF) && (parent.getPrevSibling == null ||
-                  parent.getPrevSibling.getPrevSibling == null ||
-                  (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT || !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement])))
-            return true
-        }
-        case _ =>
-      }
+      val tuple = ScalaCompletionUtil.getForAll(parent,leaf)
+      if (tuple._1) return tuple._2
     }
     return false
   }

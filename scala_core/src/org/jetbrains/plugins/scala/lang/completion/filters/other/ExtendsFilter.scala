@@ -10,6 +10,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.parser._
+import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
@@ -30,7 +31,17 @@ class ExtendsFilter extends ElementFilter {
       }
       val prev2 = prev.getPrevSibling
       prev2 match {
-        case x: ScTypeDefinition => x.extendsBlock.templateParents == None
+        case x: ScTypeDefinition => {
+          if (x.extendsBlock.templateParents != None) {
+            return false
+          }
+          else {
+            if (leaf.getNextSibling != null &&
+            (leaf.getNextSibling.getNextSibling.getNode.getElementType == ScalaTokenTypes.kEXTENDS ||
+            leaf.getNextSibling.getNextSibling.getNode.getElementType == ScalaTokenTypes.kREQUIRES)) return false
+            else return true
+          }
+        }
         case _ => return false
       }
     }

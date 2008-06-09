@@ -10,6 +10,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.lexer._
@@ -27,21 +28,13 @@ class ModifiersFilter extends ElementFilter {
     if (leaf != null) {
       val parent = leaf.getParent();
       parent match {
-        case _: ScalaFile | _: ScParameter | _: ScPackaging => {
+        case  _: ScClassParameter => {
           return true
         }
         case _ =>
       }
-      parent.getParent match {
-        case _: ScBlockExpr | _: ScTemplateBody | _: ScClassParameter => {
-          if ((leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
-                  leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF) && (parent.getPrevSibling == null ||
-                  parent.getPrevSibling.getPrevSibling == null ||
-                  (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT || !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement])))
-            return true
-        }
-        case _ =>
-      }
+      val tuple = ScalaCompletionUtil.getForAll(parent,leaf)
+      if (tuple._1) return tuple._2
     }
     return false;
   }

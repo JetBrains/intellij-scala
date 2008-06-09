@@ -1,17 +1,4 @@
 class a() <caret> {}
 ------
-abstract
-case
-class
-final
-implicit
-import
-lazy
-object
-override
-package
-private
-protected
+extends
 requires
-sealed
-trait
