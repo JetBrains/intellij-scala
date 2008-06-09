@@ -37,7 +37,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     if (lastParent == enumerators) return true
-    enumerators.processDeclarations(processor, state, lastParent, place)
+    enumerators.processDeclarations(processor, state, null, place)
   }
 
 
