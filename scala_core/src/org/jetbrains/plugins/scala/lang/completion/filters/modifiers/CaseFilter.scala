@@ -37,7 +37,8 @@ class CaseFilter extends ElementFilter {
       }
       parent match {
         case _: ScCaseClause => {
-          return true
+          if (parent.getNode.findChildByType(ScalaTokenTypes.tFUNTYPE) != null) return true
+          else return false
         }
         case _: ScalaFile | _: ScPackaging => {
           var node = leaf.getPrevSibling
@@ -56,11 +57,24 @@ class CaseFilter extends ElementFilter {
         }
         case _ =>
       }
+      if (parent.getParent != null) {
+        parent.getParent.getParent match {
+          case _: ScCaseClause => {
+            if (parent.getParent.getParent.getNode.findChildByType(ScalaTokenTypes.tFUNTYPE) != null) return true
+            else return false
+          }
+          case _ =>
+        }
+      }
       parent.getParent match {
-        case _: ScBlockExpr | _: ScTemplateBody | _: ScCaseClause => {
+        case _: ScBlockExpr | _: ScTemplateBody => {
           if (leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
                   leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF)
             return true
+        }
+        case _: ScCaseClause => {
+          if (parent.getParent.getNode.findChildByType(ScalaTokenTypes.tFUNTYPE) != null) return true
+          else return false
         }
         case _ =>
       }
