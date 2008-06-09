@@ -95,9 +95,11 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
+    if (!processor.execute(this, state)) return false
+    
     if (lastParent != null) {
       typeParametersClause match {
-        case Some(clause) => if (!clause.processDeclarations(processor, state, lastParent, place)) return false
+        case Some(clause) => if (!clause.processDeclarations(processor, state, null, place)) return false
         case _ => ()
       }
     }
