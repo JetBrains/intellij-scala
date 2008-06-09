@@ -28,8 +28,31 @@ class CaseFilter extends ElementFilter {
     if (leaf != null) {
       val parent = leaf.getParent();
       parent match {
-        case _: ScalaFile | _: ScCaseClause | _: ScPackaging => {
+        case _: ScalaFile => {
+          if (leaf.getNextSibling != null && leaf.getNextSibling().getNextSibling().isInstanceOf[ScPackaging] &&
+                  leaf.getNextSibling.getNextSibling.getText.indexOf('{') == -1)
+            return false
+        }
+        case _ =>
+      }
+      parent match {
+        case _: ScCaseClause => {
           return true
+        }
+        case _: ScalaFile | _: ScPackaging => {
+          var node = leaf.getPrevSibling
+          if (node.isInstanceOf[PsiWhiteSpace]) node = node.getPrevSibling
+          node match {
+            case _: ScPackageStatement => return false
+            case x: PsiErrorElement => {
+              val s = ErrMsg("wrong.top.statment.declaration")
+              x.getErrorDescription match {
+                case `s` => return true
+                case _ => return false
+              }
+            }
+            case _ => return true
+          }
         }
         case _ =>
       }
