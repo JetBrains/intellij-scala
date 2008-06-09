@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.lang.psi._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 
