@@ -24,7 +24,10 @@ class ElseFilter extends ElementFilter {
       val parent = leaf.getParent()
       if (parent.isInstanceOf[ScExpression] && parent.getPrevSibling != null &&
               parent.getPrevSibling.getPrevSibling != null &&
-              parent.getPrevSibling.getPrevSibling.getNode.getElementType == ScalaElementTypes.IF_STMT) {
+              (parent.getPrevSibling.getPrevSibling.getNode.getElementType == ScalaElementTypes.IF_STMT ||
+              (parent.getPrevSibling.getPrevSibling.getLastChild != null &&
+               parent.getPrevSibling.getPrevSibling.getLastChild.getNode.getElementType == ScalaElementTypes.IF_STMT))
+              || parent.getParent.isInstanceOf[ScIfStmt]) {
         return true
       }
     }
