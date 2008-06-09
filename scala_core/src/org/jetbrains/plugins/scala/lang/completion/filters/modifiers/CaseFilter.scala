@@ -80,8 +80,12 @@ class CaseFilter extends ElementFilter {
       }
       if (leaf.getPrevSibling != null &&
               leaf.getPrevSibling.getPrevSibling != null &&
-              leaf.getPrevSibling.getPrevSibling.getNode.getElementType == ScalaElementTypes.MATCH_STMT &&
-              leaf.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement])
+              ((leaf.getPrevSibling.getPrevSibling.getNode.getElementType == ScalaElementTypes.MATCH_STMT &&
+                      leaf.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement]) ||
+               (leaf.getPrevSibling.getPrevSibling.getNode.getElementType == ScalaElementTypes.TRY_STMT &&
+                leaf.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[ScCatchBlock] &&
+                       leaf.getPrevSibling.getPrevSibling.getLastChild.getLastChild.isInstanceOf[PsiErrorElement]))
+              )
         return true
     }
     return false;
