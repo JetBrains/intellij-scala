@@ -11,9 +11,9 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
     import org.jetbrains.plugins.scala.lang.resolve._
 
     if (lastParent != null) {
-      var run = if (this == lastParent.getParent) lastParent.getPrevSibling else getLastChild 
+      var run = lastParent.getPrevSibling
       while (run != null) {
-        if (!run.processDeclarations(processor, state, lastParent, place)) return false
+        if (!run.processDeclarations(processor, state, null, place)) return false
         run = run.getPrevSibling
       }
     }
