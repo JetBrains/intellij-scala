@@ -11,4 +11,17 @@ trait ScTypeParametersOwner extends ScalaPsiElement {
   }
 
   def typeParametersClause = findChild(classOf[ScTypeParamClause])
+
+  import com.intellij.psi.scope.PsiScopeProcessor
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
+    if (lastParent != null) {
+      for (tp <- typeParameters) {
+        if (!processor.execute(tp, state)) return false
+      }
+    }
+    true
+  }
 }
