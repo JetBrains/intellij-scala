@@ -39,7 +39,7 @@
   </target>
 
   <path id="idea.lib.path">
-    <fileset dir="${idea.lib}">                                         s
+    <fileset dir="${idea.lib}">
       <include name="**/*.jar"/>
       <exclude name="boot.jar"/>
     </fileset>                                              
