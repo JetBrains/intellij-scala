@@ -23,13 +23,4 @@ class ScFieldIdImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFiel
   override def toString: String = "Field identifier"
 
   def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
-
-  def isMutable = getParent match {
-    case l: ScIdList =>
-      l.getParent match {
-        case v: ScVariable => true
-        case _ => false
-      }
-    case _ => false
-  }
 }
