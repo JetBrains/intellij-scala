@@ -27,8 +27,10 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
 
   override def getIconInner = Icons.CLASS
 
-  //todo implement me!
-  def parameters = Seq.empty
+  def parameters = constructor match {
+      case Some(c) => c.parameters.params
+      case None => Seq.empty
+    }
 
   import com.intellij.psi.{scope, PsiElement, ResolveState}
   import scope.PsiScopeProcessor 
@@ -36,11 +38,10 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    constructor match {
-      case Some(c) => for (p <- c.parameters.params) {if (!processor.execute(p, state)) return false}
-      case None => ()
-    }
+    for (p <- parameters) {if (!processor.execute(p, state)) return false}
+
     if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
+
     return super.processDeclarations(processor, state, lastParent, place)
   }
 }
