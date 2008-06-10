@@ -32,4 +32,17 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
 
   //todo implement me!
   def parameters = Seq.empty
+
+  import com.intellij.psi.{scope, PsiElement, ResolveState}
+  import scope.PsiScopeProcessor 
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
+    constructor match {
+      case Some(c) => for (p <- c.parameters.params) {if (!processor.execute(p, state)) return false}
+      case None => ()
+    }
+    return super.processDeclarations(processor, state, lastParent, place)
+  }
 }

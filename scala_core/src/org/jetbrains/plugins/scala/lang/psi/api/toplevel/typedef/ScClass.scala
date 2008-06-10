@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -9,5 +10,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 */
 
 trait ScClass extends ScTypeDefinition with ScParameterOwner{
-
+  def constructor = findChild(classOf[ScPrimaryConstructor])
 }
