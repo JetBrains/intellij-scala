@@ -28,7 +28,9 @@ object Ids {
     val idListMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
+        val m = builder.mark
         builder.advanceLexer //Ate identifier
+        m.done(ScalaElementTypes.FIELD_ID)
       }
       case _ => {
         idListMarker.rollbackTo
@@ -39,7 +41,9 @@ object Ids {
       builder.advanceLexer //Ate ,
       builder.getTokenType match {
         case ScalaTokenTypes.tIDENTIFIER => {
+          val m = builder.mark
           builder.advanceLexer //Ate identifier
+          m.done(ScalaElementTypes.FIELD_ID)
         }
         case _ => {
           builder error ErrMsg("identifier.expected")

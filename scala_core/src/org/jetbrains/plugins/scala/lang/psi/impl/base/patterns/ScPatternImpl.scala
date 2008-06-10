@@ -37,7 +37,7 @@ class ScPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatt
       place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
 
-    for (b <- bindings) if (!processor.execute(b, state)) return false
+    for (b <- bindings if !b.isWildcard) if (!processor.execute(b, state)) return false
     true
   }
 }

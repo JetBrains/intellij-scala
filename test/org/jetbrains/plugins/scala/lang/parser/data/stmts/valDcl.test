@@ -57,13 +57,17 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            PsiElement(identifier)('x')
+            Field identifier
+              PsiElement(identifier)('x')
             PsiElement(,)(',')
-            PsiElement(identifier)('y')
+            Field identifier
+              PsiElement(identifier)('y')
             PsiElement(,)(',')
-            PsiElement(identifier)('z')
+            Field identifier
+              PsiElement(identifier)('z')
             PsiElement(,)(',')
-            PsiElement(identifier)('t')
+            Field identifier
+              PsiElement(identifier)('t')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           SimpleTypeElement

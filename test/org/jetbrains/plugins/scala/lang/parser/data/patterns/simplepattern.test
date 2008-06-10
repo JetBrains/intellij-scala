@@ -24,7 +24,8 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            PsiElement(identifier)('Some')
+            Field identifier
+              PsiElement(identifier)('Some')
           PsiErrorElement:Wrong value declaration
             <empty list>
         PsiElement(()('(')

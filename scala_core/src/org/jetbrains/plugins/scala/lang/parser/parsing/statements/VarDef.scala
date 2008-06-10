@@ -48,7 +48,6 @@ object VarDef {
 
         if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-
           if (BNF.firstType.contains(builder.getTokenType)) {
             Type parse builder
           } else {

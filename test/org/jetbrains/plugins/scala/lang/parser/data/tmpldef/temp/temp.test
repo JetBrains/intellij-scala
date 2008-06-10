@@ -25,7 +25,8 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            PsiElement(identifier)('x')
+            Field identifier
+              PsiElement(identifier)('x')
           PsiErrorElement:Wrong value declaration
             <empty list>
         PsiElement(newline)('\n  ')
@@ -37,7 +38,8 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            PsiElement(identifier)('y')
+            Field identifier
+              PsiElement(identifier)('y')
           PsiErrorElement:Wrong value declaration
             <empty list>
         PsiWhiteSpace('\n')

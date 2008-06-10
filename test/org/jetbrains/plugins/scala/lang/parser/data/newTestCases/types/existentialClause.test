@@ -24,7 +24,8 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            PsiElement(identifier)('x')
+            Field identifier
+              PsiElement(identifier)('x')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ExistentialType
@@ -46,7 +47,8 @@ ScalaFile
                 PsiElement(val)('val')
                 PsiWhiteSpace(' ')
                 ListOfIdentifiers
-                  PsiElement(identifier)('y')
+                  Field identifier
+                    PsiElement(identifier)('y')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 SimpleTypeElement

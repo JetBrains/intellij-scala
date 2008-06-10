@@ -24,7 +24,8 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            PsiElement(identifier)('symbols')
+            Field identifier
+              PsiElement(identifier)('symbols')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           SimpleTypeElement

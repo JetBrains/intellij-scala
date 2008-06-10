@@ -24,7 +24,8 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            PsiElement(identifier)('x')
+            Field identifier
+              PsiElement(identifier)('x')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           TypeWithAnnotation

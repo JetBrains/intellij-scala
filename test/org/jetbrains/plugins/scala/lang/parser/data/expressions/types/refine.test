@@ -48,7 +48,8 @@ ScalaFile
                       PsiElement(val)('val')
                       PsiWhiteSpace(' ')
                       ListOfIdentifiers
-                        PsiElement(identifier)('i')
+                        Field identifier
+                          PsiElement(identifier)('i')
                       PsiElement(:)(':')
                       SimpleTypeElement
                         CodeReferenceElement

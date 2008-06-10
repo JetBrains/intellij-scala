@@ -24,7 +24,8 @@ ScalaFile
           PsiElement(var)('var')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            PsiElement(identifier)('a')
+            Field identifier
+              PsiElement(identifier)('a')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           SimpleTypeElement
