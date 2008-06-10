@@ -45,11 +45,12 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   def getVariants(): Array[Object] = {
-    _resolve(new CompletionProcessor(getKinds(true))).map(r => r.getElement)
+    _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement)
   }
 
-  def multiResolve(incomplete: Boolean): Array[ResolveResult] =
-    _resolve(new ResolveProcessor(getKinds(incomplete), refName))
+  import com.intellij.psi.impl.PsiManagerEx
+  def multiResolve(incomplete: Boolean) =
+    getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, false, incomplete)
 
   def getKinds(incomplete : Boolean) = {
     if (incomplete) StdKinds.refExprQualRef
@@ -59,8 +60,15 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
   }
 
-  private def _resolve(processor: BaseProcessor) : Array[ResolveResult] =
-    qualifier match {
+  import com.intellij.psi.impl.source.resolve.ResolveCache
+  object MyResolver extends ResolveCache.PolyVariantResolver[ScReferenceExpressionImpl] {
+    def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean) = {
+      _resolve(ref, new ResolveProcessor(getKinds(incomplete), refName))
+    }
+  }
+
+  private def _resolve(ref : ScReferenceExpressionImpl, processor: BaseProcessor) : Array[ResolveResult] =
+    ref.qualifier match {
       case None => {
         def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
           place match {
@@ -68,12 +76,12 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case p => {
               if (!p.processDeclarations(processor,
               ResolveState.initial(),
-              lastParent, ScReferenceExpressionImpl.this)) return ()
+              lastParent, ref)) return ()
               treeWalkUp(place.getParent, place)
             }
           }
         }
-        treeWalkUp(this, null)
+        treeWalkUp(ref, null)
         processor.candidates.toArray
       }
       case Some(e) => new Array(0)
