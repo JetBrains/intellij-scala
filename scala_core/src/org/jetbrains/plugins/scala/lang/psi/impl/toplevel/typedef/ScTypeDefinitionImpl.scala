@@ -134,12 +134,12 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
         val classHint = processor.getHint(classOf[ElementClassHint])
 
         if (shouldProcessVals(processor)) {
-          for ((v, _) <- TypeDefinitionMembers.getVals(this)._1) {
+          for ((v, _) <- TypeDefinitionMembers.getVals(this)) {
             if (!processor.execute(v, state)) return false
           }
         }
         if (shouldProcessMethods(processor)) {
-          for ((m, _) <- TypeDefinitionMembers.getVals(this)._2) {
+          for ((m, _) <- TypeDefinitionMembers.getMethods(this)) {
             if (!processor.execute(m.method, state)) return false
           }
         }

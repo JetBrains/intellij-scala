@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
-import collection.mutable.{HashMap, ArrayBuffer, Set}
+import collection.mutable.{HashMap, ArrayBuffer, Set, ListBuffer}
+import com.intellij.psi.PsiClass
+import api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types._
 
 abstract class MixinNodes {
   type T
@@ -54,4 +57,45 @@ abstract class MixinNodes {
       }
     }
   }
+
+  def build(td : ScTypeDefinition) = {
+    def inner(clazz : PsiClass, subst : ScSubstitutor) : Map = {
+      val map = new Map
+      val superTypes = clazz match {
+        case td : ScTypeDefinition => {
+          processScala(td, subst, map)
+          td.superTypes
+        }
+        case _ => {
+          processJava(clazz, subst, map)
+          clazz.getSuperTypes.map {psiType => ScType.create(psiType, clazz.getProject)}
+        }
+      }
+
+      val superTypesBuff = new ListBuffer[Map]
+      for (superType <- superTypes) {
+        superType match {
+          case ScParameterizedType(superClass : PsiClass, superSubst) => {
+            superTypesBuff += inner (superClass, combine(superSubst, subst))
+          }
+          case _ =>
+        }
+      }
+      mergeWithSupers(map, mergeSupers(superTypesBuff.toList))
+
+      map
+    }
+    inner(td, ScSubstitutor.empty)
+  }
+
+  def combine(superSubst : ScSubstitutor, derived : ScSubstitutor) = {
+    var res : ScSubstitutor = ScSubstitutor.empty
+    for ((tp, t) <- superSubst.map) {
+      res = res + (tp, derived.subst(t))
+    }
+    res
+  }
+
+  def processJava(clazz : PsiClass, subst : ScSubstitutor, map : Map)
+  def processScala(td : ScTypeDefinition, subst : ScSubstitutor, map : Map)
 }
