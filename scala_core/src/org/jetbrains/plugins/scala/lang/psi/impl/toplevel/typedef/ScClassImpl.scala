@@ -15,12 +15,13 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 /** 
 * @autor Alexander.Podkhalyuzin
 */
 
-class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass{
+class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass with ScTypeParametersOwner{
 
   def getTemplateParents = null
 
@@ -43,6 +44,7 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
       case Some(c) => for (p <- c.parameters.params) {if (!processor.execute(p, state)) return false}
       case None => ()
     }
+    if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
     return super.processDeclarations(processor, state, lastParent, place)
   }
 }

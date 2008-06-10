@@ -11,12 +11,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 /**
  * @author ilyas
  */
 
-abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScFunction {
+abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScFunction with ScTypeParametersOwner {
 
   def nameId() = {
     val n = node.findChildByType(ScalaTokenTypes.tIDENTIFIER)
@@ -97,12 +98,6 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
                                   place: PsiElement): Boolean = {
     if (!processor.execute(this, state)) return false
     
-    if (lastParent != null) {
-      typeParametersClause match {
-        case Some(clause) => if (!clause.processDeclarations(processor, state, null, place)) return false
-        case _ => ()
-      }
-    }
-    true
+    super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
   }
 }

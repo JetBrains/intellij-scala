@@ -27,14 +27,4 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 class ScTypeParamClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeParamClause {
 
   override def toString: String = "TypeParameterClause"
-
-  override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
-    for (tp <- typeParameters) {
-      if (!processor.execute(tp, state)) return false
-    }
-    true
-  }
 }

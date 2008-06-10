@@ -14,36 +14,31 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008
 */
 
-class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait {
+class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait with ScTypeParametersOwner {
 
   def getMixinParents = null /*if (extendsBlock != null) {
     extendsBlock.getMixinParents
   } else null*/
 
-  def getMainParentName = null/*{
-    if (getMixinParents != null &&
-    getMixinParents.getMainConstructor != null){
-      getMixinParents.getMainConstructor.getClassName
-    } else {
-      null
-    }
-  } */
-
-  /*override def getMixinParentsNames = {
-    if (getMixinParents != null){
-      getMixinParents.getMixinParents.toList
-    } else {
-      Nil: List[ScStableId]
-    }
-  } */
+  def getMainParentName = null
 
   override def toString: String = "ScTrait"
 
   override def getIconInner = Icons.TRAIT
+
+  import com.intellij.psi._
+  import com.intellij.psi.scope.PsiScopeProcessor
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
+    if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
+    super.processDeclarations(processor, state, lastParent, place)
+  }
 }
