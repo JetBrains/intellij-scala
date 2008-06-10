@@ -16,13 +16,19 @@ object TypeDefinitionMembers {
     type T = Signature
     def equiv(s1 : Signature, s2 : Signature) = s1 equiv s2
     def computeHashCode(s : Signature) = s.name.hashCode* 31 + s.types.length
+    def isAbstract(s : Signature) = s.method match {
+      case _ : ScFunctionDeclaration => true
+      case m if m.hasModifierProperty(PsiModifier.ABSTRACT) => true
+      case _ => false
+    }
   }
 
   import com.intellij.psi.PsiNamedElement
   object ValueNodes extends MixinNodes {
     type T = PsiNamedElement
-    def equiv(p1 : PsiNamedElement, p2 : PsiNamedElement) = p1.getName == p2.getName
-    def computeHashCode(patt : PsiNamedElement) = patt.getName.hashCode
+    def equiv(n1 : PsiNamedElement, n2 : PsiNamedElement) = n1.getName == n2.getName
+    def computeHashCode(named : PsiNamedElement) = named.getName.hashCode
+    def isAbstract(named : PsiNamedElement) = false //todo
   }
 
   import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -30,6 +36,10 @@ object TypeDefinitionMembers {
     type T = PsiNamedElement //class or type alias
     def equiv(t1 : PsiNamedElement, t2 : PsiNamedElement) = t1.getName == t2.getName
     def computeHashCode(t : PsiNamedElement) = t.getName.hashCode
+    def isAbstract(t : PsiNamedElement) = t match {
+      case _ : ScTypeAliasDeclaration => true
+      case _ => false
+    }
   }
 
   import ValueNodes.{Map => Vmap}, MethodNodes.{Map => Mmap}, TypeNodes.{Map => Tmap}

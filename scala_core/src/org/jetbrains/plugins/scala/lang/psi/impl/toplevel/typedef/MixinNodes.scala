@@ -6,7 +6,7 @@ abstract class MixinNodes {
   type T
   def equiv(t1 : T, t2 : T) : Boolean
   def computeHashCode(t : T) : Int
-  def isAbstract(t : T) = false//todo
+  def isAbstract(t : T) : Boolean
   class Node (val info : T) {
     var supers : Seq[Node] = Seq.empty
     var primarySuper : Option[Node] = None
