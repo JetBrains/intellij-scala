@@ -25,9 +25,11 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            PsiElement(identifier)('b')
+            Field identifier
+              PsiElement(identifier)('b')
             PsiElement(,)(',')
-            PsiElement(identifier)('c')
+            Field identifier
+              PsiElement(identifier)('c')
           PsiWhiteSpace(' ')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
@@ -43,7 +45,8 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            PsiElement(identifier)('e')
+            Field identifier
+              PsiElement(identifier)('e')
           PsiWhiteSpace(' ')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')

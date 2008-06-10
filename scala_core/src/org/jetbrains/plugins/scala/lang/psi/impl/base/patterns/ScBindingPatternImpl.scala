@@ -10,7 +10,9 @@ abstract class ScBindingPatternImpl(node: ASTNode) extends ScPatternImpl(node) w
     findChildByType(ScalaTokenTypes.tIDENTIFIER)
   } else findChildByType(ScalaTokenTypes.tUNDER)
 
-  override def getName = if (!isWildcard) nameId.getText else null
+  override def getName = if (!isWildcard) nameId.getText
+                         else "_" //todo make model consistent
+  //else throw new UnsupportedOperationException("Wildcard pattern has no name!")
 
   def isWildcard = findChildByType(ScalaTokenTypes.tUNDER) != null
 

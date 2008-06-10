@@ -24,9 +24,11 @@ ScalaFile
           PsiElement(var)('var')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            PsiElement(identifier)('x')
+            Field identifier
+              PsiElement(identifier)('x')
             PsiElement(,)(',')
-            PsiElement(identifier)('y')
+            Field identifier
+              PsiElement(identifier)('y')
           PsiWhiteSpace(' ')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
