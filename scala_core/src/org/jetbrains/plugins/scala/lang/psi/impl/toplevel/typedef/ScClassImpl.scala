@@ -23,10 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass with ScTypeParametersOwner{
 
-  def getTemplateParents = null
-
-  def getMainParentName = null
-
   override def toString: String = "ScClass"
 
   override def getIconInner = Icons.CLASS

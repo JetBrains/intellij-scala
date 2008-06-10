@@ -22,12 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait with ScTypeParametersOwner {
 
-  def getMixinParents = null /*if (extendsBlock != null) {
-    extendsBlock.getMixinParents
-  } else null*/
-
-  def getMainParentName = null
-
   override def toString: String = "ScTrait"
 
   override def getIconInner = Icons.TRAIT
