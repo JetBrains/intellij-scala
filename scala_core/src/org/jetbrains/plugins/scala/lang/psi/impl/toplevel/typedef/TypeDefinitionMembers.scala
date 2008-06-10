@@ -4,6 +4,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.types.Signature
 import _root_.scala.collection.mutable.ListBuffer
@@ -28,7 +29,11 @@ object TypeDefinitionMembers {
     type T = PsiNamedElement
     def equiv(n1 : PsiNamedElement, n2 : PsiNamedElement) = n1.getName == n2.getName
     def computeHashCode(named : PsiNamedElement) = named.getName.hashCode
-    def isAbstract(named : PsiNamedElement) = false //todo
+    def isAbstract(named : PsiNamedElement) = named match {
+      case _ : ScFieldId => true
+      case f : PsiField if f.hasModifierProperty(PsiModifier.ABSTRACT) => true
+      case _ => false
+    }
   }
 
   import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -105,6 +110,10 @@ object TypeDefinitionMembers {
               case varDef : ScVariableDefinition =>
                 for (binding <- varDef.bindings) {
                   valuesMap += ((binding, new Vnode(binding)))
+                }
+              case varDecl : ScVariableDeclaration =>
+                for (fieldId <- varDecl.getIdList.fieldIds) {
+                  valuesMap += ((fieldId, new Vnode(fieldId)))
                 }
               case _ =>
             }

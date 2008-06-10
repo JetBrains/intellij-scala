@@ -39,7 +39,7 @@ class ScValueDeclarationImpl(node: ASTNode) extends ScMemberImpl(node) with ScVa
 
   def ids: Seq[PsiElement] = getIdList  match {
     case None => Seq.empty
-    case Some(x) => x.getIdentifiers
+    case Some(x) => x.fieldIds
   }
 
 }

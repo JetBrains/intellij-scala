@@ -26,7 +26,5 @@ class ScVariableDeclarationImpl(node: ASTNode) extends ScMemberImpl(node) with S
 
   override def getIcon(flags: Int) = Icons.VAR
 
-  def getIdList: ScIdList = findChildByClass(classOf[ScIdList])
-
-  def ids: Seq[PsiElement] = getIdList.getIdentifiers
+  def ids: Seq[PsiElement] = getIdList.fieldIds
 }

@@ -13,6 +13,6 @@ trait ScVariableDeclaration extends ScVariable {
   /**
   * @return non-null identifier list
   */
-  def getIdList: ScIdList
+  def getIdList: ScIdList = findChildByClass(classOf[ScIdList])
 
 }

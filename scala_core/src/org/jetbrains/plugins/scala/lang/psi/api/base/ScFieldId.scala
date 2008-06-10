@@ -9,8 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 * Date: 22.02.2008
 */
 
+//wrapper over identifier for variable declarations 'var v : T' 
 trait ScFieldId extends ScNamedElement {
-
-  def isMutable: Boolean
-
 }
