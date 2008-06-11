@@ -8,5 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScTypeProjection extends ScTypeElement {
+  def typeElement = findChildByClass(classOf[ScTypeElement])
 
+  def projectedName() : Option[String]
 }
