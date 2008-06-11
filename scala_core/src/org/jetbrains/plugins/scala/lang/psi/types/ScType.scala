@@ -69,7 +69,7 @@ object Byte extends ValType("Byte", Some(Short))
 object Short extends ValType("Float", Some(Int))
 
 object ScType {
-  def create(psiType : PsiType, project : Project) : ScType =
+  def create(psiType : PsiType, project : Project) : ScType = {
     psiType match {
       case classType : PsiClassType => {
         val result = classType.resolveGenerics
@@ -102,4 +102,6 @@ object ScType {
       case _ => Nothing
       //todo other cases
     }
+    Nothing
+  }
 }
