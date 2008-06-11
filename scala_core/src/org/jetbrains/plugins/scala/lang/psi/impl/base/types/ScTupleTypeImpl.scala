@@ -12,12 +12,8 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
 
-import org.jetbrains.annotations._
-
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.types.ScTupleType
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -26,4 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 class ScTupleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTupleTypeElement{
   override def toString: String = "TupleType"
+
+  override def getType() = new ScTupleType(components.map {te => te.getType})
 }

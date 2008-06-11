@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScTypes extends ScalaPsiElement {
-
+  def types = findChildrenByClass(classOf[ScTypeElement])
 }
