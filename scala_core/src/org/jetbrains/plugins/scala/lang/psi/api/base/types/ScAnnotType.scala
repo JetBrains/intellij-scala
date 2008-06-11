@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScAnnotTypeElement extends ScTypeElement {
-
+  def typeElement() = findChildByClass(classOf[ScTypeElement])
 }
