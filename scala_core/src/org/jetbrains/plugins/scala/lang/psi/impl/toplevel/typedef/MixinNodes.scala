@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
-import collection.mutable.{HashMap, ArrayBuffer, Set, ListBuffer}
+import collection.mutable.{HashMap, ArrayBuffer, HashSet, Set, ListBuffer}
 import com.intellij.psi.PsiClass
 import api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -59,8 +59,11 @@ abstract class MixinNodes {
   }
 
   def build(td : ScTypeDefinition) = {
-    def inner(clazz : PsiClass, subst : ScSubstitutor) : Map = {
+    def inner(clazz : PsiClass, subst : ScSubstitutor, visited : Set[PsiClass]) : Map = {
       val map = new Map
+      if (visited.contains(clazz)) return map
+      visited += clazz
+
       val superTypes = clazz match {
         case td : ScTypeDefinition => {
           processScala(td, subst, map)
@@ -76,7 +79,7 @@ abstract class MixinNodes {
       for (superType <- superTypes) {
         superType match {
           case ScParameterizedType(superClass : PsiClass, superSubst) => {
-            superTypesBuff += inner (superClass, combine(superSubst, subst))
+            superTypesBuff += inner (superClass, combine(superSubst, subst), visited)
           }
           case _ =>
         }
@@ -85,7 +88,7 @@ abstract class MixinNodes {
 
       map
     }
-    inner(td, ScSubstitutor.empty)
+    inner(td, ScSubstitutor.empty, new HashSet[PsiClass])
   }
 
   def combine(superSubst : ScSubstitutor, derived : ScSubstitutor) = {
