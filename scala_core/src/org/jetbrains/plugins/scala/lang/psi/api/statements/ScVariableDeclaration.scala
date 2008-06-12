@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScIdList
 * Time: 9:50:20
 */
 
-trait ScVariableDeclaration extends ScVariable {
+trait ScVariableDeclaration extends ScVariable with ScDeclaration {
 
   /**
   * @return non-null identifier list
