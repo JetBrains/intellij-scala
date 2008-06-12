@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 * Date: 13.03.2008
 */
 
-class ScParametrizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParametrizedTypeElement{
+class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParameterizedTypeElement{
 
   override def toString: String = "ParametrizedTypeElement"
 

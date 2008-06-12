@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Date: 13.03.2008
 */
 
-trait ScParametrizedTypeElement extends ScTypeElement {
+trait ScParameterizedTypeElement extends ScTypeElement {
 
   def getTypeArgs: ScTypeArgs
 
