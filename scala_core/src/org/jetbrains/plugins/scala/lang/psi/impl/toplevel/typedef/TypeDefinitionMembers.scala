@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.types.Signature
+import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import _root_.scala.collection.mutable.ListBuffer
 import com.intellij.openapi.util.Key
 import util._
@@ -14,10 +14,10 @@ import util._
 
 object TypeDefinitionMembers {
   object MethodNodes extends MixinNodes {
-    type T = Signature
-    def equiv(s1 : Signature, s2 : Signature) = s1 equiv s2
-    def computeHashCode(s : Signature) = s.name.hashCode* 31 + s.types.length
-    def isAbstract(s : Signature) = s.method match {
+    type T = PhysicalSignature
+    def equiv(s1 : PhysicalSignature, s2 : PhysicalSignature) = s1 equiv s2
+    def computeHashCode(s : PhysicalSignature) = s.name.hashCode* 31 + s.types.length
+    def isAbstract(s : PhysicalSignature) = s.method match {
       case _ : ScFunctionDeclaration => true
       case m if m.hasModifierProperty(PsiModifier.ABSTRACT) => true
       case _ => false
@@ -25,7 +25,7 @@ object TypeDefinitionMembers {
 
     def processJava(clazz : PsiClass, subst : ScSubstitutor, map : Map) =
       for (method <- clazz.getMethods) {
-        val sig = new Signature(method, subst)
+        val sig = new PhysicalSignature(method, subst)
         map += ((sig, new Node(sig)))
       }
 
@@ -33,7 +33,7 @@ object TypeDefinitionMembers {
       for (member <- td.members) {
         member match {
           case method: ScFunction => {
-            val sig = new Signature(method, subst)
+            val sig = new PhysicalSignature(method, subst)
             map += ((sig, new Node(sig)))
           }
           case _ =>

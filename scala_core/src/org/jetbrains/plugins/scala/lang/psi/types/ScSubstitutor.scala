@@ -61,17 +61,8 @@ class ScSubstitutor(val map : Map[PsiTypeParameter, ScType]) {
   }
 }
 
-import com.intellij.psi.PsiMethod
-class Signature(val method : PsiMethod, val substitutor : ScSubstitutor) {
-  val name = method.getName
-  val typeParams = method.getTypeParameters
-  val types = method.getParameterList.getParameters.map {p =>
-    p match {
-      case scp : ScParameter => scp.calcType
-      case _ => ScType.create(p.getType, p.getProject)
-    }
-  }
-  
+class Signature(val name : String, val types : Seq[ScType],
+                val typeParams : Array[PsiTypeParameter], val substitutor : ScSubstitutor) {
   def equiv(other : Signature) : Boolean = {
     name == other.name &&
     typeParams.length == other.typeParams.length &&
@@ -89,3 +80,14 @@ class Signature(val method : PsiMethod, val substitutor : ScSubstitutor) {
     res
   }
 }
+
+import com.intellij.psi.PsiMethod
+class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSubstitutor)
+  extends Signature (method.getName,
+                     method.getParameterList.getParameters.map {p => p match {
+                                                                  case scp : ScParameter => scp.calcType
+                                                                  case _ => ScType.create(p.getType, p.getProject)
+                                                                }},
+                     method.getTypeParameters,
+                     substitutor)
+
