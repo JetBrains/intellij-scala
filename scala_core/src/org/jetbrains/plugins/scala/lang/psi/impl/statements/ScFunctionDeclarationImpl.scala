@@ -36,5 +36,7 @@ class ScFunctionDeclarationImpl(node: ASTNode) extends ScFunctionImpl(node) with
 
   def getFunctionsAndTypeDefs = Seq.empty
 
+  def names = Seq.single(name)
+
 }
 
