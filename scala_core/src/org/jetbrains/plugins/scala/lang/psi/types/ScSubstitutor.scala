@@ -48,7 +48,7 @@ class ScSubstitutor(val map : Map[PsiTypeParameter, ScType]) {
 
   def subst (t : ScType) : ScType = {
     t match {
-      case ScFunctionType(ret, params) => new ScFunctionType(subst(ret), params map (t => subst(t)))
+      case ScFunctionType(ret, params) => new ScFunctionType(subst(ret), params map (subst _))
       case ScParameterizedType (td, s) => td match {
         case tp : PsiTypeParameter => subst(tp)
         case _ => {
