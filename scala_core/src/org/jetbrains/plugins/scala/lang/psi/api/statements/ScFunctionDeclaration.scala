@@ -6,6 +6,6 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 * Time: 9:49:23
 */
 
-trait ScFunctionDeclaration extends ScFunction {
+trait ScFunctionDeclaration extends ScFunction with ScDeclaration {
 
 }
