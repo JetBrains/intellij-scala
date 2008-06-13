@@ -12,6 +12,6 @@ import types.ScType
 */
 
 trait ScTypeAlias extends ScNamedElement with ScMember {
-  def lowerBound : ScType
-  def upperBound : ScType
+  def lowerBound() : ScType
+  def upperBound() : ScType
 }
