@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScIdList
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -14,5 +15,7 @@ trait ScVariableDeclaration extends ScVariable with ScDeclaration {
   * @return non-null identifier list
   */
   def getIdList: ScIdList = findChildByClass(classOf[ScIdList])
+
+  def typeElement = findChild(classOf[ScTypeElement])
 
 }
