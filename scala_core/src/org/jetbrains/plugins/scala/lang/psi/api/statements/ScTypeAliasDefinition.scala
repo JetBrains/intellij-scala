@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
+import base.types.ScTypeElement
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -7,5 +8,8 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 */
 
 trait ScTypeAliasDefinition extends ScTypeAlias {
+  def aliasedType = findChildByClass(classOf[ScTypeElement])
 
+  def lowerBound = aliasedType.getType
+  def upperBound = aliasedType.getType
 }
