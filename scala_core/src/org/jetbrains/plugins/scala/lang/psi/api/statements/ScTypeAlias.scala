@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import psi.ScalaPsiElement
+import toplevel.ScNamedElement
+import toplevel.typedef.ScMember
+import types.ScType
 
 /**
 * @author Alexander Podkhalyuzin
@@ -11,5 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 */
 
 trait ScTypeAlias extends ScNamedElement with ScMember {
-
+  def lowerBound : ScType
+  def upperBound : ScType
 }
