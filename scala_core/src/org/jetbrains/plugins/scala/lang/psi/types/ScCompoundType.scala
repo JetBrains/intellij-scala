@@ -7,7 +7,10 @@ import com.intellij.psi.PsiTypeParameter
 
 case class ScCompoundType(val components: Seq[ScType], decls: Seq[ScDeclaration], typeDecls: Seq[ScTypeAlias]) extends ScType{
   //compound types are checked by checking the set of signatures in their refinements
-  val signatureSet = new HashSet[Signature]
+  val signatureSet = new HashSet[Signature] {
+    override def elemHashCode(s : Signature) = s.name.hashCode* 31 + s.types.length
+  }
+
   for (decl <- decls) {
     decl match {
       case fun: ScFunctionDeclaration => signatureSet += new PhysicalSignature(fun, ScSubstitutor.empty)
