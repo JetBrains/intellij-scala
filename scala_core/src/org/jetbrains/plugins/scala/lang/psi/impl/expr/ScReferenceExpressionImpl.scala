@@ -89,10 +89,21 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
   }
 
-  def processType(t: ScType, processor: BaseProcessor): Unit = t match {
+  def processType(t: ScType, processor: BaseProcessor): Boolean = t match {
     case ScDesignatorType(e) => e.processDeclarations(processor, ResolveState.initial, null, this)
     case p: ScParameterizedType =>
       p.designated.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, p.substitutor), null, this)
-    case _ => () //todo
+    case ScCompoundType(comp, decls, _) => {
+      for (decl <- decls) {
+        if (!processor.execute(decl, ResolveState.initial)) return false
+      }
+      //needn't process types
+
+      for (c <- comp) {
+        if (!processType(c, processor)) return false
+      }
+      true
+    }
+    case _ => true //todo
   }
 }

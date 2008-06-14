@@ -28,5 +28,5 @@ class ScVariableDeclarationImpl(node: ASTNode) extends ScMemberImpl(node) with S
 
   def ids: Seq[ScFieldId] = getIdList.fieldIds
 
-  def names = ids map (_.name)
+  def declaredElements = ids
 }
