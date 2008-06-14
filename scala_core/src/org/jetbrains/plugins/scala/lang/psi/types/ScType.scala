@@ -28,6 +28,7 @@ case object AnyRef extends ScType {
     case AnyRef => true
     case Null => true
     case _ : ScParameterizedType => true
+    case _ : ScDesignatorType => true
     case _ : ScSingletonType => true
     case _ => false
   }
@@ -73,19 +74,21 @@ object ScType {
     psiType match {
       case classType : PsiClassType => {
         val result = classType.resolveGenerics
-        if (result.getElement != null) {
-          return new ScParameterizedType(result.getElement, ScSubstitutor.create(result.getSubstitutor, project))
+        val clazz = result.getElement
+        if (clazz != null) {
+          return new ScParameterizedType(new ScDesignatorType(clazz), clazz.getTypeParameters.map
+                  {tp => create(result.getSubstitutor.substitute(tp), project)})
         }
       }
       case arrayType : PsiArrayType => {
         val arrayClass = JavaPsiFacade.getInstance(project).findClass("scala.Array", arrayType.getResolveScope)
         if (arrayClass != null) {
           val tps = arrayClass.getTypeParameters
-          var subst = ScSubstitutor.empty
           if (tps.length == 1) {
-            subst = subst + (tps(0), create(arrayType.getComponentType, project))
+            val typeArg = create(arrayType.getComponentType, project)
+            return new ScParameterizedType(new ScDesignatorType(arrayClass), Array(typeArg))
           }
-          return new ScParameterizedType(arrayClass, subst)
+          return new ScDesignatorType(arrayClass)
         }
       }
 

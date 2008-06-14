@@ -1,21 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-
-
-
-
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
-import org.jetbrains.annotations._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
+import org.jetbrains.plugins.scala.lang.psi.types._
+
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -26,7 +17,14 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl 
 
   override def toString: String = "ParametrizedTypeElement"
 
-  def getTypeArgs = findChildByClass(classOf[ScTypeArgs])
+  def typeArgList = findChildByClass(classOf[ScTypeArgs])
 
-  def getSimpleTypeElement = findChildByClass(classOf[ScSimpleTypeElement])
+  def simpleTypeElement = findChildByClass(classOf[ScSimpleTypeElement])
+
+  override def getType() = {
+    simpleTypeElement.getType match {
+      case des : ScDesignatorType => new ScParameterizedType(des, typeArgList.typeArgs.map {_.getType}.toArray)
+      case _ => Nothing
+    }
+  }
 }

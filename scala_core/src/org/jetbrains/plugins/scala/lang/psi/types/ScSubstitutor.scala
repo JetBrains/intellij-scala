@@ -13,22 +13,6 @@ object ScSubstitutor {
   val empty = new ScSubstitutor
 
   val key : Key[ScSubstitutor] = Key.create("scala substitutor key")
-
-  def create (psiSubst : PsiSubstitutor, project : Project) : ScSubstitutor = {
-    var substitutor = empty
-    val it = psiSubst.getSubstitutionMap.entrySet.iterator
-    while (it.hasNext) {
-      val entry = it.next
-      val tp = entry.getKey
-      val t = entry.getValue
-      if (t == null) {
-        substitutor = substitutor + (tp, ScExistentialType.unbounded)
-      } else {
-        substitutor = substitutor + (tp, ScType.create(t, project))
-      }
-    }
-    substitutor
-  }
 }
 
 class ScSubstitutor(val map : Map[PsiTypeParameter, ScType]) {
@@ -49,13 +33,12 @@ class ScSubstitutor(val map : Map[PsiTypeParameter, ScType]) {
   def subst (t : ScType) : ScType = {
     t match {
       case ScFunctionType(ret, params) => new ScFunctionType(subst(ret), params map (subst _))
-      case ScParameterizedType (td, s) => td match {
+      case ScDesignatorType(e) => e match {
         case tp : PsiTypeParameter => subst(tp)
-        case _ => {
-          val newMap = map transform ((tp : PsiTypeParameter, t : ScType) => subst(s.subst(t)))
-          new ScParameterizedType(td, new ScSubstitutor(newMap))
-        }
+        case _ => t
       }
+      case ScParameterizedType (des, typeArgs) =>
+        new ScParameterizedType(des, typeArgs map {subst _})
       case _ => t //todo
     }
   }

@@ -8,24 +8,33 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import com.intellij.psi.{PsiNamedElement, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
-//for packages & objects
-case class ScDesignatorType(element: PsiNamedElement) extends ScType {
+case class ScDesignatorType(val element: PsiNamedElement) extends ScType {
   override def equiv(t: ScType) = t match {
     case ScDesignatorType(element1) => element eq element1
     case _ => false
   }
 }
 
-//for classes
-case class ScParameterizedType(owner: PsiTypeParameterListOwner, subst: ScSubstitutor) extends ScType {
-  override def equiv(t: ScType): Boolean = t match {
-    case ScParameterizedType(owner1, subst1) => {
-      if (owner != owner1) false
-      else {
-        owner.getTypeParameters.equalsWith(owner1.getTypeParameters) {
-          (tp1, tp2) => subst.subst(tp1).equiv(subst1.subst(tp2))
-        }
+import _root_.scala.collection.immutable.{Map, HashMap}
+import com.intellij.psi.PsiTypeParameter
+
+case class ScParameterizedType(designator : ScDesignatorType, typeArgs : Array[ScType]) extends ScType {
+  def designated = designator.element
+  def substitutor : ScSubstitutor = designated match {
+    case owner : PsiTypeParameterListOwner => {
+      var map : Map[PsiTypeParameter, ScType] = HashMap.empty
+      for (p <- owner.getTypeParameters zip typeArgs) {
+        map = map + p
       }
+      new ScSubstitutor(map)
+    }
+    case _ => ScSubstitutor.empty
+  }
+
+  override def equiv(t: ScType): Boolean = t match {
+    case ScParameterizedType(designator1, typeArgs1) => {
+      return designator1.equiv(designator1) &&
+             typeArgs.equalsWith(typeArgs1) {_ equiv _}
     }
     case _ => false
   }
