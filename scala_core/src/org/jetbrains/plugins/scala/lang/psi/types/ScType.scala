@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import com.intellij.psi._
 import com.intellij.openapi.project.Project
+import com.intellij.psi.search.GlobalSearchScope
 
 trait ScType {
 
@@ -81,7 +82,7 @@ object ScType {
         }
       }
       case arrayType : PsiArrayType => {
-        val arrayClass = JavaPsiFacade.getInstance(project).findClass("scala.Array", arrayType.getResolveScope)
+        val arrayClass = JavaPsiFacade.getInstance(project).findClass("scala.Array", GlobalSearchScope.allScope(project))
         if (arrayClass != null) {
           val tps = arrayClass.getTypeParameters
           if (tps.length == 1) {
