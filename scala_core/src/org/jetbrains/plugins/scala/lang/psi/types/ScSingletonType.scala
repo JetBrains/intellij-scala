@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import api.expr.ScReferenceExpression
 
 /** 
 * @author ilyas
