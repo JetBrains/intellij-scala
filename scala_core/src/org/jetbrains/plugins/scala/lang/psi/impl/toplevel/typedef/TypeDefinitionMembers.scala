@@ -93,14 +93,16 @@ object TypeDefinitionMembers {
         map += ((inner, new Node(inner)))
       }
 
-    def processScala(td : ScTypeDefinition, subst : ScSubstitutor, map : Map) =
+    def processScala(td : ScTypeDefinition, subst : ScSubstitutor, map : Map) = {
       for (member <- td.members) {
         member match {
           case alias: ScTypeAlias => map += ((alias, new Node(alias)))
-          case td: ScTypeDefinition => map += ((td, new Node(td)))
           case _ =>
         }
       }
+
+      for (inner <- td.typeDefinitions) map += ((inner, new Node(inner)))
+    }
   }
 
   val valsKey : Key[CachedValue[ValueNodes.Map]] = Key.create("vals key")
@@ -125,4 +127,4 @@ object TypeDefinitionMembers {
     def compute() = new CachedValueProvider.Result (builder(td),
                          Array[Object](PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
   }
-  }
+}
