@@ -27,4 +27,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 class ScTypeParamClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeParamClause {
 
   override def toString: String = "TypeParameterClause"
+
+  def typeParameters() : Seq[ScTypeParam] = findChildrenByType(TokenSets.TYPE_PARAMS_SET, classOf[ScalaPsiElement]).map {_ match {
+    case tp : ScTypeParam => tp
+    case vtp : ScVariantTypeParam => vtp.typeParameter
+  }}
 }

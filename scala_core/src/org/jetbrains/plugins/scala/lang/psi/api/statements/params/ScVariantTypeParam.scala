@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScVariantTypeParam extends ScalaPsiElement {
-
+  def typeParameter = findChildByClass(classOf[ScTypeParam])
 }

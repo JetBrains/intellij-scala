@@ -96,4 +96,6 @@ object TokenSets {
   val REFERENCE_SET = TokenSet.create(Array(REFERENCE))
 
   val IMPORTED_NAME_SET = TokenSet.create(Array(tIDENTIFIER, tUNDER))
+
+  val TYPE_PARAMS_SET = TokenSet.create(Array(TYPE_PARAM, VARIANT_TYPE_PARAM))
 }
