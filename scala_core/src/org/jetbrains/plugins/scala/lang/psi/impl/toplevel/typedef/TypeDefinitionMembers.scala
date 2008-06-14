@@ -73,6 +73,10 @@ object TypeDefinitionMembers {
             for (fieldId <- varDecl.getIdList.fieldIds) {
               map += ((fieldId, new Node(fieldId)))
             }
+          case valDecl: ScValueDeclaration =>
+            for (fieldId <- valDecl.getIdList.fieldIds) {
+              map += ((fieldId, new Node(fieldId)))
+            }
           case _ =>
         }
       }

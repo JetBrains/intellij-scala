@@ -21,16 +21,6 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String
     return true
   }
 
-  /*
-    override def getHint[T](hintClass: Class[T]): T = {
-      if (hintClass == classOf[NameHint] && name != "") {
-        this.asInstanceOf[T]
-      } else
-        super.getHint(hintClass)
-    }
-  */
-}
-
 import ResolveTargets._
 
 object StdKinds {

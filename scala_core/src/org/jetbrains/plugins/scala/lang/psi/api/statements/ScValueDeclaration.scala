@@ -11,10 +11,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScIdList
 */
 
 trait ScValueDeclaration extends ScValue with ScDeclaration {
-
-  /**
-  * @return non-null identifier list
-  */
-  def getIdList: Option[ScIdList]
-
+  def getIdList = findChildByClass(classOf[ScIdList])
 }
