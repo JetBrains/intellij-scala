@@ -10,6 +10,7 @@ import toplevel.typedef. {ScObject, ScTypeDefinition}
 import statements.{ScVariable, ScTypeAlias}
 import statements.params.{ScTypeParam, ScParameter}
 import base.patterns.ScBindingPattern
+import base.ScFieldId
 
 object BaseProcessor {
   def unapply(p : BaseProcessor) = Some(p.kinds)
@@ -59,6 +60,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
               }
             }
             case patt: ScBindingPattern => {
+              if (patt.getParent/*list of ids*/.getParent.isInstanceOf[ScVariable])
+                kinds contains ResolveTargets.VAR else kinds contains ResolveTargets.VAL
+            }
+            case patt: ScFieldId => {
               if (patt.getParent/*list of ids*/.getParent.isInstanceOf[ScVariable])
                 kinds contains ResolveTargets.VAR else kinds contains ResolveTargets.VAL
             }
