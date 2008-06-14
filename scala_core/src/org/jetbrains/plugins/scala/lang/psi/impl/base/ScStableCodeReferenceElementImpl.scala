@@ -68,7 +68,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
             case null => ()
             case p => {
               if (!p.processDeclarations(processor,
-              ResolveState.initial(), //todo
+              ResolveState.initial,
               lastParent, ref)) return ()
               treeWalkUp(place.getParent, place)
             }
@@ -80,7 +80,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         q.bind match {
           case None =>
           case Some(other) => {
-            other.element.processDeclarations(processor, ResolveState.initial(), //todo
+            other.element.processDeclarations(processor, ResolveState.initial,
             null, ScStableCodeReferenceElementImpl.this)
           }
         }
