@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
+import toplevel.ScNamedElement
+
 trait ScDeclaration extends ScalaPsiElement {
-  def names : Seq[String]
+  def declaredElements : Seq[ScNamedElement]
 }

@@ -5,7 +5,7 @@ import _root_.scala.collection.mutable.{HashSet, HashMap}
 import api.statements._
 import com.intellij.psi.PsiTypeParameter
 
-case class ScCompoundType(val components: Seq[ScType], decls: Seq[ScDeclaration], typeDecls: Seq[ScTypeAlias]) extends ScType{
+case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclaration], val typeDecls: Seq[ScTypeAlias]) extends ScType{
   //compound types are checked by checking the set of signatures in their refinements
   val signatureSet = new HashSet[Signature] {
     override def elemHashCode(s : Signature) = s.name.hashCode* 31 + s.types.length
@@ -23,18 +23,18 @@ case class ScCompoundType(val components: Seq[ScType], decls: Seq[ScDeclaration]
       case fun: ScFunctionDeclaration => signatureSet += new PhysicalSignature(fun, ScSubstitutor.empty)
       case varDecl: ScVariableDeclaration => {
         val typeElement = varDecl.typeElement
-        for (name <- varDecl.names) {
-          signatureSet += new Signature(name, Seq.empty, Array(), ScSubstitutor.empty)
+        for (e <- varDecl.declaredElements) {
+          signatureSet += new Signature(e.name, Seq.empty, Array(), ScSubstitutor.empty)
           typeElement match {
             case Some(te) => {
-              signatureSet += new Signature(name + "_", Seq.single(te.getType), Array(), ScSubstitutor.empty) //setter
+              signatureSet += new Signature(e.name + "_", Seq.single(te.getType), Array(), ScSubstitutor.empty) //setter
             }
             case None =>
           }
         }
       }
-      case valDecl: ScValueDeclaration => for (name <- valDecl.names) {
-        signatureSet += new Signature(name, Seq.empty, Array(), ScSubstitutor.empty)
+      case valDecl: ScValueDeclaration => for (e <- valDecl.declaredElements) {
+        signatureSet += new Signature(e.name, Seq.empty, Array(), ScSubstitutor.empty)
       }
     }
   }

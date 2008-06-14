@@ -37,5 +37,5 @@ class ScValueDeclarationImpl(node: ASTNode) extends ScMemberImpl(node) with ScVa
 
   def ids: Seq[ScFieldId] = getIdList.fieldIds
 
-  def names = ids map (_.name)
+  def declaredElements = ids
 }
