@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Nothing}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -9,5 +9,5 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 */
 
 trait ScExpression extends ScalaPsiElement {
-  def getType() : ScType = null //todo
+  def getType() : ScType = Nothing //todo
 }

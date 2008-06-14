@@ -9,25 +9,13 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
 
-import org.jetbrains.annotations._
-
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-
-
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.openapi.util._
-import com.intellij.openapi.util.Comparing;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.PsiReference;
-import com.intellij.util.IncorrectOperationException;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTyped
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -49,25 +37,27 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   import com.intellij.psi.impl.PsiManagerEx
+
   def multiResolve(incomplete: Boolean) =
     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, false, incomplete)
 
-  def getKinds(incomplete : Boolean) = {
+  def getKinds(incomplete: Boolean) = {
     if (incomplete) StdKinds.refExprQualRef
     else getParent match {
-      case _ : ScReferenceExpression => StdKinds.refExprQualRef
+      case _: ScReferenceExpression => StdKinds.refExprQualRef
       case _ => StdKinds.refExprLastRef
     }
   }
 
   import com.intellij.psi.impl.source.resolve.ResolveCache
+
   object MyResolver extends ResolveCache.PolyVariantResolver[ScReferenceExpressionImpl] {
     def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean) = {
       _resolve(ref, new ResolveProcessor(getKinds(incomplete), refName))
     }
   }
 
-  private def _resolve(ref : ScReferenceExpressionImpl, processor: BaseProcessor) : Array[ResolveResult] =
+  private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
     ref.qualifier match {
       case None => {
         def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
@@ -82,14 +72,27 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           }
         }
         treeWalkUp(ref, null)
-        processor.candidates.toArray
       }
-      case Some(e) => new Array(0)
+      case Some(q) => processType(q.getType, processor)
     }
+    processor.candidates.toArray
+  }
 
   override def getType(): ScType = {
-    if (stable) return new ScSingletonType(this)
+    //todo return singleton type in the contexts it is needed
+    bind match {
+      case Some(ScalaResolveResult(typed: ScTyped, s)) => s.subst(typed.calcType)
+      case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz)
+      case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject))
+      case Some(ScalaResolveResult(method: PsiMethod, s)) => s.subst(ScType.create(method.getReturnType, method.getProject))
+      case _ => Nothing
+    }
+  }
 
-    return null //todo
+  def processType(t: ScType, processor: BaseProcessor): Unit = t match {
+    case ScDesignatorType(e) => e.processDeclarations(processor, ResolveState.initial, null, this)
+    case p: ScParameterizedType =>
+      p.designated.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, p.substitutor), null, this)
+    case _ => () //todo
   }
 }
