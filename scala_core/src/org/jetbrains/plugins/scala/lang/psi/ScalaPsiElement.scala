@@ -7,9 +7,6 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.openapi.util.Key
-import org.jetbrains.annotations.Nullable
-
-import java.util.List;
 
 trait ScalaPsiElement extends PsiElement {
 
