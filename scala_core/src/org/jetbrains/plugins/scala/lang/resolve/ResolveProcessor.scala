@@ -20,6 +20,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String
     }
     return true
   }
+}
 
 import ResolveTargets._
 
