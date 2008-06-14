@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -24,4 +25,9 @@ class ScObjectImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScObje
   override def toString: String = "ScObject"
 
   override def getIconInner = Icons.OBJECT
+
+  //todo refactor
+  override def getModifierList = findChildByClass(classOf[ScModifierList])
+
+  override def hasModifierProperty(name: String) = if (getModifierList != null) getModifierList.hasModifierProperty(name: String) else false
 }
