@@ -13,9 +13,9 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
 
   def qualifier: Option[ScExpression] = findChild(classOf[ScExpression])
 
-  def stable(): Boolean = qualifier match {
+  def isPath(): Boolean = qualifier match {
     case null => true
-    case q: ScReferenceExpression => q.stable
+    case q: ScReferenceExpression => q.isPath
     case _ => false
   }
 }
