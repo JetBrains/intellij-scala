@@ -70,8 +70,8 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
     if (params.length != 1) return false
     params(0).typeElement match {
       case Some(g: ScParameterizedTypeElement) => {
-        if (!"Array".equals(g.getSimpleTypeElement.getText)) return false
-        val args = g.getTypeArgs.typeArgs
+        if (!"Array".equals(g.simpleTypeElement.getText)) return false
+        val args = g.typeArgList.typeArgs
         if (args.length != 1) return false
         args(0).getText == "String"
       }

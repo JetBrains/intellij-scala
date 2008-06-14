@@ -29,8 +29,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   override def getType() = {
     reference.bind match {
       case None => Nothing
-      case Some(ScalaResolveResult(owner: PsiTypeParameterListOwner, s)) => new ScParameterizedType(owner, s)
-      case Some(ScalaResolveResult(other, _)) => new ScDesignatorType(other)
+      case Some(ScalaResolveResult(e, _)) => new ScDesignatorType(e)
     }
   }
 }

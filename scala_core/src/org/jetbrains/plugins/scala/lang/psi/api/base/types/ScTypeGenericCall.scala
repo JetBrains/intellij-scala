@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScParameterizedTypeElement extends ScTypeElement {
 
-  def getTypeArgs: ScTypeArgs
+  def typeArgList: ScTypeArgs
 
-  def getSimpleTypeElement: ScSimpleTypeElement
+  def simpleTypeElement: ScSimpleTypeElement
 
 }

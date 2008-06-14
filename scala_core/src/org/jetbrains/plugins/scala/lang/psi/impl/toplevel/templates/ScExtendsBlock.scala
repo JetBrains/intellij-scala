@@ -53,6 +53,6 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   private def scalaObject() = {
     val so = JavaPsiFacade.getInstance(getProject).findClass("scala.ScalaObject")
-    if (so != null) new ScParameterizedType(so, ScSubstitutor.empty) else null
+    if (so != null) new ScDesignatorType(so) else null
   }
 }
