@@ -13,5 +13,5 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTupleType
 class ScTupleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTupleTypeElement{
   override def toString: String = "TupleType"
 
-  override def getType() = new ScTupleType(components.map {te => te.getType})
+  override def getType() = new ScTupleType(components.map {_.getType})
 }
