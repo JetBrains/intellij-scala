@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import toplevel.typedef.ScMember
+import api.toplevel.typedef._
+import api.statements.{ScFunction, ScTypeAlias}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -15,6 +15,8 @@ trait ScTemplateBody extends ScalaPsiElement {
   def members = findChildrenByClass(classOf[ScMember])
 
   def functions = findChildrenByClass(classOf[ScFunction])
+
+  def aliases = findChildrenByClass(classOf[ScTypeAlias])
 
   def typeDefinitions: Seq[ScTypeDefinition] = findChildrenByClass(classOf[ScTypeDefinition])
 }

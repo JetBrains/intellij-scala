@@ -9,7 +9,7 @@ import psi.ScalaPsiElement
 import lexer._
 import packaging._
 import templates._
-import statements.ScFunction
+import statements.{ScTypeAlias, ScFunction}
 import statements.params._
 import types.ScType
 
@@ -23,6 +23,8 @@ trait ScTypeDefinition extends ScNamedElement
   def members(): Seq[ScMember]
 
   def functions(): Seq[ScFunction]
+
+  def aliases(): Seq[ScTypeAlias]
 
   def typeDefinitions(): Seq[ScTypeDefinition]
 

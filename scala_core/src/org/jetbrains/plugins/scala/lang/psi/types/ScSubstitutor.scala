@@ -7,7 +7,8 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiTypeParameter, PsiSubstitutor}
 import collection.immutable.{Map, HashMap}
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import api.statements.params.ScParameter
+import api.statements.ScTypeAlias
 
 object ScSubstitutor {
   val empty = new ScSubstitutor
@@ -15,19 +16,21 @@ object ScSubstitutor {
   val key : Key[ScSubstitutor] = Key.create("scala substitutor key")
 }
 
-class ScSubstitutor(val map : Map[PsiTypeParameter, ScType]) {
+class ScSubstitutor(val map : Map[PsiTypeParameter, ScType], val aliasesMap : Map[String, ScType]) {
 
-  def this() = {
-    this(Map.empty)
+  def this() = this(Map.empty, Map.empty)
+
+  def +(p : PsiTypeParameter, t : ScType) = new ScSubstitutor(map + ((p, t)), aliasesMap)
+  def +(p : ScTypeAlias, t : ScType) = new ScSubstitutor(map, aliasesMap + ((p.name, t)))
+
+  def subst(p : PsiTypeParameter) = map.get(p) match {
+    case None => new ScDesignatorType(p)
+    case Some(v) => v
   }
 
-  def +(p : PsiTypeParameter, t : ScType) = new ScSubstitutor(map + ((p, t)))
-
-  def subst(p : PsiTypeParameter) = {
-    map.get(p) match {
-      case None => new ScDesignatorType(p)
-      case Some(v) => v
-    }
+  def subst(alias : ScTypeAlias) = aliasesMap.get(alias.name) match {
+    case None => new ScDesignatorType(alias)
+    case Some(v) => v
   }
 
   def subst (t : ScType) : ScType = {
@@ -36,6 +39,7 @@ class ScSubstitutor(val map : Map[PsiTypeParameter, ScType]) {
       case ScTupleType(comps) => new ScTupleType(comps map {subst _})
       case ScDesignatorType(e) => e match {
         case tp : PsiTypeParameter => subst(tp)
+        case alias : ScTypeAlias => subst(alias)
         case _ => t
       }
       case ScParameterizedType (des, typeArgs) =>
