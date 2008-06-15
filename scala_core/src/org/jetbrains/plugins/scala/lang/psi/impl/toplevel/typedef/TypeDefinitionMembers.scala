@@ -1,3 +1,6 @@
+/**
+* @author ven
+*/
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import com.intellij.psi._
