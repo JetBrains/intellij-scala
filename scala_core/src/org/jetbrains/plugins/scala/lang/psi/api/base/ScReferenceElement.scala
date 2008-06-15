@@ -5,8 +5,9 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import com.intellij.psi.PsiPolyVariantReference
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.lang.resolve._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -51,4 +52,30 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   }
 
   def isReferenceTo(element: PsiElement): Boolean = resolve() == element
+
+  import ResolveTargets._
+  def processType(t: ScType, processor: BaseProcessor): Boolean = t match {
+    case ScDesignatorType(e) => e.processDeclarations(processor, ResolveState.initial, null, this)
+    case p: ScParameterizedType =>
+      p.designated.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, p.substitutor), null, this)
+    case ScCompoundType(comp, decls, types) => {
+      if (processor.kinds.contains(VAR) || processor.kinds.contains(VAL) || processor.kinds.contains(METHOD)) {
+        for (decl <- decls) {
+          if (!processor.execute(decl, ResolveState.initial)) return false
+        }
+      }
+
+      if (processor.kinds.contains(TYPE)) {
+        for (t <- types) {
+          if (!processor.execute(t, ResolveState.initial)) return false
+        }
+      }
+
+      for (c <- comp) {
+        if (!processType(c, processor)) return false
+      }
+      true
+    }
+    case _ => true //todo
+  }
 }
