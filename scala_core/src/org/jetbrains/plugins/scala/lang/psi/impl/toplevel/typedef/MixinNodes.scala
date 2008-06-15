@@ -13,7 +13,7 @@ abstract class MixinNodes {
   def equiv(t1 : T, t2 : T) : Boolean
   def computeHashCode(t : T) : Int
   def isAbstract(t : T) : Boolean
-  class Node (val info : T) {
+  class Node (val info : T, val substitutor : ScSubstitutor) {
     var supers : Seq[Node] = Seq.empty
     var primarySuper : Option[Node] = None
   }
@@ -83,7 +83,7 @@ abstract class MixinNodes {
         superType match {
           case parameterized: ScParameterizedType => {
             parameterized.designated match {
-              case superClass: PsiClass => superTypesBuff += inner(superClass, combine(parameterized.substitutor, subst), visited)
+              case superClass: PsiClass => superTypesBuff += inner(superClass, combine(parameterized.substitutor, subst, superClass), visited)
             }
           }
           case ScDesignatorType(superClass : PsiClass) => superTypesBuff += inner(superClass, ScSubstitutor.empty, visited)
@@ -97,10 +97,16 @@ abstract class MixinNodes {
     inner(td, ScSubstitutor.empty, new HashSet[PsiClass])
   }
 
-  def combine(superSubst : ScSubstitutor, derived : ScSubstitutor) = {
+  def combine(superSubst : ScSubstitutor, derived : ScSubstitutor, superClass : PsiClass) = {
     var res : ScSubstitutor = ScSubstitutor.empty
     for ((tp, t) <- superSubst.map) {
       res = res + (tp, derived.subst(t))
+    }
+    superClass match {
+      case td : ScTypeDefinition => for (alias <- td.aliases) {
+        res = res + (alias, derived.subst(alias))
+      }
+      case _ => ()
     }
     res
   }

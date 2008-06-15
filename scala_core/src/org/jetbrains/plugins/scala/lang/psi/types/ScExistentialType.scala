@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import api.statements.{ScTypeAlias, ScValue}
+
 /** 
 * @author ilyas
 */
 
-case class ScExistentialType(vals : Seq[Tuple2[String, ScType]]) extends ScType
-
-object ScExistentialType {
-  val unbounded = new ScExistentialType(Seq.empty)
+case class ScExistentialType(val quantified : ScType, types : Seq[ScTypeAlias], vals : Seq[ScValue]) extends ScType {
+  
 }
+
+case class ScWildcardType(val lowerBound : ScType, val upperBound : ScType) extends ScType

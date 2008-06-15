@@ -26,7 +26,7 @@ case class ScParameterizedType(designator : ScDesignatorType, typeArgs : Array[S
       for (p <- owner.getTypeParameters zip typeArgs) {
         map = map + p
       }
-      new ScSubstitutor(map)
+      new ScSubstitutor(map, Map.empty)
     }
     case _ => ScSubstitutor.empty
   }

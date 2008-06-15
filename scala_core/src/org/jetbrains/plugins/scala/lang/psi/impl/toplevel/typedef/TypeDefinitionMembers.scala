@@ -29,7 +29,7 @@ object TypeDefinitionMembers {
     def processJava(clazz : PsiClass, subst : ScSubstitutor, map : Map) =
       for (method <- clazz.getMethods) {
         val sig = new PhysicalSignature(method, subst)
-        map += ((sig, new Node(sig)))
+        map += ((sig, new Node(sig, subst)))
       }
 
     def processScala(td : ScTypeDefinition, subst : ScSubstitutor, map : Map) =
@@ -37,7 +37,7 @@ object TypeDefinitionMembers {
         member match {
           case method: ScFunction => {
             val sig = new PhysicalSignature(method, subst)
-            map += ((sig, new Node(sig)))
+            map += ((sig, new Node(sig, subst)))
           }
           case _ =>
         }
@@ -57,28 +57,28 @@ object TypeDefinitionMembers {
 
     def processJava(clazz : PsiClass, subst : ScSubstitutor, map : Map) =
       for (field <- clazz.getFields) {
-        map += ((field, new Node(field)))
+        map += ((field, new Node(field, subst)))
       }
 
     def processScala(td : ScTypeDefinition, subst : ScSubstitutor, map : Map) =
       for (member <- td.members) {
         member match {
-          case obj: ScObject => map += ((obj, new Node(obj)))
+          case obj: ScObject => map += ((obj, new Node(obj, subst)))
           case patternDef: ScPatternDefinition =>
             for (binding <- patternDef.bindings) {
-              map += ((binding, new Node(binding)))
+              map += ((binding, new Node(binding, subst)))
             }
           case varDef: ScVariableDefinition =>
             for (binding <- varDef.bindings) {
-              map += ((binding, new Node(binding)))
+              map += ((binding, new Node(binding, subst)))
             }
           case varDecl: ScVariableDeclaration =>
             for (fieldId <- varDecl.getIdList.fieldIds) {
-              map += ((fieldId, new Node(fieldId)))
+              map += ((fieldId, new Node(fieldId, subst)))
             }
           case valDecl: ScValueDeclaration =>
             for (fieldId <- valDecl.getIdList.fieldIds) {
-              map += ((fieldId, new Node(fieldId)))
+              map += ((fieldId, new Node(fieldId, subst)))
             }
           case _ =>
         }
@@ -97,18 +97,18 @@ object TypeDefinitionMembers {
 
     def processJava(clazz: PsiClass, subst : ScSubstitutor, map: Map) =
       for (inner <- clazz.getInnerClasses) {
-        map += ((inner, new Node(inner)))
+        map += ((inner, new Node(inner, subst)))
       }
 
     def processScala(td : ScTypeDefinition, subst : ScSubstitutor, map : Map) = {
       for (member <- td.members) {
         member match {
-          case alias: ScTypeAlias => map += ((alias, new Node(alias)))
+          case alias: ScTypeAlias => map += ((alias, new Node(alias, subst)))
           case _ =>
         }
       }
 
-      for (inner <- td.typeDefinitions) map += ((inner, new Node(inner)))
+      for (inner <- td.typeDefinitions) map += ((inner, new Node(inner, subst)))
     }
   }
 

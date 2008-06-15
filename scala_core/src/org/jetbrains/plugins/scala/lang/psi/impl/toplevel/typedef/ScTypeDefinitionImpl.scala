@@ -28,7 +28,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.VisibilityIcons
 import com.intellij.openapi.util.Iconable
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import api.statements.{ScFunction, ScTypeAlias}
+import types.ScSubstitutor
 
 abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeDefinition with PsiClassFake {
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
@@ -88,6 +89,12 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
       case Some(body) => body.functions
     }) ++ findChildrenByClass(classOf[ScFunction])
 
+  def aliases(): Seq[ScTypeAlias] =
+    extendsBlock.templateBody match {
+      case None => Seq.empty
+      case Some(body) => body.aliases
+    }
+
   def typeDefinitions: Seq[ScTypeDefinition] =
     (extendsBlock.templateBody match {
       case None => Seq.empty
@@ -122,6 +129,8 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
 
+  import TypeDefinitionMembers.{ValueNodes, TypeNodes}
+
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,
@@ -134,18 +143,18 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
         val classHint = processor.getHint(classOf[ElementClassHint])
 
         if (shouldProcessVals(processor)) {
-          for ((v, _) <- TypeDefinitionMembers.getVals(this)) {
-            if (!processor.execute(v, state)) return false
+          for ((_, n) <- TypeDefinitionMembers.getVals(this)) {
+            if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor))) return false
           }
         }
         if (shouldProcessMethods(processor)) {
-          for ((m, _) <- TypeDefinitionMembers.getMethods(this)) {
-            if (!processor.execute(m.method, state)) return false
+          for ((sig, _) <- TypeDefinitionMembers.getMethods(this)) {
+            if (!processor.execute(sig.method, state.put(ScSubstitutor.key, sig.substitutor))) return false
           }
         }
         if (shouldProcessTypes(processor)) {
-          for ((t, _) <- TypeDefinitionMembers.getTypes(this)) {
-            if (!processor.execute(t, state)) return false
+          for ((_, n) <- TypeDefinitionMembers.getTypes(this)) {
+            if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor))) return false
           }
         }
         true
