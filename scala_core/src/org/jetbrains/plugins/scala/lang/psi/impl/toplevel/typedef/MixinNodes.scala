@@ -83,6 +83,7 @@ abstract class MixinNodes {
               case superClass: PsiClass => superTypesBuff += inner(superClass, combine(parameterized.substitutor, subst), visited)
             }
           }
+          case ScDesignatorType(superClass : PsiClass) => superTypesBuff += inner(superClass, ScSubstitutor.empty, visited)
           case _ =>
         }
       }
