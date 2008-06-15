@@ -8,6 +8,7 @@ import com.intellij.psi.PsiPolyVariantReference
 import org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.resolve._
+import statements.ScTypeAlias
 
 /**
 * @author Alexander Podkhalyuzin
@@ -55,7 +56,10 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
 
   import ResolveTargets._
   def processType(t: ScType, processor: BaseProcessor): Boolean = t match {
-    case ScDesignatorType(e) => e.processDeclarations(processor, ResolveState.initial, null, this)
+    case ScDesignatorType(e) => e match {
+      case ta : ScTypeAlias => processType(ta.upperBound, processor)
+      case _ => e.processDeclarations(processor, ResolveState.initial, null, this)
+    }
     case p: ScParameterizedType =>
       p.designated.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, p.substitutor), null, this)
     case ScCompoundType(comp, decls, types) => {
