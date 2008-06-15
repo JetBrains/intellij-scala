@@ -82,28 +82,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     //todo return singleton type in the contexts it is needed
     bind match {
       case Some(ScalaResolveResult(typed: ScTyped, s)) => s.subst(typed.calcType)
+      case Some(ScalaResolveResult(pack: PsiPackage, _)) => new ScDesignatorType(pack)
       case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz)
       case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject))
       case Some(ScalaResolveResult(method: PsiMethod, s)) => s.subst(ScType.create(method.getReturnType, method.getProject))
       case _ => Nothing
     }
-  }
-
-  def processType(t: ScType, processor: BaseProcessor): Boolean = t match {
-    case ScDesignatorType(e) => e.processDeclarations(processor, ResolveState.initial, null, this)
-    case p: ScParameterizedType =>
-      p.designated.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, p.substitutor), null, this)
-    case ScCompoundType(comp, decls, _) => {
-      for (decl <- decls) {
-        if (!processor.execute(decl, ResolveState.initial)) return false
-      }
-      //needn't process types
-
-      for (c <- comp) {
-        if (!processType(c, processor)) return false
-      }
-      true
-    }
-    case _ => true //todo
   }
 }

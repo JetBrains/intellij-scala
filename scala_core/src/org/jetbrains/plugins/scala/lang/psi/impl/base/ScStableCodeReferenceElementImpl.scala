@@ -17,12 +17,11 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi._
 import com.intellij.psi.impl._
-import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.icons.Icons
 import com.intellij.psi.PsiElement
 import com.intellij.openapi.util._
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.annotations.Nullable
+import api.toplevel.ScTyped
 
 /**
 * @author Alexander Podkhalyuzin
@@ -79,8 +78,9 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case Some(q) => {
         q.bind match {
           case None =>
+          case Some(ScalaResolveResult(typed : ScTyped, s)) => processType(s.subst(typed.calcType), processor)
           case Some(other) => {
-            other.element.processDeclarations(processor, ResolveState.initial,
+            other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),
             null, ScStableCodeReferenceElementImpl.this)
           }
         }
