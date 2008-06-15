@@ -33,6 +33,7 @@ class ScSubstitutor(val map : Map[PsiTypeParameter, ScType]) {
   def subst (t : ScType) : ScType = {
     t match {
       case ScFunctionType(ret, params) => new ScFunctionType(subst(ret), params map (subst _))
+      case ScTupleType(comps) => new ScTupleType(comps map {subst _})
       case ScDesignatorType(e) => e match {
         case tp : PsiTypeParameter => subst(tp)
         case _ => t
