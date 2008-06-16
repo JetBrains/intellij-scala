@@ -152,7 +152,6 @@ object ScalaPsiCreator {
     case ScalaElementTypes.TYPE => new ScFunctionalTypeElementImpl(node)
     case ScalaElementTypes.COMPOUND_TYPE => new ScCompoundTypeElementImpl(node)
     case ScalaElementTypes.INFIX_TYPE => new ScInfixTypeElementImpl(node)
-    case ScalaElementTypes.REFINE_STAT => new ScRefineStatImpl(node)
     case ScalaElementTypes.REFINEMENT => new ScRefinementImpl(node)
     case ScalaElementTypes.REFINEMENTS => new ScRefinementsImpl(node)
     case ScalaElementTypes.TYPES => new ScTypesImpl(node)

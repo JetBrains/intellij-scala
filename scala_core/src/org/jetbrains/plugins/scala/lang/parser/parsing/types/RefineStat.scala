@@ -24,28 +24,23 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
 
 object RefineStat {
   def parse(builder: PsiBuilder): Boolean = {
-    val refineStatMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE => {
         if (!Def.parse(builder,false)){
           Dcl.parse(builder,false)
         }
-        refineStatMarker.done(ScalaElementTypes.REFINE_STAT)
         return true
       }
       case ScalaTokenTypes.kVAR | ScalaTokenTypes.kVAL
          | ScalaTokenTypes.kDEF => {
         if (Dcl.parse(builder,false)) {
-          refineStatMarker.done(ScalaElementTypes.REFINE_STAT)
           return true
         }
         else {
-          refineStatMarker.drop
           return false
         }
       }
       case _ => {
-        refineStatMarker.drop
         return false
       }
     }

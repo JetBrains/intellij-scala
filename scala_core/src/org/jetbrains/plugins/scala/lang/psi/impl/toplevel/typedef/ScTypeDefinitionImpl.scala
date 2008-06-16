@@ -136,7 +136,6 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     if (!processor.execute(this, state)) return false
-
     extendsBlock.templateParents match {
       case Some(p) if (PsiTreeUtil.isAncestor(p, place, true)) => true
       case _ =>

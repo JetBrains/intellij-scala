@@ -30,6 +30,4 @@ public abstract class ParserUtilsBase {
     rb.rollbackTo();
     return i == elems.length;
   }
-
-
 }
