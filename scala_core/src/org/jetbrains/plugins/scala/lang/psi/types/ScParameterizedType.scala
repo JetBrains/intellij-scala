@@ -19,8 +19,8 @@ import _root_.scala.collection.immutable.{Map, HashMap}
 import com.intellij.psi.PsiTypeParameter
 
 case class ScParameterizedType(designator : ScDesignatorType, typeArgs : Array[ScType]) extends ScType {
-  def designated = designator.element
-  def substitutor : ScSubstitutor = designated match {
+  val designated = designator.element
+  val substitutor : ScSubstitutor = designated match {
     case owner : PsiTypeParameterListOwner => {
       var map : Map[PsiTypeParameter, ScType] = HashMap.empty
       for (p <- owner.getTypeParameters zip typeArgs) {

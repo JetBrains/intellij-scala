@@ -40,6 +40,15 @@ case object Nothing extends ScType {
   override def conforms(t: ScType) = t == Nothing
 }
 
+case object Singleton extends ScType {
+  override def equiv(t : ScType) = t == Singleton
+  override def conforms(t: ScType) = t match {
+    case Singleton => true
+    case _ : ScSingletonType => true
+    case _ => false
+  }
+}
+
 case object AnyVal extends ScType {
   override def equiv(t : ScType) = t == AnyVal
   override def conforms(t: ScType) = t match {
