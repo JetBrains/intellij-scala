@@ -30,6 +30,13 @@ object ParserUtils extends ParserUtilsBase {
     }
   */
 
+  def lookAheadSeq(n: Int)(builder: PsiBuilder) = (1 to n).map(i => {
+    val token = if (!builder.eof) builder.getTokenType else null
+    builder.advanceLexer
+    token
+  })
+
+
   def roll(builder: PsiBuilder) {
     while (!builder.eof && !(
             ScalaTokenTypes.tLINE_TERMINATOR.eq(builder.getTokenType) ||
@@ -66,15 +73,15 @@ object ParserUtils extends ParserUtilsBase {
         builder.advanceLexer
         //eatElement(builder , builder.getTokenType)
       }
-      else if (stack.isEmpty &&
-              (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType) ||
-                      ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) ||
-                      ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType))) {
-        flag = false
-      } else {
-        builder.advanceLexer
-        // eatElement(builder , builder.getTokenType)
-      }
+           else if (stack.isEmpty &&
+                   (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType) ||
+                           ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) ||
+                           ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType))) {
+             flag = false
+           } else {
+             builder.advanceLexer
+             // eatElement(builder , builder.getTokenType)
+           }
     }
     while (!stack.isEmpty) stack.pop
   }

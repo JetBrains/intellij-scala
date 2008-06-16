@@ -43,17 +43,16 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 Refinement
                   PsiElement({)('{')
-                  RefinementStatement
-                    ScValueDeclaration
-                      PsiElement(val)('val')
-                      PsiWhiteSpace(' ')
-                      ListOfIdentifiers
-                        Field identifier
-                          PsiElement(identifier)('i')
-                      PsiElement(:)(':')
-                      SimpleTypeElement
-                        CodeReferenceElement
-                          PsiElement(identifier)('T')
+                  ScValueDeclaration
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfIdentifiers
+                      Field identifier
+                        PsiElement(identifier)('i')
+                    PsiElement(:)(':')
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('T')
                   PsiElement(})('}')
           PsiElement())(')')
     ExtendsBlock

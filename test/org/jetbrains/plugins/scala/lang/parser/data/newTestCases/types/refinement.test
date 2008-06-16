@@ -28,9 +28,9 @@ ScalaFile
               PsiElement(identifier)('x')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          Refinement
-            PsiElement({)('{')
-            RefinementStatement
+          CompoundType
+            Refinement
+              PsiElement({)('{')
               ScTypeAliasDefinition
                 PsiElement(type)('type')
                 PsiWhiteSpace(' ')
@@ -41,9 +41,8 @@ ScalaFile
                 SimpleTypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('Boolean')
-            PsiElement(;)(';')
-            PsiWhiteSpace(' ')
-            RefinementStatement
+              PsiElement(;)(';')
+              PsiWhiteSpace(' ')
               ScValueDeclaration
                 PsiElement(val)('val')
                 PsiWhiteSpace(' ')
@@ -55,6 +54,6 @@ ScalaFile
                 SimpleTypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('Int')
-            PsiElement(})('}')
+              PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
