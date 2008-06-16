@@ -3,7 +3,7 @@ class Outer[T] {
 }
 
 class HigherKind {
-    type tconst[a] <: Outer[T]
+    type tconst[T] <: Outer[T]
 
     def r(a : tconst[String]) = {
         0 match {
