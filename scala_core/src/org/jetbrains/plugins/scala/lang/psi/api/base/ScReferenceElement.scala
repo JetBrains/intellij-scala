@@ -60,8 +60,10 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
       case ta : ScTypeAlias => processType(ta.upperBound, processor)
       case _ => e.processDeclarations(processor, ResolveState.initial, null, this)
     }
-    case p: ScParameterizedType =>
-      p.designated.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, p.substitutor), null, this)
+    case p: ScParameterizedType => p.designated match {
+        case ta : ScTypeAlias => processType(p.substitutor.subst(ta.upperBound), processor)
+        case des => des.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, p.substitutor), null, this)
+      }
     case ScCompoundType(comp, decls, types) => {
       if (processor.kinds.contains(VAR) || processor.kinds.contains(VAL) || processor.kinds.contains(METHOD)) {
         for (decl <- decls) {
