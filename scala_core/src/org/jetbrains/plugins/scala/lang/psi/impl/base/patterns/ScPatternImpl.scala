@@ -30,14 +30,4 @@ class ScPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatt
     else
       findChildByClass(classOf[ScPatterns]).patterns
   }
-
-  override def processDeclarations(processor: PsiScopeProcessor,
-      state : ResolveState,
-      lastParent: PsiElement,
-      place: PsiElement): Boolean = {
-    import org.jetbrains.plugins.scala.lang.resolve._
-
-    for (b <- bindings if !b.isWildcard) if (!processor.execute(b, state)) return false
-    true
-  }
 }

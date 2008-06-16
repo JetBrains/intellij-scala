@@ -15,15 +15,23 @@ import com.intellij.psi._
 class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScCaseClause{
   override def toString: String = "CaseClause"
   
-  def pattern = findChildByClass(classOf[ScPattern])
-
   override def processDeclarations(processor: PsiScopeProcessor,
       state : ResolveState,
       lastParent: PsiElement,
       place: PsiElement): Boolean = {
 
-    val p = pattern
-    if (p != null && p != lastParent) p.processDeclarations (processor, state, lastParent, place)
-    else true
+    pattern match {
+      case Some(p) => {
+        expr match {
+          case Some(e) if e == lastParent =>
+            for (b <- p.bindings) {
+              if (!processor.execute(b, state)) return false
+            }
+            true
+          case _ => true
+        }
+      }
+      case _ => true
+    }
   }
 }

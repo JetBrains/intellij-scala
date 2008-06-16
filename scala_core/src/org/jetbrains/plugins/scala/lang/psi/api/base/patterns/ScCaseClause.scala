@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.patterns
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import psi.ScalaPsiElement
+import expr.ScExpression
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -8,5 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScCaseClause extends ScalaPsiElement {
-  def pattern : ScPattern
+  def pattern = findChild(classOf[ScPattern])
+  def expr = findChild(classOf[ScExpression])
 }
