@@ -25,16 +25,34 @@ import org.jetbrains.plugins.scala.lang.parser.bnf._
  */
 
 object Pattern2 {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: PsiBuilder, forDef: Boolean): Boolean = {
+
+    def isVarId = builder.getTokenText.substring(0, 1).toLowerCase != builder.getTokenText.substring(0, 1)
+
+    def testForId = {
+      val m = builder.mark
+      builder.advanceLexer
+      val s = Set(ScalaTokenTypes.tAT,
+      ScalaTokenTypes.tIDENTIFIER,
+      ScalaTokenTypes.tDOT,
+      ScalaTokenTypes.tLPARENTHESIS)
+      val b = !s.contains(builder.getTokenType)
+      m.rollbackTo
+      b
+    }
+
     val pattern2Marker = builder.mark
     val backupMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
-        if (builder.getTokenText.substring(0, 1).toLowerCase !=
-                builder.getTokenText.substring(0, 1)) {
+        if (forDef && testForId) {
+          backupMarker.drop
+          builder.advanceLexer
+          pattern2Marker.done(ScalaElementTypes.REFERENCE_PATTERN)
+          return true
+        } else if (isVarId) {
           backupMarker.rollbackTo
-        }
-        else {
+        } else {
           builder.advanceLexer //Ate id
           builder.getTokenType match {
             case ScalaTokenTypes.tAT => {

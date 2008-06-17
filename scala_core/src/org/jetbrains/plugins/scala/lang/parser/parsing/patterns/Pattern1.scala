@@ -25,12 +25,14 @@ import org.jetbrains.plugins.scala.lang.parser.bnf._
 
 object Pattern1 {
   def parse(builder: PsiBuilder): Boolean = {
+
+    def isVarId = builder.getTokenText.substring(0, 1).toLowerCase != builder.getTokenText.substring(0, 1)
+
     val pattern1Marker = builder.mark
     val backupMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
-        if (builder.getTokenText.substring (0, 1).toLowerCase !=
-                builder.getTokenText.substring (0, 1)) {
+        if (isVarId) {
           backupMarker.rollbackTo
         }
         else {
@@ -39,10 +41,10 @@ object Pattern1 {
             case ScalaTokenTypes.tCOLON => {
               builder.advanceLexer //Ate :
               backupMarker.drop
-              if (!TypePattern.parse (builder)) {
-                builder error ScalaBundle.message ("wrong.type", new Array[Object] (0))
+              if (!TypePattern.parse(builder)) {
+                builder error ScalaBundle.message("wrong.type", new Array[Object](0))
               }
-              pattern1Marker.done (ScalaElementTypes.TYPED_PATTERN)
+              pattern1Marker.done(ScalaElementTypes.TYPED_PATTERN)
               return true
             }
 
@@ -58,10 +60,10 @@ object Pattern1 {
           case ScalaTokenTypes.tCOLON => {
             builder.advanceLexer //Ate :
             backupMarker.drop
-            if (!TypePattern.parse (builder)) {
-              builder error ScalaBundle.message ("wrong.type", new Array[Object] (0))
+            if (!TypePattern.parse(builder)) {
+              builder error ScalaBundle.message("wrong.type", new Array[Object](0))
             }
-            pattern1Marker.done (ScalaElementTypes.TYPED_PATTERN)
+            pattern1Marker.done(ScalaElementTypes.TYPED_PATTERN)
             return true
           }
           case _ => {
@@ -74,6 +76,6 @@ object Pattern1 {
       }
     }
     pattern1Marker.drop
-    Pattern2.parse (builder)
+    Pattern2.parse(builder, false)
   }
 }
