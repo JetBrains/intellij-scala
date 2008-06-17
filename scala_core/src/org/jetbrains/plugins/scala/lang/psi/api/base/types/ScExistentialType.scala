@@ -8,5 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScExistentialTypeElement extends ScTypeElement {
-
+  def quantified = findChildByClass(classOf[ScTypeElement])
+  def clause = findChildByClass(classOf[ScExistentialClause])
 }
