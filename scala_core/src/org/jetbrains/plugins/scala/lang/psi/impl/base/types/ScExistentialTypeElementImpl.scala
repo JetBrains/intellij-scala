@@ -11,8 +11,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
 
-import org.jetbrains.annotations._
-
+import api.statements.{ScTypeAliasDeclaration, ScValueDeclaration}
 
 
 /**
@@ -24,4 +23,21 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (n
   override def toString: String = "ExistentialType"
 
   override def getType() = new ScExistentialType(quantified.getType, clause.declarations)
+
+  import com.intellij.psi.scope.PsiScopeProcessor
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
+    if (lastParent == quantified) {
+      for (decl <- clause.declarations) {
+        decl match {
+          case alias : ScTypeAliasDeclaration => if (!processor.execute(alias, state)) return false
+          case valDecl : ScValueDeclaration =>
+            for (declared <- valDecl.declaredElements) if (!processor.execute(declared, state)) return false
+        }
+      }
+    }
+    true
+  }
 }

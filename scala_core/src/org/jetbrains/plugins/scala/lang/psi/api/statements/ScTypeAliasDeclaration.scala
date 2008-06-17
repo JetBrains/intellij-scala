@@ -6,6 +6,6 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 * Time: 9:49:48
 */
 
-trait ScTypeAliasDeclaration extends ScTypeAlias {
-
+trait ScTypeAliasDeclaration extends ScTypeAlias with ScDeclaration {
+  def declaredElements = Seq.single(this)
 }
