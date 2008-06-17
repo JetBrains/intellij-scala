@@ -47,7 +47,9 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   private def resolveKinds(incomplete : Boolean) = getParent match {
     case _: ScStableCodeReferenceElement => StdKinds.stableQualRef
-    case e : ScImportExpr => if (e.selectorSet != None) StdKinds.stableQualRef else StdKinds.stableQualOrClass 
+    case e : ScImportExpr => if (e.selectorSet != None
+            //import Class._ is not allowed
+            || qualifier == None) StdKinds.stableQualRef else StdKinds.stableQualOrClass 
     case _: ScSimpleTypeElement => if (incomplete) StdKinds.stableQualOrClass else StdKinds.stableClass
     case _ : ScTypeAlias => StdKinds.stableClass
     case _: ScImportSelector => StdKinds.stableImportSelector
