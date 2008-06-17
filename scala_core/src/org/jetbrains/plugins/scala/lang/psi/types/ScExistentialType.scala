@@ -31,6 +31,8 @@ case class ScExistentialType(val quantified : ScType, decls : Seq[ScDeclaration]
     buff.toList
   }
 
+  def boundNames = wildcards.map {_._1}
+  
   override def equiv(t : ScType) = t match {
     case ex : ScExistentialType => wildcards.equalsWith(ex.wildcards) {_._2 equiv _._2}
     case _ => false

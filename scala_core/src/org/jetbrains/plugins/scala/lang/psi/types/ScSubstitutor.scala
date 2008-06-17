@@ -44,10 +44,10 @@ class ScSubstitutor(val map : Map[PsiTypeParameter, ScType], val aliasesMap : Ma
       }
       case ScParameterizedType (des, typeArgs) =>
         new ScParameterizedType(des, typeArgs map {subst _})
-      case ex@ScExistentialType(q, aliases, vals) => {
+      case ex@ScExistentialType(q, decls) => {
         //remove bound names 
-        val trunc = aliasesMap.excl(ex.substitutor.aliasesMap.keySet)
-        new ScExistentialType(new ScSubstitutor(map, trunc).subst(q), aliases, vals)
+        val trunc = aliasesMap.excl(ex.boundNames)
+        new ScExistentialType(new ScSubstitutor(map, trunc).subst(q), decls)
       }
       case _ => t //todo
     }
