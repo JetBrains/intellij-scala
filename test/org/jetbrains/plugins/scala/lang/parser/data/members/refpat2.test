@@ -24,7 +24,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            CodeReferenceElement
+            ReferencePattern
               PsiElement(identifier)('Some')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

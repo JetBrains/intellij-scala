@@ -163,7 +163,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
   }
 
   import scala.lang.resolve._, scala.lang.resolve.ResolveTargets._
-  
+
   def shouldProcessVals(processor: PsiScopeProcessor) = processor match {
     case BaseProcessor(kinds) => (kinds contains VAR) || (kinds contains VAL) || (kinds contains OBJECT)
     case _ => {
