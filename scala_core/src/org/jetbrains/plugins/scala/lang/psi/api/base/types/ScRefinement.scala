@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.types
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import psi.ScalaPsiElement
+import statements.{ScDeclaration, ScTypeAlias}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -8,5 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScRefinement extends ScalaPsiElement {
-
+  def declarations() = findChildrenByClass(classOf[ScDeclaration])
+  def types() = findChildrenByClass(classOf[ScTypeAlias])
 }

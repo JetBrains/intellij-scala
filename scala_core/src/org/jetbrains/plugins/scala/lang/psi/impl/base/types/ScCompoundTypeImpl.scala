@@ -14,10 +14,10 @@ import com.intellij.psi._
 
 import org.jetbrains.annotations._
 
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
+import icons.Icons
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -26,4 +26,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScCompoundTypeElement {
   override def toString: String = "CompoundType"
+
+  override def getType() = {
+    val comps = components.map {_.getType}
+    refinement match {
+      case None => new ScCompoundType(comps, Seq.empty, Seq.empty)
+      case Some(r) => new ScCompoundType(comps, r.declarations, r.types)
+    }
+  }
 }
