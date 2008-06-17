@@ -9,5 +9,4 @@ object ResolveTargets {
   val OBJECT = new ResolveTargets
   val CLASS = new ResolveTargets
   val PACKAGE = new ResolveTargets
-  val TYPE = new ResolveTargets
 }

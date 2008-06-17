@@ -30,7 +30,7 @@ import ResolveTargets._
 object StdKinds {
   val stableQualRef = HashSet.empty[ResolveTargets] + PACKAGE + OBJECT + VAL
   val stableQualOrClass = stableQualRef + CLASS
-  val stableImportSelector = HashSet.empty[ResolveTargets] + OBJECT + VAL + VAR + METHOD + TYPE + PACKAGE + CLASS
+  val stableImportSelector = HashSet.empty[ResolveTargets] + OBJECT + VAL + VAR + METHOD + PACKAGE + CLASS
   val stableClass = HashSet.empty[ResolveTargets] + CLASS
 
   val refExprLastRef = HashSet.empty[ResolveTargets] + OBJECT + VAL + VAR + METHOD
