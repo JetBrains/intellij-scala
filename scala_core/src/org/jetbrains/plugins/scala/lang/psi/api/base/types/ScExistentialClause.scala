@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.types
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import psi.ScalaPsiElement
+import statements.ScDeclaration
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -8,5 +9,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScExistentialClause extends ScalaPsiElement {
-
+  def declarations = findChildrenByClass(classOf[ScDeclaration])
 }
