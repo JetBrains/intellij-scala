@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.resolve;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
@@ -28,5 +29,10 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
   public void testHigherKind() throws Exception {
     PsiReference ref = configureByFile("nonlocal/higherkind.scala");
     assertTrue(ref.resolve() instanceof ScTypeDefinition);
+  }
+
+  public void testCompoundTypes() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/compoundtypes.scala");
+    assertTrue(ref.resolve() instanceof ScTypeAlias);
   }
 }

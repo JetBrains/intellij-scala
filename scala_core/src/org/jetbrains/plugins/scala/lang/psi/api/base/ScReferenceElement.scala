@@ -73,7 +73,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
         }
       }
 
-      if (processor.kinds.contains(TYPE)) {
+      if (processor.kinds.contains(CLASS)) {
         for (t <- types) {
           if (!processor.execute(t, ResolveState.initial)) return false
         }

@@ -22,6 +22,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.openapi.util._
 import com.intellij.util.IncorrectOperationException
 import api.toplevel.ScTyped
+import api.statements.ScTypeAlias
 
 /**
 * @author Alexander Podkhalyuzin
@@ -48,6 +49,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     case _: ScStableCodeReferenceElement => StdKinds.stableQualRef
     case e : ScImportExpr => if (e.selectorSet != None) StdKinds.stableQualRef else StdKinds.stableQualOrClass 
     case _: ScSimpleTypeElement => if (incomplete) StdKinds.stableQualOrClass else StdKinds.stableClass
+    case _ : ScTypeAlias => StdKinds.stableClass
     case _: ScImportSelector => StdKinds.stableImportSelector
     case _ => StdKinds.stableQualRef
   }
