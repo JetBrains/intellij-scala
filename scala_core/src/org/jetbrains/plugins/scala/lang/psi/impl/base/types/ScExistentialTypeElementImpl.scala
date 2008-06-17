@@ -15,7 +15,7 @@ import org.jetbrains.annotations._
 
 
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
