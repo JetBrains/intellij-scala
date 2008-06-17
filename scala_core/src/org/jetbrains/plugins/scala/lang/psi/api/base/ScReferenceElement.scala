@@ -86,4 +86,6 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
     }
     case _ => true //todo
   }
+
+  def qualifier : Option[ScalaPsiElement]
 }

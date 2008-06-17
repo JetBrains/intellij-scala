@@ -29,7 +29,9 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   override def getType() = {
     reference.bind match {
       case None => Nothing
-      case Some(ScalaResolveResult(e, _)) => new ScDesignatorType(e)
+      case Some(ScalaResolveResult(e, _)) => {
+        if (singleton) new ScSingletonType(reference) else ScDesignatorType(e)
+      }
     }
   }
 }
