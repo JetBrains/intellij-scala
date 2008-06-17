@@ -15,132 +15,40 @@
 
 package org.jetbrains.plugins.scala.components;
 
-import com.intellij.ide.DeleteProvider;
-import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.projectView.TreeStructureProvider;
 import com.intellij.ide.projectView.ViewSettings;
+import com.intellij.ide.projectView.impl.nodes.ClassTreeNode;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
-import com.intellij.openapi.actionSystem.DataConstants;
-import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.refactoring.RefactoringActionHandler;
-import com.intellij.refactoring.actions.MoveAction;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author ven
  */
 public class ScalaDefsProjectViewProvider implements TreeStructureProvider, ProjectComponent {
-  private class Node extends ProjectViewNode<PsiClass> {
-    public Node(PsiClass aClass, ViewSettings settings) {
-      super(aClass.getProject(), aClass, settings);
-    }
+  private Project myProject;
 
-    public void navigate(boolean requestFocus) {
-      getValue().navigate(requestFocus);
-    }
-
-    public boolean canNavigate() {
-      return true;
-    }
-
-    public boolean contains(@NotNull VirtualFile file) {
-      PsiClass clazz = getValue();
-      if (clazz.isValid() && clazz.getParent() != null) {
-        return file.equals(clazz.getContainingFile().getVirtualFile());
-      }
-      return false;
-    }
-
-    @NotNull
-    public Collection<? extends AbstractTreeNode> getChildren() {
-      return Collections.emptyList();
-    }
-
-    protected void update(PresentationData presentation) {
-      PsiClass aClass = getValue();
-      presentation.setPresentableText(aClass.getName());
-      presentation.setIcons(aClass.getIcon(0));
-    }
+  public ScalaDefsProjectViewProvider(Project project) {
+    myProject = project;
   }
 
-  public Collection<AbstractTreeNode> modify(AbstractTreeNode parent, Collection<AbstractTreeNode> children, ViewSettings settings) {
-    List<AbstractTreeNode> result = new ArrayList<AbstractTreeNode>();
-    for (final AbstractTreeNode child : children) {
-      Object value = child.getValue();
-      if (value instanceof ScalaFile) {
-        ScalaFile scalaFile = (ScalaFile) value;
-        PsiClass[] classes = scalaFile.getClasses();
-        if (classes.length > 0) {
-          for (final PsiClass aClass : classes) {
-            result.add(new Node(aClass, settings));
-          }
-        } else {
-          result.add(child);
-        }
-      } else {
-        result.add(child);
-      }
-    }
-
-    return result;
+  public void initComponent() {
   }
 
-  @Nullable
-  public Object getData(Collection<AbstractTreeNode> selected, String dataName) {
-    if (selected != null) {
-      if (dataName.equals(DataConstants.DELETE_ELEMENT_PROVIDER)) {
-        for (AbstractTreeNode node : selected) {
-          if (node instanceof Node) return new CannotDeleteProvider();
-        }
-      } else if (dataName.equals(MoveAction.MOVE_PROVIDER)) {
-        for (AbstractTreeNode node : selected) {
-          if (node instanceof Node) return new CannotMoveProvider();
-        }
-      }
-    }
-
-    return null;
+  public void disposeComponent() {
   }
 
-  @Nullable
-  public PsiElement getTopLevelElement(PsiElement element) {
-    return null;
-  }
-
-  //cannot delete
-  private static class CannotDeleteProvider implements DeleteProvider {
-    public CannotDeleteProvider() {
-    }
-
-    public void deleteElement(DataContext dataContext) {
-    }
-
-    public boolean canDeleteElement(DataContext dataContext) {
-      return false;
-    }
-  }
-
-  private static class CannotMoveProvider implements MoveAction.MoveProvider {
-    public RefactoringActionHandler getHandler(DataContext dataContext) {
-      return null;
-    }
-
-    public boolean isEnabledOnDataContext(DataContext dataContext) {
-      return false;
-    }
+  @NotNull
+  public String getComponentName() {
+    return "ScalaTreeStructureProvider";
   }
 
   public void projectOpened() {
@@ -149,15 +57,40 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
   public void projectClosed() {
   }
 
-  @NonNls
-  @NotNull
-  public String getComponentName() {
-    return "ScalaDefsProjectViewProvider";
+  public Collection<AbstractTreeNode> modify(AbstractTreeNode parent, Collection<AbstractTreeNode> children, ViewSettings settings) {
+    ArrayList<AbstractTreeNode> result = new ArrayList<AbstractTreeNode>();
+
+    for (final AbstractTreeNode child : children) {
+      ProjectViewNode treeNode = (ProjectViewNode) child;
+      Object o = treeNode.getValue();
+      if (o instanceof ScalaFile) {
+        ScalaFile scalaFile = (ScalaFile) o;
+
+        ViewSettings viewSettings = ((ProjectViewNode) parent).getSettings();
+        if (scalaFile.getTypeDefinitions().length() == 0) {
+          result.add(child);
+        }
+
+        addTypes(result, scalaFile, viewSettings);
+      } else
+        result.add(treeNode);
+    }
+    return result;
   }
 
-  public void initComponent() {
+  private void addTypes(ArrayList<AbstractTreeNode> result, ScalaFile file, ViewSettings viewSettings) {
+    PsiClass[] classes = file.getClasses();
+    if (classes.length != 0) {
+      for (PsiClass aClass : classes) {
+        if (aClass.isValid()) {
+          result.add(new ClassTreeNode(myProject, aClass, viewSettings));
+        }
+      }
+    }
   }
 
-  public void disposeComponent() {
+  @Nullable
+  public Object getData(Collection<AbstractTreeNode> selected, String dataName) {
+    return null;
   }
 }

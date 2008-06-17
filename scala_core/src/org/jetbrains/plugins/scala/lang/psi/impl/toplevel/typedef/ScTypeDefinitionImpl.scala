@@ -77,6 +77,8 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   def extendsBlock: ScExtendsBlock = findChildByClass(classOf[ScExtendsBlock])
 
+  override def checkDelete() {}
+
   def members(): Seq[ScMember] =
     (extendsBlock.templateBody match {
       case None => Seq.empty
