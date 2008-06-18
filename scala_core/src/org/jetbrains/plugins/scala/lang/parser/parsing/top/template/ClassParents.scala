@@ -34,11 +34,11 @@ object ClassParents {
       builder.advanceLexer //Ate with
       if (!AnnotType.parse(builder)) {
         builder error ScalaBundle.message("wrong.simple.type", new Array[Object](0))
-        classParentsMarker.done(ScalaElementTypes.TEMPLATE_PARENTS)
+        classParentsMarker.done(ScalaElementTypes.CLASS_PARENTS)
         return false
       }
     }
-    classParentsMarker.done(ScalaElementTypes.TEMPLATE_PARENTS)
+    classParentsMarker.done(ScalaElementTypes.CLASS_PARENTS)
     return true
   }
 }

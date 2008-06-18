@@ -35,7 +35,7 @@ object MixinParents {
     //Look for parent
     if (!AnnotType.parse(builder)) {
       builder error ScalaBundle.message("wrong.simple.type", new Array[Object](0))
-      mixinMarker.done(ScalaElementTypes.MIXIN_PARENTS)
+      mixinMarker.done(ScalaElementTypes.TRAIT_PARENTS)
       return false
     }
     //Look for mixin
@@ -43,11 +43,11 @@ object MixinParents {
       builder.advanceLexer //Ate with
       if (!AnnotType.parse(builder)) {
         builder error ScalaBundle.message("wrong.simple.type", new Array[Object](0))
-        mixinMarker.done(ScalaElementTypes.MIXIN_PARENTS)
+        mixinMarker.done(ScalaElementTypes.TRAIT_PARENTS)
         return false
       }
     }
-    mixinMarker.done(ScalaElementTypes.MIXIN_PARENTS)
+    mixinMarker.done(ScalaElementTypes.TRAIT_PARENTS)
     return true
   }
 }

@@ -121,7 +121,7 @@ object getDummyBlocks {
     node.getPsi match {
       case _: ScParameters if mySettings.ALIGN_MULTILINE_PARAMETERS => true
       case _: ScParameterClause if mySettings.ALIGN_MULTILINE_PARAMETERS => true
-      case _: ScParents if mySettings.ALIGN_MULTILINE_EXTENDS_LIST => true
+      case _: ScTemplateParents if mySettings.ALIGN_MULTILINE_EXTENDS_LIST => true
       case _: ScArguments if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => true
       case _: ScPatternArgumentList if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => true
       case _: ScEnumerators if mySettings.ALIGN_MULTILINE_FOR => true

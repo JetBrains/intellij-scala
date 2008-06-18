@@ -36,8 +36,8 @@ object ScalaElementTypes {
 
   //val CASE = new ScalaElementType("case")
 
-  val TEMPLATE_PARENTS = new ScalaElementType("template parents")
-  val MIXIN_PARENTS = new ScalaElementType("mixin parents")
+  val CLASS_PARENTS = new ScalaElementType("template parents")
+  val TRAIT_PARENTS = new ScalaElementType("mixin parents")
   val CONSTRUCTOR = new ScalaElementType("constructor")
 
   val TEMPLATE = new ScalaElementType("template")

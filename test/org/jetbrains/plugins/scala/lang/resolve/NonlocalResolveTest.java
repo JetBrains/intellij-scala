@@ -4,6 +4,7 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern;
 import org.jetbrains.plugins.scala.util.TestUtils;
@@ -40,5 +41,10 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
   public void testValsAsPatterns() throws Exception {
     PsiReference ref = configureByFile("nonlocal/valsaspatterns.scala");
     assertTrue(ref.resolve() instanceof ScPattern);
+  }
+
+  public void testTraitSuperTypes() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/traitsupertypes.scala");
+    assertTrue(ref.resolve() instanceof ScFunction);
   }
 }
