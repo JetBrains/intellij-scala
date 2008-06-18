@@ -8,38 +8,24 @@ import com.intellij.psi.search.GlobalSearchScope
 
 trait ScType {
 
-  def equiv(t: ScType): Boolean = false
+  def equiv(t: ScType): Boolean = this
 
   sealed def conforms(t: ScType): Boolean = Conformance.conforms(this, t)
 }
 
-case object Any extends ScType {
-  override def equiv(t : ScType) = t == Any
-}
+case object Any extends ScType
 
-case object Null extends ScType {
-  override def equiv(t : ScType) = t == Null
-}
+case object Null extends ScType
 
-case object AnyRef extends ScType {
-  override def equiv(t : ScType) = t == AnyRef
-}
+case object AnyRef extends ScType
 
-case object Nothing extends ScType {
-  override def equiv(t : ScType) = t == Nothing
-}
+case object Nothing extends ScType
 
-case object Singleton extends ScType {
-  override def equiv(t : ScType) = t == Singleton
-}
+case object Singleton extends ScType
 
-case object AnyVal extends ScType {
-  override def equiv(t : ScType) = t == AnyVal
-}
+case object AnyVal extends ScType
 
-abstract case class ValType(val name : String, val tSuper : Option[ValType]) extends ScType {
-  override def equiv(t : ScType) = t == this
-}
+abstract case class ValType(val name : String, val tSuper : Option[ValType]) extends ScType
 
 object Unit extends ValType("Unit", None)
 object Boolean extends ValType("Boolean", None)
