@@ -21,7 +21,7 @@ class ScSubstitutor(val map : Map[PsiTypeParameter, ScType], val aliasesMap : Ma
   def this() = this(Map.empty, Map.empty)
 
   def +(p : PsiTypeParameter, t : ScType) = new ScSubstitutor(map + ((p, t)), aliasesMap)
-  def +(p : ScTypeAlias, t : ScType) = new ScSubstitutor(map, aliasesMap + ((p.name, t)))
+  def +(name : String, t : ScType) = new ScSubstitutor(map, aliasesMap + ((name, t)))
 
   def subst(p : PsiTypeParameter) = map.get(p) match {
     case None => new ScDesignatorType(p)

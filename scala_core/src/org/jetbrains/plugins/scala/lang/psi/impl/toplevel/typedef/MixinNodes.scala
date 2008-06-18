@@ -104,7 +104,7 @@ abstract class MixinNodes {
     }
     superClass match {
       case td : ScTypeDefinition => for (alias <- td.aliases) {
-        res = res + (alias, derived.subst(alias))
+        res = res + (alias.name, derived.subst(alias))
       }
       case _ => ()
     }
