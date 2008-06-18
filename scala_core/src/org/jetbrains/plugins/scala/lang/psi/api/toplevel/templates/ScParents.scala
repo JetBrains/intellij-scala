@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import psi.ScalaPsiElement
+import base.types.ScTypeElement
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -8,6 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Time: 9:23:53
 */
 
-trait ScParents extends ScalaPsiElement {
-
+trait ScTemplateParents extends ScalaPsiElement {
+  def typeElements() : Seq[ScTypeElement] = findChildrenByClass(classOf[ScTypeElement])
 }

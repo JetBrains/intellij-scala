@@ -85,7 +85,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       }
       case _: ScBlock => Indent.getNoneIndent
       case _: ScEnumerators => Indent.getNormalIndent
-      case _: ScParameters |  _: ScParameterClause | _: ScPattern | _: ScParents |
+      case _: ScParameters |  _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
            _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScAnnotations => {
         Indent.getContinuationWithoutFirstIndent
       }

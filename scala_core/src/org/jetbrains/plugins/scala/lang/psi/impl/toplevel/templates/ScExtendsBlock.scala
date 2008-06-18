@@ -35,13 +35,17 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   def superTypes(): Seq[ScType] = {
     val buffer = new ArrayBuffer[ScType]
     templateParents match {
-      case None => ()
+      case None =>
       case Some(parents) => {
-        parents.constructor match {
-          case None => ()
-          case Some(c) => buffer += c.typeElement.getType
+        parents match {
+          case classParents : ScClassParents =>
+            classParents.constructor match {
+              case None => ()
+              case Some(c) => buffer += c.typeElement.getType
+            }
+          case _ =>
         }
-        buffer ++= (parents.traits map {
+        buffer ++= (parents.typeElements map {
           typeElement => typeElement.getType
         }).toArray
       }

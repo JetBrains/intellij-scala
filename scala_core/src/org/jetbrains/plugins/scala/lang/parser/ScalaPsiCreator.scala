@@ -60,8 +60,8 @@ object ScalaPsiCreator {
       /***************************************************/
 
       /******************* parents ****************/
-      case ScalaElementTypes.TEMPLATE_PARENTS => new ScTemplateParentsImpl(node)
-      case ScalaElementTypes.MIXIN_PARENTS => new ScMixinParentsImpl(node)
+      case ScalaElementTypes.CLASS_PARENTS => new ScClassParentsImpl(node)
+      case ScalaElementTypes.TRAIT_PARENTS => new ScTraitParentsImpl(node)
 
       /******************* body *******************/
       case ScalaElementTypes.TEMPLATE_BODY => new ScTemplateBodyImpl(node)
