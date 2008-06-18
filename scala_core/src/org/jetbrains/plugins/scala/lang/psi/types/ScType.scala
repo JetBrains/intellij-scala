@@ -10,63 +10,35 @@ trait ScType {
 
   def equiv(t: ScType): Boolean = false
 
-  def conforms(t: ScType): Boolean = false
+  sealed def conforms(t: ScType): Boolean = Conformance.conforms(this, t)
 }
 
 case object Any extends ScType {
   override def equiv(t : ScType) = t == Any
-  override def conforms(t: ScType) = true
 }
 
 case object Null extends ScType {
   override def equiv(t : ScType) = t == Null
-  override def conforms(t: ScType) = t == Null || t == Nothing
 }
 
 case object AnyRef extends ScType {
   override def equiv(t : ScType) = t == AnyRef
-  override def conforms(t: ScType) = t match {
-    case AnyRef => true
-    case Null => true
-    case _ : ScParameterizedType => true
-    case _ : ScDesignatorType => true
-    case _ : ScSingletonType => true
-    case _ => false
-  }
 }
 
 case object Nothing extends ScType {
   override def equiv(t : ScType) = t == Nothing
-  override def conforms(t: ScType) = t == Nothing
 }
 
 case object Singleton extends ScType {
   override def equiv(t : ScType) = t == Singleton
-  override def conforms(t: ScType) = t match {
-    case Singleton => true
-    case _ : ScSingletonType => true
-    case _ => false
-  }
 }
 
 case object AnyVal extends ScType {
   override def equiv(t : ScType) = t == AnyVal
-  override def conforms(t: ScType) = t match {
-    case AnyVal => true
-    case _ : ValType => true
-    case _ => false
-  }
 }
 
 abstract case class ValType(val name : String, val tSuper : Option[ValType]) extends ScType {
   override def equiv(t : ScType) = t == this
-  override def conforms(t : ScType) : Boolean = {
-    if (t == this) return true
-    tSuper match {
-      case Some(tSuper) => conforms(tSuper)
-      case _ => false
-    }
-  }
 }
 
 object Unit extends ValType("Unit", None)
