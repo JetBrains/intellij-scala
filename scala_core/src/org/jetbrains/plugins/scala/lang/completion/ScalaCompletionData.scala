@@ -236,7 +236,6 @@ class ScalaCompletionData extends CompletionData {
     variant.addCompletion(ScalaKeyword.EXTENDS)
     registerVariant(variant)
   }
-
   /*
   * Keyword completion in expressions
   */

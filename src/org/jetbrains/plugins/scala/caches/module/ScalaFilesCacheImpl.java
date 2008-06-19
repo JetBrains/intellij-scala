@@ -230,6 +230,7 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
   public PsiClass getClassByName(@NotNull final String qualifiedClassName) {
     refresh();
     String name = getShortClassName(qualifiedClassName);
+    if (myScalaFilesStorage == null) return null;
     Collection<String> urls = myScalaFilesStorage.getFileUrlsByClassName(qualifiedClassName);
     for (String url : urls) {
       VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
