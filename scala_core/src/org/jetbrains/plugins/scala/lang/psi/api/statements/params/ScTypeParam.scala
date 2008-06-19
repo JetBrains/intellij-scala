@@ -13,4 +13,7 @@ import com.intellij.psi._
 trait ScTypeParam extends ScalaPsiElement with ScNamedElement with PsiTypeParameter {
   def lowerBound() : ScType
   def upperBound() : ScType
+
+  def isCovariant() : Boolean
+  def isContravariant() : Boolean
 }
