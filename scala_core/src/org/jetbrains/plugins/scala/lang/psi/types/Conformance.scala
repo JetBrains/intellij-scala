@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import api.statements._
 import params._
+import resolve.ScalaResolveResult
 
 import com.intellij.psi._
 
@@ -29,6 +30,10 @@ object Conformance {
       }
       case ValType(_, tSuper) => tSuper match {
         case Some(tSuper) => conforms(t1, tSuper)
+        case _ => false
+      }
+      case ScSingletonType(path) => path.bind match {
+        case Some(ScalaResolveResult(e, _)) => conforms(new ScDesignatorType(e), t2)
         case _ => false
       }
       case ScDesignatorType(ta : ScTypeAlias) => conforms(ta.lowerBound, t2)
