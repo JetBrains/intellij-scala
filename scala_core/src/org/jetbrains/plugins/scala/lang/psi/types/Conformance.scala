@@ -1,5 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import api.statements._
+import params._
+
+import com.intellij.psi._
+
 object Conformance {
   def conforms (t1 : ScType, t2 : ScType) : Boolean = {
     if (t1 equiv t2) true
@@ -26,7 +31,14 @@ object Conformance {
         case Some(tSuper) => conforms(t1, tSuper)
         case _ => false
       }
-      case _ => false //todo
+      case ScDesignatorType(ta : ScTypeAlias) => conforms(ta.lowerBound, t2)
+      case ScDesignatorType(tp : ScTypeParam) => conforms(tp.lowerBound, t2)
+      case ScDesignatorType(tp : PsiTypeParameter) => t2 == Nothing //Q: what about AnyRef?
+      case _ => t2 match {
+        case ScDesignatorType(ta : ScTypeAlias) => conforms(t1, ta.upperBound)
+        case ScDesignatorType(tp : ScTypeParam) => conforms(t1, tp.upperBound)
+        case _ => false //todo
+      }
     }
   }
 }

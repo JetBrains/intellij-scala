@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements.params
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import psi.ScalaPsiElement
+import toplevel.ScNamedElement
+import types.ScType
 import com.intellij.psi._
 
 /** 
@@ -10,4 +11,6 @@ import com.intellij.psi._
 */
 
 trait ScTypeParam extends ScalaPsiElement with ScNamedElement with PsiTypeParameter {
+  def lowerBound() : ScType
+  def upperBound() : ScType
 }
