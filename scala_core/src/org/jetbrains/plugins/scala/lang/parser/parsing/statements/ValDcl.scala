@@ -71,7 +71,7 @@ object ValDcl {
       case _ => {
         builder error ErrMsg("identifier.expected")
         returnMarker.drop
-        return true
+        return false
       }
     }
   }
