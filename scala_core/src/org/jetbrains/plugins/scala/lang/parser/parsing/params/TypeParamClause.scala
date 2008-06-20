@@ -33,12 +33,12 @@ object TypeParamClause {
         return false
       }
     }
-    if (!VariantTypeParam.parse(builder)) {
+    if (!TypeParam.parse(builder, true)) {
       builder error ScalaBundle.message("wrong.parameter", new Array[Object](0))
     }
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
       builder.advanceLexer //Ate
-      if (!VariantTypeParam.parse(builder)) {
+      if (!TypeParam.parse(builder, true)) {
         builder error ScalaBundle.message("wrong.parameter", new Array[Object](0))
       }
     }

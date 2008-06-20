@@ -14,16 +14,15 @@ ScalaFile
     PsiElement(identifier)('PhantomReference')
     TypeParameterClause
       PsiElement([)('[')
-      VariantTypeParameter
+      TypeParameter
         PsiElement(identifier)('+')
-        TypeParameter
-          PsiElement(identifier)('T')
-          PsiWhiteSpace(' ')
-          PsiElement(<:)('<:')
-          PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
-              PsiElement(identifier)('AnyRef')
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleTypeElement
+          CodeReferenceElement
+            PsiElement(identifier)('AnyRef')
       PsiElement(])(']')
     PrimaryConstructor
       AnnotationsList

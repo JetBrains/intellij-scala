@@ -12,10 +12,9 @@ ScalaFile
     PsiWhiteSpace(' ')
     TypeParameterClause
       PsiElement([)('[')
-      VariantTypeParameter
+      TypeParameter
         PsiElement(identifier)('+')
-        TypeParameter
-          PsiElement(identifier)('T')
+        PsiElement(identifier)('T')
       PsiElement(])(']')
     PsiWhiteSpace(' ')
     RequiresBlock

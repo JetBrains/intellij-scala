@@ -26,8 +26,7 @@ object BNF {
       ScalaTokenTypes.tLPARENTHESIS,
       ScalaTokenTypes.kNEW))
 
-  val tPREFIXES: TokenSet = TokenSet.create(Array(ScalaTokenTypes.tPLUS,
-      ScalaTokenTypes.tMINUS,
+  val tPREFIXES: TokenSet = TokenSet.create(
       ScalaTokenTypes.tTILDA,
       ScalaTokenTypes.tNOT))
 
@@ -71,9 +70,7 @@ object BNF {
       firstXmlExpr))
 
   val firstPrefixExpr: TokenSet = TokenSet.orSet(Array(firstSimpleExpr,
-      TokenSet.create(Array(ScalaTokenTypes.tMINUS,
-          ScalaTokenTypes.tPLUS,
-          ScalaTokenTypes.tTILDA,
+      TokenSet.create(Array(ScalaTokenTypes.tTILDA,
           ScalaTokenTypes.tNOT,
           ScalaTokenTypes.tAND))))
 
@@ -158,10 +155,8 @@ object BNF {
 
   val firstTypeParam = TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER))
 
-  val firstVariantTypeParam = TokenSet.orSet(Array(TokenSet.create(Array(ScalaTokenTypes.tPLUS,
-      ScalaTokenTypes.tMINUS)),
-      firstTypeParam))
-
+  val firstVariantTypeParam = firstTypeParam
+  
   val firstFunTypeParam = TokenSet.create(Array(ScalaTokenTypes.tLINE_TERMINATOR,
       ScalaTokenTypes.tLSQBRACKET))
 

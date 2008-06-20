@@ -30,6 +30,5 @@ class ScTypeParamClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wit
 
   def typeParameters() : Seq[ScTypeParam] = findChildrenByType(TokenSets.TYPE_PARAMS_SET, classOf[ScalaPsiElement]).map {_ match {
     case tp : ScTypeParam => tp
-    case vtp : ScVariantTypeParam => vtp.typeParameter
   }}
 }
