@@ -15,22 +15,21 @@
 
 package org.jetbrains.plugins.scala.lang.surroundWith;
 
-import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
-import org.jetbrains.plugins.scala.util.TestUtils;
-import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiElement;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler;
+import com.intellij.lang.surroundWith.Surrounder;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler;
-import com.intellij.lang.surroundWith.Surrounder;
 import junit.framework.Test;
+import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
+import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
+import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
  * @autor: Dmitry.Krasilschikov
@@ -72,7 +71,7 @@ public class SurroundWithTester extends BaseScalaFileSetTestCase {
     PsiFile myFile;
     FileEditorManager fileEditorManager;
     Editor editor;
-    myFile = TestUtils.createPseudoPhysicalFile(project, file.getText());
+    myFile = TestUtils.createPseudoPhysicalScalaFile(project, file.getText());
     fileEditorManager = FileEditorManager.getInstance(project);
 
     try {
@@ -92,16 +91,16 @@ public class SurroundWithTester extends BaseScalaFileSetTestCase {
   public String transform(String testName, String[] data) throws Exception {
     final int surroundType = Integer.parseInt(data[0].substring(0,2).trim());
     String fileText = data[0].substring(2,data[0].length()).trim();
-    final PsiFile psiFile = TestUtils.createPseudoPhysicalFile(project, fileText);
+    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
 
     final Surrounder[] surrounder = surrounder();
 //    for (final Surrounder surrounder : surrounders) {
-    CommandProcessor.getInstance().executeCommand(project, new Runnable() {
+    CommandProcessor.getInstance().executeCommand(myProject, new Runnable() {
       public void run() {
         ApplicationManager.getApplication().runWriteAction(new Runnable() {
           public void run() {
             try {
-              doSurround(project, psiFile, surrounder[surroundType]);
+              doSurround(myProject, psiFile, surrounder[surroundType]);
             } catch (IncorrectOperationException e) {
               e.printStackTrace();
             }

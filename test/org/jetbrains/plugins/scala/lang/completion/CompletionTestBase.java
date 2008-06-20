@@ -45,8 +45,8 @@ public abstract class CompletionTestBase extends ActionTestBase {
     int offset = fileText.indexOf(CARET_MARKER);
     fileText = removeMarker(fileText);
     myFile = createFile(fileText);
-    myFileEditorManager = FileEditorManager.getInstance(project);
-    myEditor = myFileEditorManager.openTextEditor(new OpenFileDescriptor(project, myFile.getVirtualFile(), 0), false);
+    myFileEditorManager = FileEditorManager.getInstance(myProject);
+    myEditor = myFileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, myFile.getVirtualFile(), 0), false);
     myEditor.getCaretModel().moveToOffset(offset);
     myOffset = myEditor.getCaretModel().getOffset();
 
@@ -80,7 +80,7 @@ public abstract class CompletionTestBase extends ActionTestBase {
   }
 
   protected PsiFile createFile(String fileText) throws IncorrectOperationException {
-    return TestUtils.createPseudoPhysicalFile(project, fileText);
+    return TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
   }
 
   protected abstract LookupItem[] getAcceptableItems(CompletionData data) throws IncorrectOperationException;

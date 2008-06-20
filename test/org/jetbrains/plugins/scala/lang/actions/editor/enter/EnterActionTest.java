@@ -15,7 +15,6 @@
 
 package org.jetbrains.plugins.scala.lang.actions.editor.enter;
 
-import com.intellij.codeInsight.editorActions.EnterHandler;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
@@ -45,17 +44,14 @@ public class EnterActionTest extends ActionTestBase {
 
   public EnterActionTest() {
     super(System.getProperty("path") != null ?
-      System.getProperty("path") :
-      DATA_PATH
+            System.getProperty("path") :
+            DATA_PATH
     );
   }
 
 
   protected EditorActionHandler getMyHandler() {
-    EditorActionManager manager = EditorActionManager.getInstance();
-    final EditorActionHandler handler = new EnterHandler(manager.getActionHandler(IdeActions.ACTION_EDITOR_ENTER));
-    manager.setActionHandler(IdeActions.ACTION_EDITOR_ENTER, handler);
-    return handler;
+    return EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_ENTER);
   }
 
 
@@ -64,17 +60,16 @@ public class EnterActionTest extends ActionTestBase {
     String fileText = file.getText();
     int offset = fileText.indexOf(CARET_MARKER);
     fileText = removeMarker(fileText);
-    myFile = TestUtils.createPseudoPhysicalFile(project, fileText);
-    fileEditorManager = FileEditorManager.getInstance(project);
-    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(project, myFile.getVirtualFile(), 0), false);
+    myFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
+    fileEditorManager = FileEditorManager.getInstance(myProject);
+    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, myFile.getVirtualFile(), 0), false);
     myEditor.getCaretModel().moveToOffset(offset);
-
 
     final myDataContext dataContext = getDataContext(myFile);
     final EditorActionHandler handler = getMyHandler();
 
     try {
-      performAction(project, new Runnable() {
+      performAction(myProject, new Runnable() {
         public void run() {
           handler.execute(myEditor, dataContext);
         }
@@ -83,19 +78,23 @@ public class EnterActionTest extends ActionTestBase {
       offset = myEditor.getCaretModel().getOffset();
       result = myEditor.getDocument().getText();
       result = result.substring(0, offset) + CARET_MARKER + result.substring(offset);
-
     } finally {
       fileEditorManager.closeFile(myFile.getVirtualFile());
       myEditor = null;
     }
+
     return result;
   }
 
   public String transform(String testName, String[] data) throws Exception {
     setSettings();
     String fileText = data[0];
-    final PsiFile psiFile = TestUtils.createPseudoPhysicalFile(project, fileText);
-    return processFile(psiFile);
+    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
+    String result = processFile(psiFile);
+    System.out.println("------------------------ " + testName + " ------------------------");
+    System.out.println(result);
+    System.out.println("");
+    return result;
   }
 
 

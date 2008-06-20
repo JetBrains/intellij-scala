@@ -36,7 +36,7 @@ public class ParserTest extends BaseScalaFileSetTestCase {
 
   public String transform(String testName, String[] data) throws Exception {
     String fileText = data[0];
-    PsiFile psiFile = TestUtils.createPseudoPhysicalFile(project, fileText);
+    PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
 
     String psiTree = DebugUtil.psiToString(psiFile, false);
     System.out.println("------------------------ " + testName + " ------------------------");

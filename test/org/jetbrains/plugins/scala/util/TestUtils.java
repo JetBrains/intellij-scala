@@ -45,7 +45,7 @@ public class TestUtils {
   }
 
 
-  public static PsiFile createPseudoPhysicalFile(final Project project, final String text) throws IncorrectOperationException {
+  public static PsiFile createPseudoPhysicalScalaFile(final Project project, final String text) throws IncorrectOperationException {
     String TEMP_FILE = project.getProjectFilePath() + "temp.scala";
     return PsiFileFactory.getInstance(project).createFileFromText(
         TEMP_FILE,
