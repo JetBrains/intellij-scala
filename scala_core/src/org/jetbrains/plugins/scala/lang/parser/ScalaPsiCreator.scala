@@ -113,8 +113,6 @@ object ScalaPsiCreator {
       case ScalaElementTypes.PARAM_TYPE => new ScParameterTypeImpl(node)
       /***************** type parameters ****************/
       case ScalaElementTypes.TYPE_PARAM_CLAUSE => new ScTypeParamClauseImpl(node)
-      /*********** class ************/
-      case ScalaElementTypes.VARIANT_TYPE_PARAM => new ScVariantTypeParamImpl(node)
       /********** function **********/
       case ScalaElementTypes.TYPE_PARAM => new ScTypeParamImpl(node)
       /***************************************************/

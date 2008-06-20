@@ -31,12 +31,12 @@ object FunTypeParamClause {
         return false
       }
     }
-    if (!VariantTypeParam.parse(builder)) {
+    if (!TypeParam.parse(builder, true)) {
       builder error ErrMsg("wrong.parameter")
     }
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
       builder.advanceLexer //Ate
-      if (!TypeParam.parse(builder)) {
+      if (!TypeParam.parse(builder, false)) {
         builder error ErrMsg("wrong.parameter")
       }
     }

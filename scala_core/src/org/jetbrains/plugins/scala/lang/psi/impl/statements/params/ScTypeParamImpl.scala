@@ -56,6 +56,13 @@ class ScTypeParamImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTy
     } else Any
   }
 
-  def isCovariant = findChildByType(ScalaTokenTypes.tPLUS) != null
-  def isContravariant = findChildByType(ScalaTokenTypes.tMINUS) != null
+  def isCovariant = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+    case x if x != null => x.getText == "+"
+    case _ => false
+  }
+
+  def isContravariant = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+    case x if x != null => x.getText == "-"
+    case _ => false
+  }
 }

@@ -11,10 +11,9 @@ ScalaFile
     PsiElement(identifier)('a')
     TypeParameterClause
       PsiElement([)('[')
-      VariantTypeParameter
+      TypeParameter
         PsiElement(identifier)('+')
-        TypeParameter
-          PsiElement(identifier)('b')
+        PsiElement(identifier)('b')
       PsiElement(,)(',')
       TypeParameter
         PsiElement(identifier)('c')
