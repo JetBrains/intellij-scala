@@ -80,7 +80,7 @@ object VarDcl {
       case _ => {
         builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
         returnMarker.drop
-        return true
+        return false
       }
     }
   }
