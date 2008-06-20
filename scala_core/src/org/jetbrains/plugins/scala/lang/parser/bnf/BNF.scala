@@ -28,7 +28,7 @@ object BNF {
 
   val tPREFIXES: TokenSet = TokenSet.create(
       ScalaTokenTypes.tTILDA,
-      ScalaTokenTypes.tNOT))
+      ScalaTokenTypes.tNOT)
 
   /*********** LAST **************/
   var lastTemplateStat = TokenSet.create(Array(ScalaTokenTypes.tRBRACE))
