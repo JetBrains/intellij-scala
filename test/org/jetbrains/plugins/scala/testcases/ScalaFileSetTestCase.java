@@ -15,19 +15,19 @@
 
 package org.jetbrains.plugins.scala.testcases;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.codeStyle.CodeStyleSettings;
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
 import com.intellij.testFramework.fixtures.TestFixtureBuilder;
-import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.ScalaLoader;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.ScalaLoader;
 
 public abstract class ScalaFileSetTestCase extends FileSetTestCase {
-  protected Project project;
+  protected Project myProject;
   protected Module module;
   protected CodeStyleSettings mySettings;
   private IdeaProjectTestFixture fixture;
@@ -40,7 +40,7 @@ public abstract class ScalaFileSetTestCase extends FileSetTestCase {
   }
 
   protected CodeStyleSettings getSettings() {
-    return CodeStyleSettingsManager.getSettings(project);
+    return CodeStyleSettingsManager.getSettings(myProject);
   }
 
   protected void setSettings() {
@@ -63,7 +63,7 @@ public abstract class ScalaFileSetTestCase extends FileSetTestCase {
     }
 
     module = fixture.getModule();
-    project = module.getProject();
+    myProject = module.getProject();
     ScalaLoader.loadScala();
     setSettings();
 

@@ -11,8 +11,11 @@ import com.intellij.lang._
 sealed class ScalaFormattingModelBuilder extends FormattingModelBuilder {
 
   def createModel(element: PsiElement, settings: CodeStyleSettings) = {
+
+    val file = element.getContainingFile
+    val node = file.getNode
     FormattingModelProvider.createFormattingModelForPsiFile(element.getContainingFile(),
-            new ScalaBlock(null, element.getNode(),null, null, null, null, settings), settings);
+         new ScalaBlock(null, node, null, null, null, null, settings), settings);
   }
 
   def getRangeAffectingIndent(file: PsiFile, offset: Int, elementAtOffset: ASTNode): TextRange = {
