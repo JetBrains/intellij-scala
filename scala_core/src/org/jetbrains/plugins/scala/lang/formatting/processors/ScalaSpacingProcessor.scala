@@ -50,7 +50,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val rightNode = right.getNode
     //val (leftString, rightString) = (left.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText),
     //        right.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText)) //for debug
-
+    //comments processing
+    if (rightNode.getPsi.isInstanceOf[PsiComment] || leftNode.getPsi.isInstanceOf[PsiComment]) {
+      return COMMON_SPACING
+    }
     //; : . and , processing
     if (rightNode.getText.length > 0 && rightNode.getText()(0) == '.') {
       if (rightNode.getElementType != ScalaTokenTypes.tFLOAT && !rightNode.getPsi.isInstanceOf[ScLiteral]) return WITHOUT_SPACING
