@@ -26,9 +26,9 @@ object BNF {
       ScalaTokenTypes.tLPARENTHESIS,
       ScalaTokenTypes.kNEW))
 
-  val tPREFIXES: TokenSet = TokenSet.create(
+  val tPREFIXES: TokenSet = TokenSet.create(Array(
       ScalaTokenTypes.tTILDA,
-      ScalaTokenTypes.tNOT)
+      ScalaTokenTypes.tNOT))
 
   /*********** LAST **************/
   var lastTemplateStat = TokenSet.create(Array(ScalaTokenTypes.tRBRACE))
@@ -156,7 +156,7 @@ object BNF {
   val firstTypeParam = TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER))
 
   val firstVariantTypeParam = firstTypeParam
-  
+
   val firstFunTypeParam = TokenSet.create(Array(ScalaTokenTypes.tLINE_TERMINATOR,
       ScalaTokenTypes.tLSQBRACKET))
 
