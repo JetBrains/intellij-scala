@@ -119,7 +119,7 @@ object TypeDefinitionMembers {
   def getMethods (td : ScTypeDefinition) = get(td, methodsKey, new MyProvider(td, {td => MethodNodes.build(td)}))
   def getTypes(td : ScTypeDefinition) = get(td, typesKey, new MyProvider(td, {td => TypeNodes.build(td)}))
 
-  private def get[T] (td : ScTypeDefinition, key : Key[CachedValue[T]], provider : CachedValueProvider[T]) = {
+  private def get[T] (td : ScTypeDefinition, key : Key[CachedValue[T]], provider : => CachedValueProvider[T]) = {
     var computed = td.getUserData(key)
     if (computed == null) {
       val manager = PsiManager.getInstance(td.getProject).getCachedValuesManager
