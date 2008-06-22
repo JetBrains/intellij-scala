@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import api.base.patterns._
+import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 
-import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi._
+import scope.PsiScopeProcessor
 
 /** 
 * @author Alexander Podkhalyuzin
