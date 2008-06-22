@@ -16,11 +16,9 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-
-
-
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElementImpl,ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 
 import com.intellij.openapi.util.TextRange
 
@@ -37,26 +35,14 @@ object ScalaPsiElementFactory {
 
   private val DUMMY = "dummy." 
 
-  def createExpressionFromText(buffer: String, manager: PsiManager): ASTNode = {
-    def isExpr = (elementType: IElementType) => (TokenSets.EXPRESSION_BIT_SET.contains(elementType))
-
-    //val definition: ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
-    //    if (definition != null) ...
-
+  def createExpressionFromText(buffer: String, manager: PsiManager): ScExpression = {
     val facade = JavaPsiFacade.getInstance(manager.getProject)
-    val text = "class a {" + buffer + "}"
+    val text = "class a {val b = " + buffer + "}"
 
-    val dummyFile: PsiFile = PsiFileFactory.getInstance(manager.getProject()).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
-
-    val classDef = dummyFile.getFirstChild
-    val topDefTmpl = classDef.getLastChild
-    val templateBody = topDefTmpl.getFirstChild.asInstanceOf[ScalaPsiElementImpl]
-
-    val expression = templateBody.childSatisfyPredicateForElementType(isExpr)
-
-    if (expression == null) return null
-
-    expression.asInstanceOf[ScExpression].getNode
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    val classDef = dummyFile.getTypeDefinitions()(0)
+    val p = classDef.members()(0).asInstanceOf[ScPatternDefinition]
+    p.expr
   }
 
   def createDummyParams(manager: PsiManager): ScParameters = {
@@ -69,68 +55,4 @@ object ScalaPsiElementFactory {
     val function = templateBody.getFirstChild.getNextSibling
     return function.getLastChild.asInstanceOf[ScParameters]
   }
-
-
-
-/*
-  def createIdentifierFromText(id: String, manager: PsiManager): ASTNode = {
-    val definition: ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
-    val text = "class " + id + "{}"
-
-    val dummyFile: ScalaFile = manager.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
-
-    val classDef = dummyFile.getTmplDefs.head
-    classDef.nameId.getNode
-  }
-*/
-
-/*
-  def createTemplateStatementFromText(buffer: String, manager: PsiManager): ASTNode = {
-    def isStmt = (element: PsiElement) => (element.isInstanceOf[ScTemplateStatement])
-
-    val pareserDefinition: ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
-
-    val text = "class a {" + buffer + "}"
-
-    val dummyFile: PsiFile = manager.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
-
-    val classDef = dummyFile.getFirstChild
-    val topDefTmpl = classDef.getLastChild
-    val templateBody = topDefTmpl.getFirstChild.asInstanceOf[ScalaPsiElementImpl]
-
-    val stmt = templateBody.childSatisfyPredicateForPsiElement(isStmt)
-
-    if (stmt == null) return null
-
-    stmt.asInstanceOf[ScTemplateStatement].getNode
-
-  }
-*/
-
-/*
-  def createPattern2FromText(buffer: String, manager: PsiManager): ASTNode = {
-    def isPattern2 = (elementType: IElementType) => (ScalaElementTypes.PATTERN2_BIT_SET.contains(elementType))
-    def isTemplateStmt = (elementType: IElementType) => (ScalaElementTypes.TMPL_STMT_BIT_SET.contains(elementType))
-
-    val definition: ParserDefinition = ScalaFileType.SCALA_FILE_TYPE.getLanguage.getParserDefinition
-    //    if (definition != null) ...
-    val text = "class a {" +
-    "val " + buffer +
-    " = b" +
-    "}"
-
-    val dummyFile: PsiFile = manager.getElementFactory().createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
-
-    val classDef = dummyFile.getFirstChild
-    val topDefTmpl = classDef.getLastChild
-    val templateBody = topDefTmpl.getFirstChild.asInstanceOf[ScalaPsiElement]
-
-    val patDef: ScalaPsiElement = templateBody.childSatisfyPredicateForElementType(isTemplateStmt).asInstanceOf[ScalaPsiElement]
-    val pattern2 = patDef.childSatisfyPredicateForElementType(isPattern2)
-
-    if (pattern2 == null) return null
-
-    pattern2.asInstanceOf[ScPattern2].getNode
-  }
-*/
 }

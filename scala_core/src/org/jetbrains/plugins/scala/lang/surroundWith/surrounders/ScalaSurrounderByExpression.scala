@@ -41,8 +41,8 @@ abstract class ScalaSurrounderByExpression extends Surrounder {
   }
 
   override def surroundElements(project : Project, editor : Editor, elements : Array[PsiElement]) : TextRange = {
-    val newNode: ASTNode = ScalaPsiElementFactory.createExpressionFromText(getTemplateAsString(elements),
-      elements(0).getManager)
+    val newNode = ScalaPsiElementFactory.createExpressionFromText(getTemplateAsString(elements),
+      elements(0).getManager).getNode
     var childNode: ASTNode = null
 
     for (child <- elements) {
