@@ -33,7 +33,7 @@ case class ScParameterizedType(designator : ScDesignatorType, typeArgs : Array[S
 
   override def equiv(t: ScType): Boolean = t match {
     case ScParameterizedType(designator1, typeArgs1) => {
-      return designator1.equiv(designator1) &&
+      return designator.equiv(designator1) &&
              typeArgs.equalsWith(typeArgs1) {_ equiv _}
     }
     case _ => false
