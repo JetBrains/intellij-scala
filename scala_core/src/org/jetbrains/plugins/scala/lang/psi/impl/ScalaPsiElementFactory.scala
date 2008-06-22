@@ -46,12 +46,10 @@ object ScalaPsiElementFactory {
 
   def createDummyParams(manager: PsiManager): ScParameters = {
     val text = "class a {def foo()}"
-    val dummyFile: PsiFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text)
-    val classDef = dummyFile.getFirstChild
-    val topDefTmpl = classDef.getLastChild
-    val templateBody = topDefTmpl.getFirstChild.asInstanceOf[ScalaPsiElementImpl]
-    val function = templateBody.getFirstChild.getNextSibling
-    return function.getLastChild.asInstanceOf[ScParameters]
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    val classDef = dummyFile.getTypeDefinitions()(0)
+    val function = classDef.functions()(0)
+    return function.paramClauses
   }
 }
