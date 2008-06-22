@@ -36,7 +36,6 @@ object ScalaPsiElementFactory {
   private val DUMMY = "dummy." 
 
   def createExpressionFromText(buffer: String, manager: PsiManager): ScExpression = {
-    val facade = JavaPsiFacade.getInstance(manager.getProject)
     val text = "class a {val b = " + buffer + "}"
 
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
