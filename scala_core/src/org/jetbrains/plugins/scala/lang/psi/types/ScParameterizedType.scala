@@ -4,9 +4,9 @@ package org.jetbrains.plugins.scala.lang.psi.types
 * @author ilyas
 */
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import api.toplevel.typedef._
 import com.intellij.psi.{PsiNamedElement, PsiTypeParameterListOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import api.statements.ScTypeAlias
 
 case class ScDesignatorType(val element: PsiNamedElement) extends ScType {
   override def equiv(t: ScType) = t match {
@@ -37,5 +37,11 @@ case class ScParameterizedType(designator : ScDesignatorType, typeArgs : Array[S
              typeArgs.equalsWith(typeArgs1) {_ equiv _}
     }
     case _ => false
+  }
+}
+
+case class ScTypeAliasDesignatorType(alias : ScTypeAlias, subst : ScSubstitutor) extends ScDesignatorType(alias) {
+  override def equiv (t : ScType) = t match {
+    case ScTypeAliasDesignatorType(a1, s1) => alias eq a1/* && (subst equiv s1)*/
   }
 }

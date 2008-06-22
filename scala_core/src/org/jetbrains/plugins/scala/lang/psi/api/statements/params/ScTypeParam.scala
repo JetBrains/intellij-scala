@@ -4,6 +4,7 @@ import psi.ScalaPsiElement
 import toplevel.ScNamedElement
 import types.ScType
 import com.intellij.psi._
+import toplevel.typedef.ScTypeDefinition
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -16,4 +17,6 @@ trait ScTypeParam extends ScalaPsiElement with ScNamedElement with PsiTypeParame
 
   def isCovariant() : Boolean
   def isContravariant() : Boolean
+
+  def owner : ScTypeDefinition
 }

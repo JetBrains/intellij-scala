@@ -36,9 +36,9 @@ object Conformance {
         case Some(tSuper) => conforms(l, tSuper)
         case _ => false
       }
-      case ScDesignatorType(ta : ScTypeAlias) => conforms(ta.lowerBound, r)
       case ScDesignatorType(tp : ScTypeParam) => conforms(tp.lowerBound, r)
       case ScDesignatorType(tp : PsiTypeParameter) => r == Nothing //Q: what about AnyRef?
+      case ScTypeAliasDesignatorType(ta, subst) => conforms(subst.subst(ta.lowerBound), r)
 
       case ScParameterizedType(ScDesignatorType(owner : PsiClass), args1) => r match {
         case ScParameterizedType(ScDesignatorType(owner1 : PsiClass), args2) if (owner == owner1) =>
@@ -62,12 +62,13 @@ object Conformance {
       case Some(ScalaResolveResult(e, _)) => conforms(l, new ScDesignatorType(e))
       case _ => false
     }
-    case ScDesignatorType(ta: ScTypeAlias) => conforms(l, ta.upperBound)
     case ScDesignatorType(tp: ScTypeParam) => conforms(l, tp.upperBound)
 
     case ScDesignatorType(td: ScTypeDefinition) => !td.superTypes.find {t => conforms(l, t, visited + td)}.isEmpty
     case ScDesignatorType(clazz: PsiClass) =>
-      !clazz.getSuperTypes.find {t => conforms(l, ScType.create(t, clazz.getProject), visited + clazz)}.isEmpty
+    !clazz.getSuperTypes.find {t => conforms(l, ScType.create(t, clazz.getProject), visited + clazz)}.isEmpty
+
+    case ScTypeAliasDesignatorType(ta, subst) => conforms(l, subst.subst(ta.upperBound))
 
     case p@ScParameterizedType(ScDesignatorType(td: ScTypeDefinition), _) => {
       val s = p.substitutor

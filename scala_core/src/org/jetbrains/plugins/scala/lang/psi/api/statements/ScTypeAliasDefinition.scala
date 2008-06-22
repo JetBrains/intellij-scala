@@ -8,8 +8,9 @@ import base.types.ScTypeElement
 */
 
 trait ScTypeAliasDefinition extends ScTypeAlias {
-  def aliasedType = findChildByClass(classOf[ScTypeElement])
+  def aliasedTypeElement = findChildByClass(classOf[ScTypeElement])
+  def aliasedType = aliasedTypeElement.getType
 
-  def lowerBound = aliasedType.getType
-  def upperBound = aliasedType.getType
+  def lowerBound = aliasedType
+  def upperBound = aliasedType
 }

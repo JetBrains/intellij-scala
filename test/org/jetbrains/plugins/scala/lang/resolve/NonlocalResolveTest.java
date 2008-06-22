@@ -47,4 +47,9 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     PsiReference ref = configureByFile("nonlocal/traitsupertypes.scala");
     assertTrue(ref.resolve() instanceof ScFunction);
   }
+
+  public void testTypeAliases() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/typealiases.scala");
+    assertTrue(ref.resolve() instanceof PsiMethod);
+  }
 }

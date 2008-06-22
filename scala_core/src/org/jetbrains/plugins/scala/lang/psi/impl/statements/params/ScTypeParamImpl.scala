@@ -17,6 +17,7 @@ import toplevel.PsiClassFake
 import api.statements.params._
 import com.intellij.psi.util.PsiTreeUtil
 import api.base.types.ScTypeElement
+import api.toplevel.typedef.ScTypeDefinition
 import types._
 
 /** 
@@ -65,4 +66,6 @@ class ScTypeParamImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTy
     case x if x != null => x.getText == "-"
     case _ => false
   }
+
+  def owner  = getParent.getParent.asInstanceOf[ScTypeDefinition]
 }

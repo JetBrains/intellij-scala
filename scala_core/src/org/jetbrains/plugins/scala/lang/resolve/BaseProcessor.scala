@@ -11,6 +11,8 @@ import statements.{ScVariable, ScTypeAlias}
 import statements.params.{ScTypeParam, ScParameter}
 import base.patterns.ScBindingPattern
 import base.ScFieldId
+import psi.types._
+import psi.ScalaPsiElement
 
 object BaseProcessor {
   def unapply(p : BaseProcessor) = Some(p.kinds)
@@ -42,15 +44,16 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
   def handleEvent(event: PsiScopeProcessor.Event, associated: Object) = {
   }
 
+  import ResolveTargets._
   protected def kindMatches(element: PsiElement): Boolean = kinds == null ||
           (element match {
-            case _: PsiPackage => kinds contains ResolveTargets.PACKAGE
-            case _: ScObject => kinds contains ResolveTargets.OBJECT
-            case _: ScTypeParam => kinds contains ResolveTargets.CLASS
-            case _: ScTypeAlias => kinds contains ResolveTargets.CLASS
-            case _: ScTypeDefinition => kinds contains ResolveTargets.CLASS
+            case _: PsiPackage => kinds contains PACKAGE
+            case _: ScObject => kinds contains OBJECT
+            case _: ScTypeParam => kinds contains CLASS
+            case _: ScTypeAlias => kinds contains CLASS
+            case _: ScTypeDefinition => kinds contains CLASS
             case c: PsiClass if c.getLanguage == StdLanguages.JAVA => {
-              if (kinds contains ResolveTargets.CLASS) true
+              if (kinds contains CLASS) true
               else {
                 def isStaticCorrect(clazz: PsiClass): Boolean = {
                   val cclazz = clazz.getContainingClass
@@ -61,14 +64,14 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
             }
             case patt: ScBindingPattern => {
               if (patt.getParent/*list of ids*/.getParent.isInstanceOf[ScVariable])
-                kinds contains ResolveTargets.VAR else kinds contains ResolveTargets.VAL
+                kinds contains VAR else kinds contains VAL
             }
             case patt: ScFieldId => {
               if (patt.getParent/*list of ids*/.getParent.isInstanceOf[ScVariable])
-                kinds contains ResolveTargets.VAR else kinds contains ResolveTargets.VAL
+                kinds contains VAR else kinds contains VAL
             }
-            case _: ScParameter => kinds contains ResolveTargets.VAL
-            case _: PsiMethod => kinds contains ResolveTargets.METHOD
+            case _: ScParameter => kinds contains VAL
+            case _: PsiMethod => kinds contains METHOD
             case _ => false
           })
 }
