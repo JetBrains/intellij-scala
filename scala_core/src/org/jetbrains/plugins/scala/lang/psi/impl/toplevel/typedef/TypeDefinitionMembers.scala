@@ -4,12 +4,11 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
+import types._
+import api.toplevel.typedef._
+import api.base.ScFieldId
+import api.statements._
+import types.PhysicalSignature
 import _root_.scala.collection.mutable.ListBuffer
 import com.intellij.openapi.util.Key
 import util._
