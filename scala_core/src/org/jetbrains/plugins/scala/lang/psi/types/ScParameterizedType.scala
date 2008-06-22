@@ -11,6 +11,7 @@ import api.statements.ScTypeAlias
 case class ScDesignatorType(val element: PsiNamedElement) extends ScType {
   override def equiv(t: ScType) = t match {
     case ScDesignatorType(element1) => element eq element1
+    case p : ScProjectionType => p equiv this
     case _ => false
   }
 }
