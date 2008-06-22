@@ -1,19 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import tree.{IElementType, TokenSet}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.psi.types._
+import icons.Icons
+import api.base.types._
+import api.base.ScReferenceElement
+import psi.ScalaPsiElementImpl
+import lexer.ScalaTokenTypes
+import scala.lang.resolve.ScalaResolveResult
+import psi.types._
+import api.statements.ScTypeAlias
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -29,8 +26,11 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   override def getType() = {
     reference.bind match {
       case None => Nothing
-      case Some(ScalaResolveResult(e, _)) => {
-        if (singleton) new ScSingletonType(reference) else ScDesignatorType(e)
+      case Some(ScalaResolveResult(e, s)) => {
+        if (singleton) new ScSingletonType(reference) else e match {
+          case ta: ScTypeAlias => new ScTypeAliasDesignatorType(ta, s)
+          case _ => new ScDesignatorType(e)
+        }
       }
     }
   }

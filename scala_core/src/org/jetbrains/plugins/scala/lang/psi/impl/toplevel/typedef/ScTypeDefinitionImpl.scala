@@ -138,6 +138,8 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     if (!processor.execute(this, state)) return false
+    val substK = state.get(ScSubstitutor.key)
+    val subst = if (substK == null) ScSubstitutor.empty else substK 
     extendsBlock.templateParents match {
       case Some(p) if (PsiTreeUtil.isAncestor(p, place, true)) => true
       case _ =>
@@ -145,17 +147,17 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
         if (shouldProcessVals(processor)) {
           for ((_, n) <- TypeDefinitionMembers.getVals(this)) {
-            if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor))) return false
+            if (!processor.execute(n.info, state.put(ScSubstitutor.key, subst incl n.substitutor))) return false
           }
         }
         if (shouldProcessMethods(processor)) {
           for ((sig, _) <- TypeDefinitionMembers.getMethods(this)) {
-            if (!processor.execute(sig.method, state.put(ScSubstitutor.key, sig.substitutor))) return false
+            if (!processor.execute(sig.method, state.put(ScSubstitutor.key, subst incl sig.substitutor))) return false
           }
         }
         if (shouldProcessTypes(processor)) {
           for ((_, n) <- TypeDefinitionMembers.getTypes(this)) {
-            if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor))) return false
+            if (!processor.execute(n.info, state.put(ScSubstitutor.key, subst incl n.substitutor))) return false
           }
         }
         true
