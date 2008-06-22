@@ -30,6 +30,14 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
             true
           case _ => true
         }
+        guard match {
+          case Some(g) if g == lastParent =>
+            for (b <- p.bindings) {
+              if (!processor.execute(b, state)) return false
+            }
+            true
+          case _ => true
+        }
       }
       case _ => true
     }
