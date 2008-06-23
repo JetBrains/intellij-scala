@@ -49,4 +49,8 @@ class ScalaAnnotator extends Annotator {
       annotation.registerFix(action)
     }
   }
+
+  private def registerUsedImports(refElement: ScStableCodeReferenceElement, annotation: Annotation) {
+    
+  }
 }

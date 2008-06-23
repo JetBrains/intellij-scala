@@ -66,13 +66,4 @@ object ScalaPsiElementFactory {
       }
     }
   }
-
-  def createNewLineElement(manager: PsiManager): PsiWhiteSpace = {
-    val text = "\n"
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
-    dummyFile.getFirstChild match {
-      case x: PsiWhiteSpace => return x
-    }
-  }
 }
