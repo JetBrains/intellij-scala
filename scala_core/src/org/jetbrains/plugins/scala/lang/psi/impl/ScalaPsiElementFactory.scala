@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElementImpl,ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
@@ -51,5 +52,27 @@ object ScalaPsiElementFactory {
     val classDef = dummyFile.getTypeDefinitions()(0)
     val function = classDef.functions()(0)
     return function.paramClauses
+  }
+
+  def createImportStatementFromClass(clazz: PsiClass, manager: PsiManager): ScImportStmt = {
+    val text = "import " + clazz.getQualifiedName
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    dummyFile.getFirstImportStmt match {
+      case Some(x) => return x
+      case None => {
+        //cannot be
+        return null
+      }
+    }
+  }
+
+  def createNewLineElement(manager: PsiManager): PsiWhiteSpace = {
+    val text = "\n"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    dummyFile.getFirstChild match {
+      case x: PsiWhiteSpace => return x
+    }
   }
 }

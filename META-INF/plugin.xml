@@ -26,6 +26,7 @@
   <extensions defaultExtensionNs="com.intellij">
     <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
+    <annotator language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.ScalaAnnotator"/>
     <errorHandler implementation="org.jetbrains.plugins.scala.error.ErrorReportSubmitter"/>
     <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
     <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
