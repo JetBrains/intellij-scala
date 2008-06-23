@@ -4,6 +4,7 @@ import api.statements._
 import params._
 import resolve.ScalaResolveResult
 import api.toplevel.typedef.ScTypeDefinition
+import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.scala.collection.immutable.HashSet
 
 import com.intellij.psi._
@@ -53,6 +54,38 @@ object Conformance {
         case _ => rightRec(l, r, visited)
       }
 
+      case c@ScCompoundType(comps, decls, types) => comps.forall(_ conforms r) && (r match {
+        case ScDesignatorType(clazz : PsiClass) => {
+          if (!decls.isEmpty) {
+            val methods = TypeDefinitionMembers.getMethods(clazz)
+            for (sig <- c.signatureSet) {
+              methods.get(sig) match {
+                case None => return false
+                case Some(n) => if (!n.substitutor.subst(n.info.retType).conforms(sig.retType)) return false
+              }
+            }
+          }
+          if (!types.isEmpty) {
+            val hisTypes = TypeDefinitionMembers.getTypes(clazz)
+            for (t <- types) {
+              hisTypes.get(t) match {
+                case None => return false
+                case Some(n) => {
+                  val subst = n.substitutor
+                  n.info match {
+                    case ta: ScTypeAlias => if (!subst.subst(ta.upperBound).conforms(t.upperBound) ||
+                            !t.lowerBound.conforms(subst.subst(ta.lowerBound))) return false
+                    case inner: PsiClass => //todo: java inner class case
+                  }
+                }
+              }
+            }
+          }
+          true
+        }
+        case _ => false //todo: parameterized type
+      })
+
       case _ => rightRec(l, r, visited)
     }
   }
@@ -78,6 +111,8 @@ object Conformance {
       val s = p.substitutor
       !clazz.getSuperTypes.find {t => conforms(l, s.subst(ScType.create(t, clazz.getProject)), visited + clazz)}.isEmpty
     }
+
+    case ScCompoundType(comps, _, _) => !comps.find(l conforms _).isEmpty
 
     case _ => false //todo
   }

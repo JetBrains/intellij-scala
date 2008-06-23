@@ -17,8 +17,9 @@ import util._
 object TypeDefinitionMembers {
   object MethodNodes extends MixinNodes {
     type T = PhysicalSignature
-    def equiv(s1 : PhysicalSignature, s2 : PhysicalSignature) = s1 equiv s2
-    def computeHashCode(s : PhysicalSignature) = s.name.hashCode* 31 + s.types.length
+    type K = FullSignature
+    def equiv(s1 : FullSignature, s2 : FullSignature) = s1 equiv s2
+    def computeHashCode(s : FullSignature) = s.name.hashCode* 31 + s.types.length
     def isAbstract(s : PhysicalSignature) = s.method match {
       case _ : ScFunctionDeclaration => true
       case m if m.hasModifierProperty(PsiModifier.ABSTRACT) => true
@@ -46,6 +47,7 @@ object TypeDefinitionMembers {
   import com.intellij.psi.PsiNamedElement
   object ValueNodes extends MixinNodes {
     type T = PsiNamedElement
+    type K = T
     def equiv(n1 : PsiNamedElement, n2 : PsiNamedElement) = n1.getName == n2.getName
     def computeHashCode(named : PsiNamedElement) = named.getName.hashCode
     def isAbstract(named : PsiNamedElement) = named match {
@@ -87,6 +89,7 @@ object TypeDefinitionMembers {
   import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
   object TypeNodes extends MixinNodes {
     type T = PsiNamedElement //class or type alias
+    type K = T
     def equiv(t1 : PsiNamedElement, t2 : PsiNamedElement) = t1.getName == t2.getName
     def computeHashCode(t : PsiNamedElement) = t.getName.hashCode
     def isAbstract(t : PsiNamedElement) = t match {
@@ -115,11 +118,11 @@ object TypeDefinitionMembers {
   val methodsKey : Key[CachedValue[MethodNodes.Map]] = Key.create("methods key")
   val typesKey : Key[CachedValue[TypeNodes.Map]] = Key.create("types key")
 
-  def getVals (td : ScTypeDefinition) = get(td, valsKey, new MyProvider(td, {td => ValueNodes.build(td)}))
-  def getMethods (td : ScTypeDefinition) = get(td, methodsKey, new MyProvider(td, {td => MethodNodes.build(td)}))
-  def getTypes(td : ScTypeDefinition) = get(td, typesKey, new MyProvider(td, {td => TypeNodes.build(td)}))
+  def getVals (td : PsiClass) = get(td, valsKey, new MyProvider(td, {td => ValueNodes.build(td)}))
+  def getMethods (td : PsiClass) = get(td, methodsKey, new MyProvider(td, {td => MethodNodes.build(td)}))
+  def getTypes(td : PsiClass) = get(td, typesKey, new MyProvider(td, {td => TypeNodes.build(td)}))
 
-  private def get[T] (td : ScTypeDefinition, key : Key[CachedValue[T]], provider : => CachedValueProvider[T]) = {
+  private def get[T] (td : PsiClass, key : Key[CachedValue[T]], provider : => CachedValueProvider[T]) = {
     var computed = td.getUserData(key)
     if (computed == null) {
       val manager = PsiManager.getInstance(td.getProject).getCachedValuesManager
@@ -129,7 +132,7 @@ object TypeDefinitionMembers {
     computed.getValue
   }
 
-  class MyProvider[T](td : ScTypeDefinition, builder : ScTypeDefinition => T) extends CachedValueProvider[T] {
+  class MyProvider[T](td : PsiClass, builder : PsiClass => T) extends CachedValueProvider[T] {
     def compute() = new CachedValueProvider.Result (builder(td),
                          Array[Object](PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
   }

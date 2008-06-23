@@ -6,5 +6,5 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 */
 
 trait ScTryStmt extends ScExpression {
-  def catchBlock: Option[ScCatchBlock] = findChild(classOf[ScCatchBlock])
+  def catchBlock = findChildByClass(classOf[ScCatchBlock])
 }

@@ -7,8 +7,8 @@ import com.intellij.psi.PsiTypeParameter
 
 case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclaration], val typeDecls: Seq[ScTypeAlias]) extends ScType{
   //compound types are checked by checking the set of signatures in their refinements
-  val signatureSet = new HashSet[Signature] {
-    override def elemHashCode(s : Signature) = s.name.hashCode* 31 + s.types.length
+  val signatureSet = new HashSet[FullSignature] {
+    override def elemHashCode(s : FullSignature) = s.name.hashCode* 31 + s.types.length
   }
 
   type Bounds = Pair[ScType, ScType]
@@ -24,17 +24,21 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclarat
       case varDecl: ScVariableDeclaration => {
         val typeElement = varDecl.typeElement
         for (e <- varDecl.declaredElements) {
-          signatureSet += new Signature(e.name, Seq.empty, Array(), ScSubstitutor.empty)
           typeElement match {
             case Some(te) => {
-              signatureSet += new Signature(e.name + "_", Seq.single(te.getType), Array(), ScSubstitutor.empty) //setter
+              signatureSet += new FullSignature(e.name, Seq.empty, te.getType, Array(), ScSubstitutor.empty)
+              signatureSet += new FullSignature(e.name + "_", Seq.single(te.getType), Unit, Array(), ScSubstitutor.empty) //setter
             }
             case None =>
           }
         }
       }
       case valDecl: ScValueDeclaration => for (e <- valDecl.declaredElements) {
-        signatureSet += new Signature(e.name, Seq.empty, Array(), ScSubstitutor.empty)
+        valDecl.typeElement match {
+          case Some (te) => signatureSet += new FullSignature(e.name, Seq.empty, te.getType,  Array(), ScSubstitutor.empty)
+          case _ =>
+        }
+
       }
     }
   }
