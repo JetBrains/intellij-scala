@@ -16,6 +16,8 @@ import psi.api.toplevel.typedef._
 import psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.impl._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 
 import _root_.scala.collection.mutable._
 
@@ -84,6 +86,29 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScImport
 
     true
   }
+
+  def addImportForClass(clazz: PsiClass) {
+    val newImport = ScalaPsiElementFactory.createImportStatementFromClass(clazz, this.getManager)
+    val newLine = ScalaPsiElementFactory.createNewLineElement(this.getManager)
+    findChild(classOf[ScImportStmt]) match {
+      case Some(x) => {
+        addBefore(newImport, x)
+      }
+      case None => {
+        findChild(classOf[ScPackageStatement]) match {
+          case Some(x) => {
+            addAfter(newImport, x)
+          }
+          case None => {
+            if (getFirstChild != null) addBefore(newImport, getFirstChild)
+            else add(newImport)
+          }
+        }
+      }
+    }
+  }
+
+  def getFirstImportStmt: Option[ScImportStmt] = findChild(classOf[ScImportStmt])
 }
 
 object ImplicitlyImported {
