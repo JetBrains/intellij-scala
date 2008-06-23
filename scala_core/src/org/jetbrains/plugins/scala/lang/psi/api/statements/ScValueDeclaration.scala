@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScIdList
+import toplevel.typedef._
+import base.ScIdList
+import base.types.ScTypeElement
 
 /**
 * @author Alexander Podkhalyuzin

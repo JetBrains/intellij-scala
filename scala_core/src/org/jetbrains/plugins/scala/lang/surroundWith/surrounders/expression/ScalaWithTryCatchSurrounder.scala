@@ -37,10 +37,7 @@ class ScalaWithTryCatchSurrounder extends ScalaExpressionSurrounder {
 
     val tryCatchStmt = withTryCatchNode.getPsi.asInstanceOf[ScTryStmt]
 
-    val catchBlockPsiElement = tryCatchStmt.catchBlock  match {
-      case None => null
-      case Some(x) => x
-    }
+    val catchBlockPsiElement = tryCatchStmt.catchBlock
     val caseClause = catchBlockPsiElement.getNode().getFirstChildNode().getTreeNext().getTreeNext().
             getTreeNext().getTreeNext().getFirstChildNode().getFirstChildNode().getTreeNext().getTreeNext().getPsi
 

@@ -151,8 +151,8 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
           }
         }
         if (shouldProcessMethods(processor)) {
-          for ((sig, _) <- TypeDefinitionMembers.getMethods(this)) {
-            if (!processor.execute(sig.method, state.put(ScSubstitutor.key, subst incl sig.substitutor))) return false
+          for ((_, n) <- TypeDefinitionMembers.getMethods(this)) {
+            if (!processor.execute(n.info.method, state.put(ScSubstitutor.key, subst incl n.substitutor))) return false
           }
         }
         if (shouldProcessTypes(processor)) {

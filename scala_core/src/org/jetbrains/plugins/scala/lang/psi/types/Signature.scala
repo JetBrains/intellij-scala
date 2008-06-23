@@ -31,13 +31,21 @@ class Signature(val name : String, val types : Seq[ScType],
   }
 }
 
+class FullSignature(override val name : String, override val types : Seq[ScType], val retType : ScType,
+                override val typeParams : Array[PsiTypeParameter], override val substitutor : ScSubstitutor)
+extends Signature(name, types, typeParams, substitutor)
+
 import com.intellij.psi.PsiMethod
 class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSubstitutor)
-  extends Signature (method.getName,
+  extends FullSignature (method.getName,
                      method.getParameterList.getParameters.map {p => p match {
                                                                   case scp : ScParameter => scp.calcType
                                                                   case _ => ScType.create(p.getType, p.getProject)
                                                                 }},
+                     method.getReturnType match {
+                       case null => Unit
+                       case t =>  ScType.create(t, method.getProject)
+                     },
                      method.getTypeParameters,
                      substitutor)
 
