@@ -18,11 +18,12 @@ import com.intellij.psi._
 */
 
 trait ScFunction extends ScalaPsiElement with ScNamedElement with ScMember 
-        with ScTopStatement with ScTypeParametersOwner with PsiMethod with ScParameterOwner with ScDocCommentOwner {
+        with ScTopStatement with ScTypeParametersOwner
+        with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped {
 
   def paramClauses: ScParameters
 
-  def getReturnScTypeElement: ScTypeElement
+  def returnTypeElement = findChild(classOf[ScTypeElement])
 
   def getFunctionsAndTypeDefs: Seq[ScalaPsiElement]
 

@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import typedef._
 import packaging.ScPackaging
 import com.intellij.psi.scope._
+import types.Nothing
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -79,6 +80,8 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
     }
   }
 
-
-
+  def calcType = returnTypeElement match {
+    case None => Nothing //todo inference
+    case Some(rte) => rte.getType
+  }
 }
