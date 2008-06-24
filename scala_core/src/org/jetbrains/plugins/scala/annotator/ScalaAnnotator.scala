@@ -25,21 +25,18 @@ class ScalaAnnotator extends Annotator {
 
 
   private def checkNotQualifiedReferenceElement(refElement: ScStableCodeReferenceElement, holder: AnnotationHolder) {
-    val resolveResult: ScalaResolveResult = refElement.bind() match {
-      case Some(x) => x
-      case None => null
-    }
-    //todo: register used imports
-    if (resolveResult == null) {
-      if (refElement.refName != null) {
-
-        val error = ScalaBundle.message("cannot.resolve", Array[Object](refElement.refName))
-        val nameElement = refElement.nameId
-        val toHighlight = if (nameElement == null) refElement else nameElement
-        val annotation = holder.createErrorAnnotation(toHighlight, error)
-        annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-        registerAddImportFix(refElement,annotation)
-      }
+    refElement.bind() match {
+      case Some(x) =>
+        if (refElement.refName != null) { //todo(parser) refName should be notnull
+          //todo: register used imports
+          val error = ScalaBundle.message("cannot.resolve", Array[Object](refElement.refName))
+          val nameElement = refElement.nameId
+          val toHighlight = if (nameElement == null) refElement else nameElement //todo nameElement should be notnull
+          val annotation = holder.createErrorAnnotation(toHighlight, error)
+          annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+          registerAddImportFix(refElement, annotation)
+        }
+      case None =>
     }
   }
 
@@ -51,6 +48,6 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def registerUsedImports(refElement: ScStableCodeReferenceElement, annotation: Annotation) {
-    
+
   }
 }
