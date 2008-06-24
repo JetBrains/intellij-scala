@@ -10,6 +10,6 @@ import base.types.ScTypeElement
 * Time: 9:44:29
 */
 
-trait ScValueDeclaration extends ScValue with ScDeclaration {
+trait ScValueDeclaration extends ScValue with ScTypedDeclaration {
   def getIdList = findChildByClass(classOf[ScIdList])
 }

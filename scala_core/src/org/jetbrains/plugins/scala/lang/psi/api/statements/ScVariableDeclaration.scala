@@ -9,13 +9,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 * Time: 9:50:20
 */
 
-trait ScVariableDeclaration extends ScVariable with ScDeclaration {
+trait ScVariableDeclaration extends ScVariable with ScTypedDeclaration {
 
   /**
   * @return non-null identifier list
   */
   def getIdList: ScIdList = findChildByClass(classOf[ScIdList])
-
-  def typeElement = findChild(classOf[ScTypeElement])
-
 }

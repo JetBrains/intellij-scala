@@ -1,13 +1,18 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import api.toplevel._
+import statements._
+import psi.types.Nothing
 
 /**
 * @author ilyas
 */
 
 //wrapper over identifier for variable declarations 'var v : T' 
-trait ScFieldId extends ScNamedElement {
+trait ScFieldId extends ScNamedElement with ScTyped {
+  def calcType = getParent/*id list*/.getParent match {
+    case typed : ScTypedDeclaration => typed.calcType
+    //partial matching
+  }
 }
