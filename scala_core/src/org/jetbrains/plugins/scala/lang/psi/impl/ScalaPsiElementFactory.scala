@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -72,7 +73,8 @@ object ScalaPsiElementFactory {
             (if (typez != null) ":" + typez.getPresentableText + " ") + name + " = " + expr.getText + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
-    val p = classDef.members()(0).asInstanceOf[ScPatternDefinition]
+    val p = if (!isVariable) classDef.members()(0).asInstanceOf[ScPatternDefinition]
+            else classDef.members()(0).asInstanceOf[ScVariableDefinition]
     return p.asInstanceOf[PsiElement]
   }
 }
