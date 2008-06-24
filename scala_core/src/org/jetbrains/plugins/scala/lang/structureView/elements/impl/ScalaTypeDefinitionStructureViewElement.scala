@@ -34,12 +34,12 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScalaPsiEleme
           children += new ScalaPrimaryConstructorStructureViewElement (member)
         }
         case member: ScVariable => {
-          for (f <- member.ids)
-                  children += new ScalaVariableStructureViewElement (f)
+          for (f <- member.declaredElements)
+                  children += new ScalaVariableStructureViewElement (f.nameId)
         }
         case member: ScValue => {
-          for (f <- member.ids)
-                  children += new ScalaValueStructureViewElement (f)
+          for (f <- member.declaredElements)
+                  children += new ScalaValueStructureViewElement (f.nameId)
         }
         case _ =>
       }

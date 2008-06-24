@@ -31,7 +31,7 @@ class ScPatternDefinitionImpl(node: ASTNode) extends ScMemberImpl(node) with ScP
     if (plist != null) plist.patterns.flatMap[ScBindingPattern]((p: ScPattern) => p.bindings) else Seq.empty
   }
 
-  def ids = for (b <- bindings) yield b.nameId
+  def declaredElements = bindings
 
   override def processDeclarations(processor: PsiScopeProcessor,
       state : ResolveState,

@@ -35,7 +35,5 @@ class ScValueDeclarationImpl(node: ASTNode) extends ScMemberImpl(node) with ScVa
 
   override def getIcon(flags: Int) = Icons.VAL
 
-  def ids: Seq[ScFieldId] = getIdList.fieldIds
-
-  def declaredElements = ids
+  def declaredElements = getIdList.fieldIds
 }

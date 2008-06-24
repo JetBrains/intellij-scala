@@ -10,23 +10,22 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 
 abstract class MixinNodes {
   type T
-  type K >: T
-  def equiv(t1 : K, t2 : K) : Boolean
-  def computeHashCode(t : K) : Int
+  def equiv(t1 : T, t2 : T) : Boolean
+  def computeHashCode(t : T) : Int
   def isAbstract(t : T) : Boolean
   class Node (val info : T, val substitutor : ScSubstitutor) {
     var supers : Seq[Node] = Seq.empty
     var primarySuper : Option[Node] = None
   }
   
-  class Map extends HashMap[K, Node] {
-    override def elemHashCode(k : K) = computeHashCode(k)
-    override def elemEquals(k1 : K, k2 : K) = equiv(k1, k2)
+  class Map extends HashMap[T, Node] {
+    override def elemHashCode(t : T) = computeHashCode(t)
+    override def elemEquals(t1 : T, t2 : T) = equiv(t1, t2)
   }
 
-  class MultiMap extends HashMap[K, Set[Node]] with collection.mutable.MultiMap[K, Node] {
-    override def elemHashCode(k : K) = computeHashCode(k)
-    override def elemEquals(k1 : K, k2 : K) = equiv(k1, k2)
+  class MultiMap extends HashMap[T, Set[Node]] with collection.mutable.MultiMap[T, Node] {
+    override def elemHashCode(t : T) = computeHashCode(t)
+    override def elemEquals(t1 : T, t2 : T) = equiv(t1, t2)
   }
 
   object MultiMap {def empty = new MultiMap}

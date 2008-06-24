@@ -56,14 +56,12 @@ object Conformance {
 
       case c@ScCompoundType(comps, decls, types) => comps.forall(_ conforms r) && (extractClassType(r) match {
         case Some((clazz, subst)) => {
-          import subst.{subst => _subst}
-
           if (!decls.isEmpty) {
-            val methods = TypeDefinitionMembers.getMethods(clazz)
+            val sigs = TypeDefinitionMembers.getSignatures(clazz)
             for (sig <- c.signatureSet) {
-              methods.get(sig) match {
+              sigs.get(sig) match {
                 case None => return false
-                case Some(n) => if (!_subst(n.substitutor.subst(n.info.retType)).conforms(sig.retType)) return false
+                case Some(retType) => if (!subst.subst(retType).conforms(sig.retType)) return false
               }
             }
           }
@@ -73,10 +71,10 @@ object Conformance {
               hisTypes.get(t) match {
                 case None => return false
                 case Some(n) => {
-                  val subst = n.substitutor
+                  val subst1 = n.substitutor
                   n.info match {
-                    case ta: ScTypeAlias => if (!_subst(subst.subst(ta.upperBound)).conforms(t.upperBound) ||
-                            !t.lowerBound.conforms(_subst(subst.subst(ta.lowerBound)))) return false
+                    case ta: ScTypeAlias => if (!subst.subst(subst1.subst(ta.upperBound)).conforms(t.upperBound) ||
+                            !t.lowerBound.conforms(subst.subst(subst1.subst(ta.lowerBound)))) return false
                     case inner: PsiClass => //todo: java inner class case
                   }
                 }

@@ -4,6 +4,7 @@ import psi.ScalaPsiElement
 import toplevel.typedef._
 import com.intellij.psi._
 import base.types.ScTypeElement
+import toplevel.ScTyped
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -12,11 +13,7 @@ import base.types.ScTypeElement
 */
 
 trait ScVariable extends ScalaPsiElement with ScMember {
-
-  /**
-  * @return all binded identifiers
-  */
-  def ids: Seq[PsiElement]
+  def declaredElements : Seq[ScTyped]
 
   def typeElement = findChild(classOf[ScTypeElement])
 }
