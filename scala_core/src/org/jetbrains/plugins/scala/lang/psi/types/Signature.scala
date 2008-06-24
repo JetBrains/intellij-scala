@@ -48,4 +48,3 @@ class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSub
                      },
                      method.getTypeParameters,
                      substitutor)
-

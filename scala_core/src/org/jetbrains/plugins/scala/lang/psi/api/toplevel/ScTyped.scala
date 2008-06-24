@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-trait ScTyped {
+trait ScTyped extends ScNamedElement {
   def calcType() : ScType
 }

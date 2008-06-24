@@ -31,8 +31,6 @@ class ScVariableDefinitionImpl(node: ASTNode) extends ScMemberImpl(node) with Sc
     if (plist != null) plist.patterns.flatMap[ScBindingPattern]((p: ScPattern) => p.bindings) else Seq.empty
   }
 
-  def ids = for (b <- bindings) yield b.nameId
-
   override def processDeclarations(processor: PsiScopeProcessor,
     state: ResolveState,
     lastParent: PsiElement,

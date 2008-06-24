@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import lexer.ScalaTokenTypes
+import api.base.patterns.ScBindingPattern
+import psi.types._
 import com.intellij.lang.ASTNode
 
 abstract class ScBindingPatternImpl(node: ASTNode) extends ScPatternImpl(node) with ScBindingPattern {
@@ -15,6 +16,4 @@ abstract class ScBindingPatternImpl(node: ASTNode) extends ScPatternImpl(node) w
   //else throw new UnsupportedOperationException("Wildcard pattern has no name!")
 
   def isWildcard = findChildByType(ScalaTokenTypes.tUNDER) != null
-
-
 }

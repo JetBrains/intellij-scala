@@ -22,23 +22,19 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclarat
     decl match {
       case fun: ScFunctionDeclaration => signatureSet += new PhysicalSignature(fun, ScSubstitutor.empty)
       case varDecl: ScVariableDeclaration => {
-        val typeElement = varDecl.typeElement
-        for (e <- varDecl.declaredElements) {
-          typeElement match {
-            case Some(te) => {
-              signatureSet += new FullSignature(e.name, Seq.empty, te.getType, Array(), ScSubstitutor.empty)
-              signatureSet += new FullSignature(e.name + "_", Seq.single(te.getType), Unit, Array(), ScSubstitutor.empty) //setter
-            }
-            case None =>
+        varDecl.typeElement match {
+          case Some(te) => for (e <- varDecl.declaredElements) {
+            signatureSet += new FullSignature(e.name, Seq.empty, te.getType, Array(), ScSubstitutor.empty)
+            signatureSet += new FullSignature(e.name + "_", Seq.single(te.getType), Unit, Array(), ScSubstitutor.empty) //setter
           }
+          case None =>
         }
       }
-      case valDecl: ScValueDeclaration => for (e <- valDecl.declaredElements) {
-        valDecl.typeElement match {
-          case Some (te) => signatureSet += new FullSignature(e.name, Seq.empty, te.getType,  Array(), ScSubstitutor.empty)
-          case _ =>
+      case valDecl: ScValueDeclaration => valDecl.typeElement match {
+        case Some(te) => for (e <- valDecl.declaredElements) {
+          signatureSet += new FullSignature(e.name, Seq.empty, te.getType, Array(), ScSubstitutor.empty)
         }
-
+        case None =>
       }
     }
   }
