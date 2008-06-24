@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import com.intellij.psi.PsiType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile
@@ -39,6 +41,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
       }
     }
     //todo: think about type when type inference
+    val typez: PsiType = null
     var parent: PsiElement = expr
     while (parent != null && !parent.isInstanceOf[ScalaFile] && !parent.isInstanceOf[ScParameters]) parent = parent.getParent
     if (parent.isInstanceOf[ScParameters]) {
@@ -50,7 +53,32 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
       showErrorMessage(ScalaBundle.message("wrong.refactoring.context", Array[Object]()), project)
       return
     }
-    
+
+    //todo: find occurrences
+    val occurrences: Array[PsiElement] = Array[PsiElement](expr)
+    // Getting settings
+    var validator: ScalaValidator = new ScalaVariableValidator(this, project, expr, occurrences, enclosingContainer)
+    var dialog: ScalaIntroduceVariableDialogInterface = getDialog(project, editor, expr, typez, occurrences, false, validator)
+
+    if (!dialog.isOK()) {
+      return
+    }
+
+    var settings: ScalaIntroduceVariableSettings = dialog.getSettings();
+
+    val varName: String = settings.getEnteredName()
+    var varType: PsiType = settings.getSelectedType()
+    val isVariable: Boolean = settings.isDeclareVariable()
+    val replaceAllOccurrences: Boolean = settings.isReplaceAllOccurrences()
+
+    // Generating varibable declaration
+    val varDecl: PsiElement = ScalaPsiElementFactory.createDeclaration(varType, varName,
+                     isVariable, expr /*do unpar*/ , file.getManager)
+
+    //runRefactoring(selectedExpr, editor, tempContainer, occurrences, varName, varType, replaceAllOccurrences, varDecl);
+
+    return
+
   }
 
   def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {
@@ -58,4 +86,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
   }
 
   protected def showErrorMessage(text: String, project: Project)
+
+  protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: PsiType, occurrences: Array[PsiElement],
+                         declareVariable: Boolean, validator: ScalaValidator): ScalaIntroduceVariableDialogInterface
 }

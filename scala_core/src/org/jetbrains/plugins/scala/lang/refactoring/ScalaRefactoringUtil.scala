@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
+import com.intellij.util.ReflectionCache
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTryBlock
@@ -32,11 +34,17 @@ object ScalaRefactoringUtil {
 
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScExpression] = {
     val element1 = file.findElementAt(startOffset)
-    val element2 = file.findElementAt(endOffset)
-    if (element1 == null || element2 == null || element1 != element2 || !element1.isInstanceOf[ScExpression]) {
+    val element2 = file.findElementAt(endOffset - 1)
+    if (element1 == null || element2 == null) {
       return None
     }
-    return Some(element1.asInstanceOf[ScExpression])
+    val common = PsiTreeUtil.findCommonParent(element1, element2)
+    val element: ScExpression = if (common.isInstanceOf[ScExpression])
+      common.asInstanceOf[ScExpression] else PsiTreeUtil.getParentOfType(common, classOf[ScExpression]);
+    if (element == null || element.getTextRange.getStartOffset != startOffset) {
+      return None
+    }
+    return Some(element)
   }
 
   def getEnclosingContainer(expr: ScExpression): PsiElement = {

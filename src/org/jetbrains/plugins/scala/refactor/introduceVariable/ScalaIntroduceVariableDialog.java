@@ -32,15 +32,15 @@ import org.jetbrains.annotations.Nullable;
  * User: Alexander Podkhalyuzin
  * Date: 24.06.2008
  */
-public class ScalaIntroduceVariableDialog extends DialogWrapper implements ScalaIntroduceVariableDialogInterface {
+public class ScalaIntroduceVariableDialog extends DialogWrapper implements ScalaIntroduceVariableDialogInterface{
   private JPanel contentPane;
   private JCheckBox myCbTypeSpec;
-  private JCheckBox declareVariableCheckBox;
-  private JCheckBox myCbReplaceAllOccurences;
   private JComboBox myTypeComboBox;
   private ComboBox myNameComboBox;
-  private JLabel myTypeLabel;
   private JLabel myNameLabel;
+  private JCheckBox declareVariableCheckBox;
+  private JCheckBox myCbReplaceAllOccurences;
+  private JLabel myTypeLabel;
   private JButton buttonOK;
   public String myEnteredName;
 
