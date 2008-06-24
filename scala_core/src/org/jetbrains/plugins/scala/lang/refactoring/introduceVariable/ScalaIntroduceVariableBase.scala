@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.refactoring.introduceVariable
+package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory

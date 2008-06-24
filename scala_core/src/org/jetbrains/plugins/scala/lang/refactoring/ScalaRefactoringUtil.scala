@@ -1,5 +1,6 @@
-package org.jetbrains.plugins.scala.refactoring
+package org.jetbrains.plugins.scala.lang.refactoring
 
+import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTryBlock
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
@@ -44,5 +45,11 @@ object ScalaRefactoringUtil {
             !parent.isInstanceOf[ScTemplateBody] &&
             !parent.isInstanceOf[ScBlock]) parent = parent.getParent
     return parent
+  }
+  def ensureFileWritable(project: Project, file: PsiFile): Boolean = {
+    val virtualFile = file.getVirtualFile()
+    val readonlyStatusHandler = ReadonlyStatusHandler.getInstance(project)
+    val operationStatus = readonlyStatusHandler.ensureFilesWritable(Array(virtualFile))
+    return !operationStatus.hasReadonlyFiles()
   }
 }

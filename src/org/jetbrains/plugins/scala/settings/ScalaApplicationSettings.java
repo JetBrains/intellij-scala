@@ -25,6 +25,8 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 public class ScalaApplicationSettings implements PersistentStateComponent<ScalaApplicationSettings> {
 
   public String DEFAULT_SCALA_LIB_NAME = null;
+  public Boolean SPECIFY_TYPE_EXPLICITLY = null;
+  public Boolean INTRODUCE_LOCAL_CREATE_VARIABLE = null;
 
   public ScalaApplicationSettings getState() {
     return this;

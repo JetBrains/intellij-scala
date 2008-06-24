@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.refactoring
+package org.jetbrains.plugins.scala.lang.refactoring
 
 /**
  * @authos ilyas
@@ -11,7 +11,7 @@ import com.intellij.refactoring.RefactoringActionHandler
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
-
+/*
 class ScalaRefactoringSupportProvider extends DefaultRefactoringSupportProvider {
 
   override def isSafeDeleteAvailable(element: PsiElement) =  element match {
@@ -19,4 +19,4 @@ class ScalaRefactoringSupportProvider extends DefaultRefactoringSupportProvider 
     case _ => false
   }
 
-}
+}*/

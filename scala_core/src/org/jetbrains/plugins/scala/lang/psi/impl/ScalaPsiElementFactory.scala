@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.util.DebugPrint
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElementImpl,ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElementImpl, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 
 import com.intellij.openapi.util.TextRange
@@ -34,7 +34,7 @@ import com.intellij.psi.impl.source.CharTableImpl
 
 object ScalaPsiElementFactory {
 
-  private val DUMMY = "dummy." 
+  private val DUMMY = "dummy."
 
   def createExpressionFromText(buffer: String, manager: PsiManager): ScExpression = {
     val text = "class a {val b = " + buffer + "}"
@@ -65,5 +65,14 @@ object ScalaPsiElementFactory {
         return null
       }
     }
+  }
+
+  def createDeclaration(typez: PsiType, name: String, isVariable: Boolean, expr: ScExpression, manager: PsiManager): PsiElement = {
+    val text = "class a {" + (if (isVariable) "var " else "val ") +
+            (if (typez != null) ":" + typez.getPresentableText + " ") + name + " = " + expr.getText + "}"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    val classDef = dummyFile.getTypeDefinitions()(0)
+    val p = classDef.members()(0).asInstanceOf[ScPatternDefinition]
+    return p.asInstanceOf[PsiElement]
   }
 }

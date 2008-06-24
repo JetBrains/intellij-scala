@@ -190,6 +190,48 @@ public interface ScalaTokenTypes {
           tDOC_COMMENT
   );
 
+  public static TokenSet KEYWORDS = TokenSet.create(
+          kCASE,
+          kCATCH,
+          kCLASS,
+          kDEF,
+          kDO,
+          kELSE,
+          kEXTENDS,
+          kFALSE,
+          kFINAL,
+          kFINALLY,
+          kFOR,
+          kFOR_SOME,
+          kIF,
+          kIMPLICIT,
+          kIMPORT,
+          kLAZY,
+          kMATCH,
+          kNEW,
+          kNULL,
+          kOBJECT,
+          kOVERRIDE,
+          kPACKAGE,
+          kPRIVATE,
+          kPROTECTED,
+          kREQUIRES,
+          kRETURN,
+          kSEALED,
+          kSUPER,
+          kTHIS,
+          kTHROW,
+          kTRAIT,
+          kTRY,
+          kTRUE,
+          kTYPE,
+          kVAL,
+          kVAR,
+          kWHILE,
+          kWITH,
+          kYIELD
+  );
+
   TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER);
   TokenSet STRING_LITERAL_TOKEN_SET = TokenSet.create(tSTRING, tWRONG_STRING);
 
