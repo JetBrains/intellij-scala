@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 import toplevel.typedef._
 import base.ScIdList
 import base.types.ScTypeElement
+import toplevel.ScTyped
 
 /**
 * @author Alexander Podkhalyuzin
@@ -12,4 +13,5 @@ import base.types.ScTypeElement
 
 trait ScValueDeclaration extends ScValue with ScTypedDeclaration {
   def getIdList = findChildByClass(classOf[ScIdList])
+  def declaredElements : Seq[ScTyped]
 }
