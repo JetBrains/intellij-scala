@@ -5,5 +5,5 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable;
  * Date: 24.06.2008
  */
 trait ScalaValidator extends NameValidator{
-  def isOK(dialog: ScalaIntroduceVariableDialogTrait): Boolean;
+  def isOK(dialog: ScalaIntroduceVariableDialogInterface): Boolean;
 }
