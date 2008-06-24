@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableDialogTrait;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableDialogInterface;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaValidator;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableSettings;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
  * User: Alexander Podkhalyuzin
  * Date: 24.06.2008
  */
-public class ScalaIntroduceVariableDialog extends DialogWrapper implements ScalaIntroduceVariableDialogTrait {
+public class ScalaIntroduceVariableDialog extends DialogWrapper implements ScalaIntroduceVariableDialogInterface {
   private JPanel contentPane;
   private JCheckBox myCbTypeSpec;
   private JCheckBox declareVariableCheckBox;
