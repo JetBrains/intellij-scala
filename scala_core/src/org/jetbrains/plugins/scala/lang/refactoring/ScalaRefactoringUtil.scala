@@ -25,10 +25,11 @@ object ScalaRefactoringUtil {
     var end = editor.getSelectionModel.getSelectionEnd
     while (file.findElementAt(start).isInstanceOf[PsiWhiteSpace] ||
             file.findElementAt(start).isInstanceOf[PsiComment]) start = start + 1
-    while (file.findElementAt(end).isInstanceOf[PsiWhiteSpace] ||
-            file.findElementAt(end).isInstanceOf[PsiComment]) end = end - 1
+    while (file.findElementAt(end - 1).isInstanceOf[PsiWhiteSpace] ||
+            file.findElementAt(end - 1).isInstanceOf[PsiComment]) end = end - 1
     editor.getSelectionModel.setSelection(start, end)
   }
+
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScExpression] = {
     val element1 = file.findElementAt(startOffset)
     val element2 = file.findElementAt(endOffset)
@@ -37,6 +38,7 @@ object ScalaRefactoringUtil {
     }
     return Some(element1.asInstanceOf[ScExpression])
   }
+
   def getEnclosingContainer(expr: ScExpression): PsiElement = {
     var parent: PsiElement = expr
     while (parent != null &&
