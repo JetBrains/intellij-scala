@@ -54,14 +54,16 @@ object Conformance {
         case _ => rightRec(l, r, visited)
       }
 
-      case c@ScCompoundType(comps, decls, types) => comps.forall(_ conforms r) && (r match {
-        case ScDesignatorType(clazz : PsiClass) => {
+      case c@ScCompoundType(comps, decls, types) => comps.forall(_ conforms r) && (extractClassType(r) match {
+        case Some((clazz, subst)) => {
+          import subst.{subst => _subst}
+
           if (!decls.isEmpty) {
             val methods = TypeDefinitionMembers.getMethods(clazz)
             for (sig <- c.signatureSet) {
               methods.get(sig) match {
                 case None => return false
-                case Some(n) => if (!n.substitutor.subst(n.info.retType).conforms(sig.retType)) return false
+                case Some(n) => if (!_subst(n.substitutor.subst(n.info.retType)).conforms(sig.retType)) return false
               }
             }
           }
@@ -73,8 +75,8 @@ object Conformance {
                 case Some(n) => {
                   val subst = n.substitutor
                   n.info match {
-                    case ta: ScTypeAlias => if (!subst.subst(ta.upperBound).conforms(t.upperBound) ||
-                            !t.lowerBound.conforms(subst.subst(ta.lowerBound))) return false
+                    case ta: ScTypeAlias => if (!_subst(subst.subst(ta.upperBound)).conforms(t.upperBound) ||
+                            !t.lowerBound.conforms(_subst(subst.subst(ta.lowerBound)))) return false
                     case inner: PsiClass => //todo: java inner class case
                   }
                 }
@@ -83,7 +85,7 @@ object Conformance {
           }
           true
         }
-        case _ => false //todo: parameterized type
+        case None => false
       })
 
       case _ => rightRec(l, r, visited)
@@ -116,4 +118,10 @@ object Conformance {
 
     case _ => false //todo
   }
+
+  private def extractClassType(t : ScType) = t match {
+    case ScDesignatorType(clazz : PsiClass) => Some(clazz, ScSubstitutor.empty)
+    case p@ScParameterizedType(ScDesignatorType(clazz : PsiClass), _) => Some(clazz, p.substitutor)
+    case _ => None //todo
+ }
 }
