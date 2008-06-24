@@ -53,10 +53,14 @@ object ScalaElementPresentation {
 
     if (function.paramClauses != null)
       presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses))
-    if (function.getReturnScTypeElement != null) {
-      presentableText.append(": ")
-      presentableText.append(function.getReturnScTypeElement.getText)
+    function.returnTypeElement match {
+      case Some(rte) => {
+        presentableText.append(": ")
+        presentableText.append(rte.getText)
+      }
+      case None =>
     }
+
     return presentableText.toString()
   }
 

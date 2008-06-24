@@ -30,8 +30,6 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
 
   def paramClauses: ScParameters = findChildByClass(classOf[ScParameters])
 
-  def getReturnScTypeElement: ScTypeElement = findChildByClass(classOf[ScTypeElement])
-
   def parameters: Seq[ScParameter] = {
     val pcs = getParameterList
     if (pcs != null) pcs.params else Seq.empty
