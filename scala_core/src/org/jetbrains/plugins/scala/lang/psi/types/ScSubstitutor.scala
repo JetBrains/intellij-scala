@@ -25,6 +25,11 @@ class ScSubstitutor(val map : Map[PsiTypeParameter, ScType], val aliasesMap : Ma
   def +(p : PsiTypeParameter, t : ScType) = new ScSubstitutor(map + ((p, t)), aliasesMap)
   def +(name : String, t : ScType) = new ScSubstitutor(map, aliasesMap + ((name, t)))
   def incl(s : ScSubstitutor) = new ScSubstitutor(s.map ++ map, s.aliasesMap ++ aliasesMap)
+  def followed(s : ScSubstitutor) = new ScSubstitutor(map, aliasesMap) {
+    override def subst(t : ScType) = s.subst(super.subst(t))
+    override def subst(ta : ScTypeAlias) = s.subst(super.subst(ta))
+    override def subst(tp : PsiTypeParameter) = s.subst(super.subst(tp))
+  }
 
   def subst(p : PsiTypeParameter) = map.get(p) match {
     case None => new ScDesignatorType(p)

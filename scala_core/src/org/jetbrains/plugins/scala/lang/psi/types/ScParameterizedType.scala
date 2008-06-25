@@ -17,7 +17,7 @@ case class ScDesignatorType(val element: PsiNamedElement) extends ScType {
 }
 
 import _root_.scala.collection.immutable.{Map, HashMap}
-import com.intellij.psi.PsiTypeParameter
+import com.intellij.psi.{PsiTypeParameter, PsiClass}
 
 case class ScParameterizedType(designator : ScDesignatorType, typeArgs : Array[ScType]) extends ScType {
   val designated = designator.element
@@ -39,6 +39,11 @@ case class ScParameterizedType(designator : ScDesignatorType, typeArgs : Array[S
     }
     case _ => false
   }
+}
+
+object ScParameterizedType {
+  def create(c: PsiClass, s : ScSubstitutor) =
+    new ScParameterizedType(new ScDesignatorType(c), c.getTypeParameters.map {s subst _})
 }
 
 case class ScTypeAliasDesignatorType(alias : ScTypeAlias, subst : ScSubstitutor) extends ScDesignatorType(alias) {
