@@ -11,7 +11,9 @@ import api.statements.params.ScParameter
 import api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 
 object ScSubstitutor {
-  val empty = new ScSubstitutor
+  val empty = new ScSubstitutor {
+    override def subst(t : ScType) : ScType = t
+  }
 
   val key : Key[ScSubstitutor] = Key.create("scala substitutor key")
 }
