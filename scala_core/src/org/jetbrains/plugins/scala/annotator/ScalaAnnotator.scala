@@ -26,15 +26,12 @@ class ScalaAnnotator extends Annotator {
 
   private def checkNotQualifiedReferenceElement(refElement: ScStableCodeReferenceElement, holder: AnnotationHolder) {
     refElement.bind() match {
-      case None => if (refElement.refName != null) { //todo(parser) refName should be notnull
+      case None =>
         //todo: register used imports
         val error = ScalaBundle.message("cannot.resolve", Array[Object](refElement.refName))
-        val nameElement = refElement.nameId
-        val toHighlight = if (nameElement == null) refElement else nameElement //todo nameElement should be notnull
-        val annotation = holder.createErrorAnnotation(toHighlight, error)
+        val annotation = holder.createErrorAnnotation(refElement.nameId, error)
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
         registerAddImportFix(refElement, annotation)
-      }
       case _ =>
     }
   }
