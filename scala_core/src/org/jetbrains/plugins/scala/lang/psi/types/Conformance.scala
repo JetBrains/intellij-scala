@@ -73,9 +73,15 @@ object Conformance {
                 case Some(n) => {
                   val subst1 = n.substitutor
                   n.info match {
-                    case ta: ScTypeAlias => if (!subst.subst(subst1.subst(ta.upperBound)).conforms(t.upperBound) ||
-                            !t.lowerBound.conforms(subst.subst(subst1.subst(ta.lowerBound)))) return false
-                    case inner: PsiClass => //todo: java inner class case
+                    case ta: ScTypeAlias => {
+                      val s = subst1 followed subst
+                      if (!s.subst(ta.upperBound).conforms(t.upperBound) ||
+                          !t.lowerBound.conforms(s.subst(ta.lowerBound))) return false
+                    }
+                    case inner: PsiClass => {
+                      val des = ScParameterizedType.create(inner, subst1 followed subst)
+                      if (!subst.subst(des).conforms(t.upperBound) || !t.lowerBound.conforms(des)) return false
+                    }
                   }
                 }
               }
