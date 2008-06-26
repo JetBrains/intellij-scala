@@ -35,7 +35,7 @@ public class ScalaIntroduceVariableHandler extends ScalaIntroduceVariableBase {
   }
 
   public ScalaIntroduceVariableDialogInterface getDialog(final Project project, Editor editor, ScExpression expr,
-                                                             PsiType type, PsiElement[] occurrences, boolean decalreVariable,
+                                                             PsiType type, ScExpression[] occurrences, boolean decalreVariable,
                                                              ScalaValidator validator) {
     // Add occurences highlighting
     ArrayList<RangeHighlighter> highlighters = new ArrayList<RangeHighlighter>();
@@ -49,7 +49,7 @@ public class ScalaIntroduceVariableHandler extends ScalaIntroduceVariableBase {
       }
     }
 
-    String[] possibleNames = {"onlyThis"};//todo: ScalaNameSuggestionUtil.suggestVariableNames(expr, validator);
+    String[] possibleNames = {"x"};//todo: ScalaNameSuggestionUtil.suggestVariableNames(expr, validator);
     ScalaIntroduceVariableDialogInterface dialog = new ScalaIntroduceVariableDialog(project, type, occurrences.length, validator, possibleNames);
     dialog.show();
     if (!dialog.isOK()) {

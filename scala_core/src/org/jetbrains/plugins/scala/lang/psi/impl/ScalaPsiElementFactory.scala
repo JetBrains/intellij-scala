@@ -70,11 +70,17 @@ object ScalaPsiElementFactory {
 
   def createDeclaration(typez: PsiType, name: String, isVariable: Boolean, expr: ScExpression, manager: PsiManager): PsiElement = {
     val text = "class a {" + (if (isVariable) "var " else "val ") +
-            (if (typez != null) ":" + typez.getPresentableText + " ") + name + " = " + expr.getText + "}"
+            (if (typez != null) ":" + typez.getPresentableText + " " else "") + name + " = " + expr.getText + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
     val p = if (!isVariable) classDef.members()(0).asInstanceOf[ScPatternDefinition]
             else classDef.members()(0).asInstanceOf[ScVariableDefinition]
     return p.asInstanceOf[PsiElement]
+  }
+
+  def createNewLineNode(manager: PsiManager): ASTNode = {
+    val text = "\n"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    return dummyFile.getNode.getFirstChildNode
   }
 }
