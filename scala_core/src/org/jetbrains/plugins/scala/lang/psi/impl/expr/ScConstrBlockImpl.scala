@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -20,6 +22,16 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.ScCodeBlockImpl
 * @author Alexander.Podkhalyuzin 
 */
 
-class ScConstrBlockImpl(node: ASTNode) extends ScCodeBlockImpl (node) with ScConstrBlock {
+class ScConstrBlockImpl(node: ASTNode) extends ScCodeBlockImpl(node) with ScConstrBlock {
   override def toString: String = "ConstructorBlock"
+
+  def addDefinition(decl: PsiElement, before: PsiElement): Boolean = {
+    if (!(decl.isInstanceOf[ScPatternDefinition] || decl.isInstanceOf[ScVariableDefinition])) {
+      return false
+    }
+    node.addChild(decl.copy.getNode, before.getNode)
+    return true
+  }
+
+
 }

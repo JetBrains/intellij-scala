@@ -12,7 +12,7 @@ import com.intellij.psi.PsiElement
 class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableBase,
                             myProject: Project,
                             selectedExpr: ScExpression,
-                            occurrences: Array[PsiElement],
+                            occurrences: Array[ScExpression],
                             enclosingContainer: PsiElement) extends ScalaValidator {
   def getProject(): Project = {
     myProject;

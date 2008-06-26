@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -21,5 +24,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel._
 class ScBlockExprImpl(node: ASTNode) extends ScCodeBlockImpl(node) with ScBlockExpr {
 
   override def toString: String = "BlockExpression"
+
+  def addDefinition(decl: PsiElement, before: PsiElement): Boolean = {
+    if (!(decl.isInstanceOf[ScPatternDefinition] || decl.isInstanceOf[ScVariableDefinition])) {
+      return false
+    }
+    node.addChild(decl.copy.getNode,before.getNode)
+    node.addChild(ScalaPsiElementFactory.createNewLineNode(getManager), before.getNode)
+    return true
+  }
   
 }
