@@ -48,13 +48,6 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
 
   override def toString: String = "ScFunctionDefinition"
 
-  def getFunctionsAndTypeDefs: Seq[ScalaPsiElement] =
-    body match {
-      case None => Seq.empty
-      case Some(elem) => for (child <- elem.getChildren() if (child.isInstanceOf[ScTypeDefinition] || child.isInstanceOf[ScFunction]))
-              yield child.asInstanceOf[ScalaPsiElement]
-    }
-
   /**
   * Fake method to provide type-unsafe Scala Run Configuration
   */

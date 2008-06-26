@@ -16,10 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 * Date: 16.05.2008
 */
 
-class ScalaPrimaryConstructorStructureViewElement(private val element: ScalaPsiElement) extends ScalaStructureViewElement(element) {
+class ScalaPrimaryConstructorStructureViewElement(private val element: ScPrimaryConstructor) extends ScalaStructureViewElement(element) {
 
   def getPresentation(): ItemPresentation = {
-    return new ScalaPrimaryConstructorItemPresentation(myElement.asInstanceOf[ScPrimaryConstructor]);
+    return new ScalaPrimaryConstructorItemPresentation(element);
   }
 
   def getChildren(): Array[TreeElement] = {

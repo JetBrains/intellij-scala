@@ -16,10 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 * Date: 04.05.2008
 */
 
-class ScalaTypeDefinitionStructureViewElement(private val element: ScalaPsiElement) extends ScalaStructureViewElement(element) {
+class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinition) extends ScalaStructureViewElement(element) {
 
   def getPresentation(): ItemPresentation = {
-    return new ScalaTypeDefinitionItemPresentation(myElement.asInstanceOf[ScTypeDefinition]);
+    return new ScalaTypeDefinitionItemPresentation(element);
   }
 
   def getChildren(): Array[TreeElement] = {
@@ -27,11 +27,11 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScalaPsiEleme
 
     for (member <- element.asInstanceOf[ScTypeDefinition].members) {
       member match {
-        case _: ScFunction => {
-          children += new ScalaFunctionStructureViewElement (member, false)
+        case func: ScFunction => {
+          children += new ScalaFunctionStructureViewElement (func, false)
         }
-        case _: ScPrimaryConstructor => {
-          children += new ScalaPrimaryConstructorStructureViewElement (member)
+        case constr: ScPrimaryConstructor => {
+          children += new ScalaPrimaryConstructorStructureViewElement (constr)
         }
         case member: ScVariable => {
           for (f <- member.declaredElements)
@@ -45,7 +45,7 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScalaPsiEleme
       }
     }
 
-    for (typeDef <- element.asInstanceOf[ScTypeDefinition].typeDefinitions)
+    for (typeDef <- element.typeDefinitions)
       children += new ScalaTypeDefinitionStructureViewElement(typeDef)
     return children.toArray
   }

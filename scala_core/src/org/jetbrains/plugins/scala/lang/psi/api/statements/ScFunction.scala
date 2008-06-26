@@ -25,8 +25,6 @@ trait ScFunction extends ScalaPsiElement with ScNamedElement with ScMember
 
   def returnTypeElement = findChild(classOf[ScTypeElement])
 
-  def getFunctionsAndTypeDefs: Seq[ScalaPsiElement]
-
   def parameters: Seq[ScParameter]
 
   def getModifierList(): ScModifierList
