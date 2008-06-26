@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScMethodCall extends ScExpression {
-
+  def getInvokedExpr: ScExpression = findChildByClass(classOf[ScExpression])
 }

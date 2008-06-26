@@ -17,6 +17,7 @@ import com.intellij.codeInsight.highlighting.HighlightManager;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaValidator;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableDialogInterface;
+import org.jetbrains.plugins.scala.lang.refactoring.NameSuggester;
 import org.jetbrains.plugins.scala.ScalaBundle;
 
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class ScalaIntroduceVariableHandler extends ScalaIntroduceVariableBase {
       }
     }
 
-    String[] possibleNames = {"x"};//todo: ScalaNameSuggestionUtil.suggestVariableNames(expr, validator);
+    String[] possibleNames = NameSuggester.suggestNames(expr, validator);
     ScalaIntroduceVariableDialogInterface dialog = new ScalaIntroduceVariableDialog(project, type, occurrences.length, validator, possibleNames);
     dialog.show();
     if (!dialog.isOK()) {
