@@ -14,7 +14,10 @@ trait ScExpression extends ScalaPsiElement {
   def replaceExpression(expr: ScExpression, removeParenthesis: Boolean): ScExpression = {
     val oldParent = getParent
     if (oldParent == null) throw new PsiInvalidElementAccessException(this)
-    //todo: implement checking priority and parenthesis removing
+    //todo: implement checking priority (when inline refactoring)
+    if (removeParenthesis && oldParent.isInstanceOf[ScParenthesisedExpr]) {
+      return oldParent.asInstanceOf[ScExpression].replaceExpression(expr, true)
+    }
     val parentNode = oldParent.getNode
     val newNode = expr.copy.getNode
     parentNode.replaceChild(this.getNode, newNode)

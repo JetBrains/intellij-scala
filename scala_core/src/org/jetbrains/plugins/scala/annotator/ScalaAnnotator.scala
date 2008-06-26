@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.openapi.util.TextRange
 import com.intellij.lang.annotation._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.resolve._
