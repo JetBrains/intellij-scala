@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScParenthesisedExpr extends ScExpression {
-
+  def expr: ScExpression
 }

@@ -63,8 +63,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
       return
     }
 
-    //todo: find occurrences
-    val occurrences: Array[ScExpression] = ScalaRefactoringUtil.getOccurrences(expr, enclosingContainer)
+    val occurrences: Array[ScExpression] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), enclosingContainer)
     // Getting settings
     var validator: ScalaValidator = new ScalaVariableValidator(this, project, expr, occurrences, enclosingContainer)
     var dialog: ScalaIntroduceVariableDialogInterface = getDialog(project, editor, expr, typez, occurrences, false, validator)
@@ -82,7 +81,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
 
     // Generating varibable declaration
     val varDecl: PsiElement = ScalaPsiElementFactory.createDeclaration(varType, varName,
-    isVariable, expr /*do unpar*/ , file.getManager)
+    isVariable, ScalaRefactoringUtil.unparExpr(expr) , file.getManager)
     runRefactoring(expr, editor, enclosingContainer, occurrences, varName, varType, replaceAllOccurrences, varDecl);
 
     return

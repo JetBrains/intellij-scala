@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import java.util.Comparator
@@ -78,6 +79,14 @@ object ScalaRefactoringUtil {
         }
       }
     return occurrences.toArray
+  }
+  def unparExpr(expr: ScExpression): ScExpression = {
+    expr match {
+      case x: ScParenthesisedExpr => {
+        x.expr
+      }
+      case _ => expr
+    }
   }
   private val comparator = new Comparator[PsiElement]() {
     def compare(element1: PsiElement, element2: PsiElement): Int = {

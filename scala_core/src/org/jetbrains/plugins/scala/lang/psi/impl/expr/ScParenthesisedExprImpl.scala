@@ -29,4 +29,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 class ScParenthesisedExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParenthesisedExpr {
   override def toString: String = "ExpressionInParenthesis"
+
+  def expr: ScExpression = findChildByClass(classOf[ScExpression]) 
 }
