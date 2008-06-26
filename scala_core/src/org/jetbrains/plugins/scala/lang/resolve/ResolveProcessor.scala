@@ -10,7 +10,6 @@ import _root_.scala.collection.immutable.HashSet
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String) extends BaseProcessor(kinds)
 {
-
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     val nameSet = state.get(ResolverEnv.nameKey)
@@ -22,6 +21,17 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String
       return false //todo: for locals it is ok to terminate the walkup, later need more elaborate check
     }
     return true
+  }
+
+  override def getHint[T](hintClass: Class[T]): T =
+    if (hintClass == classOf[NameHint] && name != "") new ScalaNameHint().asInstanceOf[T]
+    else super.getHint(hintClass)
+
+  class ScalaNameHint extends NameHint {
+    def getName(state : ResolveState) = {
+      val stateName = state.get(ResolverEnv.nameKey)
+      if (stateName == null) name else stateName
+    }
   }
 }
 
