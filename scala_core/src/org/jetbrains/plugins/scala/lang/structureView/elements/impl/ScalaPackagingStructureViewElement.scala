@@ -15,20 +15,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 * Date: 05.05.2008
 */
 
-class ScalaPackagingStructureViewElement(private val element: ScalaPsiElement) extends ScalaStructureViewElement(element) {
+class ScalaPackagingStructureViewElement(private val element: ScPackaging) extends ScalaStructureViewElement(element) {
   def getPresentation(): ItemPresentation = {
-    return new ScalaPackagingItemPresentation(myElement.asInstanceOf[ScPackaging]);
+    return new ScalaPackagingItemPresentation(element);
   }
 
   def getChildren(): Array[TreeElement] = {
     val children = new ArrayBuffer[ScalaStructureViewElement]
-    for (topStatement <- myElement.asInstanceOf[ScPackaging].getTopStatements) {
+    for (topStatement <- element.getTopStatements) {
       topStatement match {
-        case _: ScTypeDefinition => {
-          children += new ScalaTypeDefinitionStructureViewElement(topStatement)
+        case td: ScTypeDefinition => {
+          children += new ScalaTypeDefinitionStructureViewElement(td)
         }
-        case _: ScPackaging => {
-          children += new ScalaPackagingStructureViewElement(topStatement)
+        case pack: ScPackaging => {
+          children += new ScalaPackagingStructureViewElement(pack)
         }
         case _ =>
       }

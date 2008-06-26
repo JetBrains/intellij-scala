@@ -15,8 +15,6 @@ class ScFunctionDeclarationImpl(node: ASTNode) extends ScFunctionImpl(node) with
 
   override def toString: String = "ScFunctionDeclaration"
 
-  def getFunctionsAndTypeDefs = Seq.empty
-
   def declaredElements = Seq.single(this)
 
 }
