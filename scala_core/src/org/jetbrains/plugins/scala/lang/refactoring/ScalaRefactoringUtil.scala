@@ -1,5 +1,9 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
+import com.intellij.codeInsight.PsiEquivalenceUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import java.util.Comparator
+import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.util.ReflectionCache
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
@@ -61,5 +65,31 @@ object ScalaRefactoringUtil {
     val readonlyStatusHandler = ReadonlyStatusHandler.getInstance(project)
     val operationStatus = readonlyStatusHandler.ensureFilesWritable(Array(virtualFile))
     return !operationStatus.hasReadonlyFiles()
+  }
+  def getOccurrences(expr: ScExpression, enclosingContainer: PsiElement): Array[ScExpression] = {
+    val occurrences: ArrayBuffer[ScExpression] = new ArrayBuffer[ScExpression]()
+    if (enclosingContainer == expr) occurrences += enclosingContainer.asInstanceOf[ScExpression]
+    else
+      for (child <- enclosingContainer.getChildren) {
+        if (PsiEquivalenceUtil.areElementsEquivalent(child, expr, comparator, false)) {
+          occurrences += child.asInstanceOf[ScExpression]
+        } else {
+          occurrences ++= getOccurrences(expr, child)
+        }
+      }
+    return occurrences.toArray
+  }
+  private val comparator = new Comparator[PsiElement]() {
+    def compare(element1: PsiElement, element2: PsiElement): Int = {
+      if (element1 == element2) return 0
+      if (element1.isInstanceOf[ScParameter] && element2.isInstanceOf[ScParameter]) {
+        val name1 = element1.asInstanceOf[ScParameter].getName
+        val name2 = element2.asInstanceOf[ScParameter].getName
+        if (name1 != null && name2 != null) {
+          return name1.compareTo(name2)
+        }
+      }
+      return 1
+    }
   }
 }

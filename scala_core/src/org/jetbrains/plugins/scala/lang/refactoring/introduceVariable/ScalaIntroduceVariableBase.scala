@@ -64,7 +64,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
     }
 
     //todo: find occurrences
-    val occurrences: Array[ScExpression] = Array[ScExpression](expr)
+    val occurrences: Array[ScExpression] = ScalaRefactoringUtil.getOccurrences(expr, enclosingContainer)
     // Getting settings
     var validator: ScalaValidator = new ScalaVariableValidator(this, project, expr, occurrences, enclosingContainer)
     var dialog: ScalaIntroduceVariableDialogInterface = getDialog(project, editor, expr, typez, occurrences, false, validator)
