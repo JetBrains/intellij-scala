@@ -52,7 +52,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
             case _: ScTypeParam => kinds contains CLASS
             case _: ScTypeAlias => kinds contains CLASS
             case _: ScTypeDefinition => kinds contains CLASS
-            case c: PsiClass if c.getLanguage == StdLanguages.JAVA => {
+            case c: PsiClass => {
               if (kinds contains CLASS) true
               else {
                 def isStaticCorrect(clazz: PsiClass): Boolean = {

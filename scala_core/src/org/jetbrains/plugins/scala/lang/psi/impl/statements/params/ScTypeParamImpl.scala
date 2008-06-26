@@ -36,7 +36,8 @@ class ScTypeParamImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTy
     case _ => null
   }
 
-  def getContainingClass() = null
+  override def getContainingClass() = null
+  
   def lowerBound = {
     val tLower = findChildByType(ScalaTokenTypes.tLOWER_BOUND)
     if (tLower != null) {

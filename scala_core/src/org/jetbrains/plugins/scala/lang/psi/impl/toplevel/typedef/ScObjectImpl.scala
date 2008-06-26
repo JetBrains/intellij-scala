@@ -30,4 +30,6 @@ class ScObjectImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScObje
   override def getModifierList = findChildByClass(classOf[ScModifierList])
 
   override def hasModifierProperty(name: String) = if (getModifierList != null) getModifierList.hasModifierProperty(name: String) else false
+
+  override def getContainingClass() = null
 }

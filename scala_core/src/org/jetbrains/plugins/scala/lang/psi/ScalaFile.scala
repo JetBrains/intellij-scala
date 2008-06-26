@@ -66,7 +66,7 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScImport
         state.put(ResolverEnv.nameKey, null)
       }
       case _ => {
-        var curr = JavaPsiFacade.getInstance(getProject()).findPackage(getPackageName)
+        var curr = JavaPsiFacade.getInstance(getProject).findPackage(getPackageName)
         while (curr != null) {
           if (!curr.processDeclarations(processor, state, null, place)) return false
           curr = curr.getParentPackage
@@ -75,8 +75,13 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScImport
     }
 
     for (implObj <- ImplicitlyImported.objects) {
-      val clazz = JavaPsiFacade.getInstance(getProject()).findClass(implObj, getResolveScope)
+      val clazz = JavaPsiFacade.getInstance(getProject).findClass(implObj, getResolveScope)
       if (clazz != null && !clazz.processDeclarations(processor, state, null, place)) return false
+    }
+
+    import toplevel.synthetic.SyntheticClasses
+    for (synth <- SyntheticClasses.get(getProject).getAll) {
+      if (!processor.execute(synth, state)) return false;
     }
 
     for (implP <- ImplicitlyImported.packages) {
