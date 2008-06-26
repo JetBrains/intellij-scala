@@ -34,11 +34,6 @@ trait ScTypeDefinition extends ScNamedElement
 
   def getSuperClassNames() = Array[String]() //for build restore  
 
-  def getContainingClass: PsiClass = getParent match {
-    case eb: ScExtendsBlock => eb.getParent.asInstanceOf[ScTypeDefinition]
-    case _ => null
-  }
-
   def getPath: String = {
     var qualName = getQualifiedName;
     val index = qualName.lastIndexOf('.');

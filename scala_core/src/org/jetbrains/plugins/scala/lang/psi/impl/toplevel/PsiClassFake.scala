@@ -123,4 +123,6 @@ trait PsiClassFake extends PsiClass{
   def getMethods() = Array[PsiMethod]()
 
   def getQualifiedName() : String = null
+
+  def getContainingClass() : PsiClass = null
 }

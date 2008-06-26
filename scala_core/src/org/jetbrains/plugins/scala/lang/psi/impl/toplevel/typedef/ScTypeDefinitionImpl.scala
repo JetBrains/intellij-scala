@@ -186,4 +186,9 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     case BaseProcessor(kinds) => kinds contains CLASS
     case _ => false //important: do not process inner classes!
   }
+
+  override def getContainingClass: PsiClass = getParent match {
+    case eb: ScExtendsBlock => eb.getParent.asInstanceOf[ScTypeDefinition]
+    case _ => null
+  }
 }
