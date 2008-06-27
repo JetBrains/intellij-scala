@@ -28,7 +28,5 @@ class ScTypeParamClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wit
 
   override def toString: String = "TypeParameterClause"
 
-  def typeParameters() : Seq[ScTypeParam] = findChildrenByType(TokenSets.TYPE_PARAMS_SET, classOf[ScalaPsiElement]).map {_ match {
-    case tp : ScTypeParam => tp
-  }}
+  def typeParameters() : Seq[ScTypeParam] = findChildrenByClass(classOf[ScTypeParam])
 }
