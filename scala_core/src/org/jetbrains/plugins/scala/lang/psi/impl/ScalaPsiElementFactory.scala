@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 
@@ -55,8 +56,14 @@ object ScalaPsiElementFactory {
     return function.paramClauses
   }
 
-  def createImportStatementFromClass(clazz: PsiClass, manager: PsiManager): ScImportStmt = {
-    val text = "import " + clazz.getQualifiedName
+  def createImportStatementFromClass(file: ScalaFile, clazz: PsiClass, manager: PsiManager): ScImportStmt = {
+    val qualifiedName = clazz.getQualifiedName
+    val packageName = file.packageStatement match {
+      case Some(x) => x.getPackageName
+      case None => null
+    }
+    val name = getShortName(qualifiedName, packageName)
+    val text = "import " + (if (isResolved(name, clazz, packageName, manager)) name else "_root_." + qualifiedName)
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     dummyFile.getFirstImportStmt match {
@@ -82,5 +89,43 @@ object ScalaPsiElementFactory {
     val text = "\n"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     return dummyFile.getNode.getFirstChildNode
+  }
+
+  private def isResolved(name: String, clazz: PsiClass, packageName: String, manager: PsiManager): Boolean = {
+    if (packageName == null) return true
+    val text = "package " + packageName +"\nimport " + name
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    val imp: ScStableCodeReferenceElement = (dummyFile.getFirstImportStmt match {
+      case Some(x) => x
+      case None =>
+        //cannot be
+        null
+    }).importExprs(0).reference match {
+      case Some(x) => x
+      case None => return false
+    }
+    imp.resolve match {
+      case x: PsiClass => {
+        return x.getQualifiedName == clazz.getQualifiedName
+      }
+      case _ => return false
+    }
+  }
+
+  private def getShortName(qualifiedName: String, packageName: String): String = {
+    if (packageName == null) return qualifiedName
+    val qArray = qualifiedName.split("[.]")
+    val pArray = packageName.split("[.]")
+    var i = 0
+    while (i < qArray.length - 1 && i < pArray.length && qArray(i) == pArray(i)) i += 1
+    if (i == pArray.length) return qualifiedName
+    var res = ""
+    while (i < qArray.length) {
+      res += qArray(i)
+      res += "."
+      i += 1
+    }
+    return res.substring(0, res.length - 1)
   }
 }

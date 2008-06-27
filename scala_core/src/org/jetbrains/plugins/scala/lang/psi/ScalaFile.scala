@@ -93,7 +93,7 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScImport
   }
 
   def addImportForClass(clazz: PsiClass) {
-    val newImport = ScalaPsiElementFactory.createImportStatementFromClass(clazz, this.getManager)
+    val newImport = ScalaPsiElementFactory.createImportStatementFromClass(this, clazz, this.getManager)
     findChild(classOf[ScImportStmt]) match {
       case Some(x) => {
         addBefore(newImport, x)
