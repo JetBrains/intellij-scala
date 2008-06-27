@@ -31,9 +31,13 @@ object ScalaRefactoringUtil {
     var start = editor.getSelectionModel.getSelectionStart
     var end = editor.getSelectionModel.getSelectionEnd
     while (file.findElementAt(start).isInstanceOf[PsiWhiteSpace] ||
-            file.findElementAt(start).isInstanceOf[PsiComment]) start = start + 1
+            file.findElementAt(start).isInstanceOf[PsiComment] ||
+            file.getText.charAt(start) == '\n' ||
+            file.getText.charAt(start) == ' ') start = start + 1
     while (file.findElementAt(end - 1).isInstanceOf[PsiWhiteSpace] ||
-            file.findElementAt(end - 1).isInstanceOf[PsiComment]) end = end - 1
+            file.findElementAt(end - 1).isInstanceOf[PsiComment] ||
+           file.getText.charAt(end - 1) == '\n' ||
+           file.getText.charAt(end - 1) == ' ') end = end - 1
     editor.getSelectionModel.setSelection(start, end)
   }
 

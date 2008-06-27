@@ -38,7 +38,7 @@ object OuterImportsActionCreator {
 
     for (clazz <- classes) {
       val qName = clazz.getQualifiedName()
-      if (!(qName == null && qName.indexOf('.') == -1)) {
+      if (qName != null && qName.indexOf('.') != -1) {
         val action: IntentionAction = new IntentionAction() {
           def getText = ScalaBundle.message("import.with", Array[Object](qName))
           def getFamilyName = ScalaBundle.message("import.class", Array[Object]())

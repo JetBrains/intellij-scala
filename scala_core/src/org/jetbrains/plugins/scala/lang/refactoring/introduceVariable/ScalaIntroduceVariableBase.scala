@@ -120,6 +120,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
           ApplicationManager.getApplication().runWriteAction(runnable);
         }
       }, REFACTORING_NAME, null);
+    editor.getSelectionModel.removeSelection
   }
 
   def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {
