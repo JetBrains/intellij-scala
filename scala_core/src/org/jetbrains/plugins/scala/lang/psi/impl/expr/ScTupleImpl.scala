@@ -1,26 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-
-
-
-
-
-
-import com.intellij.psi.tree.TokenSet
+import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi._
-
-import org.jetbrains.annotations._
-
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-
-
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import api.expr._
+import types._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -28,4 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 */
 class ScTupleImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTuple {
   override def toString: String = "Tuple"
+
+  override def getType = exprs match {
+    case Array() => Unit
+    case exprs => new ScTupleType(exprs map {_.getType})
+  }
 }
