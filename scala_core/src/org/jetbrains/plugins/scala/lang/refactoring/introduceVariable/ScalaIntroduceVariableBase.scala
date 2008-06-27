@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import org.jetbrains.plugins.scala.lang.psi.api.expr.util.ScBlocker
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
@@ -100,8 +101,8 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
         } else occurrences_
         var parent: PsiElement = occurrences(0);
         while (parent.getParent() != tempContainer) parent = parent.getParent
-        if (tempContainer.isInstanceOf[ScBlockExpr])
-          tempContainer.asInstanceOf[ScBlockExpr].addDefinition(varDecl, parent)
+        if (tempContainer.isInstanceOf[ScBlocker])
+          tempContainer.asInstanceOf[ScBlocker].addDefinition(varDecl, parent)
         else {
           showErrorMessage(ScalaBundle.message("operation.not.supported.in.current.block", Array[Object]()), editor.getProject)
           return
