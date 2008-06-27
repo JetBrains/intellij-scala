@@ -7,8 +7,8 @@ import com.intellij.psi.PsiTypeParameter
 
 case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclaration], val typeDecls: Seq[ScTypeAlias]) extends ScType{
   //compound types are checked by checking the set of signatures in their refinements
-  val signatureSet = new HashSet[FullSignature] {
-    override def elemHashCode(s : FullSignature) = s.name.hashCode* 31 + s.types.length
+  val signatureMap = new HashMap[Signature, ScType] {
+    override def elemHashCode(s : Signature) = s.name.hashCode* 31 + s.types.length
   }
 
   type Bounds = Pair[ScType, ScType]
@@ -20,19 +20,20 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclarat
 
   for (decl <- decls) {
     decl match {
-      case fun: ScFunctionDeclaration => signatureSet += new PhysicalSignature(fun, ScSubstitutor.empty)
+      case fun: ScFunctionDeclaration =>
+        ((signatureMap += new PhysicalSignature(fun, ScSubstitutor.empty), fun.calcType))
       case varDecl: ScVariableDeclaration => {
         varDecl.typeElement match {
           case Some(te) => for (e <- varDecl.declaredElements) {
-            signatureSet += new FullSignature(e.name, Seq.empty, te.getType, Array(), ScSubstitutor.empty)
-            signatureSet += new FullSignature(e.name + "_", Seq.single(te.getType), Unit, Array(), ScSubstitutor.empty) //setter
+            signatureMap += ((new Signature(e.name, Seq.empty, Array(), ScSubstitutor.empty), te.getType))
+            signatureMap += ((new Signature(e.name + "_", Seq.single(te.getType), Array(), ScSubstitutor.empty), Unit)) //setter
           }
           case None =>
         }
       }
       case valDecl: ScValueDeclaration => valDecl.typeElement match {
         case Some(te) => for (e <- valDecl.declaredElements) {
-          signatureSet += new FullSignature(e.name, Seq.empty, te.getType, Array(), ScSubstitutor.empty)
+          signatureMap += ((new Signature(e.name, Seq.empty, Array(), ScSubstitutor.empty), te.getType))
         }
         case None =>
       }
@@ -42,7 +43,12 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclarat
   override def equiv(t: ScType) = t match {
     case other : ScCompoundType => {
       components.equalsWith (other.components) (_ equiv _) &&
-      signatureSet.equals(other.signatureSet) &&
+      signatureMap.size == other.signatureMap.size &&
+      signatureMap.elements.forall {entry => signatureMap.get(entry._1) match {
+        case None => false
+        case Some(t) => entry._2 equiv t
+      }
+      } &&
       typesMatch(types, other.types)
     }
     case _ => false
