@@ -87,7 +87,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
   }
 
   @Nullable
-  protected String getEnteredName() {
+  public String getEnteredName() {
     if (myNameComboBox.getEditor().getItem() instanceof String &&
         ((String) myNameComboBox.getEditor().getItem()).length() > 0) {
       return (String) myNameComboBox.getEditor().getItem();
@@ -96,7 +96,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
     }
   }
 
-  protected boolean isReplaceAllOccurrences() {
+  public boolean isReplaceAllOccurrences() {
     return myCbReplaceAllOccurences.isSelected();
   }
 

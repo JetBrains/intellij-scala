@@ -11,6 +11,7 @@ import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.refactoring.util.RefactoringMessageDialog;
 import com.intellij.refactoring.HelpID;
+import com.intellij.refactoring.ui.ConflictsDialog;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.PsiElement;
 import com.intellij.codeInsight.highlighting.HighlightManager;
@@ -66,5 +67,11 @@ public class ScalaIntroduceVariableHandler extends ScalaIntroduceVariableBase {
     }
 
     return dialog;
+  }
+
+  public boolean reportConflicts(String[] conflicts, Project project) {
+    ConflictsDialog conflictsDialog = new ConflictsDialog(project, conflicts);
+    conflictsDialog.show();
+    return conflictsDialog.isOK();
   }
 }
