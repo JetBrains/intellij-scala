@@ -15,7 +15,7 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableBase,
                             occurrences: Array[ScExpression],
                             enclosingContainer: PsiElement) extends ScalaValidator {
   def getProject(): Project = {
-    myProject;
+    myProject
   }
 
   def isOK(dialog: ScalaIntroduceVariableDialogInterface): Boolean = true

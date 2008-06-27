@@ -49,6 +49,7 @@ object OuterImportsActionCreator {
             file match {
               case x: ScalaFile => {
                 if (QuickfixUtil.ensureFileWritable(project, file)) {
+
                   x.addImportForClass(clazz)
                 }
               }
