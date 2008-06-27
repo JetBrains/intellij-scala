@@ -119,7 +119,6 @@ object ScalaPsiElementFactory {
     val pArray = packageName.split("[.]")
     var i = 0
     while (i < qArray.length - 1 && i < pArray.length && qArray(i) == pArray(i)) i += 1
-    if (i == pArray.length) return qualifiedName
     var res = ""
     while (i < qArray.length) {
       res += qArray(i)

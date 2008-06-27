@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
+import org.jetbrains.plugins.scala.lang.psi.api.expr.util.ScBlocker
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueDeclaration
@@ -12,6 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 * Date: 06.03.2008
 */
 
-trait ScBlockExpr extends ScExpression with ScCodeBlock {
-  def addDefinition(decl: PsiElement, before: PsiElement): Boolean 
+trait ScBlockExpr extends ScExpression with ScCodeBlock with ScBlocker {
+  
 }

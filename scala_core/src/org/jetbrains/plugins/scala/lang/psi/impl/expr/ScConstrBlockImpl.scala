@@ -25,13 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.ScCodeBlockImpl
 class ScConstrBlockImpl(node: ASTNode) extends ScCodeBlockImpl(node) with ScConstrBlock {
   override def toString: String = "ConstructorBlock"
 
-  def addDefinition(decl: PsiElement, before: PsiElement): Boolean = {
-    if (!(decl.isInstanceOf[ScPatternDefinition] || decl.isInstanceOf[ScVariableDefinition])) {
-      return false
-    }
-    node.addChild(decl.copy.getNode, before.getNode)
-    return true
-  }
+
 
 
 }

@@ -25,13 +25,6 @@ class ScBlockExprImpl(node: ASTNode) extends ScCodeBlockImpl(node) with ScBlockE
 
   override def toString: String = "BlockExpression"
 
-  def addDefinition(decl: PsiElement, before: PsiElement): Boolean = {
-    if (!(decl.isInstanceOf[ScPatternDefinition] || decl.isInstanceOf[ScVariableDefinition])) {
-      return false
-    }
-    node.addChild(decl.copy.getNode,before.getNode)
-    node.addChild(ScalaPsiElementFactory.createNewLineNode(getManager), before.getNode)
-    return true
-  }
+  
   
 }

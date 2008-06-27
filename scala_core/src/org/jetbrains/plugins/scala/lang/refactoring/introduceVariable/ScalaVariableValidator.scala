@@ -20,5 +20,7 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableBase,
 
   def isOK(dialog: ScalaIntroduceVariableDialogInterface): Boolean = true
 
+  //private def validate()
+
   def validateName(name: String, increaseNumber: Boolean): String = name
 }
