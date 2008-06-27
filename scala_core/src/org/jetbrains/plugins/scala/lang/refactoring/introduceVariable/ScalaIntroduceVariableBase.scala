@@ -101,6 +101,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
         } else occurrences_
         var parent: PsiElement = occurrences(0);
         while (parent.getParent() != tempContainer) parent = parent.getParent
+        //todo: resolve conflicts like this.name
         if (tempContainer.isInstanceOf[ScBlocker])
           tempContainer.asInstanceOf[ScBlocker].addDefinition(varDecl, parent)
         else {
@@ -132,4 +133,6 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
 
   protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: PsiType, occurrences: Array[ScExpression],
                          declareVariable: Boolean, validator: ScalaValidator): ScalaIntroduceVariableDialogInterface
+
+  def reportConflicts(conflicts: Array[String], project: Project): Boolean
 }

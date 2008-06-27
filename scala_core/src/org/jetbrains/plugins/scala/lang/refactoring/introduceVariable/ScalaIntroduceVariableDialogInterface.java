@@ -8,4 +8,6 @@ public interface ScalaIntroduceVariableDialogInterface {
   public boolean isOK();
   public ScalaIntroduceVariableSettings getSettings();
   public void show();
+  public String getEnteredName();
+  public boolean isReplaceAllOccurrences();
 }
