@@ -37,7 +37,16 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableBase,
   }
 
   private def isOKImpl(name: String, allOcc: Boolean): Array[String] = {
-    validateDown(enclosingContainer, name, allOcc)
+    val buf = new ArrayBuffer[String]
+    buf ++= validateDown(enclosingContainer, name, allOcc)
+    buf ++= validateUp(enclosingContainer, name)
+    return buf.toArray
+  }
+
+  private def validateUp(element: PsiElement, name: String): Array[String] = {
+    val buf = new ArrayBuffer[String]
+    //todo: implement me
+    return buf.toArray
   }
 
   private def validateDown(element: PsiElement, name: String, allOcc: Boolean): Array[String] = {
@@ -107,5 +116,16 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableBase,
     return buf.toArray
   }
 
-  def validateName(name: String, increaseNumber: Boolean): String = name
+  def validateName(name: String, increaseNumber: Boolean): String = {
+    var res = name
+    if (isOKImpl(res,true).length == 0) return res
+    if (!increaseNumber) return ""
+    var i = 1
+    res = name + i
+    while (!(isOKImpl(res, true).length == 0) ) {
+      i = i + 1
+      res = name + i
+    }
+    return res
+  }
 }
