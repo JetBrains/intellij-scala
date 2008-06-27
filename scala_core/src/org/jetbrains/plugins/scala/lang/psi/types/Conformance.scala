@@ -58,10 +58,10 @@ object Conformance {
         case Some((clazz, subst)) => {
           if (!decls.isEmpty) {
             val sigs = TypeDefinitionMembers.getSignatures(clazz)
-            for (sig <- c.signatureSet) {
+            for ((sig, t) <- c.signatureMap) {
               sigs.get(sig) match {
                 case None => return false
-                case Some(retType) => if (!subst.subst(retType).conforms(sig.retType)) return false
+                case Some(retType) => if (!subst.subst(retType).conforms(t)) return false
               }
             }
           }
