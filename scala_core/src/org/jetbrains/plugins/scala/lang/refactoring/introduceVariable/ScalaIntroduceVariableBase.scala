@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr.util.ScBlocker
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
@@ -17,6 +16,8 @@ import com.intellij.psi.PsiFile
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.refactoring.RefactoringActionHandler
+import psi.api.toplevel.ScCodeBlock
+import psi.api.toplevel.typedef.ScMember
 
 /**
 * User: Alexander Podkhalyuzin
@@ -80,8 +81,8 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
     val isVariable: Boolean = settings.isDeclareVariable()
     val replaceAllOccurrences: Boolean = settings.isReplaceAllOccurrences()
 
-    // Generating varibable declaration
-    val varDecl: PsiElement = ScalaPsiElementFactory.createDeclaration(varType, varName,
+    // Generating variable declaration
+    val varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName,
     isVariable, ScalaRefactoringUtil.unparExpr(expr) , file.getManager)
     runRefactoring(expr, editor, enclosingContainer, occurrences, varName, varType, replaceAllOccurrences, varDecl);
 
@@ -91,7 +92,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
 
   def runRefactoring(selectedExpr: ScExpression, editor: Editor, tempContainer: PsiElement,
                     occurrences_ : Array[ScExpression], varName: String, varType: PsiType,
-                    replaceAllOccurrences: Boolean, varDecl: PsiElement) {
+                    replaceAllOccurrences: Boolean, varDecl: ScMember) {
     val runnable = new Runnable() {
       def run() {
         //todo: resolve conflicts
@@ -102,8 +103,8 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
         var parent: PsiElement = occurrences(0);
         while (parent.getParent() != tempContainer) parent = parent.getParent
         //todo: resolve conflicts like this.name
-        if (tempContainer.isInstanceOf[ScBlocker])
-          tempContainer.asInstanceOf[ScBlocker].addDefinition(varDecl, parent)
+        if (tempContainer.isInstanceOf[ScCodeBlock])
+          tempContainer.asInstanceOf[ScCodeBlock].addDefinition(varDecl, parent)
         else {
           showErrorMessage(ScalaBundle.message("operation.not.supported.in.current.block", Array[Object]()), editor.getProject)
           return
