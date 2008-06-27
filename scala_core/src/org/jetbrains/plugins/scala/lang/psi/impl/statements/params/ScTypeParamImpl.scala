@@ -26,8 +26,6 @@ import types._
 */
 
 class ScTypeParamImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeParam with PsiClassFake {
-  def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
-
   override def toString: String = "TypeParameter"
 
   def getIndex() : Int = 0
@@ -69,4 +67,6 @@ class ScTypeParamImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTy
   }
 
   def owner  = getParent.getParent.asInstanceOf[ScTypeDefinition]
+
+  def nameId = findLastChildByType(ScalaTokenTypes.tIDENTIFIER)
 }

@@ -83,6 +83,14 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         q.bind match {
           case None =>
           case Some(ScalaResolveResult(typed : ScTyped, s)) => processType(s.subst(typed.calcType), processor)
+          case Some(ScalaResolveResult(pack : PsiPackage, _)) if pack.getQualifiedName == "scala" => {
+            import toplevel.synthetic.SyntheticClasses
+
+            for (synth <- SyntheticClasses.get(getProject).getAll) {
+              processor.execute(synth, ResolveState.initial)
+            }
+            pack.processDeclarations(processor, ResolveState.initial, null, ScStableCodeReferenceElementImpl.this)
+          }
           case Some(other) => {
             other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),
             null, ScStableCodeReferenceElementImpl.this)
