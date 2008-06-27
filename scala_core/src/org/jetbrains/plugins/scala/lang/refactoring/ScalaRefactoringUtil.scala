@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr.util.ScBlocker
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -21,6 +20,7 @@ import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.PsiFile
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.lexer._
+import psi.api.toplevel.ScCodeBlock
 
 /**
 * User: Alexander Podkhalyuzin
@@ -60,7 +60,7 @@ object ScalaRefactoringUtil {
   def getEnclosingContainer(expr: ScExpression): PsiElement = {
     var parent: PsiElement = expr
     while (parent != null &&
-            !parent.isInstanceOf[ScBlocker]) parent = parent.getParent
+            !parent.isInstanceOf[ScCodeBlock]) parent = parent.getParent
     return parent
   }
   def ensureFileWritable(project: Project, file: PsiFile): Boolean = {

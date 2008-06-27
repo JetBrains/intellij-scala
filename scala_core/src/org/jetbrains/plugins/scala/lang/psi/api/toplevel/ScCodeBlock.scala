@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import psi.ScalaPsiElement
+import expr.ScExpression
+import toplevel.typedef.ScMember
+import com.intellij.psi.PsiElement
+import impl.ScalaPsiElementFactory  //todo remove
 
 /**
 * @author Alexander Podkhalyuzin
@@ -11,5 +14,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 trait ScCodeBlock extends ScalaPsiElement {
 
   def exprs : Seq[ScExpression]
-  
+
+  def addDefinition(decl: ScMember, before: PsiElement): Boolean = {
+    getNode.addChild(decl.copy.getNode,before.getNode)
+    getNode.addChild(ScalaPsiElementFactory.createNewLineNode(getManager), before.getNode)
+    return true
+  }
 }

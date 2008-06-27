@@ -33,6 +33,7 @@ import com.intellij.lang.impl.PsiBuilderImpl
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.impl.source.CharTableImpl
+import api.toplevel.typedef.ScMember
 
 object ScalaPsiElementFactory {
 
@@ -75,14 +76,13 @@ object ScalaPsiElementFactory {
     }
   }
 
-  def createDeclaration(typez: PsiType, name: String, isVariable: Boolean, expr: ScExpression, manager: PsiManager): PsiElement = {
+  def createDeclaration(typez: PsiType, name: String, isVariable: Boolean, expr: ScExpression, manager: PsiManager): ScMember = {
     val text = "class a {" + (if (isVariable) "var " else "val ") +
             (if (typez != null) ":" + typez.getPresentableText + " " else "") + name + " = " + expr.getText + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
-    val p = if (!isVariable) classDef.members()(0).asInstanceOf[ScPatternDefinition]
-            else classDef.members()(0).asInstanceOf[ScVariableDefinition]
-    return p.asInstanceOf[PsiElement]
+    if (!isVariable) classDef.members()(0).asInstanceOf[ScPatternDefinition]
+      else classDef.members()(0).asInstanceOf[ScVariableDefinition]
   }
 
   def createNewLineNode(manager: PsiManager): ASTNode = {
