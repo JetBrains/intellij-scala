@@ -1,17 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 
-import lexer.ScalaTokenTypes
-import parser.ScalaElementTypes
 import psi.ScalaPsiElementImpl
 import api.base.types._
+import api.statements.{ScTypeAliasDeclaration, ScValueDeclaration}
 import lang.psi.types.ScExistentialType
 
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi._
-
-import api.statements.{ScTypeAliasDeclaration, ScValueDeclaration}
+import com.intellij.psi.{ResolveState, PsiElement}
 
 
 /**
