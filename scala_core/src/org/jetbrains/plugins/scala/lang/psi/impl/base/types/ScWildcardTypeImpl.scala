@@ -11,12 +11,16 @@ import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import base.ScTypeBoundsOwnerImpl
+import psi.types.ScWildcardType
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 11.04.2008
 */
 
-class ScWildcardTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScWildcardTypeElement{
+class ScWildcardTypeElementImpl(node: ASTNode) extends ScTypeBoundsOwnerImpl(node) with ScWildcardTypeElement {
   override def toString: String = "WildcardType"
+
+  override def getType() = new ScWildcardType(lowerBound, upperBound)
 }

@@ -9,8 +9,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi._
 
-import org.jetbrains.annotations._
-
 import icons.Icons
 
 import toplevel.PsiClassFake
@@ -18,6 +16,7 @@ import api.statements.params._
 import com.intellij.psi.util.PsiTreeUtil
 import api.base.types.ScTypeElement
 import api.toplevel.typedef.ScTypeDefinition
+import base.ScTypeBoundsOwnerImpl
 import types._
 
 /** 
@@ -25,7 +24,7 @@ import types._
 * Date: 22.02.2008
 */
 
-class ScTypeParamImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeParam with PsiClassFake {
+class ScTypeParamImpl(node: ASTNode) extends ScTypeBoundsOwnerImpl(node) with ScTypeParam with PsiClassFake {
   override def toString: String = "TypeParameter"
 
   def getIndex() : Int = 0
@@ -36,26 +35,6 @@ class ScTypeParamImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTy
 
   override def getContainingClass() = null
   
-  def lowerBound = {
-    val tLower = findChildByType(ScalaTokenTypes.tLOWER_BOUND)
-    if (tLower != null) {
-      PsiTreeUtil.getNextSiblingOfType(tLower, classOf[ScTypeElement]) match {
-        case null => Nothing
-        case te => te.getType
-      }
-    } else Nothing
-  }
-
-  def upperBound = {
-    val tUpper = findChildByType(ScalaTokenTypes.tUPPER_BOUND)
-    if (tUpper != null) {
-      PsiTreeUtil.getNextSiblingOfType(tUpper, classOf[ScTypeElement]) match {
-        case null => Any
-        case te => te.getType
-      }
-    } else Any
-  }
-
   def isCovariant = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
     case null => false
     case x => x.getText == "+"

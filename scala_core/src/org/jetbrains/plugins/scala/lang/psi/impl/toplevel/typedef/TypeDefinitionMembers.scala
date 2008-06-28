@@ -159,7 +159,15 @@ object TypeDefinitionMembers {
         }
       }
       for ((s, _) <- getMethods(td)) {
-        res += ((s, s.retType))
+        import s.substitutor.subst
+        val retType = s.method match {
+          case func : ScFunction => func.calcType
+          case method => method.getReturnType match {
+            case null => Unit
+            case rt => ScType.create(rt, method.getProject)
+          }
+        }
+        res += ((s, s.substitutor.subst(retType)))
       }
       new CachedValueProvider.Result(res, Array[Object](PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
     }
