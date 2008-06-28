@@ -22,7 +22,7 @@ import api.statements.{ScTypeAliasDeclaration, ScValueDeclaration}
 class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScExistentialTypeElement{
   override def toString: String = "ExistentialType"
 
-  override def getType() = new ScExistentialType(quantified.getType, clause.declarations)
+  override def getType() = ScExistentialType.create(quantified.getType, clause.declarations)
 
   import com.intellij.psi.scope.PsiScopeProcessor
   override def processDeclarations(processor: PsiScopeProcessor,
