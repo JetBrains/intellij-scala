@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.types
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+
 import com.intellij.psi._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
