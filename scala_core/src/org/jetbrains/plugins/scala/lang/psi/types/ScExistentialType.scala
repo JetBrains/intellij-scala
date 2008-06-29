@@ -9,13 +9,13 @@ import api.toplevel.ScTypeParametersOwner
 
 object ScExistentialTypeReducer {
   def reduce(quantified : ScType, wildcards: List[Pair[String, ScWildcardType]]) : ScType = {
-    val used = collectNames(quantified)
+    val q = noVariantWildcards(quantified, wildcards)
+    val used = collectNames(q)
     wildcards.filter (p => used.contains(p._1)) match {
-      case Nil => quantified
-      case usedWildcards => quantified match {
-        case ScExistentialType(q1, w1) => new ScExistentialType(noVariantWildcards(q1, usedWildcards),
-                                                                w1 ::: usedWildcards)
-        case _ => new ScExistentialType(noVariantWildcards(quantified, usedWildcards), usedWildcards)
+      case Nil => q
+      case usedWildcards => q match {
+        case ScExistentialType(q1, w1) => new ScExistentialType(q1, w1 ::: usedWildcards)
+        case _ => new ScExistentialType(q, usedWildcards)
       }
     }
   }
