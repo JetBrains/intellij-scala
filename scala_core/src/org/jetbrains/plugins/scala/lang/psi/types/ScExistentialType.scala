@@ -29,6 +29,7 @@ object ScExistentialTypeReducer {
       case ex@ScExistentialType(q, wildcards) => {
         (wildcards.foldLeft(collectNames(q)) {(curr, p) => curr ++ collectNames(p._2)}) -- ex.boundNames
       }
+      case _ => Set.empty 
     }
   }
 }
