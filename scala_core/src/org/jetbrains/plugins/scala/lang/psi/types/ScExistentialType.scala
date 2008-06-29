@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import _root_.scala.collection.immutable.HashSet
+import api.toplevel.ScTypeParametersOwner
 
 /** 
 * @author ilyas
@@ -12,8 +13,9 @@ object ScExistentialTypeReducer {
     wildcards.filter (p => used.contains(p._1)) match {
       case Nil => quantified
       case usedWildcards => quantified match {
-        case ScExistentialType(q1, w1) => new ScExistentialType(q1, w1 ::: usedWildcards)
-        case _ => new ScExistentialType(quantified, usedWildcards)
+        case ScExistentialType(q1, w1) => new ScExistentialType(noVariantWildcards(q1, usedWildcards),
+                                                                w1 ::: usedWildcards)
+        case _ => new ScExistentialType(noVariantWildcards(quantified, usedWildcards), usedWildcards)
       }
     }
   }
@@ -22,7 +24,7 @@ object ScExistentialTypeReducer {
     t match {
       case ScFunctionType(ret, params) => params.foldLeft(collectNames(ret)) {(curr, p) => curr ++ collectNames(p)}
       case ScTupleType(comps) => comps.foldLeft(Set.empty[String]) {(curr, p) => curr ++ collectNames(p)}
-      case ScTypeAliasDesignatorType(a, s) => HashSet.empty + a.name
+      case ScTypeAliasDesignatorType(a, _) => HashSet.empty + a.name
       case ScParameterizedType (des, typeArgs) =>
         typeArgs.foldLeft(Set.empty[String]) {(curr, p) => curr ++ collectNames(p)}
       case ScWildcardType(lower, upper) => collectNames(lower) ++ collectNames(upper)
@@ -32,6 +34,35 @@ object ScExistentialTypeReducer {
       case _ => Set.empty 
     }
   }
+
+  private def noVariantWildcards(t : ScType, wilds : List[Pair[String, ScWildcardType]]) : ScType = t match {
+    case ScFunctionType(ret, params) =>
+      new ScFunctionType(noVariantWildcards(ret, wilds), params.map {noVariantWildcards(_, wilds)})
+    case ScTupleType(comps) => new ScTupleType(comps.map {noVariantWildcards(_, wilds)})
+    case ScParameterizedType (des, typeArgs) => des match {
+      case ScDesignatorType(owner : ScTypeParametersOwner) => {
+        val newArgs = (owner.typeParameters.toArray zip typeArgs).map ({p => p._2 match {
+          case tadt@ScTypeAliasDesignatorType(a, s) => wilds.find{_._1 == a.name} match {
+            case Some(wild) => {
+              val tp = p._1
+              if (tp.isCovariant) s.subst(wild._2.upperBound)
+              else if (tp.isContravariant) s.subst(wild._2.lowerBound)
+              else tadt
+            }
+            case None => tadt
+          }
+          case targ => targ
+          }
+        })
+        new ScParameterizedType(des, newArgs)
+      }
+      case _ => t
+    }
+    case ScWildcardType(lower, upper) =>
+      new ScWildcardType(noVariantWildcards(lower, wilds), noVariantWildcards(upper, wilds))
+    case ScExistentialType(q, w1) => new ScExistentialType(noVariantWildcards(q, wilds), w1)
+    case _ => t
+  }
 }
 
 case class ScExistentialType(val quantified : ScType,
@@ -39,7 +70,7 @@ case class ScExistentialType(val quantified : ScType,
   val boundNames = wildcards.map {_._1}
   val boundTypes = wildcards.map {_._2}
 
-  def substitutor = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s + (p._1, p._2)}
+  val substitutor = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s + (p._1, p._2)}
   
   override def equiv(t : ScType) = t match {
     case ex : ScExistentialType => {
