@@ -44,12 +44,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
       buff.toList
     }
 
-    if (wildcards.isEmpty) q else {
-      q match {
-        case ScExistentialType(q, wilds) => new ScExistentialType(q, wilds ::: wildcards)
-        case _ => new ScExistentialType(q, wildcards)
-      }
-    }
+    ScExistentialTypeReducer.reduce(q, wildcards)
   }
 
   import com.intellij.psi.scope.PsiScopeProcessor

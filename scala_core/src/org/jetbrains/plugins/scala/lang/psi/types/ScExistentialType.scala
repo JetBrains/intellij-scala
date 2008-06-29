@@ -1,8 +1,37 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import _root_.scala.collection.immutable.HashSet
+
 /** 
 * @author ilyas
 */
+
+object ScExistentialTypeReducer {
+  def reduce(quantified : ScType, wildcards: List[Pair[String, ScWildcardType]]) : ScType = {
+    val used = collectNames(quantified)
+    wildcards.filter (p => used.contains(p._1)) match {
+      case Nil => quantified
+      case usedWildcards => quantified match {
+        case ScExistentialType(q1, w1) => new ScExistentialType(q1, w1 ::: usedWildcards)
+        case _ => new ScExistentialType(quantified, usedWildcards)
+      }
+    }
+  }
+
+  private def collectNames (t : ScType) : Set[String] = {
+    t match {
+      case ScFunctionType(ret, params) => params.foldLeft(collectNames(ret)) {(curr, p) => curr ++ collectNames(p)}
+      case ScTupleType(comps) => comps.foldLeft(Set.empty[String]) {(curr, p) => curr ++ collectNames(p)}
+      case ScTypeAliasDesignatorType(a, s) => HashSet.empty + a.name
+      case ScParameterizedType (des, typeArgs) =>
+        typeArgs.foldLeft(Set.empty[String]) {(curr, p) => curr ++ collectNames(p)}
+      case ScWildcardType(lower, upper) => collectNames(lower) ++ collectNames(upper)
+      case ex@ScExistentialType(q, wildcards) => {
+        (wildcards.foldLeft(collectNames(q)) {(curr, p) => curr ++ collectNames(p._2)}) -- ex.boundNames
+      }
+    }
+  }
+}
 
 case class ScExistentialType(val quantified : ScType,
                              val wildcards : List[Pair[String, ScWildcardType]]) extends ScType {
