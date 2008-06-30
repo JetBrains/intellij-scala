@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 
+import api.expr.ScAnnotations
 import java.util._
 import com.intellij.lang._
 import com.intellij.psi._
@@ -71,7 +72,7 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
 
   def getBody = null
 
-  def getThrowsList = null
+  def getThrowsList = findChildByClass(classOf[ScAnnotations])
 
   def getTypeParameters = PsiTypeParameter.EMPTY_ARRAY
 
@@ -90,12 +91,13 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
   def isMainMethod: Boolean = false
 
   import com.intellij.psi.scope.PsiScopeProcessor
+
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     if (!processor.execute(this, state)) return false
-    
+
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
   }
 }
