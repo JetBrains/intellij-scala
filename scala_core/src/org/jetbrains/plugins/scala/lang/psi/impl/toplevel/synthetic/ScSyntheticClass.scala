@@ -16,6 +16,7 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNamedElement
   def setName(newName : String) = throw new IncorrectOperationException("nonphysical element")
   def copy = throw new IncorrectOperationException("nonphysical element")
   def accept(v : PsiElementVisitor) = throw new IncorrectOperationException("should not call")
+  override def getContainingFile = SyntheticClasses.get(manager.getProject).file
 }
 
 // we could try and implement all type system related stuff
@@ -64,6 +65,9 @@ class SyntheticClasses(project : Project) extends ProjectComponent {
   def disposeComponent(){}
   def initComponent(){
     m = new HashMap[String, ScSyntheticClass]
+    file = PsiFileFactory.getInstance(project).createFileFromText(
+    "dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), "")
+
     //todo add methods
     registerClass(Any, "Any")
     registerClass(AnyRef, "AnyRef")
@@ -83,6 +87,7 @@ class SyntheticClasses(project : Project) extends ProjectComponent {
   }
 
   var m : Map[String, ScSyntheticClass] = _
+  var file : PsiFile = _
 
   def registerClass(t : ScType, name : String) {
     m + ((name, new ScSyntheticClass(PsiManager.getInstance(project), name, t)))
