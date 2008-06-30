@@ -26,10 +26,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
   object MyElementClassHint extends ElementClassHint {
     def shouldProcess(c: Class[_]): Boolean = {
       if (kinds == null)  true
-      else if (c.isAssignableFrom(classOf[PsiPackage])) kinds contains ResolveTargets.PACKAGE
-      else if (c.isAssignableFrom(classOf[PsiClass])) (kinds contains ResolveTargets.CLASS) || (kinds contains ResolveTargets.OBJECT)
-      else if (c.isAssignableFrom(classOf[PsiVariable])) (kinds contains ResolveTargets.VAR) || (kinds contains ResolveTargets.VAL)
-      else if (c.isAssignableFrom(classOf[PsiMethod])) kinds contains (ResolveTargets.METHOD)
+      else if (classOf[PsiPackage].isAssignableFrom(c)) kinds contains ResolveTargets.PACKAGE
+      else if (classOf[PsiClass].isAssignableFrom(c)) (kinds contains ResolveTargets.CLASS) || (kinds contains ResolveTargets.OBJECT)
+      else if (classOf[PsiVariable].isAssignableFrom(c)) (kinds contains ResolveTargets.VAR) || (kinds contains ResolveTargets.VAL)
+      else if (classOf[PsiMethod].isAssignableFrom(c)) kinds contains (ResolveTargets.METHOD)
       else false
     }
   }
@@ -72,6 +72,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
             }
             case _: ScParameter => kinds contains VAL
             case _: PsiMethod => kinds contains METHOD
+            case _: PsiField => kinds contains VAR
             case _ => false
           })
 }
