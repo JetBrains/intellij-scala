@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.refactor.introduceVariable;
 
-
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.project.Project;
@@ -33,17 +32,17 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * User: Alexander Podkhalyuzin
- * Date: 01.07.2008
+ * Date: 24.06.2008
  */
-public class ScalaIntroduceVariableDialog extends DialogWrapper implements ScalaIntroduceVariableDialogInterface {
+public class ScalaIntroduceVariableDialog extends DialogWrapper implements ScalaIntroduceVariableDialogInterface{
+  private JPanel contentPane;
   private JCheckBox myCbTypeSpec;
-  private JCheckBox declareVariableCheckBox;
-  private JCheckBox myCbReplaceAllOccurences;
   private JComboBox myTypeComboBox;
   private ComboBox myNameComboBox;
-  private JLabel myTypeLabel;
   private JLabel myNameLabel;
-  private JPanel contentPane;
+  private JCheckBox declareVariableCheckBox;
+  private JCheckBox myCbReplaceAllOccurences;
+  private JLabel myTypeLabel;
   private JButton buttonOK;
   public String myEnteredName;
 

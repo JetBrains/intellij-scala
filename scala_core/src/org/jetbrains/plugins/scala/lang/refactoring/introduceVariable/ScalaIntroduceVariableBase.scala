@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import typeManipulator.TypeManipulator
+import typeManipulator.IType
 import psi.types.ScType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
@@ -69,8 +71,8 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
     val occurrences: Array[ScExpression] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), enclosingContainer)
     // Getting settings
     var validator: ScalaValidator = new ScalaVariableValidator(this, project, expr, occurrences, enclosingContainer)
-    var dialog: ScalaIntroduceVariableDialogInterface = getDialog(project, editor, expr, typez, occurrences, false, validator)
-
+    var dialog: ScalaIntroduceVariableDialogInterface = getDialog(project, editor, expr,
+                       TypeManipulator.wrapType(typez), occurrences, false, validator)
     if (!dialog.isOK()) {
       return
     }
@@ -78,7 +80,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
     var settings: ScalaIntroduceVariableSettings = dialog.getSettings();
 
     val varName: String = settings.getEnteredName()
-    var varType: ScType = settings.getSelectedType()
+    var varType: ScType = TypeManipulator.unwrapType(settings.getSelectedType())
     val isVariable: Boolean = settings.isDeclareVariable()
     val replaceAllOccurrences: Boolean = settings.isReplaceAllOccurrences()
 
@@ -109,7 +111,9 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
             //todo: resolve conflicts like this.name
             x.addDefinition(varDecl, parent)
           }
-          case x: ScExpression =>
+          case x: ScExpression => {
+            x.replaceExpression(ScalaPsiElementFactory.createBlockFromExpr(x, x.getManager), false)
+          }
           case _ => {
             showErrorMessage(ScalaBundle.message("operation.not.supported.in.current.block", Array[Object]()), editor.getProject)
             return
@@ -138,7 +142,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
 
   protected def showErrorMessage(text: String, project: Project)
 
-  protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: ScType, occurrences: Array[ScExpression],
+  protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: IType, occurrences: Array[ScExpression],
                          declareVariable: Boolean, validator: ScalaValidator): ScalaIntroduceVariableDialogInterface
 
   def reportConflicts(conflicts: Array[String], project: Project): Boolean

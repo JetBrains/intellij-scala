@@ -92,6 +92,14 @@ object ScalaPsiElementFactory {
     return dummyFile.getNode.getFirstChildNode
   }
 
+  def createBlockFromExpr(expr: ScExpression, manager: PsiManager): ScExpression = {
+    val text = "class a {\nval b = {\n" + expr.getText + "\n}\n}"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    val classDef = dummyFile.getTypeDefinitions()(0)
+    val p = classDef.members()(0).asInstanceOf[ScPatternDefinition]
+    p.expr
+  }
+
   private def isResolved(name: String, clazz: PsiClass, packageName: String, manager: PsiManager): Boolean = {
     if (packageName == null) return true
     val text = "package " + packageName +"\nimport " + name
