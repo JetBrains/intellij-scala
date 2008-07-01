@@ -56,7 +56,9 @@ object InfixType {
           }
         }
       }
+      val idMarker = builder.mark
       builder.advanceLexer //Ate id
+      idMarker.done(ScalaElementTypes.REFERENCE)
       if (assoc == -1) {
         val newMarker = builder.mark
         markerList = newMarker :: markerList
