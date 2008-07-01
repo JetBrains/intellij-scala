@@ -1,5 +1,12 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import psi.api.statements.ScValue
+import psi.api.statements.ScVariable
+import psi.api.toplevel.typedef.ScTypeDefinition
+import psi.api.toplevel.typedef.ScTrait
+import psi.api.toplevel.typedef.ScClass
+import psi.api.base.ScReferenceElement
+import _root_.scala.collection.mutable.ArrayBuffer
 import typeManipulator.TypeManipulator
 import typeManipulator.IType
 import psi.types.ScType
@@ -106,9 +113,36 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
         var parent: PsiElement = occurrences(0);
         if (parent != tempContainer)
           while (parent.getParent() != tempContainer) parent = parent.getParent
+        def getReferencesTo(binding: PsiElement, element: PsiElement): Array[PsiElement] = {
+          val buf = new ArrayBuffer[PsiElement]
+          element match {
+            case x: ScReferenceElement if (x.resolve == binding) => buf += element
+            case _ => for (child <- element.getChildren) buf ++= getReferencesTo(binding, child)
+          }
+          return buf.toArray
+        }
         tempContainer match {
           case x: ScCodeBlock => {
-            //todo: resolve conflicts like this.name
+            var ref: PsiElement = null
+            var cl = tempContainer
+            while (cl != null && !cl.isInstanceOf[ScClass] && ! cl.isInstanceOf[ScTrait]) cl = cl.getParent
+            if (cl != null) {
+              cl match {
+                case x: ScTypeDefinition => {
+                  for (member <- x.members) {
+                    member match {
+                      case x: ScVariable => for (el <- x.declaredElements if el.name == varName) ref = el
+                      case x: ScValue => for (el <- x.declaredElements if el.name == varName) ref = el
+                      case _ =>
+                    }
+                  }
+                }
+              }
+            }
+            if (ref != null) {
+              for (el <- getReferencesTo(ref, tempContainer))
+                el.asInstanceOf[ScExpression].replaceExpression(ScalaPsiElementFactory.createExpressionFromText("this."+el.getText, el.getManager) ,false)
+            }
             x.addDefinition(varDecl, parent)
           }
           case x: ScExpression => {
@@ -120,7 +154,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
                 occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
             }
             val block: ScCodeBlock = container.replaceExpression(ScalaPsiElementFactory.createBlockFromExpr(container, container.getManager), false).asInstanceOf[ScCodeBlock]
-            block.addDefinition(varDecl, block.getFirstChild.getNextSibling);
+            block.addDefinition(varDecl, block.getFirstChild.getNextSibling.getNextSibling);
             return
           }
           case _ => {
