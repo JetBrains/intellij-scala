@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableDialogInterface;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaValidator;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableSettings;
+import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -45,19 +46,19 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
   public String myEnteredName;
 
   private Project project;
-  private PsiType myType;
+  private ScType myType;
   private int occurrencesCount;
   private ScalaValidator validator;
   private String[] possibleNames;
 
-  private HashMap<String, PsiType> myTypeMap = null;
+  private HashMap<String, ScType> myTypeMap = null;
   private EventListenerList myListenerList = new EventListenerList();
 
   private static final String REFACTORING_NAME = ScalaBundle.message("introduce.variable.title");
 
 
   public ScalaIntroduceVariableDialog(Project project,
-                                       PsiType myType,
+                                       ScType myType,
                                        int occurrencesCount,
                                        ScalaValidator validator,
                                        String[] possibleNames) {
@@ -104,7 +105,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
     return declareVariableCheckBox.isSelected();
   }
 
-  private PsiType getSelectedType() {
+  private ScType getSelectedType() {
     if (!myCbTypeSpec.isSelected() || !myCbTypeSpec.isEnabled()) {
       return null;
     } else {
@@ -265,7 +266,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
     String myEnteredName;
     boolean myIsReplaceAllOccurrences;
     boolean myIsDeclareFinal;
-    PsiType mySelectedType;
+    ScType mySelectedType;
 
     public MyGroovyIntroduceVariableSettings(ScalaIntroduceVariableDialog dialog) {
       myEnteredName = dialog.getEnteredName();
@@ -286,7 +287,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
       return myIsDeclareFinal;
     }
 
-    public PsiType getSelectedType() {
+    public ScType getSelectedType() {
       return mySelectedType;
     }
 

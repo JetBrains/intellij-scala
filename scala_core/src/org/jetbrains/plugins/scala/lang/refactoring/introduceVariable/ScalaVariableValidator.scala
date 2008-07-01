@@ -119,7 +119,9 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableBase,
         } else {
           selectedExpr
         }
-        while (parent.getParent != null && parent.getParent != enclosingContainer) parent = parent.getParent
+        if (parent != enclosingContainer)
+          while (parent.getParent != null && parent.getParent != enclosingContainer) parent = parent.getParent
+        else parent = parent.getFirstChild
         parent
       }
       var fromDoubles = from.getPrevSibling

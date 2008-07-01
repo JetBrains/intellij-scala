@@ -1,5 +1,11 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
+import psi.api.expr.ScFinallyBlock
+import psi.api.expr.ScDoStmt
+import psi.api.expr.ScWhileStmt
+import psi.api.expr.ScIfStmt
+import psi.api.expr.ScForStatement
+import psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -58,10 +64,23 @@ object ScalaRefactoringUtil {
   }
 
   def getEnclosingContainer(expr: ScExpression): PsiElement = {
-    var parent: PsiElement = expr
-    while (parent != null &&
-            !parent.isInstanceOf[ScCodeBlock]) parent = parent.getParent
-    return parent
+    def get(parent: PsiElement): PsiElement = {
+      parent match {
+        case null | _: ScCodeBlock  =>
+        case _: ScExpression => parent.getParent match {
+          case _: ScFunctionDefinition |
+                  _: ScForStatement |
+                  _: ScIfStmt |
+                  _: ScWhileStmt |
+                  _: ScDoStmt |
+                  _: ScFinallyBlock => 
+          case x => return get(x)
+        }
+        case _ => return get(parent.getParent)
+      }
+      return parent
+    }
+    return get(expr)
   }
   def ensureFileWritable(project: Project, file: PsiFile): Boolean = {
     val virtualFile = file.getVirtualFile()

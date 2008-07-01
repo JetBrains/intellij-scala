@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import psi.types.ScType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
@@ -52,7 +53,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
       }
     }
     //todo: think about type when type inference
-    val typez: PsiType = null
+    val typez: ScType = null
     var parent: PsiElement = expr
     while (parent != null && !parent.isInstanceOf[ScalaFile] && !parent.isInstanceOf[ScParameters]) parent = parent.getParent
     if (parent.isInstanceOf[ScParameters]) {
@@ -77,7 +78,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
     var settings: ScalaIntroduceVariableSettings = dialog.getSettings();
 
     val varName: String = settings.getEnteredName()
-    var varType: PsiType = settings.getSelectedType()
+    var varType: ScType = settings.getSelectedType()
     val isVariable: Boolean = settings.isDeclareVariable()
     val replaceAllOccurrences: Boolean = settings.isReplaceAllOccurrences()
 
@@ -91,7 +92,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
   }
 
   def runRefactoring(selectedExpr: ScExpression, editor: Editor, tempContainer: PsiElement,
-                    occurrences_ : Array[ScExpression], varName: String, varType: PsiType,
+                    occurrences_ : Array[ScExpression], varName: String, varType: ScType,
                     replaceAllOccurrences: Boolean, varDecl: ScMember) {
     val runnable = new Runnable() {
       def run() {
@@ -101,13 +102,18 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
           Array[ScExpression](selectedExpr)
         } else occurrences_
         var parent: PsiElement = occurrences(0);
-        while (parent.getParent() != tempContainer) parent = parent.getParent
-        if (tempContainer.isInstanceOf[ScCodeBlock])
-          //todo: resolve conflicts like this.name
-          tempContainer.asInstanceOf[ScCodeBlock].addDefinition(varDecl, parent)
-        else {
-          showErrorMessage(ScalaBundle.message("operation.not.supported.in.current.block", Array[Object]()), editor.getProject)
-          return
+        if (parent != tempContainer)
+          while (parent.getParent() != tempContainer) parent = parent.getParent
+        tempContainer match {
+          case x: ScCodeBlock => {
+            //todo: resolve conflicts like this.name
+            x.addDefinition(varDecl, parent)
+          }
+          case x: ScExpression =>
+          case _ => {
+            showErrorMessage(ScalaBundle.message("operation.not.supported.in.current.block", Array[Object]()), editor.getProject)
+            return
+          }
         }
         for (occurrence <- occurrences) {
           occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
@@ -132,7 +138,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
 
   protected def showErrorMessage(text: String, project: Project)
 
-  protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: PsiType, occurrences: Array[ScExpression],
+  protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: ScType, occurrences: Array[ScExpression],
                          declareVariable: Boolean, validator: ScalaValidator): ScalaIntroduceVariableDialogInterface
 
   def reportConflicts(conflicts: Array[String], project: Project): Boolean
