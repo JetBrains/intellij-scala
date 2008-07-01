@@ -70,7 +70,7 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableBase,
         }
       }
       case x: ScFunctionDefinition => {
-        if (x.name == name) {
+        if (x.name == name && x.parameters.size == 0) {
           buf += ScalaBundle.message("introduced.variable.will.conflict.with.local", Array[Object](x.name))
         }
       }
