@@ -94,7 +94,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
     // Generating variable declaration
     val varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName,
     isVariable, ScalaRefactoringUtil.unparExpr(expr), file.getManager)
-    runRefactoring(expr, editor, enclosingContainer, occurrences, varName, varType, replaceAllOccurrences, varDecl);
+    runRefactoring(expr, editor, enclosingContainer, occurrences, varName, varType, replaceAllOccurrences, varDecl, isVariable);
 
     return
 
@@ -102,9 +102,9 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
 
   def runRefactoring(selectedExpr: ScExpression, editor: Editor, tempContainer: PsiElement,
                     occurrences_ : Array[ScExpression], varName: String, varType: ScType,
-                    replaceAllOccurrences: Boolean, varDecl: ScMember) {
+                    replaceAllOccurrences: Boolean, varDecl: ScMember, isVariable: Boolean) {
     val runnable = new Runnable() {
-      def run() {
+     def run() {
         //todo: resolve conflicts
 
         val occurrences = if (!replaceAllOccurrences) {
@@ -125,7 +125,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
           case x: ScCodeBlock => {
             var ref: PsiElement = null
             var cl = tempContainer
-            while (cl != null && !cl.isInstanceOf[ScClass] && ! cl.isInstanceOf[ScTrait]) cl = cl.getParent
+            while (cl != null && !cl.isInstanceOf[ScClass] && !cl.isInstanceOf[ScTrait]) cl = cl.getParent
             if (cl != null) {
               cl match {
                 case x: ScTypeDefinition => {
@@ -140,12 +140,46 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
               }
             }
             if (ref != null) {
-              for (el <- getReferencesTo(ref, tempContainer))
-                el.asInstanceOf[ScExpression].replaceExpression(ScalaPsiElementFactory.createExpressionFromText("this."+el.getText, el.getManager) ,false)
+              for (el <- getReferencesTo(ref, tempContainer)) {
+                if (occurrences.contains(el)) {
+                  for (i <- 1 to occurrences.size - 1 if occurrences(i) == el)
+                    occurrences(i) = el.asInstanceOf[ScExpression].replaceExpression(ScalaPsiElementFactory.createExpressionFromText("this." + el.getText, el.getManager), false)
+                } else
+                  el.asInstanceOf[ScExpression].replaceExpression(ScalaPsiElementFactory.createExpressionFromText("this." + el.getText, el.getManager), false)
+              }
             }
+            val varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName,
+              isVariable, ScalaRefactoringUtil.unparExpr(occurrences(0)), selectedExpr.getManager)
             x.addDefinition(varDecl, parent)
           }
           case x: ScExpression => {
+            var ref: PsiElement = null
+            var cl = tempContainer
+            while (cl != null && !cl.isInstanceOf[ScClass] && !cl.isInstanceOf[ScTrait]) cl = cl.getParent
+            if (cl != null) {
+              cl match {
+                case x: ScTypeDefinition => {
+                  for (member <- x.members) {
+                    member match {
+                      case x: ScVariable => for (el <- x.declaredElements if el.name == varName) ref = el
+                      case x: ScValue => for (el <- x.declaredElements if el.name == varName) ref = el
+                      case _ =>
+                    }
+                  }
+                }
+              }
+            }
+            if (ref != null) {
+              for (el <- getReferencesTo(ref, tempContainer)) {
+                if (occurrences.contains(el)) {
+                  for (i <- 1 to occurrences.size - 1 if occurrences(i) == el)
+                    occurrences(i) = el.asInstanceOf[ScExpression].replaceExpression(ScalaPsiElementFactory.createExpressionFromText("this." + el.getText, el.getManager), false)
+                } else
+                  el.asInstanceOf[ScExpression].replaceExpression(ScalaPsiElementFactory.createExpressionFromText("this." + el.getText, el.getManager), false)
+              }
+            }
+            val varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName,
+              isVariable, ScalaRefactoringUtil.unparExpr(occurrences(0)), selectedExpr.getManager)
             var container = x
             for (occurrence <- occurrences) {
               if (occurrence == container)
@@ -165,7 +199,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
         for (occurrence <- occurrences) {
           occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
         }
-      }
+     }
     }
 
 
