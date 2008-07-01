@@ -16,6 +16,7 @@ import com.intellij.psi.PsiType;
 import com.intellij.psi.PsiElement;
 import com.intellij.codeInsight.highlighting.HighlightManager;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
+import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaValidator;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableDialogInterface;
 import org.jetbrains.plugins.scala.lang.refactoring.NameSuggester;
@@ -37,7 +38,7 @@ public class ScalaIntroduceVariableHandler extends ScalaIntroduceVariableBase {
   }
 
   public ScalaIntroduceVariableDialogInterface getDialog(final Project project, Editor editor, ScExpression expr,
-                                                             PsiType type, ScExpression[] occurrences, boolean decalreVariable,
+                                                             ScType type, ScExpression[] occurrences, boolean decalreVariable,
                                                              ScalaValidator validator) {
     // Add occurences highlighting
     ArrayList<RangeHighlighter> highlighters = new ArrayList<RangeHighlighter>();

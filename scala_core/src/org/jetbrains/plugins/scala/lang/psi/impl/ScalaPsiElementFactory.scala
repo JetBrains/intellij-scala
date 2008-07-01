@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
+import types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
@@ -76,9 +77,9 @@ object ScalaPsiElementFactory {
     }
   }
 
-  def createDeclaration(typez: PsiType, name: String, isVariable: Boolean, expr: ScExpression, manager: PsiManager): ScMember = {
+  def createDeclaration(typez: ScType, name: String, isVariable: Boolean, expr: ScExpression, manager: PsiManager): ScMember = {
     val text = "class a {" + (if (isVariable) "var " else "val ") +
-            (if (typez != null) ":" + typez.getPresentableText + " " else "") + name + " = " + expr.getText + "}"
+            (if (typez != null) ":"  /*todo: + typez.getPresentableText*/ + " " else "") + name + " = " + expr.getText + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
     if (!isVariable) classDef.members()(0).asInstanceOf[ScPatternDefinition]
