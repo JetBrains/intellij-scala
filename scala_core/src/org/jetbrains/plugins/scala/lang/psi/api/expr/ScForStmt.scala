@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
 trait ScForStatement extends ScExpression {
 
-  def enumerators: ScEnumerators
+  def enumerators: Option[ScEnumerators]
 
   def patterns: Seq[ScPattern]
 
