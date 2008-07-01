@@ -72,7 +72,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
     // Getting settings
     var validator: ScalaValidator = new ScalaVariableValidator(this, project, expr, occurrences, enclosingContainer)
     var dialog: ScalaIntroduceVariableDialogInterface = getDialog(project, editor, expr,
-                       TypeManipulator.wrapType(typez), occurrences, false, validator)
+    TypeManipulator.wrapType(typez), occurrences, false, validator)
     if (!dialog.isOK()) {
       return
     }
@@ -112,7 +112,16 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
             x.addDefinition(varDecl, parent)
           }
           case x: ScExpression => {
-            x.replaceExpression(ScalaPsiElementFactory.createBlockFromExpr(x, x.getManager), false)
+            var container = x
+            for (occurrence <- occurrences) {
+              if (occurrence == container)
+                container = occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
+              else
+                occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
+            }
+            val block: ScCodeBlock = container.replaceExpression(ScalaPsiElementFactory.createBlockFromExpr(container, container.getManager), false).asInstanceOf[ScCodeBlock]
+            block.addDefinition(varDecl, block.getFirstChild.getNextSibling);
+            return
           }
           case _ => {
             showErrorMessage(ScalaBundle.message("operation.not.supported.in.current.block", Array[Object]()), editor.getProject)
