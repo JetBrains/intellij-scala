@@ -19,7 +19,7 @@ import lang.psi.api.expr._
 
 class ScalaWithForYieldSurrounder extends ScalaExpressionSurrounder {
 
-  override def getExpressionTemplateAsString (expr : ASTNode ) =
+  override def getExpressionTemplateAsString(expr: ASTNode) =
     if (!isNeedBraces(expr)) "for (val a <- as) yield " + expr.getText
     else "(" + "for (val a <- as) yield " + expr.getText + ")"
 
@@ -29,10 +29,12 @@ class ScalaWithForYieldSurrounder extends ScalaExpressionSurrounder {
 
   override def getTemplateDescription = "for / yield"
 
-  override def getSurroundSelectionRange (withForNode : ASTNode ) : TextRange = {
+  override def getSurroundSelectionRange(withForNode: ASTNode): TextRange = {
     val forStmt = withForNode.getPsi.asInstanceOf[ScForStatement]
 
-    val enums = forStmt.asInstanceOf[ScForStatement].enumerators.getNode
+    val enums = forStmt.asInstanceOf[ScForStatement].enumerators match {
+      case Some(x) => x.getNode
+    }
 
     val offset = enums.getTextRange.getStartOffset
     forStmt.getNode.removeChild(enums)

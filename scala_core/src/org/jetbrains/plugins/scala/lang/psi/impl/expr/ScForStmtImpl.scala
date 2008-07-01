@@ -23,10 +23,13 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   override def toString: String = "ForStatement"
 
-  def enumerators: ScEnumerators = findChildByClass(classOf[ScEnumerators])
+  def enumerators: Option[ScEnumerators] = findChild(classOf[ScEnumerators])
 
   // Binding patterns in reverse order
-  def patterns = enumerators.namings.reverse.map((n: Patterned) => n.pattern)
+  def patterns: Seq[ScPattern] = enumerators match {
+    case None => return Seq.empty
+    case Some(x) => return x.namings.reverse.map((n: Patterned) => n.pattern)
+  }
 
   type Patterned = {
     def pattern: ScPattern
@@ -36,6 +39,10 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
+    val enumerators: ScEnumerators = this.enumerators match {
+      case None => return true
+      case Some(x) => x
+    }
     if (lastParent == enumerators) return true
     enumerators.processDeclarations(processor, state, null, place)
   }
