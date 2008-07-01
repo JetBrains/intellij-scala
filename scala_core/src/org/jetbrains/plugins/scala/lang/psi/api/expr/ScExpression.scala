@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
+import toplevel.ScCodeBlock
+import impl.ScalaPsiElementFactory
 import com.intellij.psi.PsiInvalidElementAccessException
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Nothing}
@@ -10,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Nothing}
 */
 
 trait ScExpression extends ScalaPsiElement {
-  def getType() : ScType = Nothing //todo
+  def getType(): ScType = Nothing //todo
   def replaceExpression(expr: ScExpression, removeParenthesis: Boolean): ScExpression = {
     val oldParent = getParent
     if (oldParent == null) throw new PsiInvalidElementAccessException(this)
@@ -21,6 +23,6 @@ trait ScExpression extends ScalaPsiElement {
     val parentNode = oldParent.getNode
     val newNode = expr.copy.getNode
     parentNode.replaceChild(this.getNode, newNode)
-    return newNode.getPsi.asInstanceOf[ScExpression] 
+    return newNode.getPsi.asInstanceOf[ScExpression]
   }
 }
