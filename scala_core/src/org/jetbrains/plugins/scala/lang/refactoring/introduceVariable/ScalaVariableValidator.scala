@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTryBlock
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
@@ -45,7 +46,43 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableBase,
 
   private def validateUp(element: PsiElement, name: String): Array[String] = {
     val buf = new ArrayBuffer[String]
-    //todo: implement me
+    val parent = if (element.getPrevSibling != null) element.getPrevSibling else element.getParent
+    element match {
+      case x: ScVariableDefinition => {
+        val elems = x.declaredElements
+        for (elem <- elems) {
+          if (elem.name == name) {
+            buf += ScalaBundle.message("introduced.variable.will.conflict.with.local", Array[Object](elem.name))
+          }
+        }
+      }
+      case x: ScPatternDefinition => {
+        val elems = x.declaredElements
+        for (elem <- elems) {
+          if (elem.name == name) {
+            buf += ScalaBundle.message("introduced.variable.will.conflict.with.local", Array[Object](elem.name))
+          }
+        }
+      }
+      case x: ScParameter => {
+        if (x.name == name) {
+          buf += ScalaBundle.message("introduced.variable.will.conflict.with.parameter", Array[Object](x.name))
+        }
+      }
+      case x: ScFunctionDefinition => {
+        if (x.name == name) {
+          buf += ScalaBundle.message("introduced.variable.will.conflict.with.local", Array[Object](x.name))
+        }
+      }
+      case _ =>
+    }
+    parent match {
+      case _: ScTemplateBody | null =>
+      case _ => parent.getParent match {
+        case _: ScTemplateBody =>
+        case _ => buf ++= validateUp(parent, name)
+      }
+    }
     return buf.toArray
   }
 
@@ -118,11 +155,11 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableBase,
 
   def validateName(name: String, increaseNumber: Boolean): String = {
     var res = name
-    if (isOKImpl(res,true).length == 0) return res
+    if (isOKImpl(res, true).length == 0) return res
     if (!increaseNumber) return ""
     var i = 1
     res = name + i
-    while (!(isOKImpl(res, true).length == 0) ) {
+    while (!(isOKImpl(res, true).length == 0)) {
       i = i + 1
       res = name + i
     }

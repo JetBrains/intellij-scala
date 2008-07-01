@@ -83,7 +83,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
 
     // Generating variable declaration
     val varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName,
-    isVariable, ScalaRefactoringUtil.unparExpr(expr) , file.getManager)
+    isVariable, ScalaRefactoringUtil.unparExpr(expr), file.getManager)
     runRefactoring(expr, editor, enclosingContainer, occurrences, varName, varType, replaceAllOccurrences, varDecl);
 
     return
@@ -102,8 +102,8 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
         } else occurrences_
         var parent: PsiElement = occurrences(0);
         while (parent.getParent() != tempContainer) parent = parent.getParent
-        //todo: resolve conflicts like this.name
         if (tempContainer.isInstanceOf[ScCodeBlock])
+          //todo: resolve conflicts like this.name
           tempContainer.asInstanceOf[ScCodeBlock].addDefinition(varDecl, parent)
         else {
           showErrorMessage(ScalaBundle.message("operation.not.supported.in.current.block", Array[Object]()), editor.getProject)
@@ -117,12 +117,12 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
 
 
     CommandProcessor.getInstance().executeCommand(
-      editor.getProject,
-      new Runnable() {
-        def run() {
-          ApplicationManager.getApplication().runWriteAction(runnable);
-        }
-      }, REFACTORING_NAME, null);
+    editor.getProject,
+    new Runnable() {
+      def run() {
+        ApplicationManager.getApplication().runWriteAction(runnable);
+      }
+    }, REFACTORING_NAME, null);
     editor.getSelectionModel.removeSelection
   }
 
