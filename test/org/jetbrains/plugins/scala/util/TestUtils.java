@@ -34,6 +34,10 @@ import java.net.URL;
 public class TestUtils {
   private static final Logger LOG = Logger.getInstance("org.jetbrains.plugins.scala.util.TestUtils");
 
+  public static final String CARET_MARKER = "<caret>";
+  public static final String BEGIN_MARKER = "<begin>";
+  public static final String END_MARKER = "<end>";
+
   public static PsiFile createPseudoPhysicalFile(final Project project, final String text, int i) throws IncorrectOperationException {
     String TEMP_FILE = project.getProjectFilePath() + "temp" + i + ".scala";
     return PsiFileFactory.getInstance(project).createFileFromText(
@@ -83,5 +87,20 @@ public class TestUtils {
 
   public static String getMockScalaSrc() {
     return getTestDataPath() + "/mockScalaLib/scala-src.jar";
+  }
+  
+  public static String removeCaretMarker(String text) {
+    int index = text.indexOf(CARET_MARKER);
+    return text.substring(0, index) + text.substring(index + CARET_MARKER.length());
+  }
+
+  public static String removeBeginMarker(String text) {
+    int index = text.indexOf(BEGIN_MARKER);
+    return text.substring(0, index) + text.substring(index + BEGIN_MARKER.length());
+  }
+
+  public static String removeEndMarker(String text) {
+    int index = text.indexOf(END_MARKER);
+    return text.substring(0, index) + text.substring(index + END_MARKER.length());
   }
 }
