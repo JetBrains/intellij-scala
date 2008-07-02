@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion.filters.other
 
+import psi.api.base.types.ScTypeElement
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
@@ -22,29 +23,37 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 class WithFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context)
     if (leaf != null) {
       val parent = leaf.getParent
-      leaf.getPrevSibling match {
-        case null => parent.getPrevSibling match {
-          case _: ScType => return true
-          case _ =>
-        }
-        case _: ScType => return true
-        case _ =>
-      }
       var prev = leaf.getPrevSibling
       prev match {
+        case null => parent.getPrevSibling match {
+          case _: ScTypeElement => return true
+          case _ =>
+        }
+        case _: ScTypeElement => return true
+        case _ =>
+      }
+      if (context.getTextRange().getStartOffset() - 2 >= 0 ) {
+        var leaf = getLeafByOffset(context.getTextRange().getStartOffset() - 2, context)
+        while (leaf != null && !leaf.isInstanceOf[ScTypeElement]) leaf= leaf.getParent
+        
+      }
+      prev match {
         case _: PsiWhiteSpace => prev = prev.getPrevSibling
-        case _ => 
+        case _ =>
       }
       prev match {
         case _: PsiErrorElement =>
         case _ => return false
       }
-      val prev2 = prev.getPrevSibling
-      prev2 match {
-        case x: ScTypeDefinition => return x.extendsBlock.templateParents != None
+      prev = prev.getPrevSibling
+      prev match {
+        case x: ScTypeDefinition => {
+          if (checkTypeWith(x.getText, x.getManager)) return true
+          return false
+        }
         case _ => return false
       }
     }

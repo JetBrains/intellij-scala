@@ -78,7 +78,12 @@ object ScalaCompletionUtil {
 
   val DUMMY_IDENTIFIER = "IntellijIdeaRulezzz"
 
-  def checkEarlyDef(text: String, manager: PsiManager) : Boolean = {
-    
+  def checkTypeWith(classText: String, manager: PsiManager) : Boolean = {
+    val text = classText + " with A"
+    val DUMMY = "dummy."
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    for (child <- dummyFile.getChildren if (child match {case _:PsiErrorElement => true case _ => false})) return false
+    return true
   }
+
 }
