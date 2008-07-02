@@ -127,7 +127,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
     myTypeLabel.setLabelFor(myTypeComboBox);
 
     // Type specification
-    if (myType == null) {
+    if (myType == null || myType.getName() == null) {
       myCbTypeSpec.setSelected(false);
       myCbTypeSpec.setEnabled(false);
       myTypeComboBox.setEnabled(false);
