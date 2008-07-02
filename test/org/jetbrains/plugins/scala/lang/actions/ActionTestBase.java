@@ -35,6 +35,7 @@ import java.io.IOException;
 public abstract class ActionTestBase extends BaseScalaFileSetTestCase {
 
   protected static final String CARET_MARKER = "<caret>";
+  protected int myOffset;
 
   public ActionTestBase(String path) {
     super(path);

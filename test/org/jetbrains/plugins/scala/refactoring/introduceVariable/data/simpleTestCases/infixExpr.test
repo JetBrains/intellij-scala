@@ -1,0 +1,14 @@
+class a {
+  def foo = {
+    val t = <begin>2 + 2<end>
+    return t
+  }
+}
+------
+<caret>class a {
+  def foo = {
+    val value = 2 + 2
+    val t = value
+    return t
+  }
+}
