@@ -25,25 +25,36 @@ class WithFilter extends ElementFilter {
     if (context.isInstanceOf[PsiComment]) return false
     val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context)
     if (leaf != null) {
-      val parent = leaf.getParent
-      var prev = leaf.getPrevSibling
       var i = context.getTextRange().getStartOffset() - 1
       while (i >= 0 && context.getContainingFile.getText.charAt(i) == ' ') i = i - 1
       if (i >= 0) {
-        var leaf = getLeafByOffset(i, context)
-        while (leaf != null && !leaf.isInstanceOf[ScTypeElement] &&
-                !leaf.isInstanceOf[ScNewTemplateDefinition] &&
-                !leaf.isInstanceOf[ScTypeDefinition]) leaf = leaf.getParent
-        leaf match {
+        var leaf1 = getLeafByOffset(i, context)
+        while (leaf1 != null &&
+                !leaf1.isInstanceOf[ScTypeDefinition]) {
+          leaf1 = leaf1.getParent
+        }
+        if (leaf1 != null && leaf1.getTextRange.getEndOffset != i+1 && leaf1.getTextRange.getEndOffset != leaf.getTextRange.getEndOffset &&
+          leaf1.getTextRange.getEndOffset != leaf.getTextRange.getStartOffset) leaf1 = null
+        leaf1 match {
+          case null =>
+          case x: ScTypeDefinition => {
+            return checkClassWith(x, "with A", x.getManager)
+          }
+        }
+        leaf1 = getLeafByOffset(i, context)
+        while (leaf1 != null && !leaf1.isInstanceOf[ScTypeElement] &&
+                !leaf1.isInstanceOf[ScNewTemplateDefinition]) {
+          leaf1 = leaf1.getParent
+        }
+        if (leaf1 != null && leaf1.getTextRange.getEndOffset != i+1 && leaf1.getTextRange.getEndOffset != leaf.getTextRange.getEndOffset &&
+          leaf1.getTextRange.getEndOffset != leaf.getTextRange.getStartOffset) leaf1 = null
+        leaf1 match {
           case null => return false
           case x: ScTypeElement => {
-            return checkTypeWith(x, x.getManager)
-          }
-          case x: ScTypeDefinition => {
-            return checkClassWith(x, x.getManager)
+            return checkTypeWith(x, "with A", x.getManager)
           }
           case x: ScNewTemplateDefinition => {
-            return checkNewWith(x, x.getManager)
+            return checkNewWith(x, "with A", x.getManager)
           }
         }
       } 
