@@ -34,13 +34,15 @@ ScalaFile
                 CodeReferenceElement
                   PsiElement(identifier)('T')
               PsiWhiteSpace(' ')
-              PsiElement(identifier)('op')
+              CodeReferenceElement
+                PsiElement(identifier)('op')
               PsiWhiteSpace(' ')
               SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('T')
             PsiWhiteSpace(' ')
-            PsiElement(identifier)('op')
+            CodeReferenceElement
+              PsiElement(identifier)('op')
             PsiWhiteSpace(' ')
             SimpleTypeElement
               CodeReferenceElement
