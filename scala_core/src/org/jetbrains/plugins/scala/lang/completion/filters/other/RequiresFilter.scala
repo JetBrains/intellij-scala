@@ -34,7 +34,7 @@ class RequiresFilter extends ElementFilter {
         case x: ScTypeDefinition => {
           if (!x.extendsBlock.empty) return false
           else if (x.getText.indexOf(" requires ") != -1) return false
-          else if (leaf.getNextSibling != null &&
+          else if (leaf.getNextSibling != null &&  leaf.getNextSibling.getNextSibling != null &&
             leaf.getNextSibling.getNextSibling.getNode.getElementType == ScalaTokenTypes.kREQUIRES) return false
           else return true
         }

@@ -49,11 +49,11 @@ public class IntroduceVariableTest extends ActionTestBase {
 
   public IntroduceVariableTest() {
     super(System.getProperty("path") != null ?
-        System.getProperty("path") :
-        DATA_PATH
+            System.getProperty("path") :
+            DATA_PATH
     );
     replaceAllOccurences = System.getProperty("replaceAll") != null &&
-        Boolean.parseBoolean(System.getProperty("path"));
+            Boolean.parseBoolean(System.getProperty("path"));
   }
 
 
@@ -86,7 +86,8 @@ public class IntroduceVariableTest extends ActionTestBase {
       if (ScalaRefactoringUtil.getExpression(myProject, myEditor, (ScalaFile) myFile, startOffset, endOffset) instanceof Some) {
         Some temp = (Some) ScalaRefactoringUtil.getExpression(myProject, myEditor, (ScalaFile) myFile, startOffset, endOffset);
         selectedExpr = (ScExpression) temp.get();
-      };//findElementInRange(((GroovyFileBase) myFile), startOffset, endOffset, GrExpression.class);
+      }
+      //findElementInRange(((GroovyFileBase) myFile), startOffset, endOffset, GrExpression.class);
 
       Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
 
@@ -98,7 +99,7 @@ public class IntroduceVariableTest extends ActionTestBase {
       final ScType varType = null;
       final PsiElement varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName, false, selectedExpr, selectedExpr.getManager());
 
-      introduceVariableBase.runRefactoring(selectedExpr, myEditor, tempContainer, occurences, varName, varType, replaceAllOccurences,(ScMember) varDecl, false);
+      introduceVariableBase.runRefactoring(selectedExpr, myEditor, tempContainer, occurences, varName, varType, replaceAllOccurences, (ScMember) varDecl, false);
 
 
       result = myEditor.getDocument().getText();
