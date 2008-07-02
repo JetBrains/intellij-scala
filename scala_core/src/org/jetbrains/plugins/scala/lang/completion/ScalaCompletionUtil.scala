@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion
 
+import psi.api.toplevel.typedef.ScTypeDefinition
+import psi.api.base.types.ScTypeElement
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
@@ -78,20 +80,32 @@ object ScalaCompletionUtil {
 
   val DUMMY_IDENTIFIER = "IntellijIdeaRulezzz"
 
-  def checkClassWith(classText: String, manager: PsiManager) : Boolean = {
-    val text = classText + " with A"
+  def checkClassWith(clazz: ScTypeDefinition, manager: PsiManager) : Boolean = {
+    val classText: String = clazz.getText
+    val text = removeDummy(classText + " with A")
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
-    for (child <- dummyFile.getChildren if (child match {case _:PsiErrorElement => true case _ => false})) return false
-    return true
+    return !checkErrors(dummyFile)
   }
 
-  def checkTypeWith(typeText: String, manager: PsiManager): Boolean = {
-    var text = "class a { x:" + typeText + " with A" + "}"
-    if (text.indexOf(DUMMY_IDENTIFIER) != -1) {
+  def checkTypeWith(typez: ScTypeElement, manager: PsiManager): Boolean = {
+    val typeText = typez.getText
+    val text = removeDummy("class a { x:" + typeText + " with A" + "}")
+    val DUMMY = "dummy."
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    return !checkErrors(dummyFile)
+  }
+
+  def removeDummy(text: String): String = {
+    return if (text.indexOf(DUMMY_IDENTIFIER) != -1) {
       val empty = ""
-      text = text.replace(DUMMY_IDENTIFIER.subSequence(0, DUMMY_IDENTIFIER.length), empty.subSequence(0, empty.length))
-    }
+      text.replace(DUMMY_IDENTIFIER.subSequence(0, DUMMY_IDENTIFIER.length), empty.subSequence(0, empty.length))
+    } else text
+  }
+
+  def checkNewWith(news: ScNewTemplateDefinition, manager: PsiManager): Boolean = {
+    val newsText = news.getText
+    var text = removeDummy("class a { " + newsText + " with A" + "}")
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     return !checkErrors(dummyFile)

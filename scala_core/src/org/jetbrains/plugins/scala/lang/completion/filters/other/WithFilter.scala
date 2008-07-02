@@ -27,42 +27,26 @@ class WithFilter extends ElementFilter {
     if (leaf != null) {
       val parent = leaf.getParent
       var prev = leaf.getPrevSibling
-      prev match {
-        case null => parent.getPrevSibling match {
-          case _: ScTypeElement => return true
-          case _ =>
-        }
-        case _: ScTypeElement => return true
-        case _ =>
-      }
       var i = context.getTextRange().getStartOffset() - 1
       while (i >= 0 && context.getContainingFile.getText.charAt(i) == ' ') i = i - 1
       if (i >= 0) {
         var leaf = getLeafByOffset(i, context)
-        while (leaf != null && !leaf.isInstanceOf[ScTypeElement]) leaf = leaf.getParent
+        while (leaf != null && !leaf.isInstanceOf[ScTypeElement] &&
+                !leaf.isInstanceOf[ScNewTemplateDefinition] &&
+                !leaf.isInstanceOf[ScTypeDefinition]) leaf = leaf.getParent
         leaf match {
-          case null =>
+          case null => return false
           case x: ScTypeElement => {
-            return checkTypeWith(x.getText, x.getManager)
+            return checkTypeWith(x, x.getManager)
+          }
+          case x: ScTypeDefinition => {
+            return checkClassWith(x, x.getManager)
+          }
+          case x: ScNewTemplateDefinition => {
+            return checkNewWith(x, x.getManager)
           }
         }
-      }
-      prev match {
-        case _: PsiWhiteSpace => prev = prev.getPrevSibling
-        case _ =>
-      }
-      prev match {
-        case _: PsiErrorElement =>
-        case _ => return false
-      }
-      prev = prev.getPrevSibling
-      prev match {
-        case x: ScTypeDefinition => {
-          if (checkClassWith(x.getText, x.getManager)) return true
-          return false
-        }
-        case _ => return false
-      }
+      } 
     }
     return false
   }
