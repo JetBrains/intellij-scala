@@ -78,7 +78,7 @@ object ScalaCompletionUtil {
 
   val DUMMY_IDENTIFIER = "IntellijIdeaRulezzz"
 
-  def checkTypeWith(classText: String, manager: PsiManager) : Boolean = {
+  def checkClassWith(classText: String, manager: PsiManager) : Boolean = {
     val text = classText + " with A"
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
@@ -86,4 +86,23 @@ object ScalaCompletionUtil {
     return true
   }
 
+  def checkTypeWith(typeText: String, manager: PsiManager): Boolean = {
+    var text = "class a { x:" + typeText + " with A" + "}"
+    if (text.indexOf(DUMMY_IDENTIFIER) != -1) {
+      val empty = ""
+      text = text.replace(DUMMY_IDENTIFIER.subSequence(0, DUMMY_IDENTIFIER.length), empty.subSequence(0, empty.length))
+    }
+    val DUMMY = "dummy."
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    return !checkErrors(dummyFile)
+  }
+
+  private def checkErrors(elem: PsiElement): Boolean = {
+    elem match {
+      case _: PsiErrorElement => return true
+      case _ =>
+    }
+    for (child <- elem.getChildren if checkErrors(child)) return true
+    return false
+  }
 }

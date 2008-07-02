@@ -35,10 +35,17 @@ class WithFilter extends ElementFilter {
         case _: ScTypeElement => return true
         case _ =>
       }
-      if (context.getTextRange().getStartOffset() - 2 >= 0 ) {
-        var leaf = getLeafByOffset(context.getTextRange().getStartOffset() - 2, context)
-        while (leaf != null && !leaf.isInstanceOf[ScTypeElement]) leaf= leaf.getParent
-        
+      var i = context.getTextRange().getStartOffset() - 1
+      while (i >= 0 && context.getContainingFile.getText.charAt(i) == ' ') i = i - 1
+      if (i >= 0) {
+        var leaf = getLeafByOffset(i, context)
+        while (leaf != null && !leaf.isInstanceOf[ScTypeElement]) leaf = leaf.getParent
+        leaf match {
+          case null =>
+          case x: ScTypeElement => {
+            return checkTypeWith(x.getText, x.getManager)
+          }
+        }
       }
       prev match {
         case _: PsiWhiteSpace => prev = prev.getPrevSibling
@@ -51,7 +58,7 @@ class WithFilter extends ElementFilter {
       prev = prev.getPrevSibling
       prev match {
         case x: ScTypeDefinition => {
-          if (checkTypeWith(x.getText, x.getManager)) return true
+          if (checkClassWith(x.getText, x.getManager)) return true
           return false
         }
         case _ => return false
