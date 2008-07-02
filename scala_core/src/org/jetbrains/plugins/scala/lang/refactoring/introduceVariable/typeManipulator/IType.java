@@ -5,4 +5,5 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.typeManip
  * Date: 01.07.2008
  */
 public interface IType {
+  public String getName();
 }

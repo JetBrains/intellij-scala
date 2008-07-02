@@ -10,8 +10,13 @@ import psi.types.ScType
 object TypeManipulator {
   def wrapType(typez: ScType): IType = {
     return new SIType {
-      val t = typez
+      private val t = typez
       def getScType = t
+      private val name = typez match {
+        case null => null
+        case _ => typez.toString //todo: getPresentation
+      }
+      def getName = name
     }
   }
   def unwrapType(iType: IType): ScType = {

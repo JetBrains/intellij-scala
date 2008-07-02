@@ -32,7 +32,7 @@ class ScalaWithForYieldSurrounder extends ScalaExpressionSurrounder {
   override def getSurroundSelectionRange(withForNode: ASTNode): TextRange = {
     val forStmt = withForNode.getPsi.asInstanceOf[ScForStatement]
 
-    val enums = forStmt.asInstanceOf[ScForStatement].enumerators match {
+    val enums = (forStmt.asInstanceOf[ScForStatement].enumerators: @unchecked) match {
       case Some(x) => x.getNode
     }
 
