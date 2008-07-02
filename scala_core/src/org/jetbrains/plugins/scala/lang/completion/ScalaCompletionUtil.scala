@@ -77,4 +77,8 @@ object ScalaCompletionUtil {
   }
 
   val DUMMY_IDENTIFIER = "IntellijIdeaRulezzz"
+
+  def checkEarlyDef(text: String, manager: PsiManager) : Boolean = {
+    
+  }
 }
