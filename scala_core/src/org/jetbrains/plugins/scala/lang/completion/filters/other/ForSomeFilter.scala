@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion.filters.other
 
+import psi.api.base.types.ScInfixTypeElement
+import psi.api.base.types.ScTypeElement
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
@@ -25,13 +27,10 @@ class ForSomeFilter extends ElementFilter {
     val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
     if (leaf != null) {
       val parent = leaf.getParent
-      leaf.getPrevSibling match {
-        case null => parent.getPrevSibling match {
-          case _: ScType => return true
-          case _ =>
-        }
-        case _: ScType => return true
-        case _ =>
+      if (parent == null) return false
+      parent.getParent match {
+        case _: ScInfixTypeElement => return true
+        case _ => return false
       }
     }
     return false
