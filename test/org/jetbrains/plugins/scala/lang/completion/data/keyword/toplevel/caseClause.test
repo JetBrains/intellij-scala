@@ -1,19 +1,15 @@
 class a {
-  try {
-
+  {
+    case t => <caret>
   }
-  <caret>
 }
------
+------
 abstract
 case
-catch
 class
-def
 do
 false
 final
-finally
 for
 implicit
 import
@@ -32,7 +28,4 @@ throw
 trait
 true
 try
-type
-val
-var
 while
