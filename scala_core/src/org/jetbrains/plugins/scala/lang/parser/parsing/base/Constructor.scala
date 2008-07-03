@@ -29,8 +29,8 @@ object Constructor {
     val constrMarker = builder.mark
     if (!AnnotType.parse(builder)) {
       builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
-      constrMarker.done(ScalaElementTypes.CONSTRUCTOR)
-      return true
+      constrMarker.rollbackTo
+      return false
     }
     if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
       while (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
