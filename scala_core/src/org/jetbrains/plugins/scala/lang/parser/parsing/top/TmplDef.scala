@@ -90,8 +90,9 @@ object TmplDef {
           }
           // In this way wrong case modifier
           case _ => {
-            builder error ScalaBundle.message("wrong.case.modifier", new Array[Object](0))
+            builder error ErrMsg("wrong.case.modifier")
             builder.advanceLexer //Ate case
+            builder.getTokenText
             builder.advanceLexer //Ate trait
             TraitDef.parse(builder)
             templateMarker.done(ScalaElementTypes.TRAIT_DEF)

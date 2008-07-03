@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import lexer.ScalaTokenTypes
 import psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTryBlock
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
