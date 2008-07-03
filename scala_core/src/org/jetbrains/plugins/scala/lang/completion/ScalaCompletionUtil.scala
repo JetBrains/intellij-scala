@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion
 
+import psi.api.base.patterns.ScCaseClause
+import psi.api.expr.ScBlock
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.base.types.ScTypeElement
 import com.intellij.lang.ASTNode;
@@ -62,7 +64,7 @@ object ScalaCompletionUtil {
       case _ =>
     }
     parent.getParent match {
-      case _: ScBlockExpr | _: ScTemplateBody => {
+      case _: ScBlockExpr | _: ScTemplateBody | _: ScBlock | _: ScCaseClause => {
         if (awful(parent,leaf))
           return (true, true)
       }
