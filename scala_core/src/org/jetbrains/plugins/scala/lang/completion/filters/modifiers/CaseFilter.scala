@@ -68,6 +68,10 @@ class CaseFilter extends ElementFilter {
       }
       parent.getParent match {
         case _: ScBlockExpr | _: ScTemplateBody => {
+          parent match {
+            case _: ScReferenceExpression =>
+            case _ => return false
+          }
           if (leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
                   leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF)
             return true

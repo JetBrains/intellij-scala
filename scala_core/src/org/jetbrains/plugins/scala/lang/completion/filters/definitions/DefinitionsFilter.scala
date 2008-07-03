@@ -26,10 +26,10 @@ class DefinitionsFilter extends ElementFilter {
     if (leaf != null) {
       val parent = leaf.getParent();
       parent match {
-        case _: ScClassParameter => {
+        case _: ScClassParameter =>
           return true
-        }
-        case _ =>
+        case _: ScReferenceExpression =>
+        case _ => return false
       }
       parent.getParent match {
         case _: ScBlockExpr | _: ScTemplateBody | _: ScClassParameter => {

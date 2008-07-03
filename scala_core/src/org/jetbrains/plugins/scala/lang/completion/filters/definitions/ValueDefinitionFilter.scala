@@ -26,6 +26,7 @@ class ValueDefinitionFilter extends ElementFilter {
     val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
     if (leaf != null) {
       val parent = leaf.getParent();
+      
       parent.getParent match {
         case _: ScGenerator | _: ScEnumerator | _: ScExistentialClause => {
           if ((leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
