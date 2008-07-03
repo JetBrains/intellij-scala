@@ -6,15 +6,9 @@
  } 
 -----
 do
-false
 for
 match
-new
-null
 return
-super
-this
 throw
-true
 try
 while
