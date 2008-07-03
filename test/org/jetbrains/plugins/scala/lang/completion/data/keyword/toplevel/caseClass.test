@@ -4,15 +4,5 @@ class a {
   }
 }
 ------
-abstract
 class
-final
-implicit
-import
-lazy
 object
-override
-private
-protected
-sealed
-trait

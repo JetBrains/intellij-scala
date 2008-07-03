@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.completion.filters.toplevel
 
+import psi.api.base.ScStableCodeReferenceElement
+import psi.api.base.patterns.ScCaseClause
+import psi.api.base.patterns.ScReferencePattern
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
@@ -28,6 +31,21 @@ class TemplateFilter extends ElementFilter {
       val parent = leaf.getParent();
       val tuple = ScalaCompletionUtil.getForAll(parent,leaf)
       if (tuple._1) return tuple._2
+      parent match {
+        case _: ScStableCodeReferenceElement => {
+          parent.getParent match {
+            case x: ScCaseClause => {
+              x.getParent.getParent match {
+                case _: ScMatchStmt if (x.getParent.getFirstChild == x) => return false
+                case _: ScMatchStmt => return true
+                case _  => return true
+              }
+            }
+            case _ =>
+          }
+        }
+        case _ =>
+      }
     }
     return false
   }

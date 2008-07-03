@@ -5,10 +5,4 @@
    def foo( ) = return true <caret>
  } 
 -----
-do
-for
 match
-return
-throw
-try
-while

@@ -142,7 +142,7 @@ object ScalaCompletionUtil {
     val typeText = elem.getText
     var text = "class a { " + typeText + "}"
     if (text.indexOf(DUMMY_IDENTIFIER) == -1) return false
-    text = replaceDummy(text, additionText)
+    text = replaceDummy(text, " "+ additionText+ " ")
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     return !checkErrors(dummyFile)
