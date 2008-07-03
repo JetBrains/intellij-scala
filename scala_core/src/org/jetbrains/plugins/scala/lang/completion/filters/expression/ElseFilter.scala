@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion.filters.expression
 
+import lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
@@ -24,10 +25,13 @@ class ElseFilter extends ElementFilter {
       val parent = leaf.getParent()
       if (parent.isInstanceOf[ScExpression] && parent.getPrevSibling != null &&
               parent.getPrevSibling.getPrevSibling != null &&
-              (parent.getPrevSibling.getPrevSibling.getNode.getElementType == ScalaElementTypes.IF_STMT ||
+              ((parent.getPrevSibling.getPrevSibling.getNode.getElementType == ScalaElementTypes.IF_STMT &&
+                      !parent.getPrevSibling.getPrevSibling.getNode.getChildren(null).map(_.getElementType == ScalaTokenTypes.kELSE).contains(true)) ||
               (parent.getPrevSibling.getPrevSibling.getLastChild != null &&
-               parent.getPrevSibling.getPrevSibling.getLastChild.getNode.getElementType == ScalaElementTypes.IF_STMT))
-              || parent.getParent.isInstanceOf[ScIfStmt]) {
+               parent.getPrevSibling.getPrevSibling.getLastChild.getNode.getElementType == ScalaElementTypes.IF_STMT &&
+                      !parent.getPrevSibling.getPrevSibling.getLastChild.getNode.getChildren(null).map(_.getElementType == ScalaTokenTypes.kELSE).contains(true)))
+              || (parent.getParent.isInstanceOf[ScIfStmt] &&
+                  !parent.getParent.getNode.getChildren(null).map(_.getElementType == ScalaTokenTypes.kELSE).contains(true))) {
         return true
       }
     }

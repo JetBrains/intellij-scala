@@ -1,0 +1,17 @@
+class a {
+  if (true) true
+  else <caret>
+}
+------
+do
+false
+for
+new
+null
+return
+super
+this
+throw
+true
+try
+while
