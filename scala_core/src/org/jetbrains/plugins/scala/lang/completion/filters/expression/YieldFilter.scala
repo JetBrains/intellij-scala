@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion.filters.expression
 
+import lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
@@ -23,6 +24,16 @@ class YieldFilter extends ElementFilter {
     if (leaf != null) {
       val parent = leaf.getParent()
       if (parent.isInstanceOf[ScExpression] && parent.getParent().isInstanceOf[ScForStatement]) {
+        var i = context.getTextRange().getStartOffset() - 1
+        while (i > 0 && (context.getContainingFile.getText.charAt(i) == ' ' ||
+                 context.getContainingFile.getText.charAt(i) == '\n')) i = i - 1
+        if (getLeafByOffset(i, context).getText == "yield") return false
+        i = context.getTextRange().getEndOffset()
+        while (i < context.getContainingFile.getText.length - 1 && (context.getContainingFile.getText.charAt(i) == ' ' ||
+                 context.getContainingFile.getText.charAt(i) == '\n')) i = i + 1
+        if (getLeafByOffset(i, context).getText == "yield") return false
+        for (child <- parent.getParent.getNode.getChildren(null) if child.getElementType == ScalaTokenTypes.kYIELD) return false
+        return ScalaCompletionUtil.checkAnyWith(parent.getParent, "yield true", context.getManager)
         return true
       }
     }
