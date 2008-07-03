@@ -39,9 +39,9 @@ object ScalaCompletionUtil {
   def getForAll(parent: PsiElement, leaf: PsiElement): (Boolean, Boolean) = {
     parent match {
       case _: ScalaFile => {
-        if (leaf.getNextSibling!= null && leaf.getNextSibling().getNextSibling().isInstanceOf[ScPackaging] &&
+        if (leaf.getNextSibling != null && leaf.getNextSibling().getNextSibling().isInstanceOf[ScPackaging] &&
                 leaf.getNextSibling.getNextSibling.getText.indexOf('{') == -1)
-          return (true,false)
+          return (true, false)
       }
       case _ =>
     }
@@ -61,15 +61,18 @@ object ScalaCompletionUtil {
           case _ => return (true, true)
         }
       }
-      case _ =>
-    }
-    parent.getParent match {
-      case _: ScBlockExpr | _: ScTemplateBody | _: ScBlock | _: ScCaseClause => {
-        if (awful(parent,leaf))
-          return (true, true)
+      case _: ScReferenceExpression => {
+        parent.getParent match {
+          case _: ScBlockExpr | _: ScTemplateBody | _: ScBlock | _: ScCaseClause => {
+            if (awful(parent, leaf))
+              return (true, true)
+          }
+          case _ =>
+        }
       }
       case _ =>
     }
+
     return (false, true)
   }
 
@@ -82,7 +85,7 @@ object ScalaCompletionUtil {
 
   val DUMMY_IDENTIFIER = "IntellijIdeaRulezzz"
 
-  def checkClassWith(clazz: ScTypeDefinition, additionText: String, manager: PsiManager) : Boolean = {
+  def checkClassWith(clazz: ScTypeDefinition, additionText: String, manager: PsiManager): Boolean = {
     val classText: String = clazz.getText
     val text = removeDummy(classText + " " + additionText)
     val DUMMY = "dummy."
