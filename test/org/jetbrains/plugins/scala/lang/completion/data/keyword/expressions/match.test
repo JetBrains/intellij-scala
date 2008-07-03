@@ -2,9 +2,4 @@ class a{
   a <caret>
 }
 ------
-case
-def
 match
-type
-val
-var
