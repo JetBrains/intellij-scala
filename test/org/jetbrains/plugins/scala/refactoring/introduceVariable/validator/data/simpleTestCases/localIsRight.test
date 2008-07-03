@@ -1,0 +1,9 @@
+class a {
+  def foo = {
+    if (true) {
+      <begin>2<end>
+    }
+    val value = 3
+  }
+}
+------

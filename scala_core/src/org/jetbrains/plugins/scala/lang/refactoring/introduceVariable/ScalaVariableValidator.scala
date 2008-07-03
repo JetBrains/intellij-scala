@@ -38,7 +38,7 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableBase,
     return conflicts.length == 0 || introduceVariableBase.reportConflicts(conflicts, myProject)
   }
 
-  private def isOKImpl(name: String, allOcc: Boolean): Array[String] = {
+  def isOKImpl(name: String, allOcc: Boolean): Array[String] = {
     val buf = new ArrayBuffer[String]
     buf ++= validateDown(enclosingContainer, name, allOcc)
     buf ++= validateUp(enclosingContainer, name)
