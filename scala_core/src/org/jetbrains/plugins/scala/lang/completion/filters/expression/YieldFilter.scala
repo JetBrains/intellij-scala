@@ -28,13 +28,13 @@ class YieldFilter extends ElementFilter {
         while (i > 0 && (context.getContainingFile.getText.charAt(i) == ' ' ||
                  context.getContainingFile.getText.charAt(i) == '\n')) i = i - 1
         if (getLeafByOffset(i, context).getText == "yield") return false
-        i = context.getTextRange().getEndOffset()
+        i = context.getTextRange.getEndOffset()
         while (i < context.getContainingFile.getText.length - 1 && (context.getContainingFile.getText.charAt(i) == ' ' ||
                  context.getContainingFile.getText.charAt(i) == '\n')) i = i + 1
         if (getLeafByOffset(i, context).getText == "yield") return false
         for (child <- parent.getParent.getNode.getChildren(null) if child.getElementType == ScalaTokenTypes.kYIELD) return false
-        return ScalaCompletionUtil.checkAnyWith(parent.getParent, "yield true", context.getManager)
-        return true
+        return ScalaCompletionUtil.checkAnyWith(parent.getParent, "yield true", context.getManager) ||
+          ScalaCompletionUtil.checkReplace(parent.getParent, "yield", context.getManager)
       }
     }
     return false;

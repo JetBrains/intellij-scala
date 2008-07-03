@@ -117,8 +117,12 @@ object ScalaCompletionUtil {
   }
 
   def removeDummy(text: String): String = {
+    return replaceDummy(text, "")
+  }
+
+  def replaceDummy(text: String, to: String): String = {
     return if (text.indexOf(DUMMY_IDENTIFIER) != -1) {
-      val empty = ""
+      val empty = to
       text.replace(DUMMY_IDENTIFIER.subSequence(0, DUMMY_IDENTIFIER.length), empty.subSequence(0, empty.length))
     } else text
   }
@@ -126,6 +130,16 @@ object ScalaCompletionUtil {
   def checkNewWith(news: ScNewTemplateDefinition, additionText: String, manager: PsiManager): Boolean = {
     val newsText = news.getText
     var text = removeDummy("class a { " + newsText + " " + additionText + "}")
+    val DUMMY = "dummy."
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    return !checkErrors(dummyFile)
+  }
+
+  def checkReplace(elem: PsiElement, additionText: String, manager: PsiManager): Boolean = {
+    val typeText = elem.getText
+    var text = "class a { " + typeText + "}"
+    if (text.indexOf(DUMMY_IDENTIFIER) == -1) return false
+    text = replaceDummy(text, additionText)
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     return !checkErrors(dummyFile)
