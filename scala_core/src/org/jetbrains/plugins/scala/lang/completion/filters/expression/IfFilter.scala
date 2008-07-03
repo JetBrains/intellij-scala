@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 * Date: 28.05.2008
 */
 
+//now it means nothing, never used
 class IfFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
