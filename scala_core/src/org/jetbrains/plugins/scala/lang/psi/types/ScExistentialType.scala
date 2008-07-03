@@ -84,5 +84,6 @@ case class ScExistentialType(val quantified : ScType,
 case class ScWildcardType(val lowerBound : ScType, val upperBound : ScType) extends ScType {
   override def equiv(t : ScType) = t match {
     case wild : ScWildcardType => lowerBound.equiv(wild.lowerBound) && upperBound.equiv(wild.upperBound)
+    case _ => false
   }
 }
