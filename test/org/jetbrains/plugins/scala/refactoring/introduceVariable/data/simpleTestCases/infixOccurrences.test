@@ -1,0 +1,14 @@
+class a {
+  def foo() = {
+    2 + 2 + 3
+    <all>2 + 2<end>
+  }
+}
+------
+<caret>class a {
+  def foo() = {
+    val value = 2 + 2
+    value + 3
+    value
+  }
+}

@@ -1,0 +1,6 @@
+class a {
+  def foo = {
+    <all>2<end>
+  }
+}
+------

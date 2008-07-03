@@ -105,6 +105,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
   def runRefactoring(selectedExpr: ScExpression, editor: Editor, tempContainer: PsiElement,
                     occurrences_ : Array[ScExpression], varName: String, varType: ScType,
                     replaceAllOccurrences: Boolean, varDecl: ScMember, isVariable: Boolean) {
+    var offset = -1
     val runnable = new Runnable() {
       def run() {
         //todo: resolve conflicts
@@ -153,14 +154,17 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
             val varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName,
             isVariable, ScalaRefactoringUtil.unparExpr(occurrences(0)), selectedExpr.getManager)
             x.addDefinition(varDecl, parent)
-            if (!deleteOccurence || !replaceAllOccurrences) {
+            if (!deleteOccurence || replaceAllOccurrences) {
               for (occurrence <- occurrences) {
                 occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
               }
             } else {
               for (occurrence <- occurrences) {
                 val parent = occurrence.getParent.getNode
+                val prev = occurrence.getNode.getTreePrev
+                offset = occurrence.getTextRange.getStartOffset
                 parent.removeChild(occurrence.getNode)
+                parent.removeChild(prev)
               }
             }
             return
@@ -194,7 +198,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
             val varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName,
             isVariable, ScalaRefactoringUtil.unparExpr(occurrences(0)), selectedExpr.getManager)
             var container = x
-            if (!deleteOccurence || !replaceAllOccurrences) {
+            if (!deleteOccurence || replaceAllOccurrences) {
               for (occurrence <- occurrences) {
                 if (occurrence == container)
                   container = occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
@@ -204,7 +208,10 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
             } else {
               for (occurrence <- occurrences) {
                 val parent = occurrence.getParent.getNode
+                val prev = occurrence.getNode.getTreePrev
+                offset = occurrence.getTextRange.getStartOffset
                 parent.removeChild(occurrence.getNode)
+                parent.removeChild(prev)
               }
             }
             val block: ScCodeBlock = container.replaceExpression(ScalaPsiElementFactory.createBlockFromExpr(container, container.getManager), false).asInstanceOf[ScCodeBlock]
@@ -228,6 +235,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
       }
     }, REFACTORING_NAME, null);
     editor.getSelectionModel.removeSelection
+    if (offset != -1) editor.getCaretModel.moveToOffset(offset - 1)
   }
 
   def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {
