@@ -29,6 +29,13 @@ class CatchFilter extends ElementFilter {
               parent.getPrevSibling.getPrevSibling.getLastChild.getNode.getElementType == ScalaElementTypes.TRY_BLOCK) {
         return true
       }
+      var i = context.getTextRange().getStartOffset() - 1
+      while (i > 0 && (context.getContainingFile.getText.charAt(i) == ' ' ||
+                 context.getContainingFile.getText.charAt(i) == '\n')) i = i - 1
+      var leaf1 = getLeafByOffset(i, context)
+      while (leaf1 != null && !leaf1.isInstanceOf[ScTryBlock]) leaf1 = leaf1.getParent
+      if (leaf1 == null) return false
+      if (leaf1.getTextRange.getEndOffset == i + 1) return true
     }
     return false;
   }
