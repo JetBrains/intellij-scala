@@ -2,25 +2,13 @@ class a{
   a <caret>
 }
 ------
-abstract
 case
-class
 def
 do
-final
 for
-implicit
-import
-lazy
 match
-object
-override
-private
-protected
 return
-sealed
 throw
-trait
 try
 type
 val
