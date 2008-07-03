@@ -22,20 +22,18 @@ class CatchFilter extends ElementFilter {
     if (context.isInstanceOf[PsiComment]) return false
     val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
     if (leaf != null) {
-      val parent = leaf.getParent()
-      if (parent.isInstanceOf[ScExpression] && parent.getPrevSibling != null &&
-              parent.getPrevSibling.getPrevSibling != null &&
-              parent.getPrevSibling.getPrevSibling.getNode.getElementType == ScalaElementTypes.TRY_STMT &&
-              parent.getPrevSibling.getPrevSibling.getLastChild.getNode.getElementType == ScalaElementTypes.TRY_BLOCK) {
-        return true
-      }
       var i = context.getTextRange().getStartOffset() - 1
       while (i > 0 && (context.getContainingFile.getText.charAt(i) == ' ' ||
-                 context.getContainingFile.getText.charAt(i) == '\n')) i = i - 1
+              context.getContainingFile.getText.charAt(i) == '\n')) i = i - 1
       var leaf1 = getLeafByOffset(i, context)
       while (leaf1 != null && !leaf1.isInstanceOf[ScTryBlock]) leaf1 = leaf1.getParent
       if (leaf1 == null) return false
-      if (leaf1.getTextRange.getEndOffset == i + 1) return true
+      if (leaf1.getTextRange.getEndOffset != i + 1) return false
+      i = context.getTextRange().getEndOffset()
+      while (i < context.getContainingFile.getText.length - 1 && (context.getContainingFile.getText.charAt(i) == ' ' ||
+              context.getContainingFile.getText.charAt(i) == '\n')) i = i + 1
+      if (Array("catch").contains(getLeafByOffset(i, context).getText)) return false
+      return true
     }
     return false;
   }
