@@ -47,7 +47,7 @@ class ScalaCompletionData extends CompletionData {
     registerYieldCompletion
     registerWithCompletion
     registerRequiresCompletion
-    registerIfCompletion
+    //registerIfCompletion
     registerDefTypeCompletion
     registerForSomeCompletion
     registerMatchCompletion
@@ -75,7 +75,8 @@ class ScalaCompletionData extends CompletionData {
   }
 
   private def registerTemplateDefinitionCompletion {
-    registerStandardCompletion(new TemplateFilter, "class", "object", "trait")
+    registerStandardCompletion(new TemplateFilter, "class", "object")
+    registerStandardCompletion(new TraitFilter, "trait")
   }
 
   private def registerDefinitionsCompletion {
@@ -87,7 +88,7 @@ class ScalaCompletionData extends CompletionData {
   }
 
   private def registerStatementCompletion {
-    registerStandardCompletion(new StatementFilter, "for", "while", "do", "try", "return", "throw", "if")
+    registerStandardCompletion(new StatementFilter, "for", "while", "do", "try", "return", "throw"/*, "if"*/)
   }
 
   private def registerCatchCompletion {
@@ -118,9 +119,9 @@ class ScalaCompletionData extends CompletionData {
     registerStandardCompletion(new RequiresFilter, "requires")
   }
 
-  private def registerIfCompletion {
+  /*private def registerIfCompletion {
     registerStandardCompletion(new IfFilter, "if")
-  }
+  }*/
 
   private def registerDefTypeCompletion {
     registerStandardCompletion(new DefTypeFilter, "def", "type")
