@@ -25,6 +25,10 @@ class DefTypeFilter extends ElementFilter {
     val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
     if (leaf != null) {
       val parent = leaf.getParent();
+      parent match {
+        case _: ScReferenceExpression =>
+        case _ => return false
+      }
       parent.getParent match {
         case _: ScBlockExpr | _: ScTemplateBody | _: ScClassParameter => {
           if ((leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
