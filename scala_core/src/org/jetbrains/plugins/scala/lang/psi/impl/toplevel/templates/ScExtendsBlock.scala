@@ -38,7 +38,7 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       case None =>
       case Some(parents) => {
         parents match {
-          case classParents : ScClassParents =>
+          case classParents: ScClassParents =>
             classParents.constructor match {
               case None => ()
               case Some(c) => buffer += c.typeElement.getType
