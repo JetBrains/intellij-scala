@@ -97,9 +97,8 @@ public class IntroduceVariableTest extends ActionTestBase {
       ScExpression[] occurences = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(selectedExpr), tempContainer);
       String varName = "value";
       final ScType varType = null;
-      final PsiElement varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName, false, selectedExpr, selectedExpr.getManager());
 
-      introduceVariableBase.runRefactoring(selectedExpr, myEditor, tempContainer, occurences, varName, varType, replaceAllOccurences, (ScMember) varDecl, false);
+      introduceVariableBase.runRefactoring(selectedExpr, myEditor, tempContainer, occurences, varName, varType, replaceAllOccurences, false);
 
 
       result = myEditor.getDocument().getText();

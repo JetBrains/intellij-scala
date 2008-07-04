@@ -1,5 +1,13 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
+import psi.api.base.patterns.ScReferencePattern
+import psi.api.statements.ScVariable
+import psi.api.expr.ScReferenceExpression
+import psi.api.statements.ScValue
+import psi.api.toplevel.typedef.ScMember
+import psi.api.base.ScStableCodeReferenceElement
+import psi.impl.ScalaPsiElementFactory
+import psi.api.expr.ScMethodCall
 import psi.api.expr.ScFinallyBlock
 import psi.api.expr.ScDoStmt
 import psi.api.expr.ScWhileStmt
@@ -46,6 +54,24 @@ object ScalaRefactoringUtil {
            file.getText.charAt(end - 1) == '\n' ||
            file.getText.charAt(end - 1) == ' ') end = end - 1
     editor.getSelectionModel.setSelection(start, end)
+  }
+
+  def getExprFrom(expr: ScExpression): ScExpression = {
+    val e = unparExpr(expr)
+    e match {
+      case x: ScReferenceExpression => {
+        x.resolve match {
+          case _: ScReferencePattern => return e
+          case _ =>
+        }
+      }
+      case _ =>
+    }
+    e.getParent match {
+      case x: ScMethodCall if x.args.exprs.size > 0 =>
+        return ScalaPsiElementFactory.createExpressionFromText(e.getText + " _", e.getManager)
+      case _ => return e
+    }
   }
 
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScExpression] = {
@@ -95,7 +121,15 @@ object ScalaRefactoringUtil {
     else
       for (child <- enclosingContainer.getChildren) {
         if (PsiEquivalenceUtil.areElementsEquivalent(child, expr, comparator, false)) {
-          occurrences += child.asInstanceOf[ScExpression]
+          child match {
+            case x: ScExpression => {
+              x.getParent match {
+                case y: ScMethodCall if y.args.exprs.size == 0 => occurrences += y
+                case _ => occurrences += child.asInstanceOf[ScExpression]
+              }
+            }
+            case _ =>
+          }
         } else {
           occurrences ++= getOccurrences(expr, child)
         }

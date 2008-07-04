@@ -1,0 +1,14 @@
+class a {
+  def foo = {
+    <begin>x<end>("balletik")
+  }
+  val x: (String => Boolean) = _.startsWith("ballet")
+}
+------
+<caret>class a {
+  def foo = {
+    val value = x
+    value("balletik")
+  }
+  val x: (String => Boolean) = _.startsWith("ballet")
+}

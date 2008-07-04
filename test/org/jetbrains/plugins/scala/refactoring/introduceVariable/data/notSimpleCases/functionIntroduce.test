@@ -1,0 +1,14 @@
+class s {
+  def foo = {
+    <begin>z<end>(44)
+  }
+  def z(i: Int) = 33
+}
+------
+<caret>class s {
+  def foo = {
+    val value = z _
+    value(44)
+  }
+  def z(i: Int) = 33
+}

@@ -7,7 +7,7 @@ class a {
 ------
 <caret>class a {
   def foo = {
-    val value = tre.too
+    val value = tre.too()
     value
     value
   }
