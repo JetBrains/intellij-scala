@@ -4,6 +4,7 @@ import types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -77,13 +78,30 @@ object ScalaPsiElementFactory {
     }
   }
 
+  def createScalaFile(text: String, manager: PsiManager) =
+    PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+
+  def createStableReferenceElement(name: String, manager: PsiManager) = {
+    val file = createScalaFile("class A extends B with " + name, manager)
+    val classDef = file.getTypeDefinitions()(0)
+    val extendsBlock = classDef.extendsBlock
+    val parents = extendsBlock.templateParents
+    parents match {
+      case Some(p) => {                     
+        val elements = p.typeElements
+        elements.first.asInstanceOf[ScSimpleTypeElement].reference.asInstanceOf[ScStableCodeReferenceElement]
+      }
+      case _ => throw new com.intellij.util.IncorrectOperationException()
+    }
+  }
+
   def createDeclaration(typez: ScType, name: String, isVariable: Boolean, expr: ScExpression, manager: PsiManager): ScMember = {
     val text = "class a {" + (if (isVariable) "var " else "val ") +
-            (if (typez != null) ":"  /*todo: + typez.getPresentableText*/ + " " else "") + name + " = " + expr.getText + "}"
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+            (if (typez != null) ":" /*todo: + typez.getPresentableText*/ + " " else "") + name + " = " + expr.getText + "}"
+    val dummyFile = createScalaFile(text, manager)
     val classDef = dummyFile.getTypeDefinitions()(0)
     if (!isVariable) classDef.members()(0).asInstanceOf[ScPatternDefinition]
-      else classDef.members()(0).asInstanceOf[ScVariableDefinition]
+    else classDef.members()(0).asInstanceOf[ScVariableDefinition]
   }
 
   def createNewLineNode(manager: PsiManager): ASTNode = {
@@ -102,7 +120,7 @@ object ScalaPsiElementFactory {
 
   private def isResolved(name: String, clazz: PsiClass, packageName: String, manager: PsiManager): Boolean = {
     if (packageName == null) return true
-    val text = "package " + packageName +"\nimport " + name
+    val text = "package " + packageName + "\nimport " + name
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val imp: ScStableCodeReferenceElement = (dummyFile.getFirstImportStmt match {

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base
 import org.jetbrains.plugins.scala.lang._
 import lexer.ScalaTokenTypes
 import parser.ScalaElementTypes
+import org.jetbrains.annotations._
 import psi.ScalaPsiElementImpl
 import psi.api.base._
 import psi.types._
@@ -31,12 +32,8 @@ import api.statements.ScTypeAlias
 
 class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScStableCodeReferenceElement {
 
-  def bindToElement(element: PsiElement): PsiElement = {
-    return this;
-    //todo
-  }
   def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(resolveKinds(true))).map(r => r.getElement) //todo
-  
+
   override def toString: String = "CodeReferenceElement"
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElementImpl] {
@@ -45,20 +42,20 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  private def resolveKinds(incomplete : Boolean) = getParent match {
+  private def resolveKinds(incomplete: Boolean) = getParent match {
     case _: ScStableCodeReferenceElement => StdKinds.stableQualRef
-    case e : ScImportExpr => if (e.selectorSet != None
+    case e: ScImportExpr => if (e.selectorSet != None
             //import Class._ is not allowed
-            || qualifier == None) StdKinds.stableQualRef else StdKinds.stableQualOrClass 
+            || qualifier == None) StdKinds.stableQualRef else StdKinds.stableQualOrClass
     case _: ScSimpleTypeElement => if (incomplete) StdKinds.stableQualOrClass else StdKinds.stableClass
-    case _ : ScTypeAlias => StdKinds.stableClass
+    case _: ScTypeAlias => StdKinds.stableClass
     case _: ScImportSelector => StdKinds.stableImportSelector
     case _ => StdKinds.stableQualRef
   }
 
-  private def _qualifier() : Option[ScStableCodeReferenceElement] = {
+  private def _qualifier(): Option[ScStableCodeReferenceElement] = {
     if (getParent.isInstanceOf[ScImportSelector]) {
-      return getParent.getParent/*ScImportSelectors*/.getParent.asInstanceOf[ScImportExpr].reference
+      return getParent.getParent /*ScImportSelectors*/ .getParent.asInstanceOf[ScImportExpr].reference
     }
     qualifier
   }
@@ -82,8 +79,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case Some(q) => {
         q.bind match {
           case None =>
-          case Some(ScalaResolveResult(typed : ScTyped, s)) => processType(s.subst(typed.calcType), processor)
-          case Some(ScalaResolveResult(pack : PsiPackage, _)) if pack.getQualifiedName == "scala" => {
+          case Some(ScalaResolveResult(typed: ScTyped, s)) => processType(s.subst(typed.calcType), processor)
+          case Some(ScalaResolveResult(pack: PsiPackage, _)) if pack.getQualifiedName == "scala" => {
             import toplevel.synthetic.SyntheticClasses
 
             for (synth <- SyntheticClasses.get(getProject).getAll) {
@@ -106,4 +103,35 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   }
 
   def nameId: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+
+  //  @throws(IncorrectOperationException)
+  def bindToElement(@NotNull element: PsiElement): PsiElement = {
+    if (isReferenceTo(element)) return this
+
+    element match {
+      case c: PsiClass => {
+        val name = c.getName
+
+        val file = getContainingFile.asInstanceOf[ScalaFile]
+        if (isReferenceTo(element)) return this
+        val qualName = c.getQualifiedName
+        if (qualName != null) {
+          file.addImportForClass(c)
+        }
+        this
+      }
+      case _ => return this
+    }
+  }
+
+  override def handleElementRename(newName: String) = {
+    val nameElement = getNavigationElement
+    if (nameElement != null) {
+      val node = nameElement.getNode
+      val newNode = ScalaPsiElementFactory.createStableReferenceElement(newName, getManager).getNode
+      assert(newNode != null && node != null)
+      node.getTreeParent.replaceChild(node, newNode)
+    }
+    this
+  }
 }
