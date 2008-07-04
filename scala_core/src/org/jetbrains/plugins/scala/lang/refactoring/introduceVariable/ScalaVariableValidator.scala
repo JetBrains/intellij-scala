@@ -1,5 +1,12 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import psi.api.statements.params.ScParameters
+import psi.api.statements.ScFunction
+import psi.api.statements.ScValue
+import psi.api.statements.ScVariable
+import psi.api.toplevel.typedef.ScTypeDefinition
+import psi.api.toplevel.typedef.ScTrait
+import psi.api.toplevel.typedef.ScClass
 import lexer.ScalaTokenTypes
 import psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTryBlock
@@ -42,6 +49,27 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableBase,
     val buf = new ArrayBuffer[String]
     buf ++= validateDown(enclosingContainer, name, allOcc)
     buf ++= validateUp(enclosingContainer, name)
+    var cl = enclosingContainer
+    while (cl != null && !cl.isInstanceOf[ScClass] && !cl.isInstanceOf[ScTrait]) cl = cl.getParent
+    if (cl != null) {
+      cl match {
+        case x: ScTypeDefinition => {
+          for (member <- x.members) {
+            member match {
+              case x: ScVariable => for (el <- x.declaredElements if el.name == name) buf += ScalaBundle.message("introduced.variable.will.conflict.with.field", Array[Object](el.name))
+              case x: ScValue => for (el <- x.declaredElements if el.name == name) buf += ScalaBundle.message("introduced.variable.will.conflict.with.field", Array[Object](el.name))
+              case _ =>
+            }
+          }
+          for (function <- x.functions) {
+            function match {
+              case x: ScFunction if x.name == name && x.parameters.size == 0 => buf += ScalaBundle.message("introduced.variable.will.conflict.with.field", Array[Object](x.name))
+              case _ =>
+            }
+          }
+        }
+      }
+    }
     return buf.toArray
   }
 
@@ -65,9 +93,10 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableBase,
           }
         }
       }
-      case x: ScParameter => {
-        if (x.name == name) {
-          buf += ScalaBundle.message("introduced.variable.will.conflict.with.parameter", Array[Object](x.name))
+      case x: ScParameters => {
+        for (parameter <- x.params)
+        if (parameter.name == name) {
+          buf += ScalaBundle.message("introduced.variable.will.conflict.with.parameter", Array[Object](parameter.name))
         }
       }
       case x: ScFunctionDefinition => {
@@ -97,7 +126,7 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableBase,
           }
         }
         case x: ScFunctionDefinition => {
-          if (x.name == name) {
+          if (x.name == name && x.parameters.size == 0) {
             buf += ScalaBundle.message("introduced.variable.will.conflict.with.local", Array[Object](x.name))
           }
         }

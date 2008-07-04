@@ -46,14 +46,20 @@ object NameSuggester {
 
   private def generateCamelNames(names: ArrayBuffer[String], validator: NameValidator, name: String) {
     if (name == "") return
-    val s = deleteNonLetterFromString(name)
-    for (i <- 0 to s.length-1) {
+    val s1 = deleteNonLetterFromString(name)
+    val s = if (Array("get", "set", "is").map(s1.startsWith(_)).contains(true))
+              s1.charAt(0) match {
+                case 'g' | 's' => s1.substring(3,s1.length)
+                case _ => s1.substring(2,s1.length)
+              }
+            else s1
+    for (i <- 0 to s.length - 1) {
       if (i == 0) {
-        val candidate = s.substring(0,1).toLowerCase + s.substring(1)
+        val candidate = s.substring(0, 1).toLowerCase + s.substring(1)
         names += validator.validateName(candidate, true)
       }
       else if (s(i) >= 'A' && s(i) <= 'Z') {
-        val candidate = s.substring(i,i+1).toLowerCase + s.substring(i+1)
+        val candidate = s.substring(i, i + 1).toLowerCase + s.substring(i + 1)
         names += validator.validateName(candidate, true)
       }
     }

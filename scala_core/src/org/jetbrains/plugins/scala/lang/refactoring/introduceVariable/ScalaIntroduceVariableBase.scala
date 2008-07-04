@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import psi.api.statements.ScFunction
 import psi.api.statements.ScValue
 import psi.api.statements.ScVariable
 import psi.api.toplevel.typedef.ScTypeDefinition
@@ -139,6 +140,12 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
                       case _ =>
                     }
                   }
+                  for (function <- x.functions) {
+                    function match {
+                      case x: ScFunction if x.name == varName && x.parameters.size == 0 => ref = x
+                      case _ =>
+                    }
+                  }
                 }
               }
             }
@@ -167,7 +174,6 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
                 parent.removeChild(prev)
               }
             }
-            return
           }
           case x: ScExpression => {
             var ref: PsiElement = null
@@ -180,6 +186,12 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
                     member match {
                       case x: ScVariable => for (el <- x.declaredElements if el.name == varName) ref = el
                       case x: ScValue => for (el <- x.declaredElements if el.name == varName) ref = el
+                      case _ =>
+                    }
+                  }
+                  for (function <- x.functions) {
+                    function match {
+                      case x: ScFunction if x.name == varName && x.parameters.size == 0 => ref = x
                       case _ =>
                     }
                   }
@@ -216,13 +228,13 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
             }
             val block: ScCodeBlock = container.replaceExpression(ScalaPsiElementFactory.createBlockFromExpr(container, container.getManager), false).asInstanceOf[ScCodeBlock]
             block.addDefinition(varDecl, block.getFirstChild.getNextSibling.getNextSibling);
-            return
           }
           case _ => {
             showErrorMessage(ScalaBundle.message("operation.not.supported.in.current.block", Array[Object]()), editor.getProject)
             return
           }
         }
+        if (offset != -1) editor.getCaretModel.moveToOffset(offset - 1)
       }
     }
 
@@ -235,7 +247,6 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
       }
     }, REFACTORING_NAME, null);
     editor.getSelectionModel.removeSelection
-    if (offset != -1) editor.getCaretModel.moveToOffset(offset - 1)
   }
 
   def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {
