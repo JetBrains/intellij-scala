@@ -91,7 +91,6 @@ public class IntroduceVariableValidatorTest extends ActionTestBase {
       ScExpression[] occurrences = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(selectedExpr), tempContainer);
       String varName = "value";
       final ScType varType = null;
-      final PsiElement varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName, false, selectedExpr, selectedExpr.getManager());
 
       ScalaVariableValidator validator = new ScalaVariableValidator(introduceVariableBase, myProject,
           selectedExpr, occurrences, (PsiElement)tempContainer);

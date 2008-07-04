@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import psi.api.expr.ScArgumentExprList
 import psi.api.statements.ScFunction
 import psi.api.statements.ScValue
 import psi.api.statements.ScVariable
@@ -93,11 +94,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
     var varType: ScType = TypeManipulator.unwrapType(settings.getSelectedType())
     val isVariable: Boolean = settings.isDeclareVariable()
     val replaceAllOccurrences: Boolean = settings.isReplaceAllOccurrences()
-
-    // Generating variable declaration
-    val varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName,
-    isVariable, ScalaRefactoringUtil.unparExpr(expr), file.getManager)
-    runRefactoring(expr, editor, enclosingContainer, occurrences, varName, varType, replaceAllOccurrences, varDecl, isVariable);
+    runRefactoring(expr, editor, enclosingContainer, occurrences, varName, varType, replaceAllOccurrences, isVariable);
 
     return
 
@@ -105,7 +102,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
 
   def runRefactoring(selectedExpr: ScExpression, editor: Editor, tempContainer: PsiElement,
                     occurrences_ : Array[ScExpression], varName: String, varType: ScType,
-                    replaceAllOccurrences: Boolean, varDecl: ScMember, isVariable: Boolean) {
+                    replaceAllOccurrences: Boolean, isVariable: Boolean) {
     var offset = -1
     val runnable = new Runnable() {
       def run() {
@@ -159,11 +156,14 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
               }
             }
             val varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName,
-            isVariable, ScalaRefactoringUtil.unparExpr(occurrences(0)), selectedExpr.getManager)
+            isVariable, ScalaRefactoringUtil.getExprFrom(occurrences(0)), selectedExpr.getManager)
             x.addDefinition(varDecl, parent)
             if (!deleteOccurence || replaceAllOccurrences) {
               for (occurrence <- occurrences) {
-                occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
+                if (occurrence.isInstanceOf[ScBlockExpr] && occurrence.getParent.isInstanceOf[ScArgumentExprList])
+                  occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
+                else
+                  occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
               }
             } else {
               for (occurrence <- occurrences) {
@@ -208,14 +208,19 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
               }
             }
             val varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName,
-            isVariable, ScalaRefactoringUtil.unparExpr(occurrences(0)), selectedExpr.getManager)
+            isVariable, ScalaRefactoringUtil.getExprFrom(occurrences(0)), selectedExpr.getManager)
             var container = x
             if (!deleteOccurence || replaceAllOccurrences) {
               for (occurrence <- occurrences) {
                 if (occurrence == container)
-                  container = occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
-                else
-                  occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
+                  container = if (occurrence.isInstanceOf[ScBlockExpr] && occurrence.getParent.isInstanceOf[ScArgumentExprList])
+                                occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
+                              else
+                                occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
+                else if (occurrence.isInstanceOf[ScBlockExpr] && occurrence.getParent.isInstanceOf[ScArgumentExprList])
+                       occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
+                     else
+                       occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
               }
             } else {
               for (occurrence <- occurrences) {
