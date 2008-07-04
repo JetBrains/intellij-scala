@@ -126,7 +126,8 @@ object ScalaCompletionUtil {
   def replaceDummy(text: String, to: String): String = {
     return if (text.indexOf(DUMMY_IDENTIFIER) != -1) {
       val empty = to
-      text.replace(DUMMY_IDENTIFIER.subSequence(0, DUMMY_IDENTIFIER.length), empty.subSequence(0, empty.length))
+      text.replaceAll("\\w*" + DUMMY_IDENTIFIER,to)
+      //text.replace(DUMMY_IDENTIFIER.subSequence(0, DUMMY_IDENTIFIER.length), empty.subSequence(0, empty.length))
     } else text
   }
 

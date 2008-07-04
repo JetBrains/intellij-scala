@@ -1,0 +1,14 @@
+class a {
+  def foo = {
+    tre.too()
+    <all>tre.too<end>
+  }
+}
+------
+<caret>class a {
+  def foo = {
+    val value = tre.too
+    value
+    value
+  }
+}
