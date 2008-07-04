@@ -66,7 +66,8 @@ object ScalaRefactoringUtil {
   def getEnclosingContainer(expr: ScExpression): PsiElement = {
     def get(parent: PsiElement): PsiElement = {
       parent match {
-        case null | _: ScCodeBlock  =>
+        case null =>
+        case x: ScCodeBlock if x != expr =>
         case _: ScExpression => parent.getParent match {
           case _: ScFunctionDefinition |
                   _: ScForStatement |
