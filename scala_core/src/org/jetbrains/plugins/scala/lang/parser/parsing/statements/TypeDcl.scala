@@ -62,8 +62,10 @@ object TypeDcl {
       }
       case _ => {
         builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
-        returnMarker.drop
-        return true
+        /*returnMarker.drop
+        return true*/
+        returnMarker.rollbackTo
+        return false
       }
     }
     var isTypeParamClause = false;
