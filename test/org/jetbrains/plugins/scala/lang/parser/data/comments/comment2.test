@@ -20,6 +20,6 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace(' ')
-        PsiComment(DocComment)('/**\n\n/*\n\n*/  }')
         PsiErrorElement:'}' expected
           <empty list>
+  PsiComment(DocComment)('/**\n\n/*\n\n*/  }')

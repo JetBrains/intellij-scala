@@ -28,7 +28,22 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top._
 object Block {
 
   def parse(builder: PsiBuilder): Boolean = {
-    while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {}
+    while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
+      val rollMarker = builder.mark
+      if (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
+        rollMarker.rollbackTo
+        builder.getTokenType match {
+          case ScalaTokenTypes.tLINE_TERMINATOR | ScalaTokenTypes.tSEMICOLON => {
+            builder.advanceLexer
+          }
+          case _ => {
+            builder error ErrMsg("semi.expected")
+          }
+        }
+      } else {
+        rollMarker.rollbackTo
+      }
+    }
     return true
   }
 
