@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import psi.api.expr.ScGuard
+import psi.api.expr.ScEnumerators
 import psi.api.expr.ScArgumentExprList
 import psi.api.statements.ScFunction
 import psi.api.statements.ScValue
@@ -68,10 +70,13 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
     //todo: think about type when type inference
     val typez: ScType = null
     var parent: PsiElement = expr
-    while (parent != null && !parent.isInstanceOf[ScalaFile] && !parent.isInstanceOf[ScParameters]) parent = parent.getParent
-    if (parent.isInstanceOf[ScParameters]) {
-      showErrorMessage(ScalaBundle.message("refactoring.is.not.supported.in.method.parameters", Array[Object]()), project)
-      return
+    while (parent != null && !parent.isInstanceOf[ScalaFile] && !parent.isInstanceOf[ScGuard]) parent = parent.getParent
+    parent match {
+      case _: ScGuard => {
+        showErrorMessage(ScalaBundle.message("refactoring.is.not.supported.in.guard", Array[Object]()), project)
+        return
+      }
+      case _ =>
     }
     val enclosingContainer: PsiElement = ScalaRefactoringUtil.getEnclosingContainer(expr)
     if (enclosingContainer == null) {
@@ -214,11 +219,11 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
               for (occurrence <- occurrences) {
                 if (occurrence == container)
                   container = if (occurrence.isInstanceOf[ScBlockExpr] && occurrence.getParent.isInstanceOf[ScArgumentExprList])
-                                occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
+                    occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
                               else
                                 occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
                 else if (occurrence.isInstanceOf[ScBlockExpr] && occurrence.getParent.isInstanceOf[ScArgumentExprList])
-                       occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
+                  occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
                      else
                        occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
               }
