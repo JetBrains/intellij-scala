@@ -1,0 +1,7 @@
+class a {
+  def foo(value: Int) = {
+    <begin>2<end>
+  }
+}
+------
+Introduced variable will conflict (or hide) with parameter: value
