@@ -73,8 +73,20 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
     }
   }
 
+  import com.intellij.openapi.util.Key
+  val inferenceInProgress = Key.create[ScFunction]("inference in progress")
+
   def calcType = returnTypeElement match {
-    case None => Nothing //todo inference
+    case None => body match {
+      case Some(b) if b.getUserData(inferenceInProgress) == null => {
+        try {
+          b.putUserData(inferenceInProgress, this)
+          b.getType
+        }
+        finally b.putUserData(inferenceInProgress, null)
+      }
+      case _ => Nothing
+    }
     case Some(rte) => rte.getType
   }
 }
