@@ -1,24 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import psi.ScalaPsiElementImpl
+import api.base.types._
+import psi.types._
 
-
-
-
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi._
-
-import org.jetbrains.annotations._
-
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-
-
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -27,4 +13,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 class ScInfixTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixTypeElement{
   override def toString: String = "InfixType"
+
+  def rOp = findChildrenByClass(classOf[ScTypeElement]) match {
+    case Array(_, r) => Some(r)
+    case _ => None
+  }
+
+  override def getType = rOp match {
+    case None => Nothing
+    case Some(rOp) => ref.bind match {
+      case None => Nothing
+      case Some(result) => new ScParameterizedType(new ScDesignatorType(result.element), Array(lOp.getType, rOp.getType))
+    }
+  }
 }
