@@ -67,10 +67,10 @@ object ScExistentialTypeReducer {
 
 case class ScExistentialType(val quantified : ScType,
                              val wildcards : List[Pair[String, ScWildcardType]]) extends ScType {
-  val boundNames = wildcards.map {_._1}
-  val boundTypes = wildcards.map {_._2}
+  lazy val boundNames = wildcards.map {_._1}
+  lazy val boundTypes = wildcards.map {_._2}
 
-  val substitutor = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s + (p._1, p._2)}
+  lazy val substitutor = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s + (p._1, p._2)}
   
   override def equiv(t : ScType) = t match {
     case ex : ScExistentialType => {
