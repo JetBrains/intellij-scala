@@ -10,7 +10,7 @@ import _root_.scala.collection.immutable.HashSet
 import com.intellij.psi._
 
 object Conformance {
-  def conforms (l : ScType, r : ScType) : boolean = conforms(l, r, HashSet.empty)
+  def conforms (l : ScType, r : ScType) : Boolean = conforms(l, r, HashSet.empty)
 
   private def conforms (l : ScType, r : ScType, visited : Set[PsiClass]) : Boolean = {
     if (l equiv r) true
@@ -92,6 +92,9 @@ object Conformance {
         case None => false
       })
 
+      case ScWildcardType(lower, _) => conforms(lower, r)
+      case ex@ScExistentialType(q, wilds) => conforms(ex.substitutor.subst(q), r)
+
       case _ => rightRec(l, r, visited)
     }
   }
@@ -119,6 +122,10 @@ object Conformance {
     }
 
     case ScCompoundType(comps, _, _) => !comps.find(l conforms _).isEmpty
+
+    case ScWildcardType(_, upper) => conforms(l, upper)
+
+    case ex@ScExistentialType(q, wilds) => conforms(l, ex.substitutor.subst(q))
 
     case _ => false //todo
   }
