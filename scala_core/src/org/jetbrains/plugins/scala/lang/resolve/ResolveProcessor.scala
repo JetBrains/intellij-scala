@@ -46,14 +46,20 @@ class MethodResolveProcessor(override val name : String) extends ResolveProcesso
   override def execute(element: PsiElement, state: ResolveState) : Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
-      candidates += new ScalaResolveResult(named, getSubst(state))
+      val s = getSubst(state)
       element match {
-        case _ : PsiMethod => true
-        case _ => false //any other element is more specific and it should hide all other non-methods
+        case m : PsiMethod => {
+          candidates += new ScalaResolveResult(named, s.incl(inferMethodTypesArgs(m, s)))
+          true
+        }
+        //any other element is more specific and it should hide all other non-methods
+        case _ => candidates += new ScalaResolveResult(named, s); false
       }
     }
     return true
   }
+
+  def inferMethodTypesArgs(m : PsiMethod, classSubst : ScSubstitutor) = ScSubstitutor.empty //todo
 }
 
 import ResolveTargets._
