@@ -12,15 +12,22 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String
 {
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
-    val nameSet = state.get(ResolverEnv.nameKey)
-    val elName = if (nameSet == null) named.getName else nameSet
-    if (elName == name && kindMatches(element)) {
-      var subst = state.get(ScSubstitutor.key)
-      if (subst == null) subst = ScSubstitutor.empty
-      candidates += new ScalaResolveResult(named, subst)
+    if (nameAndKindMatch(named, state)) {
+      candidates += new ScalaResolveResult(named, getSubst(state))
       return false //todo: for locals it is ok to terminate the walkup, later need more elaborate check
     }
     return true
+  }
+
+  protected def nameAndKindMatch (named: PsiNamedElement, state: ResolveState) = {
+    val nameSet = state.get(ResolverEnv.nameKey)
+    val elName = if (nameSet == null) named.getName else nameSet
+    elName == name && kindMatches(named)
+  }
+
+  protected def getSubst(state: ResolveState) = {
+    val subst = state.get(ScSubstitutor.key)
+    if (subst == null) ScSubstitutor.empty else subst
   }
 
   override def getHint[T](hintClass: Class[T]): T =
@@ -35,6 +42,20 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String
   }
 }
 
+class MethodResolveProcessor(override val name : String) extends ResolveProcessor(StdKinds.methodRef, name) {
+  override def execute(element: PsiElement, state: ResolveState) : Boolean = {
+    val named = element.asInstanceOf[PsiNamedElement]
+    if (nameAndKindMatch(named, state)) {
+      candidates += new ScalaResolveResult(named, getSubst(state))
+      element match {
+        case _ : PsiMethod => true
+        case _ => false //any other element is more specific and it should hide all other non-methods
+      }
+    }
+    return true
+  }
+}
+
 import ResolveTargets._
 
 object StdKinds {
@@ -45,6 +66,8 @@ object StdKinds {
 
   val refExprLastRef = HashSet.empty[ResolveTargets] + OBJECT + VAL + VAR + METHOD
   val refExprQualRef = refExprLastRef + PACKAGE
+
+  val methodRef = HashSet.empty[ResolveTargets] + VAL + VAR + METHOD
 }
 
 object ResolverEnv {
