@@ -13,7 +13,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
-      candidates += new ScalaResolveResult(named, getSubst(state))
+      candidatesSet += new ScalaResolveResult(named, getSubst(state))
       return false //todo: for locals it is ok to terminate the walkup, later need more elaborate check
     }
     return true
@@ -49,11 +49,11 @@ class MethodResolveProcessor(override val name : String) extends ResolveProcesso
       val s = getSubst(state)
       element match {
         case m : PsiMethod => {
-          candidates += new ScalaResolveResult(named, s.incl(inferMethodTypesArgs(m, s)))
+          candidatesSet += new ScalaResolveResult(named, s.incl(inferMethodTypesArgs(m, s)))
           true
         }
         //any other element is more specific and it should hide all other non-methods
-        case _ => candidates += new ScalaResolveResult(named, s); false
+        case _ => candidatesSet += new ScalaResolveResult(named, s); false
       }
     }
     return true
