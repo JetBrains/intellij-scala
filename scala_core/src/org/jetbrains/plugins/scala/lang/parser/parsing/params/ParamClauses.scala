@@ -39,3 +39,20 @@ object ParamClauses {
     return true
   }
 }
+
+//TODO: uncomment this with build >= 8536
+/*object ParamClauses {
+  def parse(builder: PsiBuilder): Boolean = parse(builder, false)
+  def parse(builder: PsiBuilder, flag: Boolean): Boolean = {
+    val paramMarker = builder.mark
+    if (flag) {
+      if (!ParamClause.parse(builder)) {
+        builder error ErrMsg("param.clause.expected")
+      }
+    }
+    while (ParamClause.parse(builder)) {}
+    ImplicitParamClause parse builder
+    paramMarker.done(ScalaElementTypes.PARAM_CLAUSES)
+    return true
+  }
+}*/
