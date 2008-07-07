@@ -29,7 +29,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
   def getChildIndent(parent: ScalaBlock, child: ASTNode): Indent = {
     val settings = parent.getSettings
     val node = parent.getNode
-    parent.getNode.getPsi match {
+    node.getPsi match {
       case _: ScalaFile => Indent.getNoneIndent
       case _: ScPackaging => {
         child.getElementType match {
@@ -89,6 +89,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
            _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScAnnotations => {
         Indent.getContinuationWithoutFirstIndent
       }
+      case _: ScArgumentExprList => Indent.getNormalIndent
       case _ => {
         node.getElementType match {
           case ScalaTokenTypes.kIF | ScalaTokenTypes.kELSE => {

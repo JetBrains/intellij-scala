@@ -39,7 +39,7 @@ object getDummyBlocks {
     var prevChild: ASTNode = null
     node.getPsi match {
       case _: ScIfStmt => {
-        subBlocks.addAll(getIfSubBlocks(node, block))
+        subBlocks.addAll(getIfSubBlocks(node, block, Alignment.createAlignment))
         return subBlocks
       }
       case _: ScInfixExpr | _: ScInfixPattern | _: ScInfixTypeElement
@@ -73,25 +73,35 @@ object getDummyBlocks {
     return subBlocks
   }
 
-  private def getIfSubBlocks(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
+  private def getIfSubBlocks(node: ASTNode, block: ScalaBlock, alignment: Alignment): ArrayList[Block] = {
     val subBlocks = new ArrayList[Block]
     var child = node.getFirstChildNode
     while (child.getTreeNext != null && child.getTreeNext.getElementType != ScalaTokenTypes.kELSE) {
       child = child.getTreeNext
     }
     //if (!isCorrectBlock(child)) child = child.getTreePrev
-    val alignment = Alignment.createAlignment
+    //val alignment = Alignment.createAlignment
     val indent = ScalaIndentProcessor.getChildIndent(block, node.getFirstChildNode)
+    if (child.getPsi.isInstanceOf[PsiWhiteSpace]) child = child.getTreePrev
     val firstBlock = new ScalaBlock(block, node.getFirstChildNode, child, alignment, indent, block.getWrap, block.getSettings)
     subBlocks.add(firstBlock)
     if (child.getTreeNext != null) {
       val firstChild = child.getTreeNext
       child = firstChild
-      while (child.getTreeNext != null)
+      var back: ASTNode = null
+      while (child.getTreeNext != null) {
+        child.getTreeNext.getPsi match {
+          case _: ScIfStmt => {
+            subBlocks.add(new ScalaBlock(block, firstChild, child, alignment, indent, block.getWrap, block.getSettings))
+            subBlocks.addAll(getIfSubBlocks(child.getTreeNext, block, alignment))
+          }
+          case _ =>
+        }
         child = child.getTreeNext
+      }
       //if (!isCorrectBlock(child)) child = child.getTreePrev
-      val secondBlock = new ScalaBlock (block, firstChild, child, alignment, indent, block.getWrap, block.getSettings)
-      subBlocks.add(secondBlock)
+      if (subBlocks.size ==  1)
+        subBlocks.add(new ScalaBlock (block, firstChild, child, alignment, indent, block.getWrap, block.getSettings))
     }
     return subBlocks
   }

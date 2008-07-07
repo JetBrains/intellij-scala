@@ -48,8 +48,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val ON_NEW_LINE = getSpacing(settings.KEEP_BLANK_LINES_IN_CODE, 0, 1)
     val leftNode = left.getNode
     val rightNode = right.getNode
-    //val (leftString, rightString) = (left.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText),
-    //        right.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText)) //for debug
+    val (leftString, rightString) = (left.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText),
+            right.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText)) //for debug
     //comments processing
     if (rightNode.getPsi.isInstanceOf[PsiComment] || leftNode.getPsi.isInstanceOf[PsiComment]) {
       return COMMON_SPACING
@@ -71,7 +71,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         left = left.getLastChildNode
       }
       return if (left.getElementType == ScalaTokenTypes.tIDENTIFIER &&
-              !left.getText.matches(".*\\w")) WITH_SPACING else WITHOUT_SPACING
+              !left.getText.matches(".*[A-Za-z0-9]")) WITH_SPACING else WITHOUT_SPACING
     }
     if (rightNode.getText.length > 0 && rightNode.getText()(0) == ';') {
       if (settings.SPACE_BEFORE_SEMICOLON && !(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
