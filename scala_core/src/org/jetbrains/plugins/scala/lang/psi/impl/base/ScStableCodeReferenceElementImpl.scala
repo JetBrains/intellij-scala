@@ -24,6 +24,7 @@ import com.intellij.openapi.util._
 import com.intellij.util.IncorrectOperationException
 import api.toplevel.ScTyped
 import api.statements.ScTypeAlias
+import api.base.patterns.ScConstructorPattern
 
 /**
 * @author Alexander Podkhalyuzin
@@ -49,6 +50,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
             || qualifier == None) StdKinds.stableQualRef else StdKinds.stableQualOrClass
     case _: ScSimpleTypeElement => if (incomplete) StdKinds.stableQualOrClass else StdKinds.stableClass
     case _: ScTypeAlias => StdKinds.stableClass
+    case _: ScConstructorPattern => StdKinds.stableClass
     case _: ScImportSelector => StdKinds.stableImportSelector
     case _ => StdKinds.stableQualRef
   }
