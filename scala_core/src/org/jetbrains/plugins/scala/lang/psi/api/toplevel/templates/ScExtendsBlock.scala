@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import psi.ScalaPsiElement
+import types.ScType
 
 /** 
 * @author Alexander Podkhalyuzin
