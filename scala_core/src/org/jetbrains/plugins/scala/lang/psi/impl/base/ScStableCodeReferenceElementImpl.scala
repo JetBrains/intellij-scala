@@ -97,7 +97,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         }
       }
     }
-    processor.candidates.toArray
+    processor.candidates
   }
 
   def multiResolve(incomplete: Boolean) = {

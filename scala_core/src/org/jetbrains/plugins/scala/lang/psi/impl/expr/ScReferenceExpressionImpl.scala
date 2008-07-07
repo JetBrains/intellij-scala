@@ -75,7 +75,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
       case Some(q) => processType(q.getType, processor)
     }
-    processor.candidates.toArray
+    processor.candidates
   }
 
   override def getType(): ScType = {

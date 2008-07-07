@@ -11,7 +11,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets]) extends BaseP
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     if (kindMatches(element)) {
       val named = element.asInstanceOf[PsiNamedElement]
-      candidates += new ScalaResolveResult (named)
+      candidatesSet += new ScalaResolveResult (named)
     }
     return true
   }

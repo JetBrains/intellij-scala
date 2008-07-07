@@ -20,7 +20,9 @@ object BaseProcessor {
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopeProcessor {
 
-  val candidates: HashSet[ScalaResolveResult] = new HashSet[ScalaResolveResult]
+  protected val candidatesSet: HashSet[ScalaResolveResult] = new HashSet[ScalaResolveResult]
+
+  def candidates[T >: ScalaResolveResult] : Array[T] = candidatesSet.toArray[T]
 
   //java compatibility
   object MyElementClassHint extends ElementClassHint {
