@@ -82,7 +82,7 @@ object EarlyDef {
     //finally look for 'with' keyword
     builder.getTokenType match {
       case ScalaTokenTypes.kWITH => {
-        earlyMarker.done(ScalaElementTypes.EARLY_DEFINITION)
+        earlyMarker.done(ScalaElementTypes.EARLY_DEFINITIONS)
         builder.advanceLexer //Ate with
         return true
       }

@@ -82,7 +82,7 @@ object ScalaPsiCreator {
       case ScalaElementTypes.VARIABLE_DEFINITION => new ScVariableDefinitionImpl(node)
       case ScalaElementTypes.FUNCTION_DEFINITION => new ScFunctionDefinitionImpl(node)
       case ScalaElementTypes.TYPE_DEFINITION => new ScTypeAliasDefinitionImpl(node)
-      case ScalaElementTypes.EARLY_DEFINITION => new ScEarlyDefinitionImpl(node)
+      case ScalaElementTypes.EARLY_DEFINITIONS => new ScEarlyDefinitionsImpl(node)
 
       /********** function definition: supplementary constructor *************/
       case ScalaElementTypes.SELF_INVOCATION => new ScSelfInvocationImpl(node)

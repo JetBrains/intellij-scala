@@ -13,7 +13,7 @@ ScalaFile
     ExtendsBlock
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
-      EarlyDefinition
+      EarlyDefinitions
         PsiElement({)('{')
         ScPatternDefinition
           AnnotationsList

@@ -20,6 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 * Date: 22.02.2008
 */
 
-class ScEarlyDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEarlyDefinition {
-  override def toString: String = "EarlyDefinition"
+class ScEarlyDefinitionsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEarlyDefinitions {
+  override def toString: String = "EarlyDefinitions"
 }
