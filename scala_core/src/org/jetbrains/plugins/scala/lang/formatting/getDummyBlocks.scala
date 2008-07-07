@@ -82,7 +82,7 @@ object getDummyBlocks {
     //if (!isCorrectBlock(child)) child = child.getTreePrev
     //val alignment = Alignment.createAlignment
     val indent = ScalaIndentProcessor.getChildIndent(block, node.getFirstChildNode)
-    if (child.getPsi.isInstanceOf[PsiWhiteSpace]) child = child.getTreePrev
+    //if (child.getPsi.isInstanceOf[PsiWhiteSpace]) child = child.getTreePrev
     val firstBlock = new ScalaBlock(block, node.getFirstChildNode, child, alignment, indent, block.getWrap, block.getSettings)
     subBlocks.add(firstBlock)
     if (child.getTreeNext != null) {
