@@ -47,7 +47,10 @@ object Conformance {
             (tp, argsPair) => tp match {
               case scp : ScTypeParam if (scp.isCovariant) => if (!argsPair._1.conforms(argsPair._2)) return false
               case scp : ScTypeParam if (scp.isContravariant) => if (!argsPair._2.conforms(argsPair._1)) return false
-              case _ => if (!argsPair._1.equiv(argsPair._2)) return false
+              case _ => argsPair._1 match {
+                case _ : ScWildcardType => if (!argsPair._2.conforms(argsPair._1)) return false
+                case _ => if (!argsPair._1.equiv(argsPair._2)) return false
+              }
             }
             true
           }
