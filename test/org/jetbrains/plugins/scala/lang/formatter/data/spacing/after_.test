@@ -1,0 +1,7 @@
+class a {
+  x_ : Int
+}
+------
+class a {
+  x_ : Int
+}
