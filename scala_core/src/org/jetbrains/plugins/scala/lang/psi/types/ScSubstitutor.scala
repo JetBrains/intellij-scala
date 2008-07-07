@@ -7,8 +7,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiTypeParameter, PsiSubstitutor}
 import collection.immutable.{Map, HashMap}
 import com.intellij.openapi.project.Project
-import api.statements.params.ScParameter
-import api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import api.statements.ScTypeAlias
 
 object ScSubstitutor {
   val empty = new ScSubstitutor {
