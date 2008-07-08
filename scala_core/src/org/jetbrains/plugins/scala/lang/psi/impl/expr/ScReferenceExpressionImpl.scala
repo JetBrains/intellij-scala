@@ -45,6 +45,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     if (incomplete) StdKinds.refExprQualRef
     else getParent match {
       case _: ScReferenceExpression => StdKinds.refExprQualRef
+      case _: ScThisReference | _ : ScSuperReference => StdKinds.stableClass
       case _ => StdKinds.refExprLastRef
     }
   }
