@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -54,7 +55,12 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScReferenceExpressionImpl] {
     def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean) = {
-      _resolve(ref, new ResolveProcessor(getKinds(incomplete), refName))
+      val proc = ref.getParent match {
+        case call : ScMethodCall if !incomplete =>
+          new MethodResolveProcessor(refName, call.args.exprs.map{_.getType}, expectedType)
+        case _ => new ResolveProcessor(getKinds(incomplete), refName)
+      }
+      _resolve(ref, proc)
     }
   }
 
