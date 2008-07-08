@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
+import lang.psi.api.expr.ScReferenceExpression
 import com.intellij.openapi.util.TextRange
 import com.intellij.lang.annotation._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -17,9 +18,8 @@ class ScalaAnnotator extends Annotator {
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     element match {
-      case x: ScStableCodeReferenceElement if x.qualifier == None => {
-        checkNotQualifiedReferenceElement(x, holder)
-      }
+      case x: ScStableCodeReferenceElement if x.qualifier == None => checkNotQualifiedReferenceElement(x, holder)
+      case x: ScReferenceExpression if x.qualifier == None => checkNotQualifiedReferenceExpression(x, holder)
       case _ =>
     }
   }
@@ -33,6 +33,18 @@ class ScalaAnnotator extends Annotator {
         val annotation = holder.createErrorAnnotation(refElement.nameId, error)
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
         registerAddImportFix(refElement, annotation)
+      case _ =>
+    }
+  }
+
+  private def checkNotQualifiedReferenceExpression(refElement: ScReferenceExpression, holder: AnnotationHolder) {
+    refElement.bind() match {
+      case None =>
+        //todo: register used imports
+        val error = ScalaBundle.message("cannot.resolve", Array[Object](refElement.refName))
+        val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+        annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+        //registerAddImportFix(refElement, annotation)
       case _ =>
     }
   }
