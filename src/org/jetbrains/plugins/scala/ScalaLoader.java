@@ -29,12 +29,15 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerAdapter;
 import com.intellij.util.Function;
 import com.intellij.util.containers.HashSet;
+import com.intellij.codeHighlighting.TextEditorHighlightingPassRegistrar;
+import com.intellij.codeHighlighting.Pass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.compiler.ScalaCompiler;
 import org.jetbrains.plugins.scala.debugger.ScalaJVMNameMapper;
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager;
 import org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
+import org.jetbrains.plugins.scala.codeInspection.importInspections.ScalaAddImportPassFactory;
 
 import java.util.Set;
 
@@ -76,6 +79,12 @@ public class ScalaLoader implements ApplicationComponent {
 
     ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
       public void projectOpened(Project project) {
+
+        TextEditorHighlightingPassRegistrar registrar = TextEditorHighlightingPassRegistrar.getInstance(project);
+
+        ScalaAddImportPassFactory addImportPassFactory = project.getComponent(ScalaAddImportPassFactory.class);
+        registrar.registerTextEditorHighlightingPass(addImportPassFactory, new int[]{Pass.POPUP_HINTS}, null, true, -1);
+
 
         CompilerManager compilerManager = CompilerManager.getInstance(project);
         compilerManager.addCompiler(new ScalaCompiler(project));

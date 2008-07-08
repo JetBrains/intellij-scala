@@ -18,6 +18,10 @@ package org.jetbrains.plugins.scala.util;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.util.ActionRunner;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
 
@@ -39,7 +43,7 @@ public abstract class ScalaUtils {
     }
     final String name = dir.getName().toLowerCase();
     return ".svn".equals(name) || "_svn".equals(name) ||
-        ".cvs".equals(name) || "_cvs".equals(name);
+            ".cvs".equals(name) || "_cvs".equals(name);
   }
 
   /**
@@ -48,7 +52,7 @@ public abstract class ScalaUtils {
    */
   public static boolean isScalaFile(final VirtualFile file) {
     return (file != null) && !file.isDirectory() &&
-        ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension().equals(file.getExtension());
+            ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension().equals(file.getExtension());
   }
 
   /**
@@ -113,6 +117,12 @@ public abstract class ScalaUtils {
     return files != null ? files : new File[0];
   }
 
-
+  public static void runWriteAction(final Runnable runnable, Project project, String name) {
+    CommandProcessor.getInstance().executeCommand(project, new Runnable() {
+      public void run() {
+        ApplicationManager.getApplication().runWriteAction(runnable);
+      }
+    }, name, null);
+  }
 
 }

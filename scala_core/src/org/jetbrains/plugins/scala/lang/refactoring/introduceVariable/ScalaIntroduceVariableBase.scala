@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import util.ScalaUtils
 import psi.api.expr.ScGuard
 import psi.api.expr.ScEnumerators
 import psi.api.expr.ScArgumentExprList
@@ -248,14 +249,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
       }
     }
 
-
-    CommandProcessor.getInstance().executeCommand(
-    editor.getProject,
-    new Runnable() {
-      def run() {
-        ApplicationManager.getApplication().runWriteAction(runnable);
-      }
-    }, REFACTORING_NAME, null);
+    ScalaUtils.runWriteAction(runnable, editor.getProject, REFACTORING_NAME);
     editor.getSelectionModel.removeSelection
   }
 
