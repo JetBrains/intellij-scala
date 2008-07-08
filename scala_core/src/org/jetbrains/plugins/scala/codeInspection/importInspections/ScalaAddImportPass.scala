@@ -39,8 +39,8 @@ import com.intellij.psi.PsiFile
  */
 
 class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = file.getProject
-val document = editor.getDocument}
-with TextEditorHighlightingPass(project, document) {
+  val document = editor.getDocument}
+  with TextEditorHighlightingPass(project, document) {
   def doCollectInformation(progress: ProgressIndicator) {
   }
   def doApplyInformationToEditor {
