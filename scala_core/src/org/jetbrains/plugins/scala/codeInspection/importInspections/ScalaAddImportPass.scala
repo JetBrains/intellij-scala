@@ -48,39 +48,41 @@ with TextEditorHighlightingPass(project, document) {
     ApplicationManager.getApplication.assertIsDispatchThread
     if (!editor.getContentComponent.hasFocus) return
     var flag = false
-    if (visibleHighlights != null)
-      for (visibleHighlight <- visibleHighlights) {
-        ProgressManager.getInstance.checkCanceled
-        val element = file.findElementAt(visibleHighlight.startOffset)
-        if (element != null && element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER /*&&
+    for (visibleHighlight <- visibleHighlights) {
+      ProgressManager.getInstance.checkCanceled
+      val element = file.findElementAt(visibleHighlight.startOffset)
+      if (element != null && element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER /*&&
          visibleHighlight.`type`.getAttributesKey() == HighlightInfoType.WRONG_REF.getAttributesKey()*/ ) {
-          element.getParent match {
-            case x: ScReferenceElement if x.refName != null => {
-              val function = JavaPsiFacade.getInstance(myProject).getShortNamesCache().getClassesByName _
-              val classes = function(x.refName, GlobalSearchScope.allScope(myProject))
-              classes.length match {
-                case 0 =>
-                case 1 if CodeStyleSettingsManager.getSettings(project).ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY &&
-                        !added.contains(classes(0)) => {
-                  CommandProcessor.getInstance().runUndoTransparentAction(new Runnable {
-                    def run() {
-                      new  ScalaAddImportAction(classes, x).execute()
-                    }
-                  })
-                  added += classes(0)
-                }
-                case _ if !flag => {
-                  fixesAction(x)
-                  flag = true
-                }
-                case _ =>
+        element.getParent match {
+          case x: ScReferenceElement if x.refName != null => {
+            val function = JavaPsiFacade.getInstance(myProject).getShortNamesCache().getClassesByName _
+            val classes = function(x.refName, GlobalSearchScope.allScope(myProject))
+            classes.length match {
+              case 0 =>
+              case 1 if CodeStyleSettingsManager.getSettings(project).ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY &&
+                      !added.contains(classes(0)) &&
+                      !caretNear(x) => {
+                CommandProcessor.getInstance().runUndoTransparentAction(new Runnable {
+                  def run() {
+                    new ScalaAddImportAction(classes, x).execute()
+                  }
+                })
+                added += classes(0)
               }
+              case _ if !flag => {
+                fixesAction(x)
+                flag = true
+              }
+              case _ =>
             }
-            case _ =>
           }
+          case _ =>
         }
       }
+    }
   }
+
+  private def caretNear(ref: ScReferenceElement): Boolean = ref.getTextRange.grown(1).contains(editor.getCaretModel.getOffset)
 
   private def range = {
     val visibleRect = editor.getScrollingModel.getVisibleArea;
@@ -92,7 +94,9 @@ with TextEditorHighlightingPass(project, document) {
   }
   private def visibleHighlights: Array[HighlightInfo] = {
     val highlights = DaemonCodeAnalyzerImpl.getHighlights(document, project)
-    return highlights
+    if (highlights == null) return Array[HighlightInfo]()
+    for (info <- highlights if startOffset <= info.startOffset && endOffset >= info.endOffset &&
+            !editor.getFoldingModel.isOffsetCollapsed(info.startOffset)) yield info
   }
 
   private def startOffset = range.getStartOffset
