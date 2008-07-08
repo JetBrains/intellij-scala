@@ -4,6 +4,11 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
  * @author ilyas
  */
 
+import base.ScStableCodeReferenceElementImpl
+import api.base.ScStableCodeReferenceElement
+import api.base.types.ScTypeElement
+import _root_.scala.collection.mutable.ArrayBuffer
+import _root_.scala.collection.mutable.HashSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.tree._
@@ -131,7 +136,56 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   override def getTypeParameters = typeParameters.toArray
 
+  override def getSupers: Array[PsiClass] = {
+    val buf = new ArrayBuffer[PsiClass]
+    val typeElements = new ArrayBuffer[ScTypeElement]
+    extendsBlock.templateParents match {
+      case None =>
+      case Some(parents) => {
+        parents match {
+          case classParents: ScClassParents =>
+            classParents.constructor match {
+              case None => ()
+              case Some(c) => typeElements+= c.typeElement
+            }
+          case _ =>
+        }
+        typeElements ++= parents.typeElements.toArray
+      }
+    }
+    for (element <- typeElements) {
+      element.getFirstChild match {
+        case x: ScStableCodeReferenceElement => {
+          x.resolve match {
+            case null =>
+            case psiElement => {
+              psiElement match {
+                case x: PsiClass => buf += x
+                case _ =>
+              }
+            }
+          }
+        }
+        case _ =>
+      }
+    }
+    return buf.toArray
+  }
+
   override def getMethods = functions.toArray
+
+  override def getAllMethods: Array[PsiMethod] = {
+    val buffer = new ArrayBuffer[PsiMethod]
+    getAllMethodsForClass(this, buffer, new HashSet[PsiClass])
+    return buffer.toArray
+  }
+  private def getAllMethodsForClass(clazz: PsiClass, methods: ArrayBuffer[PsiMethod], visited: HashSet[PsiClass]) {
+    if (visited.contains(clazz)) return
+    visited += clazz
+    methods ++= clazz.getMethods
+    //todo: value definition is method?
+    for (sup <- clazz.getSupers) getAllMethodsForClass(sup, methods, visited)
+  }
 
   def superTypes() = extendsBlock.superTypes
 
