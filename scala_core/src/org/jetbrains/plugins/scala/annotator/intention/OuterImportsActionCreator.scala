@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.intention
 
+import lang.psi.api.base.ScReferenceElement
+import lang.psi.api.expr.ScReferenceExpression
 import com.intellij.codeInsight.CodeInsightUtilBase
 import com.intellij.codeInsight.hint.HintManager
 import com.intellij.codeInsight.hint.QuestionAction
@@ -29,7 +31,7 @@ import _root_.scala.collection.mutable._
 */
 
 object OuterImportsActionCreator {
-  def getOuterImportFixes(refElement: ScStableCodeReferenceElement, project: Project): Seq[IntentionAction] = {
+  def getOuterImportFixes(refElement: ScReferenceElement, project: Project): Seq[IntentionAction] = {
     val actionList = new ListBuffer[IntentionAction]
 
     val facade = JavaPsiFacade.getInstance(project)
