@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import psi.api.statements.ScFunction
 import psi.api.toplevel.ScTyped
 import com.intellij.psi.scope._
 import com.intellij.psi._
@@ -63,13 +64,12 @@ class MethodResolveProcessor(override val name : String, args : Seq[ScType],
   override def candidates[T >: ScalaResolveResult] : Array[T] = {
     val applicable = candidatesSet.filter {c =>
       val t = c.element match {
+        case fun : ScFunction => new ScFunctionType(fun.calcType, fun.parameters.map(_.calcType))
+        case m : PsiMethod => new ScFunctionType(
+          m.getReturnType match { case null => Unit; case rt => ScType.create(rt, m.getProject) },
+          m.getParameterList.getParameters.map{p => ScType.create(p.getType, m.getProject)}
+        )
         case typed : ScTyped => typed.calcType
-        case m : PsiMethod => {
-          m.getReturnType match {
-            case null => Unit
-            case rt => ScType.create(rt, m.getProject)
-          }
-        }
         case _ => Nothing
       }
       val s = c.substitutor
