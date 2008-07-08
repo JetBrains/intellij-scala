@@ -13,6 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Nothing}
 
 trait ScExpression extends ScalaPsiElement {
   def getType(): ScType = Nothing //todo
+
+  def expectedType() : Option[ScType] = None //todo
+  
   def replaceExpression(expr: ScExpression, removeParenthesis: Boolean): ScExpression = {
     val oldParent = getParent
     if (oldParent == null) throw new PsiInvalidElementAccessException(this)
