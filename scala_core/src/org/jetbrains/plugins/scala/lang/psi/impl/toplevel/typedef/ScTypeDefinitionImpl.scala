@@ -37,7 +37,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   override def getQualifiedName: String = {
     def _packageName(e: PsiElement): String = e.getParent match {
-  case t: ScTypeDefinition => _packageName(t) + "." + t.name
+      case t: ScTypeDefinition => _packageName(t) + "." + t.name
       case p: ScPackaging => _packageName(p) + "." + p.getPackageName
       case f: ScalaFile => f.getPackageName
       case null => ""
@@ -78,17 +78,18 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   def extendsBlock: ScExtendsBlock = findChildByClass(classOf[ScExtendsBlock])
 
-  override def checkDelete() {}
+  override def checkDelete() {
+  }
 
   def members(): Seq[ScMember] =
     (extendsBlock.templateBody match {
       case None => Seq.empty
       case Some(body) => body.members
     }) ++
-    (extendsBlock.earlyDefinitions match {
-      case None => Seq.empty
-      case Some(earlyDefs) => earlyDefs.members
-    })
+            (extendsBlock.earlyDefinitions match {
+              case None => Seq.empty
+              case Some(earlyDefs) => earlyDefs.members
+            })
 
   def functions(): Seq[ScFunction] =
     extendsBlock.templateBody match {
@@ -144,16 +145,16 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
                                   place: PsiElement): Boolean = {
     if (!processor.execute(this, state)) return false
     val substK = state.get(ScSubstitutor.key)
-    val subst = if (substK == null) ScSubstitutor.empty else substK 
+    val subst = if (substK == null) ScSubstitutor.empty else substK
     extendsBlock.templateParents match {
       case Some(p) if (PsiTreeUtil.isAncestor(p, place, true)) => {
         extendsBlock.earlyDefinitions match {
           case Some(ed) => for (m <- ed.members) {
             m match {
-              case _var : ScVariable => for (declared <- _var.declaredElements) {
+              case _var: ScVariable => for (declared <- _var.declaredElements) {
                 if (!processor.execute(declared, state)) return false
               }
-              case _val : ScValue => for (declared <- _val.declaredElements) {
+              case _val: ScValue => for (declared <- _val.declaredElements) {
                 if (!processor.execute(declared, state)) return false
               }
             }
@@ -163,21 +164,26 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
         true
       }
       case _ =>
-        if (shouldProcessVals(processor)) {
-          for ((_, n) <- TypeDefinitionMembers.getVals(this)) {
-            if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
-          }
+        extendsBlock.earlyDefinitions match {
+          case Some(ed) if PsiTreeUtil.isAncestor(ed, place, true) =>
+          case _ =>
+            if (shouldProcessVals(processor)) {
+              for ((_, n) <- TypeDefinitionMembers.getVals(this)) {
+                if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+              }
+            }
+            if (shouldProcessMethods(processor)) {
+              for ((_, n) <- TypeDefinitionMembers.getMethods(this)) {
+                if (!processor.execute(n.info.method, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+              }
+            }
+            if (shouldProcessTypes(processor)) {
+              for ((_, n) <- TypeDefinitionMembers.getTypes(this)) {
+                if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+              }
+            }
         }
-        if (shouldProcessMethods(processor)) {
-          for ((_, n) <- TypeDefinitionMembers.getMethods(this)) {
-            if (!processor.execute(n.info.method, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
-          }
-        }
-        if (shouldProcessTypes(processor)) {
-          for ((_, n) <- TypeDefinitionMembers.getTypes(this)) {
-            if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
-          }
-        }
+
         true
     }
   }
