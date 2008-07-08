@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import psi.api.toplevel.ScTyped
 import com.intellij.psi.scope._
 import com.intellij.psi._
 import com.intellij.openapi.util.Key
-import psi.types.ScSubstitutor
+import psi.types._
 
 import _root_.scala.collection.Set
 import _root_.scala.collection.immutable.HashSet
@@ -42,7 +43,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String
   }
 }
 
-class MethodResolveProcessor(override val name : String) extends ResolveProcessor(StdKinds.methodRef, name) {
+class MethodResolveProcessor(override val name : String, args : Seq[ScType],
+                             expected : Option[ScType]) extends ResolveProcessor(StdKinds.methodRef, name) {
   override def execute(element: PsiElement, state: ResolveState) : Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
@@ -56,6 +58,35 @@ class MethodResolveProcessor(override val name : String) extends ResolveProcesso
       }
     }
     return true
+  }
+
+  override def candidates[T >: ScalaResolveResult] : Array[T] = {
+    val applicable = candidatesSet.filter {c =>
+      val t = c.element match {
+        case typed : ScTyped => typed.calcType
+        case m : PsiMethod => {
+          m.getReturnType match {
+            case null => Unit
+            case rt => ScType.create(rt, m.getProject)
+          }
+        }
+        case _ => Nothing
+      }
+      val s = c.substitutor
+      t match {
+        case ScFunctionType(ret, params) => {
+          args.equalsWith(params) {(a,p) => Compatibility.compatible(s.subst(p), a)} && (expected match {
+            case None => true
+            case Some(t) => Compatibility.compatible(s.subst(t), ret)
+          })
+        }
+        case _ => false
+      }
+    }
+    if (applicable.isEmpty) candidatesSet.toArray else {
+      //todo filter most specific
+      applicable.toList.toArray
+    }
   }
 
   def inferMethodTypesArgs(m : PsiMethod, classSubst : ScSubstitutor) = ScSubstitutor.empty //todo
