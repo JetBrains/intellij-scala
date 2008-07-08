@@ -30,13 +30,14 @@ import com.intellij.openapi.util.Iconable
 import javax.swing.Icon
 import api.statements.{ScFunction, ScTypeAlias}
 import types.ScSubstitutor
+import api.statements.{ScValue, ScVariable}
 
 abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeDefinition with PsiClassFake {
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
   override def getQualifiedName: String = {
     def _packageName(e: PsiElement): String = e.getParent match {
-      case t: ScTypeDefinition => _packageName(t) + "." + t.name
+  case t: ScTypeDefinition => _packageName(t) + "." + t.name
       case p: ScPackaging => _packageName(p) + "." + p.getPackageName
       case f: ScalaFile => f.getPackageName
       case null => ""
@@ -145,10 +146,23 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     val substK = state.get(ScSubstitutor.key)
     val subst = if (substK == null) ScSubstitutor.empty else substK 
     extendsBlock.templateParents match {
-      case Some(p) if (PsiTreeUtil.isAncestor(p, place, true)) => true
+      case Some(p) if (PsiTreeUtil.isAncestor(p, place, true)) => {
+        extendsBlock.earlyDefinitions match {
+          case Some(ed) => for (m <- ed.members) {
+            m match {
+              case _var : ScVariable => for (declared <- _var.declaredElements) {
+                if (!processor.execute(declared, state)) return false
+              }
+              case _val : ScValue => for (declared <- _val.declaredElements) {
+                if (!processor.execute(declared, state)) return false
+              }
+            }
+          }
+          case None =>
+        }
+        true
+      }
       case _ =>
-        val classHint = processor.getHint(classOf[ElementClassHint])
-
         if (shouldProcessVals(processor)) {
           for ((_, n) <- TypeDefinitionMembers.getVals(this)) {
             if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
