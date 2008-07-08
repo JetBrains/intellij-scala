@@ -52,8 +52,7 @@ class MethodResolveProcessor(override val name : String) extends ResolveProcesso
           candidatesSet += new ScalaResolveResult(named, s.incl(inferMethodTypesArgs(m, s)))
           true
         }
-        //any other element is more specific and it should hide all other non-methods
-        case _ => candidatesSet += new ScalaResolveResult(named, s); false
+        case _ => candidatesSet += new ScalaResolveResult(named, s); true
       }
     }
     return true
