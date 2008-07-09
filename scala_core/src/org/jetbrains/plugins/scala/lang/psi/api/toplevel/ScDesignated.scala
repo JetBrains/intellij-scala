@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 
+import psi.ScalaPsiElement
 import com.intellij.psi.{PsiNamedElement, PsiElement}
-import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScNamedElement extends ScalaPsiElement with PsiNamedElement {
 
