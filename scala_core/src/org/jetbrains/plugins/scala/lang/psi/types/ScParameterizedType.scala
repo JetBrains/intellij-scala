@@ -4,9 +4,9 @@ package org.jetbrains.plugins.scala.lang.psi.types
 * @author ilyas
 */
 
+import api.toplevel.ScPolymorphicElement
 import api.toplevel.typedef._
 import com.intellij.psi.{PsiNamedElement, PsiTypeParameterListOwner}
-import api.statements.ScTypeAlias
 
 case class ScDesignatorType(val element: PsiNamedElement) extends ScType {
   override def equiv(t: ScType) = t match {
@@ -46,8 +46,8 @@ object ScParameterizedType {
     new ScParameterizedType(new ScDesignatorType(c), c.getTypeParameters.map {s subst _})
 }
 
-case class ScTypeAliasDesignatorType(alias : ScTypeAlias, subst : ScSubstitutor) extends ScDesignatorType(alias) {
+case class ScPolymorphicType(poly : ScPolymorphicElement, subst : ScSubstitutor) extends ScDesignatorType(poly) {
   override def equiv (t : ScType) = t match {
-    case ScTypeAliasDesignatorType(a1, s1) => alias eq a1/* && (subst equiv s1)*/
+    case ScPolymorphicType(p1, s1) => poly eq p1/* && (subst equiv s1)*/
   }
 }

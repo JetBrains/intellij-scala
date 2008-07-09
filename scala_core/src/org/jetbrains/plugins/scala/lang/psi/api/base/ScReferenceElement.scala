@@ -58,7 +58,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   def processType(t: ScType, processor: BaseProcessor): Boolean = t match {
     case ScDesignatorType(e) if !e.isInstanceOf[ScTypeAlias] => //scala ticket 425
       e.processDeclarations(processor, ResolveState.initial, null, this)
-    case ScTypeAliasDesignatorType(ta, subst) => processType(subst.subst(ta.upperBound), processor)
+    case ScPolymorphicType(ta, subst) => processType(subst.subst(ta.upperBound), processor)
 
     case p: ScParameterizedType => p.designated match {
         case ta : ScTypeAlias => processType(p.substitutor.subst(ta.upperBound), processor)
