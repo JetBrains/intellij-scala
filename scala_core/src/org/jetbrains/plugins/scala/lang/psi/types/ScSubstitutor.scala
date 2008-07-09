@@ -37,7 +37,7 @@ class ScSubstitutor(val map : Map[PsiTypeParameter, ScType], val aliasesMap : Ma
 
   def subst (ta : ScTypeAlias) = aliasesMap.get(ta.name) match {
     case Some(v) => v
-    case None => new ScTypeAliasDesignatorType(ta, ScSubstitutor.empty)
+    case None => new ScPolymorphicType(ta, ScSubstitutor.empty)
   }
 
   def subst (t : ScType) : ScType = {
@@ -48,9 +48,9 @@ class ScSubstitutor(val map : Map[PsiTypeParameter, ScType], val aliasesMap : Ma
         case tp : PsiTypeParameter => subst(tp)
         case _ => t
       }
-      case ScTypeAliasDesignatorType(a, s) => aliasesMap.get(a.name) match {
+      case ScPolymorphicType(a, s) => aliasesMap.get(a.name) match {
         case Some(v) => v
-        case None => new ScTypeAliasDesignatorType(a, s.incl(this))
+        case None => new ScPolymorphicType(a, s.incl(this))
       }
       case ScParameterizedType (des, typeArgs) =>
         new ScParameterizedType(des, typeArgs map {subst _})

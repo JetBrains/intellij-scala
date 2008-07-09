@@ -24,7 +24,7 @@ object ScExistentialTypeReducer {
     t match {
       case ScFunctionType(ret, params) => params.foldLeft(collectNames(ret)) {(curr, p) => curr ++ collectNames(p)}
       case ScTupleType(comps) => comps.foldLeft(Set.empty[String]) {(curr, p) => curr ++ collectNames(p)}
-      case ScTypeAliasDesignatorType(a, _) => HashSet.empty + a.name
+      case ScPolymorphicType(a, _) => HashSet.empty + a.name
       case ScParameterizedType (des, typeArgs) =>
         typeArgs.foldLeft(Set.empty[String]) {(curr, p) => curr ++ collectNames(p)}
       case ScWildcardType(lower, upper) => collectNames(lower) ++ collectNames(upper)
@@ -42,7 +42,7 @@ object ScExistentialTypeReducer {
     case ScParameterizedType (des, typeArgs) => des match {
       case ScDesignatorType(owner : ScTypeParametersOwner) => {
         val newArgs = (owner.typeParameters.toArray zip typeArgs).map ({p => p._2 match {
-          case tadt@ScTypeAliasDesignatorType(a, s) => wilds.find{_._1 == a.name} match {
+          case tadt@ScPolymorphicType(a, s) => wilds.find{_._1 == a.name} match {
             case Some(wild) => {
               val tp = p._1
               if (tp.isCovariant) s.subst(wild._2.upperBound)
