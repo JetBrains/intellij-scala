@@ -56,7 +56,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   object MyResolver extends ResolveCache.PolyVariantResolver[ScReferenceExpressionImpl] {
     def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean) = {
       val proc = ref.getParent match {
-        case call : ScMethodCall if !incomplete =>
+        case call : ScMethodCall =>
           new MethodResolveProcessor(refName, call.args.exprs.map{_.getType}, expectedType)
         case _ => new ResolveProcessor(getKinds(incomplete), refName)
       }
