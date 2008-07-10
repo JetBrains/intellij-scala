@@ -79,4 +79,31 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
 
     true
   }
+
+  def deleteStmt: Unit = {
+    val node = getParent.getNode
+    val remove = node.removeChild _
+    val next = getNode.getTreeNext
+    if (next == null) {
+      remove(getNode)
+    }
+    else if (next.getText.indexOf("\n") != -1) {
+      remove(next)
+      remove(getNode)
+    } else if (next.getText.charAt(0) == ';') {
+      val nextnext = next.getTreeNext
+      if (nextnext == null) {
+        remove(next)
+        remove(getNode)
+      }
+      else if (next.getText.indexOf("\n") != -1) {
+        remove(nextnext)
+        remove(next)
+        remove(getNode)
+      }
+    }
+    else {
+      remove(getNode)
+    }
+  }
 }
