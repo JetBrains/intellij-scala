@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
 
+import com.intellij.util.IncorrectOperationException
+import api.base.ScStableCodeReferenceElement
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
@@ -24,4 +26,19 @@ class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
   override def toString: String = "ImportExpression"
 
   def singleWildcard = findChildByType(ScalaTokenTypes.tUNDER) != null
+
+  def qualifier: ScStableCodeReferenceElement = if (!singleWildcard &&
+          (selectorSet match {case None => true case _ => false})) reference match {
+    case Some(x) => x.qualifier match {case None => throw new IncorrectOperationException case Some(x) => x}
+    case _ => throw new IncorrectOperationException
+  } else reference match {
+    case Some(x) => x
+    case _ => throw new IncorrectOperationException
+  }
+
+  def deleteExpr {
+    val parent = getParent.asInstanceOf[ScImportStmt]
+    if (parent.importExprs.size == 1) parent.deleteStmt
+    else parent.getNode.removeChild(getNode)
+  }
 }

@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import com.intellij.util.IncorrectOperationException
+import api.toplevel.typedef.ScTypeDefinition
+import api.toplevel.imports.ScImportStmt
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.lang.Language
 import com.intellij.psi._
@@ -22,8 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import _root_.scala.collection.mutable._
 
 
-class ScalaFile (viewProvider: FileViewProvider) extends PsiFileBase (viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
-with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScImportsHolder {
+class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
+        with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScImportsHolder {
 
   override def getViewProvider = viewProvider
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE
@@ -41,6 +44,19 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScImport
       case Some(stat) => stat.getPackageName
     }
 
+  def importStatemntsInHeader: Seq[ScImportStmt] = {
+    var end = false
+    val buf = new ArrayBuffer[ScImportStmt]
+    for (child <- getChildren if !end) {
+      child match {
+        case x: ScImportStmt => buf += x
+        case _: ScTypeDefinition | _: ScPackaging => end = true
+        case _ =>
+      }
+    }
+    return buf.toSeq
+  }
+
   def packageStatement = findChild(classOf[ScPackageStatement])
 
   override def getClasses = getTypeDefinitionsArray.map(t => t.asInstanceOf[PsiClass])
@@ -52,15 +68,16 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScImport
   def icon = Icons.FILE_TYPE_LOGO
 
   override def processDeclarations(processor: PsiScopeProcessor,
-      state : ResolveState,
-      lastParent: PsiElement,
-      place: PsiElement): Boolean = {
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
+
     if (!super[ScImportsHolder].processDeclarations(processor,
-          state, lastParent, place)) return false
+      state, lastParent, place)) return false
 
     place match {
-      case ref : ScStableCodeReferenceElement if ref.refName == "_root_" => {
+      case ref: ScStableCodeReferenceElement if ref.refName == "_root_" => {
         val top = JavaPsiFacade.getInstance(getProject()).findPackage("")
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
@@ -80,6 +97,7 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScImport
     }
 
     import toplevel.synthetic.SyntheticClasses
+
     for (synth <- SyntheticClasses.get(getProject).getAll) {
       if (!processor.execute(synth, state)) return false;
     }
@@ -94,18 +112,28 @@ with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScImport
 
   def addImportForClass(clazz: PsiClass) {
     val newImport = ScalaPsiElementFactory.createImportStatementFromClass(this, clazz, this.getManager)
+    val resolve = ScalaPsiElementFactory.getResolveForClassQualifier(this, clazz, getManager)
+    val sameExpressions: Array[ScImportExpr] = (for (importStmt <- importStatemntsInHeader; importExpr <- importStmt.importExprs
+      if resolve != null && importExpr.qualifier.resolve == resolve)
+      yield importExpr).toArray
+    val importSt = if (sameExpressions.length == 0) newImport
+                   else {
+                     val stmt = ScalaPsiElementFactory.createBigImportStmt(newImport.importExprs(0), sameExpressions, this.getManager)
+                     for (expr <- sameExpressions) expr.deleteExpr
+                     stmt
+                   }
     findChild(classOf[ScImportStmt]) match {
       case Some(x) => {
-        addBefore(newImport, x)
+        addBefore(importSt, x)
       }
       case None => {
         findChild(classOf[ScPackageStatement]) match {
           case Some(x) => {
-            addAfter(newImport, x)
+            addAfter(importSt, x)
           }
           case None => {
-            if (getFirstChild != null) addBefore(newImport, getFirstChild)
-            else add(newImport)
+            if (getFirstChild != null) addBefore(importSt, getFirstChild)
+            else add(importSt)
           }
         }
       }

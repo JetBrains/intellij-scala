@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports
 
+import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -22,4 +23,17 @@ trait ScImportExpr extends ScalaPsiElement {
   }
 
   def singleWildcard : Boolean
+
+  def qualifier: ScStableCodeReferenceElement
+
+  def deleteExpr
+  
+  def getNames: Array[String] = getLastChild match {
+    case s: ScImportSelectors => (for (selector <- selectors) yield selector.getText).toArray
+    case _ => getNode.getLastChildNode.getText match {
+      case "_" => Array[String]("_")
+      case _ => Array[String](getNode.getLastChildNode.getLastChildNode.getText)
+    }
+
+  }
 }

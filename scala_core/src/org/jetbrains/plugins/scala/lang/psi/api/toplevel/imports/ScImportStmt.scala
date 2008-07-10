@@ -1,5 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports
 
+import com.intellij.psi.PsiElement
+import packaging.ScPackaging
+import typedef.ScTypeDefinition
+import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /** 
@@ -9,4 +13,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScImportStmt extends ScalaPsiElement {
   def importExprs = findChildrenByClass(classOf[ScImportExpr])
+  def deleteStmt: Unit
 }

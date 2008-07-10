@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager
+import _root_.scala.collection.mutable.HashSet
+import _root_.scala.collection.mutable.ArrayBuffer
 import types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
@@ -67,6 +70,52 @@ object ScalaPsiElementFactory {
     }
     val name = getShortName(qualifiedName, packageName)
     val text = "import " + (if (isResolved(name, clazz, packageName, manager)) name else "_root_." + qualifiedName)
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    dummyFile.getFirstImportStmt match {
+      case Some(x) => return x
+      case None => {
+        //cannot be
+        return null
+      }
+    }
+  }
+
+  def getResolveForClassQualifier(file: ScalaFile, clazz: PsiClass, manager: PsiManager): PsiElement = {
+    val packageName = file.packageStatement match {
+      case Some(x) => x.getPackageName
+      case None => "intelliJIDEARulezzzzz"
+    }
+    val text = "package " + packageName + "\nimport " + getShortName(clazz.getQualifiedName, packageName)
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    val imp: ScStableCodeReferenceElement = (dummyFile.getFirstImportStmt match {
+      case Some(x) => x
+      case None =>
+        //cannot be
+        null
+    }).importExprs(0).qualifier
+    return imp.resolve
+  }
+
+  def createBigImportStmt(expr: ScImportExpr, exprs: Array[ScImportExpr], manager: PsiManager): ScImportStmt = {
+    val qualifier = expr.qualifier.getText
+    var text = "import " + qualifier
+    val names = new HashSet[String]
+    names ++= expr.getNames
+    for (expr <- exprs) names ++= expr.getNames
+    if ((names("_") ||
+            CodeStyleSettingsManager.getSettings(manager.getProject).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND <= names.size) &&
+            names.filter(_.indexOf("=>") != -1).toSeq.size == 0) text = text + "._"
+    else {
+      text = text +  ".{"
+      for (string <- names) {
+        text = text + string
+        text = text + ", "
+      }
+      text = text.substring(0, text.length - 2)
+      text = text + "}"
+    }
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     dummyFile.getFirstImportStmt match {
