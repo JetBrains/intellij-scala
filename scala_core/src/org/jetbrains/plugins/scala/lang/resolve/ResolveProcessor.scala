@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import psi.api.statements.params.ScTypeParam
 import psi.api.statements.ScFunction
 import psi.api.toplevel.ScTyped
 import com.intellij.psi.scope._
@@ -64,15 +65,7 @@ class MethodResolveProcessor(override val name : String, args : Seq[ScType],
 
   override def candidates[T >: ScalaResolveResult] : Array[T] = {
     val applicable = candidatesSet.filter {c =>
-      val t = c.element match {
-        case fun : ScFunction => new ScFunctionType(fun.calcType, fun.parameters.map(_.calcType))
-        case m : PsiMethod => new ScFunctionType(
-          m.getReturnType match { case null => Unit; case rt => ScType.create(rt, m.getProject) },
-          m.getParameterList.getParameters.map{p => ScType.create(p.getType, m.getProject)}
-        )
-        case typed : ScTyped => typed.calcType
-        case _ => Nothing
-      }
+      val t = getType(c.element)
       val s = c.substitutor
       t match {
         case ScFunctionType(ret, params) => {
@@ -99,7 +92,36 @@ class MethodResolveProcessor(override val name : String, args : Seq[ScType],
 
   def inferMethodTypesArgs(m : PsiMethod, classSubst : ScSubstitutor) = ScSubstitutor.empty //todo
 
-  def isMoreSpecific(e1 : PsiNamedElement, e2 : PsiNamedElement) = true //todo
+  def isMoreSpecific(e1 : PsiNamedElement, e2 : PsiNamedElement) = {
+    val t1 = getType(e1)
+    val t2 = getType(e2)
+    e1 match {
+      case _ : PsiMethod => {
+        t1 match {
+          case ScFunctionType(ret1, params1) => t2 match {
+            case ScFunctionType(ret2, params2) => Compatibility.compatible(ret1, ret2) &&
+                    params1.equalsWith(params2) {(p1, p2) => Compatibility.compatible(p2, p1)}
+          }
+        }
+      }
+      case _ => e2 match {
+        case _ : PsiMethod => true
+        case _ => Compatibility.compatible(t1, t2)
+      }
+    }
+  }
+
+
+
+  private def getType(e : PsiNamedElement) = e match {
+    case fun : ScFunction => new ScFunctionType(fun.calcType, fun.parameters.map(_.calcType))
+    case m : PsiMethod => new ScFunctionType(
+    m.getReturnType match { case null => Unit; case rt => ScType.create(rt, m.getProject) },
+    m.getParameterList.getParameters.map{p => ScType.create(p.getType, m.getProject)}
+    )
+    case typed : ScTyped => typed.calcType
+    case _ => Nothing
+  }
 }
 
 import ResolveTargets._
