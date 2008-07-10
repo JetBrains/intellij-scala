@@ -9,6 +9,7 @@ import psi.types._
 
 import _root_.scala.collection.Set
 import _root_.scala.collection.immutable.HashSet
+import _root_.scala.collection.mutable.ArrayBuffer
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String) extends BaseProcessor(kinds)
 {
@@ -84,12 +85,21 @@ class MethodResolveProcessor(override val name : String, args : Seq[ScType],
       }
     }
     if (applicable.isEmpty) candidatesSet.toArray else {
-      //todo filter most specific
-      applicable.toList.toArray
+      val buff = new ArrayBuffer[ScalaResolveResult]
+      def existsBetter(r : ScalaResolveResult) : Boolean = {
+        for (r1 <- applicable if r != r1) {
+          if (isMoreSpecific(r1.element, r.element)) return false
+        }
+        true
+      }
+      for (r <- applicable if !existsBetter(r)) buff += r
+      buff.toArray
     }
   }
 
   def inferMethodTypesArgs(m : PsiMethod, classSubst : ScSubstitutor) = ScSubstitutor.empty //todo
+
+  def isMoreSpecific(e1 : PsiNamedElement, e2 : PsiNamedElement) = true //todo
 }
 
 import ResolveTargets._
