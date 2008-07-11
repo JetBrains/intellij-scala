@@ -28,8 +28,14 @@ class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
   def singleWildcard = findChildByType(ScalaTokenTypes.tUNDER) != null
 
   def qualifier: ScStableCodeReferenceElement = if (!singleWildcard &&
-          (selectorSet match {case None => true case _ => false})) reference match {
-    case Some(x) => x.qualifier match {case None => throw new IncorrectOperationException case Some(x) => x}
+          (selectorSet match {
+            case None => true
+            case _ => false
+          })) reference match {
+    case Some(x) => x.qualifier match {
+      case None => throw new IncorrectOperationException
+      case Some(x) => x
+    }
     case _ => throw new IncorrectOperationException
   } else reference match {
     case Some(x) => x
@@ -39,6 +45,42 @@ class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
   def deleteExpr {
     val parent = getParent.asInstanceOf[ScImportStmt]
     if (parent.importExprs.size == 1) parent.deleteStmt
-    else parent.getNode.removeChild(getNode)
+    else {
+      val node = parent.getNode
+      val remove = node.removeChild _
+      val next = getNextSibling
+      if (next != null) {
+        if (next.getText == ",") {
+          remove(next.getNode)
+        } else {
+          if (next.getNextSibling != null && next.getNextSibling.getText == ",") {
+            remove(next.getNextSibling.getNode)
+          } else {
+            val prev = getPrevSibling
+            if (prev != null) {
+              if (prev.getText == ",") {
+                remove(prev.getNode)
+              } else {
+                if (prev.getPrevSibling != null && prev.getPrevSibling.getText == ",") {
+                  remove(prev.getPrevSibling.getNode)
+                }
+              }
+            }
+          }
+        }
+      } else {
+        val prev = getPrevSibling
+        if (prev != null) {
+          if (prev.getText == ",") {
+            remove(prev.getNode)
+          } else {
+            if (prev.getPrevSibling != null && prev.getPrevSibling.getText == ",") {
+              remove(prev.getPrevSibling.getNode)
+            }
+          }
+        }
+      }
+      remove(getNode)
+    }
   }
 }
