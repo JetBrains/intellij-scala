@@ -1,25 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-
-
-
-
-
-import com.intellij.psi.tree.TokenSet
+import lexer.ScalaTokenTypes
+import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi._
-
-import org.jetbrains.annotations._
-
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-
-
-import org.jetbrains.plugins.scala.lang.psi.api.base._
+import com.intellij.psi.JavaPsiFacade
+import api.base.ScLiteral
+import psi.types._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -29,7 +15,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLiteral{
   override def toString: String = "Literal"
 
-  def bindings: Array[ScalaPsiElement] = {
-    return new Array[ScalaPsiElement](0)
+  override def getType() = {
+    getFirstChild.getNode.getElementType match {
+      case ScalaTokenTypes.kNULL => Null
+      case ScalaTokenTypes.tINTEGER => Int  //but a conversion exists to narrower types in case range fits
+      case ScalaTokenTypes.tFLOAT => Double
+      case ScalaTokenTypes.tCHAR => Char
+      case ScalaTokenTypes.tSYMBOL => {
+        val sym = JavaPsiFacade.getInstance(getProject).findClass("scala.Symbol", getResolveScope)
+        if (sym != null) new ScDesignatorType(sym) else Nothing
+      }
+      case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING => {
+        val str = JavaPsiFacade.getInstance(getProject).findClass("java.lang.String", getResolveScope)
+        if (str != null) new ScDesignatorType(str) else Nothing
+      }
+    }
   }
 }
