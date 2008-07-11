@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
+import api.statements.ScFunction
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import _root_.scala.collection.mutable.HashSet
 import _root_.scala.collection.mutable.ArrayBuffer
@@ -165,6 +166,15 @@ object ScalaPsiElementFactory {
     val classDef = dummyFile.getTypeDefinitions()(0)
     val p = classDef.members()(0).asInstanceOf[ScPatternDefinition]
     p.expr
+  }
+
+  def createOverrideMethod(method: PsiMethod, manager: PsiManager): ScFunction = {
+    val text = "class a {def foo()}" //todo: extract signature from method
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    val classDef = dummyFile.getTypeDefinitions()(0)
+    val function = classDef.functions()(0)
+    return function
   }
 
   private def isResolved(name: String, clazz: PsiClass, packageName: String, manager: PsiManager): Boolean = {

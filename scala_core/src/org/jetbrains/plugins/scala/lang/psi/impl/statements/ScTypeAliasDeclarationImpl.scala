@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
+import com.intellij.psi.javadoc.PsiDocComment
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -59,4 +60,7 @@ class ScTypeAliasDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node
     } else Any
   }
 
+  def isDeprecated = false
+
+  def getDocComment: PsiDocComment = null
 }

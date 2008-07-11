@@ -79,7 +79,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = functions.filter((m: PsiMethod) =>
           m.getName == name // todo check base classes
-  ).toArray
+    ).toArray
 
   def extendsBlock: ScExtendsBlock = findChildByClass(classOf[ScExtendsBlock])
 
@@ -107,6 +107,37 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
       case None => Seq.empty
       case Some(body) => body.aliases
     }
+
+  def allAliases: Seq[ScTypeAlias] = {
+    val buf = new ArrayBuffer[ScTypeAlias]
+    buf ++= aliases
+    for (clazz <- getSupers if clazz.isInstanceOf[ScTypeDefinition]) buf ++= clazz.asInstanceOf[ScTypeDefinition].aliases
+    return buf.toArray
+  }
+
+  def allVals: Seq[ScValue] = {
+    allMembers.filter(_.isInstanceOf[ScValue]).map(_.asInstanceOf[ScValue])
+  }
+
+  def allVars: Seq[ScVariable] = {
+    allMembers.filter(_.isInstanceOf[ScVariable]).map(_.asInstanceOf[ScVariable])
+  }
+
+  def allFields: Seq[PsiField] = {
+    allMembers.filter(_.isInstanceOf[PsiField]).map(_.asInstanceOf[PsiField])
+  }
+
+  def allMembers: Seq[PsiMember] = {
+    val buf = new ArrayBuffer[PsiMember]
+    buf ++= members
+    for (clazz <- getSupers) {
+      if (clazz.isInstanceOf[ScTypeDefinition])
+        buf ++= clazz.asInstanceOf[ScTypeDefinition].members
+      else
+        buf ++= clazz.getAllFields
+    }
+    return buf.toArray
+  }
 
   def typeDefinitions: Seq[ScTypeDefinition] =
     (extendsBlock.templateBody match {
@@ -146,7 +177,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
           case classParents: ScClassParents =>
             classParents.constructor match {
               case None => ()
-              case Some(c) => typeElements+= c.typeElement
+              case Some(c) => typeElements += c.typeElement
             }
           case _ =>
         }
