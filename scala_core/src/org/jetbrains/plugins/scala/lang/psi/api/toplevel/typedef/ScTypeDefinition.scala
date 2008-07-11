@@ -1,5 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
+import com.intellij.psi.PsiField
+import com.intellij.psi.PsiMember
+import statements.ScVariable
+import statements.ScValue
 import com.intellij.psi.{PsiElement, PsiClass}
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.util.Iconable
@@ -26,11 +30,21 @@ trait ScTypeDefinition extends ScNamedElement
 
   def aliases(): Seq[ScTypeAlias]
 
+  def allAliases: Seq[ScTypeAlias]
+
   def typeDefinitions(): Seq[ScTypeDefinition]
 
   def extendsBlock(): ScExtendsBlock
 
   def superTypes(): Seq[ScType]
+
+  def allVals: Seq[ScValue]
+
+  def allVars: Seq[ScVariable]
+
+  def allMembers: Seq[PsiMember]
+
+  def allFields: Seq[PsiField]
 
   def getSuperClassNames() = Array[String]() //for build restore  
 
