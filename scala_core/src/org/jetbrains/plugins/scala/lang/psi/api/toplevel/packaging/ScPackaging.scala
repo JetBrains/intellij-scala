@@ -1,14 +1,18 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import psi.api.toplevel.typedef._
-import psi.api.toplevel._
-import org.jetbrains.annotations._
+import base.ScStableCodeReferenceElement
+import psi.ScalaPsiElement
+import api.toplevel.typedef._
+import api.toplevel._
 
-trait ScPackaging extends ScTypeDefinitionOwner with ScTopStatement{
+trait ScPackaging extends ScTypeDefinitionOwner with ScTopStatement with ScNamedElement {
 
-  @NotNull
-  def getPackageName: String
+  def getPackageName = reference.qualName
+
+  def reference = findChildByClass (classOf[ScStableCodeReferenceElement])
+
+  override def nameId = reference
+  override def name = getPackageName
 
   def getTopStatements = findChildrenByClass(classOf[ScTopStatement]) 
 

@@ -13,6 +13,7 @@ import base.patterns.ScBindingPattern
 import base.ScFieldId
 import psi.types._
 import psi.ScalaPsiElement
+import psi.api.toplevel.packaging.ScPackaging
 
 object BaseProcessor {
   def unapply(p : BaseProcessor) = Some(p.kinds)
@@ -50,6 +51,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
   protected def kindMatches(element: PsiElement): Boolean = kinds == null ||
           (element match {
             case _: PsiPackage => kinds contains PACKAGE
+            case _: ScPackaging => kinds contains PACKAGE
             case _: ScObject => kinds contains OBJECT
             case _: ScTypeParam => kinds contains CLASS
             case _: ScTypeAlias => kinds contains CLASS
