@@ -46,7 +46,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     if (incomplete) StdKinds.refExprQualRef
     else getParent match {
       case _: ScReferenceExpression => StdKinds.refExprQualRef
-      case _: ScThisReference | _ : ScSuperReference => StdKinds.stableClass
+      case _: ScThisReference | _: ScSuperReference => StdKinds.stableClass
       case _ => StdKinds.refExprLastRef
     }
   }
@@ -56,8 +56,17 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   object MyResolver extends ResolveCache.PolyVariantResolver[ScReferenceExpressionImpl] {
     def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean) = {
       val proc = ref.getParent match {
-        case call : ScMethodCall =>
-          new MethodResolveProcessor(refName, call.args.exprs.map{_.getType}, expectedType)
+        case call: ScMethodCall =>
+          new MethodResolveProcessor(refName, call.args.exprs.map{
+            _.getType
+          }, expectedType)
+        case inf : ScInfixExpr if ref == inf.operation => {
+          val args = inf.rOp match {
+            case tuple : ScTuple => tuple.exprs.map {_.getType}
+            case rOp => Seq.singleton(rOp.getType)
+          }
+          new MethodResolveProcessor(refName, args, expectedType)
+        }
         case _ => new ResolveProcessor(getKinds(incomplete), refName)
       }
       _resolve(ref, proc)
@@ -66,19 +75,22 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
     ref.qualifier match {
-      case None => {
-        def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
-          place match {
-            case null => ()
-            case p => {
-              if (!p.processDeclarations(processor,
-              ResolveState.initial(),
-              lastParent, ref)) return ()
-              treeWalkUp(place.getParent, place)
+      case None => ref.getParent match {
+        case inf: ScInfixExpr if ref == inf.operation => processType(inf.lOp.getType, processor)
+        case _ => {
+          def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
+            place match {
+              case null => ()
+              case p => {
+                if (!p.processDeclarations(processor,
+                ResolveState.initial(),
+                lastParent, ref)) return ()
+                treeWalkUp(place.getParent, place)
+              }
             }
           }
+          treeWalkUp(ref, null)
         }
-        treeWalkUp(ref, null)
       }
       case Some(q) => processType(q.getType, processor)
     }
