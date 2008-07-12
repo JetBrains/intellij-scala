@@ -5,16 +5,11 @@ import psi.ScalaPsiElement
 import api.toplevel.typedef._
 import api.toplevel._
 
-trait ScPackaging extends ScTypeDefinitionOwner with ScTopStatement with ScNamedElement {
+trait ScPackaging extends ScToplevelElement with ScTopStatement {
 
   def getPackageName = reference.qualName
 
   def reference = findChildByClass (classOf[ScStableCodeReferenceElement])
 
-  override def nameId = reference
-  override def name = getPackageName
-
-  def getTopStatements = findChildrenByClass(classOf[ScTopStatement]) 
-
-  def getInnerPackagings = findChildrenByClass(classOf[ScPackaging])
+  def getTopStatements = findChildrenByClass(classOf[ScTopStatement])
 }

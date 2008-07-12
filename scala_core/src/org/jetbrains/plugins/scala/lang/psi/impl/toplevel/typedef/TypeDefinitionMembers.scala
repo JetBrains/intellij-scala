@@ -101,7 +101,7 @@ object TypeDefinitionMembers {
         }
       }
 
-      for (inner <- td.typeDefinitions) map += ((inner, new Node(inner, subst)))
+      for (inner <- td.innerTypeDefinitions) map += ((inner, new Node(inner, subst)))
     }
   }
 

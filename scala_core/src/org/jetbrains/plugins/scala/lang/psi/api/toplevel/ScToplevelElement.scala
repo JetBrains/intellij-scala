@@ -15,9 +15,15 @@ import com.intellij.psi._
  * @author ilyas
  */
 
-trait ScTypeDefinitionOwner extends ScalaPsiElement {
+trait ScToplevelElement extends ScalaPsiElement {
+  def getTypeDefinitions(): Array[ScTypeDefinition] = {
+    val buff = new ArrayBuffer[ScTypeDefinition]
+    for (clazz <- immediateTypeDefinitions) buff += clazz
+    for (pack <- packagings) buff ++= pack.getTypeDefinitions
+    buff.toArray
+  }
 
-  def getTypeDefinitions: Seq[ScTypeDefinition] = findChildrenByClass(classOf[ScTypeDefinition])
+  def immediateTypeDefinitions = findChildrenByClass(classOf[ScTypeDefinition])
 
-  def getTypeDefinitionsArray: Array[ScTypeDefinition] = getTypeDefinitions.toArray[ScTypeDefinition]
+  def packagings = findChildrenByClass(classOf[ScPackaging])
 }

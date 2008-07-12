@@ -22,7 +22,7 @@ import types.ScType
 */
 
 trait ScTypeDefinition extends ScNamedElement
-  with NavigationItem with PsiClass with ScTypeDefinitionOwner with ScTopStatement with ScTypeParametersOwner with Iconable {
+  with NavigationItem with PsiClass with ScTopStatement with ScTypeParametersOwner with Iconable {
 
   def members(): Seq[ScMember]
 
@@ -32,7 +32,7 @@ trait ScTypeDefinition extends ScNamedElement
 
   def allAliases: Seq[ScTypeAlias]
 
-  def typeDefinitions(): Seq[ScTypeDefinition]
+  def innerTypeDefinitions(): Seq[ScTypeDefinition]
 
   def extendsBlock(): ScExtendsBlock
 
@@ -54,7 +54,7 @@ trait ScTypeDefinition extends ScNamedElement
     if (index < 0) "" else qualName.substring(0, index);
   }
 
-  override def getTypeDefinitions(): Seq[ScTypeDefinition] =
+  def getTypeDefinitions(): Seq[ScTypeDefinition] =
     extendsBlock.templateBody match {
       case None => Seq.empty
       case Some(body) => body.typeDefinitions

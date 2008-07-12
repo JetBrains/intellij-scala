@@ -69,7 +69,7 @@ public class ScalaInfoFactory {
       if (psiFile instanceof ScalaFile) {
         ScalaFile scalaFile = (ScalaFile) psiFile;
         final String packageName = scalaFile.getPackageName();
-        for (ScTypeDefinition clazz : scalaFile.getTypeDefinitionsArray()) {
+        for (ScTypeDefinition clazz : scalaFile.getTypeDefinitions()) {
           classNames.add(clazz.getQualifiedName());
           namesInExtends.addAll(Arrays.asList(clazz.getSuperClassNames()));
         }

@@ -239,7 +239,7 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
         PsiFile psiFile = myPsiManager.findFile(file);
         if (psiFile instanceof ScalaFile) {
           ScalaFile scalaFile = (ScalaFile) psiFile;
-          ScTypeDefinition[] typeDefs = scalaFile.getTypeDefinitionsArray();
+          ScTypeDefinition[] typeDefs = scalaFile.getTypeDefinitions();
           for (ScTypeDefinition typeDef : typeDefs) {
             if (typeDef.getName().equals(name)) return typeDef;
           }
@@ -304,7 +304,7 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
         PsiFile psiFile = myPsiManager.findFile(file);
         if (psiFile instanceof ScalaFile) {
           ScalaFile scalaFile = (ScalaFile) psiFile;
-          ScTypeDefinition[] typeDefs = scalaFile.getTypeDefinitionsArray();
+          ScTypeDefinition[] typeDefs = scalaFile.getTypeDefinitions();
           for (ScTypeDefinition typeDef : typeDefs) {
             if (typeDef.getName().equals(name)) acc.add(typeDef);
           }
@@ -357,7 +357,7 @@ public class ScalaFilesCacheImpl implements ScalaFilesCache {
         PsiFile psiFile = myPsiManager.findFile(file);
         if (psiFile instanceof ScalaFile) {
           ScalaFile scalaFile = (ScalaFile) psiFile;
-          ScTypeDefinition[] typeDefinitions = scalaFile.getTypeDefinitionsArray();
+          ScTypeDefinition[] typeDefinitions = scalaFile.getTypeDefinitions();
           for (ScTypeDefinition typeDefinition : typeDefinitions) {
             if (shortName.equals(typeDefinition.getName())) {
               acc.add(typeDefinition);

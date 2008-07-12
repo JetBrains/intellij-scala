@@ -139,7 +139,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     return buf.toArray
   }
 
-  def typeDefinitions: Seq[ScTypeDefinition] =
+  def innerTypeDefinitions: Seq[ScTypeDefinition] =
     (extendsBlock.templateBody match {
       case None => Seq.empty
       case Some(body) => body.typeDefinitions

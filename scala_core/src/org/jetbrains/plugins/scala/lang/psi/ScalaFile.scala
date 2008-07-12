@@ -26,7 +26,7 @@ import _root_.scala.collection.mutable._
 
 
 class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
-        with ScalaPsiElement with ScTypeDefinitionOwner with PsiClassOwner with ScImportsHolder {
+        with ScalaPsiElement with ScToplevelElement with PsiClassOwner with ScImportsHolder {
 
   override def getViewProvider = viewProvider
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE
@@ -59,11 +59,9 @@ class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider
 
   def packageStatement = findChild(classOf[ScPackageStatement])
 
-  override def getClasses = getTypeDefinitionsArray.map(t => t.asInstanceOf[PsiClass])
+  override def getClasses = getTypeDefinitions.map(t => t : PsiClass)
 
   def getTopStatements: Array[ScTopStatement] = findChildrenByClass(classOf[ScTopStatement])
-
-  override def getTypeDefinitions(): Seq[ScTypeDefinition] = findChildrenByClass(classOf[ScTypeDefinition])
 
   def icon = Icons.FILE_TYPE_LOGO
 
