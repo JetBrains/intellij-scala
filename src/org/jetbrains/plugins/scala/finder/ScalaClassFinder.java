@@ -50,7 +50,7 @@ public class ScalaClassFinder implements ProjectComponent, PsiElementFinder {
     for (final PsiDirectory dir : psiPackage.getDirectories(scope)) {
       for (final PsiFile file : dir.getFiles()) {
         if (file instanceof ScalaFile) {
-          result.addAll(Arrays.asList(((ScalaFile) file).getTypeDefinitionsArray()));
+          result.addAll(Arrays.asList(((ScalaFile) file).getTypeDefinitions()));
         }
       }
     }

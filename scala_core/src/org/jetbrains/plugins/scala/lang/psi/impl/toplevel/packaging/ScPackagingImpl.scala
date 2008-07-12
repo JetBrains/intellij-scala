@@ -13,14 +13,4 @@ import api.toplevel.packaging._
 
 class ScPackagingImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPackaging {
   override def toString = "ScPackaging"
-
-  override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
-    for (inner <- getTopStatements) {
-      if (!processor.execute(inner, state)) return false
-    }
-    true
-  }
 }
