@@ -44,7 +44,7 @@ class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider
       case Some(stat) => stat.getPackageName
     }
 
-  def importStatemntsInHeader: Seq[ScImportStmt] = {
+  def importStatementsInHeader: Seq[ScImportStmt] = {
     var end = false
     val buf = new ArrayBuffer[ScImportStmt]
     for (child <- getChildren if !end) {
@@ -111,7 +111,7 @@ class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider
   def addImportForClass(clazz: PsiClass) {
     val newImport = ScalaPsiElementFactory.createImportStatementFromClass(this, clazz, this.getManager)
     val resolve = ScalaPsiElementFactory.getResolveForClassQualifier(this, clazz, getManager)
-    val sameExpressions: Array[ScImportExpr] = (for (importStmt <- importStatemntsInHeader; importExpr <- importStmt.importExprs
+    val sameExpressions: Array[ScImportExpr] = (for (importStmt <- importStatementsInHeader; importExpr <- importStmt.importExprs
       if resolve != null && importExpr.qualifier.resolve == resolve)
       yield importExpr).toArray
     val importSt = if (sameExpressions.length == 0) newImport
