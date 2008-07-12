@@ -74,10 +74,6 @@ class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider
     if (!super[ScImportsHolder].processDeclarations(processor,
       state, lastParent, place)) return false
 
-   for (pack <- getPackagings) {
-      if (!processor.execute(pack, state)) return false
-    }
-
     place match {
       case ref: ScStableCodeReferenceElement if ref.refName == "_root_" => {
         val top = JavaPsiFacade.getInstance(getProject()).findPackage("")
