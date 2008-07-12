@@ -16,10 +16,17 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
   override def toString: String = "Literal"
 
   override def getType() = {
-    getFirstChild.getNode.getElementType match {
+    val child = getFirstChild.getNode
+    child.getElementType match {
       case ScalaTokenTypes.kNULL => Null
-      case ScalaTokenTypes.tINTEGER => Int  //but a conversion exists to narrower types in case range fits
-      case ScalaTokenTypes.tFLOAT => Double
+      case ScalaTokenTypes.tINTEGER => {
+        if (child.getText.endsWith("l") || child.getText.endsWith("L")) Long
+        else Int  //but a conversion exists to narrower types in case range fits
+      }
+      case ScalaTokenTypes.tFLOAT => {
+        if (child.getText.endsWith("f") || child.getText.endsWith("F")) Float
+        Double
+      }
       case ScalaTokenTypes.tCHAR => Char
       case ScalaTokenTypes.tSYMBOL => {
         val sym = JavaPsiFacade.getInstance(getProject).findClass("scala.Symbol", getResolveScope)
