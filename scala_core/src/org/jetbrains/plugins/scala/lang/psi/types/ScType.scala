@@ -70,7 +70,7 @@ object ScType {
       case PsiType.NULL => Null
       case wild : PsiWildcardType => new ScExistentialArgument(create(wild.getSuperBound, project),
                                                                create(wild.getExtendsBound, project))
-      case _ => throw new IllegalArgumentException("psi type should not be converted to scala type" + psiType)
+      case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
     }
     Nothing
   }
