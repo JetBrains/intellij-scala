@@ -68,8 +68,9 @@ object ScType {
       case PsiType.BYTE => Byte
       case PsiType.SHORT => Short
       case PsiType.NULL => Null
-      case _ => Nothing
-      //todo other cases
+      case wild : PsiWildcardType => new ScExistentialArgument(create(wild.getSuperBound, project),
+                                                               create(wild.getExtendsBound, project))
+      case _ => throw new IllegalArgumentException("psi type should not be converted to scala type" + psiType)
     }
     Nothing
   }
