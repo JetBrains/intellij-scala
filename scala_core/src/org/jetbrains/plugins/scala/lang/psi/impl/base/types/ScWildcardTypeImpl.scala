@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import base.ScTypeBoundsOwnerImpl
-import psi.types.ScWildcardType
+import psi.types.ScExistentialArgument
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -22,5 +22,5 @@ import psi.types.ScWildcardType
 class ScWildcardTypeElementImpl(node: ASTNode) extends ScTypeBoundsOwnerImpl(node) with ScWildcardTypeElement {
   override def toString: String = "WildcardType"
 
-  override def getType() = new ScWildcardType(lowerBound, upperBound)
+  override def getType() = new ScExistentialArgument(lowerBound, upperBound)
 }
