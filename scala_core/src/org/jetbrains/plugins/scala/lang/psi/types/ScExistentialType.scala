@@ -8,7 +8,7 @@ import api.toplevel.ScTypeParametersOwner
 */
 
 object ScExistentialTypeReducer {
-  def reduce(quantified : ScType, wildcards: List[Pair[String, ScWildcardType]]) : ScType = {
+  def reduce(quantified : ScType, wildcards: List[Pair[String, ScExistentialArgument]]) : ScType = {
     val q = noVariantWildcards(quantified, wildcards)
     val used = collectNames(q)
     wildcards.filter (p => used.contains(p._1)) match {
@@ -27,7 +27,7 @@ object ScExistentialTypeReducer {
       case ScPolymorphicType(a, _) => HashSet.empty + a.name
       case ScParameterizedType (des, typeArgs) =>
         typeArgs.foldLeft(Set.empty[String]) {(curr, p) => curr ++ collectNames(p)}
-      case ScWildcardType(lower, upper) => collectNames(lower) ++ collectNames(upper)
+      case ScExistentialArgument(lower, upper) => collectNames(lower) ++ collectNames(upper)
       case ex@ScExistentialType(q, wildcards) => {
         (wildcards.foldLeft(collectNames(q)) {(curr, p) => curr ++ collectNames(p._2)}) -- ex.boundNames
       }
@@ -35,7 +35,7 @@ object ScExistentialTypeReducer {
     }
   }
 
-  private def noVariantWildcards(t : ScType, wilds : List[Pair[String, ScWildcardType]]) : ScType = t match {
+  private def noVariantWildcards(t : ScType, wilds : List[Pair[String, ScExistentialArgument]]) : ScType = t match {
     case ScFunctionType(ret, params) =>
       new ScFunctionType(noVariantWildcards(ret, wilds), params.map {noVariantWildcards(_, wilds)})
     case ScTupleType(comps) => new ScTupleType(comps.map {noVariantWildcards(_, wilds)})
@@ -58,19 +58,24 @@ object ScExistentialTypeReducer {
       }
       case _ => t
     }
-    case ScWildcardType(lower, upper) =>
-      new ScWildcardType(noVariantWildcards(lower, wilds), noVariantWildcards(upper, wilds))
+    case ScExistentialArgument(lower, upper) =>
+      new ScExistentialArgument(noVariantWildcards(lower, wilds), noVariantWildcards(upper, wilds))
     case ScExistentialType(q, w1) => new ScExistentialType(noVariantWildcards(q, wilds), w1)
     case _ => t
   }
 }
 
 case class ScExistentialType(val quantified : ScType,
-                             val wildcards : List[Pair[String, ScWildcardType]]) extends ScType {
+                             val wildcards : List[Pair[String, ScExistentialArgument]]) extends ScType {
   lazy val boundNames = wildcards.map {_._1}
   lazy val boundTypes = wildcards.map {_._2}
 
   lazy val substitutor = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s + (p._1, p._2)}
+
+  lazy val skolem = {
+    val skolemSubst = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s + (p._1, new ScUnpackedExistentialArgument(p._2))}
+    skolemSubst.subst(quantified)
+  }
   
   override def equiv(t : ScType) = t match {
     case ex : ScExistentialType => {
@@ -81,9 +86,11 @@ case class ScExistentialType(val quantified : ScType,
   }
 }
 
-case class ScWildcardType(val lowerBound : ScType, val upperBound : ScType) extends ScType {
+case class ScExistentialArgument(val lowerBound : ScType, val upperBound : ScType) extends ScType {
   override def equiv(t : ScType) = t match {
-    case wild : ScWildcardType => lowerBound.equiv(wild.lowerBound) && upperBound.equiv(wild.upperBound)
+    case wild : ScExistentialArgument => lowerBound.equiv(wild.lowerBound) && upperBound.equiv(wild.upperBound)
     case _ => false
   }
 }
+
+case class ScUnpackedExistentialArgument(arg : ScExistentialArgument) extends ScType //equiv not overridden intentionally

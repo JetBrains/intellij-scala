@@ -48,7 +48,7 @@ object Conformance {
               case scp : ScTypeParam if (scp.isCovariant) => if (!argsPair._1.conforms(argsPair._2)) return false
               case scp : ScTypeParam if (scp.isContravariant) => if (!argsPair._2.conforms(argsPair._1)) return false
               case _ => argsPair._1 match {
-                case _ : ScWildcardType => if (!argsPair._2.conforms(argsPair._1)) return false
+                case _ : ScExistentialArgument => if (!argsPair._2.conforms(argsPair._1)) return false
                 case _ => if (!argsPair._1.equiv(argsPair._2)) return false
               }
             }
@@ -95,7 +95,8 @@ object Conformance {
         case None => false
       })
 
-      case ScWildcardType(lower, _) => conforms(lower, r)
+      case ScExistentialArgument(lower, _) => conforms(lower, r)
+      case ScUnpackedExistentialArgument(ex) => conforms(ex, r)
       case ex@ScExistentialType(q, wilds) => conforms(ex.substitutor.subst(q), r)
 
       case _ => rightRec(l, r, visited)
@@ -126,9 +127,10 @@ object Conformance {
 
     case ScCompoundType(comps, _, _) => !comps.find(l conforms _).isEmpty
 
-    case ScWildcardType(_, upper) => conforms(l, upper)
+    case ScExistentialArgument(_, upper) => conforms(l, upper)
+    case ScUnpackedExistentialArgument(ex) => conforms(l, ex)
 
-    case ex@ScExistentialType(q, wilds) => conforms(l, ex.substitutor.subst(q))
+    case ex : ScExistentialType => conforms(l, ex.skolem)
 
     case _ => false //todo
   }
