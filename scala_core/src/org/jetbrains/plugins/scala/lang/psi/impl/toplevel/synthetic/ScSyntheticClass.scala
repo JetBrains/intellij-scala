@@ -92,7 +92,11 @@ class SyntheticClasses(project: Project) extends ProjectComponent {
     registerClass(Null, "Null")
     registerClass(Singleton, "Singleton")
     registerClass(Unit, "Unit")
-    registerClass(Boolean, "Boolean")
+
+    val boolc = registerClass(Boolean, "Boolean")
+    for (op <- bool_bin_ops)
+      boolc.addMethod(new ScSyntheticFunction(boolc.manager, op, Boolean, Seq.singleton(Boolean)))
+    boolc.addMethod(new ScSyntheticFunction(boolc.manager, "!", Boolean, Seq.empty))
 
     registerIntegerClass(registerNumericClass(registerClass(Char, "Char")))
     registerIntegerClass(registerNumericClass(registerClass(Int, "Int")))
@@ -107,6 +111,10 @@ class SyntheticClasses(project: Project) extends ProjectComponent {
         ic.addMethod(new ScSyntheticFunction(ic.manager, op, Boolean, Seq.singleton(ic1.t)))
       for (ic1 <- numeric; op <- numeric_arith_ops)
         ic.addMethod(new ScSyntheticFunction(ic.manager, op, op_type(ic, ic1), Seq.singleton(ic1.t)))
+      for (ic1 <- numeric if ic1 != ic)
+        ic.addMethod(new ScSyntheticFunction(ic.manager, "to" + ic1.name, ic1.t, Seq.empty))
+      for (un_op <- numeric_arith_unary_ops)
+        ic.addMethod(new ScSyntheticFunction(ic.manager, un_op, ic.t, Seq.empty))
     }
   }
 
@@ -140,4 +148,6 @@ class SyntheticClasses(project: Project) extends ProjectComponent {
 
   val numeric_comp_ops = "==" :: "!=" :: "<" :: ">" :: "<=" :: ">=" :: Nil
   val numeric_arith_ops = "+" :: "-" :: "*" :: "/" :: "%" :: Nil
+  val numeric_arith_unary_ops = "+" :: "-" :: Nil
+  val bool_bin_ops = "&&" :: "||" :: "&" :: "|" :: "==" :: "!=" :: Nil
 }
