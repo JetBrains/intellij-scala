@@ -27,7 +27,6 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
     } else n).getPsi
   }
 
-  override def getIcon(flags: Int) = Icons.FUNCTION
 
   def paramClauses: ScParameters = findChildByClass(classOf[ScParameters])
 
@@ -35,6 +34,8 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
     val pcs = getParameterList
     if (pcs != null) pcs.params else Seq.empty
   }
+
+  override def getIcon(flags: Int) = Icons.FUNCTION
 
   def getReturnType = if (isMainMethod) PsiType.VOID else null
 
