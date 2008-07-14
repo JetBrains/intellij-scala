@@ -127,8 +127,8 @@ class SyntheticClasses(project: Project) extends ProjectComponent {
     all + ((name, clazz)); clazz
   }
 
-  def registerIntegerClass(clazz : ScSyntheticClass) = {integer + clazz; clazz}
-  def registerNumericClass(clazz : ScSyntheticClass) = {numeric + clazz; clazz}
+  def registerIntegerClass(clazz : ScSyntheticClass) = {integer += clazz; clazz}
+  def registerNumericClass(clazz : ScSyntheticClass) = {numeric += clazz; clazz}
 
 
   def getAll() = all.values.toList.toArray
