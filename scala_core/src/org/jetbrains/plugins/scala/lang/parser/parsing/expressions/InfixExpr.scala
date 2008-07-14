@@ -81,7 +81,9 @@ object InfixExpr {
         }
       }
       val setMarker = builder.mark
+      val opMarker = builder.mark
       builder.advanceLexer //Ate id
+      opMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
       builder.getTokenType match {
         case ScalaTokenTypes.tLINE_TERMINATOR => {
           if (!LineTerminator(builder.getTokenText)) {
