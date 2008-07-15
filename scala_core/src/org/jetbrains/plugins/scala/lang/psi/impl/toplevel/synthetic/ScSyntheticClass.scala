@@ -107,15 +107,30 @@ class SyntheticClasses(project: Project) extends ProjectComponent {
     registerNumericClass(registerClass(Float, "Float"))
     registerNumericClass(registerClass(Double, "Double"))
 
-    for(ic <- numeric) {
-      for (ic1 <- numeric; op <- numeric_comp_ops)
-        ic.addMethod(new ScSyntheticFunction(ic.manager, op, Boolean, Seq.singleton(ic1.t)))
-      for (ic1 <- numeric; op <- numeric_arith_ops)
-        ic.addMethod(new ScSyntheticFunction(ic.manager, op, op_type(ic, ic1), Seq.singleton(ic1.t)))
-      for (ic1 <- numeric if ic1 != ic)
-        ic.addMethod(new ScSyntheticFunction(ic.manager, "to" + ic1.name, ic1.t, Seq.empty))
+    for(nc <- numeric) {
+      for (nc1 <- numeric; op <- numeric_comp_ops)
+        nc.addMethod(new ScSyntheticFunction(nc.manager, op, Boolean, Seq.singleton(nc1.t)))
+      for (nc1 <- numeric; op <- numeric_arith_ops)
+        nc.addMethod(new ScSyntheticFunction(nc.manager, op, op_type(nc, nc1), Seq.singleton(nc1.t)))
+      for (nc1 <- numeric if nc1 != nc)
+        nc.addMethod(new ScSyntheticFunction(nc.manager, "to" + nc1.name, nc1.t, Seq.empty))
       for (un_op <- numeric_arith_unary_ops)
-        ic.addMethod(new ScSyntheticFunction(ic.manager, un_op, ic.t, Seq.empty))
+        nc.addMethod(new ScSyntheticFunction(nc.manager, un_op, nc.t, Seq.empty))
+    }
+
+    for (ic <- integer) {
+      for (ic1 <- integer; op <- bitwise_bin_ops)
+        ic.addMethod(new ScSyntheticFunction(ic.manager, op, op_type(ic, ic1), Seq.singleton(ic1.t)))
+      ic.addMethod(new ScSyntheticFunction(ic.manager, "~", ic.t, Seq.empty))
+
+      val ret = ic.t match {
+        case Long => Long
+        case _ => Int
+      }
+      for (op <- bitwise_shift_ops) {
+        ic.addMethod(new ScSyntheticFunction(ic.manager, op, ret, Seq.singleton(Int)))
+        ic.addMethod(new ScSyntheticFunction(ic.manager, op, ret, Seq.singleton(Long)))
+      }
     }
   }
 
@@ -151,4 +166,6 @@ class SyntheticClasses(project: Project) extends ProjectComponent {
   val numeric_arith_ops = "+" :: "-" :: "*" :: "/" :: "%" :: Nil
   val numeric_arith_unary_ops = "+" :: "-" :: Nil
   val bool_bin_ops = "&&" :: "||" :: "&" :: "|" :: "==" :: "!=" :: Nil
+  val bitwise_bin_ops = "&" :: "|" :: "^" :: "|" :: "==" :: "!=" :: Nil
+  val bitwise_shift_ops = "<<" :: ">>" :: ">>>" :: Nil
 }
