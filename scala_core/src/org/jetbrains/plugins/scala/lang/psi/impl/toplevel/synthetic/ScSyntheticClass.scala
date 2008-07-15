@@ -58,7 +58,7 @@ extends SyntheticNamedElement(manager, name) with PsiClass with PsiClassFake {
 }
 
 class ScSyntheticFunction(manager: PsiManager, val name: String, val retType: ScType, val paramTypes: Seq[ScType])
-extends SyntheticNamedElement(manager, name) with ScFun { //todo provide function interface
+extends SyntheticNamedElement(manager, name) with ScFun {
 
   def getText = "" //todo
 
