@@ -235,7 +235,7 @@ object ScalaPsiElementFactory {
     while (i < qArray.length) {
       res += qArray(i)
       res += "."
-      i += 1
+      i = i + 1
     }
     return res.substring(0, res.length - 1)
   }
