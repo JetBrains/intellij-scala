@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 public class NonlocalResolveTest extends ScalaResolveTestCase{
 
   protected String getTestDataPath() {
-    return TestUtils.getTestDataPath() + "/resolve/nonlocal/";
+    return TestUtils.getTestDataPath() + "/resolve/";
   }
 
   public void testTypeDecl() throws Exception {
