@@ -21,7 +21,7 @@
   <property name="output" value="${project.lib}/dist"/>
   <property name="test.lib" value="${project.lib}/../../test/Scala"/>
   <property name="production.dest" location="${project.lib}/.."/>
-  <property name="java.lib" value="${system.jdk.home}/lib"/>
+  <property name="java.lib" value="${jdk.home}/lib"/>
 
   <property name="output" value="${basedir}/dist"/>
 
