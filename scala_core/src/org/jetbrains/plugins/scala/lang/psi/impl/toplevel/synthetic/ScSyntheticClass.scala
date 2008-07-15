@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
 
+import api.statements.ScFun
 import api.toplevel.ScNamedElement
 import api.statements.ScFunction
 import types._
@@ -56,8 +57,8 @@ extends SyntheticNamedElement(manager, name) with PsiClass with PsiClassFake {
   }
 }
 
-class ScSyntheticFunction(manager: PsiManager, val name: String, val ret: ScType, val params: Seq[ScType])
-extends SyntheticNamedElement(manager, name) { //todo provide function interface
+class ScSyntheticFunction(manager: PsiManager, val name: String, val retType: ScType, val paramTypes: Seq[ScType])
+extends SyntheticNamedElement(manager, name) with ScFun { //todo provide function interface
 
   def getText = "" //todo
 

@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import psi.api.statements.ScFun
+import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.api.statements.params.ScTypeParam
 import psi.api.statements.ScFunction
 import psi.api.toplevel.ScTyped
@@ -114,7 +116,7 @@ class MethodResolveProcessor(override val name : String, args : Seq[ScType],
 
 
   private def getType(e : PsiNamedElement) = e match {
-    case fun : ScFunction => new ScFunctionType(fun.calcType, fun.parameters.map(_.calcType))
+    case fun : ScFun => new ScFunctionType(fun.retType, fun.paramTypes)
     case m : PsiMethod => new ScFunctionType(
     m.getReturnType match { case null => Unit; case rt => ScType.create(rt, m.getProject) },
     m.getParameterList.getParameters.map{p => ScType.create(p.getType, m.getProject)}
