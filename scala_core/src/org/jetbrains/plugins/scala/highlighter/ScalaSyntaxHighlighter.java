@@ -62,12 +62,21 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   // Braces
   static final TokenSet tBRACES = TokenSet.create(
           ScalaTokenTypes.tLBRACE,
-          ScalaTokenTypes.tRBRACE,
-          ScalaTokenTypes.tLPARENTHESIS,
-          ScalaTokenTypes.tRPARENTHESIS,
+          ScalaTokenTypes.tRBRACE
+  );
+
+  // Brackets
+  static final TokenSet tBRACKETS = TokenSet.create(
           ScalaTokenTypes.tLSQBRACKET,
           ScalaTokenTypes.tRSQBRACKET
   );
+
+  // Parentheses
+  static final TokenSet tPARENTESES = TokenSet.create(
+          ScalaTokenTypes.tLPARENTHESIS,
+          ScalaTokenTypes.tRPARENTHESIS
+  );
+
 
   // Strings
   static final TokenSet tSTRINGS = TokenSet.create(
@@ -134,7 +143,9 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, kRESWORDS, DefaultHighlighter.KEYWORD);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tNUMBERS, DefaultHighlighter.NUMBER);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tSTRINGS, DefaultHighlighter.STRING);
-    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tBRACES, DefaultHighlighter.BRACKETS);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tBRACES, DefaultHighlighter.BRACES);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tBRACKETS, DefaultHighlighter.BRACKETS);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tPARENTESES, DefaultHighlighter.PARENTHESES);
 
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tOPS, DefaultHighlighter.OPERATION_SIGN);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_TAGS, DefaultHighlighter.OPERATION_SIGN);

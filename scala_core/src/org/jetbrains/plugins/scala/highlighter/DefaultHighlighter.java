@@ -22,30 +22,36 @@ import org.jetbrains.annotations.NonNls;
 
 /**
  * @author ilyas
- * Date: 24.09.2006
- *
+ *         Date: 24.09.2006
  */
 public class DefaultHighlighter {
   // Comments
   @NonNls
-  private static final String LINE_COMMENT_ID = "SCALA_LINE_COMMENT";
+  static final String LINE_COMMENT_ID = "Line comment";
   @NonNls
-  private static final String BLOCK_COMMENT_ID = "SCALA_BLOCK_COMMENT";
+  static final String BLOCK_COMMENT_ID = "Block comment";
   @NonNls
-  private static final String KEYWORD_ID = "SCALA_KEYWORD";
+  static final String KEYWORD_ID = "Keyword";
   @NonNls
-  private static final String NUMBER_ID = "SCALA_NUMBER";
+  static final String NUMBER_ID = "Number";
   @NonNls
-  private static final String STRING_ID = "SCALA_STRING";
+  static final String STRING_ID = "String";
   @NonNls
-  private static final String BRACKETS_ID = "SCALA_BRACKETS";
+  static final String BRACKETS_ID = "Brackets";
+  @NonNls
+  static final String BRACES_ID = "Braces";
+  @NonNls
+  static final String COLON_ID = "Colon";
+  @NonNls
+  static final String PARENTHESES_ID = "Parentheses";
+  @NonNls
+  static final String OPERATION_SIGN_ID = "Operator sign";
 
   @NonNls
-  private static final String OPERATION_SIGN_ID = "SCALA_OPERATION_SIGN";
+  static final String BAD_CHARACTER_ID = "Bad character";
 
   @NonNls
-  private static final String BAD_CHARACTER_ID = "SCALA_BAD_CHARACTER";
-
+  static final String DOC_COMMENT_ID = "Doc comment";
 
   // Registering TextAttributes
   static {
@@ -55,6 +61,10 @@ public class DefaultHighlighter {
     TextAttributesKey.createTextAttributesKey(NUMBER_ID, SyntaxHighlighterColors.NUMBER.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(STRING_ID, SyntaxHighlighterColors.STRING.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(BRACKETS_ID, SyntaxHighlighterColors.BRACKETS.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(BRACKETS_ID, SyntaxHighlighterColors.BRACKETS.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(BRACES_ID, SyntaxHighlighterColors.BRACES.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(PARENTHESES_ID, SyntaxHighlighterColors.PARENTHS.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(COLON_ID, SyntaxHighlighterColors.COMMA.getDefaultAttributes());
 
 
     TextAttributesKey.createTextAttributesKey(OPERATION_SIGN_ID, SyntaxHighlighterColors.OPERATION_SIGN.getDefaultAttributes());
@@ -67,10 +77,16 @@ public class DefaultHighlighter {
   public static TextAttributesKey NUMBER = TextAttributesKey.createTextAttributesKey(NUMBER_ID);
   public static TextAttributesKey STRING = TextAttributesKey.createTextAttributesKey(STRING_ID);
   public static TextAttributesKey BRACKETS = TextAttributesKey.createTextAttributesKey(BRACKETS_ID);
+  public static TextAttributesKey BRACES = TextAttributesKey.createTextAttributesKey(BRACES_ID);
+  public static TextAttributesKey PARENTHESES = TextAttributesKey.createTextAttributesKey(PARENTHESES_ID);
+  public static TextAttributesKey COLON = TextAttributesKey.createTextAttributesKey(COLON_ID);
 
 
   public static TextAttributesKey OPERATION_SIGN = TextAttributesKey.createTextAttributesKey(OPERATION_SIGN_ID);
   public static TextAttributesKey BAD_CHARACTER = TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID);
+
+  public static TextAttributesKey DOC_COMMENT = TextAttributesKey.createTextAttributesKey(DOC_COMMENT_ID,
+          SyntaxHighlighterColors.DOC_COMMENT.getDefaultAttributes());
 
 }
 
