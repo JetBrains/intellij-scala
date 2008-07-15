@@ -23,7 +23,8 @@ ScalaFile
                 Literal
                   PsiElement(integer)('1')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('add')
+                ReferenceExpression
+                  PsiElement(identifier)('add')
                 PsiWhiteSpace(' ')
                 Tuple
                   PsiElement(()('(')
@@ -34,7 +35,8 @@ ScalaFile
                     PsiElement(integer)('2')
                   PsiElement())(')')
               PsiWhiteSpace(' ')
-              PsiElement(identifier)('sub')
+              ReferenceExpression
+                PsiElement(identifier)('sub')
               PsiWhiteSpace(' ')
               Tuple
                 PsiElement(()('(')
@@ -45,12 +47,14 @@ ScalaFile
                   PsiElement(integer)('4')
                 PsiElement())(')')
             PsiWhiteSpace(' ')
-            PsiElement(identifier)('mul')
+            ReferenceExpression
+              PsiElement(identifier)('mul')
             PsiWhiteSpace(' ')
             Literal
               PsiElement(integer)('5')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('div')
+          ReferenceExpression
+            PsiElement(identifier)('div')
           PsiWhiteSpace(' ')
           BlockExpression
             PsiElement({)('{')

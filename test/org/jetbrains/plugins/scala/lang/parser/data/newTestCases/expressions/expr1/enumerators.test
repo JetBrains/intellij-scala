@@ -34,7 +34,8 @@ ScalaFile
                 Literal
                   PsiElement(integer)('1')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('to')
+                ReferenceExpression
+                  PsiElement(identifier)('to')
                 PsiWhiteSpace(' ')
                 ReferenceExpression
                   PsiElement(identifier)('n')

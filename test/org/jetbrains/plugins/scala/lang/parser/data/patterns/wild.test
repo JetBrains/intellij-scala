@@ -294,7 +294,8 @@ ScalaFile
                                     PsiElement(.)('.')
                                     PsiElement(identifier)('pos')
                                   PsiWhiteSpace(' ')
-                                  PsiElement(identifier)('<')
+                                  ReferenceExpression
+                                    PsiElement(identifier)('<')
                                   PsiWhiteSpace(' ')
                                   ReferenceExpression
                                     ReferenceExpression
@@ -345,7 +346,8 @@ ScalaFile
                                     PsiElement(.)('.')
                                     PsiElement(identifier)('pos')
                                   PsiWhiteSpace(' ')
-                                  PsiElement(identifier)('<')
+                                  ReferenceExpression
+                                    PsiElement(identifier)('<')
                                   PsiWhiteSpace(' ')
                                   ReferenceExpression
                                     ReferenceExpression

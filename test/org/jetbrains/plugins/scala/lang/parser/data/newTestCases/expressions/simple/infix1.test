@@ -20,18 +20,22 @@ ScalaFile
           InfixExpression
             Literal
               PsiElement(integer)('1')
-            PsiElement(identifier)('+')
+            ReferenceExpression
+              PsiElement(identifier)('+')
             InfixExpression
               Literal
                 PsiElement(integer)('2')
-              PsiElement(identifier)('*')
+              ReferenceExpression
+                PsiElement(identifier)('*')
               Literal
                 PsiElement(integer)('3')
-          PsiElement(identifier)('-')
+          ReferenceExpression
+            PsiElement(identifier)('-')
           InfixExpression
             Literal
               PsiElement(integer)('4')
-            PsiElement(identifier)('/')
+            ReferenceExpression
+              PsiElement(identifier)('/')
             Literal
               PsiElement(integer)('5')
         PsiWhiteSpace('\n')

@@ -21,7 +21,8 @@ ScalaFile
           Literal
             PsiElement(integer)('1')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('+')
+          ReferenceExpression
+            PsiElement(identifier)('+')
           PsiWhiteSpace(' ')
           PropertySelection
             BlockExpression
@@ -36,7 +37,8 @@ ScalaFile
           Literal
             PsiElement(integer)('1')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('+')
+          ReferenceExpression
+            PsiElement(identifier)('+')
           PsiWhiteSpace(' ')
           BlockExpression
             PsiElement({)('{')

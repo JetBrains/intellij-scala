@@ -24,7 +24,8 @@ ScalaFile
             PsiElement(.)('.')
             PsiElement(identifier)('pair')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('add')
+          ReferenceExpression
+            PsiElement(identifier)('add')
           PsiWhiteSpace(' ')
           Tuple
             PsiElement(()('(')
@@ -40,12 +41,14 @@ ScalaFile
             ReferenceExpression
               PsiElement(identifier)('foo')
             PsiWhiteSpace(' ')
-            PsiElement(identifier)('add')
+            ReferenceExpression
+              PsiElement(identifier)('add')
             PsiWhiteSpace(' ')
             Literal
               PsiElement(integer)('1')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('add')
+          ReferenceExpression
+            PsiElement(identifier)('add')
           PsiWhiteSpace(' ')
           Literal
             PsiElement(integer)('2')

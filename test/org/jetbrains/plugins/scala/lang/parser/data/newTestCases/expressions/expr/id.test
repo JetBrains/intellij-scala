@@ -38,7 +38,8 @@ ScalaFile
             InfixExpression
               Literal
                 PsiElement(integer)('2')
-              PsiElement(identifier)('+')
+              ReferenceExpression
+                PsiElement(identifier)('+')
               Literal
                 PsiElement(float)('2.0')
         PsiWhiteSpace('\n')

@@ -23,7 +23,8 @@ ScalaFile
           InfixExpression
             Literal
               PsiElement(true)('true')
-            PsiElement(identifier)('==')
+            ReferenceExpression
+              PsiElement(identifier)('==')
             Literal
               PsiElement(false)('false')
           PsiElement())(')')

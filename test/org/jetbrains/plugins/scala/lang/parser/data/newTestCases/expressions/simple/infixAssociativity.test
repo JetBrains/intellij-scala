@@ -28,13 +28,15 @@ ScalaFile
               ReferenceExpression
                 PsiElement(identifier)('c')
               PsiWhiteSpace(' ')
-              PsiElement(identifier)('::')
+              ReferenceExpression
+                PsiElement(identifier)('::')
               PsiWhiteSpace(' ')
               ReferenceExpression
                 PsiElement(identifier)('cs')
             PsiElement())(')')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('foldRight')
+          ReferenceExpression
+            PsiElement(identifier)('foldRight')
           PsiWhiteSpace(' ')
           Literal
             PsiElement(string content)('""')

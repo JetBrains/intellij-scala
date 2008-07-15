@@ -76,7 +76,8 @@ ScalaFile
         InfixExpression
           ReferenceExpression
             PsiElement(identifier)('x')
-          PsiElement(identifier)('+')
+          ReferenceExpression
+            PsiElement(identifier)('+')
           ReferenceExpression
             PsiElement(identifier)('t')
         PsiWhiteSpace('\n')

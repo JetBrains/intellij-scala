@@ -30,7 +30,8 @@ ScalaFile
                 Literal
                   PsiElement(integer)('1')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('until')
+                ReferenceExpression
+                  PsiElement(identifier)('until')
                 PsiWhiteSpace(' ')
                 Literal
                   PsiElement(integer)('2')

@@ -85,7 +85,8 @@ ScalaFile
                 ReferenceExpression
                   PsiElement(identifier)('result')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('+=')
+                ReferenceExpression
+                  PsiElement(identifier)('+=')
                 PsiWhiteSpace(' ')
                 ReferenceExpression
                   PsiElement(identifier)('arg')

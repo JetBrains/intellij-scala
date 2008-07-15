@@ -54,7 +54,8 @@ ScalaFile
           InfixExpression
             Literal
               PsiElement(string content)('"How are you, "')
-            PsiElement(identifier)('+')
+            ReferenceExpression
+              PsiElement(identifier)('+')
             ReferenceExpression
               PsiElement(identifier)('name')
         PsiWhiteSpace('\n')
