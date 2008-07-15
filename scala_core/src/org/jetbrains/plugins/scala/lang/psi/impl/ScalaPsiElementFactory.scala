@@ -109,7 +109,7 @@ object ScalaPsiElementFactory {
             CodeStyleSettingsManager.getSettings(manager.getProject).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND <= names.size) &&
             names.filter(_.indexOf("=>") != -1).toSeq.size == 0) text = text + "._"
     else {
-      text = text +  ".{"
+      text = text + ".{"
       for (string <- names) {
         text = text + string
         text = text + ", "
@@ -137,7 +137,7 @@ object ScalaPsiElementFactory {
     val extendsBlock = classDef.extendsBlock
     val parents = extendsBlock.templateParents
     parents match {
-      case Some(p) => {                     
+      case Some(p) => {
         val elements = p.typeElements
         elements.first.asInstanceOf[ScSimpleTypeElement].reference.asInstanceOf[ScStableCodeReferenceElement]
       }
@@ -169,7 +169,7 @@ object ScalaPsiElementFactory {
   }
 
   def createOverrideMethod(method: PsiMethod, manager: PsiManager): ScFunction = {
-    val text = "class a {def foo()}" //todo: extract signature from method
+    val text = "class a {" + getOverrideSign(method, "{\n\n}") + "}" //todo: extract signature from method
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
@@ -197,6 +197,32 @@ object ScalaPsiElementFactory {
       }
       case _ => return false
     }
+  }
+
+  private def getOverrideSign(method: PsiMethod, body: String): String = {
+    var res = ""
+    method match {
+      case method: ScFunction => {
+        res = res + method.getFirstChild.getText
+        if (res != "") res = res + "\n"
+        if (!method.getModifierList.hasModifierProperty("override")) res += "override "
+        res = res + method.getModifierList.getText
+        res = res + "def " + method.getName
+        if (method.paramClauses != null) res =res + method.paramClauses.getText
+        method.returnTypeElement match {
+          case None => res = res + "/*todo: be carefully, this method may have not inferred return type*/"
+          case Some(x) => res = res + ": " + x.getText
+        }
+        res = res + " = "
+        res = res + body
+      }
+      case _ => {
+        if (!method.getModifierList.hasModifierProperty("override")) res += "override "
+        //convert java modifiers
+        //add other signature
+      }
+    }
+    return res
   }
 
   private def getShortName(qualifiedName: String, packageName: String): String = {

@@ -119,9 +119,9 @@ class SyntheticClasses(project: Project) extends ProjectComponent {
     }
   }
 
-  var all: Map[String, ScSyntheticClass] = _
-  var numeric: Set[ScSyntheticClass] = _
-  var integer : Set[ScSyntheticClass] = _
+  var all: Map[String, ScSyntheticClass] = new HashMap[String, ScSyntheticClass]
+  var numeric: Set[ScSyntheticClass] = new HashSet[ScSyntheticClass]
+  var integer : Set[ScSyntheticClass] = new HashSet[ScSyntheticClass]
   def op_type (ic1 : ScSyntheticClass, ic2 : ScSyntheticClass) = (ic1.t, ic2.t) match {
     case (_, Double) | (Double, _) => Double
     case (Float, _) | (_, Float) => Float
