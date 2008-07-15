@@ -36,7 +36,8 @@ ScalaFile
             InfixExpression
               Literal
                 PsiElement(integer)('3')
-              PsiElement(identifier)('+')
+              ReferenceExpression
+                PsiElement(identifier)('+')
               Literal
                 PsiElement(integer)('3')
           PsiWhiteSpace('\n  ')

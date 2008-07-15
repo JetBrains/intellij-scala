@@ -24,21 +24,24 @@ ScalaFile
                 ReferenceExpression
                   PsiElement(identifier)('a')
               PsiWhiteSpace(' ')
-              PsiElement(identifier)('+')
+              ReferenceExpression
+                PsiElement(identifier)('+')
               PsiWhiteSpace(' ')
               PrefixExpression
                 PsiElement(identifier)('-')
                 ReferenceExpression
                   PsiElement(identifier)('b')
             PsiWhiteSpace(' ')
-            PsiElement(identifier)('+')
+            ReferenceExpression
+              PsiElement(identifier)('+')
             PsiWhiteSpace(' ')
             PrefixExpression
               PsiElement(identifier)('~')
               ReferenceExpression
                 PsiElement(identifier)('c')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('+')
+          ReferenceExpression
+            PsiElement(identifier)('+')
           PsiWhiteSpace(' ')
           PrefixExpression
             PsiElement(identifier)('!')

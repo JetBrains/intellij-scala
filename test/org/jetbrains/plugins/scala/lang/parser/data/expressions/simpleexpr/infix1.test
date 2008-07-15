@@ -112,7 +112,8 @@ ScalaFile
                   PsiElement())(')')
               PsiElement())(')')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)(':::')
+          ReferenceExpression
+            PsiElement(identifier)(':::')
           PsiElement(newline)('\n')
           PsiComment(comment)('// '-server' option')
           PsiWhiteSpace('\n')
@@ -152,7 +153,8 @@ ScalaFile
                     PsiElement())(')')
               PsiElement())(')')
             PsiWhiteSpace(' ')
-            PsiElement(identifier)(':::')
+            ReferenceExpression
+              PsiElement(identifier)(':::')
             PsiElement(newline)('\n')
             PsiComment(comment)('// ChoiceSetting')
             PsiWhiteSpace('\n')
@@ -199,12 +201,14 @@ ScalaFile
                             PsiElement(.)('.')
                             PsiElement(identifier)('nme')
                           PsiWhiteSpace(' ')
-                          PsiElement(identifier)('+')
+                          ReferenceExpression
+                            PsiElement(identifier)('+')
                           PsiWhiteSpace(' ')
                           Literal
                             PsiElement(string content)('":"')
                         PsiWhiteSpace(' ')
-                        PsiElement(identifier)('+')
+                        ReferenceExpression
+                          PsiElement(identifier)('+')
                         PsiWhiteSpace(' ')
                         ReferenceExpression
                           ReferenceExpression
@@ -214,7 +218,8 @@ ScalaFile
                     PsiElement())(')')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
-              PsiElement(identifier)(':::')
+              ReferenceExpression
+                PsiElement(identifier)(':::')
               PsiElement(newline)('\n')
               PsiComment(comment)('// BooleanSetting')
               PsiWhiteSpace('\n')
@@ -303,7 +308,8 @@ ScalaFile
                         PsiElement())(')')
                     PsiElement())(')')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)(':::')
+                ReferenceExpression
+                  PsiElement(identifier)(':::')
                 PsiElement(newline)('\n')
                 PsiComment(comment)('// PhaseSetting')
                 PsiWhiteSpace('\n')
@@ -365,12 +371,14 @@ ScalaFile
                                   PsiElement(.)('.')
                                   PsiElement(identifier)('nme')
                                 PsiWhiteSpace(' ')
-                                PsiElement(identifier)('+')
+                                ReferenceExpression
+                                  PsiElement(identifier)('+')
                                 PsiWhiteSpace(' ')
                                 Literal
                                   PsiElement(string content)('":"')
                               PsiWhiteSpace(' ')
-                              PsiElement(identifier)('+')
+                              ReferenceExpression
+                                PsiElement(identifier)('+')
                               PsiWhiteSpace(' ')
                               ReferenceExpression
                                 ReferenceExpression

@@ -34,7 +34,8 @@ ScalaFile
                 Literal
                   PsiElement(integer)('1')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('until')
+                ReferenceExpression
+                  PsiElement(identifier)('until')
                 PsiWhiteSpace(' ')
                 ReferenceExpression
                   PsiElement(identifier)('n')
@@ -49,7 +50,8 @@ ScalaFile
                 Literal
                   PsiElement(integer)('1')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('until')
+                ReferenceExpression
+                  PsiElement(identifier)('until')
                 PsiWhiteSpace(' ')
                 ReferenceExpression
                   PsiElement(identifier)('i')
@@ -65,7 +67,8 @@ ScalaFile
                   InfixExpression
                     ReferenceExpression
                       PsiElement(identifier)('i')
-                    PsiElement(identifier)('+')
+                    ReferenceExpression
+                      PsiElement(identifier)('+')
                     ReferenceExpression
                       PsiElement(identifier)('j')
                   PsiElement())(')')

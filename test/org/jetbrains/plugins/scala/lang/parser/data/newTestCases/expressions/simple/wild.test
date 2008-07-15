@@ -20,7 +20,8 @@ ScalaFile
           Literal
             PsiElement(integer)('2')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('+')
+          ReferenceExpression
+            PsiElement(identifier)('+')
           PsiWhiteSpace(' ')
           PlaceholderExpression
             ReferenceExpression

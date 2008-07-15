@@ -21,14 +21,16 @@ ScalaFile
             ReferenceExpression
               PsiElement(identifier)('a')
             PsiWhiteSpace(' ')
-            PsiElement(identifier)('::')
+            ReferenceExpression
+              PsiElement(identifier)('::')
             PsiWhiteSpace(' ')
             ReferenceExpression
               PsiElement(identifier)('b')
             PsiErrorElement:Wrong associativity. All operators should have the same associativity
               <empty list>
           PsiWhiteSpace(' ')
-          PsiElement(identifier)(':+')
+          ReferenceExpression
+            PsiElement(identifier)(':+')
           PsiWhiteSpace(' ')
           ReferenceExpression
             PsiElement(identifier)('c')

@@ -27,7 +27,8 @@ ScalaFile
             Literal
               PsiElement(true)('true')
             PsiWhiteSpace(' ')
-            PsiElement(identifier)('&&')
+            ReferenceExpression
+              PsiElement(identifier)('&&')
             PsiWhiteSpace(' ')
             Literal
               PsiElement(true)('true')

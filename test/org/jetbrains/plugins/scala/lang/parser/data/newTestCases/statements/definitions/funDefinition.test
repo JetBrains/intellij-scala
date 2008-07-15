@@ -58,12 +58,14 @@ ScalaFile
               Literal
                 PsiElement(integer)('4')
               PsiWhiteSpace(' ')
-              PsiElement(identifier)('::')
+              ReferenceExpression
+                PsiElement(identifier)('::')
               PsiWhiteSpace(' ')
               Literal
                 PsiElement(integer)('3')
             PsiWhiteSpace(' ')
-            PsiElement(identifier)('&:')
+            ReferenceExpression
+              PsiElement(identifier)('&:')
             PsiWhiteSpace(' ')
             Literal
               PsiElement(integer)('5')
