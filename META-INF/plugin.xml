@@ -24,6 +24,7 @@
   <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
   <extensions defaultExtensionNs="com.intellij">
+    <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
     <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
     <annotator language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.ScalaAnnotator"/>
