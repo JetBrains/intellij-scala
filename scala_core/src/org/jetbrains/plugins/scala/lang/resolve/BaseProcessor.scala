@@ -14,6 +14,7 @@ import base.ScFieldId
 import psi.types._
 import psi.ScalaPsiElement
 import psi.api.toplevel.packaging.ScPackaging
+import psi.api.statements.ScFun
 
 object BaseProcessor {
   def unapply(p : BaseProcessor) = Some(p.kinds)
@@ -76,6 +77,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
             }
             case _: ScParameter => kinds contains VAL
             case _: PsiMethod => kinds contains METHOD
+            case _: ScFun => kinds contains METHOD
             case _: PsiField => kinds contains VAR
             case _ => false
           })
