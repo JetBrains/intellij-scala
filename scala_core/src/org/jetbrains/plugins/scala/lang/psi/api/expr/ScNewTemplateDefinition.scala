@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import psi.ScalaPsiElement
+import toplevel.templates.ScExtendsBlock
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -8,5 +9,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScNewTemplateDefinition extends ScExpression {
-
+  def extendsBlock = findChildByClass(classOf[ScExtendsBlock])
 }

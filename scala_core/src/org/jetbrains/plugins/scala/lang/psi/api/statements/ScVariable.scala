@@ -12,8 +12,6 @@ import toplevel.ScTyped
 * Time: 9:45:29
 */
 
-trait ScVariable extends ScalaPsiElement with ScMember with ScDocCommentOwner{
-  def declaredElements : Seq[ScTyped]
-
+trait ScVariable extends ScalaPsiElement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder {
   def typeElement = findChild(classOf[ScTypeElement])
 }

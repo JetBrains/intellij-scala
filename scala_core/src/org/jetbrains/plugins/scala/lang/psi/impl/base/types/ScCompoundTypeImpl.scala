@@ -31,7 +31,7 @@ class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     val comps = components.map {_.getType}
     refinement match {
       case None => new ScCompoundType(comps, Seq.empty, Seq.empty)
-      case Some(r) => new ScCompoundType(comps, r.declarations, r.types)
+      case Some(r) => new ScCompoundType(comps, r.holders, r.types)
     }
   }
 }

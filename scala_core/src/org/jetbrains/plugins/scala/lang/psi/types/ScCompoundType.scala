@@ -5,7 +5,7 @@ import _root_.scala.collection.mutable.{HashSet, HashMap}
 import api.statements._
 import com.intellij.psi.PsiTypeParameter
 
-case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclaration], val typeDecls: Seq[ScTypeAlias]) extends ScType{
+case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclaredElementsHolder], val typeDecls: Seq[ScTypeAlias]) extends ScType{
   //compound types are checked by checking the set of signatures in their refinements
   val signatureMap = new HashMap[Signature, ScType] {
     override def elemHashCode(s : Signature) = s.name.hashCode* 31 + s.types.length
