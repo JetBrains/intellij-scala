@@ -37,9 +37,15 @@ import java.util.Map;
 public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
   // Comments
-  static final TokenSet tCOMMENTS = TokenSet.create(
-          ScalaTokenTypes.tLINE_COMMENT,
-          ScalaTokenTypes.tBLOCK_COMMENT,
+  static final TokenSet tLINE_COMMENTS = TokenSet.create(
+          ScalaTokenTypes.tLINE_COMMENT
+  );
+
+  static final TokenSet tBLOCK_COMMENTS = TokenSet.create(
+          ScalaTokenTypes.tBLOCK_COMMENT
+  );
+
+  static final TokenSet tDOC_COMMENTS = TokenSet.create(
           ScalaTokenTypes.tDOC_COMMENT
   );
 
@@ -149,7 +155,9 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   private static final Map<IElementType, TextAttributesKey> ATTRIBUTES = new HashMap<IElementType, TextAttributesKey>();
 
   static {
-    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tCOMMENTS, DefaultHighlighter.LINE_COMMENT);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tLINE_COMMENTS, DefaultHighlighter.LINE_COMMENT);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tBLOCK_COMMENTS, DefaultHighlighter.BLOCK_COMMENT);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tDOC_COMMENTS, DefaultHighlighter.DOC_COMMENT);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, kRESWORDS, DefaultHighlighter.KEYWORD);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tNUMBERS, DefaultHighlighter.NUMBER);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tSTRINGS, DefaultHighlighter.STRING);

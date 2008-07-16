@@ -39,7 +39,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
   private static final AttributesDescriptor[] ATTRS;
 
   static {
-    ATTRS = new AttributesDescriptor[]{
+    ATTRS = new AttributesDescriptor[] {
             new AttributesDescriptor(DefaultHighlighter.KEYWORD_ID, DefaultHighlighter.KEYWORD),
             new AttributesDescriptor(DefaultHighlighter.NUMBER_ID, DefaultHighlighter.NUMBER),
             new AttributesDescriptor(DefaultHighlighter.STRING_ID, DefaultHighlighter.STRING),
@@ -58,9 +58,12 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             new AttributesDescriptor(DefaultHighlighter.OBJECT_ID, DefaultHighlighter.OBJECT),
             new AttributesDescriptor(DefaultHighlighter.TYPEPARAM_ID, DefaultHighlighter.TYPEPARAM),
             new AttributesDescriptor(DefaultHighlighter.PREDEF_ID, DefaultHighlighter.PREDEF),
+            new AttributesDescriptor(DefaultHighlighter.TRAIT_ID, DefaultHighlighter.TRAIT),
             new AttributesDescriptor(DefaultHighlighter.CLASS_FIELD_ID, DefaultHighlighter.CLASS_FIELD),
             new AttributesDescriptor(DefaultHighlighter.OBJECT_FIELD_ID, DefaultHighlighter.OBJECT_FIELD),
             new AttributesDescriptor(DefaultHighlighter.BAD_CHARACTER_ID, DefaultHighlighter.BAD_CHARACTER),
+            new AttributesDescriptor(DefaultHighlighter.ANNOTATION_ID, DefaultHighlighter.ANNOTATION),
+            new AttributesDescriptor(DefaultHighlighter.ANNOTATION_ATTRIBUTE_ID, DefaultHighlighter.ANNOTATION_ATTRIBUTE),
     };
   }
 
@@ -83,7 +86,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             " */</scaladoc>\n" +
             "<keyword>class</keyword> <class>ScalaClass</class><par>(</par>x<colon>:</colon> <predef>Int</predef><par>)</par>" +
             " <keyword>extends</keyword>" +
-            " ScalaObject <brace>{</brace>\n" +
+            " <class>ScalaObject</class> <brace>{</brace>\n" +
             "  <keyword>val</keyword> <classfield>field</classfield> <assign>=</assign> <string>\"String\"</string>\n" +
             "  <keyword>def</keyword> foo<par>(</par>x<colon>:</colon> <predef>Float</predef><comma>," +
             "</comma> y<colon>:</colon> <predef>Float</predef><par>)</par> <assign>=</assign> <brace>{</brace>\n" +
@@ -99,6 +102,10 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             " */</blockcomment>\n" +
             "<keyword>object</keyword> <object>Object</object> <brace>{</brace>\n" +
             "  <keyword>val</keyword> <objectfield>layer</objectfield> <assign>=</assign> <number>-5.0</number>\n" +
+            "<brace>}</brace>\n\n" +
+            "<annotation>@Annotation</annotation><par>(</par><number>2</number><par>)</par> " +
+            "<brace>{</brace><keyword>val</keyword> <attribute>name</attribute> <assign>=</assign> value<brace>}</brace>\n" +
+            "<keyword>trait</keyword> <trait>Trait</trait> <brace>{</brace>\n" +
             "<brace>}</brace>";
   }
 
@@ -125,6 +132,9 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("class", DefaultHighlighter.CLASS);
     map.put("predef",DefaultHighlighter.PREDEF);
     map.put("object", DefaultHighlighter.OBJECT);
+    map.put("trait",DefaultHighlighter.TRAIT);
+    map.put("annotation",DefaultHighlighter.ANNOTATION);
+    map.put("attribute",DefaultHighlighter.ANNOTATION_ATTRIBUTE);
     //map.put(,);
     return map;
   }

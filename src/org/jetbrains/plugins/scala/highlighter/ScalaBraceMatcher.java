@@ -45,8 +45,10 @@ public class ScalaBraceMatcher implements PairedBraceMatcher {
   public boolean isPairedBracesAllowedBeforeType(@NotNull IElementType type, @Nullable IElementType tokenType) {
     return tokenType == null
         || ScalaTokenTypes.tWHITE_SPACE_IN_LINE == tokenType
-        || ScalaSyntaxHighlighter.tCOMMENTS.contains(tokenType)
         || tokenType == ScalaTokenTypes.tSEMICOLON
+        || tokenType == ScalaTokenTypes.tLINE_COMMENT
+        || tokenType == ScalaTokenTypes.tDOC_COMMENT
+        || tokenType == ScalaTokenTypes.tBLOCK_COMMENT
         || tokenType == ScalaTokenTypes.tCOMMA
         || tokenType == ScalaTokenTypes.tRPARENTHESIS
         || tokenType == ScalaTokenTypes.tRSQBRACKET
