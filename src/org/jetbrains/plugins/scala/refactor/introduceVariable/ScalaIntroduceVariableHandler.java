@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaValid
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableDialogInterface;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.typeManipulator.IType;
 import org.jetbrains.plugins.scala.lang.refactoring.NameSuggester;
-import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.bundle.ScalaBundle;
 
 import java.util.ArrayList;
 

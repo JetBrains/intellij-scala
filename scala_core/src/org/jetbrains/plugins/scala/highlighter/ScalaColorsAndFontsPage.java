@@ -74,6 +74,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             " */</scaladoc>\n" +
             "<keyword>class</keyword> ScalaClass<par>(</par>x<colon>:</colon> Int<par>)</par> <keyword>extends</keyword>" +
             " ScalaObject <brace>{</brace>\n" +
+            "  val <classfield>field</classfield> = <string>\"String\"</string>\n" +
             "<brace>}</brace>";
   }
 
@@ -85,6 +86,9 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("brace", DefaultHighlighter.BRACES);
     map.put("colon", DefaultHighlighter.COLON);
     map.put("scaladoc", DefaultHighlighter.DOC_COMMENT);
+    //map.put("string",);
+    //map.put("classfield",);
+    //map.put(,);
     return map;
   }
 }
