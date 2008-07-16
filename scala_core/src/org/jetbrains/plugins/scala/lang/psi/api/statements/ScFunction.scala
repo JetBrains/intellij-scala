@@ -27,7 +27,7 @@ trait ScFun {
 
 trait ScFunction extends ScalaPsiElement with ScNamedElement with ScMember 
         with ScTopStatement with ScTypeParametersOwner
-        with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped {
+        with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with ScDeclaredElementsHolder {
 
   def paramClauses: ScParameters
 
@@ -38,4 +38,6 @@ trait ScFunction extends ScalaPsiElement with ScNamedElement with ScMember
   def getModifierList(): ScModifierList
 
   def paramTypes = parameters.map{_.calcType}
+
+  def declaredElements = Seq.single(this)
 }

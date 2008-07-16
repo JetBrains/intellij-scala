@@ -14,8 +14,5 @@ import api.statements._
 class ScFunctionDeclarationImpl(node: ASTNode) extends ScFunctionImpl(node) with ScFunctionDeclaration {
 
   override def toString: String = "ScFunctionDeclaration"
-
-  def declaredElements = Seq.single(this)
-
 }
 
