@@ -83,9 +83,9 @@ class MethodResolveProcessor(override val name : String, args : Seq[ScType],
       val buff = new ArrayBuffer[ScalaResolveResult]
       def existsBetter(r : ScalaResolveResult) : Boolean = {
         for (r1 <- applicable if r != r1) {
-          if (isMoreSpecific(r1.element, r.element)) return false
+          if (isMoreSpecific(r1.element, r.element)) return true
         }
-        true
+        false
       }
       for (r <- applicable if !existsBetter(r)) buff += r
       buff.toArray
@@ -98,7 +98,7 @@ class MethodResolveProcessor(override val name : String, args : Seq[ScType],
     val t1 = getType(e1)
     val t2 = getType(e2)
     e1 match {
-      case _ : PsiMethod => {
+      case _ : PsiMethod | _ : ScFun => {
         t1 match {
           case ScFunctionType(ret1, params1) => t2 match {
             case ScFunctionType(ret2, params2) => Compatibility.compatible(ret1, ret2) &&

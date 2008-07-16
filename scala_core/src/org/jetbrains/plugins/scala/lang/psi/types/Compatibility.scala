@@ -5,7 +5,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
  */
 object Compatibility {
   def compatible(l : ScType, r : ScType) = {
-    if (r.conforms(l)) true
+    if (l.conforms(r)) true
     else
       //todo check view applicability
     false

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
+import impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -64,6 +65,11 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
         case ta : ScTypeAlias => processType(p.substitutor.subst(ta.upperBound), processor)
         case des => des.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, p.substitutor), null, this)
       }
+
+    case ValType(name, _) => SyntheticClasses.get(getProject).byName(name) match {
+      case Some(c) => c.processDeclarations(processor, ResolveState.initial, null, this)
+    }
+
     case ScCompoundType(comp, decls, types) => {
       if (processor.kinds.contains(VAR) || processor.kinds.contains(VAL) || processor.kinds.contains(METHOD)) {
         for (decl <- decls) {

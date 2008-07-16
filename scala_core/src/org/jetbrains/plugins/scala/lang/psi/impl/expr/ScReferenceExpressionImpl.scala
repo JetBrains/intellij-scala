@@ -76,7 +76,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
     ref.qualifier match {
       case None => ref.getParent match {
-        case inf: ScInfixExpr if ref == inf.operation => processType(inf.lOp.getType, processor)
+         case inf: ScInfixExpr if ref == inf.operation => processType(inf.lOp.getType, processor)
         case _ => {
           def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
             place match {

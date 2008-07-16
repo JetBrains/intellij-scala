@@ -157,10 +157,7 @@ class SyntheticClasses(project: Project) extends ProjectComponent {
 
   def getAll() = all.values.toList.toArray
 
-  def byName(name: String) = all.get(name) match {
-    case Some(c) => c
-    case _ => null
-  }
+  def byName(name: String) = all.get(name)
 
   val numeric_comp_ops = "==" :: "!=" :: "<" :: ">" :: "<=" :: ">=" :: Nil
   val numeric_arith_ops = "+" :: "-" :: "*" :: "/" :: "%" :: Nil
