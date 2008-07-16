@@ -117,9 +117,9 @@
     <javac2 srcdir="${scala_core.dir}/src"
             destdir="${project.lib}"
             verbose="yes"
-            debug="true">
+            debug="true"
+            target="1.5">
       <classpath refid="base.path"/>
-      <compilerarg value="-target1.5"/>
     </javac2>
 
 
@@ -137,9 +137,9 @@
     <javac2 srcdir="."
             destdir="${project.lib}"
             verbose="yes"
-            debug="true">
+            debug="true"
+            target="1.5">
       <classpath refid="base.path"/>
-      <compilerarg value="-target1.5"/>
     </javac2>
 
     <copy file="../scala_core/src/org/jetbrains/plugins/scala/ScalaBundle.properties"
