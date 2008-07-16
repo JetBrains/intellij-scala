@@ -71,7 +71,33 @@ public class DefaultHighlighter {
   static final String BAD_CHARACTER_ID = "Bad character";
 
   @NonNls
-  static final String DOC_COMMENT_ID = "Doc comment";
+  static final String DOC_COMMENT_ID = "ScalaDoc comment";
+  @NonNls
+  static final String SCALA_DOC_TAG_ID = "ScalaDoc comment tag";
+  @NonNls
+  static final String SCALA_DOC_MARKUP_ID = "ScalaDoc comment markup";
+  @NonNls
+  static final String ABSTRACT_CLASS_ID = "Abstract class";
+  @NonNls
+  static final String TRAIT_ID = "Trait";
+  @NonNls
+  static final String LOCAL_ID = "Local values";
+  @NonNls
+  static final String PARAMETER_ID = "Parameter";
+  @NonNls
+  static final String METHOD_CALL_ID = "Method call";
+  @NonNls
+  static final String OBJECT_METHOD_CALL_ID = "Object method call";
+  @NonNls
+  static final String METHOD_DECLARATION_ID = "Method declaration";
+  @NonNls
+  static final String CONSTRUCTOR_CALL_ID = "Constructor call";
+  @NonNls
+  static final String ANNOTATION_ID = "Annotation name";
+  @NonNls
+  static final String ANNOTATION_ATTRIBUTE_ID = "Annotation attribute name";
+  @NonNls
+  static final String PATTERN_ID = "Pattern value";
 
   // Registering TextAttributes
   static {
@@ -94,6 +120,19 @@ public class DefaultHighlighter {
     TextAttributesKey.createTextAttributesKey(OBJECT_FIELD_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(CLASS_ID, HighlightInfoType.CLASS_NAME.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(CLASS_FIELD_ID, HighlightInfoType.INSTANCE_FIELD.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(SCALA_DOC_TAG_ID, SyntaxHighlighterColors.COMMA.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(SCALA_DOC_MARKUP_ID, SyntaxHighlighterColors.COMMA.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(ABSTRACT_CLASS_ID, HighlightInfoType.ABSTRACT_CLASS_NAME.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(TRAIT_ID, HighlightInfoType.INTERFACE_NAME.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(LOCAL_ID, HighlightInfoType.LOCAL_VARIABLE.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(PATTERN_ID, HighlightInfoType.LOCAL_VARIABLE.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(PARAMETER_ID, HighlightInfoType.PARAMETER.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(METHOD_CALL_ID, HighlightInfoType.METHOD_CALL.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(OBJECT_METHOD_CALL_ID, HighlightInfoType.STATIC_METHOD.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(METHOD_DECLARATION_ID, HighlightInfoType.METHOD_DECLARATION.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(CONSTRUCTOR_CALL_ID, HighlightInfoType.CONSTRUCTOR_CALL.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(ANNOTATION_ID, HighlightInfoType.ANNOTATION_NAME.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(ANNOTATION_ATTRIBUTE_ID, HighlightInfoType.ANNOTATION_ATTRIBUTE_NAME.getAttributesKey().getDefaultAttributes());
 
 
     TextAttributesKey.createTextAttributesKey(ASSIGN_ID, SyntaxHighlighterColors.OPERATION_SIGN.getDefaultAttributes());
@@ -118,7 +157,19 @@ public class DefaultHighlighter {
   public static TextAttributesKey CLASS_FIELD = TextAttributesKey.createTextAttributesKey(CLASS_FIELD_ID);
   public static TextAttributesKey OBJECT = TextAttributesKey.createTextAttributesKey(OBJECT_ID);
   public static TextAttributesKey OBJECT_FIELD = TextAttributesKey.createTextAttributesKey(OBJECT_FIELD_ID);
-
+  public static TextAttributesKey SCALA_DOC_TAG = TextAttributesKey.createTextAttributesKey(SCALA_DOC_TAG_ID);
+  public static TextAttributesKey SCALA_DOC_MARKUP = TextAttributesKey.createTextAttributesKey(SCALA_DOC_MARKUP_ID);
+  public static TextAttributesKey ABSTRACT_CLASS = TextAttributesKey.createTextAttributesKey(ABSTRACT_CLASS_ID);
+  public static TextAttributesKey TRAIT = TextAttributesKey.createTextAttributesKey(TRAIT_ID);
+  public static TextAttributesKey LOCAL = TextAttributesKey.createTextAttributesKey(LOCAL_ID);
+  public static TextAttributesKey PATTERN = TextAttributesKey.createTextAttributesKey(PATTERN_ID);
+  public static TextAttributesKey PARAMETER = TextAttributesKey.createTextAttributesKey(PARAMETER_ID);
+  public static TextAttributesKey METHOD_CALL = TextAttributesKey.createTextAttributesKey(METHOD_CALL_ID);
+  public static TextAttributesKey OBJECT_METHOD_CALL = TextAttributesKey.createTextAttributesKey(OBJECT_METHOD_CALL_ID);
+  public static TextAttributesKey METHOD_DECLARATION = TextAttributesKey.createTextAttributesKey(METHOD_DECLARATION_ID);
+  public static TextAttributesKey CONSTRUCTOR_CALL = TextAttributesKey.createTextAttributesKey(CONSTRUCTOR_CALL_ID);
+  public static TextAttributesKey ANNOTATION = TextAttributesKey.createTextAttributesKey(ANNOTATION_ID);
+  public static TextAttributesKey ANNOTATION_ATTRIBUTE = TextAttributesKey.createTextAttributesKey(ANNOTATION_ATTRIBUTE_ID);                                                                                                            
 
   public static TextAttributesKey ASSIGN = TextAttributesKey.createTextAttributesKey(ASSIGN_ID);
   public static TextAttributesKey BAD_CHARACTER = TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID);
