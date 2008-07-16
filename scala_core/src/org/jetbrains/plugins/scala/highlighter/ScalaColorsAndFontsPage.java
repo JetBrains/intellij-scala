@@ -88,16 +88,16 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             "  <keyword>def</keyword> foo<par>(</par>x<colon>:</colon> <predef>Float</predef><comma>," +
             "</comma> y<colon>:</colon> <predef>Float</predef><par>)</par> <assign>=</assign> <brace>{</brace>\n" +
             "    <object>Math<object>.sqrt<par>(" +
-            "</par>x + y + <number>1000</number><par>)</par><semicolon>;</semicolon>\n" +
-            "  <brace>}</brace><linecomment>//this can crash</linecomment>\n" +
+            "</par>x + y + <number>1000</number><par>)</par><semicolon>;</semicolon> <linecomment>//this can crash</linecomment>\n" +
+            "  <brace>}</brace>\n" +
             "  <keyword>def</keyword> t<bracket>[</bracket><typeparam>T</typeparam><bracket>]</bracket><colon>:</colon> " +
             "<typeparam>T</typeparam> <assign>=</assign> <keyword>null</keyword>\n" +
             "<brace>}</brace>\n" +
             "\n" +
-            "<blockcomment>/*" +
-            "  And now ScalaObject" +
-            " */</blockcomment>" +
-            "<keyword>object</keyword> ScalaObject <brace>{</brace>\n" +
+            "<blockcomment>/*\n" +
+            "  And now ScalaObject\n" +
+            " */</blockcomment>\n" +
+            "<keyword>object</keyword> <object>Object</object> <brace>{</brace>\n" +
             "  <keyword>val</keyword> <objectfield>layer</objectfield> <assign>=</assign> <number>-5.0</number>\n" +
             "<brace>}</brace>";
   }
