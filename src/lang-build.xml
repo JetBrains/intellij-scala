@@ -119,6 +119,7 @@
             verbose="yes"
             debug="true">
       <classpath refid="base.path"/>
+      <compilerarg value="-target 1.5"/>
     </javac2>
 
 
@@ -126,7 +127,8 @@
             destdir="${project.lib}"
             logging="debug"
             scalacdebugging="yes"
-            force="changed">
+            force="changed"
+            target="1.5">
       <classpath refid="base.path"/>
       <include name="**/*.scala"/>
     </scalac>
@@ -137,6 +139,7 @@
             verbose="yes"
             debug="true">
       <classpath refid="base.path"/>
+      <compilerarg value="-target 1.5"/>
     </javac2>
 
     <copy file="../scala_core/src/org/jetbrains/plugins/scala/ScalaBundle.properties"

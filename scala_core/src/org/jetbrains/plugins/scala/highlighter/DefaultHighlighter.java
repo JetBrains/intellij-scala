@@ -18,6 +18,7 @@ package org.jetbrains.plugins.scala.highlighter;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.SyntaxHighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.codeInsight.daemon.impl.HighlightInfoType;
 import org.jetbrains.annotations.NonNls;
 
 /**
@@ -45,7 +46,16 @@ public class DefaultHighlighter {
   @NonNls
   static final String PARENTHESES_ID = "Parentheses";
   @NonNls
-  static final String OPERATION_SIGN_ID = "Operator sign";
+  static final String ASSIGN_ID = "Assign";
+  @NonNls
+  static final String SEMICOLON_ID = "Semicolon";
+  @NonNls
+  static final String DOT_ID = "Dot";
+  @NonNls
+  static final String COMMA_ID = "Comma";
+
+  @NonNls
+  static final String TYPE_ID = "Type parameter";
 
   @NonNls
   static final String BAD_CHARACTER_ID = "Bad character";
@@ -65,9 +75,13 @@ public class DefaultHighlighter {
     TextAttributesKey.createTextAttributesKey(BRACES_ID, SyntaxHighlighterColors.BRACES.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(PARENTHESES_ID, SyntaxHighlighterColors.PARENTHS.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(COLON_ID, SyntaxHighlighterColors.COMMA.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(SEMICOLON_ID, SyntaxHighlighterColors.COMMA.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(DOT_ID, SyntaxHighlighterColors.DOT.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(COMMA_ID, SyntaxHighlighterColors.COMMA.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(TYPE_ID, HighlightInfoType.TYPE_PARAMETER_NAME.getAttributesKey().getDefaultAttributes());
 
 
-    TextAttributesKey.createTextAttributesKey(OPERATION_SIGN_ID, SyntaxHighlighterColors.OPERATION_SIGN.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(ASSIGN_ID, SyntaxHighlighterColors.OPERATION_SIGN.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID, HighlighterColors.BAD_CHARACTER.getDefaultAttributes());
   }
 
@@ -80,9 +94,13 @@ public class DefaultHighlighter {
   public static TextAttributesKey BRACES = TextAttributesKey.createTextAttributesKey(BRACES_ID);
   public static TextAttributesKey PARENTHESES = TextAttributesKey.createTextAttributesKey(PARENTHESES_ID);
   public static TextAttributesKey COLON = TextAttributesKey.createTextAttributesKey(COLON_ID);
+  public static TextAttributesKey SEMICOLON = TextAttributesKey.createTextAttributesKey(SEMICOLON_ID);
+  public static TextAttributesKey COMMA = TextAttributesKey.createTextAttributesKey(COMMA_ID);
+  public static TextAttributesKey DOT = TextAttributesKey.createTextAttributesKey(DOT_ID);
+  public static TextAttributesKey TYPE = TextAttributesKey.createTextAttributesKey(TYPE_ID);
 
 
-  public static TextAttributesKey OPERATION_SIGN = TextAttributesKey.createTextAttributesKey(OPERATION_SIGN_ID);
+  public static TextAttributesKey ASSIGN = TextAttributesKey.createTextAttributesKey(ASSIGN_ID);
   public static TextAttributesKey BAD_CHARACTER = TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID);
 
   public static TextAttributesKey DOC_COMMENT = TextAttributesKey.createTextAttributesKey(DOC_COMMENT_ID,
