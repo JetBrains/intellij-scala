@@ -163,6 +163,6 @@ class SyntheticClasses(project: Project) extends ProjectComponent {
   val numeric_arith_ops = "+" :: "-" :: "*" :: "/" :: "%" :: Nil
   val numeric_arith_unary_ops = "+" :: "-" :: Nil
   val bool_bin_ops = "&&" :: "||" :: "&" :: "|" :: "==" :: "!=" :: Nil
-  val bitwise_bin_ops = "&" :: "|" :: "^" :: "|" :: "==" :: "!=" :: Nil
+  val bitwise_bin_ops = "&" :: "|" :: "^" :: Nil
   val bitwise_shift_ops = "<<" :: ">>" :: ">>>" :: Nil
 }
