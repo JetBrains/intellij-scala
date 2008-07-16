@@ -54,7 +54,12 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             new AttributesDescriptor(DefaultHighlighter.LINE_COMMENT_ID, DefaultHighlighter.LINE_COMMENT),
             new AttributesDescriptor(DefaultHighlighter.BLOCK_COMMENT_ID, DefaultHighlighter.BLOCK_COMMENT),
             new AttributesDescriptor(DefaultHighlighter.DOC_COMMENT_ID, DefaultHighlighter.DOC_COMMENT),
-            new AttributesDescriptor(DefaultHighlighter.TYPE_ID, DefaultHighlighter.TYPE),
+            new AttributesDescriptor(DefaultHighlighter.CLASS_ID, DefaultHighlighter.CLASS),
+            new AttributesDescriptor(DefaultHighlighter.OBJECT_ID, DefaultHighlighter.OBJECT),
+            new AttributesDescriptor(DefaultHighlighter.TYPEPARAM_ID, DefaultHighlighter.TYPEPARAM),
+            new AttributesDescriptor(DefaultHighlighter.PREDEF_ID, DefaultHighlighter.PREDEF),
+            new AttributesDescriptor(DefaultHighlighter.CLASS_FIELD_ID, DefaultHighlighter.CLASS_FIELD),
+            new AttributesDescriptor(DefaultHighlighter.OBJECT_FIELD_ID, DefaultHighlighter.OBJECT_FIELD),
             new AttributesDescriptor(DefaultHighlighter.BAD_CHARACTER_ID, DefaultHighlighter.BAD_CHARACTER),
     };
   }
@@ -76,23 +81,24 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             "<scaladoc>/**\n" +
             " * ScalaDoc comment\n" +
             " */</scaladoc>\n" +
-            "<keyword>class</keyword> ScalaClass<par>(</par>x<colon>:</colon> <type>Int</type><par>)</par>" +
+            "<keyword>class</keyword> <class>ScalaClass</class><par>(</par>x<colon>:</colon> <predef>Int</predef><par>)</par>" +
             " <keyword>extends</keyword>" +
             " ScalaObject <brace>{</brace>\n" +
             "  <keyword>val</keyword> <classfield>field</classfield> <assign>=</assign> <string>\"String\"</string>\n" +
-            "  <keyword>def</keyword> foo<par>(</par>x<colon>:</colon> <type>Float</type><comma>," +
-            "</comma> y<colon>:</colon> <type>Float</type><par>)</par> <assign>=</assign> <brace>{</brace>\n" +
-            "    Math.sqrt<par>(" +
+            "  <keyword>def</keyword> foo<par>(</par>x<colon>:</colon> <predef>Float</predef><comma>," +
+            "</comma> y<colon>:</colon> <predef>Float</predef><par>)</par> <assign>=</assign> <brace>{</brace>\n" +
+            "    <object>Math<object>.sqrt<par>(" +
             "</par>x + y + <number>1000</number><par>)</par><semicolon>;</semicolon>\n" +
             "  <brace>}</brace><linecomment>//this can crash</linecomment>\n" +
-            "  <keyword>def</keyword> t<bracket>[</bracket><type>T</type><bracket>]</bracket><colon>:</colon> " +
-            "<type>T</type> <assign>=</assign> <keyword>null</keyword>\n" +
+            "  <keyword>def</keyword> t<bracket>[</bracket><typeparam>T</typeparam><bracket>]</bracket><colon>:</colon> " +
+            "<typeparam>T</typeparam> <assign>=</assign> <keyword>null</keyword>\n" +
             "<brace>}</brace>\n" +
             "\n" +
             "<blockcomment>/*" +
             "  And now ScalaObject" +
             " */</blockcomment>" +
             "<keyword>object</keyword> ScalaObject <brace>{</brace>\n" +
+            "  <keyword>val</keyword> <objectfield>layer</objectfield> <assign>=</assign> <number>-5.0</number>\n" +
             "<brace>}</brace>";
   }
 
@@ -105,8 +111,9 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("colon", DefaultHighlighter.COLON);
     map.put("scaladoc", DefaultHighlighter.DOC_COMMENT);
     map.put("string", DefaultHighlighter.STRING);
-    //map.put("classfield",);
-    map.put("type",DefaultHighlighter.TYPE);
+    map.put("classfield", DefaultHighlighter.CLASS_FIELD);
+    map.put("objectfield", DefaultHighlighter.OBJECT_FIELD);
+    map.put("typeparam",DefaultHighlighter.TYPEPARAM);
     map.put("assign", DefaultHighlighter.ASSIGN);
     map.put("bracket",DefaultHighlighter.BRACKETS);
     map.put("dot",DefaultHighlighter.DOT);
@@ -115,6 +122,9 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("number",DefaultHighlighter.NUMBER);
     map.put("linecomment",DefaultHighlighter.LINE_COMMENT);
     map.put("blockcomment",DefaultHighlighter.BLOCK_COMMENT);
+    map.put("class", DefaultHighlighter.CLASS);
+    map.put("predef",DefaultHighlighter.PREDEF);
+    map.put("object", DefaultHighlighter.OBJECT);
     //map.put(,);
     return map;
   }

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.importInspections
 
+import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.openapi.command.CommandProcessor
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.openapi.ui.popup.PopupChooserBuilder
@@ -95,7 +96,7 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
   private def visibleHighlights: Array[HighlightInfo] = {
     val highlights = DaemonCodeAnalyzerImpl.getHighlights(document, project)
     if (highlights == null) return Array[HighlightInfo]()
-    for (info <- highlights if startOffset <= info.startOffset && endOffset >= info.endOffset &&
+    for (info <- highlights if isWrongRef(info.`type`) && startOffset <= info.startOffset && endOffset >= info.endOffset &&
             !editor.getFoldingModel.isOffsetCollapsed(info.startOffset)) yield info
   }
 
@@ -123,6 +124,8 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
       }
     })
   }
+
+  private def isWrongRef(info: HighlightInfoType) = info.getAttributesKey == HighlightInfoType.WRONG_REF.getAttributesKey
 
   private class ScalaAddImportAction(classes: Array[PsiClass], ref: ScReferenceElement) extends QuestionAction {
     def addImport(clazz: PsiClass) {
