@@ -27,7 +27,7 @@ import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.bundle.ScalaBundle;
 import org.jetbrains.plugins.scala.config.ui.ScalaFacetEditor;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.util.LibrariesUtil;

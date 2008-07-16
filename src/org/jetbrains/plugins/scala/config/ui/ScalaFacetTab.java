@@ -36,7 +36,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.bundle.ScalaBundle;
 import org.jetbrains.plugins.scala.config.ScalaConfigUtils;
 import org.jetbrains.plugins.scala.config.ScalaFacet;
 import org.jetbrains.plugins.scala.config.ScalaSDK;
