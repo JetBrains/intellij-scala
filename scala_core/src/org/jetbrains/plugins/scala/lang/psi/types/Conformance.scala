@@ -34,7 +34,7 @@ object Conformance {
         case _ => false
       }
       case ValType(_, tSuper) => tSuper match {
-        case Some(tSuper) => conforms(l, tSuper)
+        case Some(tSuper) => conforms(tSuper, r)
         case _ => false
       }
       case ScDesignatorType(tp : ScTypeParam) => conforms(tp.lowerBound, r)
