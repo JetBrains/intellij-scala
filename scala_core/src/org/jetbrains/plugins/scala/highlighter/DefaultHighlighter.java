@@ -55,7 +55,17 @@ public class DefaultHighlighter {
   static final String COMMA_ID = "Comma";
 
   @NonNls
-  static final String TYPE_ID = "Type parameter";
+  static final String TYPEPARAM_ID = "Type parameter";
+  @NonNls
+  static final String PREDEF_ID = "Predefined types";
+  @NonNls
+  static final String OBJECT_ID = "Object";
+  @NonNls
+  static final String OBJECT_FIELD_ID = "Object field";
+  @NonNls
+  static final String CLASS_ID = "Class";
+  @NonNls
+  static final String CLASS_FIELD_ID = "Class field";
 
   @NonNls
   static final String BAD_CHARACTER_ID = "Bad character";
@@ -78,7 +88,12 @@ public class DefaultHighlighter {
     TextAttributesKey.createTextAttributesKey(SEMICOLON_ID, SyntaxHighlighterColors.COMMA.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(DOT_ID, SyntaxHighlighterColors.DOT.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(COMMA_ID, SyntaxHighlighterColors.COMMA.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(TYPE_ID, HighlightInfoType.TYPE_PARAMETER_NAME.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(PREDEF_ID, SyntaxHighlighterColors.COMMA.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(TYPEPARAM_ID, HighlightInfoType.TYPE_PARAMETER_NAME.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(OBJECT_ID, HighlightInfoType.CLASS_NAME.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(OBJECT_FIELD_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(CLASS_ID, HighlightInfoType.CLASS_NAME.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(CLASS_FIELD_ID, HighlightInfoType.INSTANCE_FIELD.getAttributesKey().getDefaultAttributes());
 
 
     TextAttributesKey.createTextAttributesKey(ASSIGN_ID, SyntaxHighlighterColors.OPERATION_SIGN.getDefaultAttributes());
@@ -97,7 +112,12 @@ public class DefaultHighlighter {
   public static TextAttributesKey SEMICOLON = TextAttributesKey.createTextAttributesKey(SEMICOLON_ID);
   public static TextAttributesKey COMMA = TextAttributesKey.createTextAttributesKey(COMMA_ID);
   public static TextAttributesKey DOT = TextAttributesKey.createTextAttributesKey(DOT_ID);
-  public static TextAttributesKey TYPE = TextAttributesKey.createTextAttributesKey(TYPE_ID);
+  public static TextAttributesKey TYPEPARAM = TextAttributesKey.createTextAttributesKey(TYPEPARAM_ID);
+  public static TextAttributesKey PREDEF = TextAttributesKey.createTextAttributesKey(PREDEF_ID);
+  public static TextAttributesKey CLASS = TextAttributesKey.createTextAttributesKey(CLASS_ID);
+  public static TextAttributesKey CLASS_FIELD = TextAttributesKey.createTextAttributesKey(CLASS_FIELD_ID);
+  public static TextAttributesKey OBJECT = TextAttributesKey.createTextAttributesKey(OBJECT_ID);
+  public static TextAttributesKey OBJECT_FIELD = TextAttributesKey.createTextAttributesKey(OBJECT_FIELD_ID);
 
 
   public static TextAttributesKey ASSIGN = TextAttributesKey.createTextAttributesKey(ASSIGN_ID);

@@ -1,5 +1,17 @@
 package org.jetbrains.plugins.scala.annotator
 
+import lang.psi.api.base.patterns.ScBindingPattern
+import lang.psi.api.toplevel.ScTyped
+import lang.psi.api.base.patterns.ScReferencePattern
+import lang.psi.api.statements.ScVariable
+import lang.psi.api.toplevel.templates.ScTemplateBody
+import lang.psi.api.statements.ScValue
+import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import lang.psi.api.toplevel.typedef.ScObject
+import lang.psi.api.toplevel.typedef.ScClass
+import lang.lexer.ScalaTokenTypes
+import highlighter.DefaultHighlighter
+import lang.psi.api.statements.params.ScTypeParam
 import lang.psi.api.expr.ScReferenceExpression
 import com.intellij.openapi.util.TextRange
 import com.intellij.lang.annotation._
@@ -19,7 +31,8 @@ class ScalaAnnotator extends Annotator {
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     element match {
       case x: ScReferenceElement if x.qualifier == None => checkNotQualifiedReferenceElement(x, holder)
-      case _ =>
+      case x: ScReferenceElement => checkQualifiedReferenceElement(x, holder)
+      case _ => highlightElement(element, holder)
     }
   }
 
@@ -32,7 +45,14 @@ class ScalaAnnotator extends Annotator {
         val annotation = holder.createErrorAnnotation(refElement.nameId, error)
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
         registerAddImportFix(refElement, annotation)
-      case _ =>
+      case _ => highlightReferenceElement(refElement, holder)
+    }
+  }
+
+  private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+    refElement.bind() match {
+      case None =>
+      case _ => highlightReferenceElement(refElement, holder)
     }
   }
 
@@ -47,5 +67,110 @@ class ScalaAnnotator extends Annotator {
 
   }
 
-  //private def highlightTypeElement()
+  private def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+    refElement.resolve match {
+      case _: ScTypeParam => {
+        val annotation = holder.createInfoAnnotation(refElement, null)
+        annotation.setTextAttributes(DefaultHighlighter.TYPEPARAM)
+      }
+      case _: ScClass => {
+        val annotation = holder.createInfoAnnotation(refElement, null)
+        annotation.setTextAttributes(DefaultHighlighter.CLASS)
+      }
+      case _: ScObject => {
+        val annotation = holder.createInfoAnnotation(refElement, null)
+        annotation.setTextAttributes(DefaultHighlighter.OBJECT)
+      }
+      case _: ScSyntheticClass => {
+        val annotation = holder.createInfoAnnotation(refElement, null)
+        annotation.setTextAttributes(DefaultHighlighter.PREDEF)
+      }
+      case _: PsiClass if refElement.isInstanceOf[ScStableCodeReferenceElement] => {
+        val annotation = holder.createInfoAnnotation(refElement, null)
+        annotation.setTextAttributes(DefaultHighlighter.CLASS)
+      }
+      case _: PsiClass if refElement.isInstanceOf[ScReferenceExpression] => {
+        val annotation = holder.createInfoAnnotation(refElement, null)
+        annotation.setTextAttributes(DefaultHighlighter.OBJECT)
+      }
+      case x: ScBindingPattern => {
+        var parent: PsiElement = x
+        while (parent != null && !(parent.isInstanceOf[ScValue] || parent.isInstanceOf[ScVariable])) parent = parent.getParent
+        parent match {
+          case x: ScValue if x.getParent.isInstanceOf[ScTemplateBody] && x.getParent.getParent.getParent.isInstanceOf[ScClass] => {
+            val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
+            annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD)
+          }
+          case x: ScVariable if x.getParent.isInstanceOf[ScTemplateBody] && x.getParent.getParent.getParent.isInstanceOf[ScClass] => {
+            val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
+            annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD)
+          }
+          case x: ScValue if x.getParent.isInstanceOf[ScTemplateBody] && x.getParent.getParent.getParent.isInstanceOf[ScObject] => {
+            val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
+            annotation.setTextAttributes(DefaultHighlighter.OBJECT_FIELD)
+          }
+          case x: ScVariable if x.getParent.isInstanceOf[ScTemplateBody] && x.getParent.getParent.getParent.isInstanceOf[ScObject] => {
+            val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
+            annotation.setTextAttributes(DefaultHighlighter.OBJECT_FIELD)
+          }
+          case _ =>
+        }
+      }
+      case x: PsiField if x.getModifierList.hasModifierProperty("static") => {
+        val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
+        annotation.setTextAttributes(DefaultHighlighter.OBJECT_FIELD)
+      }
+      case x: PsiField => {
+        val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
+        annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD)
+      }
+      case x => //println("" + x + " " + x.getText)
+    }
+  }
+
+  private def highlightElement(element: PsiElement, holder: AnnotationHolder) {
+    element match {
+      case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => {
+        element.getParent match {
+          case _: ScTypeParam => {
+            val annotation = holder.createInfoAnnotation(element, null)
+            annotation.setTextAttributes(DefaultHighlighter.TYPEPARAM)
+          }
+          case _: ScClass => {
+            val annotation = holder.createInfoAnnotation(element, null)
+            annotation.setTextAttributes(DefaultHighlighter.CLASS)
+          }
+          case _: ScObject => {
+            val annotation = holder.createInfoAnnotation(element, null)
+            annotation.setTextAttributes(DefaultHighlighter.OBJECT)
+          }
+          case x: ScBindingPattern => {
+            var parent: PsiElement = x
+            while (parent != null && !(parent.isInstanceOf[ScValue] || parent.isInstanceOf[ScVariable])) parent = parent.getParent
+            parent match {
+              case x: ScValue if x.getParent.isInstanceOf[ScTemplateBody] && x.getParent.getParent.getParent.isInstanceOf[ScClass] => {
+                val annotation = holder.createInfoAnnotation(element, null)
+                annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD)
+              }
+              case x: ScVariable if x.getParent.isInstanceOf[ScTemplateBody] && x.getParent.getParent.getParent.isInstanceOf[ScClass] => {
+                val annotation = holder.createInfoAnnotation(element, null)
+                annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD)
+              }
+              case x: ScValue if x.getParent.isInstanceOf[ScTemplateBody] && x.getParent.getParent.getParent.isInstanceOf[ScObject] => {
+                val annotation = holder.createInfoAnnotation(element, null)
+                annotation.setTextAttributes(DefaultHighlighter.OBJECT_FIELD)
+              }
+              case x: ScVariable if x.getParent.isInstanceOf[ScTemplateBody] && x.getParent.getParent.getParent.isInstanceOf[ScObject] => {
+                val annotation = holder.createInfoAnnotation(element, null)
+                annotation.setTextAttributes(DefaultHighlighter.OBJECT_FIELD)
+              }
+              case _ =>
+            }
+          }
+          case _ =>
+        }
+      }
+      case _ =>
+    }
+  }
 }
