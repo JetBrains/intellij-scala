@@ -61,7 +61,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             _.getType
           }, expectedType)
         case inf : ScInfixExpr if ref == inf.operation => {
-          val args = inf.rOp match {
+          val args = if (ref.rightAssoc) Seq.singleton(inf.lOp.getType) else inf.rOp match {
             case tuple : ScTuple => tuple.exprs.map {_.getType}
             case rOp => Seq.singleton(rOp.getType)
           }
@@ -76,7 +76,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
     ref.qualifier match {
       case None => ref.getParent match {
-         case inf: ScInfixExpr if ref == inf.operation => processType(inf.lOp.getType, processor)
+         case inf: ScInfixExpr if ref == inf.operation => {
+           val thisOp = if (ref.rightAssoc) inf.rOp else inf.lOp
+           processType(thisOp.getType, processor)
+         }
         case _ => {
           def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
             place match {
@@ -96,6 +99,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
     processor.candidates
   }
+
+  private def rightAssoc = refName.endsWith(":")
 
   override def getType(): ScType = {
     //todo return singleton type in the contexts it is needed
