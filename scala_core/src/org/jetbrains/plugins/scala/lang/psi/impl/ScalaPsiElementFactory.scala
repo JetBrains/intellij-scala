@@ -205,7 +205,7 @@ object ScalaPsiElementFactory {
       case method: ScFunction => {
         res = res + method.getFirstChild.getText
         if (res != "") res = res + "\n"
-        if (!method.getModifierList.hasModifierProperty("override")) res += "override "
+        if (!method.getModifierList.hasModifierProperty("override")) res = res + "override "
         res = res + method.getModifierList.getText
         res = res + "def " + method.getName
         if (method.paramClauses != null) res =res + method.paramClauses.getText
@@ -217,7 +217,7 @@ object ScalaPsiElementFactory {
         res = res + body
       }
       case _ => {
-        if (!method.getModifierList.hasModifierProperty("override")) res += "override "
+        if (!method.getModifierList.hasModifierProperty("override")) res = res + "override "
         //convert java modifiers
         //add other signature
       }
@@ -233,8 +233,8 @@ object ScalaPsiElementFactory {
     while (i < qArray.length - 1 && i < pArray.length && qArray(i) == pArray(i)) i = i + 1
     var res = ""
     while (i < qArray.length) {
-      res += qArray(i)
-      res += "."
+      res = res + qArray(i)
+      res = res + "."
       i = i + 1
     }
     return res.substring(0, res.length - 1)
