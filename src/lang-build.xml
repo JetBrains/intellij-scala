@@ -119,6 +119,7 @@
             verbose="yes"
             debug="true">
       <classpath refid="base.path"/>
+      <compilerarg value="-Xlint"/>
     </javac2>
 
 
@@ -137,6 +138,7 @@
             verbose="yes"
             debug="true">
       <classpath refid="base.path"/>
+      <compilerarg value="-Xlint"/>      
     </javac2>
 
     <copy file="../scala_core/src/org/jetbrains/plugins/scala/ScalaBundle.properties"
