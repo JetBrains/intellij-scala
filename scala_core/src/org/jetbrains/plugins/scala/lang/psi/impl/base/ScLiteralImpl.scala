@@ -36,6 +36,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
         val str = JavaPsiFacade.getInstance(getProject).findClass("java.lang.String", getResolveScope)
         if (str != null) new ScDesignatorType(str) else Nothing
       }
+      case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => Boolean
     }
   }
 }
