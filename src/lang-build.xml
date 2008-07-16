@@ -128,7 +128,7 @@
             logging="debug"
             scalacdebugging="yes"
             force="changed"
-            target="1.5">
+            target="jvm-1.5">
       <classpath refid="base.path"/>
       <include name="**/*.scala"/>
     </scalac>
