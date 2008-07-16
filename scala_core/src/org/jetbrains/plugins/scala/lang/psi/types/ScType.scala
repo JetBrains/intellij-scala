@@ -8,7 +8,7 @@ trait ScType {
 
   def equiv(t: ScType): Boolean = t == this
 
-  sealed def conforms(t: ScType): Boolean = Conformance.conforms(t, this)
+  sealed def conforms(t: ScType): Boolean = Conformance.conforms(this, t)
 }
 
 case object Any extends ScType
