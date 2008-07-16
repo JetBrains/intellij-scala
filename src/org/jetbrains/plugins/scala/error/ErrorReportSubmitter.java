@@ -22,7 +22,7 @@ import com.intellij.openapi.diagnostic.SubmittedReportInfo;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.bundle.ScalaBundle;
+import org.jetbrains.plugins.scala.ScalaBundle;
 
 import java.awt.*;
 import java.io.IOException;

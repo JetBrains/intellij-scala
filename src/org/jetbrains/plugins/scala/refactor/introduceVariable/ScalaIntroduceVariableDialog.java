@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.EventListener;
 import java.awt.event.*;
 
-import org.jetbrains.plugins.scala.bundle.ScalaBundle;
+import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesUtil;

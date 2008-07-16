@@ -131,9 +131,19 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   );
 
   static final TokenSet tOPS = TokenSet.create(
-          ScalaTokenTypes.tASSIGN,
-          ScalaTokenTypes.tDIV,
-          ScalaTokenTypes.tSTAR
+          ScalaTokenTypes.tASSIGN
+  );
+
+  static final TokenSet tSEMICOLON = TokenSet.create(
+          ScalaTokenTypes.tSEMICOLON
+  );
+
+  static final TokenSet tDOT = TokenSet.create(
+          ScalaTokenTypes.tDOT
+  );
+
+  static final TokenSet tCOMMA = TokenSet.create(
+          ScalaTokenTypes.tCOMMA
   );
 
   private static final Map<IElementType, TextAttributesKey> ATTRIBUTES = new HashMap<IElementType, TextAttributesKey>();
@@ -146,9 +156,12 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tBRACES, DefaultHighlighter.BRACES);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tBRACKETS, DefaultHighlighter.BRACKETS);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tPARENTESES, DefaultHighlighter.PARENTHESES);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tSEMICOLON, DefaultHighlighter.SEMICOLON);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tDOT, DefaultHighlighter.DOT);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tCOMMA, DefaultHighlighter.COMMA);
 
-    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tOPS, DefaultHighlighter.OPERATION_SIGN);
-    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_TAGS, DefaultHighlighter.OPERATION_SIGN);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tOPS, DefaultHighlighter.ASSIGN);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_TAGS, DefaultHighlighter.ASSIGN);
 
   }
 

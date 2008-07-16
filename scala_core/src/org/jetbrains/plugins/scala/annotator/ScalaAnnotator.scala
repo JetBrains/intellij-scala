@@ -46,4 +46,6 @@ class ScalaAnnotator extends Annotator {
   private def registerUsedImports(refElement: ScStableCodeReferenceElement, annotation: Annotation) {
 
   }
+
+  //private def highlightTypeElement()
 }

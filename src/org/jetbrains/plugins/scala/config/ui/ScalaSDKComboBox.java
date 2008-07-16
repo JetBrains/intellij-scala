@@ -23,7 +23,7 @@ import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.bundle.ScalaBundle;
+import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.config.ScalaConfigUtils;
 import org.jetbrains.plugins.scala.config.ScalaSDK;
 import org.jetbrains.plugins.scala.config.util.AbstractSDK;

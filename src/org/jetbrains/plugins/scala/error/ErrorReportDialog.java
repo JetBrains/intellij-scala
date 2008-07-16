@@ -20,7 +20,7 @@ import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.ui.Messages;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.bundle.ScalaBundle;
+import org.jetbrains.plugins.scala.ScalaBundle;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
