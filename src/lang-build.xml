@@ -119,7 +119,7 @@
             verbose="yes"
             debug="true">
       <classpath refid="base.path"/>
-      <compilerarg value="-target 1.5"/>
+      <compilerarg value="-target1.5"/>
     </javac2>
 
 
@@ -139,7 +139,7 @@
             verbose="yes"
             debug="true">
       <classpath refid="base.path"/>
-      <compilerarg value="-target 1.5"/>
+      <compilerarg value="-target1.5"/>
     </javac2>
 
     <copy file="../scala_core/src/org/jetbrains/plugins/scala/ScalaBundle.properties"
