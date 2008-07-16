@@ -19,6 +19,10 @@ class ScNewTemplateDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
       case Some(b) => (b.holders, b.aliases)
       case None => (Seq.empty, Seq.empty)
     }
-    new ScCompoundType(extendsBlock.superTypes, holders, aliases)
+
+    val superTypes = extendsBlock.superTypes
+    if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
+      new ScCompoundType(superTypes, holders, aliases)
+    } else superTypes(0)
   }
 }
