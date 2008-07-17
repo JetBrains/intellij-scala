@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
-import com.intellij.psi.PsiField
-import com.intellij.psi.PsiMember
 import statements.ScVariable
 import statements.ScValue
-import com.intellij.psi.{PsiElement, PsiClass}
+import com.intellij.psi._
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.util.Iconable
 
@@ -16,6 +14,7 @@ import templates._
 import statements.{ScTypeAlias, ScFunction}
 import statements.params._
 import types.ScType
+import base._
 
 /** 
 * @autor Alexander Podkhalyuzin
@@ -46,7 +45,9 @@ trait ScTypeDefinition extends ScNamedElement
 
   def allFields: Seq[PsiField]
 
-  def getSuperClassNames() = Array[String]() //for build restore  
+  def getSuperClassNames() = Array[String]() //for build restore
+
+  def getModifierList: PsiModifierList = findChildByClass(classOf[ScModifierList])
 
   def getPath: String = {
     var qualName = getQualifiedName;

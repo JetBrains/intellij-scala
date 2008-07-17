@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 * Date: 20.02.2008
 */
 
-trait ScClass extends ScTypeDefinition with ScParameterOwner{
+trait ScClass extends ScTypeDefinition with ScParameterOwner {
   def constructor = findChild(classOf[ScPrimaryConstructor])
   def isCase : Boolean
 }
