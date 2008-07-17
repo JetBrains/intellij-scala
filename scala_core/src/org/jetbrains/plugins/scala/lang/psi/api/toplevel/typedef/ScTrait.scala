@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
+import base.ScModifierList
+import com.intellij.psi.PsiModifierList
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /** 
@@ -8,5 +10,4 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScTrait extends ScTypeDefinition {
-
 }

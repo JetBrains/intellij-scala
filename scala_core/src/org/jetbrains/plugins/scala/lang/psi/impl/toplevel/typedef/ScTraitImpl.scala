@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import api.base.ScModifierList
+import com.intellij.psi.{PsiElement, PsiModifierList}
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
@@ -22,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait with ScTypeParametersOwner {
 
+  override def getModifierList: ScModifierList = findChildByClass(classOf[ScModifierList])
   override def toString: String = "ScTrait"
 
   override def getIconInner = Icons.TRAIT
