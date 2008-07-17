@@ -21,14 +21,14 @@ import lang.lexer.ScalaTokenTypes
 object AnnotatorHighlighter {
   def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
     refElement.resolve match {
-      case x: ScClass if x.getModifierList.hasModifierProperty("abstract") => {
+      /*case x: ScClass if x.getModifierList.hasModifierProperty("abstract") => {
         val annotation = holder.createInfoAnnotation(refElement, null)
         annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
       }
       case x: PsiClass if x.getModifierList.hasModifierProperty("abstract") => {
         val annotation = holder.createInfoAnnotation(refElement, null)
         annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
-      }
+      }*/
       case _: ScTypeParam => {
         val annotation = holder.createInfoAnnotation(refElement, null)
         annotation.setTextAttributes(DefaultHighlighter.TYPEPARAM)
@@ -100,11 +100,7 @@ object AnnotatorHighlighter {
 
   def highlightElement(element: PsiElement, holder: AnnotationHolder) {
     element match {
-      case _: ScSimpleTypeElement if element.getParent.isInstanceOf[ScConstructor] &&
-              element.getParent.getParent.isInstanceOf[ScAnnotationExpr] => {
-        val annotation = holder.createInfoAnnotation(element, null)
-        annotation.setTextAttributes(DefaultHighlighter.ANNOTATION)
-      }
+      case x: ScAnnotation => visitAnnotation(x, holder)
       case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => {
         element.getParent match {
           case _: ScNameValuePair => {
@@ -115,10 +111,10 @@ object AnnotatorHighlighter {
             val annotation = holder.createInfoAnnotation(element, null)
             annotation.setTextAttributes(DefaultHighlighter.TYPEPARAM)
           }
-          case x: ScClass if x.getModifierList.hasModifierProperty("abstract") => {
+          /*case x: ScClass if x.getModifierList.hasModifierProperty("abstract") => {
             val annotation = holder.createInfoAnnotation(element, null)
             annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
-          }
+          }*/
           case _: ScClass => {
             val annotation = holder.createInfoAnnotation(element, null)
             annotation.setTextAttributes(DefaultHighlighter.CLASS)
@@ -159,11 +155,15 @@ object AnnotatorHighlighter {
           case _ =>
         }
       }
-      case _ if element.getNode.getElementType == ScalaTokenTypes.tAT && element.getParent.isInstanceOf[ScAnnotation] => {
-        val annotation = holder.createInfoAnnotation(element, null)
-        annotation.setTextAttributes(DefaultHighlighter.ANNOTATION)
-      }
       case _ =>
     }
+  }
+
+  private def visitAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Unit = {
+    val annotation1 = holder.createInfoAnnotation(annotation.getFirstChild, null)
+    annotation1.setTextAttributes(DefaultHighlighter.ANNOTATION)
+    val element = annotation.annotationExpr.constr.typeElement
+    val annotation2 = holder.createInfoAnnotation(element, null)
+    annotation2.setTextAttributes(DefaultHighlighter.ANNOTATION)
   }
 }
