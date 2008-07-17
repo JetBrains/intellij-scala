@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import api.base.ScModifierList
+import com.intellij.psi.{PsiElement, PsiModifierList}
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
@@ -26,6 +28,8 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
   override def toString: String = "ScClass"
 
   override def getIconInner = Icons.CLASS
+
+  override def getModifierList: ScModifierList = findChildByClass(classOf[ScModifierList])
 
   def parameters = constructor match {
       case Some(c) => c.parameters.params

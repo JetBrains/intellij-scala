@@ -80,10 +80,10 @@ class ScalaAnnotator extends Annotator {
 
   private def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
     refElement.resolve match {
-      /*case x: ScClass if x.getModifierList.hasModifierProperty("abstract") => {
+      case x: ScClass if x.getModifierList.hasModifierProperty("abstract") => {
         val annotation = holder.createInfoAnnotation(refElement, null)
         annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
-      }*/ //todo: getModifierList
+      }
       case x: PsiClass if x.getModifierList.hasModifierProperty("abstract") && !x.isInstanceOf[ScClass] => {
         val annotation = holder.createInfoAnnotation(refElement, null)
         annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
@@ -196,10 +196,10 @@ class ScalaAnnotator extends Annotator {
             val annotation = holder.createInfoAnnotation(element, null)
             annotation.setTextAttributes(DefaultHighlighter.TYPEPARAM)
           }
-          /*case x: ScClass if x.getModifierList.hasModifierProperty("abstract") => {
+          case x: ScClass if x.getModifierList.hasModifierProperty("abstract") => {
             val annotation = holder.createInfoAnnotation(element, null)
             annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
-          }*/ //todo: getModifierList
+          }
           case _: ScClass => {
             val annotation = holder.createInfoAnnotation(element, null)
             annotation.setTextAttributes(DefaultHighlighter.CLASS)

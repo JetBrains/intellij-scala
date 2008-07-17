@@ -47,8 +47,6 @@ trait ScTypeDefinition extends ScNamedElement
 
   def getSuperClassNames() = Array[String]() //for build restore
 
-  def getModifierList: PsiModifierList = findChildByClass(classOf[ScModifierList])
-
   def getPath: String = {
     var qualName = getQualifiedName;
     val index = qualName.lastIndexOf('.');
