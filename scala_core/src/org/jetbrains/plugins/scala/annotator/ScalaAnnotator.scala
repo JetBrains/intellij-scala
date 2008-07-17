@@ -84,7 +84,7 @@ class ScalaAnnotator extends Annotator {
         val annotation = holder.createInfoAnnotation(refElement, null)
         annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
       }*/ //todo: getModifierList
-      case x: PsiClass if x.getModifierList.hasModifierProperty("abstract") => {
+      case x: PsiClass if x.getModifierList.hasModifierProperty("abstract") && !x.isInstanceOf[ScClass] => {
         val annotation = holder.createInfoAnnotation(refElement, null)
         annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
       }
