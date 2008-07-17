@@ -125,6 +125,7 @@
 
     <scalac srcdir="${scala_core.dir}/src"
             destdir="${project.lib}"
+            verbose="yes"
             logging="debug"
             scalacdebugging="yes"
             force="changed"
