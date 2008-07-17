@@ -7,7 +7,7 @@ import com.intellij.ide.IconProvider
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
-class ScalaIconProvider extends IconProvider {
+class ScalaIconProvider extends Object with IconProvider {
   @Nullable
   override def getIcon(element: PsiElement, flags: Int): Icon = {
 
