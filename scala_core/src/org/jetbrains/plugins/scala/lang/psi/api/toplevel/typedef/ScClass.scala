@@ -11,4 +11,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 
 trait ScClass extends ScTypeDefinition with ScParameterOwner{
   def constructor = findChild(classOf[ScPrimaryConstructor])
+  def isCase : Boolean
 }

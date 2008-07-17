@@ -44,4 +44,6 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
 
     return super.processDeclarations(processor, state, lastParent, place)
   }
+
+  def isCase = getModifierList.has(ScalaTokenTypes.kCASE)
 }

@@ -39,4 +39,5 @@ class ScModifierListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   //todo implement me!
   def findAnnotation(name: String) = null
 
+  def has (prop : IElementType) = findChildByType(prop) != null
 }
