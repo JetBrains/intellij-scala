@@ -32,6 +32,12 @@ class ScalaAnnotator extends Annotator {
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     element match {
+      case x: ScReferenceExpression if x.qualifier == None => { //todo: temporary case
+        x.bind match {
+          case Some(_) => highlightReferenceElement(x, holder)
+          case None =>
+        }
+      }
       case x: ScReferenceElement if x.qualifier == None => checkNotQualifiedReferenceElement(x, holder)
       case x: ScReferenceElement => checkQualifiedReferenceElement(x, holder)
       case _ => highlightElement(element, holder)
