@@ -92,13 +92,4 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
   def isMainMethod: Boolean = false
 
   import com.intellij.psi.scope.PsiScopeProcessor
-
-  override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
-    if (!processor.execute(this, state)) return false
-
-    super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
-  }
 }
