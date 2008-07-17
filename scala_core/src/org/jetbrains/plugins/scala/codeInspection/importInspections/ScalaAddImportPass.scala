@@ -49,13 +49,13 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
     ApplicationManager.getApplication.assertIsDispatchThread
     if (!editor.getContentComponent.hasFocus) return
     var flag = false
+    //val visibleHighlight = visibleHighlights.apply(0)
     for (visibleHighlight <- visibleHighlights) {
       ProgressManager.getInstance.checkCanceled
       val element = file.findElementAt(visibleHighlight.startOffset)
-      if (element != null && element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER /*&&
-         visibleHighlight.`type`.getAttributesKey() == HighlightInfoType.WRONG_REF.getAttributesKey()*/ ) {
+      if (element != null && element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
         element.getParent match {
-          case x: ScReferenceElement if x.refName != null => {
+          case x: ScReferenceElement if x.refName != null && (x.bind match {case None => true case _ => false}) => {
             val function = JavaPsiFacade.getInstance(myProject).getShortNamesCache().getClassesByName _
             val classes = function(x.refName, GlobalSearchScope.allScope(myProject))
             classes.length match {
@@ -125,7 +125,7 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
     })
   }
 
-  private def isWrongRef(info: HighlightInfoType) = info.getAttributesKey == HighlightInfoType.WRONG_REF.getAttributesKey
+  private def isWrongRef(info: HighlightInfoType): Boolean = info.getAttributesKey == HighlightInfoType.WRONG_REF.getAttributesKey
 
   private class ScalaAddImportAction(classes: Array[PsiClass], ref: ScReferenceElement) extends QuestionAction {
     def addImport(clazz: PsiClass) {
