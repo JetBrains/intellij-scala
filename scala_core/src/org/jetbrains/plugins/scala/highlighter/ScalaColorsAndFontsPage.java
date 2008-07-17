@@ -54,13 +54,22 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             new AttributesDescriptor(DefaultHighlighter.LINE_COMMENT_ID, DefaultHighlighter.LINE_COMMENT),
             new AttributesDescriptor(DefaultHighlighter.BLOCK_COMMENT_ID, DefaultHighlighter.BLOCK_COMMENT),
             new AttributesDescriptor(DefaultHighlighter.DOC_COMMENT_ID, DefaultHighlighter.DOC_COMMENT),
+            new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_TAG_ID , DefaultHighlighter.SCALA_DOC_TAG),
+            new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_MARKUP_ID, DefaultHighlighter.SCALA_DOC_MARKUP),
             new AttributesDescriptor(DefaultHighlighter.CLASS_ID, DefaultHighlighter.CLASS),
+            new AttributesDescriptor(DefaultHighlighter.ABSTRACT_CLASS_ID, DefaultHighlighter.ABSTRACT_CLASS),
             new AttributesDescriptor(DefaultHighlighter.OBJECT_ID, DefaultHighlighter.OBJECT),
             new AttributesDescriptor(DefaultHighlighter.TYPEPARAM_ID, DefaultHighlighter.TYPEPARAM),
             new AttributesDescriptor(DefaultHighlighter.PREDEF_ID, DefaultHighlighter.PREDEF),
             new AttributesDescriptor(DefaultHighlighter.TRAIT_ID, DefaultHighlighter.TRAIT),
+            new AttributesDescriptor(DefaultHighlighter.LOCAL_ID, DefaultHighlighter.LOCAL),
             new AttributesDescriptor(DefaultHighlighter.CLASS_FIELD_ID, DefaultHighlighter.CLASS_FIELD),
             new AttributesDescriptor(DefaultHighlighter.OBJECT_FIELD_ID, DefaultHighlighter.OBJECT_FIELD),
+            new AttributesDescriptor(DefaultHighlighter.PARAMETER_ID, DefaultHighlighter.PARAMETER),
+            new AttributesDescriptor(DefaultHighlighter.METHOD_CALL_ID, DefaultHighlighter.METHOD_CALL),
+            new AttributesDescriptor(DefaultHighlighter.OBJECT_METHOD_CALL_ID, DefaultHighlighter.OBJECT_METHOD_CALL),
+            new AttributesDescriptor(DefaultHighlighter.METHOD_DECLARATION_ID, DefaultHighlighter.METHOD_DECLARATION),
+            new AttributesDescriptor(DefaultHighlighter.CONSTRUCTOR_CALL_ID, DefaultHighlighter.CONSTRUCTOR_CALL),
             new AttributesDescriptor(DefaultHighlighter.BAD_CHARACTER_ID, DefaultHighlighter.BAD_CHARACTER),
             new AttributesDescriptor(DefaultHighlighter.ANNOTATION_ID, DefaultHighlighter.ANNOTATION),
             new AttributesDescriptor(DefaultHighlighter.ANNOTATION_ATTRIBUTE_ID, DefaultHighlighter.ANNOTATION_ATTRIBUTE),
@@ -82,19 +91,22 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
   public String getDemoText() {
     return "<keyword>import</keyword> scala<dot>.</dot>collection<dot>.</dot>mutable<dot>.</dot>_\n\n" +
             "<scaladoc>/**\n" +
-            " * ScalaDoc comment\n" +
+            " * ScalaDoc comment: <markup><code></markup>Some code<markup></code></markup>\n" +
+            " * <tag>@author</tag> IntelliJ\n" +
             " */</scaladoc>\n" +
-            "<keyword>class</keyword> <class>ScalaClass</class><par>(</par>x<colon>:</colon> <predef>Int</predef><par>)</par>" +
+            "<keyword>class</keyword> <class>ScalaClass</class><par>(</par><param>x</param><colon>:</colon> <predef>Int</predef><par>)</par>" +
             " <keyword>extends</keyword>" +
             " <class>ScalaObject</class> <brace>{</brace>\n" +
             "  <keyword>val</keyword> <classfield>field</classfield> <assign>=</assign> <string>\"String\"</string>\n" +
-            "  <keyword>def</keyword> foo<par>(</par>x<colon>:</colon> <predef>Float</predef><comma>," +
-            "</comma> y<colon>:</colon> <predef>Float</predef><par>)</par> <assign>=</assign> <brace>{</brace>\n" +
-            "    <object>Math<object>.sqrt<par>(" +
-            "</par>x + y + <number>1000</number><par>)</par><semicolon>;</semicolon> <linecomment>//this can crash</linecomment>\n" +
+            "  <keyword>def</keyword> <methoddecl>foo</methoddecl><par>(</par><param>x</param><colon>:</colon> <predef>Float</predef><comma>," +
+            "</comma> <param>y</param><colon>:</colon> <predef>Float</predef><par>)</par> <assign>=</assign> <brace>{</brace>\n" +
+            "    <keyword>val</keyword> <local>local</local> <assign>=</assign> <number>1000</number>\n" +
+            "    <object>Math</object><dot>.</dot><objectmethod>sqrt</objectmethod><par>(" +
+            "</par><param>x</param> + <param>y</param> + <local>local</local><par>)</par><semicolon>;</semicolon> <linecomment>//this can crash</linecomment>\n" +
             "  <brace>}</brace>\n" +
-            "  <keyword>def</keyword> t<bracket>[</bracket><typeparam>T</typeparam><bracket>]</bracket><colon>:</colon> " +
+            "  <keyword>def</keyword> <methoddecl>t</methoddecl><bracket>[</bracket><typeparam>T</typeparam><bracket>]</bracket><colon>:</colon> " +
             "<typeparam>T</typeparam> <assign>=</assign> <keyword>null</keyword>\n" +
+            "  <method>foo</method><par>(</par><number>0</number><comma>,</comma> <number>-1</number><par>)</par>\n" +
             "<brace>}</brace>\n" +
             "\n" +
             "<blockcomment>/*\n" +
@@ -102,11 +114,15 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             " */</blockcomment>\n" +
             "<keyword>object</keyword> <object>Object</object> <brace>{</brace>\n" +
             "  <keyword>val</keyword> <objectfield>layer</objectfield> <assign>=</assign> <number>-5.0</number>\n" +
+            "  <keyword>def</keyword> <methoddecl>foo</methoddecl><colon>:</colon> <class>ScalaClass</class> <assign>=</assign> " +
+            "<keyword>new</keyword> <constructor>ScalaClass</constructor><par>(</par><number>23</number>, " +
+            "<number>9</number><par>)</par>\n" +
             "<brace>}</brace>\n\n" +
             "<annotation>@Annotation</annotation><par>(</par><number>2</number><par>)</par> " +
             "<brace>{</brace><keyword>val</keyword> <attribute>name</attribute> <assign>=</assign> value<brace>}</brace>\n" +
             "<keyword>trait</keyword> <trait>Trait</trait> <brace>{</brace>\n" +
-            "<brace>}</brace>";
+            "<brace>}</brace>\n\n" +
+            "<keyword>abstract</keyword> <keyword>class</keyword> <abstract>SomeAbstract</abstract>\n\n";
   }
 
   @Nullable
@@ -135,7 +151,15 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("trait",DefaultHighlighter.TRAIT);
     map.put("annotation",DefaultHighlighter.ANNOTATION);
     map.put("attribute",DefaultHighlighter.ANNOTATION_ATTRIBUTE);
-    //map.put(,);
+    map.put("markup",DefaultHighlighter.SCALA_DOC_MARKUP);
+    map.put("tag",DefaultHighlighter.SCALA_DOC_TAG);
+    map.put("abstract",DefaultHighlighter.ABSTRACT_CLASS);
+    map.put("local", DefaultHighlighter.LOCAL);
+    map.put("param",DefaultHighlighter.PARAMETER);
+    map.put("method", DefaultHighlighter.METHOD_CALL);
+    map.put("objectmethod", DefaultHighlighter.OBJECT_METHOD_CALL);
+    map.put("methoddecl", DefaultHighlighter.METHOD_DECLARATION);
+    map.put("constructor", DefaultHighlighter.CONSTRUCTOR_CALL);
     return map;
   }
 }
