@@ -7,7 +7,7 @@ import com.intellij.ide.IconProvider
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
-class ScalaIconProvider extends Object with IconProvider {
+class ScalaIconProvider extends Object with IconProviderMix {
   @Nullable
   override def getIcon(element: PsiElement, flags: Int): Icon = {
 
@@ -31,3 +31,5 @@ class ScalaIconProvider extends Object with IconProvider {
   def disposeComponent = {
   }
 }
+
+trait IconProviderMix extends IconProvider
