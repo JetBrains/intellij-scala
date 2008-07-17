@@ -17,6 +17,7 @@ package org.jetbrains.plugins.scala.highlighter;
 
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.SyntaxHighlighterColors;
+import com.intellij.openapi.editor.JavaHighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType;
 import org.jetbrains.annotations.NonNls;
@@ -120,8 +121,8 @@ public class DefaultHighlighter {
     TextAttributesKey.createTextAttributesKey(OBJECT_FIELD_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(CLASS_ID, HighlightInfoType.CLASS_NAME.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(CLASS_FIELD_ID, HighlightInfoType.INSTANCE_FIELD.getAttributesKey().getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(SCALA_DOC_TAG_ID, SyntaxHighlighterColors.COMMA.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(SCALA_DOC_MARKUP_ID, SyntaxHighlighterColors.COMMA.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(SCALA_DOC_TAG_ID, JavaHighlighterColors.JAVA_DOC_TAG.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(SCALA_DOC_MARKUP_ID, JavaHighlighterColors.JAVA_DOC_MARKUP.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(ABSTRACT_CLASS_ID, HighlightInfoType.ABSTRACT_CLASS_NAME.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(TRAIT_ID, HighlightInfoType.INTERFACE_NAME.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(LOCAL_ID, HighlightInfoType.LOCAL_VARIABLE.getAttributesKey().getDefaultAttributes());
