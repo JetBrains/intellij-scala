@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
 
+import api.base.ScModifierList
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiElement, PsiClass}
 import com.intellij.psi.tree._
@@ -100,7 +101,7 @@ trait PsiClassFake extends PsiClass{
 
   def getVisibleSignatures: Collection[HierarchicalMethodSignature] = Collections.emptyList[HierarchicalMethodSignature]
 
-  def getModifierList: PsiModifierList = null
+  def getModifierList: ScModifierList = null
 
   def hasModifierProperty(name: String): Boolean = name.equals(PsiModifier.PUBLIC)
 

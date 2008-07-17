@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
 import com.intellij.psi.scope._
 import com.intellij.psi._
 import com.intellij.lang.StdLanguages
 import _root_.scala.collection.Set
 import _root_.scala.collection.mutable.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api._
-import toplevel.typedef. {ScObject, ScTypeDefinition}
 import statements.{ScVariable, ScTypeAlias}
 import statements.params.{ScTypeParam, ScParameter}
 import base.patterns.ScBindingPattern
@@ -31,7 +31,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
     def shouldProcess(c: Class[_]): Boolean = {
       if (kinds == null)  true
       else if (classOf[PsiPackage].isAssignableFrom(c)) kinds contains ResolveTargets.PACKAGE
-      else if (classOf[PsiClass].isAssignableFrom(c)) (kinds contains ResolveTargets.CLASS) || (kinds contains ResolveTargets.OBJECT)
+      else if (classOf[PsiClass].isAssignableFrom(c)) (kinds contains ResolveTargets.CLASS) || (kinds contains ResolveTargets.OBJECT) ||
+              (kinds contains ResolveTargets.METHOD) //case classes get 'apply' generated
       else if (classOf[PsiVariable].isAssignableFrom(c)) (kinds contains ResolveTargets.VAR) || (kinds contains ResolveTargets.VAL)
       else if (classOf[PsiMethod].isAssignableFrom(c)) kinds contains (ResolveTargets.METHOD)
       else false
@@ -56,6 +57,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
             case _: ScObject => kinds contains OBJECT
             case _: ScTypeParam => kinds contains CLASS
             case _: ScTypeAlias => kinds contains CLASS
+            case clazz: ScClass => (kinds contains CLASS) || (kinds.contains(CLASS) && clazz.isCase)
             case _: ScTypeDefinition => kinds contains CLASS
             case c: PsiClass => {
               if (kinds contains CLASS) true

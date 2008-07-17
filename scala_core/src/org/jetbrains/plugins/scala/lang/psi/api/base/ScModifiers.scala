@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi._
+import com.intellij.psi.tree.IElementType
+import lexer.ScalaTokenTypes
+import psi.ScalaPsiElement
+import com.intellij.psi.PsiModifierList
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -9,5 +11,5 @@ import com.intellij.psi._
 */
 
 trait ScModifierList extends ScalaPsiElement with PsiModifierList {
-  
+  def has(prop : IElementType) : Boolean
 }

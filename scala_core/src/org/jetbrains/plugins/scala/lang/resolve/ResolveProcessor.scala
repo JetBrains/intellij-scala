@@ -137,7 +137,7 @@ object StdKinds {
   val refExprLastRef = HashSet.empty[ResolveTargets] + OBJECT + VAL + VAR + METHOD
   val refExprQualRef = refExprLastRef + PACKAGE
 
-  val methodRef = HashSet.empty[ResolveTargets] + VAL + VAR + METHOD
+  val methodRef = HashSet.empty[ResolveTargets] + VAL + VAR + METHOD + CLASS
 }
 
 object ResolverEnv {
