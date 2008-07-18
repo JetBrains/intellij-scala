@@ -102,7 +102,7 @@ floatType = F | f | D | d
 /////////////////////      identifiers      ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-identifier = {plainid} | "`" {stringLiteral} "`"
+identifier = {plainid} | "`" {stringLiteralExtra} "`"
 
 digit = [0-9]
 special =   \u0021 | \u0023
@@ -152,6 +152,9 @@ charEscapeSeq = \\[^\r\n]
 charNoDoubleQuote = !( ![^"\""] | {LineTerminator})
 stringElement = {charNoDoubleQuote} | {charEscapeSeq}  
 stringLiteral = {stringElement}*
+charExtra = !( ![^"\""`] | {LineTerminator})             //This is for `type` identifiers
+stringElementExtra = {charExtra} | {charEscapeSeq}
+stringLiteralExtra = {stringElementExtra}*
 symbolLiteral = "\'" {plainid}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
