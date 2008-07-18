@@ -66,11 +66,11 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             new AttributesDescriptor(DefaultHighlighter.CLASS_FIELD_ID, DefaultHighlighter.CLASS_FIELD),
             new AttributesDescriptor(DefaultHighlighter.OBJECT_FIELD_ID, DefaultHighlighter.OBJECT_FIELD),
             new AttributesDescriptor(DefaultHighlighter.PARAMETER_ID, DefaultHighlighter.PARAMETER),
+            new AttributesDescriptor(DefaultHighlighter.PATTERN_ID, DefaultHighlighter.PATTERN),
             new AttributesDescriptor(DefaultHighlighter.METHOD_CALL_ID, DefaultHighlighter.METHOD_CALL),
             new AttributesDescriptor(DefaultHighlighter.OBJECT_METHOD_CALL_ID, DefaultHighlighter.OBJECT_METHOD_CALL),
             new AttributesDescriptor(DefaultHighlighter.LOCAL_METHOD_CALL_ID, DefaultHighlighter.LOCAL_METHOD_CALL),
             new AttributesDescriptor(DefaultHighlighter.METHOD_DECLARATION_ID, DefaultHighlighter.METHOD_DECLARATION),
-            new AttributesDescriptor(DefaultHighlighter.CONSTRUCTOR_CALL_ID, DefaultHighlighter.CONSTRUCTOR_CALL),
             new AttributesDescriptor(DefaultHighlighter.BAD_CHARACTER_ID, DefaultHighlighter.BAD_CHARACTER),
             new AttributesDescriptor(DefaultHighlighter.ANNOTATION_ID, DefaultHighlighter.ANNOTATION),
             new AttributesDescriptor(DefaultHighlighter.ANNOTATION_ATTRIBUTE_ID, DefaultHighlighter.ANNOTATION_ATTRIBUTE),
@@ -108,7 +108,10 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             "  <brace>}</brace>\n" +
             "  <keyword>def</keyword> <methoddecl>t</methoddecl><bracket>[</bracket><typeparam>T</typeparam><bracket>]</bracket><colon>:</colon> " +
             "<typeparam>T</typeparam> <assign>=</assign> <keyword>null</keyword>\n" +
-            "  <method>foo</method><par>(</par><number>0</number><comma>,</comma> <number>-1</number><par>)</par>\n" +
+            "  <method>foo</method><par>(</par><number>0</number><comma>,</comma> <number>-1</number><par>)</par> " +
+            "<keyword>match</keyword> <brace>{</brace>\n" +
+            "    <keyword>case</keyword> <pattern>x</pattern> => <pattern>x</pattern>\n" +
+            "  <brace>}<brace>\n" +
             "<brace>}</brace>\n" +
             "\n" +
             "<blockcomment>/*\n" +
@@ -117,7 +120,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             "<keyword>object</keyword> <object>Object</object> <brace>{</brace>\n" +
             "  <keyword>val</keyword> <objectfield>layer</objectfield> <assign>=</assign> <number>-5.0</number>\n" +
             "  <keyword>def</keyword> <methoddecl>foo</methoddecl><colon>:</colon> <class>ScalaClass</class> <assign>=</assign> " +
-            "<keyword>new</keyword> <constructor>ScalaClass</constructor><par>(</par><number>23</number>, " +
+            "<keyword>new</keyword> <class>ScalaClass</class><par>(</par><number>23</number>, " +
             "<number>9</number><par>)</par>\n" +
             "<brace>}</brace>\n\n" +
             "<annotation>@Annotation</annotation><par>(</par><number>2</number><par>)</par> " +
@@ -162,7 +165,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("objectmethod", DefaultHighlighter.OBJECT_METHOD_CALL);
     map.put("localmethod", DefaultHighlighter.LOCAL_METHOD_CALL);
     map.put("methoddecl", DefaultHighlighter.METHOD_DECLARATION);
-    map.put("constructor", DefaultHighlighter.CONSTRUCTOR_CALL);
+    map.put("pattern", DefaultHighlighter.PATTERN);
     return map;
   }
 }
