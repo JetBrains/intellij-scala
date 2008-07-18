@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.importInspections
 
+import _root_.scala.collection.mutable.HashSet
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.openapi.command.CommandProcessor
 import _root_.scala.collection.mutable.ArrayBuffer
@@ -53,7 +54,7 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
     for (visibleHighlight <- visibleHighlights) {
       ProgressManager.getInstance.checkCanceled
       val element = file.findElementAt(visibleHighlight.startOffset)
-      if (element != null && element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
+      if (element != null && element.getNode != null && element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
         element.getParent match {
           case x: ScReferenceElement if x.refName != null && (x.bind match {case None => true case _ => false}) => {
             val function = JavaPsiFacade.getInstance(myProject).getShortNamesCache().getClassesByName _

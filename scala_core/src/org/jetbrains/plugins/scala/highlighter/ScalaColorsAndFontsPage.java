@@ -68,6 +68,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             new AttributesDescriptor(DefaultHighlighter.PARAMETER_ID, DefaultHighlighter.PARAMETER),
             new AttributesDescriptor(DefaultHighlighter.METHOD_CALL_ID, DefaultHighlighter.METHOD_CALL),
             new AttributesDescriptor(DefaultHighlighter.OBJECT_METHOD_CALL_ID, DefaultHighlighter.OBJECT_METHOD_CALL),
+            new AttributesDescriptor(DefaultHighlighter.LOCAL_METHOD_CALL_ID, DefaultHighlighter.LOCAL_METHOD_CALL),
             new AttributesDescriptor(DefaultHighlighter.METHOD_DECLARATION_ID, DefaultHighlighter.METHOD_DECLARATION),
             new AttributesDescriptor(DefaultHighlighter.CONSTRUCTOR_CALL_ID, DefaultHighlighter.CONSTRUCTOR_CALL),
             new AttributesDescriptor(DefaultHighlighter.BAD_CHARACTER_ID, DefaultHighlighter.BAD_CHARACTER),
@@ -100,7 +101,8 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             "  <keyword>val</keyword> <classfield>field</classfield> <assign>=</assign> <string>\"String\"</string>\n" +
             "  <keyword>def</keyword> <methoddecl>foo</methoddecl><par>(</par><param>x</param><colon>:</colon> <predef>Float</predef><comma>," +
             "</comma> <param>y</param><colon>:</colon> <predef>Float</predef><par>)</par> <assign>=</assign> <brace>{</brace>\n" +
-            "    <keyword>val</keyword> <local>local</local> <assign>=</assign> <number>1000</number>\n" +
+            "    <keyword>def</keyword> <methoddecl>empty</methoddecl> <assign>=</assign> <number>2</number>\n" +
+            "    <keyword>val</keyword> <local>local</local> <assign>=</assign> <number>1000</number> - <localmethod>empty</localmethod>\n" +
             "    <object>Math</object><dot>.</dot><objectmethod>sqrt</objectmethod><par>(" +
             "</par><param>x</param> + <param>y</param> + <local>local</local><par>)</par><semicolon>;</semicolon> <linecomment>//this can crash</linecomment>\n" +
             "  <brace>}</brace>\n" +
@@ -158,6 +160,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("param",DefaultHighlighter.PARAMETER);
     map.put("method", DefaultHighlighter.METHOD_CALL);
     map.put("objectmethod", DefaultHighlighter.OBJECT_METHOD_CALL);
+    map.put("localmethod", DefaultHighlighter.LOCAL_METHOD_CALL);
     map.put("methoddecl", DefaultHighlighter.METHOD_DECLARATION);
     map.put("constructor", DefaultHighlighter.CONSTRUCTOR_CALL);
     return map;
