@@ -20,10 +20,11 @@
   <description>Plugin for Scala language support</description>
   <version>VERSION</version>
   <vendor logo="/org/jetbrains/plugins/groovy/images/scala16.png" url="http://www.jetbrains.com">JetBrains Inc.</vendor>
-  <idea-version since-build="8490"/>
+  <idea-version since-build="8582"/>
   <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
   <extensions defaultExtensionNs="com.intellij">
+    <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
     <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
     <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
