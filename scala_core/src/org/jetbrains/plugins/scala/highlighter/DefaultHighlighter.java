@@ -94,8 +94,6 @@ public class DefaultHighlighter {
   @NonNls
   static final String METHOD_DECLARATION_ID = "Method declaration";
   @NonNls
-  static final String CONSTRUCTOR_CALL_ID = "Constructor call";
-  @NonNls
   static final String ANNOTATION_ID = "Annotation name";
   @NonNls
   static final String ANNOTATION_ATTRIBUTE_ID = "Annotation attribute name";
@@ -134,7 +132,6 @@ public class DefaultHighlighter {
     TextAttributesKey.createTextAttributesKey(OBJECT_METHOD_CALL_ID, HighlightInfoType.STATIC_METHOD.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(LOCAL_METHOD_CALL_ID, HighlightInfoType.METHOD_CALL.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(METHOD_DECLARATION_ID, HighlightInfoType.METHOD_DECLARATION.getAttributesKey().getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(CONSTRUCTOR_CALL_ID, HighlightInfoType.CONSTRUCTOR_CALL.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(ANNOTATION_ID, HighlightInfoType.ANNOTATION_NAME.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(ANNOTATION_ATTRIBUTE_ID, HighlightInfoType.ANNOTATION_ATTRIBUTE_NAME.getAttributesKey().getDefaultAttributes());
 
@@ -172,7 +169,6 @@ public class DefaultHighlighter {
   public static TextAttributesKey OBJECT_METHOD_CALL = TextAttributesKey.createTextAttributesKey(OBJECT_METHOD_CALL_ID);
   public static TextAttributesKey LOCAL_METHOD_CALL = TextAttributesKey.createTextAttributesKey(LOCAL_METHOD_CALL_ID);
   public static TextAttributesKey METHOD_DECLARATION = TextAttributesKey.createTextAttributesKey(METHOD_DECLARATION_ID);
-  public static TextAttributesKey CONSTRUCTOR_CALL = TextAttributesKey.createTextAttributesKey(CONSTRUCTOR_CALL_ID);
   public static TextAttributesKey ANNOTATION = TextAttributesKey.createTextAttributesKey(ANNOTATION_ID);
   public static TextAttributesKey ANNOTATION_ATTRIBUTE = TextAttributesKey.createTextAttributesKey(ANNOTATION_ATTRIBUTE_ID);                                                                                                            
 

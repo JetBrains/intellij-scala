@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.highlighter
 
+import com.intellij.psi._
+import lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScBindingPattern}
 import lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScFunctionDeclaration, ScVariable}
 import lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import lang.psi.api.expr.{ScAnnotationExpr, ScAnnotation, ScReferenceExpression, ScNameValuePair}
 import lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
-import com.intellij.psi.{PsiField, PsiElement, PsiClass}
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.lang.annotation.AnnotationHolder
 import lang.psi.api.base.types.ScSimpleTypeElement
-import lang.psi.api.base.patterns.ScBindingPattern
 import lang.psi.api.toplevel.ScEarlyDefinitions
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScObject}
@@ -63,7 +63,8 @@ object AnnotatorHighlighter {
       }
       case x: ScBindingPattern => {
         var parent: PsiElement = x
-        while (parent != null && !(parent.isInstanceOf[ScValue] || parent.isInstanceOf[ScVariable])) parent = parent.getParent
+        while (parent != null && !(parent.isInstanceOf[ScValue] || parent.isInstanceOf[ScVariable]
+                || parent.isInstanceOf[ScCaseClause])) parent = parent.getParent
         parent match {
           case _: ScValue | _: ScVariable => {
             parent.getParent match {
@@ -85,6 +86,10 @@ object AnnotatorHighlighter {
                 annotation.setTextAttributes(DefaultHighlighter.LOCAL)
               }
             }
+          }
+          case _: ScCaseClause => {
+            val annotation = holder.createInfoAnnotation(refElement, null)
+            annotation.setTextAttributes(DefaultHighlighter.PATTERN)
           }
           case _ =>
         }
@@ -123,6 +128,15 @@ object AnnotatorHighlighter {
           }
         }
       }
+      case x: PsiMethod => {
+        if (x.getModifierList.hasModifierProperty("static")) {
+          val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
+          annotation.setTextAttributes(DefaultHighlighter.OBJECT_METHOD_CALL)
+        } else {
+          val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
+          annotation.setTextAttributes(DefaultHighlighter.METHOD_CALL)
+        }
+      }
       case x => println("" + x + " " + x.getText)
     }
   }
@@ -132,6 +146,7 @@ object AnnotatorHighlighter {
       case x: ScAnnotation => visitAnnotation(x, holder)
       case x: ScClass => visitClass(x, holder)
       case x: ScParameter => visitParameter(x, holder)
+      case x: ScCaseClause => visitCaseClause(x, holder)
       case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => {
         element.getParent match {
           case _: ScNameValuePair => {
@@ -218,5 +233,19 @@ object AnnotatorHighlighter {
   private def visitParameter(param: ScParameter, holder: AnnotationHolder): Unit = {
     val annotation = holder.createInfoAnnotation(param.nameId, null)
     annotation.setTextAttributes(DefaultHighlighter.PARAMETER)
+  }
+
+  private def visitPattern(pattern: ScPattern, holder: AnnotationHolder): Unit = {
+    for (binding <- pattern.bindings if !binding.isWildcard) {
+      val annotation = holder.createInfoAnnotation(binding, null)
+      annotation.setTextAttributes(DefaultHighlighter.PATTERN)
+    }
+  }
+
+  private def visitCaseClause(clause: ScCaseClause, holder: AnnotationHolder): Unit = {
+    clause.pattern match {
+      case Some(x) => visitPattern(x, holder)
+      case None =>
+    }
   }
 }
