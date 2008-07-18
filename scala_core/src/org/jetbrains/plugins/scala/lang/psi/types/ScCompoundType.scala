@@ -37,6 +37,7 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
         }
         case None =>
       }
+      case _ => //todo: There was match error (ScFunctionDefinition?) 
     }
   }
 
