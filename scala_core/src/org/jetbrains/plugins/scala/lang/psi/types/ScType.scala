@@ -42,8 +42,13 @@ object ScType {
         val result = classType.resolveGenerics
         val clazz = result.getElement
         if (clazz != null) {
-          return new ScParameterizedType(new ScDesignatorType(clazz), clazz.getTypeParameters.map
+          val tps = clazz.getTypeParameters
+          val des = new ScDesignatorType(clazz)
+          tps match {
+            case Array() => des
+            case _ => new ScParameterizedType(des, tps.map
                   {tp => create(result.getSubstitutor.substitute(tp), project)})
+          }
         }
       }
       case arrayType : PsiArrayType => {
