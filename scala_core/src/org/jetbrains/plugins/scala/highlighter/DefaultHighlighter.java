@@ -86,9 +86,11 @@ public class DefaultHighlighter {
   @NonNls
   static final String PARAMETER_ID = "Parameter";
   @NonNls
-  static final String METHOD_CALL_ID = "Method call";
+  static final String METHOD_CALL_ID = "Class method call";
   @NonNls
   static final String OBJECT_METHOD_CALL_ID = "Object method call";
+  @NonNls
+  static final String LOCAL_METHOD_CALL_ID = "Local method call";
   @NonNls
   static final String METHOD_DECLARATION_ID = "Method declaration";
   @NonNls
@@ -130,6 +132,7 @@ public class DefaultHighlighter {
     TextAttributesKey.createTextAttributesKey(PARAMETER_ID, HighlightInfoType.PARAMETER.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(METHOD_CALL_ID, HighlightInfoType.METHOD_CALL.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(OBJECT_METHOD_CALL_ID, HighlightInfoType.STATIC_METHOD.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(LOCAL_METHOD_CALL_ID, HighlightInfoType.METHOD_CALL.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(METHOD_DECLARATION_ID, HighlightInfoType.METHOD_DECLARATION.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(CONSTRUCTOR_CALL_ID, HighlightInfoType.CONSTRUCTOR_CALL.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(ANNOTATION_ID, HighlightInfoType.ANNOTATION_NAME.getAttributesKey().getDefaultAttributes());
@@ -167,6 +170,7 @@ public class DefaultHighlighter {
   public static TextAttributesKey PARAMETER = TextAttributesKey.createTextAttributesKey(PARAMETER_ID);
   public static TextAttributesKey METHOD_CALL = TextAttributesKey.createTextAttributesKey(METHOD_CALL_ID);
   public static TextAttributesKey OBJECT_METHOD_CALL = TextAttributesKey.createTextAttributesKey(OBJECT_METHOD_CALL_ID);
+  public static TextAttributesKey LOCAL_METHOD_CALL = TextAttributesKey.createTextAttributesKey(LOCAL_METHOD_CALL_ID);
   public static TextAttributesKey METHOD_DECLARATION = TextAttributesKey.createTextAttributesKey(METHOD_DECLARATION_ID);
   public static TextAttributesKey CONSTRUCTOR_CALL = TextAttributesKey.createTextAttributesKey(CONSTRUCTOR_CALL_ID);
   public static TextAttributesKey ANNOTATION = TextAttributesKey.createTextAttributesKey(ANNOTATION_ID);
