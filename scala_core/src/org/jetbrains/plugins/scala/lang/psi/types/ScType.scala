@@ -49,7 +49,7 @@ object ScType {
             case _ => new ScParameterizedType(des, tps.map
                   {tp => create(result.getSubstitutor.substitute(tp), project)})
           }
-        }
+        } else Nothing
       }
       case arrayType : PsiArrayType => {
         val arrayClass = JavaPsiFacade.getInstance(project).findClass("scala.Array", GlobalSearchScope.allScope(project))
@@ -57,10 +57,9 @@ object ScType {
           val tps = arrayClass.getTypeParameters
           if (tps.length == 1) {
             val typeArg = create(arrayType.getComponentType, project)
-            return new ScParameterizedType(new ScDesignatorType(arrayClass), Array(typeArg))
-          }
-          return new ScDesignatorType(arrayClass)
-        }
+            new ScParameterizedType(new ScDesignatorType(arrayClass), Array(typeArg))
+          } else new ScDesignatorType(arrayClass)
+        } else Nothing
       }
 
       case PsiType.VOID => Unit
@@ -78,6 +77,5 @@ object ScType {
       case null => new ScExistentialArgument(Nothing, Any) // raw type argument from java 
       case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
     }
-    Nothing
   }
 }
