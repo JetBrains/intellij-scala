@@ -159,7 +159,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
             }
           }
           val tMarker = marker.precede
-          marker.done(ScalaElementTypes.PROPERTY_SELECTION)
+          marker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
           subparse(tMarker)
         }
         case ScalaTokenTypes.tLPARENTHESIS | ScalaTokenTypes.tLINE_TERMINATOR | ScalaTokenTypes.tLBRACE => {

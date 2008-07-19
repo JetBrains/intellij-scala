@@ -16,7 +16,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        PropertySelection
+        ReferenceExpression
           ExpressionInParenthesis
             PsiElement(()('(')
             InfixExpression

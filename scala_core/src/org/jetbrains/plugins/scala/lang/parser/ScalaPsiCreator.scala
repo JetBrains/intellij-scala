@@ -171,7 +171,6 @@ object ScalaPsiCreator {
     case ScalaElementTypes.REFERENCE_EXPRESSION => new ScReferenceExpressionImpl(node)
     case ScalaElementTypes.THIS_REFERENCE => new ScThisReferenceImpl(node)
     case ScalaElementTypes.SUPER_REFERENCE => new ScSuperReferenceImpl(node)
-    case ScalaElementTypes.PROPERTY_SELECTION => new ScPropertySelectionImpl(node)
     case ScalaElementTypes.GENERIC_CALL => new ScGenericCallImpl(node)
 
     case ScalaElementTypes.PREFIX_EXPR => new ScPrefixExprImpl(node)

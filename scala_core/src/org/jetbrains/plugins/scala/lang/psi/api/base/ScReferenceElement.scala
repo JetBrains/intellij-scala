@@ -74,7 +74,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
       if (processor.kinds.contains(VAR) || processor.kinds.contains(VAL) || processor.kinds.contains(METHOD)) {
         for (decl <- decls) {
           for (declared <- decl.declaredElements) {
-            if (!processor.execute(decl, ResolveState.initial)) return false
+            if (!processor.execute(declared, ResolveState.initial)) return false
           }
         }
       }
