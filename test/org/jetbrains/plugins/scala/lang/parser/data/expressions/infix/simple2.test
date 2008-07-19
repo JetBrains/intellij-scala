@@ -24,7 +24,7 @@ ScalaFile
           ReferenceExpression
             PsiElement(identifier)('+')
           PsiWhiteSpace(' ')
-          PropertySelection
+          ReferenceExpression
             BlockExpression
               PsiElement({)('{')
               Literal

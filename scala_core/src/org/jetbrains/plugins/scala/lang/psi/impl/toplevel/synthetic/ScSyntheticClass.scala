@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
 
+import com.intellij.psi.search.GlobalSearchScope
 import api.statements.ScFun
 import api.toplevel.ScNamedElement
 import api.statements.ScFunction
@@ -72,7 +73,7 @@ object SyntheticClasses {
   def get(project: Project) = project.getComponent(classOf[SyntheticClasses])
 }
 
-class SyntheticClasses(project: Project) extends ProjectComponent {
+class SyntheticClasses(project: Project) extends ProjectComponent with PsiElementFinder {
   def projectOpened() {
   }
   def projectClosed() {
@@ -87,7 +88,10 @@ class SyntheticClasses(project: Project) extends ProjectComponent {
 
     //todo add methods
     registerClass(Any, "Any")
-    registerClass(AnyRef, "AnyRef")
+    val anyRef = registerClass(AnyRef, "AnyRef")
+    anyRef.addMethod(new ScSyntheticFunction(anyRef.manager, "eq", Boolean, Seq.singleton(AnyRef)))
+    anyRef.addMethod(new ScSyntheticFunction(anyRef.manager, "ne", Boolean, Seq.singleton(AnyRef)))
+
     registerClass(AnyVal, "AnyVal")
     registerClass(Nothing, "Nothing")
     registerClass(Null, "Null")
@@ -112,7 +116,7 @@ class SyntheticClasses(project: Project) extends ProjectComponent {
         nc.addMethod(new ScSyntheticFunction(nc.manager, op, Boolean, Seq.singleton(nc1.t)))
       for (nc1 <- numeric; op <- numeric_arith_ops)
         nc.addMethod(new ScSyntheticFunction(nc.manager, op, op_type(nc, nc1), Seq.singleton(nc1.t)))
-      for (nc1 <- numeric if nc1 != nc)
+      for (nc1 <- numeric if nc1 ne nc)
         nc.addMethod(new ScSyntheticFunction(nc.manager, "to" + nc1.name, nc1.t, Seq.empty))
       for (un_op <- numeric_arith_unary_ops)
         nc.addMethod(new ScSyntheticFunction(nc.manager, un_op, nc.t, Seq.empty))
@@ -147,7 +151,12 @@ class SyntheticClasses(project: Project) extends ProjectComponent {
   var file : PsiFile = _
 
   def registerClass(t: ScType, name: String) = {
-    var clazz = new ScSyntheticClass(PsiManager.getInstance(project), name, t)
+    val manager = PsiManager.getInstance(project)
+    var clazz = new ScSyntheticClass(manager, name, t)
+    clazz.addMethod(new ScSyntheticFunction(manager, "equals", Boolean, Seq.single(Any)))
+    clazz.addMethod(new ScSyntheticFunction(manager, "==", Boolean, Seq.single(Any)))
+    clazz.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq.single(Any)))
+
     all + ((name, clazz)); clazz
   }
 
@@ -165,4 +174,23 @@ class SyntheticClasses(project: Project) extends ProjectComponent {
   val bool_bin_ops = "&&" :: "||" :: "&" :: "|" :: "==" :: "!=" :: Nil
   val bitwise_bin_ops = "&" :: "|" :: "^" :: Nil
   val bitwise_shift_ops = "<<" :: ">>" :: ">>>" :: Nil
+
+  val prefix = "scala."
+  def findClass(qName : String, scope : GlobalSearchScope) = if (qName.startsWith(prefix)) {
+    byName(qName.substring(prefix.length)) match {
+      case Some(c) => c
+      case _ => null
+    }
+  } else null
+
+  def findClasses(qName : String, scope : GlobalSearchScope) = {
+    val c = findClass(qName, scope)
+    if (c == null) PsiClass.EMPTY_ARRAY else Array(c)
+  }
+
+  def findPackage(qName : String) = null
+
+  def getSubPackages(p : PsiPackage, scope : GlobalSearchScope) = Array[PsiPackage]()
+
+  def getClasses(p : PsiPackage, scope : GlobalSearchScope) = findClasses(p.getQualifiedName, scope)
 }

@@ -39,7 +39,7 @@ ScalaFile
               PsiElement(()('(')
               PsiWhiteSpace('\n  ')
               MethodCall
-                PropertySelection
+                ReferenceExpression
                   MethodCall
                     ReferenceExpression
                       PsiElement(identifier)('List')
@@ -162,7 +162,7 @@ ScalaFile
               ExpressionInParenthesis
                 PsiElement(()('(')
                 MethodCall
-                  PropertySelection
+                  ReferenceExpression
                     MethodCall
                       ReferenceExpression
                         PsiElement(identifier)('List')
@@ -231,7 +231,7 @@ ScalaFile
                     PsiElement(()('(')
                     PsiWhiteSpace('\n  ')
                     MethodCall
-                      PropertySelection
+                      ReferenceExpression
                         MethodCall
                           ReferenceExpression
                             PsiElement(identifier)('List')
@@ -320,7 +320,7 @@ ScalaFile
                     PsiElement(()('(')
                     PsiWhiteSpace('\n  ')
                     MethodCall
-                      PropertySelection
+                      ReferenceExpression
                         MethodCall
                           ReferenceExpression
                             PsiElement(identifier)('List')

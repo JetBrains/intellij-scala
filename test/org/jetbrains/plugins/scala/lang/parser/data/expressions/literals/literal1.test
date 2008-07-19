@@ -17,7 +17,7 @@ ScalaFile
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
         GenericCall
-          PropertySelection
+          ReferenceExpression
             Literal
               PsiElement(integer)('0')
             PsiWhiteSpace(' ')

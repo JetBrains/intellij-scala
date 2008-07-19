@@ -20,9 +20,9 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
 
   for (decl <- decls) {
     decl match {
-      case fun: ScFunctionDeclaration =>
+      case fun: ScFunction =>
         ((signatureMap += new PhysicalSignature(fun, ScSubstitutor.empty), fun.calcType))
-      case varDecl: ScVariableDeclaration => {
+      case varDecl: ScVariable => {
         varDecl.typeElement match {
           case Some(te) => for (e <- varDecl.declaredElements) {
             signatureMap += ((new Signature(e.name, Seq.empty, Array(), ScSubstitutor.empty), te.getType))
@@ -31,13 +31,12 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
           case None =>
         }
       }
-      case valDecl: ScValueDeclaration => valDecl.typeElement match {
+      case valDecl: ScValue => valDecl.typeElement match {
         case Some(te) => for (e <- valDecl.declaredElements) {
           signatureMap += ((new Signature(e.name, Seq.empty, Array(), ScSubstitutor.empty), te.getType))
         }
         case None =>
       }
-      case _ => //todo: There was match error (ScFunctionDefinition?) 
     }
   }
 
