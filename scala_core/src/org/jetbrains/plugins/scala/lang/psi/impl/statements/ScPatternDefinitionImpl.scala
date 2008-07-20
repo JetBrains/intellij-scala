@@ -32,15 +32,4 @@ class ScPatternDefinitionImpl(node: ASTNode) extends ScMemberImpl(node) with ScP
   }
 
   def declaredElements = bindings
-
-  override def processDeclarations(processor: PsiScopeProcessor,
-      state : ResolveState,
-      lastParent: PsiElement,
-      place: PsiElement): Boolean = {
-    import org.jetbrains.plugins.scala.lang.resolve._
-
-    for (b <- bindings) if (!processor.execute(b, state)) return false
-    true
-  }
-
 }

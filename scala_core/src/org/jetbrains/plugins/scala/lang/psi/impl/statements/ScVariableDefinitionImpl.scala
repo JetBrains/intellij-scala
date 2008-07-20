@@ -30,14 +30,4 @@ class ScVariableDefinitionImpl(node: ASTNode) extends ScMemberImpl(node) with Sc
     val plist = findChildByClass(classOf[ScPatternList])
     if (plist != null) plist.patterns.flatMap[ScBindingPattern]((p: ScPattern) => p.bindings) else Seq.empty
   }
-
-  override def processDeclarations(processor: PsiScopeProcessor,
-    state: ResolveState,
-    lastParent: PsiElement,
-    place: PsiElement): Boolean = {
-    import org.jetbrains.plugins.scala.lang.resolve._
-
-    for (b <- bindings) if (!processor.execute(b, state)) return false
-    true
-  }
 }
