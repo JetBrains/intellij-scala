@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.types
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -10,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 
 trait ScSimpleTypeElement extends ScTypeElement {
 
-  def reference: ScReferenceElement = findChildByClass(classOf[ScReferenceElement])
+  def reference = findChildByClass(classOf[ScStableCodeReferenceElement])
 
   def singleton: Boolean
 

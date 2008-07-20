@@ -23,14 +23,15 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   def singleton = node.findChildByType(ScalaTokenTypes.kTYPE) != null
 
   override def getType() = {
-    reference.bind match {
-      case None => Nothing
-      case Some(ScalaResolveResult(e, s)) => {
-        if (singleton) new ScSingletonType(reference) else e match {
+    if (singleton) new ScSingletonType(reference) else reference.qualifier match {
+      case None => reference.bind match {
+        case None => Nothing
+        case Some(ScalaResolveResult(e, s)) => e match {
           case poly: ScPolymorphicElement => new ScPolymorphicType(poly, s)
           case _ => new ScDesignatorType(e)
         }
       }
+      case Some(q) => new ScProjectionType(new ScSingletonType(q), reference.refName)
     }
   }
 }
