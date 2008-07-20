@@ -4,6 +4,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 * @author ilyas
 */
 
+import resolve.{ResolveProcessor, StdKinds}
 import api.toplevel.ScPolymorphicElement
 import api.toplevel.typedef._
 import com.intellij.psi.{PsiNamedElement, PsiTypeParameterListOwner}
@@ -19,8 +20,16 @@ case class ScDesignatorType(val element: PsiNamedElement) extends ScType {
 import _root_.scala.collection.immutable.{Map, HashMap}
 import com.intellij.psi.{PsiTypeParameter, PsiClass}
 
-case class ScParameterizedType(designator : ScDesignatorType, typeArgs : Array[ScType]) extends ScType {
-  val designated = designator.element
+case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) extends ScType {
+  def designated = designator match {
+    case des : ScDesignatorType => des.element
+    case ScProjectionType(sin@ScSingletonType(path), name) => {
+      val proc = new ResolveProcessor(StdKinds.stableClass, name)
+      path.processType(sin, proc)
+      if (proc.candidates.size == 1) proc.candidates.toArray(0).element else null
+    }
+  }
+
   val substitutor : ScSubstitutor = designated match {
     case owner : PsiTypeParameterListOwner => {
       var map : Map[PsiTypeParameter, ScType] = HashMap.empty

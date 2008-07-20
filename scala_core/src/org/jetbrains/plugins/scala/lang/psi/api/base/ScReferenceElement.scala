@@ -90,6 +90,10 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
       }
       true
     }
+    case ScSingletonType(path) => path.bind match {
+      case Some(r) => r.element.processDeclarations(processor, ResolveState.initial, null, this)
+      case _ => true
+    }
     case _ => true //todo
   }
 
