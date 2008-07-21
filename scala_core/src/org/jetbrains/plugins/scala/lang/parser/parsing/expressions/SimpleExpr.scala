@@ -100,7 +100,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
             } else {
               var isTuple = false
               while (builder.getTokenType == ScalaTokenTypes.tCOMMA &&
-                !lookAhead(builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tRPARENTHESIS)) {
+                      !lookAhead(builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tRPARENTHESIS)) {
                 isTuple = true
                 builder.advanceLexer
                 if (!Expr.parse(builder)) {
@@ -124,7 +124,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
       }
       case _ => {
         state = true
-        if (!Literal.parse(builder)){
+        if (!Literal.parse(builder)) {
           if (!XmlExpr.parse(builder)) {
             if (!Path.parse(builder, ScalaElementTypes.REFERENCE_EXPRESSION)) {
               simpleMarker.drop
@@ -155,14 +155,15 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
           builder.getTokenType match {
             case ScalaTokenTypes.tIDENTIFIER => {
               builder.advanceLexer //Ate id
+              val tMarker = marker.precede
+              marker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
+              subparse(tMarker)
             }
             case _ => {
               builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
+              marker.drop
             }
           }
-          val tMarker = marker.precede
-          marker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
-          subparse(tMarker)
         }
         case ScalaTokenTypes.tLPARENTHESIS | ScalaTokenTypes.tLINE_TERMINATOR | ScalaTokenTypes.tLBRACE => {
           if (state && ArgumentExprs.parse(builder)) {
