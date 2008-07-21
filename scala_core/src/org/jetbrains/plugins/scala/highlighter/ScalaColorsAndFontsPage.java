@@ -63,8 +63,8 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             new AttributesDescriptor(DefaultHighlighter.PREDEF_ID, DefaultHighlighter.PREDEF),
             new AttributesDescriptor(DefaultHighlighter.TRAIT_ID, DefaultHighlighter.TRAIT),
             new AttributesDescriptor(DefaultHighlighter.LOCAL_ID, DefaultHighlighter.LOCAL),
-            new AttributesDescriptor(DefaultHighlighter.CLASS_FIELD_ID, DefaultHighlighter.CLASS_FIELD),
-            new AttributesDescriptor(DefaultHighlighter.OBJECT_FIELD_ID, DefaultHighlighter.OBJECT_FIELD),
+            new AttributesDescriptor(DefaultHighlighter.CLASS_FIELD_DEFINITION_ID, DefaultHighlighter.CLASS_FIELD_DEFINITION),
+            new AttributesDescriptor(DefaultHighlighter.CLASS_FIELD_DECLARATION_ID, DefaultHighlighter.CLASS_FIELD_DECLARATION),
             new AttributesDescriptor(DefaultHighlighter.PARAMETER_ID, DefaultHighlighter.PARAMETER),
             new AttributesDescriptor(DefaultHighlighter.PATTERN_ID, DefaultHighlighter.PATTERN),
             new AttributesDescriptor(DefaultHighlighter.METHOD_CALL_ID, DefaultHighlighter.METHOD_CALL),
@@ -98,7 +98,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             "<keyword>class</keyword> <class>ScalaClass</class><par>(</par><param>x</param><colon>:</colon> <predef>Int</predef><par>)</par>" +
             " <keyword>extends</keyword>" +
             " <class>ScalaObject</class> <brace>{</brace>\n" +
-            "  <keyword>val</keyword> <classfield>field</classfield> <assign>=</assign> <string>\"String\"</string>\n" +
+            "  <keyword>val</keyword> <classfielddefinition>field</classfielddefinition> <assign>=</assign> <string>\"String\"</string>\n" +
             "  <keyword>def</keyword> <methoddecl>foo</methoddecl><par>(</par><param>x</param><colon>:</colon> <predef>Float</predef><comma>," +
             "</comma> <param>y</param><colon>:</colon> <predef>Float</predef><par>)</par> <assign>=</assign> <brace>{</brace>\n" +
             "    <keyword>def</keyword> <methoddecl>empty</methoddecl> <assign>=</assign> <number>2</number>\n" +
@@ -118,7 +118,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             "  And now ScalaObject\n" +
             " */</blockcomment>\n" +
             "<keyword>object</keyword> <object>Object</object> <brace>{</brace>\n" +
-            "  <keyword>val</keyword> <objectfield>layer</objectfield> <assign>=</assign> <number>-5.0</number>\n" +
+            "  <keyword>val</keyword> <classfielddefinition>layer</classfielddefinition> <assign>=</assign> <number>-5.0</number>\n" +
             "  <keyword>def</keyword> <methoddecl>foo</methoddecl><colon>:</colon> <class>ScalaClass</class> <assign>=</assign> " +
             "<keyword>new</keyword> <class>ScalaClass</class><par>(</par><number>23</number>, " +
             "<number>9</number><par>)</par>\n" +
@@ -139,8 +139,8 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("colon", DefaultHighlighter.COLON);
     map.put("scaladoc", DefaultHighlighter.DOC_COMMENT);
     map.put("string", DefaultHighlighter.STRING);
-    map.put("classfield", DefaultHighlighter.CLASS_FIELD);
-    map.put("objectfield", DefaultHighlighter.OBJECT_FIELD);
+    map.put("classfielddeclaration", DefaultHighlighter.CLASS_FIELD_DECLARATION);
+    map.put("classfielddefinition", DefaultHighlighter.CLASS_FIELD_DEFINITION);
     map.put("typeparam",DefaultHighlighter.TYPEPARAM);
     map.put("assign", DefaultHighlighter.ASSIGN);
     map.put("bracket",DefaultHighlighter.BRACKETS);
