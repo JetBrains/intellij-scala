@@ -25,6 +25,8 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(identifier)('getIterator')
           PsiWhiteSpace(' ')
+          Parameters
+            <empty list>
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           ReferenceExpression

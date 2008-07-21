@@ -25,6 +25,8 @@ ScalaFile
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
           PsiElement(newline)('\n  ')
           BlockExpression
             PsiElement({)('{')

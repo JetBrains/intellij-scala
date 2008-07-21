@@ -25,6 +25,8 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(identifier)('unpickleIDEHook')
           PsiWhiteSpace(' ')
+          Parameters
+            <empty list>
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           TypeInParenthesis

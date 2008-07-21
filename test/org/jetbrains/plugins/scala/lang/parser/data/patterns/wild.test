@@ -378,6 +378,8 @@ ScalaFile
                   PsiWhiteSpace(' ')
                   PsiElement(identifier)('toString')
                   PsiWhiteSpace(' ')
+                  Parameters
+                    <empty list>
                   PsiElement(=)('=')
                   PsiWhiteSpace(' ')
                   Literal
