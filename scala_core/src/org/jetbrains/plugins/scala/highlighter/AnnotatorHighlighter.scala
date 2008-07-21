@@ -137,7 +137,7 @@ object AnnotatorHighlighter {
           annotation.setTextAttributes(DefaultHighlighter.METHOD_CALL)
         }
       }
-      case x => println("" + x + " " + x.getText)
+      case x => //println("" + x + " " + x.getText)
     }
   }
 
