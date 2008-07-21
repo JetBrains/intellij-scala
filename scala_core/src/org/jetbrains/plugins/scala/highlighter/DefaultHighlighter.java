@@ -62,11 +62,11 @@ public class DefaultHighlighter {
   @NonNls
   static final String OBJECT_ID = "Object";
   @NonNls
-  static final String OBJECT_FIELD_ID = "Object field";
+  static final String CLASS_FIELD_DECLARATION_ID = "Field declaration";
   @NonNls
   static final String CLASS_ID = "Class";
   @NonNls
-  static final String CLASS_FIELD_ID = "Class field";
+  static final String CLASS_FIELD_DEFINITION_ID = "Field definition";
 
   @NonNls
   static final String BAD_CHARACTER_ID = "Bad character";
@@ -118,9 +118,9 @@ public class DefaultHighlighter {
     TextAttributesKey.createTextAttributesKey(PREDEF_ID, SyntaxHighlighterColors.COMMA.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(TYPEPARAM_ID, HighlightInfoType.TYPE_PARAMETER_NAME.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(OBJECT_ID, HighlightInfoType.CLASS_NAME.getAttributesKey().getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(OBJECT_FIELD_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(CLASS_FIELD_DECLARATION_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(CLASS_ID, HighlightInfoType.CLASS_NAME.getAttributesKey().getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(CLASS_FIELD_ID, HighlightInfoType.INSTANCE_FIELD.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(CLASS_FIELD_DEFINITION_ID, HighlightInfoType.INSTANCE_FIELD.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(SCALA_DOC_TAG_ID, JavaHighlighterColors.JAVA_DOC_TAG.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(SCALA_DOC_MARKUP_ID, JavaHighlighterColors.JAVA_DOC_MARKUP.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(ABSTRACT_CLASS_ID, HighlightInfoType.ABSTRACT_CLASS_NAME.getAttributesKey().getDefaultAttributes());
@@ -155,9 +155,9 @@ public class DefaultHighlighter {
   public static TextAttributesKey TYPEPARAM = TextAttributesKey.createTextAttributesKey(TYPEPARAM_ID);
   public static TextAttributesKey PREDEF = TextAttributesKey.createTextAttributesKey(PREDEF_ID);
   public static TextAttributesKey CLASS = TextAttributesKey.createTextAttributesKey(CLASS_ID);
-  public static TextAttributesKey CLASS_FIELD = TextAttributesKey.createTextAttributesKey(CLASS_FIELD_ID);
+  public static TextAttributesKey CLASS_FIELD_DEFINITION = TextAttributesKey.createTextAttributesKey(CLASS_FIELD_DEFINITION_ID);
   public static TextAttributesKey OBJECT = TextAttributesKey.createTextAttributesKey(OBJECT_ID);
-  public static TextAttributesKey OBJECT_FIELD = TextAttributesKey.createTextAttributesKey(OBJECT_FIELD_ID);
+  public static TextAttributesKey CLASS_FIELD_DECLARATION = TextAttributesKey.createTextAttributesKey(CLASS_FIELD_DECLARATION_ID);
   public static TextAttributesKey SCALA_DOC_TAG = TextAttributesKey.createTextAttributesKey(SCALA_DOC_TAG_ID);
   public static TextAttributesKey SCALA_DOC_MARKUP = TextAttributesKey.createTextAttributesKey(SCALA_DOC_MARKUP_ID);
   public static TextAttributesKey ABSTRACT_CLASS = TextAttributesKey.createTextAttributesKey(ABSTRACT_CLASS_ID);

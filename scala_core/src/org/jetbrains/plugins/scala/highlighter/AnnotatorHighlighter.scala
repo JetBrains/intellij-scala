@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.highlighter
 
+import lang.psi.api.statements._
 import com.intellij.psi._
 import lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScBindingPattern}
-import lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScFunctionDeclaration, ScVariable}
 import lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import lang.psi.api.expr.{ScAnnotationExpr, ScAnnotation, ScReferenceExpression, ScNameValuePair}
 import lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
@@ -70,13 +70,14 @@ object AnnotatorHighlighter {
             parent.getParent match {
               case _: ScTemplateBody | _: ScEarlyDefinitions => {
                 parent.getParent.getParent.getParent match {
-                  case _: ScClass | _: ScTrait => {
+                  case _: ScClass | _: ScTrait | _: ScObject => {
                     val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
-                    annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD)
-                  }
-                  case _: ScObject => {
-                    val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
-                    annotation.setTextAttributes(DefaultHighlighter.OBJECT_FIELD)
+                    parent match {
+                      case _: ScPatternDefinition | _: ScVariableDefinition =>
+                        annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DEFINITION)
+                      case _ =>
+                        annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DECLARATION)
+                    }
                   }
                   case _ =>
                 }
@@ -94,13 +95,9 @@ object AnnotatorHighlighter {
           case _ =>
         }
       }
-      case x: PsiField if x.getModifierList.hasModifierProperty("static") => {
-        val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
-        annotation.setTextAttributes(DefaultHighlighter.OBJECT_FIELD)
-      }
       case x: PsiField => {
         val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
-        annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD)
+        annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DEFINITION)
       }
       case x: ScParameter => {
         val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
@@ -173,13 +170,17 @@ object AnnotatorHighlighter {
                 parent.getParent match {
                   case _: ScTemplateBody | _: ScEarlyDefinitions => {
                     parent.getParent.getParent.getParent match {
-                      case _: ScClass | _: ScTrait => {
-                        val annotation = holder.createInfoAnnotation(element, null)
-                        annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD)
-                      }
-                      case _: ScObject => {
-                        val annotation = holder.createInfoAnnotation(element, null)
-                        annotation.setTextAttributes(DefaultHighlighter.OBJECT_FIELD)
+                      case _: ScClass | _: ScTrait | _: ScObject => {
+                        parent match {
+                          case _: ScPatternDefinition | _: ScVariableDefinition => {
+                            val annotation = holder.createInfoAnnotation(element, null)
+                            annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DEFINITION)
+                          }
+                          case _ => {
+                            val annotation = holder.createInfoAnnotation(element, null)
+                            annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DECLARATION)
+                          }
+                        }
                       }
                       case _ =>
                     }
@@ -222,11 +223,21 @@ object AnnotatorHighlighter {
     }
     for (vall <- clazz.allVals; name <- vall.declaredElements) {
       val annotation = holder.createInfoAnnotation(name, null)
-      annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD)
+      vall match {
+        case _: ScPatternDefinition =>
+          annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DEFINITION)
+        case _ =>
+          annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DECLARATION)
+      }
     }
     for (varl <- clazz.allVars; name <- varl.declaredElements) {
       val annotation = holder.createInfoAnnotation(name, null)
-      annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD)
+      varl match {
+        case _: ScVariableDefinition => 
+          annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DEFINITION)
+        case _ =>
+          annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DECLARATION)
+      }
     }
   }
 
