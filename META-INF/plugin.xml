@@ -46,7 +46,7 @@
     <completion.contributor implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor"/>
     <codeInsight.overrideMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
     <codeInsight.implementMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaImplementMethodsHandler"/>
-    <!--<lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>-->
+    <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
     <!--    <annotator language="Scala" implementationClass=""/>-->
   </extensions>
 

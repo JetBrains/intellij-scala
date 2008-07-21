@@ -1,55 +1,79 @@
 package org.jetbrains.plugins.scala.lang.findUsages
 
-import com.intellij.lang.findUsages.FindUsagesProvider
-import com.intellij.lang.cacheBuilder._
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
+import psi.api.base.patterns.ScBindingPattern
+import com.intellij.psi.util.PsiFormatUtil
+import com.intellij.lang.cacheBuilder.{DefaultWordsScanner, WordsScanner}
+import lexer.{ScalaLexer, ScalaTokenTypes}
+import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
+import psi.api.statements.{ScFunction, ScValue, ScVariable}
+import com.intellij.lang.findUsages.FindUsagesProvider
 import org.jetbrains.annotations.{Nullable, NotNull}
 import com.intellij.psi.tree.TokenSet
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import lang.psi.api.toplevel._
-import lang.psi.api.toplevel.typedef._
 
-object ScalaFindUsagesProvider extends FindUsagesProvider {
+class ScalaFindUsagesProvider extends FindUsagesProvider {
   @Nullable
   override def getWordsScanner(): WordsScanner = new DefaultWordsScanner(new ScalaLexer(),
-     ScalaTokenTypes.IDENTIFIER_TOKEN_SET,
-     ScalaTokenTypes.COMMENTS_TOKEN_SET,
-     ScalaTokenTypes.STRING_LITERAL_TOKEN_SET);
+    ScalaTokenTypes.IDENTIFIER_TOKEN_SET,
+    ScalaTokenTypes.COMMENTS_TOKEN_SET,
+    ScalaTokenTypes.STRING_LITERAL_TOKEN_SET);
 
-  override def canFindUsagesFor(element: PsiElement): Boolean = element.isInstanceOf[ScTypeDefinition] &&
-                                                                !element.isInstanceOf[ScObject] //todo
+  override def canFindUsagesFor(element: PsiElement): Boolean = {
+    element match {
+      case _: ScTypeDefinition | _: PsiMethod | _: ScBindingPattern | _: PsiVariable => true
+      case _ => false
+    }
+  }
 
   @Nullable
-  override def getHelpId(psiElement: PsiElement): String = null //todo
+  override def getHelpId(psiElement: PsiElement): String = null
 
-  //todo
   @NotNull
   override def getType(element: PsiElement): String = {
     element match {
-      case _ : ScClass=> "class"
-      case _ : ScObject=> "object"
-      case _ : ScTrait=> "trait"
+      case _: ScClass => "class"
+      case _: ScObject => "object"
+      case _: ScTrait => "trait"
+      case _: PsiMethod => "method"
+      case _: ScBindingPattern => {
+        var parent = element
+        while (parent match {case null | _: ScValue | _: ScVariable => false case _ => true}) parent = parent.getParent
+        parent match {
+          case null => "pattern"
+          case _ => "variable"
+        }
+      }
+      case _: PsiField => "field"
+      case _: PsiParameter => "parameter"
+      case _: PsiVariable => "variable"
       case _ => ""
     }
   }
 
 
 
-  //todo
   @NotNull
   override def getDescriptiveName(element: PsiElement): String = {
     element match {
-      case c : ScTypeDefinition => c.getName
+      case c: ScTypeDefinition => c.getQualifiedName
+      case x: PsiMethod => PsiFormatUtil.formatMethod(x, PsiSubstitutor.EMPTY,
+        PsiFormatUtil.SHOW_NAME | PsiFormatUtil.SHOW_PARAMETERS,
+        PsiFormatUtil.SHOW_TYPE) + " of " + getDescriptiveName(x.getContainingClass)
+      case x: ScBindingPattern => x.getName
+      case x: PsiVariable => x.getName
       case _ => ""
     }
   }
 
-  //todo
   @NotNull
-  override def getNodeText(element: PsiElement, useFullName : Boolean): String = {
+  override def getNodeText(element: PsiElement, useFullName: Boolean): String = {
     element match {
-      case c : ScTypeDefinition => c.getName
+      case c: ScTypeDefinition => if (useFullName) c.getQualifiedName else c.getName
+      case c: ScBindingPattern => c.getName
+      case c: PsiMethod => PsiFormatUtil.formatMethod(c, PsiSubstitutor.EMPTY,
+        PsiFormatUtil.SHOW_NAME | PsiFormatUtil.SHOW_PARAMETERS,
+        PsiFormatUtil.SHOW_TYPE)
+      case c: PsiVariable => c.getName
       case _ => ""
     }
   }

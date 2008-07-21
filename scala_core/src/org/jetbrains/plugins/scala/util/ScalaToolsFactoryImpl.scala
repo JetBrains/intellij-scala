@@ -35,6 +35,6 @@ class ScalaToolsFactoryImpl extends ScalaToolsFactory {
 
   def createStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder = null
 
-  def createFindUsagesProvider = ScalaFindUsagesProvider
+  def createFindUsagesProvider = new ScalaFindUsagesProvider
 
 }
