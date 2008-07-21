@@ -146,7 +146,7 @@ object ScalaPsiElementFactory {
     parents match {
       case Some(p) => {
         val elements = p.typeElements
-        elements.first.asInstanceOf[ScSimpleTypeElement].reference.asInstanceOf[ScStableCodeReferenceElement]
+        elements.first.asInstanceOf[ScSimpleTypeElement].reference
       }
       case _ => throw new com.intellij.util.IncorrectOperationException()
     }
