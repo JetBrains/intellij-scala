@@ -110,6 +110,7 @@ object ClassTemplate {
                 builder.getTokenType match {
                   case ScalaTokenTypes.tLBRACE => {
                     TemplateBody parse builder
+                    backup.drop
                     extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                     return !nonEmpty || !empty
                   }
