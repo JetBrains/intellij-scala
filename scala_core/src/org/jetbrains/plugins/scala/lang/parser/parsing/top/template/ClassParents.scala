@@ -26,16 +26,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
  */
 
 object ClassParents {
-  def parse(builder: PsiBuilder) {
+  def parse(builder: PsiBuilder): Boolean = {
     val classParentsMarker = builder.mark
-    Constructor parse builder
+    if (!Constructor.parse(builder)) {
+      classParentsMarker.drop
+      return false
+    }
     //Look for mixin
     while (builder.getTokenType == ScalaTokenTypes.kWITH) {
       builder.advanceLexer //Ate with
       if (!AnnotType.parse(builder)) {
         builder error ScalaBundle.message("wrong.simple.type", new Array[Object](0))
         classParentsMarker.done(ScalaElementTypes.CLASS_PARENTS)
-        return false
+        return true
       }
     }
     classParentsMarker.done(ScalaElementTypes.CLASS_PARENTS)
