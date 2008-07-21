@@ -44,5 +44,7 @@ ScalaFile
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('foo')
-        PsiWhiteSpace('\n')
+          PsiWhiteSpace('\n')
+          Parameters
+            <empty list>
         PsiElement(})('}')
