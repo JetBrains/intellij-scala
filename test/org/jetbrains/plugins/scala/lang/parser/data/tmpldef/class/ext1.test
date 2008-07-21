@@ -19,9 +19,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     ExtendsBlock
       PsiElement(extends)('extends')
-      PsiWhiteSpace(' ')
-      ClassParents
-        <empty list>
   PsiErrorElement:';' or newline expected
     <empty list>
+  PsiWhiteSpace(' ')
   PsiElement(integer)('3')
