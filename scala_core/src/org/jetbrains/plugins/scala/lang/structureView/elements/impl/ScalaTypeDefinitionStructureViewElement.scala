@@ -24,22 +24,21 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
 
   def getChildren(): Array[TreeElement] = {
     val children = new ArrayBuffer[ScalaStructureViewElement]
-
     for (member <- element.asInstanceOf[ScTypeDefinition].members) {
       member match {
         case func: ScFunction => {
-          children += new ScalaFunctionStructureViewElement (func, false)
+          children += new ScalaFunctionStructureViewElement(func, false)
         }
         case constr: ScPrimaryConstructor => {
-          children += new ScalaPrimaryConstructorStructureViewElement (constr)
+          children += new ScalaPrimaryConstructorStructureViewElement(constr)
         }
         case member: ScVariable => {
           for (f <- member.declaredElements)
-                  children += new ScalaVariableStructureViewElement (f.nameId)
+            children += new ScalaVariableStructureViewElement(f.nameId)
         }
         case member: ScValue => {
           for (f <- member.declaredElements)
-                  children += new ScalaValueStructureViewElement (f.nameId)
+            children += new ScalaValueStructureViewElement(f.nameId)
         }
         case _ =>
       }

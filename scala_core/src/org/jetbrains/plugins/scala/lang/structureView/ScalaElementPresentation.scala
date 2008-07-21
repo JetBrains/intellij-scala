@@ -33,10 +33,7 @@ object ScalaElementPresentation {
 
   def getPrimaryConstructorPresentableText(constructor: ScPrimaryConstructor): String = {
     val presentableText: StringBuffer = new StringBuffer("")
-    if (constructor.getClassNameText != null)
-      presentableText.append(constructor.getClassNameText)
-    else
-      presentableText.append("unnamed")
+    presentableText.append("this")
     if (constructor.parameters != null)
       presentableText.append(StructureViewUtil.getParametersAsString(constructor.parameters))
     return presentableText.toString()
