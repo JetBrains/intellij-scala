@@ -63,6 +63,13 @@ object ScalaPsiElementFactory {
     return function.paramClauses
   }
 
+  def createIdentifier(name: String, manager: PsiManager): ASTNode = {
+    val text = "package " + name
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    return dummyFile.getNode.getLastChildNode.getLastChildNode.getLastChildNode
+  }
+
   def createImportStatementFromClass(file: ScalaFile, clazz: PsiClass, manager: PsiManager): ScImportStmt = {
     val qualifiedName = clazz.getQualifiedName
     val packageName = file.packageStatement match {
