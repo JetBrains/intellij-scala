@@ -4,8 +4,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
  * @author ilyas
  */
 
+import api.base.{ScStableCodeReferenceElement, ScPrimaryConstructor}
 import base.ScStableCodeReferenceElementImpl
-import api.base.ScStableCodeReferenceElement
 import api.base.types.ScTypeElement
 import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.collection.mutable.HashSet
@@ -94,7 +94,10 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
             (extendsBlock.earlyDefinitions match {
               case None => Seq.empty
               case Some(earlyDefs) => earlyDefs.members
-            })
+            }) ++ (findChild(classOf[ScPrimaryConstructor]) match {
+      case None => Seq.empty
+      case Some(x) => Array[ScMember](x)
+    })
 
   def functions(): Seq[ScFunction] =
     extendsBlock.templateBody match {
