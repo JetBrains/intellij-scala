@@ -45,7 +45,10 @@ object BlockStat {
     if (!Def.parse(builder, false, true)) {
       if (!TmplDef.parse(builder)) {
         if (!Expr1.parse(builder)) {
-          return false
+          if (Dcl.parse(builder)) {
+            builder error ErrMsg("wrong.declaration.in.block")
+          }
+          else return false
         }
       }
     }
