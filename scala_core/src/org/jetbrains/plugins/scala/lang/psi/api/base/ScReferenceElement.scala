@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
+import impl.ScalaPsiElementFactory
 import impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
@@ -49,8 +50,11 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   def isSoft(): Boolean = false
 
   def handleElementRename(newElementName: String): PsiElement = {
-    return this;
-    //todo
+    val id = nameId.getNode
+    if (id == null) return this
+    val parent = id.getTreeParent
+    parent.replaceChild(id, ScalaPsiElementFactory.createIdentifier(newElementName, getManager))
+    return this
   }
 
   def isReferenceTo(element: PsiElement): Boolean = resolve() == element
