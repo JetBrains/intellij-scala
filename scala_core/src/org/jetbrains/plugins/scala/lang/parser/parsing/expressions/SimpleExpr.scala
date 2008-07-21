@@ -62,7 +62,6 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
     var state: Boolean = false //false means SimpleExpr, true SimpleExpr1
     builder.getTokenType match {
       case ScalaTokenTypes.kNEW => {
-        builder.setDebugMode(true)
         builder.advanceLexer //Ate new
         if (!ClassTemplate.parse(builder, true)) {
           builder error ErrMsg("identifier.expected")
