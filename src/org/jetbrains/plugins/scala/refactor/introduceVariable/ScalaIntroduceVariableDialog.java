@@ -261,16 +261,16 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
   }
 
   public ScalaIntroduceVariableSettings getSettings() {
-    return new MyGroovyIntroduceVariableSettings(this);
+    return new MyScalaIntroduceVariableSettings(this);
   }
 
-  private static class MyGroovyIntroduceVariableSettings implements ScalaIntroduceVariableSettings {
+  private static class MyScalaIntroduceVariableSettings implements ScalaIntroduceVariableSettings {
     String myEnteredName;
     boolean myIsReplaceAllOccurrences;
     boolean myIsDeclareFinal;
     IType mySelectedType;
 
-    public MyGroovyIntroduceVariableSettings(ScalaIntroduceVariableDialog dialog) {
+    public MyScalaIntroduceVariableSettings(ScalaIntroduceVariableDialog dialog) {
       myEnteredName = dialog.getEnteredName();
       myIsReplaceAllOccurrences = dialog.isReplaceAllOccurrences();
       myIsDeclareFinal = dialog.isDeclareVariable();

@@ -20,7 +20,7 @@ public class ScalaRefactoringSupportProvider extends DefaultRefactoringSupportPr
   }
 
   /**
-   * @return handler for introducing local variables in Groovy
+   * @return handler for introducing local variables in Scala
    */
   @Nullable
   public RefactoringActionHandler getIntroduceVariableHandler() {

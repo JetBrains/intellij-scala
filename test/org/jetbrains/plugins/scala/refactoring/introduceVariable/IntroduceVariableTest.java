@@ -87,7 +87,7 @@ public class IntroduceVariableTest extends ActionTestBase {
         Some temp = (Some) ScalaRefactoringUtil.getExpression(myProject, myEditor, (ScalaFile) myFile, startOffset, endOffset);
         selectedExpr = (ScExpression) temp.get();
       }
-      //findElementInRange(((GroovyFileBase) myFile), startOffset, endOffset, GrExpression.class);
+      //findElementInRange(((ScalaFileBase) myFile), startOffset, endOffset, GrExpression.class);
 
       Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
 

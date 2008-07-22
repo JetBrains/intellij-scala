@@ -38,11 +38,11 @@ class ScParametersImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScP
         val ps = new Array[PsiParameter](1)
         val p = new ScParameterImpl(params(0).getNode) {
           override def getType(): PsiType = new PsiArrayType(
-          JavaPsiFacade.getInstance(m.getProject).getElementFactory.createTypeByFQClassName(
-          "java.lang.String",
-          GlobalSearchScope.allScope(m.getProject)
-          )
-          )
+            JavaPsiFacade.getInstance(m.getProject).getElementFactory.createTypeByFQClassName(
+              "java.lang.String",
+              GlobalSearchScope.allScope(m.getProject)
+              )
+            )
         }
         ps(0) = p
         ps

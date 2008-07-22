@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.folding
 
+import scaladoc.parser.ScalaDocElementTypes
 import _root_.scala.collection.mutable._
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     if (isMultiline(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaElementTypes.TEMPLATE_BODY |
-             ScalaTokenTypes.tDOC_COMMENT  => descriptors += (new FoldingDescriptor(node, node.getTextRange))
+             ScalaDocElementTypes.SCALA_DOC_COMMENT  => descriptors += (new FoldingDescriptor(node, node.getTextRange))
         case ScalaElementTypes.PACKAGING => descriptors += (new FoldingDescriptor(node,
              new TextRange(node.getTextRange.getStartOffset + 8, node.getTextRange.getEndOffset)))
         case _ =>
@@ -56,7 +57,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     if (isMultiline(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT => return "/.../"
-        case ScalaTokenTypes.tDOC_COMMENT => return "/**...*/"
+        case ScalaDocElementTypes.SCALA_DOC_COMMENT => return "/**...*/"
         case ScalaElementTypes.TEMPLATE_BODY => return "{...}"
         case ScalaElementTypes.PACKAGING => return "{...}"
         case _ =>

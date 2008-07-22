@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 /**
  * @author ilyas
@@ -47,7 +48,7 @@ public class ScalaBraceMatcher implements PairedBraceMatcher {
         || ScalaTokenTypes.tWHITE_SPACE_IN_LINE == tokenType
         || tokenType == ScalaTokenTypes.tSEMICOLON
         || tokenType == ScalaTokenTypes.tLINE_COMMENT
-        || tokenType == ScalaTokenTypes.tDOC_COMMENT
+        || tokenType == ScalaDocElementTypes.SCALA_DOC_COMMENT
         || tokenType == ScalaTokenTypes.tBLOCK_COMMENT
         || tokenType == ScalaTokenTypes.tCOMMA
         || tokenType == ScalaTokenTypes.tRPARENTHESIS
