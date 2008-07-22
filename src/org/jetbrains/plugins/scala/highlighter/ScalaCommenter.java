@@ -20,13 +20,14 @@ import com.intellij.psi.PsiComment;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 /**
  * @author ilyas
  * Date: 29.09.2006
  * Time: 20:48:30
  */
-public class ScalaCommenter implements CodeDocumentationAwareCommenter, ScalaTokenTypes {
+public class ScalaCommenter implements CodeDocumentationAwareCommenter, ScalaTokenTypes, ScalaDocElementTypes {
   public String getLineCommentPrefix() {
     return "//";
   }
@@ -55,7 +56,7 @@ public class ScalaCommenter implements CodeDocumentationAwareCommenter, ScalaTok
 
   @Nullable
   public IElementType getDocumentationCommentTokenType() {
-    return tDOC_COMMENT;
+    return SCALA_DOC_COMMENT;
   }
 
   @Nullable

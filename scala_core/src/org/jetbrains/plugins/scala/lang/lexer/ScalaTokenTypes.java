@@ -18,6 +18,7 @@ package org.jetbrains.plugins.scala.lang.lexer;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import static com.intellij.psi.xml.XmlTokenType.*;
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 /**
  * @author ilyas
@@ -187,7 +188,7 @@ public interface ScalaTokenTypes {
   TokenSet COMMENTS_TOKEN_SET = TokenSet.create(
           tLINE_COMMENT,
           tBLOCK_COMMENT,
-          tDOC_COMMENT
+          ScalaDocElementTypes.SCALA_DOC_COMMENT
   );
 
   public static TokenSet KEYWORDS = TokenSet.create(
