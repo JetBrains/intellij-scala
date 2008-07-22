@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser
 
+import scaladoc.psi.{ScalaDocPsiCreator}
+import scaladoc.lexer.ScalaDocElementType
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
@@ -27,6 +29,8 @@ object ScalaPsiCreator {
 
     node.getElementType() match {
 
+
+     case _: ScalaDocElementType => ScalaDocPsiCreator.createElement(node)
     /*****************************************************/
     /********************** TOP **************************/
     /*****************************************************/

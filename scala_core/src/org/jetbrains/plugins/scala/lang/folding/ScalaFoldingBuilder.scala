@@ -81,6 +81,5 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 
   private def isMultiline(node: ASTNode): Boolean = {
      return node.getText.indexOf("\n") != -1
-    //false
   }
 }
