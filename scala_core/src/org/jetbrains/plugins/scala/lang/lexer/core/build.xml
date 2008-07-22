@@ -22,6 +22,10 @@
   <property name="split.lexer.source" value="split_lexer.flex"/>
   <property name="skeleton" value="idea-flex.skeleton"/>
   <property name="splitting.skeleton" value="splitting.skeleton"/>
+  <property name="scaladoc.lexer.file" value="../../scaladoc/lexer/_ScalaDocLexer.java"/>
+  <property name="scaladoc.lexer.log" value="../../scaladoc/lexer/scaladoc.log"/>
+  <property name="scaladoc.skeleton" value="../../scaladoc/lexer/scaladoc.skeleton"/>  
+  <property name="scaladoc.lexer.source" value="../../scaladoc/lexer/scaladoc.flex"/>
 
   <target name="generate.scala.lexer" description="Produces Jflex based lexer" depends="generate.splitting.lexer">
     <delete file="${lexer.file}"/>
@@ -47,6 +51,18 @@
     </java>
   </target>
 
-  <target name="generate.lexer" depends="generate.scala.lexer" description="main target"/>
+  <target name="generate.scaladoc.lexer" description="Produces scaladoc lexer">
+    <delete file="${scaladoc.lexer.file}"/>
+    <delete file="${scaladoc.lexer.log}"/>
+
+    <java jar="JFlex.jar" output="jflex.log" fork="true" maxmemory="512m" >
+      <arg value="--charat"/>
+      <arg value="-skel"/>
+      <arg value="${scaladoc.skeleton}"/>
+      <arg value="${scaladoc.lexer.source}"/>
+    </java>
+  </target>
+
+  <target name="generate.lexer" depends="generate.scala.lexer, generate.scaladoc.lexer" description="main target"/>
 
 </project>

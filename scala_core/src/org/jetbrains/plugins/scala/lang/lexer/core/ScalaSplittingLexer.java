@@ -19,6 +19,7 @@ import com.intellij.lexer.FlexAdapter;
 import com.intellij.lexer.MergingLexerAdapter;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 import java.io.Reader;
 
@@ -26,12 +27,12 @@ import java.io.Reader;
  * @author ilyas
  */
 
-public class ScalaSplittingLexer extends MergingLexerAdapter implements ScalaTokenTypesEx {
+public class ScalaSplittingLexer extends MergingLexerAdapter implements ScalaTokenTypesEx, ScalaDocElementTypes {
 
   public ScalaSplittingLexer() {
     super(new ScalaSplittingFlexLexer(),
         TokenSet.create(
-            tDOC_COMMENT,
+            SCALA_DOC_COMMENT,
             tBLOCK_COMMENT,
             SCALA_PLAIN_CONTENT
         ));

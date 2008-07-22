@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.SCALA_XML_CONTENT;
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   );
 
   static final TokenSet tDOC_COMMENTS = TokenSet.create(
-          ScalaTokenTypes.tDOC_COMMENT
+          ScalaDocElementTypes.SCALA_DOC_COMMENT
   );
 
   // XML tags

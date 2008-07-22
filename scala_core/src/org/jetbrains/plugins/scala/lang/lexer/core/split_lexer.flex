@@ -6,11 +6,12 @@ import java.util.*;
 import java.lang.reflect.Field;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 %%
 
 %class _ScalaSplittingLexer
-%implements FlexLexer, ScalaTokenTypesEx
+%implements FlexLexer, ScalaTokenTypesEx, ScalaDocElementTypes
 %unicode
 %public
 
@@ -63,7 +64,7 @@ END_OF_LINE_COMMENT="/""/"[^\r\n]*
 
 {SIMPLE_BLOCK_COMMENT}   {  return tBLOCK_COMMENT; }
 
-{DOC_COMMENT_BEGIN}      {  commentType = tDOC_COMMENT;
+{DOC_COMMENT_BEGIN}      {  commentType = SCALA_DOC_COMMENT;
                             braceCount++;
                             yybegin(IN_BLOCK_COMMENT);
                             return(commentType);
