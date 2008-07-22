@@ -125,7 +125,7 @@ object ScalaRefactoringUtil {
             case x: ScExpression => {
               x.getParent match {
                 case y: ScMethodCall if y.args.exprs.size == 0 => occurrences += y
-                case _ => occurrences += child.asInstanceOf[ScExpression]
+                case _ => occurrences += x
               }
             }
             case _ =>
@@ -139,7 +139,10 @@ object ScalaRefactoringUtil {
   def unparExpr(expr: ScExpression): ScExpression = {
     expr match {
       case x: ScParenthesisedExpr => {
-        x.expr
+        x.expr match {
+          case Some(e) => e
+          case _ => x
+        }
       }
       case _ => expr
     }
