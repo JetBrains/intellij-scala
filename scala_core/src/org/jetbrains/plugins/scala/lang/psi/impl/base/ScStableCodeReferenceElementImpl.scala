@@ -57,11 +57,10 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     case _ => StdKinds.stableQualRef
   }
 
-  private def _qualifier(): Option[ScStableCodeReferenceElement] = {
+  private def _qualifier() = {
     if (getParent.isInstanceOf[ScImportSelector]) {
-      return getParent.getParent /*ScImportSelectors*/ .getParent.asInstanceOf[ScImportExpr].reference
-    }
-    qualifier
+      getParent.getParent /*ScImportSelectors*/ .getParent.asInstanceOf[ScImportExpr].reference
+    } else pathQualifier
   }
 
   def _resolve(ref: ScStableCodeReferenceElementImpl, processor: BaseProcessor): Array[ResolveResult] = {
@@ -80,7 +79,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         }
         treeWalkUp(ref, null)
       }
-      case Some(q) => {
+      case Some(q : ScStableCodeReferenceElement) => {
         q.bind match {
           case None =>
           case Some(ScalaResolveResult(typed: ScTyped, s)) => processType(s.subst(typed.calcType), processor)
@@ -97,6 +96,14 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
             null, ScStableCodeReferenceElementImpl.this)
           }
         }
+      }
+      case Some(thisQ : ScThisReference) => thisQ.refClass match {
+        case Some(td) => td.processDeclarations(processor, ResolveState.initial, null, ScStableCodeReferenceElementImpl.this)
+        case _ =>
+      }
+      case Some(superQ : ScSuperReference) => superQ.refClass match {
+        case Some(clazz) => clazz.processDeclarations(processor, ResolveState.initial, null, ScStableCodeReferenceElementImpl.this)
+        case _ =>
       }
     }
     processor.candidates
