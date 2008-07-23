@@ -25,6 +25,8 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.SCALA_XML_CONTENT;
+import org.jetbrains.plugins.scala.lang.scaladoc.highlighter.ScalaDocSyntaxHighlighter;
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 /**
  * @author ilyas
@@ -39,6 +41,10 @@ public class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter {
 
     final LayerDescriptor xmlLayer = new LayerDescriptor(xmlHighlighter, "\n", XmlHighlighterColors.HTML_TAG);
     registerLayer(SCALA_XML_CONTENT, xmlLayer);
+
+    final SyntaxHighlighter scaladocHighlighter = new ScalaDocSyntaxHighlighter();
+    final LayerDescriptor scaladocLayer = new LayerDescriptor(scaladocHighlighter, "\n", DefaultHighlighter.DOC_COMMENT);
+    registerLayer(ScalaDocElementTypes.SCALA_DOC_COMMENT, scaladocLayer);
   }
 
 }
