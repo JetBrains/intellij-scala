@@ -120,7 +120,7 @@ public abstract class CompletionTestBase extends ActionTestBase {
 
     ArrayList<LookupItem> lookupItems = new ArrayList<LookupItem>();
     final LookupItem[] items = lookupSet.toArray(new LookupItem[lookupSet.size()]);
-    for (LookupItem item : items) {
+    for (LookupItem item : items) if (item.getLookupString().startsWith(prefix)){
       lookupItems.add(item);
     }
 
