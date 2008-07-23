@@ -26,8 +26,19 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace(' ')
-        PsiComment(DocComment)('/**\n\n*/')
+        DocComment
+          PsiElement(DOC_COMMENT_START)('/**')
+          PsiElement(DOC_WHITESPACE)('\n\n')
+          PsiElement(DOC_COMMENT_END)('*/')
         PsiWhiteSpace('  ')
         PsiElement(})('}')
   PsiElement(newline)('\n\n')
-  PsiComment(DocComment)('/*****\n\n/*\n\n*/\n\n*/')
+  DocComment
+    PsiElement(DOC_COMMENT_START)('/**')
+    PsiElement(DOC_COMMENT_DATA)('***')
+    PsiElement(DOC_WHITESPACE)('\n\n')
+    PsiElement(DOC_COMMENT_DATA)('/*')
+    PsiElement(DOC_WHITESPACE)('\n\n')
+    PsiElement(DOC_COMMENT_END)('*/')
+    PsiElement(DOC_WHITESPACE)('\n\n')
+    PsiElement(DOC_COMMENT_END)('*/')

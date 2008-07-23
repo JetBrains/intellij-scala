@@ -22,4 +22,11 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiErrorElement:'}' expected
           <empty list>
-  PsiComment(DocComment)('/**\n\n/*\n\n*/  }')
+  DocComment
+    PsiElement(DOC_COMMENT_START)('/**')
+    PsiElement(DOC_WHITESPACE)('\n\n')
+    PsiElement(DOC_COMMENT_DATA)('/*')
+    PsiElement(DOC_WHITESPACE)('\n\n')
+    PsiElement(DOC_COMMENT_END)('*/')
+    PsiElement(DOC_WHITESPACE)('  ')
+    PsiElement(DOC_INLINE_TAG_END)('}')

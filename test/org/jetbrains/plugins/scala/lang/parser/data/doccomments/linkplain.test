@@ -1,5 +1,5 @@
 /**
- * @author Alexnder
+ * @linkplain scala.collection.Set#apply
  */
 ------
 ScalaFile
@@ -9,8 +9,10 @@ ScalaFile
     PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
     PsiElement(DOC_COMMENT_DATA)(' ')
     DocTag
-      PsiElement(DOC_TAG_NAME)('@author')
+      PsiElement(DOC_TAG_NAME)('@linkplain')
       PsiElement(DOC_WHITESPACE)(' ')
-      PsiElement(DOC_TAG_VALUE_TOKEN)('Alexnder')
+      PsiElement(DOC_TAG_VALUE_TOKEN)('scala.collection.Set')
+      PsiElement(DOC_TAG_VALUE_SHARP_TOKEN)('#')
+      PsiElement(DOC_TAG_VALUE_TOKEN)('apply')
       PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_END)('*/')
