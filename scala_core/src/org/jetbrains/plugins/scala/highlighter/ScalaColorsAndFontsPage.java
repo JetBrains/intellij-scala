@@ -55,7 +55,6 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             new AttributesDescriptor(DefaultHighlighter.BLOCK_COMMENT_ID, DefaultHighlighter.BLOCK_COMMENT),
             new AttributesDescriptor(DefaultHighlighter.DOC_COMMENT_ID, DefaultHighlighter.DOC_COMMENT),
             new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_TAG_ID , DefaultHighlighter.SCALA_DOC_TAG),
-            new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_MARKUP_ID, DefaultHighlighter.SCALA_DOC_MARKUP),
             new AttributesDescriptor(DefaultHighlighter.CLASS_ID, DefaultHighlighter.CLASS),
             new AttributesDescriptor(DefaultHighlighter.ABSTRACT_CLASS_ID, DefaultHighlighter.ABSTRACT_CLASS),
             new AttributesDescriptor(DefaultHighlighter.OBJECT_ID, DefaultHighlighter.OBJECT),
@@ -92,7 +91,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
   public String getDemoText() {
     return "<keyword>import</keyword> scala<dot>.</dot>collection<dot>.</dot>mutable<dot>.</dot>_\n\n" +
             "<scaladoc>/**\n" +
-            " * ScalaDoc comment: <markup><code></markup>Some code<markup></code></markup>\n" +
+            " * ScalaDoc comment: <code>Some code</code>\n" +
             " * <tag>@author</tag> IntelliJ\n" +
             " */</scaladoc>\n" +
             "<keyword>class</keyword> <class>ScalaClass</class><par>(</par><param>x</param><colon>:</colon> <predef>Int</predef><par>)</par>" +
