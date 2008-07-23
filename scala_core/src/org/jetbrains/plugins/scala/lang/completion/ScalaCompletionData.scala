@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion
 
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.psi.{PsiElement, PsiReference, PsiFile}
 import com.intellij.codeInsight.completion._;
 import com.intellij.codeInsight.TailType;
 import com.intellij.psi.tree.IElementType;
@@ -155,6 +157,26 @@ class ScalaCompletionData extends CompletionData {
   */
   def addCompletions(variant: CompletionVariant, comps: String*) = {
     for (val completion <- comps) variant.addCompletion(completion, TailType.SPACE)
+  }
+
+  override def completeReference(reference: PsiReference,  set: java.util.Set[LookupItem[_]], position: PsiElement,  file: PsiFile,
+                                offset: Int) {
+    val variants = findVariants(position, file)
+    ApplicationManager.getApplication().runReadAction(new Runnable() {
+      def run() {
+        var hasApplicableVariants = false
+        for (variant <- variants) {
+          if (variant.hasReferenceFilter()) {
+            variant.addReferenceCompletions(reference, position, set, file, ScalaCompletionData.this)
+            hasApplicableVariants = true
+          }
+        }
+
+        if (!hasApplicableVariants) {
+          myGenericVariant.addReferenceCompletions(reference, position, set, file, ScalaCompletionData.this)
+        }
+      }
+    })
   }
 
 }
