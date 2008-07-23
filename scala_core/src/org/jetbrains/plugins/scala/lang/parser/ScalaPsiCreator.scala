@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser
 
+import scaladoc.parser.ScalaDocElementTypes
+import scaladoc.psi.impl.ScDocCommentImpl
 import scaladoc.psi.{ScalaDocPsiCreator}
 import scaladoc.lexer.ScalaDocElementType
 import com.intellij.lang.ASTNode
@@ -31,6 +33,7 @@ object ScalaPsiCreator {
 
 
      case _: ScalaDocElementType => ScalaDocPsiCreator.createElement(node)
+     case ScalaDocElementTypes.SCALA_DOC_COMMENT => new ScDocCommentImpl(node)
     /*****************************************************/
     /********************** TOP **************************/
     /*****************************************************/

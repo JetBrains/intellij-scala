@@ -1,0 +1,29 @@
+/**
+ * @see  {@aaa}
+    {@bbb}
+   @ccc
+ */
+------
+ScalaFile
+  DocComment
+    PsiElement(DOC_COMMENT_START)('/**')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_COMMENT_DATA)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@see')
+      PsiElement(DOC_WHITESPACE)('  ')
+      DocInlinedTag
+        PsiElement(DOC_INLINE_TAG_START)('{')
+        PsiElement(DOC_TAG_NAME)('@aaa')
+        PsiElement(DOC_INLINE_TAG_END)('}')
+      PsiElement(DOC_WHITESPACE)('\n    ')
+      DocInlinedTag
+        PsiElement(DOC_INLINE_TAG_START)('{')
+        PsiElement(DOC_TAG_NAME)('@bbb')
+        PsiElement(DOC_INLINE_TAG_END)('}')
+      PsiElement(DOC_WHITESPACE)('\n   ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@ccc')
+      PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_END)('*/')

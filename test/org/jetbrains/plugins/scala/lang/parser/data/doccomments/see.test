@@ -1,0 +1,33 @@
+/**
+ * @see java.lang.String#concat(long myLong ,int  sd fg as )
+ */
+------
+ScalaFile
+  DocComment
+    PsiElement(DOC_COMMENT_START)('/**')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_COMMENT_DATA)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@see')
+      PsiElement(DOC_WHITESPACE)(' ')
+      PsiElement(DOC_TAG_VALUE_TOKEN)('java.lang.String')
+      PsiElement(DOC_TAG_VALUE_SHARP_TOKEN)('#')
+      PsiElement(DOC_TAG_VALUE_TOKEN)('concat')
+      PsiElement(DOC_TAG_VALUE_LPAREN)('(')
+      PsiElement(DOC_TAG_VALUE_TOKEN)('long')
+      PsiElement(DOC_WHITESPACE)(' ')
+      PsiElement(DOC_TAG_VALUE_TOKEN)('myLong')
+      PsiElement(DOC_WHITESPACE)(' ')
+      PsiElement(DOC_TAG_VALUE_COMMA)(',')
+      PsiElement(DOC_TAG_VALUE_TOKEN)('int')
+      PsiElement(DOC_WHITESPACE)('  ')
+      PsiElement(DOC_TAG_VALUE_TOKEN)('sd')
+      PsiElement(DOC_WHITESPACE)(' ')
+      PsiElement(DOC_TAG_VALUE_TOKEN)('fg')
+      PsiElement(DOC_WHITESPACE)(' ')
+      PsiElement(DOC_TAG_VALUE_TOKEN)('as')
+      PsiElement(DOC_WHITESPACE)(' ')
+      PsiElement(DOC_TAG_VALUE_RPAREN)(')')
+      PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_END)('*/')

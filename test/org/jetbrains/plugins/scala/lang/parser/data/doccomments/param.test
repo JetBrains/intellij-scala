@@ -1,0 +1,29 @@
+/**
+ * @param String this is book's test
+ * @param <T> strange parameter
+ */
+------
+ScalaFile
+  DocComment
+    PsiElement(DOC_COMMENT_START)('/**')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_COMMENT_DATA)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@param')
+      PsiElement(DOC_WHITESPACE)(' ')
+      PsiElement(DOC_TAG_VALUE_TOKEN)('String')
+      PsiElement(DOC_WHITESPACE)(' ')
+      PsiElement(DOC_COMMENT_DATA)('this is book's test')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_COMMENT_DATA)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@param')
+      PsiElement(DOC_WHITESPACE)(' ')
+      PsiElement(DOC_TAG_VALUE_LT)('<')
+      PsiElement(DOC_TAG_VALUE_TOKEN)('T')
+      PsiElement(DOC_TAG_VALUE_GT)('>')
+      PsiElement(DOC_COMMENT_DATA)(' strange parameter')
+      PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_END)('*/')

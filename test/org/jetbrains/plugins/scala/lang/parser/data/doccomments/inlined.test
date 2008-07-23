@@ -1,0 +1,25 @@
+/**
+ * {@inlined xx {A {@author}}}
+ */
+------
+ScalaFile
+  DocComment
+    PsiElement(DOC_COMMENT_START)('/**')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_COMMENT_DATA)(' ')
+    DocInlinedTag
+      PsiElement(DOC_INLINE_TAG_START)('{')
+      PsiElement(DOC_TAG_NAME)('@inlined')
+      PsiElement(DOC_WHITESPACE)(' ')
+      PsiElement(DOC_TAG_VALUE_TOKEN)('xx')
+      PsiElement(DOC_WHITESPACE)(' ')
+      PsiElement(DOC_INLINE_TAG_START)('{')
+      PsiElement(DOC_COMMENT_DATA)('A ')
+      PsiElement(DOC_INLINE_TAG_START)('{')
+      PsiElement(DOC_TAG_NAME)('@author')
+      PsiElement(DOC_INLINE_TAG_END)('}')
+      PsiElement(DOC_INLINE_TAG_END)('}')
+      PsiElement(DOC_INLINE_TAG_END)('}')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_END)('*/')
