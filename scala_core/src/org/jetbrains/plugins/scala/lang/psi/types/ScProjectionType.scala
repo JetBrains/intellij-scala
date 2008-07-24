@@ -10,7 +10,7 @@ case class ScProjectionType(projected: ScType, name: String) extends ScType {
   lazy val resolveResult = projected match {
     case sin@ScSingletonType(path) => {
       val proc = new ResolveProcessor(StdKinds.stableClass, name)
-      path.processType(sin, proc)
+      proc.processType(sin, path)
       if (proc.candidates.size == 1) Some(proc.candidates.toArray(0)) else None
     }
     case _ => None
@@ -26,7 +26,7 @@ case class ScProjectionType(projected: ScType, name: String) extends ScType {
     case ScDesignatorType(des) => projected match {
       case ScSingletonType(path) => {
         val proc = new ResolveProcessor(StdKinds.stableClass, name)
-        path.processType(projected, proc)
+        proc.processType(projected, path)
         if (proc.candidates.size == 1) proc.candidates.toArray(0).element eq des else false
       }
       case _ => false

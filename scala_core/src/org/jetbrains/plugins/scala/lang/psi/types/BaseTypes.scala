@@ -73,6 +73,7 @@ object BaseTypes {
     case ScFunctionType(ret, params) => new ScFunctionType(seenFrom(ret, c, s), params.map{seenFrom(_, c, s)})
     case ScTupleType(comps) => new ScTupleType(comps.map{seenFrom(_, c, s)})
     case ScCompoundType(comps, decls, types) => new ScCompoundType(comps.map{seenFrom(_, c, s)}, decls, types)
+    case ScProjectionType(p, name) => new ScProjectionType(seenFrom(p, c, s), name)
     case _ => t //todo: case for ScDesignatorType(inner class) + respective projection
   }
 }

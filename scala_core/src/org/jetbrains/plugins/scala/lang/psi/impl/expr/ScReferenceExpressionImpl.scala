@@ -77,7 +77,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case None => ref.getParent match {
          case inf: ScInfixExpr if ref == inf.operation => {
            val thisOp = if (ref.rightAssoc) inf.rOp else inf.lOp
-           processType(thisOp.getType, processor)
+           processor.processType(thisOp.getType, this)
          }
         case _ => {
           def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
@@ -94,7 +94,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           treeWalkUp(ref, null)
         }
       }
-      case Some(q) => processType(q.getType, processor)
+      case Some(q) => processor.processType(q.getType, this)
     }
     processor.candidates
   }

@@ -82,7 +82,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case Some(q : ScStableCodeReferenceElement) => {
         q.bind match {
           case None =>
-          case Some(ScalaResolveResult(typed: ScTyped, s)) => processType(s.subst(typed.calcType), processor)
+          case Some(ScalaResolveResult(typed: ScTyped, s)) => processor.processType(s.subst(typed.calcType), this)
           case Some(ScalaResolveResult(pack: PsiPackage, _)) if pack.getQualifiedName == "scala" => {
             import toplevel.synthetic.SyntheticClasses
 

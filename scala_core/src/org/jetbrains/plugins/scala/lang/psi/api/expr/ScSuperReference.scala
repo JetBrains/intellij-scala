@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
+import base.{ScStableCodeReferenceElement, ScPathElement}
 import com.intellij.psi.PsiClass
-import base.ScPathElement
 import psi.ScalaPsiElement
 
 /** 
@@ -11,4 +11,5 @@ import psi.ScalaPsiElement
 
 trait ScSuperReference extends ScExpression with ScPathElement { //todo extract a separate 'this' path element
   def refClass : Option[PsiClass] = None
+  def qualifier = findChild(classOf[ScStableCodeReferenceElement])
 }

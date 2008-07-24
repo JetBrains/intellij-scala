@@ -25,7 +25,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) ex
     case des : ScDesignatorType => des.element
     case ScProjectionType(sin@ScSingletonType(path), name) => {
       val proc = new ResolveProcessor(StdKinds.stableClass, name)
-      path.processType(sin, proc)
+      proc.processType(sin, path)
       if (proc.candidates.size == 1) proc.candidates.toArray(0).element else null
     }
   }
