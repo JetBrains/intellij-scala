@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import resolve.ScalaResolveResult
 import com.intellij.psi._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
@@ -77,5 +78,15 @@ object ScType {
       case null => new ScExistentialArgument(Nothing, Any) // raw type argument from java 
       case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
     }
+  }
+
+  def extractClassType(t : ScType) = t match {
+    case ScDesignatorType(clazz : PsiClass) => Some(clazz, ScSubstitutor.empty)
+    case proj : ScProjectionType => proj.resolveResult match {
+      case Some(ScalaResolveResult(c: PsiClass, s)) => Some(c, s)
+      case None => None
+    }
+    case p@ScParameterizedType(ScDesignatorType(clazz : PsiClass), _) => Some(clazz, p.substitutor)
+    case _ => None //todo
   }
 }

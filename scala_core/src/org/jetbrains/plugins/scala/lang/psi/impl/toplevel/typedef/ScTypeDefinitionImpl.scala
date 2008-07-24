@@ -6,6 +6,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import api.base.{ScStableCodeReferenceElement, ScPrimaryConstructor}
 import base.ScStableCodeReferenceElementImpl
+import api.base.ScStableCodeReferenceElement
 import api.base.types.ScTypeElement
 import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.collection.mutable.HashSet
@@ -34,7 +35,7 @@ import com.intellij.util.VisibilityIcons
 import com.intellij.openapi.util.Iconable
 import javax.swing.Icon
 import api.statements.{ScFunction, ScTypeAlias}
-import types.ScSubstitutor
+import types.{ScSubstitutor, ScType}
 import api.statements.{ScValue, ScVariable}
 
 abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeDefinition with PsiClassFake {
@@ -303,4 +304,11 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     case eb: ScExtendsBlock => eb.getParent.asInstanceOf[ScTypeDefinition]
     case _ => null
   }
+
+  override def isInheritor(clazz : PsiClass, deep : Boolean) = !superTypes.find {t =>
+    ScType.extractClassType(t) match {
+      case Some((c, _)) => c == clazz && (deep && isInheritor(c, deep))
+      case _ => false
+    }
+  }.isEmpty
 }
