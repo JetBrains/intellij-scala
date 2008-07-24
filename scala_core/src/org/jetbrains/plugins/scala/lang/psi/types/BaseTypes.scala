@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import api.expr.ScThisReference
 import com.intellij.psi.{PsiTypeParameter, PsiClass}
 import api.statements.params.ScTypeParam
 import api.toplevel.typedef.ScTypeDefinition
@@ -74,6 +75,24 @@ object BaseTypes {
     case ScTupleType(comps) => new ScTupleType(comps.map{seenFrom(_, c, s)})
     case ScCompoundType(comps, decls, types) => new ScCompoundType(comps.map{seenFrom(_, c, s)}, decls, types)
     case ScProjectionType(p, name) => new ScProjectionType(seenFrom(p, c, s), name)
-    case _ => t //todo: case for ScDesignatorType(inner class) + respective projection
+    case ScSingletonType(thisPath : ScThisReference) => {
+      thisPath.refClass match {
+        case Some(d) if isInheritorOrSelf(d, c) => ScType.extractClassType(s) match {
+          case Some((e, _)) if isInheritorOrSelf(e, d) => s
+          case _ => t
+        }
+        case _ => t
+      }
+    }
+    case ScDesignatorType(c : PsiClass) => {
+      val cclazz = c.getContainingClass
+      if (cclazz != null && isInheritorOrSelf(cclazz, c)) (ScType.extractClassType(s) match {
+        case Some((e, _)) if isInheritorOrSelf(e, cclazz) => s
+        case _ => t
+      }) else t
+    }
+    case _ => t
   }
+
+  private def isInheritorOrSelf(drv : PsiClass, base : PsiClass) = drv == base || drv.isInheritor(base, true)
 }
