@@ -141,6 +141,10 @@ object Conformance {
 
   private def extractClassType(t : ScType) = t match {
     case ScDesignatorType(clazz : PsiClass) => Some(clazz, ScSubstitutor.empty)
+    case proj : ScProjectionType => proj.resolveResult match {
+      case Some(ScalaResolveResult(c: PsiClass, s)) => Some(c, s)
+      case None => None
+    }
     case p@ScParameterizedType(ScDesignatorType(clazz : PsiClass), _) => Some(clazz, p.substitutor)
     case _ => None //todo
  }
