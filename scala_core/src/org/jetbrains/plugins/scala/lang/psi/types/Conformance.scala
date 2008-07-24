@@ -104,15 +104,19 @@ object Conformance {
   }
 
   private def rightRec(l: ScType, r: ScType, visited : Set[PsiClass]) : Boolean = r match {
-    case ScSingletonType(path) => path.bind match {
-      case Some(ScalaResolveResult(e, _)) => conforms(l, new ScDesignatorType(e))
-      case _ => false
-    }
+    case sin : ScSingletonType => conforms(l, sin.pathType) 
     case ScDesignatorType(tp: ScTypeParam) => conforms(l, tp.upperBound)
 
     case ScDesignatorType(td: ScTypeDefinition) => !td.superTypes.find {t => conforms(l, t, visited + td)}.isEmpty
     case ScDesignatorType(clazz: PsiClass) =>
     !clazz.getSuperTypes.find {t => conforms(l, ScType.create(t, clazz.getProject), visited + clazz)}.isEmpty
+
+    case proj : ScProjectionType => {
+      proj.element match {
+        case clazz : PsiClass => !BaseTypes.get(proj).find{t => conforms(l, t, visited + clazz)}.isEmpty
+        case _ => false
+      }
+    }
 
     case ScPolymorphicType(poly, subst) => conforms(l, subst.subst(poly.upperBound))
 
