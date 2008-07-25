@@ -6,7 +6,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 import collection.mutable.{HashMap, ArrayBuffer, HashSet, Set, ListBuffer}
 import com.intellij.psi.PsiClass
 import api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types._
+import psi.types._
 
 abstract class MixinNodes {
   type T
