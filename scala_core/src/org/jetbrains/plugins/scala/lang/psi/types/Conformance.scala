@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import scala.Misc._
 import api.statements._
 import params._
 import resolve.ScalaResolveResult
@@ -98,7 +99,7 @@ object Conformance {
                val s1 = p._1
                val rt1 = p._2
                c.signatureMap.get(s1) match {
-               case None => !comps.find { t => ScType.extractClassType(t) match {
+               case None => comps.find { t => ScType.extractClassType(t) match {
                    case None => false
                    case Some((clazz, subst)) => {
                      TypeDefinitionMembers.getSignatures(clazz).get(s1) match {
@@ -107,7 +108,7 @@ object Conformance {
                      }
                    }
                  }
-               }.isEmpty
+               }
                case Some(rt) => rt1.conforms(rt)
              }
              //todo check for refinement's type decls
@@ -128,13 +129,13 @@ object Conformance {
     case sin : ScSingletonType => conforms(l, sin.pathType) 
     case ScDesignatorType(tp: ScTypeParam) => conforms(l, tp.upperBound)
 
-    case ScDesignatorType(td: ScTypeDefinition) => !td.superTypes.find {t => conforms(l, t, visited + td)}.isEmpty
+    case ScDesignatorType(td: ScTypeDefinition) => td.superTypes.find {t => conforms(l, t, visited + td)}
     case ScDesignatorType(clazz: PsiClass) =>
-    !clazz.getSuperTypes.find {t => conforms(l, ScType.create(t, clazz.getProject), visited + clazz)}.isEmpty
+    clazz.getSuperTypes.find {t => conforms(l, ScType.create(t, clazz.getProject), visited + clazz)}
 
     case proj : ScProjectionType => {
       proj.element match {
-        case clazz : PsiClass => !BaseTypes.get(proj).find{t => conforms(l, t, visited + clazz)}.isEmpty
+        case clazz : PsiClass => BaseTypes.get(proj).find{t => conforms(l, t, visited + clazz)}
         case _ => false
       }
     }
@@ -143,14 +144,14 @@ object Conformance {
 
     case p@ScParameterizedType(ScDesignatorType(td: ScTypeDefinition), _) => {
       val s = p.substitutor
-      !td.superTypes.find {t => conforms(l, s.subst(t), visited + td)}.isEmpty
+      td.superTypes.find {t => conforms(l, s.subst(t), visited + td)}
     }
     case p@ScParameterizedType(ScDesignatorType(clazz: PsiClass), _) => {
       val s = p.substitutor
-      !clazz.getSuperTypes.find {t => conforms(l, s.subst(ScType.create(t, clazz.getProject)), visited + clazz)}.isEmpty
+      clazz.getSuperTypes.find {t => conforms(l, s.subst(ScType.create(t, clazz.getProject)), visited + clazz)}
     }
 
-    case ScCompoundType(comps, _, _) => !comps.find(l conforms _).isEmpty
+    case ScCompoundType(comps, _, _) => comps.find(l conforms _)
 
     case ScExistentialArgument(_, upper) => conforms(l, upper)
     case ScUnpackedExistentialArgument(ex) => conforms(l, ex)
