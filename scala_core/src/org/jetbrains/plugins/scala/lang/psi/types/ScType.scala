@@ -80,13 +80,18 @@ object ScType {
     }
   }
 
-  def extractClassType(t : ScType) = t match {
+  def extractClassType(t : ScType) : Option[Pair[PsiClass, ScSubstitutor]] = t match {
     case ScDesignatorType(clazz : PsiClass) => Some(clazz, ScSubstitutor.empty)
     case proj : ScProjectionType => proj.resolveResult match {
       case Some(ScalaResolveResult(c: PsiClass, s)) => Some(c, s)
       case None => None
     }
-    case p@ScParameterizedType(ScDesignatorType(clazz : PsiClass), _) => Some(clazz, p.substitutor)
+    case p@ScParameterizedType(t1, _) => {
+      extractClassType(t1) match {
+        case Some((c, s)) => Some((c, s.followed(p.substitutor)))
+        case None => None
+      }
+    }
     case _ => None //todo
   }
 }
