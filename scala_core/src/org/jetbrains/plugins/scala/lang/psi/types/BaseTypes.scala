@@ -84,14 +84,16 @@ object BaseTypes {
         case _ => t
       }
     }
-    case ScDesignatorType(c : PsiClass) => {
-      val cclazz = c.getContainingClass
-      if (cclazz != null && isInheritorOrSelf(cclazz, c)) (ScType.extractClassType(s) match {
-        case Some((e, _)) if isInheritorOrSelf(e, cclazz) => s
-        case _ => t
-      }) else t
+    case _ => ScType.extractClassType(t) match {
+      case Some((c, _)) => {
+        val cclazz = c.getContainingClass
+        if (cclazz != null && isInheritorOrSelf(cclazz, c)) (ScType.extractClassType(s) match {
+          case Some((e, _)) if isInheritorOrSelf(e, cclazz) => s
+          case _ => t
+        }) else t
+      }
+      case None => t
     }
-    case _ => t
   }
 
   private def isInheritorOrSelf(drv : PsiClass, base : PsiClass) = drv == base || drv.isInheritor(base, true)
