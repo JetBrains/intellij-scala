@@ -92,7 +92,28 @@ object Conformance {
           }
           true
         }
-        case None => false
+        case None => r match {
+          case c1@ScCompoundType(comps1, _, _) => comps1.forall(c conforms _) && (
+             c1.signatureMap.forall {p => {
+               val s1 = p._1
+               val rt1 = p._2
+               c.signatureMap.get(s1) match {
+               case None => !comps.find { t => ScType.extractClassType(t) match {
+                   case None => false
+                   case Some((clazz, subst)) => {
+                     TypeDefinitionMembers.getSignatures(clazz).get(s1) match {
+                       case None => false
+                       case Some(rt) => rt1.conforms(subst.subst(rt))
+                     }
+                   }
+                 }
+               }.isEmpty
+               case Some(rt) => rt1.conforms(rt)
+             }
+             //todo check for refinement's type decls
+           }})
+          case _ => false
+        }
       })
 
       case ScExistentialArgument(lower, _) => conforms(lower, r)
