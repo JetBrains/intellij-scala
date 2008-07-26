@@ -96,6 +96,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
       case ta: ScTypeAlias => processType(p.substitutor.subst(ta.upperBound), place)
       case des => des.processDeclarations(this, ResolveState.initial.put(ScSubstitutor.key, p.substitutor), null, place)
     }
+    case proj : ScProjectionType => ScType.extractClassType(proj) match {
+      case Some((c, s)) => c.processDeclarations(this, ResolveState.initial.put(ScSubstitutor.key, s), null, place)
+      case None => true
+    }
 
     case ValType(name, _) => SyntheticClasses.get(place.getProject).byName(name) match {
       case Some(c) => c.processDeclarations(this, ResolveState.initial, null, place)
