@@ -55,7 +55,7 @@ class ScSubstitutor(val tpMap: Map[PsiTypeParameter, ScType],
           val cc = c.getContainingClass
           if (cc != null) {
             outerMap.get(cc) match {
-              case Some(ot) => ot
+              case Some(ot) => new ScProjectionType(ot, c.getName)
               case None => t
             }
           } else t
