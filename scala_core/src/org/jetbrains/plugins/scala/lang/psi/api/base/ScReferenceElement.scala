@@ -5,7 +5,6 @@ import impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import com.intellij.psi.PsiPolyVariantReference
 import org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.openapi.util.TextRange

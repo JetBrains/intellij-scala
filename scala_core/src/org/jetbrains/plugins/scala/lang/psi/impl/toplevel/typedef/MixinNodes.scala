@@ -80,13 +80,8 @@ abstract class MixinNodes {
 
       val superTypesBuff = new ListBuffer[Map]
       for (superType <- superTypes) {
-        superType match {
-          case parameterized: ScParameterizedType => {
-            parameterized.designated match {
-              case superClass: PsiClass => superTypesBuff += inner(superClass, combine(parameterized.substitutor, subst, superClass), visited)
-            }
-          }
-          case ScDesignatorType(superClass : PsiClass) => superTypesBuff += inner(superClass, ScSubstitutor.empty, visited)
+        ScType.extractClassType(superType) match {
+          case Some((superClass, s)) => superTypesBuff += inner(superClass, combine(s, subst, superClass), visited)
           case _ =>
         }
       }

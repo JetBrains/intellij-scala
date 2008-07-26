@@ -3,49 +3,63 @@
 */
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import com.intellij.psi.{PsiTypeParameterListOwner, PsiTypeParameter, PsiSubstitutor, PsiClass}
 import com.intellij.openapi.util.Key
-import com.intellij.psi.{PsiTypeParameter, PsiSubstitutor}
 import collection.immutable.{Map, HashMap}
 import com.intellij.openapi.project.Project
 import api.statements.ScTypeAlias
 
 object ScSubstitutor {
   val empty = new ScSubstitutor {
-    override def subst(t : ScType) : ScType = t
+    override def subst(t: ScType): ScType = t
   }
 
-  val key : Key[ScSubstitutor] = Key.create("scala substitutor key")
+  val key: Key[ScSubstitutor] = Key.create("scala substitutor key")
 }
 
-class ScSubstitutor(val map : Map[PsiTypeParameter, ScType], val aliasesMap : Map[String, ScType]) {
+class ScSubstitutor(val map: Map[PsiTypeParameter, ScType],
+                   val outerMap: Map[PsiClass, ScType],
+                   val aliasesMap: Map[String, ScType]) {
 
-  def this() = this(Map.empty, Map.empty)
+  def this() = this (Map.empty, Map.empty, Map.empty)
 
-  def +(p : PsiTypeParameter, t : ScType) = new ScSubstitutor(map + ((p, t)), aliasesMap)
-  def +(name : String, t : ScType) = new ScSubstitutor(map, aliasesMap + ((name, t)))
-  def incl(s : ScSubstitutor) = new ScSubstitutor(s.map ++ map, s.aliasesMap ++ aliasesMap)
-  def followed(s : ScSubstitutor) = new ScSubstitutor(map, aliasesMap) {
-    override def subst(t : ScType) = s.subst(super.subst(t))
-    override def subst(ta : ScTypeAlias) = s.subst(super.subst(ta))
-    override def subst(tp : PsiTypeParameter) = s.subst(super.subst(tp))
+  def +(p: PsiTypeParameter, t: ScType) = new ScSubstitutor(map + ((p, t)), outerMap, aliasesMap)
+  def +(name: String, t: ScType) = new ScSubstitutor(map, outerMap, aliasesMap + ((name, t)))
+  def bindOuter(outer: PsiClass, t: ScType) = new ScSubstitutor(map, outerMap + ((outer, t)), aliasesMap)
+  def incl(s: ScSubstitutor) = new ScSubstitutor(s.map ++ map, s.outerMap ++ outerMap, s.aliasesMap ++ aliasesMap)
+  def followed(s: ScSubstitutor) = new ScSubstitutor(map, outerMap, aliasesMap) {
+    override def subst(t: ScType) = s.subst(super.subst(t))
+    override def subst(ta: ScTypeAlias) = s.subst(super.subst(ta))
+    override def subst(tp: PsiTypeParameter) = s.subst(super.subst(tp))
   }
 
-  def subst(p : PsiTypeParameter) = map.get(p) match {
+  def subst(p: PsiTypeParameter) = map.get(p) match {
     case None => new ScDesignatorType(p)
     case Some(v) => v
   }
 
-  def subst (ta : ScTypeAlias) = aliasesMap.get(ta.name) match {
+  def subst(ta: ScTypeAlias) = aliasesMap.get(ta.name) match {
     case Some(v) => v
     case None => new ScPolymorphicType(ta, ScSubstitutor.empty)
   }
 
-  def subst (t : ScType) : ScType = {
+  def subst(t: ScType) : ScType = {
     t match {
       case ScFunctionType(ret, params) => new ScFunctionType(subst(ret), params map (subst _))
-      case ScTupleType(comps) => new ScTupleType(comps map {subst _})
+      case ScTupleType(comps) => new ScTupleType(comps map {
+        subst _
+      })
       case ScDesignatorType(e) if (!e.isInstanceOf[ScTypeAlias]) => e match { //scala ticket 425
-        case tp : PsiTypeParameter => subst(tp)
+        case tp: PsiTypeParameter => subst(tp)
+        case c: PsiClass => {
+          val cc = c.getContainingClass
+          if (cc != null) {
+            outerMap.get(cc) match {
+              case Some(ot) => ot
+              case None => t
+            }
+          } else t
+        }
         case _ => t
       }
       case ScPolymorphicType(a, s) => aliasesMap.get(a.name) match {
@@ -58,7 +72,7 @@ class ScSubstitutor(val map : Map[PsiTypeParameter, ScType], val aliasesMap : Ma
       case ex@ScExistentialType(q, wildcards) => {
         //remove bound names 
         val trunc = aliasesMap.excl(ex.boundNames)
-        new ScExistentialType(new ScSubstitutor(map, trunc).subst(q), wildcards)
+        new ScExistentialType(new ScSubstitutor(map, outerMap, trunc).subst(q), wildcards)
       }
       case _ => t //todo
     }
