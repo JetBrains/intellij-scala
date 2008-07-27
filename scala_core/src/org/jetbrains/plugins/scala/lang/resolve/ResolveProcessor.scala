@@ -134,6 +134,8 @@ object StdKinds {
   val stableImportSelector = HashSet.empty[ResolveTargets] + OBJECT + VAL + VAR + METHOD + PACKAGE + CLASS
   val stableClass = HashSet.empty[ResolveTargets] + CLASS
 
+  val constructorPattern = HashSet.empty[ResolveTargets] + CLASS + OBJECT
+
   val refExprLastRef = HashSet.empty[ResolveTargets] + OBJECT + VAL + VAR + METHOD
   val refExprQualRef = refExprLastRef + PACKAGE
 

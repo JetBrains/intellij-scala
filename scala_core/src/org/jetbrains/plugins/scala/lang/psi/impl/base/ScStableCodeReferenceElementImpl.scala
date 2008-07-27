@@ -44,17 +44,20 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  private def resolveKinds(incomplete: Boolean) = getParent match {
-    case _: ScStableCodeReferenceElement => StdKinds.stableQualRef
-    case e: ScImportExpr => if (e.selectorSet != None
-            //import Class._ is not allowed
-            || qualifier == None) StdKinds.stableQualRef else StdKinds.stableQualOrClass
-    case _: ScSimpleTypeElement => if (incomplete) StdKinds.stableQualOrClass else StdKinds.stableClass
-    case _: ScTypeAlias => StdKinds.stableClass
-    case _: ScConstructorPattern => StdKinds.stableClass
-    case _: ScThisReference | _: ScSuperReference => StdKinds.stableClass
-    case _: ScImportSelector => StdKinds.stableImportSelector
-    case _ => StdKinds.stableQualRef
+  private def resolveKinds(incomplete: Boolean) = {
+    import StdKinds._
+    getParent match {
+      case _: ScStableCodeReferenceElement => stableQualRef
+      case e: ScImportExpr => if (e.selectorSet != None
+              //import Class._ is not allowed
+              || qualifier == None) stableQualRef else stableQualOrClass
+      case _: ScSimpleTypeElement => if (incomplete) stableQualOrClass else stableClass
+      case _: ScTypeAlias => stableClass
+      case _: ScConstructorPattern => constructorPattern
+      case _: ScThisReference | _: ScSuperReference => stableClass
+      case _: ScImportSelector => stableImportSelector
+      case _ => stableQualRef
+    }
   }
 
   private def _qualifier() = {
