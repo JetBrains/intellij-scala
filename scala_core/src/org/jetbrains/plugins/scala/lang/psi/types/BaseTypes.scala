@@ -4,6 +4,7 @@ import api.expr.ScThisReference
 import com.intellij.psi.{PsiTypeParameter, PsiClass}
 import api.statements.params.ScTypeParam
 import api.toplevel.typedef.ScTypeDefinition
+import resolve.ScalaResolveResult
 import _root_.scala.collection.mutable.{Set, HashMap, MultiMap}
 
 object BaseTypes {
@@ -22,10 +23,10 @@ object BaseTypes {
     case sin : ScSingletonType => get(sin.pathType)
     case ScExistentialType(q, wilds) => get(q).map{bt => ScExistentialTypeReducer.reduce(bt, wilds)}
     case ScCompoundType(comps, _, _) => reduce(comps)
-    case proj@ScProjectionType(p, name) => proj.element match {
-      case Some(td : ScTypeDefinition) => td.superTypes.map{seenFrom(_, td, p)}
-      case Some(clazz : PsiClass) =>
-        clazz.getSuperTypes.map{st => seenFrom(ScType.create(st, clazz.getProject), clazz, p)}
+    case proj@ScProjectionType(p, name) => proj.resolveResult match {
+      case Some(ScalaResolveResult(td : ScTypeDefinition, s)) => td.superTypes.map{s.subst _}
+      case Some(ScalaResolveResult(c : PsiClass, s)) =>
+        c.getSuperTypes.map{st => s.subst(ScType.create(st, c.getProject))}
       case _ => Seq.empty
     }
   }
@@ -58,43 +59,4 @@ object BaseTypes {
     }
     res.values.toList
   }
-
-  def seenFrom(t : ScType, c : PsiClass, s : ScType) : ScType = t match {
-    case ScExistentialType(s1, wilds) => new ScExistentialType(seenFrom(t,c,s1), wilds)
-    case ScPolymorphicType(tp : ScTypeParam, _) => {
-      val (owner, i) = (tp.owner, tp.owner.typeParameters.indexOf(tp))
-      for (bt <- get(s)) {
-        bt match {
-          case p@ScParameterizedType(ScDesignatorType(`owner`), _) => return p.substitutor.subst(tp)
-          case _ =>
-        }
-      }
-      t
-    }
-    case ScFunctionType(ret, params) => new ScFunctionType(seenFrom(ret, c, s), params.map{seenFrom(_, c, s)})
-    case ScTupleType(comps) => new ScTupleType(comps.map{seenFrom(_, c, s)})
-    case ScCompoundType(comps, decls, types) => new ScCompoundType(comps.map{seenFrom(_, c, s)}, decls, types)
-    case ScProjectionType(p, name) => new ScProjectionType(seenFrom(p, c, s), name)
-    case ScSingletonType(thisPath : ScThisReference) => {
-      thisPath.refClass match {
-        case Some(d) if isInheritorOrSelf(d, c) => ScType.extractClassType(s) match {
-          case Some((e, _)) if isInheritorOrSelf(e, d) => s
-          case _ => t
-        }
-        case _ => t
-      }
-    }
-    case _ => ScType.extractClassType(t) match {
-      case Some((c, _)) => {
-        val cclazz = c.getContainingClass
-        if (cclazz != null && isInheritorOrSelf(cclazz, c)) (ScType.extractClassType(s) match {
-          case Some((e, _)) if isInheritorOrSelf(e, cclazz) => s
-          case _ => t
-        }) else t
-      }
-      case None => t
-    }
-  }
-
-  private def isInheritorOrSelf(drv : PsiClass, base : PsiClass) = drv == base || drv.isInheritor(base, true)
 }
