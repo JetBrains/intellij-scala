@@ -8,7 +8,9 @@ import com.intellij.openapi.options.Configurable
  */
  
 class ScalaCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
-  override def createCustomSettings(settings: CodeStyleSettings): CustomCodeStyleSettings = new ScalaCodeStyleSettings(settings)
+  override def createCustomSettings(settings: CodeStyleSettings): CustomCodeStyleSettings = {
+    new ScalaCodeStyleSettings(settings)
+  }
 
   def createSettingsPage(settings: CodeStyleSettings, originalSettings: CodeStyleSettings): Configurable = {
     return new ScalaFormatConfigurable(settings, originalSettings)

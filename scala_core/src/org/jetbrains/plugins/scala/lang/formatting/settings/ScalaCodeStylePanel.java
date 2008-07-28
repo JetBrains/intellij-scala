@@ -24,6 +24,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
+    ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
+    setSettings(scalaSettings);
   }
 
   protected EditorHighlighter createHighlighter(EditorColorsScheme scheme) {
