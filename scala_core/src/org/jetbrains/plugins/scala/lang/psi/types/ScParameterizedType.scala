@@ -57,7 +57,9 @@ object ScParameterizedType {
 
 case class ScPolymorphicType(poly : ScPolymorphicElement, subst : ScSubstitutor) extends ScDesignatorType(poly) {
   override def equiv (t : ScType) = t match {
-    case ScPolymorphicType(p1, s1) => poly eq p1/* && (subst equiv s1)*/
+    case ScPolymorphicType(p1, s1) => (poly eq p1) & poly.typeParameters.equalsWith(p1.typeParameters) {
+      (tp1, tp2) => subst.subst(tp1).equiv(s1.subst(tp2))
+    }
     case _ => false
   }
 }
