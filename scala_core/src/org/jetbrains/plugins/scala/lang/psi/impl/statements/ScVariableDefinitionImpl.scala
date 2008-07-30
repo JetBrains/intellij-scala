@@ -30,4 +30,9 @@ class ScVariableDefinitionImpl(node: ASTNode) extends ScMemberImpl(node) with Sc
     val plist = findChildByClass(classOf[ScPatternList])
     if (plist != null) plist.patterns.flatMap[ScBindingPattern]((p: ScPattern) => p.bindings) else Seq.empty
   }
+
+  def getType = typeElement match {
+    case Some(te) => te.getType
+    case None => expr.getType 
+  }
 }

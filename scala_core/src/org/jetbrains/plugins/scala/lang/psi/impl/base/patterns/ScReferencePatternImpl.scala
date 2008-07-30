@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import api.base.patterns._
+import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.lexer._
+import lang.lexer._
+import psi.types.Nothing
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -13,5 +14,8 @@ import org.jetbrains.plugins.scala.lang.lexer._
 
 class ScReferencePatternImpl(node: ASTNode) extends ScBindingPatternImpl (node) with ScReferencePattern{
   override def toString: String = "ReferencePattern"
-
+  override def calcType = expectedType match {
+    case Some(t) => t
+    case None => Nothing
+  }
 }

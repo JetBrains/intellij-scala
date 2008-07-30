@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import expr.ScExpression
+import base.patterns.ScBindingPattern
 
 /**
 * @author Alexander Podkhalyuzin
@@ -11,4 +12,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 trait ScVariableDefinition extends ScVariable {
   def bindings: Seq[ScBindingPattern]
   def declaredElements = bindings
+  def expr = findChildByClass(classOf[ScExpression])
 }
