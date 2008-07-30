@@ -40,6 +40,11 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACE_BEFORE_WHILE_PARENTHESES = true;
   public boolean SPACE_BEFORE_ELSE_LBRACE = true;
 
+  //keep blank lines
+  public int KEEP_BLANK_LINES_IN_CODE = 2;
+  public int KEEP_BLANK_LINES_BEFORE_RBRACE = 2;
+  public boolean KEEP_LINE_BREAKS = true;
+
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);
   }

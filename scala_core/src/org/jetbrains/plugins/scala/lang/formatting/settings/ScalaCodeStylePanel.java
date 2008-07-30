@@ -49,6 +49,12 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox beforeTryLBraceBox;
   private JCheckBox beforeCatchLBraceBox;
   private JCheckBox beforeFinallyLBraceBox;
+  private JCheckBox beforeElseLBraceBox;
+  private JCheckBox beforeWhileBox;
+  private JPanel blackLines;
+  private JSpinner keepCodeSpinner;
+  private JSpinner keepBeforeSpinner;
+  private JCheckBox keepLineBreaksCheckBox;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -74,7 +80,17 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   }
 
   protected String getPreviewText() {
-    return "package preview.file";
+    return "package preview.file\n\n" +
+            "" +
+            "import scala.collection.mutable._\n\n" +
+            "" +
+            "abstract class R[T](x: Int) extends {val y = x} with R1[T] {\n" +
+            "  def foo(z: Int): R1 = new R[Int](z)\n" +
+            "  def default = foo(0)\n" +
+            "  val x: T\n" +
+            "}\n\n" +
+            "" +
+            "trait R1[T]";
   }
 
   public void apply(CodeStyleSettings settings) {
@@ -91,7 +107,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.SPACE_BEFORE_FOR_LBRACE = beforeForLBraceBox.isSelected();
     scalaSettings.SPACE_BEFORE_FOR_PARENTHESES = beforeForBox.isSelected();
     scalaSettings.SPACE_BEFORE_IF_LBRACE = beforeIfLBraceBox.isSelected();
+    scalaSettings.SPACE_BEFORE_ELSE_LBRACE = beforeElseLBraceBox.isSelected();
     scalaSettings.SPACE_BEFORE_IF_PARENTHESES = beforeIfBox.isSelected();
+    scalaSettings.SPACE_BEFORE_WHILE_PARENTHESES = beforeWhileBox.isSelected();
     scalaSettings.SPACE_BEFORE_MATCH_LBRACE = beforeMatchLBrace.isSelected();
     scalaSettings.SPACE_BEFORE_METHOD_CALL_PARENTHESES = beforeMethodCallBox.isSelected();
     scalaSettings.SPACE_BEFORE_METHOD_LBRACE = beforeMethodLBraceBox.isSelected();
@@ -106,6 +124,19 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES = withinMethodBox.isSelected();
     scalaSettings.SPACE_WITHIN_PARENTHESES = withinBox.isSelected();
     scalaSettings.SPACE_WITHIN_WHILE_PARENTHESES = withinWhileBox.isSelected();
+    scalaSettings.KEEP_LINE_BREAKS = keepLineBreaksCheckBox.isSelected();
+    if ((Integer) keepCodeSpinner.getValue() >= 0) {
+      scalaSettings.KEEP_BLANK_LINES_IN_CODE = (Integer) keepCodeSpinner.getValue();
+    } else {
+      scalaSettings.KEEP_BLANK_LINES_IN_CODE = 0;
+      keepCodeSpinner.setValue(0);
+    }
+    if ((Integer) keepBeforeSpinner.getValue() >= 0) {
+      scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE = (Integer) keepBeforeSpinner.getValue();
+    } else {
+      scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0;
+      keepBeforeSpinner.setValue(0);
+    }
   }
 
   private boolean getBoxValue(JCheckBox checkBox) {
@@ -150,7 +181,13 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.SPACE_BEFORE_IF_LBRACE != beforeIfLBraceBox.isSelected()) {
       return true;
     }
+    if (scalaSettings.SPACE_BEFORE_ELSE_LBRACE != beforeElseLBraceBox.isSelected()) {
+      return true;
+    }
     if (scalaSettings.SPACE_BEFORE_IF_PARENTHESES != beforeIfBox.isSelected()) {
+      return true;
+    }
+    if (scalaSettings.SPACE_BEFORE_WHILE_PARENTHESES != beforeWhileBox.isSelected()) {
       return true;
     }
     if (scalaSettings.SPACE_BEFORE_MATCH_LBRACE != beforeMatchLBrace.isSelected()) {
@@ -195,6 +232,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.SPACE_WITHIN_WHILE_PARENTHESES != withinWhileBox.isSelected()) {
       return true;
     }
+    if (scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE != (Integer) keepBeforeSpinner.getValue()) return true;
+    if (scalaSettings.KEEP_BLANK_LINES_IN_CODE != (Integer) keepCodeSpinner.getValue()) return true;
+    if (scalaSettings.KEEP_LINE_BREAKS != keepLineBreaksCheckBox.isSelected()) return true;
     return false;
   }
 
@@ -216,6 +256,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(afterSemicolonBox, settings.SPACE_AFTER_SEMICOLON);
     setValue(beforeSemicolonBox, settings.SPACE_BEFORE_SEMICOLON);
     setValue(beforeIfBox, settings.SPACE_BEFORE_IF_PARENTHESES);
+    setValue(beforeWhileBox, settings.SPACE_BEFORE_WHILE_PARENTHESES);
     setValue(beforeForBox, settings.SPACE_BEFORE_FOR_PARENTHESES);
     setValue(beforeMethodBox, settings.SPACE_BEFORE_METHOD_PARENTHESES);
     setValue(beforeMethodCallBox, settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES);
@@ -229,6 +270,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(beforeClassLBraceBox, settings.SPACE_BEFORE_CLASS_LBRACE);
     setValue(beforeMethodLBraceBox, settings.SPACE_BEFORE_METHOD_LBRACE);
     setValue(beforeIfLBraceBox, settings.SPACE_BEFORE_IF_LBRACE);
+    setValue(beforeElseLBraceBox, settings.SPACE_BEFORE_IF_LBRACE);
     setValue(beforeWhileLBraceBox, settings.SPACE_BEFORE_WHILE_LBRACE);
     setValue(beforeDoLBraceBox, settings.SPACE_BEFORE_DO_LBRACE);
     setValue(beforeForLBraceBox, settings.SPACE_BEFORE_FOR_LBRACE);
@@ -236,6 +278,14 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(beforeTryLBraceBox, settings.SPACE_BEFORE_TRY_LBRACE);
     setValue(beforeCatchLBraceBox, settings.SPACE_BEFORE_CATCH_LBRACE);
     setValue(beforeFinallyLBraceBox, settings.SPACE_BEFORE_FINALLY_LBRACE);
+
+    setValue(keepLineBreaksCheckBox, settings.KEEP_LINE_BREAKS);
+    setValue(keepBeforeSpinner, settings.KEEP_BLANK_LINES_BEFORE_RBRACE);
+    setValue(keepCodeSpinner, settings.KEEP_BLANK_LINES_IN_CODE);
+  }
+
+  private static void setValue(JSpinner spinner, int value) {
+    spinner.setValue(value);
   }
 
   private static void setValue(@NotNull final JComboBox box, final int value) {

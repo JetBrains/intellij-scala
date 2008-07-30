@@ -41,13 +41,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
     val settings = left.getSettings
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    def getSpacing(x: Int, y: Int, z: Int) = if (settings.KEEP_LINE_BREAKS)
+    def getSpacing(x: Int, y: Int, z: Int) = if (scalaSettings.KEEP_LINE_BREAKS)
       Spacing.createSpacing(y, y, z, true, x)
     else
       Spacing.createSpacing(y, y, z, false, 0)
-    val WITHOUT_SPACING = getSpacing(settings.KEEP_BLANK_LINES_IN_CODE, 0, 0)
-    val WITH_SPACING = getSpacing(settings.KEEP_BLANK_LINES_IN_CODE, 1, 0)
-    val ON_NEW_LINE = getSpacing(settings.KEEP_BLANK_LINES_IN_CODE, 0, 1)
+    val WITHOUT_SPACING = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, 0)
+    val WITH_SPACING = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 1, 0)
+    val ON_NEW_LINE = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, 1)
     val leftNode = left.getNode
     val rightNode = right.getNode
     val (leftString, rightString) = (left.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText),
@@ -395,18 +395,18 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       rightNode.getTreeParent.getPsi match {
         case _: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
                 _: ScTryBlock | _: ScCatchBlock => {
-          return Spacing.createSpacing(0, 0, 1, true, settings.KEEP_BLANK_LINES_BEFORE_RBRACE)
+          return Spacing.createSpacing(0, 0, 1, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
         }
-        case _ => return Spacing.createSpacing(0, 0, 0, true, settings.KEEP_BLANK_LINES_BEFORE_RBRACE)
+        case _ => return Spacing.createSpacing(0, 0, 0, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
       }
     }
     if (leftNode.getElementType == ScalaTokenTypes.tLBRACE) {
       leftNode.getTreeParent.getPsi match {
         case _: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
                 _: ScTryBlock | _: ScCatchBlock => {
-          return Spacing.createSpacing(0, 0, 1, true, settings.KEEP_BLANK_LINES_BEFORE_RBRACE)
+          return Spacing.createSpacing(0, 0, 1, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
         }
-        case _ => return Spacing.createSpacing(0, 0, 0, true, settings.KEEP_BLANK_LINES_BEFORE_RBRACE)
+        case _ => return Spacing.createSpacing(0, 0, 0, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
       }
     }
 
