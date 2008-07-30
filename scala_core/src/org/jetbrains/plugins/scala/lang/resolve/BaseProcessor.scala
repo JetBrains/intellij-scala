@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import psi.api.toplevel.ScPolymorphicElement
 import psi.api.expr.{ScSuperReference, ScThisReference}
 import psi.api.base.{ScStableCodeReferenceElement, ScFieldId}
 import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
@@ -88,9 +89,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
 
   import psi.impl.toplevel.synthetic.SyntheticClasses
   def processType(t: ScType, place: ScalaPsiElement): Boolean = t match {
-    case ScDesignatorType(e) if !e.isInstanceOf[ScTypeAlias] => //scala ticket 425
+    case ScDesignatorType(e) if !e.isInstanceOf[ScPolymorphicElement] => //scala ticket 425
       e.processDeclarations(this, ResolveState.initial, null, place)
-    case ScPolymorphicType(ta, subst) => processType(subst.subst(ta.upperBound), place)
+    case ScPolymorphicType(poly, subst) => processType(subst.subst(poly.upperBound), place)
 
     case p: ScParameterizedType => p.designated match {
       case ta: ScTypeAlias => processType(p.substitutor.subst(ta.upperBound), place)
