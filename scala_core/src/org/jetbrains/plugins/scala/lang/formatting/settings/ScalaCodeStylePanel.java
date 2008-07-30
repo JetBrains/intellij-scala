@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.ScalaFileType;
  */
 public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JPanel myPanel;
-  private JCheckBox experimentBox;
+  private JTabbedPane settings;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -50,7 +50,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
   public void apply(CodeStyleSettings settings) {
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-    scalaSettings.EXPERIMENT = getBoxValue(experimentBox);
   }
 
   private boolean getBoxValue(JCheckBox checkBox) {
@@ -59,7 +58,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
   public boolean isModified(CodeStyleSettings settings) {
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-    if (scalaSettings.EXPERIMENT != getBoxValue(experimentBox)) return true;
     return false;
   }
 
@@ -73,7 +71,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   }
 
   private void setSettings(ScalaCodeStyleSettings settings) {
-    setValue(experimentBox, settings.EXPERIMENT);
   }
 
   private static void setValue(@NotNull final JComboBox box, final int value) {
