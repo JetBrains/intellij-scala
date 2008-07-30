@@ -8,7 +8,6 @@ import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
  * Date: 28.07.2008
  */
 public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
-  public boolean EXPERIMENT = false;
 
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);
