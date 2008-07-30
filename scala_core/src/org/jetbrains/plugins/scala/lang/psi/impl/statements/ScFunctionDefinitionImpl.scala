@@ -61,7 +61,7 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
         if (args.length != 1) return false
         args(0).getText == "String"
       }
-      case None | Some(_) => return false
+      case _ => return false
     }
   }
 
