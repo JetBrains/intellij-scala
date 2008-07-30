@@ -4,6 +4,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
  * @author ilyas
  */
 
+import _root_.scala.collection.immutable.Set
 import api.base.{ScStableCodeReferenceElement, ScPrimaryConstructor}
 import base.ScStableCodeReferenceElementImpl
 import api.base.ScStableCodeReferenceElement
@@ -37,6 +38,7 @@ import javax.swing.Icon
 import api.statements.{ScFunction, ScTypeAlias}
 import types.{ScSubstitutor, ScType}
 import api.statements.{ScValue, ScVariable}
+import Misc._
 
 abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeDefinition with PsiClassFake {
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
@@ -305,10 +307,22 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     case _ => null
   }
 
-  override def isInheritor(clazz : PsiClass, deep : Boolean) = !superTypes.find {t =>
-    ScType.extractClassType(t) match {
-      case Some((c, _)) => c == clazz || (deep && c.isInheritor(clazz, deep))
-      case _ => false
+  override def isInheritor(clazz : PsiClass, deep : Boolean) = {
+    def isInheritorInner(base : PsiClass, drv : PsiClass, deep : Boolean, visited : Set[PsiClass]) : Boolean = {
+      if (visited.contains(drv)) false
+      else drv match {
+        case drv : ScTypeDefinition => drv.superTypes.find {t =>
+          ScType.extractClassType(t) match {
+            case Some((c, _)) => c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
+            case _ => false
+          }
+        }
+        case _ => drv.getSuperTypes.find {psiT =>
+          val c = psiT.resolveGenerics.getElement
+          if (c == null) false else c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
+        }
+      }
     }
-  }.isEmpty
+    isInheritorInner(clazz, this, deep, Set.empty)
+  }
 }
