@@ -117,7 +117,7 @@ class MethodResolveProcessor(override val name : String, args : Seq[ScType],
 
   private def getType(e : PsiNamedElement) = e match {
     case fun : ScFun => new ScFunctionType(fun.retType, fun.paramTypes)
-    case f : ScFunction => new ScFunctionType(f.calcType, f.paramTypes)
+    case f : ScFunction => f.calcType
     case m : PsiMethod => new ScFunctionType(
     m.getReturnType match { case null => Unit; case rt => ScType.create(rt, m.getProject) },
     m.getParameterList.getParameters.map{p => ScType.create(p.getType, m.getProject)}
