@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JPanel myPanel;
   private JTabbedPane settings;
+  private JPanel spacingTab;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);

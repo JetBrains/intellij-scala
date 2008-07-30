@@ -8,8 +8,8 @@ import com.intellij.psi.PsiMethod
  * Date: 28.07.2008
  */
 
-class ScalaInsertHandler extends InsertHandler {
-  override def handleInsert(context: InsertionContext, item: LookupElement[_]) {
+class ScalaInsertHandler extends InsertHandler[LookupItem[_]] {
+  override def handleInsert(context: InsertionContext, item: LookupItem[_]) {
     val editor = context.getEditor
     val document = editor.getDocument
     val startOffset = context.getStartOffset
