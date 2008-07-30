@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
+import types.{Nothing, ScFunctionType}
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
@@ -12,9 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import typedef._
 import packaging.ScPackaging
 import com.intellij.psi.scope._
-import types.Nothing
-
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
@@ -74,12 +73,12 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
       case Some(b) if b.getUserData(inferenceInProgress) == null => {
         try {
           b.putUserData(inferenceInProgress, this)
-          b.getType
+          new ScFunctionType(b.getType, paramTypes)
         }
         finally b.putUserData(inferenceInProgress, null)
       }
       case _ => Nothing
     }
-    case Some(rte) => rte.getType
+    case Some(rte) => new ScFunctionType(rte.getType, paramTypes)
   }
 }
