@@ -307,7 +307,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   override def isInheritor(clazz : PsiClass, deep : Boolean) = !superTypes.find {t =>
     ScType.extractClassType(t) match {
-      case Some((c, _)) => c == clazz && (deep && isInheritor(c, deep))
+      case Some((c, _)) => c == clazz || (deep && c.isInheritor(clazz, deep))
       case _ => false
     }
   }.isEmpty
