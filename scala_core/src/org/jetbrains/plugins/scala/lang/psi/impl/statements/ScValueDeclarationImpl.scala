@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import psi.types.Nothing
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -36,4 +37,9 @@ class ScValueDeclarationImpl(node: ASTNode) extends ScMemberImpl(node) with ScVa
   override def getIcon(flags: Int) = Icons.VAL
 
   def declaredElements = getIdList.fieldIds
+
+  def getType = typeElement match {
+    case Some(te) => te.getType
+    case None => Nothing
+  }
 }

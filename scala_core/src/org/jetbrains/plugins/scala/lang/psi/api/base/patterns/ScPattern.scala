@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.patterns
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
 
@@ -13,4 +14,6 @@ trait ScPattern extends ScalaPsiElement {
   def bindings: Seq[ScBindingPattern]
 
   def subpatterns : Seq[ScPattern]
+
+  def expectedType : Option[ScType]
 }

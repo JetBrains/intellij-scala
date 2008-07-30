@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
+import types.ScType
 import psi.ScalaPsiElement
 import toplevel.typedef._
 import com.intellij.psi._
@@ -13,4 +14,5 @@ import toplevel.ScTyped
 
 trait ScValue extends ScalaPsiElement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder {
   def typeElement = findChild(classOf[ScTypeElement])
+  def getType : ScType
 }

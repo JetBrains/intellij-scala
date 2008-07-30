@@ -32,4 +32,9 @@ class ScPatternDefinitionImpl(node: ASTNode) extends ScMemberImpl(node) with ScP
   }
 
   def declaredElements = bindings
+
+  def getType = typeElement match {
+    case Some(te) => te.getType
+    case None => expr.getType
+  }
 }
