@@ -20,7 +20,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
       candidatesSet += new ScalaResolveResult(named, getSubst(state))
-      return false //todo: for locals it is ok to terminate the walkup, later need more elaborate check
+      return false //todo
     }
     return true
   }
@@ -48,7 +48,20 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String
   }
 }
 
-class MethodResolveProcessor(override val name : String, args : Seq[ScType],
+class RefExprResolveProcessor(kinds: Set[ResolveTargets], name: String)
+extends ResolveProcessor(kinds, name) {
+  override def execute(element: PsiElement, state: ResolveState) : Boolean = {
+    val named = element.asInstanceOf[PsiNamedElement]
+    if (nameAndKindMatch(named, state)) {
+      named match {
+        case m : PsiMethod if m.getParameterList.getParametersCount > 0 => true
+        case _ => candidatesSet += new ScalaResolveResult(named, getSubst(state)); false //todo
+      }
+    } else true
+  }
+}
+
+class MethodResolveProcessor(name : String, args : Seq[ScType],
                              expected : Option[ScType]) extends ResolveProcessor(StdKinds.methodRef, name) {
   override def execute(element: PsiElement, state: ResolveState) : Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
