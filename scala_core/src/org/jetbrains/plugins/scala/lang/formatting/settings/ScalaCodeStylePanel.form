@@ -1,23 +1,268 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStylePanel">
-  <grid id="27dc6" binding="myPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+  <grid id="27dc6" binding="myPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="625" height="458"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <tabbedpane id="309d5" binding="settings">
-        <constraints border-constraint="Center"/>
-        <properties>
-          <tabPlacement value="1"/>
-        </properties>
+      <tabbedpane id="f7928" binding="tabbedPane">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="200" height="200"/>
+          </grid>
+        </constraints>
+        <properties/>
         <border type="none"/>
         <children>
-          <grid id="3c675" binding="spacingTab" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="54000" binding="spacingPanel" layout-manager="GridLayoutManager" row-count="14" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <tabbedpane title="Spacing"/>
+              <tabbedpane title="Spaces"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="e7621" class="javax.swing.JCheckBox" binding="beforeColonBox">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Before colon"/>
+                </properties>
+              </component>
+              <component id="422ce" class="javax.swing.JCheckBox" binding="afterColonBox">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="After colon"/>
+                </properties>
+              </component>
+              <component id="79306" class="javax.swing.JCheckBox" binding="beforeSemicolonBox">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Before semicolon"/>
+                </properties>
+              </component>
+              <component id="a702a" class="javax.swing.JCheckBox" binding="afterSemicolonBox">
+                <constraints>
+                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="After semicolon"/>
+                </properties>
+              </component>
+              <component id="fc51b" class="javax.swing.JCheckBox" binding="beforeIfBox">
+                <constraints>
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="Before if parentheses"/>
+                </properties>
+              </component>
+              <component id="7d085" class="javax.swing.JCheckBox" binding="beforeForBox">
+                <constraints>
+                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="Before for parentheses"/>
+                </properties>
+              </component>
+              <component id="9863" class="javax.swing.JCheckBox" binding="beforeMethodBox">
+                <constraints>
+                  <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Before method parentheses"/>
+                </properties>
+              </component>
+              <component id="37e45" class="javax.swing.JCheckBox" binding="beforeMethodCallBox">
+                <constraints>
+                  <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Before method call parentheses"/>
+                </properties>
+              </component>
+              <component id="d4aca" class="javax.swing.JCheckBox" binding="afterCommaBox">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="After comma"/>
+                </properties>
+              </component>
+              <component id="f428b" class="javax.swing.JCheckBox" binding="withinForBox">
+                <constraints>
+                  <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Within for parentheses"/>
+                </properties>
+              </component>
+              <component id="8fde6" class="javax.swing.JCheckBox" binding="withinIfBox">
+                <constraints>
+                  <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Within if parentheses"/>
+                </properties>
+              </component>
+              <component id="3b14c" class="javax.swing.JCheckBox" binding="withinWhileBox">
+                <constraints>
+                  <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Within while parentheses"/>
+                </properties>
+              </component>
+              <component id="ba6d7" class="javax.swing.JCheckBox" binding="withinMethodBox">
+                <constraints>
+                  <grid row="13" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Within method parentheses"/>
+                </properties>
+              </component>
+              <component id="8a3f2" class="javax.swing.JCheckBox" binding="withinMethodCallBox">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Within method call parentheses"/>
+                </properties>
+              </component>
+              <component id="89a7b" class="javax.swing.JCheckBox" binding="withinBox">
+                <constraints>
+                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Within parentheses"/>
+                </properties>
+              </component>
+              <component id="10491" class="javax.swing.JCheckBox" binding="withinBracketsBox">
+                <constraints>
+                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Within brackets"/>
+                </properties>
+              </component>
+              <component id="a8a46" class="javax.swing.JCheckBox" binding="beforeClassLBraceBox">
+                <constraints>
+                  <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="Before class left brace"/>
+                </properties>
+              </component>
+              <component id="43f62" class="javax.swing.JCheckBox" binding="beforeMethodLBraceBox">
+                <constraints>
+                  <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="Before method left brace"/>
+                </properties>
+              </component>
+              <component id="36729" class="javax.swing.JCheckBox" binding="beforeIfLBraceBox">
+                <constraints>
+                  <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="Before if left brace"/>
+                </properties>
+              </component>
+              <component id="45927" class="javax.swing.JCheckBox" binding="beforeWhileLBraceBox">
+                <constraints>
+                  <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="Before while left brace"/>
+                </properties>
+              </component>
+              <component id="168cb" class="javax.swing.JCheckBox" binding="beforeDoLBraceBox">
+                <constraints>
+                  <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="Before do left brace"/>
+                </properties>
+              </component>
+              <component id="78284" class="javax.swing.JCheckBox" binding="beforeForLBraceBox">
+                <constraints>
+                  <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="Before for left brace"/>
+                </properties>
+              </component>
+              <component id="da599" class="javax.swing.JCheckBox" binding="beforeMatchLBrace">
+                <constraints>
+                  <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="Before match left brace"/>
+                </properties>
+              </component>
+              <component id="751f1" class="javax.swing.JCheckBox" binding="beforeTryLBraceBox">
+                <constraints>
+                  <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="Before try left brace"/>
+                </properties>
+              </component>
+              <component id="b2236" class="javax.swing.JCheckBox" binding="beforeCatchLBraceBox">
+                <constraints>
+                  <grid row="11" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="Before catch left brace"/>
+                </properties>
+              </component>
+              <component id="38acd" class="javax.swing.JCheckBox" binding="beforeFinallyLBraceBox">
+                <constraints>
+                  <grid row="12" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="Before finally left brace"/>
+                </properties>
+              </component>
+              <component id="3ed12" class="javax.swing.JCheckBox" binding="beforeCommaBox">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="false"/>
+                  <text value="Before comma"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="cc029" binding="previewPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <tabbedpane title="Preview"/>
             </constraints>
             <properties/>
             <border type="none"/>
