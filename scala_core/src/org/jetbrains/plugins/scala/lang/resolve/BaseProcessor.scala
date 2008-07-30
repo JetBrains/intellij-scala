@@ -106,6 +106,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopePro
       case Some(c) => c.processDeclarations(this, ResolveState.initial, null, place)
     }
 
+    case ScFunctionType(rt, params) if params.length == 0 => processType(rt, place)
+
     case ScCompoundType(comp, decls, types) => {
       if (kinds.contains(VAR) || kinds.contains(VAL) || kinds.contains(METHOD)) {
         for (decl <- decls) {

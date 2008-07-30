@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import types._
+import api.statements.ScFunction
 import api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -15,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.openapi.util._
-import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTyped
 
 /** 
@@ -108,7 +109,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => new ScDesignatorType(pack)
       case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz)
       case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject))
-      case Some(ScalaResolveResult(method: PsiMethod, s)) => s.subst(ScType.create(method.getReturnType, method.getProject))
+      case Some(ScalaResolveResult(method: PsiMethod, s)) => new ScFunctionType(s.subst(ScType.create(method.getReturnType, method.getProject)),
+                                                              method.getParameterList.getParameters.map {
+                                                                p => ScType.create(p.getType, method.getProject) 
+                                                              })
       case _ => Nothing
     }
   }
