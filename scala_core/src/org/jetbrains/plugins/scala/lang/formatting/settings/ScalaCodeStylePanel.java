@@ -98,16 +98,16 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
   protected String getPreviewText() {
     return "package preview.file\n\n" +
-            "" +
-            "import scala.collection.mutable._\n\n" +
-            "" +
-            "abstract class R[T](x: Int) extends {val y = x} with R1[T] {\n" +
-            "  def foo(z: Int): R1 = new R[Int](z)\n" +
-            "  def default = foo(0)\n" +
-            "  val x: T\n" +
-            "}\n\n" +
-            "" +
-            "trait R1[T]";
+        "" +
+        "import scala.collection.mutable._\n\n" +
+        "" +
+        "abstract class R[T](x: Int) extends {val y = x} with R1[T] {\n" +
+        "  def foo(z: Int): R1 = new R[Int](z)\n" +
+        "  def default = foo(0)\n" +
+        "  val x: T\n" +
+        "}\n\n" +
+        "" +
+        "trait R1[T]";
   }
 
   public void apply(CodeStyleSettings settings) {
@@ -271,13 +271,15 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE != (Integer) keepBeforeSpinner.getValue()) return true;
     if (scalaSettings.KEEP_BLANK_LINES_IN_CODE != (Integer) keepCodeSpinner.getValue()) return true;
     if (scalaSettings.KEEP_LINE_BREAKS != keepLineBreaksCheckBox.isSelected()) return true;
-    if (scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION != alignListOfIdentifiersCheckBox.isSelected()) return true;
+    if (scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION != alignListOfIdentifiersCheckBox.isSelected())
+      return true;
     if (scalaSettings.ALIGN_MULTILINE_BINARY_OPERATION != alignBinaryOperationsCheckBox.isSelected()) return true;
     if (scalaSettings.ALIGN_MULTILINE_EXTENDS_LIST != alignExtendsListCheckBox.isSelected()) return true;
     if (scalaSettings.ALIGN_MULTILINE_FOR != alignForStatementCheckBox.isSelected()) return true;
     if (scalaSettings.ALIGN_MULTILINE_PARAMETERS != alignParametersCheckBox.isSelected()) return true;
     if (scalaSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS != alignParametersInCallsCheckBox.isSelected()) return true;
-    if (scalaSettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION != alignParenthesizedExpressionCheckBox.isSelected()) return true;
+    if (scalaSettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION != alignParenthesizedExpressionCheckBox.isSelected())
+      return true;
 
     if (scalaSettings.ELSE_ON_NEW_LINE != elseOnNewLineCheckBox.isSelected()) return true;
     if (scalaSettings.WHILE_ON_NEW_LINE != whileOnNewLineCheckBox.isSelected()) return true;

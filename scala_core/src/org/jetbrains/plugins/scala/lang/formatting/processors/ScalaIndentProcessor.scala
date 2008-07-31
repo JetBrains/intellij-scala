@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatting.processors
 
+import scaladoc.lexer.ScalaDocTokenType
+import scaladoc.psi.api.ScDocComment
 import settings.ScalaCodeStyleSettings
 import com.intellij.formatting._;
 import com.intellij.lang.ASTNode;
@@ -93,6 +95,11 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         Indent.getContinuationWithoutFirstIndent
       }
       case _: ScArgumentExprList => Indent.getSpaceIndent(indentCount)
+      case _: ScDocComment => {
+        if (child.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS ||
+            child.getElementType == ScalaDocTokenType.DOC_COMMENT_END) Indent.getSpaceIndent(1)
+        else Indent.getNoneIndent
+      }
       case _ => {
         node.getElementType match {
           case ScalaTokenTypes.kIF | ScalaTokenTypes.kELSE => {

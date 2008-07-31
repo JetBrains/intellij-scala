@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.processors
 
+import scaladoc.lexer.ScalaDocTokenType
 import settings.ScalaCodeStyleSettings
 import com.intellij.formatting._;
 import com.intellij.lang.ASTNode;
@@ -56,6 +57,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (rightNode.getPsi.isInstanceOf[PsiComment] || leftNode.getPsi.isInstanceOf[PsiComment]) {
       return COMMON_SPACING
     }
+    if (rightNode.getElementType == ScalaDocTokenType.DOC_COMMENT_DATA || leftNode.getElementType == ScalaDocTokenType.DOC_COMMENT_DATA)
+      return NO_SPACING_WITH_NEWLINE
     //; : . and , processing
     if (rightNode.getText.length > 0 && rightNode.getText()(0) == '.') {
       if (rightNode.getElementType != ScalaTokenTypes.tFLOAT && !rightNode.getPsi.isInstanceOf[ScLiteral]) return WITHOUT_SPACING
