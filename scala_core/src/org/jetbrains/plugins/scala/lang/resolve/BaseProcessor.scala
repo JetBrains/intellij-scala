@@ -22,7 +22,7 @@ object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
 }
 
-abstract class BaseProcessor(val kinds: Set[ResolveTargets]) extends PsiScopeProcessor {
+abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiScopeProcessor {
 
   protected val candidatesSet: HashSet[ScalaResolveResult] = new HashSet[ScalaResolveResult]
 
