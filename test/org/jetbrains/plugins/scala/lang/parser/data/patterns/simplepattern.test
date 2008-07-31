@@ -34,6 +34,8 @@ ScalaFile
         PsiErrorElement:';' or newline expected
           <empty list>
         PsiElement())(')')
+        PsiErrorElement:Definition or declaration expected
+          <empty list>
         PsiWhiteSpace(' ')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
