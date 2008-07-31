@@ -41,7 +41,8 @@ ScalaFile
               ReferenceExpression
                 PsiElement(identifier)('vla')
               PsiWhiteSpace(' ')
-              PsiElement(identifier)('aaa')
+              ReferenceExpression
+                PsiElement(identifier)('aaa')
             PsiElement(newline)('\n\n        ')
             Literal
               PsiElement(integer)('42')

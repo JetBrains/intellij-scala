@@ -18,4 +18,6 @@ ScalaFile
   PsiErrorElement:Wrong top statement declaration
     <empty list>
   PsiElement({)('{')
+  PsiErrorElement:Wrong top statement declaration
+    <empty list>
   PsiElement(})('}')

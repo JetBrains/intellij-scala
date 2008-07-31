@@ -20,6 +20,7 @@ ScalaFile
           ReferenceExpression
             PsiElement(identifier)('A')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('op')
+          ReferenceExpression
+            PsiElement(identifier)('op')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
