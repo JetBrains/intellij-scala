@@ -8,5 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScPostfixExpr extends ScExpression {
-
+  def operand = findChildrenByClass(classOf[ScExpression])(0)
+  def operation : ScReferenceExpression = findChildrenByClass(classOf[ScExpression])(1) match {
+    case re : ScReferenceExpression => re
+  }
 }
