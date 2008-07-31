@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.formatting
 * @author ilyas 
 */
 
+import settings.ScalaCodeStyleSettings
 import java.util.List;
 import java.util.ArrayList;
 
@@ -128,20 +129,21 @@ object getDummyBlocks {
   }
 
   private def mustAlignment(node: ASTNode, mySettings: CodeStyleSettings) = {
+    val scalaSettings = mySettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     node.getPsi match {
-      case _: ScParameters if mySettings.ALIGN_MULTILINE_PARAMETERS => true
-      case _: ScParameterClause if mySettings.ALIGN_MULTILINE_PARAMETERS => true
-      case _: ScTemplateParents if mySettings.ALIGN_MULTILINE_EXTENDS_LIST => true
-      case _: ScArguments if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => true
-      case _: ScPatternArgumentList if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => true
-      case _: ScEnumerators if mySettings.ALIGN_MULTILINE_FOR => true
-      case _: ScParenthesisedExpr if mySettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
-      case _: ScParenthesisedTypeElement if mySettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
-      case _: ScParenthesisedPattern if mySettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
-      case _: ScInfixExpr if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
-      case _: ScInfixPattern if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
-      case _: ScInfixTypeElement if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
-      case _: ScIdList if mySettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION => true
+      case _: ScParameters if scalaSettings.ALIGN_MULTILINE_PARAMETERS => true
+      case _: ScParameterClause if scalaSettings.ALIGN_MULTILINE_PARAMETERS => true
+      case _: ScTemplateParents if scalaSettings.ALIGN_MULTILINE_EXTENDS_LIST => true
+      case _: ScArguments if scalaSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => true
+      case _: ScPatternArgumentList if scalaSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => true
+      case _: ScEnumerators if scalaSettings.ALIGN_MULTILINE_FOR => true
+      case _: ScParenthesisedExpr if scalaSettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
+      case _: ScParenthesisedTypeElement if scalaSettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
+      case _: ScParenthesisedPattern if scalaSettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
+      case _: ScInfixExpr if scalaSettings.ALIGN_MULTILINE_BINARY_OPERATION => true
+      case _: ScInfixPattern if scalaSettings.ALIGN_MULTILINE_BINARY_OPERATION => true
+      case _: ScInfixTypeElement if scalaSettings.ALIGN_MULTILINE_BINARY_OPERATION => true
+      case _: ScIdList if scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION => true
       case _: ScIfStmt => true
       case _ => false
     }

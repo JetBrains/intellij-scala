@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="myPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="625" height="514"/>
+      <xy x="20" y="20" width="625" height="530"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -17,6 +17,45 @@
         <properties/>
         <border type="none"/>
         <children>
+          <grid id="e6d4f" layout-manager="GridLayoutManager" row-count="2" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <tabbedpane title="General"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="d0897" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Indent:"/>
+                </properties>
+              </component>
+              <vspacer id="f4283">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+              <component id="17028" class="javax.swing.JSpinner" binding="indentSpinner">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <hspacer id="fbe3b">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+              <hspacer id="f9aaa">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+            </children>
+          </grid>
           <grid id="54000" binding="spacingPanel" layout-manager="GridLayoutManager" row-count="18" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
@@ -338,6 +377,178 @@
                 </properties>
               </component>
             </children>
+          </grid>
+          <grid id="3aa4f" binding="alignmentTab" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <tabbedpane title="Alignment and braces"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <grid id="6109e" layout-manager="GridLayoutManager" row-count="8" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="etched" title="Align when multiline" title-position="2">
+                  <font/>
+                  <title-color color="-16777216"/>
+                  <color color="-16777216"/>
+                </border>
+                <children>
+                  <component id="964cd" class="javax.swing.JCheckBox" binding="alignParametersCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <selected value="true"/>
+                      <text value="Align parameters"/>
+                    </properties>
+                  </component>
+                  <component id="564d7" class="javax.swing.JCheckBox" binding="alignListOfIdentifiersCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Align list of identifiers"/>
+                    </properties>
+                  </component>
+                  <component id="dcd4a" class="javax.swing.JCheckBox" binding="alignBinaryOperationsCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Align binary operations"/>
+                    </properties>
+                  </component>
+                  <component id="e4a3f" class="javax.swing.JCheckBox" binding="alignParenthesizedExpressionCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Align parenthesized expression"/>
+                    </properties>
+                  </component>
+                  <component id="514cb" class="javax.swing.JCheckBox" binding="alignParametersInCallsCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Align parameters in calls"/>
+                    </properties>
+                  </component>
+                  <component id="4fdc5" class="javax.swing.JCheckBox" binding="alignForStatementCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <selected value="true"/>
+                      <text value="Align for statement"/>
+                    </properties>
+                  </component>
+                  <component id="e8184" class="javax.swing.JCheckBox" binding="alignExtendsListCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Align extends list"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="55551" layout-manager="GridLayoutManager" row-count="5" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <toolTipText value="fgf"/>
+                </properties>
+                <border type="etched" title="Place on new line"/>
+                <children>
+                  <component id="e265" class="javax.swing.JCheckBox" binding="elseOnNewLineCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Else on new line"/>
+                    </properties>
+                  </component>
+                  <component id="43f5c" class="javax.swing.JCheckBox" binding="finallyOnNewLineCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Finally on new line"/>
+                    </properties>
+                  </component>
+                  <component id="6ba09" class="javax.swing.JCheckBox" binding="catchOnNewLineCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Catch on new line"/>
+                    </properties>
+                  </component>
+                  <component id="407e0" class="javax.swing.JCheckBox" binding="whileOnNewLineCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="While on new line"/>
+                    </properties>
+                  </component>
+                  <vspacer id="8632c">
+                    <constraints>
+                      <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                  </vspacer>
+                </children>
+              </grid>
+              <grid id="b171e" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="etched" title="Brace placement"/>
+                <children>
+                  <component id="4f6d0" class="javax.swing.JCheckBox" binding="specialElseIfTreatmentCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Special &quot;else-if&quot; treatment"/>
+                    </properties>
+                  </component>
+                  <component id="d5253" class="javax.swing.JCheckBox" binding="indentCaseFromMatchCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <selected value="true"/>
+                      <text value="Indent case from match"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <vspacer id="7b92">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+            </children>
+          </grid>
+          <grid id="8464e" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <tabbedpane title="Imports"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children/>
           </grid>
           <grid id="cc029" binding="previewPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>

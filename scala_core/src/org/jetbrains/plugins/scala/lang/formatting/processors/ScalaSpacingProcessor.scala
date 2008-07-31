@@ -68,7 +68,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       var left = leftNode
       // For operations like
       // var Object_!= : Symbol = _
-      //if (scalaSettings.SPACE_BEFORE_COLON) return WITH_SPACING
+      if (scalaSettings.SPACE_BEFORE_COLON) return WITH_SPACING
       while (left != null && left.getLastChildNode != null) {
         left = left.getLastChildNode
       }
@@ -373,19 +373,19 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (leftNode.getText.length > 0 && leftNode.getText()(leftNode.getText.length - 1) == '}') {
       rightNode.getElementType match {
         case ScalaTokenTypes.kELSE => {
-          if (settings.ELSE_ON_NEW_LINE) return ON_NEW_LINE
+          if (scalaSettings.ELSE_ON_NEW_LINE) return ON_NEW_LINE
           else return WITH_SPACING
         }
         case ScalaTokenTypes.kWHILE => {
-          if (settings.WHILE_ON_NEW_LINE) return ON_NEW_LINE
+          if (scalaSettings.WHILE_ON_NEW_LINE) return ON_NEW_LINE
           else return WITH_SPACING
         }
         case ScalaTokenTypes.kCATCH => {
-          if (settings.CATCH_ON_NEW_LINE) return ON_NEW_LINE
+          if (scalaSettings.CATCH_ON_NEW_LINE) return ON_NEW_LINE
           else return WITH_SPACING
         }
         case ScalaTokenTypes.kFINALLY => {
-          if (settings.FINALLY_ON_NEW_LINE) return ON_NEW_LINE
+          if (scalaSettings.FINALLY_ON_NEW_LINE) return ON_NEW_LINE
           else return WITH_SPACING
         }
         case _ =>
@@ -412,7 +412,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     //special else if treatment
     if (leftNode.getElementType == ScalaTokenTypes.kELSE && rightNode.getPsi.isInstanceOf[ScIfStmt]) {
-      if (settings.SPECIAL_ELSE_IF_TREATMENT) {
+      if (scalaSettings.SPECIAL_ELSE_IF_TREATMENT) {
         return Spacing.createSpacing(1, 1, 0, false, 0)
       } else return ON_NEW_LINE
     }
