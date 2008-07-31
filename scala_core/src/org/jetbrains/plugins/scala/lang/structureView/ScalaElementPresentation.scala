@@ -63,7 +63,7 @@ object ScalaElementPresentation {
 
   def getTypeAliasPresentableText(typeAlias: ScTypeAlias): String = {
     if (typeAlias.nameId != null)
-      return "type" + typeAlias.nameId.getText()
+      return "type " + typeAlias.nameId.getText()
     else
       return "type unnamed"
   }
