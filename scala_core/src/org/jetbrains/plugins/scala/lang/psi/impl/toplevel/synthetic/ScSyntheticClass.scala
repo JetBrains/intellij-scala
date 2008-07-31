@@ -51,7 +51,10 @@ extends SyntheticNamedElement(manager, name) with PsiClass with PsiClassFake {
           case None =>
         }
       }
-      case _ => //todo do we want to complete those?
+      case _ =>
+        for(p <- methods; method <- p._2) {
+          if (!processor.execute(method, state)) return false
+        }
     }
 
     true
@@ -62,6 +65,7 @@ class ScSyntheticFunction(manager: PsiManager, val name: String, val retType: Sc
 extends SyntheticNamedElement(manager, name) with ScFun {
 
   def getText = "" //todo
+  override def getIcon(flags: Int) = icons.Icons.METHOD
 
   override def toString = "Synthetic method"
 }
@@ -74,13 +78,11 @@ object SyntheticClasses {
 }
 
 class SyntheticClasses(project: Project) extends ProjectComponent with PsiElementFinder {
-  def projectOpened() {
-  }
-  def projectClosed() {
-  }
+  def projectOpened {}
+  def projectClosed {}
   def getComponentName = "SyntheticClasses"
-  def disposeComponent() {
-  }
+  def disposeComponent {}
+
   def initComponent() {
     all = new HashMap[String, ScSyntheticClass]
     file = PsiFileFactory.getInstance(project).createFileFromText(
@@ -156,6 +158,12 @@ class SyntheticClasses(project: Project) extends ProjectComponent with PsiElemen
     clazz.addMethod(new ScSyntheticFunction(manager, "equals", Boolean, Seq.single(Any)))
     clazz.addMethod(new ScSyntheticFunction(manager, "==", Boolean, Seq.single(Any)))
     clazz.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq.single(Any)))
+    clazz.addMethod(new ScSyntheticFunction(manager, "hashCode", Int, Seq.empty))
+    /*val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
+    if (stringClass != null) {
+      val stringType = new ScDesignatorType(stringClass)
+      clazz.addMethod(new ScSyntheticFunction(manager, "toString", stringType, Seq.empty))
+    }*/
 
     all + ((name, clazz)); clazz
   }

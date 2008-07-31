@@ -104,7 +104,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   private def rightAssoc = refName.endsWith(":")
 
   override def getType(): ScType = {
-    //todo return singleton type in the contexts it is needed
     bind match {
       case Some(ScalaResolveResult(typed: ScTyped, s)) => s.subst(typed.calcType)
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => new ScDesignatorType(pack)
