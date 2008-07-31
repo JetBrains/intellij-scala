@@ -23,7 +23,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScPatternImpl (node) with 
   def bindParamTypes = ref.bind match {
     case None => None
     case Some(r) => r.element match {
-      case td : ScClass => Some(td.parameters.map {t => r.substitutor.subst(t.calcType)})
+      case td : ScClass => Some(td.parameters.map {t => t.calcType}) //todo: type inference here
       case obj : ScObject => { None //todo
         /*val n = args.patterns.length
         for(func <- obj.functionsByName("unapply")) {
