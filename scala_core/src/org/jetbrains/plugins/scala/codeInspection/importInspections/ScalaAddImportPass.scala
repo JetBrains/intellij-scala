@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.importInspections
 
+import lang.formatting.settings.ScalaCodeStyleSettings
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.openapi.command.CommandProcessor
@@ -46,6 +47,7 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
   def doCollectInformation(progress: ProgressIndicator) {
   }
   def doApplyInformationToEditor {
+    val scalaSettings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
     val added = new ArrayBuffer[PsiClass]
     ApplicationManager.getApplication.assertIsDispatchThread
     if (!editor.getContentComponent.hasFocus) return
@@ -61,7 +63,7 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
             val classes = function(x.refName, GlobalSearchScope.allScope(myProject))
             classes.length match {
               case 0 =>
-              case 1 if CodeStyleSettingsManager.getSettings(project).ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY &&
+              case 1 if scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY &&
                       !added.contains(classes(0)) &&
                       !caretNear(x) => {
                 CommandProcessor.getInstance().runUndoTransparentAction(new Runnable {
