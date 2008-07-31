@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.processors
 
+import scaladoc.psi.api.ScDocComment
 import scaladoc.lexer.ScalaDocTokenType
 import settings.ScalaCodeStyleSettings
 import com.intellij.formatting._;
@@ -49,14 +50,16 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val WITHOUT_SPACING = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, 0)
     val WITH_SPACING = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 1, 0)
     val ON_NEW_LINE = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, 1)
+    val DOUBLE_LINE = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, 2)
     val leftNode = left.getNode
     val rightNode = right.getNode
     val (leftString, rightString) = (left.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText),
             right.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText)) //for debug
     //comments processing
-    if (rightNode.getPsi.isInstanceOf[PsiComment] || leftNode.getPsi.isInstanceOf[PsiComment]) {
+    if (leftNode.getPsi.isInstanceOf[ScDocComment]) return ON_NEW_LINE
+    if (rightNode.getPsi.isInstanceOf[ScDocComment]) return DOUBLE_LINE
+    if (rightNode.getPsi.isInstanceOf[PsiComment] || leftNode.getPsi.isInstanceOf[PsiComment])
       return COMMON_SPACING
-    }
     if (rightNode.getElementType == ScalaDocTokenType.DOC_COMMENT_DATA || leftNode.getElementType == ScalaDocTokenType.DOC_COMMENT_DATA)
       return NO_SPACING_WITH_NEWLINE
     //; : . and , processing

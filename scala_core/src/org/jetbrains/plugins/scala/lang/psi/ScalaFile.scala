@@ -120,11 +120,20 @@ class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider
                      for (expr <- sameExpressions) expr.deleteExpr
                      stmt
                    }
+    def tryImport(imp: PsiElement): Boolean = {
+      var prev: PsiElement = imp.getPrevSibling
+      prev match {
+        case null => return true
+        case _: ScTypeDefinition => return false
+        case _: ScPackaging => return false
+        case _ => return tryImport(prev)
+      }
+    }
     findChild(classOf[ScImportStmt]) match {
-      case Some(x) => {
+      case Some(x) if tryImport(x) => {
         addBefore(importSt, x)
       }
-      case None => {
+      case _ => {
         findChild(classOf[ScPackageStatement]) match {
           case Some(x) => {
             addAfter(importSt, x)
