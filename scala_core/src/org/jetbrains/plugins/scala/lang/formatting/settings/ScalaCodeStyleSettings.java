@@ -63,6 +63,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPECIAL_ELSE_IF_TREATMENT = false;
   public boolean INDENT_CASE_FROM_SWITCH = true;
 
+  public boolean ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = false;
+  public int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
+
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);
   }

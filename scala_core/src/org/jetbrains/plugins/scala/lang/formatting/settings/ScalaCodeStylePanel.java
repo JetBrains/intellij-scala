@@ -70,6 +70,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox specialElseIfTreatmentCheckBox;
   private JCheckBox indentCaseFromMatchCheckBox;
   private JSpinner indentSpinner;
+  private JSpinner classCountSpinner;
+  private JCheckBox addUnambiguousImportsOnCheckBox;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -168,6 +170,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.CATCH_ON_NEW_LINE = catchOnNewLineCheckBox.isSelected();
     scalaSettings.FINALLY_ON_NEW_LINE = finallyOnNewLineCheckBox.isSelected();
     scalaSettings.WHILE_ON_NEW_LINE = whileOnNewLineCheckBox.isSelected();
+
+    scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = addUnambiguousImportsOnCheckBox.isSelected();
+    scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = (Integer) classCountSpinner.getValue();
   }
 
   private boolean getBoxValue(JCheckBox checkBox) {
@@ -281,6 +286,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.SPECIAL_ELSE_IF_TREATMENT != specialElseIfTreatmentCheckBox.isSelected()) return true;
     if (scalaSettings.INDENT_CASE_FROM_SWITCH != indentCaseFromMatchCheckBox.isSelected()) return true;
     if (scalaSettings.INDENT != (Integer) indentSpinner.getValue()) return true;
+    if (scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND != (Integer) classCountSpinner.getValue()) return true;
+    if (scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY != addUnambiguousImportsOnCheckBox.isSelected()) return true;
     return false;
   }
 
@@ -344,6 +351,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(finallyOnNewLineCheckBox, settings.FINALLY_ON_NEW_LINE);
     setValue(specialElseIfTreatmentCheckBox, settings.SPECIAL_ELSE_IF_TREATMENT);
     setValue(indentCaseFromMatchCheckBox, settings.INDENT_CASE_FROM_SWITCH);
+    setValue(addUnambiguousImportsOnCheckBox, settings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY);
+    setValue(classCountSpinner, settings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND);
   }
 
   private static void setValue(JSpinner spinner, int value) {
