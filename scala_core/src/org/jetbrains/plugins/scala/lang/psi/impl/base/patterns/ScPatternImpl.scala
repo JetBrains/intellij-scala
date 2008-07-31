@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 
+import api.expr.ScMatchStmt
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import api.statements.{ScValue, ScVariable}
 import api.base.patterns._
@@ -50,6 +51,12 @@ class ScPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatt
             None
           case _ => None
         }
+      }
+    }
+    case clause : ScCaseClause => clause.getParent/*clauses*/.getParent match {
+      case matchStat : ScMatchStmt => matchStat.expr match {
+        case Some(e) => Some(e.getType)
+        case _ => None
       }
     }
     case _ => None //todo
