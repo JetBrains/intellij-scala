@@ -9,6 +9,8 @@ import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
  */
 public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
+  public int INDENT = 2;
+
   //spcaing settings:
   public boolean SPACE_BEFORE_COMMA = false;
   public boolean SPACE_AFTER_COMMA = true;
@@ -44,6 +46,22 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public int KEEP_BLANK_LINES_IN_CODE = 2;
   public int KEEP_BLANK_LINES_BEFORE_RBRACE = 2;
   public boolean KEEP_LINE_BREAKS = true;
+
+  //Alignments
+  public boolean ALIGN_MULTILINE_PARAMETERS = true;
+  public boolean ALIGN_MULTILINE_PARAMETERS_IN_CALLS = false;
+  public boolean ALIGN_MULTILINE_EXTENDS_LIST = false;
+  public boolean ALIGN_MULTILINE_FOR = true;
+  public boolean ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION = false;
+  public boolean ALIGN_MULTILINE_BINARY_OPERATION = false;
+  public boolean ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION = false;
+
+  public boolean ELSE_ON_NEW_LINE = false;
+  public boolean WHILE_ON_NEW_LINE = false;
+  public boolean CATCH_ON_NEW_LINE = false;
+  public boolean FINALLY_ON_NEW_LINE = false;
+  public boolean SPECIAL_ELSE_IF_TREATMENT = false;
+  public boolean INDENT_CASE_FROM_SWITCH = true;
 
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.processors
 
+import settings.ScalaCodeStyleSettings
 import com.intellij.formatting._;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
@@ -28,6 +29,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
 
   def getChildIndent(parent: ScalaBlock, child: ASTNode): Indent = {
     val settings = parent.getSettings
+    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val indentCount = scalaSettings.INDENT
     val node = parent.getNode
     node.getPsi match {
       case _: ScalaFile => Indent.getNoneIndent
@@ -38,12 +41,12 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
             ScalaTokenTypes.kPACKAGE |
             ScalaElementTypes.REFERENCE =>
             Indent.getNoneIndent
-          case _ => Indent.getNormalIndent
+          case _ => Indent.getSpaceIndent(indentCount)
         }
       }
       case _: ScMatchStmt => {
         child.getPsi match {
-          case _: ScCaseClauses if settings.INDENT_CASE_FROM_SWITCH => Indent.getNormalIndent
+          case _: ScCaseClauses if settings.INDENT_CASE_FROM_SWITCH => Indent.getSpaceIndent(indentCount)
           case _ => Indent.getNoneIndent
         }
       }
@@ -53,7 +56,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
                   ScalaTokenTypes.tRBRACE | ScalaTokenTypes.kTRY => {
             Indent.getNoneIndent
           }
-          case _ => Indent.getNormalIndent
+          case _ => Indent.getSpaceIndent(indentCount)
         }
       }
       case _: ScTemplateBody | _: ScRefinement | _: ScExistentialClause | _: ScBlockExpr => {
@@ -62,14 +65,14 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
                   ScalaTokenTypes.tRBRACE => {
             Indent.getNoneIndent
           }
-          case _ => Indent.getNormalIndent
+          case _ => Indent.getSpaceIndent(indentCount)
         }
       }
       case _: ScTryStmt => Indent.getNoneIndent
       case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScForStatement
         | _: ScFinallyBlock | _: ScCatchBlock | _: ScFunction => {
         child.getPsi match {
-          case _: ScExpression => Indent.getNormalIndent
+          case _: ScExpression => Indent.getSpaceIndent(indentCount)
           case _ => Indent.getNoneIndent
         }
       }
@@ -79,22 +82,22 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ =>
             child.getPsi match {
               case _: ScPattern => Indent.getNoneIndent
-              case _ => Indent.getNormalIndent
+              case _ => Indent.getSpaceIndent(indentCount)
             }
         }
       }
       case _: ScBlock => Indent.getNoneIndent
-      case _: ScEnumerators => Indent.getNormalIndent
+      case _: ScEnumerators => Indent.getSpaceIndent(indentCount)
       case _: ScParameters |  _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
            _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScAnnotations => {
         Indent.getContinuationWithoutFirstIndent
       }
-      case _: ScArgumentExprList => Indent.getNormalIndent
+      case _: ScArgumentExprList => Indent.getSpaceIndent(indentCount)
       case _ => {
         node.getElementType match {
           case ScalaTokenTypes.kIF | ScalaTokenTypes.kELSE => {
             child.getPsi match {
-              case _: ScExpression => Indent.getNormalIndent
+              case _: ScExpression => Indent.getSpaceIndent(indentCount)
               case _ => Indent.getNoneIndent
             }
           }

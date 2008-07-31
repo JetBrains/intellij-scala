@@ -55,6 +55,21 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JSpinner keepCodeSpinner;
   private JSpinner keepBeforeSpinner;
   private JCheckBox keepLineBreaksCheckBox;
+  private JPanel alignmentTab;
+  private JCheckBox alignParametersCheckBox;
+  private JCheckBox alignListOfIdentifiersCheckBox;
+  private JCheckBox alignBinaryOperationsCheckBox;
+  private JCheckBox alignParenthesizedExpressionCheckBox;
+  private JCheckBox alignExtendsListCheckBox;
+  private JCheckBox alignParametersInCallsCheckBox;
+  private JCheckBox alignForStatementCheckBox;
+  private JCheckBox elseOnNewLineCheckBox;
+  private JCheckBox finallyOnNewLineCheckBox;
+  private JCheckBox catchOnNewLineCheckBox;
+  private JCheckBox whileOnNewLineCheckBox;
+  private JCheckBox specialElseIfTreatmentCheckBox;
+  private JCheckBox indentCaseFromMatchCheckBox;
+  private JSpinner indentSpinner;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -137,6 +152,22 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
       scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0;
       keepBeforeSpinner.setValue(0);
     }
+
+    scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION = alignListOfIdentifiersCheckBox.isSelected();
+    scalaSettings.ALIGN_MULTILINE_BINARY_OPERATION = alignBinaryOperationsCheckBox.isSelected();
+    scalaSettings.ALIGN_MULTILINE_EXTENDS_LIST = alignExtendsListCheckBox.isSelected();
+    scalaSettings.ALIGN_MULTILINE_FOR = alignForStatementCheckBox.isSelected();
+    scalaSettings.ALIGN_MULTILINE_PARAMETERS = alignParametersCheckBox.isSelected();
+    scalaSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = alignParametersInCallsCheckBox.isSelected();
+    scalaSettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION = alignParenthesizedExpressionCheckBox.isSelected();
+
+    scalaSettings.INDENT_CASE_FROM_SWITCH = indentCaseFromMatchCheckBox.isSelected();
+    scalaSettings.SPECIAL_ELSE_IF_TREATMENT = specialElseIfTreatmentCheckBox.isSelected();
+    scalaSettings.INDENT = (Integer) indentSpinner.getValue();
+    scalaSettings.ELSE_ON_NEW_LINE = elseOnNewLineCheckBox.isSelected();
+    scalaSettings.CATCH_ON_NEW_LINE = catchOnNewLineCheckBox.isSelected();
+    scalaSettings.FINALLY_ON_NEW_LINE = finallyOnNewLineCheckBox.isSelected();
+    scalaSettings.WHILE_ON_NEW_LINE = whileOnNewLineCheckBox.isSelected();
   }
 
   private boolean getBoxValue(JCheckBox checkBox) {
@@ -235,6 +266,21 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE != (Integer) keepBeforeSpinner.getValue()) return true;
     if (scalaSettings.KEEP_BLANK_LINES_IN_CODE != (Integer) keepCodeSpinner.getValue()) return true;
     if (scalaSettings.KEEP_LINE_BREAKS != keepLineBreaksCheckBox.isSelected()) return true;
+    if (scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION != alignListOfIdentifiersCheckBox.isSelected()) return true;
+    if (scalaSettings.ALIGN_MULTILINE_BINARY_OPERATION != alignBinaryOperationsCheckBox.isSelected()) return true;
+    if (scalaSettings.ALIGN_MULTILINE_EXTENDS_LIST != alignExtendsListCheckBox.isSelected()) return true;
+    if (scalaSettings.ALIGN_MULTILINE_FOR != alignForStatementCheckBox.isSelected()) return true;
+    if (scalaSettings.ALIGN_MULTILINE_PARAMETERS != alignParametersCheckBox.isSelected()) return true;
+    if (scalaSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS != alignParametersInCallsCheckBox.isSelected()) return true;
+    if (scalaSettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION != alignParenthesizedExpressionCheckBox.isSelected()) return true;
+
+    if (scalaSettings.ELSE_ON_NEW_LINE != elseOnNewLineCheckBox.isSelected()) return true;
+    if (scalaSettings.WHILE_ON_NEW_LINE != whileOnNewLineCheckBox.isSelected()) return true;
+    if (scalaSettings.CATCH_ON_NEW_LINE != catchOnNewLineCheckBox.isSelected()) return true;
+    if (scalaSettings.FINALLY_ON_NEW_LINE != finallyOnNewLineCheckBox.isSelected()) return true;
+    if (scalaSettings.SPECIAL_ELSE_IF_TREATMENT != specialElseIfTreatmentCheckBox.isSelected()) return true;
+    if (scalaSettings.INDENT_CASE_FROM_SWITCH != indentCaseFromMatchCheckBox.isSelected()) return true;
+    if (scalaSettings.INDENT != (Integer) indentSpinner.getValue()) return true;
     return false;
   }
 
@@ -282,6 +328,22 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(keepLineBreaksCheckBox, settings.KEEP_LINE_BREAKS);
     setValue(keepBeforeSpinner, settings.KEEP_BLANK_LINES_BEFORE_RBRACE);
     setValue(keepCodeSpinner, settings.KEEP_BLANK_LINES_IN_CODE);
+
+    setValue(alignListOfIdentifiersCheckBox, settings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION);
+    setValue(alignBinaryOperationsCheckBox, settings.ALIGN_MULTILINE_BINARY_OPERATION);
+    setValue(alignExtendsListCheckBox, settings.ALIGN_MULTILINE_EXTENDS_LIST);
+    setValue(alignForStatementCheckBox, settings.ALIGN_MULTILINE_FOR);
+    setValue(alignParametersCheckBox, settings.ALIGN_MULTILINE_PARAMETERS);
+    setValue(alignParametersInCallsCheckBox, settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS);
+    setValue(alignParenthesizedExpressionCheckBox, settings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION);
+
+    setValue(indentSpinner, settings.INDENT);
+    setValue(elseOnNewLineCheckBox, settings.ELSE_ON_NEW_LINE);
+    setValue(whileOnNewLineCheckBox, settings.WHILE_ON_NEW_LINE);
+    setValue(catchOnNewLineCheckBox, settings.CATCH_ON_NEW_LINE);
+    setValue(finallyOnNewLineCheckBox, settings.FINALLY_ON_NEW_LINE);
+    setValue(specialElseIfTreatmentCheckBox, settings.SPECIAL_ELSE_IF_TREATMENT);
+    setValue(indentCaseFromMatchCheckBox, settings.INDENT_CASE_FROM_SWITCH);
   }
 
   private static void setValue(JSpinner spinner, int value) {
