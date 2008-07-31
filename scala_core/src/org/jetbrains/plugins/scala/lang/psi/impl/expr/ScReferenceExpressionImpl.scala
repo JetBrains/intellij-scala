@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import api.statements.{ScFunction, ScFun}
 import types._
-import api.statements.ScFunction
 import api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -106,6 +106,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   override def getType(): ScType = {
     bind match {
       case Some(ScalaResolveResult(typed: ScTyped, s)) => s.subst(typed.calcType)
+      case Some(ScalaResolveResult(fun: ScFun, s)) => new ScFunctionType(s.subst(fun.retType), fun.paramTypes.map{s.subst _})
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => new ScDesignatorType(pack)
       case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz)
       case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject))
