@@ -58,4 +58,6 @@ trait ScTypeDefinition extends ScNamedElement
       case None => Seq.empty
       case Some(body) => body.typeDefinitions
     }
+
+  def functionsByName(name : String) : Iterable[PsiMethod]
 }

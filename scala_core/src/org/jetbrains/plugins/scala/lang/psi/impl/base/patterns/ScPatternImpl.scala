@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import api.statements.{ScValue, ScVariable}
 import api.base.patterns._
 import api.toplevel.ScTyped
@@ -34,10 +35,22 @@ class ScPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatt
       findChildByClass(classOf[ScPatterns]).patterns
   }
 
-  def expectedType = getParent match {
+  def expectedType :Option[ScType] = getParent match {
     case list : ScPatternList => list.getParent match {
       case _var : ScVariable => Some(_var.getType)
       case _val : ScValue => Some(_val.getType)
+    }
+    case argList : ScPatternArgumentList => {
+      argList.getParent match {
+        case constr : ScConstructorPattern => constr.bindParamTypes match {
+          case Some(ts) =>
+            for ((p, t) <- constr.args.patterns.elements zip ts.elements) {
+              if (p == this) return Some(t)
+            }
+            None
+          case _ => None
+        }
+      }
     }
     case _ => None //todo
   }
