@@ -55,6 +55,7 @@ extends ResolveProcessor(kinds, name) {
     if (nameAndKindMatch(named, state)) {
       named match {
         case m : PsiMethod if m.getParameterList.getParametersCount > 0 => true
+        case fun : ScFun if fun.paramTypes.length > 0 => true
         case _ => candidatesSet += new ScalaResolveResult(named, getSubst(state)); false //todo
       }
     } else true
