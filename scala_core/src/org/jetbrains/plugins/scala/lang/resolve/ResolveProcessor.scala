@@ -14,7 +14,7 @@ import _root_.scala.collection.Set
 import _root_.scala.collection.immutable.HashSet
 import _root_.scala.collection.mutable.ArrayBuffer
 
-class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String) extends BaseProcessor(kinds)
+class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
@@ -48,7 +48,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets], val name: String
   }
 }
 
-class RefExprResolveProcessor(kinds: Set[ResolveTargets], name: String)
+class RefExprResolveProcessor(kinds: Set[ResolveTargets.Value], name: String)
 extends ResolveProcessor(kinds, name) {
   override def execute(element: PsiElement, state: ResolveState) : Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
@@ -143,17 +143,17 @@ class MethodResolveProcessor(name : String, args : Seq[ScType],
 import ResolveTargets._
 
 object StdKinds {
-  val stableQualRef = HashSet.empty[ResolveTargets] + PACKAGE + OBJECT + VAL
+  val stableQualRef = HashSet.empty + PACKAGE + OBJECT + VAL
   val stableQualOrClass = stableQualRef + CLASS
-  val stableImportSelector = HashSet.empty[ResolveTargets] + OBJECT + VAL + VAR + METHOD + PACKAGE + CLASS
-  val stableClass = HashSet.empty[ResolveTargets] + CLASS
+  val stableImportSelector = HashSet.empty + OBJECT + VAL + VAR + METHOD + PACKAGE + CLASS
+  val stableClass = HashSet.empty + CLASS
 
-  val constructorPattern = HashSet.empty[ResolveTargets] + CLASS + OBJECT
+  val constructorPattern = HashSet.empty + CLASS + OBJECT
 
-  val refExprLastRef = HashSet.empty[ResolveTargets] + OBJECT + VAL + VAR + METHOD
+  val refExprLastRef = HashSet.empty + OBJECT + VAL + VAR + METHOD
   val refExprQualRef = refExprLastRef + PACKAGE
 
-  val methodRef = HashSet.empty[ResolveTargets] + VAL + VAR + METHOD + CLASS
+  val methodRef = HashSet.empty + VAL + VAR + METHOD + CLASS
 }
 
 object ResolverEnv {
