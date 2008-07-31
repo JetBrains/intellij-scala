@@ -324,4 +324,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     }
     isInheritorInner(clazz, this, deep, Set.empty)
   }
+
+  def functionsByName(name : String) =
+    for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method == name) yield n.info.method
 }
