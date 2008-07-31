@@ -61,6 +61,13 @@ object ScalaElementPresentation {
     return presentableText.toString()
   }
 
+  def getTypeAliasPresentableText(typeAlias: ScTypeAlias): String = {
+    if (typeAlias.nameId != null)
+      return typeAlias.nameId.getText()
+    else
+      return "unnamed"
+  }
+
   def getPresentableText(elem: PsiElement): String = {
     return elem.getText
   }

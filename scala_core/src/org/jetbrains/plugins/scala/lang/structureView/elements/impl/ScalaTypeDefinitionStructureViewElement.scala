@@ -24,7 +24,8 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
 
   def getChildren(): Array[TreeElement] = {
     val children = new ArrayBuffer[ScalaStructureViewElement]
-    for (member <- element.asInstanceOf[ScTypeDefinition].members) {
+    val members = element.asInstanceOf[ScTypeDefinition].members
+    for (member <- members) {
       member match {
         case func: ScFunction => {
           children += new ScalaFunctionStructureViewElement(func, false)
@@ -39,6 +40,9 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
         case member: ScValue => {
           for (f <- member.declaredElements)
             children += new ScalaValueStructureViewElement(f.nameId)
+        }
+        case member: ScTypeAlias => {
+          children += new ScalaTypeAliasStructureViewElement(member)
         }
         case _ =>
       }
