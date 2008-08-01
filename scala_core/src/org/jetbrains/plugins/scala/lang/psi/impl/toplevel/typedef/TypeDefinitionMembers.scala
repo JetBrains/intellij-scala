@@ -3,6 +3,7 @@
 */
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
 import com.intellij.psi._
 import types._
 import api.toplevel.typedef._
@@ -171,5 +172,54 @@ object TypeDefinitionMembers {
       }
       new CachedValueProvider.Result(res, Array[Object](PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
     }
+  }
+
+  def processDeclarations(clazz : PsiClass,
+                          processor: PsiScopeProcessor,
+                          state: ResolveState,
+                          lastParent: PsiElement,
+                          place: PsiElement) : Boolean = {
+    val substK = state.get(ScSubstitutor.key)
+    val subst = if (substK == null) ScSubstitutor.empty else substK
+    if (shouldProcessVals(processor)) {
+      for ((_, n) <- getVals(clazz)) {
+        if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+      }
+    }
+    if (shouldProcessMethods(processor)) {
+      for ((_, n) <- getMethods(clazz)) {
+        if (!processor.execute(n.info.method, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+      }
+    }
+    if (shouldProcessTypes(processor)) {
+      for ((_, n) <- getTypes(clazz)) {
+        if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+      }
+    }
+
+    true
+  }
+
+  import scala.lang.resolve._, scala.lang.resolve.ResolveTargets._
+
+  def shouldProcessVals(processor: PsiScopeProcessor) = processor match {
+    case BaseProcessor(kinds) => (kinds contains VAR) || (kinds contains VAL) || (kinds contains OBJECT)
+    case _ => {
+      val hint = processor.getHint(classOf[ElementClassHint])
+      hint == null || hint.shouldProcess(classOf[PsiVariable])
+    }
+  }
+
+  def shouldProcessMethods(processor: PsiScopeProcessor) = processor match {
+    case BaseProcessor(kinds) => kinds contains METHOD
+    case _ => {
+      val hint = processor.getHint(classOf[ElementClassHint])
+      hint == null || hint.shouldProcess(classOf[PsiMethod])
+    }
+  }
+
+  def shouldProcessTypes(processor: PsiScopeProcessor) = processor match {
+    case BaseProcessor(kinds) => kinds contains CLASS
+    case _ => false //important: do not process inner classes!
   }
 }
