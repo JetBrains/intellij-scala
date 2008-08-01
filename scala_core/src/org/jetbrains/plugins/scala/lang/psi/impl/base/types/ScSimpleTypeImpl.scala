@@ -10,6 +10,7 @@ import lexer.ScalaTokenTypes
 import scala.lang.resolve.ScalaResolveResult
 import psi.types._
 import api.toplevel.ScPolymorphicElement
+import api.statements.ScTypeAlias
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -27,7 +28,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       case None => reference.bind match {
         case None => Nothing
         case Some(ScalaResolveResult(e, s)) => e match {
-          case poly: ScPolymorphicElement => new ScPolymorphicType(poly, s)
+          case alias: ScTypeAlias => new ScPolymorphicType(alias, s)
+          case tp : PsiTypeParameter =>  ScalaPsiManager.typeVariable(tp)
           case _ => new ScDesignatorType(e)
         }
       }

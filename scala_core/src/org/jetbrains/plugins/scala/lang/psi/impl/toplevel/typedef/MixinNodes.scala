@@ -94,8 +94,8 @@ abstract class MixinNodes {
 
   def combine(superSubst : ScSubstitutor, derived : ScSubstitutor, superClass : PsiClass) = {
     var res : ScSubstitutor = ScSubstitutor.empty
-    for ((tp, t) <- superSubst.tpMap) {
-      res = res + (tp, derived.subst(t))
+    for ((tv, t) <- superSubst.tvMap) {
+      res = res + (tv, derived.subst(t))
     }
     superClass match {
       case td : ScTypeDefinition => for (alias <- td.aliases) {
