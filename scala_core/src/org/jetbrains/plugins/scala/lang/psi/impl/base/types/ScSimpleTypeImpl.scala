@@ -11,6 +11,7 @@ import scala.lang.resolve.ScalaResolveResult
 import psi.types._
 import api.toplevel.ScPolymorphicElement
 import api.statements.ScTypeAlias
+import psi.impl.toplevel.synthetic.ScSyntheticClass
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -30,6 +31,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         case Some(ScalaResolveResult(e, s)) => e match {
           case alias: ScTypeAlias => new ScPolymorphicType(alias, s)
           case tp : PsiTypeParameter =>  ScalaPsiManager.typeVariable(tp)
+          case synth : ScSyntheticClass => synth.t
           case _ => new ScDesignatorType(e)
         }
       }
