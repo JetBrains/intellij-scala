@@ -7,7 +7,9 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import resolve.{ResolveProcessor, StdKinds}
 import api.toplevel.ScPolymorphicElement
 import api.toplevel.typedef._
+import api.statements.params.ScTypeParam
 import com.intellij.psi.{PsiNamedElement, PsiTypeParameterListOwner}
+import psi.impl.ScalaPsiManager
 
 case class ScDesignatorType(val element: PsiNamedElement) extends ScType {
   override def equiv(t: ScType) = t match {
@@ -32,9 +34,9 @@ case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) ex
 
   val substitutor : ScSubstitutor = designated match {
     case owner : PsiTypeParameterListOwner => {
-      var map : Map[PsiTypeParameter, ScType] = HashMap.empty
+      var map : Map[ScTypeVariable, ScType] = HashMap.empty
       for (p <- owner.getTypeParameters zip typeArgs) {
-        map = map + p
+        map = map + ((ScalaPsiManager.typeVariable(p._1), p._2))
       }
       new ScSubstitutor(map, Map.empty, Map.empty)
     }
@@ -52,14 +54,21 @@ case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) ex
 
 object ScParameterizedType {
   def create(c: PsiClass, s : ScSubstitutor) =
-    new ScParameterizedType(new ScDesignatorType(c), c.getTypeParameters.map {s subst _})
+    new ScParameterizedType(new ScDesignatorType(c), c.getTypeParameters.map {
+      tp => s subst(ScalaPsiManager.typeVariable(tp))
+    })
 }
 
 case class ScPolymorphicType(poly : ScPolymorphicElement, subst : ScSubstitutor) extends ScDesignatorType(poly) {
   override def equiv (t : ScType) = t match {
-    case ScPolymorphicType(p1, s1) => (poly eq p1) & poly.typeParameters.equalsWith(p1.typeParameters) {
-      (tp1, tp2) => subst.subst(tp1).equiv(s1.subst(tp2))
-    }
+    case ScPolymorphicType(p1, s1) => poly eq p1
     case _ => false
   }
 }
+
+object Variance extends Enumeration {
+  val INVAR, COVAR, CONTRAVAR = Value
+}
+
+case class ScTypeVariable(inner : Seq[ScTypeVariable], variance : Variance.Value, lower : ScType, upper : ScType) extends ScType
+class ScTypeConstructor(args : Seq[ScTypeVariable], t : ScType)

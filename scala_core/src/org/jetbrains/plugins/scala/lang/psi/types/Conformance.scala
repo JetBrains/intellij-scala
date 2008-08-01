@@ -40,7 +40,9 @@ object Conformance {
       }
       case ScDesignatorType(tp : ScTypeParam) => conforms(tp.lowerBound, r)
       case ScDesignatorType(tp : PsiTypeParameter) => r == Nothing //Q: what about AnyRef?
+
       case ScPolymorphicType(poly, subst) => conforms(subst.subst(poly.lowerBound), r)
+      case ScTypeVariable(_, _, lower, _) => conforms(lower, r)
 
       case ScParameterizedType(ScDesignatorType(owner : PsiClass), args1) => r match {
         case ScParameterizedType(ScDesignatorType(owner1 : PsiClass), args2) if (owner == owner1) =>
@@ -141,6 +143,7 @@ object Conformance {
     }
 
     case ScPolymorphicType(poly, subst) => conforms(l, subst.subst(poly.upperBound))
+    case ScTypeVariable(_, _, _, upper) => conforms(l, upper)
 
     case p@ScParameterizedType(ScDesignatorType(td: ScTypeDefinition), _) => {
       val s = p.substitutor

@@ -17,24 +17,24 @@ object ScSubstitutor {
   val key: Key[ScSubstitutor] = Key.create("scala substitutor key")
 }
 
-class ScSubstitutor(val tpMap: Map[PsiTypeParameter, ScType],
+class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
                    val outerMap: Map[PsiClass, ScType],
                    val aliasesMap: Map[String, ScType]) {
 
   def this() = this (Map.empty, Map.empty, Map.empty)
 
-  def +(p: PsiTypeParameter, t: ScType) = new ScSubstitutor(tpMap + ((p, t)), outerMap, aliasesMap)
-  def +(name: String, t: ScType) = new ScSubstitutor(tpMap, outerMap, aliasesMap + ((name, t)))
-  def bindOuter(outer: PsiClass, t: ScType) = new ScSubstitutor(tpMap, outerMap + ((outer, t)), aliasesMap)
-  def incl(s: ScSubstitutor) = new ScSubstitutor(s.tpMap ++ tpMap, s.outerMap ++ outerMap, s.aliasesMap ++ aliasesMap)
-  def followed(s: ScSubstitutor) = new ScSubstitutor(tpMap, outerMap, aliasesMap) {
+  def +(p: ScTypeVariable, t: ScType) = new ScSubstitutor(tvMap + ((p, t)), outerMap, aliasesMap)
+  def +(name: String, t: ScType) = new ScSubstitutor(tvMap, outerMap, aliasesMap + ((name, t)))
+  def bindOuter(outer: PsiClass, t: ScType) = new ScSubstitutor(tvMap, outerMap + ((outer, t)), aliasesMap)
+  def incl(s: ScSubstitutor) = new ScSubstitutor(s.tvMap ++ tvMap, s.outerMap ++ outerMap, s.aliasesMap ++ aliasesMap)
+  def followed(s: ScSubstitutor) = new ScSubstitutor(tvMap, outerMap, aliasesMap) {
     override def subst(t: ScType) = s.subst(super.subst(t))
     override def subst(ta: ScTypeAlias) = s.subst(super.subst(ta))
-    override def subst(tp: PsiTypeParameter) = s.subst(super.subst(tp))
+    override def subst(tv: ScTypeVariable) = s.subst(super.subst(tv))
   }
 
-  def subst(p: PsiTypeParameter) = tpMap.get(p) match {
-    case None => new ScDesignatorType(p)
+  def subst(tv: ScTypeVariable) :ScType = tvMap.get(tv) match {
+    case None => tv
     case Some(v) => v
   }
 
@@ -49,8 +49,8 @@ class ScSubstitutor(val tpMap: Map[PsiTypeParameter, ScType],
       case ScTupleType(comps) => new ScTupleType(comps map {
         subst _
       })
+      case tv : ScTypeVariable => subst(tv)
       case ScDesignatorType(e) if (!e.isInstanceOf[ScTypeAlias]) => e match { //scala ticket 425
-        case tp: PsiTypeParameter => subst(tp)
         case c: PsiClass => {
           val cc = c.getContainingClass
           if (cc != null) {
@@ -72,7 +72,7 @@ class ScSubstitutor(val tpMap: Map[PsiTypeParameter, ScType],
       case ex@ScExistentialType(q, wildcards) => {
         //remove bound names 
         val trunc = aliasesMap.excl(ex.boundNames)
-        new ScExistentialType(new ScSubstitutor(tpMap, outerMap, trunc).subst(q), wildcards)
+        new ScExistentialType(new ScSubstitutor(tvMap, outerMap, trunc).subst(q), wildcards)
       }
       case _ => t //todo
     }

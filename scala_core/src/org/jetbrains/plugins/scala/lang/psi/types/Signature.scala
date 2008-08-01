@@ -5,6 +5,7 @@ import com.intellij.psi.PsiTypeParameter
 import collection.immutable.{Map, HashMap}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import psi.impl.ScalaPsiManager
 
 class Signature(val name : String, val types : Seq[ScType],
                 val typeParams : Array[PsiTypeParameter], val substitutor : ScSubstitutor) {
@@ -20,7 +21,8 @@ class Signature(val name : String, val types : Seq[ScType],
   private def unify(subst : ScSubstitutor, tps1 : Array[PsiTypeParameter], tps2 : Array[PsiTypeParameter]) = {
     var res = subst
     for ((tp1, tp2) <- tps1 zip tps2) {
-      res = res + (tp2, new ScDesignatorType(tp1))
+      val manager = ScalaPsiManager.instance(tp1.getProject)
+      res = res + (manager.typeVariable(tp2), manager.typeVariable(tp1))
     }
     res
   }
