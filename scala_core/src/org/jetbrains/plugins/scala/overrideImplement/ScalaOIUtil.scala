@@ -188,6 +188,7 @@ object ScalaOIUtil {
     val buf2 = new ArrayBuffer[PsiElement]
     for (element <- buf) {
       element match {
+        case x: PsiMethod if x.getName == "$tag" =>
         case x: PsiMember if x.getContainingClass == clazz =>
         case x: PsiMember if x.getContainingClass.isInterface =>
         case x: ScValueDeclaration =>
@@ -222,14 +223,14 @@ object ScalaOIUtil {
         var flag = false
         for (method <- buf) {
           method match {
-            case _: PsiMember if x.getContainingClass == clazz =>
-            case _: PsiMember if x.getContainingClass.isInterface =>
+            case x: PsiMethod if x.getName == "$tag" =>
+            case x: PsiMember if x.getContainingClass.isInterface =>
             case _: ScValueDeclaration =>
             case _: ScVariableDeclaration =>
             case _: ScTypeAliasDeclaration =>
             case _: ScFunctionDeclaration =>
-            case _: PsiMethod if x.getModifierList.hasModifierProperty("abstract") =>
-            case _: PsiMethod if x.isConstructor =>
+            case x: PsiMethod if x.getModifierList.hasModifierProperty("abstract") =>
+            case x: PsiMethod if x.isConstructor =>
             case method: PsiMethod => if (compare(x, method)) flag = true
             case _ =>
           }
@@ -237,6 +238,7 @@ object ScalaOIUtil {
         if (!flag) buf2 += element
       }
       element match {
+        case x: PsiMethod if x.getName == "$tag" =>
         case x: PsiMethod if x.getContainingClass.isInterface => addMethod(x)
         case x: ScValueDeclaration => buf2 += element
         case x: ScVariableDeclaration => buf2 += element
