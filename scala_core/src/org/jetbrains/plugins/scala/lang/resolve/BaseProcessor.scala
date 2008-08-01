@@ -17,6 +17,7 @@ import psi.types._
 import psi.ScalaPsiElement
 import psi.api.toplevel.packaging.ScPackaging
 import psi.api.statements.ScFun
+import psi.impl.toplevel.typedef.TypeDefinitionMembers
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
@@ -96,6 +97,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
     case p: ScParameterizedType => p.designated match {
       case ta: ScTypeAlias => processType(p.substitutor.subst(ta.upperBound), place)
+
+      //need to process scala way
+      case clazz : PsiClass if !clazz.isInstanceOf[ScTypeDefinition] =>
+        TypeDefinitionMembers.processDeclarations(clazz, this, ResolveState.initial.put(ScSubstitutor.key, p.substitutor),
+          null, place)
+
       case des => des.processDeclarations(this, ResolveState.initial.put(ScSubstitutor.key, p.substitutor), null, place)
     }
     case proj : ScProjectionType => ScType.extractClassType(proj) match {

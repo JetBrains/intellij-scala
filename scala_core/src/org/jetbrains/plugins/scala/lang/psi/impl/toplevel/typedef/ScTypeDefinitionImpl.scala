@@ -234,8 +234,6 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    val substK = state.get(ScSubstitutor.key)
-    val subst = if (substK == null) ScSubstitutor.empty else substK
     extendsBlock.templateParents match {
       case Some(p) if (PsiTreeUtil.isAncestor(p, place, true)) => {
         extendsBlock.earlyDefinitions match {
@@ -256,49 +254,11 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
       case _ =>
         extendsBlock.earlyDefinitions match {
           case Some(ed) if PsiTreeUtil.isAncestor(ed, place, true) =>
-          case _ =>
-            if (shouldProcessVals(processor)) {
-              for ((_, n) <- TypeDefinitionMembers.getVals(this)) {
-                if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
-              }
-            }
-            if (shouldProcessMethods(processor)) {
-              for ((_, n) <- TypeDefinitionMembers.getMethods(this)) {
-                if (!processor.execute(n.info.method, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
-              }
-            }
-            if (shouldProcessTypes(processor)) {
-              for ((_, n) <- TypeDefinitionMembers.getTypes(this)) {
-                if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
-              }
-            }
+          case _ => TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)
         }
 
         true
     }
-  }
-
-  import scala.lang.resolve._, scala.lang.resolve.ResolveTargets._
-
-  def shouldProcessVals(processor: PsiScopeProcessor) = processor match {
-    case BaseProcessor(kinds) => (kinds contains VAR) || (kinds contains VAL) || (kinds contains OBJECT)
-    case _ => {
-      val hint = processor.getHint(classOf[ElementClassHint])
-      hint == null || hint.shouldProcess(classOf[PsiVariable])
-    }
-  }
-
-  def shouldProcessMethods(processor: PsiScopeProcessor) = processor match {
-    case BaseProcessor(kinds) => kinds contains METHOD
-    case _ => {
-      val hint = processor.getHint(classOf[ElementClassHint])
-      hint == null || hint.shouldProcess(classOf[PsiMethod])
-    }
-  }
-
-  def shouldProcessTypes(processor: PsiScopeProcessor) = processor match {
-    case BaseProcessor(kinds) => kinds contains CLASS
-    case _ => false //important: do not process inner classes!
   }
 
   override def getContainingClass: PsiClass = getParent match {

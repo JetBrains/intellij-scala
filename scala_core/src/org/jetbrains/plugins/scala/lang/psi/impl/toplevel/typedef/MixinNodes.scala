@@ -94,8 +94,9 @@ abstract class MixinNodes {
 
   def combine(superSubst : ScSubstitutor, derived : ScSubstitutor, superClass : PsiClass) = {
     var res : ScSubstitutor = ScSubstitutor.empty
-    for ((tv, t) <- superSubst.tvMap) {
-      res = res + (tv, derived.subst(t))
+    for (tp <- superClass.getTypeParameters) {
+      val tv = ScalaPsiManager.typeVariable(tp)
+      res = res + (tv, derived.subst(superSubst.subst(tv)))
     }
     superClass match {
       case td : ScTypeDefinition => for (alias <- td.aliases) {
