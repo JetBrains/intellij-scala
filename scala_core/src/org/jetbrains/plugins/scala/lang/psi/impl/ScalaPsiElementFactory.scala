@@ -175,8 +175,8 @@ object ScalaPsiElementFactory {
     p.expr
   }
 
-  def createOverrideMethod(method: PsiMethod, manager: PsiManager): ScFunction = {
-    val text = "class a {" + getOverrideSign(method, "{\n\n}") + "}" //todo: extract signature from method
+  def createOverrideImplementMethod(method: PsiMethod, manager: PsiManager, isOverride: Boolean): ScFunction = {
+    val text = "class a {" + getOverrideImplementSign(method, "{\n\n}", isOverride) + "}" //todo: extract signature from method
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
@@ -206,16 +206,16 @@ object ScalaPsiElementFactory {
     }
   }
 
-  private def getOverrideSign(method: PsiMethod, body: String): String = {
+  private def getOverrideImplementSign(method: PsiMethod, body: String, isOverride: Boolean): String = {
     var res = ""
     method match {
       case method: ScFunction => {
         res = res + method.getFirstChild.getText
         if (res != "") res = res + "\n"
-        if (!method.getModifierList.hasModifierProperty("override")) res = res + "override "
+        if (!method.getModifierList.hasModifierProperty("override") && isOverride) res = res + "override "
         res = res + method.getModifierList.getText
         res = res + "def " + method.getName
-        if (method.paramClauses != null) res =res + method.paramClauses.getText
+        if (method.paramClauses != null) res = res + method.paramClauses.getText
         method.returnTypeElement match {
           case None => res = res + "/*todo: be carefully, this method may have not inferred return type*/"
           case Some(x) => res = res + ": " + x.getText
@@ -224,12 +224,34 @@ object ScalaPsiElementFactory {
         res = res + body
       }
       case _ => {
-        if (!method.getModifierList.hasModifierProperty("override")) res = res + "override "
-        //convert java modifiers
-        //add other signature
+        if (isOverride) res = res + "override "
+        if (method.getModifierList.getNode != null)
+        for (modifier <- method.getModifierList.getNode.getChildren(null); m = modifier.getText) {
+          m match {
+            case "protected" => res = res + "protected "
+            case "final" => res = res + "final"
+            case _ =>
+          }
+        }
+        res = res + "def " + method.getName + (if (method.getParameterList.getParametersCount == 0) "" else "(")
+        for (param <- method.getParameterList.getParameters) {
+          res = res + param.getName + ": "
+          res = res + convertType(param.getTypeElement.getText) + ", "
+        }
+        if (method.getParameterList.getParametersCount != 0) res = res.substring(0, res.length - 2)
+        res = res + (if (method.getParameterList.getParametersCount == 0) "" else ")")
+        res = res + ": " + convertType(method.getReturnTypeElement.getText) + " = " + body
       }
     }
     return res
+  }
+
+  private def convertType(s: String): String = {
+    s match {
+      case "byte" | "short" | "int" | "float" | "double" | "char" | "boolean" | "long" => s.substring(0,1).toUpperCase + s.substring(1)
+      case "void" => "Unit"
+      case _ => s
+    }
   }
 
   private def getShortName(qualifiedName: String, packageName: String): String = {
