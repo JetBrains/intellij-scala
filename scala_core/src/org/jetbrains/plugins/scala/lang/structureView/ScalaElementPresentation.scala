@@ -16,31 +16,23 @@ object ScalaElementPresentation {
 
   //TODO refactor with name getters
 
-  def getFilePresentableText(file: ScalaFile): String = {
-    return file.getName()
-  }
+  def getFilePresentableText(file: ScalaFile): String = file.getName
 
-  def getPackagingPresentableText(packaging: ScPackaging): String = {
-    return packaging.getPackageName
-  }
+  def getPackagingPresentableText(packaging: ScPackaging): String = packaging.getPackageName
 
-  def getTypeDefinitionPresentableText(typeDefinition: ScTypeDefinition): String = {
-    if (typeDefinition.nameId != null)
-      return typeDefinition.nameId.getText()
-    else
-      return "unnamed"
-  }
+  def getTypeDefinitionPresentableText(typeDefinition: ScTypeDefinition): String =
+    if (typeDefinition.nameId != null) typeDefinition.nameId.getText() else "unnamed"
 
   def getPrimaryConstructorPresentableText(constructor: ScPrimaryConstructor): String = {
-    val presentableText: StringBuffer = new StringBuffer("")
+    val presentableText: StringBuffer = new StringBuffer
     presentableText.append("this")
     if (constructor.parameters != null)
       presentableText.append(StructureViewUtil.getParametersAsString(constructor.parameters))
-    return presentableText.toString()
+    presentableText.toString()
   }
 
   def getMethodPresentableText(function: ScFunction): String = {
-    val presentableText: StringBuffer = new StringBuffer("")
+    val presentableText: StringBuffer = new StringBuffer
       presentableText.append(function.getName)
 
     function.typeParametersClause match {
@@ -58,17 +50,11 @@ object ScalaElementPresentation {
       case None =>
     }
 
-    return presentableText.toString()
+    presentableText.toString()
   }
 
-  def getTypeAliasPresentableText(typeAlias: ScTypeAlias): String = {
-    if (typeAlias.nameId != null)
-      return "type " + typeAlias.nameId.getText()
-    else
-      return "type unnamed"
-  }
+  def getTypeAliasPresentableText(typeAlias: ScTypeAlias): String =
+    if (typeAlias.nameId != null) "type " + typeAlias.nameId.getText() else "type unnamed"
 
-  def getPresentableText(elem: PsiElement): String = {
-    return elem.getText
-  }
+  def getPresentableText(elem: PsiElement): String = elem.getText
 }

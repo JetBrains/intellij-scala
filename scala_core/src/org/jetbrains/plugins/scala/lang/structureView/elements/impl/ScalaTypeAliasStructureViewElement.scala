@@ -12,11 +12,6 @@ import psi.api.toplevel.typedef.ScTypeDefinition
  */
  
 class ScalaTypeAliasStructureViewElement(private val element: ScTypeAlias) extends ScalaStructureViewElement(element)  {
-  def getPresentation(): ItemPresentation = {
-    return new ScalaTypeAliasItemPresentation(element);
-  }
+  def getPresentation(): ItemPresentation = new ScalaTypeAliasItemPresentation(element)
 
-  def getChildren(): Array[TreeElement] = {
-    return new Array[TreeElement](0)
-  }
-}
+  def getChildren(): Array[TreeElement] = new Array[TreeElement](0)}

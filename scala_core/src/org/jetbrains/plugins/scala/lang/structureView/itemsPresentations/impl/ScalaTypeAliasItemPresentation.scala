@@ -8,7 +8,5 @@ import psi.api.statements.ScTypeAlias
  */
  
 class ScalaTypeAliasItemPresentation(private val element: ScTypeAlias) extends ScalaItemPresentation(element) {
-  def getPresentableText(): String = {
-    return ScalaElementPresentation.getTypeAliasPresentableText(myElement.asInstanceOf[ScTypeAlias])
-  }
+  def getPresentableText() = ScalaElementPresentation.getTypeAliasPresentableText(myElement.asInstanceOf[ScTypeAlias])
 }
