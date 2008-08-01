@@ -54,7 +54,10 @@ class ScalaAnnotator extends Annotator {
         val annotation = holder.createErrorAnnotation(refElement.nameId, error)
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
         registerAddImportFix(refElement, annotation)
-      case _ => AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
+      case Some(result) => {
+        registerUsedImports(refElement, result)
+        AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
+      }
     }
   }
 
@@ -72,7 +75,6 @@ class ScalaAnnotator extends Annotator {
     }
   }
 
-  private def registerUsedImports(refElement: ScStableCodeReferenceElement, annotation: Annotation) {
-
+  private def registerUsedImports(refElement: ScReferenceElement, result: ScalaResolveResult) {
   }
 }
