@@ -30,14 +30,9 @@ class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
   def followed(s: ScSubstitutor) = new ScSubstitutor(tvMap, outerMap, aliasesMap) {
     override def subst(t: ScType) = s.subst(super.subst(t))
     override def subst(ta: ScTypeAlias) = s.subst(super.subst(ta))
-    override def subst(tv: ScTypeVariable) = s.subst(super.subst(tv))
   }
 
-  def subst(tv: ScTypeVariable) :ScType = tvMap.get(tv) match {
-    case None => tv
-    case Some(v) => v
-  }
-
+  //todo remove me
   def subst(ta: ScTypeAlias) = aliasesMap.get(ta.name) match {
     case Some(v) => v
     case None => new ScPolymorphicType(ta, ScSubstitutor.empty)
@@ -49,7 +44,10 @@ class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
       case ScTupleType(comps) => new ScTupleType(comps map {
         subst _
       })
-      case tv : ScTypeVariable => subst(tv)
+      case tv : ScTypeVariable => tvMap.get(tv) match {
+        case None => tv
+        case Some(v) => v
+      }
       case ScDesignatorType(e) if (!e.isInstanceOf[ScTypeAlias]) => e match { //scala ticket 425
         case c: PsiClass => {
           val cc = c.getContainingClass

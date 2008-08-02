@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import impl.ScalaPsiManager
 import resolve.ScalaResolveResult
 import com.intellij.psi._
 import com.intellij.openapi.project.Project
@@ -41,16 +42,19 @@ object ScType {
     psiType match {
       case classType : PsiClassType => {
         val result = classType.resolveGenerics
-        val clazz = result.getElement
-        if (clazz != null) {
-          val tps = clazz.getTypeParameters
-          val des = new ScDesignatorType(clazz)
-          tps match {
-            case Array() => des
-            case _ => new ScParameterizedType(des, tps.map
-                  {tp => create(result.getSubstitutor.substitute(tp), project)})
+        result.getElement match {
+          case tp : PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
+          case clazz if clazz != null => {
+            val tps = clazz.getTypeParameters
+            val des = new ScDesignatorType(clazz)
+            tps match {
+              case Array() => des
+              case _ => new ScParameterizedType(des, tps.map
+                    {tp => create(result.getSubstitutor.substitute(tp), project)})
+            }
           }
-        } else Nothing
+          case _ => Nothing
+        }
       }
       case arrayType : PsiArrayType => {
         val arrayClass = JavaPsiFacade.getInstance(project).findClass("scala.Array", GlobalSearchScope.allScope(project))
