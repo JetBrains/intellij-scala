@@ -213,11 +213,12 @@ object ScalaPsiElementFactory {
         res = res + method.getFirstChild.getText
         if (res != "") res = res + "\n"
         if (!method.getModifierList.hasModifierProperty("override") && isOverride) res = res + "override "
-        res = res + method.getModifierList.getText
+        //todo!!! exlude "abstract" modifier
+        res = res + method.getModifierList.getText + " "
         res = res + "def " + method.getName
         if (method.paramClauses != null) res = res + method.paramClauses.getText
         method.returnTypeElement match {
-          case None => res = res + "/*todo: be carefully, this method may have not inferred return type*/"
+          case None => res = res + "/*todo: be careful, this method's type cannot be inferred now*/"
           case Some(x) => res = res + ": " + x.getText
         }
         res = res + " = "
@@ -226,6 +227,7 @@ object ScalaPsiElementFactory {
       case _ => {
         if (isOverride) res = res + "override "
         if (method.getModifierList.getNode != null)
+        //todo!!! add appropriate readPSI to get all modifiers
         for (modifier <- method.getModifierList.getNode.getChildren(null); m = modifier.getText) {
           m match {
             case "protected" => res = res + "protected "

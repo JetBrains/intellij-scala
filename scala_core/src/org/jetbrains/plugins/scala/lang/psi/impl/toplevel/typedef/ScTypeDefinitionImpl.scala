@@ -115,10 +115,8 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     }
 
   def allAliases: Seq[ScTypeAlias] = {
-    val buf = new ArrayBuffer[ScTypeAlias]
-    buf ++= aliases
-    for (clazz <- getSupers if clazz.isInstanceOf[ScTypeDefinition]) buf ++= clazz.asInstanceOf[ScTypeDefinition].aliases
-    return buf.toArray
+    val aliases = TypeDefinitionMembers.getTypes(this)
+    return aliases.toArray.map[PsiNamedElement](_._1).filter(_.isInstanceOf[ScTypeAlias]).map[ScTypeAlias](_.asInstanceOf[ScTypeAlias])
   }
 
   def allVals: Seq[ScValue] = {
@@ -213,10 +211,10 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
   override def getMethods = functions.toArray
 
   override def getAllMethods: Array[PsiMethod] = {
-    val buffer = new ArrayBuffer[PsiMethod]
-    getAllMethodsForClass(this, buffer, new HashSet[PsiClass])
-    return buffer.toArray
+    val methods = TypeDefinitionMembers.getMethods(this)
+    return methods.toArray.map[PsiMethod](_._1.method)
   }
+
   private def getAllMethodsForClass(clazz: PsiClass, methods: ArrayBuffer[PsiMethod], visited: HashSet[PsiClass]) {
     if (visited.contains(clazz)) return
     visited += clazz
@@ -267,25 +265,27 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     case _ => null
   }
 
-  override def isInheritor(clazz : PsiClass, deep : Boolean) = {
-    def isInheritorInner(base : PsiClass, drv : PsiClass, deep : Boolean, visited : Set[PsiClass]) : Boolean = {
+  override def isInheritor(clazz: PsiClass, deep: Boolean) = {
+    def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean, visited: Set[PsiClass]): Boolean = {
       if (visited.contains(drv)) false
       else drv match {
-        case drv : ScTypeDefinition => drv.superTypes.find {t =>
-          ScType.extractClassType(t) match {
-            case Some((c, _)) => c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
-            case _ => false
-          }
+        case drv: ScTypeDefinition => drv.superTypes.find{
+          t =>
+                  ScType.extractClassType(t) match {
+                    case Some((c, _)) => c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
+                    case _ => false
+                  }
         }
-        case _ => drv.getSuperTypes.find {psiT =>
-          val c = psiT.resolveGenerics.getElement
-          if (c == null) false else c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
+        case _ => drv.getSuperTypes.find{
+          psiT =>
+                  val c = psiT.resolveGenerics.getElement
+                  if (c == null) false else c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
         }
       }
     }
     isInheritorInner(clazz, this, deep, Set.empty)
   }
 
-  def functionsByName(name : String) =
+  def functionsByName(name: String) =
     for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method == name) yield n.info.method
 }
