@@ -66,9 +66,6 @@ case class ScPolymorphicType(poly : ScPolymorphicElement, subst : ScSubstitutor)
   }
 }
 
-object Variance extends Enumeration {
-  val INVAR, COVAR, CONTRAVAR = Value
-}
+case class ScTypeVariable(inner : Seq[ScTypeVariable], lower : ScType, upper : ScType) extends ScType
 
-case class ScTypeVariable(inner : Seq[ScTypeVariable], variance : Variance.Value, lower : ScType, upper : ScType) extends ScType
 class ScTypeConstructor(args : Seq[ScTypeVariable], t : ScType)

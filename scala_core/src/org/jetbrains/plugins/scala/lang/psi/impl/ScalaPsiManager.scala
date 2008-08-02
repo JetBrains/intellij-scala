@@ -22,9 +22,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       val tv = tp match {
         case stp: ScTypeParam => {
           val inner = stp.typeParameters.map{typeVariable(_)}
-          val variance = if (stp.isCovariant) Variance.COVAR
-                         else if (stp.isContravariant) Variance.CONTRAVAR else Variance.INVAR
-          new ScTypeVariable(inner, variance, stp.lowerBound, stp.upperBound)
+          new ScTypeVariable(inner, stp.lowerBound, stp.upperBound)
         }
         case _ => {
           val supers = tp.getSuperTypes
@@ -32,7 +30,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
             case Array(single) => ScType.create(single, project)
             case many => new ScCompoundType(many.map{ScType.create(_, project)}, Seq.empty, Seq.empty)
           }
-          new ScTypeVariable(Seq.empty, Variance.INVAR, Nothing, scalaSuper)
+          new ScTypeVariable(Seq.empty, Nothing, scalaSuper)
         }
       }
       typeVariables.put(tp, tv)
