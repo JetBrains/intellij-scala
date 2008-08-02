@@ -73,7 +73,7 @@ case class ScExistentialType(val quantified : ScType,
   lazy val substitutor = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s + (p._1, p._2)}
 
   lazy val skolem = {
-    val skolemSubst = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s + (p._1, new ScUnpackedExistentialArgument(p._2))}
+    val skolemSubst = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s + (p._1, p._2.unpack)}
     skolemSubst.subst(quantified)
   }
   
@@ -87,10 +87,11 @@ case class ScExistentialType(val quantified : ScType,
 }
 
 case class ScExistentialArgument(val lowerBound : ScType, val upperBound : ScType) extends ScType {
+  //note: val is critical here instead of def
+  lazy val unpack = new ScTypeVariable(Seq.empty, Variance.INVAR, lowerBound, upperBound)
+
   override def equiv(t : ScType) = t match {
     case wild : ScExistentialArgument => lowerBound.equiv(wild.lowerBound) && upperBound.equiv(wild.upperBound)
     case _ => false
   }
 }
-
-case class ScUnpackedExistentialArgument(arg : ScExistentialArgument) extends ScType //equiv not overridden intentionally
