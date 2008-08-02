@@ -88,7 +88,7 @@ case class ScExistentialType(val quantified : ScType,
 
 case class ScExistentialArgument(val lowerBound : ScType, val upperBound : ScType) extends ScType {
   //note: val is critical here instead of def
-  lazy val unpack = new ScTypeVariable(Seq.empty, Variance.INVAR, lowerBound, upperBound)
+  lazy val unpack = new ScTypeVariable(Seq.empty, lowerBound, upperBound)
 
   override def equiv(t : ScType) = t match {
     case wild : ScExistentialArgument => lowerBound.equiv(wild.lowerBound) && upperBound.equiv(wild.upperBound)

@@ -93,7 +93,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     case ScDesignatorType(e) if !e.isInstanceOf[ScPolymorphicElement] => //scala ticket 425
       e.processDeclarations(this, ResolveState.initial, null, place)
     case ScPolymorphicType(poly, subst) => processType(subst.subst(poly.upperBound), place)
-    case ScTypeVariable(Seq.empty, _, _, upper) => processType(upper, place)
+    case ScTypeVariable(Seq.empty, _, upper) => processType(upper, place)
 
     case p: ScParameterizedType => p.designated match {
       case ta: ScTypeAlias => processType(p.substitutor.subst(ta.upperBound), place)
