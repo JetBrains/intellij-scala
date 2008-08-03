@@ -27,7 +27,7 @@ object ScExistentialTypeReducer {
       case ScPolymorphicType(a, _) => HashSet.empty + a.name
       case ScParameterizedType (des, typeArgs) =>
         typeArgs.foldLeft(Set.empty[String]) {(curr, p) => curr ++ collectNames(p)}
-      case ScExistentialArgument(lower, upper) => collectNames(lower) ++ collectNames(upper)
+      case ScExistentialArgument(_, lower, upper) => collectNames(lower) ++ collectNames(upper)
       case ex@ScExistentialType(q, wildcards) => {
         (wildcards.foldLeft(collectNames(q)) {(curr, p) => curr ++ collectNames(p._2)}) -- ex.boundNames
       }
@@ -58,8 +58,8 @@ object ScExistentialTypeReducer {
       }
       case _ => t
     }
-    case ScExistentialArgument(lower, upper) =>
-      new ScExistentialArgument(noVariantWildcards(lower, wilds), noVariantWildcards(upper, wilds))
+    case ScExistentialArgument(args, lower, upper) =>
+      new ScExistentialArgument(args, noVariantWildcards(lower, wilds), noVariantWildcards(upper, wilds))
     case ScExistentialType(q, w1) => new ScExistentialType(noVariantWildcards(q, wilds), w1)
     case _ => t
   }
@@ -86,12 +86,14 @@ case class ScExistentialType(val quantified : ScType,
   }
 }
 
-case class ScExistentialArgument(val lowerBound : ScType, val upperBound : ScType) extends ScType {
-  //note: val is critical here instead of def
-  lazy val unpack = new ScTypeVariable(Seq.empty, lowerBound, upperBound)
+case class ScExistentialArgument(val args : Seq[ScTypeVariable], val lowerBound : ScType, val upperBound : ScType) extends ScType {
+  def unpack = new ScTypeVariable(args, lowerBound, upperBound)
 
   override def equiv(t : ScType) = t match {
-    case wild : ScExistentialArgument => lowerBound.equiv(wild.lowerBound) && upperBound.equiv(wild.upperBound)
+    case exist : ScExistentialArgument => {
+      val s = (exist.args.toList zip args.toList).foldLeft(ScSubstitutor.empty) {(s, p) => s + (p._1, p._2)}
+      lowerBound.equiv(s.subst(exist.lowerBound)) && upperBound.equiv(s.subst(exist.upperBound))
+    }
     case _ => false
   }
 }

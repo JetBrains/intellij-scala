@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
 import api.statements.params.ScTypeParam
-import com.intellij.psi.PsiTypeParameter
 import com.intellij.util.containers.WeakHashMap
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.ProjectComponent
+import com.intellij.psi.impl.PsiManagerEx
+import com.intellij.psi.{PsiManager, PsiTypeParameter}
 import types._
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
@@ -12,7 +13,11 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   def projectClosed {}
   def getComponentName = "ScalaPsiManager"
   def disposeComponent {}
-  def initComponent {}
+  def initComponent {
+    PsiManager.getInstance(project).asInstanceOf[PsiManagerEx].registerRunnableToRunOnAnyChange(new Runnable {
+      override def run = typeVariables.clear
+    })
+  }
 
   private val typeVariables = new WeakHashMap[PsiTypeParameter, ScTypeVariable]
 

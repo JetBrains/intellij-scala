@@ -32,15 +32,25 @@ case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) ex
     }
   }
 
-  val substitutor : ScSubstitutor = designated match {
-    case owner : PsiTypeParameterListOwner => {
-      var map : Map[ScTypeVariable, ScType] = HashMap.empty
-      for (p <- owner.getTypeParameters zip typeArgs) {
-        map = map + ((ScalaPsiManager.typeVariable(p._1), p._2))
+  val substitutor : ScSubstitutor = {
+    val targs = designator match {
+      case ScTypeVariable(args, _, _) => args
+      case _ => designated match {
+        case owner : PsiTypeParameterListOwner => owner.getTypeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}
+        case _ => Seq.empty
       }
-      new ScSubstitutor(map, Map.empty, Map.empty)
     }
-    case _ => ScSubstitutor.empty
+
+    targs match {
+      case Seq.empty => ScSubstitutor.empty
+      case _ => {
+        var map : Map[ScTypeVariable, ScType] = HashMap.empty
+        for (p <- targs.toList.toArray zip typeArgs) {
+          map = map + ((p._1, p._2))
+        }
+        new ScSubstitutor(map, Map.empty, Map.empty)
+      }
+    }
   }
 
   override def equiv(t: ScType): Boolean = t match {

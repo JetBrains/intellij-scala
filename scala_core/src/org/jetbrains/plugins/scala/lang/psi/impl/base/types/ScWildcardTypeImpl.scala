@@ -22,5 +22,5 @@ import psi.types.ScExistentialArgument
 class ScWildcardTypeElementImpl(node: ASTNode) extends ScTypeBoundsOwnerImpl(node) with ScWildcardTypeElement {
   override def toString: String = "WildcardType"
 
-  override def getType() = new ScExistentialArgument(lowerBound, upperBound)
+  override def getType() = new ScExistentialArgument(Seq.empty, lowerBound, upperBound)
 }
