@@ -280,32 +280,10 @@ object ScalaPsiElementFactory {
     if (isOverride) res = res + "override "
     res = res + (if (isVal) "val " else "var ")
     res = res + variable.name
-    res = res + (if (typeToString(variable.calcType) != "") ": " + typeToString(variable.calcType)
+    res = res + (if (ScType.getPresentableText(variable.calcType) != "") ": " + ScType.getPresentableText(variable.calcType)
                  else "/*todo: be careful, this variable's type cannot be inferred now*/")
     res = res + " = " + body
     return res
-  }
-
-  private def typeToString(typez: ScType): String = {
-    typez match {
-      case lang.psi.types.Unit => "Unit"
-      case lang.psi.types.Any => "Any"
-      case lang.psi.types.AnyRef => "AnyRef"
-      case lang.psi.types.AnyVal => "AnyVal"
-      case lang.psi.types.Boolean => "Boolean"
-      case lang.psi.types.Byte => "Byte"
-      case lang.psi.types.Char => "Char"
-      case lang.psi.types.Double => "Double"
-      case lang.psi.types.Float => "Float"
-      case lang.psi.types.Int => "Int"
-      case lang.psi.types.Long => "Long"
-      case lang.psi.types.Nothing => "Nothing"
-      case lang.psi.types.Null => "Null"
-      case lang.psi.types.Short => "Short"
-      //case x: lang.psi.types.ScParameterizedType => typeToString(x.designator) + x.typeArgs.mkString("[", ", ", "]")
-      case x: lang.psi.types.ScDesignatorType => x.element.getName
-      case _ => ""
-    }
   }
 
   private def convertType(s: String): String = {

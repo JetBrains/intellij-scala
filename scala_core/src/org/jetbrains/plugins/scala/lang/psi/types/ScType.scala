@@ -102,4 +102,26 @@ object ScType {
     }
     case _ => None
   }
+  def getPresentableText(typez: ScType): String = {
+    //todo: add else cases
+    typez match {
+      case Unit => "Unit"
+      case Any => "Any"
+      case AnyRef => "AnyRef"
+      case AnyVal => "AnyVal"
+      case Boolean => "Boolean"
+      case Byte => "Byte"
+      case Char => "Char"
+      case Double => "Double"
+      case Float => "Float"
+      case Int => "Int"
+      case Long => "Long"
+      case Nothing => "Nothing"
+      case Null => "Null"
+      case Short => "Short"
+      case x: ScParameterizedType => getPresentableText(x.designator) + x.typeArgs.mkString("[", ", ", "]")
+      case x: ScDesignatorType => x.element.getName
+      case _ => ""
+    }
+  }
 }
