@@ -256,7 +256,7 @@
       <jvmarg value="-ea"/>
       <jvmarg value="-Xdebug"/>
       <jvmarg value="-Djava.compiler=NONE"/>
-      <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5112"/>
+      <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=ns,address=5112"/>
 
       <jvmarg value="-Didea.config.path=${output}/config"/>
       <jvmarg value="-Didea.system.path=${output}/system"/>
@@ -268,11 +268,10 @@
 
       <batchtest todir="${base.dir}/logs">
         <fileset dir="${base.dir}/test">
-          <!--<include name="**/*ResolveClassTest.java"/>-->
+          <include name="**/*ResolveClassTest.java"/>
           <!--<include name="**/EnterActionTest.java"/>-->
           <!--<include name="**/ParserTest.java"/>-->
           <!--<include name="**/LexerTest.java"/>-->
-          <include name="**/KeywordCompletionTest.java"/>
         </fileset>
       </batchtest>
 

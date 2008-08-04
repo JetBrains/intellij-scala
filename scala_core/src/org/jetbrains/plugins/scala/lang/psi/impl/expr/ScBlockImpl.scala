@@ -22,6 +22,7 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDeclar
 
   def exprs = findChildrenByClass(classOf[ScExpression])
 
+  /*
   override def getType = lastExpr match {
       case None => Unit
       case Some(e) => {
@@ -86,4 +87,5 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDeclar
       new ScCompoundType(superTypes, holders, aliases)
     } else superTypes(0)
   }
+  */
 }

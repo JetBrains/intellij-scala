@@ -1,27 +1,24 @@
 package org.jetbrains.plugins.scala.refactor.introduceVariable;
 
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableBase;
-import com.intellij.openapi.project.Project;
+import com.intellij.codeInsight.highlighting.HighlightManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColors;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.editor.markup.TextAttributes;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.WindowManager;
-import com.intellij.refactoring.util.RefactoringMessageDialog;
 import com.intellij.refactoring.HelpID;
 import com.intellij.refactoring.ui.ConflictsDialog;
-import com.intellij.psi.PsiType;
-import com.intellij.psi.PsiElement;
-import com.intellij.codeInsight.highlighting.HighlightManager;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
-import org.jetbrains.plugins.scala.lang.psi.types.ScType;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaValidator;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableDialogInterface;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.typeManipulator.IType;
-import org.jetbrains.plugins.scala.lang.refactoring.NameSuggester;
+import com.intellij.refactoring.util.RefactoringMessageDialog;
 import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
+import org.jetbrains.plugins.scala.lang.refactoring.NameSuggester;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableBase;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableDialogInterface;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaValidator;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.typeManipulator.IType;
 
 import java.util.ArrayList;
 
