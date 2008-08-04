@@ -1,17 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import com.intellij.psi.tree.TokenSet
+import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
+import api.toplevel.{ScNamedElement, ScTyped}
+import com.intellij.psi.util.PsiTreeUtil
+import api.statements.ScTypeAlias
+import _root_.scala.collection.immutable.Set
+import types._
+import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi._
-import org.jetbrains.annotations._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import psi.ScDeclarationSequenceHolder
+import api.expr._
+import _root_.scala.collection.mutable.HashSet
 
 /**
 * @author ilyas
@@ -21,5 +20,70 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDeclar
 
   override def toString: String = "BlockOfExpressions"
 
-  def exprs = findChildrenByClass(classOf[ScExpression]) 
+  def exprs = findChildrenByClass(classOf[ScExpression])
+
+  override def getType = lastExpr match {
+      case None => Unit
+      case Some(e) => {
+        def createSubst (oldVars : List[ScTypeVariable], newVars : List[ScTypeVariable]) = {
+          var s = ScSubstitutor.empty
+          for ((tv, tv1) <- oldVars zip newVars) {
+            s = s + (tv, tv1)
+          }
+          s
+        }
+
+        def newTypeVar(v : ScTypeVariable) : ScTypeVariable = {
+          val i1 = v.inner.map {newTypeVar _}
+          var s = createSubst(v.inner, i1)
+          new ScTypeVariable(i1, s.subst(v.lower), s.subst(v.upper))
+        }
+
+        def existize (t : ScType) : ScType = t match {
+          case ScFunctionType(ret, params) => new ScFunctionType(existize(ret), params.map {existize _})
+          case ScTupleType(comps) => new ScTupleType(comps.map {existize _})
+          case ScTypeAliasType(a, _) if PsiTreeUtil.isAncestor(this, a, true) =>{
+            val oldVars = a.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}.toList
+            val newVars = oldVars.map{newTypeVar _}
+            val s = createSubst(oldVars, newVars)
+            new ScTypeVariable(newVars, s.subst(existize(a.lowerBound)), s.subst(existize(a.upperBound)))
+          }
+          case ScProjectionType(p, name) => new ScProjectionType(existize(p), name)
+          case ScParameterizedType (des, typeArgs) =>
+            new ScParameterizedType(existize(des), typeArgs.map {existize _})
+          case ScExistentialArgument(args, lower, upper) => new ScExistentialArgument(args, existize(lower), existize(upper))
+          case ex@ScExistentialType(q, wildcards) => {
+             new ScExistentialType(existize(q), wildcards.map {p =>
+                     val name = p._1
+                     val ex = p._2
+                     (name, new ScExistentialArgument(ex.args, existize(ex.lowerBound), existize(ex.upperBound)))})
+          }
+          case singl : ScSingletonType => existize(singl.pathType)
+          case ScDesignatorType(des) if PsiTreeUtil.isAncestor(this, des, true) => des match {
+            case clazz : ScClass => {
+              val oldVars = clazz.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}.toList
+              val newVars = oldVars.map{newTypeVar _}
+              val s = createSubst(oldVars, newVars)
+              val t = s.subst(existize(leastClassType(clazz)))
+              new ScTypeVariable(newVars, t, t)
+            }
+            case obj : ScObject => val t = existize(leastClassType(obj)); new ScTypeVariable(Nil, t, t)
+            case typed : ScTyped => val t = existize(typed.calcType); new ScTypeVariable(Nil, t, t)
+          }
+          case _ => t
+        }
+        existize(e.getType)
+      }
+    }
+  private def leastClassType(t : ScTypeDefinition) = {
+    val (holders, aliases) = t.extendsBlock.templateBody match {
+      case Some(b) => (b.holders, b.aliases)
+      case None => (Seq.empty, Seq.empty)
+    }
+
+    val superTypes = t.extendsBlock.superTypes
+    if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
+      new ScCompoundType(superTypes, holders, aliases)
+    } else superTypes(0)
+  }
 }
