@@ -37,7 +37,7 @@ import com.intellij.psi.PsiFile
  */
 
 object ScalaOIUtil {
-  def invokeOverride(project: Project, editor: Editor, file: PsiFile) {
+  def invokeOverrideImplement(project: Project, editor: Editor, file: PsiFile, isImplement: Boolean) {
     val elem = file.findElementAt(editor.getCaretModel.getOffset)
     def getParentClass(elem: PsiElement): PsiElement = {
       elem match {
@@ -48,7 +48,7 @@ object ScalaOIUtil {
     val parent = getParentClass(elem)
     if (parent == null) return
     val clazz = parent.asInstanceOf[ScTypeDefinition]
-    val candidates = ScalaOIUtil.getMembersToOverride(clazz)
+    val candidates = if (isImplement) ScalaOIUtil.getMembersToImplement(clazz) else ScalaOIUtil.getMembersToOverride(clazz)
     if (candidates.isEmpty) return
     val classMembersBuf = new ArrayBuffer[ClassMember]
     for (candidate <- candidates) yield {
@@ -76,7 +76,8 @@ object ScalaOIUtil {
     }
     val classMembers = classMembersBuf.toArray
     val chooser = new MemberChooser[ClassMember](classMembers, false, true, project)
-    chooser.setTitle(ScalaBundle.message("select.method.override", Array[Object]()))
+    chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement", Array[Object]())
+                     else ScalaBundle.message("select.method.override", Array[Object]()))
     chooser.show
 
     val selectedMembers = chooser.getSelectedElements
@@ -96,93 +97,11 @@ object ScalaOIUtil {
               if (brace == null) return
               val anchor = brace.getNextSibling
               if (anchor == null) return
-              val meth = ScalaPsiElementFactory.createOverrideImplementMethod(method, method.getManager, true)
+              val meth = ScalaPsiElementFactory.createOverrideImplementMethod(method, method.getManager, !isImplement)
               body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), anchor.getNode)
               body.getNode.addChild(meth.getNode, anchor.getNode)
             }
-          }, method.getProject, "Override method")
-        }
-        case member: PsiAliasMember => {
-
-        }
-        case member: PsiValueMember => {
-
-        }
-        case member: PsiVariableMember => {
-
-        }
-        case member: PsiFieldMember => {
-
-        }
-        case _ =>
-      }
-    }
-  }
-
-  def invokeImplement(project: Project, editor: Editor, file: PsiFile) {
-    val elem = file.findElementAt(editor.getCaretModel.getOffset)
-    def getParentClass(elem: PsiElement): PsiElement = {
-      elem match {
-        case _: ScTypeDefinition | null => return elem
-        case _ => getParentClass(elem.getParent)
-      }
-    }
-    val parent = getParentClass(elem)
-    if (parent == null) return
-    val clazz = parent.asInstanceOf[ScTypeDefinition]
-    val candidates = ScalaOIUtil.getMembersToImplement(clazz)
-    if (candidates.isEmpty) return
-    val classMembersBuf = new ArrayBuffer[ClassMember]
-    for (candidate <- candidates) yield {
-      candidate match {
-        case x: PsiMethod => classMembersBuf += new PsiMethodMember(x)
-        case x: ScTypeAlias => classMembersBuf += new PsiAliasMember(x)
-        case x: ScReferencePattern => {
-          valvarContext(x) match {
-            case y: ScValue => classMembersBuf += new PsiValueMember(y, x)
-            case y: ScVariable => classMembersBuf += new PsiVariableMember(y, x)
-            case _ => {
-              throw new IncorrectOperationException
-              null
-            }
-          }
-        }
-        case x: ScValue => classMembersBuf ++= (for (element <- x.declaredElements) yield new PsiValueMember(x, element))
-        case x: ScVariable => classMembersBuf ++= (for (element <- x.declaredElements) yield new PsiVariableMember(x, element))
-        case x: PsiField => classMembersBuf += new PsiFieldMember(x)
-        case _ => {
-          throw new IncorrectOperationException
-          null
-        }
-      }
-    }
-    val classMembers = classMembersBuf.toArray
-    val chooser = new MemberChooser[ClassMember](classMembers, false, true, project)
-    chooser.setTitle(ScalaBundle.message("select.method.override", Array[Object]()))
-    chooser.show
-
-    val selectedMembers = chooser.getSelectedElements
-    if (selectedMembers == null || selectedMembers.size == 0) return
-    for (member <- selectedMembers.toArray(new Array[ClassMember](selectedMembers.size))) {
-      //todo: create body from template
-      member match {
-        case member: PsiMethodMember => {
-          val method: PsiMethod = member.getElement
-          ScalaUtils.runWriteAction(new Runnable {
-            def run {
-              val body = clazz.extendsBlock.templateBody match {
-                case Some(x) => x
-                case None => return
-              }
-              val brace = body.getFirstChild
-              if (brace == null) return
-              val anchor = brace.getNextSibling
-              if (anchor == null) return
-              val meth = ScalaPsiElementFactory.createOverrideImplementMethod(method, method.getManager, false)
-              body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), anchor.getNode)
-              body.getNode.addChild(meth.getNode, anchor.getNode)
-            }
-          }, method.getProject, "Implement method")
+          }, method.getProject, if (isImplement) "Implement method" else "Override method")
         }
         case member: PsiAliasMember => {
 
