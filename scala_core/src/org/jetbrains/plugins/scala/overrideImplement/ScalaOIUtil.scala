@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.overrideImplement
 
+import lang.psi.api.toplevel.ScModifierListOwner
 import com.intellij.psi._
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement, ScFieldId}
 import annotations.Nullable
@@ -70,8 +71,7 @@ object ScalaOIUtil {
         }
         case x: PsiField => //todo: dont add now: classMembersBuf += new PsiFieldMember(x)
         case x => {
-          println(x)
-          throw new IncorrectOperationException
+          throw new IncorrectOperationException("Not supported type:" + x)
           null
         }
       }
@@ -124,10 +124,40 @@ object ScalaOIUtil {
           }, alias.getProject, if (isImplement) "Implement type alias" else "Override type alias")
         }
         case member: PsiValueMember => {
-
+          val value = member.element
+          ScalaUtils.runWriteAction(new Runnable {
+            def run {
+              val body = clazz.extendsBlock.templateBody match {
+                case Some(x) => x
+                case None => return
+              }
+              val brace = body.getFirstChild
+              if (brace == null) return
+              val anchor = brace.getNextSibling
+              if (anchor == null) return
+              val meth = ScalaPsiElementFactory.createOverrideImplementVariable(value, value.getManager, !isImplement, true)
+              body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), anchor.getNode)
+              body.getNode.addChild(meth.getNode, anchor.getNode) //todo: set selection over body
+            }
+          }, value.getProject, if (isImplement) "Implement value" else "Override value")
         }
         case member: PsiVariableMember => {
-
+          val variable = member.element
+          ScalaUtils.runWriteAction(new Runnable {
+            def run {
+              val body = clazz.extendsBlock.templateBody match {
+                case Some(x) => x
+                case None => return
+              }
+              val brace = body.getFirstChild
+              if (brace == null) return
+              val anchor = brace.getNextSibling
+              if (anchor == null) return
+              val meth = ScalaPsiElementFactory.createOverrideImplementVariable(variable, variable.getManager, !isImplement, false)
+              body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), anchor.getNode)
+              body.getNode.addChild(meth.getNode, anchor.getNode) //todo: set selection over body
+            }
+          }, variable.getProject, if (isImplement) "Implement variable" else "Override variable")
         }
         case member: PsiFieldMember => {
           //todo: I think scala don't perform to override java fields
@@ -163,7 +193,8 @@ object ScalaOIUtil {
         case x: ScVariableDeclaration =>
         case x: ScTypeAliasDeclaration =>
         case x: ScFunctionDeclaration =>
-        case x: PsiModifierListOwner if x.getModifierList.hasModifierProperty("abstract") | x.getModifierList.hasModifierProperty("final") =>
+        case x: PsiModifierListOwner if x.hasModifierProperty("abstract")
+            || x.hasModifierProperty("final") =>
         case x: PsiMethod if x.isConstructor =>
         case x: PsiMethod => {
           var flag = false
@@ -219,7 +250,7 @@ object ScalaOIUtil {
         }
         case x: ScTypeAliasDeclaration => buf2 += element
         case x: ScFunctionDeclaration => addMethod(x)
-        case x: PsiMethod if x.getModifierList.hasModifierProperty("abstract") => addMethod(x)
+        case x: PsiMethod if x.hasModifierProperty("abstract") => addMethod(x)
         case _ =>
       }
     }
