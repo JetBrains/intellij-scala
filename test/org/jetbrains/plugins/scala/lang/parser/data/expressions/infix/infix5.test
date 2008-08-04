@@ -10,30 +10,58 @@ ScalaFile
       <empty list>
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
-    PsiElement(identifier)('A')
+    PsiElement(identifier)('Boo')
+    PsiWhiteSpace(' ')
     ExtendsBlock
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScPatternDefinition
+        ScFunctionDefinition
           AnnotationsList
             <empty list>
           Modifiers
             <empty list>
-          PsiElement(val)('val')
+          PsiElement(def)('def')
           PsiWhiteSpace(' ')
-          ListOfPatterns
-            ReferencePattern
-              PsiElement(identifier)('a')
-          PsiElement(:)(':')
+          PsiElement(identifier)('foo')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
-              PsiElement(identifier)('T')
-          PsiWhiteSpace(' ')
+          Parameters
+            <empty list>
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
+          PostfixExpression
+            InfixExpression
+              ReferenceExpression
+                PsiElement(identifier)('res')
+              PsiWhiteSpace(' ')
+              ReferenceExpression
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              ReferenceExpression
+                PsiElement(identifier)('a')
+            PsiWhiteSpace(' ')
+            ReferenceExpression
+              PsiElement(identifier)('+')
+        PsiErrorElement:';' or newline expected
+          <empty list>
+        PsiWhiteSpace(' ')
+        PsiElement(if)('if')
+        PsiWhiteSpace(' ')
+        ExpressionInParenthesis
+          PsiElement(()('(')
           ReferenceExpression
-            PsiElement(identifier)('k')
+            PsiElement(identifier)('a')
+          PsiElement())(')')
+        PsiErrorElement:';' or newline expected
+          <empty list>
+        PsiWhiteSpace(' ')
+        PsiElement(string content)('""')
+        PsiErrorElement:Definition or declaration expected
+          <empty list>
+        PsiWhiteSpace(' ')
+        PsiElement(else)('else')
+        PsiWhiteSpace(' ')
+        Literal
+          PsiElement(string content)('" "')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
