@@ -52,4 +52,9 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     PsiReference ref = configureByFile("nonlocal/typealiases.scala");
     assertTrue(ref.resolve() instanceof PsiMethod);
   }
+
+  public void testJavaGenerics() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/javaGenerics.scala");
+    assertTrue(ref.resolve() instanceof PsiMethod);
+  }
 }
