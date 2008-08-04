@@ -102,26 +102,26 @@ object ScType {
     }
     case _ => None
   }
-  def getPresentableText(typez: ScType): String = {
-    //todo: add else cases
-    typez match {
-      case Unit => "Unit"
-      case Any => "Any"
-      case AnyRef => "AnyRef"
-      case AnyVal => "AnyVal"
-      case Boolean => "Boolean"
-      case Byte => "Byte"
-      case Char => "Char"
-      case Double => "Double"
-      case Float => "Float"
-      case Int => "Int"
-      case Long => "Long"
-      case Nothing => "Nothing"
-      case Null => "Null"
-      case Short => "Short"
-      case x: ScParameterizedType => getPresentableText(x.designator) + x.typeArgs.mkString("[", ", ", "]")
-      case x: ScDesignatorType => x.element.getName
-      case _ => ""
+
+  def presentableText(t : ScType) = {
+    val buffer = new StringBuffer
+    def appendSeq(ts : Seq[ScType]) = {
+      var first = false
+      for (t <- ts) {
+        if (!first) buffer.append(", ")
+        inner(t)
+      }
     }
+    def inner(t : ScType) : Unit = t match {
+      case ValType(name, _) => buffer.append(name)
+      case ScFunctionType(ret, params) => inner(t); buffer.append("=>"); appendSeq(params)
+      case ScTupleType(comps) => buffer.append("("); appendSeq(comps); buffer.append(")")
+      case ScTypeAliasType(a, _) => buffer.append(a.name)
+      case ScProjectionType(p, name) => inner(p); buffer.append("#").append(name)
+      case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs); buffer.append("]")
+      case ScDesignatorType(e) => buffer.append(e.getName)
+      case _ => null //todo
+    }
+    inner(t)
   }
 }
