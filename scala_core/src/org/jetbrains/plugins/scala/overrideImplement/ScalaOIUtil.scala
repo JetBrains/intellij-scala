@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.overrideImplement
 
-import lang.psi.types.ScType
+import annotations.Nullable
+import lang.psi.api.base.patterns.ScReferencePattern
+import lang.psi.types.{ScType, PhysicalSignature, ScSubstitutor}
+import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import lang.psi.ScalaPsiElement
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import lang.psi.api.base.types.ScSimpleTypeElement
@@ -52,6 +55,16 @@ object ScalaOIUtil {
       candidate match {
         case x: PsiMethod => classMembersBuf += new PsiMethodMember(x)
         case x: ScTypeAlias => classMembersBuf += new PsiAliasMember(x)
+        case x: ScReferencePattern => {
+          valvarContext(x) match {
+            case y: ScValue => classMembersBuf += new PsiValueMember(y, x)
+            case y: ScVariable => classMembersBuf += new PsiVariableMember(y, x)
+            case _ => {
+              throw new IncorrectOperationException
+              null
+            }
+          }
+        }
         case x: ScValue => classMembersBuf ++= (for (element <- x.declaredElements) yield new PsiValueMember(x, element))
         case x: ScVariable => classMembersBuf ++= (for (element <- x.declaredElements) yield new PsiVariableMember(x, element))
         case x: PsiField => classMembersBuf += new PsiFieldMember(x)
@@ -124,6 +137,16 @@ object ScalaOIUtil {
       candidate match {
         case x: PsiMethod => classMembersBuf += new PsiMethodMember(x)
         case x: ScTypeAlias => classMembersBuf += new PsiAliasMember(x)
+        case x: ScReferencePattern => {
+          valvarContext(x) match {
+            case y: ScValue => classMembersBuf += new PsiValueMember(y, x)
+            case y: ScVariable => classMembersBuf += new PsiVariableMember(y, x)
+            case _ => {
+              throw new IncorrectOperationException
+              null
+            }
+          }
+        }
         case x: ScValue => classMembersBuf ++= (for (element <- x.declaredElements) yield new PsiValueMember(x, element))
         case x: ScVariable => classMembersBuf ++= (for (element <- x.declaredElements) yield new PsiVariableMember(x, element))
         case x: PsiField => classMembersBuf += new PsiFieldMember(x)
@@ -180,17 +203,22 @@ object ScalaOIUtil {
 
   def getMembersToOverride(clazz: ScTypeDefinition): Array[PsiElement] = {
     val buf = new ArrayBuffer[PsiElement]
-    buf ++= clazz.getAllMethods
-    buf ++= clazz.allAliases
-    buf ++= clazz.allVals
-    buf ++= clazz.allVars
-    buf ++= clazz.allFields
+    println(TypeDefinitionMembers.getVals(clazz))
+    buf ++= (for (key <- TypeDefinitionMembers.getMethods(clazz).keys) yield key.method)
+    buf ++= (for (key <- TypeDefinitionMembers.getTypes(clazz).keys) yield key)
+    buf ++= (for (key <- TypeDefinitionMembers.getVals(clazz).keys) yield key)
+    //buf ++= clazz.allFields
     val buf2 = new ArrayBuffer[PsiElement]
     for (element <- buf) {
       element match {
         case x: PsiMethod if x.getName == "$tag" =>
         case x: PsiMember if x.getContainingClass == clazz =>
         case x: PsiMember if x.getContainingClass.isInterface =>
+        case x: ScReferencePattern => valvarContext(x) match {
+          case _: ScPatternDefinition => buf2 += element
+          case _: ScVariableDefinition => buf2 += element
+          case _ =>
+        }
         case x: ScValueDeclaration =>
         case x: ScVariableDeclaration =>
         case x: ScTypeAliasDeclaration =>
@@ -212,11 +240,9 @@ object ScalaOIUtil {
 
   def getMembersToImplement(clazz: ScTypeDefinition): Array[PsiElement] = {
     val buf = new ArrayBuffer[PsiElement]
-    buf ++= clazz.getAllMethods
-    buf ++= clazz.allAliases
-    buf ++= clazz.allVals
-    buf ++= clazz.allVars
-    buf ++= clazz.allFields
+    buf ++= (for (key <- TypeDefinitionMembers.getMethods(clazz).keys) yield key.method)
+    buf ++= (for (key <- TypeDefinitionMembers.getTypes(clazz).keys) yield key)
+    buf ++= (for (key <- TypeDefinitionMembers.getVals(clazz).keys) yield key)
     val buf2 = new ArrayBuffer[PsiElement]
     for (element <- buf) {
       def addMethod(x: PsiMethod) {
@@ -240,8 +266,11 @@ object ScalaOIUtil {
       element match {
         case x: PsiMethod if x.getName == "$tag" =>
         case x: PsiMethod if x.getContainingClass.isInterface => addMethod(x)
-        case x: ScValueDeclaration => buf2 += element
-        case x: ScVariableDeclaration => buf2 += element
+        case x: ScReferencePattern => valvarContext(x) match {
+          case _: ScValueDeclaration => buf2 += element
+          case _: ScVariableDeclaration => buf2 += element
+          case _ =>
+        }
         case x: ScTypeAliasDeclaration => buf2 += element
         case x: ScFunctionDeclaration => addMethod(x)
         case x: PsiMethod if x.getModifierList.hasModifierProperty("abstract") => addMethod(x)
@@ -252,33 +281,15 @@ object ScalaOIUtil {
   }
 
   private def compare(method1: PsiMethod, method2: PsiMethod): Boolean = {
-    if (method1.getName != method2.getName) return false
-    val n = method1.getParameterList.getParametersCount
-    val m = method2.getParameterList.getParametersCount
-    if (n != m) return false
-    var i = 0
-    while (i < n) {
-      val type1: ScType = method1 match {
-        case method: ScFunction => {
-          method.parameters(i).calcType
-        }
-        case method: PsiMethod => {
-          val type3 = method.getParameterList.getParameters.apply(i).getTypeElement.getType
-          ScType.create(type3, method.getProject)
-        }
-      }
-      val type2: ScType = method2 match {
-        case method: ScFunction => {
-          method.parameters(i).calcType
-        }
-        case method: PsiMethod => {
-          val type3 = method.getParameterList.getParameters.apply(i).getTypeElement.getType
-          ScType.create(type3, method.getProject)
-        }
-      }
-      if (!type1.equiv(type2)) return false
-      i = i + 1
-    }
-    return true
+    val signature1 = new PhysicalSignature(method1, ScSubstitutor.empty)
+    val signature2 = new PhysicalSignature(method2, ScSubstitutor.empty)
+    return signature1.equiv(signature2)
+  }
+
+  @Nullable
+  private def valvarContext(x: ScReferencePattern): PsiElement = {
+    var parent = x.getParent
+    while (parent != null && !parent.isInstanceOf[ScValue] && !parent.isInstanceOf[ScVariable]) parent = parent.getParent
+    return parent
   }
 }
