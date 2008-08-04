@@ -76,6 +76,6 @@ case class ScTypeAliasType(alias : ScTypeAlias, subst : ScSubstitutor) extends S
   }
 }
 
-case class ScTypeVariable(inner : Seq[ScTypeVariable], lower : ScType, upper : ScType) extends ScType
+case class ScTypeVariable(inner : List[ScTypeVariable], lower : ScType, upper : ScType) extends ScType
 
 class ScTypeConstructor(args : Seq[ScTypeVariable], t : ScType)

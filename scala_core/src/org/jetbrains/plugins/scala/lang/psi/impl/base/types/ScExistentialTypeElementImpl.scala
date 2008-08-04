@@ -27,7 +27,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
         decl match {
           case alias: ScTypeAliasDeclaration => {
             buff += ((alias.name,
-                    new ScExistentialArgument(alias.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)},
+                    new ScExistentialArgument(alias.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}.toList,
                                               alias.lowerBound, alias.upperBound)))
           }
           case value: ScValueDeclaration => {
@@ -35,7 +35,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
               case Some(te) =>
                 val t = new ScCompoundType(Array(te.getType, Singleton), Seq.empty, Seq.empty)
                 for (declared <- value.declaredElements) {
-                  buff += ((declared.name, new ScExistentialArgument(Seq.empty, Nothing, t)))
+                  buff += ((declared.name, new ScExistentialArgument(Nil, Nothing, t)))
                 }
               case None =>
             }

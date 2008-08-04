@@ -86,12 +86,12 @@ case class ScExistentialType(val quantified : ScType,
   }
 }
 
-case class ScExistentialArgument(val args : Seq[ScTypeVariable], val lowerBound : ScType, val upperBound : ScType) extends ScType {
+case class ScExistentialArgument(val args : List[ScTypeVariable], val lowerBound : ScType, val upperBound : ScType) extends ScType {
   def unpack = new ScTypeVariable(args, lowerBound, upperBound)
 
   override def equiv(t : ScType) = t match {
     case exist : ScExistentialArgument => {
-      val s = (exist.args.toList zip args.toList).foldLeft(ScSubstitutor.empty) {(s, p) => s + (p._1, p._2)}
+      val s = (exist.args zip args).foldLeft(ScSubstitutor.empty) {(s, p) => s + (p._1, p._2)}
       lowerBound.equiv(s.subst(exist.lowerBound)) && upperBound.equiv(s.subst(exist.upperBound))
     }
     case _ => false
