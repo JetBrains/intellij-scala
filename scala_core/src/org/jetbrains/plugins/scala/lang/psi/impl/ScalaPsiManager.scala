@@ -26,7 +26,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     if (existing != null) existing else {
       val tv = tp match {
         case stp: ScTypeParam => {
-          val inner = stp.typeParameters.map{typeVariable(_)}
+          val inner = stp.typeParameters.map{typeVariable(_)}.toList
           new ScTypeVariable(inner, stp.lowerBound, stp.upperBound)
         }
         case _ => {
@@ -35,7 +35,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
             case Array(single) => ScType.create(single, project)
             case many => new ScCompoundType(many.map{ScType.create(_, project)}, Seq.empty, Seq.empty)
           }
-          new ScTypeVariable(Seq.empty, Nothing, scalaSuper)
+          new ScTypeVariable(Nil, Nothing, scalaSuper)
         }
       }
       typeVariables.put(tp, tv)
