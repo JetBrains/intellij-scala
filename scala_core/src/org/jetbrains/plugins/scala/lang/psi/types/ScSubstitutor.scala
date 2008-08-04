@@ -36,7 +36,7 @@ class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
   //todo remove me
   def subst(ta: ScTypeAlias) = aliasesMap.get(ta.name) match {
     case Some(v) => v
-    case None => new ScPolymorphicType(ta, ScSubstitutor.empty)
+    case None => new ScTypeAliasType(ta, ScSubstitutor.empty)
   }
 
   def subst(t: ScType) : ScType = {
@@ -61,9 +61,9 @@ class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
         }
         case _ => t
       }
-      case ScPolymorphicType(a, s) => aliasesMap.get(a.name) match {
+      case ScTypeAliasType(a, s) => aliasesMap.get(a.name) match {
         case Some(v) => v
-        case None => new ScPolymorphicType(a, s.incl(this))
+        case None => new ScTypeAliasType(a, s.incl(this))
       }
       case ScParameterizedType (des, typeArgs) =>
         new ScParameterizedType(des, typeArgs map {subst _})

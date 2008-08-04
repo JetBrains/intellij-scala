@@ -30,7 +30,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         case None => ref.bind match {
           case None => Nothing
           case Some(ScalaResolveResult(e, s)) => e match {
-            case alias: ScTypeAlias => new ScPolymorphicType(alias, s)
+            case alias: ScTypeAlias => new ScTypeAliasType(alias, s)
             case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
             case synth: ScSyntheticClass => synth.t
             case _ => new ScDesignatorType(e)
