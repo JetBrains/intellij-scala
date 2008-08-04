@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
-import api.statements.ScFunction
+import api.statements._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import _root_.scala.collection.mutable.HashSet
 import _root_.scala.collection.mutable.ArrayBuffer
 import types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
@@ -27,8 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElementImpl, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-
 import com.intellij.openapi.util.TextRange
 
 import com.intellij.lang.ASTNode
@@ -184,6 +181,15 @@ object ScalaPsiElementFactory {
     return function
   }
 
+  def createOverrideImplementType(alias: ScTypeAlias, manager: PsiManager, isOverride: Boolean): ScTypeAlias = {
+    val text = "class a {" + getOverrideImplementTypeSign(alias, "this.type", isOverride) + "}"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    val classDef = dummyFile.getTypeDefinitions()(0)
+    val al = classDef.aliases()(0)
+    return al
+  }
+
   private def isResolved(name: String, clazz: PsiClass, packageName: String, manager: PsiManager): Boolean = {
     if (packageName == null) return true
     val text = "package " + packageName + "\nimport " + name
@@ -246,6 +252,17 @@ object ScalaPsiElementFactory {
       }
     }
     return res
+  }
+
+  def getOverrideImplementTypeSign(alias: ScTypeAlias, body: String, isOverride: Boolean): String = {
+    alias match {
+      case alias: ScTypeAliasDefinition => {
+        return "override " + alias.getText
+      }
+      case alias: ScTypeAliasDeclaration => {
+        return alias.getText + " = " + body
+      }
+    }
   }
 
   private def convertType(s: String): String = {

@@ -101,12 +101,27 @@ object ScalaOIUtil {
               if (anchor == null) return
               val meth = ScalaPsiElementFactory.createOverrideImplementMethod(method, method.getManager, !isImplement)
               body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), anchor.getNode)
-              body.getNode.addChild(meth.getNode, anchor.getNode)
+              body.getNode.addChild(meth.getNode, anchor.getNode)  //todo: set caret into body
             }
           }, method.getProject, if (isImplement) "Implement method" else "Override method")
         }
         case member: PsiAliasMember => {
-
+          val alias = member.getElement
+          ScalaUtils.runWriteAction(new Runnable {
+            def run {
+              val body = clazz.extendsBlock.templateBody match {
+                case Some(x) => x
+                case None => return
+              }
+              val brace = body.getFirstChild
+              if (brace == null) return
+              val anchor = brace.getNextSibling
+              if (anchor == null) return
+              val meth = ScalaPsiElementFactory.createOverrideImplementType(alias, alias.getManager, !isImplement)
+              body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), anchor.getNode)
+              body.getNode.addChild(meth.getNode, anchor.getNode) //todo: set selection over body
+            }
+          }, alias.getProject, if (isImplement) "Implement type alias" else "Override type alias")
         }
         case member: PsiValueMember => {
 
