@@ -1,35 +1,32 @@
 package org.jetbrains.plugins.scala.refactor.introduceVariable;
 
 
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.help.HelpManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.editor.event.DocumentListener;
-import com.intellij.openapi.editor.event.DocumentEvent;
-import com.intellij.openapi.help.HelpManager;
-import com.intellij.psi.PsiType;
+import com.intellij.refactoring.HelpID;
 import com.intellij.ui.EditorComboBoxEditor;
-import com.intellij.ui.StringComboboxEditor;
 import com.intellij.ui.EditorComboBoxRenderer;
 import com.intellij.ui.EditorTextField;
-import com.intellij.refactoring.HelpID;
+import com.intellij.ui.StringComboboxEditor;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesUtil;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableDialogInterface;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableSettings;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaValidator;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.typeManipulator.IType;
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
-import java.util.HashMap;
-import java.util.EventListener;
 import java.awt.event.*;
-
-import org.jetbrains.plugins.scala.ScalaBundle;
-import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableDialogInterface;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaValidator;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableSettings;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.typeManipulator.IType;
-import org.jetbrains.plugins.scala.lang.psi.types.ScType;
-import org.jetbrains.annotations.Nullable;
+import java.util.EventListener;
+import java.util.HashMap;
 
 /**
  * User: Alexander Podkhalyuzin
