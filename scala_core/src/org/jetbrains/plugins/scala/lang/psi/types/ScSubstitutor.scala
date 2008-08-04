@@ -12,14 +12,15 @@ import api.statements.ScTypeAlias
 object ScSubstitutor {
   val empty = new ScSubstitutor {
     override def subst(t: ScType): ScType = t
+    override def followed(s : ScSubstitutor) : ScSubstitutor = s
   }
 
   val key: Key[ScSubstitutor] = Key.create("scala substitutor key")
 }
 
 class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
-                   val outerMap: Map[PsiClass, ScType],
-                   val aliasesMap: Map[String, ScType]) {
+                    val outerMap: Map[PsiClass, ScType],
+                    val aliasesMap: Map[String, ScType]) {
 
   def this() = this (Map.empty, Map.empty, Map.empty)
 
@@ -27,7 +28,7 @@ class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
   def +(name: String, t: ScType) = new ScSubstitutor(tvMap, outerMap, aliasesMap + ((name, t)))
   def bindOuter(outer: PsiClass, t: ScType) = new ScSubstitutor(tvMap, outerMap + ((outer, t)), aliasesMap)
   def incl(s: ScSubstitutor) = new ScSubstitutor(s.tvMap ++ tvMap, s.outerMap ++ outerMap, s.aliasesMap ++ aliasesMap)
-  def followed(s: ScSubstitutor) = new ScSubstitutor(tvMap, outerMap, aliasesMap) {
+  def followed(s: ScSubstitutor) : ScSubstitutor = new ScSubstitutor(tvMap, outerMap, aliasesMap) {
     override def subst(t: ScType) = s.subst(super.subst(t))
     override def subst(ta: ScTypeAlias) = s.subst(super.subst(ta))
   }
