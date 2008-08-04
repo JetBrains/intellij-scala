@@ -118,9 +118,10 @@ object ScType {
       case ScFunctionType(ret, params) => inner(t); buffer.append("=>"); appendSeq(params)
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps); buffer.append(")")
       case ScTypeAliasType(a, _) => buffer.append(a.name)
+      //todo compiler error
+      //       case ScDesignatorType(e) => buffer.append(e.getName)
       case ScProjectionType(p, name) => inner(p); buffer.append("#").append(name)
       case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs); buffer.append("]")
-      case ScDesignatorType(e) => buffer.append(e.getName)
       case _ => null //todo
     }
     inner(t)

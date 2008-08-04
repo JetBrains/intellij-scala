@@ -280,7 +280,7 @@ object ScalaPsiElementFactory {
     if (isOverride) res = res + "override "
     res = res + (if (isVal) "val " else "var ")
     res = res + variable.name
-    res = res + (if (ScType.getPresentableText(variable.calcType) != "") ": " + ScType.getPresentableText(variable.calcType)
+    res = res + (if (ScType.presentableText(variable.calcType) != "") ": " + ScType.presentableText(variable.calcType)
                  else "/*todo: be careful, this variable's type cannot be inferred now*/")
     res = res + " = " + body
     return res
