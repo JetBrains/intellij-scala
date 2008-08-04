@@ -1,36 +1,29 @@
 package org.jetbrains.plugins.scala.overrideImplement
 
+import com.intellij.psi._
+import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement, ScFieldId}
 import annotations.Nullable
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.types.{ScType, PhysicalSignature, ScSubstitutor}
 import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import lang.psi.ScalaPsiElement
-import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import lang.psi.api.base.types.ScSimpleTypeElement
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import lang.psi.api.statements._
 import com.intellij.ide.highlighter.JavaFileType
 import lang.psi.impl.ScalaPsiElementFactory
-import util.ScalaUtils
-import com.intellij.psi.PsiMember
+import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.codeInsight.generation.ClassMember
 import com.intellij.util.IncorrectOperationException
 import com.intellij.codeInsight.generation.PsiFieldMember
-import com.intellij.psi.PsiField
-import com.intellij.psi.PsiMethod
-import com.intellij.psi.PsiSubstitutor
-import com.intellij.psi.PsiClass
 import com.intellij.ide.util.MemberChooser
 import com.intellij.codeInsight.generation.PsiMethodMember
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.generation.OverrideImplementUtil
 import com.intellij.psi.infos.CandidateInfo
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
-import com.intellij.psi.PsiElement
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.PsiFile
-
 /**
  * User: Alexander Podkhalyuzin
  * Date: 08.07.2008
@@ -65,10 +58,19 @@ object ScalaOIUtil {
             }
           }
         }
-        case x: ScValue => classMembersBuf ++= (for (element <- x.declaredElements) yield new PsiValueMember(x, element))
-        case x: ScVariable => classMembersBuf ++= (for (element <- x.declaredElements) yield new PsiVariableMember(x, element))
-        case x: PsiField => classMembersBuf += new PsiFieldMember(x)
-        case _ => {
+        case x: ScFieldId => {
+          valvarContext(x) match {
+            case y: ScValue => classMembersBuf += new PsiValueMember(y, x)
+            case y: ScVariable => classMembersBuf += new PsiVariableMember(y, x)
+            case _ => {
+              throw new IncorrectOperationException
+              null
+            }
+          }
+        }
+        case x: PsiField => //todo: dont add now: classMembersBuf += new PsiFieldMember(x)
+        case x => {
+          println(x)
           throw new IncorrectOperationException
           null
         }
@@ -113,7 +115,7 @@ object ScalaOIUtil {
 
         }
         case member: PsiFieldMember => {
-
+          //todo: I think scala don't perform to override java fields
         }
         case _ =>
       }
@@ -126,7 +128,6 @@ object ScalaOIUtil {
     buf ++= (for (key <- TypeDefinitionMembers.getMethods(clazz).keys) yield key.method)
     buf ++= (for (key <- TypeDefinitionMembers.getTypes(clazz).keys) yield key)
     buf ++= (for (key <- TypeDefinitionMembers.getVals(clazz).keys) yield key)
-    //buf ++= clazz.allFields
     val buf2 = new ArrayBuffer[PsiElement]
     for (element <- buf) {
       element match {
@@ -134,15 +135,20 @@ object ScalaOIUtil {
         case x: PsiMember if x.getContainingClass == clazz =>
         case x: PsiMember if x.getContainingClass.isInterface =>
         case x: ScReferencePattern => valvarContext(x) match {
-          case _: ScPatternDefinition => buf2 += element
-          case _: ScVariableDefinition => buf2 += element
+          case x: ScPatternDefinition if x.getContainingClass != clazz => buf2 += element
+          case x: ScVariableDefinition if x.getContainingClass != clazz => buf2 += element
+          case _ =>
+        }
+        case x: ScFieldId => valvarContext(x) match {
+          case x: ScPatternDefinition if x.getContainingClass != clazz => buf2 += element
+          case x: ScVariableDefinition if x.getContainingClass != clazz => buf2 += element
           case _ =>
         }
         case x: ScValueDeclaration =>
         case x: ScVariableDeclaration =>
         case x: ScTypeAliasDeclaration =>
         case x: ScFunctionDeclaration =>
-        case x: PsiMethod if x.getModifierList.hasModifierProperty("abstract") =>
+        case x: PsiModifierListOwner if x.getModifierList.hasModifierProperty("abstract") | x.getModifierList.hasModifierProperty("final") =>
         case x: PsiMethod if x.isConstructor =>
         case x: PsiMethod => {
           var flag = false
@@ -183,11 +189,17 @@ object ScalaOIUtil {
         if (!flag) buf2 += element
       }
       element match {
+        case x: PsiMember if x.getContainingClass == clazz =>
         case x: PsiMethod if x.getName == "$tag" =>
         case x: PsiMethod if x.getContainingClass.isInterface => addMethod(x)
         case x: ScReferencePattern => valvarContext(x) match {
-          case _: ScValueDeclaration => buf2 += element
-          case _: ScVariableDeclaration => buf2 += element
+          case x: ScValueDeclaration if x.getContainingClass != clazz => buf2 += element
+          case x: ScVariableDeclaration if x.getContainingClass != clazz => buf2 += element
+          case _ =>
+        }
+        case x: ScFieldId => valvarContext(x) match {
+          case x: ScValueDeclaration if x.getContainingClass != clazz => buf2 += element
+          case x: ScVariableDeclaration if x.getContainingClass != clazz => buf2 += element
           case _ =>
         }
         case x: ScTypeAliasDeclaration => buf2 += element
@@ -206,7 +218,7 @@ object ScalaOIUtil {
   }
 
   @Nullable
-  private def valvarContext(x: ScReferencePattern): PsiElement = {
+  private def valvarContext(x: PsiElement): PsiElement = {
     var parent = x.getParent
     while (parent != null && !parent.isInstanceOf[ScValue] && !parent.isInstanceOf[ScVariable]) parent = parent.getParent
     return parent
