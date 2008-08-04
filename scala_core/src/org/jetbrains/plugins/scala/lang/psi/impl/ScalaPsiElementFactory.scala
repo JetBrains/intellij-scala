@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
+import api.toplevel.ScTyped
+import com.intellij.util.{IncorrectOperationException, CharTable}
 import api.statements._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import _root_.scala.collection.mutable.HashSet
@@ -30,7 +32,6 @@ import com.intellij.openapi.util.TextRange
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.source.tree.CompositeElement
-import com.intellij.util.CharTable
 import com.intellij.lexer.Lexer
 import com.intellij.lang.impl.PsiBuilderImpl
 import com.intellij.psi._
@@ -140,10 +141,10 @@ object ScalaPsiElementFactory {
     val classDef = file.getTypeDefinitions()(0)
     val extendsBlock = classDef.extendsBlock
     val parents = extendsBlock.templateParents
-    parents match {
+    (parents: @unchecked) match {
       case Some(p) => {
         val elements = p.typeElements
-        elements.first.asInstanceOf[ScSimpleTypeElement].reference match {case Some(r) => r}
+        (elements.first.asInstanceOf[ScSimpleTypeElement].reference: @unchecked) match {case Some(r) => r}
       }
       case _ => throw new com.intellij.util.IncorrectOperationException()
     }
@@ -183,11 +184,20 @@ object ScalaPsiElementFactory {
 
   def createOverrideImplementType(alias: ScTypeAlias, manager: PsiManager, isOverride: Boolean): ScTypeAlias = {
     val text = "class a {" + getOverrideImplementTypeSign(alias, "this.type", isOverride) + "}"
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
     val al = classDef.aliases()(0)
     return al
+  }
+
+  def createOverrideImplementVariable(variable: ScTyped, manager: PsiManager, isOverride: Boolean, isVal: Boolean): PsiElement = {
+    val text = "class a {" + getOverrideImplementVariableSign(variable, "_", isOverride, isVal) + "}"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, text).asInstanceOf[ScalaFile]
+    val classDef = dummyFile.getTypeDefinitions()(0)
+    val va: PsiElement = classDef.members()(0)
+    return va
   }
 
   private def isResolved(name: String, clazz: PsiClass, packageName: String, manager: PsiManager): Boolean = {
@@ -262,6 +272,39 @@ object ScalaPsiElementFactory {
       case alias: ScTypeAliasDeclaration => {
         return alias.getText + " = " + body
       }
+    }
+  }
+
+  def getOverrideImplementVariableSign(variable: ScTyped, body: String, isOverride: Boolean, isVal: Boolean): String = {
+    var res = ""
+    if (isOverride) res = res + "override "
+    res = res + (if (isVal) "val " else "var ")
+    res = res + variable.name
+    res = res + (if (typeToString(variable.calcType) != "") ": " + typeToString(variable.calcType)
+                 else "/*todo: be careful, this variable's type cannot be inferred now*/")
+    res = res + " = " + body
+    return res
+  }
+
+  private def typeToString(typez: ScType): String = {
+    typez match {
+      case lang.psi.types.Unit => "Unit"
+      case lang.psi.types.Any => "Any"
+      case lang.psi.types.AnyRef => "AnyRef"
+      case lang.psi.types.AnyVal => "AnyVal"
+      case lang.psi.types.Boolean => "Boolean"
+      case lang.psi.types.Byte => "Byte"
+      case lang.psi.types.Char => "Char"
+      case lang.psi.types.Double => "Double"
+      case lang.psi.types.Float => "Float"
+      case lang.psi.types.Int => "Int"
+      case lang.psi.types.Long => "Long"
+      case lang.psi.types.Nothing => "Nothing"
+      case lang.psi.types.Null => "Null"
+      case lang.psi.types.Short => "Short"
+      //case x: lang.psi.types.ScParameterizedType => typeToString(x.designator) + x.typeArgs.mkString("[", ", ", "]")
+      case x: lang.psi.types.ScDesignatorType => x.element.getName
+      case _ => ""
     }
   }
 
