@@ -25,17 +25,20 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   def singleton = node.findChildByType(ScalaTokenTypes.kTYPE) != null
 
   override def getType() = {
-    if (singleton) new ScSingletonType(reference) else reference.qualifier match {
-      case None => reference.bind match {
-        case None => Nothing
-        case Some(ScalaResolveResult(e, s)) => e match {
-          case alias: ScTypeAlias => new ScPolymorphicType(alias, s)
-          case tp : PsiTypeParameter =>  ScalaPsiManager.typeVariable(tp)
-          case synth : ScSyntheticClass => synth.t
-          case _ => new ScDesignatorType(e)
+    if (singleton) new ScSingletonType(pathElement) else reference match {
+      case Some(ref) => ref.qualifier match {
+        case None => ref.bind match {
+          case None => Nothing
+          case Some(ScalaResolveResult(e, s)) => e match {
+            case alias: ScTypeAlias => new ScPolymorphicType(alias, s)
+            case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
+            case synth: ScSyntheticClass => synth.t
+            case _ => new ScDesignatorType(e)
+          }
         }
+        case Some(q) => new ScProjectionType(new ScSingletonType(q), ref.refName)
       }
-      case Some(q) => new ScProjectionType(new ScSingletonType(q), reference.refName)
+      case None => Nothing
     }
   }
 }
