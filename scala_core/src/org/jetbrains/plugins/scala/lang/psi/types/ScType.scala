@@ -106,9 +106,10 @@ object ScType {
   def presentableText(t : ScType) = {
     val buffer = new StringBuffer
     def appendSeq(ts : Seq[ScType]) = {
-      var first = false
+      var first = true
       for (t <- ts) {
         if (!first) buffer.append(", ")
+        first = false
         inner(t)
       }
     }
