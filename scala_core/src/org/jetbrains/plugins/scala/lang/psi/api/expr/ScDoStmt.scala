@@ -9,15 +9,8 @@ import com.intellij.psi._
 * Date: 06.03.2008
 */
 
-trait ScDoStmt extends ScExpression with ScConditional {
-  override def isCondition = (e: PsiElement) => {
-    e.isInstanceOf[ScExpression] &&
-    {
-      val parent = e.getParent
-      val last = for (child <- parent.getChildren; if child.isInstanceOf[ScExpression]) child
-      parent == last
-    }
-  }
+trait ScDoStmt extends ScExpression {
+  def condition: Option[ScExpression]
   
  /**
    *  retrun loop expression of do statement

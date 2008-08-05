@@ -36,7 +36,9 @@ class ScalaWithWhileSurrounder extends ScalaExpressionSurrounder {
 
     val whileStmt = withWhileNode.getPsi.asInstanceOf[ScWhileStmtImpl]
 
-    val conditionNode : ASTNode = whileStmt.condition.getNode
+    val conditionNode : ASTNode = whileStmt.condition match {
+        case Some(c) => c.getNode
+    }
 
     val startOffset = conditionNode.getTextRange.getStartOffset
     val endOffset = conditionNode.getTextRange.getEndOffset
