@@ -5,5 +5,5 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 * Date: 06.03.2008
 */
 
-trait ScTryBlock extends ScExpression with ScBlock {
+trait ScTryBlock extends ScBlock {
 }

@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import util.ScalaUtils
-import psi.api.expr.ScGuard
-import psi.api.expr.ScEnumerators
-import psi.api.expr.ScArgumentExprList
+import psi.api.expr._
 import psi.api.statements.ScFunction
 import psi.api.statements.ScValue
 import psi.api.statements.ScVariable
@@ -17,9 +15,7 @@ import typeManipulator.IType
 import psi.types.ScType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import com.intellij.psi.PsiType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -31,7 +27,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.refactoring.RefactoringActionHandler
-import psi.api.toplevel.ScCodeBlock
 import psi.api.toplevel.typedef.ScMember
 
 /**
@@ -129,7 +124,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
           return buf.toArray
         }
         tempContainer match {
-          case x: ScCodeBlock => {
+          case x: ScBlock => {
             var ref: PsiElement = null
             var cl = tempContainer
             while (cl != null && !cl.isInstanceOf[ScClass] && !cl.isInstanceOf[ScTrait]) cl = cl.getParent
@@ -237,7 +232,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
                 parent.removeChild(prev)
               }
             }
-            val block: ScCodeBlock = container.replaceExpression(ScalaPsiElementFactory.createBlockFromExpr(container, container.getManager), false).asInstanceOf[ScCodeBlock]
+            val block: ScBlock = container.replaceExpression(ScalaPsiElementFactory.createBlockFromExpr(container, container.getManager), false).asInstanceOf[ScBlock]
             block.addDefinition(varDecl, block.getFirstChild.getNextSibling.getNextSibling);
           }
           case _ => {
