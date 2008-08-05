@@ -38,8 +38,6 @@ object Conformance {
         case Some(tSuper) => conforms(tSuper, r)
         case _ => false
       }
-      case ScDesignatorType(tp : ScTypeParam) => conforms(tp.lowerBound, r)
-      case ScDesignatorType(tp : PsiTypeParameter) => r == Nothing //Q: what about AnyRef?
 
       case ScTypeAliasType(poly, subst) => conforms(subst.subst(poly.lowerBound), r)
       case ScTypeVariable(_, lower, _) => conforms(lower, r)
@@ -128,7 +126,6 @@ object Conformance {
 
   private def rightRec(l: ScType, r: ScType, visited : Set[PsiClass]) : Boolean = r match {
     case sin : ScSingletonType => conforms(l, sin.pathType) 
-    case ScDesignatorType(tp: ScTypeParam) => conforms(l, tp.upperBound)
 
     case ScDesignatorType(td: ScTypeDefinition) => td.superTypes.find {t => conforms(l, t, visited + td)}
     case ScDesignatorType(clazz: PsiClass) =>
