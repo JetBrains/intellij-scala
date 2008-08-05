@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import expr.util._
+import psi.ScalaPsiElement
 import com.intellij.psi._
 
 /** 
