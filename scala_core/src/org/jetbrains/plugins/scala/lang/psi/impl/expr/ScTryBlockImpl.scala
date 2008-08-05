@@ -10,7 +10,6 @@ import com.intellij.psi._
 import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.ScCodeBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /** 
@@ -18,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Date: 06.03.2008
 */
 
-class ScTryBlockImpl(node: ASTNode) extends ScCodeBlockImpl(node) with ScTryBlock {
+class ScTryBlockImpl(node: ASTNode) extends ScBlockImpl(node) with ScTryBlock {
 
   override def toString: String = "TryBlock"
 

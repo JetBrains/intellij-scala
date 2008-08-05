@@ -34,7 +34,6 @@ import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.PsiFile
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.lexer._
-import psi.api.toplevel.ScCodeBlock
 
 /**
 * User: Alexander Podkhalyuzin
@@ -93,7 +92,7 @@ object ScalaRefactoringUtil {
     def get(parent: PsiElement): PsiElement = {
       parent match {
         case null =>
-        case x: ScCodeBlock if x != expr =>
+        case x: ScBlock if x != expr =>
         case _: ScExpression => parent.getParent match {
           case _: ScFunctionDefinition |
                   _: ScForStatement |

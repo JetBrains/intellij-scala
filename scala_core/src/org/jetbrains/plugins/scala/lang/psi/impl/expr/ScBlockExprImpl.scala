@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel._
 * Date: 06.03.2008
 */
 
-class ScBlockExprImpl(node: ASTNode) extends ScCodeBlockImpl(node) with ScBlockExpr {
+class ScBlockExprImpl(node: ASTNode) extends ScBlockImpl(node) with ScBlockExpr {
 
   override def toString: String = "BlockExpression"
 

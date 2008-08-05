@@ -12,6 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 * Date: 06.03.2008
 */
 
-trait ScBlockExpr extends ScExpression with ScCodeBlock {
+trait ScBlockExpr extends ScExpression with ScBlock {
   
 }

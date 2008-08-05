@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
-import toplevel.ScCodeBlock
 import impl.ScalaPsiElementFactory
 import com.intellij.psi.PsiInvalidElementAccessException
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement

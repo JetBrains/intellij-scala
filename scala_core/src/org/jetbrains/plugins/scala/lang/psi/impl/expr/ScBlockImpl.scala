@@ -16,11 +16,9 @@ import _root_.scala.collection.mutable.HashSet
 * @author ilyas
 */
 
-class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDeclarationSequenceHolder with ScBlock {
+class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock {
 
   override def toString: String = "BlockOfExpressions"
-
-  def exprs = findChildrenByClass(classOf[ScExpression])
 
   override def getType = lastExpr match {
       case None => Unit
