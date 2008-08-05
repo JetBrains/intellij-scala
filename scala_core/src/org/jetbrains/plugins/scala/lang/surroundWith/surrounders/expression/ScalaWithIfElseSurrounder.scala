@@ -33,7 +33,10 @@ class ScalaWithIfElseSurrounder extends ScalaExpressionSurrounder {
 
     val stmt = nodeWithIfNode.getPsi.asInstanceOf[ScIfStmtImpl]
 
-    val conditionNode : ASTNode = stmt.condition.getNode
+    val conditionNode : ASTNode = stmt.condition match {
+        case Some(c) => c.getNode
+    }
+
     val offset = conditionNode.getStartOffset();
     stmt.getNode.removeChild(conditionNode)
 

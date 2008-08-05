@@ -8,6 +8,6 @@ import expr.util._
 * Date: 06.03.2008
 */
 
-trait ScWhileStmt extends ScExpression with ScConditional {
-
+trait ScWhileStmt extends ScExpression {
+  def condition: Option[ScExpression]
 }

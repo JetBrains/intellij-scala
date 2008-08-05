@@ -13,13 +13,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
-
-import org.jetbrains.annotations._
-
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-
-
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /** 
@@ -36,5 +30,11 @@ class ScDoStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDoStm
       case None => false
       case Some(_) => true
     }
+  }
+
+  def condition = {
+    val rpar = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
+    val c = if (rpar != null) PsiTreeUtil.getNextSiblingOfType(rpar, classOf[ScExpression]) else null
+    if (c == null) None else Some(c) 
   }
 }

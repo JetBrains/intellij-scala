@@ -14,13 +14,8 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
 
-import org.jetbrains.annotations._
-
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-
-
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import com.intellij.psi.util.PsiTreeUtil
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -29,4 +24,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStmt {
   override def toString: String = "IfStatement"
+
+  def condition = {
+    val rpar = findChildByType(ScalaTokenTypes.tRPARENTHESIS)
+    val c = if (rpar != null) PsiTreeUtil.getPrevSiblingOfType(rpar, classOf[ScExpression]) else null
+    if (c == null) None else Some(c)
+  }
 }
