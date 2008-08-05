@@ -13,10 +13,11 @@ import lang.psi.api.toplevel.ScEarlyDefinitions
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScObject}
 import lang.lexer.ScalaTokenTypes
+
 /**
-* User: Alexander Podkhalyuzin
-* Date: 17.07.2008
-*/
+ * User: Alexander Podkhalyuzin
+ * Date: 17.07.2008
+ */
 
 object AnnotatorHighlighter {
   def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
@@ -105,23 +106,25 @@ object AnnotatorHighlighter {
       }
       case _: ScFunctionDefinition | _: ScFunctionDeclaration => {
         val x = refElement.resolve
-        x.getParent match {
-          case _: ScTemplateBody | _: ScEarlyDefinitions => {
-            x.getParent.getParent.getParent match {
-              case _: ScClass | _: ScTrait => {
-                val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
-                annotation.setTextAttributes(DefaultHighlighter.METHOD_CALL)
+        if (x != null) {
+          x.getParent match {
+            case _: ScTemplateBody | _: ScEarlyDefinitions => {
+              x.getParent.getParent.getParent match {
+                case _: ScClass | _: ScTrait => {
+                  val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
+                  annotation.setTextAttributes(DefaultHighlighter.METHOD_CALL)
+                }
+                case _: ScObject => {
+                  val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
+                  annotation.setTextAttributes(DefaultHighlighter.OBJECT_METHOD_CALL)
+                }
+                case _ =>
               }
-              case _: ScObject => {
-                val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
-                annotation.setTextAttributes(DefaultHighlighter.OBJECT_METHOD_CALL)
-              }
-              case _ =>
             }
-          }
-          case _ => {
-            val annotation = holder.createInfoAnnotation(refElement, null)
-            annotation.setTextAttributes(DefaultHighlighter.LOCAL_METHOD_CALL)
+            case _ => {
+              val annotation = holder.createInfoAnnotation(refElement, null)
+              annotation.setTextAttributes(DefaultHighlighter.LOCAL_METHOD_CALL)
+            }
           }
         }
       }
@@ -233,7 +236,7 @@ object AnnotatorHighlighter {
     for (varl <- clazz.allVars; name <- varl.declaredElements) {
       val annotation = holder.createInfoAnnotation(name, null)
       varl match {
-        case _: ScVariableDefinition => 
+        case _: ScVariableDefinition =>
           annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DEFINITION)
         case _ =>
           annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DECLARATION)
