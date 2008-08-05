@@ -22,7 +22,6 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDeclar
 
   def exprs = findChildrenByClass(classOf[ScExpression])
 
-  /*
   override def getType = lastExpr match {
       case None => Unit
       case Some(e) => {
@@ -43,6 +42,17 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDeclar
         def existize (t : ScType) : ScType = t match {
           case ScFunctionType(ret, params) => new ScFunctionType(existize(ret), params.map {existize _})
           case ScTupleType(comps) => new ScTupleType(comps.map {existize _})
+          case ScDesignatorType(des) if !des.isInstanceOf[ScTypeAlias] && PsiTreeUtil.isAncestor(this, des, true) => des match {
+            case clazz : ScClass => {
+              val oldVars = clazz.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}.toList
+              val newVars = oldVars.map{newTypeVar _}
+              val s = createSubst(oldVars, newVars)
+              val t = s.subst(existize(leastClassType(clazz)))
+              new ScTypeVariable(newVars, t, t)
+            }
+            case obj : ScObject => val t = existize(leastClassType(obj)); new ScTypeVariable(Nil, t, t)
+            case typed : ScTyped => val t = existize(typed.calcType); new ScTypeVariable(Nil, t, t)
+          }
           case ScTypeAliasType(a, _) if PsiTreeUtil.isAncestor(this, a, true) =>{
             val oldVars = a.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}.toList
             val newVars = oldVars.map{newTypeVar _}
@@ -60,17 +70,6 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDeclar
                      (name, new ScExistentialArgument(ex.args, existize(ex.lowerBound), existize(ex.upperBound)))})
           }
           case singl : ScSingletonType => existize(singl.pathType)
-          case ScDesignatorType(des) if PsiTreeUtil.isAncestor(this, des, true) => des match {
-            case clazz : ScClass => {
-              val oldVars = clazz.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}.toList
-              val newVars = oldVars.map{newTypeVar _}
-              val s = createSubst(oldVars, newVars)
-              val t = s.subst(existize(leastClassType(clazz)))
-              new ScTypeVariable(newVars, t, t)
-            }
-            case obj : ScObject => val t = existize(leastClassType(obj)); new ScTypeVariable(Nil, t, t)
-            case typed : ScTyped => val t = existize(typed.calcType); new ScTypeVariable(Nil, t, t)
-          }
           case _ => t
         }
         existize(e.getType)
@@ -87,5 +86,4 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDeclar
       new ScCompoundType(superTypes, holders, aliases)
     } else superTypes(0)
   }
-  */
 }
