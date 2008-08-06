@@ -56,7 +56,7 @@ object ScalaRefactoringUtil {
   }
 
   def getExprFrom(expr: ScExpression): ScExpression = {
-    val e = unparExpr(expr)
+    var e = unparExpr(expr)
     e match {
       case x: ScReferenceExpression => {
         x.resolve match {
@@ -66,6 +66,14 @@ object ScalaRefactoringUtil {
       }
       case _ =>
     }
+    var hasNlToken = false
+    val text = e.getText
+    var i = text.length - 1
+    while (i >= 0 && (text(i) == ' ' || text(i) == '\n')) {
+      if (text(i) == '\n') hasNlToken = true
+      i = i - 1
+    }
+    if (hasNlToken) e = ScalaPsiElementFactory.createExpressionFromText(text.substring(0, i + 1), e.getManager)
     e.getParent match {
       case x: ScMethodCall if x.args.exprs.size > 0 =>
         return ScalaPsiElementFactory.createExpressionFromText(e.getText + " _", e.getManager)
@@ -146,6 +154,18 @@ object ScalaRefactoringUtil {
       case _ => expr
     }
   }
+
+  def hasNltoken(e: PsiElement): Boolean = {
+    var hasNlToken = false
+    val text = e.getText
+    var i = text.length - 1
+    while (i >= 0 && (text(i) == ' ' || text(i) == '\n')) {
+      if (text(i) == '\n') hasNlToken = true
+      i = i - 1
+    }
+    return hasNlToken
+  }
+
   private val comparator = new Comparator[PsiElement]() {
     def compare(element1: PsiElement, element2: PsiElement): Int = {
       if (element1 == element2) return 0
