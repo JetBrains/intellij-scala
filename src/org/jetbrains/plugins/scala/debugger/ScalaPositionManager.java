@@ -35,6 +35,7 @@ import org.jetbrains.plugins.scala.caches.project.ScalaCachesManager;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
@@ -67,7 +68,7 @@ public class ScalaPositionManager implements PositionManager {
     try {
       int line = position.getLine() + 1;
       List<Location> locations = getDebugProcess().getVirtualMachineProxy().versionHigher("1.4") ?
-              type.locationsOfLine(DebugProcessImpl.JAVA_STRATUM, null, line) : type.locationsOfLine(line);
+          type.locationsOfLine(DebugProcessImpl.JAVA_STRATUM, null, line) : type.locationsOfLine(line);
       if (locations == null || locations.isEmpty()) throw new NoDataException();
       return locations;
     }
@@ -81,7 +82,7 @@ public class ScalaPositionManager implements PositionManager {
     if (!(file instanceof ScalaFile)) return null;
     PsiElement element = file.findElementAt(position.getOffset());
     if (element == null) return null;
-    return PsiTreeUtil.getParentOfType(element, ScFunctionExpr.class, ScTypeDefinition.class);
+    return PsiTreeUtil.getParentOfType(element, ScForStatement.class, ScFunctionExpr.class, ScTypeDefinition.class);
   }
 
   private ScTypeDefinition findEnclosingTypeDefinition(SourcePosition position) {
@@ -104,19 +105,13 @@ public class ScalaPositionManager implements PositionManager {
     String qName = null;
     if (sourceImage instanceof ScTypeDefinition) {
       qName = getSpecificName(((ScTypeDefinition) sourceImage).getQualifiedName(), ((ScTypeDefinition) sourceImage).getClass());
-    }
-
-
-
-    if (qName == null) {
+    } else if (sourceImage instanceof ScFunctionExpr || sourceImage instanceof ScForStatement) {
       ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
-
       if (typeDefinition != null) {
-        qName = getSpecificName(typeDefinition.getQualifiedName(), typeDefinition.getClass());
+        qName = getSpecificName(typeDefinition.getQualifiedName(), typeDefinition.getClass()) + "*";
       }
-
-      if (qName == null) throw new NoDataException();
     }
+
 
     ClassPrepareRequestor waitRequestor = new MyClassPrepareRequestor(position, requestor);
     return myDebugProcess.getRequestsManager().createClassPrepareRequest(waitRequestor, qName);

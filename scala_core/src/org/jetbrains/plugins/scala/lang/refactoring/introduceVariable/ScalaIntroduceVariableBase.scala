@@ -84,7 +84,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
     // Getting settings
     var validator: ScalaValidator = new ScalaVariableValidator(this, project, expr, occurrences, enclosingContainer)
     var dialog: ScalaIntroduceVariableDialogInterface = getDialog(project, editor, expr,
-    TypeManipulator.wrapType(typez), occurrences, false, validator)
+      TypeManipulator.wrapType(typez), occurrences, false, validator)
     if (!dialog.isOK()) {
       return
     }
@@ -155,7 +155,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
               }
             }
             val varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName,
-            isVariable, ScalaRefactoringUtil.getExprFrom(occurrences(0)), selectedExpr.getManager)
+              isVariable, ScalaRefactoringUtil.getExprFrom(occurrences(0)), selectedExpr.getManager)
             x.addDefinition(varDecl, parent)
             if (!deleteOccurence || replaceAllOccurrences) {
               for (occurrence <- occurrences) {
@@ -207,7 +207,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
               }
             }
             val varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName,
-            isVariable, ScalaRefactoringUtil.getExprFrom(occurrences(0)), selectedExpr.getManager)
+              isVariable, ScalaRefactoringUtil.getExprFrom(occurrences(0)), selectedExpr.getManager)
             var container = x
             if (!deleteOccurence || replaceAllOccurrences) {
               for (occurrence <- occurrences) {
@@ -218,8 +218,8 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
                                 occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
                 else if (occurrence.isInstanceOf[ScBlockExpr] && occurrence.getParent.isInstanceOf[ScArgumentExprList])
                   occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
-                     else
-                       occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
+                else
+                  occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
               }
             } else {
               for (occurrence <- occurrences) {

@@ -44,12 +44,20 @@ object ScalaPsiElementFactory {
   private val DUMMY = "dummy."
 
   def createExpressionFromText(buffer: String, manager: PsiManager): ScExpression = {
-    val text = "class a {val b = " + buffer + "}"
+    val text = "class a {val b = (" + buffer + ")}"
 
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
     val p = classDef.members()(0).asInstanceOf[ScPatternDefinition]
-    p.expr
+    val ret = p.expr match {
+      case x: ScParenthesisedExpr => x.expr match {
+        case Some(y) => y
+        case _ => x
+      }
+      case x => x
+    }
+    println(ret.getText())
+    ret
   }
 
   def createDummyParams(manager: PsiManager): ScParameters = {
