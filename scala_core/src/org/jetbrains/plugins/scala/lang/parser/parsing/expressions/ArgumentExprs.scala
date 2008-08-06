@@ -70,7 +70,7 @@ object ArgumentExprs {
         builder.getTokenType match {
           case ScalaTokenTypes.tLINE_TERMINATOR => {
             if (!LineTerminator(builder.getTokenText)) {
-              argMarker.drop
+              argMarker.rollbackTo
               return false
             }
             else {
