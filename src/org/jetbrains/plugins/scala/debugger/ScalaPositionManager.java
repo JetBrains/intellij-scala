@@ -86,7 +86,7 @@ public class ScalaPositionManager implements PositionManager {
     while (true) {
       if (element == null) break;
       if (element instanceof ScForStatement || element instanceof ScTypeDefinition || element instanceof ScFunctionExpr) break;
-      if (element instanceof ScExtendsBlock && ((ScExtendsBlock) element).isAnonymusClass()) break;
+      if (element instanceof ScExtendsBlock && ((ScExtendsBlock) element).isAnonymousClass()) break;
       element = element.getParent();
     }
     if (element instanceof ScalaPsiElement)

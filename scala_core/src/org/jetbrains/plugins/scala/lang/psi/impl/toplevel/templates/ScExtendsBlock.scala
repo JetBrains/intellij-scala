@@ -49,7 +49,7 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     if (so != null) new ScDesignatorType(so) else null
   }
 
-  def isAnonymusClass: Boolean = {
+  def isAnonymousClass: Boolean = {
     getParent match {
       case _: ScNewTemplateDefinition =>
       case _ => return false
