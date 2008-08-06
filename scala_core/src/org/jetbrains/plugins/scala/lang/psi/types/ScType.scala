@@ -104,8 +104,8 @@ object ScType {
     case _ => None
   }
 
-  def presentableText(t : ScType) = {
-    val buffer = new StringBuffer
+  def presentableText(t : ScType): String = {
+    val buffer = new StringBuilder
     def appendSeq(ts : Seq[ScType]) = {
       var first = true
       for (t <- ts) {
@@ -124,5 +124,6 @@ object ScType {
       case _ => null //todo
     }
     inner(t)
+    buffer.toString
   }
 }

@@ -116,7 +116,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
 
     myCbReplaceAllOccurences.setMnemonic(KeyEvent.VK_A);
     myCbReplaceAllOccurences.setFocusable(false);
-    declareVariableCheckBox.setMnemonic(KeyEvent.VK_F);
+    declareVariableCheckBox.setMnemonic(KeyEvent.VK_V);
     declareVariableCheckBox.setFocusable(false);
     myCbTypeSpec.setMnemonic(KeyEvent.VK_T);
     myCbTypeSpec.setFocusable(false);

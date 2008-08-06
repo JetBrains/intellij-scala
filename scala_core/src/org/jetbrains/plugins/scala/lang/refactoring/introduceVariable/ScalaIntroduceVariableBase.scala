@@ -107,8 +107,6 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
     var offset = -1
     val runnable = new Runnable() {
       def run() {
-        //todo: resolve conflicts
-
         val occurrences = if (!replaceAllOccurrences) {
           Array[ScExpression](selectedExpr)
         } else occurrences_

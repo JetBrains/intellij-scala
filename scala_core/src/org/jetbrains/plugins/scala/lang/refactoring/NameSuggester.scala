@@ -22,7 +22,7 @@ object NameSuggester {
     if (names.size == 0) {
       names += validator.validateName("value", true)
     }
-    return (for (name <- names if name != "") yield name).toArray
+    return (for (name <- names if name != "") yield name).reverse.toArray
   }
 
   private def generateNamesByExpr(expr: ScExpression, names: ArrayBuffer[String], validator: NameValidator) {
