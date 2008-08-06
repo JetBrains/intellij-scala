@@ -39,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,7 +83,16 @@ public class ScalaPositionManager implements PositionManager {
     if (!(file instanceof ScalaFile)) return null;
     PsiElement element = file.findElementAt(position.getOffset());
     if (element == null) return null;
-    return PsiTreeUtil.getParentOfType(element, ScForStatement.class, ScFunctionExpr.class, ScTypeDefinition.class);
+    while (true) {
+      if (element == null) break;
+      if (element instanceof ScForStatement || element instanceof ScTypeDefinition || element instanceof ScFunctionExpr) break;
+      if (element instanceof ScExtendsBlock && ((ScExtendsBlock) element).isAnonymusClass()) break;
+      element = element.getParent();
+    }
+    if (element instanceof ScalaPsiElement)
+      return (ScalaPsiElement) element;
+    else
+      return null;//PsiTreeUtil.getParentOfType(element, ScForStatement.class, ScFunctionExpr.class, ScTypeDefinition.class);
   }
 
   private ScTypeDefinition findEnclosingTypeDefinition(SourcePosition position) {
@@ -105,7 +115,8 @@ public class ScalaPositionManager implements PositionManager {
     String qName = null;
     if (sourceImage instanceof ScTypeDefinition) {
       qName = getSpecificName(((ScTypeDefinition) sourceImage).getQualifiedName(), ((ScTypeDefinition) sourceImage).getClass());
-    } else if (sourceImage instanceof ScFunctionExpr || sourceImage instanceof ScForStatement) {
+    } else if (sourceImage instanceof ScFunctionExpr || sourceImage instanceof ScForStatement
+        || sourceImage instanceof ScExtendsBlock) {
       ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
       if (typeDefinition != null) {
         qName = getSpecificName(typeDefinition.getQualifiedName(), typeDefinition.getClass()) + "*";

@@ -24,4 +24,6 @@ trait ScExtendsBlock extends ScalaPsiElement {
   def earlyDefinitions = findChild(classOf[ScEarlyDefinitions])
 
   def superTypes : Seq[ScType]
+
+  def isAnonymusClass: Boolean
 }

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates
 
+import api.expr.ScNewTemplateDefinition
 import com.intellij.lang.ASTNode
 import com.intellij.psi.JavaPsiFacade
 
@@ -46,5 +47,16 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   private def scalaObject() = {
     val so = JavaPsiFacade.getInstance(getProject).findClass("scala.ScalaObject")
     if (so != null) new ScDesignatorType(so) else null
+  }
+
+  def isAnonymusClass: Boolean = {
+    getParent match {
+      case _: ScNewTemplateDefinition =>
+      case _ => return false
+    }
+    templateBody match {
+      case Some(x) => return true
+      case None => return false
+    }
   }
 }
