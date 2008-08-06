@@ -25,5 +25,5 @@ trait ScExtendsBlock extends ScalaPsiElement {
 
   def superTypes : Seq[ScType]
 
-  def isAnonymusClass: Boolean
+  def isAnonymousClass: Boolean
 }
