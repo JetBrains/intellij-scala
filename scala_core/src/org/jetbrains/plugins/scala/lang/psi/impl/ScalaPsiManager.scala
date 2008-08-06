@@ -24,22 +24,29 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   def typeVariable(tp: PsiTypeParameter) : ScTypeVariable = {
     val existing = typeVariables.get(tp)
     if (existing != null) existing else {
-      val tv = tp match {
-        case stp: ScTypeParam => {
-          val inner = stp.typeParameters.map{typeVariable(_)}.toList
-          new ScTypeVariable(inner, stp.lowerBound, stp.upperBound)
-        }
-        case _ => {
-          val supers = tp.getSuperTypes
-          val scalaSuper = supers match {
-            case Array(single) => ScType.create(single, project)
-            case many => new ScCompoundType(many.map{ScType.create(_, project)}, Seq.empty, Seq.empty)
+      synchronized {
+        val tv = tp match {
+          case stp: ScTypeParam => {
+            val inner = stp.typeParameters.map{typeVariable(_)}.toList
+            synchronized{
+              typeVariables.put(tp, new ScTypeVariable(inner, Nothing, Any)) //temp put to avoid SOE
+              val lower = stp.lowerBound
+              val upper = stp.upperBound
+              new ScTypeVariable(inner, lower, upper)
+            }
           }
-          new ScTypeVariable(Nil, Nothing, scalaSuper)
+          case _ => {
+            val supers = tp.getSuperTypes
+            val scalaSuper = supers match {
+              case Array(single) => ScType.create(single, project)
+              case many => new ScCompoundType(many.map{ScType.create(_, project)}, Seq.empty, Seq.empty)
+            }
+            new ScTypeVariable(Nil, Nothing, scalaSuper)
+          }
         }
+        typeVariables.put(tp, tv)
+        tv
       }
-      typeVariables.put(tp, tv)
-      tv
     }
   }
 }
