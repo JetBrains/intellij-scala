@@ -161,16 +161,23 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
               for (occurrence <- occurrences) {
                 if (occurrence.isInstanceOf[ScBlockExpr] && occurrence.getParent.isInstanceOf[ScArgumentExprList])
                   occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
-                else
-                  occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
+                else {
+                  val flag = ScalaRefactoringUtil.hasNltoken(occurrence)
+                  val newExpr: ScExpression = occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
+                  if (flag) {
+                    if (newExpr.getNextSibling != null) newExpr.getNode.getTreeParent.addChild(ScalaPsiElementFactory.createNewLineNode(newExpr.getManager), newExpr.getNextSibling.getNode)
+                    else newExpr.getNode.getTreeParent.addChild(ScalaPsiElementFactory.createNewLineNode(newExpr.getManager))
+                  }
+                }
               }
             } else {
               for (occurrence <- occurrences) {
                 val parent = occurrence.getParent.getNode
                 val prev = occurrence.getNode.getTreePrev
                 offset = occurrence.getTextRange.getStartOffset
+                val flag = ScalaRefactoringUtil.hasNltoken(occurrence)
                 parent.removeChild(occurrence.getNode)
-                parent.removeChild(prev)
+                if (!flag) parent.removeChild(prev)
               }
             }
           }
@@ -213,13 +220,19 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
               for (occurrence <- occurrences) {
                 if (occurrence == container)
                   container = if (occurrence.isInstanceOf[ScBlockExpr] && occurrence.getParent.isInstanceOf[ScArgumentExprList])
-                    occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
+                                occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
                               else
                                 occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
                 else if (occurrence.isInstanceOf[ScBlockExpr] && occurrence.getParent.isInstanceOf[ScArgumentExprList])
                   occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
-                else
-                  occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
+                else {
+                  val flag = ScalaRefactoringUtil.hasNltoken(occurrence)
+                  val newExpr: ScExpression = occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
+                  if (flag) {
+                    if (newExpr.getNextSibling != null) newExpr.getNode.getTreeParent.addChild(ScalaPsiElementFactory.createNewLineNode(newExpr.getManager), newExpr.getNextSibling.getNode)
+                    else newExpr.getNode.getTreeParent.addChild(ScalaPsiElementFactory.createNewLineNode(newExpr.getManager))
+                  }
+                }
               }
             } else {
               for (occurrence <- occurrences) {
