@@ -169,13 +169,13 @@ object ScalaOIUtil {
 
   def getMembersToOverride(clazz: ScTypeDefinition): Array[PsiElement] = {
     val buf = new ArrayBuffer[PsiElement]
-    println(TypeDefinitionMembers.getVals(clazz))
     buf ++= (for (key <- TypeDefinitionMembers.getMethods(clazz).keys) yield key.method)
     buf ++= (for (key <- TypeDefinitionMembers.getTypes(clazz).keys) yield key)
     buf ++= (for (key <- TypeDefinitionMembers.getVals(clazz).keys) yield key)
     val buf2 = new ArrayBuffer[PsiElement]
     for (element <- buf) {
       element match {
+        case _: PsiClass =>
         case x: PsiMethod if x.getName == "$tag" =>
         case x: PsiMember if x.getContainingClass == clazz =>
         case x: PsiMember if x.getContainingClass.isInterface =>
@@ -235,6 +235,7 @@ object ScalaOIUtil {
         if (!flag) buf2 += element
       }
       element match {
+        case _: PsiClass =>
         case x: PsiMember if x.getContainingClass == clazz =>
         case x: PsiMethod if x.getName == "$tag" =>
         case x: PsiMethod if x.getContainingClass.isInterface => addMethod(x)
