@@ -89,10 +89,8 @@ public class ScalaPositionManager implements PositionManager {
       if (element instanceof ScExtendsBlock && ((ScExtendsBlock) element).isAnonymousClass()) break;
       element = element.getParent();
     }
-    if (element instanceof ScalaPsiElement)
-      return (ScalaPsiElement) element;
-    else
-      return null;//PsiTreeUtil.getParentOfType(element, ScForStatement.class, ScFunctionExpr.class, ScTypeDefinition.class);
+
+    return (ScalaPsiElement) element;
   }
 
   private ScTypeDefinition findEnclosingTypeDefinition(SourcePosition position) {
