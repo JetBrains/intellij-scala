@@ -31,7 +31,7 @@ object NameSuggester {
         name match {
           case "Int" => add("i")
           case "Unit" => add("unit")
-          case "Byte" => add("by")
+          case "Byte" => add("byte")
           case "Long" => add("l")
           case "Float" => add("fl")
           case "Double" => add("d")
@@ -47,6 +47,8 @@ object NameSuggester {
         val name = e.getName
         if (name != null && name.toUpperCase == name) {
           names += validator.validateName(deleteNonLetterFromString(name).toLowerCase, true)
+        } else if (name == "String") {
+          add("s")
         } else {
           generateCamelNames(names, validator, name)
         }
