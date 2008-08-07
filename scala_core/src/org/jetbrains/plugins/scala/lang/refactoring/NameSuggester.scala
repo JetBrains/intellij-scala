@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
+import psi.types._
+import psi.api.expr._
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSuperReference
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScThisReference
 import _root_.scala.collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-
 /**
 * User: Alexander.Podkhalyuz
 * Date: 26.06.2008
@@ -17,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 object NameSuggester {
   def suggestNames(expr: ScExpression, validator: NameValidator): Array[String] = {
     val names = new ArrayBuffer[String]()
-    //todo: implement suggester by type
+    generateNamesByType(expr.getType, names, validator)
     generateNamesByExpr(expr, names, validator)
     if (names.size == 0) {
       names += validator.validateName("value", true)
@@ -25,10 +22,56 @@ object NameSuggester {
     return (for (name <- names if name != "") yield name).reverse.toArray
   }
 
+  private def generateNamesByType(typez: ScType, names: ArrayBuffer[String], validator: NameValidator): Unit = {
+    def add(s: String) {
+      names += validator.validateName(s, true)
+    }
+    typez match {
+      case ValType(name, _) => {
+        name match {
+          case "Int" => add("i")
+          case "Unit" => add("unit")
+          case "Byte" => add("by")
+          case "Long" => add("l")
+          case "Float" => add("fl")
+          case "Double" => add("d")
+          case "Short" => add("sh")
+          case "Boolean" => add("b")
+          case "Char" => add("c")
+          case _ =>
+        }
+      }
+      case ScTupleType(comps) => add("tuple")
+      case ScFunctionType(ret, params) => add("function");
+      case ScDesignatorType(e) => {
+        val name = e.getName
+        if (name != null && name.toUpperCase == name) {
+          names += validator.validateName(deleteNonLetterFromString(name).toLowerCase, true)
+        } else {
+          generateCamelNames(names, validator, name)
+        }
+      }
+      case ScProjectionType(p, name) => {
+        if (name != null && name.toUpperCase == name) {
+          names += validator.validateName(deleteNonLetterFromString(name).toLowerCase, true)
+        } else {
+          generateCamelNames(names, validator, name)
+        }
+      }
+      case ScParameterizedType(des, typeArgs) => {
+        generateNamesByType(des, names, validator)
+      }
+      case ScCompoundType(comps, _, _) => {
+        if (comps.size > 0) generateNamesByType(comps(0), names, validator)
+      }
+      case _ =>
+    }
+  }
+
   private def generateNamesByExpr(expr: ScExpression, names: ArrayBuffer[String], validator: NameValidator) {
     expr match {
-      case _: ScThisReference => validator.validateName("thisInstance", true)
-      case _: ScSuperReference => validator.validateName("superInstance", true)
+      case _: ScThisReference => names += validator.validateName("thisInstance", true)
+      case _: ScSuperReference => names += validator.validateName("superInstance", true)
       case x: ScReferenceElement if x.refName != null => {
         val name = x.refName
         if (name != null && name.toUpperCase == name) {
