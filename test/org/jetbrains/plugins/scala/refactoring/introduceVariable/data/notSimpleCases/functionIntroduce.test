@@ -5,10 +5,10 @@ class s {
   def z(i: Int) = 33
 }
 ------
-<caret>class s {
+class s {
   def foo = {
     val value = z _
-    value(44)
+    value<caret>(44)
   }
   def z(i: Int) = 33
 }

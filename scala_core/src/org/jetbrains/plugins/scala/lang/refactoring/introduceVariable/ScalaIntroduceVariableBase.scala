@@ -107,9 +107,11 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
     var offset = -1
     val runnable = new Runnable() {
       def run() {
-        val occurrences = if (!replaceAllOccurrences) {
+        val occurrences: Array[ScExpression] = if (!replaceAllOccurrences) {
           Array[ScExpression](selectedExpr)
         } else occurrences_
+        var mark = 0
+        for (i <- 0 to occurrences.length - 1 if occurrences(i) == selectedExpr) mark = i
         var parent: PsiElement = occurrences(0);
         if (parent != tempContainer)
           while (parent.getParent() != tempContainer) parent = parent.getParent
@@ -158,9 +160,11 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
               isVariable, ScalaRefactoringUtil.getExprFrom(occurrences(0)), selectedExpr.getManager)
             x.addDefinition(varDecl, parent)
             if (!deleteOccurence || replaceAllOccurrences) {
-              for (occurrence <- occurrences) {
-                if (occurrence.isInstanceOf[ScBlockExpr] && occurrence.getParent.isInstanceOf[ScArgumentExprList])
-                  occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
+              for (i <- 0 to occurrences.length - 1; occurrence = occurrences(i)) {
+                if (occurrence.isInstanceOf[ScBlockExpr] && occurrence.getParent.isInstanceOf[ScArgumentExprList]) {
+                  val newExpr: ScExpression = occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
+                  if (i == mark) offset = newExpr.getTextRange.getEndOffset
+                }
                 else {
                   val flag = ScalaRefactoringUtil.hasNltoken(occurrence)
                   val newExpr: ScExpression = occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
@@ -168,6 +172,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
                     if (newExpr.getNextSibling != null) newExpr.getNode.getTreeParent.addChild(ScalaPsiElementFactory.createNewLineNode(newExpr.getManager), newExpr.getNextSibling.getNode)
                     else newExpr.getNode.getTreeParent.addChild(ScalaPsiElementFactory.createNewLineNode(newExpr.getManager))
                   }
+                  if (i == mark) offset = newExpr.getTextRange.getEndOffset + 1
                 }
               }
             } else {
@@ -239,8 +244,9 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
                 val parent = occurrence.getParent.getNode
                 val prev = occurrence.getNode.getTreePrev
                 offset = occurrence.getTextRange.getStartOffset
+                val flag = ScalaRefactoringUtil.hasNltoken(occurrence)
                 parent.removeChild(occurrence.getNode)
-                parent.removeChild(prev)
+                if (!flag) parent.removeChild(prev)
               }
             }
             val block: ScBlock = container.replaceExpression(ScalaPsiElementFactory.createBlockFromExpr(container, container.getManager), false).asInstanceOf[ScBlock]

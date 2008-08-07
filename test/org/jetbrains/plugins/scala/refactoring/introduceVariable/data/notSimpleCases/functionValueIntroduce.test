@@ -5,10 +5,10 @@ class a {
   val x: (String => Boolean) = _.startsWith("ballet")
 }
 ------
-<caret>class a {
+class a {
   def foo = {
     val value = x
-    value("balletik")
+    value<caret>("balletik")
   }
   val x: (String => Boolean) = _.startsWith("ballet")
 }
