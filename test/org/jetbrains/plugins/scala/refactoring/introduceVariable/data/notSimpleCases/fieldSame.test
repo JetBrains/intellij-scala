@@ -5,10 +5,10 @@ class a {
   }
 }
 ------
-<caret>class a {
+class a {
   val value = 2
   def foo() = {
     val value = 2
-    value + this.value
+    value<caret> + this.value
   }
 }

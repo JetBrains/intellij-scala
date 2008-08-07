@@ -4,12 +4,12 @@ class a {
   }
 }
 ------
-<caret>class a {
+class a {
   def foo = {
     val value = {
       22;
       33
     }
-    a (value)
+    a (value<caret>)
   }
 }

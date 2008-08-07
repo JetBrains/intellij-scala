@@ -5,10 +5,10 @@ class a {
   }
 }
 ------
-<caret>class a {
+class a {
   def foo = {
     val value = tre.too()
     value
-    value
+    value<caret>
   }
 }
