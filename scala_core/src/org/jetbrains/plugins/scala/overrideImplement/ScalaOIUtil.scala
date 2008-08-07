@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.overrideImplement
 
+import com.intellij.openapi.editor.{Editor, VisualPosition}
 import lang.psi.api.toplevel.ScModifierListOwner
 import com.intellij.psi._
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement, ScFieldId}
@@ -24,7 +25,6 @@ import com.intellij.codeInsight.generation.OverrideImplementUtil
 import com.intellij.psi.infos.CandidateInfo
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
 /**
  * User: Alexander Podkhalyuzin
  * Date: 08.07.2008
@@ -102,6 +102,17 @@ object ScalaOIUtil {
               val meth = ScalaPsiElementFactory.createOverrideImplementMethod(method, method.getManager, !isImplement)
               body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), anchor.getNode)
               body.getNode.addChild(meth.getNode, anchor.getNode)  //todo: set caret into body
+              meth match {
+                case method: ScFunctionDefinition => {
+                  val body = method.body match {
+                    case Some(x) => x
+                    case None => return
+                  }
+                  val offset = body.getTextRange.getStartOffset + 2
+                  editor.getCaretModel.moveToOffset(offset)
+                }
+                case _ =>
+              }
             }
           }, method.getProject, if (isImplement) "Implement method" else "Override method")
         }
