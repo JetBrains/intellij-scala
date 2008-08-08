@@ -209,7 +209,7 @@
          scala_core/src/**/*.skeleton,
          scala_core/src/**/*.xml"
          excludes="src/**/*junit*"
-            />
+        />
   </target>
 
   <target name="build.tests">
@@ -276,6 +276,33 @@
       </batchtest>
 
     </junit>
+  </target>
+
+  <!--Copy scala compiled classes into plugin folder to debug-->
+  <target name="copy.scala.plugin">
+    <mkdir dir="${base.dir}/tempjar/Scala/lib"/>
+
+    <jar destfile="${base.dir}/Scala.jar">
+      <fileset dir="${project.lib}" excludes="**/*build.xml, **/scala.properties"/>
+
+      <manifest>
+        <attribute name="Revision" value="${plugin.revision}"/>
+        <attribute name="Build" value="${plugin.version}"/>
+      </manifest>
+    </jar>
+
+    <property name="plugin.dest" value="/home/ilya/Work/idea_sandbox/debug/config/plugins/Scala/lib"/>
+    <copy todir="${plugin.dest}" overwrite="yes">
+      <fileset dir="${base.dir}">
+        <include name="Scala.jar"/>
+      </fileset>
+      <fileset dir="${scala.home}/lib">
+        <include name="**/*scala-library.jar"/>
+      </fileset>
+    </copy>
+    <delete>
+      <fileset dir="${base.dir}" includes="Scala.jar"/>
+    </delete>
   </target>
 
 </project>
