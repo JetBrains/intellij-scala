@@ -34,12 +34,12 @@ import org.jetbrains.plugins.scala.ScalaLoader;
 import org.jetbrains.plugins.scala.caches.project.ScalaCachesManager;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,6 +119,14 @@ public class ScalaPositionManager implements PositionManager {
       if (typeDefinition != null) {
         qName = getSpecificName(typeDefinition.getQualifiedName(), typeDefinition.getClass()) + "*";
       }
+    }
+    // Enclosinc closure not found
+    if (qName == null) {
+      ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
+      if (typeDefinition != null) {
+        qName = getSpecificName(typeDefinition.getQualifiedName(), typeDefinition.getClass());
+      }
+      if (qName == null) throw new NoDataException();
     }
 
 
