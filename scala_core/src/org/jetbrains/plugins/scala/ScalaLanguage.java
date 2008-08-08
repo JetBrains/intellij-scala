@@ -15,14 +15,7 @@
 
 package org.jetbrains.plugins.scala;
 
-import com.intellij.ide.structureView.StructureViewBuilder;
 import com.intellij.lang.Language;
-import com.intellij.lang.findUsages.FindUsagesProvider;
-import com.intellij.lang.surroundWith.SurroundDescriptor;
-import com.intellij.psi.PsiFile;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
 
 /**
  * @author ilyas
@@ -30,21 +23,6 @@ import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
  *
  */
 public class ScalaLanguage extends Language {
-
-  @NotNull
-  public FindUsagesProvider getFindUsagesProvider() {
-    return ScalaToolsFactory.getInstance().createFindUsagesProvider();
-  }
-
-  @Nullable
-  public StructureViewBuilder getStructureViewBuilder(PsiFile file) {
-    return ScalaToolsFactory.getInstance().createStructureViewBuilder(file);
-  }
-
-  @NotNull
-  public SurroundDescriptor[] getSurroundDescriptors() {
-    return ScalaToolsFactory.getInstance().createSurroundDescriptors().getSurroundDescriptors();
-  }
 
   public ScalaLanguage() {
     super("Scala");
