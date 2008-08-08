@@ -60,12 +60,10 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
           case ScProjectionType(p, name) => new ScProjectionType(existize(p), name)
           case ScParameterizedType (des, typeArgs) =>
             new ScParameterizedType(existize(des), typeArgs.map {existize _})
-          case ScExistentialArgument(args, lower, upper) => new ScExistentialArgument(args, existize(lower), existize(upper))
+          case ScExistentialArgument(name, args, lower, upper) => new ScExistentialArgument(name, args, existize(lower), existize(upper))
           case ex@ScExistentialType(q, wildcards) => {
-             new ScExistentialType(existize(q), wildcards.map {p =>
-                     val name = p._1
-                     val ex = p._2
-                     (name, new ScExistentialArgument(ex.args, existize(ex.lowerBound), existize(ex.upperBound)))})
+             new ScExistentialType(existize(q), wildcards.map {ex =>
+                     new ScExistentialArgument(ex.name, ex.args, existize(ex.lowerBound), existize(ex.upperBound))})
           }
           case singl : ScSingletonType => existize(singl.pathType)
           case _ => t

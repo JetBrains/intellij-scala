@@ -78,10 +78,10 @@ object ScType {
       case PsiType.BYTE => Byte
       case PsiType.SHORT => Short
       case PsiType.NULL => Null
-      case wild : PsiWildcardType => new ScExistentialArgument(Nil,
+      case wild : PsiWildcardType => new ScExistentialArgument("_", Nil,
                                                                create(wild.getSuperBound, project),
                                                                create(wild.getExtendsBound, project))
-      case null => new ScExistentialArgument(Nil, Nothing, Any) // raw type argument from java 
+      case null => new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java 
       case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
     }
   }
