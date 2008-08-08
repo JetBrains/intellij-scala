@@ -106,32 +106,37 @@ object ScType {
 
   def presentableText(t : ScType): String = {
     val buffer = new StringBuilder
-    def appendSeq(ts : Seq[ScType]) = {
+    def appendSeq(ts : Seq[ScType], sep : String) = {
       var first = true
       for (t <- ts) {
-        if (!first) buffer.append(", ")
+        if (!first) buffer.append(sep)
         first = false
         inner(t)
       }
     }
     def inner(t : ScType) : Unit = t match {
       case ValType(name, _) => buffer.append(name)
-      case ScFunctionType(ret, params) => inner(t); buffer.append("=>"); appendSeq(params)
-      case ScTupleType(comps) => buffer.append("("); appendSeq(comps); buffer.append(")")
+      case ScFunctionType(ret, params) => inner(t); buffer.append("=>"); appendSeq(params, ", ")
+      case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
       case ScDesignatorType(e) => buffer.append(e.getName)
       case ScProjectionType(p, name) => inner(p); buffer.append("#").append(name)
-      case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs); buffer.append("]")
+      case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
       case ScTypeVariable(name, _, _, _) => buffer.append(name)
       case ScExistentialArgument(name, args, lower, upper) => {
+        buffer.append("type ").append(name)
         if (args.length > 0) {
           buffer.append("[");
-          appendSeq(args)
+          appendSeq(args, ",")
           buffer.append("]=>")
         }
-        buffer.append(name).append(">:")
+        buffer.append(">:")
         inner(lower)
         buffer.append(name).append("<:")
         inner(upper)
+      }
+      case ScExistentialType(q, wilds) => {
+        inner(q)
+        buffer.append("forSome{"); appendSeq(wilds, "; "); buffer.append("}")
       }
       case _ => null //todo
     }
