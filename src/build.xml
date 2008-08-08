@@ -291,14 +291,17 @@
       </manifest>
     </jar>
 
-    <property name="plugin.dest" value="/home/ilya/Work/idea_sandbox/debug/config/plugins/Scala/lib"/>
-    <copy todir="${plugin.dest}" overwrite="yes">
+    <property name="plugin.dest" value="/home/ilya/Work/idea_sandbox/debug/config/plugins/Scala/"/>
+    <copy todir="${plugin.dest}/lib" overwrite="yes">
       <fileset dir="${base.dir}">
         <include name="Scala.jar"/>
       </fileset>
       <fileset dir="${scala.home}/lib">
         <include name="**/*scala-library.jar"/>
       </fileset>
+    </copy>
+    <copy todir="${plugin.dest}/META-INF">
+      <fileset dir="../META-INF"/>
     </copy>
     <delete>
       <fileset dir="${base.dir}" includes="Scala.jar"/>
