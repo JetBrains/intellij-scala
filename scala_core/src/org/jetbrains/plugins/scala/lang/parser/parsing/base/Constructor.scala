@@ -15,10 +15,9 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 15.02.2008
-*/
+/**
+ * @author AlexanderPodkhalyuzin
+ */
 
 /*
  * Constr ::= AnnotType {ArgumentExprs}
