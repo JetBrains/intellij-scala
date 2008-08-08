@@ -87,7 +87,7 @@ case class ScExistentialType(val quantified : ScType,
 
 case class ScExistentialArgument(val name : String, val args : List[ScTypeVariable],
                                  val lowerBound : ScType, val upperBound : ScType) extends ScType {
-  def unpack = new ScTypeVariable(args, lowerBound, upperBound)
+  def unpack = new ScTypeVariable(name, args, lowerBound, upperBound)
 
   override def equiv(t : ScType) = t match {
     case exist : ScExistentialArgument => {

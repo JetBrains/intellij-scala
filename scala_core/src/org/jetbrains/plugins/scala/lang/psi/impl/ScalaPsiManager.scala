@@ -29,10 +29,10 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
           case stp: ScTypeParam => {
             val inner = stp.typeParameters.map{typeVariable(_)}.toList
             synchronized{
-              typeVariables.put(tp, new ScTypeVariable(inner, Nothing, Any)) //temp put to avoid SOE
+              typeVariables.put(tp, new ScTypeVariable("", inner, Nothing, Any)) //temp put to avoid SOE
               val lower = stp.lowerBound
               val upper = stp.upperBound
-              new ScTypeVariable(inner, lower, upper)
+              new ScTypeVariable(stp.name, inner, lower, upper)
             }
           }
           case _ => {
@@ -41,7 +41,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
               case Array(single) => ScType.create(single, project)
               case many => new ScCompoundType(many.map{ScType.create(_, project)}, Seq.empty, Seq.empty)
             }
-            new ScTypeVariable(Nil, Nothing, scalaSuper)
+            new ScTypeVariable(tp.getName, Nil, Nothing, scalaSuper)
           }
         }
         typeVariables.put(tp, tv)

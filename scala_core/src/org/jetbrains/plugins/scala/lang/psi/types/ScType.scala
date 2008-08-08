@@ -121,6 +121,18 @@ object ScType {
       case ScDesignatorType(e) => buffer.append(e.getName)
       case ScProjectionType(p, name) => inner(p); buffer.append("#").append(name)
       case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs); buffer.append("]")
+      case ScTypeVariable(name, _, _, _) => buffer.append(name)
+      case ScExistentialArgument(name, args, lower, upper) => {
+        if (args.length > 0) {
+          buffer.append("[");
+          appendSeq(args)
+          buffer.append("]=>")
+        }
+        buffer.append(name).append(">:")
+        inner(lower)
+        buffer.append(name).append("<:")
+        inner(upper)
+      }
       case _ => null //todo
     }
     inner(t)

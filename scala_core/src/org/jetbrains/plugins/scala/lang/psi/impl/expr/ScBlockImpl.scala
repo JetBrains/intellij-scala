@@ -34,7 +34,7 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
         def newTypeVar(v : ScTypeVariable) : ScTypeVariable = {
           val i1 = v.inner.map {newTypeVar _}
           var s = createSubst(v.inner, i1)
-          new ScTypeVariable(i1, s.subst(v.lower), s.subst(v.upper))
+          new ScTypeVariable(v.name, i1, s.subst(v.lower), s.subst(v.upper))
         }
 
         def existize (t : ScType) : ScType = t match {
@@ -46,16 +46,16 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
               val newVars = oldVars.map{newTypeVar _}
               val s = createSubst(oldVars, newVars)
               val t = s.subst(existize(leastClassType(clazz)))
-              new ScTypeVariable(newVars, t, t)
+              new ScTypeVariable(clazz.name, newVars, t, t)
             }
-            case obj : ScObject => val t = existize(leastClassType(obj)); new ScTypeVariable(Nil, t, t)
-            case typed : ScTyped => val t = existize(typed.calcType); new ScTypeVariable(Nil, t, t)
+            case obj : ScObject => val t = existize(leastClassType(obj)); new ScTypeVariable(obj.name, Nil, t, t)
+            case typed : ScTyped => val t = existize(typed.calcType); new ScTypeVariable(typed.name, Nil, t, t)
           }
           case ScTypeAliasType(a, _) if PsiTreeUtil.isAncestor(this, a, true) =>{
             val oldVars = a.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}.toList
             val newVars = oldVars.map{newTypeVar _}
             val s = createSubst(oldVars, newVars)
-            new ScTypeVariable(newVars, s.subst(existize(a.lowerBound)), s.subst(existize(a.upperBound)))
+            new ScTypeVariable(a.name, newVars, s.subst(existize(a.lowerBound)), s.subst(existize(a.upperBound)))
           }
           case ScProjectionType(p, name) => new ScProjectionType(existize(p), name)
           case ScParameterizedType (des, typeArgs) =>
