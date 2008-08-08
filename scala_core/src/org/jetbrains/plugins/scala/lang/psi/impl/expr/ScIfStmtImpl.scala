@@ -1,21 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import types.{Bounds, Nothing}
+import lexer.ScalaTokenTypes
+import psi.ScalaPsiElementImpl
+import api.expr._
 
-
-
-
-
-
-import com.intellij.psi.tree.TokenSet
-import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi._
-
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.lang.ASTNode
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -29,5 +20,28 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
     val rpar = findChildByType(ScalaTokenTypes.tRPARENTHESIS)
     val c = if (rpar != null) PsiTreeUtil.getPrevSiblingOfType(rpar, classOf[ScExpression]) else null
     if (c == null) None else Some(c)
+  }
+
+  def thenBranch = {
+    val kElse = findChildByType(ScalaTokenTypes.kELSE)
+    val t = if (kElse != null) PsiTreeUtil.getPrevSiblingOfType(kElse, classOf[ScExpression]) else null
+    if (t == null) None else condition match {
+      case None => Some(t) 
+      case Some(c) if c != t => Some(t)
+      case  _ => None
+    }
+  }
+
+  def elseBranch = {
+    val kElse = findChildByType(ScalaTokenTypes.kELSE)
+    val e = if (kElse != null) PsiTreeUtil.getNextSiblingOfType(kElse, classOf[ScExpression]) else null
+    if (e == null) None else Some(e)
+  }
+
+  override def getType = (thenBranch, elseBranch) match {
+    case (Some(t), Some(e)) => Bounds.lub(t.getType, e.getType)
+    case (Some(t), None) => t.getType
+    case (None, Some(e)) => e.getType
+    case _ => Nothing
   }
 }
