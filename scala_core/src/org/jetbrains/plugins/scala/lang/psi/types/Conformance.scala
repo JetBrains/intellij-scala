@@ -117,7 +117,7 @@ object Conformance {
         }
       })
 
-      case ScExistentialArgument(Seq.empty, lower, _) => conforms(lower, r)
+      case ScExistentialArgument(_, Seq.empty, lower, _) => conforms(lower, r)
       case ex@ScExistentialType(q, wilds) => conforms(ex.substitutor.subst(q), r)
 
       case _ => rightRec(l, r, visited)
@@ -152,7 +152,7 @@ object Conformance {
 
     case ScCompoundType(comps, _, _) => comps.find(l conforms _)
 
-    case ScExistentialArgument(Seq.empty, _, upper) => conforms(l, upper)
+    case ScExistentialArgument(_, Seq.empty, _, upper) => conforms(l, upper)
 
     case ex : ScExistentialType => conforms(l, ex.skolem)
 
