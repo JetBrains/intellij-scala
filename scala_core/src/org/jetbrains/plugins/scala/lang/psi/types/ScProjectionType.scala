@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import com.intellij.psi.PsiMember
 import resolve._
 
 /**
@@ -11,7 +12,15 @@ case class ScProjectionType(projected: ScType, name: String) extends ScType {
     case sin@ScSingletonType(path) => {
       val proc = new ResolveProcessor(StdKinds.stableClass, name)
       proc.processType(sin, path)
-      if (proc.candidates.size == 1) Some(proc.candidates.toArray(0)) else None
+      if (proc.candidates.size == 1) {
+        val r = proc.candidates.toArray(0)
+        val res = r.element match {
+          case mem : PsiMember if mem.getContainingClass != null =>
+            new ScalaResolveResult(mem, r.substitutor.bindOuter(mem.getContainingClass, projected))
+          case _ => r
+        }
+        Some(res)
+      } else None
     }
     case _ => None
   }

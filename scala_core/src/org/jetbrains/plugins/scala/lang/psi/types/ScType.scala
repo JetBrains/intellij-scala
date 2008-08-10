@@ -89,10 +89,7 @@ object ScType {
   def extractClassType(t : ScType) : Option[Pair[PsiClass, ScSubstitutor]] = t match {
     case ScDesignatorType(clazz : PsiClass) => Some(clazz, ScSubstitutor.empty)
     case proj@ScProjectionType(p, _) => proj.resolveResult match {
-      case Some(ScalaResolveResult(c: PsiClass, s)) => {
-        val cc = c.getContainingClass
-        if (cc != null) Some(c, s.bindOuter(cc, p)) else Some(c, s)
-      }
+      case Some(ScalaResolveResult(c: PsiClass, s)) => Some((c, s))
       case None => None
     }
     case p@ScParameterizedType(t1, _) => {
