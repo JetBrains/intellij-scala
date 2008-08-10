@@ -57,4 +57,9 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     PsiReference ref = configureByFile("nonlocal/javaGenerics.scala");
     assertTrue(ref.resolve() instanceof PsiMethod);
   }
+
+  public void testSubstAliasBound() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/substAliasBound.scala");
+    assertTrue(ref.resolve() instanceof PsiMethod);
+  }
 }

@@ -105,8 +105,11 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
       case des => des.processDeclarations(this, ResolveState.initial.put(ScSubstitutor.key, p.substitutor), null, place)
     }
-    case proj : ScProjectionType => ScType.extractClassType(proj) match {
-      case Some((c, s)) => c.processDeclarations(this, ResolveState.initial.put(ScSubstitutor.key, s), null, place)
+    case proj : ScProjectionType => proj.resolveResult match {
+      case Some(res) => res.element match {
+        case ta : ScTypeAlias => processType(res.substitutor.subst(ta.upperBound), place)
+        case elem => elem.processDeclarations(this, ResolveState.initial.put(ScSubstitutor.key, res.substitutor), null, place)
+      }
       case None => true
     }
 
@@ -136,18 +139,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       }
       true
     }
-    case ScSingletonType(path) => path match {
-      case ref: ScStableCodeReferenceElement => ref.bind match {
-        case Some(r) => r.element.processDeclarations(this, ResolveState.initial, null, place)
-        case _ => true
-      }
-      case thisPath : ScThisReference => thisPath.refClass match {
-        case Some(c) => c.processDeclarations(this, ResolveState.initial, null, place)
-      }
-      case superPath : ScSuperReference => superPath.refClass match {
-        case Some(c) => c.processDeclarations(this, ResolveState.initial, null, place)
-      }
-    }
+    case singl : ScSingletonType => processType(singl.pathType, place) 
     case _ => true //todo
   }
 }
