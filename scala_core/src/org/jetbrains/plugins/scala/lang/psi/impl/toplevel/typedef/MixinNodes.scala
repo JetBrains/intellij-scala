@@ -99,8 +99,15 @@ abstract class MixinNodes {
       res = res + (tv, derived.subst(superSubst.subst(tv)))
     }
     superClass match {
-      case td : ScTypeDefinition => for (alias <- td.aliases) {
-        res = res + (alias.name, derived.subst(alias))
+      case td : ScTypeDefinition => {
+        var aliasesMap = res.aliasesMap
+        for (alias <- td.aliases) {
+          derived.aliasesMap.get(alias.name) match {
+            case Some(t) => aliasesMap = aliasesMap + ((alias.name, t))
+            case None =>
+          }
+        }
+        res = new ScSubstitutor(res.tvMap, res.outerMap, aliasesMap)
       }
       case _ => ()
     }

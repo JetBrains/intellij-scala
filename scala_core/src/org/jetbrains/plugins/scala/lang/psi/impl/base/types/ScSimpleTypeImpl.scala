@@ -30,7 +30,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         case None => ref.bind match {
           case None => Nothing
           case Some(ScalaResolveResult(e, s)) => e match {
-            case alias: ScTypeAlias => new ScTypeAliasType(alias, s)
+            case alias: ScTypeAlias =>
+              new ScTypeAliasType(alias.name, alias.typeParameters.map{ScalaPsiManager.typeVariable(_)}.toList,
+                s.subst(alias.lowerBound),
+                s.subst(alias.upperBound))
             case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
             case synth: ScSyntheticClass => synth.t
             case _ => new ScDesignatorType(e)
@@ -40,5 +43,16 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       }
       case None => Nothing
     }
+  }
+}
+
+class F[T]
+abstract class A{
+  type t
+
+  def r() = {
+    var tr : F[t] = new F[t]
+    var tr1 : F[t] = new F[t]
+    tr = tr1
   }
 }

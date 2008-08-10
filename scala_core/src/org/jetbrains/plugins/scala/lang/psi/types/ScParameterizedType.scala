@@ -69,13 +69,16 @@ object ScParameterizedType {
     })
 }
 
-case class ScTypeAliasType(alias : ScTypeAlias, subst : ScSubstitutor) extends ScDesignatorType(alias) {
-  override def equiv (t : ScType) = t match {
-    case ScTypeAliasType(a1, s1) => alias eq a1
+case class ScTypeAliasType(name : String, args : List[ScTypeVariable], lower : ScType, upper : ScType) extends ScType {
+  override def equiv(t: ScType): Boolean = t match {
+    case ScTypeAliasType(n1, args1, l1, u1) => {
+      name == n1 && args.length == args1.length && {
+        val s = args.zip(args1).foldLeft(ScSubstitutor.empty) {(s, p) => s + (p._2, p._1)}
+        lower.equiv(s.subst(l1)) && upper.equiv(s.subst(u1))
+      }
+    }
     case _ => false
   }
 }
 
 case class ScTypeVariable(name : String, inner : List[ScTypeVariable], lower : ScType, upper : ScType) extends ScType
-
-class ScTypeConstructor(args : Seq[ScTypeVariable], t : ScType)

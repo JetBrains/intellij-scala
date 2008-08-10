@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import _root_.scala.collection.mutable.HashMap
 import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
 import api.toplevel.{ScNamedElement, ScTyped}
 import com.intellij.psi.util.PsiTreeUtil
@@ -37,27 +38,32 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
           new ScTypeVariable(v.name, i1, s.subst(v.lower), s.subst(v.upper))
         }
 
+        val m = new HashMap[String, ScExistentialArgument]
         def existize (t : ScType) : ScType = t match {
           case ScFunctionType(ret, params) => new ScFunctionType(existize(ret), params.map {existize _})
           case ScTupleType(comps) => new ScTupleType(comps.map {existize _})
-          case ScDesignatorType(des) if !des.isInstanceOf[ScTypeAlias] && PsiTreeUtil.isAncestor(this, des, true) => des match {
+          case ScDesignatorType(des) if PsiTreeUtil.isAncestor(this, des, true) => des match {
             case clazz : ScClass => {
               val oldVars = clazz.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}.toList
               val newVars = oldVars.map{newTypeVar _}
               val s = createSubst(oldVars, newVars)
               val t = s.subst(existize(leastClassType(clazz)))
-              new ScTypeVariable(clazz.name, newVars, t, t)
+              m.put(clazz.name, new ScExistentialArgument(clazz.name, newVars, t, t))
+              new ScTypeAliasType(clazz.name, newVars, t, t) //to be substed by name
             }
-            case obj : ScObject => val t = existize(leastClassType(obj)); new ScTypeVariable(obj.name, Nil, t, t)
-            case typed : ScTyped => val t = existize(typed.calcType); new ScTypeVariable(typed.name, Nil, t, t)
-          }
-          case ScTypeAliasType(a, _) if PsiTreeUtil.isAncestor(this, a, true) =>{
-            val oldVars = a.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}.toList
-            val newVars = oldVars.map{newTypeVar _}
-            val s = createSubst(oldVars, newVars)
-            new ScTypeVariable(a.name, newVars, s.subst(existize(a.lowerBound)), s.subst(existize(a.upperBound)))
+            case obj : ScObject => {
+              val t = existize(leastClassType(obj))
+              m.put(obj.name, new ScExistentialArgument(obj.name, Nil, t, t))
+              new ScTypeAliasType(obj.name, Nil, t, t) //to be substed by name
+            }
+            case typed : ScTyped => {
+              val t = existize(typed.calcType); new ScTypeVariable(typed.name, Nil, t, t)
+              m.put(typed.name, new ScExistentialArgument(typed.name, Nil, t, t))
+              new ScTypeAliasType(typed.name, Nil, t, t) //to be substed by name
+            }
           }
           case ScProjectionType(p, name) => new ScProjectionType(existize(p), name)
+          case ScCompoundType(comps, decls, types) => new ScCompoundType(comps.map {existize _}, decls, types)
           case ScParameterizedType (des, typeArgs) =>
             new ScParameterizedType(existize(des), typeArgs.map {existize _})
           case ScExistentialArgument(name, args, lower, upper) => new ScExistentialArgument(name, args, existize(lower), existize(upper))
@@ -68,7 +74,8 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
           case singl : ScSingletonType => existize(singl.pathType)
           case _ => t
         }
-        existize(e.getType)
+        val t = existize(e.getType)
+        if (m.size == 0) t else new ScExistentialType(t, m.values.toList)
       }
     }
   private def leastClassType(t : ScTypeDefinition) = {

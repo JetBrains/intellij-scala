@@ -24,7 +24,8 @@ object ScExistentialTypeReducer {
     t match {
       case ScFunctionType(ret, params) => params.foldLeft(collectNames(ret)) {(curr, p) => curr ++ collectNames(p)}
       case ScTupleType(comps) => comps.foldLeft(Set.empty[String]) {(curr, p) => curr ++ collectNames(p)}
-      case ScTypeAliasType(a, _) => HashSet.empty + a.name
+      case ScTypeAliasType(name, _, _, _) => HashSet.empty + name
+      case ScDesignatorType(elem) => HashSet.empty + elem.getName
       case ScParameterizedType (des, typeArgs) =>
         typeArgs.foldLeft(Set.empty[String]) {(curr, p) => curr ++ collectNames(p)}
       case ScExistentialArgument(_, _, lower, upper) => collectNames(lower) ++ collectNames(upper)
@@ -42,14 +43,14 @@ object ScExistentialTypeReducer {
     case ScParameterizedType (des, typeArgs) => des match {
       case ScDesignatorType(owner : ScTypeParametersOwner) => {
         val newArgs = (owner.typeParameters.toArray zip typeArgs).map ({p => p._2 match {
-          case tadt@ScTypeAliasType(a, s) => wilds.find{_.name == a.name} match {
+          case tat : ScTypeAliasType => wilds.find{_.name == tat.name} match {
             case Some(wild) => {
               val tp = p._1
-              if (tp.isCovariant) s.subst(wild.upperBound)
-              else if (tp.isContravariant) s.subst(wild.lowerBound)
-              else tadt
+              if (tp.isCovariant) wild.upperBound
+              else if (tp.isContravariant) wild.lowerBound
+              else tat
             }
-            case None => tadt
+            case None => tat
           }
           case targ => targ
           }

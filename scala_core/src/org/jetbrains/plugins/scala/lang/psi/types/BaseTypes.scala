@@ -11,8 +11,8 @@ object BaseTypes {
   def get(t : ScType) : Seq[ScType] = t match {
     case classT@ScDesignatorType(td : ScTypeDefinition) => Seq.single(classT) ++ reduce(td.superTypes)
     case classT@ScDesignatorType(c : PsiClass) => Seq.single(classT) ++ reduce(c.getSuperTypes.map{ScType.create(_, c.getProject)})
-    case ScTypeAliasType(poly, s) => get(s.subst(poly.upperBound))
-    case ScTypeVariable(_, _, _, upper) => get(upper)
+    case ScTypeAliasType(_, Nil, _, upper) => get(upper)
+    case ScTypeVariable(_, Nil, _, upper) => get(upper)
     case p : ScParameterizedType => p.designated match {
       case td : ScTypeDefinition => td.superTypes.map {p.substitutor.subst _}
       case clazz: PsiClass => {
