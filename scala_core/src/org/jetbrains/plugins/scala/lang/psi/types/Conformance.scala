@@ -39,7 +39,7 @@ object Conformance {
         case _ => false
       }
 
-      case ScTypeAliasType(poly, subst) => conforms(subst.subst(poly.lowerBound), r)
+      case ScTypeAliasType(_, _, lower, _) => conforms(lower, r)
       case ScTypeVariable(_, _, lower, _) => conforms(lower, r)
 
       case ScParameterizedType(ScDesignatorType(owner : PsiClass), args1) => r match {
@@ -138,7 +138,7 @@ object Conformance {
       }
     }
 
-    case ScTypeAliasType(poly, subst) => conforms(l, subst.subst(poly.upperBound))
+    case ScTypeAliasType(_, _, _, upper) => conforms(l, upper)
     case ScTypeVariable(_, _, _, upper) => conforms(l, upper)
 
     case p@ScParameterizedType(ScDesignatorType(td: ScTypeDefinition), _) => {

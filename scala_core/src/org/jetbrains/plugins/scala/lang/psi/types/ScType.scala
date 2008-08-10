@@ -122,6 +122,7 @@ object ScType {
       case ScProjectionType(p, name) => inner(p); buffer.append("#").append(name)
       case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
       case ScTypeVariable(name, _, _, _) => buffer.append(name)
+      case ScTypeAliasType(name, _, _, _) => buffer.append(name)
       case ScExistentialArgument(name, args, lower, upper) => {
         buffer.append("type ").append(name)
         if (args.length > 0) {

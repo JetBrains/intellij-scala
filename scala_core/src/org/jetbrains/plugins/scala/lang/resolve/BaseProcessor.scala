@@ -90,10 +90,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   import psi.impl.toplevel.synthetic.SyntheticClasses
   def processType(t: ScType, place: ScalaPsiElement): Boolean = t match {
-    case ScDesignatorType(e) if !e.isInstanceOf[ScPolymorphicElement] => //scala ticket 425
+    case ScDesignatorType(e) =>
       e.processDeclarations(this, ResolveState.initial, null, place)
-    case ScTypeAliasType(poly, subst) => processType(subst.subst(poly.upperBound), place)
-    case ScTypeVariable(_, Seq.empty, _, upper) => processType(upper, place)
+    case ScTypeAliasType(_, Nil, _, upper) => processType(upper, place)
+    case ScTypeVariable(_, Nil, _, upper) => processType(upper, place)
 
     case p: ScParameterizedType => p.designated match {
       case ta: ScTypeAlias => processType(p.substitutor.subst(ta.upperBound), place)
