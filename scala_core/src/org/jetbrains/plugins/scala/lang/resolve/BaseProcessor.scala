@@ -95,21 +95,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     case ScTypeAliasType(_, Nil, _, upper) => processType(upper, place)
     case ScTypeVariable(_, Nil, _, upper) => processType(upper, place)
 
-    case p: ScParameterizedType => p.designated match {
-      case ta: ScTypeAlias => processType(p.substitutor.subst(ta.upperBound), place)
-
-      //need to process scala way
-      case clazz : PsiClass if !clazz.isInstanceOf[ScTypeDefinition] =>
-        TypeDefinitionMembers.processDeclarations(clazz, this, ResolveState.initial.put(ScSubstitutor.key, p.substitutor),
-          null, place)
-
-      case des => des.processDeclarations(this, ResolveState.initial.put(ScSubstitutor.key, p.substitutor), null, place)
-    }
+    case p: ScParameterizedType => processElement(p.designated, p.substitutor, place)
     case proj : ScProjectionType => proj.resolveResult match {
-      case Some(res) => res.element match {
-        case ta : ScTypeAlias => processType(res.substitutor.subst(ta.upperBound), place)
-        case elem => elem.processDeclarations(this, ResolveState.initial.put(ScSubstitutor.key, res.substitutor), null, place)
-      }
+      case Some(res) => processElement(res.element, res.substitutor, place)
       case None => true
     }
 
@@ -141,5 +129,16 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     }
     case singl : ScSingletonType => processType(singl.pathType, place) 
     case _ => true //todo
+  }
+
+  private def processElement (e : PsiNamedElement, s : ScSubstitutor, place: ScalaPsiElement) = e match {
+    case ta: ScTypeAlias => processType(s.subst(ta.upperBound), place)
+
+    //need to process scala way
+    case clazz : PsiClass if !clazz.isInstanceOf[ScTypeDefinition] =>
+      TypeDefinitionMembers.processDeclarations(clazz, this, ResolveState.initial.put(ScSubstitutor.key, s),
+        null, place)
+
+    case des => des.processDeclarations(this, ResolveState.initial.put(ScSubstitutor.key, s), null, place)
   }
 }
