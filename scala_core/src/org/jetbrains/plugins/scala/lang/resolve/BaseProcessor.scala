@@ -61,7 +61,6 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
             case _: ScObject => kinds contains OBJECT
             case _: ScTypeParam => kinds contains CLASS
             case _: ScTypeAlias => kinds contains CLASS
-            case clazz: ScClass => (kinds contains CLASS) || (kinds.contains(CLASS) && clazz.isCase)
             case _: ScTypeDefinition => kinds contains CLASS
             case c: PsiClass => {
               if (kinds contains CLASS) true
@@ -84,7 +83,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
             case _: ScParameter => kinds contains VAL
             case _: PsiMethod => kinds contains METHOD
             case _: ScFun => kinds contains METHOD
-            case _: PsiField => kinds contains VAR
+            case f: PsiField => (kinds contains VAR) || (f.hasModifierProperty(PsiModifier.FINAL) && kinds.contains(VAL))
             case _ => false
           })
 
