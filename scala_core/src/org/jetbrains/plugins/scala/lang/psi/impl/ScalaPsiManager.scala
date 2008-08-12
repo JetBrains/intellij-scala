@@ -22,30 +22,31 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val typeVariables = new WeakHashMap[PsiTypeParameter, ScTypeVariable]
 
   def typeVariable(tp: PsiTypeParameter) : ScTypeVariable = {
-    val existing = typeVariables.get(tp)
+    var existing = typeVariables.get(tp)
     if (existing != null) existing else {
-      synchronized {
-        val tv = tp match {
-          case stp: ScTypeParam => {
-            val inner = stp.typeParameters.map{typeVariable(_)}.toList
-            synchronized{
-              typeVariables.put(tp, new ScTypeVariable("", inner, Nothing, Any)) //temp put to avoid SOE
-              val lower = stp.lowerBound
-              val upper = stp.upperBound
-              new ScTypeVariable(stp.name, inner, lower, upper)
-            }
-          }
-          case _ => {
-            val supers = tp.getSuperTypes
-            val scalaSuper = supers match {
-              case Array(single) => ScType.create(single, project)
-              case many => new ScCompoundType(many.map{ScType.create(_, project)}, Seq.empty, Seq.empty)
-            }
-            new ScTypeVariable(tp.getName, Nil, Nothing, scalaSuper)
-          }
+      val tv = tp match {
+        case stp: ScTypeParam => {
+          val inner = stp.typeParameters.map{typeVariable(_)}.toList
+          typeVariables.put(tp, new ScTypeVariable("", inner, Nothing, Any)) //temp put to avoid SOE
+          val lower = stp.lowerBound
+          val upper = stp.upperBound
+          new ScTypeVariable(stp.name, inner, lower, upper)
         }
-        typeVariables.put(tp, tv)
-        tv
+        case _ => {
+          val supers = tp.getSuperTypes
+          val scalaSuper = supers match {
+            case Array(single) => ScType.create(single, project)
+            case many => new ScCompoundType(many.map{ScType.create(_, project)}, Seq.empty, Seq.empty)
+          }
+          new ScTypeVariable(tp.getName, Nil, Nothing, scalaSuper)
+        }
+      }
+      synchronized {
+        existing = typeVariables.get(tp)
+        if (existing == null) {
+          typeVariables.put(tp, tv)
+          tv
+        } else existing
       }
     }
   }
