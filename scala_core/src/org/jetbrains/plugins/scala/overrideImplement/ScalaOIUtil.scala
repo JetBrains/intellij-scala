@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.overrideImplement
 
+import com.intellij.codeInsight.generation.{PsiMethodMember, OverrideImplementUtil, ClassMember, PsiFieldMember}
 import com.intellij.openapi.editor.{Editor, VisualPosition}
 import lang.psi.api.toplevel.ScModifierListOwner
 import com.intellij.psi._
@@ -15,13 +16,9 @@ import lang.psi.api.statements._
 import com.intellij.ide.highlighter.JavaFileType
 import lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.ScalaUtils
-import com.intellij.codeInsight.generation.ClassMember
 import com.intellij.util.IncorrectOperationException
-import com.intellij.codeInsight.generation.PsiFieldMember
 import com.intellij.ide.util.MemberChooser
-import com.intellij.codeInsight.generation.PsiMethodMember
 import _root_.scala.collection.mutable.ArrayBuffer
-import com.intellij.codeInsight.generation.OverrideImplementUtil
 import com.intellij.psi.infos.CandidateInfo
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.project.Project

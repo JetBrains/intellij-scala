@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 

@@ -32,10 +32,10 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.CharTableImpl
 
 
-/** 
-* @author Alexander Podkhalyuzin
+/**
+ * @author AlexanderPodkhalyuzin
 * Date: 03.03.2008
-*/
+ */
 
 /*
  * InfixExpr ::= PrefixExpr
@@ -109,7 +109,7 @@ object InfixExpr {
           backupMarker = builder.mark
           if (!PrefixExpr.parse(builder)) {
             setMarker.rollbackTo
-            count = count - 1
+            count = 0
             exitOf = false
           }
           else {
@@ -121,16 +121,15 @@ object InfixExpr {
     }
     if (exitOf) backupMarker.drop
     if (count > 0) {
-      while (!markerStack.isEmpty) {
+      while (count > 0 && !markerStack.isEmpty) {
         markerStack.pop.done(ScalaElementTypes.INFIX_EXPR)
+        count -= 1
       }
-      infixMarker.drop
+
     }
-    else {
-      while (!markerStack.isEmpty) {
-        markerStack.pop.drop
-      }
-      infixMarker.drop
+    infixMarker.drop
+    while (!markerStack.isEmpty) {
+      markerStack.pop.drop
     }
     return true
   }
