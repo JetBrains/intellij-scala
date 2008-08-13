@@ -24,6 +24,9 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
+    //process function's type parameters
+    if (!super[ScFunctionImpl].processDeclarations(processor, state, lastParent, place)) return false
+
     import org.jetbrains.plugins.scala.lang.resolve._
 
     body match {
