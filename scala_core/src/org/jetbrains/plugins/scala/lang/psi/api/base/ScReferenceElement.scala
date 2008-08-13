@@ -50,7 +50,6 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
 
   def handleElementRename(newElementName: String): PsiElement = {
     val id = nameId.getNode
-    if (id == null) return this
     val parent = id.getTreeParent
     parent.replaceChild(id, ScalaPsiElementFactory.createIdentifier(newElementName, getManager))
     return this
