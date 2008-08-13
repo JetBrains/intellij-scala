@@ -14,22 +14,13 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
  */
 object ScalaElementTypes {
 
-  /*************************************************************************************/
-  /************************************** FILE *****************************************/
-  /*************************************************************************************/
+  //Stub element types
   val FILE = new IFileElementType(Language.findInstance(classOf[ScalaLanguage]))
 
-  /*************************************************************************************/
-  /************************************** OTHER ****************************************/
-  /*************************************************************************************/
-  val WRONGWAY = new ScalaElementType("Wrong way!")
-  val TRASH = new ScalaElementType("trash")
-  val EMPTY = new ScalaElementType("empty")
-  val CLOSED = new ScalaElementType("closed")
-
-  /*************************************************************************************/
-  /************************************** TYPE DECLARATION *****************************/
-  /*************************************************************************************/
+  val OBJECT_DEF = new ScalaElementType("object definition")
+  val TRAIT_DEF = new ScalaElementType("trait definition")
+  val CLASS_DEF = new ScalaElementType("class definition")
+  
   val PACKAGING = new ScalaElementType("packaging")
   val TMPL_DEF = new ScalaElementType("template definition")
   val TOP_TMPL_DEF = new ScalaElementType("top template definition")
@@ -43,18 +34,6 @@ object ScalaElementTypes {
   val TEMPLATE = new ScalaElementType("template")
   val TEMPLATE_BODY = new ScalaElementType("template body")
 
-  //val TEMPLATE_STAT = new ScalaElementType("template statement")
-
-  /******************* OBJECT ************************/
-  val OBJECT_DEF = new ScalaElementType("object definition")
-  val OBJECT_TEMPLATE = new ScalaElementType("object template")
-
-  /******************* TRAIT ************************/
-  val TRAIT_DEF = new ScalaElementType("trait definition")
-  //  val TRAIT_TEMPLATE = new ScalaElementType("trait template")
-
-  /******************* CLASS ************************/
-  val CLASS_DEF = new ScalaElementType("class definition")
 
   val REQUIRES_BLOCK = new ScalaElementType("requires block")
   val EXTENDS_BLOCK = new ScalaElementType("extends block")

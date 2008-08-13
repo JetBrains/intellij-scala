@@ -173,7 +173,10 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   override def getSupers: Array[PsiClass] = {
     val buf = new ArrayBuffer[PsiClass]
-    buf += JavaPsiFacade.getInstance(getProject).findClass("scala.ScalaObject")
+    val sObject = JavaPsiFacade.getInstance(getProject).findClass("scala.ScalaObject")
+    if (sObject != null) {
+      buf += sObject
+    }
     val typeElements = new ArrayBuffer[ScTypeElement]
     extendsBlock.templateParents match {
       case None =>

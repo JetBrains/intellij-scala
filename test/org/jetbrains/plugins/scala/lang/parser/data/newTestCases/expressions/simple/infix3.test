@@ -20,27 +20,26 @@ ScalaFile
           InfixExpression
             InfixExpression
               InfixExpression
-                InfixExpression
-                  ReferenceExpression
-                    PsiElement(identifier)('a')
-                  PsiWhiteSpace(' ')
-                  ReferenceExpression
-                    PsiElement(identifier)('|')
-                  PsiWhiteSpace(' ')
-                  ReferenceExpression
-                    PsiElement(identifier)('b')
+                ReferenceExpression
+                  PsiElement(identifier)('a')
                 PsiWhiteSpace(' ')
                 ReferenceExpression
-                  PsiElement(identifier)('op1')
+                  PsiElement(identifier)('|')
                 PsiWhiteSpace(' ')
                 ReferenceExpression
-                  PsiElement(identifier)('c')
+                  PsiElement(identifier)('b')
               PsiWhiteSpace(' ')
               ReferenceExpression
-                PsiElement(identifier)('op2')
+                PsiElement(identifier)('op1')
               PsiWhiteSpace(' ')
               ReferenceExpression
-                PsiElement(identifier)('d')
+                PsiElement(identifier)('c')
+            PsiWhiteSpace(' ')
+            ReferenceExpression
+              PsiElement(identifier)('op2')
+            PsiWhiteSpace(' ')
+            ReferenceExpression
+              PsiElement(identifier)('d')
           PsiWhiteSpace(' ')
           ReferenceExpression
             PsiElement(identifier)('op3')

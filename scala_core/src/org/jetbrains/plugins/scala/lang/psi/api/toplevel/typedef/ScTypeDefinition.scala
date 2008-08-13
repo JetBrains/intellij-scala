@@ -16,12 +16,12 @@ import statements.params._
 import types.ScType
 import base._
 
-/** 
-* @autor Alexander Podkhalyuzin
-*/
+/**
+ * @autor AlexanderPodkhalyuzin
+ */
 
 trait ScTypeDefinition extends ScNamedElement
-  with NavigationItem with PsiClass with ScTopStatement with ScTypeParametersOwner with Iconable {
+    with NavigationItem with PsiClass with ScTopStatement with ScTypeParametersOwner with Iconable {
 
   def members(): Seq[ScMember]
 
@@ -59,5 +59,5 @@ trait ScTypeDefinition extends ScNamedElement
       case Some(body) => body.typeDefinitions
     }
 
-  def functionsByName(name : String) : Iterable[PsiMethod]
+  def functionsByName(name: String): Iterable[PsiMethod]
 }

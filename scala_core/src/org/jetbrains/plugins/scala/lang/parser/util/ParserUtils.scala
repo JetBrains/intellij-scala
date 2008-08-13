@@ -122,17 +122,6 @@ object ParserUtils extends ParserUtilsBase {
     return
   }
 
-  //Write element node
-  def errorToken(builder: PsiBuilder,
-                marker: PsiBuilder.Marker,
-                msg: String,
-                elem: ScalaElementType): ScalaElementType = {
-    builder.error(msg)
-    //marker.done(elem)
-    marker.rollbackTo()
-    ScalaElementTypes.WRONGWAY
-  }
-
   def eatSeqWildcardNext(builder: PsiBuilder): Boolean = {
     val marker = builder.mark
     if (builder.getTokenType == ScalaTokenTypes.tUNDER) {

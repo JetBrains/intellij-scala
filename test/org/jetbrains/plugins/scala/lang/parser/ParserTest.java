@@ -29,7 +29,7 @@ public class ParserTest extends BaseScalaFileSetTestCase {
   public ParserTest() {
     super(System.getProperty("path") != null ?         
             System.getProperty("path") :
-            DATA_PATH
+            DATA_PATH                          
     );
   }
 
