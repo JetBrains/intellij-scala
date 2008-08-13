@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top.template
 
+import base.ParentConstructor
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.TokenSet
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.Constructor
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
@@ -28,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 object ClassParents {
   def parse(builder: PsiBuilder): Boolean = {
     val classParentsMarker = builder.mark
-    if (!Constructor.parse(builder)) {
+    if (!ParentConstructor.parse(builder)) {
       classParentsMarker.drop
       return false
     }

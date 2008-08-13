@@ -14,13 +14,13 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       ClassParents
-        Constructor
+        ParentConstructor
           TypeWithAnnotation
             AnnotationsList
               Annotation
                 PsiElement(@)('@')
                 AnnotationExpression
-                  Constructor
+                  ParentConstructor
                     SimpleTypeElement
                       CodeReferenceElement
                         PsiElement(identifier)('t')

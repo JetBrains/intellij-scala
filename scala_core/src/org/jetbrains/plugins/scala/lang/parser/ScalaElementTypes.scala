@@ -143,7 +143,7 @@ object ScalaElementTypes {
 
   /**************** functions *************************/
   val FUNCTION_DEFINITION = new ScalaElementType("function definition")
-  val FUN_SIG = new ScalaElementType("function signature")
+  val CONSTRUCTOR_DEFINITION = new ScalaElementType("constructor definition")
   val CONSTR_EXPR = new ScalaElementType("constructor expression")
   val SELF_INVOCATION = new ScalaElementType("self invocation")
 

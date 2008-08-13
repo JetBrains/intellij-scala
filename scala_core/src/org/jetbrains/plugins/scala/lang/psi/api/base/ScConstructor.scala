@@ -9,6 +9,6 @@ import types.ScTypeElement
 * Date: 22.02.2008
 */
 
-trait ScConstructor extends ScalaPsiElement {
+trait ScParentConstructor extends ScalaPsiElement {
   def typeElement() = findChildByClass(classOf[ScTypeElement])
 }
