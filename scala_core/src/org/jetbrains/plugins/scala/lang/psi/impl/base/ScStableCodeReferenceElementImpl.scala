@@ -124,8 +124,6 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
     element match {
       case c: PsiClass => {
-        val name = c.getName
-
         val file = getContainingFile.asInstanceOf[ScalaFile]
         if (isReferenceTo(element)) return this
         val qualName = c.getQualifiedName
@@ -136,16 +134,5 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       }
       case _ => return this
     }
-  }
-
-  override def handleElementRename(newName: String) = {
-    val nameElement = getNavigationElement
-    if (nameElement != null) {
-      val node = nameElement.getNode
-      val newNode = ScalaPsiElementFactory.createStableReferenceElement(newName, getManager).getNode
-      assert(newNode != null && node != null)
-      node.getTreeParent.replaceChild(node, newNode)
-    }
-    this
   }
 }
