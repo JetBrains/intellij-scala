@@ -11,6 +11,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi._
+import util.PsiTreeUtil
 
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -57,16 +58,16 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean) = {
       val proc = ref.getParent match {
         case call: ScMethodCall =>
-          new MethodResolveProcessor(refName, call.args.exprs.map{_.getType}, expectedType)
+          new MethodResolveProcessor(ref, call.args.exprs.map{_.getType}, expectedType)
         case inf : ScInfixExpr if ref == inf.operation => {
           val args = if (ref.rightAssoc) Seq.singleton(inf.lOp.getType) else inf.rOp match {
             case tuple : ScTuple => tuple.exprs.map {_.getType}
             case rOp => Seq.singleton(rOp.getType)
           }
-          new MethodResolveProcessor(refName, args, expectedType)
+          new MethodResolveProcessor(ref, args, expectedType)
         }
         case postf : ScPostfixExpr if ref == postf.operation =>
-          new MethodResolveProcessor(refName, Seq.empty, expectedType)
+          new MethodResolveProcessor(ref, Seq.empty, expectedType)
         case _ => new RefExprResolveProcessor(getKinds(incomplete), refName)
       }
       _resolve(ref, proc)
@@ -105,8 +106,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   override def getType(): ScType = {
     bind match {
-      case Some(ScalaResolveResult(typed: ScTyped, s)) => s.subst(typed.calcType)
+      //prevent infinite recursion for recursive method invocation
+      case Some(ScalaResolveResult(f: ScFunction, s)) if (PsiTreeUtil.getParentOfType(this, classOf[ScFunction]) == f) =>
+        new ScFunctionType(s.subst(f.declaredType), f.paramTypes.map{s.subst _})
       case Some(ScalaResolveResult(fun: ScFun, s)) => new ScFunctionType(s.subst(fun.retType), fun.paramTypes.map{s.subst _})
+      case Some(ScalaResolveResult(typed: ScTyped, s)) => s.subst(typed.calcType)
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => new ScDesignatorType(pack)
       case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz)
       case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject))

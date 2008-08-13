@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
@@ -60,6 +61,11 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
 
   public void testSubstAliasBound() throws Exception {
     PsiReference ref = configureByFile("nonlocal/substAliasBound.scala");
+    assertTrue(ref.resolve() instanceof PsiMethod);
+  }
+
+  public void testRecursiveInvocation() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/recursiveInvocation.scala");
     assertTrue(ref.resolve() instanceof PsiMethod);
   }
 }
