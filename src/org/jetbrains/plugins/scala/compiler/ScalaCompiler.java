@@ -22,6 +22,7 @@ import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.TranslatingCompiler;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkType;
@@ -65,7 +66,8 @@ public class ScalaCompiler implements TranslatingCompiler {
   }
 
   public boolean isCompilableFile(VirtualFile virtualFile, CompileContext compileContext) {
-    return ScalaFileType.SCALA_FILE_TYPE.equals(virtualFile.getFileType());
+    return ScalaFileType.SCALA_FILE_TYPE.equals(virtualFile.getFileType()) ||
+            StdFileTypes.JAVA.equals(virtualFile.getFileType());
   }
 
   class ScalaCompileExitStatus implements ExitStatus {
@@ -95,10 +97,17 @@ public class ScalaCompiler implements TranslatingCompiler {
 
     for (Map.Entry<Module, Set<VirtualFile>> entry : mapModulesToVirtualFiles.entrySet()) {
       GeneralCommandLine commandLine = new GeneralCommandLine();
-      Module module = entry.getKey();
+      final Module module = entry.getKey();
 
-      Set<VirtualFile> files = entry.getValue();
-      allCompiling.addAll(files);
+      Set<VirtualFile> allFiles = entry.getValue();
+      // Add files from dependencies
+      final HashSet<Module> set = new HashSet<Module>();
+      collectDependencies(module, set);
+      for (Module dep : set) {
+        allFiles.addAll(mapModulesToVirtualFiles.get(dep));
+      }
+      
+      allCompiling.addAll(allFiles);
 
       ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
       Sdk sdk = moduleRootManager.getSdk();
@@ -109,13 +118,13 @@ public class ScalaCompiler implements TranslatingCompiler {
 
       commandLine.addParameter(XSS_COMPILER_PROPERTY);
       commandLine.addParameter(XMX_COMPILER_PROPERTY);
-      commandLine.addParameter("-cp");
 
 //      commandLine.addParameter("-Xnoagent");
 //      commandLine.addParameter("-Djava.compiler=NONE");
 //      commandLine.addParameter("-Xdebug");
 //      commandLine.addParameter("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=2239");
 
+      commandLine.addParameter("-cp");
       String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
       final StringBuilder classPathBuilder = new StringBuilder();
       classPathBuilder.append(rtJarPath);
@@ -139,7 +148,7 @@ public class ScalaCompiler implements TranslatingCompiler {
 
       try {
         File fileWithParams = File.createTempFile("toCompile", "");
-        fillFileWithScalacParams(module, files, fileWithParams);
+        fillFileWithScalacParams(module, allFiles, fileWithParams);
 
         commandLine.addParameter(fileWithParams.getPath());
       } catch (IOException e) {
@@ -317,11 +326,9 @@ public class ScalaCompiler implements TranslatingCompiler {
       public void run() {
         for (VirtualFile file : files) {
           final Module module = context.getModuleByFile(file);
-
           if (module == null) {
             continue; // looks like file invalidated
           }
-
           Set<VirtualFile> moduleFiles = map.get(module);
           if (moduleFiles == null) {
             moduleFiles = new HashSet<VirtualFile>();
@@ -333,4 +340,13 @@ public class ScalaCompiler implements TranslatingCompiler {
     });
     return map;
   }
+
+  private void collectDependencies(Module module, Set<Module> moduleSet) {
+    final ModuleRootManager manager = ModuleRootManager.getInstance(module);
+    moduleSet.add(module);
+    for (Module dep : manager.getDependencies()) {
+      if (!moduleSet.contains(dep)) collectDependencies(dep, moduleSet);
+    }
+  }
+
 }
