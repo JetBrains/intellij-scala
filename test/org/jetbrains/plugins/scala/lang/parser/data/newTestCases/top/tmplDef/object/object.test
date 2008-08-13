@@ -29,7 +29,7 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       ClassParents
-        Constructor
+        ParentConstructor
           SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('a')

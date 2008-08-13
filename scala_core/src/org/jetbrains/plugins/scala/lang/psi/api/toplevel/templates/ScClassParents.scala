@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates
-import org.jetbrains.plugins.scala.lang.psi.api.base.{types, ScConstructor}
-import types.ScTypeElement
+import base.ScParentConstructor
 
 /**
 * @author Alexander Podkhalyuzin
@@ -9,5 +8,5 @@ import types.ScTypeElement
 */
 
 trait ScClassParents extends ScTemplateParents {
-  def constructor() = findChild(classOf[ScConstructor])
+  def constructor() = findChild(classOf[ScParentConstructor])
 }

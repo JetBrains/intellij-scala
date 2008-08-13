@@ -27,10 +27,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
-/** 
-* @author Alexander Podkhalyuzin
+/**
+ * @author AlexanderPodkhalyuzin
 * Date: 11.02.2008
-*/
+ */
 
 /*
  * Def ::= [{Annotation} {Modifier}]
@@ -41,14 +41,47 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
  */
 
 object Def {
-  def parse(builder: PsiBuilder): Boolean = parse(builder,true)
-  def parse(builder: PsiBuilder, isMod: Boolean): Boolean = parse(builder,isMod,false)
-  def parse(builder: PsiBuilder, isMod: Boolean,isImplicit: Boolean): Boolean = {
+  def parse(builder: PsiBuilder): Boolean = parse(builder, true)
+  def parse(builder: PsiBuilder, isMod: Boolean): Boolean = parse(builder, isMod, false)
+  def parse(builder: PsiBuilder, isMod: Boolean, isImplicit: Boolean): Boolean = {
     val defMarker = builder.mark
+
+
+    def parseFunDef : Boolean = {
+      builder.advanceLexer
+      builder.getTokenType match {
+        case ScalaTokenTypes.kTHIS => {
+          if (FunDef parseConstructor builder) {
+            defMarker.done(ScalaElementTypes.CONSTRUCTOR_DEFINITION)
+            return true
+          }
+          else {
+            defMarker.rollbackTo
+            return false
+          }
+        }
+        case ScalaTokenTypes.tIDENTIFIER => {
+          if (FunDef parseFunction builder) {
+            defMarker.done(ScalaElementTypes.FUNCTION_DEFINITION)
+            return true
+          }
+          else {
+            defMarker.rollbackTo
+            return false
+          }
+        }
+        case _ => {
+          defMarker.rollbackTo
+          return false
+        }
+      }
+    }
+
     if (isMod || isImplicit) {
       if (!isImplicit) {
         val annotationsMarker = builder.mark
-        while (Annotation.parse(builder)) {}
+        while (Annotation.parse(builder)) {
+        }
         annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
       }
       //parse modifiers
@@ -97,14 +130,7 @@ object Def {
         }
       }
       case ScalaTokenTypes.kDEF => {
-        if (FunDef parse builder) {
-          defMarker.done(ScalaElementTypes.FUNCTION_DEFINITION)
-          return true
-        }
-        else {
-          defMarker.rollbackTo
-          return false
-        }
+        return parseFunDef
       }
       case ScalaTokenTypes.kTYPE => {
         if (TypeDef parse builder) {
@@ -117,7 +143,7 @@ object Def {
         }
       }
       case ScalaTokenTypes.kCASE | ScalaTokenTypes.kCLASS
-      | ScalaTokenTypes.kOBJECT | ScalaTokenTypes.kTRAIT => {
+              | ScalaTokenTypes.kOBJECT | ScalaTokenTypes.kTRAIT => {
         defMarker.rollbackTo
         if (TmplDef parse builder) {
           return true

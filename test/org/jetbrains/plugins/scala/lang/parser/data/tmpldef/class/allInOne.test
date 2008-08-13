@@ -16,7 +16,7 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       ClassParents
-        Constructor
+        ParentConstructor
           SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('Object')
@@ -61,7 +61,7 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       ClassParents
-        Constructor
+        ParentConstructor
           SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('Mixin')

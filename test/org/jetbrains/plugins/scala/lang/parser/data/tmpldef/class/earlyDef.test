@@ -97,7 +97,7 @@ ScalaFile
       PsiElement(with)('with')
       PsiWhiteSpace(' ')
       ClassParents
-        Constructor
+        ParentConstructor
           SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('Greeting')
