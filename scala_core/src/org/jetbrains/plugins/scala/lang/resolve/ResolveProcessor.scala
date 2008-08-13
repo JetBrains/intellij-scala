@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import psi.api.base.ScReferenceElement
 import psi.api.statements.ScFun
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.api.statements.params.ScTypeParam
@@ -7,6 +8,7 @@ import psi.api.statements.ScFunction
 import psi.api.toplevel.ScTyped
 import com.intellij.psi.scope._
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.util.Key
 import psi.types._
 
@@ -62,8 +64,8 @@ extends ResolveProcessor(kinds, name) {
   }
 }
 
-class MethodResolveProcessor(name : String, args : Seq[ScType],
-                             expected : Option[ScType]) extends ResolveProcessor(StdKinds.methodRef, name) {
+class MethodResolveProcessor(ref : ScReferenceElement, args : Seq[ScType],
+                             expected : Option[ScType]) extends ResolveProcessor(StdKinds.methodRef, ref.refName) {
   override def execute(element: PsiElement, state: ResolveState) : Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
@@ -131,7 +133,9 @@ class MethodResolveProcessor(name : String, args : Seq[ScType],
 
   private def getType(e : PsiNamedElement) = e match {
     case fun : ScFun => new ScFunctionType(fun.retType, fun.paramTypes)
-    case f : ScFunction => f.calcType
+    case f : ScFunction => if (PsiTreeUtil.getParentOfType(ref, classOf[ScFunction]) == f)
+                           new ScFunctionType(f.declaredType, f.paramTypes)
+                           else f.calcType
     case m : PsiMethod => new ScFunctionType(
     m.getReturnType match { case null => Unit; case rt => ScType.create(rt, m.getProject) },
     m.getParameterList.getParameters.map{p => ScType.create(p.getType, m.getProject)}

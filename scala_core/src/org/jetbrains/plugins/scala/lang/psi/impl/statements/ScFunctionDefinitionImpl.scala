@@ -25,7 +25,6 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
-    if (!super[ScFunctionImpl].processDeclarations(processor, state, lastParent, place)) return false
 
     body match {
       case Some(x) if x == lastParent =>
@@ -66,17 +65,10 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
   }
 
   import com.intellij.openapi.util.Key
-  val inferenceInProgress = Key.create[ScFunction]("inference in progress")
 
   def calcType = returnTypeElement match {
     case None => body match {
-      case Some(b) if b.getUserData(inferenceInProgress) == null => {
-        try {
-          b.putUserData(inferenceInProgress, this)
-          new ScFunctionType(b.getType, paramTypes)
-        }
-        finally b.putUserData(inferenceInProgress, null)
-      }
+      case Some(b) => new ScFunctionType(b.getType, paramTypes)
       case _ => Nothing
     }
     case Some(rte) => new ScFunctionType(rte.getType, paramTypes)

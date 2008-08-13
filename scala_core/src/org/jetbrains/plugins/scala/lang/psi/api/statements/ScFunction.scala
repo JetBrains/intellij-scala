@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
-import types.ScType
+import types.{ScType, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
@@ -32,6 +32,11 @@ trait ScFunction extends ScalaPsiElement with ScNamedElement with ScMember
   def paramClauses: ScParameters
 
   def returnTypeElement = findChild(classOf[ScTypeElement])
+
+  def declaredType = returnTypeElement match {
+    case Some(rte) => rte.getType
+    case None => Nothing
+  }
 
   def parameters: Seq[ScParameter]
 
