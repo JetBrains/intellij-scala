@@ -23,7 +23,7 @@ import com.intellij.psi.tree.IElementType
  * Constr ::= AnnotType {ArgumentExprs}
  */
 
-object ParentConstructor {
+object Constructor {
   def parse(builder: PsiBuilder): Boolean = {
     val constrMarker = builder.mark
     if (!AnnotType.parse(builder)) {

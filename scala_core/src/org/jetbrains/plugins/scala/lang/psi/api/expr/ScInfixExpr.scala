@@ -12,8 +12,5 @@ trait ScInfixExpr extends ScExpression {
   def operation : ScReferenceExpression = findChildrenByClass(classOf[ScExpression])(1) match {
     case re : ScReferenceExpression => re
   }
-  def rOp = {
-    val exprs = findChildrenByClass(classOf[ScExpression])
-    if (exprs.length < 3) None else Some(exprs(2))
-  }
+  def rOp = findChildrenByClass(classOf[ScExpression])(2)
 }

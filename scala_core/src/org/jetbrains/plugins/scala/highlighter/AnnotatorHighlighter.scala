@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.highlighter
 
-import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement, ScParentConstructor}
 import lang.psi.api.statements._
 import com.intellij.psi._
 import lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScBindingPattern}
 import lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import lang.psi.api.expr.{ScAnnotationExpr, ScAnnotation, ScReferenceExpression, ScNameValuePair}
+import lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.lang.annotation.AnnotationHolder
 import lang.psi.api.base.types.ScSimpleTypeElement

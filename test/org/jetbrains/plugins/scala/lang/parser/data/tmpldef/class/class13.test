@@ -34,7 +34,7 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       ClassParents
-        ParentConstructor
+        Constructor
           SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('Thread')
