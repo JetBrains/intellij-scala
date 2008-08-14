@@ -124,7 +124,13 @@ public class ScalacCompiler extends ExternalCompiler {
   }
 
   public OutputParser createOutputParser(String outputDir) {
-    return null;
+    return new OutputParser() {
+      @Override
+      public boolean processMessageLine(Callback callback) {
+        super.processMessageLine(callback);
+        return true;
+      }
+    };
   }
 
   @NotNull
