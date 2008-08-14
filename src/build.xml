@@ -158,7 +158,7 @@
   </target>
 
 
-  <target name="jar.plugin" depends="make.project" description="Makes jar">
+  <target name="jar.plugin" description="Makes jar">
     <mkdir dir="${base.dir}/tempjar/Scala/lib"/>
 
     <jar destfile="${base.dir}/Scala.jar">
@@ -284,6 +284,7 @@
 
     <jar destfile="${base.dir}/Scala.jar">
       <fileset dir="${project.lib}" excludes="**/*build.xml, **/scala.properties"/>
+      <fileset dir="../resources" excludes="**/*build.xml, **/scala.properties"/>
 
       <manifest>
         <attribute name="Revision" value="${plugin.revision}"/>
