@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module relativePaths="true" type="PLUGIN_MODULE" version="4">
+<module relativePaths="true" type="JAVA_MODULE" version="4">
   <component name="DevKit.ModuleBuildProperties" url="file://$MODULE_DIR$/META-INF/plugin.xml" />
   <component name="FacetManager">
     <facet type="Scala" name="Scala">
@@ -14,20 +14,24 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
     </content>
-    <orderEntry type="jdk" jdkName="IDEA 8187" jdkType="IDEA JDK" />
+    <orderEntry type="library" name="scala-2.7.1.final" level="application" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="scala_core" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="file://$MODULE_DIR$/classes/production/Scala" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="SCALA" level="application" />
-    <orderEntryProperties />
+    <orderEntry type="module" module-name="Annotations" />
+    <orderEntry type="module" module-name="codeInsight-impl" />
+    <orderEntry type="module" module-name="debugger-impl" />
+    <orderEntry type="module" module-name="debugger-openapi" />
+    <orderEntry type="module" module-name="idea" />
+    <orderEntry type="module" module-name="lang-api" />
+    <orderEntry type="module" module-name="lang-impl" />
+    <orderEntry type="module" module-name="openapi" />
+    <orderEntry type="module" module-name="psi-extapi" />
+    <orderEntry type="module" module-name="xml" />
+    <orderEntry type="library" name="XmlRPC" level="project" />
+    <orderEntry type="library" name="JUnit4" level="project" />
+    <orderEntry type="library" name="JUnit3" level="project" />
+    <orderEntry type="module" module-name="compiler-impl" />
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ACTIVE_VCS_NAME" value="svn" />
