@@ -25,9 +25,7 @@ import com.intellij.debugger.engine.DebugProcess;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerAdapter;
@@ -41,7 +39,6 @@ import org.jetbrains.plugins.scala.debugger.ScalaPositionManager;
 import org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
 
-import java.util.Arrays;
 import java.util.Set;
 
 /**
@@ -88,11 +85,15 @@ public class ScalaLoader implements ApplicationComponent {
         ScalaAddImportPassFactory addImportPassFactory = project.getComponent(ScalaAddImportPassFactory.class);
         registrar.registerTextEditorHighlightingPass(addImportPassFactory, new int[]{Pass.POPUP_HINTS}, null, true, -1);
 
+
         CompilerManager compilerManager = CompilerManager.getInstance(project);
+/*      todo Uncomment after Scala 2.7.2
         HashSet<FileType> inputSet = new HashSet<FileType>(Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA));
         HashSet<FileType> outputSet = new HashSet<FileType>(Arrays.asList(StdFileTypes.JAVA, StdFileTypes.CLASS));
         compilerManager.addTranslatingCompiler(new ScalaCompiler(project),
                 inputSet, outputSet);
+*/
+        compilerManager.addCompiler(new ScalaCompiler(project));
         compilerManager.addCompilableFileType(ScalaFileType.SCALA_FILE_TYPE);
 
         DebuggerManager.getInstance(project).addClassNameMapper(new ScalaJVMNameMapper());

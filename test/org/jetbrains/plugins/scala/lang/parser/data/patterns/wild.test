@@ -90,7 +90,7 @@ ScalaFile
             PsiWhiteSpace(' ')
             ExtendsBlock
               ClassParents
-                ParentConstructor
+                Constructor
                   ParametrizedTypeElement
                     SimpleTypeElement
                       CodeReferenceElement

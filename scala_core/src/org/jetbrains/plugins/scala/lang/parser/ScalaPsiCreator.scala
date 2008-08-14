@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.parser
 
-import psi.impl.base._
 import scaladoc.parser.ScalaDocElementTypes
 import scaladoc.psi.impl.ScDocCommentImpl
 import scaladoc.psi.{ScalaDocPsiCreator}
@@ -19,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
+import org.jetbrains.plugins.scala.lang.psi.impl.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
@@ -88,7 +88,6 @@ object ScalaPsiCreator {
       case ScalaElementTypes.PATTERN_DEFINITION => new ScPatternDefinitionImpl(node)
       case ScalaElementTypes.VARIABLE_DEFINITION => new ScVariableDefinitionImpl(node)
       case ScalaElementTypes.FUNCTION_DEFINITION => new ScFunctionDefinitionImpl(node)
-      case ScalaElementTypes.CONSTRUCTOR_DEFINITION => new ScConstructorImpl(node)
       case ScalaElementTypes.TYPE_DEFINITION => new ScTypeAliasDefinitionImpl(node)
       case ScalaElementTypes.EARLY_DEFINITIONS => new ScEarlyDefinitionsImpl(node)
 
@@ -98,7 +97,7 @@ object ScalaPsiCreator {
       case ScalaElementTypes.PRIMARY_CONSTRUCTOR => new ScPrimaryConstructorImpl(node)
 
       /**************** function ******************/
-      case ScalaElementTypes.CONSTRUCTOR => new ScParentConstructorImpl(node)
+      case ScalaElementTypes.CONSTRUCTOR => new ScConstructorImpl(node)
 
       /**************** variable ******************/
       case ScalaElementTypes.IDENTIFIER_LIST => new ScIdListImpl(node)

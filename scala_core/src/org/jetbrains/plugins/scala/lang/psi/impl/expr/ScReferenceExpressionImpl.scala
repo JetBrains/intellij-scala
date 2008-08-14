@@ -62,8 +62,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         case inf : ScInfixExpr if ref == inf.operation => {
           val args = if (ref.rightAssoc) Seq.singleton(inf.lOp.getType) else inf.rOp match {
             case tuple : ScTuple => tuple.exprs.map {_.getType}
-            case Some(rOp) => Seq.singleton(rOp.getType)
-            case _ => Seq.singleton(Nothing)
+            case rOp => Seq.singleton(rOp.getType)
           }
           new MethodResolveProcessor(ref, args, expectedType)
         }
@@ -79,9 +78,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     ref.qualifier match {
       case None => ref.getParent match {
          case inf: ScInfixExpr if ref == inf.operation => {
-           val thisType = if (ref.rightAssoc) inf.rOp match {case Some(rOp) => rOp.getType; case _ => Nothing}
-                          else inf.lOp.getType
-           processor.processType(thisType, this)
+           val thisOp = if (ref.rightAssoc) inf.rOp else inf.lOp
+           processor.processType(thisOp.getType, this)
          }
          case postf: ScPostfixExpr if ref == postf.operation => processor.processType(postf.operand.getType, this)
         case _ => {

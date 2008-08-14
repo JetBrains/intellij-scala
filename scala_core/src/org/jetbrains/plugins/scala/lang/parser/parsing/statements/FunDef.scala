@@ -28,10 +28,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl._
 import org.jetbrains.plugins.scala.lang.parser.parsing.params._
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
 
-/**
- * @author AlexanderPodkhalyuzin
+/** 
+* @author Alexander Podkhalyuzin
 * Date: 13.02.2008
- */
+*/
 
 /*
  * FunDef ::= FunSig [':' Type] '=' Expr
@@ -42,116 +42,128 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
 
 
 object FunDef {
-
-  def parseFunction(builder: PsiBuilder): Boolean = {
+  def parse(builder: PsiBuilder): Boolean = {
     val faultMarker = builder.mark;
-    FunSig parse builder
     builder.getTokenType match {
-      case ScalaTokenTypes.tCOLON => {
-        builder.advanceLexer //Ate :
-        if (Type.parse(builder)) {
-          builder.getTokenType match {
-            case ScalaTokenTypes.tASSIGN => {
-              builder.advanceLexer //Ate =
-              if (Expr.parse(builder)) {
-                faultMarker.drop
-                return true
-              }
-              else {
-                builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
-                faultMarker.drop
-                return true
+      case ScalaTokenTypes.kDEF => builder.advanceLexer
+      case _ => {
+        faultMarker.drop
+        return false
+      }
+    }
+    builder.getTokenType match {
+      case ScalaTokenTypes.tIDENTIFIER => {
+        FunSig parse builder
+        builder.getTokenType match {
+          case ScalaTokenTypes.tCOLON => {
+            builder.advanceLexer //Ate :
+            if (Type.parse(builder)) {
+              builder.getTokenType match {
+                case ScalaTokenTypes.tASSIGN => {
+                  builder.advanceLexer //Ate =
+                  if (Expr.parse(builder)) {
+                    faultMarker.drop
+                    return true
+                  }
+                  else {
+                    builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+                    faultMarker.drop
+                    return true
+                  }
+                }
+                case _ => {
+                  faultMarker.rollbackTo
+                  return false
+                }
               }
             }
-            case _ => {
+            else {
               faultMarker.rollbackTo
               return false
             }
           }
-        }
-        else {
-          faultMarker.rollbackTo
-          return false
-        }
-      }
-      case ScalaTokenTypes.tASSIGN => {
-        builder.advanceLexer //Ate =
-        if (Expr.parse(builder)) {
-          faultMarker.drop
-          return true
-        }
-        else {
-          builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
-          faultMarker.drop
-          return true
-        }
-      }
-      case ScalaTokenTypes.tLBRACE => {
-        Block.parse(builder, true)
-        faultMarker.drop
-        return true
-      }
-      case ScalaTokenTypes.tLINE_TERMINATOR => {
-        if (!LineTerminator(builder.getTokenText)) {
-          faultMarker.rollbackTo
-          return false
-        }
-        else {
-          builder.advanceLexer //Ate nl
-          builder.getTokenType match {
-            case ScalaTokenTypes.tLBRACE => {
-              Block.parse(builder, true)
+          case ScalaTokenTypes.tASSIGN => {
+            builder.advanceLexer //Ate =
+            if (Expr.parse(builder)) {
               faultMarker.drop
               return true
             }
-            case _ => {
+            else {
+              builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+              faultMarker.drop
+              return true
+            }
+          }
+          case ScalaTokenTypes.tLBRACE => {
+            Block.parse(builder,true)
+            faultMarker.drop
+            return true
+          }
+          case ScalaTokenTypes.tLINE_TERMINATOR => {
+            if (!LineTerminator(builder.getTokenText)) {
               faultMarker.rollbackTo
               return false
             }
+            else {
+              builder.advanceLexer //Ate nl
+              builder.getTokenType match {
+                case ScalaTokenTypes.tLBRACE => {
+                  Block.parse(builder,true)
+                  faultMarker.drop
+                  return true
+                }
+                case _ => {
+                  faultMarker.rollbackTo
+                  return false
+                }
+              }
+            }
+          }
+          case _ => {
+            faultMarker.rollbackTo
+            return false
+          }
+        }
+      }
+      case ScalaTokenTypes.kTHIS => {
+        builder.advanceLexer //Ate this
+        ParamClauses parse (builder, true)
+        builder.getTokenType match {
+          case ScalaTokenTypes.tASSIGN => {
+            builder.advanceLexer //Ate =
+            if (!ConstrExpr.parse(builder)) {
+              builder error ScalaBundle.message("wrong.constr.expression", new Array[Object](0))
+            }
+            faultMarker.drop
+            return true
+          }
+          case ScalaTokenTypes.tLINE_TERMINATOR => {
+            if (LineTerminator(builder.getTokenText)) {
+              builder.advanceLexer //Ate nl
+            }
+            else {
+              builder error ScalaBundle.message("constr.block.expected", new Array[Object](0))
+              faultMarker.drop
+              return true
+            }
+            if (!ConstrBlock.parse(builder)) {
+              builder error ScalaBundle.message("constr.block.expected", new Array[Object](0))
+            }
+            faultMarker.drop
+            return true
+          }
+          case _ => {
+            if (!ConstrBlock.parse(builder)) {
+              builder error ScalaBundle.message("constr.block.expected", new Array[Object](0))
+            }
+            faultMarker.drop
+            return true
           }
         }
       }
       case _ => {
         faultMarker.rollbackTo
         return false
-      }
-    }
-  }
-
-  def parseConstructor(builder: PsiBuilder): Boolean = {
-    val faultMarker = builder.mark;
-    builder.advanceLexer //Ate this
-    ParamClauses parse (builder, true)
-    builder.getTokenType match {
-      case ScalaTokenTypes.tASSIGN => {
-        builder.advanceLexer //Ate =
-        if (!ConstrExpr.parse(builder)) {
-          builder error ScalaBundle.message("wrong.constr.expression", new Array[Object](0))
-        }
-        faultMarker.drop
-        return true
-      }
-      case ScalaTokenTypes.tLINE_TERMINATOR => {
-        if (LineTerminator(builder.getTokenText)) {
-          builder.advanceLexer //Ate nl
-        }
-        else {
-          builder error ScalaBundle.message("constr.block.expected", new Array[Object](0))
-          faultMarker.drop
-          return true
-        }
-        if (!ConstrBlock.parse(builder)) {
-          builder error ScalaBundle.message("constr.block.expected", new Array[Object](0))
-        }
-        faultMarker.drop
-        return true
-      }
-      case _ => {
-        if (!ConstrBlock.parse(builder)) {
-          builder error ScalaBundle.message("constr.block.expected", new Array[Object](0))
-        }
-        faultMarker.drop
-        return true
       }
     }
   }
