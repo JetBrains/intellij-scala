@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.resolve;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
@@ -19,5 +20,11 @@ public class ResolveLocalsTest extends ScalaResolveTestCase{
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScReferencePattern);
     assertEquals(((ScReferencePattern) resolved).name(), "aaa");
+  }
+
+  public void testSecondaryConstructorParameter() throws Exception {
+    PsiReference ref = configureByFile("constrParam.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScParameter);
   }
 }
