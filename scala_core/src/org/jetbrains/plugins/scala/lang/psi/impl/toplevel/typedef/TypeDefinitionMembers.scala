@@ -102,7 +102,12 @@ object TypeDefinitionMembers {
         }
       }
 
-      for (inner <- td.innerTypeDefinitions) map += ((inner, new Node(inner, subst)))
+      for (inner <- td.innerTypeDefinitions) {
+        inner match {
+          case _ : ScObject =>
+          case _ => map += ((inner, new Node(inner, subst)))
+        }
+      }
     }
   }
 
