@@ -5,6 +5,7 @@ import com.intellij.openapi.compiler.CompilerMessageCategory;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import static org.jetbrains.plugins.scala.compiler.ScalacOutputParser.MESSAGE_TYPE.*;
+import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
 
@@ -13,22 +14,23 @@ import java.io.File;
  */
 class ScalacOutputParser extends OutputParser {
 
-  private static final String ourErrorMarker = " error:";
-  private static final String ourWarningMarker = " warning:";
+  @NonNls private static final String ourErrorMarker = " error:";
+  @NonNls private static final String ourWarningMarker = " warning:";
 
   private static final String ourInfoMarkerStart = "[";
   private static final String ourInfoMarkerEnd = "]";
-  private static final String ourWroteMarker = "wrote ";
+  @NonNls private static final String ourWroteMarker = "wrote ";
   private static final String ourColumnMarker = "^";
-  private static final String ourParsingMarker = "parsing";
-  private static final String ourScalaInternalErrorMsg = "Scalac internal error";
+  @NonNls private static final String ourParsingMarker = "parsing";
+  @NonNls private static final String ourScalaInternalErrorMsg = "Scalac internal error";
 
   // Phases
-  private static final String PHASE = "running phase ";
+  @NonNls private static final String PHASE = "running phase ";
   private boolean mustProcessMsg = false;
   private boolean stopProcessing = false;
   private int myMsgColumnMarker;
   private MESSAGE_TYPE myMsgType = PLAIN;
+  @NonNls private static final String PARSER_ON = "parser on ";
 
   static enum MESSAGE_TYPE {
     ERROR, WARNING, PLAIN
@@ -91,6 +93,9 @@ class ScalacOutputParser extends OutputParser {
         if (info.startsWith(ourParsingMarker)) { //parsing
           callback.setProgressText(info);
         } else if (info.startsWith(PHASE)) { // typechecker phase
+          if (info.startsWith(PHASE + PARSER_ON)) {
+            callback.fileProcessed(info.substring(info.indexOf(PARSER_ON) + PARSER_ON.length()));
+          }
           callback.setProgressText(info);
         } else if (info.startsWith(ourWroteMarker)) {
           callback.setProgressText(info);

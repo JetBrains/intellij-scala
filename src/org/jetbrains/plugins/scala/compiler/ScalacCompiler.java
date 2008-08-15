@@ -127,8 +127,10 @@ public class ScalacCompiler extends ExternalCompiler {
     return new OutputParser() {
       @Override
       public boolean processMessageLine(Callback callback) {
-        super.processMessageLine(callback);
-        return true;
+        if (super.processMessageLine(callback)) {
+          return true;
+        }
+        return callback.getCurrentLine() != null;
       }
     };
   }
