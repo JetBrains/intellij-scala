@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 
 /**
- * @author ilyas
+ * @author ven, ilyas
  */
 public class ScalaCompiler implements TranslatingCompiler {
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.compiler.ScalaCompiler");
