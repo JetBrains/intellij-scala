@@ -15,13 +15,18 @@
 
 package org.jetbrains.plugins.scala.util;
 
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataConstants;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.module.JavaModuleType;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleType;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.util.ActionRunner;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiPackage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
 
@@ -32,6 +37,7 @@ import java.util.regex.Pattern;
 /**
  * @author Ilya.Sergey
  */
+@SuppressWarnings({"AbstractClassNeverImplemented"})
 public abstract class ScalaUtils {
   /**
    * @param dir
@@ -45,6 +51,8 @@ public abstract class ScalaUtils {
     return ".svn".equals(name) || "_svn".equals(name) ||
             ".cvs".equals(name) || "_cvs".equals(name);
   }
+
+  public static final String PLUGIN_MODULE_ID = "PLUGIN_MODULE";
 
   /**
    * @param file
@@ -125,4 +133,18 @@ public abstract class ScalaUtils {
     }, name, null);
   }
 
+  public static boolean isSuitableModule(Module module) {
+    if (module == null) return false;
+    ModuleType moduleType = module.getModuleType();
+    return moduleType instanceof JavaModuleType || moduleType.getId().equals(PLUGIN_MODULE_ID);
+  }
+
+  public static boolean isScalaConfigured(AnActionEvent e) {
+    Project project = (Project) e.getDataContext().getData(DataConstants.PROJECT);
+    if (project != null) {
+      PsiPackage aPackage = JavaPsiFacade.getInstance(project).findPackage("scala");
+      if (aPackage != null) return true;
+    }
+    return false;
+  }
 }
