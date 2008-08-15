@@ -256,7 +256,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
       case _ =>
         extendsBlock.earlyDefinitions match {
           case Some(ed) if PsiTreeUtil.isAncestor(ed, place, true) =>
-          case _ => TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)
+          case _ => if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
         }
 
         true
