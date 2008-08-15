@@ -32,7 +32,7 @@
     <errorHandler implementation="org.jetbrains.plugins.scala.error.ErrorReportSubmitter"/>
     <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
     <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
-    <treeStructureProvider language="Scala"  implementation="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider"/>
+    <treeStructureProvider language="Scala" implementation="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider"/>
     <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
     <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
     <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
@@ -40,14 +40,22 @@
     <lang.formatter language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.formatting.ScalaFormattingModelBuilder"/>
     <lang.gotoClassContributor language="Scala" implementationClass="org.jetbrains.plugins.scala.gotoclass.ScalaChooseByNameContributor"/>
     <lang.refactoringSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.refactor.ScalaRefactoringSupportProvider"/>
-    <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor"/>
-    <lang.psiStructureViewFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewFactory"/>
+    <lang.surroundDescriptor language="Scala"
+                             implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor"/>
+    <lang.psiStructureViewFactory language="Scala"
+                                  implementationClass="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewFactory"/>
     <frameworkSupport implementation="org.jetbrains.plugins.scala.config.ScalaFacetSupportProvider"/>
     <completion.contributor implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor"/>
-    <codeInsight.overrideMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
-    <codeInsight.implementMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaImplementMethodsHandler"/>
+    <codeInsight.overrideMethod language="Scala"
+                                implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
+    <codeInsight.implementMethod language="Scala"
+                                 implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaImplementMethodsHandler"/>
     <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
-    <codeStyleSettingsProvider language="Scala" implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettingsProvider"/>
+    <codeStyleSettingsProvider language="Scala"
+                               implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettingsProvider"/>
+
+    <fileTemplateGroup implementation="org.jetbrains.plugins.scala.actions.ScalaTemplatesFactory"/>
+
   </extensions>
 
 
@@ -60,11 +68,8 @@
       <interface-class>org.jetbrains.plugins.scala.util.ScalaToolsFactory</interface-class>
       <implementation-class>org.jetbrains.plugins.scala.util.ScalaToolsFactoryImpl</implementation-class>
     </component>
-    <component>                           
-      <implementation-class>org.jetbrains.plugins.scala.ScalaLoader</implementation-class>
-    </component>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.components.ScalaFileCreator</implementation-class>
+      <implementation-class>org.jetbrains.plugins.scala.ScalaLoader</implementation-class>
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.scala.components.ScalaIconProvider</implementation-class>
@@ -104,4 +109,20 @@
       <implementation-class>org.jetbrains.plugins.scala.codeInspection.importInspections.ScalaAddImportPassFactory</implementation-class>
     </component>
   </project-components>
+
+  <actions>
+    <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaClassAction"
+            text="Scala Class" description="Create new Scala class">
+      <add-to-group group-id="NewGroup" anchor="last"/>
+    </action>
+    <action id="Scala.NewObject" class="org.jetbrains.plugins.scala.actions.NewScalaObjectAction"
+            text="Scala Object" description="Create new Scala singleton object">
+      <add-to-group group-id="NewGroup" anchor="last"/>
+    </action>
+    <action id="Scala.NewTrait" class="org.jetbrains.plugins.scala.actions.NewScalaTraitAction"
+            text="Scala Trait" description="Create new Scala trait">
+      <add-to-group group-id="NewGroup" anchor="last"/>
+    </action>
+  </actions>
+
 </idea-plugin>

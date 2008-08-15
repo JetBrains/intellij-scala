@@ -282,9 +282,8 @@
   <target name="copy.scala.plugin">
     <mkdir dir="${base.dir}/tempjar/Scala/lib"/>
 
-    <jar destfile="${base.dir}/Scala.jar">
+    <jar destfile="${base.dir}/Scala.jar" update="true">
       <fileset dir="${project.lib}" excludes="**/*build.xml, **/scala.properties"/>
-      <fileset dir="../resources" excludes="**/*build.xml, **/scala.properties"/>
 
       <manifest>
         <attribute name="Revision" value="${plugin.revision}"/>
