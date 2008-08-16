@@ -125,11 +125,11 @@ object ScType {
         if (args.length > 0) {
           buffer.append("[");
           appendSeq(args, ",")
-          buffer.append("]=>")
+          buffer.append("]")
         }
-        buffer.append(">:")
+        buffer.append(" >: ")
         inner(lower)
-        buffer.append(name).append("<:")
+        buffer.append(name).append(" <: ")
         inner(upper)
       }
       case ScExistentialType(q, wilds) => {
