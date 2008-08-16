@@ -4,8 +4,8 @@ import com.intellij.compiler.OutputParser;
 import com.intellij.openapi.compiler.CompilerMessageCategory;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import static org.jetbrains.plugins.scala.compiler.ScalacOutputParser.MESSAGE_TYPE.*;
 import org.jetbrains.annotations.NonNls;
+import static org.jetbrains.plugins.scala.compiler.ScalacOutputParser.MESSAGE_TYPE.*;
 
 import java.io.File;
 
@@ -52,7 +52,7 @@ class ScalacOutputParser extends OutputParser {
 
     if (text.startsWith(ourScalaInternalErrorMsg)) {
       callback.message(CompilerMessageCategory.ERROR, ourScalaInternalErrorMsg, "", 0, 0);
-      return false;
+      return true;
     }
 
     // Add error message to output
