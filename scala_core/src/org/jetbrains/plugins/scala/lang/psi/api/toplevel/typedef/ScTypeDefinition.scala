@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
+import base.types.ScSelfTypeElement
 import statements.ScVariable
 import statements.ScValue
 import com.intellij.psi._
@@ -60,4 +61,14 @@ trait ScTypeDefinition extends ScNamedElement
     }
 
   def functionsByName(name: String): Iterable[PsiMethod]
+
+  def selfTypeElement = findChild(classOf[ScSelfTypeElement])
+
+  def selfType = selfTypeElement match {
+    case Some(ste) => ste.typeElement match {
+      case Some(te) => Some(te.getType)
+      case None => None
+    }
+    case None => None
+  }
 }

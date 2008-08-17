@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScSelfTypeElement extends ScalaPsiElement {
-
+  def typeElement = findChild(classOf[ScTypeElement])
 }
