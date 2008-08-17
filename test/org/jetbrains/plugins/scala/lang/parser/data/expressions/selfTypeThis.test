@@ -22,10 +22,9 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          TypePattern
-            SimpleTypeElement
-              CodeReferenceElement
-                PsiElement(identifier)('Type')
+          SimpleTypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('Type')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
         PsiWhiteSpace('\n  ')

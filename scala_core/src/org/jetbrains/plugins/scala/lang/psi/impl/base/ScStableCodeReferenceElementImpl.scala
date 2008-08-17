@@ -100,14 +100,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
           }
         }
       }
-      case Some(thisQ : ScThisReference) => thisQ.refClass match {
-        case Some(td) => td.processDeclarations(processor, ResolveState.initial, null, ScStableCodeReferenceElementImpl.this)
-        case _ =>
-      }
-      case Some(superQ : ScSuperReference) => superQ.refClass match {
-        case Some(clazz) => clazz.processDeclarations(processor, ResolveState.initial, null, ScStableCodeReferenceElementImpl.this)
-        case _ =>
-      }
+      case Some(thisQ : ScThisReference) => processor.processType(thisQ.getType, this)
+      case Some(superQ : ScSuperReference) => processor.processType(superQ.getType, this) 
     }
     processor.candidates
   }

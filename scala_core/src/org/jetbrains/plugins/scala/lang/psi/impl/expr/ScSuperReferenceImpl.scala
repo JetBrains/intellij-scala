@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import types.{ScDesignatorType, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -11,4 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSuperReference {
   override def toString: String = "SuperReference"
+
+  override def getType = refClass match {
+    case Some(clazz) => new ScDesignatorType(clazz)
+    case _ => Nothing
+  }
 }

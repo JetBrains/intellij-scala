@@ -45,14 +45,3 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     }
   }
 }
-
-class F[T]
-abstract class A{
-  type t
-
-  def r() = {
-    var tr : F[t] = new F[t]
-    var tr1 : F[t] = new F[t]
-    tr = tr1
-  }
-}

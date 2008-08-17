@@ -29,7 +29,7 @@ object SelfType {
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON => {
             builder.advanceLexer //Ate ':'
-            if (!TypePattern.parse(builder)) {
+            if (!parseType(builder)) {
              selfTypeMarker.rollbackTo
               return
             }
@@ -58,7 +58,7 @@ object SelfType {
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON => {
             builder.advanceLexer //Ate ':'
-            if (!TypePattern.parse(builder)) {
+            if (!parseType(builder)) {
              selfTypeMarker.rollbackTo
               return
             }
@@ -92,5 +92,22 @@ object SelfType {
         return
       }
     }
+  }
+
+  def parseType(builder : PsiBuilder) : Boolean = {
+    val typeMarker = builder.mark
+    if (!InfixType.parse(builder, false, true)) {
+      typeMarker.drop
+      return false
+    }
+
+    builder.getTokenType match {
+      case ScalaTokenTypes.kFOR_SOME => {
+        ExistentialClause parse builder
+        typeMarker.done(ScalaElementTypes.EXISTENTIAL_TYPE)
+      }
+      case _ => typeMarker.drop
+    }
+    true
   }
 }
