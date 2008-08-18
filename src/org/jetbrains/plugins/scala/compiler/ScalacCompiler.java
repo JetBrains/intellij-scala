@@ -21,8 +21,11 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
@@ -42,15 +45,15 @@ public class ScalacCompiler extends ExternalCompiler {
   private final List<File> myTempFiles = new ArrayList<File>();
 
   // VM properties
-  private static final String XMX_COMPILER_PROPERTY = "-Xmx300m";
-  private final String XSS_COMPILER_PROPERTY = "-Xss128m";
+  @NonNls private static final String XMX_COMPILER_PROPERTY = "-Xmx300m";
+  @NonNls private final String XSS_COMPILER_PROPERTY = "-Xss128m";
 
   // Scalac parameters
-  private static final String DEBUG_INFO_LEVEL_PROPEERTY = "-g:vars";
-  private static final String VERBOSE_PROPERTY = "-verbose";
-  private static final String DESTINATION_COMPILER_PROPERTY = "-d";
-  private static final String DEBUG_PROPERTY = "-Ydebug";
-  private static final String WARNINGS_PROPERTY = "-unchecked";
+  @NonNls private static final String DEBUG_INFO_LEVEL_PROPEERTY = "-g:vars";
+  @NonNls private static final String VERBOSE_PROPERTY = "-verbose";
+  @NonNls private static final String DESTINATION_COMPILER_PROPERTY = "-d";
+  @NonNls private static final String DEBUG_PROPERTY = "-Ydebug";
+  @NonNls private static final String WARNINGS_PROPERTY = "-unchecked";
 
 
   public ScalacCompiler(Project project) {
@@ -164,6 +167,12 @@ public class ScalacCompiler extends ExternalCompiler {
     return commandLine.toArray(new String[commandLine.size()]);
   }
 
+  @NotNull
+  @Override
+  public Collection<? extends FileType> getCompilableFileTypes() {
+    return Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA);
+  }
+
   private void createStartupCommandImpl(ModuleChunk chunk, ArrayList<String> commandLine, String outputPath) throws IOException {
     final Sdk jdk = getJdkForStartupCommand(chunk);
     final String versionString = jdk.getVersionString();
@@ -219,7 +228,7 @@ public class ScalacCompiler extends ExternalCompiler {
   }
 
 
-  private void fillFileWithScalacParams(ModuleChunk chunk, File fileWithParameters, String outputPath)
+  private static void fillFileWithScalacParams(ModuleChunk chunk, File fileWithParameters, String outputPath)
           throws FileNotFoundException {
 
     PrintStream printer = new PrintStream(new FileOutputStream(fileWithParameters));
