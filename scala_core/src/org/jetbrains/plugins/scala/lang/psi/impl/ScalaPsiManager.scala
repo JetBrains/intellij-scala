@@ -19,18 +19,18 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     })
   }
 
-  private val typeVariables = new WeakHashMap[PsiTypeParameter, ScTypeVariable]
+  private val typeVariables = new WeakHashMap[PsiTypeParameter, ScTypeParameterType]
 
-  def typeVariable(tp: PsiTypeParameter) : ScTypeVariable = {
+  def typeVariable(tp: PsiTypeParameter) : ScTypeParameterType = {
     var existing = typeVariables.get(tp)
     if (existing != null) existing else {
       val tv = tp match {
         case stp: ScTypeParam => {
           val inner = stp.typeParameters.map{typeVariable(_)}.toList
-          typeVariables.put(tp, new ScTypeVariable("", inner, Nothing, Any)) //temp put to avoid SOE
+          typeVariables.put(tp, new ScTypeParameterType(stp, inner, Nothing, Any)) //temp put to avoid SOE
           val lower = stp.lowerBound
           val upper = stp.upperBound
-          new ScTypeVariable(stp.name, inner, lower, upper)
+          new ScTypeParameterType(stp, inner, lower, upper)
         }
         case _ => {
           val supers = tp.getSuperTypes
@@ -38,7 +38,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
             case Array(single) => ScType.create(single, project)
             case many => new ScCompoundType(many.map{ScType.create(_, project)}, Seq.empty, Seq.empty)
           }
-          new ScTypeVariable(tp.getName, Nil, Nothing, scalaSuper)
+          new ScTypeParameterType(tp, Nil, Nothing, scalaSuper)
         }
       }
       synchronized {

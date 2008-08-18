@@ -82,3 +82,9 @@ case class ScTypeAliasType(name : String, args : List[ScTypeVariable], lower : S
 }
 
 case class ScTypeVariable(name : String, inner : List[ScTypeVariable], lower : ScType, upper : ScType) extends ScType
+
+case class ScTypeParameterType(val typeParam : PsiTypeParameter,
+                               override val inner : List[ScTypeParameterType],
+                               override val lower : ScType,
+                               override val upper : ScType)
+extends ScTypeVariable(typeParam.getName, inner, lower, upper)
