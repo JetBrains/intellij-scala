@@ -8,7 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScNamingPattern extends ScBindingPattern {
-
-  def isSeqBindingPattern: Boolean
-
+  def named = findChildByClass(classOf[ScPattern])
 }

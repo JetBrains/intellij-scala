@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -34,4 +35,12 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScPatternImpl (node) with 
       case _ => None
     }
   }
-}
+
+  override def calcType = ref.bind match {
+    case None => Nothing
+    case Some(r) => r.element match {
+      case td : ScClass => ScParameterizedType.create(td, r.substitutor)
+      case obj : ScObject => new ScDesignatorType (obj)
+      case _ => Nothing
+    }
+  }}
