@@ -33,21 +33,11 @@ object BaseTypes {
   }
 
   def reduce (types : Seq[ScType]) : Seq[ScType] = {
-    def extractClass (t : ScType) = t match {
-      case ScDesignatorType(c : PsiClass) => Some(c)
-      case ScParameterizedType(ScDesignatorType(c : PsiClass), _) => Some(c)
-      case p : ScProjectionType => p.element match {
-        case Some(c : PsiClass) => Some(c)
-        case _ => None
-      }
-      case _ => None
-    }
-
     val res = new HashMap[PsiClass, ScType]
     object all extends HashMap[PsiClass, Set[ScType]] with MultiMap[PsiClass, ScType]
     for (t <- types) {
-      extractClass(t) match {
-        case Some(c) => {
+      ScType.extractClassType(t) match {
+        case Some((c, _)) => {
           val isBest = all.get(c) match {
             case None => true
             case Some(ts) => ts.find(t1 => !Conformance.conforms(t1, t)) == None
