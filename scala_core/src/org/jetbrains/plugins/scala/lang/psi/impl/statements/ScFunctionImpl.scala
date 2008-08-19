@@ -40,7 +40,7 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
 
   def getReturnType = calcType match {
     case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
-    //partial match
+    case _ => PsiType.VOID
   }
 
   def getNameIdentifier = null
