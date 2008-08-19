@@ -39,51 +39,69 @@ object Byte extends ValType("Byte", Some(Short))
 object Short extends ValType("Float", Some(Int))
 
 object ScType {
-  def create(psiType : PsiType, project : Project) : ScType = {
-    psiType match {
-      case classType : PsiClassType => {
-        val result = classType.resolveGenerics
-        result.getElement match {
-          case tp : PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
-          case clazz if clazz != null => {
-            val tps = clazz.getTypeParameters
-            val des = new ScDesignatorType(clazz)
-            tps match {
-              case Array() => des
-              case _ => new ScParameterizedType(des, tps.map
-                    {tp => create(result.getSubstitutor.substitute(tp), project)})
-            }
+  def create(psiType : PsiType, project : Project) : ScType = psiType match {
+    case classType : PsiClassType => {
+      val result = classType.resolveGenerics
+      result.getElement match {
+        case tp : PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
+        case clazz if clazz != null => {
+          val tps = clazz.getTypeParameters
+          val des = new ScDesignatorType(clazz)
+          tps match {
+            case Array() => des
+            case _ => new ScParameterizedType(des, tps.map
+                      {tp => create(result.getSubstitutor.substitute(tp), project)})
           }
-          case _ => Nothing
         }
+        case _ => Nothing
       }
-      case arrayType : PsiArrayType => {
-        val arrayClass = JavaPsiFacade.getInstance(project).findClass("scala.Array", GlobalSearchScope.allScope(project))
-        if (arrayClass != null) {
-          val tps = arrayClass.getTypeParameters
-          if (tps.length == 1) {
-            val typeArg = create(arrayType.getComponentType, project)
-            new ScParameterizedType(new ScDesignatorType(arrayClass), Array(typeArg))
-          } else new ScDesignatorType(arrayClass)
-        } else Nothing
-      }
-
-      case PsiType.VOID => Unit
-      case PsiType.BOOLEAN => Boolean
-      case PsiType.CHAR => Char
-      case PsiType.INT => Int
-      case PsiType.LONG => Long
-      case PsiType.FLOAT => Float
-      case PsiType.DOUBLE => Double
-      case PsiType.BYTE => Byte
-      case PsiType.SHORT => Short
-      case PsiType.NULL => Null
-      case wild : PsiWildcardType => new ScExistentialArgument("_", Nil,
-                                                               create(wild.getSuperBound, project),
-                                                               create(wild.getExtendsBound, project))
-      case null => new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java 
-      case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
     }
+    case arrayType : PsiArrayType => {
+      val arrayClass = JavaPsiFacade.getInstance(project).findClass("scala.Array", GlobalSearchScope.allScope(project))
+      if (arrayClass != null) {
+        val tps = arrayClass.getTypeParameters
+        if (tps.length == 1) {
+          val typeArg = create(arrayType.getComponentType, project)
+          new ScParameterizedType(new ScDesignatorType(arrayClass), Array(typeArg))
+        } else new ScDesignatorType(arrayClass)
+      } else Nothing
+    }
+
+    case PsiType.VOID => Unit
+    case PsiType.BOOLEAN => Boolean
+    case PsiType.CHAR => Char
+    case PsiType.INT => Int
+    case PsiType.LONG => Long
+    case PsiType.FLOAT => Float
+    case PsiType.DOUBLE => Double
+    case PsiType.BYTE => Byte
+    case PsiType.SHORT => Short
+    case PsiType.NULL => Null
+    case wild : PsiWildcardType => new ScExistentialArgument("_", Nil,
+      create(wild.getSuperBound, project),
+      create(wild.getExtendsBound, project))
+    case null => new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java
+    case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
+  }
+
+  def toPsi(t : ScType, project : Project, scope : GlobalSearchScope) : PsiType = t match {
+    case Unit => PsiType.VOID
+    case Boolean => PsiType.BOOLEAN
+    case Char => PsiType.CHAR
+    case Int => PsiType.INT
+    case Long => PsiType.LONG
+    case Float => PsiType.FLOAT
+    case Double => PsiType.DOUBLE
+    case Byte => PsiType.BYTE
+    case Short => PsiType.SHORT
+    case Null => PsiType.NULL
+    case ScDesignatorType(c : PsiClass) => JavaPsiFacade.getInstance(project).getElementFactory.createType(c, PsiSubstitutor.EMPTY)
+    case ScParameterizedType(ScDesignatorType(c : PsiClass), Array(arg)) if c.getQualifiedName == "scala.Array" =>
+      new PsiArrayType(toPsi(arg, project, scope))
+
+    //Scala generics will be java generics in 2.7.2
+
+    case _ => JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
   }
 
   def extractClassType(t : ScType) : Option[Pair[PsiClass, ScSubstitutor]] = t match {
