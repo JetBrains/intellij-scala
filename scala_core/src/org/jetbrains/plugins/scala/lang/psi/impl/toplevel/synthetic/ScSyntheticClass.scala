@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
 
+import com.intellij.openapi.startup.StartupManager
 import com.intellij.psi.search.GlobalSearchScope
 import api.statements.ScFun
 import api.toplevel.ScNamedElement
@@ -84,6 +85,12 @@ class SyntheticClasses(project: Project) extends ProjectComponent with PsiElemen
   def disposeComponent {}
 
   def initComponent() {
+    StartupManager.getInstance(project).registerPostStartupActivity(new Runnable {
+      def run = registerClasses
+    })
+  }
+
+  def registerClasses = {
     all = new HashMap[String, ScSyntheticClass]
     file = PsiFileFactory.getInstance(project).createFileFromText(
     "dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), "")
@@ -159,11 +166,11 @@ class SyntheticClasses(project: Project) extends ProjectComponent with PsiElemen
     clazz.addMethod(new ScSyntheticFunction(manager, "==", Boolean, Seq.single(Any)))
     clazz.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq.single(Any)))
     clazz.addMethod(new ScSyntheticFunction(manager, "hashCode", Int, Seq.empty))
-    /*val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
+    val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
     if (stringClass != null) {
       val stringType = new ScDesignatorType(stringClass)
       clazz.addMethod(new ScSyntheticFunction(manager, "toString", stringType, Seq.empty))
-    }*/
+    }
 
     all + ((name, clazz)); clazz
   }
