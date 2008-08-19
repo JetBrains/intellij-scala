@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 
+import types.{ScType, ScFunctionType}
 import api.expr.ScAnnotations
 import java.util._
 import com.intellij.lang._
@@ -37,7 +38,10 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
 
   override def getIcon(flags: Int) = Icons.FUNCTION
 
-  def getReturnType = if (isMainMethod) PsiType.VOID else null
+  def getReturnType = calcType match {
+    case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
+    //partial match
+  }
 
   def getNameIdentifier = null
 
@@ -62,10 +66,6 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
 
   def getSignature(substitutor: PsiSubstitutor) = MethodSignatureBackedByPsiMethod.create(this, substitutor)
 
-  override def hasModifierProperty(prop: String) =
-    if (isMainMethod && prop == PsiModifier.STATIC || prop == PsiModifier.PUBLIC) true
-    else super.hasModifierProperty(prop)
-
   //todo implement me!
   def isVarArgs = false
 
@@ -87,7 +87,4 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
       case Some(x) => x
     }
   }
-
-  // Fake method to implement simple application running
-  def isMainMethod: Boolean = false
 }
