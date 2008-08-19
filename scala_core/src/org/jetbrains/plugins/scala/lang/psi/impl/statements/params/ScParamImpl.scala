@@ -8,16 +8,13 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
 import com.intellij.psi.util._
-import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.types.Nothing
-
-
-/** 
+import lang.psi.types.{ScType, Nothing}
+/**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
@@ -59,7 +56,7 @@ class ScParameterImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
 
   def getInitializer = null
 
-  def getType: PsiType = PsiType.INT
+  def getType: PsiType = ScType.toPsi(calcType, getProject, getResolveScope)
 
   def getModifierList = findChildByClass(classOf[ScModifierList])
 
