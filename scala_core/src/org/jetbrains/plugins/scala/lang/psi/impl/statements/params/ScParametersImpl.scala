@@ -31,23 +31,5 @@ class ScParametersImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScP
 
   def getParametersCount = params.length
 
-  // todo hack for applictiation running
-  override def getParameters = getParent match {
-    case m: ScFunctionImpl => {
-      if (m.isMainMethod) {
-        val ps = new Array[PsiParameter](1)
-        val p = new ScParameterImpl(params(0).getNode) {
-          override def getType(): PsiType = new PsiArrayType(
-            JavaPsiFacade.getInstance(m.getProject).getElementFactory.createTypeByFQClassName(
-              "java.lang.String",
-              GlobalSearchScope.allScope(m.getProject)
-              )
-            )
-        }
-        ps(0) = p
-        ps
-      } else params.toArray
-    }
-    case _ => params.toArray
-  }
+  override def getParameters = params.toArray
 }

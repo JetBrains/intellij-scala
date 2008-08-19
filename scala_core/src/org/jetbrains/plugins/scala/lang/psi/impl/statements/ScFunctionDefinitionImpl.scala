@@ -42,37 +42,12 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
 
   override def toString: String = "ScFunctionDefinition"
 
-  /**
-  * Fake method to provide type-unsafe Scala Run Configuration
-  */
-  override def isMainMethod: Boolean = {
-    val obj = getContainingClass
-    if (!getName.equals("main") || !obj.isInstanceOf[ScObject]) return false
-    obj.getParent match {
-      case _: PsiFile | _: ScPackaging => {}
-      case _ => return false
-    }
-    val pc = paramClauses
-    if (pc == null) return false
-    val params = pc.params
-    if (params.length != 1) return false
-    params(0).typeElement match {
-      case Some(g: ScParameterizedTypeElement) => {
-        if (!"Array".equals(g.simpleTypeElement.getText)) return false
-        val args = g.typeArgList.typeArgs
-        if (args.length != 1) return false
-        args(0).getText == "String"
-      }
-      case _ => return false
-    }
-  }
-
   import com.intellij.openapi.util.Key
 
   def calcType = returnTypeElement match {
     case None => body match {
       case Some(b) => new ScFunctionType(b.getType, paramTypes)
-      case _ => Nothing
+      case _ => new ScFunctionType(Nothing, paramTypes)
     }
     case Some(rte) => new ScFunctionType(rte.getType, paramTypes)
   }
