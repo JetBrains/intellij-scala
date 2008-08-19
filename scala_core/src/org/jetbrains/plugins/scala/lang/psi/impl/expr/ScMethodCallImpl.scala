@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import types.{ScFunctionType, Nothing}
+import types.ScFunctionType
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import api.expr._
@@ -14,6 +14,6 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
   override def toString: String = "MethodCall"
   override def getType = getInvokedExpr.getType match {
     case ScFunctionType(r, _) => r
-    case _ => Nothing
+    case t => t
   }
 }
