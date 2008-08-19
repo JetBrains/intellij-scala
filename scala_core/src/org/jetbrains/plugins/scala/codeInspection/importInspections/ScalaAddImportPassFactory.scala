@@ -12,7 +12,9 @@ import com.intellij.codeHighlighting.TextEditorHighlightingPassFactory
 
 class ScalaAddImportPassFactory extends TextEditorHighlightingPassFactory {
   def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass = {
-    new ScalaAddImportPass(file, editor)
+    if (file.getManager.isInProject(file)) {
+      new ScalaAddImportPass(file, editor)
+    } else null
   }
   def projectOpened {
   }

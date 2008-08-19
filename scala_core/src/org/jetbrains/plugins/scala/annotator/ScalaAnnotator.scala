@@ -53,7 +53,9 @@ class ScalaAnnotator extends Annotator {
         val error = ScalaBundle.message("cannot.resolve", Array[Object](refElement.refName))
         val annotation = holder.createErrorAnnotation(refElement.nameId, error)
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-        registerAddImportFix(refElement, annotation)
+        if (refElement.getManager.isInProject(refElement)) {
+          registerAddImportFix(refElement, annotation)
+        }
       case Some(result) => {
         registerUsedImports(refElement, result)
         AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
