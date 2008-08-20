@@ -87,14 +87,14 @@ public class ScalaLoader implements ApplicationComponent {
 
 
         CompilerManager compilerManager = CompilerManager.getInstance(project);
-/*      todo Uncomment after Scala 2.7.2
+//      todo Uncomment after Scala 2.7.2
         HashSet<FileType> inputSet = new HashSet<FileType>(Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA));
         HashSet<FileType> outputSet = new HashSet<FileType>(Arrays.asList(StdFileTypes.JAVA, StdFileTypes.CLASS));
-        compilerManager.addTranslatingCompiler(new ScalaCompilerOld(project),
+        compilerManager.addTranslatingCompiler(new ScalaCompiler(project),
                 inputSet, outputSet);
-*/
+
 //        compilerManager.addCompiler(new ScalaCompilerOld(project));
-        compilerManager.addCompiler(new ScalaCompiler(project));
+//        compilerManager.addCompiler(new ScalaCompiler(project));
         compilerManager.addCompilableFileType(ScalaFileType.SCALA_FILE_TYPE);
 
         DebuggerManager.getInstance(project).addClassNameMapper(new ScalaJVMNameMapper());
