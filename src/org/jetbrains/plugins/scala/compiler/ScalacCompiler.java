@@ -171,7 +171,7 @@ public class ScalacCompiler extends ExternalCompiler {
 
   @NotNull
   @Override
-  public Set<FileType> getCompilableFileTypes() {
+  public Set<FileType> getCompilableFileTypes() {  
     return COMPILABLE_FILE_TYPES;
   }
 
