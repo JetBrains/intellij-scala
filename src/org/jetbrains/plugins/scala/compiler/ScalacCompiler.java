@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.compiler.CompilerConfigurationImpl;
 import com.intellij.compiler.OutputParser;
+import com.intellij.compiler.impl.javaCompiler.DependencyProcessor;
 import com.intellij.compiler.impl.javaCompiler.ExternalCompiler;
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
 import com.intellij.compiler.impl.javaCompiler.javac.JavacSettings;
@@ -9,6 +10,8 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
@@ -21,11 +24,9 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.util.PathUtil;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
@@ -54,6 +55,7 @@ public class ScalacCompiler extends ExternalCompiler {
   @NonNls private static final String DESTINATION_COMPILER_PROPERTY = "-d";
   @NonNls private static final String DEBUG_PROPERTY = "-Ydebug";
   @NonNls private static final String WARNINGS_PROPERTY = "-unchecked";
+  private final static HashSet<FileType> COMPILABLE_FILE_TYPES = new HashSet<FileType>(Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA));
 
 
   public ScalacCompiler(Project project) {
@@ -169,8 +171,17 @@ public class ScalacCompiler extends ExternalCompiler {
 
   @NotNull
   @Override
-  public Collection<? extends FileType> getCompilableFileTypes() {
-    return Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA);
+  public Set<FileType> getCompilableFileTypes() {
+    return COMPILABLE_FILE_TYPES;
+  }
+
+  @Override
+  public DependencyProcessor getDependencyProcessor() {
+    return new DependencyProcessor() {
+      public void processDependencies(CompileContext context, int classQualifiedName) {
+
+      }
+    };
   }
 
   private void createStartupCommandImpl(ModuleChunk chunk, ArrayList<String> commandLine, String outputPath) throws IOException {
