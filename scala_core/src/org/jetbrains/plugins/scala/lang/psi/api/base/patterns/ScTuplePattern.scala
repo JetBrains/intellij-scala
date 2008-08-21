@@ -9,9 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScTuplePattern extends ScPattern {
-  def argList = findChild(classOf[ScPatternArgumentList])
+  def patternList = findChild(classOf[ScPatterns])
 
-  override def calcType = argList match {
+  override def calcType = patternList match {
     case Some(l) => new ScTupleType(l.patterns.map {_.calcType})
     case None => Nothing
   }

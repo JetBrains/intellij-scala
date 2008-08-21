@@ -30,12 +30,7 @@ class ScPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatt
     }
   }
 
-  def subpatterns : Seq[ScPattern] = {
-    if (!this.isInstanceOf[ScTuplePattern])
-      findChildrenByClass(classOf[ScPattern])
-    else
-      findChildByClass(classOf[ScPatterns]).patterns
-  }
+  def subpatterns : Seq[ScPattern] = findChildrenByClass(classOf[ScPattern])
 
   def expectedType :Option[ScType] = getParent match {
     case list : ScPatternList => list.getParent match {
