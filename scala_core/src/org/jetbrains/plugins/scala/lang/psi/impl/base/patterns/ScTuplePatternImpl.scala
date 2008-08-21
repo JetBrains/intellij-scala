@@ -12,4 +12,9 @@ import com.intellij.psi._
 
 class ScTuplePatternImpl(node: ASTNode) extends ScPatternImpl (node) with ScTuplePattern{
   override def toString: String = "TuplePattern"
+
+  override def subpatterns =  patternList match {
+    case Some(l) => l.patterns
+    case None => Seq.empty
+  }
 }
