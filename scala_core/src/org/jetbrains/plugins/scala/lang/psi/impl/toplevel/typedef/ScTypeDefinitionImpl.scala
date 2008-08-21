@@ -114,34 +114,9 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
       case Some(body) => body.aliases
     }
 
-  def allAliases: Seq[ScTypeAlias] = {
-    val aliases = TypeDefinitionMembers.getTypes(this)
-    return aliases.toArray.map[PsiNamedElement](_._1).filter(_.isInstanceOf[ScTypeAlias]).map[ScTypeAlias](_.asInstanceOf[ScTypeAlias])
-  }
-
-  def allVals: Seq[ScValue] = {
-    allMembers.filter(_.isInstanceOf[ScValue]).map(_.asInstanceOf[ScValue])
-  }
-
-  def allVars: Seq[ScVariable] = {
-    allMembers.filter(_.isInstanceOf[ScVariable]).map(_.asInstanceOf[ScVariable])
-  }
-
-  def allFields: Seq[PsiField] = {
-    allMembers.filter(_.isInstanceOf[PsiField]).map(_.asInstanceOf[PsiField])
-  }
-
-  def allMembers: Seq[PsiMember] = {
-    val buf = new ArrayBuffer[PsiMember]
-    buf ++= members
-    for (clazz <- getSupers) {
-      if (clazz.isInstanceOf[ScTypeDefinition])
-        buf ++= clazz.asInstanceOf[ScTypeDefinition].members
-      else
-        buf ++= clazz.getAllFields
-    }
-    return buf.toArray
-  }
+  def allTypes = TypeDefinitionMembers.getTypes(this).values.map{n => (n.info, n.substitutor)}
+  def allVals = TypeDefinitionMembers.getVals(this).values.map{n => (n.info, n.substitutor)}
+  def allMethods = TypeDefinitionMembers.getMethods(this).values.map{n => n.info}
 
   def innerTypeDefinitions: Seq[ScTypeDefinition] =
     (extendsBlock.templateBody match {
