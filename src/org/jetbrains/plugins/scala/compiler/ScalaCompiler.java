@@ -10,7 +10,9 @@ import com.intellij.openapi.compiler.CompilerMessageCategory;
 import com.intellij.openapi.compiler.TranslatingCompiler;
 import com.intellij.openapi.compiler.ex.CompileContextEx;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +37,8 @@ public class ScalaCompiler implements TranslatingCompiler {
   }
 
   public boolean isCompilableFile(VirtualFile file, CompileContext context) {
-    return FILE_TYPE_MANAGER.getFileTypeByFile(file).equals(ScalaFileType.SCALA_FILE_TYPE);
+    final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
+    return fileType.equals(ScalaFileType.SCALA_FILE_TYPE) || fileType.equals(StdFileTypes.JAVA);
   }
 
   public ExitStatus compile(CompileContext context, VirtualFile[] files) {

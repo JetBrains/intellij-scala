@@ -164,7 +164,7 @@ public class ScalacCompiler extends ExternalCompiler {
         throw (IllegalArgumentException) ex[0];
       } else {
         LOG.error(ex[0]);
-      }
+      }                                   
     }
     return commandLine.toArray(new String[commandLine.size()]);
   }
@@ -205,6 +205,11 @@ public class ScalacCompiler extends ExternalCompiler {
 
     //todo setup via ScalacSettings
     commandLine.add("-cp");
+
+
+    // For debug
+//    commandLine.add("-Xdebug");
+//    commandLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5444");
 
     String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
     final StringBuilder classPathBuilder = new StringBuilder();
@@ -315,6 +320,7 @@ public class ScalacCompiler extends ExternalCompiler {
   static {
     required.add("scala");
     required.add("sbaz");
+    required.add("fjbg");
   }
 
   private static boolean required(String name) {
@@ -322,6 +328,7 @@ public class ScalacCompiler extends ExternalCompiler {
     if (!name.endsWith(".jar"))
       return false;
 
+    final String realName = name;
     name = name.substring(0, name.lastIndexOf('.'));
     int ind = name.lastIndexOf('-');
     if (ind != -1 && name.length() > ind + 1 && Character.isDigit(name.charAt(ind + 1))) {

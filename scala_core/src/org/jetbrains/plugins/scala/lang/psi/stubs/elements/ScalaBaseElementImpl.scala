@@ -9,8 +9,6 @@ import com.intellij.lang.ASTNode
  * @author ilyas
  */
 
-/*
 class ScalaBaseElemenImpl(node: ASTNode)
-extends PsiStubElementWrapper(node) {
-}
-*/
+//extends PsiStubElementWrapper(node) {
+//}

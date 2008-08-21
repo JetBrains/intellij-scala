@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 import org.jetbrains.plugins.scala.ScalaBundle
 
-import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.tree.TokenSet                         
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 
