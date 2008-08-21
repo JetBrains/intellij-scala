@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.{PsiElement, ResolveState}
 import toplevel.typedef.ScMember
-import com.intellij.psi.PsiElement
 import impl.ScalaPsiElementFactory
 /**
  * @author ilyas
  */
 
-trait ScBlock extends ScExpression with ScDeclarationSequenceHolder {
+trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImportsHolder {
 
   def exprs : Seq[ScExpression] = findChildrenByClass(classOf[ScExpression])
 
@@ -24,4 +25,11 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder {
     getNode.addChild(ScalaPsiElementFactory.createNewLineNode(getManager), before.getNode)
     return true
   }
+
+  override def processDeclarations(processor: PsiScopeProcessor,
+      state : ResolveState,
+      lastParent: PsiElement,
+      place: PsiElement): Boolean =
+    super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place) &&
+    super[ScImportsHolder].processDeclarations(processor, state, lastParent, place)
 }
