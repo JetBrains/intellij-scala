@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import api.statements.{ScFunction, ScFun}
+import api.statements._
+import api.base.patterns.ScReferencePattern
 import types._
 import api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -110,6 +111,21 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(f: ScFunction, s)) if (PsiTreeUtil.getParentOfType(this, classOf[ScFunction]) == f) =>
         new ScFunctionType(s.subst(f.declaredType), f.paramTypes.map{s.subst _})
       case Some(ScalaResolveResult(fun: ScFun, s)) => new ScFunctionType(s.subst(fun.retType), fun.paramTypes.map{s.subst _})
+
+      //prevent infinite recursion for recursive pattern reference
+      case Some(ScalaResolveResult(refPatt: ScReferencePattern, s)) => {
+        def substIfSome(t: Option[ScType]) = t match {
+          case Some(t) => s.subst(t)
+          case None => Nothing
+        }
+
+        refPatt.getParent.getParent match {
+          case pd : ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, this, true)) => substIfSome(pd.declaredType)
+          case vd : ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, this, true)) => substIfSome(vd.declaredType)
+          case _ => s.subst(refPatt.calcType)
+        }
+      }
+
       case Some(ScalaResolveResult(typed: ScTyped, s)) => s.subst(typed.calcType)
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => new ScDesignatorType(pack)
       case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz)

@@ -68,4 +68,9 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     PsiReference ref = configureByFile("nonlocal/recursiveInvocation.scala");
     assertTrue(ref.resolve() instanceof PsiMethod);
   }
+
+  public void testRecursivePattern() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/recursivePattern.scala");
+    assertNull(ref.resolve());
+  }
 }
