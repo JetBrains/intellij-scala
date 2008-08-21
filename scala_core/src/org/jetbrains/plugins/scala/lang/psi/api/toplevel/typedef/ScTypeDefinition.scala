@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
+import types.{ScType, PhysicalSignature, ScSubstitutor}
 import base.types.ScSelfTypeElement
 import statements.ScVariable
 import statements.ScValue
@@ -14,7 +15,6 @@ import packaging._
 import templates._
 import statements.{ScTypeAlias, ScFunction}
 import statements.params._
-import types.ScType
 import base._
 
 /**
@@ -30,21 +30,11 @@ trait ScTypeDefinition extends ScNamedElement
 
   def aliases(): Seq[ScTypeAlias]
 
-  def allAliases: Seq[ScTypeAlias]
-
   def innerTypeDefinitions(): Seq[ScTypeDefinition]
 
   def extendsBlock(): ScExtendsBlock
 
   def superTypes(): Seq[ScType]
-
-  def allVals: Seq[ScValue]
-
-  def allVars: Seq[ScVariable]
-
-  def allMembers: Seq[PsiMember]
-
-  def allFields: Seq[PsiField]
 
   def getSuperClassNames() = Array[String]() //for build restore
 
@@ -71,4 +61,8 @@ trait ScTypeDefinition extends ScNamedElement
     }
     case None => None
   }
+
+  def allTypes(): Iterator[Pair[PsiNamedElement, ScSubstitutor]]
+  def allVals(): Iterator[Pair[PsiNamedElement, ScSubstitutor]]
+  def allMethods() : Iterator[PhysicalSignature]
 }

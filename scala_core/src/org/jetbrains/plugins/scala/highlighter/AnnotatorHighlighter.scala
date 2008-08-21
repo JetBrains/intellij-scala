@@ -145,6 +145,8 @@ object AnnotatorHighlighter {
     element match {
       case x: ScAnnotation => visitAnnotation(x, holder)
       case x: ScClass => visitClass(x, holder)
+      case x: ScValue => highlightDeclaredElementsHolder(x, holder)
+      case x: ScVariable => highlightDeclaredElementsHolder(x, holder)
       case x: ScParameter => visitParameter(x, holder)
       case x: ScCaseClause => visitCaseClause(x, holder)
       case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => {
@@ -208,6 +210,18 @@ object AnnotatorHighlighter {
     }
   }
 
+  private def highlightDeclaredElementsHolder(deh: ScDeclaredElementsHolder, holder: AnnotationHolder) {
+    for (named <- deh.declaredElements) {
+      val annotation = holder.createInfoAnnotation(named, null)
+      deh match {
+        case _ : ScDeclaration =>
+          annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DECLARATION)
+        case _ =>
+          annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DEFINITION)
+      }
+    }
+  }
+
   private def visitAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Unit = {
     val annotation1 = holder.createInfoAnnotation(annotation.getFirstChild, null)
     annotation1.setTextAttributes(DefaultHighlighter.ANNOTATION)
@@ -223,24 +237,6 @@ object AnnotatorHighlighter {
     } else {
       val annotation = holder.createInfoAnnotation(clazz.nameId, null)
       annotation.setTextAttributes(DefaultHighlighter.CLASS)
-    }
-    for (vall <- clazz.allVals; name <- vall.declaredElements) {
-      val annotation = holder.createInfoAnnotation(name, null)
-      vall match {
-        case _: ScPatternDefinition =>
-          annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DEFINITION)
-        case _ =>
-          annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DECLARATION)
-      }
-    }
-    for (varl <- clazz.allVars; name <- varl.declaredElements) {
-      val annotation = holder.createInfoAnnotation(name, null)
-      varl match {
-        case _: ScVariableDefinition =>
-          annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DEFINITION)
-        case _ =>
-          annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DECLARATION)
-      }
     }
   }
 
