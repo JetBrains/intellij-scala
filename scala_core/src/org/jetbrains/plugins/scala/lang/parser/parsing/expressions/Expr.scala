@@ -10,7 +10,7 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.PsiFile
 import com.intellij.lang.ParserDefinition
 
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils            
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.ScalaFileType
 

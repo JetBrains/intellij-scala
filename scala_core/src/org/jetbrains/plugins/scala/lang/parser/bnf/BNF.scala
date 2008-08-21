@@ -45,7 +45,7 @@ object BNF {
       ScalaTokenTypes.kSUPER,
       ScalaTokenTypes.tIDENTIFIER))
 
-  val firstXmlPattern = TokenSet.create(Array())
+  val firstXmlPattern = TokenSet.create(Array[IElementType]())
 
   val firstPattern2: TokenSet = TokenSet.orSet(Array(
     firstLiteral,
@@ -55,8 +55,8 @@ object BNF {
       ScalaTokenTypes.tLBRACE)),
       firstXmlPattern
   ))
-
-  val firstXmlExpr: TokenSet = TokenSet.create(Array())
+                               
+  val firstXmlExpr: TokenSet = TokenSet.create(Array[IElementType]())
 
   val firstMethodClosure: TokenSet = TokenSet.create(Array(ScalaTokenTypes.tDOT))
 

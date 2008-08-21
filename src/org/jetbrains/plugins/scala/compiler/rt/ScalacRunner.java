@@ -51,6 +51,7 @@ public class ScalacRunner {
         if (line != null) scalacArgs.add(line);
       } while (line != null);
     } catch (IOException e) {
+      e.printStackTrace();
       System.err.println("Scalac internal error: " + e.getMessage());
       return;
     } finally {
@@ -58,6 +59,7 @@ public class ScalacRunner {
         if (reader != null) try {
           reader.close();
         } catch (IOException e) {
+          e.printStackTrace();
           System.err.println("Scalac internal error: " + e.getMessage());
         }
       } finally {
@@ -70,6 +72,7 @@ public class ScalacRunner {
       Method method = scalacMain.getMethod("main", String[].class);
       method.invoke(null, (Object) scalacArgs.toArray(new String[scalacArgs.size()]));
     } catch (Exception e) {
+      e.printStackTrace();
       System.err.println("Scalac internal error: " + e.getMessage());
     }
   }

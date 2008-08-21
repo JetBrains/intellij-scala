@@ -21,8 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaFile
 
 /**
  * @author ilyas
- * Date: 25.09.2006
- *
  */
 class ScalaParserDefinition extends ParserDefinition {
 
