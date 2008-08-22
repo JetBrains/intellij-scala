@@ -68,7 +68,7 @@ public abstract class ScalaUtils {
    * @return VirtualFile corresponding to content root
    */
   @NotNull
-  public static VirtualFile getModuleRoot(@NotNull final Module module) {
+  public static VirtualFile getModuleRoot(final Module module) {
     final VirtualFile[] roots = ModuleRootManager.getInstance(module).getSourceRoots();
     if (roots.length > 0) {
       return roots[0];
@@ -81,7 +81,7 @@ public abstract class ScalaUtils {
    * @return VirtualFile array corresponding to content roots of current module
    */
   @NotNull
-  public static VirtualFile[] getModuleRoots(@NotNull final Module module) {
+  public static VirtualFile[] getModuleRoots(final Module module) {
     final VirtualFile[] roots = ModuleRootManager.getInstance(module).getSourceRoots();
     return roots;
   }
@@ -91,7 +91,7 @@ public abstract class ScalaUtils {
    * @return VirtualFile corresponding to content root
    */
   @NotNull
-  public static String[] getModuleRootUrls(@NotNull final Module module) {
+  public static String[] getModuleRootUrls(final Module module) {
     VirtualFile[] roots = ModuleRootManager.getInstance(module).getSourceRoots();
     if (roots.length == 0) {
       VirtualFile file = module.getModuleFile();

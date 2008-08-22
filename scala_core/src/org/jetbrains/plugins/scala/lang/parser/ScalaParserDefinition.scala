@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaFile
 /**
  * @author ilyas
  */
-class ScalaParserDefinition extends ParserDefinition {
+class ScalaParserDefinition extends ScalaParserDefinitionWrapper {
 
   def createLexer(project: Project) = new ScalaLexer()
 
@@ -44,9 +44,8 @@ class ScalaParserDefinition extends ParserDefinition {
     return new ScalaFile(fileViewProvider);
   }
 
-  def spaceExistanceTypeBetweenTokens(astNode: ASTNode, astNode1: ASTNode): ParserDefinition.SpaceRequirements = {
-    //throw new UnsupportedOperationException("spaceExistanceTypeBetweenTokens not implemented in org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition");
-    return ParserDefinition.SpaceRequirements.MAY
+  override def spaceExistanceTypeBetweenTokens(astNode: ASTNode, astNode1: ASTNode): ParserDefinition.SpaceRequirements = {
+    return super.spaceExistanceTypeBetweenTokens(astNode, astNode1)
   }
 
 }
