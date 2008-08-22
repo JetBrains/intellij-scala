@@ -24,7 +24,7 @@ public class _ScalaCoreLexer implements FlexLexer, ScalaTokenTypesEx {
   public static final int COMMON_STATE = 1;
   public static final int YYINITIAL = 0;
   public static final int NEW_LINE_ALLOWED = 2;
-  public static final int NEW_LINE_DEPRECATED = 1;
+  public static final int NEW_LINE_DEPRECATED = 1;                             
   public static final int PROCESS_NEW_LINE = 3;
   public static final int WAIT_FOR_XML = 4;
 
