@@ -88,7 +88,7 @@
          antfile="build.xml" target="generate.lexer"/>
   </target>
 
-  <target name="make.project" depends="create.lexer,unzip.last.successful.IDEA.build" description="Builds all classes">
+  <target name="make.project" depends="unzip.last.successful.IDEA.build" description="Builds all classes">
 
     <mkdir dir="${project.lib}/../"/>
     <mkdir dir="${project.lib}"/>
