@@ -25,8 +25,6 @@ import com.intellij.util.containers.Stack;
 import com.intellij.util.text.CharArrayCharSequence;
 import gnu.trove.TIntStack;
 import org.jetbrains.annotations.Nullable;
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaLexer.TAG_STATE.NONEMPTY;
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaLexer.TAG_STATE.UNDEFINED;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaPlainLexer.SCALA_CORE_MASK;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaPlainLexer.SCALA_CORE_SHIFT;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.*;
@@ -137,7 +135,7 @@ public class ScalaLexer implements Lexer {
               || XML_CDATA_START == type || XML_PI_START == type)&& !myLayeredTagStack.isEmpty()) {
         myLayeredTagStack.peek().push(new MyOpenXmlTag());
       } else if (XML_EMPTY_ELEMENT_END == type && !myLayeredTagStack.isEmpty() &&
-              !myLayeredTagStack.peek().isEmpty() && myLayeredTagStack.peek().peek().state == UNDEFINED) {
+              !myLayeredTagStack.peek().isEmpty() && myLayeredTagStack.peek().peek().state == TAG_STATE.UNDEFINED) {
 
         myLayeredTagStack.peek().pop();
         if (myLayeredTagStack.peek().isEmpty() && checkNotNextXmlBegin(myCurrentLexer)) {
@@ -148,9 +146,9 @@ public class ScalaLexer implements Lexer {
         }
       } else if (XML_TAG_END == type && !myLayeredTagStack.isEmpty() && !myLayeredTagStack.peek().isEmpty()) {
         MyOpenXmlTag tag = myLayeredTagStack.peek().peek();
-        if (tag.state == UNDEFINED) {
-          tag.state = NONEMPTY;
-        } else if (tag.state == NONEMPTY) {
+        if (tag.state == TAG_STATE.UNDEFINED) {
+          tag.state = TAG_STATE.NONEMPTY;
+        } else if (tag.state == TAG_STATE.NONEMPTY) {
           myLayeredTagStack.peek().pop();
         }
         if (myLayeredTagStack.peek().isEmpty() && checkNotNextXmlBegin(myCurrentLexer)) {
@@ -160,7 +158,7 @@ public class ScalaLexer implements Lexer {
           myTokenType = XML_TAG_END;
         }
       } else if (XML_PI_END == type && !myLayeredTagStack.isEmpty() &&
-              !myLayeredTagStack.peek().isEmpty() && myLayeredTagStack.peek().peek().state == UNDEFINED) {
+              !myLayeredTagStack.peek().isEmpty() && myLayeredTagStack.peek().peek().state == TAG_STATE.UNDEFINED) {
 
         myLayeredTagStack.peek().pop();
         if (myLayeredTagStack.peek().isEmpty() && checkNotNextXmlBegin(myCurrentLexer)) {
@@ -170,7 +168,7 @@ public class ScalaLexer implements Lexer {
           myTokenType = XML_PI_END;
         }
       } else if (XML_COMMENT_END == type && !myLayeredTagStack.isEmpty() &&
-              !myLayeredTagStack.peek().isEmpty() && myLayeredTagStack.peek().peek().state == UNDEFINED) {
+              !myLayeredTagStack.peek().isEmpty() && myLayeredTagStack.peek().peek().state == TAG_STATE.UNDEFINED) {
 
         myLayeredTagStack.peek().pop();
         if (myLayeredTagStack.peek().isEmpty() && checkNotNextXmlBegin(myCurrentLexer)) {
@@ -180,7 +178,7 @@ public class ScalaLexer implements Lexer {
           myTokenType = XML_COMMENT_END;
         }
       } else if (XML_CDATA_END == type && !myLayeredTagStack.isEmpty() &&
-              !myLayeredTagStack.peek().isEmpty() && myLayeredTagStack.peek().peek().state == UNDEFINED) {
+              !myLayeredTagStack.peek().isEmpty() && myLayeredTagStack.peek().peek().state == TAG_STATE.UNDEFINED) {
 
         myLayeredTagStack.peek().pop();
         if (myLayeredTagStack.peek().isEmpty() && checkNotNextXmlBegin(myCurrentLexer)) {
@@ -330,7 +328,7 @@ public class ScalaLexer implements Lexer {
   }
 
   private static class MyOpenXmlTag {
-    public TAG_STATE state = UNDEFINED;
+    public TAG_STATE state = TAG_STATE.UNDEFINED;
   }
 
 

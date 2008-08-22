@@ -49,10 +49,8 @@ class ScalacOutputParser extends OutputParser {
 
     String text = line.trim();
     if (text.endsWith("\r\n")) text = text.substring(0, text.length() - 2);
-    System.out.println(text);
-
     if (text.startsWith(ourScalaInternalErrorMsg)) {
-      callback.message(CompilerMessageCategory.ERROR, ourScalaInternalErrorMsg, "", 0, 0);
+      callback.message(CompilerMessageCategory.ERROR, text, "", 0, 0);
       return true;
     }
 
