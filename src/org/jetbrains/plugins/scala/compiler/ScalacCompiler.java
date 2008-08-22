@@ -177,11 +177,7 @@ public class ScalacCompiler extends ExternalCompiler {
 
   @Override
   public DependencyProcessor getDependencyProcessor() {
-    return new DependencyProcessor() {
-      public void processDependencies(CompileContext context, int classQualifiedName) {
-
-      }
-    };
+    return new ScalacDependencyProcessor();
   }
 
   private void createStartupCommandImpl(ModuleChunk chunk, ArrayList<String> commandLine, String outputPath) throws IOException {
@@ -208,8 +204,9 @@ public class ScalacCompiler extends ExternalCompiler {
 
 
     // For debug
+
 //    commandLine.add("-Xdebug");
-//    commandLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5444");
+//    commandLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=127.0.0.1:5448");
 
     String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
     final StringBuilder classPathBuilder = new StringBuilder();
@@ -321,6 +318,7 @@ public class ScalacCompiler extends ExternalCompiler {
     required.add("scala");
     required.add("sbaz");
     required.add("fjbg");
+    required.add("jline");
   }
 
   private static boolean required(String name) {

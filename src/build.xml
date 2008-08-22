@@ -16,6 +16,7 @@
 <project name="Generate various scala packages for parser needs" default="rebuild.all">
   <property file="scala.properties"/>
   <property name="base.dir" value="${project.lib}/../../.."/>
+  <property name="scala.home" value="${base.dir}/SDK"/>
   <property name="scala_core.dir" value="${project.lib}/../../../scala_core"/>
   <!--  <property name="idea.lib" value="${idea.pack}/lib"/>-->
   <property name="output" value="${project.lib}/dist"/>
@@ -58,11 +59,6 @@
     <fileset dir="${idea.lib}">
       <include name="**/*.jar"/>
     </fileset>
-    <!--
-        <fileset dir="${ant.lib}">
-          <include name="**/*.jar"/>
-        </fileset>
-    -->
     <fileset dir="${project.lib}">
       <include name="**/*.class"/>
     </fileset>
@@ -114,12 +110,38 @@
       <classpath>
         <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
         <pathelement location="${scala.home}/lib/scala-library.jar"/>
+        <pathelement location="${scala.home}/lib/fjbg.jar"/>
+        <pathelement location="${scala.home}/lib/sbaz.jar"/>
+        <!--<pathelement location="${scala.home}/lib/scala-dbc.jar"/>-->
       </classpath>
     </taskdef>
 
     <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.lib.path"/>
 
     <mkdir dir="${project.lib}"/>
+
+<!--
+    <scalac srcdir="${base.dir}"
+            destdir="${project.lib}"
+            logging="debug"
+            scalacdebugging="yes"
+            force="changed">
+      <classpath refid="base.path"/>
+      <include name="src/**/*.scala"/>
+      <include name="scala_core/src/**/*.scala"/>
+      <include name="src/**/*.java"/>
+      <include name="scala_core/src/**/*.java"/>
+    </scalac>
+    <javac2 srcdir="."
+            destdir="${project.lib}"
+            verbose="yes"
+            debug="true">
+      <classpath refid="base.path"/>
+      <include name="src/**/*.java"/>
+      <include name="scala_core/src/**/*.java"/>
+    </javac2>
+-->
+
 
     <!-- Compile scala_core module -->
     <javac2 srcdir="${scala_core.dir}/src"
@@ -209,7 +231,7 @@
          scala_core/src/**/*.skeleton,
          scala_core/src/**/*.xml"
          excludes="src/**/*junit*"
-        />
+            />
   </target>
 
   <target name="build.tests">

@@ -150,7 +150,7 @@ class ScalaCompletionData extends CompletionData {
 
 
   override def findPrefix(insertedElement: PsiElement, offset: Int): String = {
-    WordCompletionData.findPrefixSimple(insertedElement, offset)
+    CompletionData.findPrefixStatic(insertedElement, offset)
   }
 
   /**
@@ -160,7 +160,7 @@ class ScalaCompletionData extends CompletionData {
     for (val completion <- comps) variant.addCompletion(completion, TailType.SPACE)
   }
 
-  override def completeReference(reference: PsiReference,  set: java.util.Set[LookupItem[_]], position: PsiElement,  file: PsiFile,
+  override def completeReference(reference: PsiReference,  set: java.util.Set[LookupElement], position: PsiElement,  file: PsiFile,
                                 offset: Int) {
     val variants = findVariants(position, file)
     ApplicationManager.getApplication().runReadAction(new Runnable() {

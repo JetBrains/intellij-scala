@@ -6,7 +6,7 @@ import com.intellij.codeInsight.completion.CompletionUtil;
 import com.intellij.codeInsight.completion.CompletionVariant;
 import com.intellij.codeInsight.completion.actions.CodeCompletionAction;
 import com.intellij.codeInsight.completion.impl.CamelHumpMatcher;
-import com.intellij.codeInsight.lookup.LookupItem;
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
@@ -51,8 +51,8 @@ public abstract class CompletionTestBase extends ActionTestBase {
     myOffset = myEditor.getCaretModel().getOffset();
 
     final CodeInsightActionHandler handler = getCompetionHandler();
-    CompletionData data = CompletionUtil.getCompletionDataByElement(myFile.findElementAt(myOffset), myFile, myOffset);
-    LookupItem[] items = getAcceptableItems(data);
+    CompletionData data = CompletionUtil.getCompletionDataByElement(myFile);
+    LookupElement[] items = getAcceptableItems(data);
 
     try {
       /*performAction(project, new Runnable() {
@@ -66,7 +66,7 @@ public abstract class CompletionTestBase extends ActionTestBase {
       if (items.length > 0) {
         Arrays.sort(items);
         result = "";
-        for (LookupItem item : items) {
+        for (LookupElement item : items) {
           result = result + "\n" + item.getLookupString();
         }
         result = result.trim();
@@ -83,7 +83,7 @@ public abstract class CompletionTestBase extends ActionTestBase {
     return TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
   }
 
-  protected abstract LookupItem[] getAcceptableItems(CompletionData data) throws IncorrectOperationException;
+  protected abstract LookupElement[] getAcceptableItems(CompletionData data) throws IncorrectOperationException;
 
 
   /**
@@ -92,9 +92,9 @@ public abstract class CompletionTestBase extends ActionTestBase {
    * @param completionData
    * @return
    */
-  protected LookupItem[] getAcceptableItemsImpl(CompletionData completionData) throws IncorrectOperationException {
+  protected LookupElement[] getAcceptableItemsImpl(CompletionData completionData) throws IncorrectOperationException {
 
-    final Set<LookupItem> lookupSet = new LinkedHashSet<LookupItem>();
+    final Set<LookupElement> lookupSet = new LinkedHashSet<LookupElement>();
     final PsiElement elem = myFile.findElementAt(myOffset);
 
     /**
@@ -118,13 +118,13 @@ public abstract class CompletionTestBase extends ActionTestBase {
       //todo: add variant for reference completion
     }
 
-    ArrayList<LookupItem> lookupItems = new ArrayList<LookupItem>();
-    final LookupItem[] items = lookupSet.toArray(new LookupItem[lookupSet.size()]);
-    for (LookupItem item : items) if (item.getLookupString().startsWith(prefix)){
+    ArrayList<LookupElement> lookupItems = new ArrayList<LookupElement>();
+    final LookupElement[] items = lookupSet.toArray(new LookupElement[lookupSet.size()]);
+    for (LookupElement item : items) if (item.getLookupString().startsWith(prefix)){
       lookupItems.add(item);
     }
 
-    return lookupItems.toArray(new LookupItem[lookupItems.size()]);
+    return lookupItems.toArray(new LookupElement[lookupItems.size()]);
 
   }
 

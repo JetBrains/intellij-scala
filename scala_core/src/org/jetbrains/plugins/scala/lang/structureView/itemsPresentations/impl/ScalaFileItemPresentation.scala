@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi._
 */
 
 class ScalaFileItemPresentation(private val element: ScalaFile) extends ScalaItemPresentation(element) {
-  def getPresentableText(): String = {
+  def getPresentableText(): String = {      
     return ScalaElementPresentation.getFilePresentableText(myElement.asInstanceOf[ScalaFile])
   }
 }

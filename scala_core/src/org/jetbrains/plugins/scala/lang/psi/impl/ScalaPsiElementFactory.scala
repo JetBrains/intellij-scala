@@ -56,7 +56,7 @@ object ScalaPsiElementFactory {
       }
       case x => x
     }
-    println(ret.getText())
+//    println(ret.getText())
     ret
   }
 

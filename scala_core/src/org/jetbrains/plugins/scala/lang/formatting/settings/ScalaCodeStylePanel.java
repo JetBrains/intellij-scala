@@ -1,17 +1,16 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings;
 
-import com.intellij.openapi.editor.highlighter.EditorHighlighter;
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.psi.PsiFile;
 import com.intellij.application.options.CodeStyleAbstractPanel;
+import com.intellij.openapi.editor.colors.EditorColorsScheme;
+import com.intellij.openapi.editor.highlighter.EditorHighlighter;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.codeStyle.CodeStyleSettings;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 
 import javax.swing.*;
-
-import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
-import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -361,11 +360,11 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     spinner.setValue(value);
   }
 
-  private static void setValue(@NotNull final JComboBox box, final int value) {
+  private static void setValue(final JComboBox box, final int value) {
     box.setSelectedIndex(value);
   }
 
-  private static void setValue(@NotNull final JCheckBox box, final boolean value) {
+  private static void setValue(final JCheckBox box, final boolean value) {
     box.setSelected(value);
   }
 }

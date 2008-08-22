@@ -18,6 +18,7 @@ package org.jetbrains.plugins.scala.compiler.rt;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,6 +28,7 @@ public class ScalacRunner {
   public static final String SCALAC_QUALIFIED_NAME = "scala.tools.nsc.Main";
 
   public static void main(String[] args) {
+    System.out.println("preved!");
     if (args.length != 1) {
       System.err.println("ScalacRunner usage: ScalacRunner args_for_scalac_file");
       return;
@@ -70,10 +72,10 @@ public class ScalacRunner {
     try {
       Class<?> scalacMain = Class.forName(SCALAC_QUALIFIED_NAME);
       Method method = scalacMain.getMethod("main", String[].class);
-      method.invoke(null, (Object) scalacArgs.toArray(new String[scalacArgs.size()]));
+      method.invoke(null, ((Object) scalacArgs.toArray(new String[scalacArgs.size()])));
     } catch (Exception e) {
       e.printStackTrace();
-      System.err.println("Scalac internal error: " + e.getMessage());
+      System.err.println("Scalac internal error: " + e.getMessage() + Arrays.toString(e.getStackTrace()));
     }
   }
 }
