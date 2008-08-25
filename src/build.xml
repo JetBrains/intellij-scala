@@ -161,6 +161,7 @@
       <include name="**/*.scala"/>
     </scalac>
 
+
     <!--Compile Scala module -->
     <javac2 srcdir="."
             destdir="${project.lib}"

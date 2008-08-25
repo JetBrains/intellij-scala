@@ -33,9 +33,10 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
           new ScTypeParameterType(stp, inner, lower, upper)
         }
         case _ => {
+          typeVariables.put(tp, new ScTypeParameterType(tp, Nil, Nothing, Any)) //temp put to avoid SOE
           val supers = tp.getSuperTypes
           val scalaSuper = supers match {
-            case Array(single) => ScType.create(single, project)
+            case Array(single) => ScType.create(single, project)                                                                        
             case many => new ScCompoundType(many.map{ScType.create(_, project)}, Seq.empty, Seq.empty)
           }
           new ScTypeParameterType(tp, Nil, Nothing, scalaSuper)
