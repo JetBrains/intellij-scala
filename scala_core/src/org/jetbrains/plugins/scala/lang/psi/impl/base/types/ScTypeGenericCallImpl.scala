@@ -23,8 +23,8 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl 
 
   override def getType() = {
     simpleTypeElement.getType match {
-      case des : ScDesignatorType => new ScParameterizedType(des, typeArgList.typeArgs.map {_.getType}.toArray)
-      case _ => Nothing
+      case Nothing => Nothing
+      case des => new ScParameterizedType(des, typeArgList.typeArgs.map {_.getType}.toArray)
     }
   }
 }
