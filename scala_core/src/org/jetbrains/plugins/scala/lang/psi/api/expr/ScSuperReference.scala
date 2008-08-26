@@ -10,6 +10,6 @@ import psi.ScalaPsiElement
 */
 
 trait ScSuperReference extends ScExpression with ScPathElement { //todo extract a separate 'this' path element
-  def refClass : Option[PsiClass] = None
+  def refClass : Option[PsiClass]
   def qualifier = findChild(classOf[ScStableCodeReferenceElement])
 }
