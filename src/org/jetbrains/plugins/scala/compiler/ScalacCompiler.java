@@ -200,6 +200,8 @@ public class ScalacCompiler extends ExternalCompiler {
     commandLine.add(javaExecutablePath);
 
     //todo setup via ScalacSettings
+    commandLine.add(XSS_COMPILER_PROPERTY);
+    commandLine.add(XMX_COMPILER_PROPERTY);
     commandLine.add("-cp");
 
 
