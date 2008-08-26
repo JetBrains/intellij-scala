@@ -12,5 +12,5 @@ import psi.ScalaPsiElement
 trait ScThisReference extends ScExpression with ScPathElement {
   def reference = findChild(classOf[ScStableCodeReferenceElement])
 
-  def refClass : Option[ScTypeDefinition] = None
+  def refClass : Option[ScTypeDefinition]
 }
