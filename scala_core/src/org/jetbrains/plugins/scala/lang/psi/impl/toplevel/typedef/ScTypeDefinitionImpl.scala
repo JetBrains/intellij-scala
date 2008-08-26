@@ -148,42 +148,14 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   override def getSupers: Array[PsiClass] = {
     val buf = new ArrayBuffer[PsiClass]
-    val sObject = JavaPsiFacade.getInstance(getProject).findClass("scala.ScalaObject")
-    if (sObject != null) {
-      buf += sObject
-    }
-    val typeElements = new ArrayBuffer[ScTypeElement]
-    extendsBlock.templateParents match {
-      case None =>
-      case Some(parents) => {
-        parents match {
-          case classParents: ScClassParents =>
-            classParents.constructor match {
-              case None => ()
-              case Some(c) => typeElements += c.typeElement
-            }
-          case _ =>
-        }
-        typeElements ++= parents.typeElements.toArray
+    for(t <- superTypes) {
+      ScType.extractClassType(t) match {
+        case Some((c, _)) => buf += c
+        case None =>
       }
     }
-    for (element <- typeElements) {
-      element.getFirstChild match {
-        case x: ScStableCodeReferenceElement => {
-          x.resolve match {
-            case null =>
-            case psiElement => {
-              psiElement match {
-                case x: PsiClass => buf += x
-                case _ =>
-              }
-            }
-          }
-        }
-        case _ =>
-      }
-    }
-    return buf.toArray
+
+    buf.toArray
   }
 
   override def getMethods = functions.toArray
@@ -191,14 +163,6 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
   override def getAllMethods: Array[PsiMethod] = {
     val methods = TypeDefinitionMembers.getMethods(this)
     return methods.toArray.map[PsiMethod](_._1.method)
-  }
-
-  private def getAllMethodsForClass(clazz: PsiClass, methods: ArrayBuffer[PsiMethod], visited: HashSet[PsiClass]) {
-    if (visited.contains(clazz)) return
-    visited += clazz
-    methods ++= clazz.getMethods
-    //todo: value definition is method?
-    for (sup <- clazz.getSupers) getAllMethodsForClass(sup, methods, visited)
   }
 
   def superTypes() = extendsBlock.superTypes
@@ -248,16 +212,14 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
       if (visited.contains(drv)) false
       else drv match {
         case drv: ScTypeDefinition => drv.superTypes.find{
-          t =>
-                  ScType.extractClassType(t) match {
-                    case Some((c, _)) => c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
-                    case _ => false
-                  }
+          t => ScType.extractClassType(t) match {
+            case Some((c, _)) => c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
+            case _ => false
+          }
         }
-        case _ => drv.getSuperTypes.find{
-          psiT =>
-                  val c = psiT.resolveGenerics.getElement
-                  if (c == null) false else c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
+        case _ => drv.getSuperTypes.find{psiT =>
+          val c = psiT.resolveGenerics.getElement
+          if (c == null) false else c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
         }
       }
     }
