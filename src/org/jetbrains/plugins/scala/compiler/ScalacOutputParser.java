@@ -27,6 +27,7 @@ class ScalacOutputParser extends OutputParser {
   // Phases
   @NonNls private static final String PHASE = "running phase ";
   private boolean mustProcessMsg = false;
+  private boolean fullCrash = false;
   private boolean stopProcessing = false;
   private int myMsgColumnMarker;
   private MESSAGE_TYPE myMsgType = PLAIN;
@@ -48,9 +49,15 @@ class ScalacOutputParser extends OutputParser {
     }
 
     String text = line.trim();
+    if (fullCrash) {
+      callback.message(CompilerMessageCategory.ERROR, text, "", 0, 0);
+      return true;
+    }
+    
     if (text.endsWith("\r\n")) text = text.substring(0, text.length() - 2);
     if (text.startsWith(ourScalaInternalErrorMsg)) {
       callback.message(CompilerMessageCategory.ERROR, text, "", 0, 0);
+      fullCrash = true;
       return true;
     }
 
