@@ -40,9 +40,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   def getElement = this
 
   def getRangeInElement: TextRange =
-    if (nameId != null)
       new TextRange(nameId.getTextRange.getStartOffset - getTextRange.getStartOffset, getTextLength)
-    else new TextRange(0, getTextLength)
 
   def getCanonicalText: String = null
 
