@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import com.intellij.psi.util.PsiTreeUtil
+import api.toplevel.typedef.ScTypeDefinition
 import types.{Bounds, ScDesignatorType, ScCompoundType, Nothing}
 import psi.ScalaPsiElementImpl
 import api.expr._
@@ -22,5 +24,16 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
       }
     }
     case _ => Nothing
+  }
+
+  def refClass = reference match {
+    case Some(ref) => ref.resolve match {
+      case td : ScTypeDefinition => Some(td)
+      case _ => None
+    }
+    case None => {
+      val encl = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition])
+      if (encl != null) Some(encl) else None
+    }
   }
 }

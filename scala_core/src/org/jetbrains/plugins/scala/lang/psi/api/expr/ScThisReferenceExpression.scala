@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
+import base.{ScStableCodeReferenceElement, ScPathElement}
 import toplevel.typedef.ScTypeDefinition
-import base.ScPathElement
 import psi.ScalaPsiElement
 
 /** 
@@ -9,6 +9,8 @@ import psi.ScalaPsiElement
 * Date: 06.03.2008
 */
 
-trait ScThisReference extends ScExpression with ScPathElement { //todo extract a separate 'this' path element
-  def refClass : Option[ScTypeDefinition] = None //todo
+trait ScThisReference extends ScExpression with ScPathElement {
+  def reference = findChild(classOf[ScStableCodeReferenceElement])
+
+  def refClass : Option[ScTypeDefinition] = None
 }
