@@ -74,8 +74,19 @@ public class ScalacRunner {
       Method method = scalacMain.getMethod("main", String[].class);
       method.invoke(null, ((Object) scalacArgs.toArray(new String[scalacArgs.size()])));
     } catch (Exception e) {
-      e.printStackTrace();
-      System.err.println("Scalac internal error: " + e.getMessage() + Arrays.toString(e.getStackTrace()));
+      Throwable cause = e.getCause();
+      System.err.println("Scalac internal error: " + e.getClass() + " " + Arrays.toString(e.getStackTrace()) +
+              (cause != null ? Arrays.toString(e.getCause().getStackTrace()) : ""));
+      for (StackTraceElement element : e.getStackTrace()) {
+        System.err.println(element);
+      }
+      while (cause != null) {
+        System.err.println("Caused by " + cause);
+        for (StackTraceElement element : cause.getStackTrace()) {
+          System.err.println(element);
+        }
+        cause = cause.getCause();
+      }
     }
   }
 }
