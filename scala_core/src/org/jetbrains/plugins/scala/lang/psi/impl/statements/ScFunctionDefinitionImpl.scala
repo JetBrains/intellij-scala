@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
-import types.{Nothing, ScFunctionType}
+import lexer.ScalaTokenTypes
+import types.{Unit, Nothing, ScFunctionType}
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
@@ -44,11 +45,14 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
 
   import com.intellij.openapi.util.Key
 
-  def calcType = returnTypeElement match {
-    case None => body match {
-      case Some(b) => new ScFunctionType(b.getType, paramTypes)
-      case _ => new ScFunctionType(Nothing, paramTypes)
+  def calcType = {
+    val ret = returnTypeElement match {
+      case None => if (findChildByType(ScalaTokenTypes.tEQUAL) != null) (body match {
+        case Some(b) => b.getType
+        case _ => Nothing
+      }) else Unit
+      case Some(rte) => rte.getType
     }
-    case Some(rte) => new ScFunctionType(rte.getType, paramTypes)
+    new ScFunctionType(ret, paramTypes)
   }
 }
