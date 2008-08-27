@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScTupleType
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import api.expr.{ScBlockExpr, ScMatchStmt, ScCatchBlock}
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
-import api.expr.{ScMatchStmt, ScCatchBlock}
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import api.statements.{ScValue, ScVariable}
 import api.base.patterns._
@@ -57,6 +59,10 @@ class ScPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatt
       case _ : ScCatchBlock => {
         val thr = JavaPsiFacade.getInstance(getProject).findClass("java.lang.Throwable")
         if (thr != null) Some(new ScDesignatorType(thr)) else None 
+      }
+      case b : ScBlockExpr => b.expectedType match { //l1.zip(l2) {case (a,b) =>}
+        case Some(ScFunctionType(ret, params)) => Some(new ScTupleType(params))
+        case _ => None
       }
     }
     case _ => None //todo
