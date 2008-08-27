@@ -27,7 +27,7 @@ public class ScalaFileTypeFactory extends FileTypeFactory {
   public void createFileTypes(final @NotNull PairConsumer<FileType, String> consumer) {
     consumer.consume(ScalaFileType.SCALA_FILE_TYPE, "scala");
   }
-  
+  //todo Uncomment after 28th August 2008 :) 
   /*public void createFileTypes(final @NotNull FileTypeConsumer consumer) {
     consumer.consume(ScalaFileType.SCALA_FILE_TYPE, ScalaFileType.DEFAULT_EXTENSION);
   }*/
