@@ -9,7 +9,7 @@ import psi.ScalaPsiElement
 * Date: 14.03.2008
 */
 
-trait ScSuperReference extends ScExpression with ScPathElement { //todo extract a separate 'this' path element
+trait ScSuperReference extends ScExpression with ScPathElement {
   def refClass : Option[PsiClass]
   def qualifier = findChild(classOf[ScStableCodeReferenceElement])
 }
