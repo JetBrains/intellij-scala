@@ -22,6 +22,10 @@ public abstract class PsiStubElementWrapper<StubT extends StubElement, PsiT exte
     super(node);
   }
 
+  protected void setStubImpl(StubElement<?> elem) {
+    super.setStub(((StubT) elem));
+  }
+
   // One more wrapper for correct inheritance in Scala
   @Override
   public IStubElementType<StubT, PsiT> getElementType() {

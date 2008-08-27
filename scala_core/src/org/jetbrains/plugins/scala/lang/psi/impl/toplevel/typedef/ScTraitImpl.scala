@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import stubs.elements.wrappers.ASTNodeWrapper
 import stubs.ScTypeDefinitionStub
 import com.intellij.psi.stubs.IStubElementType
 import api.base.ScModifierList
@@ -43,8 +44,9 @@ class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait
 }
 
 object ScTraitImpl {
-  def apply(stub: ScTypeDefinitionStub) = new ScTraitImpl(null) {
-    setStub(stub.asInstanceOf[Nothing])
+  def apply(stub: ScTypeDefinitionStub) = new ScTraitImpl(new ASTNodeWrapper()) {
+    setNode(null)
+    setStubImpl(stub)
     override def getElementType = ScalaElementTypes.TRAIT_DEF.asInstanceOf[IStubElementType[Nothing, Nothing]]
   }
 }
