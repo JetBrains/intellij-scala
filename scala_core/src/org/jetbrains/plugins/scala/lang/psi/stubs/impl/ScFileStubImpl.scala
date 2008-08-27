@@ -11,7 +11,7 @@ import com.intellij.psi.stubs.PsiFileStubImpl
 
 class ScFileStubImpl(file: ScalaFile) extends PsiFileStubWrapperImpl[ScalaFile](file) with ScFileStub {
 
-//  override def getType = ScalaElementTypes.FILE
+  override def getType = ScalaElementTypes.FILE.asInstanceOf[IStubFileElementType[Nothing]]
 
   implicit  def refToStr(ref: StringRef) = StringRef.toString(ref)
 
