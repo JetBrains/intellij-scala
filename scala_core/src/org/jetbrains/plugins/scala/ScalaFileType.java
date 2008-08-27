@@ -36,6 +36,7 @@ public class ScalaFileType extends LanguageFileType {
 
   public static final ScalaFileType SCALA_FILE_TYPE = new ScalaFileType();
   public static final Language SCALA_LANGUAGE = SCALA_FILE_TYPE.getLanguage();
+  @NonNls public static final String DEFAULT_EXTENSION = "scala";
 
   private ScalaFileType() {
     super(new ScalaLanguage());
@@ -55,7 +56,7 @@ public class ScalaFileType extends LanguageFileType {
   @NotNull
   @NonNls
   public String getDefaultExtension() {
-    return "scala";
+    return DEFAULT_EXTENSION;
   }
 
   public Icon getIcon() {
