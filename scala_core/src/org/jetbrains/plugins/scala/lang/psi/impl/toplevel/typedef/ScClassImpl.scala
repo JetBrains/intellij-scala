@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
-import com.intellij.psi.stubs.IStubElementType
+import com.intellij.psi.stubs.{StubElement, IStubElementType}
+import stubs.elements.wrappers.ASTNodeWrapper
 import stubs.ScTypeDefinitionStub
 import api.base.ScModifierList
 import com.intellij.psi.{PsiElement, PsiModifierList}
@@ -56,8 +57,9 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
 }
 
 object ScClassImpl {
-  def apply(stub: ScTypeDefinitionStub) = new ScClassImpl(null) {
-    setStub(stub.asInstanceOf[Nothing])
+  def apply(stub: ScTypeDefinitionStub) = new ScClassImpl(new ASTNodeWrapper()) {
+    setNode(null)
+    setStubImpl(stub)
     override def getElementType = ScalaElementTypes.CLASS_DEF.asInstanceOf[IStubElementType[Nothing, Nothing]]
   }
 }
