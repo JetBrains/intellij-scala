@@ -44,9 +44,9 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
     case other : ScCompoundType => {
       components.equalsWith (other.components) (_ equiv _) &&
       signatureMap.size == other.signatureMap.size &&
-      signatureMap.elements.forall {entry => signatureMap.get(entry._1) match {
+      signatureMap.elements.forall {case (sig, t) => other.signatureMap.get(sig) match {
         case None => false
-        case Some(t) => entry._2 equiv t
+        case Some(t1) => t equiv t1
       }
       } &&
       typesMatch(types, other.types)
