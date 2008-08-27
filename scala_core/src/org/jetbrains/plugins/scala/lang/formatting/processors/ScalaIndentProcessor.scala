@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.processors
 
+import psi.api.toplevel.typedef.ScTypeDefinition
 import scaladoc.lexer.ScalaDocTokenType
 import scaladoc.psi.api.ScDocComment
 import settings.ScalaCodeStyleSettings
@@ -39,9 +40,9 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: ScPackaging => {
         child.getElementType match {
           case ScalaTokenTypes.tLBRACE |
-            ScalaTokenTypes.tRBRACE |
-            ScalaTokenTypes.kPACKAGE |
-            ScalaElementTypes.REFERENCE =>
+                  ScalaTokenTypes.tRBRACE |
+                  ScalaTokenTypes.kPACKAGE |
+                  ScalaElementTypes.REFERENCE =>
             Indent.getNoneIndent
           case _ => Indent.getSpaceIndent(indentCount)
         }
@@ -52,9 +53,9 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNoneIndent
         }
       }
-      case  _: ScTryBlock | _: ScCatchBlock=> {
+      case _: ScTryBlock | _: ScCatchBlock => {
         child.getElementType match {
-          case ScalaTokenTypes.tLBRACE |  ScalaTokenTypes.kCATCH |
+          case ScalaTokenTypes.tLBRACE | ScalaTokenTypes.kCATCH |
                   ScalaTokenTypes.tRBRACE | ScalaTokenTypes.kTRY => {
             Indent.getNoneIndent
           }
@@ -72,7 +73,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       }
       case _: ScTryStmt => Indent.getNoneIndent
       case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScForStatement
-        | _: ScFinallyBlock | _: ScCatchBlock | _: ScFunction => {
+              | _: ScFinallyBlock | _: ScCatchBlock | _: ScFunction => {
         child.getPsi match {
           case _: ScExpression => Indent.getSpaceIndent(indentCount)
           case _ => Indent.getNoneIndent
@@ -90,14 +91,17 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       }
       case _: ScBlock => Indent.getNoneIndent
       case _: ScEnumerators => Indent.getSpaceIndent(indentCount)
-      case _: ScParameters |  _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
-           _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScAnnotations => {
+      case _: ScTypeDefinition if child.getElementType == ScalaElementTypes.EXTENDS_BLOCK => {
+        Indent.getContinuationWithoutFirstIndent
+      }
+      case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
+              _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScAnnotations => {
         Indent.getContinuationWithoutFirstIndent
       }
       case _: ScArgumentExprList => Indent.getSpaceIndent(indentCount)
       case _: ScDocComment => {
         if (child.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS ||
-            child.getElementType == ScalaDocTokenType.DOC_COMMENT_END) Indent.getSpaceIndent(1)
+                child.getElementType == ScalaDocTokenType.DOC_COMMENT_END) Indent.getSpaceIndent(1)
         else Indent.getNoneIndent
       }
       case _ => {

@@ -7,7 +7,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.caches.project.ScalaCachesManager;
+import org.jetbrains.plugins.scala.caches.ScalaCachesManager;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 
 import java.util.ArrayList;
@@ -25,27 +25,27 @@ public class ScalaClassFinder implements ProjectComponent, PsiElementFinder {
   }
 
   @Nullable
-  public PsiClass findClass(@NotNull String qualifiedName, GlobalSearchScope scope) {
-    return ScalaCachesManager.getInstance(myProject).getClassByName(qualifiedName, scope);
+  public PsiClass findClass(@NotNull String qualifiedName, @NotNull GlobalSearchScope scope) {
+    return ScalaCachesManager.getInstance(myProject).getNamesCache().getClassByFQName(qualifiedName, scope);
   }
 
   @NotNull
-  public PsiClass[] findClasses(String qualifiedName, GlobalSearchScope scope) {
-    return ScalaCachesManager.getInstance(myProject).getClassesByName(qualifiedName, scope);
+  public PsiClass[] findClasses(@NotNull String qualifiedName, @NotNull GlobalSearchScope scope) {
+    return ScalaCachesManager.getInstance(myProject).getNamesCache().getClassesByName(qualifiedName, scope);
   }
 
   @Nullable
-  public PsiPackage findPackage(String qualifiedName) {
+  public PsiPackage findPackage(@NotNull String qualifiedName) {
     return null;
   }
 
   @NotNull
-  public PsiPackage[] getSubPackages(PsiPackage psiPackage, GlobalSearchScope scope) {
+  public PsiPackage[] getSubPackages(@NotNull PsiPackage psiPackage, @NotNull GlobalSearchScope scope) {
     return new PsiPackage[0];
   }
 
   @NotNull
-  public PsiClass[] getClasses(PsiPackage psiPackage, GlobalSearchScope scope) {
+  public PsiClass[] getClasses(@NotNull PsiPackage psiPackage, @NotNull GlobalSearchScope scope) {
     List<PsiClass> result = new ArrayList<PsiClass>();
     for (final PsiDirectory dir : psiPackage.getDirectories(scope)) {
       for (final PsiFile file : dir.getFiles()) {

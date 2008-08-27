@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import com.intellij.psi.stubs.IStubElementType
+import stubs.ScTypeDefinitionStub
 import api.base.ScModifierList
 import com.intellij.psi.{PsiElement, PsiModifierList}
 import com.intellij.psi.PsiElement;
@@ -19,11 +21,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
-/** 
-* @autor Alexander.Podkhalyuzin
-*/
+/**
+ * @autor Alexander.Podkhalyuzin
+ */
 
-class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass with ScTypeParametersOwner{
+class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass with ScTypeParametersOwner {
 
   override def toString: String = "ScClass"
 
@@ -32,22 +34,30 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
   override def getModifierList: ScModifierList = findChildByClass(classOf[ScModifierList])
 
   def parameters = constructor match {
-      case Some(c) => c.parameters.params
-      case None => Seq.empty
-    }
+    case Some(c) => c.parameters.params
+    case None => Seq.empty
+  }
 
   import com.intellij.psi.{scope, PsiElement, ResolveState}
-  import scope.PsiScopeProcessor 
+  import scope.PsiScopeProcessor
+
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    for (p <- parameters) {if (!processor.execute(p, state)) return false}
-
+    for (p <- parameters) {
+      if (!processor.execute(p, state)) return false
+    }
     if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
-
     return super.processDeclarations(processor, state, lastParent, place)
   }
 
   def isCase = getModifierList.has(ScalaTokenTypes.kCASE)
+}
+
+object ScClassImpl {
+  def apply(stub: ScTypeDefinitionStub) = new ScClassImpl(null) {
+    setStub(stub.asInstanceOf[Nothing])
+    override def getElementType = ScalaElementTypes.CLASS_DEF.asInstanceOf[IStubElementType[Nothing, Nothing]]
+  }
 }

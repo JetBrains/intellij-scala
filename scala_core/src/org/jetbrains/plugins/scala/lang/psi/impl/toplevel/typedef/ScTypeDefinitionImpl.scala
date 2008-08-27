@@ -4,6 +4,10 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
  * @author ilyas
  */
 
+import stubs.elements.wrappers.StubBasedPsiElementWrapper
+import com.intellij.psi.stubs.IStubElementType
+import stubs.ScTypeDefinitionStub
+import stubs.elements.ScalaBaseElementImpl
 import _root_.scala.collection.immutable.Set
 import api.base.{ScStableCodeReferenceElement, ScPrimaryConstructor}
 import base.ScStableCodeReferenceElementImpl
@@ -40,8 +44,15 @@ import types.{ScSubstitutor, ScType}
 import api.statements.{ScValue, ScVariable}
 import Misc._
 
-abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeDefinition with PsiClassFake {
+abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaBaseElementImpl(node)
+        with ScTypeDefinition with PsiClassFake  {
+
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+
+  // One more hack for correct inheritance
+  override def getElementType: IStubElementType[Nothing, Nothing] =
+    super.getElementType.asInstanceOf[IStubElementType[Nothing, Nothing]];
+
 
   override def getQualifiedName: String = {
     def _packageName(e: PsiElement): String = e.getParent match {
@@ -114,9 +125,15 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
       case Some(body) => body.aliases
     }
 
-  def allTypes = TypeDefinitionMembers.getTypes(this).values.map{n => (n.info, n.substitutor)}
-  def allVals = TypeDefinitionMembers.getVals(this).values.map{n => (n.info, n.substitutor)}
-  def allMethods = TypeDefinitionMembers.getMethods(this).values.map{n => n.info}
+  def allTypes = TypeDefinitionMembers.getTypes(this).values.map{
+    n => (n.info, n.substitutor)
+  }
+  def allVals = TypeDefinitionMembers.getVals(this).values.map{
+    n => (n.info, n.substitutor)
+  }
+  def allMethods = TypeDefinitionMembers.getMethods(this).values.map{
+    n => n.info
+  }
 
   def innerTypeDefinitions: Seq[ScTypeDefinition] =
     (extendsBlock.templateBody match {
@@ -148,7 +165,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   override def getSupers: Array[PsiClass] = {
     val buf = new ArrayBuffer[PsiClass]
-    for(t <- superTypes) {
+    for (t <- superTypes) {
       ScType.extractClassType(t) match {
         case Some((c, _)) => buf += c
         case None =>
@@ -217,9 +234,10 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(n
             case _ => false
           }
         }
-        case _ => drv.getSuperTypes.find{psiT =>
-          val c = psiT.resolveGenerics.getElement
-          if (c == null) false else c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
+        case _ => drv.getSuperTypes.find{
+          psiT =>
+                  val c = psiT.resolveGenerics.getElement
+                  if (c == null) false else c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
         }
       }
     }

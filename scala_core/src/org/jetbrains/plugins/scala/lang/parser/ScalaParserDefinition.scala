@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaFile
 /**
  * @author ilyas
  */
-class ScalaParserDefinition extends ScalaParserDefinitionWrapper {
+class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
 
   def createLexer(project: Project) = new ScalaLexer()
 

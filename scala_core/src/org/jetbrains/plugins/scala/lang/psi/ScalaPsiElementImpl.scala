@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import stubs.elements.ScalaBaseElementImpl
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.lang.ASTNode
@@ -8,7 +9,7 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 /**
   @author ven
 */
-class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node)
+class ScalaPsiElementImpl(node: ASTNode) extends ScalaBaseElementImpl(node)
         with ScalaPsiElement {
 
   // todo override in more specific cases

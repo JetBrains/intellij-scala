@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import stubs.ScTypeDefinitionStub
+import com.intellij.psi.stubs.IStubElementType
 import api.base.ScModifierList
 import com.intellij.psi.{PsiElement, PsiModifierList}
 import com.intellij.psi.PsiElement;
@@ -37,5 +39,12 @@ class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait
                                   place: PsiElement): Boolean = {
     if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
     super.processDeclarations(processor, state, lastParent, place)
+  }
+}
+
+object ScTraitImpl {
+  def apply(stub: ScTypeDefinitionStub) = new ScTraitImpl(null) {
+    setStub(stub.asInstanceOf[Nothing])
+    override def getElementType = ScalaElementTypes.TRAIT_DEF.asInstanceOf[IStubElementType[Nothing, Nothing]]
   }
 }

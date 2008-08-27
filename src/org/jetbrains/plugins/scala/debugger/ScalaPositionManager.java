@@ -20,6 +20,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.stubs.StubIndex;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Processor;
 import com.intellij.util.Query;
@@ -31,7 +32,6 @@ import com.sun.jdi.request.ClassPrepareRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaLoader;
-import org.jetbrains.plugins.scala.caches.project.ScalaCachesManager;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement;
@@ -40,11 +40,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author ilyas
@@ -169,7 +167,8 @@ public class ScalaPositionManager implements PositionManager {
     final String qName = dollar >= 0 ? originalQName.substring(0, dollar) : originalQName;
     final GlobalSearchScope searchScope = myDebugProcess.getSearchScope();
 
-    PsiClass clazz = ScalaCachesManager.getInstance(project).getClassByName(qName, searchScope);
+    Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY, qName.hashCode(), project, searchScope);
+    PsiClass clazz = classes.size() == 1 ? classes.iterator().next() : null;
     if (clazz != null && clazz.isValid()) return clazz.getContainingFile();
 
     DirectoryIndex directoryIndex = DirectoryIndex.getInstance(project);
