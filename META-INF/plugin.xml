@@ -20,14 +20,14 @@
   <description>Plugin for Scala language support</description>
   <version>VERSION</version>
   <vendor logo="/org/jetbrains/plugins/scala/images/scala16.png" url="http://www.jetbrains.com">JetBrains Inc.</vendor>
-  <idea-version since-build="8733" until-build="8733"/>
+  <idea-version since-build="8373"/>
   <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
   <extensions defaultExtensionNs="com.intellij">
     <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
     <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
     <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"
-                        serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
+        serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
     <annotator language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.ScalaAnnotator"/>
     <errorHandler implementation="org.jetbrains.plugins.scala.error.ErrorReportSubmitter"/>
     <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
@@ -38,23 +38,24 @@
     <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
     <lang.foldingBuilder language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder"/>
     <lang.formatter language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.formatting.ScalaFormattingModelBuilder"/>
-    <lang.gotoClassContributor language="Scala" implementationClass="org.jetbrains.plugins.scala.gotoclass.ScalaChooseByNameContributor"/>
     <lang.refactoringSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.refactor.ScalaRefactoringSupportProvider"/>
-    <lang.surroundDescriptor language="Scala"
-                             implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor"/>
-    <lang.psiStructureViewFactory language="Scala"
-                                  implementationClass="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewFactory"/>
+    <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor"/>
+    <lang.psiStructureViewFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewFactory"/>
     <frameworkSupport implementation="org.jetbrains.plugins.scala.config.ScalaFacetSupportProvider"/>
     <completion.contributor implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor"/>
-    <codeInsight.overrideMethod language="Scala"
-                                implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
-    <codeInsight.implementMethod language="Scala"
-                                 implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaImplementMethodsHandler"/>
+    <codeInsight.overrideMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
+    <codeInsight.implementMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaImplementMethodsHandler"/>
     <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
-    <codeStyleSettingsProvider language="Scala"
-                               implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettingsProvider"/>
+    <codeStyleSettingsProvider language="Scala" implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettingsProvider"/>
 
     <fileTemplateGroup implementation="org.jetbrains.plugins.scala.actions.ScalaTemplatesFactory"/>
+
+
+    <gotoClassContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToClassContributor"/>
+
+    <!--Stub indeces -->
+    <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScShortClassNameIndex"/>
+    <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFullClassNameIndex"/>
 
   </extensions>
 
@@ -93,34 +94,35 @@
       <implementation-class>org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider</implementation-class>
     </component>
     <component>
-      <interface-class>org.jetbrains.plugins.scala.caches.project.ScalaCachesManager</interface-class>
-      <implementation-class>org.jetbrains.plugins.scala.caches.project.ScalaCachesManagerImpl</implementation-class>
-    </component>
-    <component>
       <implementation-class>org.jetbrains.plugins.scala.finder.ScalaClassFinder</implementation-class>
     </component>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses</implementation-class>
+      <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+      </implementation-class>
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager</implementation-class>
     </component>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.codeInspection.importInspections.ScalaAddImportPassFactory</implementation-class>
+      <implementation-class>org.jetbrains.plugins.scala.codeInspection.importInspections.ScalaAddImportPassFactory
+      </implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.caches.ScalaCachesManager</implementation-class>
     </component>
   </project-components>
 
   <actions>
     <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaClassAction"
-            text="Scala Class" description="Create new Scala class">
+        text="Scala Class" description="Create new Scala class">
       <add-to-group group-id="NewGroup" anchor="last"/>
     </action>
     <action id="Scala.NewObject" class="org.jetbrains.plugins.scala.actions.NewScalaObjectAction"
-            text="Scala Object" description="Create new Scala singleton object">
+        text="Scala Object" description="Create new Scala singleton object">
       <add-to-group group-id="NewGroup" anchor="last"/>
     </action>
     <action id="Scala.NewTrait" class="org.jetbrains.plugins.scala.actions.NewScalaTraitAction"
-            text="Scala Trait" description="Create new Scala trait">
+        text="Scala Trait" description="Create new Scala trait">
       <add-to-group group-id="NewGroup" anchor="last"/>
     </action>
   </actions>

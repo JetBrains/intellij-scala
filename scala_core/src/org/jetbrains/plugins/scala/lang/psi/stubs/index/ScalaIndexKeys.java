@@ -1,0 +1,13 @@
+package org.jetbrains.plugins.scala.lang.psi.stubs.index;
+
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.stubs.StubIndexKey;
+
+/**
+ * @author ilyas
+ */
+public interface ScalaIndexKeys {
+
+    StubIndexKey<String, PsiClass> SHORT_NAME_KEY = StubIndexKey.createIndexKey("sc.class.shortName");
+    StubIndexKey<Integer, PsiClass> FQN_KEY = StubIndexKey.createIndexKey("sc.class.fqn");
+}
