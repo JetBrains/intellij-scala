@@ -35,6 +35,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) ex
   val substitutor : ScSubstitutor = {
     val targs = designator match {
       case ScTypeVariable(_, args, _, _) => args
+      case ScTypeAliasType(_, args, _, _) => args
       case _ => designated match {
         case owner : PsiTypeParameterListOwner => owner.getTypeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}
         case _ => Seq.empty
