@@ -42,10 +42,9 @@ object ScExistentialTypeReducer {
     case ScTupleType(comps) => new ScTupleType(comps.map {noVariantWildcards(_, wilds)})
     case ScParameterizedType (des, typeArgs) => des match {
       case ScDesignatorType(owner : ScTypeParametersOwner) => {
-        val newArgs = (owner.typeParameters.toArray zip typeArgs).map ({p => p._2 match {
+        val newArgs = (owner.typeParameters.toArray zip typeArgs).map ({case (tp, ta) => ta match {
           case tat : ScTypeAliasType => wilds.find{_.name == tat.name} match {
             case Some(wild) => {
-              val tp = p._1
               if (tp.isCovariant) wild.upperBound
               else if (tp.isContravariant) wild.lowerBound
               else tat
