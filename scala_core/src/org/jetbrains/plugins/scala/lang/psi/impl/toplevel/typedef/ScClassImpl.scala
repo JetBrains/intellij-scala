@@ -35,7 +35,7 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
   override def getModifierList: ScModifierList = findChildByClass(classOf[ScModifierList])
 
   def parameters = constructor match {
-    case Some(c) => c.parameters.params
+    case Some(c) => c.parameters
     case None => Seq.empty
   }
 
