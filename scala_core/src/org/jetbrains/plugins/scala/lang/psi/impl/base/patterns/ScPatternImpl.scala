@@ -1,16 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScTupleType
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 import api.expr.{ScBlockExpr, ScMatchStmt, ScCatchBlock}
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import api.statements.{ScValue, ScVariable}
 import api.base.patterns._
-import api.toplevel.ScTyped
 import api.base.ScPatternList
-import com.intellij.lang.ASTNode
+import psi.types._
 import _root_.scala.collection.mutable.ArrayBuffer
+import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope._
 
