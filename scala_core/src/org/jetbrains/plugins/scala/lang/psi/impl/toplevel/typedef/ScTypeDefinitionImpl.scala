@@ -57,7 +57,10 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaBaseElementImpl(
   override def getQualifiedName: String = {
     def _packageName(e: PsiElement): String = e.getParent match {
       case t: ScTypeDefinition => _packageName(t) + "." + t.name
-      case p: ScPackaging => _packageName(p) + "." + p.getPackageName
+      case p: ScPackaging => {
+        val _packName = _packageName(p)
+        if (_packName.length > 0) _packName + "." + p.getPackageName else p.getPackageName
+      }
       case f: ScalaFile => f.getPackageName
       case null => ""
       case parent => _packageName(parent)
