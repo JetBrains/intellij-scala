@@ -100,18 +100,18 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaBaseElementImpl(
   override def checkDelete() {
   }
 
-  def members(): Seq[ScMember] =
-    (extendsBlock.templateBody match {
+  def members(): Seq[ScMember] = {
+    val bodyMembers = extendsBlock.templateBody match {
       case None => Seq.empty
       case Some(body) => body.members
-    }) ++
-            (extendsBlock.earlyDefinitions match {
-              case None => Seq.empty
-              case Some(earlyDefs) => earlyDefs.members
-            }) ++ (findChild(classOf[ScPrimaryConstructor]) match {
+    }
+    val earlyMembers = extendsBlock.earlyDefinitions match {
       case None => Seq.empty
-      case Some(x) => Array[ScMember](x)
-    })
+      case Some(earlyDefs) => earlyDefs.members
+    }
+
+    bodyMembers ++ earlyMembers
+  }
 
   def functions(): Seq[ScFunction] =
     extendsBlock.templateBody match {
@@ -184,9 +184,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaBaseElementImpl(
 
   def superTypes() = extendsBlock.superTypes
 
-  import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
-
-  import TypeDefinitionMembers.{ValueNodes, TypeNodes}
+  import com.intellij.psi.scope.PsiScopeProcessor
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,

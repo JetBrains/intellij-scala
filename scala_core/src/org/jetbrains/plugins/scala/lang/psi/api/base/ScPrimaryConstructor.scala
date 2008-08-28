@@ -25,5 +25,7 @@ trait ScPrimaryConstructor extends ScMember {
    */
   def hasModifier: Boolean
   def getClassNameText: String
-  def parameters: ScParameters
+
+  def parameterList = findChildByClass(classOf[ScParameters])
+  def parameters = parameterList.params
 }

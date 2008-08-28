@@ -38,7 +38,7 @@ class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
+    super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place) &&
     super.processDeclarations(processor, state, lastParent, place)
   }
 }

@@ -27,7 +27,7 @@ object ScalaElementPresentation {
     val presentableText: StringBuffer = new StringBuffer
     presentableText.append("this")
     if (constructor.parameters != null)
-      presentableText.append(StructureViewUtil.getParametersAsString(constructor.parameters))
+      presentableText.append(StructureViewUtil.getParametersAsString(constructor.parameterList))
     presentableText.toString()
   }
 
