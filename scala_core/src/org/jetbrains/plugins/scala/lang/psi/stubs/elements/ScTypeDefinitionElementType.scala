@@ -38,7 +38,7 @@ extends ScStubElementType[ScTypeDefinitionStub, ScTypeDefinition](debugName) {
     }
     val fqn = stub.qualName
     if (fqn != null) {
-      sink.occurrence(ScFullClassNameIndex.KEY, name)
+      sink.occurrence(ScFullClassNameIndex.KEY, fqn.hashCode)
     }
   }
 }

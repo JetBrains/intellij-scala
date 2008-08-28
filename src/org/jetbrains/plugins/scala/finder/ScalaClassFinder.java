@@ -31,7 +31,7 @@ public class ScalaClassFinder implements ProjectComponent, PsiElementFinder {
 
   @NotNull
   public PsiClass[] findClasses(@NotNull String qualifiedName, @NotNull GlobalSearchScope scope) {
-    return ScalaCachesManager.getInstance(myProject).getNamesCache().getClassesByName(qualifiedName, scope);
+    return ScalaCachesManager.getInstance(myProject).getNamesCache().getClassesByFQName(qualifiedName, scope);
   }
 
   @Nullable

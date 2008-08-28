@@ -58,11 +58,11 @@ public class ScalaShortNamesCache implements PsiShortNamesCache {
   }
 
   @NotNull
-  public PsiClass[] getClassesByFQName(@NotNull @NonNls String name, @NotNull GlobalSearchScope scope) {
-    final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY, name.hashCode(), myProject, scope);
+  public PsiClass[] getClassesByFQName(@NotNull @NonNls String fqn, @NotNull GlobalSearchScope scope) {
+    final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY, fqn.hashCode(), myProject, scope);
     ArrayList<PsiClass> list = new ArrayList<PsiClass>();
     for (PsiClass psiClass : classes) {
-      if (name.equals(psiClass.getQualifiedName())) {
+      if (fqn.equals(psiClass.getQualifiedName())) {
         list.add(psiClass);
       }
     }
