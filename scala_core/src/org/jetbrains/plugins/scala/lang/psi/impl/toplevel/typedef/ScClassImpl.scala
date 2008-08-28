@@ -23,10 +23,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 /**
- * @autor Alexander.Podkhalyuzin
+ * @author Alexander.Podkhalyuzin
  */
 
-class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass with ScTypeParametersOwner {
+class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass with ScTypeParametersOwner{
 
   override def toString: String = "ScClass"
 
@@ -41,21 +41,19 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
 
   import com.intellij.psi.{scope, PsiElement, ResolveState}
   import scope.PsiScopeProcessor
-
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    for (p <- parameters) {
-      if (!processor.execute(p, state)) return false
-    }
+    for (p <- parameters) {if (!processor.execute(p, state)) return false}
+
     if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
+
     return super.processDeclarations(processor, state, lastParent, place)
   }
 
   def isCase = getModifierList.has(ScalaTokenTypes.kCASE)
 }
-
 object ScClassImpl {
   def apply(stub: ScTypeDefinitionStub) = new ScClassImpl(new ASTNodeWrapper()) {
     setNode(null)

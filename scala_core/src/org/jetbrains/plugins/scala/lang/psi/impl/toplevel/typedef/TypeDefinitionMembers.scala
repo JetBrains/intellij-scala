@@ -3,11 +3,11 @@
 */
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import api.base.{ScFieldId, ScPrimaryConstructor}
 import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
 import com.intellij.psi._
 import types._
 import api.toplevel.typedef._
-import api.base.ScFieldId
 import api.statements._
 import types.PhysicalSignature
 import _root_.scala.collection.mutable.ListBuffer
@@ -72,6 +72,10 @@ object TypeDefinitionMembers {
           case _val: ScValue =>
             for (dcl <- _val.declaredElements) {
               map += ((dcl, new Node(dcl, subst)))
+            }
+          case constr : ScPrimaryConstructor =>
+            for (param <- constr.parameters) {
+              map += ((param, new Node(param, subst)))
             }
           case _ =>
         }
