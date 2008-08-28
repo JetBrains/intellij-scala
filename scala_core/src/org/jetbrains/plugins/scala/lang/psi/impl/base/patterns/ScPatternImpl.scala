@@ -51,6 +51,17 @@ class ScPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatt
         }
       }
     }
+    case patternList : ScPatterns => patternList.getParent match {
+      case tuple : ScTuplePattern => tuple.expectedType match {
+        case Some(ScTupleType(comps)) => {
+          for((t, p) <- comps.elements.zip(patternList.patterns.elements)) {
+            if (p == this) return Some(t)
+          }
+          None
+        }
+        case _ => None
+      }
+    }
     case clause : ScCaseClause => clause.getParent/*clauses*/.getParent match {
       case matchStat : ScMatchStmt => matchStat.expr match {
         case Some(e) => Some(e.getType)
