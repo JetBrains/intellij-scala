@@ -10,7 +10,6 @@ import com.intellij.psi.stubs.StubElement;
  */
 public interface StubBasedPsiElementWrapper<StubT extends StubElement, PsiT extends PsiElement> extends StubBasedPsiElement<StubT> {
 
-  @Override
   IStubElementType<?, ?> getElementType();
 
 }
