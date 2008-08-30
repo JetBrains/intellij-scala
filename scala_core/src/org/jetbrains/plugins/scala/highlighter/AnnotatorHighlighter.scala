@@ -145,8 +145,6 @@ object AnnotatorHighlighter {
     element match {
       case x: ScAnnotation => visitAnnotation(x, holder)
       case x: ScClass => visitClass(x, holder)
-      case x: ScValue => highlightDeclaredElementsHolder(x, holder)
-      case x: ScVariable => highlightDeclaredElementsHolder(x, holder)
       case x: ScParameter => visitParameter(x, holder)
       case x: ScCaseClause => visitCaseClause(x, holder)
       case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => {
