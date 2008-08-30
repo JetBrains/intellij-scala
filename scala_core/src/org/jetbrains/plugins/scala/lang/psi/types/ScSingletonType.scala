@@ -8,6 +8,7 @@ import api.toplevel.ScTyped
 */
 
 case class ScSingletonType(path: ScPathElement) extends ScType {
+  lazy /* to prevent SOE */
   val pathType = path match {
     case ref: ScReferenceElement => ref.bind match {
       case None => Nothing
