@@ -102,7 +102,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaBaseElementImpl(
 
   override def checkDelete() {
   }
-
+                                                                
   def members(): Seq[ScMember] = {
     val bodyMembers = extendsBlock.templateBody match {
       case None => Seq.empty

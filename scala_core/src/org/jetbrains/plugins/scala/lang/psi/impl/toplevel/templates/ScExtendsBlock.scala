@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates
 
+import api.toplevel.typedef.ScObject
 import api.expr.ScNewTemplateDefinition
 import com.intellij.lang.ASTNode
 import com.intellij.psi.JavaPsiFacade
@@ -8,10 +9,11 @@ import psi.ScalaPsiElementImpl
 import api.toplevel.templates._
 import psi.types._
 import _root_.scala.collection.mutable.ArrayBuffer
-/** 
-* @author Alexander Podkhalyuzin
+
+/**
+ * @author AlexanderPodkhalyuzin
 * Date: 20.02.2008
-*/
+ */
 
 class ScExtendsBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExtendsBlock {
 
@@ -46,7 +48,11 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   private def scalaObject() = {
     val so = JavaPsiFacade.getInstance(getProject).findClass("scala.ScalaObject")
-    if (so != null) new ScDesignatorType(so) else null
+    val desType = if (so != null) new ScDesignatorType(so) else null
+    getParent match { //to prevent SOE during resolve ScalaOject through Predef <: ScalaObject
+      case o: ScObject if !("scala.Predef".equals(o.getQualifiedName)) => desType
+      case _ => null
+    }
   }
 
   def isAnonymousClass: Boolean = {

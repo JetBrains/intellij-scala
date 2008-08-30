@@ -138,6 +138,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       TypeDefinitionMembers.processDeclarations(clazz, this, ResolveState.initial.put(ScSubstitutor.key, s),
         null, place)
 
-    case des => des.processDeclarations(this, ResolveState.initial.put(ScSubstitutor.key, s), null, place)
+    case des if des != null=> des.processDeclarations(this, ResolveState.initial.put(ScSubstitutor.key, s), null, place)
+    case _ => false
   }
 }
