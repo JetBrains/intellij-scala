@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.importInspections
 
+import com.intellij.codeInsight.hint.{HintManagerImpl, HintManager, QuestionAction}
 import lang.formatting.settings.ScalaCodeStyleSettings
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
@@ -17,10 +18,8 @@ import com.intellij.openapi.application.Result
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.codeInsight.hint.HintManager
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiClass
-import com.intellij.codeInsight.hint.QuestionAction
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.JavaPsiFacade
 import lang.psi.api.base.ScReferenceElement
@@ -109,7 +108,7 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
   private def fixesAction(ref: ScReferenceElement) {
     ApplicationManager.getApplication.invokeLater(new Runnable {
       def run {
-        if (HintManager.getInstance().hasShownHintsThatWillHideByOtherHint()) {
+        if (HintManagerImpl.getInstanceImpl.hasShownHintsThatWillHideByOtherHint()) {
           return;
         }
         val function = JavaPsiFacade.getInstance(myProject).getShortNamesCache().getClassesByName _
