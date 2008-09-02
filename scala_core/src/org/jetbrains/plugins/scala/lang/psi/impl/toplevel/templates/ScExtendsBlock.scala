@@ -26,7 +26,13 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   def superTypes(): Seq[ScType] = {
     val buffer = new ArrayBuffer[ScType]
     templateParents match {
-      case None =>
+      case None => getParent match {
+        case obj : ScObject => buffer += AnyRef
+        case _ => {
+          val so = scalaObject()
+          if (so != null) buffer += so
+        }
+      }
       case Some(parents) => {
         parents match {
           case classParents: ScClassParents =>
@@ -41,18 +47,12 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         }).toArray
       }
     }
-    val so = scalaObject()
-    if (so != null) buffer += so
     buffer.toArray
   }
 
   private def scalaObject() = {
     val so = JavaPsiFacade.getInstance(getProject).findClass("scala.ScalaObject")
-    val desType = if (so != null) new ScDesignatorType(so) else null
-    getParent match { //to prevent SOE during resolve ScalaOject through Predef <: ScalaObject
-      case o: ScObject if !("scala.Predef".equals(o.getQualifiedName)) => desType
-      case _ => null
-    }
+    if (so != null) new ScDesignatorType(so) else null
   }
 
   def isAnonymousClass: Boolean = {
