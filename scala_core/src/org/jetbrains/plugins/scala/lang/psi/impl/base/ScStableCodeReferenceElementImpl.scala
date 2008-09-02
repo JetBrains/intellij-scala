@@ -61,7 +61,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   }
 
   private def _qualifier() = {
-    if (getParent.isInstanceOf[ScImportSelector]) {
+    if (getParent.isInstanceOf[ScImportSelector]) {memory leak fixed
       getParent.getParent /*ScImportSelectors*/ .getParent.asInstanceOf[ScImportExpr].reference
     } else pathQualifier
   }
