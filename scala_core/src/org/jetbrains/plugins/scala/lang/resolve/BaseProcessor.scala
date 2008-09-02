@@ -69,7 +69,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
                   val cclazz = clazz.getContainingClass
                   cclazz == null || (clazz.hasModifierProperty(PsiModifier.STATIC) && isStaticCorrect(cclazz))
                 }
-                isStaticCorrect(c)
+                (kinds contains OBJECT) && isStaticCorrect(c)
               }
             }
             case patt: ScBindingPattern => {
