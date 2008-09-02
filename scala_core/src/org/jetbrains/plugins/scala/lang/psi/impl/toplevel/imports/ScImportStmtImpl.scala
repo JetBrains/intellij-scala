@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
 
+import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.lang.ASTNode
@@ -41,36 +42,44 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
         case _ => null
       }
       if (elem != null) {
-        e.selectorSet match {
-          case None =>
-            if (e.singleWildcard) {
-              if (!elem.processDeclarations(processor, state, null, place)) return false
-            } else {
-              if (!processor.execute(elem, state)) return false
-            }
-          case Some(set) => {
-            val shadowed: HashSet[PsiElement] = HashSet.empty
-            for (selector <- set.selectors) {
-              selector.reference.bind match {
-                case Some(result) => {
-                  shadowed += result.element
-                  if (!processor.execute(result.element, state.put(ResolverEnv.nameKey, selector.importedName))) return false
-                }
-                case _ =>
+        val elems : Seq[PsiNamedElement] = elem match {
+          //if we have a class or object then the opposite should be processed as well
+          case td : ScTypeDefinition => JavaPsiFacade.getInstance(getProject).findClasses(td.getQualifiedName, getResolveScope)
+          case _ => Seq.single(elem)
+        }
+
+        for (elem <- elems) {
+          e.selectorSet match {
+            case None =>
+              if (e.singleWildcard) {
+                if (!elem.processDeclarations(processor, state, null, place)) return false
+              } else {
+                if (!processor.execute(elem, state)) return false
               }
-            }
-            if (set.hasWildcard) {
-              val p1 = new PsiScopeProcessor {
-                def getHint[T](hintClass: Class[T]): T = processor.getHint(hintClass)
-
-                def handleEvent(event: PsiScopeProcessor.Event, associated: Object) =
-                  processor.handleEvent(event, associated)
-
-                def execute(element: PsiElement, state: ResolveState): Boolean = {
-                  if (shadowed.contains(element)) true else processor.execute(element, state)
+            case Some(set) => {
+              val shadowed: HashSet[PsiElement] = HashSet.empty
+              for (selector <- set.selectors) {
+                selector.reference.bind match {
+                  case Some(result) => {
+                    shadowed += result.element
+                    if (!processor.execute(result.element, state.put(ResolverEnv.nameKey, selector.importedName))) return false
+                  }
+                  case _ =>
                 }
               }
-              if (!elem.processDeclarations(p1, state, null, place)) return false
+              if (set.hasWildcard) {
+                val p1 = new PsiScopeProcessor {
+                  def getHint[T](hintClass: Class[T]): T = processor.getHint(hintClass)
+
+                  def handleEvent(event: PsiScopeProcessor.Event, associated: Object) =
+                    processor.handleEvent(event, associated)
+
+                  def execute(element: PsiElement, state: ResolveState): Boolean = {
+                    if (shadowed.contains(element)) true else processor.execute(element, state)
+                  }
+                }
+                if (!elem.processDeclarations(p1, state, null, place)) return false
+              }
             }
           }
         }
