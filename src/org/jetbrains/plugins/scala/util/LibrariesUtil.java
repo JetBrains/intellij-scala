@@ -59,9 +59,9 @@ public abstract class LibrariesUtil {
             }
           }
         }
+        model.dispose();
       }
     });
-
     return libraries.toArray(new Library[libraries.size()]);
   }
 
