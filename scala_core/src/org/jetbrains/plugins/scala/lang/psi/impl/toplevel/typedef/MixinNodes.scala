@@ -77,7 +77,7 @@ abstract class MixinNodes {
           clazz.getSuperTypes.map {psiType => ScType.create(psiType, clazz.getProject)}
         }
       }
-         //todo 
+
       val superTypesBuff = new ListBuffer[Map]
       for (superType <- superTypes) {
         ScType.extractClassType(superType) match {
