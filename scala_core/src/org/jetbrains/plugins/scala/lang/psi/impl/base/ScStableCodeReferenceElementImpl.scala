@@ -40,7 +40,11 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElementImpl] {
     def resolve(ref: ScStableCodeReferenceElementImpl, incomplete: Boolean) = {
-      _resolve(ref, new ResolveProcessor(ref.resolveKinds(false), refName))
+      val proc = ref.getParent match {
+        case _ : ScImportExpr => new CollectAllProcessor(ref.resolveKinds(false), refName)
+        case _ => new ResolveProcessor(ref.resolveKinds(false), refName)
+      }
+      _resolve(ref, proc)
     }
   }
 
@@ -61,7 +65,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   }
 
   private def _qualifier() = {
-    if (getParent.isInstanceOf[ScImportSelector]) {memory leak fixed
+    if (getParent.isInstanceOf[ScImportSelector]) {
       getParent.getParent /*ScImportSelectors*/ .getParent.asInstanceOf[ScImportExpr].reference
     } else pathQualifier
   }
