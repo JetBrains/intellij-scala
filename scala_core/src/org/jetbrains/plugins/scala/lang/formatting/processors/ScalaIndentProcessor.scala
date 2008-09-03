@@ -91,7 +91,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       }
       case _: ScBlock => Indent.getNoneIndent
       case _: ScEnumerators => Indent.getSpaceIndent(indentCount)
-      case _: ScTypeDefinition if child.getElementType == ScalaElementTypes.EXTENDS_BLOCK => {
+      case _: ScExtendsBlock if child.getElementType != ScalaElementTypes.TEMPLATE_BODY => {
         Indent.getContinuationWithoutFirstIndent
       }
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
