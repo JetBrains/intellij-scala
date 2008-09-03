@@ -50,6 +50,16 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: 
   }
 }
 
+class CollectAllProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) 
+extends ResolveProcessor(kinds, name)
+{
+  def execute(element: PsiElement, state: ResolveState): Boolean = {
+    val named = element.asInstanceOf[PsiNamedElement]
+    if (nameAndKindMatch(named, state)) candidatesSet += new ScalaResolveResult(named, getSubst(state))
+    true
+  }
+}
+
 class RefExprResolveProcessor(kinds: Set[ResolveTargets.Value], name: String)
 extends ResolveProcessor(kinds, name) {
   override def execute(element: PsiElement, state: ResolveState) : Boolean = {

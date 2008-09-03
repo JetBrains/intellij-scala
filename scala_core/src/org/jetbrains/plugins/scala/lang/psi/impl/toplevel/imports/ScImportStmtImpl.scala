@@ -33,53 +33,42 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
                                   place: PsiElement): Boolean = {
     for (e <- importExprs) {
       if (e == lastParent) return true
-      val elem = e.reference match {
-        case Some(ref) =>
-          ref.bind match {
-            case None => null
-            case Some(result) => result.element
-          }
-        case _ => null
+      val elems = e.reference match {
+        case Some(ref) => ref.multiResolve(false).map {_.getElement}
+        case _ => Seq.empty
       }
-      if (elem != null) {
-        val elems : Seq[PsiNamedElement] = elem match {
-          //if we have a class or object then the opposite should be processed as well
-          case td : ScTypeDefinition => JavaPsiFacade.getInstance(getProject).findClasses(td.getQualifiedName, getResolveScope)
-          case _ => Seq.single(elem)
-        }
 
-        for (elem <- elems) {
-          e.selectorSet match {
-            case None =>
-              if (e.singleWildcard) {
-                if (!elem.processDeclarations(processor, state, null, place)) return false
-              } else {
-                if (!processor.execute(elem, state)) return false
+      for (elem <- elems) {
+        e.selectorSet match {
+          case None =>
+            if (e.singleWildcard) {
+              if (!elem.processDeclarations(processor, state, null, place)) return false
+            } else {
+              if (!processor.execute(elem, state)) return false
+            }
+          case Some(set) => {
+            val shadowed: HashSet[PsiElement] = HashSet.empty
+            for (selector <- set.selectors) {
+              selector.reference.bind match {
+                case Some(result) => {
+                  shadowed += result.element
+                  if (!processor.execute(result.element, state.put(ResolverEnv.nameKey, selector.importedName))) return false
+                }
+                case _ =>
               }
-            case Some(set) => {
-              val shadowed: HashSet[PsiElement] = HashSet.empty
-              for (selector <- set.selectors) {
-                selector.reference.bind match {
-                  case Some(result) => {
-                    shadowed += result.element
-                    if (!processor.execute(result.element, state.put(ResolverEnv.nameKey, selector.importedName))) return false
-                  }
-                  case _ =>
+            }
+            if (set.hasWildcard) {
+              val p1 = new PsiScopeProcessor {
+                def getHint[T](hintClass: Class[T]): T = processor.getHint(hintClass)
+
+                def handleEvent(event: PsiScopeProcessor.Event, associated: Object) =
+                  processor.handleEvent(event, associated)
+
+                def execute(element: PsiElement, state: ResolveState): Boolean = {
+                  if (shadowed.contains(element)) true else processor.execute(element, state)
                 }
               }
-              if (set.hasWildcard) {
-                val p1 = new PsiScopeProcessor {
-                  def getHint[T](hintClass: Class[T]): T = processor.getHint(hintClass)
-
-                  def handleEvent(event: PsiScopeProcessor.Event, associated: Object) =
-                    processor.handleEvent(event, associated)
-
-                  def execute(element: PsiElement, state: ResolveState): Boolean = {
-                    if (shadowed.contains(element)) true else processor.execute(element, state)
-                  }
-                }
-                if (!elem.processDeclarations(p1, state, null, place)) return false
-              }
+              if (!elem.processDeclarations(p1, state, null, place)) return false
             }
           }
         }
