@@ -13,5 +13,4 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScImportStmt extends ScalaPsiElement {
   def importExprs = findChildrenByClass(classOf[ScImportExpr])
-  def deleteStmt: Unit
 }
