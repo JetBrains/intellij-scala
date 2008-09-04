@@ -40,9 +40,13 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElementImpl] {
     def resolve(ref: ScStableCodeReferenceElementImpl, incomplete: Boolean) = {
+      val kinds = ref.resolveKinds(false)
       val proc = ref.getParent match {
-        case _ : ScImportExpr => new CollectAllProcessor(ref.resolveKinds(false), refName)
-        case _ => new ResolveProcessor(ref.resolveKinds(false), refName)
+        //last ref may import many elements with the same name
+        case e : ScImportExpr if (e.selectorSet == None) => new CollectAllProcessor(kinds, refName)
+        case _: ScImportSelector => new CollectAllProcessor(kinds, refName)
+
+        case _ => new ResolveProcessor(kinds, refName)
       }
       _resolve(ref, proc)
     }
