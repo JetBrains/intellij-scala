@@ -81,7 +81,11 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
   //todo[Sasha] rewrite using ScalaElementTypes
   //Move this logic to ScImportsOwnerTrait to delete from parent
   def deleteStmt: Unit = {
-    val node = getParent.getNode
+    getParent match {
+      case x: ScImportOwner => x.deleteImportStmt(this)
+      case _ =>
+    }
+    /*val node = getParent.getNode
     val remove = node.removeChild _
     val next = getNode.getTreeNext
     if (next == null) {
@@ -104,6 +108,6 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
     }
     else {
       remove(getNode)
-    }
+    }*/
   }
 }

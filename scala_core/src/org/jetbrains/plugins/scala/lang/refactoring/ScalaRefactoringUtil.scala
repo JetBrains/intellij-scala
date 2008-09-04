@@ -40,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.lexer._
 * Date: 23.06.2008
 */
 
-object ScalaRefactoringUtil {
+object ScalaRefactoringUtil {      
   def trimSpacesAndComments(editor: Editor, file: PsiFile) {
     var start = editor.getSelectionModel.getSelectionStart
     var end = editor.getSelectionModel.getSelectionEnd

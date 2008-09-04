@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
+import toplevel.imports.ScImportOwner
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiElement, ResolveState}
 import toplevel.typedef.ScMember
@@ -8,7 +9,7 @@ import impl.ScalaPsiElementFactory
  * @author ilyas
  */
 
-trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImportsHolder {
+trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImportsHolder with ScImportOwner {
 
   def exprs : Seq[ScExpression] = findChildrenByClass(classOf[ScExpression])
 
