@@ -26,7 +26,7 @@ import _root_.scala.collection.mutable._
 
 
 class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
-        with ScalaPsiElement with ScToplevelElement with PsiClassOwner with ScImportsHolder with ScImportOwner {
+        with ScalaPsiElement with ScToplevelElement with PsiClassOwner with ScImportsHolder {
 
   override def getViewProvider = viewProvider
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE

@@ -46,7 +46,7 @@ class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
     val parent = getParent.asInstanceOf[ScImportStmt]
     if (parent.importExprs.size == 1) {
       parent.getParent match {
-        case x: ScImportOwner => x.deleteImportStmt(parent)
+        case x: ScImportsHolder => x.deleteImportStmt(parent)
         case _ =>
       }
     }
