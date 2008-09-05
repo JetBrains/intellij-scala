@@ -49,12 +49,9 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
           case Some(set) => {
             val shadowed: HashSet[PsiElement] = HashSet.empty
             for (selector <- set.selectors) {
-              selector.reference.bind match {
-                case Some(result) => {
-                  shadowed += result.element
-                  if (!processor.execute(result.element, state.put(ResolverEnv.nameKey, selector.importedName))) return false
-                }
-                case _ =>
+              for (result <- selector.reference.multiResolve(false)) {
+                shadowed += result.getElement
+                if (!processor.execute(result.getElement, state.put(ResolverEnv.nameKey, selector.importedName))) return false
               }
             }
             if (set.hasWildcard) {
