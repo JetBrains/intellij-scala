@@ -43,7 +43,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       val kinds = ref.resolveKinds(false)
       val proc = ref.getParent match {
         //last ref may import many elements with the same name
-        case e : ScImportExpr if (e.selectorSet == None) => new CollectAllProcessor(kinds, refName)
+        case e : ScImportExpr if (e.selectorSet == None && !e.singleWildcard) => new CollectAllProcessor(kinds, refName)
         case _: ScImportSelector => new CollectAllProcessor(kinds, refName)
 
         case _ => new ResolveProcessor(kinds, refName)
