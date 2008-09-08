@@ -166,7 +166,7 @@ public abstract class LibrariesUtil {
     assert order[order.length - 1] == addedEntry;
     int insertionPoint = -1;
     for (int i = 0; i < order.length - 1; i++) {
-      if (order[i] instanceof JdkOrderEntry) {
+      if (order[i] instanceof JdkOrderEntry) {      
         insertionPoint = i;
         break;
       }
