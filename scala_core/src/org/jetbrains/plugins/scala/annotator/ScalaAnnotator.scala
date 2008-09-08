@@ -36,7 +36,9 @@ class ScalaAnnotator extends Annotator {
       case x: ScReferenceExpression if x.qualifier == None => { //todo: temporary case
         x.bind match {
           case Some(_) => AnnotatorHighlighter.highlightReferenceElement(x, holder)
-          case None =>
+          case None => {
+            
+          }
         }
       }
       case x: ScReferenceElement if x.qualifier == None => checkNotQualifiedReferenceElement(x, holder)
@@ -49,7 +51,6 @@ class ScalaAnnotator extends Annotator {
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
     refElement.bind() match {
       case None =>
-        //todo: register used imports
         val error = ScalaBundle.message("cannot.resolve", Array[Object](refElement.refName))
         val annotation = holder.createErrorAnnotation(refElement.nameId, error)
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
@@ -78,5 +79,6 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def registerUsedImports(refElement: ScReferenceElement, result: ScalaResolveResult) {
+    //todo: add body
   }
 }

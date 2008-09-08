@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.importInspections
 
+import lang.psi.api.toplevel.typedef.ScObject
+import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import lang.psi.api.expr.ScReferenceExpression
 import com.intellij.codeInsight.hint.{HintManagerImpl, HintManager, QuestionAction}
 import lang.formatting.settings.ScalaCodeStyleSettings
 import _root_.scala.collection.mutable.HashSet
@@ -22,7 +25,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiClass
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.JavaPsiFacade
-import lang.psi.api.base.ScReferenceElement
 import lang.lexer.ScalaTokenTypes
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
@@ -59,7 +61,21 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
         element.getParent match {
           case x: ScReferenceElement if x.refName != null && (x.bind match {case None => true case _ => false}) => {
             val function = JavaPsiFacade.getInstance(myProject).getShortNamesCache().getClassesByName _
-            val classes = function(x.refName, GlobalSearchScope.allScope(myProject))
+            val classes = function(x.refName, GlobalSearchScope.allScope(myProject)).filter((y: PsiClass) => x match {
+              case _: ScReferenceExpression => {
+                y match {
+                  case _: ScObject => true
+                  case _ => false
+                }
+              }
+              case _: ScStableCodeReferenceElement => {
+                y match {
+                  case _: ScObject => false
+                  case _ => true
+                }
+              }
+              case _ => false
+            })
             classes.length match {
               case 0 =>
               case 1 if scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY &&
