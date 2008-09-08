@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import api.toplevel.typedef.{ScClass, ScTrait}
 import api.statements._
 import api.base.patterns.ScReferencePattern
 import types._
@@ -32,8 +33,20 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def nameId: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
   def bindToElement(element: PsiElement): PsiElement = {
+    if (isReferenceTo(element)) return this
+
+    element match {
+      case c: PsiClass if !c.isInstanceOf[ScTrait] && !c.isInstanceOf[ScClass] => {
+        val file = getContainingFile.asInstanceOf[ScalaFile]
+        if (isReferenceTo(element)) return this
+        val qualName = c.getQualifiedName
+        if (qualName != null) {
+          file.addImportForClass(c)
+        }
+        this
+      }
+    }
     return this;
-    //todo
   }
 
   def getVariants(): Array[Object] = {

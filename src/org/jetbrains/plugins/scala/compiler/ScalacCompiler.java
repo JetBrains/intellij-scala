@@ -14,6 +14,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -27,11 +28,14 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.icons.Icons;
 import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
 import org.jetbrains.plugins.scala.config.ScalaConfigUtils;
 
+import javax.swing.*;
 import java.io.*;
 import java.util.*;
 
@@ -121,7 +125,7 @@ public class ScalacCompiler extends ExternalCompiler {
   @NotNull
   public Configurable createConfigurable() {
     // todo implement me as for javac!
-    return null;
+    return null;//new MyConfigurable();
   }
 
   public OutputParser createErrorParser(String outputDir) {
@@ -343,4 +347,36 @@ public class ScalacCompiler extends ExternalCompiler {
   }
 
 
+  /*private static class MyConfigurable implements Configurable {
+
+    @Nls
+      public String getDisplayName() {
+      return "Scala compiler configurations";  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Icon getIcon() {
+      return Icons.FILE_TYPE_LOGO;
+    }
+
+    public String getHelpTopic() {
+      return null;
+    }
+
+    public JComponent createComponent() {
+      return null;
+    }
+
+    public boolean isModified() {
+      return false;
+    }
+
+    public void apply() throws ConfigurationException {
+    }
+
+    public void reset() {
+    }
+
+    public void disposeUIResources() {
+    }
+  }*/
 }

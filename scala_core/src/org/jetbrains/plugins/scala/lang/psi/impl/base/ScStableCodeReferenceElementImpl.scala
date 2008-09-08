@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base
 
+import api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import org.jetbrains.plugins.scala.lang._
 import lexer.ScalaTokenTypes
 import parser.ScalaElementTypes
@@ -7,7 +8,6 @@ import org.jetbrains.annotations._
 import psi.ScalaPsiElementImpl
 import psi.api.base._
 import psi.types._
-import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.base.types.ScSimpleTypeElement
 import psi.impl.ScalaPsiElementFactory
 import resolve._
@@ -125,7 +125,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     if (isReferenceTo(element)) return this
 
     element match {
-      case c: PsiClass => {
+      case c: PsiClass if !c.isInstanceOf[ScObject] => {
         val file = getContainingFile.asInstanceOf[ScalaFile]
         if (isReferenceTo(element)) return this
         val qualName = c.getQualifiedName
