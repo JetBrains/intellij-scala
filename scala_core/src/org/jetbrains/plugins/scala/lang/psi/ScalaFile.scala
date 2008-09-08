@@ -129,9 +129,31 @@ class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider
         case _ => return tryImport(prev)
       }
     }
+    def lessTo(left: ScImportStmt, right: ScImportStmt): Boolean = left.getText.toLowerCase < right.getText.toLowerCase
+    def isLT(s: String): Boolean = s.toCharArray.filter((c: Char) => c match {case ' ' | '\n' => false case _ => true}).length == 0
     findChild(classOf[ScImportStmt]) match {
       case Some(x) if tryImport(x) => {
-        addBefore(importSt, x)
+        var stmt: PsiElement = x
+        var added = false
+        while (!added && stmt != null && (stmt.isInstanceOf[ScImportStmt]) || isLT(stmt.getText) ) {
+          stmt match {
+            case im: ScImportStmt => {
+              if (lessTo(importSt, im)) {
+                added = true
+                addBefore(importSt, im)
+              }
+            }
+            case _ =>
+          }
+          stmt = stmt.getNextSibling
+        }
+        if (!added) {
+          if (stmt != null) {
+            while (!stmt.isInstanceOf[ScImportStmt]) stmt = stmt.getPrevSibling
+            addAfter(importSt, stmt)
+          }
+          else addAfter(importSt, getLastChild)
+        }
       }
       case _ => {
         findChild(classOf[ScPackageStatement]) match {
