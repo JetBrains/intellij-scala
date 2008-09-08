@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting
 /**
-* @author ilyas 
+* @author ilyas
 */
 
 import settings.ScalaCodeStyleSettings

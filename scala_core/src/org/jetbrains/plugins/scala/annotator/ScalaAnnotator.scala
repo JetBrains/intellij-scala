@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.psi.search.GlobalSearchScope
 import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
 import lang.psi.api.toplevel.{ScEarlyDefinitions, ScTyped}
 import lang.psi.api.expr.{ScAnnotationExpr, ScAnnotation, ScNameValuePair, ScReferenceExpression}
@@ -37,7 +38,14 @@ class ScalaAnnotator extends Annotator {
         x.bind match {
           case Some(_) => AnnotatorHighlighter.highlightReferenceElement(x, holder)
           case None => {
-            
+            val myProject = x.getProject
+            val function = JavaPsiFacade.getInstance(myProject).getShortNamesCache().getClassesByName _
+            val classes = function(x.refName, GlobalSearchScope.allScope(myProject)).filter((y: PsiClass) =>
+                y match {
+                  case _: ScObject => true
+                  case _ => false
+                })
+            if (classes.length > 0) checkNotQualifiedReferenceElement(x, holder)
           }
         }
       }
