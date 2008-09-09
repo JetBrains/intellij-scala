@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.search.GlobalSearchScope
 import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
+import lang.psi.api.toplevel.imports.ScImportSelector
 import lang.psi.api.toplevel.{ScEarlyDefinitions, ScTyped}
 import lang.psi.api.expr.{ScAnnotationExpr, ScAnnotation, ScNameValuePair, ScReferenceExpression}
 import _root_.scala.collection.mutable.HashSet
@@ -25,10 +26,10 @@ import com.intellij.psi._
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.annotator.intention._
 
-/** 
-* User: Alexander Podkhalyuzin
-* Date: 23.06.2008
-*/
+/**
+ * User: Alexander Podkhalyuzin
+ * Date: 23.06.2008
+ */
 
 class ScalaAnnotator extends Annotator {
 
@@ -57,13 +58,21 @@ class ScalaAnnotator extends Annotator {
 
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+
+    def processError = {
+      val error = ScalaBundle.message("cannot.resolve", Array[Object](refElement.refName))
+      val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+      if (refElement.getManager.isInProject(refElement)) {
+        registerAddImportFix(refElement, annotation)
+      }
+    }
+
     refElement.bind() match {
       case None =>
-        val error = ScalaBundle.message("cannot.resolve", Array[Object](refElement.refName))
-        val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-        annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-        if (refElement.getManager.isInProject(refElement)) {
-          registerAddImportFix(refElement, annotation)
+        refElement.getParent match {
+          case s: ScImportSelector if refElement.multiResolve(false).length > 0 =>
+          case _ => processError
         }
       case Some(result) => {
         registerUsedImports(refElement, result)
