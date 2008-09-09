@@ -93,7 +93,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     case ScTypeAliasType(_, Nil, _, upper) => processType(upper, place)
     case ScTypeVariable(_, Nil, _, upper) => processType(upper, place)
 
-    case p: ScParameterizedType => processElement(p.designated, p.substitutor, place)
+    case p: ScParameterizedType => {
+      val des = p.designated
+      if (des != null) processElement(des, p.substitutor, place) else true
+    }
     case proj : ScProjectionType => proj.resolveResult match {
       case Some(res) => processElement(res.element, res.substitutor, place)
       case None => true
@@ -138,7 +141,6 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       TypeDefinitionMembers.processDeclarations(clazz, this, ResolveState.initial.put(ScSubstitutor.key, s),
         null, place)
 
-    case des if des != null=> des.processDeclarations(this, ResolveState.initial.put(ScSubstitutor.key, s), null, place)
-    case _ => false
+    case des => des.processDeclarations(this, ResolveState.initial.put(ScSubstitutor.key, s), null, place)
   }
 }
