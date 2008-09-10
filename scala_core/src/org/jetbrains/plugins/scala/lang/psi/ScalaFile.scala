@@ -135,7 +135,7 @@ class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider
       case Some(x) if tryImport(x) => {
         var stmt: PsiElement = x
         var added = false
-        while (!added && stmt != null && (stmt.isInstanceOf[ScImportStmt]) || isLT(stmt.getText) ) {
+        while (!added && stmt != null && (stmt.isInstanceOf[ScImportStmt]) || isLT(stmt.getText) || stmt.getText == ";") {
           stmt match {
             case im: ScImportStmt => {
               if (lessTo(importSt, im)) {
