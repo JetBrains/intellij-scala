@@ -125,7 +125,8 @@ public class ScalacCompiler extends ExternalCompiler {
   @NotNull
   public Configurable createConfigurable() {
     // todo implement me as for javac!
-    return null;//new MyConfigurable();
+    //return null;
+    return new ScalacConfigurable();
   }
 
   public OutputParser createErrorParser(String outputDir) {
@@ -345,38 +346,4 @@ public class ScalacCompiler extends ExternalCompiler {
 
     return false;
   }
-
-
-  /*private static class MyConfigurable implements Configurable {
-
-    @Nls
-      public String getDisplayName() {
-      return "Scala compiler configurations";  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Icon getIcon() {
-      return Icons.FILE_TYPE_LOGO;
-    }
-
-    public String getHelpTopic() {
-      return null;
-    }
-
-    public JComponent createComponent() {
-      return null;
-    }
-
-    public boolean isModified() {
-      return false;
-    }
-
-    public void apply() throws ConfigurationException {
-    }
-
-    public void reset() {
-    }
-
-    public void disposeUIResources() {
-    }
-  }*/
 }
