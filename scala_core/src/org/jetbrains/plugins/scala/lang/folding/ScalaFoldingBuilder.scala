@@ -27,12 +27,16 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           descriptors: ListBuffer[FoldingDescriptor]): Unit = {
 
 
-    if (isMultiline(node)) {
+    if (isMultiline(node) || (node.getElementType == ScalaElementTypes.IMPORT_STMT && isMultilineImport(node))) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaElementTypes.TEMPLATE_BODY |
              ScalaDocElementTypes.SCALA_DOC_COMMENT  => descriptors += (new FoldingDescriptor(node, node.getTextRange))
         case ScalaElementTypes.PACKAGING => descriptors += (new FoldingDescriptor(node,
              new TextRange(node.getTextRange.getStartOffset + 8, node.getTextRange.getEndOffset)))
+        case ScalaElementTypes.IMPORT_STMT if isGoodImport(node) => {
+          descriptors += (new FoldingDescriptor(node,
+             new TextRange(node.getTextRange.getStartOffset + 7, getImportEnd(node))))
+        }
         case _ =>
       }
       if (node.getTreeParent() != null && node.getTreeParent().getPsi.isInstanceOf[ScFunction]) {
@@ -54,12 +58,13 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   }
 
   def getPlaceholderText(node: ASTNode): String = {
-    if (isMultiline(node)) {
+    if (isMultiline(node) || (node.getElementType == ScalaElementTypes.IMPORT_STMT && isMultilineImport(node))) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT => return "/.../"
         case ScalaDocElementTypes.SCALA_DOC_COMMENT => return "/**...*/"
         case ScalaElementTypes.TEMPLATE_BODY => return "{...}"
         case ScalaElementTypes.PACKAGING => return "{...}"
+        case ScalaElementTypes.IMPORT_STMT => return "..."
         case _ =>
       }
     }
@@ -81,5 +86,36 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 
   private def isMultiline(node: ASTNode): Boolean = {
      return node.getText.indexOf("\n") != -1
+  }
+
+  private def isMultilineImport(node: ASTNode): Boolean = {
+    var next = node
+    var flag = false
+    while (next != null && (next.getText == ";" || isLT(next.getText)
+        || next.getElementType == ScalaElementTypes.IMPORT_STMT)) {
+      if (next.getElementType == ScalaElementTypes.IMPORT_STMT) flag = true
+      next = next.getTreeNext
+    }
+    return flag
+  }
+
+  private def isLT(s: String): Boolean = s.toCharArray.filter((c: Char) => c match {case ' ' | '\n' => false case _ => true}).length == 0
+
+  private def isGoodImport(node: ASTNode): Boolean = {
+    var prev = node.getTreePrev
+    while (prev != null && (prev.getText == ";" || isLT(prev.getText))) prev = prev.getTreePrev
+    if (prev == null || prev.getElementType != ScalaElementTypes.IMPORT_STMT) true
+    else false
+  }
+
+  private def getImportEnd(node: ASTNode): Int = {
+    var next = node
+    var last = next.getTextRange.getEndOffset
+    while (next != null && (next.getText == ";" || isLT(next.getText)
+        || next.getElementType == ScalaElementTypes.IMPORT_STMT)) {
+      if (next.getElementType == ScalaElementTypes.IMPORT_STMT || next.getText == ";") last = next.getTextRange.getEndOffset
+      next = next.getTreeNext
+    }
+    return last
   }
 }
