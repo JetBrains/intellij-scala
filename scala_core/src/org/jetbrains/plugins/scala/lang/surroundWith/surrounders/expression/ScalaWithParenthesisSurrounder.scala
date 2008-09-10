@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
+import psi.impl.expr.ScBlockImpl
 import com.intellij.psi.PsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
@@ -16,20 +17,22 @@ import lang.psi.api.statements._
 import com.intellij.psi.PsiWhiteSpace
 
 /**
-* @author Alexander Podkhalyuzin
+ * @author AlexanderPodkhalyuzin
 * Date: 11.05.2008
-*/
+ */
 
 class ScalaWithParenthesisSurrounder extends ScalaExpressionSurrounder {
-   override def isApplicable(elements : Array[PsiElement]) : Boolean = {
+  override def isApplicable(elements: Array[PsiElement]): Boolean = {
     if (elements.length > 1) return false
     for (val element <- elements)
       if (!isApplicable(element)) return false
     return true
   }
-  override def isApplicable(element : PsiElement) : Boolean = {
+  override def isApplicable(element: PsiElement): Boolean = {
     element match {
-      case _ : ScExpression | _: PsiWhiteSpace => {
+      case _: ScBlockExpr => true
+      case _: ScBlockImpl => false
+      case _: ScExpression | _: PsiWhiteSpace => {
         true
       }
       case e => {
@@ -37,16 +40,16 @@ class ScalaWithParenthesisSurrounder extends ScalaExpressionSurrounder {
       }
     }
   }
-   override def getExpressionTemplateAsString (expr : ASTNode) = "(" + expr.getText + ")"
+  override def getExpressionTemplateAsString(expr: ASTNode) = "(" + expr.getText + ")"
 
-   override def getTemplateAsString(elements: Array[PsiElement]): String = {
-     return "("+super.getTemplateAsString(elements)+")"
-   }
+  override def getTemplateAsString(elements: Array[PsiElement]): String = {
+    return "(" + super.getTemplateAsString(elements) + ")"
+  }
 
-   override def getTemplateDescription = "(  )"
+  override def getTemplateDescription = "(  )"
 
-   override def getSurroundSelectionRange (expr : ASTNode) : TextRange = {
-     val offset = expr.getTextRange.getEndOffset
-     new TextRange(offset, offset)
-   }
- }
+  override def getSurroundSelectionRange(expr: ASTNode): TextRange = {
+    val offset = expr.getTextRange.getEndOffset
+    new TextRange(offset, offset)
+  }
+}
