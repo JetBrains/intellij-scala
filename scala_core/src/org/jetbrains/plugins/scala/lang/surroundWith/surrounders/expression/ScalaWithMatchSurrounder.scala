@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 /**
-* @author Alexander Podkhalyuzin
+ * @author AlexanderPodkhalyuzin
 * Date: 28.04.2008
-*/
+ */
 
+import psi.impl.expr.ScBlockImpl
 import com.intellij.psi.PsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
@@ -17,15 +18,17 @@ import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.PsiWhiteSpace;
 
 class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
-  override def isApplicable(elements : Array[PsiElement]) : Boolean = {
+  override def isApplicable(elements: Array[PsiElement]): Boolean = {
     if (elements.length > 1) return false
     for (val element <- elements)
       if (!isApplicable(element)) return false
     return true
   }
-  override def isApplicable(element : PsiElement) : Boolean = {
+  override def isApplicable(element: PsiElement): Boolean = {
     element match {
-      case _ : ScExpression | _: PsiWhiteSpace => {
+      case _: ScBlockExpr => true
+      case _: ScBlockImpl => false
+      case _: ScExpression | _: PsiWhiteSpace => {
         true
       }
       case e => {
@@ -33,8 +36,8 @@ class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
       }
     }
   }
-  // todo WTF?
-  override def getExpressionTemplateAsString (expr : ASTNode) = {
+
+  override def getExpressionTemplateAsString(expr: ASTNode) = {
     val exprAsString = "while (true) { \n " + expr.getText + "\n" + "}"
 
     if (!isNeedBraces(expr)) exprAsString
@@ -47,10 +50,10 @@ class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
 
   override def getTemplateDescription = "match"
 
-  override def getSurroundSelectionRange (withMatchNode : ASTNode ) : TextRange = {
+  override def getSurroundSelectionRange(withMatchNode: ASTNode): TextRange = {
     val whileStmt = withMatchNode.getPsi.asInstanceOf[ScMatchStmt]
     //val r = whileStmt.getNode.getLastChildNode.getTreePrev.getFirstChildNode
-    val patternNode : ASTNode = whileStmt.getNode.getLastChildNode.getTreePrev.getTreePrev.getFirstChildNode.getFirstChildNode.getTreeNext.getTreeNext
+    val patternNode: ASTNode = whileStmt.getNode.getLastChildNode.getTreePrev.getTreePrev.getFirstChildNode.getFirstChildNode.getTreeNext.getTreeNext
     val offset = patternNode.getTextRange.getStartOffset
     patternNode.getTreeParent.removeChild(patternNode)
 
