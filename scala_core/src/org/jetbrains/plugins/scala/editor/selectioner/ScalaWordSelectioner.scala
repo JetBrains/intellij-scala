@@ -63,6 +63,7 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
           case None => result.add(new TextRange(x.getTextRange.getEndOffset, x.getTextRange.getEndOffset))
         }
       }
+      case _ =>
     }
     return result
   }
