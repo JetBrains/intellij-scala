@@ -23,7 +23,7 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
     //case for selecting parameters without parenthesises
       case _: ScParameterClause | _: ScArguments => {
         val range = e.getTextRange
-        if (range.contains(cursorOffset) && range.getEndOffset - range.getStartOffset != 0) {
+        if (range.getEndOffset - range.getStartOffset != 0) {
           val start = range.getStartOffset + 1
           //just look for last parenthesis
           val end = if (e.getNode.getLastChildNode.getElementType == ScalaTokenTypes.tRPARENTHESIS) range.getEndOffset - 1 else range.getEndOffset
@@ -36,7 +36,7 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
           case Some(x) => x.getTextRange.getStartOffset
           case None => e.getTextRange.getEndOffset
         })
-        if (range.contains(cursorOffset)) result.add(range)
+        result.add(range)
       }
       //case for references
       case x: ScReferenceElement => {
@@ -71,6 +71,12 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
           case None => result.add(new TextRange(offset, offset)) //adding dummy range for recursion
         }
       }
+      case x: ScMethodCall => {
+        x.getInvokedExpr match {
+          case ref: ScReferenceElement => return select(ref, editorText, cursorOffset, editor)
+          case _ =>
+        }
+      }
       case _ =>
     }
     return result
@@ -80,6 +86,7 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
       case _: ScParameterClause | _: ScArguments => true
       case _: ScExtendsBlock => true
       case _: ScReferenceElement => true
+      case _: ScMethodCall => true
       case _ => false
     }
   }
