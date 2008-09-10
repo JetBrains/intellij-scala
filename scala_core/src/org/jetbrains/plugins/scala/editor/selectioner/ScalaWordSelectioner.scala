@@ -40,27 +40,35 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
       }
       //case for references
       case x: ScReferenceElement => {
+        //choosing end offset, another to method call
+        val offset = if (!x.getParent.isInstanceOf[ScMethodCall]) x.getTextRange.getEndOffset
+                     else x.getParent.getTextRange.getEndOffset
+        //clear result if method call
+        if (x.getParent.isInstanceOf[ScMethodCall]) result.clear
         x.qualifier match {
           case Some(qual) => {
+            //get ranges for previos qualifier
             val ranges = select(qual, editorText, cursorOffset, editor).toArray(new Array[TextRange](0))
             for (fRange <- ranges if fRange.getEndOffset == qual.getTextRange.getEndOffset) {
+              //cancatenating ranges
               val tRange = new TextRange(if (fRange.getStartOffset != fRange.getEndOffset) fRange.getStartOffset
-                                         else {
-                var end = fRange.getEndOffset
-                var flag = true
-                while (flag) {
-                  editorText.charAt(end) match {
-                    case ' ' | '.' | '\n' => end += 1
-                    case _ => flag = false
-                  }
-                }
-                end
-              }, x.getTextRange.getEndOffset)
+                                         else { //if we have dummy range we must find first letter to concatenate ranges
+                                           var end = fRange.getEndOffset
+                                           var flag = true
+                                           while (flag) {
+                                             editorText.charAt(end) match {
+                                               case ' ' | '.' | '\n' => end += 1
+                                               case _ => flag = false
+                                             }
+                                           }
+                                           end
+                                         }, offset)
               result.add(tRange)
             }
-            result.add(new TextRange(x.getTextRange.getEndOffset, x.getTextRange.getEndOffset))
+            //adding dummy range for recursion
+            result.add(new TextRange(offset, offset))
           }
-          case None => result.add(new TextRange(x.getTextRange.getEndOffset, x.getTextRange.getEndOffset))
+          case None => result.add(new TextRange(offset, offset)) //adding dummy range for recursion
         }
       }
       case _ =>
