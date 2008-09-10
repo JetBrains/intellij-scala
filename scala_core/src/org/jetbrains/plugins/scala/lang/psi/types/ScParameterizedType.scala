@@ -24,11 +24,14 @@ import com.intellij.psi.{PsiTypeParameter, PsiClass}
 
 case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) extends ScType {
   def designated = designator match {
-    case des : ScDesignatorType => des.element
+    case des : ScDesignatorType => des.element match {
+      case null => None
+      case e => Some(e)
+    }
     case ScProjectionType(sin@ScSingletonType(path), name) => {
       val proc = new ResolveProcessor(StdKinds.stableClass, name)
       proc.processType(sin, path)
-      if (proc.candidates.size == 1) proc.candidates.toArray(0).element else null
+      if (proc.candidates.size == 1) Some(proc.candidates.toArray(0).element) else None
     }
   }
 
@@ -37,7 +40,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) ex
       case ScTypeVariable(_, args, _, _) => args
       case ScTypeAliasType(_, args, _, _) => args
       case _ => designated match {
-        case owner : PsiTypeParameterListOwner => owner.getTypeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}
+        case Some(owner : PsiTypeParameterListOwner) => owner.getTypeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}
         case _ => Seq.empty
       }
     }
