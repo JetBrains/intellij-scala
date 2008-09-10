@@ -31,7 +31,7 @@ class RequiresFilter extends ElementFilter {
       }
       val prev2 = prev.getPrevSibling
       prev2 match {
-        case x: ScTypeDefinition => {
+        case x: ScClass => {
           if (!x.extendsBlock.empty) return false
           else if (x.getText.indexOf(" requires ") != -1) return false
           else if (leaf.getNextSibling != null &&  leaf.getNextSibling.getNextSibling != null &&
