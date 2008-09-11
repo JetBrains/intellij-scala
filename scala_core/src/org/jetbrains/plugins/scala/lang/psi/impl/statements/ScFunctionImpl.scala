@@ -28,13 +28,7 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
     } else n).getPsi
   }
 
-
-  def paramClauses: ScParameters = findChildByClass(classOf[ScParameters])
-
-  def parameters: Seq[ScParameter] = {
-    val pcs = getParameterList
-    if (pcs != null) pcs.params else Seq.empty
-  }
+  def parameters: Seq[ScParameter] = paramClauses.params
 
   override def getIcon(flags: Int) = Icons.FUNCTION
 
@@ -81,10 +75,8 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
 
   def hasTypeParameters = false
 
-  def getParameterList: ScParameters = {
-    findChild(classOf[ScParameters]) match {
-      case None => ScalaPsiElementFactory.createDummyParams(this.getManager)
-      case Some(x) => x
-    }
-  }
+  def getParameterList: ScParameters = paramClauses
+
+  protected def _calcType(ret : ScType) = paramClauses.clauses.toList.foldRight(ret) {((cl, t) =>
+          new ScFunctionType(t, cl.parameters.map {p => p.calcType}))}
 }
