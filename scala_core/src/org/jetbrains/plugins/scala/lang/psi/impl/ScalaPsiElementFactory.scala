@@ -49,24 +49,13 @@ object ScalaPsiElementFactory {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
     val p = classDef.members()(0).asInstanceOf[ScPatternDefinition]
-    val ret = p.expr match {
+    p.expr match {
       case x: ScParenthesisedExpr => x.expr match {
         case Some(y) => y
         case _ => x
       }
       case x => x
     }
-//    println(ret.getText())
-    ret
-  }
-
-  def createDummyParams(manager: PsiManager): ScParameters = {
-    val text = "class a {def foo()}"
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
-    val classDef = dummyFile.getTypeDefinitions()(0)
-    val function = classDef.functions()(0)
-    return function.paramClauses
   }
 
   def createIdentifier(name: String, manager: PsiManager): ASTNode = {
