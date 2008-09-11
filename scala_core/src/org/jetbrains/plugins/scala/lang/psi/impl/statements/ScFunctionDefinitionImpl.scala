@@ -53,6 +53,6 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
       }) else Unit
       case Some(rte) => rte.getType
     }
-    new ScFunctionType(ret, paramTypes)
+    _calcType(ret)
   }
 }

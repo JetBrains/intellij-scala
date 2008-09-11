@@ -17,8 +17,8 @@ class ScFunctionDeclarationImpl(node: ASTNode) extends ScFunctionImpl(node) with
   override def toString: String = "ScFunctionDeclaration"
 
   override def calcType = typeElement match {
-    case Some(te) => new ScFunctionType(te.getType, paramTypes)
-    case None => Nothing //todo use base function in case one is present  
+    case Some(te) => _calcType(te.getType) 
+    case None => Nothing //todo use base function in case one is present
   }
 }
 
