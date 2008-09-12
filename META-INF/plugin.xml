@@ -49,7 +49,7 @@
     <codeStyleSettingsProvider language="Scala" implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettingsProvider"/>
 
     <fileTemplateGroup implementation="org.jetbrains.plugins.scala.actions.ScalaTemplatesFactory"/>
-
+    <indexPatternBuilder implementation="org.jetbrains.plugins.scala.editor.todo.ScalaIndexPatternBuilder"/>
 
     <gotoClassContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToClassContributor"/>
 
