@@ -389,11 +389,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           if (scalaSettings.WHILE_ON_NEW_LINE) return ON_NEW_LINE
           else return WITH_SPACING
         }
-        case ScalaTokenTypes.kCATCH => {
+        case ScalaElementTypes.CATCH_BLOCK => {
           if (scalaSettings.CATCH_ON_NEW_LINE) return ON_NEW_LINE
           else return WITH_SPACING
         }
-        case ScalaTokenTypes.kFINALLY => {
+        case ScalaElementTypes.FINALLY_BLOCK => {
           if (scalaSettings.FINALLY_ON_NEW_LINE) return ON_NEW_LINE
           else return WITH_SPACING
         }
