@@ -78,8 +78,9 @@ object ScType {
     case PsiType.SHORT => Short
     case PsiType.NULL => Null
     case wild : PsiWildcardType => new ScExistentialArgument("_", Nil,
-      create(wild.getSuperBound, project),
-      create(wild.getExtendsBound, project))
+      create(wild.getSuperBound, project), create(wild.getExtendsBound, project))
+    case capture : PsiCapturedWildcardType => new ScTypeVariable("_", Nil,
+      create(capture.getLowerBound, project), create(capture.getUpperBound, project))
     case null => new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java
     case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
   }
