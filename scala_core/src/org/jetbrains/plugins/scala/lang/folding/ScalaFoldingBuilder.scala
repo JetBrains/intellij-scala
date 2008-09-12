@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.folding
 
+import com.intellij.psi.PsiWhiteSpace
 import scaladoc.parser.ScalaDocElementTypes
 import _root_.scala.collection.mutable._
 
@@ -92,7 +93,9 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   private def isMultilineImport(node: ASTNode): Boolean = {
     var next = node
     var flag = false
-    while (next != null && (next.getText == ";" || isLT(next.getText)
+    while (next != null && (next.getElementType == ScalaTokenTypes.tSEMICOLON
+        || next.getElementType == ScalaTokenTypes.tLINE_TERMINATOR
+        || next.getPsi.isInstanceOf[PsiWhiteSpace]
         || next.getElementType == ScalaElementTypes.IMPORT_STMT)) {
       if (next.getElementType == ScalaElementTypes.IMPORT_STMT) flag = true
       next = next.getTreeNext
@@ -100,11 +103,11 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     return flag
   }
 
-  private def isLT(s: String): Boolean = s.toCharArray.filter((c: Char) => c match {case ' ' | '\n' => false case _ => true}).length == 0
-
   private def isGoodImport(node: ASTNode): Boolean = {
     var prev = node.getTreePrev
-    while (prev != null && (prev.getText == ";" || isLT(prev.getText))) prev = prev.getTreePrev
+    while (prev != null && (prev.getElementType == ScalaTokenTypes.tSEMICOLON
+        || prev.getPsi.isInstanceOf[PsiWhiteSpace]
+        || prev.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)) prev = prev.getTreePrev
     if (prev == null || prev.getElementType != ScalaElementTypes.IMPORT_STMT) true
     else false
   }
@@ -112,7 +115,9 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   private def getImportEnd(node: ASTNode): Int = {
     var next = node
     var last = next.getTextRange.getEndOffset
-    while (next != null && (next.getText == ";" || isLT(next.getText)
+    while (next != null && (next.getElementType == ScalaTokenTypes.tSEMICOLON
+        || next.getPsi.isInstanceOf[PsiWhiteSpace]
+        || next.getElementType == ScalaTokenTypes.tLINE_TERMINATOR
         || next.getElementType == ScalaElementTypes.IMPORT_STMT)) {
       if (next.getElementType == ScalaElementTypes.IMPORT_STMT || next.getText == ";") last = next.getTextRange.getEndOffset
       next = next.getTreeNext
