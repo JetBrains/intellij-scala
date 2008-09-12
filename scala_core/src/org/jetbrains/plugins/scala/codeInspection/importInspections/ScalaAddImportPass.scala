@@ -53,7 +53,6 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
     val added = new ArrayBuffer[PsiClass]
     ApplicationManager.getApplication.assertIsDispatchThread
     if (!editor.getContentComponent.hasFocus) return
-    //val visibleHighlight = visibleHighlights.apply(0)
     for (visibleHighlight <- visibleHighlights) {
       ProgressManager.getInstance.checkCanceled
       val element = file.findElementAt(visibleHighlight.startOffset)
