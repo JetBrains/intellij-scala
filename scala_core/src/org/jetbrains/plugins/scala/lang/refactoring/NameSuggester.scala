@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
+import _root_.scala.collection.mutable.HashSet
 import psi.types._
 import psi.api.expr._
 import java.util.regex.Matcher
@@ -13,16 +14,20 @@ import _root_.scala.collection.mutable.ArrayBuffer
 
 object NameSuggester {
   def suggestNames(expr: ScExpression, validator: NameValidator): Array[String] = {
-    val names = new ArrayBuffer[String]()
+    val names = new HashSet[String]
     generateNamesByType(expr.getType, names, validator)
     generateNamesByExpr(expr, names, validator)
     if (names.size == 0) {
       names += validator.validateName("value", true)
     }
-    return (for (name <- names if name != "") yield name).reverse.toArray
+    names.filter((s: String) => ScalaNamesUtil.isIdentifier(s))
+
+    return (for (name <- names if name != "") yield {
+      if (name != "class") name else "clazz"
+    }).toList.reverse.toArray
   }
 
-  private def generateNamesByType(typez: ScType, names: ArrayBuffer[String], validator: NameValidator): Unit = {
+  private def generateNamesByType(typez: ScType, names: HashSet[String], validator: NameValidator): Unit = {
     def add(s: String) {
       names += validator.validateName(s, true)
     }
@@ -70,7 +75,7 @@ object NameSuggester {
     }
   }
 
-  private def generateNamesByExpr(expr: ScExpression, names: ArrayBuffer[String], validator: NameValidator) {
+  private def generateNamesByExpr(expr: ScExpression, names: HashSet[String], validator: NameValidator) {
     expr match {
       case _: ScThisReference => names += validator.validateName("thisInstance", true)
       case _: ScSuperReference => names += validator.validateName("superInstance", true)
@@ -89,7 +94,7 @@ object NameSuggester {
     }
   }
 
-  private def generateCamelNames(names: ArrayBuffer[String], validator: NameValidator, name: String) {
+  private def generateCamelNames(names: HashSet[String], validator: NameValidator, name: String) {
     if (name == "") return
     val s1 = deleteNonLetterFromString(name)
     val s = if (Array("get", "set", "is").map(s1.startsWith(_)).contains(true))
