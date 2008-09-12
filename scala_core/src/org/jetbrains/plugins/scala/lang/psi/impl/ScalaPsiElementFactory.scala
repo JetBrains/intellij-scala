@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
+import api.toplevel.packaging.ScPackaging
 import api.toplevel.ScTyped
 import com.intellij.util.{IncorrectOperationException, CharTable}
 import api.statements._
@@ -65,11 +66,26 @@ object ScalaPsiElementFactory {
     return dummyFile.getNode.getLastChildNode.getLastChildNode.getLastChildNode
   }
 
-  def createImportStatementFromClass(file: ScalaFile, clazz: PsiClass, manager: PsiManager): ScImportStmt = {
+  def createImportStatementFromClass(file: ScImportsHolder, clazz: PsiClass, manager: PsiManager): ScImportStmt = {
     val qualifiedName = clazz.getQualifiedName
-    val packageName = file.packageStatement match {
-      case Some(x) => x.getPackageName
-      case None => null
+    val packageName = file match {
+      case file: ScalaFile => file.packageStatement match {
+        case Some(x) => x.getPackageName
+        case None => null
+      }
+      case file: ScPackaging => file.getPackageName
+      case _ => {
+        var element: PsiElement = file
+        while (element != null && !element.isInstanceOf[ScalaFile] && !element.isInstanceOf[ScPackaging]) element = element.getParent
+        element match {
+          case file: ScalaFile => file.packageStatement match {
+            case Some(x) => x.getPackageName
+            case None => null
+          }
+          case file: ScPackaging => file.getPackageName
+          case _ => null
+        }
+      }
     }
     val name = getShortName(qualifiedName, packageName)
     val text = "import " + (if (isResolved(name, clazz, packageName, manager)) name else "_root_." + qualifiedName)
@@ -84,10 +100,25 @@ object ScalaPsiElementFactory {
     }
   }
 
-  def getResolveForClassQualifier(file: ScalaFile, clazz: PsiClass, manager: PsiManager): PsiElement = {
-    val packageName = file.packageStatement match {
-      case Some(x) => x.getPackageName
-      case None => "intelliJIDEARulezzzzz"
+  def getResolveForClassQualifier(file: ScImportsHolder, clazz: PsiClass, manager: PsiManager): PsiElement = {
+    val packageName = file match {
+      case file: ScalaFile => file.packageStatement match {
+        case Some(x) => x.getPackageName
+        case None => "IntelliJIDEARulezzz"
+      }
+      case file: ScPackaging => file.getPackageName
+      case _ => {
+        var element: PsiElement = file
+        while (element != null && !element.isInstanceOf[ScalaFile] && !element.isInstanceOf[ScPackaging]) element = element.getParent
+        element match {
+          case file: ScalaFile => file.packageStatement match {
+            case Some(x) => x.getPackageName
+            case None => null
+          }
+          case file: ScPackaging => file.getPackageName
+          case _ => "IntelliJIDEARulezzz"
+        }
+      }
     }
     val text = "package " + packageName + "\nimport " + getShortName(clazz.getQualifiedName, packageName)
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
