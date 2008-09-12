@@ -7,6 +7,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import _root_.scala.collection.mutable.ArrayBuffer
+
 /**
 * User: Alexander.Podkhalyuz
 * Date: 26.06.2008
@@ -20,9 +21,8 @@ object NameSuggester {
     if (names.size == 0) {
       names += validator.validateName("value", true)
     }
-    names.filter((s: String) => ScalaNamesUtil.isIdentifier(s))
 
-    return (for (name <- names if name != "") yield {
+    return (for (name <- names if name != "" && ScalaNamesUtil.isIdentifier(name) || name == "class") yield {
       if (name != "class") name else "clazz"
     }).toList.reverse.toArray
   }
