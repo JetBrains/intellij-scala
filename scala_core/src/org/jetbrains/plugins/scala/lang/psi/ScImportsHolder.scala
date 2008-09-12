@@ -71,17 +71,27 @@ trait ScImportsHolder extends ScalaPsiElement {
   }
 
   def addImportForClass(clazz: PsiClass) {
-    val newImport = ScalaPsiElementFactory.createImportStatementFromClass(this, clazz, this.getManager)
+    //Create simple variant what to import
+    val importSt = ScalaPsiElementFactory.createImportStatementFromClass(this, clazz, this.getManager)
+    //Getting qualifier resolve, to compare with other import expressions
     val resolve = ScalaPsiElementFactory.getResolveForClassQualifier(this, clazz, getManager)
-    val sameExpressions: Array[ScImportExpr] = (for (importStmt <- importStatementsInHeader; importExpr <- importStmt.importExprs
-      if resolve != null && importExpr.qualifier.resolve == resolve)
-      yield importExpr).toArray
-    val importSt = if (sameExpressions.length == 0) newImport
-                   else {
-                     val stmt = ScalaPsiElementFactory.createBigImportStmt(newImport.importExprs(0), sameExpressions, this.getManager)
-                     for (expr <- sameExpressions) expr.deleteExpr
-                     stmt
-                   }
+    this match {
+      //If we have not Block we tring to collect same qualifiers to one import expression
+      case _: ScalaFile | _: ScPackaging => {
+        //looking for expresssions which collecting
+        val sameExpressions: Array[ScImportExpr] = (for (importStmt <- importStatementsInHeader; importExpr <- importStmt.importExprs
+          if resolve != null && importExpr.qualifier.resolve == resolve)
+          yield importExpr).toArray
+        if (sameExpressions.length != 0) {
+          //getting collected import statement
+          val stmt = ScalaPsiElementFactory.createBigImportStmt(importSt.importExprs(0), sameExpressions, this.getManager)
+          //deleting collected expressions
+          for (expr <- sameExpressions) expr.deleteExpr
+          importSt = stmt
+        }
+      }
+      case _ =>
+    }
     def tryImport(imp: PsiElement): Boolean = {
       var prev: PsiElement = imp.getPrevSibling
       prev match {
