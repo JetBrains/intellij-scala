@@ -166,17 +166,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaBaseElementImpl(
 
   override def getTypeParameters = typeParameters.toArray
 
-  override def getSupers: Array[PsiClass] = {
-    val buf = new ArrayBuffer[PsiClass]
-    for (t <- superTypes) {
-      ScType.extractClassType(t) match {
-        case Some((c, _)) => buf += c
-        case None =>
-      }
-    }
-
-    buf.toArray
-  }
+  override def getSupers: Array[PsiClass] = extendsBlock.supers.toArray
 
   override def getMethods = functions.toArray
 

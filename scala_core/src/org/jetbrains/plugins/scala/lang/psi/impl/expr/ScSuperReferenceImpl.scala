@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import api.toplevel.templates.ScExtendsBlock
 import com.intellij.util.IncorrectOperationException
 import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.util.PsiTreeUtil
@@ -30,13 +31,11 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     if (ref != null) ref.resolve match {
       case c : PsiClass => Some(c)
       case _ => None
-    } else {
-      derivedClass match {
-        case null => None
-        case drv => drv.getSupers match {
-          case Array() => None
-          case some => Some(some(0))
-        }
+    } else superClasses match {
+      case None => None
+      case Some(supers) => supers match {
+        case Array() => None
+        case some => Some(some(0))
       }
     }
   }
@@ -69,29 +68,36 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
         case _ => false
       }
 
-      def resolve() : PsiElement = {
-        val drv = derivedClass
-        if (drv == null) null else {
+      def resolve(): PsiElement = superClasses match {
+        case None => null
+        case Some(supers) => {
           val name = id.getText
-          for (aSuper <- drv.getSupers) {
+          for (aSuper <- supers) {
             if (name == aSuper.getName) return aSuper
           }
           null
         }
       }
 
-      def getVariants() : Array[Object] = {
-        val drv = derivedClass
-        if (drv == null) Array[Object]() else drv.getSupers.map {c => c : Object}
+      def getVariants(): Array[Object] = superClasses match {
+        case None => Array[Object]()
+        case Some(supers) => supers.map{
+          c => c: Object
+        }.toArray
       }
     }
   }
 
-  private def derivedClass = qualifier match {
+  private def superClasses = qualifier match {
     case Some(q) => q.resolve match {
-      case c : PsiClass => c
-      case _ => null
+      case c : PsiClass => Some(c.getSupers)
+      case _ => None
     }
-    case None => PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition])
+    case None => {
+      PsiTreeUtil.getParentOfType(this, classOf[ScExtendsBlock]) match {
+        case null => None
+        case eb => Some(eb.supers)
+      }
+    }
   }
 }
