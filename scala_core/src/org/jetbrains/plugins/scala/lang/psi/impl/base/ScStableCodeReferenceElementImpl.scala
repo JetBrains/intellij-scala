@@ -34,13 +34,13 @@ import api.expr.{ScSuperReference, ScThisReference}
 
 class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScStableCodeReferenceElement {
 
-  def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(resolveKinds(true))).map(r => r.getElement) //todo
+  def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement) //todo
 
   override def toString: String = "CodeReferenceElement"
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElementImpl] {
     def resolve(ref: ScStableCodeReferenceElementImpl, incomplete: Boolean) = {
-      val kinds = ref.resolveKinds(false)
+      val kinds = ref.getKinds(false)
       val proc = ref.getParent match {
         //last ref may import many elements with the same name
         case e : ScImportExpr if (e.selectorSet == None && !e.singleWildcard) => new CollectAllProcessor(kinds, refName)
@@ -52,7 +52,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  private def resolveKinds(incomplete: Boolean) = {
+  def getKinds(incomplete: Boolean) = {
     import StdKinds._
     getParent match {
       case _: ScStableCodeReferenceElement => stableQualRef

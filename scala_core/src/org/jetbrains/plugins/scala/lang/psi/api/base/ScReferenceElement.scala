@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
+import _root_.scala.collection.Set
 import impl.ScalaPsiElementFactory
 import impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -56,4 +57,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   def isReferenceTo(element: PsiElement): Boolean = resolve() == element
 
   def qualifier : Option[ScalaPsiElement]
+
+  //provides the set of possible namespace alternatives based on syntactic position 
+  def getKinds(incomplete: Boolean) : Set[ResolveTargets.Value]
 }
