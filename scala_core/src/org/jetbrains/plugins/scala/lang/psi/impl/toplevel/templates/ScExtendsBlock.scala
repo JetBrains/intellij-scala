@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates
 import api.toplevel.typedef.ScObject
 import api.expr.ScNewTemplateDefinition
 import com.intellij.lang.ASTNode
-import com.intellij.psi.JavaPsiFacade
-
+import com.intellij.psi.{JavaPsiFacade, PsiClass}
 import psi.ScalaPsiElementImpl
 import api.toplevel.templates._
 import psi.types._
@@ -64,5 +63,17 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       case Some(x) => return true
       case None => return false
     }
+  }
+
+  def supers() ={
+    val buf = new ArrayBuffer[PsiClass]
+    for (t <- superTypes) {
+      ScType.extractClassType(t) match {
+        case Some((c, _)) => buf += c
+        case None =>
+      }
+    }
+
+    buf.toArray
   }
 }

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates
 
+import com.intellij.psi.PsiClass
 import psi.ScalaPsiElement
 import types.ScType
 
@@ -24,6 +25,8 @@ trait ScExtendsBlock extends ScalaPsiElement {
   def earlyDefinitions = findChild(classOf[ScEarlyDefinitions])
 
   def superTypes : Seq[ScType]
+
+  def supers : Seq[PsiClass]
 
   def isAnonymousClass: Boolean
 }
