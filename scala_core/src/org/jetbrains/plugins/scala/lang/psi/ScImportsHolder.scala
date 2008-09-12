@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import lexer.ScalaTokenTypes
 import _root_.scala.collection.mutable.ArrayBuffer
 import impl.ScalaPsiElementFactory
 import api.toplevel.imports.{ScImportExpr, ScImportStmt}
@@ -26,36 +27,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     true
   }
 
-  //todo[Sasha] rewrite using ScalaElementTypes
-  def deleteImportStmt(stmt: ScImportStmt): Unit = {
-    val remove = getNode.removeChild _
-    val node = stmt.getNode
-    val next = node.getTreeNext
-    if (next == null) {
-      remove(node)
-    }
-    else if (next.getText.indexOf("\n") != -1) {
-      remove(next)
-      remove(node)
-    } else if (next.getText.charAt(0) == ';') {
-      val nextnext = next.getTreeNext
-      if (nextnext == null) {
-        remove(next)
-        remove(node)
-      }
-      else if (next.getText.indexOf("\n") != -1) {
-        remove(nextnext)
-        remove(next)
-        remove(node)
-      } else {
-        remove(node)
-        remove(next)
-      }
-    }
-    else {
-      remove(node)
-    }
-  }
+
 
   private def importStatementsInHeader: Seq[ScImportStmt] = {
     var end = false
@@ -70,9 +42,34 @@ trait ScImportsHolder extends ScalaPsiElement {
     return buf.toSeq
   }
 
+  //Utility method to find first import statement, but only in element header
+  private def findFirstImportStmt: Option[PsiElement] = {
+    def tryImport(imp: PsiElement): Boolean = {
+      var prev: PsiElement = imp.getPrevSibling
+      prev match {
+        case null => return true
+        case _: ScTypeDefinition => return false
+        case _: ScPackaging => return false
+        case _ => {
+          prev.getNode.getElementType match {
+            case ScalaTokenTypes.tRBRACE => return true
+            case _ => return tryImport(prev)
+          }
+        }
+      }
+    }
+    findChild(classOf[ScImportStmt]) match {
+      case Some(x) => {
+        if (tryImport(x)) return Some(x)
+        else return None
+      }
+      case None => return None
+    }
+  }
+
   def addImportForClass(clazz: PsiClass) {
     //Create simple variant what to import
-    val importSt = ScalaPsiElementFactory.createImportStatementFromClass(this, clazz, this.getManager)
+    var importSt = ScalaPsiElementFactory.createImportStatementFromClass(this, clazz, this.getManager)
     //Getting qualifier resolve, to compare with other import expressions
     val resolve = ScalaPsiElementFactory.getResolveForClassQualifier(this, clazz, getManager)
     this match {
@@ -92,25 +89,20 @@ trait ScImportsHolder extends ScalaPsiElement {
       }
       case _ =>
     }
-    def tryImport(imp: PsiElement): Boolean = {
-      var prev: PsiElement = imp.getPrevSibling
-      prev match {
-        case null => return true
-        case _: ScTypeDefinition => return false
-        case _: ScPackaging => return false
-        case _ => return tryImport(prev)
-      }
-    }
-    def lessTo(left: ScImportStmt, right: ScImportStmt): Boolean = left.getText.toLowerCase < right.getText.toLowerCase
-    def isLT(s: String): Boolean = s.toCharArray.filter((c: Char) => c match {case ' ' | '\n' => false case _ => true}).length == 0
-    findChild(classOf[ScImportStmt]) match {
-      case Some(x) if tryImport(x) => {
+
+    //looking for first import statemnt to find place which we will use for new import statement
+    findFirstImportStmt match {
+      case Some(x: ScImportStmt) => {
+        //now we walking throw foward siblings, and seeking appropriate place (lexicografical)
         var stmt: PsiElement = x
+        //this is flag to stop walking when we add import before more big lexicografically import statement
         var added = false
-        while (!added && stmt != null && (stmt.isInstanceOf[ScImportStmt]) || isLT(stmt.getText) || stmt.getText == ";") {
+        while (!added && stmt != null && (stmt.isInstanceOf[ScImportStmt]
+            || stmt.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR
+            || stmt.getNode.getElementType == ScalaTokenTypes.tSEMICOLON)) {
           stmt match {
             case im: ScImportStmt => {
-              if (lessTo(importSt, im)) {
+              if (importSt.getText.toLowerCase < im.getText.toLowerCase) {
                 added = true
                 addBefore(importSt, im)
               }
@@ -119,6 +111,7 @@ trait ScImportsHolder extends ScalaPsiElement {
           }
           stmt = stmt.getNextSibling
         }
+        //if our stmt is the biggest lexicografically import statement we add this to the end
         if (!added) {
           if (stmt != null) {
             while (!stmt.isInstanceOf[ScImportStmt]) stmt = stmt.getPrevSibling
@@ -128,16 +121,56 @@ trait ScImportsHolder extends ScalaPsiElement {
         }
       }
       case _ => {
+        //we haven't first import statement, so we insert new import statement so close to element begin as possible
         findChild(classOf[ScPackageStatement]) match {
           case Some(x) => {
             addAfter(importSt, x)
           }
           case None => {
-            if (getFirstChild != null) addBefore(importSt, getFirstChild)
-            else add(importSt)
+            //Here we must to find left brace, if not => it's ScalaFile
+            getNode.findChildByType(ScalaTokenTypes.tRBRACE) match {
+              case null => {
+                if (getFirstChild != null) addBefore(importSt, getFirstChild)
+                else add(importSt)
+              }
+              case node => {
+                addAfter(importSt, node.getPsi)
+              }
+            }
+
           }
         }
       }
+    }
+  }
+
+  def deleteImportStmt(stmt: ScImportStmt): Unit = {
+    val remove = getNode.removeChild _
+    val node = stmt.getNode
+    val next = node.getTreeNext
+    if (next == null) {
+      remove(node)
+    }
+    else if (next.getElementType == ScalaTokenTypes.tLINE_TERMINATOR) {
+      remove(next)
+      remove(node)
+    } else if (next.getElementType == ScalaTokenTypes.tSEMICOLON) {
+      val nextnext = next.getTreeNext
+      if (nextnext == null) {
+        remove(next)
+        remove(node)
+      }
+      else if (next.getElementType == ScalaTokenTypes.tLINE_TERMINATOR) {
+        remove(nextnext)
+        remove(next)
+        remove(node)
+      } else {
+        remove(node)
+        remove(next)
+      }
+    }
+    else {
+      remove(node)
     }
   }
 }
