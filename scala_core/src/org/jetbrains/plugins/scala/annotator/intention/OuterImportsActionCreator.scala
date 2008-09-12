@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.intention
 
-import lang.psi.api.base.ScReferenceElement
-import lang.psi.api.expr.ScReferenceExpression
+import lang.resolve.{ResolveUtils}
 import com.intellij.codeInsight.CodeInsightUtilBase
 import com.intellij.codeInsight.hint.HintManager
 import com.intellij.codeInsight.hint.QuestionAction
@@ -20,9 +19,9 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.psi._
 
+import lang.psi.api.base.ScReferenceElement
+import lang.psi._
 import _root_.scala.collection.mutable._
 
 /** 
@@ -37,29 +36,25 @@ object OuterImportsActionCreator {
     val facade = JavaPsiFacade.getInstance(project)
     val classes = facade.getShortNamesCache().getClassesByName(refElement.refName, GlobalSearchScope.allScope(project))
 
-
+    val kinds = refElement.getKinds(false)
     for (clazz <- classes) {
       val qName = clazz.getQualifiedName()
-      if (qName != null && qName.indexOf('.') != -1) {
+      if (qName != null && qName.indexOf('.') != -1 && ResolveUtils.kindMatches(clazz, kinds)) {
         val action: IntentionAction = new IntentionAction() {
           def getText = ScalaBundle.message("import.with", Array[Object](qName))
           def getFamilyName = ScalaBundle.message("import.class", Array[Object]())
-          def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
-            return true
-          }
-          def invoke(project: Project, editor: Editor, file: PsiFile) {
-            file match {
-              case x: ScalaFile => {
-                if (QuickfixUtil.ensureFileWritable(project, file)) {
-                  x.addImportForClass(clazz)
-                }
+          def isAvailable(project: Project, editor: Editor, file: PsiFile) = refElement.isValid
+          def invoke(project: Project, editor: Editor, file: PsiFile) = file match {
+            case x: ScalaFile => {
+              if (QuickfixUtil.ensureFileWritable(project, file)) {
+                //TODO[sasha] this is not entirely correct, sometimes adding imports does not cause the ref to resolve to the class,
+                //so a correct way would be to call bindToElement which in turn will addImportForClass
+                //falling over to inserting qualified ref (probably even with _root_ as a prefix).
+                x.addImportForClass(clazz)
               }
-              case _ =>
             }
           }
-          def startInWriteAction(): Boolean = {
-            return true;
-          }
+          def startInWriteAction(): Boolean = true
         }
         actionList += action
       }
