@@ -22,16 +22,11 @@ class ScalaFileStructureViewElement(file: ScalaFile) extends ScalaStructureViewE
 
   def getChildren(): Array[TreeElement] = {
     val children = new ArrayBuffer[ScalaStructureViewElement]
-    for (topStatement <- file.getTopStatements) {
-      topStatement match {
-        case td: ScTypeDefinition => {
-          children += new ScalaTypeDefinitionStructureViewElement(td)
-        }
-        case pack: ScPackaging => {
-          children += new ScalaPackagingStructureViewElement(pack)
-        }
-        case _ =>
-      }
+    for (td <- file.immediateTypeDefinitions) {
+      children += new ScalaTypeDefinitionStructureViewElement(td)
+    }
+    for (p <- file.packagings) {
+      children += new ScalaPackagingStructureViewElement(p)
     }
     return children.toArray
   }

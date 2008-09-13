@@ -25,8 +25,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import _root_.scala.collection.mutable._
 
 
-class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
-        with ScalaPsiElement with ScToplevelElement with PsiClassOwner with ScImportsHolder {
+class ScalaFile(viewProvider: FileViewProvider)
+extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
+with ScalaPsiElement with ScToplevelElement with PsiClassOwner with ScDeclarationSequenceHolder with ScImportsHolder {
 
   override def getViewProvider = viewProvider
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE
@@ -49,8 +50,6 @@ class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider
 
   override def getClasses = getTypeDefinitions.map(t => t : PsiClass)
 
-  def getTopStatements: Array[ScTopStatement] = findChildrenByClass(classOf[ScTopStatement])
-
   def icon = Icons.FILE_TYPE_LOGO
 
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -58,6 +57,9 @@ class ScalaFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
+
+   if (!super[ScDeclarationSequenceHolder].processDeclarations(processor,
+      state, lastParent, place)) return false
 
     if (!super[ScImportsHolder].processDeclarations(processor,
       state, lastParent, place)) return false
