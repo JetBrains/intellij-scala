@@ -25,8 +25,8 @@ import base._
  */
 
 trait ScTypeDefinition extends ScNamedElement
-        with NavigationItem with PsiClass with ScTopStatement
-        with ScTypeParametersOwner with Iconable with StubBasedPsiElementWrapper[ScTypeDefinitionStub, ScTypeDefinition] {
+with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable
+with StubBasedPsiElementWrapper[ScTypeDefinitionStub, ScTypeDefinition] {
 
   def members(): Seq[ScMember]
 

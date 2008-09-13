@@ -25,9 +25,8 @@ trait ScFun {
   def paramTypes : Seq[ScType]
 }
 
-trait ScFunction extends ScalaPsiElement with ScNamedElement with ScMember 
-        with ScTopStatement with ScTypeParametersOwner
-        with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with ScDeclaredElementsHolder {
+trait ScFunction extends ScalaPsiElement with ScNamedElement with ScMember with ScTypeParametersOwner
+with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with ScDeclaredElementsHolder {
 
   def paramClauses: ScParameters = findChildByClass(classOf[ScParameters])
 
