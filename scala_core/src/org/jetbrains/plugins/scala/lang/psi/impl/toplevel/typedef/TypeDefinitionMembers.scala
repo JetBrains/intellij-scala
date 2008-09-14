@@ -159,7 +159,7 @@ object TypeDefinitionMembers {
             for (dcl <- _var.declaredElements) {
               val t = dcl.calcType
               res += ((new Signature(dcl.name, Seq.empty, Array(), subst), t))
-              res += ((new Signature(dcl.name + "_", Seq.single(t), Array(), subst), Unit))
+              res += ((new Signature(dcl.name + "_", Seq.singleton(t), Array(), subst), Unit))
             }
           case _val: ScValue =>
             for (dcl <- _val.declaredElements) {

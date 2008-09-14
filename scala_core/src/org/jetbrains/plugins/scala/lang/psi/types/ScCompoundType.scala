@@ -26,7 +26,7 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
         varDecl.typeElement match {
           case Some(te) => for (e <- varDecl.declaredElements) {
             signatureMap += ((new Signature(e.name, Seq.empty, Array(), ScSubstitutor.empty), te.getType))
-            signatureMap += ((new Signature(e.name + "_", Seq.single(te.getType), Array(), ScSubstitutor.empty), Unit)) //setter
+            signatureMap += ((new Signature(e.name + "_", Seq.singleton(te.getType), Array(), ScSubstitutor.empty), Unit)) //setter
           }
           case None =>
         }

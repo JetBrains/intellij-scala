@@ -7,5 +7,5 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 */
 
 trait ScTypeAliasDeclaration extends ScTypeAlias with ScDeclaration {
-  def declaredElements = Seq.single(this)
+  def declaredElements = Seq.singleton(this)
 }
