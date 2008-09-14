@@ -162,9 +162,9 @@ class SyntheticClasses(project: Project) extends ProjectComponent with PsiElemen
   def registerClass(t: ScType, name: String) = {
     val manager = PsiManager.getInstance(project)
     var clazz = new ScSyntheticClass(manager, name, t)
-    clazz.addMethod(new ScSyntheticFunction(manager, "equals", Boolean, Seq.single(Any)))
-    clazz.addMethod(new ScSyntheticFunction(manager, "==", Boolean, Seq.single(Any)))
-    clazz.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq.single(Any)))
+    clazz.addMethod(new ScSyntheticFunction(manager, "equals", Boolean, Seq.singleton(Any)))
+    clazz.addMethod(new ScSyntheticFunction(manager, "==", Boolean, Seq.singleton(Any)))
+    clazz.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq.singleton(Any)))
     clazz.addMethod(new ScSyntheticFunction(manager, "hashCode", Int, Seq.empty))
     val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
     if (stringClass != null) {

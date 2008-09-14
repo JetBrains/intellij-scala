@@ -43,5 +43,5 @@ with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with Sc
 
   def paramTypes = parameters.map{_.calcType}
 
-  def declaredElements = Seq.single(this)
+  def declaredElements = Seq.singleton(this)
 }
