@@ -1,4 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve
+import psi.types._
 import _root_.scala.collection.Set
 import psi.api.statements.{ScTypeAlias, ScFun, ScVariable}
 import psi.api.statements.params.{ScParameter, ScTypeParam}
@@ -7,7 +8,6 @@ import com.intellij.psi._
 import psi.api.base.patterns.ScBindingPattern
 import psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import psi.api.toplevel.packaging.ScPackaging
-
 import ResolveTargets._
 
 /**
@@ -46,5 +46,13 @@ object ResolveUtils {
             case f: PsiField => (kinds contains VAR) || (f.hasModifierProperty(PsiModifier.FINAL) && kinds.contains(VAL))
             case _ => false
           })
+
+  def methodType(m : PsiMethod, s : ScSubstitutor) = new ScFunctionType(s.subst(ScType.create(m.getReturnType, m.getProject)),
+                                                              m.getParameterList.getParameters.map {
+                                                                p => val pt = p.getType
+                                                                     //scala hack: Objects in java are modelled as Any in scala
+                                                                     if (pt.equalsToText("java.lang.Object")) Any
+                                                                     else s.subst(ScType.create(pt, m.getProject))
+                                                              })
 
 }

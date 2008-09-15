@@ -146,10 +146,7 @@ class MethodResolveProcessor(ref : ScReferenceElement, args : Seq[ScType],
     case f : ScFunction => if (PsiTreeUtil.getParentOfType(ref, classOf[ScFunction]) == f)
                            new ScFunctionType(f.declaredType, f.paramTypes)
                            else f.calcType
-    case m : PsiMethod => new ScFunctionType(
-    m.getReturnType match { case null => Unit; case rt => ScType.create(rt, m.getProject) },
-    m.getParameterList.getParameters.map{p => ScType.create(p.getType, m.getProject)}
-    )
+    case m : PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty)
     case typed : ScTyped => typed.calcType
     case _ => Nothing
   }
