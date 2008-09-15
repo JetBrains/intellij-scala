@@ -1,4 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve
+import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
 import psi.types._
 import _root_.scala.collection.Set
 import psi.api.statements.{ScTypeAlias, ScFun, ScVariable}
@@ -6,7 +7,6 @@ import psi.api.statements.params.{ScParameter, ScTypeParam}
 import psi.api.base.ScFieldId
 import com.intellij.psi._
 import psi.api.base.patterns.ScBindingPattern
-import psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import psi.api.toplevel.packaging.ScPackaging
 import ResolveTargets._
 
@@ -19,6 +19,7 @@ object ResolveUtils {
             case _: PsiPackage => kinds contains PACKAGE
             case _: ScPackaging => kinds contains PACKAGE
             case _: ScObject => kinds contains OBJECT
+            case c: ScClass if c.isCase => kinds contains OBJECT
             case _: ScTypeParam => kinds contains CLASS
             case _: ScTypeAlias => kinds contains CLASS
             case _: ScTypeDefinition => kinds contains CLASS

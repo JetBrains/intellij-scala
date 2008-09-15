@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base
 
-import api.toplevel.typedef.{ScTypeDefinition, ScObject}
+import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
 import org.jetbrains.plugins.scala.lang._
 import lexer.ScalaTokenTypes
 import parser.ScalaElementTypes
@@ -110,7 +110,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         }
       }
       case Some(thisQ : ScThisReference) => processor.processType(thisQ.getType, this)
-      case Some(superQ : ScSuperReference) => processor.processType(superQ.getType, this) 
+      case Some(superQ : ScSuperReference) => processor.processType(superQ.getType, this)
     }
     processor.candidates
   }
@@ -124,9 +124,10 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   //  @throws(IncorrectOperationException)
   def bindToElement(@NotNull element: PsiElement): PsiElement = {
     if (isReferenceTo(element)) return this
-
     element match {
-      case c: PsiClass if !c.isInstanceOf[ScObject] => {
+      case _: ScTrait => this
+      case c: ScClass if !c.isCase => this
+      case c: PsiClass => {
         val file = getContainingFile.asInstanceOf[ScalaFile]
         if (isReferenceTo(element)) return this
         val qualName = c.getQualifiedName
@@ -135,7 +136,6 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         }
         this
       }
-      case _ => return this
     }
   }
 }
