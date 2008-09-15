@@ -22,10 +22,10 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.openapi.util._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTyped
 
-/** 
-* @author Alexander Podkhalyuzin
+/**
+ * @author AlexanderPodkhalyuzin
 * Date: 06.03.2008
-*/
+ */
 
 class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReferenceExpression {
   override def toString: String = "ReferenceExpression"
@@ -36,7 +36,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     if (isReferenceTo(element)) return this
 
     element match {
-      case c: PsiClass if !c.isInstanceOf[ScTrait] && !c.isInstanceOf[ScClass] => {
+      case _: ScTrait => this
+      case c: ScClass if !c.isCase => this
+      case c: PsiClass => {
         val file = getContainingFile.asInstanceOf[ScalaFile]
         if (isReferenceTo(element)) return this
         val qualName = c.getQualifiedName
@@ -46,7 +48,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         this
       }
     }
-    return this;
   }
 
   def getVariants(): Array[Object] = {
@@ -72,15 +73,19 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean) = {
       val proc = ref.getParent match {
         case call: ScMethodCall =>
-          new MethodResolveProcessor(ref, call.args.exprs.map{_.getType}, expectedType)
-        case inf : ScInfixExpr if ref == inf.operation => {
+          new MethodResolveProcessor(ref, call.args.exprs.map{
+            _.getType
+          }, expectedType)
+        case inf: ScInfixExpr if ref == inf.operation => {
           val args = if (ref.rightAssoc) Seq.singleton(inf.lOp.getType) else inf.rOp match {
-            case tuple : ScTuple => tuple.exprs.map {_.getType}
+            case tuple: ScTuple => tuple.exprs.map{
+              _.getType
+            }
             case rOp => Seq.singleton(rOp.getType)
           }
           new MethodResolveProcessor(ref, args, expectedType)
         }
-        case postf : ScPostfixExpr if ref == postf.operation =>
+        case postf: ScPostfixExpr if ref == postf.operation =>
           new MethodResolveProcessor(ref, Seq.empty, expectedType)
         case _ => new RefExprResolveProcessor(getKinds(incomplete), refName)
       }
@@ -91,19 +96,19 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
     ref.qualifier match {
       case None => ref.getParent match {
-         case inf: ScInfixExpr if ref == inf.operation => {
-           val thisOp = if (ref.rightAssoc) inf.rOp else inf.lOp
-           processor.processType(thisOp.getType, this)
-         }
-         case postf: ScPostfixExpr if ref == postf.operation => processor.processType(postf.operand.getType, this)
+        case inf: ScInfixExpr if ref == inf.operation => {
+          val thisOp = if (ref.rightAssoc) inf.rOp else inf.lOp
+          processor.processType(thisOp.getType, this)
+        }
+        case postf: ScPostfixExpr if ref == postf.operation => processor.processType(postf.operand.getType, this)
         case _ => {
           def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
             place match {
               case null => ()
               case p => {
                 if (!p.processDeclarations(processor,
-                ResolveState.initial(),
-                lastParent, ref)) return ()
+                  ResolveState.initial(),
+                  lastParent, ref)) return ()
                 treeWalkUp(place.getParent, place)
               }
             }
@@ -120,10 +125,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   override def getType(): ScType = {
     bind match {
-      //prevent infinite recursion for recursive method invocation
+    //prevent infinite recursion for recursive method invocation
       case Some(ScalaResolveResult(f: ScFunction, s)) if (PsiTreeUtil.getParentOfType(this, classOf[ScFunction]) == f) =>
-        new ScFunctionType(s.subst(f.declaredType), f.paramTypes.map{s.subst _})
-      case Some(ScalaResolveResult(fun: ScFun, s)) => new ScFunctionType(s.subst(fun.retType), fun.paramTypes.map{s.subst _})
+        new ScFunctionType(s.subst(f.declaredType), f.paramTypes.map{
+          s.subst _
+        })
+      case Some(ScalaResolveResult(fun: ScFun, s)) => new ScFunctionType(s.subst(fun.retType), fun.paramTypes.map{
+        s.subst _
+      })
 
       //prevent infinite recursion for recursive pattern reference
       case Some(ScalaResolveResult(refPatt: ScReferencePattern, s)) => {
@@ -133,8 +142,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
 
         refPatt.getParent.getParent match {
-          case pd : ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, this, true)) => substIfSome(pd.declaredType)
-          case vd : ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, this, true)) => substIfSome(vd.declaredType)
+          case pd: ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, this, true)) => substIfSome(pd.declaredType)
+          case vd: ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, this, true)) => substIfSome(vd.declaredType)
           case _ => s.subst(refPatt.calcType)
         }
       }
