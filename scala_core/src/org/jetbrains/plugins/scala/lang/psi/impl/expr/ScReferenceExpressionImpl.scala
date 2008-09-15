@@ -73,14 +73,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean) = {
       val proc = ref.getParent match {
         case call: ScMethodCall =>
-          new MethodResolveProcessor(ref, call.args.exprs.map{
-            _.getType
-          }, expectedType)
+          new MethodResolveProcessor(ref, call.args.exprs.map{_.getType}, expectedType)
         case inf: ScInfixExpr if ref == inf.operation => {
           val args = if (ref.rightAssoc) Seq.singleton(inf.lOp.getType) else inf.rOp match {
-            case tuple: ScTuple => tuple.exprs.map{
-              _.getType
-            }
+            case tuple: ScTuple => tuple.exprs.map{_.getType}
             case rOp => Seq.singleton(rOp.getType)
           }
           new MethodResolveProcessor(ref, args, expectedType)
