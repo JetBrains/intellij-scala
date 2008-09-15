@@ -1,0 +1,72 @@
+object TestFoo {
+  def main(args: Array[String]) = {
+    "" contains ""     ASD
+  }
+}
+-----
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TestFoo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedTypeElement
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleTypeElement
+                        CodeReferenceElement
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            PostfixExpression
+              InfixExpression
+                Literal
+                  PsiElement(string content)('""')
+                PsiWhiteSpace(' ')
+                ReferenceExpression
+                  PsiElement(identifier)('contains')
+                PsiWhiteSpace(' ')
+                Literal
+                  PsiElement(string content)('""')
+              PsiWhiteSpace('     ')
+              ReferenceExpression
+                PsiElement(identifier)('ASD')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -58,7 +58,7 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
       val element = file.findElementAt(visibleHighlight.startOffset)
       if (element != null && element.getNode != null && element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
         element.getParent match {
-          case x: ScReferenceElement if x.refName != null && (x.bind match {case None => true case _ => false}) => {
+          case x: ScReferenceElement if x.refName != null && (x.multiResolve(false).length == 0) => {
             val classes = getClasses(x)
             classes.length match {
               case 0 =>

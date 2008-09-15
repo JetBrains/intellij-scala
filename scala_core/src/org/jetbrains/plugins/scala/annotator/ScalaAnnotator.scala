@@ -63,7 +63,7 @@ class ScalaAnnotator extends Annotator {
       val error = ScalaBundle.message("cannot.resolve", Array[Object](refElement.refName))
       val annotation = holder.createErrorAnnotation(refElement.nameId, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-      if (refElement.getManager.isInProject(refElement)) {
+      if (refElement.getManager.isInProject(refElement) && refElement.multiResolve(false).length == 0) {
         registerAddImportFix(refElement, annotation)
       }
     }
@@ -89,7 +89,7 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def registerAddImportFix(refElement: ScReferenceElement, annotation: Annotation) {
-    val actions = OuterImportsActionCreator.getOuterImportFixes(refElement, refElement.getProject())
+   val actions = OuterImportsActionCreator.getOuterImportFixes(refElement, refElement.getProject())
     for (action <- actions) {
       annotation.registerFix(action)
     }
