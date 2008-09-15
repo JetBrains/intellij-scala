@@ -143,10 +143,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => new ScDesignatorType(pack)
       case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz)
       case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject))
-      case Some(ScalaResolveResult(method: PsiMethod, s)) => new ScFunctionType(s.subst(ScType.create(method.getReturnType, method.getProject)),
-                                                              method.getParameterList.getParameters.map {
-                                                                p => ScType.create(p.getType, method.getProject) 
-                                                              })
+      case Some(ScalaResolveResult(method: PsiMethod, s)) => ResolveUtils.methodType(method, s)
       case _ => Nothing
     }
   }
