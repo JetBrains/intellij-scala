@@ -12,18 +12,11 @@ object Bounds {
     if (t1.conforms(t2)) t2
     else if (t2.conforms(t1)) t1
     else (t1, t2) match {
-      //Function types
-      case (ScFunctionType(rt1, params1), ScFunctionType(rt2, params2))
-        if params1.length == params2.length => {
-        val px = for ((p1, p2) <- params1.toList.zip(params2.toList)) yield glb(p1, p2)
-        ScFunctionType(lub(rt1, rt2), px)
-      }
-      //Tuple types
-      case (ScTupleType(comps1), ScTupleType(comps2))
-        if comps1.length == comps2.length => {
-        val cx = for ((c1, c2) <- comps1.toList.zip(comps2.toList)) yield lub(c1, c2)
-        ScTupleType(cx)
-      }
+      case (ScFunctionType(rt1, p1), ScFunctionType(rt2, p2)) if p1.length == p2.length =>
+        ScFunctionType(lub(rt1, rt2), p1.toList.zip(p2.toList).map{case (t1, t2) => glb(t1, t2)})
+      case (ScTupleType(c1), ScTupleType(c2)) if c1.length == c2.length =>
+        ScTupleType(c1.toList.zip(c2.toList).map{case (t1, t2) => lub(t1, t2)})
+
       case (ScTypeVariable(_, Nil, _, upper), _) => lub(upper, t2)
       case (_, ScTypeVariable(_, Nil, _, upper)) => lub(t1, upper)
       case (ScTypeAliasType(_, Nil, _, upper), _) => lub(upper, t2)
