@@ -28,13 +28,17 @@ import api.base.patterns.ScConstructorPattern
 import api.expr.{ScSuperReference, ScThisReference}
 
 /**
-* @author Alexander Podkhalyuzin
+ * @author AlexanderPodkhalyuzin
 * Date: 22.02.2008
-*/
+ */
 
 class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScStableCodeReferenceElement {
 
-  def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement) //todo
+  def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement.asInstanceOf[Object]).
+      filter(e => e match {
+      case _: PsiPackage => qualifier match {case None => false; case _ => true}
+      case _ => true
+    })
 
   override def toString: String = "CodeReferenceElement"
 
