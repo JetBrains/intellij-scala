@@ -57,11 +57,11 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
 
 
   public ScalaIntroduceVariableDialog(Project project,
-                                       IType myType,
-                                       int occurrencesCount,
-                                       ScalaValidator validator,
-                                       String[] possibleNames) {
-    super(project,true);
+                                      IType myType,
+                                      int occurrencesCount,
+                                      ScalaValidator validator,
+                                      String[] possibleNames) {
+    super(project, true);
     this.project = project;
     this.myType = myType;
     this.occurrencesCount = occurrencesCount;
@@ -173,7 +173,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
 
   private void setUpNameComboBox(String[] possibleNames) {
 
-    final EditorComboBoxEditor comboEditor = new StringComboboxEditor(project, ScalaFileType.SCALA_FILE_TYPE);
+    final EditorComboBoxEditor comboEditor = new StringComboboxEditor(project, ScalaFileType.SCALA_FILE_TYPE, myNameComboBox);
 
     myNameComboBox.setEditor(comboEditor);
     myNameComboBox.setRenderer(new EditorComboBoxRenderer(comboEditor));

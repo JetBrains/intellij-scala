@@ -34,7 +34,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   def bindToElement(element: PsiElement): PsiElement = {
     if (isReferenceTo(element)) return this
-
     element match {
       case _: ScTrait => this
       case c: ScClass if !c.isCase => this
