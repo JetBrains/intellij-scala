@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala.lang.completion.handlers
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.{PsiDocumentManager, PsiMethod}
+import psi.api.expr.{ScInfixExpr, ScPostfixExpr}
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 28.07.2008
@@ -15,13 +17,36 @@ class ScalaInsertHandler extends InsertHandler[LookupItem[_]] {
     val startOffset = context.getStartOffset
     item.getObject match {
       case method: PsiMethod => {
-        if (method.getParameterList.getParametersCount > 0) {
-          val offset = startOffset + method.getName.length
-            if (offset == document.getTextLength() || document.getCharsSequence().charAt(offset) != '(') {
-              document.insertString(offset, "()");
+        val count = method.getParameterList.getParametersCount
+        if (count > 0) {
+          val endOffset = startOffset + method.getName.length
+          val file = PsiDocumentManager.getInstance(method.getProject).getPsiFile(document)
+          val element = file.findElementAt(startOffset)
+
+          // for infix expressions
+          if (element.getParent != null) {
+            element.getParent.getParent match {
+              case _: ScInfixExpr | _: ScPostfixExpr => {
+                if (count > 1) {
+                  document.insertString(endOffset, " ()")
+                  editor.getCaretModel.moveToOffset(endOffset + 2);
+                } else {
+                  document.insertString(endOffset, " ")
+                  editor.getCaretModel.moveToOffset(endOffset + 1);
+                }
+                return
+              }
+              case _ =>
             }
-            editor.getCaretModel.moveToOffset(offset + 1);
+          }
+
+          // for reference invocations
+          if (endOffset == document.getTextLength() || document.getCharsSequence().charAt(endOffset) != '(') {
+            document.insertString(endOffset, "()");
+          }
+          editor.getCaretModel.moveToOffset(endOffset + 1);
         }
+
       }
       case _ =>
     }

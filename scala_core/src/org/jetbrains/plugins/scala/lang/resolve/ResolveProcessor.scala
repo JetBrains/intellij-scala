@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.resolve
 
 import psi.api.base.ScReferenceElement
 import psi.api.statements.ScFun
+import psi.api.toplevel.typedef.ScObject
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.api.statements.params.ScTypeParam
 import psi.api.statements.ScFunction
@@ -82,10 +83,19 @@ class MethodResolveProcessor(ref : ScReferenceElement, args : Seq[ScType],
       val s = getSubst(state)
       element match {
         case m : PsiMethod => {
-          candidatesSet += new ScalaResolveResult(named, s.incl(inferMethodTypesArgs(m, s)))
+          candidatesSet += new ScalaResolveResult(m, s.incl(inferMethodTypesArgs(m, s)))
           true
         }
-        case _ => candidatesSet += new ScalaResolveResult(named, s); true
+        case o: ScObject => {
+          //todo check bases?
+          val methods = o.findMethodsByName("apply", true)
+          for (m <- methods) {
+            candidatesSet += new ScalaResolveResult(m, s.incl(inferMethodTypesArgs(m, s)))
+          }
+          true
+        }
+        case _ => candidatesSet += new ScalaResolveResult(named, s);
+        true
       }
     }
     return true
@@ -165,7 +175,7 @@ object StdKinds {
   val refExprLastRef = HashSet.empty + OBJECT + VAL + VAR + METHOD
   val refExprQualRef = refExprLastRef + PACKAGE
 
-  val methodRef = HashSet.empty + VAL + VAR + METHOD + CLASS
+  val methodRef = HashSet.empty + VAL + VAR + METHOD + CLASS + OBJECT
 }
 
 object ResolverEnv {

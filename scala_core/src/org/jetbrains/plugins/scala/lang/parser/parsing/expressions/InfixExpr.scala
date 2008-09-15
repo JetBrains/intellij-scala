@@ -88,6 +88,7 @@ object InfixExpr {
         case ScalaTokenTypes.tLINE_TERMINATOR => {
           if (!LineTerminator(builder.getTokenText)) {
             setMarker.rollbackTo
+            count = 0
             backupMarker.drop
             exitOf = false
           } else {
@@ -95,6 +96,7 @@ object InfixExpr {
             backupMarker.drop
             backupMarker = builder.mark
             if (!PrefixExpr.parse(builder)) {
+              count = 0
               setMarker.rollbackTo
               exitOf = false
             }
