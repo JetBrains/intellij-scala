@@ -50,7 +50,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   def getVariants(): Array[Object] = {
-    _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement)
+    _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement.asInstanceOf[Object]).filter(e => e match {
+      case _: PsiPackage => {qualifier match {case None => false; case _ => true}}
+      case _ => true
+    })
   }
 
   import com.intellij.psi.impl.PsiManagerEx
