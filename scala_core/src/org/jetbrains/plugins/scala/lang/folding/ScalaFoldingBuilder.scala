@@ -25,7 +25,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 
   private def appendDescriptors(node: ASTNode,
           document: Document,
-          descriptors: ListBuffer[FoldingDescriptor]): Unit = {
+          descriptors: ArrayBuffer[FoldingDescriptor]): Unit = {
 
 
     if (isMultiline(node) || (node.getElementType == ScalaElementTypes.IMPORT_STMT && isMultilineImport(node))) {
@@ -53,9 +53,9 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   }
 
   def buildFoldRegions(astNode: ASTNode, document: Document): Array[FoldingDescriptor] = {
-    var descriptors = new ListBuffer[FoldingDescriptor]
+    var descriptors = new ArrayBuffer[FoldingDescriptor]
     appendDescriptors(astNode, document, descriptors);
-    descriptors.toList.toArray
+    descriptors.toArray
   }
 
   def getPlaceholderText(node: ASTNode): String = {

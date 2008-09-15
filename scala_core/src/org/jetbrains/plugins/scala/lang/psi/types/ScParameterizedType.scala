@@ -49,7 +49,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) ex
       case Seq.empty => ScSubstitutor.empty
       case _ => {
         var map : Map[ScTypeVariable, ScType] = HashMap.empty
-        for (p <- targs.toList.toArray zip typeArgs) {
+        for (p <- targs.toArray zip typeArgs) {
           map = map + ((p._1, p._2))
         }
         new ScSubstitutor(map, Map.empty, Map.empty)
