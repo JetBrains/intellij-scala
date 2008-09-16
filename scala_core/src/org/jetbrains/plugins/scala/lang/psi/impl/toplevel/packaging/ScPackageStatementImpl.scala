@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging
 
 import api.toplevel.typedef.ScTypeDefinition
-import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.IStubElementType
+import com.intellij.psi.{PsiElement, PsiPackage}
 import stubs.elements.wrappers.ASTNodeWrapper
 import stubs.ScPackageContainerStub;
 import com.intellij.psi.tree.IElementType;
@@ -54,6 +54,11 @@ class ScPackageStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     append (reference)
     buffer.toString
   }
+
+  def getSyntheticPackage(fqn: String): PsiPackage = {
+    null
+  }
+  
 }
 
 object ScPackageStatementImpl {

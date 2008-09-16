@@ -43,6 +43,10 @@ class ScPackagingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
 
   def typeDefs = findChildrenByClass(classOf[ScTypeDefinition])
 
+  def getSyntheticPackage(fqn: String): PsiPackage = {
+    null
+  }
+
 }
 
 object ScPackagingImpl {
