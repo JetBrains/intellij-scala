@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.{PsiManager, PsiTypeParameter}
+import toplevel.synthetic.{SyntheticPackageCreator, ScSyntheticPackage}
 import types._
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
@@ -15,11 +16,33 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   def disposeComponent {}
   def initComponent {
     PsiManager.getInstance(project).asInstanceOf[PsiManagerEx].registerRunnableToRunOnAnyChange(new Runnable {
-      override def run = typeVariables.clear
+      override def run = {
+        syntheticPackages.clear
+        typeVariables.clear
+      }
     })
   }
 
+  private val syntheticPackagesCreator = new SyntheticPackageCreator(project)
+  private val syntheticPackages = new WeakHashMap[String, ScSyntheticPackage]
+
   private val typeVariables = new WeakHashMap[PsiTypeParameter, ScTypeParameterType]
+
+  def syntheticPackage(fqn : String) = {
+    var p = syntheticPackages.get(fqn)
+    if (p == null) {
+      p = syntheticPackagesCreator.createPackage(fqn)
+      synchronized {
+        val pp = syntheticPackages.get(fqn)
+        if (pp == null) {
+          syntheticPackages.put(fqn, p)
+        } else {
+          p = pp
+        }
+      }
+    }
+    p
+  }
 
   def typeVariable(tp: PsiTypeParameter) : ScTypeParameterType = {
     var existing = typeVariables.get(tp)
