@@ -36,7 +36,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement.asInstanceOf[Object]).
       filter(e => e match {
-      case _: PsiPackage => qualifier match {case None => false; case _ => true}
+      case _: PsiPackage => qualifier != None || getParent.isInstanceOf[ScImportExpr] 
       case _ => true
     })
 
