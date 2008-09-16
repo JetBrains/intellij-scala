@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.parser
 
 import com.intellij.psi.tree.{TokenSet, IElementType, IStubFileElementType, IFileElementType}
-import psi.stubs.elements.{ScTraitDefinitionElementType, ScClassDefinitionElementType, ScStubFileElementType, ScObjectDefinitionElementType}
 import com.intellij.lang.Language
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import psi.stubs.elements._
 
 /**
  * User: Dmitry.Krasilschikov
@@ -21,11 +21,8 @@ object ScalaElementTypes {
   val OBJECT_DEF = new ScObjectDefinitionElementType()
   val TRAIT_DEF = new ScTraitDefinitionElementType()
 
-  val PACKAGING = new ScalaElementType("packaging")
-  val TMPL_DEF = new ScalaElementType("template definition")
-  val TOP_TMPL_DEF = new ScalaElementType("top template definition")
-
-  //val CASE = new ScalaElementType("case")
+  val PACKAGING = new ScPackagingElementType()
+  val PACKAGE_STMT = new ScPackageStmtElementType()
 
   val CLASS_PARENTS = new ScalaElementType("template parents")
   val TRAIT_PARENTS = new ScalaElementType("mixin parents")
@@ -100,12 +97,6 @@ object ScalaElementTypes {
   val IDENTIFIER_LIST = new ScalaElementType("list of identifiers")
   val FIELD_ID = new ScalaElementType("Type field identifier")
   val REFERENCE = new ScalaElementType("reference")
-
-  /** ***********************************************************************************/
-  /********************************* PACKAGE GROUP *************************************/
-  /** ***********************************************************************************/
-
-  val PACKAGE_STMT = new ScalaElementType("package statement")
 
   /** ***********************************************************************************/
   /********************************* IMPORT GROUP **************************************/

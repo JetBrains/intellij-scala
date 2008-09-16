@@ -136,6 +136,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         }
         this
       }
+      case _ => this
     }
   }
 }

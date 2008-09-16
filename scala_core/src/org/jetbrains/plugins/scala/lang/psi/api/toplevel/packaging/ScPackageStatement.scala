@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 * @author Alexander.Podkhalyuzin
 */
 
-trait ScPackageStatement extends ScalaPsiElement {
+trait ScPackageStatement extends ScPackageContainer {
 
   def getPackageName: String
 
