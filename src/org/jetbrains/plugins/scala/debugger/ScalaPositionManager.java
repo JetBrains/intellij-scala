@@ -167,7 +167,7 @@ public class ScalaPositionManager implements PositionManager {
     final String qName = dollar >= 0 ? originalQName.substring(0, dollar) : originalQName;
     final GlobalSearchScope searchScope = myDebugProcess.getSearchScope();
 
-    Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY, qName.hashCode(), project, searchScope);
+    Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY(), qName.hashCode(), project, searchScope);
     PsiClass clazz = classes.size() == 1 ? classes.iterator().next() : null;
     if (clazz != null && clazz.isValid()) return clazz.getContainingFile();
 

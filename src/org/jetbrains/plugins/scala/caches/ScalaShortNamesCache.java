@@ -44,13 +44,13 @@ public class ScalaShortNamesCache implements PsiShortNamesCache {
 
   @NotNull
   public PsiClass[] getClassesByName(@NotNull @NonNls String name, @NotNull GlobalSearchScope scope) {
-    final Collection<? extends PsiClass> plainClasses = StubIndex.getInstance().get(ScalaIndexKeys.SHORT_NAME_KEY, name, myProject, scope);
+    final Collection<? extends PsiClass> plainClasses = StubIndex.getInstance().get(ScalaIndexKeys.SHORT_NAME_KEY(), name, myProject, scope);
     return plainClasses.toArray(new PsiClass[plainClasses.size()]);
   }
 
   @Nullable
   public PsiClass getClassByFQName(@NotNull @NonNls String name, @NotNull GlobalSearchScope scope) {
-    final Collection<? extends PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY, name.hashCode(), myProject, scope);
+    final Collection<? extends PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY(), name.hashCode(), myProject, scope);
     for (PsiClass clazz : classes) {
       if (name.equals(clazz.getQualifiedName())) return clazz;
     }
@@ -59,7 +59,7 @@ public class ScalaShortNamesCache implements PsiShortNamesCache {
 
   @NotNull
   public PsiClass[] getClassesByFQName(@NotNull @NonNls String fqn, @NotNull GlobalSearchScope scope) {
-    final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY, fqn.hashCode(), myProject, scope);
+    final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY(), fqn.hashCode(), myProject, scope);
     ArrayList<PsiClass> list = new ArrayList<PsiClass>();
     for (PsiClass psiClass : classes) {
       if (fqn.equals(psiClass.getQualifiedName())) {
@@ -71,13 +71,13 @@ public class ScalaShortNamesCache implements PsiShortNamesCache {
 
   @NotNull
   public String[] getAllClassNames() {
-    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.SHORT_NAME_KEY);
+    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.SHORT_NAME_KEY());
     return classNames.toArray(new String[classNames.size()]);
   }
 
 
   public void getAllClassNames(@NotNull HashSet<String> dest) {
-    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.SHORT_NAME_KEY);
+    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.SHORT_NAME_KEY());
   }
 
   @NotNull
