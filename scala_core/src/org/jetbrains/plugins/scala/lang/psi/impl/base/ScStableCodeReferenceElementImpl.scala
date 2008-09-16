@@ -124,19 +124,17 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   //  @throws(IncorrectOperationException)
   def bindToElement(@NotNull element: PsiElement): PsiElement = {
     if (isReferenceTo(element)) return this
-    element match {
-      case _: ScTrait => this
-      case c: ScClass if !c.isCase => this
+    else element match {
       case c: PsiClass => {
-        val file = getContainingFile.asInstanceOf[ScalaFile]
-        if (isReferenceTo(element)) return this
-        val qualName = c.getQualifiedName
-        if (qualName != null) {
-          file.addImportForClass(c)
+        if (!ResolveUtils.kindMatches(element, getKinds(false)))
+          throw new IncorrectOperationException("class does not match expected kind")
+        val qname = c.getQualifiedName
+        if (qname != null) getContainingFile match {
+          case file: ScalaFile => file.addImportForClass(c) //todo: correct handling
         }
         this
       }
-      case _ => this
+      case _ => throw new IncorrectOperationException("Cannot bind to anything but class")
     }
   }
 }
