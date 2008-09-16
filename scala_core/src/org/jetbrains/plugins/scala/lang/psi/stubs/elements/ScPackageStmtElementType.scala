@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement
  * @author ilyas
  */
 
-class ScPackageStmtElementType extends ScPackageContainerElementType[ScPackageStatement]("packaging") {
+class ScPackageStmtElementType extends ScPackageContainerElementType[ScPackageStatement]("package statement") {
 
   def createElement(node: ASTNode): PsiElement = new ScPackageStatementImpl(node)
 
