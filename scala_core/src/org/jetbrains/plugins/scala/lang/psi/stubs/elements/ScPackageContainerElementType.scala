@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFullPackagingNameIndex
+import _root_.scala.collection.mutable.ListBuffer
 import api.toplevel.packaging.ScPackageContainer
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
@@ -29,16 +31,16 @@ extends ScStubElementType[ScPackageContainerStub, ScPackageContainer](debugName)
   }
 
   def indexStub(stub: ScPackageContainerStub, sink: IndexSink) = {
-    /*todo implement me for all nested packages!
-        val name = stub.getName
-        if (name != null) {
-          sink.occurrence(ScShortClassNameIndex.KEY, name)
-        }
-        val fqn = stub.qualName
-        if (fqn != null) {
-          sink.occurrence(ScFullClassNameIndex.KEY, fqn.hashCode)
-        }
-    */
+    val fqn = stub.fqn
+    if (fqn != null && fqn.length > 0) {
+      val hd :: tl = List.fromArray(fqn.split("\\."))
+      val acc = new ListBuffer[String]()
+      acc += hd
+      tl.foldLeft(hd)((x, y) => {val z = x + "." + y; acc += z; z})
+      for (fq <- acc) {
+        sink.occurrence(ScFullPackagingNameIndex.KEY, fq.hashCode)
+      }
+    }
   }
 
 

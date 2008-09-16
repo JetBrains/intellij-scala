@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.caches.ScalaCachesManager;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticPackageCreator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +37,7 @@ public class ScalaClassFinder implements ProjectComponent, PsiElementFinder {
 
   @Nullable
   public PsiPackage findPackage(@NotNull String qualifiedName) {
-    return null;
+    return new SyntheticPackageCreator(myProject).createPackage(qualifiedName);
   }
 
   @NotNull

@@ -30,6 +30,10 @@ class ScPackageStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     case _ => Seq.empty
   }
 
+  // One more hack for correct inheritance
+  override def getElementType: IStubElementType[Nothing, Nothing] =
+    super.getElementType.asInstanceOf[IStubElementType[Nothing, Nothing]];
+
   def fqn: String = getPackageName
 
   def typeDefs: Seq[ScTypeDefinition] = getParent match {
@@ -55,10 +59,6 @@ class ScPackageStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     buffer.toString
   }
 
-  def getSyntheticPackage(fqn: String): PsiPackage = {
-    null
-  }
-  
 }
 
 object ScPackageStatementImpl {

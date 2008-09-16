@@ -23,6 +23,10 @@ class ScPackagingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
 
   private def reference = findChildByClass(classOf[ScStableCodeReferenceElement])
 
+  // One more hack for correct inheritance
+  override def getElementType: IStubElementType[Nothing, Nothing] =
+    super.getElementType.asInstanceOf[IStubElementType[Nothing, Nothing]];
+
   def getPackageName = reference.qualName
 
   def fqn = {
@@ -42,10 +46,6 @@ class ScPackagingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
   override def packagings = findChildrenByClass(classOf[ScPackaging])
 
   def typeDefs = findChildrenByClass(classOf[ScTypeDefinition])
-
-  def getSyntheticPackage(fqn: String): PsiPackage = {
-    null
-  }
 
 }
 
