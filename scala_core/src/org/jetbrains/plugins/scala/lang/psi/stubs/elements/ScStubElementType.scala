@@ -7,7 +7,7 @@ import eclipse.jdt.internal.compiler.ast.ASTNode
  * @author ilyas
  */
 
-abstract class ScStubElementType[S <: StubElementWrapper[T], T <: ScalaPsiElement](debugName: String)
+abstract class ScStubElementType[S <: StubElementWrapper[T], T <: PsiElement](debugName: String)
 extends IStubElementTypeWrapper[S, T](debugName) {
 
   def getExternalId = "sc." + super.toString()
