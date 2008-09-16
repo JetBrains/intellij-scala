@@ -38,5 +38,4 @@ extends StubBaseWrapper[ScTypeDefinition](parent, elemType) with ScTypeDefinitio
 
   def getName = myName
 
-
 }

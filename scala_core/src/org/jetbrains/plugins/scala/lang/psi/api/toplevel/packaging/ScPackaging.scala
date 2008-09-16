@@ -5,8 +5,6 @@ import psi.ScalaPsiElement
 import api.toplevel.typedef._
 import api.toplevel._
 
-trait ScPackaging extends ScToplevelElement with ScImportsHolder {
-  def reference = findChildByClass (classOf[ScStableCodeReferenceElement])
-
-  def getPackageName = reference.qualName
+trait ScPackaging extends ScToplevelElement with ScImportsHolder with ScPackageContainer {
+  def getPackageName: String
 }
