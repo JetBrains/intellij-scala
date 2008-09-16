@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.processors
 
+import com.intellij.psi.tree.TokenSet
 import scaladoc.psi.api.ScDocComment
 import scaladoc.lexer.ScalaDocTokenType
 import settings.ScalaCodeStyleSettings
@@ -37,6 +38,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
   val IMPORT_BETWEEN_SPACING = Spacing.createSpacing(0, 0, 1, true, 100);
   val IMPORT_OTHER_SPACING = Spacing.createSpacing(0, 0, 2, true, 100);
 
+  val BLOCK_ELEMENT_TYPES = {
+    import ScalaElementTypes._
+    TokenSet.create(Array(BLOCK_EXPR, TEMPLATE_BODY, PACKAGING, TRY_BLOCK, MATCH_STMT, CATCH_BLOCK))
+  }
 
 
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
@@ -402,18 +407,20 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     if (rightNode.getElementType == ScalaTokenTypes.tRBRACE) {
       rightNode.getTreeParent.getPsi match {
-        case _: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
-                _: ScTryBlock | _: ScCatchBlock => {
-          return Spacing.createSpacing(0, 0, 1, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
+        case block@(_: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
+                _: ScTryBlock | _: ScCatchBlock) => {
+          val minLineFeeds = if (block.getText.contains("\n")) 1 else 0
+          return Spacing.createSpacing(0, 0, minLineFeeds, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
         }
         case _ => return Spacing.createSpacing(0, 0, 0, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
       }
     }
     if (leftNode.getElementType == ScalaTokenTypes.tLBRACE) {
       leftNode.getTreeParent.getPsi match {
-        case _: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
-                _: ScTryBlock | _: ScCatchBlock => {
-          return Spacing.createSpacing(0, 0, 1, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
+        case block@(_: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
+                _: ScTryBlock | _: ScCatchBlock) => {
+          val minLineFeeds = if (block.getText.contains("\n")) 1 else 0
+          return Spacing.createSpacing(0, 0, minLineFeeds, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
         }
         case _ => return Spacing.createSpacing(0, 0, 0, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
       }
@@ -479,8 +486,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               ScalaElementTypes.EXISTENTIAL_CLAUSE | ScalaElementTypes.BLOCK_EXPR), _) => return IMPORT_BETWEEN_SPACING
       case (_, ScalaTokenTypes.tRBRACE, _, _) => return NO_SPACING_WITH_NEWLINE
       //Semicolon
-      case (ScalaTokenTypes.tSEMICOLON, _, _, _) => return IMPORT_BETWEEN_SPACING
-      case (_, ScalaTokenTypes.tSEMICOLON, _, _) => return NO_SPACING
+      case (ScalaTokenTypes.tSEMICOLON, _, parentType, _) => {
+        if ((BLOCK_ELEMENT_TYPES contains parentType) && !leftNode.getTreeParent.getText.contains("\n")) return COMMON_SPACING
+        else return IMPORT_BETWEEN_SPACING
+      }
+      case (_, ScalaTokenTypes.tSEMICOLON, _, _) => {
+        return NO_SPACING
+      }
       //Imports
       case (ScalaElementTypes.IMPORT_STMT, ScalaElementTypes.IMPORT_STMT, _, _) => return IMPORT_BETWEEN_SPACING
       case (ScalaElementTypes.IMPORT_STMT, _, _, _) => return IMPORT_OTHER_SPACING
