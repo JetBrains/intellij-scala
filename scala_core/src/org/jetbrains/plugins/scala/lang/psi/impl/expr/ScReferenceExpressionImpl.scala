@@ -50,12 +50,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
   }
 
-  def getVariants(): Array[Object] = {
-    _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement.asInstanceOf[Object]).filter(e => e match {
-      case _: PsiPackage => qualifier != None || getParent.isInstanceOf[ScImportExpr]
-      case _ => true
-    })
-  }
+  def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement)
 
   import com.intellij.psi.impl.PsiManagerEx
 
@@ -63,8 +58,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, false, incomplete)
 
   def getKinds(incomplete: Boolean) = {
-    if (incomplete) StdKinds.refExprQualRef
-    else getParent match {
+    getParent match {
       case _: ScReferenceExpression => StdKinds.refExprQualRef
       case _ => StdKinds.refExprLastRef
     }

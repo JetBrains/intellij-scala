@@ -167,6 +167,7 @@ import ResolveTargets._
 object StdKinds {
   val stableQualRef = HashSet.empty + PACKAGE + OBJECT + VAL
   val stableQualOrClass = stableQualRef + CLASS
+  val noPackagesClassCompletion = HashSet.empty + OBJECT + VAL + CLASS
   val stableImportSelector = HashSet.empty + OBJECT + VAL + VAR + METHOD + PACKAGE + CLASS
   val stableClass = HashSet.empty + CLASS
 

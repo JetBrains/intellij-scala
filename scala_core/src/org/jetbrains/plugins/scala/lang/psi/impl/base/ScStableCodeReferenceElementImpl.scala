@@ -34,11 +34,7 @@ import api.expr.{ScSuperReference, ScThisReference}
 
 class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScStableCodeReferenceElement {
 
-  def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement.asInstanceOf[Object]).
-      filter(e => e match {
-      case _: PsiPackage => qualifier != None || getParent.isInstanceOf[ScImportExpr] 
-      case _ => true
-    })
+  def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement)
 
   override def toString: String = "CodeReferenceElement"
 
@@ -63,8 +59,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case e: ScImportExpr => if (e.selectorSet != None
               //import Class._ is not allowed
               || qualifier == None) stableQualRef else stableImportSelector
-      case ste : ScSimpleTypeElement => if (incomplete) stableQualOrClass else
-                                        if (ste.singleton) stableQualRef else stableClass
+      case ste : ScSimpleTypeElement => if (incomplete) noPackagesClassCompletion /* todo use the settings to include packages*/
+                                        else if (ste.singleton) stableQualRef else stableClass
       case _: ScTypeAlias => stableClass
       case _: ScConstructorPattern => constructorPattern
       case _: ScThisReference | _: ScSuperReference => stableClass
