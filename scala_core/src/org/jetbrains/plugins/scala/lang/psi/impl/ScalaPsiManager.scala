@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
 import api.statements.params.ScTypeParam
-import com.intellij.util.containers.WeakHashMap
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.{PsiManager, PsiTypeParameter}
+import com.intellij.util.containers.{WeakHashMap, WeakValueHashMap}
 import toplevel.synthetic.{SyntheticPackageCreator, ScSyntheticPackage}
 import types._
 
@@ -24,7 +24,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   private val syntheticPackagesCreator = new SyntheticPackageCreator(project)
-  private val syntheticPackages = new WeakHashMap[String, ScSyntheticPackage]
+  private val syntheticPackages = new WeakValueHashMap[String, ScSyntheticPackage]
 
   private val typeVariables = new WeakHashMap[PsiTypeParameter, ScTypeParameterType]
 
