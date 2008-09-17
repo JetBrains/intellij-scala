@@ -14,7 +14,7 @@ object TypeManipulator {
       def getScType = t
       private val name = typez match {
         case null => null
-        case _ => typez.toString //todo: getPresentation
+        case _ => ScType.presentableText(typez)
       }
       def getName = name
     }

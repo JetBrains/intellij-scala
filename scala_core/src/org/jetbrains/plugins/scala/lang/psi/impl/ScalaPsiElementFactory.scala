@@ -180,7 +180,7 @@ object ScalaPsiElementFactory {
 
   def createDeclaration(typez: ScType, name: String, isVariable: Boolean, expr: ScExpression, manager: PsiManager): ScMember = {
     val text = "class a {" + (if (isVariable) "var " else "val ") +
-            (if (typez != null) ":" /*todo: + typez.getPresentableText*/ + " " else "") + name + " = " + expr.getText + "}"
+              name + (if (typez != null) ": "  + ScType.presentableText(typez) else "") + " = " + expr.getText + "}"
     val dummyFile = createScalaFile(text, manager)
     val classDef = dummyFile.getTypeDefinitions()(0)
     if (!isVariable) classDef.members()(0).asInstanceOf[ScPatternDefinition]

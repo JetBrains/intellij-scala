@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntro
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaValidator;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.typeManipulator.IType;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringUtil;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -128,7 +129,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
       myCbTypeSpec.setSelected(false);
       myCbTypeSpec.setEnabled(false);
       myTypeComboBox.setEnabled(false);
-    } /*else {
+    } else {
       if (ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY != null) {
         myCbTypeSpec.setSelected(ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY);
         myTypeComboBox.setEnabled(ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY);
@@ -140,7 +141,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
       for (String typeName : myTypeMap.keySet()) {
         myTypeComboBox.addItem(typeName);
       }
-    }*/ //todo: type specification
+    }
 
     if (ScalaApplicationSettings.getInstance().INTRODUCE_LOCAL_CREATE_VARIABLE != null) {
       declareVariableCheckBox.setSelected(ScalaApplicationSettings.getInstance().INTRODUCE_LOCAL_CREATE_VARIABLE);

@@ -70,15 +70,14 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
       showErrorMessage(ScalaBundle.message("file.is.not.writable", Array[Object]()), project)
       return
     }
-    val expr = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset) match {
+    val expr: ScExpression = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset) match {
       case Some(x) => x
       case None => {
         showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression", Array[Object]()), project)
         return
       }
     }
-    //todo: think about type when type inference
-    val typez: ScType = null
+    val typez: ScType = expr.getType
     var parent: PsiElement = expr
     while (parent != null && !parent.isInstanceOf[ScalaFile] && !parent.isInstanceOf[ScGuard]) parent = parent.getParent
     parent match {
