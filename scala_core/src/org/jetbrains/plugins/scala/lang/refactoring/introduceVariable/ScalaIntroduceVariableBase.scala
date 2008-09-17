@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import com.intellij.openapi.editor.{Editor, VisualPosition}
 import util.ScalaUtils
 import psi.api.expr._
 import psi.api.statements.ScFunction
@@ -24,7 +25,6 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.psi.PsiFile
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.refactoring.RefactoringActionHandler
 import psi.api.toplevel.typedef.ScMember
@@ -37,11 +37,25 @@ import psi.api.toplevel.typedef.ScMember
 abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
   val REFACTORING_NAME = ScalaBundle.message("introduce.variable.title", Array[Object]())
   var deleteOccurence = false;
+
+  private def getLineText(editor: Editor): String = {
+    val lineNumber = editor.getCaretModel().getLogicalPosition().line
+    if (lineNumber >= editor.getDocument.getLineCount) return ""
+    val caret = editor.getCaretModel.getVisualPosition
+    val lineStart = editor.visualToLogicalPosition(new VisualPosition(caret.line, 0));
+    val nextLineStart = editor.visualToLogicalPosition(new VisualPosition(caret.line + 1, 0))
+    val start = editor.logicalPositionToOffset(lineStart)
+    val end = editor.logicalPositionToOffset(nextLineStart)
+    return editor.getDocument.getText.substring(start, end)
+  }
+
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     if (!editor.getSelectionModel().hasSelection()) {
       editor.getSelectionModel().selectLineAtCaret();
       deleteOccurence = true;
     }
+    
+    if (editor.getSelectionModel.getSelectedText.trim == getLineText(editor).trim) deleteOccurence = true
     ScalaRefactoringUtil.trimSpacesAndComments(editor, file);
     invoke(project, editor, file, editor.getSelectionModel().getSelectionStart(), editor.getSelectionModel().getSelectionEnd());
   }
