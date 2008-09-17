@@ -3,6 +3,5 @@ class a {
 }
 ------
 class a {
-  for{x <- yy} {
-  }
+  for{x <- yy} {}
 }
