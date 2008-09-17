@@ -18,10 +18,10 @@ class ScalaClassFinder(project : Project) extends ProjectComponent with PsiEleme
   def disposeComponent {}
 
   def findClass(qName: String, scope: GlobalSearchScope) =
-    ScalaCachesManager.getInstance(project).getNamesCache.getClassByFQName(qName, scope)
+    null//ScalaCachesManager.getInstance(project).getNamesCache.getClassByFQName(qName, scope)
 
   def findClasses(qName: String, scope: GlobalSearchScope) =
-    ScalaCachesManager.getInstance(project).getNamesCache.getClassesByFQName(qName, scope)
+    null//ScalaCachesManager.getInstance(project).getNamesCache.getClassesByFQName(qName, scope)
 
   def findPackage(qName: String) = ScalaPsiManager.instance(project).syntheticPackage(qName)
 
