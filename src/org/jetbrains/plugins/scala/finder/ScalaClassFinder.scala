@@ -28,7 +28,7 @@ class ScalaClassFinder(project : Project) extends ProjectComponent with PsiEleme
   def getSubPackages(p: PsiPackage, scope: GlobalSearchScope) = Array[PsiPackage]() //todo
 
   def getClasses(p: PsiPackage, scope: GlobalSearchScope) = p match {
-    case synth : ScSyntheticPackage => Array[PsiClass]()  //todo
+    case synth : ScSyntheticPackage => Array[PsiClass]()  //todo 
     case _ => {
       val buff = new ArrayBuffer[PsiClass]
       for (dir <- p.getDirectories(scope); file <- dir.getFiles) file match {
