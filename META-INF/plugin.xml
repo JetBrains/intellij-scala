@@ -109,7 +109,8 @@
       </implementation-class>
     </component>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.caches.ScalaCachesManager</implementation-class>
+      <interface-class>org.jetbrains.plugins.scala.caches.ScalaCachesManager</interface-class>
+      <implementation-class>org.jetbrains.plugins.scala.caches.ScalaCachesManagerImpl</implementation-class>
     </component>
   </project-components>
 
