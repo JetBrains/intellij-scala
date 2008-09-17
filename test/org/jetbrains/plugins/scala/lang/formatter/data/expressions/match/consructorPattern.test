@@ -6,7 +6,6 @@ class a {
 -----
 class a {
   {
-    case Some(_, _, k) => {
-    }
+    case Some(_, _, k) => {}
   }
 }
