@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.compiler;
 
-import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.ui.RawCommandLineEditor;
+import org.jetbrains.annotations.Nls;
 
 import javax.swing.*;
-
-import org.jetbrains.annotations.Nls;
-import org.jetbrains.plugins.scala.icons.Icons;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -19,6 +17,7 @@ public class ScalacConfigurable implements Configurable{
   private RawCommandLineEditor myAdditionalOptionField;
 
   public ScalacConfigurable() {
+    //todo [Sasha] please, use internationalized resource boundles 
     myAdditionalOptionField.setDialogCaption("Scalac options");
   }
 

@@ -29,7 +29,9 @@ class ScalaClassFinder(project: Project) extends ProjectComponent with PsiElemen
       val pack = f.findPackage(qName)
       if (pack != null) return pack
     }
-    ScalaPsiManager.instance(project).syntheticPackage(qName)
+    // todo uncomment me!
+    //ScalaPsiManager.instance(project).syntheticPackage(qName)
+    null
   }
 
   def getSubPackages(p: PsiPackage, scope: GlobalSearchScope) = Array[PsiPackage]() //todo
