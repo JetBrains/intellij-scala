@@ -437,6 +437,12 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (leftNode.getElementType == ScalaTokenTypes.kCASE &&
             rightNode.getElementType == ScalaTokenTypes.tFUNTYPE) return Spacing.createSpacing(2, 2, 0, false, 0)
 
+    //Case Clauses case
+    if (leftNode.getElementType == ScalaElementTypes.CASE_CLAUSE && rightNode.getElementType == ScalaElementTypes.CASE_CLAUSE) {
+      val block = leftNode.getTreeParent
+      val minLineFeeds = if (block.getText.contains("\n")) 1 else 0
+      return Spacing.createSpacing(1, 0, minLineFeeds, true, scalaSettings.KEEP_BLANK_LINES_IN_CODE)
+    }
 
     (leftNode.getElementType, rightNode.getElementType,
             leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
