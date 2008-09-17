@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
+import introduceVariable.typeManipulator.IType
+import java.util.{HashMap, Comparator}
 import psi.api.base.patterns.ScReferencePattern
 import psi.api.statements.ScVariable
 import psi.api.expr.ScReferenceExpression
@@ -17,7 +19,6 @@ import psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import java.util.Comparator
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.util.ReflectionCache
 import com.intellij.psi.util.PsiTreeUtil
@@ -165,6 +166,12 @@ object ScalaRefactoringUtil {
       i = i - 1
     }
     return hasNlToken
+  }
+
+  def getCompatibleTypeNames(myType: IType): HashMap[String, IType] = {
+    val map = new HashMap[String, IType]
+    map.put(myType.getName, myType)
+    return map
   }
 
   private val comparator = new Comparator[PsiElement]() {
