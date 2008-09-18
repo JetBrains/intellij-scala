@@ -21,13 +21,16 @@ class ScPackagingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
 
   override def toString = "ScPackaging"
 
-  private def reference = findChildByClass(classOf[ScStableCodeReferenceElement])
+  private def reference = findChild(classOf[ScStableCodeReferenceElement])
 
   // One more hack for correct inheritance
   override def getElementType: IStubElementType[Nothing, Nothing] =
     super.getElementType.asInstanceOf[IStubElementType[Nothing, Nothing]];
 
-  def getPackageName = reference.qualName
+  def getPackageName = reference match {
+    case Some(r) => r.qualName
+    case None => ""
+  }
 
   def fqn = {
     def _packageName(e: PsiElement): String = e.getParent match {
