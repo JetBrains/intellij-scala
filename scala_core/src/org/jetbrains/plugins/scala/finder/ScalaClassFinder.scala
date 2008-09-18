@@ -23,17 +23,8 @@ class ScalaClassFinder(project: Project) extends ProjectComponent with PsiElemen
   def findClasses(qName: String, scope: GlobalSearchScope) =
     project.getComponent(classOf[ScalaCachesManager]).getNamesCache.getClassesByFQName(qName, scope)
 
-  def findPackage(qName: String): PsiPackage = {
-    val finders = project.getComponents(classOf[PsiElementFinder])
-    for (f <- finders; if !f.isInstanceOf[ScalaClassFinder]) {
-      val pack = f.findPackage(qName)
-      if (pack != null) return pack
-    }
-    // todo uncomment me!
-    //ScalaPsiManager.instance(project).syntheticPackage(qName)
-    null
-  }
-
+  def findPackage(qName: String): PsiPackage = ScalaPsiManager.instance(project).syntheticPackage(qName)
+  
   def getSubPackages(p: PsiPackage, scope: GlobalSearchScope) = Array[PsiPackage]() //todo
 
   def getClasses(p: PsiPackage, scope: GlobalSearchScope) = p match {

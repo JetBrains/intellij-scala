@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
 
+import java.util.ArrayList
 import api.toplevel.packaging.ScPackageContainer
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
@@ -38,7 +39,7 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiPackage {
 
 
 object ScSyntheticPackage {
-  def apply(fqn: String, project: Project): ScSyntheticPackage = {
+  def get(fqn: String, project: Project): ScSyntheticPackage = {
     val i = fqn.lastIndexOf(".")
     val name = if (i < 0 || i >= fqn.length - 1) fqn else fqn.substring(i + 1)
 
@@ -48,25 +49,28 @@ object ScSyntheticPackage {
       ScalaIndexKeys.PACKAGE_FQN_KEY.asInstanceOf[StubIndexKey[Any, ScPackageContainer]],
       fqn.hashCode(), project, GlobalSearchScope.allScope(project))
 
-    val pkgs = List.fromArray(packages.toArray(Array[ScPackageContainer]())).filter(_.fqn == fqn)
+    if (packages.isEmpty) null else {
+      import _root_.scala.collection.jcl.Conversions._ //to provide for magic java to scala collections conversions
+      val pkgs = new ArrayList[ScPackageContainer](packages).filter(_.fqn == fqn)
+      if (pkgs.isEmpty) null else
+        new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
+          def getQualifiedName = fqn
+          def getClasses = {
+            Array(pkgs.flatMap(p => p.typeDefs): _*)
+          }
 
-    new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
-      def getQualifiedName = fqn
-      def getClasses = {
-        Array(pkgs.flatMap(p => p.typeDefs): _*)
-      }
-
-      //todo implement them!
-      def getClasses(scope: GlobalSearchScope) = {
-        PsiClass.EMPTY_ARRAY
-      }
-      def getParentPackage = null
-      def getSubPackages = Array[PsiPackage]()
-      def getSubPackages(scope: GlobalSearchScope) = Array[PsiPackage]()
+          //todo implement them!
+          def getClasses(scope: GlobalSearchScope) = {
+            PsiClass.EMPTY_ARRAY
+          }
+          def getParentPackage = null
+          def getSubPackages = Array[PsiPackage]()
+          def getSubPackages(scope: GlobalSearchScope) = Array[PsiPackage]()
+        }
     }
   }
 }
 
 class SyntheticPackageCreator(project: Project) {
-  def createPackage(fqn: String) = ScSyntheticPackage(fqn, project)
+  def getPackage(fqn: String) = ScSyntheticPackage.get(fqn, project)
 }

@@ -24,14 +24,15 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   private val syntheticPackagesCreator = new SyntheticPackageCreator(project)
-  private val syntheticPackages = new WeakValueHashMap[String, ScSyntheticPackage]
+  private val syntheticPackages = new WeakValueHashMap[String, Any]
 
   private val typeVariables = new WeakHashMap[PsiTypeParameter, ScTypeParameterType]
 
-  def syntheticPackage(fqn : String) = {
+  def syntheticPackage(fqn : String) : ScSyntheticPackage = {
     var p = syntheticPackages.get(fqn)
     if (p == null) {
-      p = syntheticPackagesCreator.createPackage(fqn)
+      p = syntheticPackagesCreator.getPackage(fqn)
+      if (p == null) p = Null
       synchronized {
         val pp = syntheticPackages.get(fqn)
         if (pp == null) {
@@ -41,7 +42,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         }
       }
     }
-    p
+
+    p match {case synth : ScSyntheticPackage => synth case _ => null}
   }
 
   def typeVariable(tp: PsiTypeParameter) : ScTypeParameterType = {
