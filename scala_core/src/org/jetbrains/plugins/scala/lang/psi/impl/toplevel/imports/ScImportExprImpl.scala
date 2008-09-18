@@ -17,10 +17,10 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 
-/** 
-* @author Alexander Podkhalyuzin
+/**
+ * @author AlexanderPodkhalyuzin
 * Date: 20.02.2008
-*/
+ */
 
 class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScImportExpr {
   override def toString: String = "ImportExpression"
@@ -28,10 +28,10 @@ class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
   def singleWildcard = findChildByType(ScalaTokenTypes.tUNDER) != null
 
   def qualifier: ScStableCodeReferenceElement = if (!singleWildcard &&
-          (selectorSet match {
-            case None => true
-            case _ => false
-          })) reference match {
+      (selectorSet match {
+        case None => true
+        case _ => false
+      })) reference match {
     case Some(x) => x.qualifier match {
       case None => throw new IncorrectOperationException
       case Some(x) => x

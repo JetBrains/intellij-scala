@@ -39,7 +39,7 @@ with ScalaPsiElement with ScToplevelElement with PsiClassOwner with ScDeclaratio
 
   def getPackagings = findChildrenByClass(classOf[ScPackaging])
 
-  def getPackageName =
+  def getPackageName: String =
     packageStatement match {
       case None => ""
       case Some(stat) => stat.getPackageName
