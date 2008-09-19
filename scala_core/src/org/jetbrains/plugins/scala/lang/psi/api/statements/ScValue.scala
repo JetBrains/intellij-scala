@@ -13,6 +13,7 @@ import toplevel.ScTyped
 */
 
 trait ScValue extends ScalaPsiElement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder {
+  def declaredElements : Seq[ScTyped]
   def typeElement = findChild(classOf[ScTypeElement])
 
   def declaredType = typeElement match {
