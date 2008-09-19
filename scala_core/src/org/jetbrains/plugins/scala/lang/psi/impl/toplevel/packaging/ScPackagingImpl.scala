@@ -32,23 +32,35 @@ class ScPackagingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
     case None => ""
   }
 
-  def fqn = {
-    def _packageName(e: PsiElement): String = e.getParent match {
-      case p: ScPackaging => {
-        val _packName = _packageName(p)
-        if (_packName.length > 0) _packName + "." + p.getPackageName else p.getPackageName
-      }
-      case f: ScalaFile => f.getPackageName
-      case null => ""
-      case parent => _packageName(parent)
+  def parentPackageName(e : PsiElement): String = e.getParent match {
+    case p: ScPackaging => {
+      val _packName = parentPackageName(p)
+      if (_packName.length > 0) _packName + "." + p.getPackageName else p.getPackageName
     }
-    val packageName = _packageName(this)
-    if (packageName.length > 0) packageName + "." + getPackageName else getPackageName
+    case f: ScalaFile => f.getPackageName
+    case null => ""
+    case parent => parentPackageName(parent)
+  }
+
+  def fqn = {
+    def innerRefName(ref : ScStableCodeReferenceElement) : String = ref.qualifier match {
+      case Some(q) => innerRefName(q)
+      case None => ref.refName
+    }
+    val pname = parentPackageName(this)
+    val refName = reference match {case Some(r) => innerRefName(r) case None => ""}
+    if(pname.length > 0) pname + "." + refName else refName
   }
 
   override def packagings = findChildrenByClass(classOf[ScPackaging])
 
   def typeDefs = findChildrenByClass(classOf[ScTypeDefinition])
+
+  def declaredElements = {
+    val p = JavaPsiFacade.getInstance(getProject).findPackage(fqn)
+    assert (p != null)
+    Seq.singleton(p)
+  }
 
 }
 
