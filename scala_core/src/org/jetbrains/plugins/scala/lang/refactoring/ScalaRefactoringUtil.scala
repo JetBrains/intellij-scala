@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import introduceVariable.typeManipulator.IType
 import java.util.{HashMap, Comparator}
+import parser.ScalaElementTypes
 import psi.api.base.patterns.ScReferencePattern
 import psi.api.statements.ScVariable
 import psi.api.expr.ScReferenceExpression
@@ -84,9 +86,13 @@ object ScalaRefactoringUtil {
 
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScExpression] = {
     val element1 = file.findElementAt(startOffset)
-    val element2 = file.findElementAt(endOffset - 1)
+    var element2 = file.findElementAt(endOffset - 1)
     if (element1 == null || element2 == null) {
       return None
+    }
+    if (element2.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
+      element2 = file.findElementAt(endOffset - 2)
+      if (element2 == null) return None
     }
     val common = PsiTreeUtil.findCommonParent(element1, element2)
     val element: ScExpression = if (common.isInstanceOf[ScExpression])
