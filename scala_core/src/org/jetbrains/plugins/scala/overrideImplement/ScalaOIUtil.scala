@@ -91,7 +91,7 @@ object ScalaOIUtil {
           val method: PsiMethod = member.getElement
           ScalaUtils.runWriteAction(new Runnable {
             def run {
-              val meth = ScalaPsiElementFactory.createOverrideImplementMethod(method, method.getManager, !isImplement)
+              var meth = ScalaPsiElementFactory.createOverrideImplementMethod(method, method.getManager, !isImplement)
               val body: ScTemplateBody = clazz.extendsBlock.templateBody match {
                 case Some(x) => x
                 case None => return
@@ -120,7 +120,9 @@ object ScalaOIUtil {
                 body.getNode.addChild(meth.getNode, element.getNode)
                 body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
               } else {
-                return
+                val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.createOverrideImplementMethodBody(method, method.getManager, !isImplement)).asInstanceOf[ScTemplateBody]
+                meth = newBody.functions(0)
+                newBody.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
               }
               meth match {
                 case method: ScFunctionDefinition => {
