@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
 import _root_.scala.collection.mutable.HashSet
+import com.intellij.psi.{JavaPsiFacade, PsiClass}
 import psi.types._
 import psi.api.expr._
 import java.util.regex.Matcher
@@ -65,6 +66,25 @@ object NameSuggester {
           generateCamelNames(names, validator, name)
         }
       }
+      case ScParameterizedType(des@ScDesignatorType(c: PsiClass), Array(arg)) if c.getQualifiedName == "scala.Array" => {
+        var s = ""
+        arg match {
+          case ValType(name, _) => {
+            s = name + "s"
+          }
+          case ScTupleType(_) => s = "Tuples"
+          case ScFunctionType(_,_) => s = "Functions"
+          case ScDesignatorType(e) => {
+            val seq: Seq[String] = getCamelNames(e.getName)
+            if (seq.length > 0) {
+              s = seq(seq.length - 1).substring(0,1).toUpperCase + seq(seq.length - 1).substring(1, seq(seq.length - 1).length) + "s" 
+            }
+          }
+          case _ => 
+        }
+        if (s != "") add("arrayOf" + s)
+        generateNamesByType(des, names, validator)
+      }
       case ScParameterizedType(des, typeArgs) => {
         generateNamesByType(des, names, validator)
       }
@@ -113,6 +133,29 @@ object NameSuggester {
         names += validator.validateName(candidate, true)
       }
     }
+  }
+
+  private def getCamelNames(name: String): Seq[String] = {
+    if (name == "") return Seq.empty
+    val s1 = deleteNonLetterFromString(name)
+    val names = new ArrayBuffer[String]
+    val s = if (Array("get", "set", "is").map(s1.startsWith(_)).contains(true))
+              s1.charAt(0) match {
+                case 'g' | 's' => s1.substring(3,s1.length)
+                case _ => s1.substring(2,s1.length)
+              }
+            else s1
+    for (i <- 0 to s.length - 1) {
+      if (i == 0) {
+        val candidate = s.substring(0, 1).toLowerCase + s.substring(1)
+        names += candidate
+      }
+      else if (s(i) >= 'A' && s(i) <= 'Z') {
+        val candidate = s.substring(i, i + 1).toLowerCase + s.substring(i + 1)
+        names += candidate
+      }
+    }
+    return names.toSeq
   }
 
   private def deleteNonLetterFromString(s: String): String = {
