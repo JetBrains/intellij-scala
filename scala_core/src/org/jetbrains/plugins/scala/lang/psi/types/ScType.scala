@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import api.statements.ScTypeAlias
+import api.toplevel.typedef.ScTypeDefinition
 import impl.ScalaPsiManager
 import resolve.ScalaResolveResult
 import com.intellij.psi._
@@ -131,6 +132,11 @@ object ScType {
       }
     }
     def inner(t : ScType) : Unit = t match {
+      case Null => buffer.append("Null")
+      case Nothing => buffer.append("Nothing")
+      case Any => buffer.append("Any")
+      case AnyRef => buffer.append("AnyRef")
+      case AnyVal => buffer.append("AnyVal")
       case ValType(name, _) => buffer.append(name)
       case ScFunctionType(ret, params) => inner(t); buffer.append("=>"); appendSeq(params, ", ")
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
