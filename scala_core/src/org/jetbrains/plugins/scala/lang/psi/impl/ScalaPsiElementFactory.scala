@@ -231,6 +231,18 @@ object ScalaPsiElementFactory {
     return al
   }
 
+  def createOverrideImplementTypeBody(alias: ScTypeAlias, manager: PsiManager, isOverride: Boolean): ScTemplateBody = {
+    val text = "class a {" + getOverrideImplementTypeSign(alias, "this.type", isOverride) + "}"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    val classDef = dummyFile.getTypeDefinitions()(0)
+    val body = classDef.extendsBlock.templateBody match {
+      case Some(x) => x
+      case None => return null
+    }
+    return body
+  }
+
   def createOverrideImplementVariable(variable: ScTyped, manager: PsiManager, isOverride: Boolean, isVal: Boolean): PsiElement = {
     val text = "class a {" + getOverrideImplementVariableSign(variable, "_", isOverride, isVal) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
@@ -310,7 +322,7 @@ object ScalaPsiElementFactory {
         return "override " + alias.getText
       }
       case alias: ScTypeAliasDeclaration => {
-        return alias.getText + " = " + body
+        return "type " + alias.getName + " = " + body
       }
     }
   }
