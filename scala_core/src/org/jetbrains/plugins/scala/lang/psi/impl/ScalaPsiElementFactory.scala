@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl
 
 import api.toplevel.packaging.ScPackaging
 import api.toplevel.ScTyped
+import api.toplevel.templates.ScTemplateBody
+import api.toplevel.typedef.{ScTypeDefinition, ScMember}
 import com.intellij.util.{IncorrectOperationException, CharTable}
 import api.statements._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
@@ -38,8 +40,6 @@ import com.intellij.lang.impl.PsiBuilderImpl
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.impl.source.CharTableImpl
-import api.toplevel.typedef.ScMember
-
 object ScalaPsiElementFactory {
 
   private val DUMMY = "dummy."
@@ -202,12 +202,24 @@ object ScalaPsiElementFactory {
   }
 
   def createOverrideImplementMethod(method: PsiMethod, manager: PsiManager, isOverride: Boolean): ScFunction = {
-    val text = "class a {" + getOverrideImplementSign(method, "null", isOverride) + "}" //todo: extract signature from method
+    val text = "class a {\n  " + getOverrideImplementSign(method, "null", isOverride) + "\n}" //todo: extract signature from method
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
     val function = classDef.functions()(0)
     return function
+  }
+
+  def createOverrideImplementMethodBody(method: PsiMethod, manager: PsiManager, isOverride: Boolean): ScTemplateBody = {
+    val text = "class a {" + getOverrideImplementSign(method, "null", isOverride) + "}" //todo: extract signature from method
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    val classDef: ScTypeDefinition = dummyFile.getTypeDefinitions()(0)
+    val body = classDef.extendsBlock.templateBody match {
+      case Some(x) => x
+      case None => return null
+    }
+    return body
   }
 
   def createOverrideImplementType(alias: ScTypeAlias, manager: PsiManager, isOverride: Boolean): ScTypeAlias = {
