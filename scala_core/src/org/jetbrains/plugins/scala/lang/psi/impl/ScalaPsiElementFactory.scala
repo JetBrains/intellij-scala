@@ -252,6 +252,18 @@ object ScalaPsiElementFactory {
     return va
   }
 
+  def createOverrideImplementVariableBody(variable: ScTyped, manager: PsiManager, isOverride: Boolean, isVal: Boolean): ScTemplateBody = {
+    val text = "class a {" + getOverrideImplementVariableSign(variable, "_", isOverride, isVal) + "}"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, text).asInstanceOf[ScalaFile]
+    val classDef = dummyFile.getTypeDefinitions()(0)
+    val body = classDef.extendsBlock.templateBody match {
+      case Some(x) => x
+      case None => return null
+    }
+    return body
+  }
+
   private def isResolved(name: String, clazz: PsiClass, packageName: String, manager: PsiManager): Boolean = {
     if (packageName == null) return true
     val text = "package " + packageName + "\nimport " + name
