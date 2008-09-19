@@ -2,11 +2,14 @@ package org.jetbrains.plugins.scala.overrideImplement
 
 import com.intellij.codeInsight.generation.{PsiMethodMember, OverrideImplementUtil, ClassMember, PsiFieldMember}
 import com.intellij.openapi.editor.{Editor, VisualPosition}
+import com.intellij.psi.tree.IElementType
+import lang.lexer.ScalaTokenTypes
 import lang.psi.api.toplevel.ScModifierListOwner
 import com.intellij.psi._
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement, ScFieldId}
 import annotations.Nullable
 import lang.psi.api.base.patterns.ScReferencePattern
+import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.types.{ScType, PhysicalSignature, ScSubstitutor}
 import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import lang.psi.ScalaPsiElement
@@ -88,25 +91,46 @@ object ScalaOIUtil {
           val method: PsiMethod = member.getElement
           ScalaUtils.runWriteAction(new Runnable {
             def run {
-              val body = clazz.extendsBlock.templateBody match {
+              val meth = ScalaPsiElementFactory.createOverrideImplementMethod(method, method.getManager, !isImplement)
+              val body: ScTemplateBody = clazz.extendsBlock.templateBody match {
                 case Some(x) => x
                 case None => return
               }
-              val brace = body.getFirstChild
-              if (brace == null) return
-              val anchor = brace.getNextSibling
-              if (anchor == null) return
-              val meth = ScalaPsiElementFactory.createOverrideImplementMethod(method, method.getManager, !isImplement)
-              body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), anchor.getNode)
-              body.getNode.addChild(meth.getNode, anchor.getNode)  //todo: set caret into body
+              //if body is not empty
+              if (body.getChildren.length != 0) {
+                val offset = editor.getCaretModel.getOffset
+                //current element
+                var element = body.getContainingFile.findElementAt(offset)
+                while (element != null && element.getParent != body) element = element.getParent
+                if (element == null) return
+                //Look at some exceptions
+                val t = element.getNode.getElementType
+                element.getNode.getElementType match {
+                  case ScalaTokenTypes.tLINE_TERMINATOR | TokenType.WHITE_SPACE => element = element.getNextSibling
+                  case ScalaTokenTypes.tLBRACE => {
+                    element = element.getNextSibling
+                    element.getNode.getElementType match {
+                      case ScalaTokenTypes.tLINE_TERMINATOR => element = element.getNextSibling
+                      case _ => body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
+                    }
+                  }
+                  case _ =>
+                }
+                //now we can add new statement before this element or after if it is the end
+                body.getNode.addChild(meth.getNode, element.getNode)
+                body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
+              } else {
+                return
+              }
               meth match {
                 case method: ScFunctionDefinition => {
                   val body = method.body match {
                     case Some(x) => x
                     case None => return
                   }
-                  val offset = body.getTextRange.getStartOffset + 2
+                  val offset = body.getTextRange.getStartOffset
                   editor.getCaretModel.moveToOffset(offset)
+                  editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
                 }
                 case _ =>
               }
@@ -167,9 +191,6 @@ object ScalaOIUtil {
             }
           }, variable.getProject, if (isImplement) "Implement variable" else "Override variable")
         }
-        case member: PsiFieldMember => {
-          //todo: I think scala don't perform to override java fields
-        }
         case _ =>
       }
     }
@@ -229,7 +250,7 @@ object ScalaOIUtil {
         for (method <- buf) {
           method match {
             case x: PsiMethod if x.getName == "$tag" =>
-            case x: PsiMember if x.getContainingClass.isInterface =>
+            case x: PsiMember if x.getContainingClass != null && x.getContainingClass.isInterface =>
             case _: ScValueDeclaration =>
             case _: ScVariableDeclaration =>
             case _: ScTypeAliasDeclaration =>

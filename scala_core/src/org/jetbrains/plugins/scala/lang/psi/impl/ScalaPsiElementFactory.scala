@@ -202,7 +202,7 @@ object ScalaPsiElementFactory {
   }
 
   def createOverrideImplementMethod(method: PsiMethod, manager: PsiManager, isOverride: Boolean): ScFunction = {
-    val text = "class a {" + getOverrideImplementSign(method, "{\n\n}", isOverride) + "}" //todo: extract signature from method
+    val text = "class a {" + getOverrideImplementSign(method, "null", isOverride) + "}" //todo: extract signature from method
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
