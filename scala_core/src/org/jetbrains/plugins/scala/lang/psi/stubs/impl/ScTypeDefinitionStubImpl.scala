@@ -3,25 +3,21 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.impl
 import com.intellij.util.io.StringRef
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IStubElementType, StubBase}
-import elements.wrappers.StubElementWrapper
 import api.toplevel.typedef.ScTypeDefinition
 
 /**
  * @author ilyas
  */
 
-class ScTypeDefinitionStubImpl(parent: StubElement[_ <: PsiElement],
-                              elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+class ScTypeDefinitionStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
+                                                        elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
 extends StubBaseWrapper[ScTypeDefinition](parent, elemType) with ScTypeDefinitionStub {
-
-  type ElemType = IStubElementType[StubElement[PsiElement], PsiElement]
-  type ParentType = StubElement[_ <: PsiElement]
 
   var myName: StringRef = _
   var myQualName: StringRef = _
   var mySourceFileName: StringRef = _
 
-  def this(parent: StubElement[_ <: PsiElement],
+  def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
           name: String,
           qualName: String,
@@ -32,10 +28,10 @@ extends StubBaseWrapper[ScTypeDefinition](parent, elemType) with ScTypeDefinitio
     myQualName = StringRef.fromString(qualName)
   }
 
-  def sourceFileName = mySourceFileName
+  def sourceFileName = StringRef.toString(mySourceFileName)
 
-  def qualName = myQualName
+  def qualName = StringRef.toString(myQualName)
 
-  def getName = myName
+  def getName = StringRef.toString(myName)
 
 }

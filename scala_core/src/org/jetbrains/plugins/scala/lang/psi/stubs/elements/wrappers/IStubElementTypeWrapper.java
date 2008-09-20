@@ -20,10 +20,10 @@ public abstract class IStubElementTypeWrapper<StubT extends StubElement, PsiT ex
 
   //Dirty delegate hack to avoid problems with inheritance in Scala which doesn't allow rawtyped parameters
   public StubT createStub(PsiT psi, StubElement parentStub) {
-    return createStubImpl(psi, parentStub);
+    return (StubT)createStubImpl(psi, parentStub);
   }
 
-  protected abstract StubT createStubImpl(PsiT psi, Object parentStub);
+  protected abstract <ParentPsi extends PsiElement> StubT createStubImpl(PsiT psi, StubElement<ParentPsi> parentStub);
 
   //Dirty delegate hack to avoid problems with inheritance in Scala which doesn't allow rawtyped parameters
   public StubT deserialize(StubInputStream dataStream, StubElement parentStub) throws IOException {
