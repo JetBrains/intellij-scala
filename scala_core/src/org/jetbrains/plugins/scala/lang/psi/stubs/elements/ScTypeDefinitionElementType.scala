@@ -14,9 +14,8 @@ import api.toplevel.typedef.ScTypeDefinition
 abstract class ScTypeDefinitionElementType[TypeDef <: ScTypeDefinition](debugName: String)
 extends ScStubElementType[ScTypeDefinitionStub, ScTypeDefinition](debugName) {
 
-  override def createStubImpl(psi: ScTypeDefinition, parent: Any): ScTypeDefinitionStub = {
-    val parentStub = parent.asInstanceOf[StubElement[PsiElement]]
-    new ScTypeDefinitionStubImpl(parentStub, this, psi.getName, psi.getQualifiedName, null)
+  override def createStubImpl[ParentPsi <: PsiElement](psi: ScTypeDefinition, parent: StubElement[ParentPsi]): ScTypeDefinitionStub = {
+    new ScTypeDefinitionStubImpl[ParentPsi](parent, this, psi.getName, psi.getQualifiedName, null)
   }
 
   def serialize(stub: ScTypeDefinitionStub, dataStream: StubOutputStream): Unit = {

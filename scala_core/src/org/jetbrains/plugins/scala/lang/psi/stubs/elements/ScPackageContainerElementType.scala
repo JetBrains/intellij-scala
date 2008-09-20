@@ -15,9 +15,9 @@ import impl.ScPackageContainerStubImpl
 abstract class ScPackageContainerElementType[TypeDef <: ScPackageContainer](debugName: String)
 extends ScStubElementType[ScPackageContainerStub, ScPackageContainer](debugName) {
 
-  override def createStubImpl(psi: ScPackageContainer, parent: Any): ScPackageContainerStub = {
-    val parentStub = parent.asInstanceOf[StubElement[PsiElement]]
-    new ScPackageContainerStubImpl(parentStub, this, psi.fqn)
+  override def createStubImpl[ParentPsi <: PsiElement](psi: ScPackageContainer, 
+                                                      parent: StubElement[ParentPsi]): ScPackageContainerStub = {
+    new ScPackageContainerStubImpl[ParentPsi](parent, this, psi.fqn)
   }
 
   def serialize(stub: ScPackageContainerStub, dataStream: StubOutputStream): Unit = {
