@@ -11,6 +11,6 @@ import com.intellij.codeInsight.generation.ClassMember
 * Date: 11.07.2008
 */
 
-class PsiAliasMember(member: ScTypeAlias) extends PsiElementClassMember[ScTypeAlias](member, member.name) {
+class ScAliasMember(member: ScTypeAlias) extends PsiElementClassMember[ScTypeAlias](member, member.name) {
   
 }

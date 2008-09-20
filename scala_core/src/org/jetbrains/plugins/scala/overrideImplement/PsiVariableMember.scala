@@ -9,7 +9,7 @@ import lang.psi.api.statements.ScVariable
  * Date: 11.07.2008
  */
 
-class PsiVariableMember(member: ScVariable, val element: ScTyped) extends PsiElementClassMember[ScVariable](member,
+class ScVariableMember(member: ScVariable, val element: ScTyped) extends PsiElementClassMember[ScVariable](member,
   element.name/*format with type*/) {
 
 }
