@@ -340,6 +340,81 @@ object ScalaOIUtil {
     return buf2.toArray
   }
 
+  def getMembersToImplement2(clazz: ScTypeDefinition): Seq[ScalaObject] = {
+    val buf = new ArrayBuffer[ScalaObject]
+    buf ++= clazz.allMethods
+    buf ++= clazz.allTypes
+    buf ++= clazz.allVals
+    val buf2 = new ArrayBuffer[ScalaObject]
+    for (element <- buf) {
+      def addMethod(x: PhysicalSignature) {
+        var flag = false
+        for (obj <- buf) {
+          obj match {
+            case sign: PhysicalSignature => {
+              sign.method match {
+                case x if x.getName == "$tag" =>
+                case x if x.getModifierList.hasModifierProperty("abstract") =>
+                case x if x.isConstructor =>
+                case _ => if (sign.equiv(x)) flag = true
+              }
+            }
+            /*case Pair(name, subst) => {
+
+            }*/
+            case _ =>
+          }
+          /*method match {
+            case x: PsiMethod if x.getName == "$tag" =>
+            case x: PsiMember if x.getContainingClass != null && x.getContainingClass.isInterface =>
+            case _: ScValueDeclaration =>
+            case _: ScVariableDeclaration =>
+            case _: ScTypeAliasDeclaration =>
+            case _: ScFunctionDeclaration =>
+            case x: PsiMethod if x.getModifierList.hasModifierProperty("abstract") =>
+            case x: PsiMethod if x.isConstructor =>
+            case method: PsiMethod => if (compare(x, method)) flag = true
+            case _ =>
+          }*/
+        }
+        if (!flag) buf2 += element
+      }
+      element match {
+        case sign: PhysicalSignature => {
+          sign.method match {
+            case x if x.getName == "$tag" =>
+            case x if x.getContainingClass.isInterface => addMethod(sign)
+            case x if x.hasModifierProperty("abstract") => addMethod(sign)
+            case x: ScFunctionDeclaration => addMethod(sign)
+            case _ =>
+          }
+        }
+        case _ =>
+      }
+      /*element match {
+        case _: PsiClass =>
+        case x: PsiMember if x.getContainingClass == clazz =>
+        case x: PsiMethod if x.getName == "$tag" =>
+        case x: PsiMethod if x.getContainingClass.isInterface => addMethod(x)
+        case x: ScReferencePattern => valvarContext(x) match {
+          case x: ScValueDeclaration if x.getContainingClass != clazz => buf2 += element
+          case x: ScVariableDeclaration if x.getContainingClass != clazz => buf2 += element
+          case _ =>
+        }
+        case x: ScFieldId => valvarContext(x) match {
+          case x: ScValueDeclaration if x.getContainingClass != clazz => buf2 += element
+          case x: ScVariableDeclaration if x.getContainingClass != clazz => buf2 += element
+          case _ =>
+        }
+        case x: ScTypeAliasDeclaration => buf2 += element
+        case x: ScFunctionDeclaration => addMethod(x)
+        case x: PsiMethod if x.hasModifierProperty("abstract") => addMethod(x)
+        case _ =>
+      }*/
+    }
+    return buf2.toSeq
+  }
+
   private def compare(method1: PsiMethod, method2: PsiMethod): Boolean = {
     val signature1 = new PhysicalSignature(method1, ScSubstitutor.empty)
     val signature2 = new PhysicalSignature(method2, ScSubstitutor.empty)
