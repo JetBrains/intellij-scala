@@ -91,9 +91,10 @@ object ScalaOIUtil {
       member match {
         case member: ScMethodMember => {
           val method: PsiMethod = member.getElement
+          val sign = member.sign
           ScalaUtils.runWriteAction(new Runnable {
             def run {
-              var meth = ScalaPsiElementFactory.createOverrideImplementMethod(method, method.getManager, !isImplement)
+              var meth = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement)
               val body: ScTemplateBody = clazz.extendsBlock.templateBody match {
                 case Some(x) => x
                 case None => return
@@ -122,7 +123,7 @@ object ScalaOIUtil {
                 body.getNode.addChild(meth.getNode, element.getNode)
                 body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
               } else {
-                val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.createOverrideImplementMethodBody(method, method.getManager, !isImplement)).asInstanceOf[ScTemplateBody]
+                val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.createOverrideImplementMethodBody(sign, method.getManager, !isImplement)).asInstanceOf[ScTemplateBody]
                 meth = newBody.functions(0)
                 newBody.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
               }
@@ -250,97 +251,6 @@ object ScalaOIUtil {
       }
     }
   }
-
-  /*def getMembersToOverride(clazz: ScTypeDefinition): Array[PsiElement] = {
-    val buf = new ArrayBuffer[PsiElement]
-    buf ++= (for (key <- TypeDefinitionMembers.getMethods(clazz).keys) yield key.method)
-    buf ++= (for (key <- TypeDefinitionMembers.getTypes(clazz).keys) yield key)
-    buf ++= (for (key <- TypeDefinitionMembers.getVals(clazz).keys) yield key)
-    val buf2 = new ArrayBuffer[PsiElement]
-    for (element <- buf) {
-      element match {
-        case _: PsiClass =>
-        case x: PsiMethod if x.getName == "$tag" =>
-        case x: PsiMember if x.getContainingClass == clazz =>
-        case x: PsiMember if x.getContainingClass.isInterface =>
-        case x: ScReferencePattern => valvarContext(x) match {
-          case x: ScPatternDefinition if x.getContainingClass != clazz => buf2 += element
-          case x: ScVariableDefinition if x.getContainingClass != clazz => buf2 += element
-          case _ =>
-        }
-        case x: ScFieldId => valvarContext(x) match {
-          case x: ScPatternDefinition if x.getContainingClass != clazz => buf2 += element
-          case x: ScVariableDefinition if x.getContainingClass != clazz => buf2 += element
-          case _ =>
-        }
-        case x: ScValueDeclaration =>
-        case x: ScVariableDeclaration =>
-        case x: ScTypeAliasDeclaration =>
-        case x: ScFunctionDeclaration =>
-        case x: PsiModifierListOwner if x.hasModifierProperty("abstract")
-            || x.hasModifierProperty("final") =>
-        case x: PsiMethod if x.isConstructor =>
-        case x: PsiMethod => {
-          var flag = false
-          for (method <- clazz.getMethods) {
-            if (compare(x, method)) flag = true
-          }
-          if (!flag) buf2 += element
-        }
-        case _ => buf2 += element
-      }
-    }
-    return buf2.toArray
-  }
-
-  def getMembersToImplement(clazz: ScTypeDefinition): Array[PsiElement] = {
-    val buf = new ArrayBuffer[PsiElement]
-    buf ++= (for (key <- TypeDefinitionMembers.getMethods(clazz).keys) yield key.method)
-    buf ++= (for (key <- TypeDefinitionMembers.getTypes(clazz).keys) yield key)
-    buf ++= (for (key <- TypeDefinitionMembers.getVals(clazz).keys) yield key)
-    val buf2 = new ArrayBuffer[PsiElement]
-    for (element <- buf) {
-      def addMethod(x: PsiMethod) {
-        var flag = false
-        for (method <- buf) {
-          method match {
-            case x: PsiMethod if x.getName == "$tag" =>
-            case x: PsiMember if x.getContainingClass != null && x.getContainingClass.isInterface =>
-            case _: ScValueDeclaration =>
-            case _: ScVariableDeclaration =>
-            case _: ScTypeAliasDeclaration =>
-            case _: ScFunctionDeclaration =>
-            case x: PsiMethod if x.getModifierList.hasModifierProperty("abstract") =>
-            case x: PsiMethod if x.isConstructor =>
-            case method: PsiMethod => if (compare(x, method)) flag = true
-            case _ =>
-          }
-        }
-        if (!flag) buf2 += element
-      }
-      element match {
-        case _: PsiClass =>
-        case x: PsiMember if x.getContainingClass == clazz =>
-        case x: PsiMethod if x.getName == "$tag" =>
-        case x: PsiMethod if x.getContainingClass.isInterface => addMethod(x)
-        case x: ScReferencePattern => valvarContext(x) match {
-          case x: ScValueDeclaration if x.getContainingClass != clazz => buf2 += element
-          case x: ScVariableDeclaration if x.getContainingClass != clazz => buf2 += element
-          case _ =>
-        }
-        case x: ScFieldId => valvarContext(x) match {
-          case x: ScValueDeclaration if x.getContainingClass != clazz => buf2 += element
-          case x: ScVariableDeclaration if x.getContainingClass != clazz => buf2 += element
-          case _ =>
-        }
-        case x: ScTypeAliasDeclaration => buf2 += element
-        case x: ScFunctionDeclaration => addMethod(x)
-        case x: PsiMethod if x.hasModifierProperty("abstract") => addMethod(x)
-        case _ =>
-      }
-    }
-    return buf2.toArray
-  } */
 
   def getMembersToImplement(clazz: ScTypeDefinition): Seq[ScalaObject] = {
     val buf = new ArrayBuffer[ScalaObject]
@@ -477,12 +387,6 @@ object ScalaOIUtil {
     }
     return buf2.toArray
   }
-
-  /*private def compare(method1: PsiMethod, method2: PsiMethod): Boolean = {
-    val signature1 = new PhysicalSignature(method1, ScSubstitutor.empty)
-    val signature2 = new PhysicalSignature(method2, ScSubstitutor.empty)
-    return signature1.equiv(signature2)
-  }*/
 
   @Nullable
   private def valvarContext(x: PsiElement): PsiElement = {
