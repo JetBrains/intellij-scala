@@ -188,11 +188,12 @@ object ScalaOIUtil {
             }
           }, alias.getProject, if (isImplement) "Implement type alias" else "Override type alias")
         }
-        case member: PsiValueMember => {
-          val value = member.element
+        case _: PsiValueMember | _: PsiVariableMember=> {
+          val isVal = member match {case _: PsiValueMember => true case _: PsiVariableMember => false}
+          val value = member match {case x: PsiValueMember => x.element case x: PsiVariableMember => x.element}
           ScalaUtils.runWriteAction(new Runnable {
             def run {
-              var meth = ScalaPsiElementFactory.createOverrideImplementVariable(value, value.getManager, !isImplement, true)
+              var meth = ScalaPsiElementFactory.createOverrideImplementVariable(value, value.getManager, !isImplement, isVal)
               val body = clazz.extendsBlock.templateBody match {
                 case Some(x) => x
                 case None => return
@@ -221,7 +222,7 @@ object ScalaOIUtil {
                 body.getNode.addChild(meth.getNode, element.getNode)
                 body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
               } else {
-                val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.createOverrideImplementVariableBody(value, value.getManager, !isImplement, true)).asInstanceOf[ScTemplateBody]
+                val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.createOverrideImplementVariableBody(value, value.getManager, !isImplement, isVal)).asInstanceOf[ScTemplateBody]
                 meth = newBody.members(0)
                 newBody.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
               }
@@ -232,12 +233,18 @@ object ScalaOIUtil {
                   editor.getCaretModel.moveToOffset(offset)
                   editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
                 }
+                case meth: ScVariableDefinition => {
+                  val body = meth.expr
+                  val offset = body.getTextRange.getStartOffset
+                  editor.getCaretModel.moveToOffset(offset)
+                  editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
+                }
                 case _ =>
               }
             }
           }, value.getProject, if (isImplement) "Implement value" else "Override value")
         }
-        case member: PsiVariableMember => {
+        /*case member: PsiVariableMember => {
           val variable = member.element
           ScalaUtils.runWriteAction(new Runnable {
             def run {
@@ -254,7 +261,7 @@ object ScalaOIUtil {
               body.getNode.addChild(meth.getNode, anchor.getNode) //todo: set selection over body
             }
           }, variable.getProject, if (isImplement) "Implement variable" else "Override variable")
-        }
+        }*/
         case _ =>
       }
     }
