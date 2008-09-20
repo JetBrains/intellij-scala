@@ -48,11 +48,11 @@ object ScalaOIUtil {
     for (candidate <- candidates) yield {
       candidate match {
         case x: PsiMethod => classMembersBuf += new PsiMethodMember(x)
-        case x: ScTypeAlias => classMembersBuf += new PsiAliasMember(x)
+        case x: ScTypeAlias => classMembersBuf += new ScAliasMember(x)
         case x: ScReferencePattern => {
           valvarContext(x) match {
-            case y: ScValue => classMembersBuf += new PsiValueMember(y, x)
-            case y: ScVariable => classMembersBuf += new PsiVariableMember(y, x)
+            case y: ScValue => classMembersBuf += new ScValueMember(y, x)
+            case y: ScVariable => classMembersBuf += new ScVariableMember(y, x)
             case _ => {
               throw new IncorrectOperationException
               null
@@ -61,8 +61,8 @@ object ScalaOIUtil {
         }
         case x: ScFieldId => {
           valvarContext(x) match {
-            case y: ScValue => classMembersBuf += new PsiValueMember(y, x)
-            case y: ScVariable => classMembersBuf += new PsiVariableMember(y, x)
+            case y: ScValue => classMembersBuf += new ScValueMember(y, x)
+            case y: ScVariable => classMembersBuf += new ScVariableMember(y, x)
             case _ => {
               throw new IncorrectOperationException
               null
@@ -139,7 +139,7 @@ object ScalaOIUtil {
             }
           }, method.getProject, if (isImplement) "Implement method" else "Override method")
         }
-        case member: PsiAliasMember => {
+        case member: ScAliasMember => {
           val alias = member.getElement
           ScalaUtils.runWriteAction(new Runnable {
             def run {
@@ -188,9 +188,9 @@ object ScalaOIUtil {
             }
           }, alias.getProject, if (isImplement) "Implement type alias" else "Override type alias")
         }
-        case _: PsiValueMember | _: PsiVariableMember=> {
-          val isVal = member match {case _: PsiValueMember => true case _: PsiVariableMember => false}
-          val value = member match {case x: PsiValueMember => x.element case x: PsiVariableMember => x.element}
+        case _: ScValueMember | _: ScVariableMember=> {
+          val isVal = member match {case _: ScValueMember => true case _: ScVariableMember => false}
+          val value = member match {case x: ScValueMember => x.element case x: ScVariableMember => x.element}
           ScalaUtils.runWriteAction(new Runnable {
             def run {
               var meth = ScalaPsiElementFactory.createOverrideImplementVariable(value, value.getManager, !isImplement, isVal)
@@ -244,24 +244,6 @@ object ScalaOIUtil {
             }
           }, value.getProject, if (isImplement) "Implement value" else "Override value")
         }
-        /*case member: PsiVariableMember => {
-          val variable = member.element
-          ScalaUtils.runWriteAction(new Runnable {
-            def run {
-              val body = clazz.extendsBlock.templateBody match {
-                case Some(x) => x
-                case None => return
-              }
-              val brace = body.getFirstChild
-              if (brace == null) return
-              val anchor = brace.getNextSibling
-              if (anchor == null) return
-              val meth = ScalaPsiElementFactory.createOverrideImplementVariable(variable, variable.getManager, !isImplement, false)
-              body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), anchor.getNode)
-              body.getNode.addChild(meth.getNode, anchor.getNode) //todo: set selection over body
-            }
-          }, variable.getProject, if (isImplement) "Implement variable" else "Override variable")
-        }*/
         case _ =>
       }
     }
