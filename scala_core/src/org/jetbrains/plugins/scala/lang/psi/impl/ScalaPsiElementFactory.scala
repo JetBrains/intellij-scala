@@ -9,7 +9,6 @@ import api.statements._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import _root_.scala.collection.mutable.HashSet
 import _root_.scala.collection.mutable.ArrayBuffer
-import types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -40,6 +39,8 @@ import com.intellij.lang.impl.PsiBuilderImpl
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.impl.source.CharTableImpl
+import types.{ScType, PhysicalSignature}
+
 object ScalaPsiElementFactory {
 
   private val DUMMY = "dummy."
@@ -201,8 +202,8 @@ object ScalaPsiElementFactory {
     p.expr
   }
 
-  def createOverrideImplementMethod(method: PsiMethod, manager: PsiManager, isOverride: Boolean): ScFunction = {
-    val text = "class a {\n  " + getOverrideImplementSign(method, "null", isOverride) + "\n}" //todo: extract signature from method
+  def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, isOverride: Boolean): ScFunction = {
+    val text = "class a {\n  " + getOverrideImplementSign(sign, "null", isOverride) + "\n}" //todo: extract signature from method
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
@@ -210,8 +211,8 @@ object ScalaPsiElementFactory {
     return function
   }
 
-  def createOverrideImplementMethodBody(method: PsiMethod, manager: PsiManager, isOverride: Boolean): ScTemplateBody = {
-    val text = "class a {" + getOverrideImplementSign(method, "null", isOverride) + "}" //todo: extract signature from method
+  def createOverrideImplementMethodBody(sign: PhysicalSignature, manager: PsiManager, isOverride: Boolean): ScTemplateBody = {
+    val text = "class a {" + getOverrideImplementSign(sign, "null", isOverride) + "}" //todo: extract signature from method
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef: ScTypeDefinition = dummyFile.getTypeDefinitions()(0)
@@ -286,8 +287,10 @@ object ScalaPsiElementFactory {
     }
   }
 
-  private def getOverrideImplementSign(method: PsiMethod, body: String, isOverride: Boolean): String = {
+  private def getOverrideImplementSign(sign: PhysicalSignature, body: String, isOverride: Boolean): String = {
     var res = ""
+    val method = sign.method
+    val substitutor = sign.substitutor
     method match {
       case method: ScFunction => {
         res = res + method.getFirstChild.getText
@@ -296,6 +299,26 @@ object ScalaPsiElementFactory {
         //todo!!! exlude "abstract" modifier
         res = res + method.getModifierList.getText + " "
         res = res + "def " + method.getName
+        if (method.typeParameters.length > 0) {
+          def get(typeParam: ScTypeParam): String = {
+            var res: String = ""
+            res += (if (typeParam.isContravariant) "-" else if (typeParam.isCovariant) "+" else "")
+            res += typeParam.getName
+            typeParam.lowerBound match {
+              case psi.types.Nothing =>
+              case x => res =  res + " >: " + ScType.presentableText(substitutor.subst(x))
+            }
+            val upper = typeParam.upperBound
+            val tt = substitutor.subst(upper)
+            typeParam.upperBound match {
+              case psi.types.Any =>
+              case x => res = res + " <: " + ScType.presentableText(substitutor.subst(x))
+            }
+            return res
+          }
+          val strings = (for (t <- method.typeParameters) yield get(t))
+          res += strings.mkString("[", ", ", "]")
+        }
         if (method.paramClauses != null) res = res + method.paramClauses.getText
         method.returnTypeElement match {
           case None => res = res + "/*todo: be careful, this method's type cannot be inferred now*/"
