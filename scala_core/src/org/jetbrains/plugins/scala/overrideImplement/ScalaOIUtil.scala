@@ -42,12 +42,14 @@ object ScalaOIUtil {
     val parent = getParentClass(elem)
     if (parent == null) return
     val clazz = parent.asInstanceOf[ScTypeDefinition]
-    val candidates = if (isImplement) ScalaOIUtil.getMembersToImplement(clazz) else ScalaOIUtil.getMembersToOverride(clazz)
+    //val candidates = if (isImplement) ScalaOIUtil.getMembersToImplement(clazz) else ScalaOIUtil.getMembersToOverride(clazz)
+    val candidates = if (isImplement) getMembersToImplement(clazz) else getMembersToOverride(clazz)
     if (candidates.isEmpty) return
     val classMembersBuf = new ArrayBuffer[ClassMember]
     for (candidate <- candidates) yield {
       candidate match {
-        case x: PsiMethod => classMembersBuf += new PsiMethodMember(x)
+        case sign: PhysicalSignature => classMembersBuf += new ScMethodMember(sign)
+      /*case x: PsiMethod => classMembersBuf += new PsiMethodMember(x)
         case x: ScTypeAlias => classMembersBuf += new ScAliasMember(x)
         case x: ScReferencePattern => {
           valvarContext(x) match {
@@ -69,7 +71,7 @@ object ScalaOIUtil {
             }
           }
         }
-        case x: PsiField => //todo: dont add now: classMembersBuf += new PsiFieldMember(x)
+        case x: PsiField => //todo: dont add now: classMembersBuf += new PsiFieldMember(x)*/
         case x => {
           throw new IncorrectOperationException("Not supported type:" + x)
           null
@@ -87,7 +89,7 @@ object ScalaOIUtil {
     for (member <- selectedMembers.toArray(new Array[ClassMember](selectedMembers.size))) {
       //todo: create body from template
       member match {
-        case member: PsiMethodMember => {
+        case member: ScMethodMember => {
           val method: PsiMethod = member.getElement
           ScalaUtils.runWriteAction(new Runnable {
             def run {
@@ -249,7 +251,7 @@ object ScalaOIUtil {
     }
   }
 
-  def getMembersToOverride(clazz: ScTypeDefinition): Array[PsiElement] = {
+  /*def getMembersToOverride(clazz: ScTypeDefinition): Array[PsiElement] = {
     val buf = new ArrayBuffer[PsiElement]
     buf ++= (for (key <- TypeDefinitionMembers.getMethods(clazz).keys) yield key.method)
     buf ++= (for (key <- TypeDefinitionMembers.getTypes(clazz).keys) yield key)
@@ -338,9 +340,9 @@ object ScalaOIUtil {
       }
     }
     return buf2.toArray
-  }
+  } */
 
-  def getMembersToImplement2(clazz: ScTypeDefinition): Seq[ScalaObject] = {
+  def getMembersToImplement(clazz: ScTypeDefinition): Seq[ScalaObject] = {
     val buf = new ArrayBuffer[ScalaObject]
     buf ++= clazz.allMethods
     buf ++= clazz.allTypes
@@ -353,6 +355,7 @@ object ScalaOIUtil {
           obj match {
             case sign: PhysicalSignature => {
               sign.method match {
+                case _: ScFunctionDeclaration =>
                 case x if x.getName == "$tag" =>
                 case x if x.getModifierList.hasModifierProperty("abstract") =>
                 case x if x.isConstructor =>
@@ -415,11 +418,71 @@ object ScalaOIUtil {
     return buf2.toSeq
   }
 
-  private def compare(method1: PsiMethod, method2: PsiMethod): Boolean = {
+  def getMembersToOverride(clazz: ScTypeDefinition): Seq[ScalaObject] = {
+    val buf = new ArrayBuffer[ScalaObject]
+    buf ++= clazz.allMethods
+    buf ++= clazz.allTypes
+    buf ++= clazz.allVals
+    val buf2 = new ArrayBuffer[ScalaObject]
+    for (element <- buf) {
+      element match {
+        case sign: PhysicalSignature => {
+          sign.method match {
+            case _: ScFunctionDeclaration =>
+            case x if x.getName == "$tag" =>
+            case x if x.getContainingClass == clazz =>
+            case x: PsiModifierListOwner if x.hasModifierProperty("abstract")
+              || x.hasModifierProperty("final") =>
+            case x if x.isConstructor =>
+            case method => {
+              var flag = false
+              for (signe <- clazz.allMethods if signe.method.getContainingClass == clazz) {
+                if (sign.equiv(signe)) flag = true
+              }
+              if (!flag) buf2 += element
+            }
+          }
+        }
+        case _ =>
+        /*case _: PsiClass =>
+        case x: PsiMethod if x.getName == "$tag" =>
+        case x: PsiMember if x.getContainingClass == clazz =>
+        case x: PsiMember if x.getContainingClass.isInterface =>
+        case x: ScReferencePattern => valvarContext(x) match {
+          case x: ScPatternDefinition if x.getContainingClass != clazz => buf2 += element
+          case x: ScVariableDefinition if x.getContainingClass != clazz => buf2 += element
+          case _ =>
+        }
+        case x: ScFieldId => valvarContext(x) match {
+          case x: ScPatternDefinition if x.getContainingClass != clazz => buf2 += element
+          case x: ScVariableDefinition if x.getContainingClass != clazz => buf2 += element
+          case _ =>
+        }
+        case x: ScValueDeclaration =>
+        case x: ScVariableDeclaration =>
+        case x: ScTypeAliasDeclaration =>
+        case x: ScFunctionDeclaration =>
+        case x: PsiModifierListOwner if x.hasModifierProperty("abstract")
+            || x.hasModifierProperty("final") =>
+        case x: PsiMethod if x.isConstructor =>
+        case x: PsiMethod => {
+          var flag = false
+          for (method <- clazz.getMethods) {
+            if (compare(x, method)) flag = true
+          }
+          if (!flag) buf2 += element
+        }
+        case _ => buf2 += element*/
+      }
+    }
+    return buf2.toArray
+  }
+
+  /*private def compare(method1: PsiMethod, method2: PsiMethod): Boolean = {
     val signature1 = new PhysicalSignature(method1, ScSubstitutor.empty)
     val signature2 = new PhysicalSignature(method2, ScSubstitutor.empty)
     return signature1.equiv(signature2)
-  }
+  }*/
 
   @Nullable
   private def valvarContext(x: PsiElement): PsiElement = {
