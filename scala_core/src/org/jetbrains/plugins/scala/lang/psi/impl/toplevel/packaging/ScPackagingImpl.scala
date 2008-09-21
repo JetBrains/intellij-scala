@@ -10,6 +10,7 @@ import parser.ScalaElementTypes
 import psi.ScalaPsiElementImpl
 import api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackageContainerStub
+import psi.stubs.elements.wrappers.DummyASTNode
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -18,8 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackageContainerStub
 
 class ScPackagingImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScPackageContainer](node) with ScPackaging {
   def this(stub : ScPackageContainerStub) = {
-    this(null : ASTNode)
+    this(DummyASTNode)
     setStub(stub)
+    setNode(null)
   }
 
   override def toString = "ScPackaging"
