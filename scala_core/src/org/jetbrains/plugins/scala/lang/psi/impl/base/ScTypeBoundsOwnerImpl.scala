@@ -27,4 +27,14 @@ class ScTypeBoundsOwnerImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wit
       }
     } else Any
   }
+
+  override def viewBound = {
+    val tView = findChildByType(ScalaTokenTypes.tVIEW)
+    if (tView != null) {
+      PsiTreeUtil.getNextSiblingOfType(tView, classOf[ScTypeElement]) match {
+        case null => None
+        case te => Some(te.getType)
+      }
+    } else None
+  }
 }
