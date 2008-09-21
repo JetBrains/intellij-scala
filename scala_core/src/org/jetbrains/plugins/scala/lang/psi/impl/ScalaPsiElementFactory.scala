@@ -296,9 +296,9 @@ object ScalaPsiElementFactory {
         res = res + method.getFirstChild.getText
         if (res != "") res = res + "\n"
         if (!method.getModifierList.hasModifierProperty("override") && isOverride) res = res + "override "
-        //todo!!! exlude "abstract" modifier
         res = res + method.getModifierList.getText + " "
         res = res + "def " + method.getName
+        //adding type parameters
         if (method.typeParameters.length > 0) {
           def get(typeParam: ScTypeParam): String = {
             var res: String = ""
@@ -306,23 +306,38 @@ object ScalaPsiElementFactory {
             res += typeParam.getName
             typeParam.lowerBound match {
               case psi.types.Nothing =>
-              case x => res =  res + " >: " + ScType.presentableText(substitutor.subst(x))
+              case x => res =  res + " >: " + ScType.presentableText(substitutor.subst(x)) //todo: add reference adjuster
             }
-            val upper = typeParam.upperBound
-            val tt = substitutor.subst(upper)
             typeParam.upperBound match {
               case psi.types.Any =>
-              case x => res = res + " <: " + ScType.presentableText(substitutor.subst(x))
+              case x => res = res + " <: " + ScType.presentableText(substitutor.subst(x)) // todo: add reference adjuster
+            }
+            typeParam.viewBound match {
+              case None =>
+              case Some(x) => res = res + " <% " + ScType.presentableText(substitutor.subst(x)) // todo: add reference adjuster
             }
             return res
           }
           val strings = (for (t <- method.typeParameters) yield get(t))
           res += strings.mkString("[", ", ", "]")
         }
-        if (method.paramClauses != null) res = res + method.paramClauses.getText
+        if (method.paramClauses != null) {
+          for (paramClause <- method.paramClauses.clauses) {
+            def get(param: ScParameter): String = {
+              var res: String = param.getName
+              param.typeElement match {
+                case None =>
+                case Some(x) => res = res + ": " + ScType.presentableText(substitutor.subst(x.getType)) //todo: add reference adjuster
+              }
+              return res
+            }
+            val strings = (for (t <- paramClause.parameters) yield get(t))
+            res += strings.mkString("(", ", ", ")")
+          }
+        }
         method.returnTypeElement match {
-          case None => res = res + "/*todo: be careful, this method's type cannot be inferred now*/"
-          case Some(x) => res = res + ": " + x.getText
+          case None => res = res + "/*todo: not inferred type*/"
+          case Some(x) => res = res + ": " + ScType.presentableText(substitutor.subst(x.getType)) //todo: add reference adjuster
         }
         res = res + " = "
         res = res + body
@@ -341,11 +356,11 @@ object ScalaPsiElementFactory {
         res = res + "def " + method.getName + (if (method.getParameterList.getParametersCount == 0) "" else "(")
         for (param <- method.getParameterList.getParameters) {
           res = res + param.getName + ": "
-          res = res + convertType(param.getTypeElement.getText) + ", "
+          res = res + ScType.presentableText(substitutor.subst(ScType.create(param.getTypeElement.getType, method.getProject))) + ", "
         }
         if (method.getParameterList.getParametersCount != 0) res = res.substring(0, res.length - 2)
         res = res + (if (method.getParameterList.getParametersCount == 0) "" else ")")
-        res = res + ": " + convertType(method.getReturnTypeElement.getText) + " = " + body
+        res = res + ": " + ScType.presentableText(substitutor.subst(ScType.create(method.getReturnType, method.getProject))) + " = " + body
       }
     }
     return res
@@ -368,17 +383,9 @@ object ScalaPsiElementFactory {
     res = res + (if (isVal) "val " else "var ")
     res = res + variable.name
     if (ScType.presentableText(variable.calcType) != "") res = res + ": " + ScType.presentableText(variable.calcType)
-                 else res = res + "/*todo: be careful, this variable's type cannot be inferred now*/"
+                 else res = res + "/*todo: not inferred type*/"
     res = res + " = " + body
     return res
-  }
-
-  private def convertType(s: String): String = {
-    s match {
-      case "byte" | "short" | "int" | "float" | "double" | "char" | "boolean" | "long" => s.substring(0,1).toUpperCase + s.substring(1)
-      case "void" => "Unit"
-      case _ => s
-    }
   }
 
   private def getShortName(qualifiedName: String, packageName: String): String = {
