@@ -224,7 +224,7 @@ object ScalaPsiElementFactory {
   }
 
   def createOverrideImplementType(alias: ScTypeAlias, substitutor: ScSubstitutor, manager: PsiManager, isOverride: Boolean): ScTypeAlias = {
-    val text = "class a {" + getOverrideImplementTypeSign(alias, "this.type", isOverride) + "}"
+    val text = "class a {" + getOverrideImplementTypeSign(alias, substitutor, "this.type", isOverride) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
@@ -233,7 +233,7 @@ object ScalaPsiElementFactory {
   }
 
   def createOverrideImplementTypeBody(alias: ScTypeAlias, substitutor: ScSubstitutor, manager: PsiManager, isOverride: Boolean): ScTemplateBody = {
-    val text = "class a {" + getOverrideImplementTypeSign(alias, "this.type", isOverride) + "}"
+    val text = "class a {" + getOverrideImplementTypeSign(alias, substitutor, "this.type", isOverride) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
@@ -245,7 +245,7 @@ object ScalaPsiElementFactory {
   }
 
   def createOverrideImplementVariable(variable: ScTyped, substitutor: ScSubstitutor, manager: PsiManager, isOverride: Boolean, isVal: Boolean): PsiElement = {
-    val text = "class a {" + getOverrideImplementVariableSign(variable, "_", isOverride, isVal) + "}"
+    val text = "class a {" + getOverrideImplementVariableSign(variable, substitutor, "_", isOverride, isVal) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
@@ -254,7 +254,7 @@ object ScalaPsiElementFactory {
   }
 
   def createOverrideImplementVariableBody(variable: ScTyped, substitutor: ScSubstitutor, manager: PsiManager, isOverride: Boolean, isVal: Boolean): ScTemplateBody = {
-    val text = "class a {" + getOverrideImplementVariableSign(variable, "_", isOverride, isVal) + "}"
+    val text = "class a {" + getOverrideImplementVariableSign(variable, substitutor, "_", isOverride, isVal) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.getTypeDefinitions()(0)
@@ -371,10 +371,10 @@ object ScalaPsiElementFactory {
     else return s
   }
 
-  def getOverrideImplementTypeSign(alias: ScTypeAlias, body: String, isOverride: Boolean): String = {
+  def getOverrideImplementTypeSign(alias: ScTypeAlias, substitutor: ScSubstitutor, body: String, isOverride: Boolean): String = {
     alias match {
       case alias: ScTypeAliasDefinition => {
-        return "override " + alias.getText
+        return "override type" + alias.getName + " = " + ScType.presentableText(substitutor.subst(alias.aliasedType))
       }
       case alias: ScTypeAliasDeclaration => {
         return "type " + alias.getName + " = " + body
@@ -382,12 +382,12 @@ object ScalaPsiElementFactory {
     }
   }
 
-  def getOverrideImplementVariableSign(variable: ScTyped, body: String, isOverride: Boolean, isVal: Boolean): String = {
+  def getOverrideImplementVariableSign(variable: ScTyped, substitutor: ScSubstitutor, body: String, isOverride: Boolean, isVal: Boolean): String = {
     var res = ""
     if (isOverride) res = res + "override "
     res = res + (if (isVal) "val " else "var ")
     res = res + variable.name
-    if (ScType.presentableText(variable.calcType) != "") res = res + ": " + ScType.presentableText(variable.calcType)
+    if (ScType.presentableText(substitutor.subst(variable.calcType)) != "") res = res + ": " + ScType.presentableText(substitutor.subst(variable.calcType))
                  else res = res + "/*todo: not inferred type*/"
     res = res + " = " + body
     return res
