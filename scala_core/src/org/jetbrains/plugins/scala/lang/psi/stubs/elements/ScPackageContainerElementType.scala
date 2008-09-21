@@ -17,31 +17,32 @@ extends ScStubElementType[ScPackageContainerStub, ScPackageContainer](debugName)
 
   override def createStubImpl[ParentPsi <: PsiElement](psi: ScPackageContainer, 
                                                       parent: StubElement[ParentPsi]): ScPackageContainerStub = {
-    new ScPackageContainerStubImpl[ParentPsi](parent, this, psi.fqn)
+    new ScPackageContainerStubImpl[ParentPsi](parent, this, psi.prefix, psi.ownNamePart)
   }
 
   def serialize(stub: ScPackageContainerStub, dataStream: StubOutputStream): Unit = {
-    dataStream.writeName(stub.fqn)
+    dataStream.writeName(stub.prefix)
+    dataStream.writeName(stub.ownNamePart)
   }
 
   override def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScPackageContainerStub = {
-    val qualName = StringRef.toString(dataStream.readName)
+    val prefix = StringRef.toString(dataStream.readName)
+    val ownNamePart = StringRef.toString(dataStream.readName)
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
-    new ScPackageContainerStubImpl(parent, this, qualName)
+    new ScPackageContainerStubImpl(parent, this, prefix, ownNamePart)
   }
 
   def indexStub(stub: ScPackageContainerStub, sink: IndexSink) = {
-    val fqn = stub.fqn
-    if (fqn != null && fqn.length > 0) {
-      val hd :: tl = List.fromArray(fqn.split("\\."))
-      val acc = new ListBuffer[String]()
-      acc += hd
-      tl.foldLeft(hd)((x, y) => {val z = x + "." + y; acc += z; z})
-      for (fq <- acc) {
-        sink.occurrence(ScFullPackagingNameIndex.KEY, fq.hashCode)
+    val prefix = stub.prefix
+    var ownNamePart = stub.ownNamePart
+    def append(postfix : String) = if (prefix.length > 0) prefix + "." + postfix else postfix
+    var i = 0
+    do {
+      sink.occurrence(ScFullPackagingNameIndex.KEY, append(ownNamePart).hashCode)
+      i = ownNamePart.lastIndexOf(".")
+      if (i > 0) {
+        ownNamePart = ownNamePart.substring(0, i)
       }
-    }
+    } while(i > 0)
   }
-
-
 }

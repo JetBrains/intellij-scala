@@ -13,15 +13,19 @@ class ScPackageContainerStubImpl[ParentPsi <: PsiElement](parent: StubElement[Pa
                                                           elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
 extends StubBaseWrapper[ScPackageContainer](parent, elemType) with ScPackageContainerStub {
 
-  var myQualName: StringRef = _
+  var myPrefix : StringRef = _
+  var myOwnNamePart : StringRef = _
 
-  def this(parent: StubElement[ParentPsi],
-          elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
-          qualName: String) {
+  def this(parent : StubElement[ParentPsi],
+          elemType : IStubElementType[_ <: StubElement[_], _ <: PsiElement],
+          prefix : String,
+          ownNamePart : String) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    myQualName = StringRef.fromString(qualName)
+    myPrefix = StringRef.fromString(prefix)
+    myOwnNamePart = StringRef.fromString(ownNamePart)
   }
 
-  def fqn = StringRef.toString(myQualName)
+  def prefix = StringRef.toString(myPrefix)
+  def ownNamePart = StringRef.toString(myOwnNamePart)
 
 }

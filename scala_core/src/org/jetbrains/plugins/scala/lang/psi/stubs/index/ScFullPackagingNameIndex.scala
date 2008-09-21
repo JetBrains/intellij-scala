@@ -19,5 +19,5 @@ class ScFullPackagingNameIndex extends IntStubIndexExtension[ScPackageContainer]
 }
 
 object ScFullPackagingNameIndex {
-  val KEY = ScalaIndexKeys.PACKAGE_FQN_KEY;
+  val KEY = ScalaIndexKeys.PACKAGE_FQN_KEY
 }

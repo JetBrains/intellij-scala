@@ -51,7 +51,7 @@ object ScSyntheticPackage {
 
     if (packages.isEmpty) null else {
       import _root_.scala.collection.jcl.Conversions._ //to provide for magic java to scala collections conversions
-      val pkgs = new ArrayList[ScPackageContainer](packages).filter(_.fqn == fqn)
+      val pkgs = new ArrayList[ScPackageContainer](packages).filter(pc => pc.fqn.startsWith(fqn) && fqn.startsWith(pc.prefix))
       if (pkgs.isEmpty) null else {
         val pname = if (i < 1) "" else fqn.substring(0, i - 1)
         new ScSyntheticPackage(name, PsiManager.getInstance(project)) {

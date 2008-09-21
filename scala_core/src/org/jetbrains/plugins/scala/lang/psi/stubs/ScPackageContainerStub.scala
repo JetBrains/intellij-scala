@@ -9,5 +9,6 @@ import com.intellij.util.io.StringRef
  */
 
 trait ScPackageContainerStub extends StubElement[ScPackageContainer] {
-  def fqn: String
+  def prefix : String
+  def ownNamePart : String
 }
