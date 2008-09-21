@@ -3,19 +3,17 @@ package org.jetbrains.plugins.scala.annotator
 import com.intellij.psi.search.GlobalSearchScope
 import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
 import lang.psi.api.toplevel.imports.ScImportSelector
+import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
 import lang.psi.api.toplevel.{ScEarlyDefinitions, ScTyped}
 import lang.psi.api.expr.{ScAnnotationExpr, ScAnnotation, ScNameValuePair, ScReferenceExpression}
 import _root_.scala.collection.mutable.HashSet
 import lang.psi.api.base.types.ScSimpleTypeElement
-import lang.psi.api.toplevel.typedef.ScTrait
 import lang.psi.api.base.patterns.ScBindingPattern
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.statements.ScVariable
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.statements.ScValue
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import lang.psi.api.toplevel.typedef.ScObject
-import lang.psi.api.toplevel.typedef.ScClass
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.statements.params.ScTypeParam
 import com.intellij.openapi.util.TextRange
@@ -25,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.psi._
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.annotator.intention._
+import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -35,6 +34,9 @@ class ScalaAnnotator extends Annotator {
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     element match {
+      case x: ScTypeDefinition => {
+        checkImplementedMethods(x, holder)
+      }
       case x: ScReferenceExpression if x.qualifier == None => { //todo: temporary case
         x.bind match {
           case Some(_) => AnnotatorHighlighter.highlightReferenceElement(x, holder)
@@ -97,5 +99,30 @@ class ScalaAnnotator extends Annotator {
 
   private def registerUsedImports(refElement: ScReferenceElement, result: ScalaResolveResult) {
     //todo: add body
+  }
+
+  private def checkImplementedMethods(clazz: ScTypeDefinition, holder: AnnotationHolder) {
+    clazz match {
+      case _: ScTrait => return
+      case _ =>
+    }
+    if (clazz.getModifierList.getNode.findChildByType(ScalaTokenTypes.kABSTRACT) != null) return
+    if (ScalaOIUtil.getMembersToImplement(clazz).length > 0) {
+      val error = clazz match {
+        case _: ScClass => ScalaBundle.message("class.must.declared.abstract", Array[Object](clazz.getName))
+        case _: ScObject => ScalaBundle.message("object.must.implement", Array[Object](clazz.getName))
+      }
+      val start = clazz.getTextRange.getStartOffset
+      var end = clazz.extendsBlock.templateBody match {
+        case Some(x) => x.getTextRange.getStartOffset
+        case None => clazz.extendsBlock.getTextRange.getEndOffset
+      }
+      val text = clazz.getContainingFile.getText
+      while (end > start && (text.charAt(end - 1) == ' ' || text.charAt(end - 1) == '\n')) end = end - 1
+      val annotation = holder.createErrorAnnotation(new TextRange(start, end), error)
+      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+
+      //todo: add quickfix
+    }
   }
 }
