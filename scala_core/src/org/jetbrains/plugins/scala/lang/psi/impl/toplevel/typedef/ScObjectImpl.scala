@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import stubs.elements.wrappers.DummyASTNode
 import stubs.ScTypeDefinitionStub
 import com.intellij.psi.stubs.IStubElementType
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 import org.jetbrains.plugins.scala.icons.Icons
@@ -24,8 +24,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 
 class ScObjectImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScObject{
   def this(stub : ScTypeDefinitionStub) = {
-    this(null : ASTNode)
+    this(DummyASTNode)
     setStub(stub)
+    setNode(null)
   }
 
   override def toString: String = "ScObject"

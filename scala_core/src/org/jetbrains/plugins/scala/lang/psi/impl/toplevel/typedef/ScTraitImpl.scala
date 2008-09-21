@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import stubs.elements.wrappers.DummyASTNode
 import stubs.ScTypeDefinitionStub
 import com.intellij.psi.stubs.IStubElementType
 import api.base.ScModifierList
@@ -26,8 +27,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait with ScTypeParametersOwner {
   def this(stub : ScTypeDefinitionStub) = {
-    this(null : ASTNode)
+    this(DummyASTNode)
     setStub(stub)
+    setNode(null)
   }
 
   override def getModifierList: ScModifierList = findChildByClass(classOf[ScModifierList])

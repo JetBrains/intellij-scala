@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging
 import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.stubs.IStubElementType
 import com.intellij.psi.{PsiElement, PsiPackage}
+import stubs.elements.wrappers.DummyASTNode
 import stubs.ScPackageContainerStub;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
@@ -24,8 +25,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 class ScPackageStatementImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScPackageContainer](node) with ScPackageStatement{
   def this(stub : ScPackageContainerStub) = {
-    this(null : ASTNode)
+    this(DummyASTNode)
     setStub(stub)
+    setNode(null)
   }
 
   def packagings: Seq[ScPackaging] = getParent match {

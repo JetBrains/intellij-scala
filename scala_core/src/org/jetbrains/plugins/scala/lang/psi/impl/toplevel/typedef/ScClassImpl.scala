@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
+import stubs.elements.wrappers.DummyASTNode
 import stubs.ScTypeDefinitionStub
 import api.base.ScModifierList
 import com.intellij.psi.{PsiElement, PsiModifierList}
@@ -27,8 +28,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass with ScTypeParametersOwner{
   def this(stub : ScTypeDefinitionStub) = {
-    this(null : ASTNode)
+    this(DummyASTNode)
     setStub(stub)
+    setNode(null)
   }
 
   override def toString: String = "ScClass"
