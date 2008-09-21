@@ -272,23 +272,8 @@ object ScalaOIUtil {
                 case _ => if (sign.equiv(x)) flag = true
               }
             }
-            /*case Pair(name, subst) => {
-
-            }*/
             case _ =>
           }
-          /*method match {
-            case x: PsiMethod if x.getName == "$tag" =>
-            case x: PsiMember if x.getContainingClass != null && x.getContainingClass.isInterface =>
-            case _: ScValueDeclaration =>
-            case _: ScVariableDeclaration =>
-            case _: ScTypeAliasDeclaration =>
-            case _: ScFunctionDeclaration =>
-            case x: PsiMethod if x.getModifierList.hasModifierProperty("abstract") =>
-            case x: PsiMethod if x.isConstructor =>
-            case method: PsiMethod => if (compare(x, method)) flag = true
-            case _ =>
-          }*/
         }
         if (!flag) buf2 += element
       }
@@ -302,28 +287,16 @@ object ScalaOIUtil {
             case _ =>
           }
         }
+        case (name: PsiNamedElement, subst: ScSubstitutor) => {
+          nameContext(name) match {
+            case x: ScValueDeclaration if x.getContainingClass != clazz => buf2 += element
+            case x: ScVariableDeclaration if x.getContainingClass != clazz => buf2 += element
+            case x: ScTypeAliasDeclaration => buf2 += element
+            case _ =>
+          }
+        }
         case _ =>
       }
-      /*element match {
-        case _: PsiClass =>
-        case x: PsiMember if x.getContainingClass == clazz =>
-        case x: PsiMethod if x.getName == "$tag" =>
-        case x: PsiMethod if x.getContainingClass.isInterface => addMethod(x)
-        case x: ScReferencePattern => valvarContext(x) match {
-          case x: ScValueDeclaration if x.getContainingClass != clazz => buf2 += element
-          case x: ScVariableDeclaration if x.getContainingClass != clazz => buf2 += element
-          case _ =>
-        }
-        case x: ScFieldId => valvarContext(x) match {
-          case x: ScValueDeclaration if x.getContainingClass != clazz => buf2 += element
-          case x: ScVariableDeclaration if x.getContainingClass != clazz => buf2 += element
-          case _ =>
-        }
-        case x: ScTypeAliasDeclaration => buf2 += element
-        case x: ScFunctionDeclaration => addMethod(x)
-        case x: PsiMethod if x.hasModifierProperty("abstract") => addMethod(x)
-        case _ =>
-      }*/
     }
     return buf2.toSeq
   }
@@ -386,6 +359,18 @@ object ScalaOIUtil {
       }
     }
     return buf2.toArray
+  }
+
+  private def nameContext(x: PsiNamedElement): PsiElement = {
+    var parent = x.getParent
+    def test(x: PsiElement): Boolean = {
+      x match {
+        case _: ScValue | _: ScVariable | _: ScTypeAlias => true
+        case _ => false
+      }
+    }
+    while (parent != null && !test(parent)) parent = parent.getParent
+    return parent
   }
 
   @Nullable
