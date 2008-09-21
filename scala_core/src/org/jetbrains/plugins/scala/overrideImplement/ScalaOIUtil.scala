@@ -322,40 +322,64 @@ object ScalaOIUtil {
               for (signe <- clazz.allMethods if signe.method.getContainingClass == clazz) {
                 if (sign.equiv(signe)) flag = true
               }
+              if (method match {case x: ScFunction => x.parameters.length == 0 case _ => method.getParameterList.getParametersCount == 0}) {
+                for (pair <- clazz.allVals; v = pair._1) if (v.getName == method.getName) {
+                  nameContext(v) match {
+                    case x: ScValue if x.getContainingClass == clazz => flag = true
+                    case x: ScVariable if x.getContainingClass == clazz => flag = true
+                    case _ =>
+                  }
+                }
+              }
+              if (!flag) buf2 += element
+            }
+          }
+        }
+        case (name: PsiNamedElement, subst: ScSubstitutor) => {
+          nameContext(name) match {
+            case x: ScPatternDefinition if x.getContainingClass != clazz => {
+              var flag = false
+              for (signe <- clazz.allMethods if signe.method.getContainingClass == clazz) {
+                //getContainingClass == clazz so we sure that this is ScFunction (it is safe cast)
+                if (signe.method.asInstanceOf[ScFunction].parameters.length == 0 && signe.method.getName == x.getName) flag = true
+              }
+              for (pair <- clazz.allVals; v = pair._1) if (v.getName == name.getName) {
+                nameContext(v) match {
+                  case x: ScValue if x.getContainingClass == clazz => flag = true
+                  case x: ScVariable if x.getContainingClass == clazz => flag = true
+                  case _ =>
+                }
+              }
+              if (!flag) buf2 += element
+            }
+            case x: ScVariableDefinition if x.getContainingClass != clazz => {
+              var flag = false
+              for (signe <- clazz.allMethods if signe.method.getContainingClass == clazz) {
+                //getContainingClass == clazz so we sure that this is ScFunction (it is safe cast)
+                if (signe.method.asInstanceOf[ScFunction].parameters.length == 0 && signe.method.getName == x.getName) flag = true
+              }
+              for (pair <- clazz.allVals; v = pair._1) if (v.getName == name.getName) {
+                nameContext(v) match {
+                  case x: ScValue if x.getContainingClass == clazz => flag = true
+                  case x: ScVariable if x.getContainingClass == clazz => flag = true
+                  case _ =>
+                }
+              }
+              if (!flag) buf2 += element
+            }
+            case x: ScTypeAliasDefinition if x.getContainingClass != clazz => {
+              var flag = false
+              for (pair <- clazz.allVals; v = pair._1) if (v.getName == name.getName) {
+                nameContext(v) match {
+                  case x: ScTypeAlias if x.getContainingClass == clazz => flag = true
+                  case _ =>
+                }
+              }
               if (!flag) buf2 += element
             }
           }
         }
         case _ =>
-        /*case _: PsiClass =>
-        case x: PsiMethod if x.getName == "$tag" =>
-        case x: PsiMember if x.getContainingClass == clazz =>
-        case x: PsiMember if x.getContainingClass.isInterface =>
-        case x: ScReferencePattern => valvarContext(x) match {
-          case x: ScPatternDefinition if x.getContainingClass != clazz => buf2 += element
-          case x: ScVariableDefinition if x.getContainingClass != clazz => buf2 += element
-          case _ =>
-        }
-        case x: ScFieldId => valvarContext(x) match {
-          case x: ScPatternDefinition if x.getContainingClass != clazz => buf2 += element
-          case x: ScVariableDefinition if x.getContainingClass != clazz => buf2 += element
-          case _ =>
-        }
-        case x: ScValueDeclaration =>
-        case x: ScVariableDeclaration =>
-        case x: ScTypeAliasDeclaration =>
-        case x: ScFunctionDeclaration =>
-        case x: PsiModifierListOwner if x.hasModifierProperty("abstract")
-            || x.hasModifierProperty("final") =>
-        case x: PsiMethod if x.isConstructor =>
-        case x: PsiMethod => {
-          var flag = false
-          for (method <- clazz.getMethods) {
-            if (compare(x, method)) flag = true
-          }
-          if (!flag) buf2 += element
-        }
-        case _ => buf2 += element*/
       }
     }
     return buf2.toArray
