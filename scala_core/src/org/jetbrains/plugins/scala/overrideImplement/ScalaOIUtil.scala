@@ -373,6 +373,7 @@ object ScalaOIUtil {
               }
               if (!flag) buf2 += element
             }
+            case _ =>
           }
         }
         case _ =>
@@ -383,13 +384,13 @@ object ScalaOIUtil {
 
   private def nameContext(x: PsiNamedElement): PsiElement = {
     var parent = x.getParent
-    def test(x: PsiElement): Boolean = {
+    def isAppropriatePsiElement(x: PsiElement): Boolean = {
       x match {
         case _: ScValue | _: ScVariable | _: ScTypeAlias => true
         case _ => false
       }
     }
-    while (parent != null && !test(parent)) parent = parent.getParent
+    while (parent != null && !isAppropriatePsiElement(parent)) parent = parent.getParent
     return parent
   }
 
