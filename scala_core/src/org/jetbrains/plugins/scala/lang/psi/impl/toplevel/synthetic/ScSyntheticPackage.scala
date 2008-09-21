@@ -8,7 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndexKey
-import com.intellij.psi.{PsiDirectory, PsiManager, PsiElementVisitor, PsiPackage, PsiClass}
+import com.intellij.psi.{PsiDirectory, PsiManager, PsiElementVisitor, PsiPackage, PsiClass, JavaPsiFacade}
 import com.intellij.util.IncorrectOperationException
 import stubs.index.ScalaIndexKeys
 
@@ -41,7 +41,7 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiPackage {
 object ScSyntheticPackage {
   def get(fqn: String, project: Project): ScSyntheticPackage = {
     val i = fqn.lastIndexOf(".")
-    val name = if (i < 0 || i >= fqn.length - 1) fqn else fqn.substring(i + 1)
+    val name = if (i < 0) fqn else fqn.substring(i + 1)
 
     import com.intellij.psi.stubs.StubIndex
 
@@ -52,7 +52,8 @@ object ScSyntheticPackage {
     if (packages.isEmpty) null else {
       import _root_.scala.collection.jcl.Conversions._ //to provide for magic java to scala collections conversions
       val pkgs = new ArrayList[ScPackageContainer](packages).filter(_.fqn == fqn)
-      if (pkgs.isEmpty) null else
+      if (pkgs.isEmpty) null else {
+        val pname = if (i < 1) "" else fqn.substring(0, i - 1)
         new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
           def getQualifiedName = fqn
           def getClasses = {
@@ -63,10 +64,11 @@ object ScSyntheticPackage {
           def getClasses(scope: GlobalSearchScope) = {
             PsiClass.EMPTY_ARRAY
           }
-          def getParentPackage = null
+          def getParentPackage = JavaPsiFacade.getInstance(project).findPackage(pname)
           def getSubPackages = Array[PsiPackage]()
           def getSubPackages(scope: GlobalSearchScope) = Array[PsiPackage]()
         }
+      }
     }
   }
 }
