@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
-import stubs.elements.wrappers.ASTNodeWrapper
 import stubs.ScTypeDefinitionStub
 import api.base.ScModifierList
 import com.intellij.psi.{PsiElement, PsiModifierList}
@@ -27,6 +26,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
  */
 
 class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass with ScTypeParametersOwner{
+  def this(stub : ScTypeDefinitionStub) = {
+    this(null : ASTNode)
+    setStub(stub)
+  }
 
   override def toString: String = "ScClass"
 
@@ -53,11 +56,4 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
   }
 
   def isCase = getModifierList.has(ScalaTokenTypes.kCASE)
-}
-object ScClassImpl {
-  def apply(stub: ScTypeDefinitionStub) = new ScClassImpl(new ASTNodeWrapper()) {
-    setNode(null)
-    setStubImpl(stub)
-    override def getElementType = ScalaElementTypes.CLASS_DEF.asInstanceOf[IStubElementType[Nothing, Nothing]]
-  }
 }

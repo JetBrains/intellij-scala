@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
-import stubs.elements.wrappers.StubBasedPsiElementWrapper
-import com.intellij.psi.stubs.IStubElementType
 import types.{ScType, PhysicalSignature, ScSubstitutor}
-import stubs.ScTypeDefinitionStub
 import base.types.ScSelfTypeElement
 import statements.ScVariable
 import statements.ScValue
@@ -21,12 +18,11 @@ import statements.params._
 import base._
 
 /**
- * @autor AlexanderPodkhalyuzin
+ * @author AlexanderPodkhalyuzin
  */
 
 trait ScTypeDefinition extends ScNamedElement
-with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable
-with StubBasedPsiElementWrapper[ScTypeDefinitionStub, ScTypeDefinition] {
+with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable {
 
   def members(): Seq[ScMember]
 

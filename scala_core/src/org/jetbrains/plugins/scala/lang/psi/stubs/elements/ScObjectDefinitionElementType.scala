@@ -12,5 +12,5 @@ class ScObjectDefinitionElementType extends ScTypeDefinitionElementType[ScObject
 
   def createElement(node: ASTNode): PsiElement = new ScObjectImpl(node)
 
-  def createPsi(stub: ScTypeDefinitionStub) = ScObjectImpl(stub)
+  def createPsi(stub: ScTypeDefinitionStub) = new ScObjectImpl(stub)
 }

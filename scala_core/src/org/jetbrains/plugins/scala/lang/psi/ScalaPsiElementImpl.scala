@@ -1,30 +1,23 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import stubs.elements.ScalaBaseElementImpl
+import _root_.com.intellij.extapi.psi.{StubBasedPsiElementBase, ASTWrapperPsiElement}
 import com.intellij.psi.PsiElement
+import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.psi.tree.IElementType
 import com.intellij.lang.ASTNode
-import com.intellij.extapi.psi.ASTWrapperPsiElement
-
 /**
   @author ven
 */
-class ScalaPsiElementImpl(node: ASTNode) extends ScalaBaseElementImpl(node)
-        with ScalaPsiElement {
-
+abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node) with ScalaPsiElement {
   // todo override in more specific cases
   override def replace(newElement: PsiElement): PsiElement = {
     getParent.getNode.replaceChild(node, newElement.getNode)
     newElement
   }
+}
 
-  override def toString = "scala psi element"
-
-  def findLastChildByType(t : IElementType) = {
-    var node = getNode.getLastChildNode
-    while(node != null && node.getElementType != t) {
-      node = node.getTreePrev
-    }
-    if (node == null) null else node.getPsi
-  }
+abstract class ScalaStubBasedElementImpl[T <: PsiElement](node: ASTNode)
+extends StubBasedPsiElementBase[StubElement[T]](node) with ScalaPsiElement {
+  override def getElementType() : IStubElementType[StubElement[T], T] = 
+    super.getElementType.asInstanceOf[IStubElementType[StubElement[T], T]]
 }

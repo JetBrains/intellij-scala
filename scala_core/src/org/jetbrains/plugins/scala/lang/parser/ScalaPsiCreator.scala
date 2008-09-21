@@ -246,8 +246,5 @@ object ScalaPsiCreator {
     case ScalaElementTypes.XML_PATTERN => new ScXmlPatternImpl(node)
     case ScalaElementTypes.XML_COMMENT => new ScXmlCommentImpl(node)
     case ScalaElementTypes.XML_ELEMENT => new ScXmlElementImpl(node)
-
-    case _ => new ScalaPsiElementImpl(node)
-
   }
 }

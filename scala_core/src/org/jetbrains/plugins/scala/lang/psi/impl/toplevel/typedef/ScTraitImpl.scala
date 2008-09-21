@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
-import stubs.elements.wrappers.ASTNodeWrapper
 import stubs.ScTypeDefinitionStub
 import com.intellij.psi.stubs.IStubElementType
 import api.base.ScModifierList
@@ -26,6 +25,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 */
 
 class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait with ScTypeParametersOwner {
+  def this(stub : ScTypeDefinitionStub) = {
+    this(null : ASTNode)
+    setStub(stub)
+  }
 
   override def getModifierList: ScModifierList = findChildByClass(classOf[ScModifierList])
   override def toString: String = "ScTrait"
@@ -40,13 +43,5 @@ class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait
                                   place: PsiElement): Boolean = {
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place) &&
     super.processDeclarations(processor, state, lastParent, place)
-  }
-}
-
-object ScTraitImpl {
-  def apply(stub: ScTypeDefinitionStub) = new ScTraitImpl(new ASTNodeWrapper()) {
-    setNode(null)
-    setStubImpl(stub)
-    override def getElementType = ScalaElementTypes.TRAIT_DEF.asInstanceOf[IStubElementType[Nothing, Nothing]]
   }
 }

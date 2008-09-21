@@ -9,7 +9,6 @@ import com.intellij.psi.stubs.IStubElementType
 import parser.ScalaElementTypes
 import psi.ScalaPsiElementImpl
 import api.toplevel.packaging._
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.ASTNodeWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackageContainerStub
 
 /**
@@ -17,15 +16,15 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackageContainerStub
 * Date: 20.02.2008
  */
 
-class ScPackagingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPackaging {
+class ScPackagingImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScPackageContainer](node) with ScPackaging {
+  def this(stub : ScPackageContainerStub) = {
+    this(null : ASTNode)
+    setStub(stub)
+  }
 
   override def toString = "ScPackaging"
 
   private def reference = findChild(classOf[ScStableCodeReferenceElement])
-
-  // One more hack for correct inheritance
-  override def getElementType: IStubElementType[Nothing, Nothing] =
-    super.getElementType.asInstanceOf[IStubElementType[Nothing, Nothing]];
 
   def getPackageName = reference match {
     case Some(r) => r.qualName
@@ -60,14 +59,5 @@ class ScPackagingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
     val p = JavaPsiFacade.getInstance(getProject).findPackage(fqn)
     assert (p != null)
     Seq.singleton(p)
-  }
-
-}
-
-object ScPackagingImpl {
-  def apply(stub: ScPackageContainerStub): ScPackaging = new ScPackagingImpl(new ASTNodeWrapper()) {
-    setNode(null)
-    setStubImpl(stub)
-    override def getElementType = ScalaElementTypes.PACKAGING.asInstanceOf[IStubElementType[Nothing, Nothing]]
   }
 }

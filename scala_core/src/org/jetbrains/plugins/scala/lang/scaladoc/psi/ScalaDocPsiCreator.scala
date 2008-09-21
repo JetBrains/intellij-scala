@@ -22,6 +22,5 @@ object ScalaDocPsiCreator {
       case ScalaDocElementTypes.DOC_FIELD_REF => new ScDocFieldRefImpl(node)
       case ScalaDocElementTypes.DOC_METHOD_PARAMS => new ScDocMethodParamsImpl(node)
       case ScalaDocElementTypes.DOC_METHOD_PARAMETER => new ScDocMethodParameterImpl(node)
-      case _ => new ScalaPsiElementImpl(node)
     }
 }
