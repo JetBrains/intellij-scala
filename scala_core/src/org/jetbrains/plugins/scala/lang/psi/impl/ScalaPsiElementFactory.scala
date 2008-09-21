@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, PhysicalSignature, ScSubstitutor}
 import api.toplevel.packaging.ScPackaging
 import api.toplevel.ScTyped
 import api.toplevel.templates.ScTemplateBody
@@ -40,8 +41,6 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.impl.source.CharTableImpl
 import refactoring.ScalaNamesUtil
-import types.{ScType, PhysicalSignature}
-
 object ScalaPsiElementFactory {
 
   private val DUMMY = "dummy."
@@ -224,7 +223,7 @@ object ScalaPsiElementFactory {
     return body
   }
 
-  def createOverrideImplementType(alias: ScTypeAlias, manager: PsiManager, isOverride: Boolean): ScTypeAlias = {
+  def createOverrideImplementType(alias: ScTypeAlias, substitutor: ScSubstitutor, manager: PsiManager, isOverride: Boolean): ScTypeAlias = {
     val text = "class a {" + getOverrideImplementTypeSign(alias, "this.type", isOverride) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
@@ -233,7 +232,7 @@ object ScalaPsiElementFactory {
     return al
   }
 
-  def createOverrideImplementTypeBody(alias: ScTypeAlias, manager: PsiManager, isOverride: Boolean): ScTemplateBody = {
+  def createOverrideImplementTypeBody(alias: ScTypeAlias, substitutor: ScSubstitutor, manager: PsiManager, isOverride: Boolean): ScTemplateBody = {
     val text = "class a {" + getOverrideImplementTypeSign(alias, "this.type", isOverride) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
@@ -245,7 +244,7 @@ object ScalaPsiElementFactory {
     return body
   }
 
-  def createOverrideImplementVariable(variable: ScTyped, manager: PsiManager, isOverride: Boolean, isVal: Boolean): PsiElement = {
+  def createOverrideImplementVariable(variable: ScTyped, substitutor: ScSubstitutor, manager: PsiManager, isOverride: Boolean, isVal: Boolean): PsiElement = {
     val text = "class a {" + getOverrideImplementVariableSign(variable, "_", isOverride, isVal) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, text).asInstanceOf[ScalaFile]
@@ -254,7 +253,7 @@ object ScalaPsiElementFactory {
     return va
   }
 
-  def createOverrideImplementVariableBody(variable: ScTyped, manager: PsiManager, isOverride: Boolean, isVal: Boolean): ScTemplateBody = {
+  def createOverrideImplementVariableBody(variable: ScTyped, substitutor: ScSubstitutor, manager: PsiManager, isOverride: Boolean, isVal: Boolean): ScTemplateBody = {
     val text = "class a {" + getOverrideImplementVariableSign(variable, "_", isOverride, isVal) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, text).asInstanceOf[ScalaFile]

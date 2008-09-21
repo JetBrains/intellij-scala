@@ -136,9 +136,10 @@ object ScalaOIUtil {
         }
         case member: ScAliasMember => {
           val alias = member.getElement
+          val substitutor = member.substitutor
           ScalaUtils.runWriteAction(new Runnable {
             def run {
-              var meth = ScalaPsiElementFactory.createOverrideImplementType(alias, alias.getManager, !isImplement)
+              var meth = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, !isImplement)
               val body = clazz.extendsBlock.templateBody match {
                 case Some(x) => x
                 case None => return
@@ -167,7 +168,8 @@ object ScalaOIUtil {
                 body.getNode.addChild(meth.getNode, element.getNode)
                 body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
               } else {
-                val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.createOverrideImplementTypeBody(alias, alias.getManager, !isImplement)).asInstanceOf[ScTemplateBody]
+                val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.
+                    createOverrideImplementTypeBody(alias, substitutor, alias.getManager, !isImplement)).asInstanceOf[ScTemplateBody]
                 meth = newBody.aliases(0)
                 newBody.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
               }
@@ -186,9 +188,10 @@ object ScalaOIUtil {
         case _: ScValueMember | _: ScVariableMember=> {
           val isVal = member match {case _: ScValueMember => true case _: ScVariableMember => false}
           val value = member match {case x: ScValueMember => x.element case x: ScVariableMember => x.element}
+          val substitutor = member match {case x: ScValueMember => x.substitutor case x: ScVariableMember => x.substitutor}
           ScalaUtils.runWriteAction(new Runnable {
             def run {
-              var meth = ScalaPsiElementFactory.createOverrideImplementVariable(value, value.getManager, !isImplement, isVal)
+              var meth = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager, !isImplement, isVal)
               val body = clazz.extendsBlock.templateBody match {
                 case Some(x) => x
                 case None => return
@@ -217,7 +220,8 @@ object ScalaOIUtil {
                 body.getNode.addChild(meth.getNode, element.getNode)
                 body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
               } else {
-                val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.createOverrideImplementVariableBody(value, value.getManager, !isImplement, isVal)).asInstanceOf[ScTemplateBody]
+                val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.
+                    createOverrideImplementVariableBody(value, substitutor, value.getManager, !isImplement, isVal)).asInstanceOf[ScTemplateBody]
                 meth = newBody.members(0)
                 newBody.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
               }
