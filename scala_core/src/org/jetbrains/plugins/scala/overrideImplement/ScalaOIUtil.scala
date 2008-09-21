@@ -4,12 +4,12 @@ import com.intellij.codeInsight.generation.{PsiMethodMember, OverrideImplementUt
 import com.intellij.openapi.editor.{Editor, VisualPosition}
 import com.intellij.psi.tree.IElementType
 import lang.lexer.ScalaTokenTypes
-import lang.psi.api.toplevel.ScModifierListOwner
 import com.intellij.psi._
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement, ScFieldId}
 import annotations.Nullable
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.toplevel.templates.ScTemplateBody
+import lang.psi.api.toplevel.{ScModifierListOwner, ScTyped}
 import lang.psi.types.{ScType, PhysicalSignature, ScSubstitutor}
 import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import lang.psi.ScalaPsiElement
@@ -46,36 +46,28 @@ object ScalaOIUtil {
     val candidates = if (isImplement) getMembersToImplement(clazz) else getMembersToOverride(clazz)
     if (candidates.isEmpty) return
     val classMembersBuf = new ArrayBuffer[ClassMember]
-    for (candidate <- candidates) yield {
+    for (candidate <- candidates) {
       candidate match {
         case sign: PhysicalSignature => classMembersBuf += new ScMethodMember(sign)
-      /*case x: PsiMethod => classMembersBuf += new PsiMethodMember(x)
-        case x: ScTypeAlias => classMembersBuf += new ScAliasMember(x)
-        case x: ScReferencePattern => {
-          valvarContext(x) match {
-            case y: ScValue => classMembersBuf += new ScValueMember(y, x)
-            case y: ScVariable => classMembersBuf += new ScVariableMember(y, x)
-            case _ => {
-              throw new IncorrectOperationException
-              null
+        case (name: PsiNamedElement, subst: ScSubstitutor) => {
+          nameContext(name) match {
+            case x: ScValue => {
+              name match {
+                case y: ScTyped => classMembersBuf += new ScValueMember(x, y, subst)
+                case _ => throw new IncorrectOperationException("Not supported type:" + x)
+              }
             }
+            case x: ScVariable => {
+              name match {
+                case y: ScTyped => classMembersBuf += new ScVariableMember(x, y, subst)
+                case _ => throw new IncorrectOperationException("Not supported type:" + x)
+              }
+            }
+            case x: ScTypeAlias =>
+            case x => throw new IncorrectOperationException("Not supported type:" + x)
           }
         }
-        case x: ScFieldId => {
-          valvarContext(x) match {
-            case y: ScValue => classMembersBuf += new ScValueMember(y, x)
-            case y: ScVariable => classMembersBuf += new ScVariableMember(y, x)
-            case _ => {
-              throw new IncorrectOperationException
-              null
-            }
-          }
-        }
-        case x: PsiField => //todo: dont add now: classMembersBuf += new PsiFieldMember(x)*/
-        case x => {
-          throw new IncorrectOperationException("Not supported type:" + x)
-          null
-        }
+        case x => throw new IncorrectOperationException("Not supported type:" + x)
       }
     }
     val classMembers = classMembersBuf.toArray
