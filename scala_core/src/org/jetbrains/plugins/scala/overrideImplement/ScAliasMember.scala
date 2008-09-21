@@ -12,7 +12,7 @@ import lang.psi.api.toplevel.ScTyped
 * Date: 11.07.2008
 */
 
-class ScAliasMember(member: ScTypeAlias, substitutor: ScSubstitutor) extends PsiElementClassMember[ScTypeAlias](member, member.name)
+class ScAliasMember(member: ScTypeAlias, val substitutor: ScSubstitutor) extends PsiElementClassMember[ScTypeAlias](member, member.name)
 
 class ScMethodMember(val sign: PhysicalSignature) extends PsiElementClassMember[PsiMethod](sign.method, sign.method.getName)
 
