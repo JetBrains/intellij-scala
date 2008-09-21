@@ -4,10 +4,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
  * @author ilyas
  */
 
-import stubs.elements.wrappers.StubBasedPsiElementWrapper
 import com.intellij.psi.stubs.IStubElementType
 import stubs.ScTypeDefinitionStub
-import stubs.elements.ScalaBaseElementImpl
 import _root_.scala.collection.immutable.Set
 import api.base.{ScStableCodeReferenceElement, ScPrimaryConstructor}
 import base.ScStableCodeReferenceElementImpl
@@ -44,15 +42,9 @@ import types.{ScSubstitutor, ScType}
 import api.statements.{ScValue, ScVariable}
 import Misc._
 
-abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaBaseElementImpl(node)
-        with ScTypeDefinition with PsiClassFake  {
+abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScTypeDefinition](node) with ScTypeDefinition with PsiClassFake  {
 
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
-
-  // One more hack for correct inheritance
-  override def getElementType: IStubElementType[Nothing, Nothing] =
-    super.getElementType.asInstanceOf[IStubElementType[Nothing, Nothing]];
-
 
   override def getQualifiedName: String = {
     def _packageName(e: PsiElement): String = e.getParent match {

@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging
 import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.stubs.IStubElementType
 import com.intellij.psi.{PsiElement, PsiPackage}
-import stubs.elements.wrappers.ASTNodeWrapper
 import stubs.ScPackageContainerStub;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
@@ -23,16 +22,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 * Date: 20.02.2008
 */
 
-class ScPackageStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPackageStatement{
+class ScPackageStatementImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScPackageContainer](node) with ScPackageStatement{
+  def this(stub : ScPackageContainerStub) = {
+    this(null : ASTNode)
+    setStub(stub)
+  }
 
   def packagings: Seq[ScPackaging] = getParent match {
     case f: ScalaFile => List.fromArray(f.getPackagings)
     case _ => Seq.empty
   }
-
-  // One more hack for correct inheritance
-  override def getElementType: IStubElementType[Nothing, Nothing] =
-    super.getElementType.asInstanceOf[IStubElementType[Nothing, Nothing]];
 
   def fqn: String = getPackageName
 
@@ -57,14 +56,5 @@ class ScPackageStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
     append (reference)
     buffer.toString
-  }
-
-}
-
-object ScPackageStatementImpl {
-  def apply(stub: ScPackageContainerStub): ScPackaging = new ScPackagingImpl(new ASTNodeWrapper()) {
-    setNode(null)
-    setStubImpl(stub)
-    override def getElementType = ScalaElementTypes.PACKAGE_STMT.asInstanceOf[IStubElementType[Nothing, Nothing]]
   }
 }

@@ -13,5 +13,5 @@ class ScPackagingElementType extends ScPackageContainerElementType[ScPackaging](
 
   def createElement(node: ASTNode): PsiElement = new ScPackagingImpl(node)
 
-  def createPsi(stub: ScPackageContainerStub): ScPackaging = ScPackagingImpl(stub)
+  def createPsi(stub: ScPackageContainerStub): ScPackaging = new ScPackagingImpl(stub)
 }

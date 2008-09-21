@@ -13,5 +13,5 @@ class ScPackageStmtElementType extends ScPackageContainerElementType[ScPackageSt
 
   def createElement(node: ASTNode): PsiElement = new ScPackageStatementImpl(node)
 
-  def createPsi(stub: ScPackageContainerStub) = ScPackageStatementImpl(stub)
+  def createPsi(stub: ScPackageContainerStub) = new ScPackageStatementImpl(stub)
 }
