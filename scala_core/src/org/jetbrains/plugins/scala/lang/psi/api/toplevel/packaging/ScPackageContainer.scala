@@ -8,7 +8,13 @@ import typedef.ScTypeDefinition
 
 trait ScPackageContainer extends ScalaPsiElement {
 
-  def fqn: String
+  def prefix : String
+  def ownNamePart : String
+
+  def fqn = {
+    val _prefix = prefix
+    if (_prefix.length > 0) _prefix + "." + ownNamePart else ownNamePart
+  }
 
   def packagings: Seq[ScPackaging]
 

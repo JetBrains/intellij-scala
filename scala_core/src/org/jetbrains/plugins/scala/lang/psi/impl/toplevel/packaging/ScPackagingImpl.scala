@@ -33,24 +33,27 @@ class ScPackagingImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScPackage
     case None => ""
   }
 
-  def parentPackageName(e : PsiElement): String = e.getParent match {
-    case p: ScPackaging => {
-      val _packName = parentPackageName(p)
-      if (_packName.length > 0) _packName + "." + p.getPackageName else p.getPackageName
-    }
-    case f: ScalaFile => f.getPackageName
-    case null => ""
-    case parent => parentPackageName(parent)
-  }
-
-  def fqn = {
-    def innerRefName(ref : ScStableCodeReferenceElement) : String = ref.qualifier match {
-      case Some(q) => innerRefName(q)
+  private def innerRefName() = {
+    def _innerRefName(ref : ScStableCodeReferenceElement) : String = ref.qualifier match {
+      case Some(q) => _innerRefName(q)
       case None => ref.refName
     }
-    val pname = parentPackageName(this)
-    val refName = reference match {case Some(r) => innerRefName(r) case None => ""}
-    if(pname.length > 0) pname + "." + refName else refName
+    reference match {case Some(r) => _innerRefName(r) case None => ""}
+  }
+
+  def ownNamePart = reference match {case Some(r) => r.qualName case None => ""}
+
+  def prefix = {
+    def parentPackageName(e : PsiElement): String = e.getParent match {
+      case p: ScPackaging => {
+        val _packName = parentPackageName(p)
+        if (_packName.length > 0) _packName + "." + p.getPackageName else p.getPackageName
+      }
+      case f: ScalaFile => f.getPackageName
+      case null => ""
+      case parent => parentPackageName(parent)
+    }
+    parentPackageName(this)
   }
 
   override def packagings = findChildrenByClass(classOf[ScPackaging])
@@ -58,7 +61,9 @@ class ScPackagingImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScPackage
   def typeDefs = findChildrenByClass(classOf[ScTypeDefinition])
 
   def declaredElements = {
-    val p = JavaPsiFacade.getInstance(getProject).findPackage(fqn)
+    val _prefix = prefix
+    val top = if (_prefix.length > 0) _prefix + "." + innerRefName else innerRefName
+    val p = JavaPsiFacade.getInstance(getProject).findPackage(top)
     assert (p != null)
     Seq.singleton(p)
   }
