@@ -44,19 +44,5 @@ class ScPackageStatementImpl(node: ASTNode) extends ScalaStubBasedElementImpl[Sc
 
   override def toString = "ScPackageStatement"
 
-  def getPackageName: String = {
-    val buffer = new _root_.scala.StringBuilder
-    def append(ref : ScStableCodeReferenceElement) {
-      val name = ref.refName
-      ref.qualifier match {
-        case None => buffer append name
-        case Some(q) => {
-          append(q)
-          buffer.append ('.').append(name)
-        }
-      }
-    }
-    append (reference)
-    buffer.toString
-  }
+  def getPackageName = reference.qualName
 }
