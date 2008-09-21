@@ -63,7 +63,7 @@ object ScalaOIUtil {
                 case _ => throw new IncorrectOperationException("Not supported type:" + x)
               }
             }
-            case x: ScTypeAlias =>
+            case x: ScTypeAlias => classMembersBuf += new ScAliasMember(x, subst)
             case x => throw new IncorrectOperationException("Not supported type:" + x)
           }
         }
