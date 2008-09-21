@@ -40,7 +40,7 @@ object Byte extends ValType("Byte", Some(Short))
 object Short extends ValType("Float", Some(Int))
 
 object ScType {
-  def create(psiType : PsiType, project : Project) : ScType = psiType match {
+  def create(psiType : PsiType, project : Project) : ScType = psiType match {  //todo: resolve cases when java type have keywords as name (type -> `type`)
     case classType : PsiClassType => {
       val result = classType.resolveGenerics
       result.getElement match {

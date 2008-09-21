@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements.params
 
+import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /** 
@@ -10,5 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 trait ScParameterClause extends ScalaPsiElement {
 
   def parameters: Seq[ScParameter]
+  def isImplicit: Boolean = getNode.findChildByType(ScalaTokenTypes.kIMPLICIT) != null
 
 }

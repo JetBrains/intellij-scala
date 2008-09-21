@@ -39,6 +39,7 @@ import com.intellij.lang.impl.PsiBuilderImpl
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.impl.source.CharTableImpl
+import refactoring.ScalaNamesUtil
 import types.{ScType, PhysicalSignature}
 
 object ScalaPsiElementFactory {
@@ -332,7 +333,7 @@ object ScalaPsiElementFactory {
               return res
             }
             val strings = (for (t <- paramClause.parameters) yield get(t))
-            res += strings.mkString("(", ", ", ")")
+            res += strings.mkString(if (paramClause.isImplicit) "(implicit " else "(", ", ", ")")
           }
         }
         method.returnTypeElement match {
@@ -353,9 +354,9 @@ object ScalaPsiElementFactory {
             case _ =>
           }
         }
-        res = res + "def " + method.getName + (if (method.getParameterList.getParametersCount == 0) "" else "(")
+        res = res + "def " + changeKeyword(method.getName) + (if (method.getParameterList.getParametersCount == 0) "" else "(")
         for (param <- method.getParameterList.getParameters) {
-          res = res + param.getName + ": "
+          res = res + changeKeyword(param.getName) + ": "
           res = res + ScType.presentableText(substitutor.subst(ScType.create(param.getTypeElement.getType, method.getProject))) + ", "
         }
         if (method.getParameterList.getParametersCount != 0) res = res.substring(0, res.length - 2)
@@ -364,6 +365,11 @@ object ScalaPsiElementFactory {
       }
     }
     return res
+  }
+
+  private def changeKeyword(s: String): String = {
+    if (ScalaNamesUtil.isKeyword(s)) return "`" + s + "`"
+    else return s
   }
 
   def getOverrideImplementTypeSign(alias: ScTypeAlias, body: String, isOverride: Boolean): String = {
