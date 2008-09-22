@@ -349,11 +349,29 @@ object ScalaPsiElementFactory {
         for (modifier <- method.getModifierList.getNode.getChildren(null); m = modifier.getText) {
           m match {
             case "protected" => res = res + "protected "
-            case "final" => res = res + "final"
+            case "final" => res = res + "final "
             case _ =>
           }
         }
-        res = res + "def " + changeKeyword(method.getName) + (if (method.getParameterList.getParametersCount == 0) "" else "(")
+        res = res + "def " + changeKeyword(method.getName)
+        if (method.hasTypeParameters) {
+          val params = method.getTypeParameters
+          val strings = for (param <- params) yield {
+            var res = ""
+            val par: PsiTypeParameter = param
+            res = par.getName
+            val types = par.getExtendsListTypes
+            if (types.length > 0) {
+              res += " <: "
+              val map: Iterable[String] = types.map((t: PsiClassType) =>
+                  ScType.presentableText(substitutor.subst(ScType.create(t, method.getProject))))
+              res += map.mkString(" with ")
+            }
+            res
+          }
+          res = res + strings.mkString("[", ", ", "]")
+        }
+        res = res + (if (method.getParameterList.getParametersCount == 0) "" else "(")
         for (param <- method.getParameterList.getParameters) {
           res = res + changeKeyword(param.getName) + ": "
           res = res + ScType.presentableText(substitutor.subst(ScType.create(param.getTypeElement.getType, method.getProject))) + ", "
