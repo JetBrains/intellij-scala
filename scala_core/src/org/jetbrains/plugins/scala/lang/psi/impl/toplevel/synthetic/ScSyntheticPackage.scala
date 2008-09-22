@@ -13,7 +13,7 @@ import resolve.ResolveTargets._
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.util.IncorrectOperationException
-import stubs.index.ScalaIndexKeys
+import _root_.org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 /**
  * @author ilyas
