@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements.params
 
+import toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner, ScPolymorphicElement}
 import types.{ScTypeVariable, ScType}
 import psi.ScalaPsiElement
-import toplevel.{ScPolymorphicElement, ScTypeBoundsOwner}
 import com.intellij.psi._
 import toplevel.typedef.ScTypeDefinition
 
@@ -15,5 +15,5 @@ trait ScTypeParam extends ScalaPsiElement with ScPolymorphicElement with PsiType
   def isCovariant() : Boolean
   def isContravariant() : Boolean
 
-  def owner : ScTypeDefinition
+  def owner : ScTypeParametersOwner
 }

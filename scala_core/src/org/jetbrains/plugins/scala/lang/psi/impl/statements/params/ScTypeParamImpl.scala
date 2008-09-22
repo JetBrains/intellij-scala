@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements.params
 
+import api.toplevel.ScTypeParametersOwner
 import lexer.ScalaTokenTypes
 import parser.ScalaElementTypes
 import psi.ScalaPsiElementImpl
@@ -29,7 +30,7 @@ class ScTypeParamImpl(node: ASTNode) extends ScTypeBoundsOwnerImpl(node) with Sc
 
   def getIndex() : Int = 0
   def getOwner() : PsiTypeParameterListOwner = getParent.getParent match {
-    case c : PsiClass => c
+    case c : PsiTypeParameterListOwner => c
     case _ => null
   }
 
@@ -45,7 +46,7 @@ class ScTypeParamImpl(node: ASTNode) extends ScTypeBoundsOwnerImpl(node) with Sc
     case x => x.getText == "-"
   }
 
-  def owner  = getParent.getParent.asInstanceOf[ScTypeDefinition]
+  def owner  = getParent.getParent.asInstanceOf[ScTypeParametersOwner]
 
   def nameId = findLastChildByType(ScalaTokenTypes.tIDENTIFIER)
 }
