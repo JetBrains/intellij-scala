@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.search.GlobalSearchScope
+import gutter.OverrideGutter
 import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
+import lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import lang.psi.api.toplevel.imports.ScImportSelector
 import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
 import lang.psi.api.toplevel.{ScEarlyDefinitions, ScTyped}
@@ -10,9 +12,7 @@ import _root_.scala.collection.mutable.HashSet
 import lang.psi.api.base.types.ScSimpleTypeElement
 import lang.psi.api.base.patterns.ScBindingPattern
 import lang.psi.api.base.patterns.ScReferencePattern
-import lang.psi.api.statements.ScVariable
 import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.statements.ScValue
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.statements.params.ScTypeParam
@@ -35,6 +35,9 @@ class ScalaAnnotator extends Annotator {
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     element match {
+      case x: ScFunction => {
+        addOverrideGutter(x, holder)
+      }
       case x: ScTypeDefinition => {
         checkImplementedMethods(x, holder)
       }
@@ -125,5 +128,13 @@ class ScalaAnnotator extends Annotator {
 
       annotation.registerFix(new ImplementMethodsQuickFix(clazz))
     }
+  }
+
+  private def addOverrideGutter(method: ScFunction, holder: AnnotationHolder) {
+    val annotation: Annotation = holder.createInfoAnnotation(method, null)
+
+    val supers = method.findSuperMethods
+    if (supers.length > 0) 
+      annotation.setGutterIconRenderer(new OverrideGutter(supers, method.getModifierList.getNode.findChildByType(ScalaTokenTypes.kOVERRIDE) == null))
   }
 }
