@@ -4,21 +4,23 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.RawCommandLineEditor;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.plugins.scala.ScalaBundle;
 
 import javax.swing.*;
 
 /**
  * User: Alexander Podkhalyuzin
- * Date: 10.09.2008
+ * Date: 22.09.2008
  */
-public class ScalacConfigurable implements Configurable{
+public class ScalacConfigurable implements Configurable {
+  private RawCommandLineEditor additionalCommandLineParameters;
   private JPanel myPanel;
-  private JTextField myScalacMaximumHeapField;
-  private RawCommandLineEditor myAdditionalOptionField;
+  private JTextField maximumHeapSizeTextField;
+  private ScalacSettings mySettings;
 
-  public ScalacConfigurable() {
-    //todo [Sasha] please, use internationalized resource boundles 
-    myAdditionalOptionField.setDialogCaption("Scalac options");
+  public ScalacConfigurable(ScalacSettings settings) {
+    mySettings = settings;
+    additionalCommandLineParameters.setDialogCaption(ScalaBundle.message("scala.compiler.option.additional.command.line.parameters"));
   }
 
   @Nls
@@ -39,13 +41,26 @@ public class ScalacConfigurable implements Configurable{
   }
 
   public boolean isModified() {
+    try {
+    if (Integer.parseInt(maximumHeapSizeTextField.getText()) != mySettings.MAXIMUM_HEAP_SIZE) return true;
+    } catch (NumberFormatException ignored) {}
+    if (!additionalCommandLineParameters.getText().equals(mySettings.ADDITIONAL_OPTIONS_STRING)) return true;
     return false;
   }
 
   public void apply() throws ConfigurationException {
+    try {
+      int maxHeapSize = Integer.parseInt(maximumHeapSizeTextField.getText());
+      if (maxHeapSize < 1) mySettings.MAXIMUM_HEAP_SIZE = 128;
+      else mySettings.MAXIMUM_HEAP_SIZE = maxHeapSize;
+    } catch (NumberFormatException e) {
+      mySettings.ADDITIONAL_OPTIONS_STRING = additionalCommandLineParameters.getText();
+    }
   }
 
   public void reset() {
+    additionalCommandLineParameters.setText("");
+    maximumHeapSizeTextField.setText("128");
   }
 
   public void disposeUIResources() {

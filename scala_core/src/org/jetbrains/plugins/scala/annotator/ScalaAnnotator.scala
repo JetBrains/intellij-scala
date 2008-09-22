@@ -36,7 +36,7 @@ class ScalaAnnotator extends Annotator {
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     element match {
       case x: ScFunction => {
-        addOverrideGutter(x, holder)
+        //addOverrideGutter(x, holder)
       }
       case x: ScTypeDefinition => {
         checkImplementedMethods(x, holder)
