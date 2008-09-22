@@ -47,6 +47,7 @@
     <codeInsight.implementMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaImplementMethodsHandler"/>
     <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
     <codeStyleSettingsProvider language="Scala" implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettingsProvider"/>
+    <backendCompilerFactory implementation="org.jetbrains.plugins.scala.compiler.ScalaBackendCompilerFactory"/>
 
     <fileTemplateGroup implementation="org.jetbrains.plugins.scala.actions.ScalaTemplatesFactory"/>
     <indexPatternBuilder implementation="org.jetbrains.plugins.scala.editor.todo.ScalaIndexPatternBuilder"/>
@@ -111,6 +112,9 @@
     <component>
       <interface-class>org.jetbrains.plugins.scala.caches.ScalaCachesManager</interface-class>
       <implementation-class>org.jetbrains.plugins.scala.caches.ScalaCachesManagerImpl</implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.compiler.ScalacSettings</implementation-class>
     </component>
   </project-components>
 

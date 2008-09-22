@@ -126,7 +126,7 @@ public class ScalacCompiler extends ExternalCompiler {
   public Configurable createConfigurable() {
     // todo implement me as for javac!
     //return null;
-    return new ScalacConfigurable();
+    return new ScalacConfigurable(ScalacSettings.getInstance(myProject));
   }
 
   public OutputParser createErrorParser(String outputDir) {
