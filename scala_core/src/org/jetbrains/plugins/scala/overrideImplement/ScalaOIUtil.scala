@@ -277,6 +277,7 @@ object ScalaOIUtil {
         case sign: PhysicalSignature => {
           sign.method match {
             case x if x.getName == "$tag" =>
+            case x if x.getContainingClass == clazz =>
             case x if x.getContainingClass.isInterface => addMethod(sign)
             case x if x.hasModifierProperty("abstract") => addMethod(sign)
             case x: ScFunctionDeclaration => addMethod(sign)
@@ -287,7 +288,7 @@ object ScalaOIUtil {
           nameContext(name) match {
             case x: ScValueDeclaration if x.getContainingClass != clazz => buf2 += element
             case x: ScVariableDeclaration if x.getContainingClass != clazz => buf2 += element
-            case x: ScTypeAliasDeclaration => buf2 += element
+            case x: ScTypeAliasDeclaration if x.getContainingClass != clazz => buf2 += element
             case _ =>
           }
         }
