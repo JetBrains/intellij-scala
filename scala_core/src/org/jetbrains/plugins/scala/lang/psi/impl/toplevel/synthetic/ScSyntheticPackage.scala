@@ -10,10 +10,10 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndexKey
 import resolve.BaseProcessor
 import resolve.ResolveTargets._
+import stubs.index.ScalaIndexKeys
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.util.IncorrectOperationException
-import _root_.org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 /**
  * @author ilyas
