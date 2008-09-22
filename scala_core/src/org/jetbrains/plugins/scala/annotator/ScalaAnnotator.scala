@@ -24,6 +24,7 @@ import com.intellij.psi._
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
+import quickfix.ImplementMethodsQuickFix
 
 /**
  * User: Alexander Podkhalyuzin
@@ -119,10 +120,10 @@ class ScalaAnnotator extends Annotator {
       }
       val text = clazz.getContainingFile.getText
       while (end > start && (text.charAt(end - 1) == ' ' || text.charAt(end - 1) == '\n')) end = end - 1
-      val annotation = holder.createErrorAnnotation(new TextRange(start, end), error)
+      val annotation: Annotation = holder.createErrorAnnotation(new TextRange(start, end), error)
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
 
-      //todo: add quickfix
+      annotation.registerFix(new ImplementMethodsQuickFix(clazz))
     }
   }
 }
