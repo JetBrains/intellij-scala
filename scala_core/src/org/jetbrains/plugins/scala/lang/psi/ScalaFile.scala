@@ -61,6 +61,9 @@ with ScalaPsiElement with ScToplevelElement with PsiClassOwner with ScDeclaratio
    if (!super[ScDeclarationSequenceHolder].processDeclarations(processor,
       state, lastParent, place)) return false
 
+    if (!super[ScImportsHolder].processDeclarations(processor,
+      state, lastParent, place)) return false
+
     place match {
       case ref: ScStableCodeReferenceElement if ref.refName == "_root_" => {
         val top = JavaPsiFacade.getInstance(getProject()).findPackage("")
@@ -75,9 +78,6 @@ with ScalaPsiElement with ScToplevelElement with PsiClassOwner with ScDeclaratio
         }
       }
     }
-
-    if (!super[ScImportsHolder].processDeclarations(processor,
-      state, lastParent, place)) return false
 
     for (implObj <- ImplicitlyImported.objects) {
       val clazz = JavaPsiFacade.getInstance(getProject).findClass(implObj, getResolveScope)
