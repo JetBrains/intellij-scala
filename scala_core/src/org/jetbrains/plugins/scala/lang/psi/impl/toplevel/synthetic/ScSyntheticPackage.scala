@@ -8,7 +8,10 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndexKey
-import com.intellij.psi.{PsiDirectory, PsiManager, PsiElementVisitor, PsiPackage, PsiClass, JavaPsiFacade}
+import resolve.BaseProcessor
+import resolve.ResolveTargets._
+import com.intellij.psi._
+import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.util.IncorrectOperationException
 import stubs.index.ScalaIndexKeys
 
@@ -22,6 +25,7 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiPackage {
   }
   def getDirectories = PsiDirectory.EMPTY_ARRAY
   def checkSetName(s: String) {
+    throw new IncorrectOperationException("cannot set name: nonphysical element")
   }
   def getText = ""
   override def toString = "Scala Synthetic Package " + getQualifiedName
@@ -30,11 +34,33 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiPackage {
   def hasModifierProperty(s: String) = false
   def getAnnotationList = null
   def getName = name
-  def setName(newName: String) = throw new IncorrectOperationException("nonphysical element")
-  def copy = throw new IncorrectOperationException("nonphysical element")
+  def setName(newName: String) = throw new IncorrectOperationException("cannot set name: nonphysical element")
+  def copy = throw new IncorrectOperationException("cannot copy: nonphysical element")
   def accept(v: PsiElementVisitor) = throw new IncorrectOperationException("should not call")
   override def getContainingFile = SyntheticClasses.get(manager.getProject).file
   def occursInPackagePrefixes = VirtualFile.EMPTY_ARRAY
+
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
+    processor match {
+      case bp : BaseProcessor => {
+        if (bp.kinds.contains(PACKAGE)) {
+          for (subp <- getSubPackages) {
+            if (!processor.execute(subp, state)) return false
+          }
+        }
+        if (bp.kinds.contains(CLASS) || bp.kinds.contains(OBJECT)) {
+          for (clazz <- getClasses) {
+            if (!processor.execute(clazz, state)) return false
+          }
+        }
+        true
+      }
+      case _ => true
+    }
+  }
 }
 
 
