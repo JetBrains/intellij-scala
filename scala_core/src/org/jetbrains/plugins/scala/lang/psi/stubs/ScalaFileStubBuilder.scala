@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs
-import impl.ScFileStubImpl
-import com.intellij.psi.PsiFile
-import com.intellij.psi.stubs.DefaultStubBuilder
 
+import com.intellij.psi.stubs.{StubElement, DefaultStubBuilder}
+import com.intellij.psi.{PsiElement, PsiFile}
+import impl.ScFileStubImpl
 /**
  * @author ilyas
  */
