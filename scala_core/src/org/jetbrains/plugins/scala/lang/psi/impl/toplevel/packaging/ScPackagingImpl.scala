@@ -66,4 +66,12 @@ class ScPackagingImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScPackage
     val p = JavaPsiFacade.getInstance(getProject).findPackage(top)
     if (p == null) Seq.empty else Seq.singleton(p)
   }
+
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
+    val p = JavaPsiFacade.getInstance(getProject).findPackage(fqn)
+    p == null || p.processDeclarations(processor, state, lastParent, place)
+  }
 }
