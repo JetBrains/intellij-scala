@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
 
+import _root_.scala.collection.mutable.HashSet
 import java.util.ArrayList
 import api.toplevel.packaging.ScPackageContainer
 import com.intellij.openapi.project.Project
@@ -76,23 +77,49 @@ object ScSyntheticPackage {
       fqn.hashCode(), project, GlobalSearchScope.allScope(project))
 
     if (packages.isEmpty) null else {
-      import _root_.scala.collection.jcl.Conversions._ //to provide for magic java to scala collections conversions
+      import _root_.scala.collection.jcl.Conversions.convertList
       val pkgs = new ArrayList[ScPackageContainer](packages).filter(pc => pc.fqn.startsWith(fqn) && fqn.startsWith(pc.prefix))
+
       if (pkgs.isEmpty) null else {
         val pname = if (i < 1) "" else fqn.substring(0, i - 1)
         new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
           def getQualifiedName = fqn
-          def getClasses = {
-            Array(pkgs.flatMap(p => p.typeDefs): _*)
-          }
 
-          //todo implement them!
-          def getClasses(scope: GlobalSearchScope) = {
-            PsiClass.EMPTY_ARRAY
-          }
+          def getClasses = Array(pkgs.flatMap(p => if (p.fqn.length == fqn.length) p.typeDefs else Seq.empty): _*)
+
+          def getClasses(scope: GlobalSearchScope) =
+            getClasses.filter {clazz => scope.contains(clazz.getContainingFile.getVirtualFile)}
+
           def getParentPackage = JavaPsiFacade.getInstance(project).findPackage(pname)
-          def getSubPackages = Array[PsiPackage]()
-          def getSubPackages(scope: GlobalSearchScope) = Array[PsiPackage]()
+
+          def getSubPackages = {
+            val buff = new HashSet[PsiPackage]
+            pkgs.foreach {
+              p =>
+              def addPackage(tail : String) {
+                val p = JavaPsiFacade.getInstance(project).findPackage(fqn + "." + tail)
+                if (p != null) buff += p
+              }
+
+              val fqn1 = p.fqn
+              val tail = if (fqn1.length > fqn.length) fqn1.substring(fqn.length + 1) else ""
+              if (tail.isEmpty)
+                p.packagings.foreach {
+                  pack => {
+                    val own = pack.ownNamePart
+                    val i = own.indexOf(".")
+                    addPackage(if (i > 0) own.substring(0, i) else own)
+                  }
+                }
+              else {
+                val i = tail.indexOf(".")
+                val next = if (i > 0) tail.substring(0, i) else tail
+                addPackage(next)
+              }
+            }
+            buff.toArray
+          }
+          def getSubPackages(scope: GlobalSearchScope) = getSubPackages
         }
       }
     }
