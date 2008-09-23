@@ -64,7 +64,6 @@ class ScPackagingImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScPackage
     val _prefix = prefix
     val top = if (_prefix.length > 0) _prefix + "." + innerRefName else innerRefName
     val p = JavaPsiFacade.getInstance(getProject).findPackage(top)
-    assert (p != null)
-    Seq.singleton(p)
+    if (p == null) Seq.empty else Seq.singleton(p)
   }
 }
