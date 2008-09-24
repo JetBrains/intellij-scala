@@ -54,13 +54,14 @@ public class ScalacConfigurable implements Configurable {
       if (maxHeapSize < 1) mySettings.MAXIMUM_HEAP_SIZE = 128;
       else mySettings.MAXIMUM_HEAP_SIZE = maxHeapSize;
     } catch (NumberFormatException e) {
-      mySettings.ADDITIONAL_OPTIONS_STRING = additionalCommandLineParameters.getText();
+      mySettings.MAXIMUM_HEAP_SIZE = 128;
     }
+    mySettings.ADDITIONAL_OPTIONS_STRING = additionalCommandLineParameters.getText();
   }
 
   public void reset() {
-    additionalCommandLineParameters.setText("");
-    maximumHeapSizeTextField.setText("128");
+    maximumHeapSizeTextField.setText("" + mySettings.MAXIMUM_HEAP_SIZE);
+    additionalCommandLineParameters.setText(mySettings.ADDITIONAL_OPTIONS_STRING);
   }
 
   public void disposeUIResources() {

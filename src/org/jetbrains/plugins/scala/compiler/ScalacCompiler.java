@@ -124,8 +124,6 @@ public class ScalacCompiler extends ExternalCompiler {
 
   @NotNull
   public Configurable createConfigurable() {
-    // todo implement me as for javac!
-    //return null;
     return new ScalacConfigurable(ScalacSettings.getInstance(myProject));
   }
 
@@ -201,12 +199,21 @@ public class ScalacCompiler extends ExternalCompiler {
       throw new IllegalArgumentException(ScalaBundle.message("different.scala.sdk.in.modules"));
     }
 
+
+
     String javaExecutablePath = sdkType.getVMExecutablePath(jdk);
     commandLine.add(javaExecutablePath);
 
-    //todo setup via ScalacSettings
-    commandLine.add(XSS_COMPILER_PROPERTY);
-    commandLine.add(XMX_COMPILER_PROPERTY);
+    //commandLine.add(XSS_COMPILER_PROPERTY);
+    //commandLine.add(XMX_COMPILER_PROPERTY);
+    ScalacSettings settings = ScalacSettings.getInstance(myProject);
+    StringTokenizer tokenizer = new StringTokenizer(settings.getOptionsString(), " ");
+    commandLine.add("-Xmx" + settings.MAXIMUM_HEAP_SIZE + "m");
+    /*while (tokenizer.hasMoreTokens()) {
+      commandLine.add(tokenizer.nextToken());
+    }*/
+
+
     commandLine.add("-cp");
 
 
@@ -245,6 +252,8 @@ public class ScalacCompiler extends ExternalCompiler {
     } catch (IOException e) {
       LOG.error(e);
     }
+
+
   }
 
 
