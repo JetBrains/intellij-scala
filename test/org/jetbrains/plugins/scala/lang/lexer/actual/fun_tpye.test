@@ -1,0 +1,55 @@
+class b extends a {
+  def foo(x: v) {
+    a match {
+      case u \21D2
+    }
+  }
+}
+------
+class {class}
+white space in line { }
+identifier {b}
+white space in line { }
+extends {extends}
+white space in line { }
+identifier {a}
+white space in line { }
+{ {{}
+white space in line {
+  }
+def {def}
+white space in line { }
+identifier {foo}
+( {(}
+identifier {x}
+: {:}
+white space in line { }
+identifier {v}
+) {)}
+white space in line { }
+{ {{}
+white space in line {
+    }
+identifier {a}
+white space in line { }
+match {match}
+white space in line { }
+{ {{}
+white space in line {
+      }
+case {case}
+white space in line { }
+identifier {u}
+white space in line { }
+identifier {\}
+float {21D}
+integer {2}
+white space in line {
+    }
+} {}}
+white space in line {
+  }
+} {}}
+white space in line {
+}
+} {}}

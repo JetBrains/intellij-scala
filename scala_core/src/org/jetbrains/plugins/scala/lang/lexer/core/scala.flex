@@ -163,7 +163,7 @@ symbolLiteral = "\'" {plainid}
 
 notFollowNewLine =   "catch" | "else" | "extends" | "forSome" | "finally" | "match" | "requires"
                     | "with" | "yield" | "," | "." | ";" | ":" | "_" | "=" | "=>" | "<-" | "<:" | "<%"
-                    | ">:" | "#" | "["  | ")" | "]" |"}"
+                    | ">:" | "#" | "["  | ")" | "]" |"}" | "\\u2190" | "\\u21D2"
 specNotFollow    =  "_" | "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield" | "case"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -435,7 +435,9 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 ":"                                     {   return process(tCOLON);  }
 "="                                     {   return process(tASSIGN);  }
 "=>"                                    {   return popBraceStack(tFUNTYPE); }
-\u21D2                                  {   return process(tFUNTYPE_ASCII); }
+"\\u21D2"                               {   return process(tFUNTYPE); }
+"\\u2190"                               {   return process(tCHOOSE); }
+\u21D2                                  {   return process(tFUNTYPE); }
 \u2190                                  {   return process(tCHOOSE); }
 "<-"                                    {   return process(tCHOOSE); }
 "<:"                                    {   return process(tUPPER_BOUND); }
