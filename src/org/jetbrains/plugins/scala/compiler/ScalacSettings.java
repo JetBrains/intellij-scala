@@ -32,6 +32,7 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
   public boolean GENERATE_NO_WARNINGS = false;
   public boolean DEPRECATION = true;
   public boolean UNCHECKED = true;
+  public boolean OPTIMISE = true;
 
   public ScalacSettings getState() {
     return this;
@@ -73,6 +74,9 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
     if(UNCHECKED) {
       options.append("-unchecked ");
     }
+    if(OPTIMISE) {
+      options.append("-optimise ");
+    }
     boolean isEncodingSet = false;
     final StringTokenizer tokenizer = new StringTokenizer(ADDITIONAL_OPTIONS_STRING, " \t\r\n");
     while(tokenizer.hasMoreTokens()) {
@@ -84,6 +88,9 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
         continue;
       }
       if("-unchecked".equals(token)) {
+        continue;
+      }
+      if("-optimise".equals(token)) {
         continue;
       }
       options.append(token);
