@@ -210,8 +210,8 @@ public class ScalacCompiler extends ExternalCompiler {
     String javaExecutablePath = sdkType.getVMExecutablePath(jdk);
     commandLine.add(javaExecutablePath);
 
-    //commandLine.add(XSS_COMPILER_PROPERTY);
-    //commandLine.add(XMX_COMPILER_PROPERTY);
+    commandLine.add(XSS_COMPILER_PROPERTY);
+    commandLine.add(XMX_COMPILER_PROPERTY);
     //ScalacSettings settings = ScalacSettings.getInstance(myProject);
     //StringTokenizer tokenizer = new StringTokenizer(settings.getOptionsString(), " ");
     /*while (tokenizer.hasMoreTokens()) {

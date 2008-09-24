@@ -19,6 +19,7 @@ public class ScalacConfigurable implements Configurable {
   private JCheckBox deprecationCheckBox;
   private JCheckBox uncheckedCheckBox;
   private JCheckBox noWarningsCheckBox;
+  private JCheckBox optimizeCheckBox;
   private ScalacSettings mySettings;
 
   public ScalacConfigurable(ScalacSettings settings) {
@@ -51,6 +52,7 @@ public class ScalacConfigurable implements Configurable {
     if (mySettings.DEPRECATION != deprecationCheckBox.isSelected()) return true;
     if (mySettings.UNCHECKED != uncheckedCheckBox.isSelected()) return true;
     if (mySettings.GENERATE_NO_WARNINGS != noWarningsCheckBox.isSelected()) return true;
+    if (mySettings.OPTIMISE != optimizeCheckBox.isSelected()) return true;
     return false;
   }
 
@@ -66,6 +68,7 @@ public class ScalacConfigurable implements Configurable {
     mySettings.GENERATE_NO_WARNINGS = noWarningsCheckBox.isSelected();
     mySettings.UNCHECKED = uncheckedCheckBox.isSelected();
     mySettings.DEPRECATION = deprecationCheckBox.isSelected();
+    mySettings.OPTIMISE = optimizeCheckBox.isSelected();
   }
 
   public void reset() {
@@ -74,6 +77,7 @@ public class ScalacConfigurable implements Configurable {
     noWarningsCheckBox.setSelected(mySettings.GENERATE_NO_WARNINGS);
     uncheckedCheckBox.setSelected(mySettings.UNCHECKED);
     deprecationCheckBox.setSelected(mySettings.DEPRECATION);
+    optimizeCheckBox.setSelected(mySettings.OPTIMISE);
   }
 
   public void disposeUIResources() {
