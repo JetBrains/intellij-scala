@@ -81,7 +81,7 @@ object ScSyntheticPackage {
       val pkgs = new ArrayList[ScPackageContainer](packages).filter(pc => pc.fqn.startsWith(fqn) && fqn.startsWith(pc.prefix))
 
       if (pkgs.isEmpty) null else {
-        val pname = if (i < 1) "" else fqn.substring(0, i - 1)
+        val pname = if (i < 0) "" else fqn.substring(0, i)
         new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
           def getQualifiedName = fqn
 
