@@ -16,6 +16,9 @@ public class ScalacConfigurable implements Configurable {
   private RawCommandLineEditor additionalCommandLineParameters;
   private JPanel myPanel;
   private JTextField maximumHeapSizeTextField;
+  private JCheckBox deprecationCheckBox;
+  private JCheckBox uncheckedCheckBox;
+  private JCheckBox noWarningsCheckBox;
   private ScalacSettings mySettings;
 
   public ScalacConfigurable(ScalacSettings settings) {
@@ -45,6 +48,9 @@ public class ScalacConfigurable implements Configurable {
     if (Integer.parseInt(maximumHeapSizeTextField.getText()) != mySettings.MAXIMUM_HEAP_SIZE) return true;
     } catch (NumberFormatException ignored) {}
     if (!additionalCommandLineParameters.getText().equals(mySettings.ADDITIONAL_OPTIONS_STRING)) return true;
+    if (mySettings.DEPRECATION != deprecationCheckBox.isSelected()) return true;
+    if (mySettings.UNCHECKED != uncheckedCheckBox.isSelected()) return true;
+    if (mySettings.GENERATE_NO_WARNINGS != noWarningsCheckBox.isSelected()) return true;
     return false;
   }
 
@@ -57,11 +63,17 @@ public class ScalacConfigurable implements Configurable {
       mySettings.MAXIMUM_HEAP_SIZE = 128;
     }
     mySettings.ADDITIONAL_OPTIONS_STRING = additionalCommandLineParameters.getText();
+    mySettings.GENERATE_NO_WARNINGS = noWarningsCheckBox.isSelected();
+    mySettings.UNCHECKED = uncheckedCheckBox.isSelected();
+    mySettings.DEPRECATION = deprecationCheckBox.isSelected();
   }
 
   public void reset() {
     maximumHeapSizeTextField.setText("" + mySettings.MAXIMUM_HEAP_SIZE);
     additionalCommandLineParameters.setText(mySettings.ADDITIONAL_OPTIONS_STRING);
+    noWarningsCheckBox.setSelected(mySettings.GENERATE_NO_WARNINGS);
+    uncheckedCheckBox.setSelected(mySettings.UNCHECKED);
+    deprecationCheckBox.setSelected(mySettings.DEPRECATION);
   }
 
   public void disposeUIResources() {

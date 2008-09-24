@@ -50,15 +50,22 @@ public class ScalacCompiler extends ExternalCompiler {
   private final List<File> myTempFiles = new ArrayList<File>();
 
   // VM properties
-  @NonNls private static final String XMX_COMPILER_PROPERTY = "-Xmx300m";
-  @NonNls private final String XSS_COMPILER_PROPERTY = "-Xss128m";
+  @NonNls
+  private static final String XMX_COMPILER_PROPERTY = "-Xmx300m";
+  @NonNls
+  private final String XSS_COMPILER_PROPERTY = "-Xss128m";
 
   // Scalac parameters
-  @NonNls private static final String DEBUG_INFO_LEVEL_PROPEERTY = "-g:vars";
-  @NonNls private static final String VERBOSE_PROPERTY = "-verbose";
-  @NonNls private static final String DESTINATION_COMPILER_PROPERTY = "-d";
-  @NonNls private static final String DEBUG_PROPERTY = "-Ydebug";
-  @NonNls private static final String WARNINGS_PROPERTY = "-unchecked";
+  @NonNls
+  private static final String DEBUG_INFO_LEVEL_PROPEERTY = "-g:vars";
+  @NonNls
+  private static final String VERBOSE_PROPERTY = "-verbose";
+  @NonNls
+  private static final String DESTINATION_COMPILER_PROPERTY = "-d";
+  @NonNls
+  private static final String DEBUG_PROPERTY = "-Ydebug";
+  @NonNls
+  private static final String WARNINGS_PROPERTY = "-unchecked";
   private final static HashSet<FileType> COMPILABLE_FILE_TYPES = new HashSet<FileType>(Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA));
 
 
@@ -167,14 +174,14 @@ public class ScalacCompiler extends ExternalCompiler {
         throw (IllegalArgumentException) ex[0];
       } else {
         LOG.error(ex[0]);
-      }                                   
+      }
     }
     return commandLine.toArray(new String[commandLine.size()]);
   }
 
   @NotNull
   @Override
-  public Set<FileType> getCompilableFileTypes() {  
+  public Set<FileType> getCompilableFileTypes() {
     return COMPILABLE_FILE_TYPES;
   }
 
@@ -200,19 +207,16 @@ public class ScalacCompiler extends ExternalCompiler {
     }
 
 
-
     String javaExecutablePath = sdkType.getVMExecutablePath(jdk);
     commandLine.add(javaExecutablePath);
 
     //commandLine.add(XSS_COMPILER_PROPERTY);
     //commandLine.add(XMX_COMPILER_PROPERTY);
-    ScalacSettings settings = ScalacSettings.getInstance(myProject);
-    StringTokenizer tokenizer = new StringTokenizer(settings.getOptionsString(), " ");
-    commandLine.add("-Xmx" + settings.MAXIMUM_HEAP_SIZE + "m");
+    //ScalacSettings settings = ScalacSettings.getInstance(myProject);
+    //StringTokenizer tokenizer = new StringTokenizer(settings.getOptionsString(), " ");
     /*while (tokenizer.hasMoreTokens()) {
       commandLine.add(tokenizer.nextToken());
     }*/
-
 
     commandLine.add("-cp");
 
@@ -246,7 +250,7 @@ public class ScalacCompiler extends ExternalCompiler {
 
     try {
       File fileWithParams = File.createTempFile("scalac", ".tmp");
-      fillFileWithScalacParams(chunk, fileWithParams, outputPath);
+      fillFileWithScalacParams(chunk, fileWithParams, outputPath, myProject);
 
       commandLine.add(fileWithParams.getPath());
     } catch (IOException e) {
@@ -257,15 +261,21 @@ public class ScalacCompiler extends ExternalCompiler {
   }
 
 
-  private static void fillFileWithScalacParams(ModuleChunk chunk, File fileWithParameters, String outputPath)
-          throws FileNotFoundException {
+  private static void fillFileWithScalacParams(ModuleChunk chunk, File fileWithParameters, String outputPath, Project myProject)
+      throws FileNotFoundException {
 
     PrintStream printer = new PrintStream(new FileOutputStream(fileWithParameters));
 
-    printer.println(VERBOSE_PROPERTY);
-    printer.println(DEBUG_PROPERTY);
-    printer.println(WARNINGS_PROPERTY);
-    printer.println(DEBUG_INFO_LEVEL_PROPEERTY);
+
+    ScalacSettings settings = ScalacSettings.getInstance(myProject);
+    StringTokenizer tokenizer = new StringTokenizer(settings.getOptionsString(), " ");
+    while (tokenizer.hasMoreTokens()) {
+      printer.println(tokenizer.nextToken());
+    }
+    //printer.println(VERBOSE_PROPERTY);
+    //printer.println(DEBUG_PROPERTY);
+    //printer.println(WARNINGS_PROPERTY);
+    //printer.println(DEBUG_INFO_LEVEL_PROPEERTY);
     printer.println(DESTINATION_COMPILER_PROPERTY);
     printer.println(outputPath.replace('/', File.separatorChar));
 
