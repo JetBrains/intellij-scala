@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
 
+import api.statements.params.ScTypeParam
+import api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.psi.search.GlobalSearchScope
 import api.statements.ScFun
-import api.toplevel.ScNamedElement
 import api.statements.ScFunction
 import types._
 import resolve._
@@ -17,18 +18,33 @@ import _root_.scala.collection.mutable.{ListBuffer, Map, HashMap, Set, HashSet, 
 abstract class SyntheticNamedElement(val manager: PsiManager, name: String)
 extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNamedElement {
   def getName = name
-  def setName(newName: String) = throw new IncorrectOperationException("nonphysical element")
+  def getText = ""
+  def setName(newName: String) : PsiElement = throw new IncorrectOperationException("nonphysical element")
   def copy = throw new IncorrectOperationException("nonphysical element")
   def accept(v: PsiElementVisitor) = throw new IncorrectOperationException("should not call")
   override def getContainingFile = SyntheticClasses.get(manager.getProject).file
+
+  def nameId(): PsiElement = null
+  protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = Array[T]()
+  protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = null
 }
 
+class ScSyntheticTypeParameter(manager: PsiManager, name: String, val owner: ScFun)
+extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake {
+  override def toString = "Synthetic type parameter"
+
+  def isCovariant() = false
+  def isContravariant() = false
+  def lowerBound() = Nothing
+  def upperBound() = Any
+
+  def getIndex = -1
+  def getOwner = null
+}
 // we could try and implement all type system related stuff
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly
 class ScSyntheticClass(manager: PsiManager, val name: String, val t: ScType)
 extends SyntheticNamedElement(manager, name) with PsiClass with PsiClassFake {
-
-  def getText = "" //todo
 
   override def toString = "Synthetic class"
 
@@ -62,10 +78,16 @@ extends SyntheticNamedElement(manager, name) with PsiClass with PsiClassFake {
   }
 }
 
-class ScSyntheticFunction(manager: PsiManager, val name: String, val retType: ScType, val paramTypes: Seq[ScType])
+class ScSyntheticFunction(manager: PsiManager, val name: String,
+                          val retType: ScType, val paramTypes: Seq[ScType],
+                          typeParameterNames : Seq[String])
 extends SyntheticNamedElement(manager, name) with ScFun {
+  def this(manager: PsiManager, name: String, retType: ScType, paramTypes: Seq[ScType]) =
+    this(manager, name, retType, paramTypes, Seq.empty)
 
-  def getText = "" //todo
+  val typeParams = typeParameterNames.map {name => new ScSyntheticTypeParameter(manager, name, this)}
+  override def typeParameters = typeParams
+
   override def getIcon(flags: Int) = icons.Icons.METHOD
 
   override def toString = "Synthetic method"

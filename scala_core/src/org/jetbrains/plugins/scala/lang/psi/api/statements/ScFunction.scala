@@ -20,9 +20,10 @@ import com.intellij.psi._
 
 //some functions are not PsiMethods and are e.g. not visible from java
 //see ScSyntheticFunction
-trait ScFun {
+trait ScFun extends ScTypeParametersOwner {
   def retType : ScType
   def paramTypes : Seq[ScType]
+  def typeParameters : Seq[ScTypeParam]
 }
 
 trait ScFunction extends ScalaPsiElement with ScNamedElement with ScMember with ScTypeParametersOwner
