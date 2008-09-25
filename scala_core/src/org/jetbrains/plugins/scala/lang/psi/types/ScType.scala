@@ -138,7 +138,7 @@ object ScType {
       case AnyRef => buffer.append("AnyRef")
       case AnyVal => buffer.append("AnyVal")
       case ValType(name, _) => buffer.append(name)
-      case ScFunctionType(ret, params) => inner(t); buffer.append("=>"); appendSeq(params, ", ")
+      case ScFunctionType(ret, params) => inner(ret); buffer.append("=>"); appendSeq(params, ", ")
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
       case ScDesignatorType(e) => buffer.append(e.getName)
       case ScProjectionType(p, name) => inner(p); buffer.append("#").append(name)
