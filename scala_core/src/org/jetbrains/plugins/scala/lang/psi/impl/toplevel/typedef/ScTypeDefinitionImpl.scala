@@ -79,7 +79,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
     if (!isValid) return null
     val icon = getIconInner
     val isLocked = (flags & Iconable.ICON_FLAG_READ_STATUS) != 0 && !isWritable()
-    val rowIcon = ElementBase.createLayeredIcon(icon, ElementPresentationUtil.getFlags(this, isLocked))
+    val rowIcon = ElementBase.createLayeredIcon(icon, /*ElementPresentationUtil.getFlags(this, isLocked)*/ 0)
     if ((flags & Iconable.ICON_FLAG_VISIBILITY) != 0) {
       VisibilityIcons.setVisibilityIcon(getModifierList, rowIcon);
     }
