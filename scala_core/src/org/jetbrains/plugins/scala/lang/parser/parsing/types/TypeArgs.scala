@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.types
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
 import org.jetbrains.plugins.scala.util.DebugPrint
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ArgumentExprs
@@ -22,34 +22,28 @@ import com.intellij.psi.tree.IElementType
  */
 
 object TypeArgs {
-  def parse(builder: PsiBuilder): Boolean = {
-    val typeArgsMarker = builder.mark
+  def parse(builder: PsiBuilder): Boolean = withMarker(ScalaElementTypes.TYPE_ARGS, builder) {
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET => {
         builder.advanceLexer //Ate [
-      }
-      case _ => {
-        typeArgsMarker.rollbackTo
-        return false
-      }
-    }
+        if (Type.parse(builder)) {
+          var parsedType = true
+          while (builder.getTokenType == ScalaTokenTypes.tCOMMA && parsedType) {
+            builder.advanceLexer
+            parsedType = Type.parse(builder)
+            if (!parsedType) builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+          }
+        } else builder error ScalaBundle.message("wrong.type", new Array[Object](0))
 
-    if (Type.parse(builder)) {
-      var parsedType = true
-      while (builder.getTokenType == ScalaTokenTypes.tCOMMA && parsedType) {
-        builder.advanceLexer
-        parsedType = Type.parse(builder)
-        if (!parsedType) builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+        builder.getTokenType match {
+          case ScalaTokenTypes.tRSQBRACKET => {
+            builder.advanceLexer //Ate ]
+          }
+          case _ => builder error ScalaBundle.message("rsqbracket.expected", new Array[Object](0))
+        }
+        true
       }
-    } else builder error ScalaBundle.message("wrong.type", new Array[Object](0))
-
-    builder.getTokenType match {
-      case ScalaTokenTypes.tRSQBRACKET => {
-        builder.advanceLexer //Ate ]
-      }
-      case _ => builder error ScalaBundle.message("rsqbracket.expected", new Array[Object](0))
+      case _ => false
     }
-    typeArgsMarker.done(ScalaElementTypes.TYPE_ARGS)
-    return true
   }
 }
