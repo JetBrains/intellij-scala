@@ -1,0 +1,86 @@
+class ArrowAssoc[A](x: A) {
+  def -> [B](y: B): Tuple2[A, B] = Tuple2(x, y)
+  def ?[B](y: B): Tuple2[A, B] = ->(y)
+}
+-----
+class {class}
+white space in line { }
+identifier {ArrowAssoc}
+[ {[}
+identifier {A}
+] {]}
+( {(}
+identifier {x}
+: {:}
+white space in line { }
+identifier {A}
+) {)}
+white space in line { }
+{ {{}
+white space in line {
+  }
+def {def}
+white space in line { }
+identifier {->}
+white space in line { }
+[ {[}
+identifier {B}
+] {]}
+( {(}
+identifier {y}
+: {:}
+white space in line { }
+identifier {B}
+) {)}
+: {:}
+white space in line { }
+identifier {Tuple2}
+[ {[}
+identifier {A}
+, {,}
+white space in line { }
+identifier {B}
+] {]}
+white space in line { }
+= {=}
+white space in line { }
+identifier {Tuple2}
+( {(}
+identifier {x}
+, {,}
+white space in line { }
+identifier {y}
+) {)}
+newline {
+  }
+def {def}
+white space in line { }
+identifier {?}
+[ {[}
+identifier {B}
+] {]}
+( {(}
+identifier {y}
+: {:}
+white space in line { }
+identifier {B}
+) {)}
+: {:}
+white space in line { }
+identifier {Tuple2}
+[ {[}
+identifier {A}
+, {,}
+white space in line { }
+identifier {B}
+] {]}
+white space in line { }
+= {=}
+white space in line { }
+identifier {->}
+( {(}
+identifier {y}
+) {)}
+white space in line {
+}
+} {}}

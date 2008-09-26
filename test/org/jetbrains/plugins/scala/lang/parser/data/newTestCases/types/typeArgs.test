@@ -34,14 +34,13 @@ ScalaFile
                 PsiElement(identifier)('Type')
             TypeArgumentsList
               PsiElement([)('[')
-              TypesList
-                SimpleTypeElement
-                  CodeReferenceElement
-                    PsiElement(identifier)('Arg')
-                PsiElement(,)(',')
-                SimpleTypeElement
-                  CodeReferenceElement
-                    PsiElement(identifier)('Arg')
+              SimpleTypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Arg')
+              PsiElement(,)(',')
+              SimpleTypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Arg')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
