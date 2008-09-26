@@ -30,23 +30,33 @@ public class ScalaSDKPointer implements AbstractSDK {
   private final String myScalaLibraryName;
   private final String myPathToLibrary;
   private final String myVersion;
+  private final boolean myProjectLib;
 
-  public ScalaSDKPointer(@NotNull String name, @NotNull String path, String version) {
+  public ScalaSDKPointer(@NotNull String name, @NotNull String path, String version, final boolean isProjectLib) {
     myScalaLibraryName = name;
     myPathToLibrary = path;
     myVersion = version;
+    myProjectLib = isProjectLib;
   }
 
   public String getLibraryName() {
     return myScalaLibraryName;
   }
 
+  public boolean isProjectLib() {
+    return myProjectLib;
+  }
+
+  public String getPresentation() {
+    return " (Scala version \"" + getVersion() + "\")";
+  }
+
   public String getPath() {
     return myPathToLibrary;
   }
 
-  public Icon getIcon(){
-    return Icons.SCALA_SDK ;
+  public Icon getIcon() {
+    return Icons.SCALA_SDK;
   }
 
   public String getVersion() {

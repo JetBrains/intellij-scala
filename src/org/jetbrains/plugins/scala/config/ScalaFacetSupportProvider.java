@@ -22,6 +22,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NonNls;
@@ -29,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.config.ui.ScalaFacetEditor;
+import org.jetbrains.plugins.scala.config.ui.CreateLibraryDialog;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.util.LibrariesUtil;
 
@@ -46,8 +48,8 @@ public class ScalaFacetSupportProvider extends FacetTypeFrameworkSupportProvider
   }
 
   @NotNull
-  public ScalaVersionConfigurable createConfigurable() {
-    return new ScalaVersionConfigurable(getVersions(), getDefaultVersion());
+  public ScalaVersionConfigurable createConfigurable(final Project project) {
+    return new ScalaVersionConfigurable(project, getDefaultVersion());
   }
 
   @Nullable
@@ -58,11 +60,12 @@ public class ScalaFacetSupportProvider extends FacetTypeFrameworkSupportProvider
 
   @NotNull
   public String[] getVersions() {
-    String[] versions = ContainerUtil.map2Array(ScalaConfigUtils.getScalaLibraries(), String.class, new Function<Library, String>() {
-      public String fun(Library library) {
-        return library.getName();
-      }
-    });
+    String[] versions =
+      ContainerUtil.map2Array(ScalaConfigUtils.getGlobalScalaLibraries(), String.class, new Function<Library, String>() {
+        public String fun(Library library) {
+          return library.getName();
+        }
+      });
     Arrays.sort(versions, new Comparator<String>() {
       public int compare(String o1, String o2) {
         return -o1.compareToIgnoreCase(o2);
@@ -97,7 +100,8 @@ public class ScalaFacetSupportProvider extends FacetTypeFrameworkSupportProvider
 
     @NotNull
     public LibraryInfo[] getLibraries() {
-      return ScalaFacetSupportProvider.this.getLibraries(myFacetEditor.getSelectedVersion());
+      final Library lib = myFacetEditor.getSelectedLibrary();
+      return ScalaFacetSupportProvider.this.getLibraries(lib != null ? lib.getName() : null);
     }
 
     @Nullable
@@ -112,38 +116,42 @@ public class ScalaFacetSupportProvider extends FacetTypeFrameworkSupportProvider
     @NonNls
     @NotNull
     public String getLibraryName() {
-      return ScalaFacetSupportProvider.this.getLibraryName(myFacetEditor.getSelectedVersion());
+      final Library lib = myFacetEditor.getSelectedLibrary();
+      return ScalaFacetSupportProvider.this.getLibraryName(lib != null ? lib.getName() : null);
     }
 
     public void addSupport(final Module module, final ModifiableRootModel rootModel, @Nullable Library library) {
-      String version = myFacetEditor.getSelectedVersion();
-      if (version != null && !myFacetEditor.addNewSdk()) {
-        library = LibrariesUtil.getLibraryByName(version);
-        if (library != null) {
-          LibrariesUtil.placeEntryToCorrectPlace(rootModel, rootModel.addLibraryEntry(library));
-        }
+      Library selectedLibrary = myFacetEditor.getSelectedLibrary();
+      String selectedName = null;
+      if (selectedLibrary != null && !myFacetEditor.addNewSdk()) {
+        selectedName = selectedLibrary.getName();
+        LibrariesUtil.placeEntryToCorrectPlace(rootModel, rootModel.addLibraryEntry(selectedLibrary));
       } else if (myFacetEditor.getNewSdkPath() != null) {
-        String path = myFacetEditor.getNewSdkPath();
+        final String path = myFacetEditor.getNewSdkPath();
         ValidationResult result = ScalaConfigUtils.isScalaSdkHome(path);
         if (path != null && ValidationResult.OK == result) {
-          String name = ScalaConfigUtils.generateNewScalaLibName(ScalaConfigUtils.getScalaVersion(path));
-          version = name;
-          library = ScalaConfigUtils.createScalaLibrary(path, name, module.getProject(), false);
-          LibrariesUtil.placeEntryToCorrectPlace(rootModel, rootModel.addLibraryEntry(library));
+          final Project project = module.getProject();
+          selectedName = ScalaConfigUtils.generateNewScalaLibName(ScalaConfigUtils.getScalaVersion(path), project);
+          final CreateLibraryDialog dialog = new CreateLibraryDialog(project, selectedName);
+          dialog.show();
+          if (dialog.isOK()) {
+            final Library lib = ScalaConfigUtils.createScalaLibrary(path, selectedName, project, false, dialog.isInProject());
+            LibrariesUtil.placeEntryToCorrectPlace(rootModel, rootModel.addLibraryEntry(lib));
+          }
         } else {
           Messages.showErrorDialog(ScalaBundle.message("invalid.scala.sdk.path.message"), ScalaBundle.message("invalid.scala.sdk.path.text"));
-          version = null;
+          selectedLibrary = null;
         }
       }
-      if (version != null) {
-        ScalaConfigUtils.saveScalaDefaultLibName(version);
+      if (selectedLibrary != null) {
+        ScalaConfigUtils.saveScalaDefaultLibName(selectedName);
       }
-      ScalaFacetSupportProvider.this.addSupport(module, rootModel, version, library);
+      ScalaFacetSupportProvider.this.addSupport(module, rootModel, selectedName, selectedLibrary);
     }
 
-    public ScalaVersionConfigurable(String[] versions, String defaultVersion) {
-      super(versions, defaultVersion);
-      myFacetEditor = new ScalaFacetEditor(getVersions(), getDefaultVersion());
+    public ScalaVersionConfigurable(Project project, String defaultVersion) {
+      super(getVersions(), defaultVersion);
+      myFacetEditor = new ScalaFacetEditor(project, getDefaultVersion());
     }
   }
 }

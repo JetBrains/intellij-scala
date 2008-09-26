@@ -17,6 +17,8 @@ package org.jetbrains.plugins.scala.util;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataConstants;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.module.JavaModuleType;
@@ -27,6 +29,7 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiPackage;
+import com.intellij.facet.FacetManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
 
@@ -139,12 +142,4 @@ public abstract class ScalaUtils {
     return moduleType instanceof JavaModuleType || moduleType.getId().equals(PLUGIN_MODULE_ID);
   }
 
-  public static boolean isScalaConfigured(AnActionEvent e) {
-    Project project = (Project) e.getDataContext().getData(DataConstants.PROJECT);
-    if (project != null) {
-      PsiPackage aPackage = JavaPsiFacade.getInstance(project).findPackage("scala");
-      if (aPackage != null) return true;
-    }
-    return false;
-  }
 }

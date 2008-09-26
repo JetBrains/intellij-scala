@@ -17,6 +17,7 @@ package org.jetbrains.plugins.scala.config.ui;
 
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.Condition;
+import com.intellij.openapi.module.Module;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.Function;
@@ -40,27 +41,31 @@ import java.util.List;
  * @author ilyas
  */
 public class ScalaSDKComboBox extends JComboBox {
+  private Module myModule;
 
-  public ScalaSDKComboBox() {
-    super(new ScalaSDKComboBoxModel());
+  void setModule(Module module) {
+    myModule = module;
+  }
+
+  public ScalaSDKComboBox(final Module module) {
+    super(new ScalaSDKComboBoxModel(module));
+    myModule = module;
     setRenderer(new ColoredListCellRenderer() {
       protected void customizeCellRenderer(JList list, Object value, int index, boolean selected, boolean hasFocus) {
         if (ScalaSDKComboBox.this.isEnabled()) {
           if (value instanceof ScalaSDKPointerItem) {
-            ScalaSDKPointer pointer = ((ScalaSDKPointerItem) value).getPointer();
+            ScalaSDKPointer pointer = ((ScalaSDKPointerItem)value).getPointer();
             setIcon(pointer.getIcon());
             append(pointer.getLibraryName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            append(" (Scala version \"" + pointer.getVersion() + "\")", SimpleTextAttributes.GRAYED_ATTRIBUTES);
+            append(pointer.getPresentation(), SimpleTextAttributes.GRAYED_ATTRIBUTES);
           } else if (value instanceof DefaultScalaSDKComboBoxItem) {
-            DefaultScalaSDKComboBoxItem item = (DefaultScalaSDKComboBoxItem) value;
+            DefaultScalaSDKComboBoxItem item = (DefaultScalaSDKComboBoxItem)value;
             final String str = item.toString();
             ScalaSDK sdk = item.getScalaSDK();
             if (sdk != null) {
               setIcon(sdk.getIcon());
               append(sdk.getLibraryName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-              final String version = sdk.getSdkVersion() != null ?
-                  " (Scala version \"" + sdk.getSdkVersion() + "\")" :
-                  " (undefined version)";
+              final String version = sdk.getSdkVersion() != null ? sdk.getPresentation() : " (undefined version)";
               append(version, SimpleTextAttributes.GRAYED_ATTRIBUTES);
             } else { // No Scala SDK
               setIcon(Icons.NO_SCALA_SDK);
@@ -76,7 +81,7 @@ public class ScalaSDKComboBox extends JComboBox {
   public ScalaSDK getSdkAt(int i) {
     Object o = getItemAt(i);
     if (o instanceof DefaultScalaSDKComboBoxItem) {
-      DefaultScalaSDKComboBoxItem item = (DefaultScalaSDKComboBoxItem) o;
+      DefaultScalaSDKComboBoxItem item = (DefaultScalaSDKComboBoxItem)o;
       return item.getScalaSDK();
     }
     return null;
@@ -89,24 +94,24 @@ public class ScalaSDKComboBox extends JComboBox {
     }
     pointers.add(pointer);
     removeAllItems();
-    setModel(new ScalaSDKComboBoxModel(pointers.toArray(new ScalaSDKPointer[pointers.size()])));
-    insertItemAt(new ScalaSDKComboBox.NoScalaSDKComboBoxItem(), 0);
+    setModel(new ScalaSDKComboBoxModel(myModule, pointers.toArray(new ScalaSDKPointer[pointers.size()])));
+    insertItemAt(new NoScalaSDKComboBoxItem(), 0);
     selectPointer(pointer);
   }
 
-  public void refresh(){
+  public void refresh() {
     ArrayList<ScalaSDKPointer> pointers = new ArrayList<ScalaSDKPointer>();
     for (ScalaSDKPointerItem sdkPointer : getAllPointerItems()) {
       pointers.add(sdkPointer.getPointer());
     }
     removeAllItems();
-    setModel(new ScalaSDKComboBoxModel(pointers.toArray(new ScalaSDKPointer[pointers.size()])));
-    insertItemAt(new ScalaSDKComboBox.NoScalaSDKComboBoxItem(), 0);
+    setModel(new ScalaSDKComboBoxModel(myModule, pointers.toArray(new ScalaSDKPointer[pointers.size()])));
+    insertItemAt(new NoScalaSDKComboBoxItem(), 0);
   }
 
   public boolean selectLibrary(@NotNull Library library) {
     for (int i = 0; i < getItemCount(); i++) {
-      ScalaSDKComboBox.DefaultScalaSDKComboBoxItem item = (ScalaSDKComboBox.DefaultScalaSDKComboBoxItem) getItemAt(i);
+      DefaultScalaSDKComboBoxItem item = (DefaultScalaSDKComboBoxItem)getItemAt(i);
       ScalaSDK sdk = item.getScalaSDK();
       if (sdk == null) continue;
       if (library.equals(sdk.getLibrary())) {
@@ -119,9 +124,9 @@ public class ScalaSDKComboBox extends JComboBox {
 
   private void selectPointer(@NotNull ScalaSDKPointer pointer) {
     for (int i = 0; i < getItemCount(); i++) {
-      ScalaSDKComboBox.DefaultScalaSDKComboBoxItem item = (ScalaSDKComboBox.DefaultScalaSDKComboBoxItem) getItemAt(i);
+      DefaultScalaSDKComboBoxItem item = (DefaultScalaSDKComboBoxItem)getItemAt(i);
       if (item instanceof ScalaSDKPointerItem) {
-        final ScalaSDKPointer sdkPointer = ((ScalaSDKPointerItem) item).getPointer();
+        final ScalaSDKPointer sdkPointer = ((ScalaSDKPointerItem)item).getPointer();
         if (sdkPointer.equals(pointer)) {
           setSelectedIndex(i);
           return;
@@ -139,11 +144,12 @@ public class ScalaSDKComboBox extends JComboBox {
       }
     });
 
-    List<Object> libNames = ContainerUtil.map(ScalaConfigUtils.getScalaLibraries(), new Function<Library, Object>() {
-      public Object fun(Library library) {
-        return library.getName();
-      }
-    });
+    List<Object> libNames =
+      ContainerUtil.map(ScalaConfigUtils.getAllScalaLibraries(myModule.getProject()), new Function<Library, Object>() {
+        public Object fun(Library library) {
+          return library.getName();
+        }
+      });
 
     String originalName = ScalaConfigUtils.SCALA_LIB_PREFIX + version;
     String newName = originalName;
@@ -160,48 +166,51 @@ public class ScalaSDKComboBox extends JComboBox {
     for (int i = 0; i < getItemCount(); i++) {
       final Object o = getItemAt(i);
       if (o instanceof DefaultScalaSDKComboBoxItem) {
-        items.add(((DefaultScalaSDKComboBoxItem) o));
+        items.add(((DefaultScalaSDKComboBoxItem)o));
       }
     }
     return items.toArray(new DefaultScalaSDKComboBoxItem[items.size()]);
   }
 
-  public ScalaSDKPointerItem[] getAllPointerItems(){
-    final List<DefaultScalaSDKComboBoxItem> list = ContainerUtil.findAll(getAllItems(), new
-Condition<DefaultScalaSDKComboBoxItem>() {
+  public ScalaSDKPointerItem[] getAllPointerItems() {
+    final List<DefaultScalaSDKComboBoxItem> list = ContainerUtil.findAll(getAllItems(), new Condition<DefaultScalaSDKComboBoxItem>() {
       public boolean value(DefaultScalaSDKComboBoxItem item) {
         return item instanceof ScalaSDKPointerItem;
       }
-    })  ;
-    return ContainerUtil.map2Array(list, ScalaSDKPointerItem.class, new Function<DefaultScalaSDKComboBoxItem,
-ScalaSDKPointerItem>() {
+    });
+    return ContainerUtil.map2Array(list, ScalaSDKPointerItem.class, new Function<DefaultScalaSDKComboBoxItem, ScalaSDKPointerItem>() {
       public ScalaSDKPointerItem fun(DefaultScalaSDKComboBoxItem item) {
-        return ((ScalaSDKPointerItem) item);
+        return ((ScalaSDKPointerItem)item);
       }
     });
   }
 
-  private static class ScalaSDKComboBoxModel extends DefaultComboBoxModel {
-    public ScalaSDKComboBoxModel(ScalaSDKPointer... sdkPointers) {
+  static class ScalaSDKComboBoxModel extends DefaultComboBoxModel {
+    private final Module myModule;
+
+    public ScalaSDKComboBoxModel(Module module, ScalaSDKPointer... sdkPointers) {
       super();
+      myModule = module;
+      if (module == null) return;
       ArrayList<AbstractSDK> sdkList = new ArrayList<AbstractSDK>();
-      sdkList.addAll(Arrays.asList(ScalaConfigUtils.getScalaSDKs()));
+      final ScalaSDK[] sdks = ScalaConfigUtils.getScalaSDKs(myModule);
+      sdkList.addAll(Arrays.asList(sdks));
       for (AbstractSDK newSDK : sdkPointers) {
         if (!sdkList.contains(newSDK)) {
           sdkList.add(newSDK);
         }
       }
-      AbstractSDK[] sdks = sdkList.toArray(new AbstractSDK[sdkList.size()]);
-      Arrays.sort(sdks, new Comparator<AbstractSDK>() {
+      AbstractSDK[] abstractSDKs = sdkList.toArray(new AbstractSDK[sdkList.size()]);
+      Arrays.sort(abstractSDKs, new Comparator<AbstractSDK>() {
         public int compare(final AbstractSDK s1, final AbstractSDK s2) {
           return -s1.getLibraryName().compareToIgnoreCase(s2.getLibraryName());
         }
       });
-      for (AbstractSDK sdk : sdks) {
+      for (AbstractSDK sdk : abstractSDKs) {
         if (sdk instanceof ScalaSDK) {
-          addElement(new ScalaSDKComboBoxItem((ScalaSDK) sdk));
+          addElement(new ScalaSDKComboBoxItem(((ScalaSDK)sdk)));
         } else if (sdk instanceof ScalaSDKPointer) {
-          addElement(new ScalaSDKPointerItem(((ScalaSDKPointer) sdk)));
+          addElement(new ScalaSDKPointerItem(((ScalaSDKPointer)sdk)));
         }
       }
     }

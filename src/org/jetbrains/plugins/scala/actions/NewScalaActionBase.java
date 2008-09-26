@@ -53,7 +53,7 @@ public abstract class NewScalaActionBase extends CreateElementActionBase {
     if (!ScalaUtils.isSuitableModule(module) ||
         !presentation.isEnabled() ||
         !isUnderSourceRoots(event) ||
-        !ScalaUtils.isScalaConfigured(event)) {
+        !ScalaActionUtil.isScalaConfigured(event)) {
       presentation.setEnabled(false);
       presentation.setVisible(false);
     } else {

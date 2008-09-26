@@ -128,6 +128,12 @@ public abstract class LibrariesUtil {
     }
   }
 
+  public static Library[] getGlobalLibraries(Condition<Library> condition) {
+    LibraryTable table = LibraryTablesRegistrar.getInstance().getLibraryTable();
+    List<Library> libs = ContainerUtil.findAll(table.getLibraries(), condition);
+    return libs.toArray(new Library[libs.size()]);
+  }
+
   public static void addLibraryToReferringModules(FacetTypeId<?> facetID, Library library) {
     for (Project prj : ProjectManager.getInstance().getOpenProjects())
       for (Module module : ModuleManager.getInstance(prj).getModules()) {
@@ -137,8 +143,8 @@ public abstract class LibrariesUtil {
       }
   }
 
-  public static String generateNewLibraryName(String version, String prefix) {
-    List<Object> libNames = ContainerUtil.map(ScalaConfigUtils.getScalaLibraries(), new Function<Library, Object>() {
+  public static String generateNewLibraryName(String version, String prefix, final Project project) {
+    List<Object> libNames = ContainerUtil.map(ScalaConfigUtils.getAllScalaLibraries(project), new Function<Library, Object>() {
       public Object fun(Library library) {
         return library.getName();
       }
@@ -152,6 +158,7 @@ public abstract class LibrariesUtil {
     }
     return newName;
   }
+
 
   @Nullable
   public static Library getLibraryByName(String name) {
