@@ -51,21 +51,13 @@ public class ScalacCompiler extends ExternalCompiler {
 
   // VM properties
   @NonNls
-  private static final String XMX_COMPILER_PROPERTY = "-Xmx300m";
-  @NonNls
   private final String XSS_COMPILER_PROPERTY = "-Xss128m";
 
   // Scalac parameters
   @NonNls
-  private static final String DEBUG_INFO_LEVEL_PROPEERTY = "-g:vars";
-  @NonNls
-  private static final String VERBOSE_PROPERTY = "-verbose";
-  @NonNls
   private static final String DESTINATION_COMPILER_PROPERTY = "-d";
   @NonNls
   private static final String DEBUG_PROPERTY = "-Ydebug";
-  @NonNls
-  private static final String WARNINGS_PROPERTY = "-unchecked";
   private final static HashSet<FileType> COMPILABLE_FILE_TYPES = new HashSet<FileType>(Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA));
 
 
@@ -210,21 +202,11 @@ public class ScalacCompiler extends ExternalCompiler {
     String javaExecutablePath = sdkType.getVMExecutablePath(jdk);
     commandLine.add(javaExecutablePath);
 
+    ScalacSettings settings = ScalacSettings.getInstance(myProject);
     commandLine.add(XSS_COMPILER_PROPERTY);
-    commandLine.add(XMX_COMPILER_PROPERTY);
-    //ScalacSettings settings = ScalacSettings.getInstance(myProject);
-    //StringTokenizer tokenizer = new StringTokenizer(settings.getOptionsString(), " ");
-    /*while (tokenizer.hasMoreTokens()) {
-      commandLine.add(tokenizer.nextToken());
-    }*/
+    commandLine.add("-Xmx" + settings.MAXIMUM_HEAP_SIZE + "m");
 
     commandLine.add("-cp");
-
-
-    // For debug
-
-//    commandLine.add("-Xdebug");
-//    commandLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=127.0.0.1:5448");
 
     String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
     final StringBuilder classPathBuilder = new StringBuilder();
@@ -272,10 +254,6 @@ public class ScalacCompiler extends ExternalCompiler {
     while (tokenizer.hasMoreTokens()) {
       printer.println(tokenizer.nextToken());
     }
-    //printer.println(VERBOSE_PROPERTY);
-    //printer.println(DEBUG_PROPERTY);
-    //printer.println(WARNINGS_PROPERTY);
-    //printer.println(DEBUG_INFO_LEVEL_PROPEERTY);
     printer.println(DESTINATION_COMPILER_PROPERTY);
     printer.println(outputPath.replace('/', File.separatorChar));
 
