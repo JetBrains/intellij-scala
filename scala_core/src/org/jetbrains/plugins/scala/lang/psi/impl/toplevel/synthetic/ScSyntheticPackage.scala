@@ -46,7 +46,7 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiPackage {
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     processor match {
-      case bp : BaseProcessor => {
+      case bp: BaseProcessor => {
         if (bp.kinds.contains(PACKAGE)) {
           for (subp <- getSubPackages) {
             if (!processor.execute(subp, state)) return false
@@ -78,6 +78,7 @@ object ScSyntheticPackage {
 
     if (packages.isEmpty) null else {
       import _root_.scala.collection.jcl.Conversions.convertList
+
       val pkgs = new ArrayList[ScPackageContainer](packages).filter(pc => pc.fqn.startsWith(fqn) && fqn.startsWith(pc.prefix))
 
       if (pkgs.isEmpty) null else {
@@ -88,13 +89,13 @@ object ScSyntheticPackage {
           def getClasses = Array(pkgs.flatMap(p => if (p.fqn.length == fqn.length) p.typeDefs else Seq.empty): _*)
 
           def getClasses(scope: GlobalSearchScope) =
-            getClasses.filter {clazz => scope.contains(clazz.getContainingFile.getVirtualFile)}
+            getClasses.filter{clazz => scope.contains(clazz.getContainingFile.getVirtualFile)}
 
           def getParentPackage = JavaPsiFacade.getInstance(project).findPackage(pname)
 
           def getSubPackages = {
             val buff = new HashSet[PsiPackage]
-            pkgs.foreach {
+            pkgs.foreach{
               p =>
               def addPackage(tail : String) {
                 val p = JavaPsiFacade.getInstance(project).findPackage(fqn + "." + tail)
