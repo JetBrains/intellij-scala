@@ -264,6 +264,7 @@ object ScalaOIUtil {
         case _ => false
       }
     }
+    if (isAppropriatePsiElement(x)) return x
     while (parent != null && !isAppropriatePsiElement(parent)) parent = parent.getParent
     return parent
   }
