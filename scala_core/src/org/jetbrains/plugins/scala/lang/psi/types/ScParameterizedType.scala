@@ -23,18 +23,11 @@ import _root_.scala.collection.immutable.{Map, HashMap}
 import com.intellij.psi.{PsiTypeParameter, PsiClass}
 
 case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) extends ScType {
-  def designated = designator match {
-    case des : ScDesignatorType => des.element match {
-      case null => None
-      case e => Some(e)
-    }
-    case ScProjectionType(sin@ScSingletonType(path), name) => {
-      val proc = new ResolveProcessor(StdKinds.stableClass, name)
-      proc.processType(sin, path)
-      if (proc.candidates.size == 1) Some(proc.candidates.toArray(0).element) else None
-    }
+  def designated = ScType.extractClassType(designator) match {
+    case Some((c : PsiNamedElement, _)) => Some(c)
+    case _ => None
   }
-
+  
   val substitutor : ScSubstitutor = {
     val targs = designator match {
       case ScTypeVariable(_, args, _, _) => args

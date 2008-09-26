@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.{TokenSet, IElementType}
 
-trait ScalaPsiElement extends PsiElement { 
+trait ScalaPsiElement extends PsiElement {
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T
 
   protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T]
@@ -16,6 +16,14 @@ trait ScalaPsiElement extends PsiElement {
   def findLastChildByType(t : IElementType) = {
     var node = getNode.getLastChildNode
     while(node != null && node.getElementType != t) {
+      node = node.getTreePrev
+    }
+    if (node == null) null else node.getPsi
+  }
+
+  def findLastChildByType(set : TokenSet) = {
+    var node = getNode.getLastChildNode
+    while(node != null && !set.contains(node.getElementType)) {
       node = node.getTreePrev
     }
     if (node == null) null else node.getPsi

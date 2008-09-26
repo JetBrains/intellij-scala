@@ -19,10 +19,10 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl 
 
   def typeArgList = findChildByClass(classOf[ScTypeArgs])
 
-  def simpleTypeElement = findChildByClass(classOf[ScSimpleTypeElement])
+  def typeElement = findChildByClass(classOf[ScTypeElement])
 
   override def getType() = {
-    simpleTypeElement.getType match {
+    typeElement.getType match {
       case Nothing => Nothing
       case des => new ScParameterizedType(des, typeArgList.typeArgs.map {_.getType}.toArray)
     }
