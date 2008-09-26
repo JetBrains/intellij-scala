@@ -1,0 +1,30 @@
+class ArrowAssoc {
+  def ?(y: B) = ->(y)
+}
+------
+class {class}
+white space in line { }
+identifier {ArrowAssoc}
+white space in line { }
+{ {{}
+white space in line {
+  }
+def {def}
+white space in line { }
+identifier {?}
+( {(}
+identifier {y}
+: {:}
+white space in line { }
+identifier {B}
+) {)}
+white space in line { }
+= {=}
+white space in line { }
+identifier {->}
+( {(}
+identifier {y}
+) {)}
+white space in line {
+}
+} {}}
