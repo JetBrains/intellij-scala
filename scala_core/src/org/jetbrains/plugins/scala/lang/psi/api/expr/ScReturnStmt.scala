@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScReturnStmt extends ScExpression {
-
+  def expr = findChild(classOf[ScExpression])
 }
