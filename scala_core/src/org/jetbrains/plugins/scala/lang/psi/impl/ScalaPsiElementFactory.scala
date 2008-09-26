@@ -336,7 +336,7 @@ object ScalaPsiElementFactory {
           }
         }
         method.returnTypeElement match {
-          case None => res = res + "/*todo: not inferred type*/"
+          case None =>
           case Some(x) => res = res + ": " + ScType.presentableText(substitutor.subst(x.getType)) //todo: add reference adjuster
         }
         res = res + " = "
@@ -406,7 +406,6 @@ object ScalaPsiElementFactory {
     res = res + (if (isVal) "val " else "var ")
     res = res + variable.name
     if (ScType.presentableText(substitutor.subst(variable.calcType)) != "") res = res + ": " + ScType.presentableText(substitutor.subst(variable.calcType))
-                 else res = res + "/*todo: not inferred type*/"
     res = res + " = " + body
     return res
   }
