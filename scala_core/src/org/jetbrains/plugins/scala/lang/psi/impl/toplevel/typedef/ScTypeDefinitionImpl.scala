@@ -4,7 +4,9 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
  * @author ilyas
  */
 
+import annotations.Nullable
 import api.statements._
+import com.intellij.openapi.editor.Editor
 import com.intellij.psi.stubs.IStubElementType
 import stubs.ScTypeDefinitionStub
 import _root_.scala.collection.immutable.Set
@@ -229,19 +231,20 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
   def functionsByName(name: String) =
     for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method == name) yield n.info.method
 
-  def addMember(meth: PsiElement) {
-    /*//checking member
+  def addMember(member: PsiElement, @Nullable editor: Editor) {
+    var meth: PsiElement = member
+    //checking member
     meth match {
       case _: ScValue | _: ScFunction | _: ScVariable | _: ScTypeAlias =>
       case _ => return
     }
-    val body = clazz.extendsBlock.templateBody match {
+    val body = extendsBlock.templateBody match {
       case Some(x) => x
       case None => return
     }
     //if body is not empty
     if (body.getChildren.length != 0) {
-      val offset = editor.getCaretModel.getOffset
+      val offset = if (editor != null) editor.getCaretModel.getOffset else body.getTextRange.getStartOffset
       //current element
       var element = body.getContainingFile.findElementAt(offset)
       while (element != null && element.getParent != body) element = element.getParent
@@ -264,18 +267,45 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
       body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
     } else {
       val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.
-          createOverrideImplementTypeBody(alias, substitutor, alias.getManager, !isImplement)).asInstanceOf[ScTemplateBody]
-      meth = newBody.aliases(0)
+          createBodyFromMember(meth, meth.getManager)).asInstanceOf[ScTemplateBody]
+      meth = member match {
+        case _: ScTypeAlias => newBody.aliases(0)
+        case _: ScFunction => newBody.functions(0)
+        case _: ScValue | _: ScVariable => newBody.members(0)
+      }
       newBody.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
     }
-    meth match {
-      case meth: ScTypeAliasDefinition => {
-        val body = meth.aliasedTypeElement
-        val offset = body.getTextRange.getStartOffset
-        editor.getCaretModel.moveToOffset(offset)
-        editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
+    if (editor != null) {
+      meth match {
+        case meth: ScTypeAliasDefinition => {
+          val body = meth.aliasedTypeElement
+          val offset = body.getTextRange.getStartOffset
+          editor.getCaretModel.moveToOffset(offset)
+          editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
+        }
+        case meth: ScPatternDefinition => {
+          val body = meth.expr
+          val offset = body.getTextRange.getStartOffset
+          editor.getCaretModel.moveToOffset(offset)
+          editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
+        }
+        case meth: ScVariableDefinition => {
+          val body = meth.expr
+          val offset = body.getTextRange.getStartOffset
+          editor.getCaretModel.moveToOffset(offset)
+          editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
+        }
+        case method: ScFunctionDefinition => {
+          val body = method.body match {
+            case Some(x) => x
+            case None => return
+          }
+          val offset = body.getTextRange.getStartOffset
+          editor.getCaretModel.moveToOffset(offset)
+          editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
+        }
+        case _ =>
       }
-      case _ =>
-    }*/
+    }
   }
 }

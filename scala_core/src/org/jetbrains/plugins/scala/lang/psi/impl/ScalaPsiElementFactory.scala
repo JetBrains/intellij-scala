@@ -202,6 +202,18 @@ object ScalaPsiElementFactory {
     p.expr
   }
 
+  def createBodyFromMember(element: PsiElement, manager: PsiManager): ScTemplateBody = {
+    val text = "class a {" + element.getText + "}"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    val classDef: ScTypeDefinition = dummyFile.getTypeDefinitions()(0)
+    val body = classDef.extendsBlock.templateBody match {
+      case Some(x) => x
+      case None => return null
+    }
+    return body
+  }
+
   def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, isOverride: Boolean): ScFunction = {
     val text = "class a {\n  " + getOverrideImplementSign(sign, "null", isOverride) + "\n}" //todo: extract signature from method
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
