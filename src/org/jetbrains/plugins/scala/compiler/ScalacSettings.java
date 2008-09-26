@@ -28,7 +28,7 @@ import java.nio.charset.Charset;
 )
 public class ScalacSettings implements PersistentStateComponent<ScalacSettings>, ProjectComponent {
   public String ADDITIONAL_OPTIONS_STRING = "";
-  public int MAXIMUM_HEAP_SIZE = 128;
+  public int MAXIMUM_HEAP_SIZE = 256;
   public boolean GENERATE_NO_WARNINGS = false;
   public boolean DEPRECATION = true;
   public boolean UNCHECKED = true;
