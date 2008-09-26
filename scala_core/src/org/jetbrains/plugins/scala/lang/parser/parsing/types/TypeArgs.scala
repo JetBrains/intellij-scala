@@ -33,10 +33,16 @@ object TypeArgs {
         return false
       }
     }
-    val (is,_) = Types.parse(builder)
-    if (!is) {
-      builder error ScalaBundle.message("wrong.type", new Array[Object](0))
-    }
+
+    if (Type.parse(builder)) {
+      var parsedType = true
+      while (builder.getTokenType == ScalaTokenTypes.tCOMMA && parsedType) {
+        builder.advanceLexer
+        parsedType = Type.parse(builder)
+        if (!parsedType) builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+      }
+    } else builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+
     builder.getTokenType match {
       case ScalaTokenTypes.tRSQBRACKET => {
         builder.advanceLexer //Ate ]
