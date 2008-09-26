@@ -20,6 +20,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.*;
+import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
@@ -35,6 +36,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Function;
 import com.intellij.util.Processor;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,6 +50,7 @@ import java.io.IOException;
 import java.io.FilenameFilter;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -67,6 +70,13 @@ public class ScalaConfigUtils {
   public static final String COMPILER_CLASS_PATH = "scala/tools/nsc/CompilerRun.class";
   public static final String PREFED_CLASS_PATH = "scala/Predef.class";
   public static final String VERSION_PROPERTY_KEY = "version.number";
+
+  private static final Condition<Library> SCALA_LIB_CONDITION = new Condition<Library>() {
+    public boolean value(Library library) {
+      return isScalaSdkLibrary(library);
+    }
+  };
+
 
   public static boolean isScalaSdkHome(final VirtualFile file) {
     final Ref<Boolean> result = Ref.create(false);
@@ -127,18 +137,25 @@ public class ScalaConfigUtils {
     }
   }
 
-  public static Library[] getScalaLibraries() {
-    Condition<Library> condition = new Condition<Library>() {
-      public boolean value(Library library) {
-        return isScalaSdkLibrary(library);
-      }
-    };
-    return LibrariesUtil.getLibraries(condition);
+  public static Library[] getProjectScalaLibraries(Project project) {
+    if (project == null) return new Library[0];
+    final LibraryTable table = ProjectLibraryTable.getInstance(project);
+    final List<Library> all = ContainerUtil.findAll(table.getLibraries(), SCALA_LIB_CONDITION);
+    return all.toArray(new Library[all.size()]);
+  }
+
+  public static Library[] getAllScalaLibraries(@Nullable Project project) {
+    return ArrayUtil.mergeArrays(getGlobalScalaLibraries(), getProjectScalaLibraries(project), Library.class);
+  }
+
+  public static Library[] getGlobalScalaLibraries() {
+    return LibrariesUtil.getGlobalLibraries(SCALA_LIB_CONDITION);
   }
 
   public static String[] getScalaLibNames() {
-    return LibrariesUtil.getLibNames(getScalaLibraries());
+    return LibrariesUtil.getLibNames(getGlobalScalaLibraries());
   }
+
 
   public static boolean isScalaSdkLibrary(Library library) {
     if (library == null) return false;
@@ -175,12 +192,19 @@ public class ScalaConfigUtils {
     return getScalaVersion(LibrariesUtil.getScalaLibraryHome(library));
   }
 
-  public static ScalaSDK[] getScalaSDKs() {
-    return ContainerUtil.map2Array(getScalaLibraries(), ScalaSDK.class, new Function<Library, ScalaSDK>() {
+  public static ScalaSDK[] getScalaSDKs(final Module module) {
+    final ScalaSDK[] projectSdks =
+      ContainerUtil.map2Array(getProjectScalaLibraries(module.getProject()), ScalaSDK.class, new Function<Library, ScalaSDK>() {
+        public ScalaSDK fun(final Library library) {
+          return new ScalaSDK(library, module, true);
+        }
+      });
+    final ScalaSDK[] globals = ContainerUtil.map2Array(getGlobalScalaLibraries(), ScalaSDK.class, new Function<Library, ScalaSDK>() {
       public ScalaSDK fun(final Library library) {
-        return new ScalaSDK(library);
+        return new ScalaSDK(library, module, false);
       }
     });
+    return ArrayUtil.mergeArrays(globals, projectSdks, ScalaSDK.class);
   }
 
   public static void updateScalaLibInModule(@NotNull Module module, @Nullable ScalaSDK sdk) {
@@ -231,21 +255,31 @@ public class ScalaConfigUtils {
     return new ValidationResult(ScalaBundle.message("invalid.scala.sdk.path.message"));
   }
 
-  public static Library createScalaLibrary(final String path, final String name, final @Nullable Project project, final boolean inModuleSettings) {
+  @Nullable
+  public static Library createScalaLibrary(final String path,
+                                            final String name,
+                                            final Project project,
+                                            final boolean inModuleSettings,
+                                            final boolean inProject) {
     if (project == null) return null;
     final Ref<Library> libRef = new Ref<Library>();
     ApplicationManager.getApplication().runWriteAction(new Runnable() {
       public void run() {
-        Library library = createScalaLibImmediately(path, name, project, inModuleSettings);
+        Library library = createScalaLibImmediately(path, name, project, inModuleSettings, inProject);
         libRef.set(library);
       }
     });
     return libRef.get();
   }
 
-  private static Library createScalaLibImmediately(String path, String name, Project project, boolean inModuleSettings) {
+
+  private static Library createScalaLibImmediately(String path,
+                                                    String name,
+                                                    Project project,
+                                                    boolean inModuleSettings,
+                                                    final boolean inProject) {
     String version = getScalaVersion(path);
-    String libName = name != null ? name : generateNewScalaLibName(version);
+    String libName = name != null ? name : generateNewScalaLibName(version, project);
     if (path.length() > 0) {
       // create library
       LibraryTable.ModifiableModel modifiableModel = null;
@@ -253,11 +287,13 @@ public class ScalaConfigUtils {
 
       if (inModuleSettings) {
         StructureConfigurableContext context = ModuleStructureConfigurable.getInstance(project).getContext();
-        LibraryTableModifiableModelProvider provider = context.createModifiableModelProvider(LibraryTablesRegistrar.APPLICATION_LEVEL, true);
+        LibraryTableModifiableModelProvider provider = context
+          .createModifiableModelProvider(inProject ? LibraryTablesRegistrar.PROJECT_LEVEL : LibraryTablesRegistrar.APPLICATION_LEVEL, true);
         modifiableModel = provider.getModifiableModel();
         library = modifiableModel.createLibrary(libName);
       } else {
-        LibraryTable libTable = LibraryTablesRegistrar.getInstance().getLibraryTable();
+        LibraryTable libTable =
+          inProject ? ProjectLibraryTable.getInstance(project) : LibraryTablesRegistrar.getInstance().getLibraryTable();
         library = libTable.getLibraryByName(libName);
         if (library == null) {
           library = LibraryUtil.createLibrary(libTable, libName);
@@ -267,7 +303,7 @@ public class ScalaConfigUtils {
       // fill library
       final Library.ModifiableModel model;
       if (inModuleSettings) {
-        model = ((LibrariesModifiableModel) modifiableModel).getLibraryEditor(library).getModel();
+        model = ((LibrariesModifiableModel)modifiableModel).getLibraryEditor(library).getModel();
       } else {
         model = library.getModifiableModel();
       }
@@ -292,7 +328,9 @@ public class ScalaConfigUtils {
       if (libDir.exists()) {
         File[] jars = libDir.listFiles(scalaJarFilter);
         for (File file : jars) {
-          model.addRoot(VfsUtil.getUrlForLibraryRoot(file), OrderRootType.CLASSES);
+          if (file.getName().endsWith(".jar")) {
+            model.addRoot(VfsUtil.getUrlForLibraryRoot(file), OrderRootType.CLASSES);
+          }
         }
       }
 
@@ -304,9 +342,9 @@ public class ScalaConfigUtils {
     return null;
   }
 
-  public static String generateNewScalaLibName(String version) {
+  public static String generateNewScalaLibName(String version, final Project project) {
     String prefix = SCALA_LIB_PREFIX;
-    return LibrariesUtil.generateNewLibraryName(version, prefix);
+    return LibrariesUtil.generateNewLibraryName(version, prefix, project);
   }
 
   public static void saveScalaDefaultLibName(String name) {
@@ -328,8 +366,18 @@ public class ScalaConfigUtils {
         model.removeRoot(url, type);
   }
 
-  public static Collection<String> getScalaVersions() {
-    return ContainerUtil.map2List(getScalaLibraries(), new Function<Library, String>() {
+  public static Library createLibFirstTime(String baseName) {
+    LibraryTable libTable = LibraryTablesRegistrar.getInstance().getLibraryTable();
+    Library library = libTable.getLibraryByName(baseName);
+    if (library == null) {
+      library = LibraryUtil.createLibrary(libTable, baseName);
+    }
+    return library;
+  }
+
+
+  public static Collection<String> getScalaVersions(final Module module) {
+    return ContainerUtil.map2List(getAllScalaLibraries(module.getProject()), new Function<Library, String>() {
       public String fun(Library library) {
         return getScalaLibVersion(library);
       }
@@ -347,6 +395,28 @@ public class ScalaConfigUtils {
     if (libraries.length == 0) return "";
     Library library = libraries[0];
     return LibrariesUtil.getScalaLibraryHome(library);
+  }
+
+  public static void setUpScalaFacet(final ModifiableRootModel model) {
+    LibraryTable libTable = LibraryTablesRegistrar.getInstance().getLibraryTable();
+    final Project project = model.getModule().getProject();
+    String name = ScalaApplicationSettings.getInstance().DEFAULT_SCALA_LIB_NAME;
+    if (name != null && libTable.getLibraryByName(name) != null) {
+      Library library = libTable.getLibraryByName(name);
+      if (isScalaSdkLibrary(library)) {
+        LibraryOrderEntry entry = model.addLibraryEntry(library);
+        LibrariesUtil.placeEntryToCorrectPlace(model, entry);
+      }
+    } else {
+      final Library[] libraries = getAllScalaLibraries(project);
+      if (libraries.length > 0) {
+        Library library = libraries[0];
+        if (isScalaSdkLibrary(library)) {
+          LibraryOrderEntry entry = model.addLibraryEntry(library);
+          LibrariesUtil.placeEntryToCorrectPlace(model, entry);
+        }
+      }
+    }
   }
 
 }

@@ -18,17 +18,14 @@ package org.jetbrains.plugins.scala.config;
 import com.intellij.facet.Facet;
 import com.intellij.facet.FacetModel;
 import com.intellij.facet.FacetType;
+import com.intellij.facet.FacetTypeRegistry;
 import com.intellij.facet.autodetecting.DetectedFacetPresentation;
 import com.intellij.facet.autodetecting.FacetDetector;
 import com.intellij.facet.autodetecting.FacetDetectorRegistry;
+import com.intellij.openapi.module.JavaModuleType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
-import com.intellij.openapi.module.StdModuleTypes;
-import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.libraries.LibraryTable;
-import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileFilter;
@@ -37,8 +34,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.icons.Icons;
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
-import org.jetbrains.plugins.scala.util.LibrariesUtil;
 
 import javax.swing.*;
 import java.util.Collection;
@@ -50,15 +45,18 @@ public class ScalaFacetType extends FacetType<ScalaFacet, ScalaFacetConfiguratio
 
   public static final ScalaFacetType INSTANCE = new ScalaFacetType();
 
-  public org.jetbrains.plugins.scala.config.ScalaFacetConfiguration createDefaultConfiguration() {
-    return new org.jetbrains.plugins.scala.config.ScalaFacetConfiguration();
-  }
-
   private ScalaFacetType() {
     super(ScalaFacet.ID, "Scala", "Scala");
   }
 
-  public ScalaFacet createFacet(@NotNull Module module, String name, @NotNull org.jetbrains.plugins.scala.config.ScalaFacetConfiguration configuration, @Nullable Facet underlyingFacet) {
+  public ScalaFacetConfiguration createDefaultConfiguration() {
+    return new ScalaFacetConfiguration();
+  }
+
+  public ScalaFacet createFacet(@NotNull Module module,
+                                 String name,
+                                 @NotNull ScalaFacetConfiguration configuration,
+                                 @Nullable Facet underlyingFacet) {
     return new ScalaFacet(this, module, name, configuration, underlyingFacet);
   }
 
@@ -66,15 +64,11 @@ public class ScalaFacetType extends FacetType<ScalaFacet, ScalaFacetConfiguratio
     return Icons.FILE_TYPE_LOGO;
   }
 
-  public boolean isOnlyOneFacetAllowed() {
-    return true;
-  }
-
   public boolean isSuitableModuleType(ModuleType moduleType) {
-    return moduleType == StdModuleTypes.JAVA || "PLUGIN_MODULE".equals(moduleType.getId());
+    return (moduleType instanceof JavaModuleType || "PLUGIN_MODULE".equals(moduleType.getId()));
   }
 
-    public void registerDetectors(final FacetDetectorRegistry<ScalaFacetConfiguration> registry) {
+  public void registerDetectors(final FacetDetectorRegistry<ScalaFacetConfiguration> registry) {
     FacetDetector<VirtualFile, ScalaFacetConfiguration> detector = new ScalaFacetDetector();
 
     final Ref<Boolean> alreadyDetected = new Ref<Boolean>(false);
@@ -82,7 +76,7 @@ public class ScalaFacetType extends FacetType<ScalaFacet, ScalaFacetConfiguratio
       public boolean accept(VirtualFile virtualFile) {
         if (alreadyDetected.get()) return true;
         alreadyDetected.set(true);
-        if (ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension().equals(virtualFile.getExtension())) {
+        if (ScalaFileType.DEFAULT_EXTENSION.equals(virtualFile.getExtension())) {
           registry.customizeDetectedFacetPresentation(new ScalaFacetPresentation());
           return true;
         }
@@ -94,7 +88,16 @@ public class ScalaFacetType extends FacetType<ScalaFacet, ScalaFacetConfiguratio
     registry.registerUniversalDetector(ScalaFileType.SCALA_FILE_TYPE, grailsFacetFilter, detector);
   }
 
-    private class ScalaFacetDetector extends FacetDetector<VirtualFile, ScalaFacetConfiguration> {
+  public static ScalaFacetType getInstance() {
+    final ScalaFacetType facetType = (ScalaFacetType) FacetTypeRegistry.getInstance().findFacetType(ScalaFacet.ID);
+    assert facetType != null;
+    return facetType;
+  }
+
+  private class ScalaFacetDetector extends FacetDetector<VirtualFile, ScalaFacetConfiguration> {
+    public ScalaFacetDetector() {
+      super("scala-detector");
+    }
 
     public ScalaFacetConfiguration detectFacet(VirtualFile source, Collection<ScalaFacetConfiguration> existentFacetConfigurations) {
       if (!existentFacetConfigurations.isEmpty()) {
@@ -104,15 +107,7 @@ public class ScalaFacetType extends FacetType<ScalaFacet, ScalaFacetConfiguratio
     }
 
     public void beforeFacetAdded(@NotNull Facet facet, FacetModel facetModel, @NotNull ModifiableRootModel model) {
-      LibraryTable libTable = LibraryTablesRegistrar.getInstance().getLibraryTable();
-      String name = ScalaApplicationSettings.getInstance().DEFAULT_SCALA_LIB_NAME;
-      if (name != null && libTable.getLibraryByName(name) != null) {
-        Library library = libTable.getLibraryByName(name);
-        if (ScalaConfigUtils.isScalaSdkLibrary(library)) {
-          LibraryOrderEntry entry = model.addLibraryEntry(library);
-          LibrariesUtil.placeEntryToCorrectPlace(model, entry);
-        }
-      }
+      ScalaConfigUtils.setUpScalaFacet(model);
     }
   }
 
@@ -123,4 +118,5 @@ public class ScalaFacetType extends FacetType<ScalaFacet, ScalaFacetConfiguratio
       return ScalaBundle.message("new.scala.facet.detected");
     }
   }
+
 }

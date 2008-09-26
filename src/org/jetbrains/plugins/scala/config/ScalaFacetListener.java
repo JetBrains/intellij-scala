@@ -65,16 +65,15 @@ public class ScalaFacetListener extends FacetManagerAdapter implements ModuleCom
   }
 
   public void projectOpened() {
-    // called when project is opened
+    // called when myProject is opened
   }
 
   public void projectClosed() {
-    // called when project is being closed
+    // called when myProject is being closed
   }
 
   public void moduleAdded() {
     // Invoked when the module corresponding to this component instance has been completely
-    // loaded and added to the project.
+    // loaded and added to the myProject.
   }
-
 }

@@ -31,19 +31,21 @@ import org.jetbrains.plugins.scala.config.ui.ScalaFacetTab;
 /**
  * @author ilyas
  */
-public class ScalaFacetConfiguration implements FacetConfiguration {
+public class ScalaFacetConfiguration implements FacetConfiguration{
 
-  public FacetEditorTab[] createEditorTabs(final FacetEditorContext editorContext, final FacetValidatorsManager validatorsManager) {
+  public String getDisplayName() {
+    return "Scala";
+  }
+
+  public FacetEditorTab[] createEditorTabs(FacetEditorContext editorContext, FacetValidatorsManager validatorsManager) {
     return new FacetEditorTab[]{
-            new ScalaFacetTab(editorContext, validatorsManager)
+        new ScalaFacetTab(editorContext, validatorsManager)
     };
   }
 
   public void readExternal(Element element) throws InvalidDataException {
-
   }
 
   public void writeExternal(Element element) throws WriteExternalException {
-
   }
 }

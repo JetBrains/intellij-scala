@@ -16,6 +16,8 @@
 package org.jetbrains.plugins.scala.config;
 
 import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.plugins.scala.icons.Icons;
 import org.jetbrains.plugins.scala.config.util.AbstractSDK;
 
@@ -27,14 +29,23 @@ import javax.swing.*;
 public class ScalaSDK implements AbstractSDK {
 
   protected Library myLibrary;
+  private final boolean myProjectLib;
   protected String mySdkVersion;
+  private Module myModule;
 
-  public ScalaSDK(Library library) {
+  public ScalaSDK(final Library library, final Module module, final boolean isProjectLib) {
+    myModule = module;
     myLibrary = library;
+    myProjectLib = isProjectLib;
     mySdkVersion = ScalaConfigUtils.getScalaLibVersion(library);
   }
 
-  public ScalaSDK() {
+  public Module getModule() {
+    return myModule;
+  }
+
+  public Project getProject() {
+    return myModule.getProject();
   }
 
   public Library getLibrary() {
@@ -45,11 +56,19 @@ public class ScalaSDK implements AbstractSDK {
     return mySdkVersion;
   }
 
-  public String getLibraryName(){
+  public String getLibraryName() {
     return myLibrary.getName();
   }
 
-  public Icon getIcon(){
+  public boolean isProjectLib() {
+    return myProjectLib;
+  }
+
+  public String getPresentation() {
+    return " (Scala version \"" + getSdkVersion() + "\")" + (isProjectLib() ? " [" + getModule().getProject().getName() + "]" : "");
+  }
+
+  public Icon getIcon() {
     return Icons.SCALA_SDK;
   }
 }

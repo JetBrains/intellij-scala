@@ -32,6 +32,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
+import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nls;
@@ -58,6 +59,7 @@ public class ScalaFacetTab extends FacetEditorTab {
 
   private ScalaSDKComboBox myComboBox;
   private JButton myNewButton;
+  private Module myModule;
   private JPanel myPanel;
   private FacetEditorContext myEditorContext;
   private FacetValidatorsManager myValidatorsManager;
@@ -67,8 +69,9 @@ public class ScalaFacetTab extends FacetEditorTab {
   private String oldScalaLibName = "";
   private String newScalaLibName = "";
 
-
   public ScalaFacetTab(FacetEditorContext editorContext, FacetValidatorsManager validatorsManager) {
+    myModule = editorContext.getModule();
+    setUpComboBox();
     myNewButton.setMnemonic(KeyEvent.VK_N);
     myEditorContext = editorContext;
     myValidatorsManager = validatorsManager;
@@ -76,6 +79,20 @@ public class ScalaFacetTab extends FacetEditorTab {
     reset();
     myLibraryListener = new MyLibraryTableListener();
     LibraryTablesRegistrar.getInstance().getLibraryTable().addListener(myLibraryListener);
+    ProjectLibraryTable.getInstance(myModule.getProject()).addListener(myLibraryListener);
+  }
+
+  private void setUpComboBox() {
+    myComboBox.setModule(myModule);
+    myComboBox.setModel(new ScalaSDKComboBox.ScalaSDKComboBoxModel(myModule));
+    myComboBox.insertItemAt(new ScalaSDKComboBox.NoScalaSDKComboBoxItem(), 0);
+    final Object o = myComboBox.getSelectedItem();
+    if (o instanceof ScalaSDKComboBox.DefaultScalaSDKComboBoxItem) {
+      ScalaSDKComboBox.DefaultScalaSDKComboBoxItem item = (ScalaSDKComboBox.DefaultScalaSDKComboBoxItem)o;
+      oldScalaLibName = newScalaLibName = item.getName();
+    } else if (o == null){
+      myComboBox.setSelectedIndex(0);
+    }
   }
 
 
@@ -89,11 +106,18 @@ public class ScalaFacetTab extends FacetEditorTab {
   }
 
   public boolean isModified() {
-    if (!oldScalaLibName.equals(newScalaLibName)) return true;
+    if (!oldScalaLibName.equals(newScalaLibName)) {
+      return true;
+    }
     for (ScalaSDKComboBox.DefaultScalaSDKComboBoxItem item : myComboBox.getAllItems()) {
       if (item instanceof ScalaSDKComboBox.ScalaSDKPointerItem) return true;
     }
     return false;
+  }
+
+  @Override
+  public String getHelpTopic() {
+    return super.getHelpTopic();
   }
 
   public void onFacetInitialized(@NotNull Facet facet) {
@@ -102,7 +126,8 @@ public class ScalaFacetTab extends FacetEditorTab {
   }
 
   private void fireRootsChangedEvent() {
-    final ScalaSDKComboBox.DefaultScalaSDKComboBoxItem selectedItem = (ScalaSDKComboBox.DefaultScalaSDKComboBoxItem) myComboBox.getSelectedItem();
+    final ScalaSDKComboBox.DefaultScalaSDKComboBoxItem selectedItem =
+      (ScalaSDKComboBox.DefaultScalaSDKComboBoxItem)myComboBox.getSelectedItem();
     final Module module = myEditorContext.getModule();
     if (module != null) {
       final Project project = module.getProject();
@@ -110,12 +135,13 @@ public class ScalaFacetTab extends FacetEditorTab {
         public void run() {
           ScalaSDK sdk = null;
           if (selectedItem instanceof ScalaSDKComboBox.ScalaSDKPointerItem) {
-            ScalaSDKComboBox.ScalaSDKPointerItem pointerItem = (ScalaSDKComboBox.ScalaSDKPointerItem) selectedItem;
+            ScalaSDKComboBox.ScalaSDKPointerItem pointerItem = (ScalaSDKComboBox.ScalaSDKPointerItem)selectedItem;
+            final ScalaSDKPointer pointer = pointerItem.getPointer();
             String name = pointerItem.getName();
             String path = pointerItem.getPath();
-            Library library = ScalaConfigUtils.createScalaLibrary(path, name, project, true);
+            Library library = ScalaConfigUtils.createScalaLibrary(path, name, project, true, pointer.isProjectLib());
             if (library != null) {
-              sdk = new ScalaSDK(library);
+              sdk = new ScalaSDK(library, myModule, pointer.isProjectLib());
             }
           } else {
             sdk = selectedItem.getScalaSDK();
@@ -126,10 +152,11 @@ public class ScalaFacetTab extends FacetEditorTab {
           for (int i = 0; i < myComboBox.getItemCount(); i++) {
             Object item = myComboBox.getItemAt(i);
             if (item != selectedItem && item instanceof ScalaSDKComboBox.ScalaSDKPointerItem) {
-              ScalaSDKComboBox.ScalaSDKPointerItem pointerItem = (ScalaSDKComboBox.ScalaSDKPointerItem) item;
+              ScalaSDKComboBox.ScalaSDKPointerItem pointerItem = (ScalaSDKComboBox.ScalaSDKPointerItem)item;
+              final ScalaSDKPointer pointer = pointerItem.getPointer();
               String name = pointerItem.getName();
               String path = pointerItem.getPath();
-              ScalaConfigUtils.createScalaLibrary(path, name, project, true);
+              ScalaConfigUtils.createScalaLibrary(path, name, project, true, pointer.isProjectLib());
             }
           }
         }
@@ -145,14 +172,12 @@ public class ScalaFacetTab extends FacetEditorTab {
     Module module = myEditorContext.getModule();
     if (module != null && FacetManager.getInstance(module).getFacetByType(ScalaFacet.ID) != null) {
       Library[] libraries = ScalaConfigUtils.getScalaLibrariesByModule(myEditorContext.getModule());
-      if (libraries.length != 1) {
+      if (libraries.length == 0) {
         myComboBox.setSelectedIndex(0);
         oldScalaLibName = newScalaLibName;
       } else {
         Library library = libraries[0];
-        if (library != null &&
-            library.getName() != null &&
-            LibraryTablesRegistrar.getInstance().getLibraryTable().getLibraryByName(library.getName()) != null) {
+        if (library != null && library.getName() != null) {
           myComboBox.selectLibrary(library);
           oldScalaLibName = newScalaLibName;
         }
@@ -172,7 +197,7 @@ public class ScalaFacetTab extends FacetEditorTab {
   }
 
   private void createUIComponents() {
-    setUpComboBox();
+    initComboBox();
   }
 
   private void setUpComponents() {
@@ -191,20 +216,25 @@ public class ScalaFacetTab extends FacetEditorTab {
           if (files.length > 0) {
             String path = files[0].getPath();
             if (ValidationResult.OK == ScalaConfigUtils.isScalaSdkHome(path)) {
-              Collection<String> versions = ScalaConfigUtils.getScalaVersions();
+              Collection<String> versions = ScalaConfigUtils.getScalaVersions(myModule);
               String version = ScalaConfigUtils.getScalaVersion(path);
               boolean addVersion = !versions.contains(version) ||
-                  Messages.showOkCancelDialog(ScalaBundle.message("duplicate.scala.lib.version.add", version),
-                      ScalaBundle.message("duplicate.scala.lib.version"),
-                      Icons.BIG_ICON) == 0;
+                                   Messages.showOkCancelDialog(ScalaBundle.message("duplicate.scala.lib.version.add", version),
+                                                               ScalaBundle.message("duplicate.scala.lib.version"),
+                                                               Icons.BIG_ICON) == 0;
 
               if (addVersion && !ScalaConfigUtils.UNDEFINED_VERSION.equals(version)) {
                 String name = myComboBox.generatePointerName(version);
-                myComboBox.addSdk(new ScalaSDKPointer(name, path, version));
-                newScalaLibName = name;
+                final CreateLibraryDialog dialog = new CreateLibraryDialog(project, name);
+                dialog.show();
+                if (dialog.isOK()) {
+                  myComboBox.addSdk(new ScalaSDKPointer(name, path, version, dialog.isInProject()));
+                  newScalaLibName = name;
+                }
               }
             } else {
-              Messages.showErrorDialog(ScalaBundle.message("invalid.scala.sdk.path.message"), ScalaBundle.message("invalid.scala.sdk.path.text"));
+              Messages.showErrorDialog(ScalaBundle.message("invalid.scala.sdk.path.message"),
+                                       ScalaBundle.message("invalid.scala.sdk.path.text"));
             }
           }
         }
@@ -212,24 +242,22 @@ public class ScalaFacetTab extends FacetEditorTab {
     }
   }
 
-  private void setUpComboBox() {
-    myComboBox = new ScalaSDKComboBox();
-    myComboBox.insertItemAt(new ScalaSDKComboBox.NoScalaSDKComboBoxItem(), 0);
+  private void initComboBox() {
+    myComboBox = new ScalaSDKComboBox(null);
     myComboBox.addItemListener(new ItemListener() {
       public void itemStateChanged(ItemEvent e) {
         final Object o = e.getItem();
         if (o instanceof ScalaSDKComboBox.ScalaSDKComboBoxItem) {
-          final ScalaSDK sdk = ((ScalaSDKComboBox.ScalaSDKComboBoxItem) o).getScalaSDK();
+          final ScalaSDK sdk = ((ScalaSDKComboBox.ScalaSDKComboBoxItem)o).getScalaSDK();
           newScalaLibName = sdk.getLibraryName();
         } else if (o instanceof ScalaSDKComboBox.ScalaSDKPointerItem) {
-          final ScalaSDKPointer pointer = ((ScalaSDKComboBox.ScalaSDKPointerItem) o).getPointer();
+          final ScalaSDKPointer pointer = ((ScalaSDKComboBox.ScalaSDKPointerItem)o).getPointer();
           newScalaLibName = pointer.getLibraryName();
         } else {
           newScalaLibName = "";
         }
       }
     });
-    myComboBox.setSelectedIndex(0);
   }
 
   private void updateComboBox() {
@@ -252,7 +280,6 @@ public class ScalaFacetTab extends FacetEditorTab {
     }
 
     public void beforeLibraryRemoved(Library library) {
-
     }
 
   }

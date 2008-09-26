@@ -23,8 +23,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
+import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.util.Condition;
+import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.Function;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.config.ScalaConfigUtils;
 
@@ -32,6 +36,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * @author ilyas
@@ -44,14 +50,15 @@ public class ScalaFacetEditor {
   private FacetEditorContext myEditorContext;
   private LibraryTable.Listener myLibraryListener;
 
-  public ScalaFacetEditor(String[] versions, String defaultVersion) {
+  public ScalaFacetEditor(@Nullable Project project, String defaultVersion) {
     myLibraryListener = new MyLibraryListener();
+    Library[] libraries = getScalaLibraries(project);
 
-    if (versions.length > 0) {
+    if (libraries.length > 0) {
       if (defaultVersion == null) {
-        defaultVersion = versions[versions.length - 1];
+        defaultVersion = libraries[libraries.length - 1].getName();
       }
-      adjustVersionComboBox(versions, defaultVersion);
+      adjustVersionComboBox(libraries, defaultVersion);
     } else {
       myComboBox.setEnabled(false);
       myComboBox.setVisible(false);
@@ -59,39 +66,80 @@ public class ScalaFacetEditor {
 
     FacetEditorContext context = getEditorContext();
     configureEditFieldForScalaPath(context != null ? context.getProject() : null);
-    configureNewGdkCheckBox(versions.length > 0);
-    LibraryTablesRegistrar.getInstance().getLibraryTable().addListener(myLibraryListener);
+    configureNewGdkCheckBox(libraries.length > 0);
+    addListenerToTables(project);
   }
 
-  public String getSelectedVersion() {
-    String version = null;
-    if (myComboBox != null && myComboBox.getSelectedItem() != null) {
-      version = myComboBox.getSelectedItem().toString();
+  private static Library[] getScalaLibraries(final Project project) {
+    final Library[] versions = ScalaConfigUtils.getAllScalaLibraries(project);
+    Arrays.sort(versions, new Comparator<Library>() {
+      public int compare(Library o1, Library o2) {
+        final String name1 = o1.getName();
+        final String name2 = o2.getName();
+        if (name1 == null || name2 == null) return 1;
+        return -name1.compareToIgnoreCase(name2);
+      }
+    });
+    return versions;
+  }
+
+  private void addListenerToTables(@Nullable final Project project) {
+    LibraryTablesRegistrar.getInstance().getLibraryTable().addListener(myLibraryListener);
+    if (project != null) {
+      ProjectLibraryTable.getInstance(project).addListener(myLibraryListener);
     }
-    return version;
   }
 
   @Nullable
-  public String getNewSdkPath(){
+  public Library getSelectedLibrary() {
+    if (myComboBox != null && myComboBox.getSelectedItem() != null && myComboBox.getSelectedItem() instanceof MyLibraryStruct) {
+      return ((MyLibraryStruct)myComboBox.getSelectedItem()).library;
+    }
+    return null;
+  }
+
+  @Nullable
+  public String getNewSdkPath() {
     return myPathToScala.getText();
   }
 
-  public boolean addNewSdk(){
+  public boolean addNewSdk() {
     return myAddNewSdkCb.isSelected() && myPathToScala.isVisible();
   }
 
-  private void adjustVersionComboBox(String[] versions, String defaultVersion) {
+  private void adjustVersionComboBox(Library[] libraries, final String defaultGlobalLibName) {
     myComboBox.removeAllItems();
     String maxValue = "";
-    for (String version : versions) {
-      myComboBox.addItem(version);
+    final MyLibraryStruct[] structs = ContainerUtil.map(libraries, new Function<Library, MyLibraryStruct>() {
+      public MyLibraryStruct fun(final Library library) {
+        return new MyLibraryStruct(library);
+      }
+    }, new MyLibraryStruct[0]);
+
+    for (MyLibraryStruct struct : structs) {
+      myComboBox.addItem(struct);
+      final String version = struct.toString();
       FontMetrics fontMetrics = myComboBox.getFontMetrics(myComboBox.getFont());
       if (fontMetrics.stringWidth(version) > fontMetrics.stringWidth(maxValue)) {
         maxValue = version;
       }
     }
+
     myComboBox.setPrototypeDisplayValue(maxValue + "_");
-    myComboBox.setSelectedItem(defaultVersion);
+    if (defaultGlobalLibName != null) {
+      final MyLibraryStruct defaultStruct = ContainerUtil.find(structs, new Condition<MyLibraryStruct>() {
+        public boolean value(final MyLibraryStruct struct) {
+          final String name = struct.toString();
+          return name != null && name.equals(defaultGlobalLibName) &&
+                 LibraryTablesRegistrar.getInstance().getLibraryTable().getLibraryByName(defaultGlobalLibName) != null;
+        }
+      });
+      if (defaultStruct != null) {
+        myComboBox.setSelectedItem(defaultStruct);
+      } else if (structs.length > 0) {
+        myComboBox.setSelectedItem(structs[0]);
+      }
+    }
   }
 
   private void configureNewGdkCheckBox(boolean hasVersions) {
@@ -154,7 +202,7 @@ public class ScalaFacetEditor {
   }
 
   private void createUIComponents() {
-    myComboBox = new JComboBox(){
+    myComboBox = new JComboBox() {
       public void setEnabled(boolean enabled) {
         super.setEnabled(!myAddNewSdkCb.isSelected() && enabled);
       }
@@ -163,31 +211,45 @@ public class ScalaFacetEditor {
 
   private class MyLibraryListener implements LibraryTable.Listener {
     public void afterLibraryAdded(Library library) {
-      for (Library lib : ScalaConfigUtils.getScalaLibraries()) {
-        if (lib == library) {
-          myComboBox.addItem(library.getName());
+      for (Library scalaLib : ScalaConfigUtils.getGlobalScalaLibraries()) {
+        if (scalaLib == library) {
+          myComboBox.addItem(new MyLibraryStruct(library));
         }
       }
     }
 
     public void afterLibraryRenamed(Library library) {
-      for (Library lib : ScalaConfigUtils.getScalaLibraries()) {
-        if (lib == library) {
-          myComboBox.addItem(library.getName());
+      for (Library scalaLib : ScalaConfigUtils.getGlobalScalaLibraries()) {
+        if (scalaLib == library) {
+          myComboBox.addItem(new MyLibraryStruct(library));
         }
       }
     }
 
     public void beforeLibraryRemoved(Library library) {
-      for (Library lib : ScalaConfigUtils.getScalaLibraries()) {
-        if (lib == library) {
-          myComboBox.removeItem(library.getName());
+      for (Library scalaLib : ScalaConfigUtils.getGlobalScalaLibraries()) {
+        if (scalaLib == library) {
+          myComboBox.removeItem(new MyLibraryStruct(library));
         }
       }
 
     }
 
     public void afterLibraryRemoved(Library library) {
+    }
+  }
+
+  private static class MyLibraryStruct {
+    final Library library;
+
+    public MyLibraryStruct(final Library library) {
+      this.library = library;
+    }
+
+    @Nullable
+    @Override
+    public String toString() {
+      return library != null ? library.getName(): null;
     }
   }
 }
