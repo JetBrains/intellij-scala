@@ -80,6 +80,8 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
           return findExpressionInRange(file, element1.getTextRange().getEndOffset(), endOffset)
         if (element2.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)
           return findExpressionInRange(file, startOffset, element2.getTextRange().getStartOffset())
+        if (ScalaTokenTypes.COMMENTS_TOKEN_SET contains element2.getNode.getElementType)
+          return findExpressionInRange(file, startOffset, element2.getTextRange().getStartOffset())
       }
     }
 
@@ -87,7 +89,8 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
       var element = file.findElementAt(startOffset)
       while (element != null && !element.isInstanceOf[ScExpression] && !element.isInstanceOf[ScValue] &&
               !element.isInstanceOf[ScVariable] && !element.isInstanceOf[PsiWhiteSpace] &&
-              element.getNode.getElementType != ScalaTokenTypes.tLINE_TERMINATOR ||
+              element.getNode.getElementType != ScalaTokenTypes.tLINE_TERMINATOR &&
+              !ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(element.getNode.getElementType)||
               (element.getParent().getTextRange().getStartOffset() == startOffset &&
                       (element.getParent().isInstanceOf[ScExpression] ||
                               element.getParent().isInstanceOf[ScValue] ||
