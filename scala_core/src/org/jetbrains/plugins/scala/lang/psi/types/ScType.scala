@@ -98,11 +98,14 @@ object ScType {
     case Short => PsiType.SHORT
     case Null => PsiType.NULL
     case ScDesignatorType(c : PsiClass) => JavaPsiFacade.getInstance(project).getElementFactory.createType(c, PsiSubstitutor.EMPTY)
-    case ScParameterizedType(ScDesignatorType(c : PsiClass), Array(arg)) if c.getQualifiedName == "scala.Array" =>
-      new PsiArrayType(toPsi(arg, project, scope))
-
-    //Scala generics will be java generics in 2.7.2
-
+    case ScParameterizedType(ScDesignatorType(c : PsiClass), args) =>
+      if (c.getQualifiedName == "scala.Array" && args.length == 1)
+        new PsiArrayType(toPsi(args(0), project, scope))
+      else {
+        val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY)
+                  {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope))} 
+        JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
+      }
     case _ => JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
   }
 
