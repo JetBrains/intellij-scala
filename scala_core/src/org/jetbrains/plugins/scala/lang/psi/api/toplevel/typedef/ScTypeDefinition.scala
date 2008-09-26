@@ -66,5 +66,9 @@ with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable {
   def allVals(): Iterator[Pair[PsiNamedElement, ScSubstitutor]]
   def allMethods(): Iterator[PhysicalSignature]
 
-
+  /**
+   * Add only real members to this class in current caret position.
+   * @param meth member which added to this type definition
+   */
+  def addMember(meth: PsiElement)
 }
