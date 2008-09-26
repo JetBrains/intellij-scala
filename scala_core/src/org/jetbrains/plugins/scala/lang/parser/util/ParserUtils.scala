@@ -13,23 +13,6 @@ import com.intellij.lang.PsiBuilder
 
 object ParserUtils extends ParserUtilsBase {
 
-  // Do not use it! (Very slow). Use Java version instead
-  /*
-    def lookAhead(builder: PsiBuilder, elems: IElementType*): Boolean = {
-      val rb = builder.mark
-      for (val elem <- elems) {
-        if (!builder.eof && elem == builder.getTokenType) {
-          builder.advanceLexer
-        } else {
-          rb.rollbackTo()
-          return false
-        }
-      }
-      rb.rollbackTo()
-      true
-    }
-  */
-
   def lookAheadSeq(n: Int)(builder: PsiBuilder) = (1 to n).map(i => {
     val token = if (!builder.eof) builder.getTokenType else null
     builder.advanceLexer
@@ -141,4 +124,15 @@ object ParserUtils extends ParserUtilsBase {
     }
   }
 
+
+  def withMarker(t : ScalaElementType, builder : PsiBuilder)  (inner : => Boolean) : Boolean = {
+    val marker = builder.mark
+    if (inner) {
+      marker.done(t)
+      true
+    } else {
+      marker.rollbackTo
+      false
+    }
+  }
 }
