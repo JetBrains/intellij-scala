@@ -25,7 +25,7 @@ class ScImportSelectorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
   override def toString: String = "ImportSelector"
 
   def importedName () = {
-    val id = findChildByType(TokenSets.IMPORTED_NAME_SET)
+    val id = findChildByType(TokenSets.ID_SET)
     if (id == null) reference.refName else id.getText
   }
 

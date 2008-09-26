@@ -48,5 +48,5 @@ class ScTypeParamImpl(node: ASTNode) extends ScTypeBoundsOwnerImpl(node) with Sc
 
   def owner  = getParent.getParent.asInstanceOf[ScTypeParametersOwner]
 
-  def nameId = findLastChildByType(ScalaTokenTypes.tIDENTIFIER)
+  def nameId = findLastChildByType(TokenSets.ID_SET)
 }

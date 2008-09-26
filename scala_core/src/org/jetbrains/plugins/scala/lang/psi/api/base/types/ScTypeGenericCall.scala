@@ -11,6 +11,5 @@ trait ScParameterizedTypeElement extends ScTypeElement {
 
   def typeArgList: ScTypeArgs
 
-  def simpleTypeElement: ScSimpleTypeElement
-
+  def typeElement: ScTypeElement
 }
