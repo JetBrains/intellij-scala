@@ -78,8 +78,12 @@ object ScalaOIUtil {
 
     val selectedMembers = chooser.getSelectedElements
     if (selectedMembers == null || selectedMembers.size == 0) return
+    runAction(selectedMembers, isImplement, clazz, editor)
+  }
+
+  def runAction(selectedMembers: java.util.List[ClassMember],
+               isImplement: Boolean, clazz: ScTypeDefinition, editor: Editor) {
     for (member <- selectedMembers.toArray(new Array[ClassMember](selectedMembers.size))) {
-      //todo: create body from template
       member match {
         case member: ScMethodMember => {
           val method: PsiMethod = member.getElement

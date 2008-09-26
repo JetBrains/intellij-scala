@@ -4,6 +4,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
  * @author ilyas
  */
 
+import api.statements._
 import com.intellij.psi.stubs.IStubElementType
 import stubs.ScTypeDefinitionStub
 import _root_.scala.collection.immutable.Set
@@ -37,9 +38,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.VisibilityIcons
 import com.intellij.openapi.util.Iconable
 import javax.swing.Icon
-import api.statements.{ScFunction, ScTypeAlias}
 import types.{ScSubstitutor, ScType}
-import api.statements.{ScValue, ScVariable}
 import Misc._
 
 abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScTypeDefinition](node) with ScTypeDefinition with PsiClassFake  {
@@ -229,4 +228,54 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
 
   def functionsByName(name: String) =
     for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method == name) yield n.info.method
+
+  def addMember(meth: PsiElement) {
+    /*//checking member
+    meth match {
+      case _: ScValue | _: ScFunction | _: ScVariable | _: ScTypeAlias =>
+      case _ => return
+    }
+    val body = clazz.extendsBlock.templateBody match {
+      case Some(x) => x
+      case None => return
+    }
+    //if body is not empty
+    if (body.getChildren.length != 0) {
+      val offset = editor.getCaretModel.getOffset
+      //current element
+      var element = body.getContainingFile.findElementAt(offset)
+      while (element != null && element.getParent != body) element = element.getParent
+      if (element == null) return
+      //Look at some exceptions
+      val t = element.getNode.getElementType
+      element.getNode.getElementType match {
+        case ScalaTokenTypes.tLINE_TERMINATOR | TokenType.WHITE_SPACE => element = element.getNextSibling
+        case ScalaTokenTypes.tLBRACE => {
+          element = element.getNextSibling
+          element.getNode.getElementType match {
+            case ScalaTokenTypes.tLINE_TERMINATOR => element = element.getNextSibling
+            case _ => body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
+          }
+        }
+        case _ =>
+      }
+      //now we can add new statement before this element or after if it is the end
+      body.getNode.addChild(meth.getNode, element.getNode)
+      body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
+    } else {
+      val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.
+          createOverrideImplementTypeBody(alias, substitutor, alias.getManager, !isImplement)).asInstanceOf[ScTemplateBody]
+      meth = newBody.aliases(0)
+      newBody.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
+    }
+    meth match {
+      case meth: ScTypeAliasDefinition => {
+        val body = meth.aliasedTypeElement
+        val offset = body.getTextRange.getStartOffset
+        editor.getCaretModel.moveToOffset(offset)
+        editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
+      }
+      case _ =>
+    }*/
+  }
 }
