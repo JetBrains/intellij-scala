@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.folding
 
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.PsiWhiteSpace
 import scaladoc.parser.ScalaDocElementTypes
 import _root_.scala.collection.mutable._
-
 import java.util.ArrayList;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.folding.FoldingBuilder;
@@ -23,20 +23,22 @@ import com.intellij.openapi.util._
 
 class ScalaFoldingBuilder extends FoldingBuilder {
 
+  import ScalaFoldingUtil._
+
   private def appendDescriptors(node: ASTNode,
-          document: Document,
-          descriptors: ArrayBuffer[FoldingDescriptor]): Unit = {
+                               document: Document,
+                               descriptors: ArrayBuffer[FoldingDescriptor]): Unit = {
 
 
-    if (isMultiline(node) || (node.getElementType == ScalaElementTypes.IMPORT_STMT && isMultilineImport(node))) {
+    if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaElementTypes.TEMPLATE_BODY |
-             ScalaDocElementTypes.SCALA_DOC_COMMENT  => descriptors += (new FoldingDescriptor(node, node.getTextRange))
+                ScalaDocElementTypes.SCALA_DOC_COMMENT => descriptors += (new FoldingDescriptor(node, node.getTextRange))
         case ScalaElementTypes.PACKAGING => descriptors += (new FoldingDescriptor(node,
-             new TextRange(node.getTextRange.getStartOffset + 8, node.getTextRange.getEndOffset)))
+          new TextRange(node.getTextRange.getStartOffset + PACKAGE_KEYWORD.length + 1, node.getTextRange.getEndOffset)))
         case ScalaElementTypes.IMPORT_STMT if isGoodImport(node) => {
           descriptors += (new FoldingDescriptor(node,
-             new TextRange(node.getTextRange.getStartOffset + 7, getImportEnd(node))))
+            new TextRange(node.getTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node))))
         }
         case _ =>
       }
@@ -59,7 +61,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   }
 
   def getPlaceholderText(node: ASTNode): String = {
-    if (isMultiline(node) || (node.getElementType == ScalaElementTypes.IMPORT_STMT && isMultilineImport(node))) {
+    if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT => return "/.../"
         case ScalaDocElementTypes.SCALA_DOC_COMMENT => return "/**...*/"
@@ -71,7 +73,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     }
     if (node.getTreeParent() != null && ScalaElementTypes.FUNCTION_DEFINITION == node.getTreeParent().getElementType) {
       node.getPsi match {
-        case _ : ScBlockExpr => return "{...}"
+        case _: ScBlockExpr => return "{...}"
         case _ => return null
       }
     }
@@ -81,22 +83,20 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 
   def isCollapsedByDefault(node: ASTNode): Boolean = {
     if (node.getTreeParent.getElementType == ScalaElementTypes.FILE &&
-      node.getTreePrev == null && node.getElementType != ScalaElementTypes.PACKAGING) true
+            node.getTreePrev == null && node.getElementType != ScalaElementTypes.PACKAGING) true
     else if (node.getTreeParent.getElementType == ScalaElementTypes.FILE && node.getElementType == ScalaElementTypes.IMPORT_STMT) true
     else false
   }
 
   private def isMultiline(node: ASTNode): Boolean = {
-     return node.getText.indexOf("\n") != -1
+    return node.getText.indexOf("\n") != -1
   }
 
   private def isMultilineImport(node: ASTNode): Boolean = {
+    if (node.getElementType != ScalaElementTypes.IMPORT_STMT) return false
     var next = node
     var flag = false
-    while (next != null && (next.getElementType == ScalaTokenTypes.tSEMICOLON
-        || next.getElementType == ScalaTokenTypes.tLINE_TERMINATOR
-        || next.getPsi.isInstanceOf[PsiWhiteSpace]
-        || next.getElementType == ScalaElementTypes.IMPORT_STMT)) {
+    while (next != null && (next.getPsi.isInstanceOf[LeafPsiElement] || next.getElementType == ScalaElementTypes.IMPORT_STMT)) {
       if (next.getElementType == ScalaElementTypes.IMPORT_STMT) flag = true
       next = next.getTreeNext
     }
@@ -105,9 +105,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 
   private def isGoodImport(node: ASTNode): Boolean = {
     var prev = node.getTreePrev
-    while (prev != null && (prev.getElementType == ScalaTokenTypes.tSEMICOLON
-        || prev.getPsi.isInstanceOf[PsiWhiteSpace]
-        || prev.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)) prev = prev.getTreePrev
+    while (prev != null && prev.getPsi.isInstanceOf[LeafPsiElement]) prev = prev.getTreePrev
     if (prev == null || prev.getElementType != ScalaElementTypes.IMPORT_STMT) true
     else false
   }
@@ -115,13 +113,15 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   private def getImportEnd(node: ASTNode): Int = {
     var next = node
     var last = next.getTextRange.getEndOffset
-    while (next != null && (next.getElementType == ScalaTokenTypes.tSEMICOLON
-        || next.getPsi.isInstanceOf[PsiWhiteSpace]
-        || next.getElementType == ScalaTokenTypes.tLINE_TERMINATOR
-        || next.getElementType == ScalaElementTypes.IMPORT_STMT)) {
-      if (next.getElementType == ScalaElementTypes.IMPORT_STMT || next.getText == ";") last = next.getTextRange.getEndOffset
+    while (next != null && (next.getPsi.isInstanceOf[LeafPsiElement] || next.getElementType == ScalaElementTypes.IMPORT_STMT)) {
+      if (next.getElementType == ScalaElementTypes.IMPORT_STMT || next.getElementType == ScalaTokenTypes.tSEMICOLON) last = next.getTextRange.getEndOffset
       next = next.getTreeNext
     }
     return last
   }
+}
+
+private[folding] object ScalaFoldingUtil {
+  val IMPORT_KEYWORD = "import"
+  val PACKAGE_KEYWORD = "package"
 }
