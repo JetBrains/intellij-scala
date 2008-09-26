@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
+import annotations.Nullable
+import com.intellij.openapi.editor.Editor
 import types.{ScType, PhysicalSignature, ScSubstitutor}
 import base.types.ScSelfTypeElement
 import statements.ScVariable
@@ -67,8 +69,10 @@ with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable {
   def allMethods(): Iterator[PhysicalSignature]
 
   /**
-   * Add only real members to this class in current caret position.
+   * Add only real members (not abstract PsiElement) to this class in current caret position. 
+   * If editor is null, add in template body's start.
    * @param meth member which added to this type definition
+   * @param editor current editor
    */
-  def addMember(meth: PsiElement)
+  def addMember(meth: PsiElement, @Nullable editor: Editor)
 }

@@ -91,50 +91,7 @@ object ScalaOIUtil {
           ScalaUtils.runWriteAction(new Runnable {
             def run {
               var meth = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement)
-              val body: ScTemplateBody = clazz.extendsBlock.templateBody match {
-                case Some(x) => x
-                case None => return
-              }
-              //if body is not empty
-              if (body.getChildren.length != 0) {
-                val offset = editor.getCaretModel.getOffset
-                //current element
-                var element = body.getContainingFile.findElementAt(offset)
-                while (element != null && element.getParent != body) element = element.getParent
-                if (element == null) return
-                //Look at some exceptions
-                val t = element.getNode.getElementType
-                element.getNode.getElementType match {
-                  case ScalaTokenTypes.tLINE_TERMINATOR | TokenType.WHITE_SPACE => element = element.getNextSibling
-                  case ScalaTokenTypes.tLBRACE => {
-                    element = element.getNextSibling
-                    element.getNode.getElementType match {
-                      case ScalaTokenTypes.tLINE_TERMINATOR => element = element.getNextSibling
-                      case _ => body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
-                    }
-                  }
-                  case _ =>
-                }
-                //now we can add new statement before this element or after if it is the end
-                body.getNode.addChild(meth.getNode, element.getNode)
-                body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
-              } else {
-                val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.createOverrideImplementMethodBody(sign, method.getManager, !isImplement)).asInstanceOf[ScTemplateBody]
-                meth = newBody.functions(0)
-                newBody.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
-              }
-              meth match {
-                case method: ScFunctionDefinition => {
-                  val body = method.body match {
-                    case Some(x) => x
-                    case None => return
-                  }
-                  val offset = body.getTextRange.getStartOffset
-                  editor.getCaretModel.moveToOffset(offset)
-                  editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
-                }
-                case _ =>
-              }
+              clazz.addMember(meth, editor)
             }
           }, method.getProject, if (isImplement) "Implement method" else "Override method")
         }
@@ -144,48 +101,7 @@ object ScalaOIUtil {
           ScalaUtils.runWriteAction(new Runnable {
             def run {
               var meth = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, !isImplement)
-              val body = clazz.extendsBlock.templateBody match {
-                case Some(x) => x
-                case None => return
-              }
-              //if body is not empty
-              if (body.getChildren.length != 0) {
-                val offset = editor.getCaretModel.getOffset
-                //current element
-                var element = body.getContainingFile.findElementAt(offset)
-                while (element != null && element.getParent != body) element = element.getParent
-                if (element == null) return
-                //Look at some exceptions
-                val t = element.getNode.getElementType
-                element.getNode.getElementType match {
-                  case ScalaTokenTypes.tLINE_TERMINATOR | TokenType.WHITE_SPACE => element = element.getNextSibling
-                  case ScalaTokenTypes.tLBRACE => {
-                    element = element.getNextSibling
-                    element.getNode.getElementType match {
-                      case ScalaTokenTypes.tLINE_TERMINATOR => element = element.getNextSibling
-                      case _ => body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
-                    }
-                  }
-                  case _ =>
-                }
-                //now we can add new statement before this element or after if it is the end
-                body.getNode.addChild(meth.getNode, element.getNode)
-                body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
-              } else {
-                val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.
-                    createOverrideImplementTypeBody(alias, substitutor, alias.getManager, !isImplement)).asInstanceOf[ScTemplateBody]
-                meth = newBody.aliases(0)
-                newBody.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
-              }
-              meth match {
-                case meth: ScTypeAliasDefinition => {
-                  val body = meth.aliasedTypeElement
-                  val offset = body.getTextRange.getStartOffset
-                  editor.getCaretModel.moveToOffset(offset)
-                  editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
-                }
-                case _ =>
-              }
+              clazz.addMember(meth, editor)
             }
           }, alias.getProject, if (isImplement) "Implement type alias" else "Override type alias")
         }
@@ -196,54 +112,7 @@ object ScalaOIUtil {
           ScalaUtils.runWriteAction(new Runnable {
             def run {
               var meth = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager, !isImplement, isVal)
-              val body = clazz.extendsBlock.templateBody match {
-                case Some(x) => x
-                case None => return
-              }
-              //if body is not empty
-              if (body.getChildren.length != 0) {
-                val offset = editor.getCaretModel.getOffset
-                //current element
-                var element = body.getContainingFile.findElementAt(offset)
-                while (element != null && element.getParent != body) element = element.getParent
-                if (element == null) return
-                //Look at some exceptions
-                val t = element.getNode.getElementType
-                element.getNode.getElementType match {
-                  case ScalaTokenTypes.tLINE_TERMINATOR | TokenType.WHITE_SPACE => element = element.getNextSibling
-                  case ScalaTokenTypes.tLBRACE => {
-                    element = element.getNextSibling
-                    element.getNode.getElementType match {
-                      case ScalaTokenTypes.tLINE_TERMINATOR => element = element.getNextSibling
-                      case _ => body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
-                    }
-                  }
-                  case _ =>
-                }
-                //now we can add new statement before this element or after if it is the end
-                body.getNode.addChild(meth.getNode, element.getNode)
-                body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), element.getNode)
-              } else {
-                val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.
-                    createOverrideImplementVariableBody(value, substitutor, value.getManager, !isImplement, isVal)).asInstanceOf[ScTemplateBody]
-                meth = newBody.members(0)
-                newBody.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
-              }
-              meth match {
-                case meth: ScPatternDefinition => {
-                  val body = meth.expr
-                  val offset = body.getTextRange.getStartOffset
-                  editor.getCaretModel.moveToOffset(offset)
-                  editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
-                }
-                case meth: ScVariableDefinition => {
-                  val body = meth.expr
-                  val offset = body.getTextRange.getStartOffset
-                  editor.getCaretModel.moveToOffset(offset)
-                  editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
-                }
-                case _ =>
-              }
+              clazz.addMember(meth, editor)
             }
           }, value.getProject, if (isImplement) "Implement value" else "Override value")
         }
