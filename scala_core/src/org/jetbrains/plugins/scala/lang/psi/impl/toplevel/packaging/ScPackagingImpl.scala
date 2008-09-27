@@ -71,12 +71,11 @@ class ScPackagingImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScPackage
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    var p = JavaPsiFacade.getInstance(getProject).findPackage(fqn)
-    val pp = JavaPsiFacade.getInstance(getProject).findPackage(prefix)
-    while (p != null && p != pp) {
-      if (!p.processDeclarations(processor, state, lastParent, place)) return false
-      p = p.getParentPackage
-    }
-    true
+    val own = ownNamePart
+    val i = own.indexOf(".")
+    val top = if (i > 0) own.substring(0, i) else own
+
+    var p = JavaPsiFacade.getInstance(getProject).findPackage(concat(prefix, top))
+    p == null || p.processDeclarations(processor, state, lastParent, place)
   }
 }

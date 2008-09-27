@@ -39,7 +39,7 @@ class ScPackageStatementImpl(node: ASTNode) extends ScalaStubBasedElementImpl[Sc
   def prefix = ""
 
   def typeDefs: Seq[ScTypeDefinition] = getParent match {
-    case f: ScalaFile => List.fromArray(f.getTypeDefinitions)
+    case f: ScalaFile => f.immediateTypeDefinitions
     case _ => Seq.empty
   }
 
