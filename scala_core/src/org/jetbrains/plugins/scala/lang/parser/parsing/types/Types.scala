@@ -23,7 +23,7 @@ object Types extends ParserNode{
   def parse(builder: PsiBuilder): (Boolean, Boolean) ={
     var isTuple = false
 
-    def typesParse() = if (Type.parse(builder)){
+    def typesParse() = if (ParamType.parseInner(builder)){
       true
     } else if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
       builder.advanceLexer

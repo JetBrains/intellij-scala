@@ -125,14 +125,10 @@ object ParserUtils extends ParserUtilsBase {
   }
 
 
-  def withMarker(t : ScalaElementType, builder : PsiBuilder)  (inner : => Boolean) : Boolean = {
+  def build(t : ScalaElementType, builder : PsiBuilder)  (inner : => Boolean) : Boolean = {
     val marker = builder.mark
-    if (inner) {
-      marker.done(t)
-      true
-    } else {
-      marker.rollbackTo
-      false
-    }
+    val parsed = inner
+    if (parsed) marker.done(t) else marker.rollbackTo
+    parsed
   }
 }

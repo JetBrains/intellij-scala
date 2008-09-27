@@ -22,7 +22,7 @@ import com.intellij.psi.tree.IElementType
  */
 
 object TypeArgs {
-  def parse(builder: PsiBuilder): Boolean = withMarker(ScalaElementTypes.TYPE_ARGS, builder) {
+  def parse(builder: PsiBuilder): Boolean = build(ScalaElementTypes.TYPE_ARGS, builder) {
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET => {
         builder.advanceLexer //Ate [

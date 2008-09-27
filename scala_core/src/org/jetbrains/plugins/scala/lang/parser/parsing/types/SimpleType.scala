@@ -25,13 +25,13 @@ import org.jetbrains.plugins.scala.ScalaBundle
 object SimpleType {
   def parse(builder: PsiBuilder): Boolean = {
 
-    def parseTale(curMarker: PsiBuilder.Marker) {
+    def parseTail(curMarker: PsiBuilder.Marker) {
       builder.getTokenType match {
         case ScalaTokenTypes.tLSQBRACKET => {
           val newMarker = curMarker.precede
           TypeArgs parse builder
           curMarker.done(ScalaElementTypes.TYPE_GENERIC_CALL)
-          parseTale(newMarker)
+          parseTail(newMarker)
         }
         case ScalaTokenTypes.tINNER_CLASS => {
           val newMarker = curMarker.precede
@@ -45,7 +45,7 @@ object SimpleType {
             }
           }
           curMarker.done(ScalaElementTypes.TYPE_PROJECTION)
-          parseTale(newMarker)
+          parseTail(newMarker)
         }
         case _ => {
           curMarker.drop
@@ -119,7 +119,7 @@ object SimpleType {
         return false
       }
     }
-    parseTale(simpleMarker)
+    parseTail(simpleMarker)
     return true
   }
 }

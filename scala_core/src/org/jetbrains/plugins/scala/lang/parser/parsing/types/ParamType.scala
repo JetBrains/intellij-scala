@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import util.ParserUtils._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.ScalaBundle
 
@@ -21,34 +21,23 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 
 object ParamType {
-  def parse(builder: PsiBuilder): Boolean = {
-    val paramTypeMarker = builder.mark
+  def parseInner(builder: PsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE => {
         builder.advanceLexer //Ate '=>'
-        if (!Type.parse(builder)) {
-          paramTypeMarker.rollbackTo
-          return false
-        }
-        else {
-          paramTypeMarker.done(ScalaElementTypes.PARAM_TYPE)
-          return true
-        }
+          Type.parse(builder)
       }
       case _ => {
-        if (!Type.parse(builder,true)) {
-          paramTypeMarker.rollbackTo
-          return false
-        }
-        else {
+        if (!Type.parse(builder,true)) false else {
           builder.getTokenText match {
             case "*" => builder.advanceLexer // Ate '*'
-            case _ => {/*nothing needs to do*/}
+            case _ => {/* nothing needs to be done */}
           }
-          paramTypeMarker.done(ScalaElementTypes.PARAM_TYPE)
-          return true
+          true
         }
       }
     }
   }
+
+  def parse(builder : PsiBuilder) = build(ScalaElementTypes.PARAM_TYPE, builder) { parseInner(builder) }
 }
