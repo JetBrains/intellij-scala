@@ -72,10 +72,10 @@ public class ScalacRunner {
     }
 
     try {
-      /*Class<?> scalacMain = Class.forName(SCALAC_QUALIFIED_NAME);
+      Class<?> scalacMain = Class.forName(SCALAC_QUALIFIED_NAME);
       Method method = scalacMain.getMethod("main", String[].class);
-      method.invoke(null, ((Object) scalacArgs.toArray(new String[scalacArgs.size()])));*/
-      Main.main(scalacArgs.toArray(new String[scalacArgs.size()]));
+      method.invoke(null, ((Object) scalacArgs.toArray(new String[scalacArgs.size()])));
+      //Main.main(scalacArgs.toArray(new String[scalacArgs.size()]));
     } catch (Exception e) {
       Throwable cause = e.getCause();
       System.err.println("Scalac internal error: " + e.getClass() + " " + Arrays.toString(e.getStackTrace()) +
