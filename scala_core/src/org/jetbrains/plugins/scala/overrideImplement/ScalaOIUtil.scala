@@ -25,6 +25,7 @@ import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.psi.infos.CandidateInfo
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.project.Project
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 08.07.2008
@@ -105,7 +106,7 @@ object ScalaOIUtil {
             }
           }, alias.getProject, if (isImplement) "Implement type alias" else "Override type alias")
         }
-        case _: ScValueMember | _: ScVariableMember=> {
+        case _: ScValueMember | _: ScVariableMember => {
           val isVal = member match {case _: ScValueMember => true case _: ScVariableMember => false}
           val value = member match {case x: ScValueMember => x.element case x: ScVariableMember => x.element}
           val substitutor = member match {case x: ScValueMember => x.substitutor case x: ScVariableMember => x.substitutor}
@@ -185,7 +186,7 @@ object ScalaOIUtil {
             case x if x.getName == "$tag" =>
             case x if x.getContainingClass == clazz =>
             case x: PsiModifierListOwner if x.hasModifierProperty("abstract")
-              || x.hasModifierProperty("final") =>
+                || x.hasModifierProperty("final") =>
             case x if x.isConstructor =>
             case method => {
               var flag = false
@@ -267,5 +268,42 @@ object ScalaOIUtil {
     if (isAppropriatePsiElement(x)) return x
     while (parent != null && !isAppropriatePsiElement(parent)) parent = parent.getParent
     return parent
+  }
+
+  /*
+   This method used for test class OverrideImplementTest
+   */
+  def getMethod(clazz: ScTypeDefinition, methodName: String, isImplement: Boolean): PsiElement = {
+    val seq: Seq[ScalaObject] = if (isImplement) getMembersToImplement(clazz) else getMembersToOverride(clazz)
+    def getObjectByName: ScalaObject = {
+      for (obj <- seq) {
+        obj match {
+          case sign: PhysicalSignature if sign.method.getName == methodName => return sign
+          case obj@(name: PsiNamedElement, subst: ScSubstitutor) if name.getName == methodName => return obj
+          case _ =>
+        }
+      }
+      return null
+    }
+    val obj = getObjectByName
+    if (obj == null) return null
+    obj match {
+      case sign: PhysicalSignature => {
+        val method: PsiMethod = sign.method
+        return ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement)
+      }
+      case (name: PsiNamedElement, subst: ScSubstitutor) => {
+        nameContext(name) match {
+          case alias: ScTypeAlias => {
+            return ScalaPsiElementFactory.createOverrideImplementType(alias, subst, alias.getManager, !isImplement)
+          }
+          case _: ScValue | _: ScVariable => {
+            val typed: ScTyped = name match {case x: ScTyped => x case _ => return null}
+            return ScalaPsiElementFactory.createOverrideImplementVariable(typed, subst, typed.getManager, !isImplement, true)
+          }
+          case _ => return null
+        }
+      }
+    }
   }
 }

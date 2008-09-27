@@ -7,6 +7,10 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.annotations.NonNls;
 import junit.framework.Test;
 import com.intellij.psi.PsiFileFactory;
+import com.intellij.psi.PsiElement;
+import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil;
+import scala.None$;
+import scala.Array;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -48,11 +52,14 @@ public class OverrideImplementTest extends BaseScalaFileSetTestCase {
     ScalaFile file = (ScalaFile) PsiFileFactory.getInstance(myProject).createFileFromText("temp.scala" +
         ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), fileText);
     ScTypeDefinition clazz = file.getTypeDefinitions()[0];
-    
+    PsiElement method = ScalaOIUtil.getMethod(clazz, methodName, isImplement);
+    final Array array = new Array(1);
+    array.update(0, offset);
+    clazz.addMember(method, new None$(), array.elements().toList().toSeq());
     return file.getText();
   }
 
   public static Test suite() {
-    return new OverrideImplementTest();
+    return new OverredeImplementTest();
   }
 }
