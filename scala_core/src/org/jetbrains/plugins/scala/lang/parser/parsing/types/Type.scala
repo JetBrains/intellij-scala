@@ -29,41 +29,15 @@ object Type {
     val typeMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
-        val parMarker = builder.mark
+        val m1 = builder.mark
         builder.advanceLexer //Ate (
+        val (_, tuple) = Types.parse(builder)
+        if (builder.getTokenType == ScalaTokenTypes.tCOMMA) builder.advanceLexer
         builder.getTokenType match {
-          case ScalaTokenTypes.tFUNTYPE | ScalaTokenTypes.tRPARENTHESIS => {
-            if (builder.getTokenType == ScalaTokenTypes.tFUNTYPE) {
-              builder.advanceLexer //Ate =>
-              if (!Type.parse(builder,false,isPattern)) {
-                builder error ScalaBundle.message("wrong.type", new Array[Object](0))
-              }
-            }
-            builder.getTokenType match {
-              case ScalaTokenTypes.tRPARENTHESIS => {
-                builder.advanceLexer //Ate )
-              }
-              case _ => {
-                builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
-              }
-            }
-            builder.getTokenType match {
-              case ScalaTokenTypes.tFUNTYPE => {
-                builder.advanceLexer //Ate =>
-              }
-              case _ => {
-                builder error ScalaBundle.message("fun.sign.expected", new Array[Object](0))
-              }
-            }
-            if (!Type.parse(builder,false,isPattern)) {
-              builder error ScalaBundle.message("wrong.type", new Array[Object](0))
-            }
-            parMarker.drop
-            typeMarker.done(ScalaElementTypes.TYPE)
-            return true
-          }
-          case _ => {parMarker.rollbackTo}
+          case ScalaTokenTypes.tRPARENTHESIS => builder.advanceLexer
+          case _ => builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
         }
+        m1.done(if (tuple) ScalaElementTypes.TUPLE_TYPE else ScalaElementTypes.TYPE_IN_PARENTHESIS)
       }
       case ScalaTokenTypes.tUNDER => {
         builder.advanceLexer()
@@ -88,12 +62,12 @@ object Type {
         typeMarker.done(ScalaElementTypes.WILDCARD_TYPE)
         return true
       }
-      case _ => {}
+      case _ => if (!InfixType.parse(builder,star,isPattern)) {
+        typeMarker.drop
+        return false
+      }
     }
-    if (!InfixType.parse(builder,star,isPattern)) {
-      typeMarker.drop
-      return false
-    }
+
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE => {
         builder.advanceLexer //Ate =>

@@ -32,14 +32,15 @@ ScalaFile
           TypeInParenthesis
             PsiElement(()('(')
             FunctionalType
-              PsiElement(()('(')
-              PsiWhiteSpace(' ')
-              PsiElement(=>)('=>')
-              PsiWhiteSpace(' ')
-              SimpleTypeElement
-                CodeReferenceElement
-                  PsiElement(identifier)('Type')
-              PsiElement())(')')
+              TypeInParenthesis
+                PsiElement(()('(')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('Type')
+                PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')

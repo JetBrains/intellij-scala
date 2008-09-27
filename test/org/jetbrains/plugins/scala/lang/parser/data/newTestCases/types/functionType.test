@@ -29,13 +29,14 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           FunctionalType
-            PsiElement(()('(')
-            PsiElement(=>)('=>')
-            PsiWhiteSpace(' ')
-            SimpleTypeElement
-              CodeReferenceElement
-                PsiElement(identifier)('Type')
-            PsiElement())(')')
+            TypeInParenthesis
+              PsiElement(()('(')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleTypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Type')
+              PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')
