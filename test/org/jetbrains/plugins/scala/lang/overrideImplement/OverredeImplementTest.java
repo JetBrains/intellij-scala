@@ -12,9 +12,16 @@ import com.intellij.psi.PsiFileFactory;
  * User: Alexander Podkhalyuzin
  * Date: 26.09.2008
  */
-public class OverredeImplementTest extends BaseScalaFileSetTestCase{
+public class OverredeImplementTest extends BaseScalaFileSetTestCase {
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/lexer/";
+  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/overrideImplement/data";
+  private int offset;
+  private static final String CARET_MARKER = "<caret>";
+
+  private String removeMarker(String text) {
+    int index = text.indexOf(CARET_MARKER);
+    return text.substring(0, index) + text.substring(index + CARET_MARKER.length());
+  }
 
   public OverredeImplementTest() {
     super(System.getProperty("path") != null ?
@@ -25,16 +32,24 @@ public class OverredeImplementTest extends BaseScalaFileSetTestCase{
 
   /*
    *  File must be like:
-   *  implement (or override) methodName
+   *  implement (or override) + " " +  methodName
    *  <typeDefinition>
    *  Use <caret> to specify caret position.
    */
   public String transform(String testName, String[] data) throws Exception {
-   String text = data[0];
-   ScalaFile file = (ScalaFile) PsiFileFactory.getInstance(myProject).createFileFromText("temp.scala" +
-       ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text);
-    ScTypeDefinition t = file.getTypeDefinitions()[0];
-    return "";
+    String text = data[0];
+    final int i = text.indexOf("\n");
+    String info = text.substring(0, i);
+    boolean isImplement = info.split(" ")[0].equals("implement");
+    String methodName = info.split(" ")[1];
+    String fileText = text.substring(i + 1);
+    int offset = fileText.indexOf(CARET_MARKER);
+    fileText = removeMarker(fileText);
+    ScalaFile file = (ScalaFile) PsiFileFactory.getInstance(myProject).createFileFromText("temp.scala" +
+        ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), fileText);
+    ScTypeDefinition clazz = file.getTypeDefinitions()[0];
+    
+    return file.getText();
   }
 
   public static Test suite() {

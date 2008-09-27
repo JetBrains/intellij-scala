@@ -268,11 +268,4 @@ object ScalaOIUtil {
     while (parent != null && !isAppropriatePsiElement(parent)) parent = parent.getParent
     return parent
   }
-
-  @Nullable
-  private def valvarContext(x: PsiElement): PsiElement = {
-    var parent = x.getParent
-    while (parent != null && !parent.isInstanceOf[ScValue] && !parent.isInstanceOf[ScVariable]) parent = parent.getParent
-    return parent
-  }
 }

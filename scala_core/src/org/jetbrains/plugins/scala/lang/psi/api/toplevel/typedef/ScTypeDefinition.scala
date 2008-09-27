@@ -70,9 +70,10 @@ with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable {
 
   /**
    * Add only real members (not abstract PsiElement) to this class in current caret position. 
-   * If editor is null, add in template body's start.
+   * If editor is None, add in offset(0) position or to start if offset.length == 0.
    * @param meth member which added to this type definition
    * @param editor current editor
+   * @param offset if editor is None add to offset(0)
    */
-  def addMember(meth: PsiElement, editor: Option[Editor])
+  def addMember(meth: PsiElement, editor: Option[Editor], offset: Int*)
 }
