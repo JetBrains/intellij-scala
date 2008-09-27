@@ -12,7 +12,7 @@ import com.intellij.psi.PsiFileFactory;
  * User: Alexander Podkhalyuzin
  * Date: 26.09.2008
  */
-public class OverredeImplementTest extends BaseScalaFileSetTestCase {
+public class OverrideImplementTest extends BaseScalaFileSetTestCase {
   @NonNls
   private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/overrideImplement/data";
   private int offset;
@@ -23,7 +23,7 @@ public class OverredeImplementTest extends BaseScalaFileSetTestCase {
     return text.substring(0, index) + text.substring(index + CARET_MARKER.length());
   }
 
-  public OverredeImplementTest() {
+  public OverrideImplementTest() {
     super(System.getProperty("path") != null ?
         System.getProperty("path") :
         DATA_PATH
@@ -53,6 +53,6 @@ public class OverredeImplementTest extends BaseScalaFileSetTestCase {
   }
 
   public static Test suite() {
-    return new OverredeImplementTest();
+    return new OverrideImplementTest();
   }
 }
