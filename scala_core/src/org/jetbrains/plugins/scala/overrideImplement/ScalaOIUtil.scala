@@ -91,7 +91,7 @@ object ScalaOIUtil {
           ScalaUtils.runWriteAction(new Runnable {
             def run {
               var meth = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement)
-              clazz.addMember(meth, editor)
+              clazz.addMember(meth, Some(editor))
             }
           }, method.getProject, if (isImplement) "Implement method" else "Override method")
         }
@@ -101,7 +101,7 @@ object ScalaOIUtil {
           ScalaUtils.runWriteAction(new Runnable {
             def run {
               var meth = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, !isImplement)
-              clazz.addMember(meth, editor)
+              clazz.addMember(meth, Some(editor))
             }
           }, alias.getProject, if (isImplement) "Implement type alias" else "Override type alias")
         }
@@ -112,7 +112,7 @@ object ScalaOIUtil {
           ScalaUtils.runWriteAction(new Runnable {
             def run {
               var meth = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager, !isImplement, isVal)
-              clazz.addMember(meth, editor)
+              clazz.addMember(meth, Some(editor))
             }
           }, value.getProject, if (isImplement) "Implement value" else "Override value")
         }
@@ -256,7 +256,7 @@ object ScalaOIUtil {
     return buf2.toArray
   }
 
-  private def nameContext(x: PsiNamedElement): PsiElement = {
+  def nameContext(x: PsiNamedElement): PsiElement = {
     var parent = x.getParent
     def isAppropriatePsiElement(x: PsiElement): Boolean = {
       x match {

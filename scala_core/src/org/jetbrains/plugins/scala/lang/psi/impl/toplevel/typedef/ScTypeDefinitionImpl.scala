@@ -231,7 +231,8 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
   def functionsByName(name: String) =
     for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method == name) yield n.info.method
 
-  def addMember(member: PsiElement, @Nullable editor: Editor) {
+  def addMember(member: PsiElement, edit: Option[Editor]) {
+    val editor: Editor = edit match {case None => null case Some(x) => x}
     var meth: PsiElement = member
     //checking member
     meth match {
@@ -276,36 +277,19 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
       newBody.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
     }
     if (editor != null) {
-      meth match {
-        case meth: ScTypeAliasDefinition => {
-          val body = meth.aliasedTypeElement
-          val offset = body.getTextRange.getStartOffset
-          editor.getCaretModel.moveToOffset(offset)
-          editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
+      val body: PsiElement = meth match {
+        case meth: ScTypeAliasDefinition => meth.aliasedTypeElement
+        case meth: ScPatternDefinition => meth.expr
+        case meth: ScVariableDefinition => meth.expr
+        case method: ScFunctionDefinition => method.body match {
+          case Some(x) => x
+          case None => return
         }
-        case meth: ScPatternDefinition => {
-          val body = meth.expr
-          val offset = body.getTextRange.getStartOffset
-          editor.getCaretModel.moveToOffset(offset)
-          editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
-        }
-        case meth: ScVariableDefinition => {
-          val body = meth.expr
-          val offset = body.getTextRange.getStartOffset
-          editor.getCaretModel.moveToOffset(offset)
-          editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
-        }
-        case method: ScFunctionDefinition => {
-          val body = method.body match {
-            case Some(x) => x
-            case None => return
-          }
-          val offset = body.getTextRange.getStartOffset
-          editor.getCaretModel.moveToOffset(offset)
-          editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
-        }
-        case _ =>
+        case _ => return
       }
+      val offset = body.getTextRange.getStartOffset
+      editor.getCaretModel.moveToOffset(offset)
+      editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
     }
   }
 }
