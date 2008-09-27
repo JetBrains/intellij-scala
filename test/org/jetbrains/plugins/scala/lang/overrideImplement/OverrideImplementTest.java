@@ -9,8 +9,11 @@ import org.jetbrains.annotations.NonNls;
 import junit.framework.Test;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.util.TextRange;
+import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil;
 import scala.None$;
 import scala.Array;
@@ -54,12 +57,18 @@ public class OverrideImplementTest extends BaseScalaFileSetTestCase {
     String fileText = text.substring(i + 1);
     final int offset = fileText.indexOf(CARET_MARKER);
     fileText = removeMarker(fileText);
-    ScalaFile file = (ScalaFile) TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
+    final ScalaFile file = (ScalaFile) TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
     final ScTypeDefinition clazz = file.getTypeDefinitions()[0];
     final PsiElement method = ScalaOIUtil.getMethod(clazz, methodName, isImplement);
     final Runnable runnable = new Runnable() {
       public void run() {
         clazz.addMember(method, new None$(), offset);
+        try {
+          TextRange myTextRange = file.getTextRange();
+          CodeStyleManager.getInstance(myProject).reformatText(file, myTextRange.getStartOffset(), myTextRange.getEndOffset());
+        } catch (IncorrectOperationException e) {
+          e.printStackTrace();
+        }
       }
     };
     ApplicationManager.getApplication().runWriteAction(new Runnable() {
@@ -67,6 +76,9 @@ public class OverrideImplementTest extends BaseScalaFileSetTestCase {
         CommandProcessor.getInstance().executeCommand(myProject, runnable, "test", null);
       }
     });
+    System.out.println("------------------------ " + testName + " ------------------------");
+    System.out.println(file.getText());
+    System.out.println("");
     return file.getText();
   }
 
