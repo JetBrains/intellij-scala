@@ -1,0 +1,8 @@
+implement foo
+class a extends b {
+  <caret>
+}
+abstract class b {
+  def foo(x: b): b
+}
+-------
