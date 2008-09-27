@@ -11,10 +11,9 @@ trait ScPackageContainer extends ScalaPsiElement {
   def prefix : String
   def ownNamePart : String
 
-  def fqn = {
-    val _prefix = prefix
-    if (_prefix.length > 0) _prefix + "." + ownNamePart else ownNamePart
-  }
+  def fqn = concat(prefix, ownNamePart)
+
+  protected def concat(prefix : String, suffix : String) = if (prefix.length > 0) prefix + "." + suffix else suffix 
 
   def packagings: Seq[ScPackaging]
 
