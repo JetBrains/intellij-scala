@@ -50,7 +50,6 @@ class ScalaCompletionData extends CompletionData {
     registerYieldCompletion
     registerWithCompletion
     registerRequiresCompletion
-    //registerIfCompletion
     registerDefTypeCompletion
     registerForSomeCompletion
     registerMatchCompletion

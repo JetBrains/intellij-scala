@@ -1,24 +1,19 @@
 package org.jetbrains.plugins.scala.lang.overrideImplement;
 
-import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
-import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
-import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.util.TestUtils;
-import org.jetbrains.annotations.NonNls;
-import junit.framework.Test;
-import com.intellij.psi.PsiFileFactory;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.util.IncorrectOperationException;
+import junit.framework.Test;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil;
+import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
+import org.jetbrains.plugins.scala.util.TestUtils;
 import scala.None$;
-import scala.Array;
-import scala.List;
-import scala.collection.mutable.ArrayBuffer;
 
 /**
  * User: Alexander Podkhalyuzin
