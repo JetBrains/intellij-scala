@@ -53,6 +53,7 @@ class ScalaCompletionData extends CompletionData {
     registerDefTypeCompletion
     registerForSomeCompletion
     registerMatchCompletion
+    registerImplicitCompletion
   }
 
   private def registerPackageCompletion {
@@ -66,6 +67,10 @@ class ScalaCompletionData extends CompletionData {
   private def registerModifiersCompletion {
     registerStandardCompletion(new ModifiersFilter, "private", "protected", "override",
     "abstract", "final", "sealed", "implicit", "lazy")
+  }
+
+  private def registerImplicitCompletion {
+    registerStandardCompletion(new ImplicitFilter, "implicit")
   }
 
   private def registerCaseCompletion {
