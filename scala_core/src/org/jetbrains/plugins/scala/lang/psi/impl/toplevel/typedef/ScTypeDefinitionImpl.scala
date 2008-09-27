@@ -231,7 +231,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
   def functionsByName(name: String) =
     for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method == name) yield n.info.method
 
-  def addMember(member: PsiElement, edit: Option[Editor], pos: Int*) {
+  def addMember(member: PsiElement, edit: Option[Editor], pos: Int) {
     val editor: Editor = edit match {case None => null case Some(x) => x}
     var meth: PsiElement = member
     //checking member
@@ -246,7 +246,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
     //if body is not empty
     if (body.getChildren.length != 0) {
       val offset = if (editor != null) editor.getCaretModel.getOffset
-                   else if (pos.length > 0) pos(0) else body.getTextRange.getStartOffset
+                   else if (pos != -1) pos else body.getTextRange.getStartOffset
       //current element
       var element = body.getContainingFile.findElementAt(offset)
       while (element != null && element.getParent != body) element = element.getParent
