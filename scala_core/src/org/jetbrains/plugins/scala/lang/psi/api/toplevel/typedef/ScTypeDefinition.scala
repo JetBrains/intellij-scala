@@ -74,5 +74,5 @@ with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable {
    * @param meth member which added to this type definition
    * @param editor current editor
    */
-  def addMember(meth: PsiElement, @Nullable editor: Editor)
+  def addMember(meth: PsiElement, editor: Option[Editor])
 }
