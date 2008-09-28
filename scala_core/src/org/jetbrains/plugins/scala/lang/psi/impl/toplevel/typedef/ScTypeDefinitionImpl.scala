@@ -96,19 +96,8 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
   override def checkDelete() {
   }
                                                                 
-  def members(): Seq[ScMember] = {
-    val bodyMembers = extendsBlock.templateBody match {
-      case None => Seq.empty
-      case Some(body) => body.members
-    }
-    val earlyMembers = extendsBlock.earlyDefinitions match {
-      case None => Seq.empty
-      case Some(earlyDefs) => earlyDefs.members
-    }
-
-    bodyMembers ++ earlyMembers
-  }
-
+  def members(): Seq[ScMember] = extendsBlock.members
+  
   def functions(): Seq[ScFunction] =
     extendsBlock.templateBody match {
       case None => Seq.empty
@@ -121,21 +110,11 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
       case Some(body) => body.aliases
     }
 
-  def allTypes = TypeDefinitionMembers.getTypes(this).values.map{
-    n => (n.info, n.substitutor)
-  }
-  def allVals = TypeDefinitionMembers.getVals(this).values.map{
-    n => (n.info, n.substitutor)
-  }
-  def allMethods = TypeDefinitionMembers.getMethods(this).values.map{
-    n => n.info
-  }
+  def allTypes = TypeDefinitionMembers.getTypes(extendsBlock).values.map{ n => (n.info, n.substitutor) }
+  def allVals = TypeDefinitionMembers.getVals(extendsBlock).values.map{ n => (n.info, n.substitutor) }
+  def allMethods = TypeDefinitionMembers.getMethods(extendsBlock).values.map{ n => n.info }
 
-  def innerTypeDefinitions: Seq[ScTypeDefinition] =
-    (extendsBlock.templateBody match {
-      case None => Seq.empty
-      case Some(body) => body.typeDefinitions
-    })
+  def innerTypeDefinitions: Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
   override def delete() = {
     var parent = getParent
@@ -176,31 +155,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    extendsBlock.templateParents match {
-      case Some(p) if (PsiTreeUtil.isAncestor(p, place, true)) => {
-        extendsBlock.earlyDefinitions match {
-          case Some(ed) => for (m <- ed.members) {
-            m match {
-              case _var: ScVariable => for (declared <- _var.declaredElements) {
-                if (!processor.execute(declared, state)) return false
-              }
-              case _val: ScValue => for (declared <- _val.declaredElements) {
-                if (!processor.execute(declared, state)) return false
-              }
-            }
-          }
-          case None =>
-        }
-        true
-      }
-      case _ =>
-        extendsBlock.earlyDefinitions match {
-          case Some(ed) if PsiTreeUtil.isAncestor(ed, place, true) =>
-          case _ => if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
-        }
-
-        true
-    }
+    if (lastParent == null) extendsBlock.processDeclarations(processor, state, null, place) else true
   }
 
   override def getContainingClass: PsiClass = getParent match {

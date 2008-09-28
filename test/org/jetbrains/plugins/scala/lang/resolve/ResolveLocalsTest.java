@@ -27,4 +27,9 @@ public class ResolveLocalsTest extends ScalaResolveTestCase{
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScParameter);
   }
+
+  public void testDefInAnonymous() throws Exception {
+    PsiReference ref = configureByFile("defInAnonymous.scala");
+    assertNotNull(ref.resolve());
+  }
 }
