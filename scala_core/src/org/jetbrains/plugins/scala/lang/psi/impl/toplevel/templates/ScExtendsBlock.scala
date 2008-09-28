@@ -1,13 +1,17 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates
 
+import api.statements.{ScValue, ScVariable}
 import api.toplevel.typedef.ScObject
 import api.expr.ScNewTemplateDefinition
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{JavaPsiFacade, PsiClass}
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{JavaPsiFacade, PsiElement, ResolveState, PsiClass}
 import psi.ScalaPsiElementImpl
 import api.toplevel.templates._
 import psi.types._
 import _root_.scala.collection.mutable.ArrayBuffer
+import typedef.TypeDefinitionMembers
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -75,5 +79,52 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
 
     buf.toArray
+  }
+
+  def members() = {
+    val bodyMembers = templateBody match {
+      case None => Seq.empty
+      case Some(body) => body.members
+    }
+    val earlyMembers = earlyDefinitions match {
+      case None => Seq.empty
+      case Some(earlyDefs) => earlyDefs.members
+    }
+
+    bodyMembers ++ earlyMembers
+  }
+
+  def typeDefinitions = templateBody match {
+    case None => Seq.empty
+    case Some(body) => body.typeDefinitions
+  }
+
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement) : Boolean = templateParents match {
+    case Some(p) if (PsiTreeUtil.isAncestor(p, place, true)) => {
+      earlyDefinitions match {
+        case Some(ed) => for (m <- ed.members) {
+          m match {
+            case _var: ScVariable => for (declared <- _var.declaredElements) {
+              if (!processor.execute(declared, state)) return false
+            }
+            case _val: ScValue => for (declared <- _val.declaredElements) {
+              if (!processor.execute(declared, state)) return false
+            }
+          }
+        }
+        case None =>
+      }
+      true
+    }
+    case _ =>
+      earlyDefinitions match {
+        case Some(ed) if PsiTreeUtil.isAncestor(ed, place, true) =>
+        case _ => if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
+      }
+
+      true
   }
 }

@@ -4,6 +4,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import api.base.{ScFieldId, ScPrimaryConstructor}
+import api.toplevel.templates.ScExtendsBlock
 import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
 import com.intellij.psi._
 import types._
@@ -32,8 +33,8 @@ object TypeDefinitionMembers {
         map += ((sig, new Node(sig, subst)))
       }
 
-    def processScala(td: ScTypeDefinition, subst: ScSubstitutor, map: Map) =
-      for (member <- td.members) {
+    def processScala(eb: ScExtendsBlock, subst: ScSubstitutor, map: Map) =
+      for (member <- eb.members) {
         member match {
           case method: ScFunction => {
             val sig = new PhysicalSignature(method, subst)
@@ -61,8 +62,8 @@ object TypeDefinitionMembers {
         map += ((field, new Node(field, subst)))
       }
 
-    def processScala(td: ScTypeDefinition, subst: ScSubstitutor, map: Map) =
-      for (member <- td.members) {
+    def processScala(eb: ScExtendsBlock, subst: ScSubstitutor, map: Map) =
+      for (member <- eb.members) {
         member match {
           case obj: ScObject => map += ((obj, new Node(obj, subst)))
           case _var: ScVariable =>
@@ -98,15 +99,15 @@ object TypeDefinitionMembers {
         map += ((inner, new Node(inner, subst)))
       }
 
-    def processScala(td: ScTypeDefinition, subst: ScSubstitutor, map: Map) = {
-      for (member <- td.members) {
+    def processScala(eb: ScExtendsBlock, subst: ScSubstitutor, map: Map) = {
+      for (member <- eb.members) {
         member match {
           case alias: ScTypeAlias => map += ((alias, new Node(alias, subst)))
           case _ =>
         }
       }
 
-      for (inner <- td.innerTypeDefinitions) {
+      for (inner <- eb.typeDefinitions) {
         inner match {
           case _ : ScObject =>
           case _ => map += ((inner, new Node(inner, subst)))
@@ -118,32 +119,30 @@ object TypeDefinitionMembers {
   val valsKey: Key[CachedValue[ValueNodes.Map]] = Key.create("vals key")
   val methodsKey: Key[CachedValue[MethodNodes.Map]] = Key.create("methods key")
   val typesKey: Key[CachedValue[TypeNodes.Map]] = Key.create("types key")
-  val signaturesKey: Key[CachedValue[HashMap[Signature, ScType]]] = Key.create("types key")
+  val signaturesKey: Key[CachedValue[HashMap[Signature, ScType]]] = Key.create("signatures key")
 
-  def getVals(td: PsiClass) = get(td, valsKey, new MyProvider(td, {
-    td => ValueNodes.build(td)
-  }))
-  def getMethods(td: PsiClass) = get(td, methodsKey, new MyProvider(td, {
-    td => MethodNodes.build(td)
-  }))
-  def getTypes(td: PsiClass) = get(td, typesKey, new MyProvider(td, {
-    td => TypeNodes.build(td)
-  }))
+  def getVals(clazz: PsiClass) = get(clazz, valsKey, new MyProvider(clazz, { clazz : PsiClass => ValueNodes.build(clazz) }))
+  def getMethods(clazz: PsiClass) = get(clazz, methodsKey, new MyProvider(clazz, { clazz : PsiClass => MethodNodes.build(clazz) }))
+  def getTypes(clazz: PsiClass) = get(clazz, typesKey, new MyProvider(clazz, { clazz : PsiClass => TypeNodes.build(clazz) }))
 
-  def getSignatures(td: PsiClass) = get(td, signaturesKey, new SignaturesProvider(td))
+  def getSignatures(clazz: PsiClass) = get(clazz, signaturesKey, new SignaturesProvider(clazz))
 
-  private def get[T](td: PsiClass, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]) = {
-    var computed = td.getUserData(key)
+  def getVals(eb: ScExtendsBlock) = get(eb, valsKey, new MyProvider(eb, { eb : ScExtendsBlock => ValueNodes.build(eb) }))
+  def getMethods(eb: ScExtendsBlock) = get(eb, methodsKey, new MyProvider(eb, { eb : ScExtendsBlock => MethodNodes.build(eb) }))
+  def getTypes(eb: ScExtendsBlock) = get(eb, typesKey, new MyProvider(eb, { eb : ScExtendsBlock => TypeNodes.build(eb) }))
+
+  private def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]) = {
+    var computed = e.getUserData(key)
     if (computed == null) {
-      val manager = PsiManager.getInstance(td.getProject).getCachedValuesManager
+      val manager = PsiManager.getInstance(e.getProject).getCachedValuesManager
       computed = manager.createCachedValue(provider, false)
-      td.putUserData(key, computed)
+      e.putUserData(key, computed)
     }
     computed.getValue
   }
 
-  class MyProvider[T](td: PsiClass, builder: PsiClass => T) extends CachedValueProvider[T] {
-    def compute() = new CachedValueProvider.Result(builder(td),
+  class MyProvider[Dom, T](e: Dom, builder: Dom => T) extends CachedValueProvider[T] {
+    def compute() = new CachedValueProvider.Result(builder(e),
     Array[Object](PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
   }
 
@@ -187,21 +186,37 @@ object TypeDefinitionMembers {
                           processor: PsiScopeProcessor,
                           state: ResolveState,
                           lastParent: PsiElement,
-                          place: PsiElement) : Boolean = {
+                          place: PsiElement) : Boolean =
+    processDeclarations(processor, state, lastParent, place, {getVals(clazz)}, {getMethods(clazz)}, {getTypes(clazz)})
+
+  def processDeclarations(eb : ScExtendsBlock,
+                          processor: PsiScopeProcessor,
+                          state: ResolveState,
+                          lastParent: PsiElement,
+                          place: PsiElement) : Boolean =
+    processDeclarations(processor, state, lastParent, place, {getVals(eb)}, {getMethods(eb)}, {getTypes(eb)})
+
+  private def processDeclarations(processor: PsiScopeProcessor,
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement,
+                                  vals: => ValueNodes.Map,
+                                  methods: => MethodNodes.Map,
+                                  types: => TypeNodes.Map) : Boolean = {
     val substK = state.get(ScSubstitutor.key)
     val subst = if (substK == null) ScSubstitutor.empty else substK
     if (shouldProcessVals(processor)) {
-      for ((_, n) <- getVals(clazz)) {
+      for ((_, n) <- vals) {
         if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
     if (shouldProcessMethods(processor)) {
-      for ((_, n) <- getMethods(clazz)) {
+      for ((_, n) <- methods) {
         if (!processor.execute(n.info.method, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
     if (shouldProcessTypes(processor)) {
-      for ((_, n) <- getTypes(clazz)) {
+      for ((_, n) <- types) {
         if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }

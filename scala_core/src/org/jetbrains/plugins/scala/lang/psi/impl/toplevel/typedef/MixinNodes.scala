@@ -3,9 +3,10 @@
 */
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import api.toplevel.templates.ScExtendsBlock
 import collection.mutable.{HashMap, ArrayBuffer, HashSet, Set, ListBuffer}
-import com.intellij.psi.PsiClass
 import api.toplevel.typedef.ScTypeDefinition
+import com.intellij.psi.{PsiElement, PsiClass}
 import psi.types._
 
 abstract class MixinNodes {
@@ -61,20 +62,31 @@ abstract class MixinNodes {
     }
   }
 
-  def build(td : PsiClass) = {
-    def inner(clazz : PsiClass, subst : ScSubstitutor, visited : Set[PsiClass]) : Map = {
+  def build (clazz : PsiClass) : Map = build { map =>
+    processJava(clazz, ScSubstitutor.empty, map)
+    clazz.getSuperTypes.map{psiType => ScType.create(psiType, clazz.getProject)}
+  }
+
+  def build (eb : ScExtendsBlock) : Map = build { map =>
+    processScala(eb, ScSubstitutor.empty, map)
+    eb.superTypes
+  }
+
+  private def build(superTypesFun : Map => Seq[ScType]) = {
+    def inner(clazz: PsiClass, subst: ScSubstitutor, visited: Set[PsiClass]): Map = {
       val map = new Map
       if (visited.contains(clazz)) return map
       visited += clazz
 
       val superTypes = clazz match {
-        case td : ScTypeDefinition => {
-          processScala(td, subst, map)
-          td.superTypes
+        case td: ScTypeDefinition => {
+          val eb = td.extendsBlock
+          processScala(eb, subst, map)
+          eb.superTypes
         }
         case _ => {
           processJava(clazz, subst, map)
-          clazz.getSuperTypes.map {psiType => ScType.create(psiType, clazz.getProject)}
+          clazz.getSuperTypes.map{psiType => ScType.create(psiType, clazz.getProject)}
         }
       }
 
@@ -89,7 +101,18 @@ abstract class MixinNodes {
 
       map
     }
-    inner(td, ScSubstitutor.empty, new HashSet[PsiClass])
+
+    val map = new Map
+    val superTypesBuff = new ListBuffer[Map]
+    for (superType <- superTypesFun(map)) {
+      ScType.extractClassType(superType) match {
+        case Some((superClass, s)) => superTypesBuff += inner(superClass, s, new HashSet[PsiClass])
+        case _ =>
+      }
+    }
+    mergeWithSupers(map, mergeSupers(superTypesBuff.toList))
+
+    map
   }
 
   def combine(superSubst : ScSubstitutor, derived : ScSubstitutor, superClass : PsiClass) = {
@@ -115,5 +138,5 @@ abstract class MixinNodes {
   }
 
   def processJava(clazz : PsiClass, subst : ScSubstitutor, map : Map)
-  def processScala(td : ScTypeDefinition, subst : ScSubstitutor, map : Map)
+  def processScala(eb : ScExtendsBlock, subst : ScSubstitutor, map : Map)
 }
