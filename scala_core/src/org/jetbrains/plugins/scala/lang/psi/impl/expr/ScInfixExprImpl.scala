@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import api.statements.ScFun
-import types.{ScType, Nothing}
 import api.toplevel.ScTyped
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import api.expr._
+import types.{ScType, Nothing, ScFunctionType}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -19,7 +19,7 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
   override def getType = operation.bind match {
     case None => Nothing
     case Some(r) => r.element match {
-      case typed : ScTyped => r.substitutor.subst(typed.calcType)
+      case typed : ScTyped => r.substitutor.subst(typed.calcType match {case ScFunctionType(ret, _) => ret case t => t})
       case fun : ScFun => fun.retType
       case m : PsiMethod => r.substitutor.subst(ScType.create(m.getReturnType, getProject))
     }
