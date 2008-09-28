@@ -187,14 +187,14 @@ object TypeDefinitionMembers {
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement) : Boolean =
-    processDeclarations(processor, state, lastParent, place, {getVals(clazz)}, {getMethods(clazz)}, {getTypes(clazz)})
+    processDeclarations(processor, state, lastParent, place, getVals(clazz), getMethods(clazz), getTypes(clazz))
 
   def processDeclarations(eb : ScExtendsBlock,
                           processor: PsiScopeProcessor,
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement) : Boolean =
-    processDeclarations(processor, state, lastParent, place, {getVals(eb)}, {getMethods(eb)}, {getTypes(eb)})
+    processDeclarations(processor, state, lastParent, place, getVals(eb), getMethods(eb), getTypes(eb))
 
   private def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
