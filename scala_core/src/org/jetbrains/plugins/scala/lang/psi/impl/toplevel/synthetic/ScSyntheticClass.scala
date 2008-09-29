@@ -117,8 +117,12 @@ class SyntheticClasses(project: Project) extends ProjectComponent with PsiElemen
     file = PsiFileFactory.getInstance(project).createFileFromText(
     "dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), "")
 
-    //todo add methods
-    registerClass(Any, "Any")
+    val any = registerClass(Any, "Any")
+    any.addMethod(new ScSyntheticFunction(any.manager, "isInstanceOf", Boolean, Seq.empty, Seq.singleton("T")))
+    any.addMethod(new ScSyntheticFunction(any.manager, "asInstanceOf", Any, Seq.empty, Seq.singleton("T")) {
+      override val retType = ScalaPsiManager.typeVariable(typeParams(0))
+    })
+
     val anyRef = registerClass(AnyRef, "AnyRef")
     anyRef.addMethod(new ScSyntheticFunction(anyRef.manager, "eq", Boolean, Seq.singleton(AnyRef)))
     anyRef.addMethod(new ScSyntheticFunction(anyRef.manager, "ne", Boolean, Seq.singleton(AnyRef)))
