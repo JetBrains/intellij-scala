@@ -33,7 +33,7 @@ object NameSuggester {
       names += validator.validateName(s, true)
     }
     typez match {
-      case ValType(name, _) => {
+      case ValType(name) => {
         name match {
           case "Int" => add("i")
           case "Unit" => add("unit")
@@ -69,7 +69,7 @@ object NameSuggester {
       case ScParameterizedType(des@ScDesignatorType(c: PsiClass), Array(arg)) if c.getQualifiedName == "scala.Array" => {
         var s = ""
         arg match {
-          case ValType(name, _) => {
+          case ValType(name) => {
             s = name + "s"
           }
           case ScTupleType(_) => s = "Tuples"
