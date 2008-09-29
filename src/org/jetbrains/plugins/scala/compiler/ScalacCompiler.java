@@ -55,6 +55,8 @@ public class ScalacCompiler extends ExternalCompiler {
 
   // Scalac parameters
   @NonNls
+  private static final String DEBUG_INFO_LEVEL_PROPEERTY = "-g:vars";
+  @NonNls
   private static final String DESTINATION_COMPILER_PROPERTY = "-d";
   @NonNls
   private static final String DEBUG_PROPERTY = "-Ydebug";
@@ -254,6 +256,7 @@ public class ScalacCompiler extends ExternalCompiler {
     while (tokenizer.hasMoreTokens()) {
       printer.println(tokenizer.nextToken());
     }
+    printer.println(DEBUG_PROPERTY);
     printer.println(DESTINATION_COMPILER_PROPERTY);
     printer.println(outputPath.replace('/', File.separatorChar));
 
