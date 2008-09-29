@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import api.statements.ScTypeAlias
 import api.toplevel.typedef.ScTypeDefinition
 import impl.ScalaPsiManager
@@ -15,7 +16,11 @@ trait ScType {
   sealed def conforms(t: ScType): Boolean = Conformance.conforms(this, t)
 }
 
-abstract case class StdType(val name : String, val tSuper : Option[StdType]) extends ScType
+abstract case class StdType(val name : String, val tSuper : Option[StdType]) extends ScType {
+  def asClass(project : Project) = SyntheticClasses.get(project).byName(name) match {
+    case Some(c) => c
+  }
+}
 
 case object Any extends StdType("Any", None)
 
