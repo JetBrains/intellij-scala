@@ -29,7 +29,7 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNamedElement
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = null
 }
 
-class ScSyntheticTypeParameter(manager: PsiManager, name: String, val owner: ScFun)
+class ScSyntheticTypeParameter(manager: PsiManager, override val name: String, val owner: ScFun)
 extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake {
   override def toString = "Synthetic type parameter"
 
