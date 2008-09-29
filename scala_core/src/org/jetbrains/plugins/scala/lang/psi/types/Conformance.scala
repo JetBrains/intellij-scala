@@ -34,10 +34,6 @@ object Conformance {
         case _: ValType => true
         case _ => false
       }
-      case ValType(_, tSuper) => tSuper match {
-        case Some(tSuper) => conforms(tSuper, r)
-        case _ => false
-      }
 
       case ScTypeAliasType(_, _, lower, _) => conforms(lower, r)
       case ScTypeVariable(_, _, lower, _) => conforms(lower, r)

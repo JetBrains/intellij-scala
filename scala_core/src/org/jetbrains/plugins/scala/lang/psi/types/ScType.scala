@@ -29,17 +29,17 @@ case object Singleton extends StdType("Singleton", Some(AnyRef))
 
 case object AnyVal extends StdType("AnyVal", Some(Any))
 
-abstract case class ValType(override val name : String, ts : StdType) extends StdType(name, Some(ts))
+abstract case class ValType(override val name : String) extends StdType(name, Some(AnyVal))
 
-object Unit extends ValType("Unit", AnyVal)
-object Boolean extends ValType("Boolean", AnyVal)
-object Char extends ValType("Char", Int)
-object Int extends ValType("Int", Long)
-object Long extends ValType("Long", Float)
-object Float extends ValType("Float", Double)
-object Double extends ValType("Double", AnyVal)
-object Byte extends ValType("Byte", Short)
-object Short extends ValType("Float", Int)
+object Unit extends ValType("Unit")
+object Boolean extends ValType("Boolean")
+object Char extends ValType("Char")
+object Int extends ValType("Int")
+object Long extends ValType("Long")
+object Float extends ValType("Float")
+object Double extends ValType("Double")
+object Byte extends ValType("Byte")
+object Short extends ValType("Float")
 
 object ScType {
   def create(psiType : PsiType, project : Project) : ScType = psiType match {  //todo: resolve cases when java type have keywords as name (type -> `type`)
@@ -137,12 +137,7 @@ object ScType {
       }
     }
     def inner(t : ScType) : Unit = t match {
-      case Null => buffer.append("Null")
-      case Nothing => buffer.append("Nothing")
-      case Any => buffer.append("Any")
-      case AnyRef => buffer.append("AnyRef")
-      case AnyVal => buffer.append("AnyVal")
-      case ValType(name, _) => buffer.append(name)
+      case StdType(name, _) => buffer.append(name)
       case ScFunctionType(ret, params) => buffer.append("("); appendSeq(params, ", "); buffer.append(") =>"); inner(ret)
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
       case ScDesignatorType(e) => buffer.append(e.getName)

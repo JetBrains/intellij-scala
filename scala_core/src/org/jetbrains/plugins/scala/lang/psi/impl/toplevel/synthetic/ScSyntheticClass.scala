@@ -118,14 +118,24 @@ class SyntheticClasses(project: Project) extends ProjectComponent with PsiElemen
     "dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), "")
 
     val any = registerClass(Any, "Any")
-    any.addMethod(new ScSyntheticFunction(any.manager, "isInstanceOf", Boolean, Seq.empty, Seq.singleton("T")))
-    any.addMethod(new ScSyntheticFunction(any.manager, "asInstanceOf", Any, Seq.empty, Seq.singleton("T")) {
+    val manager = any.manager
+    any.addMethod(new ScSyntheticFunction(manager, "equals", Boolean, Seq.singleton(Any)))
+    any.addMethod(new ScSyntheticFunction(manager, "==", Boolean, Seq.singleton(Any)))
+    any.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq.singleton(Any)))
+    any.addMethod(new ScSyntheticFunction(manager, "hashCode", Int, Seq.empty))
+    val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
+    if (stringClass != null) {
+      val stringType = new ScDesignatorType(stringClass)
+      any.addMethod(new ScSyntheticFunction(manager, "toString", stringType, Seq.empty))
+    }
+    any.addMethod(new ScSyntheticFunction(manager, "isInstanceOf", Boolean, Seq.empty, Seq.singleton("T")))
+    any.addMethod(new ScSyntheticFunction(manager, "asInstanceOf", Any, Seq.empty, Seq.singleton("T")) {
       override val retType = ScalaPsiManager.typeVariable(typeParams(0))
     })
 
     val anyRef = registerClass(AnyRef, "AnyRef")
-    anyRef.addMethod(new ScSyntheticFunction(anyRef.manager, "eq", Boolean, Seq.singleton(AnyRef)))
-    anyRef.addMethod(new ScSyntheticFunction(anyRef.manager, "ne", Boolean, Seq.singleton(AnyRef)))
+    anyRef.addMethod(new ScSyntheticFunction(manager, "eq", Boolean, Seq.singleton(AnyRef)))
+    anyRef.addMethod(new ScSyntheticFunction(manager, "ne", Boolean, Seq.singleton(AnyRef)))
 
     registerClass(AnyVal, "AnyVal")
     registerClass(Nothing, "Nothing")
@@ -135,8 +145,8 @@ class SyntheticClasses(project: Project) extends ProjectComponent with PsiElemen
 
     val boolc = registerClass(Boolean, "Boolean")
     for (op <- bool_bin_ops)
-      boolc.addMethod(new ScSyntheticFunction(boolc.manager, op, Boolean, Seq.singleton(Boolean)))
-    boolc.addMethod(new ScSyntheticFunction(boolc.manager, "!", Boolean, Seq.empty))
+      boolc.addMethod(new ScSyntheticFunction(manager, op, Boolean, Seq.singleton(Boolean)))
+    boolc.addMethod(new ScSyntheticFunction(manager, "!", Boolean, Seq.empty))
 
     registerIntegerClass(registerNumericClass(registerClass(Char, "Char")))
     registerIntegerClass(registerNumericClass(registerClass(Int, "Int")))
@@ -148,27 +158,27 @@ class SyntheticClasses(project: Project) extends ProjectComponent with PsiElemen
 
     for(nc <- numeric) {
       for (nc1 <- numeric; op <- numeric_comp_ops)
-        nc.addMethod(new ScSyntheticFunction(nc.manager, op, Boolean, Seq.singleton(nc1.t)))
+        nc.addMethod(new ScSyntheticFunction(manager, op, Boolean, Seq.singleton(nc1.t)))
       for (nc1 <- numeric; op <- numeric_arith_ops)
-        nc.addMethod(new ScSyntheticFunction(nc.manager, op, op_type(nc, nc1), Seq.singleton(nc1.t)))
+        nc.addMethod(new ScSyntheticFunction(manager, op, op_type(nc, nc1), Seq.singleton(nc1.t)))
       for (nc1 <- numeric if nc1 ne nc)
-        nc.addMethod(new ScSyntheticFunction(nc.manager, "to" + nc1.name, nc1.t, Seq.empty))
+        nc.addMethod(new ScSyntheticFunction(manager, "to" + nc1.name, nc1.t, Seq.empty))
       for (un_op <- numeric_arith_unary_ops)
-        nc.addMethod(new ScSyntheticFunction(nc.manager, un_op, nc.t, Seq.empty))
+        nc.addMethod(new ScSyntheticFunction(manager, un_op, nc.t, Seq.empty))
     }
 
     for (ic <- integer) {
       for (ic1 <- integer; op <- bitwise_bin_ops)
-        ic.addMethod(new ScSyntheticFunction(ic.manager, op, op_type(ic, ic1), Seq.singleton(ic1.t)))
-      ic.addMethod(new ScSyntheticFunction(ic.manager, "~", ic.t, Seq.empty))
+        ic.addMethod(new ScSyntheticFunction(manager, op, op_type(ic, ic1), Seq.singleton(ic1.t)))
+      ic.addMethod(new ScSyntheticFunction(manager, "~", ic.t, Seq.empty))
 
       val ret = ic.t match {
         case Long => Long
         case _ => Int
       }
       for (op <- bitwise_shift_ops) {
-        ic.addMethod(new ScSyntheticFunction(ic.manager, op, ret, Seq.singleton(Int)))
-        ic.addMethod(new ScSyntheticFunction(ic.manager, op, ret, Seq.singleton(Long)))
+        ic.addMethod(new ScSyntheticFunction(manager, op, ret, Seq.singleton(Int)))
+        ic.addMethod(new ScSyntheticFunction(manager, op, ret, Seq.singleton(Long)))
       }
     }
   }
@@ -188,15 +198,6 @@ class SyntheticClasses(project: Project) extends ProjectComponent with PsiElemen
   def registerClass(t: ScType, name: String) = {
     val manager = PsiManager.getInstance(project)
     var clazz = new ScSyntheticClass(manager, name, t)
-    clazz.addMethod(new ScSyntheticFunction(manager, "equals", Boolean, Seq.singleton(Any)))
-    clazz.addMethod(new ScSyntheticFunction(manager, "==", Boolean, Seq.singleton(Any)))
-    clazz.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq.singleton(Any)))
-    clazz.addMethod(new ScSyntheticFunction(manager, "hashCode", Int, Seq.empty))
-    val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
-    if (stringClass != null) {
-      val stringType = new ScDesignatorType(stringClass)
-      clazz.addMethod(new ScSyntheticFunction(manager, "toString", stringType, Seq.empty))
-    }
 
     all + ((name, clazz)); clazz
   }
