@@ -95,7 +95,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         Indent.getContinuationWithoutFirstIndent
       }
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
-              _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScAnnotations => {
+              _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScAnnotations | _: ScTypeArgs => {
         Indent.getContinuationWithoutFirstIndent
       }
       case _: ScArgumentExprList => Indent.getSpaceIndent(indentCount)
