@@ -14,7 +14,6 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -28,14 +27,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.icons.Icons;
 import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
 import org.jetbrains.plugins.scala.config.ScalaConfigUtils;
 
-import javax.swing.*;
 import java.io.*;
 import java.util.*;
 
@@ -50,16 +46,15 @@ public class ScalacCompiler extends ExternalCompiler {
   private final List<File> myTempFiles = new ArrayList<File>();
 
   // VM properties
-  @NonNls
-  private final String XSS_COMPILER_PROPERTY = "-Xss128m";
+  @NonNls private static final String XMX_COMPILER_PROPERTY = "-Xmx300m";
+  @NonNls private final String XSS_COMPILER_PROPERTY = "-Xss128m";
 
   // Scalac parameters
-  @NonNls
-  private static final String DEBUG_INFO_LEVEL_PROPEERTY = "-g:vars";
-  @NonNls
-  private static final String DESTINATION_COMPILER_PROPERTY = "-d";
-  @NonNls
-  private static final String DEBUG_PROPERTY = "-Ydebug";
+  @NonNls private static final String DEBUG_INFO_LEVEL_PROPEERTY = "-g:vars";
+  @NonNls private static final String VERBOSE_PROPERTY = "-verbose";
+  @NonNls private static final String DESTINATION_COMPILER_PROPERTY = "-d";
+  @NonNls private static final String DEBUG_PROPERTY = "-Ydebug";
+  @NonNls private static final String WARNINGS_PROPERTY = "-unchecked";
   private final static HashSet<FileType> COMPILABLE_FILE_TYPES = new HashSet<FileType>(Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA));
 
 
@@ -125,7 +120,8 @@ public class ScalacCompiler extends ExternalCompiler {
 
   @NotNull
   public Configurable createConfigurable() {
-    return new ScalacConfigurable(ScalacSettings.getInstance(myProject));
+    // todo implement me as for javac!
+    return null;
   }
 
   public OutputParser createErrorParser(String outputDir) {
@@ -200,15 +196,19 @@ public class ScalacCompiler extends ExternalCompiler {
       throw new IllegalArgumentException(ScalaBundle.message("different.scala.sdk.in.modules"));
     }
 
-
     String javaExecutablePath = sdkType.getVMExecutablePath(jdk);
     commandLine.add(javaExecutablePath);
 
-    ScalacSettings settings = ScalacSettings.getInstance(myProject);
+    //todo setup via ScalacSettings
     commandLine.add(XSS_COMPILER_PROPERTY);
-    commandLine.add("-Xmx" + settings.MAXIMUM_HEAP_SIZE + "m");
-
+    commandLine.add(XMX_COMPILER_PROPERTY);
     commandLine.add("-cp");
+
+
+    // For debug
+
+//    commandLine.add("-Xdebug");
+//    commandLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=127.0.0.1:5448");
 
     String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
     final StringBuilder classPathBuilder = new StringBuilder();
@@ -234,29 +234,24 @@ public class ScalacCompiler extends ExternalCompiler {
 
     try {
       File fileWithParams = File.createTempFile("scalac", ".tmp");
-      fillFileWithScalacParams(chunk, fileWithParams, outputPath, myProject);
+      fillFileWithScalacParams(chunk, fileWithParams, outputPath);
 
       commandLine.add(fileWithParams.getPath());
     } catch (IOException e) {
       LOG.error(e);
     }
-
-
   }
 
 
-  private static void fillFileWithScalacParams(ModuleChunk chunk, File fileWithParameters, String outputPath, Project myProject)
-      throws FileNotFoundException {
+  private static void fillFileWithScalacParams(ModuleChunk chunk, File fileWithParameters, String outputPath)
+          throws FileNotFoundException {
 
     PrintStream printer = new PrintStream(new FileOutputStream(fileWithParameters));
 
-
-    ScalacSettings settings = ScalacSettings.getInstance(myProject);
-    StringTokenizer tokenizer = new StringTokenizer(settings.getOptionsString(), " ");
-    while (tokenizer.hasMoreTokens()) {
-      printer.println(tokenizer.nextToken());
-    }
+    printer.println(VERBOSE_PROPERTY);
     printer.println(DEBUG_PROPERTY);
+    printer.println(WARNINGS_PROPERTY);
+    printer.println(DEBUG_INFO_LEVEL_PROPEERTY);
     printer.println(DESTINATION_COMPILER_PROPERTY);
     printer.println(outputPath.replace('/', File.separatorChar));
 
@@ -346,4 +341,6 @@ public class ScalacCompiler extends ExternalCompiler {
 
     return false;
   }
+
+
 }
