@@ -15,29 +15,31 @@ trait ScType {
   sealed def conforms(t: ScType): Boolean = Conformance.conforms(this, t)
 }
 
-case object Any extends ScType
+abstract case class StdType(val name : String, val tSuper : Option[StdType]) extends ScType
 
-case object Null extends ScType
+case object Any extends StdType("Any", None)
 
-case object AnyRef extends ScType
+case object Null extends StdType("Null", Some(AnyRef))
 
-case object Nothing extends ScType
+case object AnyRef extends StdType("AnyRef", Some(Any))
 
-case object Singleton extends ScType
+case object Nothing extends StdType("Nothing", None)
 
-case object AnyVal extends ScType
+case object Singleton extends StdType("Singleton", Some(AnyRef))
 
-abstract case class ValType(val name : String, val tSuper : Option[ValType]) extends ScType
+case object AnyVal extends StdType("AnyVal", Some(Any))
 
-object Unit extends ValType("Unit", None)
-object Boolean extends ValType("Boolean", None)
-object Char extends ValType("Char", Some(Int))
-object Int extends ValType("Int", Some(Long))
-object Long extends ValType("Long", Some(Float))
-object Float extends ValType("Float", Some(Double))
-object Double extends ValType("Double", None)
-object Byte extends ValType("Byte", Some(Short))
-object Short extends ValType("Float", Some(Int))
+abstract case class ValType(override val name : String, ts : StdType) extends StdType(name, Some(ts))
+
+object Unit extends ValType("Unit", AnyVal)
+object Boolean extends ValType("Boolean", AnyVal)
+object Char extends ValType("Char", Int)
+object Int extends ValType("Int", Long)
+object Long extends ValType("Long", Float)
+object Float extends ValType("Float", Double)
+object Double extends ValType("Double", AnyVal)
+object Byte extends ValType("Byte", Short)
+object Short extends ValType("Float", Int)
 
 object ScType {
   def create(psiType : PsiType, project : Project) : ScType = psiType match {  //todo: resolve cases when java type have keywords as name (type -> `type`)
