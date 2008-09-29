@@ -52,12 +52,12 @@ object PostfixExpr {
         val refMarker = builder.mark
         builder.advanceLexer //Ate id
         refMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
-        builder.getTokenType match {
+        /*builder.getTokenType match {
           case ScalaTokenTypes.tLINE_TERMINATOR => {
             if (LineTerminator(builder.getTokenText)) builder.advanceLexer
           }
           case _ => {}
-        }
+        }*/
         postfixMarker.done(ScalaElementTypes.POSTFIX_EXPR)
       }
       case _ => {

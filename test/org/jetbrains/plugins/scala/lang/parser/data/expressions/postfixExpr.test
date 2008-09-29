@@ -1,0 +1,56 @@
+class a {
+  val x = 2 ?
+  val y = 3
+}
+------
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          PostfixExpression
+            Literal
+              PsiElement(integer)('2')
+            PsiWhiteSpace(' ')
+            ReferenceExpression
+              PsiElement(identifier)('?')
+        PsiElement(newline)('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('y')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Literal
+            PsiElement(integer)('3')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
