@@ -110,7 +110,7 @@ object ScalaRefactoringUtil {
         case x: ScBlock if x != expr =>
         case _: ScExpression => parent.getParent match {
           case _: ScForStatement |
-              _: ScFinallyBlock =>
+              _: ScFinallyBlock | _: ScFunctionDefinition=>
           case x => return get(x)
         }
         case _ => return get(parent.getParent)
