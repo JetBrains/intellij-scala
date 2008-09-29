@@ -76,7 +76,7 @@ public abstract class ActionTestBase extends BaseScalaFileSetTestCase {
 
 
   /**
-   * Performs cpecified action
+   * Performs specified action
    *
    * @param project
    * @param action

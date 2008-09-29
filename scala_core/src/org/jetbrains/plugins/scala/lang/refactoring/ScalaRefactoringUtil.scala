@@ -39,9 +39,9 @@ import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.lexer._
 
 /**
-* User: Alexander Podkhalyuzin
-* Date: 23.06.2008
-*/
+ * User: Alexander Podkhalyuzin
+ * Date: 23.06.2008
+ */
 
 object ScalaRefactoringUtil {      
   def trimSpacesAndComments(editor: Editor, file: PsiFile) {
