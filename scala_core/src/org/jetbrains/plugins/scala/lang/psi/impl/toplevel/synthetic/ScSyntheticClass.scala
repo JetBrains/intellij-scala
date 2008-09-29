@@ -43,7 +43,7 @@ extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake 
 }
 // we could try and implement all type system related stuff
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly
-class ScSyntheticClass(manager: PsiManager, val name: String, val t: ScType)
+class ScSyntheticClass(manager: PsiManager, val name: String, val t: StdType)
 extends SyntheticNamedElement(manager, name) with PsiClass with PsiClassFake {
 
   override def toString = "Synthetic class"
@@ -75,6 +75,14 @@ extends SyntheticNamedElement(manager, name) with PsiClass with PsiClassFake {
     }
 
     true
+  }
+
+  override def getSuperTypes = {
+    val project = manager.getProject
+    t.tSuper match {
+      case None => PsiClassType.EMPTY_ARRAY
+      case Some(ts) => Array[PsiClassType] (JavaPsiFacade.getInstance(project).getElementFactory.createType(ts.asClass(project)))
+    }
   }
 }
 
@@ -195,7 +203,7 @@ class SyntheticClasses(project: Project) extends ProjectComponent with PsiElemen
 
   var file : PsiFile = _
 
-  def registerClass(t: ScType, name: String) = {
+  def registerClass(t: StdType, name: String) = {
     val manager = PsiManager.getInstance(project)
     var clazz = new ScSyntheticClass(manager, name, t)
 

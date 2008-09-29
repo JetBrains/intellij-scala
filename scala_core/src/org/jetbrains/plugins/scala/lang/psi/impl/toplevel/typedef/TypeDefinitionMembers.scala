@@ -7,6 +7,7 @@ import api.base.{ScFieldId, ScPrimaryConstructor}
 import api.toplevel.templates.ScExtendsBlock
 import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
 import com.intellij.psi._
+import synthetic.{SyntheticClasses, ScSyntheticClass}
 import types._
 import api.toplevel.typedef._
 import api.statements._
@@ -187,7 +188,9 @@ object TypeDefinitionMembers {
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement) : Boolean =
-    processDeclarations(processor, state, lastParent, place, getVals(clazz), getMethods(clazz), getTypes(clazz))
+    processDeclarations(processor, state, lastParent, place, getVals(clazz), getMethods(clazz), getTypes(clazz)) &&
+    AnyRef.asClass(clazz.getProject).processDeclarations(processor, state, lastParent, place) &&
+    Any.asClass(clazz.getProject).processDeclarations(processor, state, lastParent, place)
 
   def processDeclarations(eb : ScExtendsBlock,
                           processor: PsiScopeProcessor,
