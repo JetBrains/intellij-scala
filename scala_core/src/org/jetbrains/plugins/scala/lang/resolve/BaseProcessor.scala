@@ -81,6 +81,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           case _ => true
         })
       }
+      case None => true//todo: added to hide MatchError
     }
 
     case ScFunctionType(rt, params) if params.length == 0 => processType(rt, place)
