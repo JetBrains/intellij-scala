@@ -42,7 +42,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     return buf.toSeq
   }
 
-  //Utility method to find td import statement, but only in element header
+  //Utility method to find first import statement, but only in element header
   private def findFirstImportStmt: Option[PsiElement] = {
     def tryImport(imp: PsiElement): Boolean = {
       var prev: PsiElement = imp.getPrevSibling
