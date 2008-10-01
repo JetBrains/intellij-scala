@@ -528,6 +528,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         }
       }
       case (_, ScalaTokenTypes.tINNER_CLASS, _, _) => return NO_SPACING
+      //ScalaDocs
+      case (_, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _) => return NO_SPACING_WITH_NEWLINE
+      case (_, ScalaDocTokenType.DOC_COMMENT_END, _, _) => return NO_SPACING_WITH_NEWLINE
+      case (ScalaDocTokenType.DOC_COMMENT_START, _, _, _) => return NO_SPACING_WITH_NEWLINE
       //Other cases
       case _ => {
         return COMMON_SPACING

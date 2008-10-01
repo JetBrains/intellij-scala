@@ -36,9 +36,10 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
   val MATCH_SURROUNDER = 10
   val PARENTHESIS_SURROUNDER = 11
   val IF_COND_SURROUNDER = 12
+  val IF_ELSE_COND_SURROUNDER = 13
 
   private val SURROUNDERS: Array[Surrounder] = {
-    val surrounders = new Array[Surrounder](13)
+    val surrounders = new Array[Surrounder](14)
     surrounders(BRACES_SURROUNDER) = new ScalaWithBracesSurrounder
     surrounders(IF_SURROUNDER) = new ScalaWithIfSurrounder()
     surrounders(IF_ELSE_SURROUNDER) = new ScalaWithIfElseSurrounder()
@@ -52,6 +53,7 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
     surrounders(TRY_FINALLY_SURROUNDER) = new ScalaWithTryFinallySurrounder()
     surrounders(PARENTHESIS_SURROUNDER) = new ScalaWithParenthesisSurrounder()
     surrounders(IF_COND_SURROUNDER) = new ScalaWithIfConditionSurrounder
+    surrounders(IF_ELSE_COND_SURROUNDER) = new ScalaWithIfElseConditionSurrounder
     surrounders
   }
 

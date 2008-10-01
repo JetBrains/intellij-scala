@@ -1,0 +1,14 @@
+class a {
+  val value = 2
+  def foo() = {
+    <begin>2<end> + value
+  }
+}
+------
+class a {
+  val value = 2
+  def foo() = {
+    val value = 2
+    value<caret> + this.value
+  }
+}
