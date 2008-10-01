@@ -1,19 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.patterns
 
-import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
-import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
-import com.intellij.psi.tree.TokenSet
-import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-import org.jetbrains.plugins.scala.lang.parser.parsing.types._
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.template._
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
-import org.jetbrains.plugins.scala.lang.parser.bnf._
-import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
+import com.intellij.lang.PsiBuilder
+import lexer.ScalaTokenTypes
+import util.ParserUtils
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 29.02.2008
 */
