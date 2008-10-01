@@ -20,7 +20,8 @@ ScalaFile
           InfixExpression
             InfixExpression
               PrefixExpression
-                PsiElement(identifier)('+')
+                ReferenceExpression
+                  PsiElement(identifier)('+')
                 ReferenceExpression
                   PsiElement(identifier)('a')
               PsiWhiteSpace(' ')
@@ -28,7 +29,8 @@ ScalaFile
                 PsiElement(identifier)('+')
               PsiWhiteSpace(' ')
               PrefixExpression
-                PsiElement(identifier)('-')
+                ReferenceExpression
+                  PsiElement(identifier)('-')
                 ReferenceExpression
                   PsiElement(identifier)('b')
             PsiWhiteSpace(' ')
@@ -36,7 +38,8 @@ ScalaFile
               PsiElement(identifier)('+')
             PsiWhiteSpace(' ')
             PrefixExpression
-              PsiElement(identifier)('~')
+              ReferenceExpression
+                PsiElement(identifier)('~')
               ReferenceExpression
                 PsiElement(identifier)('c')
           PsiWhiteSpace(' ')
@@ -44,7 +47,8 @@ ScalaFile
             PsiElement(identifier)('+')
           PsiWhiteSpace(' ')
           PrefixExpression
-            PsiElement(identifier)('!')
+            ReferenceExpression
+              PsiElement(identifier)('!')
             ReferenceExpression
               PsiElement(identifier)('d')
         PsiWhiteSpace('\n')

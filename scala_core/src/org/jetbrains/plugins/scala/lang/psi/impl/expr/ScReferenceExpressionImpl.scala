@@ -80,6 +80,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
         case postf: ScPostfixExpr if ref == postf.operation =>
           new MethodResolveProcessor(ref, Seq.empty, expectedType)
+        case pref: ScPrefixExpr if ref == pref.operation =>
+          new MethodResolveProcessor(ref, Seq.empty, expectedType)
         case _ => new RefExprResolveProcessor(getKinds(incomplete), refName)
       }
       _resolve(ref, proc)
@@ -94,6 +96,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           processor.processType(thisOp.getType, this)
         }
         case postf: ScPostfixExpr if ref == postf.operation => processor.processType(postf.operand.getType, this)
+        case pref: ScPrefixExpr if ref == pref.operation => processor.processType(pref.operand.getType, this)
         case _ => {
           def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
             place match {

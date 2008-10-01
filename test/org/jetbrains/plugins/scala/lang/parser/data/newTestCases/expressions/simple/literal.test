@@ -35,12 +35,14 @@ ScalaFile
           PsiElement(string content)('"one"')
         PsiElement(newline)('\n  ')
         PrefixExpression
-          PsiElement(identifier)('-')
+          ReferenceExpression
+            PsiElement(identifier)('-')
           Literal
             PsiElement(integer)('1')
         PsiElement(newline)('\n  ')
         PrefixExpression
-          PsiElement(identifier)('-')
+          ReferenceExpression
+            PsiElement(identifier)('-')
           Literal
             PsiElement(float)('1.0')
         PsiElement(newline)('\n  ')
