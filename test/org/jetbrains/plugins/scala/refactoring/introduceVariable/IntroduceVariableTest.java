@@ -35,7 +35,7 @@ import scala.Some;
 public class IntroduceVariableTest extends ActionTestBase {
 
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/refactoring/introduceVariable/data";
+  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/refactoring/introduceVariable/data/actual";
 
   protected static final String ALL_MARKER = "<all>";
 
@@ -96,7 +96,7 @@ public class IntroduceVariableTest extends ActionTestBase {
 
       ScExpression[] occurences = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(selectedExpr), tempContainer);
       String varName = "value";
-      final ScType varType = null;
+      final ScType varType = selectedExpr.getType();
 
       introduceVariableBase.runRefactoring(selectedExpr, myEditor, tempContainer, occurences, varName, varType, replaceAllOccurences, false);
 

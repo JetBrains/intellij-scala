@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import java.util.List;
 import java.util.ArrayList;
 
-class ScalaBlock (private val myParentBlock: ScalaBlock,
+class ScalaBlock (val myParentBlock: ScalaBlock,
         private val myNode: ASTNode,
         val myLastNode: ASTNode,
         private var myAlignment: Alignment,
