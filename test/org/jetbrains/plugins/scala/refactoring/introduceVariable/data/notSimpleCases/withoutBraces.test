@@ -4,7 +4,7 @@ class a {
 ------
 <caret>class a {
   def foo = {
-    val value = 2
+    val value: Int = 2
     value
   }
 }

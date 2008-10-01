@@ -8,6 +8,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory;
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses$;
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
@@ -35,7 +37,7 @@ import scala.Some;
 public class IntroduceVariableTest extends ActionTestBase {
 
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/refactoring/introduceVariable/data/actual";
+  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/refactoring/introduceVariable/data/";
 
   protected static final String ALL_MARKER = "<all>";
 
@@ -58,6 +60,7 @@ public class IntroduceVariableTest extends ActionTestBase {
 
 
   private String processFile(final PsiFile file) throws IncorrectOperationException, InvalidDataException, IOException {
+    myProject.getComponent(SyntheticClasses.class).initComponent();
     String result = "";
     String fileText = file.getText();
     int startOffset = fileText.indexOf(TestUtils.BEGIN_MARKER);
