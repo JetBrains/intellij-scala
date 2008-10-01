@@ -28,6 +28,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.ResolveTestCase;
 import org.jetbrains.plugins.scala.ScalaLoader;
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;
@@ -42,6 +43,7 @@ public abstract class ScalaResolveTestCase extends ResolveTestCase {
 
   protected void setUp() throws Exception {
     super.setUp();
+    myProject.getComponent(SyntheticClasses.class).registerClasses();
     ScalaLoader.loadScala();
 
     final ModifiableRootModel rootModel = ModuleRootManager.getInstance(getModule()).getModifiableModel();
