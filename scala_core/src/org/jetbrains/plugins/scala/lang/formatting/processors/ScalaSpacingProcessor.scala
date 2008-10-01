@@ -254,7 +254,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           else return WITHOUT_SPACING
         }
         case x: ScParameterClause if x.getParent.getParent.isInstanceOf[ScPrimaryConstructor] => {
-          if (scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING /
+          if (scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         }
         case _: ScPatternArgumentList => {
