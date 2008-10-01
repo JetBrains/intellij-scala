@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
-import com.intellij.lang.{ASTNode, PsiBuilder}
+import com.intellij.lang.PsiBuilder
 
 /** 
 * @author Alexander Podkhalyuzin
