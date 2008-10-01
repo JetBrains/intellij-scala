@@ -42,7 +42,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     return buf.toSeq
   }
 
-  //Utility method to find first import statement, but only in element header
+  //Utility method to find td import statement, but only in element header
   private def findFirstImportStmt: Option[PsiElement] = {
     def tryImport(imp: PsiElement): Boolean = {
       var prev: PsiElement = imp.getPrevSibling
@@ -90,7 +90,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       case _ =>
     }
 
-    //looking for first import statemnt to find place which we will use for new import statement
+    //looking for td import statemnt to find place which we will use for new import statement
     findFirstImportStmt match {
       case Some(x: ScImportStmt) => {
         //now we walking throw foward siblings, and seeking appropriate place (lexicografical)
@@ -121,7 +121,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         }
       }
       case _ => {
-        //we haven't first import statement, so we insert new import statement so close to element begin as possible
+        //we haven't td import statement, so we insert new import statement so close to element begin as possible
         findChild(classOf[ScPackageStatement]) match {
           case Some(x) => {
             addAfter(importSt, x)

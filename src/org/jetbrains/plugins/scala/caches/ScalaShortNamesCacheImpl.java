@@ -65,7 +65,7 @@ public class ScalaShortNamesCacheImpl implements ScalaShortNamesCache {
         list.add(psiClass);
       }
     }
-    return list.toArray(new PsiClass[classes.size()]);
+    return list.toArray(new PsiClass[list.size()]);
   }
 
   @NotNull

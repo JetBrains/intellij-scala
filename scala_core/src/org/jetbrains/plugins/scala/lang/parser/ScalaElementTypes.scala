@@ -24,6 +24,8 @@ object ScalaElementTypes {
   val PACKAGING = new ScPackagingElementType()
   val PACKAGE_STMT = new ScPackageStmtElementType()
 
+  val EXTENDS_BLOCK = new ScExtendsBlockElementType()
+
   val CLASS_PARENTS = new ScalaElementType("template parents")
   val TRAIT_PARENTS = new ScalaElementType("mixin parents")
   val CONSTRUCTOR = new ScalaElementType("constructor")
@@ -33,7 +35,6 @@ object ScalaElementTypes {
 
 
   val REQUIRES_BLOCK = new ScalaElementType("requires block")
-  val EXTENDS_BLOCK = new ScalaElementType("extends block")
   val NEW_TEMPLATE = new ScalaElementType("new template")
 
 

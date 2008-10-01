@@ -47,6 +47,8 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
 
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
+  override def getTextOffset: Int = nameId.getTextRange.getStartOffset
+
   override def getQualifiedName: String = {
     def _packageName(e: PsiElement): String = e.getParent match {
       case t: ScTypeDefinition => _packageName(t) + "." + t.name
@@ -73,8 +75,6 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
       override def getIcon(open: Boolean) = ScTypeDefinitionImpl.this.getIcon(0)
     }
   }
-
-  protected def getIconInner: Icon
 
   override def getIcon(flags: Int): Icon = {
     if (!isValid) return null

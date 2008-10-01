@@ -35,7 +35,7 @@ object Qual_Id {
     return parse(builder,qualMarker)
   }
   def parse(builder: PsiBuilder, qualMarker: PsiBuilder.Marker): Boolean = {
-    //parsing first identifier
+    //parsing td identifier
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
         builder.advanceLexer//Ate identifier

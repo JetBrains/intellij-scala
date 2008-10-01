@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs
-import com.intellij.psi.stubs.PsiFileStub
+import com.intellij.psi.stubs.{PsiClassHolderFileStub, PsiFileStub}
 
 /**
  * @author ilyas
  */
 
-trait ScFileStub extends PsiFileStub[ScalaFile]{
+trait ScFileStub extends PsiClassHolderFileStub[ScalaFile]{
 
   def packageName: String
 
-  def getName: String
+  def getFileName: String
+
+  def isCompiled: Boolean
 }
