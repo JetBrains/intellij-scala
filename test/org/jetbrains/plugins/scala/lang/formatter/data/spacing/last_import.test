@@ -1,0 +1,17 @@
+class A {
+  def _type = {
+    import ScalaElementTypes._, ClassTypes._
+    getStub.getStubType match {
+      case TRAIT_DEF => TRAIT
+    }
+  }
+}
+-----
+class A {
+  def _type = {
+    import ScalaElementTypes._, ClassTypes._
+    getStub.getStubType match {
+      case TRAIT_DEF => TRAIT
+    }
+  }
+}
