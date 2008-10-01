@@ -142,13 +142,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     //processing left parenthesis (if it's from right) only Scala cases
     if (rightNode.getPsi.isInstanceOf[ScParameters] &&
             leftNode.getTreeParent.getPsi.isInstanceOf[ScPrimaryConstructor]) {
-      if (scalaSettings.SPACE_BEFORE_METHOD_PARENTHESES) return WITH_SPACING //todo: add setting
+      if (scalaSettings.SPACE_BEFORE_METHOD_PARENTHESES) return WITH_SPACING 
       else return WITHOUT_SPACING
     }
     if (rightNode.getPsi.isInstanceOf[ScPrimaryConstructor] &&
             rightString.length > 0 &&
             rightString.substring(0, 1) == "(") {
-      if (scalaSettings.SPACE_BEFORE_METHOD_PARENTHESES) return WITH_SPACING //todo: add setting
+      if (scalaSettings.SPACE_BEFORE_METHOD_PARENTHESES) return WITH_SPACING
       else return WITHOUT_SPACING
     } else if (rightNode.getPsi.isInstanceOf[ScPrimaryConstructor]) {
       return WITH_SPACING
@@ -159,7 +159,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     if (rightNode.getPsi.isInstanceOf[ScPatternArgumentList] &&
             rightNode.getTreeParent.getPsi.isInstanceOf[ScConstructorPattern]) {
-      if (scalaSettings.SPACE_BEFORE_METHOD_CALL_PARENTHESES) return WITH_SPACING //todo: add setting
+      if (scalaSettings.SPACE_BEFORE_METHOD_CALL_PARENTHESES) return WITH_SPACING
       else return WITHOUT_SPACING
     }
 
@@ -189,11 +189,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           else return WITHOUT_SPACING
         }
         case x: ScParameterClause if x.getParent.getParent.isInstanceOf[ScPrimaryConstructor] => {
-          if (scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING //todo: add setting
+          if (scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         }
         case _: ScPatternArgumentList => {
-          if (scalaSettings.SPACE_WITHIN_METHOD_CALL_PARENTHESES) return WITH_SPACING //todo: add setting
+          if (scalaSettings.SPACE_WITHIN_METHOD_CALL_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         }
         case _: ScArguments => {
@@ -201,14 +201,14 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           else return WITHOUT_SPACING
         }
         case _: ScParenthesisedPattern => {
-          if (scalaSettings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING //todo: add setting
+          if (scalaSettings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         }
         case _: ScTuplePattern => {
           WITHOUT_SPACING //todo: add setting
         }
         case _: ScParenthesisedTypeElement => {
-          if (scalaSettings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING //todo: add setting
+          if (scalaSettings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         }
         case _: ScTupleTypeElement => {
@@ -218,11 +218,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           WITHOUT_SPACING //todo: add setting
         }
         case _: ScBindings => {
-          if (scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING //todo: add setting
+          if (scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         }
         case _: ScFunctionalTypeElement => {
-          if (scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING //todo: add setting
+          if (scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         }
         case _ =>
@@ -254,11 +254,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           else return WITHOUT_SPACING
         }
         case x: ScParameterClause if x.getParent.getParent.isInstanceOf[ScPrimaryConstructor] => {
-          if (scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING //todo: add setting
+          if (scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING /
           else return WITHOUT_SPACING
         }
         case _: ScPatternArgumentList => {
-          if (scalaSettings.SPACE_WITHIN_METHOD_CALL_PARENTHESES) return WITH_SPACING //todo: add setting
+          if (scalaSettings.SPACE_WITHIN_METHOD_CALL_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         }
         case _: ScArguments => {
@@ -266,14 +266,14 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           else return WITHOUT_SPACING
         }
         case _: ScParenthesisedPattern => {
-          if (scalaSettings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING //todo: add setting
+          if (scalaSettings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         }
         case _: ScTuplePattern => {
           WITHOUT_SPACING //todo: add setting
         }
         case _: ScParenthesisedTypeElement => {
-          if (scalaSettings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING //todo: add setting
+          if (scalaSettings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         }
         case _: ScTupleTypeElement => {
@@ -283,11 +283,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           WITHOUT_SPACING //todo: add setting
         }
         case _: ScBindings => {
-          if (scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING //todo: add setting
+          if (scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         }
         case _: ScFunctionalTypeElement => {
-          if (scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING //todo: add setting
+          if (scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         }
         case _ =>
@@ -335,7 +335,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         }
         case _: ScForStatement => {
           if (scalaSettings.SPACE_BEFORE_FOR_LBRACE && leftNode.getElementType != ScalaTokenTypes.kFOR) return WITH_SPACING
-          else if (leftNode.getElementType == ScalaTokenTypes.kFOR) return WITHOUT_SPACING //todo: add setting
+          else if (leftNode.getElementType == ScalaTokenTypes.kFOR) return WITHOUT_SPACING
           else return WITHOUT_SPACING
         }
         case _: ScDoStmt => {
