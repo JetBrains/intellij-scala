@@ -29,10 +29,15 @@ object Enumerators {
       return false
     }
     var exit = true
-    while (builder.getTokenType == ScalaTokenTypes.tLINE_TERMINATOR ||
-      builder.getTokenType == ScalaTokenTypes.tSEMICOLON && exit) {
-      builder.advanceLexer //Ate semi
-      if (!Enumerator.parse(builder)) exit = false
+    while (exit) {
+      val guard = builder.getTokenType match {
+        case ScalaTokenTypes.tSEMICOLON | ScalaTokenTypes.tLINE_TERMINATOR =>
+          builder.advanceLexer
+          false
+        case _ if Guard.parse(builder) => true
+        case _ => exit = false; true
+      }
+      if (!guard && !Enumerator.parse(builder)) exit = false
     }
     enumsMarker.done(ScalaElementTypes.ENUMERATORS)
     return true
