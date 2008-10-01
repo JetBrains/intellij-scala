@@ -27,6 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Date: 06.03.2008
 */
 
-class ScPostfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPostfixExpr {
+class ScPostfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPostfixExpr with ScCallExprImpl {
   override def toString: String = "PostfixExpression"
 }

@@ -58,7 +58,8 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           PrefixExpression
-            PsiElement(identifier)('-')
+            ReferenceExpression
+              PsiElement(identifier)('-')
             ReferenceExpression
               PsiElement(identifier)('f')
         PsiElement(})('}')
