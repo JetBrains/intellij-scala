@@ -36,6 +36,7 @@ abstract class ScalaExpressionSurrounder extends ScalaSurrounderByExpression {
       }
       case e => {
         if (e.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR) true
+        else if (e.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) true
         else if (ScalaTokenTypes.COMMENTS_TOKEN_SET contains e.getNode.getElementType) true
         else false
       }
