@@ -186,6 +186,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
   def functionsByName(name: String) =
     for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method == name) yield n.info.method
 
+  @deprecated
   def addMember(member: PsiElement, edit: Option[Editor], pos: Int) {
     val editor: Editor = edit match {case None => null case Some(x) => x}
     var meth: PsiElement = member
@@ -247,5 +248,45 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
       editor.getCaretModel.moveToOffset(offset)
       editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
     }
+  }
+
+  def addMember(member: PsiElement, anchor: Option[PsiElement], newLinePos: Int): Option[PsiElement] = {
+    var meth: PsiElement = member
+    //checking member
+    meth match {
+      case _: ScValue | _: ScFunction | _: ScVariable | _: ScTypeAlias =>
+      case _ => return None
+    }
+    val body: ScTemplateBody = extendsBlock.templateBody match {
+      case Some(x) => x
+      case None => return None
+    }
+    //if body is not empty
+    if (body.getChildren.length != 0) {
+      anchor match {
+        case Some(anchor) if anchor.getNode.getElementType != ScalaTokenTypes.tLINE_TERMINATOR => {
+          body.getNode.addChild(meth.getNode, anchor.getNode)
+          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), anchor.getNode)
+        }
+        case Some(anchor) => {//todo: rewrite according newLinePos
+          body.getNode.addChild(meth.getNode, anchor.getNode)
+          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), anchor.getNode)
+        }
+        case None => {
+          body.getNode.addChild(meth.getNode, body.getNode.getLastChildNode)
+          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
+        }
+      }
+    } else {
+      val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.
+          createBodyFromMember(meth, meth.getManager)).asInstanceOf[ScTemplateBody]
+      meth = member match {
+        case _: ScTypeAlias => newBody.aliases(0)
+        case _: ScFunction => newBody.functions(0)
+        case _: ScValue | _: ScVariable => newBody.members(0)
+      }
+      newBody.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
+    }
+    return Some(meth)
   }
 }

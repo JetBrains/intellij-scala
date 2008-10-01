@@ -68,13 +68,10 @@ with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable {
   def allVals(): Iterator[Pair[PsiNamedElement, ScSubstitutor]]
   def allMethods(): Iterator[PhysicalSignature]
 
-  /**
-   * Add only real members (not abstract PsiElement) to this class in current caret position. 
-   * If editor is None, add in offset(0) position or to start if offset == -1.
-   * @param meth member which added to this type definition
-   * @param editor current editor
-   * @param offset if editor is None add to offset (if != -1)
-   */
+  @deprecated
   def addMember(meth: PsiElement, editor: Option[Editor], offset: Int)
+  @deprecated
   def addMember(meth: PsiElement, editor: Option[Editor]): Unit = addMember(meth, editor, -1)
+
+  def addMember(member: PsiElement, anchor: Option[PsiElement], newLinePos: Int): Option[PsiElement]
 }
