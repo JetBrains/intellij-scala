@@ -30,12 +30,11 @@ trait ScImportsHolder extends ScalaPsiElement {
 
 
   private def importStatementsInHeader: Seq[ScImportStmt] = {
-    var end = false
     val buf = new ArrayBuffer[ScImportStmt]
-    for (child <- getChildren if !end) {
+    for (child <- getChildren) {
       child match {
         case x: ScImportStmt => buf += x
-        case _: ScTypeDefinition | _: ScPackaging => end = true
+        case _: ScTypeDefinition | _: ScPackaging => return buf.toSeq
         case _ =>
       }
     }
