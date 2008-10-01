@@ -37,23 +37,25 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
   val PARENTHESIS_SURROUNDER = 11
   val IF_COND_SURROUNDER = 12
   val IF_ELSE_COND_SURROUNDER = 13
+  val UNARY_NOT_SURROUNDER = 14
 
   private val SURROUNDERS: Array[Surrounder] = {
-    val surrounders = new Array[Surrounder](14)
+    val surrounders = new Array[Surrounder](15)
     surrounders(BRACES_SURROUNDER) = new ScalaWithBracesSurrounder
-    surrounders(IF_SURROUNDER) = new ScalaWithIfSurrounder()
-    surrounders(IF_ELSE_SURROUNDER) = new ScalaWithIfElseSurrounder()
-    surrounders(FOR_SURROUNDER) = new ScalaWithForSurrounder()
-    surrounders(FOR_YIELD_SURROUNDER) = new ScalaWithForYieldSurrounder()
-    surrounders(WHILE_SURROUNDER) = new ScalaWithWhileSurrounder()
-    surrounders(DO_WHILE_SURROUNDER) = new ScalaWithDoWhileSurrounder()
-    surrounders(MATCH_SURROUNDER) = new ScalaWithMatchSurrounder()
-    surrounders(TRY_CATCH_FINALLY_SURROUNDER) = new ScalaWithTryCatchFinallySurrounder()
-    surrounders(TRY_CATCH_SURROUNDER) = new ScalaWithTryCatchSurrounder()
-    surrounders(TRY_FINALLY_SURROUNDER) = new ScalaWithTryFinallySurrounder()
-    surrounders(PARENTHESIS_SURROUNDER) = new ScalaWithParenthesisSurrounder()
+    surrounders(IF_SURROUNDER) = new ScalaWithIfSurrounder
+    surrounders(IF_ELSE_SURROUNDER) = new ScalaWithIfElseSurrounder
+    surrounders(FOR_SURROUNDER) = new ScalaWithForSurrounder
+    surrounders(FOR_YIELD_SURROUNDER) = new ScalaWithForYieldSurrounder
+    surrounders(WHILE_SURROUNDER) = new ScalaWithWhileSurrounder
+    surrounders(DO_WHILE_SURROUNDER) = new ScalaWithDoWhileSurrounder
+    surrounders(MATCH_SURROUNDER) = new ScalaWithMatchSurrounder
+    surrounders(TRY_CATCH_FINALLY_SURROUNDER) = new ScalaWithTryCatchFinallySurrounder
+    surrounders(TRY_CATCH_SURROUNDER) = new ScalaWithTryCatchSurrounder
+    surrounders(TRY_FINALLY_SURROUNDER) = new ScalaWithTryFinallySurrounder
+    surrounders(PARENTHESIS_SURROUNDER) = new ScalaWithParenthesisSurrounder
     surrounders(IF_COND_SURROUNDER) = new ScalaWithIfConditionSurrounder
     surrounders(IF_ELSE_COND_SURROUNDER) = new ScalaWithIfElseConditionSurrounder
+    surrounders(UNARY_NOT_SURROUNDER) = new ScalaWithUnaryNotSurrounder
     surrounders
   }
 
