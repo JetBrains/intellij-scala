@@ -6,7 +6,7 @@ class a {
 ------
 class a {
   def foo = {
-    val value = {22; 33}
+    val value: Int = {22; 33}
     a (value<caret>)
   }
 }

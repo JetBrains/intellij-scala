@@ -7,7 +7,7 @@ class a {
 ------
 class a {
   def foo = {
-    val value = x
+    val value: Nothing = x
     value<caret>("balletik")
   }
   val x: (String => Boolean) = _.startsWith("ballet")

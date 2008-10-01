@@ -8,7 +8,7 @@ class a {
 class a {
   val value = 2
   def foo() = {
-    val value = 2
+    val value: Int = 2
     value<caret> + this.value
   }
 }
