@@ -13,15 +13,6 @@ import types.{ScType, Nothing, ScFunctionType}
 * Date: 06.03.2008
 */
 
-class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixExpr {
+class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixExpr with ScCallExprImpl {
   override def toString: String = "InfixExpression"
-
-  override def getType = operation.bind match {
-    case None => Nothing
-    case Some(r) => r.element match {
-      case typed : ScTyped => r.substitutor.subst(typed.calcType match {case ScFunctionType(ret, _) => ret case t => t})
-      case fun : ScFun => fun.retType
-      case m : PsiMethod => r.substitutor.subst(ScType.create(m.getReturnType, getProject))
-    }
-  }
 }
