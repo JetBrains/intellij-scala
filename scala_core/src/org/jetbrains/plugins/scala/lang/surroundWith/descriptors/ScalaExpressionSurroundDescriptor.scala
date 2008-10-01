@@ -80,12 +80,14 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
       }
       case (null, _) | (_, null) => return null
       case _ => {
-        if (";".equals(element2.getText()))
+        if (element2.getNode.getElementType == ScalaTokenTypes.tSEMICOLON)
           return findExpressionInRange(file, startOffset, endOffset - 1)
         if (element1.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)
           return findExpressionInRange(file, element1.getTextRange().getEndOffset(), endOffset)
         if (element2.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)
           return findExpressionInRange(file, startOffset, element2.getTextRange().getStartOffset())
+        if (ScalaTokenTypes.COMMENTS_TOKEN_SET contains element1.getNode.getElementType)
+          return findExpressionInRange(file, element2.getTextRange().getEndOffset(), endOffset)
         if (ScalaTokenTypes.COMMENTS_TOKEN_SET contains element2.getNode.getElementType)
           return findExpressionInRange(file, startOffset, element2.getTextRange().getStartOffset())
       }
@@ -96,6 +98,7 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
       while (element != null && !element.isInstanceOf[ScExpression] && !element.isInstanceOf[ScValue] &&
               !element.isInstanceOf[ScVariable] && !element.isInstanceOf[PsiWhiteSpace] &&
               element.getNode.getElementType != ScalaTokenTypes.tLINE_TERMINATOR &&
+              element.getNode.getElementType != ScalaTokenTypes.tSEMICOLON &&
               !ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(element.getNode.getElementType)||
               (element.getParent().getTextRange().getStartOffset() == startOffset &&
                       (element.getParent().isInstanceOf[ScExpression] ||

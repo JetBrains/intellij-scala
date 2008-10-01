@@ -60,7 +60,7 @@ public class IntroduceVariableTest extends ActionTestBase {
 
 
   private String processFile(final PsiFile file) throws IncorrectOperationException, InvalidDataException, IOException {
-    myProject.getComponent(SyntheticClasses.class).initComponent();
+    myProject.getComponent(SyntheticClasses.class).registerClasses();
     String result = "";
     String fileText = file.getText();
     int startOffset = fileText.indexOf(TestUtils.BEGIN_MARKER);
