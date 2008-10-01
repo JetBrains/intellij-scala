@@ -56,7 +56,7 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
             for (fRange <- ranges if fRange.getEndOffset == qual.getTextRange.getEndOffset) {
               //cancatenating ranges
               val tRange = new TextRange(if (fRange.getStartOffset != fRange.getEndOffset) fRange.getStartOffset
-                                         else { //if we have dummy range we must find first letter to concatenate ranges
+                                         else { //if we have dummy range we must find td letter to concatenate ranges
                                            var end = fRange.getEndOffset
                                            var flag = true
                                            while (flag) {

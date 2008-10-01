@@ -23,6 +23,8 @@ class ScParameterImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
 
   override def toString: String = "Parameter"
 
+  override def getTextOffset: Int = nameId.getTextRange.getStartOffset
+
   def getNameIdentifier = null
 
   def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)

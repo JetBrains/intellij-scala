@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
 import annotations.Nullable
 import com.intellij.openapi.editor.Editor
+import com.intellij.psi.impl.ElementBase
+import com.intellij.util.VisibilityIcons
+import javax.swing.Icon
 import types.{ScType, PhysicalSignature, ScSubstitutor}
 import base.types.ScSelfTypeElement
 import statements.ScVariable
@@ -24,7 +27,7 @@ import base._
  */
 
 trait ScTypeDefinition extends ScNamedElement
-with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable {
+    with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable {
 
   def members(): Seq[ScMember]
 
@@ -46,11 +49,13 @@ with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable {
     if (index < 0) "" else qualName.substring(0, index);
   }
 
-  def getTypeDefinitions(): Seq[ScTypeDefinition] =
+  def getTypeDefinitions(): Seq[ScTypeDefinition] = {
+    if (extendsBlock == null) return Seq.empty
     extendsBlock.templateBody match {
       case None => Seq.empty
       case Some(body) => body.typeDefinitions
     }
+  }
 
   def functionsByName(name: String): Iterable[PsiMethod]
 
@@ -68,10 +73,28 @@ with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable {
   def allVals(): Iterator[Pair[PsiNamedElement, ScSubstitutor]]
   def allMethods(): Iterator[PhysicalSignature]
 
-  @deprecated
+  /**
+   * Add only real members (not abstract PsiElement) to this class in current caret position.
+   * If editor is None, add in offset(0) position or to start if offset == -1.
+   * @param methmemberwhich added to this type definition
+  * @param editorcurrenteditor
+  * @param offsetifeditor is None add to offset (if != -1)
+   */
   def addMember(meth: PsiElement, editor: Option[Editor], offset: Int)
   @deprecated
   def addMember(meth: PsiElement, editor: Option[Editor]): Unit = addMember(meth, editor, -1)
 
-  def addMember(member: PsiElement, anchor: Option[PsiElement], newLinePos: Int): Option[PsiElement]
+  override def getIcon(flags: Int): Icon = {
+    if (!isValid) return null
+    val icon = getIconInner
+    val isLocked = (flags & Iconable.ICON_FLAG_READ_STATUS) != 0 && !isWritable()
+    val rowIcon = ElementBase.createLayeredIcon(icon, /*ElementPresentationUtil.getFlags(this, isLocked)*/ 0)
+    if ((flags & Iconable.ICON_FLAG_VISIBILITY) != 0) {
+      VisibilityIcons.setVisibilityIcon(getModifierList, rowIcon);
+    }
+    rowIcon
+  }
+
+  protected def getIconInner: Icon
+
 }

@@ -11,6 +11,8 @@ import psi.ScalaPsiElementImpl
 import api.toplevel.templates._
 import psi.types._
 import _root_.scala.collection.mutable.ArrayBuffer
+import stubs.elements.wrappers.DummyASTNode
+import stubs.ScExtendsBlockStub
 import typedef.TypeDefinitionMembers
 
 /**
@@ -18,7 +20,13 @@ import typedef.TypeDefinitionMembers
 * Date: 20.02.2008
  */
 
-class ScExtendsBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExtendsBlock {
+class ScExtendsBlockImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScExtendsBlock](node) with ScExtendsBlock {
+
+  def this(stub : ScExtendsBlockStub) = {
+    this(DummyASTNode)
+    setStub(stub)
+    setNode(null)
+  }
 
   override def toString: String = "ExtendsBlock"
 

@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFullPackagingNameIndex
 import _root_.scala.collection.mutable.ListBuffer
 import api.toplevel.packaging.ScPackageContainer
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.util.io.StringRef
 import impl.ScPackageContainerStubImpl
+import index.{ScalaIndexKeys, ScFullPackagingNameIndex}
 
 /**
  * @author ilyas
@@ -38,7 +38,7 @@ extends ScStubElementType[ScPackageContainerStub, ScPackageContainer](debugName)
     def append(postfix : String) = if (prefix.length > 0) prefix + "." + postfix else postfix
     var i = 0
     do {
-      sink.occurrence(ScFullPackagingNameIndex.KEY, append(ownNamePart).hashCode)
+      sink.occurrence(ScalaIndexKeys.PACKAGE_FQN_KEY, append(ownNamePart).hashCode)
       i = ownNamePart.lastIndexOf(".")
       if (i > 0) {
         ownNamePart = ownNamePart.substring(0, i)

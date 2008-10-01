@@ -22,7 +22,7 @@ import lang.lexer.ScalaTokenTypes
 object AnnotatorHighlighter {
   def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
     refElement.resolve match {
-      case _: ScSyntheticClass => { //this is first, it's important!
+      case _: ScSyntheticClass => { //this is td, it's important!
         val annotation = holder.createInfoAnnotation(refElement, null)
         annotation.setTextAttributes(DefaultHighlighter.PREDEF)
       }
@@ -50,7 +50,7 @@ object AnnotatorHighlighter {
         val annotation = holder.createInfoAnnotation(refElement, null)
         annotation.setTextAttributes(DefaultHighlighter.TRAIT)
       }
-      case x: PsiClass if x.getModifierList.hasModifierProperty("abstract") => {
+      case x: PsiClass if x.getModifierList != null && x.getModifierList.hasModifierProperty("abstract") => {
         val annotation = holder.createInfoAnnotation(refElement, null)
         annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
       }

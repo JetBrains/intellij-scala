@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.impl.compiled.ScClsTypeDefinitionImpl
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScClassImpl
 import api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import com.intellij.lang.ASTNode
@@ -13,5 +14,8 @@ class ScClassDefinitionElementType extends ScTypeDefinitionElementType[ScClass](
 
   def createElement(node: ASTNode): PsiElement = new ScClassImpl(node)
 
-  def createPsi(stub: ScTypeDefinitionStub) = new ScClassImpl(stub)
+  def createPsi(stub: ScTypeDefinitionStub) = if (isCompiled(stub))
+    new ScClsTypeDefinitionImpl(stub) else
+    new ScClassImpl(stub)
+
 }

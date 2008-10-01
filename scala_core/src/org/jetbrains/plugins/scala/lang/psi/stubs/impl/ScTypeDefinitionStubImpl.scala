@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.impl
 
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.psi.impl.java.stubs.PsiClassStub
+import com.intellij.psi.{PsiElement, PsiClass}
 import com.intellij.util.io.StringRef
-import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IStubElementType, StubBase}
 import api.toplevel.typedef.ScTypeDefinition
 
@@ -33,5 +35,17 @@ extends StubBaseWrapper[ScTypeDefinition](parent, elemType) with ScTypeDefinitio
   def qualName = StringRef.toString(myQualName)
 
   def getName = StringRef.toString(myName)
+
+  //todo PsiClassStub methods
+  def getLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_5
+  def isEnum: Boolean = false
+  def isInterface: Boolean = false
+  def isAnonymous: Boolean = false
+  def isAnonymousInQualifiedNew: Boolean = false
+  def isAnnotationType: Boolean = false
+  def isDeprecated: Boolean = false
+  def hasDeprecatedAnnotation: Boolean = false
+  def isEnumConstantInitializer: Boolean = false
+  def getBaseClassReferenceText: String = null
 
 }

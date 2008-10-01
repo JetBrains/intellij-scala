@@ -13,8 +13,6 @@ trait ScNamedElement extends ScalaPsiElement with PsiNamedElement {
 
   def nameId() : PsiElement
 
-  override def getTextOffset() = nameId.getTextRange.getStartOffset
-
   override def setName(name: String): PsiElement = {
     val id = nameId.getNode
     val parent = id.getTreeParent

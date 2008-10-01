@@ -22,6 +22,8 @@ trait ScParameter extends ScNamedElement with ScTyped with PsiParameter {
 
   def paramType: Option[ScParameterType]
 
+  override def getTextOffset: Int = nameId.getTextRange.getStartOffset
+
   //todo implement me!
   def hasModifierProperty(p: String) = false
 
