@@ -11,9 +11,9 @@ import junit.framework.Assert;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
-import org.jetbrains.plugins.scala.lang.psi.ScalaFileImpl;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableBase;
@@ -74,10 +74,10 @@ public class IntroduceVariableValidatorTest extends ActionTestBase {
       // gathering data for introduce variable
       ScalaIntroduceVariableBase introduceVariableBase = new ScalaIntroduceVariableHandler();
 
-      Assert.assertTrue(myFile instanceof ScalaFileImpl);
+      Assert.assertTrue(myFile instanceof ScalaFile);
       ScExpression selectedExpr = null;
-      if (ScalaRefactoringUtil.getExpression(myProject, myEditor, (ScalaFileImpl) myFile, startOffset, endOffset) instanceof Some) {
-        Some temp = (Some) ScalaRefactoringUtil.getExpression(myProject, myEditor, (ScalaFileImpl) myFile, startOffset, endOffset);
+      if (ScalaRefactoringUtil.getExpression(myProject, myEditor, myFile, startOffset, endOffset) instanceof Some) {
+        Some temp = (Some) ScalaRefactoringUtil.getExpression(myProject, myEditor, myFile, startOffset, endOffset);
         selectedExpr = (ScExpression) temp.get();
       }
 
