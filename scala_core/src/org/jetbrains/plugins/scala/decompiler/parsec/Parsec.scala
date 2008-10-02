@@ -3,7 +3,7 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 
 /**
- * @author ven, ilyas
+ * @author veilyas
  */
 
 abstract class Parser {
@@ -57,7 +57,10 @@ abstract class Parser {
   def |(p: Parser) = {
     def parseInner = parse
     new Parser {
-      def do_parse(builder: PsiBuilder) = parseInner(builder) || p.parse(builder)
+      def do_parse(builder: PsiBuilder) = {
+        parseInner(builder) ||
+            p.parse(builder)
+      }
     }
   }
 

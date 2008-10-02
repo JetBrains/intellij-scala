@@ -133,8 +133,8 @@ class ScClsFileImpl(stub: ScFileStub) extends ClsRepositoryPsiElement[ScFileStub
         }
 
         val mirrorClasses = sf.getClasses
-        if (classes.length == mirrorClasses.length) {
-          for (i <- 0 to classes.length) {
+        if (classes.length > 0 && classes.length == mirrorClasses.length) {
+          for (i <- 0 to classes.length - 1) {
             classes(i).asInstanceOf[ClsElementImpl].
                 setMirror(SourceTreeToPsiMap.psiElementToTree(mirrorClasses(i)).asInstanceOf[TreeElement])
           }
@@ -205,8 +205,11 @@ class ScClsFileImpl(stub: ScFileStub) extends ClsRepositoryPsiElement[ScFileStub
     }
 
     val classes = getClasses
-    if (classes.length > 0) {
-      classes(0).asInstanceOf[ClsElementImpl].appendMirrorText(0, buffer)
+
+    for (clazz <- classes) {
+      clazz.asInstanceOf[ClsElementImpl].appendMirrorText(0, buffer)
+      goNextLine(indentLevel, buffer)
+      goNextLine(indentLevel, buffer)
     }
 
   }

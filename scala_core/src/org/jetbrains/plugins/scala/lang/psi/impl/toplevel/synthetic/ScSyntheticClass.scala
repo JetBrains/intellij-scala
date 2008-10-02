@@ -96,7 +96,7 @@ extends SyntheticNamedElement(manager, name) with ScFun {
   val typeParams = typeParameterNames.map {name => new ScSyntheticTypeParameter(manager, name, this)}
   override def typeParameters = typeParams
 
-  override def getIcon(flags: Int) = icons.Icons.METHOD
+  override def getIcon(flags: Int) = icons.Icons.FUNCTION
 
   override def toString = "Synthetic method"
 }

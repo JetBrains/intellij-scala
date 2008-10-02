@@ -26,18 +26,23 @@ public interface Icons {
 
   Icon FILE_TYPE_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala16.png");
   Icon BIG_ICON = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala32.png");
+
+  //SDK configuration
   Icon SCALA_SDK = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_sdk.png");
   Icon NO_SCALA_SDK = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/no_scala_sdk.png");
   
-  /*
-  Nodes
-   */
+  //Toplevel nodes
   Icon CLASS = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/class_scala.png");
   Icon TRAIT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/trait_scala.png");
   Icon OBJECT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/object_scala.png");
-  Icon METHOD = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/method.png");
+
+  //Internal nodes
   Icon FUNCTION = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/function.png");
+  Icon TYPE_ALIAS = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/type_alias.png");
   Icon VAR = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/variable.png");
-  Icon VAL = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/constant.png");
+  Icon VAL = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/value.png");
+  Icon PARAMETER = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/parameter.png");
+  Icon FIELD_VAR = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/field_variable.png");
+  Icon FIELD_VAL = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/field_value.png");
 
 }

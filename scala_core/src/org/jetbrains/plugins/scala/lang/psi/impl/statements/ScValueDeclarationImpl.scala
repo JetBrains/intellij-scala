@@ -34,8 +34,6 @@ import psi.types.Nothing
 class ScValueDeclarationImpl(node: ASTNode) extends ScMemberImpl(node) with ScValueDeclaration{
   override def toString: String = "ScValueDeclaration"
 
-  override def getIcon(flags: Int) = Icons.VAL
-
   def declaredElements = getIdList.fieldIds
 
   def getType = typeElement match {

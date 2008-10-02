@@ -61,7 +61,7 @@
 
     <!--Extensions for class-files treatment-->
     <clsStubBuilderFactory implementation="org.jetbrains.plugins.scala.decompiler.ScClsStubBuilderFactory"/>
-    <contentBasedFileProcessor implementation="org.jetbrains.plugins.scala.decompiler.ScContentBasedFileProcessor"/>
+    <contentBasedClassFileProcessor implementation="org.jetbrains.plugins.scala.decompiler.ScContentBasedClassFileProcessor"/>
     <lang.fileViewProviderFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.decompiler.ScClassFileViewProviderFactory"/>
 
   </extensions>
