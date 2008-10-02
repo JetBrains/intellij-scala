@@ -1,5 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
+import expr.ScBlock
+import icons.Icons
+import javax.swing.Icon
+import toplevel.templates.ScExtendsBlock
 import types.ScType
 import psi.ScalaPsiElement
 import toplevel.typedef._
@@ -23,4 +27,18 @@ trait ScVariable extends ScalaPsiElement with ScMember with ScDocCommentOwner wi
   }
 
   def getType : ScType
+
+  override def getIcon(flags: Int): Icon = {
+    import Icons._
+    var parent = getParent
+    while (parent != null) {
+      parent match {
+        case _: ScExtendsBlock => return FIELD_VAR
+        case _: ScBlock => return VAR
+        case _ => parent = parent.getParent
+      }
+    }
+    null
+  }
+
 }

@@ -24,7 +24,6 @@ import com.intellij.psi.scope.PsiScopeProcessor
 class ScVariableDefinitionImpl(node: ASTNode) extends ScMemberImpl(node) with ScVariableDefinition {
 
   override def toString: String = "ScVariableDefinition"
-  override def getIcon(flags: Int) = Icons.VAR
 
   def bindings: Seq[ScBindingPattern] = {
     val plist = findChildByClass(classOf[ScPatternList])

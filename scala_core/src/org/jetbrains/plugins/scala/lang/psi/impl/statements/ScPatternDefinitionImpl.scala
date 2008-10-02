@@ -31,8 +31,6 @@ class ScPatternDefinitionImpl(node: ASTNode) extends ScMemberImpl(node) with ScP
     if (plist != null) plist.patterns.flatMap[ScBindingPattern]((p: ScPattern) => p.bindings) else Seq.empty
   }
 
-  override def getIcon(flags: Int) = Icons.VAL
-
   def declaredElements = bindings
 
   def getType = typeElement match {

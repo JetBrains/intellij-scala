@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements.params
 
+import icons.Icons
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -26,5 +28,7 @@ trait ScParameter extends ScNamedElement with ScTyped with PsiParameter {
 
   //todo implement me!
   def hasModifierProperty(p: String) = false
+
+  override def getIcon(flags: Int): Icon = Icons.PARAMETER
 
 }

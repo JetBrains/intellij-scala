@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import com.intellij.psi.PsiDocCommentOwner
+import icons.Icons
+import javax.swing.Icon
 import psi.ScalaPsiElement
 import toplevel.ScPolymorphicElement
 import toplevel.typedef.ScMember
@@ -13,4 +15,5 @@ import types.ScType
 */
 
 trait ScTypeAlias extends ScPolymorphicElement with ScMember with PsiDocCommentOwner{
+  override def getIcon(flags: Int): Icon = Icons.TYPE_ALIAS
 }

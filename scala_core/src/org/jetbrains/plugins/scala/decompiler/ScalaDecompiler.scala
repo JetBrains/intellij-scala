@@ -68,8 +68,7 @@ object ScalaDecompiler {
   private def declareGrammar = {
     import ScalaTokenTypes._, ScalaElementTypes._, ParserConversions._
 
-    val WS = (tWHITE_SPACE_IN_LINE | tNON_SIGNIFICANT_NEWLINE | tLINE_TERMINATOR) ?
-    val MODIFIERS = (kABSTRACT | kCASE | kFINAL | kSEALED | kPRIVATE | kPROTECTED) ?
+    val MODIFIERS = (kFINAL | kSEALED | kPRIVATE | kPROTECTED | kABSTRACT | kCASE) ?
 
     val REFERENCE_NT = ((tIDENTIFIER > tDOT) *) > tIDENTIFIER |> REFERENCE
 
@@ -81,7 +80,7 @@ object ScalaDecompiler {
     val PARAMETERS_NT = (PARAM_NT ?) > ((tCOMMA > PARAM_NT) *) |> PARAM_CLAUSES // Function parameters
 
     val FUNCTION_NT = MODIFIERS > kDEF > tIDENTIFIER > tLPARENTHESIS > PARAMETERS_NT > tRPARENTHESIS >
-        WS > tCOLON > PARAM_NT |> FUNCTION_DECLARATION // Function declaration
+        tCOLON > PARAM_NT |> FUNCTION_DECLARATION // Function declaration
 
     val VAR_NT = MODIFIERS > kVAR > tIDENTIFIER > tCOLON > PARAM_NT |> VARIABLE_DECLARATION
     val VAL_NT = MODIFIERS > kVAL > tIDENTIFIER > tCOLON > PARAM_NT |> VALUE_DECLARATION
@@ -97,14 +96,15 @@ object ScalaDecompiler {
       }
     }) *
 
-    val TYPE_DEFINITION_BODY_NT = WS > tLBRACE > mockParser > tRBRACE // Type definition body
+    val EXTENDS_BLOCK_NT = ((kEXTENDS > REFERENCE_NT) ?) > ((kWITH > REFERENCE_NT) *) |> EXTENDS_BLOCK
+    val TYPE_DEFINITION_BODY_NT = tLBRACE > mockParser > tRBRACE // Type definition body
 
     val TYPE_DEFINITION_NT = MODIFIERS > (kCLASS | kTRAIT | kOBJECT) > tIDENTIFIER >
-        ((((kEXTENDS > REFERENCE_NT) ?) > ((WS > kWITH > REFERENCE_NT) *) |> EXTENDS_BLOCK) ?) > // 'extends' block
+        (EXTENDS_BLOCK_NT ?) > // 'extends' block
         TYPE_DEFINITION_BODY_NT |> TYPE_DEFINITION
 
     val OTHER = PLAIN_PARSER
-    val FILE = PACKAGE_NT > (TYPE_DEFINITION_NT *) > OTHER |> ScalaElementTypes.FILE
+    val FILE = PACKAGE_NT > (TYPE_DEFINITION_NT > (tLINE_TERMINATOR ?) *) > OTHER |> ScalaElementTypes.FILE
     FILE
   }
 
@@ -160,10 +160,10 @@ object ScalaDecompiler {
       val fqn = if (pName != null && pName.length > 0) pName + "." + name else name
       val elemType = kindToElemType(kinds(0).getElementType)
       if (elemType.toString.equals("trait definition")) {
-//        println(elemType + " " + fqn)
+        //        println(elemType + " " + fqn)
       }
       if (elemType.toString.equals("object definition")) {
-//        println(elemType + " " + fqn)
+        //        println(elemType + " " + fqn)
       }
       val typeDefStub = new ScTypeDefinitionStubImpl(fileStub, elemType, name, fqn, fileStub.getFileName);
       val eb = td.findChildByType(ScalaElementTypes.EXTENDS_BLOCK)
