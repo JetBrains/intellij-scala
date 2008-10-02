@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import _root_.com.intellij.extapi.psi.{PsiFileBase}
+import api.ScalaFile
 import com.intellij.util.IncorrectOperationException
 import api.toplevel.typedef.ScTypeDefinition
 import api.toplevel.imports.ScImportStmt
-import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.lang.Language
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
@@ -25,9 +26,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import _root_.scala.collection.mutable._
 
 
-class ScalaFile(viewProvider: FileViewProvider)
+class ScalaFileImpl(viewProvider: FileViewProvider)
 extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
-with ScalaPsiElement with ScToplevelElement with PsiClassOwner with ScDeclarationSequenceHolder with ScImportsHolder {
+with ScalaFile with ScImportsHolder with ScDeclarationSequenceHolder {
 
   override def getViewProvider = viewProvider
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE
@@ -98,8 +99,6 @@ with ScalaPsiElement with ScToplevelElement with PsiClassOwner with ScDeclaratio
     true
   }
 
-
-  def getFirstImportStmt: Option[ScImportStmt] = findChild(classOf[ScImportStmt])
 }
 
 object ImplicitlyImported {

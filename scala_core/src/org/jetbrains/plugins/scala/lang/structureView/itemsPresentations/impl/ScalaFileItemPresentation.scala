@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl
 
-import org.jetbrains.plugins.scala.lang.psi._
+import psi._
+import psi.api.ScalaFile
 
 /**
 * @author Alexander Podkhalyuzin

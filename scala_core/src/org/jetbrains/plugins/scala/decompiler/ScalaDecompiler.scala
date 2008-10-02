@@ -6,7 +6,6 @@ import _root_.scala.tools.scalap.Classfile
 import _root_.scala.tools.scalap.JavaWriter
 import com.intellij.lang.impl.PsiBuilderImpl
 import com.intellij.lang.{PsiBuilderFactory, ASTNode, PsiBuilder}
-import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{VirtualFileManager, VirtualFile}
 import com.intellij.psi.impl.DebugUtil
@@ -17,7 +16,7 @@ import com.intellij.util.io.StringRef
 import java.io._
 import lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import lang.parser.{ScalaElementTypes}
-import lang.psi.ScalaFile
+import lang.psi.api.{ScalaFile}
 import lang.psi.stubs.impl.{ScFileStubImpl, ScExtendsBlockStubImpl, ScTypeDefinitionStubImpl}
 import lang.psi.stubs.{ScExtendsBlockStub, ScTypeDefinitionStub, ScFileStub}
 import parsec.{Memo, Parser, ParserConversions}
@@ -161,10 +160,10 @@ object ScalaDecompiler {
       val fqn = if (pName != null && pName.length > 0) pName + "." + name else name
       val elemType = kindToElemType(kinds(0).getElementType)
       if (elemType.toString.equals("trait definition")) {
-        println(elemType + " " + fqn)
+//        println(elemType + " " + fqn)
       }
       if (elemType.toString.equals("object definition")) {
-        println(elemType + " " + fqn)
+//        println(elemType + " " + fqn)
       }
       val typeDefStub = new ScTypeDefinitionStubImpl(fileStub, elemType, name, fqn, fileStub.getFileName);
       val eb = td.findChildByType(ScalaElementTypes.EXTENDS_BLOCK)

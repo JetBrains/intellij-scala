@@ -1,4 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs
+import api.ScalaFile
 import com.intellij.psi.stubs.{PsiClassHolderFileStub, PsiFileStub}
 
 /**

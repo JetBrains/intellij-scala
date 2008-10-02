@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.decompiler
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.compiled.ClsStubBuilderFactory
 import com.intellij.psi.stubs.PsiFileStub
-import lang.psi.ScalaFile
+import lang.psi.api.ScalaFile
 
 /**
  * @author ilyas

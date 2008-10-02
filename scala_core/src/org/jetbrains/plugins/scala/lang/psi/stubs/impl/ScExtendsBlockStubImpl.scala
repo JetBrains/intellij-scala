@@ -7,8 +7,7 @@ import com.intellij.psi.stubs.{StubElement, IStubElementType}
  * @author ilyas
  */
 
-class ScExtendsBlockStubImpl [ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                        elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+class ScExtendsBlockStubImpl(parent: StubElement[_ <: PsiElement], elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
 extends StubBaseWrapper[ScExtendsBlock](parent, elemType) with ScExtendsBlockStub {
   //todo implement me!
 

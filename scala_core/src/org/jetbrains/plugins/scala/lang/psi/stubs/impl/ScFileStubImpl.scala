@@ -1,4 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.impl
+import api.ScalaFile
 import com.intellij.psi.PsiClass
 import com.intellij.psi.tree.{TokenSet, IStubFileElementType}
 import parser.ScalaElementTypes

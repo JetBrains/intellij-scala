@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.importInspections
 
+import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.typedef.ScObject
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import lang.psi.api.expr.ScReferenceExpression
@@ -17,7 +18,6 @@ import util.ScalaUtils
 import com.intellij.util.ActionRunner
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.codeInsight.CodeInsightUtilBase
-import lang.psi.ScalaFile
 import com.intellij.openapi.application.Result
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager

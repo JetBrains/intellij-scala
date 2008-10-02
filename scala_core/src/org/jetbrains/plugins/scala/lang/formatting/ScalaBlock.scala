@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatting
 
+import psi._
+import psi.api.ScalaFile
 import settings.ScalaCodeStyleSettings
 import com.intellij.formatting._;
 import com.intellij.lang.ASTNode;
@@ -11,10 +13,9 @@ import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
+
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 
-import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._

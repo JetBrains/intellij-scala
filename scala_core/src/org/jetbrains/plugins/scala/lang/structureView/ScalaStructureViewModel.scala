@@ -6,7 +6,6 @@ import com.intellij.ide.util.treeView.smartTree._
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
@@ -15,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import psi._
+import psi.api.ScalaFile
 
 /**
 * @author Alexander.Podkhalyuz

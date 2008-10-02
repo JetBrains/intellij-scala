@@ -1,4 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.elements
+import api.ScalaFile
 import com.intellij.lang.Language
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.psi.tree.IStubFileElementType

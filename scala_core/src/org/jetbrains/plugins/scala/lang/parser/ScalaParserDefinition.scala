@@ -17,7 +17,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.lexer.ScalaPlainLexer
 import org.jetbrains.plugins.scala.lang.lexer.core.ScalaCoreLexer
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaFile
+import psi.api.ScalaFile
+import psi.ScalaFileImpl
 
 /**
  * @author ilyas
@@ -41,7 +42,7 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
   def createElement(astNode: ASTNode): PsiElement = ScalaPsiCreator.createElement(astNode)
 
   def createFile(fileViewProvider: FileViewProvider): PsiFile = {
-    return new ScalaFile(fileViewProvider);
+    return new ScalaFileImpl(fileViewProvider);
   }
 
   override def spaceExistanceTypeBetweenTokens(astNode: ASTNode, astNode1: ASTNode): ParserDefinition.SpaceRequirements = {

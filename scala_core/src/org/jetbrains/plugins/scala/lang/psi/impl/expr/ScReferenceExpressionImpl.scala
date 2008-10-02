@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import api.ScalaFile
 import api.toplevel.imports.ScImportExpr
 import api.toplevel.typedef.{ScClass, ScTrait}
 import api.statements._

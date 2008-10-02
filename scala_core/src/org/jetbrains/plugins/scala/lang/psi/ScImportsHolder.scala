@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import api.ScalaFile
 import lexer.ScalaTokenTypes
 import _root_.scala.collection.mutable.ArrayBuffer
 import impl.ScalaPsiElementFactory
@@ -10,6 +11,9 @@ import com.intellij.psi._
 import scope._
 
 trait ScImportsHolder extends ScalaPsiElement {
+
+  def getImportStatements: Seq[ScImportStmt] = findChildrenByClass(classOf[ScImportStmt])
+
   override def processDeclarations(processor: PsiScopeProcessor,
       state : ResolveState,
       lastParent: PsiElement,

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import com.intellij.openapi.editor.{Editor, VisualPosition}
+import psi.api.ScalaFile
 import util.ScalaUtils
 import psi.api.expr._
 import psi.api.statements.ScFunction
@@ -16,11 +17,9 @@ import typeManipulator.IType
 import psi.types.ScType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.PsiType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.ScalaFile
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.openapi.actionSystem.DataContext

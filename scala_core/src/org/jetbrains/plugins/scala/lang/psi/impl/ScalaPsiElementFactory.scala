@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, PhysicalSignature, ScSubstitutor}
+import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
 import api.toplevel.ScTyped
 import api.toplevel.templates.ScTemplateBody
@@ -30,7 +31,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.util.DebugPrint
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElementImpl, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElementImpl, ScalaFileImpl}
 import com.intellij.openapi.util.TextRange
 
 import com.intellij.lang.ASTNode
@@ -92,7 +93,7 @@ object ScalaPsiElementFactory {
     val text = "import " + (if (isResolved(name, clazz, packageName, manager)) name else "_root_." + qualifiedName)
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
-    dummyFile.getFirstImportStmt match {
+    dummyFile.getImportStatements.firstOption match {
       case Some(x) => return x
       case None => {
         //cannot be
@@ -124,7 +125,7 @@ object ScalaPsiElementFactory {
     val text = "package " + packageName + "\nimport " + getShortName(clazz.getQualifiedName, packageName)
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
-    val imp: ScStableCodeReferenceElement = (dummyFile.getFirstImportStmt match {
+    val imp: ScStableCodeReferenceElement = (dummyFile.getImportStatements.firstOption match {
       case Some(x) => x
       case None =>
         //cannot be
@@ -153,7 +154,7 @@ object ScalaPsiElementFactory {
     }
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
-    dummyFile.getFirstImportStmt match {
+    dummyFile.getImportStatements.firstOption match {
       case Some(x) => return x
       case None => {
         //cannot be
@@ -246,7 +247,7 @@ object ScalaPsiElementFactory {
     val text = "package " + packageName + "\nimport " + name
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
-    val imp: ScStableCodeReferenceElement = (dummyFile.getFirstImportStmt match {
+    val imp: ScStableCodeReferenceElement = (dummyFile.getImportStatements.firstOption match {
       case Some(x) => x
       case None =>
         //cannot be

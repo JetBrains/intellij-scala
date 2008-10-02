@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.lang.structureView
 
-import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import psi._
+import psi.api.ScalaFile
 
 /**
 * @author Alexander Podkhalyuzin

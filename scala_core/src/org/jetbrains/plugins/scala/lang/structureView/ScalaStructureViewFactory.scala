@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.lang.structureView
 import com.intellij.lang.PsiStructureViewFactory
 import com.intellij.psi.PsiFile
 import com.intellij.ide.structureView.StructureViewBuilder
-import org.jetbrains.plugins.scala.lang.psi._
+import psi._
+import psi.api.ScalaFile
 
 /**
 * @author Alexander Podkhalyuzin
