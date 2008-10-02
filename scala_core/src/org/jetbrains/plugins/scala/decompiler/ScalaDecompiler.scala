@@ -74,37 +74,40 @@ object ScalaDecompiler {
 
     val PACKAGE_NT = kPACKAGE > REFERENCE_NT > tSEMICOLON |> PACKAGE_STMT
 
-    val TYPES_NT = (REFERENCE_NT ?) > ((tCOMMA > REFERENCE_NT) *)
-    val TYPE_PARAMS_NT = tLSQBRACKET > REFERENCE_NT > tRSQBRACKET
-    val PARAM_NT = REFERENCE_NT > (TYPE_PARAMS_NT ?) |> TYPE //Parameter type
-    val PARAMETERS_NT = (PARAM_NT ?) > ((tCOMMA > PARAM_NT) *) |> PARAM_CLAUSES // Function parameters
-
-    val FUNCTION_NT = MODIFIERS > kDEF > tIDENTIFIER > tLPARENTHESIS > PARAMETERS_NT > tRPARENTHESIS >
-        tCOLON > PARAM_NT |> FUNCTION_DECLARATION // Function declaration
-
-    val VAR_NT = MODIFIERS > kVAR > tIDENTIFIER > tCOLON > PARAM_NT |> VARIABLE_DECLARATION
-    val VAL_NT = MODIFIERS > kVAL > tIDENTIFIER > tCOLON > PARAM_NT |> VALUE_DECLARATION
-
-    val MEMBER_DECL_NT = (FUNCTION_NT | VAR_NT | VAL_NT) > tSEMICOLON
-
     val mockParser = (new Parser {
       def do_parse(builder: PsiBuilder) = {
-        if (builder.getTokenType != tRBRACE) {
+        if (builder.getTokenType != tSEMICOLON) {
           builder.advanceLexer
           true
         } else false
       }
     }) *
 
+
+    val TYPE_PARAMETERS_NT = (REFERENCE_NT ?) > ((tCOMMA > REFERENCE_NT) *) |> PARAM_CLAUSES // Type params
+    val TYPES_NT = (REFERENCE_NT ?) > ((tCOMMA > REFERENCE_NT) *)
+    val TYPE_PARAMS_NT = tLSQBRACKET > (TYPE_PARAMETERS_NT ?) > tRSQBRACKET
+    val PARAM_NT = REFERENCE_NT > (TYPE_PARAMS_NT ?) |> TYPE //Parameter type
+    val PARAMETERS_NT = (PARAM_NT ?) > ((tCOMMA > PARAM_NT) *) |> PARAM_CLAUSES // Function parameters
+    val THROWS_NT = tIDENTIFIER > REFERENCE_NT > tLINE_TERMINATOR |> THROW_STMT
+
+    val FUNCTION_NT = MODIFIERS > kDEF > (tIDENTIFIER | kTHIS) > tLPARENTHESIS > PARAMETERS_NT > tRPARENTHESIS >
+        tCOLON > PARAM_NT > tSEMICOLON > (THROWS_NT ?) |> FUNCTION_DECLARATION // Function declaration
+
+    val VAR_NT = MODIFIERS > kVAR > tIDENTIFIER > tCOLON > PARAM_NT > tSEMICOLON |> VARIABLE_DECLARATION
+    val VAL_NT = MODIFIERS > kVAL > tIDENTIFIER > tCOLON > PARAM_NT > tSEMICOLON |> VALUE_DECLARATION
+
+    val MEMBER_DECL_NT = (FUNCTION_NT | VAR_NT | VAL_NT)
+
     val EXTENDS_BLOCK_NT = ((kEXTENDS > REFERENCE_NT) ?) > ((kWITH > REFERENCE_NT) *) |> EXTENDS_BLOCK
-    val TYPE_DEFINITION_BODY_NT = tLBRACE > mockParser > tRBRACE // Type definition body
+    val TYPE_DEFINITION_BODY_NT = tLBRACE > (MEMBER_DECL_NT *) > tRBRACE // Type definition body
 
     val TYPE_DEFINITION_NT = MODIFIERS > (kCLASS | kTRAIT | kOBJECT) > tIDENTIFIER >
         (EXTENDS_BLOCK_NT ?) > // 'extends' block
         TYPE_DEFINITION_BODY_NT |> TYPE_DEFINITION
 
     val OTHER = PLAIN_PARSER
-    val FILE = PACKAGE_NT > (TYPE_DEFINITION_NT > (tLINE_TERMINATOR ?) *) > OTHER |> ScalaElementTypes.FILE
+    val FILE = PACKAGE_NT > ((TYPE_DEFINITION_NT > (tLINE_TERMINATOR ?)) *) > OTHER |> ScalaElementTypes.FILE
     FILE
   }
 
