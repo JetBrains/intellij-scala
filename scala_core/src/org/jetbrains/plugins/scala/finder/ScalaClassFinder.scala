@@ -8,7 +8,7 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiElementFinder, PsiClass, PsiPackage}
-import lang.psi.ScalaFile
+import lang.psi.api.ScalaFile
 
 class ScalaClassFinder(project: Project) extends ProjectComponent with PsiElementFinder {
   def projectOpened {}

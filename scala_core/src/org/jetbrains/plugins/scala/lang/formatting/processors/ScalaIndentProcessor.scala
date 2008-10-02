@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.processors
 
+import psi.api.ScalaFile
 import psi.api.toplevel.typedef.ScTypeDefinition
 import scaladoc.lexer.ScalaDocTokenType
 import scaladoc.psi.api.ScDocComment
@@ -13,7 +14,7 @@ import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
-import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
+
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._;
 

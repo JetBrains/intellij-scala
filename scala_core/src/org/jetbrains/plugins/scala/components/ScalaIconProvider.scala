@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.components
 
 import com.intellij.psi._
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.lang.psi.ScalaFile
 import com.intellij.ide.IconProvider
+import lang.psi.api.ScalaFile
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 

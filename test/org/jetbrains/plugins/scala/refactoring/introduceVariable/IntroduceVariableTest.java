@@ -1,32 +1,29 @@
 package org.jetbrains.plugins.scala.refactoring.introduceVariable;
 
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.util.TestUtils;
-import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableBase;
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringUtil;
-import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory;
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses$;
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
-import org.jetbrains.plugins.scala.lang.psi.types.ScType;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
-import org.jetbrains.plugins.scala.refactor.introduceVariable.ScalaIntroduceVariableHandler;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-
-import java.io.IOException;
-
 import junit.framework.Assert;
 import junit.framework.Test;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
+import org.jetbrains.plugins.scala.lang.psi.ScalaFileImpl;
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses$;
+import org.jetbrains.plugins.scala.lang.psi.types.ScType;
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringUtil;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableBase;
+import org.jetbrains.plugins.scala.refactor.introduceVariable.ScalaIntroduceVariableHandler;
+import org.jetbrains.plugins.scala.util.TestUtils;
 import scala.Some;
+
+import java.io.IOException;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -84,10 +81,10 @@ public class IntroduceVariableTest extends ActionTestBase {
       // gathering data for introduce variable
       ScalaIntroduceVariableBase introduceVariableBase = new ScalaIntroduceVariableHandler();
 
-      Assert.assertTrue(myFile instanceof ScalaFile);
+      Assert.assertTrue(myFile instanceof ScalaFileImpl);
       ScExpression selectedExpr = null;
-      if (ScalaRefactoringUtil.getExpression(myProject, myEditor, (ScalaFile) myFile, startOffset, endOffset) instanceof Some) {
-        Some temp = (Some) ScalaRefactoringUtil.getExpression(myProject, myEditor, (ScalaFile) myFile, startOffset, endOffset);
+      if (ScalaRefactoringUtil.getExpression(myProject, myEditor, (ScalaFileImpl) myFile, startOffset, endOffset) instanceof Some) {
+        Some temp = (Some) ScalaRefactoringUtil.getExpression(myProject, myEditor, (ScalaFileImpl) myFile, startOffset, endOffset);
         selectedExpr = (ScExpression) temp.get();
       }
       //findElementInRange(((ScalaFileBase) myFile), startOffset, endOffset, GrExpression.class);

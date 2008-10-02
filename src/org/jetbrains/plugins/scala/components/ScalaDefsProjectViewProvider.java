@@ -25,7 +25,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
+import org.jetbrains.plugins.scala.lang.psi.ScalaFileImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,8 +63,8 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
     for (final AbstractTreeNode child : children) {
       ProjectViewNode treeNode = (ProjectViewNode) child;
       Object o = treeNode.getValue();
-      if (o instanceof ScalaFile) {
-        ScalaFile scalaFile = (ScalaFile) o;
+      if (o instanceof ScalaFileImpl) {
+        ScalaFileImpl scalaFile = (ScalaFileImpl) o;
 
         ViewSettings viewSettings = ((ProjectViewNode) parent).getSettings();
         if (scalaFile.getTypeDefinitions().length == 0) {
@@ -78,7 +78,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
     return result;
   }
 
-  private void addTypes(ArrayList<AbstractTreeNode> result, ScalaFile file, ViewSettings viewSettings) {
+  private void addTypes(ArrayList<AbstractTreeNode> result, ScalaFileImpl file, ViewSettings viewSettings) {
     PsiClass[] classes = file.getClasses();
     if (classes.length != 0) {
       for (PsiClass aClass : classes) {

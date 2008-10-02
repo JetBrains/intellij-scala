@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging
 
+import api.ScalaFile
 import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.stubs.IStubElementType
 import com.intellij.psi.{PsiElement, PsiPackage}

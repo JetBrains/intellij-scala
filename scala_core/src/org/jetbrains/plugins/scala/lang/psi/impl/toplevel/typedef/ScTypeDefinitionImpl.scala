@@ -5,6 +5,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
  */
 
 import annotations.Nullable
+import api.ScalaFile
 import api.statements._
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.stubs.IStubElementType

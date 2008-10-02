@@ -8,7 +8,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.util.IncorrectOperationException;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
+import org.jetbrains.plugins.scala.lang.psi.ScalaFileImpl;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
@@ -52,7 +52,7 @@ public class OverrideImplementTest extends BaseScalaFileSetTestCase {
     String fileText = text.substring(i + 1);
     final int offset = fileText.indexOf(CARET_MARKER);
     fileText = removeMarker(fileText);
-    final ScalaFile file = (ScalaFile) TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
+    final ScalaFileImpl file = (ScalaFileImpl) TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
     final ScTypeDefinition clazz = file.getTypeDefinitions()[0];
     final PsiElement method = ScalaOIUtil.getMethod(clazz, methodName, isImplement);
     final Runnable runnable = new Runnable() {

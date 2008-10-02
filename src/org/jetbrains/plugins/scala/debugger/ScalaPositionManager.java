@@ -32,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaLoader;
 import org.jetbrains.plugins.scala.caches.ScalaCachesManager;
-import org.jetbrains.plugins.scala.lang.psi.ScalaFile;
+import org.jetbrains.plugins.scala.lang.psi.ScalaFileImpl;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr;
@@ -80,7 +80,7 @@ public class ScalaPositionManager implements PositionManager {
 
   private ScalaPsiElement findReferenceTypeSourceImage(SourcePosition position) {
     PsiFile file = position.getFile();
-    if (!(file instanceof ScalaFile)) return null;
+    if (!(file instanceof ScalaFileImpl)) return null;
     PsiElement element = file.findElementAt(position.getOffset());
     if (element == null) return null;
     while (true) {
@@ -95,7 +95,7 @@ public class ScalaPositionManager implements PositionManager {
 
   private ScTypeDefinition findEnclosingTypeDefinition(SourcePosition position) {
     PsiFile file = position.getFile();
-    if (!(file instanceof ScalaFile)) return null;
+    if (!(file instanceof ScalaFileImpl)) return null;
     PsiElement element = file.findElementAt(position.getOffset());
     if (element == null) return null;
     return PsiTreeUtil.getParentOfType(element, ScTypeDefinition.class);
@@ -190,7 +190,7 @@ public class ScalaPositionManager implements PositionManager {
           VirtualFile vFile = vDir.findChild(fileName);
           if (vFile != null) {
             PsiFile psiFile = PsiManager.getInstance(project).findFile(vFile);
-            if (psiFile instanceof ScalaFile) {
+            if (psiFile instanceof ScalaFileImpl) {
               result.set(psiFile);
               return false;
             }

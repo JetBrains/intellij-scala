@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.completion
 
+import psi._
 import psi.api.base.patterns.ScCaseClause
 import psi.api.expr.ScBlock
+import psi.api.ScalaFile
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.base.types.ScTypeElement
 import com.intellij.lang.ASTNode;
@@ -9,7 +11,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.filters.ElementFilter;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.lang.psi._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._

@@ -3,7 +3,7 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 
 /**
- * @author ilyas
+ * @author ven, ilyas
  */
 
 abstract class Parser {

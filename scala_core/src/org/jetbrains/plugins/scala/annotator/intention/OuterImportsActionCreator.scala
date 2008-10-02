@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.intention
 
+import lang.psi._
+import lang.psi.api.ScalaFile
 import lang.resolve.{ResolveUtils}
 import com.intellij.codeInsight.CodeInsightUtilBase
 import com.intellij.codeInsight.hint.HintManager
@@ -21,7 +23,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.search.GlobalSearchScope
 
 import lang.psi.api.base.ScReferenceElement
-import lang.psi._
 import _root_.scala.collection.mutable._
 
 /** 

@@ -5,6 +5,8 @@ import api.statements.{ScFunction, ScTypeAlias}
 import api.toplevel.templates.ScExtendsBlock
 import api.toplevel.typedef.{ScTypeDefinition, ScMember}
 import com.intellij.lang.Language
+import com.intellij.navigation.ItemPresentation
+import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.compiled.{ClsRepositoryPsiElement, ClsClassImpl}
@@ -12,6 +14,7 @@ import com.intellij.psi.impl.source.SourceTreeToPsiMap
 import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.meta.PsiMetaData
+import com.intellij.psi.stubs.StubElement
 import com.intellij.util.ArrayUtil
 import icons.Icons
 import parser.ScalaElementTypes
@@ -63,6 +66,18 @@ extends ClsClassImpl(stub) with ScTypeDefinition {
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = null
   def nameId(): PsiElement = getNameIdentifier
 
+  override def getPresentation(): ItemPresentation = {
+    new ItemPresentation() {
+      def getPresentableText(): String = getName
+      def getTextAttributesKey(): TextAttributesKey = null
+      def getLocationString(): String = getPath match {
+        case "" => "<default>"
+        case p => '(' + p + ')'
+      }
+      override def getIcon(open: Boolean) = getIconInner
+    }
+  }
+
   override def getIconInner = _type match {
     case CLASS => Icons.CLASS
     case OBJECT => Icons.OBJECT
@@ -70,16 +85,9 @@ extends ClsClassImpl(stub) with ScTypeDefinition {
   }
 
   def extendsBlock(): ScExtendsBlock = {
-    val ebStub = new ScExtendsBlockStubImpl(getStub, ScalaElementTypes.EXTENDS_BLOCK)
+    val ebStub = new ScExtendsBlockStubImpl(getStub.asInstanceOf[StubElement[_ <: PsiElement]], ScalaElementTypes.EXTENDS_BLOCK)
     new ScClsExtendsBlockImpl(ebStub)
   }
-
-  /*
-    public String getSourceFileName() {
-      final String sfn = getStub().getSourceFileName();
-      return sfn != null ? sfn : obtainSourceFileNameFromClassFileName();
-    }
-  */
 
   override def getSourceFileName: String = CompiledUtil.getSourceFileName(getStub.getSourceFileName) match {
     case Some(s) => s
@@ -212,8 +220,6 @@ extends ClsClassImpl(stub) with ScTypeDefinition {
   override def getDocComment: PsiDocComment = null
 
   override def isDeprecated: Boolean = false
-
-  override def getMetaData: PsiMetaData = null
 
   override def hasTypeParameters: Boolean = false
 

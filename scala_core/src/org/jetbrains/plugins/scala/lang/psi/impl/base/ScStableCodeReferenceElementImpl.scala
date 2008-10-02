@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base
 
+import api.ScalaFile
 import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
 import org.jetbrains.plugins.scala.lang._
 import lexer.ScalaTokenTypes

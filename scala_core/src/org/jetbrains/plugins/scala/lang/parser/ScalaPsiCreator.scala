@@ -9,7 +9,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 
 import org.jetbrains.plugins.scala.lang.parser._
-import org.jetbrains.plugins.scala.lang.psi.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
@@ -24,8 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-
 object ScalaPsiCreator {
   def createElement(node: ASTNode): PsiElement =
 

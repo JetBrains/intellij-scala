@@ -5,7 +5,7 @@ import com.intellij.psi.impl.search.IndexPatternBuilder
 import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.{TokenSet, IElementType}
 import lang.lexer.{ScalaLexer, ScalaTokenTypes}
-import lang.psi.ScalaFile
+import lang.psi.api.ScalaFile
 
 /**
  * User: Alexander Podkhalyuzin
