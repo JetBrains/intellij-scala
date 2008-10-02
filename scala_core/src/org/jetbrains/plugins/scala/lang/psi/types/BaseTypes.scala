@@ -9,8 +9,8 @@ import _root_.scala.collection.mutable.{Set, HashMap, MultiMap}
 
 object BaseTypes {
   def get(t : ScType) : Seq[ScType] = t match {
-    case classT@ScDesignatorType(td : ScTypeDefinition) => Seq.singleton(classT) ++ reduce(td.superTypes)
-    case classT@ScDesignatorType(c : PsiClass) => Seq.singleton(classT) ++ reduce(c.getSuperTypes.map{ScType.create(_, c.getProject)})
+    case classT@ScDesignatorType(td : ScTypeDefinition) => reduce(td.superTypes)
+    case classT@ScDesignatorType(c : PsiClass) => reduce(c.getSuperTypes.map{ScType.create(_, c.getProject)})
     case ScTypeAliasType(_, Nil, _, upper) => get(upper)
     case ScTypeVariable(_, Nil, _, upper) => get(upper)
     case p : ScParameterizedType => p.designated match {
