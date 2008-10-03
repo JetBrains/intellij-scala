@@ -1,4 +1,4 @@
-override foo
+override K
 class A {
   type K = Int
 }
@@ -8,3 +8,12 @@ class B extends A {
   def y(): Int = 3
 }
 ------
+class A {
+  type K = Int
+}
+class B extends A {
+  val t = foo()
+  override type K = Int
+
+  def y(): Int = 3
+}

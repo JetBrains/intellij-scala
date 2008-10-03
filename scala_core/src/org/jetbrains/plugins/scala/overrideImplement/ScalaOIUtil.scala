@@ -327,13 +327,15 @@ object ScalaOIUtil {
         return ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement)
       }
       case (name: PsiNamedElement, subst: ScSubstitutor) => {
-        nameContext(name) match {
+        val element: PsiElement = nameContext(name)
+        element match {
           case alias: ScTypeAlias => {
             return ScalaPsiElementFactory.createOverrideImplementType(alias, subst, alias.getManager, !isImplement)
           }
           case _: ScValue | _: ScVariable => {
             val typed: ScTyped = name match {case x: ScTyped => x case _ => return null}
-            return ScalaPsiElementFactory.createOverrideImplementVariable(typed, subst, typed.getManager, !isImplement, true)
+            return ScalaPsiElementFactory.createOverrideImplementVariable(typed, subst, typed.getManager, !isImplement, 
+              element match {case _: ScValue => true case _ => false})
           }
           case _ => return null
         }
