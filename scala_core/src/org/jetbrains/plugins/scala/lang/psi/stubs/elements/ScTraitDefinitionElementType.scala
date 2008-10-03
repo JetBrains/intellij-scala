@@ -13,8 +13,8 @@ class ScTraitDefinitionElementType extends ScTypeDefinitionElementType[ScTrait](
 
   def createElement(node: ASTNode): PsiElement = new ScTraitImpl(node)
 
-  def createPsi(stub: ScTypeDefinitionStub) = if (isCompiled(stub))
+  def createPsi(stub: ScTypeDefinitionStub) = /*todo[8858] if (isCompiled(stub))
     new ScClsTypeDefinitionImpl(stub) else
-    new ScTraitImpl(stub)
+    */new ScTraitImpl(stub)
 
 }
