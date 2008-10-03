@@ -29,7 +29,7 @@ class ScContentBasedClassFileProcessor /*todo[8858] extends ContentBasedClassFil
           file.isInstanceOf[ClsRepositoryPsiElement[_]]) {
         val clsFile = file.asInstanceOf[ClsRepositoryPsiElement[_]]
         val stub = clsFile.getStub
-        return stub != null && stub.isInstanceOf[ScFileStubImpl]
+        return stub != null && stub.isInstanceOf[ScFileStub]
       }
     }
     false
