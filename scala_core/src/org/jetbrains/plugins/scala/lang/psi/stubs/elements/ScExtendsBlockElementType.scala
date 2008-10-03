@@ -27,10 +27,10 @@ extends ScStubElementType[ScExtendsBlockStub, ScExtendsBlock]("extends block") {
     new ScExtendsBlockStubImpl(parentStub, this)
   }
 
-  def createPsi(stub: ScExtendsBlockStub): ScExtendsBlock = /*if (isCompiled(stub)) {
+  def createPsi(stub: ScExtendsBlockStub): ScExtendsBlock = /*todo[8858] if (isCompiled(stub)) {
     new ScClsExtendsBlockImpl(stub)
   } else {*/
-    new ScClsExtendsBlockImpl(stub)
+    new ScExtendsBlockImpl(stub)
 //  }
 }
 
