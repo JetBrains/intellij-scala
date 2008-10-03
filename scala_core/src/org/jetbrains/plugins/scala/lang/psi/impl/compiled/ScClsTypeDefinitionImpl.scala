@@ -10,6 +10,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.compiled.{ClsRepositoryPsiElement, ClsClassImpl}
+import com.intellij.psi.impl.java.stubs.PsiClassStub
 import com.intellij.psi.impl.source.SourceTreeToPsiMap
 import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.javadoc.PsiDocComment
@@ -32,7 +33,7 @@ import _root_.java.util.List;
  */
 
 class ScClsTypeDefinitionImpl(stub: ScTypeDefinitionStub)
-extends ClsClassImpl(stub) with ScTypeDefinition {
+extends ClsClassImpl(stub.asInstanceOf[PsiClassStub]) /*todo[8858] remove cast*/ with ScTypeDefinition {
 
   object ClassTypes extends Enumeration {
     type CLASS_TYPE = Value
