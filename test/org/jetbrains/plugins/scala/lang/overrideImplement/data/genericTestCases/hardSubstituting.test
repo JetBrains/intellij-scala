@@ -1,0 +1,9 @@
+override foo
+class A[T] {
+  def foo(x: (T) => T, y: (T, Int) => T): Double = 1.0
+}
+
+class B extends A[Float] {
+  <caret>
+}
+------

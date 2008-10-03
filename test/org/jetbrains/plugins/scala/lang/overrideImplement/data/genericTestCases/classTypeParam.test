@@ -1,0 +1,9 @@
+override foo
+class A[T] {
+  def foo: T = new T
+}
+
+class B extends A[Int] {
+  <caret>
+}
+-------
