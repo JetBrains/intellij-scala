@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.compiled
 import api.toplevel.packaging.{ScPackaging, ScPackageStatement}
 import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.psi.impl.compiled.{ClsElementImpl}
+import com.intellij.psi.impl.compiled.{/*todo[8858] ClsElementImpl,*/ ClsRepositoryPsiElement}
 import com.intellij.psi.impl.source.tree.{TreeElement, ElementType}
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 
@@ -10,7 +10,7 @@ import com.intellij.psi.{PsiElement, PsiElementVisitor}
  * @author ilyas
  */
 
-class ScClsPackageStatementImpl extends ClsElementImpl with ScPackageStatement {
+/*todo[8858] remove abstract*/abstract class ScClsPackageStatementImpl extends /*todo[8858] ClsElementImpl with */ ScPackageStatement {
 
   val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.compiled. ScClsPackageStatementImpl")
 
@@ -20,6 +20,9 @@ class ScClsPackageStatementImpl extends ClsElementImpl with ScPackageStatement {
   def getPackageName: String = myPackageName
 
   def ownNamePart: String = getPackageName
+
+  //todo[8858] remove me!
+  def isEquivalentTo(another: PsiElement): Boolean = false
 
   def prefix = ""
 
@@ -41,7 +44,7 @@ class ScClsPackageStatementImpl extends ClsElementImpl with ScPackageStatement {
   }
 
   def setMirror(element: TreeElement): Unit = {
-    myMirror = element
+//todo[8858]    myMirror = element
   }
 
   def getChildren: Array[PsiElement] = {

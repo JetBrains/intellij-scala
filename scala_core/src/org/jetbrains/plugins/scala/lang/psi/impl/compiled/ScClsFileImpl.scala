@@ -5,7 +5,8 @@ import api.toplevel.packaging.{ScPackaging, ScPackageStatement}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.{StdFileTypes, FileType}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.impl.compiled.{ClsElementImpl, ClsRepositoryPsiElement}
+import com.intellij.psi.impl.compiled.ClsRepositoryPsiElement
+//todo[8858] import com.intellij.psi.impl.compiled.ClsElementImpl
 import com.intellij.psi.impl.PsiManagerImpl
 import com.intellij.psi.impl.source.SourceTreeToPsiMap
 import com.intellij.psi.impl.source.tree.TreeElement
@@ -22,7 +23,7 @@ import com.intellij.psi._
  * @author ilyas
  */
 
-class ScClsFileImpl(stub: ScFileStub) extends ClsRepositoryPsiElement[ScFileStub](stub) with ScalaFile {
+/*todo[8858] remove abstract*/abstract class ScClsFileImpl(stub: ScFileStub) extends ClsRepositoryPsiElement[ScFileStub](stub) with ScalaFile {
 
   private var myManager: PsiManagerImpl = null
   private var myIsForDecompiling: Boolean = false
@@ -119,7 +120,7 @@ class ScClsFileImpl(stub: ScFileStub) extends ClsRepositoryPsiElement[ScFileStub
         val pst = packageStatement
         (pst, packStatementMirror) match {
           case (Some(p_this), Some(p_other)) => {
-            p_this.asInstanceOf[ClsElementImpl].setMirror(SourceTreeToPsiMap.psiElementToTree(p_other).asInstanceOf[TreeElement])
+//todo[8858]            p_this.asInstanceOf[ClsElementImpl].setMirror(SourceTreeToPsiMap.psiElementToTree(p_other).asInstanceOf[TreeElement])
           }
           case _ =>
         }
@@ -135,8 +136,7 @@ class ScClsFileImpl(stub: ScFileStub) extends ClsRepositoryPsiElement[ScFileStub
         val mirrorClasses = sf.getClasses
         if (classes.length > 0 && classes.length == mirrorClasses.length) {
           for (i <- 0 to classes.length - 1) {
-            classes(i).asInstanceOf[ClsElementImpl].
-                setMirror(SourceTreeToPsiMap.psiElementToTree(mirrorClasses(i)).asInstanceOf[TreeElement])
+//todo[8858]            classes(i).asInstanceOf[ClsElementImpl].setMirror(SourceTreeToPsiMap.psiElementToTree(mirrorClasses(i)).asInstanceOf[TreeElement])
           }
         }
 
@@ -151,7 +151,7 @@ class ScClsFileImpl(stub: ScFileStub) extends ClsRepositoryPsiElement[ScFileStub
 
   def packageStatement = {
     if (myPackageStatement == null) {
-      myPackageStatement = new ScClsPackageStatementImpl(this)
+//todo[8858]      myPackageStatement = new ScClsPackageStatementImpl(this)
     }
     if (myPackageStatement.getPackageName != null) Some(myPackageStatement) else None
   }
@@ -197,7 +197,7 @@ class ScClsFileImpl(stub: ScFileStub) extends ClsRepositoryPsiElement[ScFileStub
     goNextLine(indentLevel, buffer)
     packageStatement match {
       case Some(pst) => {
-        pst.asInstanceOf[ClsElementImpl].appendMirrorText(0, buffer)
+//todo[8858]        pst.asInstanceOf[ClsElementImpl].appendMirrorText(0, buffer)
         goNextLine(indentLevel, buffer)
         goNextLine(indentLevel, buffer)
       }
@@ -207,7 +207,7 @@ class ScClsFileImpl(stub: ScFileStub) extends ClsRepositoryPsiElement[ScFileStub
     val classes = getClasses
 
     for (clazz <- classes) {
-      clazz.asInstanceOf[ClsElementImpl].appendMirrorText(0, buffer)
+//todo[8858]      clazz.asInstanceOf[ClsElementImpl].appendMirrorText(0, buffer)
       goNextLine(indentLevel, buffer)
       goNextLine(indentLevel, buffer)
     }
