@@ -83,6 +83,8 @@ trait ScTypeDefinition extends ScNamedElement
   def addMember(meth: PsiElement, editor: Option[Editor], offset: Int)
   @deprecated
   def addMember(meth: PsiElement, editor: Option[Editor]): Unit = addMember(meth, editor, -1)
+  
+  def addMember(member: PsiElement, anchor: Option[PsiElement], newLinePos: Int): Option[PsiElement]
 
   override def getIcon(flags: Int): Icon = {
     if (!isValid) return null
