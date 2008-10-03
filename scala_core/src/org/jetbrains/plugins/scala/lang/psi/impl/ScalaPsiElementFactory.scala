@@ -371,13 +371,19 @@ object ScalaPsiElementFactory {
   }
 
   def getOverrideImplementTypeSign(alias: ScTypeAlias, substitutor: ScSubstitutor, body: String, isOverride: Boolean): String = {
-    alias match {
-      case alias: ScTypeAliasDefinition => {
-        return "override type" + alias.getName + " = " + ScType.presentableText(substitutor.subst(alias.aliasedType))
+    try {
+      alias match {
+        case alias: ScTypeAliasDefinition => {
+          return "override type" + alias.getName + " = " + ScType.presentableText(substitutor.subst(alias.aliasedType))
+        }
+        case alias: ScTypeAliasDeclaration => {
+          return "type " + alias.getName + " = " + body
+        }
       }
-      case alias: ScTypeAliasDeclaration => {
-        return "type " + alias.getName + " = " + body
-      }
+    }
+    catch {
+      case e: Exception => e.printStackTrace;
+      return "override type K"
     }
   }
 
