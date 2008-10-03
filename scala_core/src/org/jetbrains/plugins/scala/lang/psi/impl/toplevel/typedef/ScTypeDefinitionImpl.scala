@@ -265,13 +265,24 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
     //if body is not empty
     if (body.getChildren.length != 0) {
       anchor match {
-        case Some(anchor) if anchor.getNode.getElementType != ScalaTokenTypes.tLINE_TERMINATOR => {
+        case Some(anchor) if anchor.getNode.getElementType != ScalaTokenTypes.tLINE_TERMINATOR &&
+            !anchor.isInstanceOf[PsiWhiteSpace] => {
           body.getNode.addChild(meth.getNode, anchor.getNode)
           body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), anchor.getNode)
         }
-        case Some(anchor) => {//todo: rewrite according newLinePos
-          body.getNode.addChild(meth.getNode, anchor.getNode)
-          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), anchor.getNode)
+        case Some(anchor) => {
+          val text: String = anchor.getText
+          val left = text.substring(0, newLinePos)
+          val right = text.substring(newLinePos)
+          val anch = anchor.getNextSibling
+          body.getNode.removeChild(anchor.getNode)
+          body.getNode.addChild(if (left.indexOf('\n') == -1)
+            ScalaPsiElementFactory.createNewLineNode(meth.getManager)
+                                else ScalaPsiElementFactory.createNewLineNode(meth.getManager, left), anch.getNode)
+          body.getNode.addChild(meth.getNode, anch.getNode)
+          body.getNode.addChild(if (right.indexOf('\n') == -1)
+            ScalaPsiElementFactory.createNewLineNode(meth.getManager)
+                                else ScalaPsiElementFactory.createNewLineNode(meth.getManager, right), anch.getNode)
         }
         case None => {
           body.getNode.addChild(meth.getNode, body.getNode.getLastChildNode)

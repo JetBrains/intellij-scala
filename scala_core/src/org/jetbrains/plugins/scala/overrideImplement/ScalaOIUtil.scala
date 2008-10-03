@@ -96,7 +96,14 @@ object ScalaOIUtil {
       if (element != null)
         element.getNode.getElementType match {case ScalaTokenTypes.tLBRACE => element = element.getNextSibling case _ =>}
       val anchor: Option[PsiElement] = element match {case null => None case _ => Some(element)}
-      val pos = 0 //todo: Implement me if element = newLine
+      val pos = element match {
+        case null => 0
+        case _: PsiWhiteSpace => offset - element.getTextRange.getStartOffset
+        case _ => element.getNode.getElementType match {
+          case ScalaTokenTypes.tLINE_TERMINATOR => offset - element.getTextRange.getStartOffset
+          case _ => 0
+        }
+      }
       member match {
         case member: ScMethodMember => {
           val method: PsiMethod = member.getElement

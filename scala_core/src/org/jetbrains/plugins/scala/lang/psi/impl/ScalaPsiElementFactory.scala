@@ -189,8 +189,8 @@ object ScalaPsiElementFactory {
     else classDef.members()(0).asInstanceOf[ScVariableDefinition]
   }
 
-  def createNewLineNode(manager: PsiManager): ASTNode = {
-    val text = "\n"
+  def createNewLineNode(manager: PsiManager): ASTNode = createNewLineNode(manager, "\n")
+  def createNewLineNode(manager: PsiManager, text: String): ASTNode = {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     return dummyFile.getNode.getFirstChildNode
   }
