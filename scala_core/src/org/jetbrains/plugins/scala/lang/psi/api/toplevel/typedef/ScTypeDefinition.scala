@@ -79,11 +79,7 @@ trait ScTypeDefinition extends ScNamedElement
    * @param methmemberwhich added to this type definition
   * @param editorcurrenteditor
   * @param offsetifeditor is None add to offset (if != -1)
-   */
-  def addMember(meth: PsiElement, editor: Option[Editor], offset: Int)
-  @deprecated
-  def addMember(meth: PsiElement, editor: Option[Editor]): Unit = addMember(meth, editor, -1)
-  
+   */  
   def addMember(member: PsiElement, anchor: Option[PsiElement], newLinePos: Int): Option[PsiElement]
 
   override def getIcon(flags: Int): Icon = {
