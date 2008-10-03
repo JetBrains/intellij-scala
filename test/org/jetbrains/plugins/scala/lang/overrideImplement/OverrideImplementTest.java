@@ -11,7 +11,7 @@ import scala.None$;
  */
 public class OverrideImplementTest extends BaseScalaFileSetTestCase {
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/overrideImplement/data";
+  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/overrideImplement/data/";
   private static final String CARET_MARKER = "<caret>";
 
   private String removeMarker(String text) {

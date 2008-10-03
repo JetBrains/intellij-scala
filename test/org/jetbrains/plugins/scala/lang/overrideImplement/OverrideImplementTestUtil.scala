@@ -7,7 +7,9 @@ import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.PsiElement
 import psi.api.ScalaFile
+import psi.api.toplevel.typedef.ScTypeDefinition
 import testcases.BaseScalaFileSetTestCase
 import util.TestUtils
 
@@ -39,7 +41,12 @@ class OverrideImplementTestUtil {
     val offset = fileText.indexOf(CARET_MARKER)
     fileText = removeMarker(fileText)
     val file = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText).asInstanceOf[ScalaFile]
-    val clazz = file.getTypeDefinitions()(0)
+    var element: PsiElement = file.findElementAt(offset)
+    while (element != null && !element.isInstanceOf[ScTypeDefinition]) element = element.getParent
+    val clazz = element match {
+      case null => assert(false, "caret must be in type definition"); return "error"
+      case x: ScTypeDefinition => x
+    }
     val method = ScalaOIUtil.getMethod(clazz, methodName, isImplement)
     val (anchor, pos) = ScalaOIUtil.getAnchorAndPos(offset, clazz)
     val runnable = new Runnable() {

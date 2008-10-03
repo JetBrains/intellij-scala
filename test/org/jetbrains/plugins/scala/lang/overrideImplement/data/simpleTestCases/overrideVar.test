@@ -8,3 +8,12 @@ class B extends A {
   def y(): Int = 3
 }
 ------
+class A {
+  var foo: A = new A
+}
+class B extends A {
+  val t = foo()
+  override var foo: A = _
+
+  def y(): Int = 3
+}
