@@ -1,0 +1,12 @@
+implement y
+abstract class A {
+  type K = A
+  val y: K
+}
+
+class B extends A {
+  override type K = B
+
+  <caret>
+}
+------

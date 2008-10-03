@@ -1,0 +1,8 @@
+implement foo
+abstract class A {
+  def foo[T](x: T): T
+}
+class B extends A {
+  <caret>
+}
+------
