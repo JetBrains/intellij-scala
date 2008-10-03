@@ -107,7 +107,7 @@
       <classpath>
         <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
         <pathelement location="${scala.home}/lib/scala-library.jar"/>
-        <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
+        <pathelement location="${scala.home}/lib/scala-decoder.jar"/>
       </classpath>
     </taskdef>
 
@@ -173,7 +173,7 @@
       </fileset>
       <fileset dir="${scala.home}/lib">
         <include name="**/*scala-library.jar"/>
-        <include name="**/*scala-compiler.jar"/>
+        <include name="**/*scala-decoder.jar"/>
       </fileset>
     </copy>
 
