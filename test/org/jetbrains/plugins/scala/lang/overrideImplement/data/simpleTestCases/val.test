@@ -1,0 +1,14 @@
+implement too
+class a extends b {
+  <caret>
+}
+abstract class b {
+  val too: b
+}
+------
+class a extends b {
+  val too: b = _
+}
+abstract class b {
+  val too: b
+}

@@ -1,0 +1,19 @@
+override foo
+class A {
+  def foo(): A = null
+}
+class B extends A {
+  val t = foo()
+
+
+  <caret>
+}
+------
+class A {
+  def foo(): A = null
+}
+class B extends A {
+  val t = foo()
+
+  override def foo(): A = null
+}

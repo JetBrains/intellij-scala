@@ -1,0 +1,9 @@
+override foo
+class A {
+  val foo: A = new A
+}
+class B extends A {
+  val t = foo()
+  <caret>
+}
+------
