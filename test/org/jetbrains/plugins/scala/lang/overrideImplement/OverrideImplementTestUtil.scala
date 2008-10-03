@@ -41,9 +41,10 @@ class OverrideImplementTestUtil {
     val file = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText).asInstanceOf[ScalaFile]
     val clazz = file.getTypeDefinitions()(0)
     val method = ScalaOIUtil.getMethod(clazz, methodName, isImplement)
+    val (anchor, pos) = ScalaOIUtil.getAnchorAndPos(offset, clazz)
     val runnable = new Runnable() {
       def run() {
-        clazz.addMember(method, None: Option[Editor], offset);
+        clazz.addMember(method, anchor, pos);
         val myTextRange = file.getTextRange();
         CodeStyleManager.getInstance(myProject).reformatText(file, myTextRange.getStartOffset(), myTextRange.getEndOffset());
       }

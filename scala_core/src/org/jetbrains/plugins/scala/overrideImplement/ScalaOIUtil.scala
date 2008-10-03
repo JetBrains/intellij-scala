@@ -340,4 +340,25 @@ object ScalaOIUtil {
       }
     }
   }
+
+  def getAnchorAndPos(offset: Int, clazz: ScTypeDefinition): (Option[PsiElement], Int) = {
+    val body = clazz.extendsBlock.templateBody match {
+      case Some(x) => x
+      case None => return (None, 0)
+    }
+    var element: PsiElement = body.getContainingFile.findElementAt(offset)
+    while (element != null && element.getParent != body) element = element.getParent
+    if (element != null)
+      element.getNode.getElementType match {case ScalaTokenTypes.tLBRACE => element = element.getNextSibling case _ =>}
+    val anchor: Option[PsiElement] = element match {case null => None case _ => Some(element)}
+    val pos = element match {
+      case null => 0
+      case _: PsiWhiteSpace => offset - element.getTextRange.getStartOffset
+      case _ => element.getNode.getElementType match {
+        case ScalaTokenTypes.tLINE_TERMINATOR => offset - element.getTextRange.getStartOffset
+        case _ => 0
+      }
+    }
+    return (anchor, pos)
+  }
 }
