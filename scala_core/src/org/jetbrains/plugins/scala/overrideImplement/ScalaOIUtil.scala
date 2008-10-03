@@ -85,14 +85,26 @@ object ScalaOIUtil {
   def runAction(selectedMembers: java.util.List[ClassMember],
                isImplement: Boolean, clazz: ScTypeDefinition, editor: Editor) {
     for (member <- selectedMembers.toArray(new Array[ClassMember](selectedMembers.size))) {
+      var meth: PsiElement = null
+      val offset = editor.getCaretModel.getOffset
+      val body = clazz.extendsBlock.templateBody match {
+        case Some(x) => x
+        case None => return
+      }
+      var element: PsiElement = body.getContainingFile.findElementAt(offset)
+      while (element != null && element.getParent != body) element = element.getParent
+      if (element != null)
+        element.getNode.getElementType match {case ScalaTokenTypes.tLBRACE => element = element.getNextSibling case _ =>}
+      val anchor: Option[PsiElement] = element match {case null => None case _ => Some(element)}
+      val pos = 0 //todo: Implement me if element = newLine
       member match {
         case member: ScMethodMember => {
           val method: PsiMethod = member.getElement
           val sign = member.sign
           ScalaUtils.runWriteAction(new Runnable {
             def run {
-              var meth = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement)
-              clazz.addMember(meth, Some(editor))
+              val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement)
+              meth = clazz.addMember(m, anchor, pos) match {case Some(x) => x case None => null}
             }
           }, method.getProject, if (isImplement) "Implement method" else "Override method")
         }
@@ -101,8 +113,8 @@ object ScalaOIUtil {
           val substitutor = member.substitutor
           ScalaUtils.runWriteAction(new Runnable {
             def run {
-              var meth = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, !isImplement)
-              clazz.addMember(meth, Some(editor))
+              val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, !isImplement)
+              meth = clazz.addMember(m, anchor, pos) match {case Some(x) => x case None => null}
             }
           }, alias.getProject, if (isImplement) "Implement type alias" else "Override type alias")
         }
@@ -112,12 +124,27 @@ object ScalaOIUtil {
           val substitutor = member match {case x: ScValueMember => x.substitutor case x: ScVariableMember => x.substitutor}
           ScalaUtils.runWriteAction(new Runnable {
             def run {
-              var meth = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager, !isImplement, isVal)
-              clazz.addMember(meth, Some(editor))
+              val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager, !isImplement, isVal)
+              meth = clazz.addMember(m, anchor, pos) match {case Some(x) => x case None => null}
             }
           }, value.getProject, if (isImplement) "Implement value" else "Override value")
         }
         case _ =>
+      }
+      if (meth != null) {
+        val body: PsiElement = meth match {
+          case meth: ScTypeAliasDefinition => meth.aliasedTypeElement
+          case meth: ScPatternDefinition => meth.expr
+          case meth: ScVariableDefinition => meth.expr
+          case method: ScFunctionDefinition => method.body match {
+            case Some(x) => x
+            case None => return
+          }
+          case _ => return
+        }
+        val offset = body.getTextRange.getStartOffset
+        editor.getCaretModel.moveToOffset(offset)
+        editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
       }
     }
   }
