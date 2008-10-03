@@ -482,7 +482,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (_, ScalaTokenTypes.tAT, _, _) => return NO_SPACING_WITH_NEWLINE
       case (ScalaElementTypes.ANNOTATION, _, _, _) => return COMMON_SPACING
       //Prefix Identifier
-      case (ScalaTokenTypes.tIDENTIFIER, _,
+      case ((ScalaElementTypes.REFERENCE_EXPRESSION | ScalaTokenTypes.tIDENTIFIER), _,
       (ScalaElementTypes.LITERAL | ScalaElementTypes.PREFIX_EXPR
               | ScalaElementTypes.VARIANT_TYPE_PARAM), _) => return NO_SPACING
       //Braces
