@@ -1,0 +1,17 @@
+implement too
+class a extends b {
+  <caret>
+  def foo(): Int = 3
+}
+abstract class b {
+  def too: b
+}
+------
+class a extends b {
+  def too: b = null
+
+  def foo(): Int = 3
+}
+abstract class b {
+  def too: b
+}

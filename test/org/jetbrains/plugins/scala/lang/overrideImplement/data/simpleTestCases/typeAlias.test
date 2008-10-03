@@ -1,0 +1,14 @@
+implement L
+class a extends b {
+  <caret>
+}
+abstract class b {
+  type L
+}
+-------
+class a extends b {
+  type L = this.type
+}
+abstract class b {
+  type L
+}
