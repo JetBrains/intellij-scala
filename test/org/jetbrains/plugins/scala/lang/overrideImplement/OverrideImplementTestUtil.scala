@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.overrideImplement
 
 import _root_.junit.framework.Test
+import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import _root_.org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
@@ -32,6 +33,7 @@ class OverrideImplementTestUtil {
    *  Use <caret> to specify caret position.
    */
   def transform(myProject: Project, testName: String, data: Array[String]): String = {
+    SyntheticClasses.get(myProject).registerClasses
     val text = data(0)
     val i = text.indexOf("\n")
     val info = text.substring(0, i)

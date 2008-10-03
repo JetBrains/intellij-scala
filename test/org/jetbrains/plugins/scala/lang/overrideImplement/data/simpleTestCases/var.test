@@ -7,7 +7,7 @@ abstract class b {
 }
 -------
 class a extends b {
-  val too: b = _
+  var too: b = _
 }
 abstract class b {
   var too: b
