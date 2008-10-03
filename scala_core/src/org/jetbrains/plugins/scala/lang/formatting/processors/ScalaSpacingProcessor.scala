@@ -445,6 +445,14 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return Spacing.createSpacing(1, 0, minLineFeeds, true, scalaSettings.KEEP_BLANK_LINES_IN_CODE)
     }
 
+    //For class methods
+    (leftNode.getPsi, rightNode.getPsi, leftNode.getTreeParent.getElementType) match {
+      case (_: ScFunction, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return IMPORT_OTHER_SPACING
+      case (_: ScValue | _: ScVariable | _: ScTypeAlias, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return IMPORT_OTHER_SPACING
+      case (_: ScFunction, _: ScValue | _: ScVariable | _: ScTypeAlias, ScalaElementTypes.TEMPLATE_BODY) => return IMPORT_OTHER_SPACING
+      case _ =>
+    }
+
     (leftNode.getElementType, rightNode.getElementType,
             leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
       //case for covariant or contrvariant type params

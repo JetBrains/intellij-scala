@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, PhysicalSignature, ScSubstitutor}
 import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
 import api.toplevel.ScTyped
@@ -42,6 +41,8 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.impl.source.CharTableImpl
 import refactoring.ScalaNamesUtil
+import types.{ValType, ScType, PhysicalSignature, ScSubstitutor}
+
 object ScalaPsiElementFactory {
 
   private val DUMMY = "dummy."
@@ -264,12 +265,14 @@ object ScalaPsiElementFactory {
     }
   }
 
-  private def getOverrideImplementSign(sign: PhysicalSignature, body: String, isOverride: Boolean): String = {
+  private def getOverrideImplementSign(sign: PhysicalSignature, defaultBody: String, isOverride: Boolean): String = {
+    var body = defaultBody
     var res = ""
     val method = sign.method
     val substitutor = sign.substitutor
     method match {
       case method: ScFunction => {
+        body = getStandardValue(method.calcType)
         res = res + method.getFirstChild.getText
         if (res != "") res = res + "\n"
         if (!method.getModifierList.hasModifierProperty("override") && isOverride) res = res + "override "
@@ -320,6 +323,7 @@ object ScalaPsiElementFactory {
         res = res + body
       }
       case _ => {
+        body = getStandardValue(ScType.create(method.getReturnType, method.getProject))
         if (isOverride) res = res + "override "
         if (method.getModifierList.getNode != null)
         //todo!!! add appropriate readPSI to get all modifiers
@@ -400,5 +404,16 @@ object ScalaPsiElementFactory {
       i = i + 1
     }
     return res.substring(0, res.length - 1)
+  }
+
+  private def getStandardValue(typez: ScType): String = {
+    typez match {
+      case ValType("Unit") => "{}"
+      case ValType("Boolean") => "false"
+      case ValType("Char" | "Int" | "Byte") => "0"
+      case ValType("Long") => "0L"
+      case ValType("Float" | "Double") => "0.0"
+      case _ => "null"
+    }
   }
 }
