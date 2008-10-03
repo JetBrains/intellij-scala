@@ -374,7 +374,7 @@ object ScalaPsiElementFactory {
     try {
       alias match {
         case alias: ScTypeAliasDefinition => {
-          return "override type" + alias.getName + " = " + ScType.presentableText(substitutor.subst(alias.aliasedType))
+          return "override type " + alias.getName + " = " + ScType.presentableText(substitutor.subst(alias.aliasedType))
         }
         case alias: ScTypeAliasDeclaration => {
           return "type " + alias.getName + " = " + body
@@ -382,8 +382,8 @@ object ScalaPsiElementFactory {
       }
     }
     catch {
-      case e: Exception => e.printStackTrace;
-      return "override type K"
+      case e: Exception => e.printStackTrace()
+      return ""
     }
   }
 

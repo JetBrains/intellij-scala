@@ -7,3 +7,10 @@ class B extends A {
   <caret>
 }
 ------
+class A {
+  val foo: A = new A
+}
+class B extends A {
+  val t = foo()
+  override val foo: A = _
+}
