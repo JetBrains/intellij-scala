@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
 import psi.api.base.ScReferenceElement
-import psi.api.statements.ScFun
+import psi.api.statements.{ScFunction, ScVariableDefinition, ScPatternDefinition, ScFun}
 import psi.api.toplevel.typedef.ScObject
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.api.statements.params.ScTypeParam
-import psi.api.statements.ScFunction
 import psi.api.toplevel.ScTyped
 import com.intellij.psi.scope._
 import com.intellij.psi._
@@ -157,6 +156,10 @@ class MethodResolveProcessor(ref : ScReferenceElement, args : Seq[ScType],
                            new ScFunctionType(f.declaredType, f.paramTypes)
                            else f.calcType
     case m : PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty)
+
+    case pd : ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, ref)) => pd.declaredType
+    case vd : ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, ref)) => vd.declaredType
+
     case typed : ScTyped => typed.calcType
     case _ => Nothing
   }
