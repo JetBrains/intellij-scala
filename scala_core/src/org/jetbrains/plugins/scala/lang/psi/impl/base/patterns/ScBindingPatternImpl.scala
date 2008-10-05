@@ -1,5 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 
+import api.statements.ScFunctionDefinition
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.util.PsiTreeUtil
+import lang.TokenSets
 import lexer.ScalaTokenTypes
 import api.base.patterns.ScBindingPattern
 import psi.types._
@@ -7,13 +11,12 @@ import com.intellij.lang.ASTNode
 
 abstract class ScBindingPatternImpl(node: ASTNode) extends ScPatternImpl(node) with ScBindingPattern {
 
-  def nameId = if (!isWildcard) {
-    findChildByType(ScalaTokenTypes.tIDENTIFIER)
-  } else findChildByType(ScalaTokenTypes.tUNDER)
-
-  override def getName = if (!isWildcard) nameId.getText
-                         else "_" //todo make model consistent
-  //else throw new UnsupportedOperationException("Wildcard pattern has no name!")
+  def nameId = findChildByType(TokenSets.ID_SET)
 
   def isWildcard = findChildByType(ScalaTokenTypes.tUNDER) != null
+
+  override def getUseScope = {
+    val func = PsiTreeUtil.getParentOfType(this, classOf[ScFunctionDefinition], true)
+    if (func != null) new LocalSearchScope(func) else super.getUseScope
+  }
 }

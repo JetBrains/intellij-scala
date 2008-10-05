@@ -1,19 +1,17 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements.params
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import com.intellij.psi.tree.TokenSet
-import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi._
-import com.intellij.psi.util._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import api.base._
+import api.statements.params._
+import api.statements._
+import icons.Icons
 import lang.psi.types.{ScType, Nothing}
+import lexer.ScalaTokenTypes
+import psi.ScalaPsiElementImpl
+
+import com.intellij.lang.ASTNode
+import com.intellij.psi._
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.util._
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -41,6 +39,8 @@ class ScParameterImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
     case Some(x) => Some(x.typeElement)
     case None => None
   }
+
+  override def getUseScope = new LocalSearchScope(getDeclarationScope)
 
   def calcType() = typeElement match {
     case None => Nothing //todo inference here
