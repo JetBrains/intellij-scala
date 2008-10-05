@@ -120,7 +120,6 @@ public class ScalacCompiler extends ExternalCompiler {
 
   @NotNull
   public Configurable createConfigurable() {
-    // todo implement me as for javac!
     return null;
   }
 
@@ -199,9 +198,9 @@ public class ScalacCompiler extends ExternalCompiler {
     String javaExecutablePath = sdkType.getVMExecutablePath(jdk);
     commandLine.add(javaExecutablePath);
 
-    //todo setup via ScalacSettings
+    ScalacSettings settings = ScalacSettings.getInstance(myProject);
     commandLine.add(XSS_COMPILER_PROPERTY);
-    commandLine.add(XMX_COMPILER_PROPERTY);
+    commandLine.add("-Xmx" + settings.MAXIMUM_HEAP_SIZE + "m");
     commandLine.add("-cp");
 
 
@@ -234,7 +233,7 @@ public class ScalacCompiler extends ExternalCompiler {
 
     try {
       File fileWithParams = File.createTempFile("scalac", ".tmp");
-      fillFileWithScalacParams(chunk, fileWithParams, outputPath);
+      fillFileWithScalacParams(chunk, fileWithParams, outputPath, myProject);
 
       commandLine.add(fileWithParams.getPath());
     } catch (IOException e) {
@@ -243,14 +242,19 @@ public class ScalacCompiler extends ExternalCompiler {
   }
 
 
-  private static void fillFileWithScalacParams(ModuleChunk chunk, File fileWithParameters, String outputPath)
+  private static void fillFileWithScalacParams(ModuleChunk chunk, File fileWithParameters, String outputPath, Project myProject)
           throws FileNotFoundException {
 
     PrintStream printer = new PrintStream(new FileOutputStream(fileWithParameters));
 
+    ScalacSettings settings = ScalacSettings.getInstance(myProject);
+    StringTokenizer tokenizer = new StringTokenizer(settings.getOptionsString(), " ");
+    while (tokenizer.hasMoreTokens()) {
+      printer.println(tokenizer.nextToken());
+    }
     printer.println(VERBOSE_PROPERTY);
     printer.println(DEBUG_PROPERTY);
-    printer.println(WARNINGS_PROPERTY);
+    //printer.println(WARNINGS_PROPERTY);
     printer.println(DEBUG_INFO_LEVEL_PROPEERTY);
     printer.println(DESTINATION_COMPILER_PROPERTY);
     printer.println(outputPath.replace('/', File.separatorChar));
