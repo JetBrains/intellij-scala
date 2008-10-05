@@ -78,4 +78,9 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     PsiReference ref = configureByFile("nonlocal/baseClassParam.scala");
     assertNotNull(ref.resolve());
   }
+
+  public void testLUB1() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/lub1.scala");
+    assertNotNull(ref.resolve());
+  }
 }
