@@ -14,6 +14,8 @@ trait ScType {
   def equiv(t: ScType): Boolean = t == this
 
   sealed def conforms(t: ScType): Boolean = Conformance.conforms(this, t)
+
+  override def toString = ScType.presentableText(this)
 }
 
 abstract case class StdType(val name : String, val tSuper : Option[StdType]) extends ScType {
