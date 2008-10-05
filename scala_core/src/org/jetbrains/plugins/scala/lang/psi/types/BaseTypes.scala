@@ -30,6 +30,7 @@ object BaseTypes {
         c.getSuperTypes.map{st => s.subst(ScType.create(st, c.getProject))}
       case _ => Seq.empty
     }
+    case _ => Seq.empty
   }
 
   def reduce (types : Seq[ScType]) : Seq[ScType] = {
