@@ -19,6 +19,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import api.base.types.ScTypeElement
 import api.toplevel.typedef.ScTypeDefinition
 import base.ScTypeBoundsOwnerImpl
+import toplevel.synthetic.JavaIdentifier
 import types._
 
 /** 
