@@ -150,7 +150,7 @@ class MethodResolveProcessor(ref : ScReferenceElement, args : Seq[ScType],
 
 
 
-  private def getType(e : PsiNamedElement): ScType = e match {
+  private def getType(e : PsiNamedElement) = e match {
     case fun : ScFun => new ScFunctionType(fun.retType, fun.paramTypes)
     case f : ScFunction => if (PsiTreeUtil.isAncestor(f, ref, true))
                            new ScFunctionType(f.declaredType, f.paramTypes)
@@ -158,9 +158,9 @@ class MethodResolveProcessor(ref : ScReferenceElement, args : Seq[ScType],
     case m : PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty)
 
     case pd : ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, ref, true)) =>
-      pd.declaredType match {case Some(t) => t case _ => Nothing}  //todo: added for fix return type
+      pd.declaredType match {case Some(t) => t; case None => Nothing}
     case vd : ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, ref, true)) =>
-      vd.declaredType match {case Some(t) => t case _ => Nothing} //todo: added for fix return type
+      vd.declaredType match {case Some(t) => t; case None => Nothing}
 
     case typed : ScTyped => typed.calcType
     case _ => Nothing
