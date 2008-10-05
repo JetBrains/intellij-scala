@@ -29,7 +29,7 @@ public class ScalacConfigurable implements Configurable {
 
   @Nls
   public String getDisplayName() {
-    return null;
+    return "Scala Compiler";
   }
 
   public Icon getIcon() {
