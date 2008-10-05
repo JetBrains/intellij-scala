@@ -65,8 +65,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (rightNode.getPsi.isInstanceOf[ScDocComment]) return DOUBLE_LINE
     if (rightNode.getPsi.isInstanceOf[PsiComment] || leftNode.getPsi.isInstanceOf[PsiComment])
       return COMMON_SPACING
-    if (rightNode.getElementType == ScalaDocTokenType.DOC_COMMENT_DATA || leftNode.getElementType == ScalaDocTokenType.DOC_COMMENT_DATA)
-      return NO_SPACING_WITH_NEWLINE
     //; : . and , processing
     if (rightString.length > 0 && rightString(0) == '.') {
       if (rightNode.getElementType != ScalaTokenTypes.tFLOAT && !rightNode.getPsi.isInstanceOf[ScLiteral]) return WITHOUT_SPACING
