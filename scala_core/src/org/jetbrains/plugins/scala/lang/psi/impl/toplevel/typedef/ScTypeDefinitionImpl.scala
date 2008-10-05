@@ -41,6 +41,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.VisibilityIcons
 import com.intellij.openapi.util.Iconable
 import javax.swing.Icon
+import synthetic.JavaIdentifier
 import types.{ScSubstitutor, ScType}
 import Misc._
 
@@ -237,4 +238,6 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
     }
     return Some(meth)
   }
+
+  override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 }
