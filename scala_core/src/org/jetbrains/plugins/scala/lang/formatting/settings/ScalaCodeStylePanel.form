@@ -456,6 +456,14 @@
                       <text value="Align extends list"/>
                     </properties>
                   </component>
+                  <component id="e13a9" class="javax.swing.JCheckBox" binding="alignIfElseStatementCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Align If-Else statement"/>
+                    </properties>
+                  </component>
                 </children>
               </grid>
               <grid id="55551" layout-manager="GridLayoutManager" row-count="5" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

@@ -71,6 +71,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JSpinner indentSpinner;
   private JSpinner classCountSpinner;
   private JCheckBox addUnambiguousImportsOnCheckBox;
+  private JCheckBox alignIfElseStatementCheckBox;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -161,6 +162,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.ALIGN_MULTILINE_PARAMETERS = alignParametersCheckBox.isSelected();
     scalaSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = alignParametersInCallsCheckBox.isSelected();
     scalaSettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION = alignParenthesizedExpressionCheckBox.isSelected();
+    scalaSettings.ALIGN_IF_ELSE = alignIfElseStatementCheckBox.isSelected();
 
     scalaSettings.INDENT_CASE_FROM_SWITCH = indentCaseFromMatchCheckBox.isSelected();
     scalaSettings.SPECIAL_ELSE_IF_TREATMENT = specialElseIfTreatmentCheckBox.isSelected();
@@ -279,6 +281,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS != alignParametersInCallsCheckBox.isSelected()) return true;
     if (scalaSettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION != alignParenthesizedExpressionCheckBox.isSelected())
       return true;
+    if (scalaSettings.ALIGN_IF_ELSE != alignIfElseStatementCheckBox.isSelected()) return true;
 
     if (scalaSettings.ELSE_ON_NEW_LINE != elseOnNewLineCheckBox.isSelected()) return true;
     if (scalaSettings.WHILE_ON_NEW_LINE != whileOnNewLineCheckBox.isSelected()) return true;
@@ -344,6 +347,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(alignParametersCheckBox, settings.ALIGN_MULTILINE_PARAMETERS);
     setValue(alignParametersInCallsCheckBox, settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS);
     setValue(alignParenthesizedExpressionCheckBox, settings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION);
+    setValue(alignIfElseStatementCheckBox, settings.ALIGN_IF_ELSE);
 
     setValue(indentSpinner, settings.INDENT);
     setValue(elseOnNewLineCheckBox, settings.ELSE_ON_NEW_LINE);

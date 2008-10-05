@@ -40,7 +40,9 @@ object getDummyBlocks {
     var prevChild: ASTNode = null
     node.getPsi match {
       case _: ScIfStmt => {
-        subBlocks.addAll(getIfSubBlocks(node, block, Alignment.createAlignment))
+        val alignment = if (block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings]).ALIGN_IF_ELSE) Alignment.createAlignment
+                        else null
+        subBlocks.addAll(getIfSubBlocks(node, block, alignment))
         return subBlocks
       }
       case _: ScInfixExpr | _: ScInfixPattern | _: ScInfixTypeElement
