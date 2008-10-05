@@ -127,7 +127,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         //we haven't td import statement, so we insert new import statement so close to element begin as possible
         findChild(classOf[ScPackageStatement]) match {
           case Some(x) => {
-            addAfter(importSt, x)
+            addAfter(ScalaPsiElementFactory.createNewLineNode(x.getManager).getPsi, addAfter(importSt, x))
           }
           case None => {
             //Here we must to find left brace, if not => it's ScalaFile
