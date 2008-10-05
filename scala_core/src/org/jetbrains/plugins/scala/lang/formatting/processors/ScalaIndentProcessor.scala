@@ -36,6 +36,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val indentCount = scalaSettings.INDENT
     val node = parent.getNode
+    if (child.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS ||
+                child.getElementType == ScalaDocTokenType.DOC_COMMENT_END) return Indent.getSpaceIndent(1)
     node.getPsi match {
       case _: ScalaFile => Indent.getNoneIndent
       case _: ScPackaging => {
