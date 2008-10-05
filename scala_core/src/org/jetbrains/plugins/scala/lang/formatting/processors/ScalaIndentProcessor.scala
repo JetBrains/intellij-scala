@@ -103,7 +103,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       }
       case _: ScArgumentExprList => Indent.getSpaceIndent(indentCount)
       case _: ScDocComment => {
-        Indent.getSpaceIndent(indentCount)
+        Indent.getNoneIndent
       }
       case _ => {
         node.getElementType match {

@@ -5,5 +5,5 @@ class a {
 -----
 class a {
   x: @ann1 @ann2
-    @ann3 @ann4
+  @ann3 @ann4
 }

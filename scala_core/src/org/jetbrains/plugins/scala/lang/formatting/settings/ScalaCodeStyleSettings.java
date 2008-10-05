@@ -55,6 +55,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION = false;
   public boolean ALIGN_MULTILINE_BINARY_OPERATION = false;
   public boolean ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION = false;
+  public boolean ALIGN_IF_ELSE = true;
 
   public boolean ELSE_ON_NEW_LINE = false;
   public boolean WHILE_ON_NEW_LINE = false;
