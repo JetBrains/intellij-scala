@@ -2,8 +2,10 @@
    * @param example index the index of the example.
    * @return the class
    */
+class a
 ------
 /**
  * @param example index the index of the example.
  * @return the class
  */
+ class a
