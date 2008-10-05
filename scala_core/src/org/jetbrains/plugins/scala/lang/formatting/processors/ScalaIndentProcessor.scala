@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.lang.formatting.processors
 
+import com.intellij.formatting._
 import psi.api.ScalaFile
 import psi.api.toplevel.typedef.ScTypeDefinition
 import scaladoc.lexer.ScalaDocTokenType
 import scaladoc.psi.api.ScDocComment
 import settings.ScalaCodeStyleSettings
-import com.intellij.formatting._;
+
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiComment;
@@ -30,10 +31,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 
 
 object ScalaIndentProcessor extends ScalaTokenTypes {
-
   def getChildIndent(parent: ScalaBlock, child: ASTNode): Indent = {
     val settings = parent.getSettings
-    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val scalaSettings: ScalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val indentCount = scalaSettings.INDENT
     val node = parent.getNode
     if (child.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS ||
@@ -98,14 +98,12 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         Indent.getContinuationWithoutFirstIndent
       }
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
-              _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScAnnotations | _: ScTypeArgs => {
+              _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScTypeArgs => {
         Indent.getContinuationWithoutFirstIndent
       }
       case _: ScArgumentExprList => Indent.getSpaceIndent(indentCount)
       case _: ScDocComment => {
-        if (child.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS ||
-                child.getElementType == ScalaDocTokenType.DOC_COMMENT_END) Indent.getSpaceIndent(1)
-        else Indent.getNoneIndent
+        Indent.getSpaceIndent(indentCount)
       }
       case _ => {
         node.getElementType match {
