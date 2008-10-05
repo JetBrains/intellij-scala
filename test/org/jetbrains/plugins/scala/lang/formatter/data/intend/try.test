@@ -11,8 +11,7 @@ class a {
 -----
 class a {
   try {
-    do Expr;
-    while (true)
+    do Expr; while (true)
   }
   catch {
 

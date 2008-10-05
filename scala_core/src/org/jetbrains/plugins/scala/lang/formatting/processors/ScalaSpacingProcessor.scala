@@ -108,6 +108,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
     }
 
+    if (leftNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
+      if (leftNode.getTreeParent.getText.indexOf('\n') == -1) return WITH_SPACING
+      else ON_NEW_LINE
+    }
+
     //processing left parenthesis (if it's from right) as Java cases
     if (rightNode.getElementType == ScalaTokenTypes.tLPARENTHESIS) {
       leftNode.getElementType match {
