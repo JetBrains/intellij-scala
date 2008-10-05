@@ -124,6 +124,10 @@
     <component>
       <implementation-class>org.jetbrains.plugins.scala.compiler.ScalacSettings</implementation-class>
     </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.compiler.component.CompilerProjectComponent
+      </implementation-class>
+    </component>
   </project-components>
 
   <actions>

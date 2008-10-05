@@ -33,6 +33,7 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
   public boolean DEPRECATION = true;
   public boolean UNCHECKED = true;
   public boolean OPTIMISE = false;
+  public boolean SCALAC_BEFORE = false;
 
   public ScalacSettings getState() {
     return this;

@@ -2,11 +2,18 @@ package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.fileTypes.StdFileTypes;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.compiler.CompilerManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.RawCommandLineEditor;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.ScalaFileType;
 
 import javax.swing.*;
+import java.util.HashSet;
+import java.util.Arrays;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -20,9 +27,12 @@ public class ScalacConfigurable implements Configurable {
   private JCheckBox uncheckedCheckBox;
   private JCheckBox noWarningsCheckBox;
   private JCheckBox optimizeCheckBox;
+  private JCheckBox scalacBeforeCheckBox;
   private ScalacSettings mySettings;
+  private Project myProject;
 
-  public ScalacConfigurable(ScalacSettings settings) {
+  public ScalacConfigurable(ScalacSettings settings, Project project) {
+    myProject = project;
     mySettings = settings;
     additionalCommandLineParameters.setDialogCaption(ScalaBundle.message("scala.compiler.option.additional.command.line.parameters"));
   }
@@ -53,6 +63,7 @@ public class ScalacConfigurable implements Configurable {
     if (mySettings.UNCHECKED != uncheckedCheckBox.isSelected()) return true;
     if (mySettings.GENERATE_NO_WARNINGS != noWarningsCheckBox.isSelected()) return true;
     if (mySettings.OPTIMISE != optimizeCheckBox.isSelected()) return true;
+    if (mySettings.SCALAC_BEFORE != scalacBeforeCheckBox.isSelected()) return true;
     return false;
   }
 
@@ -69,6 +80,20 @@ public class ScalacConfigurable implements Configurable {
     mySettings.UNCHECKED = uncheckedCheckBox.isSelected();
     mySettings.DEPRECATION = deprecationCheckBox.isSelected();
     mySettings.OPTIMISE = optimizeCheckBox.isSelected();
+    if (scalacBeforeCheckBox.isSelected() && mySettings.SCALAC_BEFORE != scalacBeforeCheckBox.isSelected()) {
+      for (ScalaCompiler compiler: CompilerManager.getInstance(myProject).getCompilers(ScalaCompiler.class)) {
+        CompilerManager.getInstance(myProject).removeCompiler(compiler);
+      }
+      HashSet<FileType> inputSet = new HashSet<FileType>(Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA));
+      HashSet<FileType> outputSet = new HashSet<FileType>(Arrays.asList(StdFileTypes.JAVA, StdFileTypes.CLASS));
+      CompilerManager.getInstance(myProject).addTranslatingCompiler(new ScalaCompiler(myProject), inputSet, outputSet);
+    } else {
+      for (ScalaCompiler compiler: CompilerManager.getInstance(myProject).getCompilers(ScalaCompiler.class)) {
+        CompilerManager.getInstance(myProject).removeCompiler(compiler);
+      }
+      CompilerManager.getInstance(myProject).addCompiler(new ScalaCompiler(myProject));
+    }
+    mySettings.SCALAC_BEFORE = scalacBeforeCheckBox.isSelected();
   }
 
   public void reset() {
@@ -78,6 +103,7 @@ public class ScalacConfigurable implements Configurable {
     uncheckedCheckBox.setSelected(mySettings.UNCHECKED);
     deprecationCheckBox.setSelected(mySettings.DEPRECATION);
     optimizeCheckBox.setSelected(mySettings.OPTIMISE);
+    scalacBeforeCheckBox.setSelected(mySettings.SCALAC_BEFORE);
   }
 
   public void disposeUIResources() {
