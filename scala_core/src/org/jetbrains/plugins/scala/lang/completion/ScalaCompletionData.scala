@@ -54,6 +54,7 @@ class ScalaCompletionData extends CompletionData {
     registerForSomeCompletion
     registerMatchCompletion
     registerImplicitCompletion
+    registerTypeCompletion
   }
 
   private def registerPackageCompletion {
@@ -142,13 +143,22 @@ class ScalaCompletionData extends CompletionData {
     registerStandardCompletion(new MatchFilter, "match")
   }
 
+  private def registerTypeCompletion {
+    val afterDotFilter = new LeftNeighbour(new TextFilter("."))
+    val variant = new CompletionVariant(new AndFilter(afterDotFilter, new TypeFilter))
+    variant.setItemProperty(LookupItem.HIGHLIGHTED_ATTR, "")
+    variant.includeScopeClass(classOf[LeafPsiElement])
+    addCompletions(variant, "type")
+    registerVariant(variant)
+  }
+
   private def registerStandardCompletion(filter: ElementFilter, keywords: String*) {
     val afterDotFilter = new LeftNeighbour(new TextFilter("."))
     val variant = new CompletionVariant(new AndFilter(new NotFilter(afterDotFilter), filter))
     variant.setItemProperty(LookupItem.HIGHLIGHTED_ATTR, "")
     variant.includeScopeClass(classOf[LeafPsiElement])
     addCompletions(variant, keywords: _*)
-    registerVariant(variant);
+    registerVariant(variant)
   }
 
 
