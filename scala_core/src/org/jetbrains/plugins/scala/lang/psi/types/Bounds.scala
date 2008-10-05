@@ -60,7 +60,7 @@ object Bounds {
                     val substed1 = superSubst.subst(tv)
                     val substed2 = sbase.subst(tv)
                     val t = tp match {
-                      case scp: ScTypeParam if scp.isCovariant => if (depth < 3) lub(substed1, substed2, depth + 1) else Any
+                      case scp: ScTypeParam if scp.isCovariant => if (depth < 2) lub(substed1, substed2, depth + 1) else Any
                       case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2)
                       case _ => if (substed1 equiv substed2) substed1 else {
                         appendBaseTypes(base, clazz2, s2, set, 0)
