@@ -94,6 +94,13 @@ object ScalaCompletionUtil {
     return !checkErrors(dummyFile)
   }
 
+  def checkElseWith(text: String, manager: PsiManager): Boolean = {
+    val DUMMY = "dummy."
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY +
+        ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), "class a {\n" + text + "\n}").asInstanceOf[ScalaFile]
+    return !checkErrors(dummyFile)
+  }
+
   def checkTypeWith(typez: ScTypeElement, additionText: String, manager: PsiManager): Boolean = {
     val typeText = typez.getText
     val text = removeDummy("class a { x:" + typeText + " " + additionText + "}")
