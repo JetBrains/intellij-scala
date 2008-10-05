@@ -1,0 +1,3 @@
+class a {val x = 1; val y = 2}
+-------
+class a {val x = 1; val y = 2}
