@@ -47,7 +47,7 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
 
   def calcType = {
     val ret = returnTypeElement match {
-      case None => if (findChildByType(ScalaTokenTypes.tEQUAL) != null) (body match {
+      case None => if (findChildByType(ScalaTokenTypes.tASSIGN) != null) (body match {
         case Some(b) => b.getType
         case _ => Nothing
       }) else Unit
