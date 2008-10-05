@@ -149,9 +149,7 @@ object TypeDefinitionMembers {
 
   class SignaturesProvider(td: PsiClass) extends CachedValueProvider[HashMap[Signature, ScType]] {
     def compute() = {
-      val res = new HashMap[Signature, ScType] {
-        override def elemHashCode(s: Signature) = s.name.hashCode * 31 + s.types.length
-      }
+      val res = new HashMap[Signature, ScType] 
       for ((_, n) <- getVals(td)) {
         val subst = n.substitutor
         n.info match {

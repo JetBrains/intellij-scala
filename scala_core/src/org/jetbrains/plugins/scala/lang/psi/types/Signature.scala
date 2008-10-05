@@ -31,6 +31,8 @@ class Signature(val name : String, val types : Seq[ScType],
     case s : Signature => equiv(s)
     case _ => false
   }
+
+  override def hashCode = name.hashCode * 31 + types.length
 }
 
 import com.intellij.psi.PsiMethod
