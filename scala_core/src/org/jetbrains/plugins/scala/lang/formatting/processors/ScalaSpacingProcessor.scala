@@ -58,7 +58,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val DOUBLE_LINE = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, 2)
     val leftNode = left.getNode
     val rightNode = right.getNode
-    val (leftString, rightString): (String, String) = (left.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText),
+    val (leftString, rightString) = (left.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText),
             right.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText))
     //comments processing
     if (leftNode.getPsi.isInstanceOf[ScDocComment]) return ON_NEW_LINE

@@ -33,7 +33,7 @@ import _root_.java.util.List;
  */
 
 class ScClsTypeDefinitionImpl(stub: ScTypeDefinitionStub)
-extends ClsClassImpl(stub.asInstanceOf[PsiClassStub]) /*todo[8858] remove cast*/ with ScTypeDefinition {
+extends ClsClassImpl(stub.asInstanceOf[PsiClassStub[ScTypeDefinition]]) /*todo[8858] remove cast*/ with ScTypeDefinition {
 
   object ClassTypes extends Enumeration {
     type CLASS_TYPE = Value
