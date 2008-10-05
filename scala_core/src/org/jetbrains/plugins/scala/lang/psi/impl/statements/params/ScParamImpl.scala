@@ -12,6 +12,8 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.util._
+import toplevel.synthetic.JavaIdentifier
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -23,7 +25,7 @@ class ScParameterImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
-  def getNameIdentifier = null
+  override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
   def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
@@ -47,7 +49,6 @@ class ScParameterImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPa
     case Some(e) => e.getType
   }
 
-  // todo implement me!
   def isVarArgs = false
 
   def computeConstantValue = null

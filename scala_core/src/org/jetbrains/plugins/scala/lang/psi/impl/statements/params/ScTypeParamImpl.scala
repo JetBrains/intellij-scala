@@ -52,4 +52,6 @@ class ScTypeParamImpl(node: ASTNode) extends ScTypeBoundsOwnerImpl(node) with Sc
   override def getUseScope  = new LocalSearchScope(owner)
 
   def nameId = findLastChildByType(TokenSets.ID_SET)
+
+  override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 }

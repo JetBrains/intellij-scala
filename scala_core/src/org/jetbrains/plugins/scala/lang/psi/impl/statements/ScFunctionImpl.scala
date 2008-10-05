@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 
+import toplevel.synthetic.JavaIdentifier
 import types.{ScType, ScFunctionType}
 import api.expr.ScAnnotations
 import java.util._
@@ -37,7 +38,7 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
     case _ => PsiType.VOID
   }
 
-  def getNameIdentifier = null
+  override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
   def getReturnTypeElement = null
 
