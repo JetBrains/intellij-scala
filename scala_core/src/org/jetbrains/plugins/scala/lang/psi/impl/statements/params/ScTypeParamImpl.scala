@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements.params
 
 import api.toplevel.ScTypeParametersOwner
+import com.intellij.psi.search.LocalSearchScope
 import lexer.ScalaTokenTypes
 import parser.ScalaElementTypes
 import psi.ScalaPsiElementImpl
@@ -47,6 +48,8 @@ class ScTypeParamImpl(node: ASTNode) extends ScTypeBoundsOwnerImpl(node) with Sc
   }
 
   def owner  = getParent.getParent.asInstanceOf[ScTypeParametersOwner]
+
+  override def getUseScope  = new LocalSearchScope(owner)
 
   def nameId = findLastChildByType(TokenSets.ID_SET)
 }
