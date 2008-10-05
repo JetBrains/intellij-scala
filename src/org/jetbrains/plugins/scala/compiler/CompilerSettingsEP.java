@@ -10,6 +10,6 @@ import com.intellij.openapi.project.Project;
  */
 public class CompilerSettingsEP implements CompilerSettingsFactory{
   public Configurable create(Project project) {
-    return new ScalacConfigurable(ScalacSettings.getInstance(project));
+    return new ScalacConfigurable(ScalacSettings.getInstance(project), project);
   }
 }
