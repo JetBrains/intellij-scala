@@ -37,15 +37,24 @@ class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
     }
   }
 
+  private def needBraces(expr: PsiElement): Boolean = {
+    expr match {
+      case _: ScDoStmt | _: ScIfStmt | _: ScTryStmt | _: ScForStatement
+          | _: ScWhileStmt | _: ScThrowStmt | _: ScReturnStmt => true
+      case _ => false
+    }
+  }
+
   override def getExpressionTemplateAsString(expr: ASTNode) = {
-    val exprAsString = "while (true) { \n " + expr.getText + "\n" + "}"
+    val exprAsString = ""
 
     if (!isNeedBraces(expr)) exprAsString
     else "(" + exprAsString + ")"
   }
 
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
-    return super.getTemplateAsString(elements) + " match {\ncase a  =>\n}"
+    return (if (elements.length == 1 && !needBraces(elements(0))) super.getTemplateAsString(elements)
+            else "(" + super.getTemplateAsString(elements) + ")")+ " match {\ncase a  =>\n}"
   }
 
   override def getTemplateDescription = "match"
