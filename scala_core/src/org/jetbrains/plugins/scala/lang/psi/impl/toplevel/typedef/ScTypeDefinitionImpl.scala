@@ -51,6 +51,10 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
+  override def hasModifierProperty(name: String) = super[ScTypeDefinition].hasModifierProperty(name)
+
+  override def getContainingClass = super[ScTypeDefinition].getContainingClass
+
   override def getQualifiedName: String = {
     def _packageName(e: PsiElement): String = e.getParent match {
       case t: ScTypeDefinition => _packageName(t) + "." + t.name
@@ -158,11 +162,6 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     if (lastParent == null) extendsBlock.processDeclarations(processor, state, null, place) else true
-  }
-
-  override def getContainingClass: PsiClass = getParent match {
-    case eb: ScExtendsBlock => eb.getParent.asInstanceOf[ScTypeDefinition]
-    case _ => null
   }
 
   override def isInheritor(clazz: PsiClass, deep: Boolean) = {

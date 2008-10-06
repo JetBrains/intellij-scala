@@ -63,9 +63,13 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     case ScTypeVariable(_, Nil, _, upper) => processType(upper, place)
 
     case p: ScParameterizedType => {
-      p.designated match {
-        case Some(des) => processElement(des, p.substitutor, place)
-        case None => true
+      p.designator match {
+        case ScTypeAliasType(_, _, _, upper) => processType(p.substitutor.subst(upper), place)
+        case ScTypeVariable(_, _, _, upper) => processType(p.substitutor.subst(upper), place)
+        case _ => p.designated match {
+          case Some(des) => processElement(des, p.substitutor, place)
+          case None => true
+        }
       }
     }
     case proj : ScProjectionType => proj.resolveResult match {
