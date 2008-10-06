@@ -233,6 +233,5 @@ extends ClsClassImpl(stub) with ScTypeDefinition {
 
   override def getMethods() = Array[PsiMethod]()
 
-
-  override def getContainingClass(): PsiClass = null
+  override def getContainingClass = super[ScTypeDefinition].getContainingClass
 }

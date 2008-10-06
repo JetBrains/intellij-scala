@@ -26,7 +26,7 @@ import base._
  * @author AlexanderPodkhalyuzin
  */
 
-trait ScTypeDefinition extends ScNamedElement
+trait ScTypeDefinition extends ScNamedElement with ScMember
     with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable {
 
   def members(): Seq[ScMember]
