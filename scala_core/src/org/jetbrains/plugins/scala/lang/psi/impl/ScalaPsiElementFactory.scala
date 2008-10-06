@@ -355,7 +355,8 @@ object ScalaPsiElementFactory {
         res = res + (if (method.getParameterList.getParametersCount == 0) "" else "(")
         for (param <- method.getParameterList.getParameters) {
           res = res + changeKeyword(param.getName) + ": "
-          res = res + ScType.presentableText(substitutor.subst(ScType.create(param.getTypeElement.getType, method.getProject))) + ", "
+          val scType: ScType = substitutor.subst(ScType.create(param.getTypeElement.getType, method.getProject))
+          res = res + ScType.presentableText(scType) + ", "
         }
         if (method.getParameterList.getParametersCount != 0) res = res.substring(0, res.length - 2)
         res = res + (if (method.getParameterList.getParametersCount == 0) "" else ")")
