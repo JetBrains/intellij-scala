@@ -6,6 +6,7 @@ import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.vfs.VirtualFile
+import java.io.FileNotFoundException
 
 /**
  * @author ilyas
@@ -15,7 +16,12 @@ object DecompilerUtil {
 
   def isScalaFile(file: VirtualFile): Boolean = {
     if (file.getFileType != StdFileTypes.CLASS) return false
-    ScalaDecompiler.isScalaFile(file.contentsToByteArray())
+    try {
+      ScalaDecompiler.isScalaFile(file.contentsToByteArray())
+    }
+    catch {
+      case f: FileNotFoundException => false
+    }
   }
 
 

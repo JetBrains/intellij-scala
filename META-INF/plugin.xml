@@ -20,7 +20,7 @@
   <description>Plugin for Scala language support</description>
   <version>VERSION</version>
   <vendor logo="/org/jetbrains/plugins/scala/images/scala16.png" url="http://www.jetbrains.com">JetBrains Inc.</vendor>
-  <idea-version since-build="8860" until-build="8999"/>
+  <idea-version until-build="8999"/>
   <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
   <extensions defaultExtensionNs="com.intellij">
@@ -60,9 +60,11 @@
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFullPackagingNameIndex"/>
 
     <!--Extensions for class-files treatment-->
+<!--
     <clsStubBuilderFactory implementation="org.jetbrains.plugins.scala.decompiler.ScClsStubBuilderFactory"/>
     <contentBasedClassFileProcessor implementation="org.jetbrains.plugins.scala.decompiler.ScContentBasedClassFileProcessor"/>
     <lang.fileViewProviderFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.decompiler.ScClassFileViewProviderFactory"/>
+-->
 
   </extensions>
 
