@@ -50,6 +50,7 @@
     <compilerSettingsFactory implementation="org.jetbrains.plugins.scala.compiler.CompilerSettingsEP"/>
     <fileTemplateGroup implementation="org.jetbrains.plugins.scala.actions.ScalaTemplatesFactory"/>
     <indexPatternBuilder implementation="org.jetbrains.plugins.scala.editor.todo.ScalaIndexPatternBuilder"/>
+    <readWriteAccessDetector language="Scala" implementation="org.jetbrains.plugins.scala.highlighter.readWriteAccess.ScalaReadWriteAccessDetector"/>
 
     <gotoClassContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToClassContributor"/>
 
