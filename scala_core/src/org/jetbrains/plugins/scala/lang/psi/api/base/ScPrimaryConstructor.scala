@@ -27,5 +27,7 @@ trait ScPrimaryConstructor extends ScMember {
   def getClassNameText: String
 
   def parameterList = findChildByClass(classOf[ScParameters])
-  def parameters = parameterList.params
+
+  //hack: no ClassParamList present at the moment
+  def parameters : Seq[ScClassParameter] = parameterList.params.asInstanceOf[Seq[ScClassParameter]]
 }

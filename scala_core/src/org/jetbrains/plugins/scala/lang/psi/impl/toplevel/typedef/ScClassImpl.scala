@@ -44,6 +44,11 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
     case None => Seq.empty
   }
 
+  override def members() = constructor match {
+    case Some(c) => super.members ++ Seq.singleton(c)
+    case _ => super.members
+  }
+
   import com.intellij.psi.{scope, PsiElement, ResolveState}
   import scope.PsiScopeProcessor
   override def processDeclarations(processor: PsiScopeProcessor,

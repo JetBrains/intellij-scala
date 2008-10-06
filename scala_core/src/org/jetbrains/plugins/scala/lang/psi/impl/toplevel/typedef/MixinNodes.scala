@@ -4,8 +4,8 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import api.toplevel.templates.ScExtendsBlock
+import api.toplevel.typedef.{ScTypeDefinition, ScMember}
 import collection.mutable.{HashMap, ArrayBuffer, HashSet, Set, ListBuffer}
-import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.{PsiElement, PsiClass}
 import psi.types._
 
@@ -68,7 +68,7 @@ abstract class MixinNodes {
   }
 
   def build (eb : ScExtendsBlock) : Map = build { map =>
-    processScala(eb, ScSubstitutor.empty, map)
+    processScala(eb.members, ScSubstitutor.empty, map)
     eb.superTypes
   }
 
@@ -80,9 +80,8 @@ abstract class MixinNodes {
 
       val superTypes = clazz match {
         case td: ScTypeDefinition => {
-          val eb = td.extendsBlock
-          processScala(eb, subst, map)
-          eb.superTypes
+          processScala(td.members, subst, map)
+          td.superTypes
         }
         case _ => {
           processJava(clazz, subst, map)
@@ -138,5 +137,5 @@ abstract class MixinNodes {
   }
 
   def processJava(clazz : PsiClass, subst : ScSubstitutor, map : Map)
-  def processScala(eb : ScExtendsBlock, subst : ScSubstitutor, map : Map)
+  def processScala(members : Seq[ScMember], subst : ScSubstitutor, map : Map)
 }

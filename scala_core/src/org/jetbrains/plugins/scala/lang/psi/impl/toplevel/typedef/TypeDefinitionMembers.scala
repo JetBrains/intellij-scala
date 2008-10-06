@@ -34,8 +34,8 @@ object TypeDefinitionMembers {
         map += ((sig, new Node(sig, subst)))
       }
 
-    def processScala(eb: ScExtendsBlock, subst: ScSubstitutor, map: Map) =
-      for (member <- eb.members) {
+    def processScala(members : Seq[ScMember], subst: ScSubstitutor, map: Map) =
+      for (member <- members) {
         member match {
           case method: ScFunction => {
             val sig = new PhysicalSignature(method, subst)
@@ -63,8 +63,8 @@ object TypeDefinitionMembers {
         map += ((field, new Node(field, subst)))
       }
 
-    def processScala(eb: ScExtendsBlock, subst: ScSubstitutor, map: Map) =
-      for (member <- eb.members) {
+    def processScala(members : Seq[ScMember], subst: ScSubstitutor, map: Map) =
+      for (member <- members) {
         member match {
           case obj: ScObject => map += ((obj, new Node(obj, subst)))
           case _var: ScVariable =>
@@ -100,18 +100,13 @@ object TypeDefinitionMembers {
         map += ((inner, new Node(inner, subst)))
       }
 
-    def processScala(eb: ScExtendsBlock, subst: ScSubstitutor, map: Map) = {
-      for (member <- eb.members) {
+    def processScala(members : Seq[ScMember], subst: ScSubstitutor, map: Map) = {
+      for (member <- members) {
         member match {
           case alias: ScTypeAlias => map += ((alias, new Node(alias, subst)))
-          case _ =>
-        }
-      }
-
-      for (inner <- eb.typeDefinitions) {
-        inner match {
           case _ : ScObject =>
-          case _ => map += ((inner, new Node(inner, subst)))
+          case td : ScTypeDefinition=> map += ((td, new Node(td, subst)))
+          case _ =>
         }
       }
     }
