@@ -33,7 +33,7 @@ import _root_.java.util.List;
  */
 
 class ScClsTypeDefinitionImpl(stub: ScTypeDefinitionStub)
-extends ClsClassImpl(stub.asInstanceOf[PsiClassStub[ScTypeDefinition]]) /*todo[8858] remove cast*/ with ScTypeDefinition {
+extends ClsClassImpl(stub) with ScTypeDefinition {
 
   object ClassTypes extends Enumeration {
     type CLASS_TYPE = Value
@@ -53,29 +53,44 @@ extends ClsClassImpl(stub.asInstanceOf[PsiClassStub[ScTypeDefinition]]) /*todo[8
   override def getLanguage: Language = ScalaFileType.SCALA_LANGUAGE
 
   def aliases(): Seq[ScTypeAlias] = Seq.empty
+
   def members(): Seq[ScMember] = Seq.empty
+
   def allVals(): Iterator[Nothing] = Iterator.empty
+
   def innerTypeDefinitions(): Seq[ScTypeDefinition] = Seq.empty
+
   def superTypes(): Seq[ScType] = Seq.empty
+
   def allMethods(): Iterator[PhysicalSignature] = Iterator.empty
+
   def addMember(meth: PsiElement, editor: Option[Editor], offset: Int) = null
+
   def addMember(member: PsiElement, anchor: Option[PsiElement], newLinePos: Int): Option[PsiElement] = null
+
   def functions(): Seq[ScFunction] = Seq.empty
+
   def allTypes(): Iterator[Nothing] = Iterator.empty
+
   def functionsByName(name: String): Iterable[PsiMethod] = Seq.empty
 
   protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = Array[T]()
+
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = null
+
   def nameId(): PsiElement = getNameIdentifier
 
   override def getPresentation(): ItemPresentation = {
     new ItemPresentation() {
       def getPresentableText(): String = getName
+
       def getTextAttributesKey(): TextAttributesKey = null
+
       def getLocationString(): String = getPath match {
         case "" => "<default>"
         case p => '(' + p + ')'
       }
+
       override def getIcon(open: Boolean) = getIconInner
     }
   }

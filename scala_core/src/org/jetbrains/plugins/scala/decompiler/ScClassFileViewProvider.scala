@@ -27,7 +27,7 @@ extends SingleRootFileViewProvider(manager, file, physical) {
       if (dotIndex < 0) dotIndex = name.length
       val index = name.lastIndexOf('$', dotIndex)
       if (index >= 0) return null
-//      todo[8858] return new ScClsFileImpl(PsiManager.getInstance(project).asInstanceOf[PsiManagerImpl], this)
+      return new ScClsFileImpl(PsiManager.getInstance(project).asInstanceOf[PsiManagerImpl], this)
     }
     return null
   }
