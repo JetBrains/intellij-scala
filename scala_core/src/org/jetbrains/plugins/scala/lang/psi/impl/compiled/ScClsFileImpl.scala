@@ -6,7 +6,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.{StdFileTypes, FileType}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.compiled.ClsRepositoryPsiElement
-//todo[8858] import com.intellij.psi.impl.compiled.ClsElementImpl
+import com.intellij.psi.impl.compiled.ClsElementImpl
 import com.intellij.psi.impl.PsiManagerImpl
 import com.intellij.psi.impl.source.SourceTreeToPsiMap
 import com.intellij.psi.impl.source.tree.TreeElement
@@ -23,7 +23,7 @@ import com.intellij.psi._
  * @author ilyas
  */
 
-/*todo[8858] remove abstract*/abstract class ScClsFileImpl(stub: ScFileStub) extends ClsRepositoryPsiElement[ScFileStub](stub) with ScalaFile {
+class ScClsFileImpl(stub: ScFileStub) extends ClsRepositoryPsiElement[ScFileStub](stub) with ScalaFile {
 
   private var myManager: PsiManagerImpl = null
   private var myIsForDecompiling: Boolean = false
@@ -98,6 +98,7 @@ import com.intellij.psi._
     if (myIsForDecompiling) return true
     getVirtualFile.isValid
   }
+
   def getName: String = getVirtualFile.getName
 
   def accept(visitor: PsiElementVisitor): Unit = {
@@ -120,7 +121,7 @@ import com.intellij.psi._
         val pst = packageStatement
         (pst, packStatementMirror) match {
           case (Some(p_this), Some(p_other)) => {
-//todo[8858]            p_this.asInstanceOf[ClsElementImpl].setMirror(SourceTreeToPsiMap.psiElementToTree(p_other).asInstanceOf[TreeElement])
+            p_this.asInstanceOf[ClsElementImpl].setMirror(SourceTreeToPsiMap.psiElementToTree(p_other).asInstanceOf[TreeElement])
           }
           case _ =>
         }
@@ -136,7 +137,7 @@ import com.intellij.psi._
         val mirrorClasses = sf.getClasses
         if (classes.length > 0 && classes.length == mirrorClasses.length) {
           for (i <- 0 to classes.length - 1) {
-//todo[8858]            classes(i).asInstanceOf[ClsElementImpl].setMirror(SourceTreeToPsiMap.psiElementToTree(mirrorClasses(i)).asInstanceOf[TreeElement])
+            classes(i).asInstanceOf[ClsElementImpl].setMirror(SourceTreeToPsiMap.psiElementToTree(mirrorClasses(i)).asInstanceOf[TreeElement])
           }
         }
 
@@ -151,7 +152,7 @@ import com.intellij.psi._
 
   def packageStatement = {
     if (myPackageStatement == null) {
-//todo[8858]      myPackageStatement = new ScClsPackageStatementImpl(this)
+      myPackageStatement = new ScClsPackageStatementImpl(this)
     }
     if (myPackageStatement.getPackageName != null) Some(myPackageStatement) else None
   }
@@ -160,7 +161,7 @@ import com.intellij.psi._
     val stubHolder = getStubTree
     if (stubHolder != null) stubHolder.getRoot.asInstanceOf[ScFileStub] else null
   }
-  
+
   def subtreeChanged: Unit = {}
 
   def getStubTree: StubTree = {
@@ -197,7 +198,7 @@ import com.intellij.psi._
     goNextLine(indentLevel, buffer)
     packageStatement match {
       case Some(pst) => {
-//todo[8858]        pst.asInstanceOf[ClsElementImpl].appendMirrorText(0, buffer)
+        pst.asInstanceOf[ClsElementImpl].appendMirrorText(0, buffer)
         goNextLine(indentLevel, buffer)
         goNextLine(indentLevel, buffer)
       }
@@ -207,7 +208,7 @@ import com.intellij.psi._
     val classes = getClasses
 
     for (clazz <- classes) {
-//todo[8858]      clazz.asInstanceOf[ClsElementImpl].appendMirrorText(0, buffer)
+      clazz.asInstanceOf[ClsElementImpl].appendMirrorText(0, buffer)
       goNextLine(indentLevel, buffer)
       goNextLine(indentLevel, buffer)
     }
@@ -221,14 +222,20 @@ import com.intellij.psi._
 
 
   override def getChildren = getClasses.asInstanceOf[Array[PsiElement]]
+
   override def getContainingFile: PsiFile = if (!isValid) throw new PsiInvalidElementAccessException(this) else this
 
   def findTreeForStub(tree: StubTree, stub: StubElement[_]) = null
 
   def setPackageName(packageName: String): Unit = throw new IncorrectOperationException("Cannot set package name for compiled files")
+
   def checkSetName(name: String): Unit = throw new IncorrectOperationException("Cannot modify compiled element")
+
   def setName(name: String): PsiElement = throw new IncorrectOperationException("Cannot modify compiled element")
+
   def isDirectory: Boolean = false
+
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = null
+
   protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = Array[T]()
 }

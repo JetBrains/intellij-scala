@@ -17,6 +17,7 @@ extends ScStubElementType[ScExtendsBlockStub, ScExtendsBlock]("extends block") {
 
   //todo implement me!
   def serialize(stub: ScExtendsBlockStub, dataStream: StubOutputStream) {}
+
   def indexStub(stub: ScExtendsBlockStub, sink: IndexSink) {}
 
   protected def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScExtendsBlockStub = {
@@ -27,11 +28,11 @@ extends ScStubElementType[ScExtendsBlockStub, ScExtendsBlock]("extends block") {
     new ScExtendsBlockStubImpl(parentStub, this)
   }
 
-  def createPsi(stub: ScExtendsBlockStub): ScExtendsBlock = /*todo[8858] if (isCompiled(stub)) {
+  def createPsi(stub: ScExtendsBlockStub): ScExtendsBlock = if (isCompiled(stub)) {
     new ScClsExtendsBlockImpl(stub)
-  } else {*/
+  } else {
     new ScExtendsBlockImpl(stub)
-//  }
+  }
 }
 
 

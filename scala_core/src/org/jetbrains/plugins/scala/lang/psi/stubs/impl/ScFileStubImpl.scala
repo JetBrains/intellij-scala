@@ -19,7 +19,7 @@ class ScFileStubImpl(file: ScalaFile) extends PsiFileStubWrapperImpl[ScalaFile](
 
   var packName: StringRef = _
   var name: StringRef = _
-  var compiled: Boolean = _
+  var compiled: Boolean = false
 
   def this(file: ScalaFile, pName : StringRef, name: StringRef, compiled: Boolean) = {
     this(file)

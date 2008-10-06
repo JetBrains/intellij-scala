@@ -4,7 +4,7 @@ import _root_.org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter
 import com.intellij.psi.impl.PsiManagerImpl
 import lang.psi.impl.compiled.ScClsFileImpl
 import com.intellij.lang.Language
-//todo[8858] import com.intellij.openapi.fileTypes.{StdFileTypes, FileType, ContentBasedClassFileProcessor}
+import com.intellij.openapi.fileTypes.{StdFileTypes, FileType, ContentBasedClassFileProcessor}
 import com.intellij.openapi.fileTypes.{StdFileTypes, FileType}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
@@ -18,7 +18,7 @@ import lang.psi.stubs.ScFileStub
  * @author ilyas
  */
 
-class ScContentBasedClassFileProcessor /*todo[8858] extends ContentBasedClassFileProcessor */{
+class ScContentBasedClassFileProcessor extends ContentBasedClassFileProcessor {
 
   def isApplicable(project: Project, vFile: VirtualFile): Boolean = {
     val ft = vFile.getFileType
@@ -40,13 +40,10 @@ class ScContentBasedClassFileProcessor /*todo[8858] extends ContentBasedClassFil
   def obtainFileText(project: Project, file: VirtualFile): String = {
     val manager = PsiManager.getInstance(project).asInstanceOf[PsiManagerImpl]
     val provider = new ScClassFileViewProvider(manager, file, true)
-    ""
-/*todo[8858]
     val psiFile = new ScClsFileImpl(manager, provider, true)
     val buffer = new StringBuffer
     psiFile.appendMirrorText(0, buffer)
     buffer.toString
-*/
   }
 
   def obtainLanguageForFile(file: VirtualFile): Language = {
