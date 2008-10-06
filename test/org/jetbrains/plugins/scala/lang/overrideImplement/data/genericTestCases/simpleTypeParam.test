@@ -6,3 +6,9 @@ class B extends A {
   <caret>
 }
 ------
+abstract class A {
+  def foo[T](x: T): T
+}
+class B extends A {
+  def foo[T](x: T): T = null
+}
