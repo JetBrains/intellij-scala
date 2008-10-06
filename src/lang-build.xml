@@ -214,6 +214,17 @@
 
     <mkdir dir="${project.lib}/../../test"/>
     <mkdir dir="${project.lib}/../../test/Scala"/>
+
+    <scalac srcdir="${scala_core.dir}/test"
+            destdir="${project.lib}"
+            logging="debug"
+            scalacdebugging="yes"
+            force="changed"
+            target="jvm-1.5">
+      <classpath refid="base.path"/>
+      <include name="**/*.scala"/>
+    </scalac>
+    
     <javac srcdir="../test"
            destdir="../classes/test/Scala"
            debug="true">
