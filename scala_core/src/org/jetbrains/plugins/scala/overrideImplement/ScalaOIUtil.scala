@@ -12,12 +12,12 @@ import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.{ScModifierListOwner, ScTyped}
 import lang.psi.types.{ScType, PhysicalSignature, ScSubstitutor}
 import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import lang.psi.ScalaPsiElement
 import lang.psi.api.base.types.ScSimpleTypeElement
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import lang.psi.api.statements._
 import com.intellij.ide.highlighter.JavaFileType
 import lang.psi.impl.ScalaPsiElementFactory
+import lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.util.IncorrectOperationException
 import com.intellij.ide.util.MemberChooser
@@ -51,7 +51,7 @@ object ScalaOIUtil {
       candidate match {
         case sign: PhysicalSignature => classMembersBuf += new ScMethodMember(sign)
         case (name: PsiNamedElement, subst: ScSubstitutor) => {
-          nameContext(name) match {
+          ScalaPsiUtil.nameContext(name) match {
             case x: ScValue => {
               name match {
                 case y: ScTyped => classMembersBuf += new ScValueMember(x, y, subst)
@@ -193,7 +193,7 @@ object ScalaOIUtil {
           }
         }
         case (name: PsiNamedElement, subst: ScSubstitutor) => {
-          nameContext(name) match {
+          ScalaPsiUtil.nameContext(name) match {
             case x: ScValueDeclaration if x.getContainingClass != clazz => buf2 += element
             case x: ScVariableDeclaration if x.getContainingClass != clazz => buf2 += element
             case x: ScTypeAliasDeclaration if x.getContainingClass != clazz => buf2 += element
@@ -229,7 +229,7 @@ object ScalaOIUtil {
               }
               if (method match {case x: ScFunction => x.parameters.length == 0 case _ => method.getParameterList.getParametersCount == 0}) {
                 for (pair <- clazz.allVals; v = pair._1) if (v.getName == method.getName) {
-                  nameContext(v) match {
+                  ScalaPsiUtil.nameContext(v) match {
                     case x: ScValue if x.getContainingClass == clazz => flag = true
                     case x: ScVariable if x.getContainingClass == clazz => flag = true
                     case _ =>
@@ -241,7 +241,7 @@ object ScalaOIUtil {
           }
         }
         case (name: PsiNamedElement, subst: ScSubstitutor) => {
-          nameContext(name) match {
+          ScalaPsiUtil.nameContext(name) match {
             case x: ScPatternDefinition if x.getContainingClass != clazz => {
               var flag = false
               for (signe <- clazz.allMethods if signe.method.getContainingClass == clazz) {
@@ -249,7 +249,7 @@ object ScalaOIUtil {
                 if (signe.method.asInstanceOf[ScFunction].parameters.length == 0 && signe.method.getName == x.getName) flag = true
               }
               for (pair <- clazz.allVals; v = pair._1) if (v.getName == name.getName) {
-                nameContext(v) match {
+                ScalaPsiUtil.nameContext(v) match {
                   case x: ScValue if x.getContainingClass == clazz => flag = true
                   case x: ScVariable if x.getContainingClass == clazz => flag = true
                   case _ =>
@@ -264,7 +264,7 @@ object ScalaOIUtil {
                 if (signe.method.asInstanceOf[ScFunction].parameters.length == 0 && signe.method.getName == x.getName) flag = true
               }
               for (pair <- clazz.allVals; v = pair._1) if (v.getName == name.getName) {
-                nameContext(v) match {
+                ScalaPsiUtil.nameContext(v) match {
                   case x: ScValue if x.getContainingClass == clazz => flag = true
                   case x: ScVariable if x.getContainingClass == clazz => flag = true
                   case _ =>
@@ -275,7 +275,7 @@ object ScalaOIUtil {
             case x: ScTypeAliasDefinition if x.getContainingClass != clazz => {
               var flag = false
               for (pair <- clazz.allVals; v = pair._1) if (v.getName == name.getName) {
-                nameContext(v) match {
+                ScalaPsiUtil.nameContext(v) match {
                   case x: ScTypeAlias if x.getContainingClass == clazz => flag = true
                   case _ =>
                 }
@@ -291,18 +291,7 @@ object ScalaOIUtil {
     return buf2.toArray
   }
 
-  def nameContext(x: PsiNamedElement): PsiElement = {
-    var parent = x.getParent
-    def isAppropriatePsiElement(x: PsiElement): Boolean = {
-      x match {
-        case _: ScValue | _: ScVariable | _: ScTypeAlias => true
-        case _ => false
-      }
-    }
-    if (isAppropriatePsiElement(x)) return x
-    while (parent != null && !isAppropriatePsiElement(parent)) parent = parent.getParent
-    return parent
-  }
+
 
   /*
    This method used for test class OverrideImplementTest
@@ -327,7 +316,7 @@ object ScalaOIUtil {
         return ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement)
       }
       case (name: PsiNamedElement, subst: ScSubstitutor) => {
-        val element: PsiElement = nameContext(name)
+        val element: PsiElement = ScalaPsiUtil.nameContext(name)
         element match {
           case alias: ScTypeAlias => {
             return ScalaPsiElementFactory.createOverrideImplementType(alias, subst, alias.getManager, !isImplement)

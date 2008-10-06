@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /** 
@@ -8,5 +9,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScAssignStmt extends ScExpression {
-
+  def getLExpression: PsiElement = findChildByClass(classOf[ScExpression])
 }
