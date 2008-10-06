@@ -11,8 +11,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.PsiElement
 import psi.api.ScalaFile
 import psi.api.toplevel.typedef.ScTypeDefinition
-import testcases.BaseScalaFileSetTestCase
-import util.TestUtils
+import util.ScalaTestUtils
 
 /**
  * User: Alexander Podkhalyuzin
@@ -42,7 +41,7 @@ class OverrideImplementTestUtil {
     var fileText = text.substring(i + 1)
     val offset = fileText.indexOf(CARET_MARKER)
     fileText = removeMarker(fileText)
-    val file = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText).asInstanceOf[ScalaFile]
+    val file = ScalaTestUtils.createPseudoPhysicalScalaFile(myProject, fileText).asInstanceOf[ScalaFile]
     var element: PsiElement = file.findElementAt(offset)
     while (element != null && !element.isInstanceOf[ScTypeDefinition]) element = element.getParent
     val clazz = element match {

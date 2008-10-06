@@ -44,17 +44,16 @@ public abstract class ScalaFileSetTestCase extends FileSetTestCase {
   }
 
   protected void setSettings() {
-    mySettings = getSettings();
+    /*mySettings = getSettings();
     mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE = 2;
     mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).CONTINUATION_INDENT_SIZE = 2;
-    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).TAB_SIZE = 2;
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).TAB_SIZE = 2;*/
   }
 
   protected void setUp() {
     super.setUp();
 
-    TestFixtureBuilder<IdeaProjectTestFixture> fixtureBuilder = IdeaTestFixtureFactory.getFixtureFactory().createLightFixtureBuilder();
-    fixture = fixtureBuilder.getFixture();
+    fixture = createFixtury();
 
     try {
       fixture.setUp();
@@ -78,4 +77,8 @@ public abstract class ScalaFileSetTestCase extends FileSetTestCase {
     super.tearDown();
   }
 
+  protected IdeaProjectTestFixture createFixtury() {
+    TestFixtureBuilder<IdeaProjectTestFixture> fixtureBuilder = IdeaTestFixtureFactory.getFixtureFactory().createLightFixtureBuilder();
+    return fixtureBuilder.getFixture();
+  }
 }

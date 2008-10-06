@@ -7,3 +7,10 @@ class B extends A[Int] {
   <caret>
 }
 -------
+class A[T] {
+  def foo: T = new T
+}
+
+class B extends A[Int] {
+  override def foo: Int = 0
+}
