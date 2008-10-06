@@ -215,12 +215,15 @@
     <mkdir dir="${project.lib}/../../test"/>
     <mkdir dir="${project.lib}/../../test/Scala"/>
 
-    <scalac srcdir="${scala_core.dir}/test"
+    <scalac srcdir="../test"
             destdir="../classes/test/Scala"
             logging="debug"
             scalacdebugging="yes"
             force="changed">
       <classpath refid="base.path"/>
+      <classpath>
+        <path location="${project.lib}"/>
+      </classpath>
       <include name="**/*.scala"/>
     </scalac>
     

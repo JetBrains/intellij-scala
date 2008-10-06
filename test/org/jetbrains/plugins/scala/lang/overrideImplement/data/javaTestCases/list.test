@@ -1,0 +1,5 @@
+implement removeAll
+class a extends java.util.List {
+  <caret>
+}
+------
