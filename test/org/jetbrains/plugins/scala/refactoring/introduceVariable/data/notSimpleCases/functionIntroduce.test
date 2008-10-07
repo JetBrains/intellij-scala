@@ -7,7 +7,7 @@ class s {
 ------
 class s {
   def foo = {
-    val value: (Int) => Unit = z _
+    val value: (Int) => Int = z _
     value<caret>(44)
   }
   def z(i: Int) = 33
