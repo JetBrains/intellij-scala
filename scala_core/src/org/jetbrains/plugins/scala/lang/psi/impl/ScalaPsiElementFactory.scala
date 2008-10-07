@@ -272,7 +272,7 @@ object ScalaPsiElementFactory {
     val substitutor = sign.substitutor
     method match {
       case method: ScFunction => {
-        body = getStandardValue(method.calcType)
+        body = getStandardValue(substitutor subst method.calcType)
         res = res + method.getFirstChild.getText
         if (res != "") res = res + "\n"
         if (!method.getModifierList.hasModifierProperty("override") && isOverride) res = res + "override "
@@ -323,7 +323,7 @@ object ScalaPsiElementFactory {
         res = res + body
       }
       case _ => {
-        body = getStandardValue(ScType.create(method.getReturnType, method.getProject))
+        body = getStandardValue(substitutor subst ScType.create(method.getReturnType, method.getProject))
         if (isOverride) res = res + "override "
         if (method.getModifierList.getNode != null)
         //todo!!! add appropriate readPSI to get all modifiers

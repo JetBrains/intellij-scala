@@ -28,6 +28,7 @@ import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.jetbrains.plugins.scala.ScalaFileType;
 
 import java.io.IOException;
 
@@ -49,6 +50,14 @@ public class EnterActionTest extends ActionTestBase {
     );
   }
 
+  @Override
+  protected void setSettings() {
+    super.setSettings();
+    mySettings = getSettings();
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE = 2;
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).CONTINUATION_INDENT_SIZE = 2;
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).TAB_SIZE = 2;
+  }
 
   protected EditorActionHandler getMyHandler() {
     return EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_ENTER);
