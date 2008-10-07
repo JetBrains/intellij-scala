@@ -167,7 +167,7 @@ object ScType {
       }
       case ScExistentialType(q, wilds) => {
         inner(q)
-        buffer.append("forSome{"); appendSeq(wilds, "; "); buffer.append("}")
+        buffer.append(" forSome{"); appendSeq(wilds, "; "); buffer.append("}")
       }
       case _ => null //todo
     }
