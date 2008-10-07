@@ -233,7 +233,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
         case _: ScFunction => newBody.functions(0)
         case _: ScValue | _: ScVariable => newBody.members(0)
       }
-      newBody.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
+      //newBody.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
     }
     return Some(meth)
   }
