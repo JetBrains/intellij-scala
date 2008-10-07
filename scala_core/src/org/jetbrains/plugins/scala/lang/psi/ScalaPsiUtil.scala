@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import api.base.ScStableCodeReferenceElement
 import api.statements.{ScValue, ScTypeAlias, ScVariable}
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 
@@ -20,5 +21,14 @@ object ScalaPsiUtil {
     if (isAppropriatePsiElement(x)) return x
     while (parent != null && !isAppropriatePsiElement(parent)) parent = parent.getParent
     return parent
+  }
+
+  def adjustTypes(element: PsiElement): Unit = {
+    for (child <- element.getChildren) {
+      child match {
+        case x: ScStableCodeReferenceElement => if (x.resolve != null) x.bindToElement(x.resolve)
+        case _ => adjustTypes(child)
+      }
+    }
   }
 }

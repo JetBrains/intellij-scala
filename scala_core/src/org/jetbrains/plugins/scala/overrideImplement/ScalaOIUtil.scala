@@ -112,6 +112,7 @@ object ScalaOIUtil {
             def run {
               val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement)
               meth = clazz.addMember(m, anchor, pos) match {case Some(x) => x case None => null}
+              adjustTypesAndSetCaret(meth, editor)
             }
           }, method.getProject, if (isImplement) "Implement method" else "Override method")
         }
@@ -122,6 +123,7 @@ object ScalaOIUtil {
             def run {
               val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, !isImplement)
               meth = clazz.addMember(m, anchor, pos) match {case Some(x) => x case None => null}
+              adjustTypesAndSetCaret(meth, editor)
             }
           }, alias.getProject, if (isImplement) "Implement type alias" else "Override type alias")
         }
@@ -133,25 +135,11 @@ object ScalaOIUtil {
             def run {
               val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager, !isImplement, isVal)
               meth = clazz.addMember(m, anchor, pos) match {case Some(x) => x case None => null}
+              adjustTypesAndSetCaret(meth, editor)
             }
           }, value.getProject, if (isImplement) "Implement value" else "Override value")
         }
         case _ =>
-      }
-      if (meth != null) {
-        val body: PsiElement = meth match {
-          case meth: ScTypeAliasDefinition => meth.aliasedTypeElement
-          case meth: ScPatternDefinition => meth.expr
-          case meth: ScVariableDefinition => meth.expr
-          case method: ScFunctionDefinition => method.body match {
-            case Some(x) => x
-            case None => return
-          }
-          case _ => return
-        }
-        val offset = body.getTextRange.getStartOffset
-        editor.getCaretModel.moveToOffset(offset)
-        editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
       }
     }
   }
@@ -351,5 +339,24 @@ object ScalaOIUtil {
       }
     }
     return (anchor, pos)
+  }
+
+  private def adjustTypesAndSetCaret(meth: PsiElement, editor: Editor): Unit = {
+    if (meth != null) {
+      ScalaPsiUtil.adjustTypes(meth)
+      val body: PsiElement = meth match {
+        case meth: ScTypeAliasDefinition => meth.aliasedTypeElement
+        case meth: ScPatternDefinition => meth.expr
+        case meth: ScVariableDefinition => meth.expr
+        case method: ScFunctionDefinition => method.body match {
+          case Some(x) => x
+          case None => return
+        }
+        case _ => return
+      }
+      val offset = body.getTextRange.getStartOffset
+      editor.getCaretModel.moveToOffset(offset)
+      editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
+    }
   }
 }

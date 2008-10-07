@@ -183,7 +183,7 @@ object ScalaPsiElementFactory {
 
   def createDeclaration(typez: ScType, name: String, isVariable: Boolean, expr: ScExpression, manager: PsiManager): ScMember = {
     val text = "class a {" + (if (isVariable) "var " else "val ") +
-              name + (if (typez != null && ScType.presentableText(typez) != "") ": "  + ScType.presentableText(typez) else "") + " = " + expr.getText + "}"
+              name + (if (typez != null && ScType.canonicalText(typez) != "") ": "  + ScType.canonicalText(typez) else "") + " = " + expr.getText + "}"
     val dummyFile = createScalaFile(text, manager)
     val classDef = dummyFile.getTypeDefinitions()(0)
     if (!isVariable) classDef.members()(0).asInstanceOf[ScPatternDefinition]
@@ -205,7 +205,7 @@ object ScalaPsiElementFactory {
   }
 
   def createBodyFromMember(element: PsiElement, manager: PsiManager): ScTemplateBody = {
-    val text = "class a {" + element.getText + "}"
+    val text = "class a {\n" + element.getText + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef: ScTypeDefinition = dummyFile.getTypeDefinitions()(0)
@@ -286,15 +286,15 @@ object ScalaPsiElementFactory {
             res += typeParam.getName
             typeParam.lowerBound match {
               case psi.types.Nothing =>
-              case x => res =  res + " >: " + ScType.presentableText(substitutor.subst(x)) //todo: add reference adjuster
+              case x => res =  res + " >: " + ScType.canonicalText(substitutor.subst(x)) //todo: add reference adjuster
             }
             typeParam.upperBound match {
               case psi.types.Any =>
-              case x => res = res + " <: " + ScType.presentableText(substitutor.subst(x)) // todo: add reference adjuster
+              case x => res = res + " <: " + ScType.canonicalText(substitutor.subst(x)) // todo: add reference adjuster
             }
             typeParam.viewBound match {
               case None =>
-              case Some(x) => res = res + " <% " + ScType.presentableText(substitutor.subst(x)) // todo: add reference adjuster
+              case Some(x) => res = res + " <% " + ScType.canonicalText(substitutor.subst(x)) // todo: add reference adjuster
             }
             return res
           }
@@ -307,7 +307,7 @@ object ScalaPsiElementFactory {
               var res: String = param.getName
               param.typeElement match {
                 case None =>
-                case Some(x) => res = res + ": " + ScType.presentableText(substitutor.subst(x.getType)) //todo: add reference adjuster
+                case Some(x) => res = res + ": " + ScType.canonicalText(substitutor.subst(x.getType)) //todo: add reference adjuster
               }
               return res
             }
@@ -317,7 +317,7 @@ object ScalaPsiElementFactory {
         }
         method.returnTypeElement match {
           case None =>
-          case Some(x) => res = res + ": " + ScType.presentableText(substitutor.subst(x.getType)) //todo: add reference adjuster
+          case Some(x) => res = res + ": " + ScType.canonicalText(substitutor.subst(x.getType)) //todo: add reference adjuster
         }
         res = res + " = "
         res = res + body
@@ -345,7 +345,7 @@ object ScalaPsiElementFactory {
             if (types.length > 0) {
               res += " <: "
               val map: Iterable[String] = types.map((t: PsiClassType) =>
-                  ScType.presentableText(substitutor.subst(ScType.create(t, method.getProject))))
+                  ScType.canonicalText(substitutor.subst(ScType.create(t, method.getProject))))
               res += map.mkString(" with ")
             }
             res
@@ -356,11 +356,11 @@ object ScalaPsiElementFactory {
         for (param <- method.getParameterList.getParameters) {
           res = res + changeKeyword(param.getName) + ": "
           val scType: ScType = substitutor.subst(ScType.create(param.getTypeElement.getType, method.getProject))
-          res = res + ScType.presentableText(scType) + ", "
+          res = res + ScType.canonicalText(scType) + ", "
         }
         if (method.getParameterList.getParametersCount != 0) res = res.substring(0, res.length - 2)
         res = res + (if (method.getParameterList.getParametersCount == 0) "" else ")")
-        res = res + ": " + ScType.presentableText(substitutor.subst(ScType.create(method.getReturnType, method.getProject))) + " = " + body
+        res = res + ": " + ScType.canonicalText(substitutor.subst(ScType.create(method.getReturnType, method.getProject))) + " = " + body
       }
     }
     return res
@@ -375,7 +375,7 @@ object ScalaPsiElementFactory {
     try {
       alias match {
         case alias: ScTypeAliasDefinition => {
-          return "override type " + alias.getName + " = " + ScType.presentableText(substitutor.subst(alias.aliasedType))
+          return "override type " + alias.getName + " = " + ScType.canonicalText(substitutor.subst(alias.aliasedType))
         }
         case alias: ScTypeAliasDeclaration => {
           return "type " + alias.getName + " = " + body
@@ -393,7 +393,7 @@ object ScalaPsiElementFactory {
     if (isOverride) res = res + "override "
     res = res + (if (isVal) "val " else "var ")
     res = res + variable.name
-    if (ScType.presentableText(substitutor.subst(variable.calcType)) != "") res = res + ": " + ScType.presentableText(substitutor.subst(variable.calcType))
+    if (ScType.canonicalText(substitutor.subst(variable.calcType)) != "") res = res + ": " + ScType.canonicalText(substitutor.subst(variable.calcType))
     res = res + " = " + body
     return res
   }
