@@ -174,4 +174,52 @@ object ScType {
     inner(t)
     buffer.toString
   }
+
+  def canonicalText(t : ScType): String = {   //todo: resolve cases when java type have keywords as name (type -> `type`)
+    val buffer = new StringBuilder
+    def appendSeq(ts : Seq[ScType], sep : String) = {
+      var first = true
+      for (t <- ts) {
+        if (!first) buffer.append(sep)
+        first = false
+        inner(t)
+      }
+    }
+    def inner(t : ScType) : Unit = t match {
+      case StdType(name, _) => buffer.append(name)
+      case ScFunctionType(ret, params) => buffer.append("("); appendSeq(params, ", "); buffer.append(") =>"); inner(ret)
+      case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
+      case ScDesignatorType(e: PsiClass) => buffer.append("_root_" + e.getQualifiedName)
+      case ScDesignatorType(e) => buffer.append(e.getName)
+      case ScProjectionType(p, name) => inner(p); buffer.append("#").append(name)
+      case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
+      case ScTypeVariable(name, _, _, _) => buffer.append(name)
+      case ScTypeAliasType(name, _, _, _) => buffer.append(name)
+      case ScExistentialArgument(name, args, lower, upper) => {
+        buffer.append(name)
+        if (args.length > 0) {
+          buffer.append("[");
+          appendSeq(args, ",")
+          buffer.append("]")
+        }
+        if (lower != Null) {
+          buffer.append(" >: ")
+          inner(lower)
+        }
+        upper match {
+          case ScDesignatorType(e: PsiClass) if e.getQualifiedName == "java.lang.Object" || e.getQualifiedName == "scala.ScalaObject" =>
+          case _ =>
+            buffer.append(name).append(" <: ")
+            inner(upper)
+        }
+      }
+      case ScExistentialType(q, wilds) => {
+        inner(q)
+        buffer.append("forSome{"); appendSeq(wilds, "; "); buffer.append("}")
+      }
+      case _ => null //todo
+    }
+    inner(t)
+    buffer.toString
+  }
 }
