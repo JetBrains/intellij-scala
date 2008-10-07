@@ -145,8 +145,6 @@ object ScType {
       }
     }
     def inner(t : ScType) : Unit = {
-      val buffer2 = buffer.toString
-      println(buffer2)
       t match {
         case StdType(name, _) => buffer.append(name)
         case ScFunctionType(ret, params) => buffer.append("("); appendSeq(params, ", "); buffer.append(") =>"); inner(ret)
