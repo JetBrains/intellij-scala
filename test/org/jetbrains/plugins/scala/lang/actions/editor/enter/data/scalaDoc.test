@@ -8,8 +8,8 @@ class a {
 package a
 
 /**
-* <caret>
-*/
+ * <caret>
+ */
 class a {
 
 }
