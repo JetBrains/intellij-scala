@@ -15,9 +15,7 @@ import lang.psi.ScalaPsiUtil
 class ScalaReadWriteAccessDetector extends ReadWriteAccessDetector {
   def getExpressionAccess(expression: PsiElement): Access = {
     expression match {
-      case expression: ScExpression => {
-        if (ScalaReadWriteAccessDetector.isAccessedForReading(expression)) Access.Read else Access.Write
-      }
+      case expression: ScExpression if ScalaReadWriteAccessDetector.isAccessedForWriting(expression) => Access.Write
       case _ => Access.Read
     }
   }
@@ -34,6 +32,7 @@ class ScalaReadWriteAccessDetector extends ReadWriteAccessDetector {
   }
   def getReferenceAccess(referencedElement: PsiElement, reference: PsiReference): Access =
     getExpressionAccess(reference.getElement)
+
   def isDeclarationWriteAccess(element: PsiElement): Boolean = {
     element match {
       case x: PsiNamedElement => {
