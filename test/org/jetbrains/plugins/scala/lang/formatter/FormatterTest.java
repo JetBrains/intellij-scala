@@ -26,6 +26,7 @@ import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.jetbrains.plugins.scala.ScalaFileType;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +47,15 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
       System.getProperty("path") :
       (new File(DATA_PATH)).getCanonicalPath()
     );
+  }
+
+  @Override
+  protected void setSettings() {
+    super.setSettings();
+    mySettings = getSettings();
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE = 2;
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).CONTINUATION_INDENT_SIZE = 2;
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).TAB_SIZE = 2;
   }
 
   protected void performFormatting(final Project project, final PsiFile file) throws IncorrectOperationException {
