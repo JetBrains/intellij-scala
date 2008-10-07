@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import api.base.ScStableCodeReferenceElement
 import api.statements.{ScValue, ScTypeAlias, ScVariable}
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiElement, PsiClass, PsiNamedElement}
+import impl.ScalaPsiElementFactory
 
 /**
  * User: Alexander Podkhalyuzin
@@ -26,7 +27,12 @@ object ScalaPsiUtil {
   def adjustTypes(element: PsiElement): Unit = {
     for (child <- element.getChildren) {
       child match {
-        case x: ScStableCodeReferenceElement => if (x.resolve != null) x.bindToElement(x.resolve)
+        case x: ScStableCodeReferenceElement => x.resolve match {
+          case clazz: PsiClass =>
+            x.replace(ScalaPsiElementFactory.createReferenceFromText(clazz.getName, clazz.getManager)).
+                asInstanceOf[ScStableCodeReferenceElement].bindToElement(clazz)
+          case _ =>
+        }
         case _ => adjustTypes(child)
       }
     }

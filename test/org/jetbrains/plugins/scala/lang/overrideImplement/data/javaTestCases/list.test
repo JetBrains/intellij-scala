@@ -3,6 +3,8 @@ class a extends java.util.List {
   <caret>
 }
 ------
+import java.util.Collection
+
 class a extends java.util.List {
   def removeAll(c: Collection[_]): Boolean = false
 }
