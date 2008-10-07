@@ -82,17 +82,6 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
     }
   }
 
-  override def getIcon(flags: Int): Icon = {
-    if (!isValid) return null
-    val icon = getIconInner
-    val isLocked = (flags & Iconable.ICON_FLAG_READ_STATUS) != 0 && !isWritable()
-    val rowIcon = ElementBase.createLayeredIcon(icon, /*ElementPresentationUtil.getFlags(this, isLocked)*/ 0)
-    if ((flags & Iconable.ICON_FLAG_VISIBILITY) != 0) {
-      VisibilityIcons.setVisibilityIcon(getModifierList, rowIcon);
-    }
-    rowIcon
-  }
-
   override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = functions.filter((m: PsiMethod) =>
           m.getName == name // todo check base classes
     ).toArray
@@ -239,4 +228,16 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
   }
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
+
+  override def getIcon(flags: Int) = {
+    val icon = getIconInner
+    val isLocked = (flags & Iconable.ICON_FLAG_READ_STATUS) != 0 && !isWritable
+    val rowIcon = ElementBase.createLayeredIcon(icon,  0)
+    if ((flags & Iconable.ICON_FLAG_VISIBILITY) != 0) {
+      VisibilityIcons.setVisibilityIcon(getModifierList, rowIcon);
+    }
+    rowIcon
+  }
+
+  protected def getIconInner: Icon
 }
