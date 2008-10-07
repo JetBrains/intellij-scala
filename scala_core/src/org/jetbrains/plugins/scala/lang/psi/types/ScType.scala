@@ -133,48 +133,21 @@ object ScType {
     case _ => None
   }
 
-  def presentableText(t : ScType): String = {   //todo: resolve cases when java type have keywords as name (type -> `type`)
-    val buffer = new StringBuilder
-    def appendSeq(ts : Seq[ScType], sep : String) = {
-      var first = true
-      for (t <- ts) {
-        if (!first) buffer.append(sep)
-        first = false
-        inner(t)
-      }
-    }
-    def inner(t : ScType) : Unit = t match {
-      case StdType(name, _) => buffer.append(name)
-      case ScFunctionType(ret, params) => buffer.append("("); appendSeq(params, ", "); buffer.append(") =>"); inner(ret)
-      case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
-      case ScDesignatorType(e) => buffer.append(e.getName)
-      case ScProjectionType(p, name) => inner(p); buffer.append("#").append(name)
-      case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
-      case ScTypeVariable(name, _, _, _) => buffer.append(name)
-      case ScTypeAliasType(name, _, _, _) => buffer.append(name)
-      case ScExistentialArgument(name, args, lower, upper) => {
-        buffer.append("type ").append(name)
-        if (args.length > 0) {
-          buffer.append("[");
-          appendSeq(args, ",")
-          buffer.append("]")
-        }
-        buffer.append(" >: ")
-        inner(lower)
-        buffer.append(name).append(" <: ")
-        inner(upper)
-      }
-      case ScExistentialType(q, wilds) => {
-        inner(q)
-        buffer.append(" forSome{"); appendSeq(wilds, "; "); buffer.append("}")
-      }
-      case _ => null //todo
-    }
-    inner(t)
-    buffer.toString
-  }
+  def presentableText(t : ScType) = typeText(t, {e => e.getName})
 
-  def canonicalText(t : ScType): String = {   //todo: resolve cases when java type have keywords as name (type -> `type`)
+  //todo: resolve cases when java type have keywords as name (type -> `type`)
+  def canonicalText(t : ScType) = typeText(t,
+    {e => e match {
+      case c : PsiClass => {
+        val qname = c.getQualifiedName
+        if (qname != null) "_root_" + qname else c.getName
+      }
+      case p : PsiPackage => "_root_" + p.getQualifiedName
+      case _ => e.getName
+    }
+  })
+
+  private def typeText(t : ScType, nameFun : PsiNamedElement => String): String = {
     val buffer = new StringBuilder
     def appendSeq(ts : Seq[ScType], sep : String) = {
       var first = true
@@ -188,8 +161,7 @@ object ScType {
       case StdType(name, _) => buffer.append(name)
       case ScFunctionType(ret, params) => buffer.append("("); appendSeq(params, ", "); buffer.append(") =>"); inner(ret)
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
-      case ScDesignatorType(e: PsiClass) => buffer.append("_root_" + e.getQualifiedName)
-      case ScDesignatorType(e) => buffer.append(e.getName)
+      case ScDesignatorType(e) => buffer.append(nameFun(e))
       case ScProjectionType(p, name) => inner(p); buffer.append("#").append(name)
       case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
       case ScTypeVariable(name, _, _, _) => buffer.append(name)
