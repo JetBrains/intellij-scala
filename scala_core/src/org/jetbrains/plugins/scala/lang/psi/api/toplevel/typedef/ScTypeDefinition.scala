@@ -81,18 +81,4 @@ trait ScTypeDefinition extends ScNamedElement with ScMember
   * @param offsetifeditor is None add to offset (if != -1)
    */  
   def addMember(member: PsiElement, anchor: Option[PsiElement], newLinePos: Int): Option[PsiElement]
-
-  override def getIcon(flags: Int): Icon = {
-    if (!isValid) return null
-    val icon = getIconInner
-    val isLocked = (flags & Iconable.ICON_FLAG_READ_STATUS) != 0 && !isWritable()
-    val rowIcon = ElementBase.createLayeredIcon(icon, /*ElementPresentationUtil.getFlags(this, isLocked)*/ 0)
-    if ((flags & Iconable.ICON_FLAG_VISIBILITY) != 0) {
-      VisibilityIcons.setVisibilityIcon(getModifierList, rowIcon);
-    }
-    rowIcon
-  }
-
-  protected def getIconInner: Icon
-
 }

@@ -76,11 +76,11 @@ extends ClsClassImpl(stub) with ScTypeDefinition {
         case "" => "<default>"
         case p => '(' + p + ')'
       }
-      override def getIcon(open: Boolean) = getIconInner
+      override def getIcon(open: Boolean) = ScClsTypeDefinitionImpl.this.getIcon
     }
   }
 
-  override def getIconInner = _type match {
+  override def getIcon = _type match {
     case CLASS => Icons.CLASS
     case OBJECT => Icons.OBJECT
     case TRAIT => Icons.TRAIT
