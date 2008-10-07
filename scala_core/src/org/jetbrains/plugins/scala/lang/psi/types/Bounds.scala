@@ -31,6 +31,9 @@ object Bounds {
       case (_, ScTypeAliasType(_, Nil, _, upper)) => lub(t1, upper)
       case (s: ScSingletonType, _) => lub(s.pathType, t2)
       case (_, s: ScSingletonType) => lub(t1, s.pathType)
+      case (ex : ScExistentialType, _) => lub(ex.skolem, t2)
+      case (_, ex : ScExistentialType) => lub(t1, ex.skolem)
+
       case _ => ScType.extractClassType(t1) match {
         case Some((c1, s1)) => {
           val set = new HashSet[ScType]
