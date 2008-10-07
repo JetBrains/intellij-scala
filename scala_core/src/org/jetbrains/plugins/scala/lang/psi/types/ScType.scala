@@ -140,9 +140,9 @@ object ScType {
     {e => e match {
       case c : PsiClass => {
         val qname = c.getQualifiedName
-        if (qname != null) "_root_" + qname else c.getName
+        if (qname != null) "_root_." + qname else c.getName
       }
-      case p : PsiPackage => "_root_" + p.getQualifiedName
+      case p : PsiPackage => "_root_." + p.getQualifiedName
       case _ => e.getName
     }
   })
