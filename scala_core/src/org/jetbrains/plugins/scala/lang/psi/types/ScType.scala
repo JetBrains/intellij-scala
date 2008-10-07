@@ -49,8 +49,7 @@ object Byte extends ValType("Byte")
 object Short extends ValType("Float")
 
 object ScType {
-  def create(psiType : PsiType, project : Project) : ScType =
-    psiType match {  //todo: resolve cases when java type have keywords as name (type -> `type`)
+  def create(psiType : PsiType, project : Project) : ScType = psiType match {  //todo: resolve cases when java type have keywords as name (type -> `type`)
     case classType : PsiClassType => {
       val result = classType.resolveGenerics
       result.getElement match {
@@ -113,7 +112,7 @@ object ScType {
         new PsiArrayType(toPsi(args(0), project, scope))
       else {
         val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY)
-                  {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope))} 
+                  {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope))}
         JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
       }
     case _ => JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
@@ -131,6 +130,7 @@ object ScType {
         case None => None
       }
     }
+    case ex@ScExistentialType(q, _) => extractClassType(ex.substitutor.subst(q))
     case _ => None
   }
 
@@ -144,42 +144,32 @@ object ScType {
         inner(t)
       }
     }
-    def inner(t : ScType) : Unit = {
-      t match {
-        case StdType(name, _) => buffer.append(name)
-        case ScFunctionType(ret, params) => buffer.append("("); appendSeq(params, ", "); buffer.append(") =>"); inner(ret)
-        case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
-        case ScDesignatorType(e) => buffer.append(e.getName)
-        case ScProjectionType(p, name) => inner(p); buffer.append("#").append(name)
-        case ScParameterizedType(des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
-        case ScTypeVariable(name, _, _, _) => buffer.append(name)
-        case ScTypeAliasType(name, _, _, _) => buffer.append(name)
-        case ScExistentialArgument(name, args, lower, upper) => {
-          buffer /*todo must be wrong: .append("type ")*/ .append(name)
-          if (args.length > 0) {
-            buffer.append("[");
-            appendSeq(args, ",")
-            buffer.append("]")
-          }
-          if (lower != Null) {
-            buffer.append(" >: ")
-            inner(lower)
-          }
-          upper match {
-            case ScDesignatorType(e: PsiClass) if e.getQualifiedName == "java.lang.Object" || e.getQualifiedName == "scala.ScalaObject" =>
-            case _ =>
-              buffer.append(name).append(" <: ")
-              inner(upper)
-          }          
+    def inner(t : ScType) : Unit = t match {
+      case StdType(name, _) => buffer.append(name)
+      case ScFunctionType(ret, params) => buffer.append("("); appendSeq(params, ", "); buffer.append(") =>"); inner(ret)
+      case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
+      case ScDesignatorType(e) => buffer.append(e.getName)
+      case ScProjectionType(p, name) => inner(p); buffer.append("#").append(name)
+      case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
+      case ScTypeVariable(name, _, _, _) => buffer.append(name)
+      case ScTypeAliasType(name, _, _, _) => buffer.append(name)
+      case ScExistentialArgument(name, args, lower, upper) => {
+        buffer.append("type ").append(name)
+        if (args.length > 0) {
+          buffer.append("[");
+          appendSeq(args, ",")
+          buffer.append("]")
         }
-        case ScExistentialType(q, wilds) => {
-          inner(q)
-          buffer.append("forSome{");
-          appendSeq(wilds, "; ");
-          buffer.append("}")
-        }
-        case _ => null //todo
+        buffer.append(" >: ")
+        inner(lower)
+        buffer.append(name).append(" <: ")
+        inner(upper)
       }
+      case ScExistentialType(q, wilds) => {
+        inner(q)
+        buffer.append("forSome{"); appendSeq(wilds, "; "); buffer.append("}")
+      }
+      case _ => null //todo
     }
     inner(t)
     buffer.toString

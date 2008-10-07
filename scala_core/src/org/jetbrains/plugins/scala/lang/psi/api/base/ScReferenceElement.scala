@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.resolve._
 import statements.ScTypeAlias
-import toplevel.typedef.ScTrait
 
 /**
 * @author Alexander Podkhalyuzin
