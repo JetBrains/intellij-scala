@@ -49,7 +49,7 @@ object Byte extends ValType("Byte")
 object Short extends ValType("Float")
 
 object ScType {
-  def create(psiType : PsiType, project : Project) : ScType = psiType match {  //todo: resolve cases when java type have keywords as name (type -> `type`)
+  def create(psiType : PsiType, project : Project) : ScType = psiType match {
     case classType : PsiClassType => {
       val result = classType.resolveGenerics
       result.getElement match {
@@ -134,7 +134,7 @@ object ScType {
     case _ => None
   }
 
-  def presentableText(t : ScType): String = {
+  def presentableText(t : ScType): String = {   //todo: resolve cases when java type have keywords as name (type -> `type`)
     val buffer = new StringBuilder
     def appendSeq(ts : Seq[ScType], sep : String) = {
       var first = true
