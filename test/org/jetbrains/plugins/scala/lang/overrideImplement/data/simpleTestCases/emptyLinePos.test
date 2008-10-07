@@ -1,4 +1,5 @@
 implement too
+package test
 class a extends b {
   def foo(): Int = 3
 
@@ -11,6 +12,7 @@ abstract class b {
   def too: b
 }
 ------
+package test
 class a extends b {
   def foo(): Int = 3
 

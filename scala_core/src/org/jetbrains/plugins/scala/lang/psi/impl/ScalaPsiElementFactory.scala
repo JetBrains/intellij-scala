@@ -69,6 +69,16 @@ object ScalaPsiElementFactory {
     return dummyFile.getNode.getLastChildNode.getLastChildNode.getLastChildNode
   }
 
+  def createReferenceFromText(name: String, manager: PsiManager): ScStableCodeReferenceElement = {
+    val text = "import " + name
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    val imp: ScImportStmt = dummyFile.getFirstChild.asInstanceOf[ScImportStmt]
+    val expr: ScImportExpr = imp.importExprs.apply(0)
+    val ref = expr.reference match {case Some(x) => x case None => return null}
+    return ref
+  }
+
   def createImportStatementFromClass(file: ScImportsHolder, clazz: PsiClass, manager: PsiManager): ScImportStmt = {
     val qualifiedName = clazz.getQualifiedName
     val packageName = file match {

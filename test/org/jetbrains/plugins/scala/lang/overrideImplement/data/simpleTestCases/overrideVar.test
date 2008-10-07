@@ -1,4 +1,6 @@
 override foo
+package test
+
 class A {
   var foo: A = new A
 }
@@ -8,6 +10,8 @@ class B extends A {
   def y(): Int = 3
 }
 ------
+package test
+
 class A {
   var foo: A = new A
 }

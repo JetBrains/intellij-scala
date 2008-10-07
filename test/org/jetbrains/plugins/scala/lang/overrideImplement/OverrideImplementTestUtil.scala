@@ -11,6 +11,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.PsiElement
 import psi.api.ScalaFile
 import psi.api.toplevel.typedef.ScTypeDefinition
+import psi.ScalaPsiUtil
 import util.ScalaTestUtils
 
 /**
@@ -52,9 +53,12 @@ class OverrideImplementTestUtil {
     val (anchor, pos) = ScalaOIUtil.getAnchorAndPos(offset, clazz)
     val runnable = new Runnable() {
       def run() {
-        clazz.addMember(method, anchor, pos);
-        val myTextRange = file.getTextRange();
-        CodeStyleManager.getInstance(myProject).reformatText(file, myTextRange.getStartOffset(), myTextRange.getEndOffset());
+        clazz.addMember(method, anchor, pos) match {
+          case Some(meth) => ScalaPsiUtil.adjustTypes(meth)
+          case None =>
+        }
+        val myTextRange = file.getTextRange()
+        CodeStyleManager.getInstance(myProject).reformatText(file, myTextRange.getStartOffset(), myTextRange.getEndOffset())
       }
     };
     ApplicationManager.getApplication().runWriteAction(new Runnable() {

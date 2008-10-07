@@ -1,4 +1,6 @@
 implement too
+package test
+
 class a extends b {
   <caret>
 }
@@ -6,6 +8,8 @@ abstract class b {
   var too: b
 }
 -------
+package test
+
 class a extends b {
   var too: b = _
 }

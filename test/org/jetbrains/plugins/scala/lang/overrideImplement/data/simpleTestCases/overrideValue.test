@@ -1,4 +1,6 @@
 override foo
+package test
+
 class A {
   val foo: A = new A
 }
@@ -7,6 +9,8 @@ class B extends A {
   <caret>
 }
 ------
+package test
+
 class A {
   val foo: A = new A
 }
