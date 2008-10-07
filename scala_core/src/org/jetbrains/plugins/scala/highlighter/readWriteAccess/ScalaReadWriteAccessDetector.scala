@@ -21,12 +21,7 @@ class ScalaReadWriteAccessDetector extends ReadWriteAccessDetector {
   }
   def isReadWriteAccessible(element: PsiElement): Boolean = {
     element match {
-      case x: PsiNamedElement => {
-         ScalaPsiUtil.nameContext(x) match {
-           case null => false
-           case _ => true
-         }
-      }
+      case x: PsiNamedElement if ScalaPsiUtil.nameContext(x) != null => true
       case _ => false
     }
   }
