@@ -130,7 +130,6 @@ object ScType {
         case None => None
       }
     }
-    case ex@ScExistentialType(q, _) => extractClassType(ex.substitutor.subst(q))
     case _ => None
   }
 
