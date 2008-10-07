@@ -16,9 +16,7 @@ class ScalaReadWriteAccessDetector extends ReadWriteAccessDetector {
   def getExpressionAccess(expression: PsiElement): Access = {
     expression match {
       case expression: ScExpression => {
-        val readAccess = ScalaReadWriteAccessDetector.isAccessedForReading(expression)
-        if (readAccess) Access.Read
-        else Access.Write
+        if (ScalaReadWriteAccessDetector.isAccessedForReading(expression)) Access.Read else Access.Write
       }
       case _ => Access.Read
     }
@@ -54,7 +52,9 @@ private object ScalaReadWriteAccessDetector {
 
   //Now it's just inverse prev method
   def isAccessedForWriting(expression: ScExpression): Boolean = {
-    val parent = expression.getParent
-    return parent.isInstanceOf[ScAssignStmt] && (expression == parent.asInstanceOf[ScAssignStmt].getLExpression)
+    expression.getParent match {
+      case assign : ScAssignStmt if expression == assign.getLExpression => true
+      case _ => false
+    }
   }
 }
