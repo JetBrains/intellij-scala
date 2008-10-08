@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve
-import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
+import psi.api.toplevel.ScModifierListOwner
+import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScMember, ScObject}
 import psi.types._
 import _root_.scala.collection.Set
 import psi.api.statements.{ScTypeAlias, ScFun, ScVariable}
@@ -56,4 +57,11 @@ object ResolveUtils {
                                                                      else s.subst(ScType.create(pt, m.getProject))
                                                               })
 
+  def isAccessible(member : PsiMember, place : PsiElement) = member match {
+    case scMember : ScMember => scMember.getModifierList.accessModifier match {
+      case None => true
+      case Some (am) => true /* todo */
+    }
+    case _ => JavaPsiFacade.getInstance(place.getProject).getResolveHelper.isAccessible(member, place, null)
+  }
 }
