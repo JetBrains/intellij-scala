@@ -42,7 +42,7 @@ class ScAccessModifierImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
       def bindToElement(e : PsiElement) = e match {
         case td : ScTypeDefinition => doRename(td.name)
         case p : PsiPackage => doRename(p.getName)
-        case _ => throw new IncorrectOperationException("cannot bind to anything but class")
+        case _ => throw new IncorrectOperationException("cannot bind to anything but type definition or package")
       }
 
       private def doRename(newName : String) = {
