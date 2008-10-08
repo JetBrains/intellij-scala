@@ -16,4 +16,13 @@ class ScalaResolveResult(val element : PsiNamedElement, val substitutor : ScSubs
   def getElement() = element
 
   def isValidResult() = true
+
+  //In valid program we should not have two resolve results with the same element but different substitutor,
+  // so factor by element
+  override def equals(other : Any): Boolean = other match {
+    case rr : ScalaResolveResult => element eq rr.element
+    case _ => false
+  }
+
+  override def hashCode: Int = element.hashCode
 }
