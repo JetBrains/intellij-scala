@@ -27,6 +27,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   protected val candidatesSet: HashSet[ScalaResolveResult] = new HashSet[ScalaResolveResult]
 
+  def changedLevel = true
+
   def candidates[T >: ScalaResolveResult]: Array[T] = candidatesSet.toArray[T]
 
   //java compatibility

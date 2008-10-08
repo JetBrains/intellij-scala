@@ -163,6 +163,8 @@ class MethodResolveProcessor(ref : ScReferenceElement, args : Seq[ScType],
     case typed : ScTyped => typed.calcType
     case _ => Nothing
   }
+
+  override def changedLevel = candidatesSet.isEmpty  //if there are any candidates, do not go upwards
 }
 
 import ResolveTargets._
