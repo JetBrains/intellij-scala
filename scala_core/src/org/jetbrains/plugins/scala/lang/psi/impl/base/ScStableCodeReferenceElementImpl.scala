@@ -79,13 +79,14 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   def _resolve(ref: ScStableCodeReferenceElementImpl, processor: BaseProcessor): Array[ResolveResult] = {
     _qualifier match {
       case None => {
-        def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
+        def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
           place match {
-            case null => ()
+            case null =>
             case p => {
               if (!p.processDeclarations(processor,
               ResolveState.initial,
-              lastParent, ref)) return ()
+              lastParent, ref)) return
+              if (!processor.changedLevel) return
               treeWalkUp(place.getParent, place)
             }
           }
