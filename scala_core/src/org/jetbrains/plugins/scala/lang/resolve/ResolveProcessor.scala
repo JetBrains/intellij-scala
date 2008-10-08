@@ -86,9 +86,7 @@ class MethodResolveProcessor(ref : ScReferenceElement, args : Seq[ScType],
           true
         }
         case o: ScObject => {
-          //todo check bases?
-          val methods = o.findMethodsByName("apply", true)
-          for (m <- methods) {
+          for (m <- o.findMethodsByName("apply", true)) {
             candidatesSet += new ScalaResolveResult(m, s.incl(inferMethodTypesArgs(m, s)))
           }
           true
@@ -181,7 +179,7 @@ object StdKinds {
   val refExprLastRef = HashSet.empty + OBJECT + VAL + VAR + METHOD
   val refExprQualRef = refExprLastRef + PACKAGE
 
-  val methodRef = HashSet.empty + VAL + VAR + METHOD + CLASS + OBJECT
+  val methodRef = HashSet.empty + VAL + VAR + METHOD
 }
 
 object ResolverEnv {

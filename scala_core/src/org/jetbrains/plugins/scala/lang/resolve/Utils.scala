@@ -19,8 +19,8 @@ object ResolveUtils {
           (element match {
             case _: PsiPackage => kinds contains PACKAGE
             case _: ScPackaging => kinds contains PACKAGE
-            case _: ScObject => kinds contains OBJECT
-            case c: ScClass if c.isCase => (kinds contains OBJECT) || (kinds contains CLASS)
+            case obj: ScObject => (kinds contains OBJECT) || (kinds contains METHOD)
+            case c: ScClass if c.isCase => (kinds contains OBJECT) || (kinds contains CLASS) || (kinds contains METHOD)
             case _: ScTypeParam => kinds contains CLASS
             case _: ScTypeAlias => kinds contains CLASS
             case _: ScTypeDefinition => kinds contains CLASS
