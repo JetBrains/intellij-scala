@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import api.base.ScStableCodeReferenceElement
 import api.statements.{ScValue, ScTypeAlias, ScVariable}
 import com.intellij.psi.{PsiElement, PsiClass, PsiNamedElement}
+import impl.base.ScStableCodeReferenceElementImpl
 import impl.ScalaPsiElementFactory
 
 /**

@@ -180,7 +180,7 @@ object ScType {
         upper match {
           case ScDesignatorType(e: PsiClass) if e.getQualifiedName == "java.lang.Object" || e.getQualifiedName == "scala.ScalaObject" =>
           case _ =>
-            buffer.append(name).append(" <: ")
+            buffer.append(" <: ")
             inner(upper)
         }
       }
