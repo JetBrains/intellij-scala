@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import api.base.ScStableCodeReferenceElement
-import api.statements.{ScValue, ScTypeAlias, ScVariable}
-import com.intellij.psi.{PsiElement, PsiClass, PsiNamedElement}
-import impl.base.ScStableCodeReferenceElementImpl
-import impl.ScalaPsiElementFactory
+import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
+import com.intellij.psi._
+import com.intellij.psi.util.PsiFormatUtil
+import lang.psi.impl.ScalaPsiElementFactory
+import structureView.ScalaElementPresentation
+import types.PhysicalSignature
 
 /**
  * User: Alexander Podkhalyuzin
@@ -36,6 +38,20 @@ object ScalaPsiUtil {
           case _ =>
         }
         case _ => adjustTypes(child)
+      }
+    }
+  }
+
+  def getMethodPresentableText(method: PsiMethod): String = {
+    val buffer = new StringBuffer("")
+    method match {
+      case method: ScFunction => {
+        return ScalaElementPresentation.getMethodPresentableText(method)
+      }
+      case _ => {
+        val PARAM_OPTIONS: Int = PsiFormatUtil.SHOW_NAME | PsiFormatUtil.SHOW_TYPE | PsiFormatUtil.TYPE_AFTER
+        return PsiFormatUtil.formatMethod(method, PsiSubstitutor.EMPTY,
+          PARAM_OPTIONS | PsiFormatUtil.SHOW_PARAMETERS, PARAM_OPTIONS)
       }
     }
   }
