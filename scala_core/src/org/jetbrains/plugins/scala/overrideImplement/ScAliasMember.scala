@@ -7,6 +7,8 @@ import com.intellij.codeInsight.generation.MemberChooserObject
 import com.intellij.codeInsight.generation.ClassMember
 import lang.psi.api.statements.{ScValue, ScTypeAlias, ScVariable}
 import lang.psi.api.toplevel.ScTyped
+import lang.psi.ScalaPsiUtil
+
 /**
 * User: Alexander Podkhalyuzin
 * Date: 11.07.2008
@@ -14,7 +16,8 @@ import lang.psi.api.toplevel.ScTyped
 
 class ScAliasMember(member: ScTypeAlias, val substitutor: ScSubstitutor) extends PsiElementClassMember[ScTypeAlias](member, member.name)
 
-class ScMethodMember(val sign: PhysicalSignature) extends PsiElementClassMember[PsiMethod](sign.method, sign.method.getName)
+class ScMethodMember(val sign: PhysicalSignature) extends PsiElementClassMember[PsiMethod](sign.method,
+  ScalaPsiUtil.getMethodPresentableText(sign.method))
 
 class ScValueMember(member: ScValue, val element: ScTyped, val substitutor: ScSubstitutor) extends PsiElementClassMember[ScValue](member,
   element.name + ": " + ScType.presentableText(substitutor.subst(element.calcType)))
