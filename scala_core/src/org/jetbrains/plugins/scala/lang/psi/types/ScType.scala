@@ -88,7 +88,8 @@ object ScType {
     case PsiType.SHORT => Short
     case PsiType.NULL => Null
     case wild : PsiWildcardType => new ScExistentialArgument("_", Nil,
-      create(wild.getSuperBound, project), create(wild.getExtendsBound, project))
+      if(wild.isExtends) create(wild.getSuperBound, project) else Any,
+      if(wild.isSuper) create(wild.getExtendsBound, project) else Nothing)
     case capture : PsiCapturedWildcardType => new ScTypeVariable("_", Nil,
       create(capture.getLowerBound, project), create(capture.getUpperBound, project))
     case null => new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java
@@ -173,12 +174,14 @@ object ScType {
           appendSeq(args, ",")
           buffer.append("]")
         }
-        if (lower != Null) {
-          buffer.append(" >: ")
-          inner(lower)
+        lower match {
+          case Nothing =>
+          case _ =>
+            buffer.append(" >: ")
+            inner(lower)
         }
         upper match {
-          case ScDesignatorType(e: PsiClass) if e.getQualifiedName == "java.lang.Object" || e.getQualifiedName == "scala.ScalaObject" =>
+          case Any =>
           case _ =>
             buffer.append(" <: ")
             inner(upper)
