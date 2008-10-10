@@ -61,6 +61,8 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
 
   def getSignature(substitutor: PsiSubstitutor) = MethodSignatureBackedByPsiMethod.create(this, substitutor)
 
+  def getTypeParameters = typeParameters.toArray
+
   //todo implement me!
   def isVarArgs = false
 
@@ -69,8 +71,6 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
   def getBody = null
 
   def getThrowsList = findChildByClass(classOf[ScAnnotations])
-
-  def getTypeParameters = PsiTypeParameter.EMPTY_ARRAY
 
   def getTypeParameterList = null
 
