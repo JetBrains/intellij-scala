@@ -1,34 +1,55 @@
 package org.jetbrains.plugins.scala.lang.overrideImplement;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.projectRoots.JavaSdk;
+import com.intellij.openapi.roots.ContentEntry;
+import com.intellij.openapi.roots.ModifiableRootModel;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.testFramework.PsiTestCase;
 import junit.framework.Test;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
+import org.jetbrains.plugins.scala.ScalaLoader;
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.util.TestUtils;
-import scala.None$;
-import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
-import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
-import com.intellij.testFramework.fixtures.TestFixtureBuilder;
-import com.intellij.testFramework.builders.JavaModuleFixtureBuilder;
+
+import java.io.File;
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 26.09.2008
  */
-public class OverrideImplementTest extends BaseScalaFileSetTestCase {
-  @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/overrideImplement/data/";
+public class OverrideImplementTest extends PsiTestCase {
+  private static String JDK_HOME = TestUtils.getMockJdk();
+  public static String rootPath = TestUtils.getTestDataPath() + "/override/";
   private static final String CARET_MARKER = "<caret>";
+  private static final String END_MARKER = "<end>";
 
   private String removeMarker(String text) {
     int index = text.indexOf(CARET_MARKER);
     return text.substring(0, index) + text.substring(index + CARET_MARKER.length());
   }
 
-  public OverrideImplementTest() {
-    super(System.getProperty("path") != null ?
-        System.getProperty("path") :
-        DATA_PATH
-    );
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    myProject.getComponent(SyntheticClasses.class).registerClasses();
+    ScalaLoader.loadScala();
+
+    final ModifiableRootModel rootModel = ModuleRootManager.getInstance(getModule()).getModifiableModel();
+    VirtualFile sdkRoot = LocalFileSystem.getInstance().findFileByPath(rootPath);
+    assertNotNull(sdkRoot);
+    ContentEntry contentEntry = rootModel.addContentEntry(sdkRoot);
+    rootModel.setSdk(JavaSdk.getInstance().createJdk("java sdk", JDK_HOME, false));
+    contentEntry.addSourceFolder(sdkRoot, false);
+
+    ApplicationManager.getApplication().runWriteAction(new Runnable() {
+      public void run() {
+        rootModel.commit();
+      }
+    });
   }
 
   /*
@@ -37,19 +58,34 @@ public class OverrideImplementTest extends BaseScalaFileSetTestCase {
   *  <typeDefinition>
   *  Use <caret> to specify caret position.
   */
-  public String transform(String testName, String[] data) throws Exception {
-    return (new OverrideImplementTestUtil()).transform(myProject, testName, data);
+  public void testFoo() throws Exception {
+    String name = "simpleTests/foo.scala";
+    runTest(name);
   }
 
-  public static Test suite() {
-    return new OverrideImplementTest();
-  }
+  private void runTest(String name) throws Exception {
+    String filePath = rootPath + name;
+    final VirtualFile vFile = LocalFileSystem.getInstance().findFileByPath(filePath.
+        replace(File.separatorChar, '/'));
+    assertNotNull("file " + filePath + " not found", vFile);
+    String text = StringUtil.convertLineSeparators(VfsUtil.loadText(vFile), "\n");
+    final String fileName = vFile.getName();
 
-  @Override
-  protected IdeaProjectTestFixture createFixtury() {
-    final IdeaTestFixtureFactory factory = IdeaTestFixtureFactory.getFixtureFactory();
-    TestFixtureBuilder<IdeaProjectTestFixture> builder = factory.createFixtureBuilder();
-    builder.addModule(JavaModuleFixtureBuilder.class).addJdk(TestUtils.getMockJdk());
-    return builder.getFixture();
+    int i = text.indexOf("\n");
+    String info = text.substring(0, i);
+    boolean isImplement = info.split(" ")[0].equals("implement");
+    String methodName = info.split(" ")[1];
+    String fileText = text.substring(i + 1);
+    int end = fileText.indexOf(END_MARKER);
+    assertTrue(end >= 0);
+    String newFileText = fileText.substring(0, end);
+    String answer = fileText.substring(end + END_MARKER.length() + 1);
+    fileText = newFileText;
+    int offset = fileText.indexOf(CARET_MARKER);
+    fileText = removeMarker(fileText);
+
+    myFile = createFile(myModule, fileName, fileText);
+
+    assertEquals(OverrideImplementTestHelper.transform(myProject, myFile, offset, isImplement, methodName), answer);
   }
 }

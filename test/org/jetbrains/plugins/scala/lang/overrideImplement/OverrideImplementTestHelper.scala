@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.overrideImplement
 
+import _root_.com.intellij.testFramework.PsiTestCase
 import _root_.junit.framework.Test
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import _root_.org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
@@ -8,7 +9,8 @@ import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiFile}
+import java.io.File
 import psi.api.ScalaFile
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.ScalaPsiUtil
@@ -19,7 +21,7 @@ import util.ScalaTestUtils
  * Date: 03.10.2008
  */
 
-class OverrideImplementTestUtil {
+object OverrideImplementTestHelper {
   private val CARET_MARKER = "<caret>"
   private def removeMarker(text: String): String = {
     val index = text.indexOf(CARET_MARKER);
@@ -32,17 +34,7 @@ class OverrideImplementTestUtil {
    *  <typeDefinition>
    *  Use <caret> to specify caret position.
    */
-  def transform(myProject: Project, testName: String, data: Array[String]): String = {
-    SyntheticClasses.get(myProject).registerClasses
-    val text = data(0)
-    val i = text.indexOf("\n")
-    val info = text.substring(0, i)
-    val isImplement = info.split(" ")(0).equals("implement")
-    val methodName = info.split(" ")(1)
-    var fileText = text.substring(i + 1)
-    val offset = fileText.indexOf(CARET_MARKER)
-    fileText = removeMarker(fileText)
-    val file = ScalaTestUtils.createPseudoPhysicalScalaFile(myProject, fileText).asInstanceOf[ScalaFile]
+  def transform(myProject: Project, file: PsiFile, offset: Int, isImplement: Boolean, methodName: String): String = {
     var element: PsiElement = file.findElementAt(offset)
     while (element != null && !element.isInstanceOf[ScTypeDefinition]) element = element.getParent
     val clazz = element match {
@@ -66,7 +58,7 @@ class OverrideImplementTestUtil {
         CommandProcessor.getInstance().executeCommand(myProject, runnable, "test", null);
       }
     });
-    System.out.println("------------------------ " + testName + " ------------------------");
+    System.out.println("------------------------ " + file.getName + " ------------------------");
     System.out.println(file.getText());
     System.out.println("");
     return file.getText();
