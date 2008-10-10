@@ -21,7 +21,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
   }
 
   def addDefinition(decl: ScMember, before: PsiElement): Boolean = {
-    getNode.addChild(decl.copy.getNode,before.getNode)
+    getNode.addChild(decl.getNode,before.getNode)
     getNode.addChild(ScalaPsiElementFactory.createNewLineNode(getManager), before.getNode)
     return true
   }

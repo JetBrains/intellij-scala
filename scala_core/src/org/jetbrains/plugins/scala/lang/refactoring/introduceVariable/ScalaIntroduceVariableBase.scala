@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import com.intellij.openapi.editor.{Editor, VisualPosition}
 import psi.api.ScalaFile
+import psi.ScalaPsiUtil
 import util.ScalaUtils
 import psi.api.expr._
 import psi.api.statements.ScFunction
@@ -171,6 +172,8 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
             val varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName,
               isVariable, ScalaRefactoringUtil.getExprFrom(occurrences(0)), selectedExpr.getManager)
             x.addDefinition(varDecl, parent)
+            val declType = varDecl match {case v: ScVariable => v.typeElement case v: ScValue => v.typeElement}
+            declType match {case Some(declType) => ScalaPsiUtil.adjustTypes(declType) case None =>}
             if (!deleteOccurence || replaceAllOccurrences) {
               for (i <- 0 to occurrences.length - 1; occurrence = occurrences(i)) {
                 if (occurrence.isInstanceOf[ScBlockExpr] && occurrence.getParent.isInstanceOf[ScArgumentExprList]) {
@@ -263,6 +266,8 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
             }
             val block: ScBlock = container.replaceExpression(ScalaPsiElementFactory.createBlockFromExpr(container, container.getManager), false).asInstanceOf[ScBlock]
             block.addDefinition(varDecl, block.getFirstChild.getNextSibling.getNextSibling);
+            val declType = varDecl match {case v: ScVariable => v.typeElement case v: ScValue => v.typeElement}
+            declType match {case Some(declType) => ScalaPsiUtil.adjustTypes(declType) case None =>}
           }
           case _ => {
             showErrorMessage(ScalaBundle.message("operation.not.supported.in.current.block", Array[Object]()), editor.getProject)
