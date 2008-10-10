@@ -85,64 +85,58 @@ object ScalaOIUtil {
 
   def runAction(selectedMembers: java.util.List[ClassMember],
                isImplement: Boolean, clazz: ScTypeDefinition, editor: Editor) {
-    for (member <- selectedMembers.toArray(new Array[ClassMember](selectedMembers.size))) {
-      var meth: PsiElement = null
-      val offset = editor.getCaretModel.getOffset
-      val body = clazz.extendsBlock.templateBody match {
-        case Some(x) => x
-        case None => return
-      }
-      var element: PsiElement = body.getContainingFile.findElementAt(offset)
-      while (element != null && element.getParent != body) element = element.getParent
-      if (element != null)
-        element.getNode.getElementType match {case ScalaTokenTypes.tLBRACE => element = element.getNextSibling case _ =>}
-      val anchor: Option[PsiElement] = element match {case null => None case _ => Some(element)}
-      val pos = element match {
-        case null => 0
-        case _: PsiWhiteSpace => offset - element.getTextRange.getStartOffset
-        case _ => element.getNode.getElementType match {
-          case ScalaTokenTypes.tLINE_TERMINATOR => offset - element.getTextRange.getStartOffset
-          case _ => 0
-        }
-      }
-      member match {
-        case member: ScMethodMember => {
-          val method: PsiMethod = member.getElement
-          val sign = member.sign
-          ScalaUtils.runWriteAction(new Runnable {
-            def run {
+    ScalaUtils.runWriteAction(new Runnable {
+      def run {
+        for (member <- selectedMembers.toArray(new Array[ClassMember](selectedMembers.size))) {
+          var meth: PsiElement = null
+          val offset = editor.getCaretModel.getOffset
+          val body = clazz.extendsBlock.templateBody match {
+            case Some(x) => x
+            case None => return
+          }
+          var element: PsiElement = body.getContainingFile.findElementAt(offset)
+          while (element != null && element.getParent != body) element = element.getParent
+          if (element != null)
+            element.getNode.getElementType match {case ScalaTokenTypes.tLBRACE => element = element.getNextSibling case _ =>}
+          val anchor: Option[PsiElement] = element match {case null => None case _ => Some(element)}
+          val pos = element match {
+            case null => 0
+            case _: PsiWhiteSpace => offset - element.getTextRange.getStartOffset
+            case _ => element.getNode.getElementType match {
+              case ScalaTokenTypes.tLINE_TERMINATOR => offset - element.getTextRange.getStartOffset
+              case _ => 0
+            }
+          }
+          member match {
+            case member: ScMethodMember => {
+              val method: PsiMethod = member.getElement
+              val sign = member.sign
+
               val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement)
               meth = clazz.addMember(m, anchor, pos) match {case Some(x) => x case None => null}
               adjustTypesAndSetCaret(meth, editor)
+
             }
-          }, method.getProject, if (isImplement) "Implement method" else "Override method")
-        }
-        case member: ScAliasMember => {
-          val alias = member.getElement
-          val substitutor = member.substitutor
-          ScalaUtils.runWriteAction(new Runnable {
-            def run {
+            case member: ScAliasMember => {
+              val alias = member.getElement
+              val substitutor = member.substitutor
               val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, !isImplement)
               meth = clazz.addMember(m, anchor, pos) match {case Some(x) => x case None => null}
               adjustTypesAndSetCaret(meth, editor)
             }
-          }, alias.getProject, if (isImplement) "Implement type alias" else "Override type alias")
-        }
-        case _: ScValueMember | _: ScVariableMember => {
-          val isVal = member match {case _: ScValueMember => true case _: ScVariableMember => false}
-          val value = member match {case x: ScValueMember => x.element case x: ScVariableMember => x.element}
-          val substitutor = member match {case x: ScValueMember => x.substitutor case x: ScVariableMember => x.substitutor}
-          ScalaUtils.runWriteAction(new Runnable {
-            def run {
+            case _: ScValueMember | _: ScVariableMember => {
+              val isVal = member match {case _: ScValueMember => true case _: ScVariableMember => false}
+              val value = member match {case x: ScValueMember => x.element case x: ScVariableMember => x.element}
+              val substitutor = member match {case x: ScValueMember => x.substitutor case x: ScVariableMember => x.substitutor}
               val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager, !isImplement, isVal)
               meth = clazz.addMember(m, anchor, pos) match {case Some(x) => x case None => null}
               adjustTypesAndSetCaret(meth, editor)
             }
-          }, value.getProject, if (isImplement) "Implement value" else "Override value")
+            case _ =>
+          }
         }
-        case _ =>
       }
-    }
+    }, clazz.getProject, if (isImplement) "Implement method" else "Override method")
   }
 
   def getMembersToImplement(clazz: ScTypeDefinition): Seq[ScalaObject] = {
