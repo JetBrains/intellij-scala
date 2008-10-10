@@ -11,9 +11,7 @@ import com.intellij.psi.search.GlobalSearchScope
 
 trait ScType {
 
-  def equiv(t: ScType): Boolean = { //todo: written to fix bug: Clazz[_] != Clazz[_ <:
-    t == this
-  }
+  def equiv(t: ScType): Boolean = t == this
 
   sealed def conforms(t: ScType): Boolean = Conformance.conforms(this, t)
 
@@ -89,14 +87,10 @@ object ScType {
     case PsiType.BYTE => Byte
     case PsiType.SHORT => Short
     case PsiType.NULL => Null
-    case wild : PsiWildcardType => new ScExistentialArgument("_", Nil,              //todo: Look at this changes, this added to compare
-      create(wild.getSuperBound, project) match {case Null => Nothing case x => x}, //      java Clazz[_] with Scala Clazz[_]
-      create(wild.getExtendsBound, project) match
-      {case ScDesignatorType(e: PsiClass) if e.getQualifiedName == "java.lang.Object" => Any case x => x})
-    case capture : PsiCapturedWildcardType => new ScTypeVariable("_", Nil,  //todo: Same changes
-      create(capture.getLowerBound, project) match {case Null => Nothing case x => x},
-      create(capture.getUpperBound, project) match
-      {case ScDesignatorType(e: PsiClass) if e.getQualifiedName == "java.lang.Object" => Any case x => x})
+    case wild : PsiWildcardType => new ScExistentialArgument("_", Nil,
+      create(wild.getSuperBound, project), create(wild.getExtendsBound, project))
+    case capture : PsiCapturedWildcardType => new ScTypeVariable("_", Nil,
+      create(capture.getLowerBound, project), create(capture.getUpperBound, project))
     case null => new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java
     case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
   }
@@ -179,13 +173,12 @@ object ScType {
           appendSeq(args, ",")
           buffer.append("]")
         }
-        if (lower != Null && lower != Nothing) {
+        if (lower != Null) {
           buffer.append(" >: ")
           inner(lower)
         }
         upper match {
           case ScDesignatorType(e: PsiClass) if e.getQualifiedName == "java.lang.Object" || e.getQualifiedName == "scala.ScalaObject" =>
-          case Any =>
           case _ =>
             buffer.append(" <: ")
             inner(upper)
