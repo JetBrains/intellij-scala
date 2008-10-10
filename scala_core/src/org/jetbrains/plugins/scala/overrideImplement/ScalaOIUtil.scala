@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.overrideImplement
 
 import com.intellij.codeInsight.generation.{PsiMethodMember, OverrideImplementUtil, ClassMember, PsiFieldMember}
 import com.intellij.openapi.editor.{Editor, VisualPosition}
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.tree.IElementType
 import lang.lexer.ScalaTokenTypes
 import com.intellij.psi._
@@ -166,6 +167,12 @@ object ScalaOIUtil {
             }
             case _ =>
           }
+        }
+        //cheking for Object methods:
+        val objectType: PsiClass = JavaPsiFacade.getInstance(clazz.getProject).
+            findClass("java.lang.Object", GlobalSearchScope.allScope(clazz.getProject))
+        for (meth <- objectType.getAllMethods) {
+          if (x.equiv(new PhysicalSignature(meth, ScSubstitutor.empty))) flag = true
         }
         if (!flag) buf2 += element
       }
