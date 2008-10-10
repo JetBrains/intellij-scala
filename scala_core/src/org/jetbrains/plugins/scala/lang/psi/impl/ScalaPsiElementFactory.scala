@@ -41,7 +41,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.impl.source.CharTableImpl
 import refactoring.ScalaNamesUtil
-import types.{ValType, ScType, PhysicalSignature, ScSubstitutor}
+import types._
 
 object ScalaPsiElementFactory {
 
@@ -430,6 +430,7 @@ object ScalaPsiElementFactory {
       case ValType("Char" | "Int" | "Byte") => "0"
       case ValType("Long") => "0L"
       case ValType("Float" | "Double") => "0.0"
+      case ScDesignatorType(c: PsiClass) if c.getQualifiedName == "java.lang.String" => "\"\""
       case _ => "null"
     }
   }
