@@ -90,8 +90,11 @@ object ScType {
     case wild : PsiWildcardType => new ScExistentialArgument("_", Nil,
       if(wild.isExtends) create(wild.getSuperBound, project) else Any,
       if(wild.isSuper) create(wild.getExtendsBound, project) else Nothing)
-    case capture : PsiCapturedWildcardType => new ScTypeVariable("_", Nil,
-      create(capture.getLowerBound, project), create(capture.getUpperBound, project))
+    case capture : PsiCapturedWildcardType =>
+      val wild = capture.getWildcard
+      new ScTypeVariable("_", Nil,
+        if(wild.isExtends) create(capture.getLowerBound, project) else Any,
+        if(wild.isSuper) create(capture.getUpperBound, project) else Nothing)
     case null => new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java
     case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
   }
