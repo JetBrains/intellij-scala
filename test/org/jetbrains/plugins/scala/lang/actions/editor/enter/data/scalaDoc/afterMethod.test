@@ -1,0 +1,14 @@
+class a {
+  def foo(): Int = 3
+  /**<caret>
+  def fa = "fa"
+}
+------
+class a {
+  def foo(): Int = 3
+
+  /**
+   * <caret>
+   */
+  def fa = "fa"
+}

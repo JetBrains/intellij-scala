@@ -277,7 +277,7 @@ public class JavaEnterHandler extends EditorWriteActionHandler {
             PsiComment comment = isDocComment(parent, commenter) ? (PsiComment)parent:(PsiComment)element;
             int commentEnd = comment.getTextRange().getEndOffset();
 
-            if (myOffset >= commentEnd) {
+            if (myOffset > commentEnd) {
               docStart = false;
             }
             else {
@@ -347,7 +347,7 @@ public class JavaEnterHandler extends EditorWriteActionHandler {
           }
         }
 
-        if (docAsterisk || docStart || slashSlash) {
+        if (docAsterisk || slashSlash) {
           if (myInsertSpace) {
             if (myOffset == myDocument.getTextLength()) {
               myDocument.insertString(myOffset, " ");

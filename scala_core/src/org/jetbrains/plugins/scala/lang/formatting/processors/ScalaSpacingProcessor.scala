@@ -62,6 +62,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
             right.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText))
     //comments processing
     if (leftNode.getPsi.isInstanceOf[ScDocComment]) return ON_NEW_LINE
+    if (rightNode.getPsi.isInstanceOf[ScDocComment] && leftNode.getElementType == ScalaTokenTypes.tLBRACE) return ON_NEW_LINE
     if (rightNode.getPsi.isInstanceOf[ScDocComment]) return DOUBLE_LINE
     if (rightNode.getPsi.isInstanceOf[PsiComment] || leftNode.getPsi.isInstanceOf[PsiComment])
       return COMMON_SPACING
@@ -450,16 +451,16 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     //For class methods
     (leftNode.getPsi, rightNode.getPsi, leftNode.getTreeParent.getElementType) match {
-      case (_: ScFunction, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return IMPORT_OTHER_SPACING
-      case (_: ScValue | _: ScVariable | _: ScTypeAlias, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return IMPORT_OTHER_SPACING
-      case (_: ScFunction, _: ScValue | _: ScVariable | _: ScTypeAlias, ScalaElementTypes.TEMPLATE_BODY) => return IMPORT_OTHER_SPACING
+      case (_: ScFunction, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
+      case (_: ScValue | _: ScVariable | _: ScTypeAlias, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
+      case (_: ScFunction, _: ScValue | _: ScVariable | _: ScTypeAlias, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
       case _ =>
     }
 
     (leftNode.getElementType, rightNode.getElementType,
             leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
       // case for packageStmt
-      case (ScalaElementTypes.PACKAGE_STMT, _, _, _) => IMPORT_OTHER_SPACING
+      case (ScalaElementTypes.PACKAGE_STMT, _, _, _) => DOUBLE_LINE
       //case for covariant or contrvariant type params
       case (ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tIDENTIFIER, ScalaElementTypes.TYPE_PARAM, ScalaElementTypes.TYPE_PARAM) => return NO_SPACING
       //xml
@@ -517,7 +518,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
       //Imports
       case (ScalaElementTypes.IMPORT_STMT, ScalaElementTypes.IMPORT_STMT, _, _) => return IMPORT_BETWEEN_SPACING
-      case (ScalaElementTypes.IMPORT_STMT, _, ScalaElementTypes.FILE, _) => return IMPORT_OTHER_SPACING
+      case (ScalaElementTypes.IMPORT_STMT, _, ScalaElementTypes.FILE, _) => return DOUBLE_LINE
       case (ScalaElementTypes.IMPORT_STMT, _, _, _) => return IMPORT_BETWEEN_SPACING
       //Dot
       case (ScalaTokenTypes.tDOT, _, _, _) => return NO_SPACING_WITH_NEWLINE
