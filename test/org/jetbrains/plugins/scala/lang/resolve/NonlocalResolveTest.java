@@ -84,20 +84,3 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     assertNotNull(ref.resolve());
   }
 }
-class Test {
-  protected Test() {
-  }
-  /* static */ class Test1 extends Test {
-    Test1() {
-      super();
-    }
-  }
-  static class Test2 extends Test1 {
-    Test2() {
-      super();
-    }
-  }
-  public static void main(String[] args) {
-     new Test2();
-  }
-}
