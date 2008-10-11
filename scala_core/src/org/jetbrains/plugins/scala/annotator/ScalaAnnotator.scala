@@ -39,7 +39,7 @@ class ScalaAnnotator extends Annotator {
         //addOverrideGutter(x, holder)
       }
       case x: ScTypeDefinition => {
-        checkImplementedMethods(x, holder)
+        //checkImplementedMethods(x, holder)
       }
       case x: ScReferenceExpression if x.qualifier == None => { //todo: temporary case
         x.bind match {
