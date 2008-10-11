@@ -31,8 +31,8 @@ class ScAccessModifierImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
   override def getReference = {
     val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
     if (id == null) null else new PsiReference {
-      def getElement = id
-      def getRangeInElement = new TextRange(0, id.getTextLength)
+      def getElement = ScAccessModifierImpl.this
+      def getRangeInElement = new TextRange(0, id.getTextLength).shiftRight(id.getStartOffsetInParent)
       def getCanonicalText = resolve match {
         case td : ScTypeDefinition => td.getQualifiedName
         case p : PsiPackage => p.getQualifiedName
