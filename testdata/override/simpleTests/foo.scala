@@ -1,7 +1,7 @@
 implement foo
 package test
 
-class a extends b {
+class Foo extends b {
   <caret>
 }
 abstract class b {
@@ -9,7 +9,7 @@ abstract class b {
 }<end>
 package test
 
-class a extends b {
+class Foo extends b {
   def foo(x: b): b = null
 }
 abstract class b {
