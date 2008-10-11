@@ -163,7 +163,7 @@ object ScalaOIUtil {
             case _ =>
           }
         }
-        //cheking for Object methods:
+        //todo: this wrong: cheking for Object methods:
         val objectType: PsiClass = JavaPsiFacade.getInstance(clazz.getProject).
             findClass("java.lang.Object", GlobalSearchScope.allScope(clazz.getProject))
         for (meth <- objectType.getAllMethods) {
@@ -277,19 +277,6 @@ object ScalaOIUtil {
         }
         case _ =>
       }
-    }
-    val objectType: PsiClass = JavaPsiFacade.getInstance(clazz.getProject).
-        findClass("java.lang.Object", GlobalSearchScope.allScope(clazz.getProject))
-    for (meth <- objectType.getAllMethods if !meth.isConstructor) {
-      var flag = false
-      val signature: PhysicalSignature = new PhysicalSignature(meth, ScSubstitutor.empty)
-      for (signe <- clazz.allMethods if signe.method.getContainingClass == clazz) {
-        if (signe.equiv(signature)) flag = true
-      }
-      for (signe <- buf2 if signe.isInstanceOf[PhysicalSignature]; sign = signe.asInstanceOf[PhysicalSignature]) {
-        if (sign.equiv(signature)) flag = true
-      }
-      if (!flag) buf2 += signature
     }
     return buf2.toArray
   }
