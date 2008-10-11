@@ -2,13 +2,13 @@ class a {
   def foo = {
     <begin>x<end>("balletik")
   }
-  val x: (String => Boolean) = _.startsWith("ballet")
+  val x: (Int => Boolean) = _.startsWith("ballet")
 }
 ------
 class a {
   def foo = {
-    val value: Nothing = x
+    val value: (Int) => Boolean = x
     value<caret>("balletik")
   }
-  val x: (String => Boolean) = _.startsWith("ballet")
+  val x: (Int => Boolean) = _.startsWith("ballet")
 }
