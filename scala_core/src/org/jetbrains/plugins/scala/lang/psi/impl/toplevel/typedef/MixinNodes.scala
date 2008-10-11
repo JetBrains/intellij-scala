@@ -32,8 +32,8 @@ abstract class MixinNodes {
   object MultiMap {def empty = new MultiMap}
 
   def mergeSupers (maps : List[Map]) : MultiMap = {
-    maps.foldRight(MultiMap.empty){
-      (curr, res) => {
+    maps.foldLeft(MultiMap.empty){
+      (res, curr) => {
         for ((k, node) <- curr) {
           res.add(k, node)
         }
