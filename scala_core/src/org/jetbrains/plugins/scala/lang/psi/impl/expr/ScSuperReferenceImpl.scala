@@ -1,17 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import api.expr._
 import api.toplevel.templates.ScExtendsBlock
-import com.intellij.util.IncorrectOperationException
 import api.toplevel.typedef.ScTypeDefinition
+import lexer.ScalaTokenTypes
+import psi.ScalaPsiElementImpl
+import types.{ScDesignatorType, Nothing}
+import com.intellij.util.IncorrectOperationException
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiReference, PsiClass}
-import lexer.ScalaTokenTypes
 import com.intellij.openapi.util.TextRange
-import codehaus.groovy.antlr.parser.GroovyTokenTypes
-import types.{ScDesignatorType, Nothing}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -43,8 +42,8 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
   override def getReference = {
     val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
     if (id == null) null else new PsiReference {
-      def getElement = id
-      def getRangeInElement = new TextRange(0, id.getTextLength)
+      def getElement = ScSuperReferenceImpl.this
+      def getRangeInElement = new TextRange(0, id.getTextLength).shiftRight(id.getStartOffsetInParent)
       def getCanonicalText = resolve match {
         case c : PsiClass => c.getQualifiedName
         case _ => null
