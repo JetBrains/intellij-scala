@@ -1,12 +1,11 @@
 implement L
-class a extends b {
+class ImplementTypeAlias extends b {
   <caret>
 }
 abstract class b {
   type L
-}
--------
-class a extends b {
+}<end>
+class ImplementTypeAlias extends b {
   type L = this.type
 }
 abstract class b {

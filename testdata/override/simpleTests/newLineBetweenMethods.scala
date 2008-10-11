@@ -1,25 +1,18 @@
 implement too
 package test
-class a extends b {
-  def foo(): Int = 3
 
-
-  <caret>
-
-
+class MethodsNewLine extends b {
+  def foo(): Int = 3<caret>
 }
 abstract class b {
   def too: b
-}
-------
+}<end>
 package test
-class a extends b {
+
+class MethodsNewLine extends b {
   def foo(): Int = 3
 
-
   def too: b = null
-
-
 }
 abstract class b {
   def too: b

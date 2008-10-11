@@ -52,16 +52,65 @@ public class OverrideImplementTest extends PsiTestCase {
     });
   }
 
-  /*
-  *  File must be like:
-  *  implement (or override) + " " +  methodName
-  *  <typeDefinition>
-  *  Use <caret> to specify caret position.
-  */
   public void testFoo() throws Exception {
     String name = "simpleTests/foo.scala";
     runTest(name);
   }
+
+  public void testEmptyLinePos() throws Exception {
+    String name = "simpleTests/emptyLinePos.scala";
+    runTest(name);
+  }
+
+  public void testEmptyUpper() throws Exception {
+    String name = "simpleTests/emptyUpper.scala";
+    runTest(name);
+  }
+  public void testNewLineBetweenMethods() throws Exception {
+    String name = "simpleTests/newLineBetweenMethods.scala";
+    runTest(name);
+  }
+
+  public void testNewLineUpper() throws Exception {
+    String name = "simpleTests/newLineUpper.scala";
+    runTest(name);
+  }
+
+  public void testOverrideFunction() throws Exception {
+    String name = "simpleTests/overrideFunction.scala";
+    runTest(name);
+  }
+
+  public void testOverrideTypeAlias() throws Exception {
+    String name = "simpleTests/overrideTypeAlias.scala";
+    runTest(name);
+  }
+
+  public void testOverrideValue() throws Exception {
+    String name = "simpleTests/overrideValue.scala";
+    runTest(name);
+  }
+
+  public void testOverrideVar() throws Exception {
+    String name = "simpleTests/overrideVar.scala";
+    runTest(name);
+  }
+
+  public void testTypeAlias() throws Exception {
+    String name = "simpleTests/typeAlias.scala";
+    runTest(name);
+  }
+
+  public void testVal() throws Exception {
+    String name = "simpleTests/val.scala";
+    runTest(name);
+  }
+
+  public void testVar() throws Exception {
+    String name = "simpleTests/var.scala";
+    runTest(name);
+  }
+
 
   private void runTest(String name) throws Exception {
     String filePath = rootPath + name;

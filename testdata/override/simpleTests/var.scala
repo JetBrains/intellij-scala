@@ -1,16 +1,15 @@
 implement too
 package test
 
-class a extends b {
+class Var extends b {
   <caret>
 }
 abstract class b {
   var too: b
-}
--------
+}<end>
 package test
 
-class a extends b {
+class Var extends b {
   var too: b = _
 }
 abstract class b {

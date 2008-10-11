@@ -4,19 +4,18 @@ package test
 class A {
   def foo(): A = null
 }
-class B extends A {
+class FunctionOverride extends A {
   val t = foo()
 
 
   <caret>
-}
-------
+}<end>
 package test
 
 class A {
   def foo(): A = null
 }
-class B extends A {
+class FunctionOverride extends A {
   val t = foo()
 
 
