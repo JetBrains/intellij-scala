@@ -76,6 +76,7 @@ object ScalaOIUtil {
     val chooser = new MemberChooser[ClassMember](classMembers, false, true, project)
     chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement", Array[Object]())
                      else ScalaBundle.message("select.method.override", Array[Object]()))
+    chooser.setCopyJavadocVisible(false)
     chooser.show
 
     val selectedMembers = chooser.getSelectedElements
