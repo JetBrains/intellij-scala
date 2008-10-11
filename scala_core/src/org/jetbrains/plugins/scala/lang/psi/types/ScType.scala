@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import api.statements.ScTypeAlias
 import api.toplevel.typedef.ScTypeDefinition
 import impl.ScalaPsiManager
+import impl.toplevel.synthetic.SyntheticClasses
 import resolve.ScalaResolveResult
 import com.intellij.psi._
 import com.intellij.openapi.project.Project
