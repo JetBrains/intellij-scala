@@ -66,6 +66,7 @@ public class OverrideImplementTest extends PsiTestCase {
     String name = "simpleTests/emptyUpper.scala";
     runTest(name);
   }
+
   public void testNewLineBetweenMethods() throws Exception {
     String name = "simpleTests/newLineBetweenMethods.scala";
     runTest(name);
@@ -108,6 +109,31 @@ public class OverrideImplementTest extends PsiTestCase {
 
   public void testVar() throws Exception {
     String name = "simpleTests/var.scala";
+    runTest(name);
+  }
+
+  public void testList() throws Exception {
+    String name = "javaTestCases/list.scala";
+    runTest(name);
+  }
+
+  public void testClassTypeParam() throws Exception {
+    String name = "genericTestCases/classTypeParam.scala";
+    runTest(name);
+  }
+
+  public void testHardSubstituting() throws Exception {
+    String name = "genericTestCases/hardSubstituting.scala";
+    runTest(name);
+  }
+
+  public void testOverridedTypeAlias() throws Exception {
+    String name = "genericTestCases/overridedTypeAlias.scala";
+    runTest(name);
+  }
+
+  public void testSimpleTypeParam() throws Exception {
+    String name = "genericTestCases/simpleTypeParam.scala";
     runTest(name);
   }
 

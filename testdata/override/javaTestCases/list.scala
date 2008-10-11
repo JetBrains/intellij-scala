@@ -1,10 +1,9 @@
 implement removeAll
-class a extends java.util.List {
+class ExtendsList extends java.util.List {
   <caret>
-}
-------
+}<end>
 import java.util.Collection
 
-class a extends java.util.List {
+class ExtendsList extends java.util.List {
   def removeAll(c: Collection[_]): Boolean = false
 }
