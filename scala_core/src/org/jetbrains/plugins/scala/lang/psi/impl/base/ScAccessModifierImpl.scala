@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import api.base.ScAccessModifier
+import api.ScalaFile
+import api.toplevel.packaging.ScPackageContainer
 import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
@@ -59,10 +61,20 @@ class ScAccessModifierImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
 
       def resolve(): PsiElement = {
         val name = id.getText
+        def findPackage(qname : String) : PsiPackage = {
+          var pack = JavaPsiFacade.getInstance(getProject).findPackage(qname)
+          while (pack != null) {
+            if (pack.getName == name) return pack
+            pack = pack.getParentPackage
+          }
+          null
+        }
+
         def find(e : PsiElement) : PsiNamedElement = e match {
           case null => null
           case td : ScTypeDefinition if td.name == name => td
-          case p : PsiPackage if p.getName == name => p
+          case file : ScalaFile => findPackage(file.getPackageName)
+          case container : ScPackageContainer => findPackage(container.fqn)
           case _ => find(e.getParent)
         }
         find(getParent)
@@ -70,10 +82,18 @@ class ScAccessModifierImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
 
       def getVariants(): Array[Object] = {
         val buff = new ArrayBuffer[Object]
+        def processPackages(qname : String) = {
+          var pack = JavaPsiFacade.getInstance(getProject).findPackage(qname)
+          while (pack != null) {
+            buff += pack
+            pack = pack.getParentPackage
+          }
+        }
         def append(e : PsiElement) : Unit = e match {
           case null =>
           case td : ScTypeDefinition => buff += td; append(td.getParent)
-          case p : PsiPackage => buff += p; append(p.getParent)
+          case file : ScalaFile => processPackages(file.getPackageName)
+          case container : ScPackageContainer => processPackages(container.fqn)
           case _ => append(e.getParent)
         }
         append(getParent)
