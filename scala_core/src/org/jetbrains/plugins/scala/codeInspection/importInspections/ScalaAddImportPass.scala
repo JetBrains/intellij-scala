@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.importInspections
 
+import com.intellij.psi._
 import lang.psi.api.ScalaFile
+import lang.psi.api.toplevel.imports.ScImportStmt
 import lang.psi.api.toplevel.typedef.ScObject
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import lang.psi.api.expr.ScReferenceExpression
@@ -14,18 +16,15 @@ import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.openapi.ui.popup.PopupChooserBuilder
 import com.intellij.ide.util.FQNameCellRenderer
 import javax.swing.JList
-import util.ScalaUtils
+import scala.util.ScalaUtils
 import com.intellij.util.ActionRunner
-import com.intellij.psi.PsiDocumentManager
 import com.intellij.codeInsight.CodeInsightUtilBase
 import com.intellij.openapi.application.Result
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.PsiClass
 import com.intellij.psi.codeStyle.CodeStyleSettings
-import com.intellij.psi.JavaPsiFacade
 import lang.lexer.ScalaTokenTypes
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
@@ -36,8 +35,6 @@ import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.PsiFile
-
 /**
  * User: Alexander Podkhalyuzin
  * Date: 07.07.2008
@@ -56,7 +53,9 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
     for (visibleHighlight <- visibleHighlights) {
       ProgressManager.getInstance.checkCanceled
       val element = file.findElementAt(visibleHighlight.startOffset)
-      if (element != null && element.getNode != null && element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
+      if (element != null && element.getNode != null &&
+          element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER &&
+          !importsElement(element)) {
         element.getParent match {
           case x: ScReferenceElement if x.refName != null && (x.multiResolve(false).length == 0) => {
             val classes = getClasses(x)
@@ -79,6 +78,12 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
         }
       }
     }
+  }
+
+  private def importsElement(element: PsiElement): Boolean = {
+    var elem = element
+    while (elem != null && !elem.isInstanceOf[ScImportStmt]) elem = elem.getParent
+    return elem != null
   }
 
   private def getClasses(ref : ScReferenceElement) = {
