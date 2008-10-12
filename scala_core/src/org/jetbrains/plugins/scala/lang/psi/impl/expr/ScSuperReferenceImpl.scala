@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScType, Nothing}
+import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import _root_.scala.collection.mutable.ArrayBuffer
 import api.expr._
 import api.toplevel.templates.ScExtendsBlock
 import api.toplevel.typedef.ScTypeDefinition
 import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
-import types.{ScDesignatorType, Nothing}
 import com.intellij.util.IncorrectOperationException
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiReference, PsiClass}
@@ -18,25 +20,19 @@ import com.intellij.lang.ASTNode
 */
 
 class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSuperReference {
-  override def toString: String = "SuperReference"
+  override def toString = "SuperReference"
 
-  override def getType = refClass match {
-    case Some(clazz) => new ScDesignatorType(clazz)
-    case _ => Nothing
+  def drvClass = qualifier match {
+    case Some(q) => q.bind match {
+      case Some(ScalaResolveResult(td : ScTypeDefinition, _)) => Some(td)
+      case _ => None
+    }
+    case None => Some(PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true))
   }
 
-  def refClass = {
-    val ref = getReference
-    if (ref != null) ref.resolve match {
-      case c : PsiClass => Some(c)
-      case _ => None
-    } else superClasses match {
-      case None => None
-      case Some(supers) => supers match {
-        case Array() => None
-        case some => Some(some(0))
-      }
-    }
+  def staticSuper = {
+    val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+    if (id == null) None else findSuper(id)
   }
 
   override def getReference = {
@@ -67,36 +63,51 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
         case _ => false
       }
 
-      def resolve(): PsiElement = superClasses match {
-        case None => null
-        case Some(supers) => {
-          val name = id.getText
-          for (aSuper <- supers) {
-            if (name == aSuper.getName) return aSuper
-          }
-          null
-        }
+      def resolve = findSuper(id) match {
+        case Some(t) => ScType.extractClassType(t) match {case Some((c, _)) => c case None => null}
+        case _ => null
       }
 
-      def getVariants(): Array[Object] = superClasses match {
+      def getVariants(): Array[Object] = superTypes match {
         case None => Array[Object]()
-        case Some(supers) => supers.map{
-          c => c: Object
-        }.toArray
+        case Some(supers) => {
+          val buff = new ArrayBuffer[Object]
+          supers.foreach{ t => ScType.extractClassType(t) match {
+            case Some((c, _)) => buff += c
+            case None =>
+          }}
+          buff.toArray
+        }
       }
     }
   }
 
-  private def superClasses = qualifier match {
+  def findSuper(id : PsiElement) : Option[ScType] = superTypes match {
+    case None => None
+    case Some(types) => {
+      val name = id.getText
+      for (t <- types) {
+        ScType.extractClassType(t) match {
+          case Some((c, s)) if name == c.getName => return Some(t)
+          case _ =>
+        }
+      }
+      None
+    }
+  }
+
+  private def superTypes = qualifier match {
     case Some(q) => q.resolve match {
-      case c : PsiClass => Some(c.getSupers)
+      case c : PsiClass => Some(c.getSuperTypes.map {t => ScType.create(t, getProject)})
       case _ => None
     }
     case None => {
       PsiTreeUtil.getParentOfType(this, classOf[ScExtendsBlock]) match {
         case null => None
-        case eb => Some(eb.supers)
+        case eb => Some(eb.superTypes)
       }
     }
   }
+
+  override def getType() = Nothing
 }

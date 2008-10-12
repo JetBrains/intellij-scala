@@ -21,9 +21,12 @@ case class ScSingletonType(path: ScPathElement) extends ScType {
       case Some(clazz) => new ScDesignatorType(clazz)
       case _ => Nothing
     }
-    case superPath: ScSuperReference => superPath.refClass match {
-      case Some(clazz) => new ScDesignatorType(clazz)
-      case _ => Nothing
+    case superPath: ScSuperReference => superPath.staticSuper match {
+      case Some(t) => t
+      case _ => superPath.drvClass match {
+        case Some(clazz) => new ScDesignatorType(clazz)
+        case _ => Nothing
+      }
     }
   }
 
@@ -38,7 +41,12 @@ case class ScSingletonType(path: ScPathElement) extends ScType {
               case _ => false
             })
           case (t1: ScThisReference, t2: ScThisReference) => t1.refClass == t2.refClass
-          case (s1: ScSuperReference, s2: ScSuperReference) => s1.refClass == s2.refClass &&
+          case (s1: ScSuperReference, s2: ScSuperReference) => s1.drvClass == s2.drvClass &&
+                  ((s1.staticSuper, s2.staticSuper) match {
+                    case (Some(t1), Some(t2)) => t1 equiv t2
+                    case (None, None) => true
+                    case _ => false
+                  }) &&
                   //we can come to the same classes from different outer classes' "super"
                   ((s1.qualifier, s2.qualifier) match {
                     case (Some(q1), Some(q2)) => equiv(q1, q2)
