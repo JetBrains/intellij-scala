@@ -28,5 +28,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 class ScParenthesisedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParenthesisedTypeElement{
   override def toString: String = "TypeInParenthesis"
 
-  override def getType() = if (typeElement != null) typeElement.getType else Nothing //todo: added to mask NullPointerException
+  override def getType() = typeElement match {
+    case Some(te) => te.getType
+    case None => Nothing
+  }
 }

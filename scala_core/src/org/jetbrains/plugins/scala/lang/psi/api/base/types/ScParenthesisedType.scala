@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScParenthesisedTypeElement extends ScTypeElement {
-  def typeElement() = findChildByClass(classOf[ScTypeElement])
+  def typeElement() = findChild(classOf[ScTypeElement])
 }
