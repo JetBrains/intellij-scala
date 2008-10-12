@@ -334,7 +334,7 @@ object ScalaPsiElementFactory {
       }
       case _ => {
         body = getStandardValue(substitutor subst ScType.create(method.getReturnType, method.getProject))
-        val hasOverride = false
+        var hasOverride = false
         if (method.getModifierList.getNode != null)
         //todo!!! add appropriate readPSI to get all modifiers
         for (modifier <- method.getModifierList.getNode.getChildren(null); m = modifier.getText) {

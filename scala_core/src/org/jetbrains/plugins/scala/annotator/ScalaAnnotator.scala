@@ -3,11 +3,11 @@ package org.jetbrains.plugins.scala.annotator
 import com.intellij.psi.search.GlobalSearchScope
 import gutter.OverrideGutter
 import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
+import lang.psi.api.expr._
 import lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import lang.psi.api.toplevel.imports.ScImportSelector
 import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
 import lang.psi.api.toplevel.{ScEarlyDefinitions, ScTyped}
-import lang.psi.api.expr.{ScAnnotationExpr, ScAnnotation, ScNameValuePair, ScReferenceExpression}
 import _root_.scala.collection.mutable.HashSet
 import lang.psi.api.base.types.ScSimpleTypeElement
 import lang.psi.api.base.patterns.ScBindingPattern
@@ -40,6 +40,9 @@ class ScalaAnnotator extends Annotator {
       }
       case x: ScTypeDefinition => {
         checkImplementedMethods(x, holder)
+      }
+      case x: ScBlock => {
+        checkResultExpression(x, holder)
       }
       case x: ScReferenceExpression if x.qualifier == None => { //todo: temporary case
         x.bind match {
@@ -136,5 +139,30 @@ class ScalaAnnotator extends Annotator {
     val supers = method.findSuperMethods
     if (supers.length > 0) 
       annotation.setGutterIconRenderer(new OverrideGutter(supers, method.getModifierList.getNode.findChildByType(ScalaTokenTypes.kOVERRIDE) == null))
+  }
+
+  private def checkResultExpression(block: ScBlock, holder: AnnotationHolder) {
+    def testChild(child: PsiElement): Boolean = child match {
+      case null => false
+      case _: PsiWhiteSpace => true
+      case _ => {
+        child.getNode.getElementType match {
+          case ScalaTokenTypes.tRBRACE => true
+          case ScalaTokenTypes.tLBRACE => true
+          case ScalaTokenTypes.tLINE_TERMINATOR => true
+          case _ => false
+        }
+      }
+    }
+    var child = block.getLastChild
+    while (testChild(child)) child = child.getPrevSibling
+    child match {
+      case _: ScExpression =>
+      case _ => {
+        val error = ScalaBundle.message("block.must.end.result.expression", Array[Object]())
+        val annotation: Annotation = holder.createErrorAnnotation(child.getTextRange, error)
+        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+      }
+    }
   }
 }
