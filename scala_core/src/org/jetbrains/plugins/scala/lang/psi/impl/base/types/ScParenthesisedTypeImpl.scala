@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.Nothing
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.Unit
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -30,6 +30,6 @@ class ScParenthesisedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl 
 
   override def getType() = typeElement match {
     case Some(te) => te.getType
-    case None => Nothing
+    case None => Unit
   }
 }
