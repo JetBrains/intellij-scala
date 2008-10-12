@@ -334,16 +334,18 @@ object ScalaPsiElementFactory {
       }
       case _ => {
         body = getStandardValue(substitutor subst ScType.create(method.getReturnType, method.getProject))
-        if (isOverride) res = res + "override "
+        val hasOverride = false
         if (method.getModifierList.getNode != null)
         //todo!!! add appropriate readPSI to get all modifiers
         for (modifier <- method.getModifierList.getNode.getChildren(null); m = modifier.getText) {
           m match {
+            case "override" => hasOverride = true
             case "protected" => res = res + "protected "
             case "final" => res = res + "final "
             case _ =>
           }
         }
+        if (isOverride && !hasOverride) res = res + "override "
         res = res + "def " + changeKeyword(method.getName)
         if (method.hasTypeParameters) {
           val params = method.getTypeParameters
