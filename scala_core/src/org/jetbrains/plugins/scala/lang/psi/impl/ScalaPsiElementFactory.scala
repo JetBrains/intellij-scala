@@ -296,15 +296,15 @@ object ScalaPsiElementFactory {
             res += typeParam.getName
             typeParam.lowerBound match {
               case psi.types.Nothing =>
-              case x => res =  res + " >: " + ScType.canonicalText(substitutor.subst(x)) //todo: add reference adjuster
+              case x => res =  res + " >: " + ScType.canonicalText(substitutor.subst(x))
             }
             typeParam.upperBound match {
               case psi.types.Any =>
-              case x => res = res + " <: " + ScType.canonicalText(substitutor.subst(x)) // todo: add reference adjuster
+              case x => res = res + " <: " + ScType.canonicalText(substitutor.subst(x)) 
             }
             typeParam.viewBound match {
               case None =>
-              case Some(x) => res = res + " <% " + ScType.canonicalText(substitutor.subst(x)) // todo: add reference adjuster
+              case Some(x) => res = res + " <% " + ScType.canonicalText(substitutor.subst(x))
             }
             return res
           }
@@ -317,7 +317,7 @@ object ScalaPsiElementFactory {
               var res: String = param.getName
               param.typeElement match {
                 case None =>
-                case Some(x) => res = res + ": " + ScType.canonicalText(substitutor.subst(x.getType)) //todo: add reference adjuster
+                case Some(x) => res = res + ": " + ScType.canonicalText(substitutor.subst(x.getType))
               }
               return res
             }
@@ -327,7 +327,7 @@ object ScalaPsiElementFactory {
         }
         method.returnTypeElement match {
           case None =>
-          case Some(x) => res = res + ": " + ScType.canonicalText(substitutor.subst(x.getType)) //todo: add reference adjuster
+          case Some(x) => res = res + ": " + ScType.canonicalText(substitutor.subst(x.getType))
         }
         res = res + " = "
         res = res + body
