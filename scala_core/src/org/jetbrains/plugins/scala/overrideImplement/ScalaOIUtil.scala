@@ -193,7 +193,7 @@ object ScalaOIUtil {
             case x if x.getName == "$tag" =>
             case x if x.getContainingClass == clazz =>
             case x: PsiModifierListOwner if x.hasModifierProperty("abstract")
-                || x.hasModifierProperty("final") || x.hasModifierProperty("sealed") =>
+                || x.hasModifierProperty("final") /*|| x.hasModifierProperty("sealed")*/ =>
             case x if x.isConstructor =>
             case method => {
               var flag = false
