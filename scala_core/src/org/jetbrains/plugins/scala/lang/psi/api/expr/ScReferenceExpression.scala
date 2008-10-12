@@ -12,10 +12,4 @@ import com.intellij.psi._
 trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScReferenceElement {
 
   def qualifier: Option[ScExpression] = findChild(classOf[ScExpression])
-
-  def isPath(): Boolean = qualifier match {
-    case null => true
-    case q: ScReferenceExpression => q.isPath
-    case _ => false
-  }
 }

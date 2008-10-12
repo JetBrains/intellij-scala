@@ -27,6 +27,7 @@ import api.toplevel.ScTyped
 import api.statements.ScTypeAlias
 import api.base.patterns.ScConstructorPattern
 import api.expr.{ScSuperReference, ScThisReference}
+import toplevel.typedef.TypeDefinitionMembers
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -112,7 +113,16 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         }
       }
       case Some(thisQ : ScThisReference) => processor.processType(thisQ.getType, this)
-      case Some(superQ : ScSuperReference) => processor.processType(superQ.getType, this)
+      case Some(superQ : ScSuperReference) => {
+        superQ.staticSuper match {
+          case Some(ScalaResolveResult(c : PsiClass, s)) =>
+            TypeDefinitionMembers.processDeclarations(c, processor, ResolveState.initial.put(ScSubstitutor.key, s), null, this)
+          case None => superQ.drvClass match {
+            case Some(c) =>
+            case None =>
+          }
+        }
+      }
     }
     processor.candidates
   }
