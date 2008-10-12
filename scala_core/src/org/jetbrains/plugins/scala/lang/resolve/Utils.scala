@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.lang.resolve
+import psi.api.expr.ScSuperReference
 import psi.api.toplevel.ScModifierListOwner
 import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScMember, ScObject}
+import psi.impl.toplevel.typedef.TypeDefinitionMembers
+import psi.ScalaPsiElement
 import psi.types._
 import _root_.scala.collection.Set
 import psi.api.statements.{ScTypeAlias, ScFun, ScVariable}
@@ -63,5 +66,23 @@ object ResolveUtils {
       case Some (am) => true /* todo */
     }
     case _ => JavaPsiFacade.getInstance(place.getProject).getResolveHelper.isAccessible(member, place, null)
+  }
+
+  def superTypes(c : PsiClass) = c match {
+    case td : ScTypeDefinition => td.superTypes
+    case _ => c.getSuperTypes.map {t => ScType.create(t, c.getProject)}
+  }
+
+  def processSuperReference(superRef: ScSuperReference, processor : BaseProcessor, place : ScalaPsiElement) = superRef.staticSuper match {
+    case Some(ScalaResolveResult(c: PsiClass, s)) =>
+      TypeDefinitionMembers.processDeclarations(c, processor, ResolveState.initial.put(ScSubstitutor.key, s), null, place)
+    case None => superRef.drvClass match {
+      case Some(c) => {
+        for (t <- superTypes(c).toList.reverse) {
+          processor.processType(t, place)
+        }
+      }
+      case None =>
+    }
   }
 }

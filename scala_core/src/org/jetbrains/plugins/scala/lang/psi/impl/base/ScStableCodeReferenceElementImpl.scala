@@ -113,16 +113,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         }
       }
       case Some(thisQ : ScThisReference) => processor.processType(thisQ.getType, this)
-      case Some(superQ : ScSuperReference) => {
-        superQ.staticSuper match {
-          case Some(ScalaResolveResult(c : PsiClass, s)) =>
-            TypeDefinitionMembers.processDeclarations(c, processor, ResolveState.initial.put(ScSubstitutor.key, s), null, this)
-          case None => superQ.drvClass match {
-            case Some(c) =>
-            case None =>
-          }
-        }
-      }
+      case Some(superQ : ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
     }
     processor.candidates
   }

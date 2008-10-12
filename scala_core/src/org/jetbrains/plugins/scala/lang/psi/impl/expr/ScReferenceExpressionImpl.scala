@@ -114,6 +114,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           treeWalkUp(ref, null)
         }
       }
+      case Some(superQ : ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
       case Some(q) => processor.processType(q.getType, this)
     }
     processor.candidates
