@@ -135,6 +135,23 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
 
   override def getSupers: Array[PsiClass] = extendsBlock.supers.toArray
 
+  override def setName(name: String): PsiElement = {
+    val id = nameId.getNode
+    val parent = id.getTreeParent
+    def shortName(s: String): String = {
+      if (!s.endsWith(".scala")) return null
+      else return s.substring(0, s.length - 6)
+    }
+    if (id.getText == shortName(id.getPsi.getContainingFile.getName)) {
+      this.getParent match {
+        case x: ScalaFile => x.setName(name + ".scala")
+        case _ =>
+      }
+    }
+    parent.replaceChild(id, ScalaPsiElementFactory.createIdentifier(name, getManager))
+    return this
+  }
+
   override def getMethods = functions.toArray
 
   override def getAllMethods: Array[PsiMethod] = {
