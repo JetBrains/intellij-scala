@@ -6,6 +6,8 @@ import api.toplevel.{ScNamedElement, ScTyped}
 import com.intellij.psi.util.PsiTreeUtil
 import api.statements.ScTypeAlias
 import _root_.scala.collection.immutable.Set
+import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
+import lexer.ScalaTokenTypes
 import types._
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
@@ -88,5 +90,27 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
     if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
       new ScCompoundType(superTypes, holders, aliases)
     } else superTypes(0)
+  }
+
+  def lastStatement: Option[PsiElement] = {
+    def testChild(child: PsiElement): Boolean = child match {
+      case null => false
+      case _: PsiWhiteSpace => true
+      case _: PsiComment => true
+      case _ => {
+        child.getNode.getElementType match {
+          case ScalaTokenTypes.tRBRACE => true
+          case ScalaTokenTypes.tLBRACE => true
+          case ScalaTokenTypes.tLINE_TERMINATOR => true
+          case _ => false
+        }
+      }
+    }
+    var child = this.getLastChild
+    while (testChild(child)) child = child.getPrevSibling
+    child match {
+      case null => None
+      case x => Some(x)
+    }
   }
 }

@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.{PsiElement, ResolveState}
+import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace, ResolveState}
+import lexer.ScalaTokenTypes
 import toplevel.typedef.ScMember
 import impl.ScalaPsiElementFactory
 /**
@@ -19,6 +20,11 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
       case _ => Some(exs.last)
     }
   }
+
+  /**
+   * return last child except whitespaces, braces, and comments
+   */
+  def lastStatement: Option[PsiElement]
 
   def addDefinition(decl: ScMember, before: PsiElement): Boolean = {
     getNode.addChild(decl.getNode,before.getNode)
