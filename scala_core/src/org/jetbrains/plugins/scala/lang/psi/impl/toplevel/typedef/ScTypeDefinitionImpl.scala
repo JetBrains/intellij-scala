@@ -180,10 +180,9 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
             case _ => false
           }
         }
-        case _ => drv.getSuperTypes.find{
-          psiT =>
-                  val c = psiT.resolveGenerics.getElement
-                  if (c == null) false else c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
+        case _ => drv.getSuperTypes.find{ psiT =>
+                val c = psiT.resolveGenerics.getElement
+                if (c == null) false else c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
         }
       }
     }
