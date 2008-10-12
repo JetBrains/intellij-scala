@@ -148,8 +148,8 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
         case _ =>
       }
     }
-    parent.replaceChild(id, ScalaPsiElementFactory.createIdentifier(name, getManager))
-    return this
+
+    super.setName(name)
   }
 
   override def getMethods = functions.toArray
