@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
+import com.intellij.psi.{PsiElement, PsiNamedElement, PsiModifierList}
 import stubs.elements.wrappers.DummyASTNode
 import stubs.ScTypeDefinitionStub
 import api.base.ScModifierList
-import com.intellij.psi.{PsiElement, PsiModifierList}
-import com.intellij.psi.PsiElement;
+
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
 
@@ -63,4 +64,6 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
   }
 
   def isCase = getModifierList.has(ScalaTokenTypes.kCASE)
+
+  override def allVals = super.allVals ++ parameters.map{p => (p, ScSubstitutor.empty)}.elements
 }
