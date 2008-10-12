@@ -64,6 +64,4 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
   }
 
   def isCase = getModifierList.has(ScalaTokenTypes.kCASE)
-
-  override def allVals = super.allVals ++ parameters.map{p => (p, ScSubstitutor.empty)}.elements
 }
