@@ -105,9 +105,9 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
       case Some(body) => body.aliases
     }
 
-  def allTypes = TypeDefinitionMembers.getTypes(extendsBlock).values.map{ n => (n.info, n.substitutor) }
-  def allVals = TypeDefinitionMembers.getVals(extendsBlock).values.map{ n => (n.info, n.substitutor) }
-  def allMethods = TypeDefinitionMembers.getMethods(extendsBlock).values.map{ n => n.info }
+  def allTypes = TypeDefinitionMembers.getTypes(this).values.map{ n => (n.info, n.substitutor) }
+  def allVals = TypeDefinitionMembers.getVals(this).values.map{ n => (n.info, n.substitutor) }
+  def allMethods = TypeDefinitionMembers.getMethods(this).values.map{ n => n.info }
 
   def innerTypeDefinitions: Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
