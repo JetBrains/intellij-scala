@@ -68,19 +68,12 @@ object ResolveUtils {
     case _ => JavaPsiFacade.getInstance(place.getProject).getResolveHelper.isAccessible(member, place, null)
   }
 
-  def superTypes(c : PsiClass) = c match {
-    case td : ScTypeDefinition => td.superTypes
-    case _ => c.getSuperTypes.map {t => ScType.create(t, c.getProject)}
-  }
-
   def processSuperReference(superRef: ScSuperReference, processor : BaseProcessor, place : ScalaPsiElement) = superRef.staticSuper match {
     case Some(ScalaResolveResult(c: PsiClass, s)) =>
       TypeDefinitionMembers.processDeclarations(c, processor, ResolveState.initial.put(ScSubstitutor.key, s), null, place)
     case None => superRef.drvClass match {
       case Some(c) => {
-        for (t <- superTypes(c).toList.reverse) {
-          processor.processType(t, place)
-        }
+
       }
       case None =>
     }
