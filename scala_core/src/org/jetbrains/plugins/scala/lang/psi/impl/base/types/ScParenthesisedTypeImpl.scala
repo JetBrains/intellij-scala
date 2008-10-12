@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.Nothing
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -27,5 +28,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 class ScParenthesisedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParenthesisedTypeElement{
   override def toString: String = "TypeInParenthesis"
 
-  override def getType() = typeElement.getType
+  override def getType() = if (typeElement != null) typeElement.getType else Nothing //todo: added to mask NullPointerException
 }
