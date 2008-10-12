@@ -145,6 +145,7 @@ class ScalaAnnotator extends Annotator {
     def testChild(child: PsiElement): Boolean = child match {
       case null => false
       case _: PsiWhiteSpace => true
+      case _: PsiComment => true
       case _ => {
         child.getNode.getElementType match {
           case ScalaTokenTypes.tRBRACE => true
@@ -157,7 +158,9 @@ class ScalaAnnotator extends Annotator {
     var child = block.getLastChild
     while (testChild(child)) child = child.getPrevSibling
     child match {
+      case null =>
       case _: ScExpression =>
+      case _ if child.getNode.getElementType == ScalaTokenTypes.tSEMICOLON =>
       case _ => {
         val error = ScalaBundle.message("block.must.end.result.expression", Array[Object]())
         val annotation: Annotation = holder.createErrorAnnotation(child.getTextRange, error)
