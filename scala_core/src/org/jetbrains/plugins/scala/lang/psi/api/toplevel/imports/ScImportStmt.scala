@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports
 
 import com.intellij.psi.PsiElement
 import packaging.ScPackaging
+import expr.ScBlockStatement
 import typedef.ScTypeDefinition
 import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -11,6 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Date: 20.02.2008
 */
 
-trait ScImportStmt extends ScalaPsiElement {
+trait ScImportStmt extends ScBlockStatement {
   def importExprs = findChildrenByClass(classOf[ScImportExpr])
 }

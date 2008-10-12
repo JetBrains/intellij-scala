@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Nothing}
 * Date: 14.03.2008
 */
 
-trait ScExpression extends ScalaPsiElement {
+trait ScExpression extends ScBlockStatement {
   def getType(): ScType = Nothing //todo
 
   def expectedType() : Option[ScType] = None //todo

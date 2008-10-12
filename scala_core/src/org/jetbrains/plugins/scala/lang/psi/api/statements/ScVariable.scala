@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
-import expr.ScBlock
+import expr.{ScBlock, ScBlockStatement}
 import icons.Icons
 import javax.swing.Icon
 import toplevel.templates.ScExtendsBlock
@@ -17,7 +17,7 @@ import toplevel.ScTyped
 * Time: 9:45:29
 */
 
-trait ScVariable extends ScalaPsiElement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder {
+trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder {
   def declaredElements : Seq[ScTyped]
   def typeElement = findChild(classOf[ScTypeElement])
 

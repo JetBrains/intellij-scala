@@ -28,4 +28,12 @@ trait ScalaPsiElement extends PsiElement {
     }
     if (node == null) null else node.getPsi
   }
+
+  protected def findLastChild[T >: Null <: ScalaPsiElement](clazz: Class[T]): Option[T] = {
+    var child = getLastChild
+    while(child != null && !clazz.isInstance(child)) {
+      child = child.getPrevSibling
+    }
+    if (child == null) None else Some(child.asInstanceOf[T])  
+  }
 }

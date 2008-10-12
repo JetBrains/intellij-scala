@@ -12,13 +12,14 @@ import toplevel.typedef._
 import com.intellij.psi._
 import base.types.ScTypeElement
 import toplevel.ScTyped
+import expr.ScBlockStatement
 
 /**
  * @author AlexanderPodkhalyuzin
 * Date: 08.04.2008
  */
 
-trait ScValue extends ScalaPsiElement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder {
+trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder {
   def declaredElements: Seq[ScTyped]
   def typeElement = findChild(classOf[ScTypeElement])
 
