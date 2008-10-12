@@ -14,9 +14,6 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
   def exprs : Seq[ScExpression] = findChildrenByClass(classOf[ScExpression])
 
   def lastExpr = findLastChild(classOf[ScExpression])
-  /**
-   * return last child except whitespaces, braces, and comments
-   */
   def lastStatement = findLastChild(classOf[ScBlockStatement])
 
   def addDefinition(decl: ScMember, before: PsiElement): Boolean = {
