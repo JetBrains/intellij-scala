@@ -142,23 +142,8 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def checkResultExpression(block: ScBlock, holder: AnnotationHolder) {
-    def testChild(child: PsiElement): Boolean = child match {
-      case null => false
-      case _: PsiWhiteSpace => true
-      case _: PsiComment => true
-      case _ => {
-        child.getNode.getElementType match {
-          case ScalaTokenTypes.tRBRACE => true
-          case ScalaTokenTypes.tLBRACE => true
-          case ScalaTokenTypes.tLINE_TERMINATOR => true
-          case _ => false
-        }
-      }
-    }
-    var child = block.getLastChild
-    while (testChild(child)) child = child.getPrevSibling
+    val child = block.lastStatement match {case None => return case Some(x) => x}
     child match {
-      case null =>
       case _: ScExpression =>
       case _ if child.getNode.getElementType == ScalaTokenTypes.tSEMICOLON =>
       case _ => {
