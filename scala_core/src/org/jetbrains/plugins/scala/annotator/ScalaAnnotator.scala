@@ -142,13 +142,12 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def checkResultExpression(block: ScBlock, holder: AnnotationHolder) {
-    val child = block.lastStatement match {case None => return case Some(x) => x}
-    child match {
+    val stat = block.lastStatement match {case None => return case Some(x) => x}
+    stat match {
       case _: ScExpression =>
-      case _ if child.getNode.getElementType == ScalaTokenTypes.tSEMICOLON =>
       case _ => {
         val error = ScalaBundle.message("block.must.end.result.expression", Array[Object]())
-        val annotation: Annotation = holder.createErrorAnnotation(child.getTextRange, error)
+        val annotation: Annotation = holder.createErrorAnnotation(stat.getTextRange, error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     }
