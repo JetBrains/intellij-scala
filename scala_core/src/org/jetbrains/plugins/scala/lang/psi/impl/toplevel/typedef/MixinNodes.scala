@@ -4,8 +4,9 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import _root_.scala.collection.mutable.LinkedHashSet
+import api.statements.ScTypeAliasDefinition
 import api.toplevel.templates.ScExtendsBlock
-import api.toplevel.typedef.{ScTypeDefinition, ScMember}
+import api.toplevel.typedef.{ScTypeDefinition, ScMember, ScTemplateDefinition}
 import collection.mutable.{HashMap, ArrayBuffer, HashSet, Set, ListBuffer}
 import com.intellij.psi.{PsiElement, PsiClass}
 import psi.types._
@@ -45,7 +46,7 @@ abstract class MixinNodes {
     }
   }
 
-  //Return primary selected supersMergef
+  //Return primary selected from supersMerged
   def mergeWithSupers(thisMap : Map, supersMerged : MultiMap) = {
     val primarySupers = new Map
     for ((key, nodes) <- supersMerged) {
@@ -70,45 +71,41 @@ abstract class MixinNodes {
     primarySupers
   }
 
-  def build (clazz : PsiClass) : (Map, Map) = build { map =>
-    clazz match {
-      case td : ScTypeDefinition => {
-        processScala(td.members, ScSubstitutor.empty, map)
-        td.superTypes
+  private def putAliases(template : ScTemplateDefinition, s : ScSubstitutor) = {
+    var run = s
+    /*for (alias <- template.aliases) {
+      alias match {
+        case aliasDef: ScTypeAliasDefinition => s.aliasesMap.get(aliasDef.name) match {
+          case Some(_) => *//* derived class already contains a binding *//*
+          case None => run = run + (aliasDef.name, new ScTypeAliasType())
+        }
+        case _ =>
       }
-      case _ => {
-        processJava(clazz, ScSubstitutor.empty, map)
-        clazz.getSuperTypes.map{psiType => ScType.create(psiType, clazz.getProject)}
-      }
-    }
+    }*/
+    run
   }
 
-  def build (eb : ScExtendsBlock) : (Map, Map) = build { map =>
-    processScala(eb.members, ScSubstitutor.empty, map)
-    eb.superTypes
-  }
-
-  private def build(superTypesFun : Map => Seq[ScType]) : (Map, Map) = {
+  def build(clazz : PsiClass) : (Map, Map) = {
     def inner(clazz: PsiClass, subst: ScSubstitutor, visited: Set[PsiClass]): Map = {
       val map = new Map
       if (visited.contains(clazz)) return map
       visited += clazz
 
-      val superTypes = clazz match {
-        case td: ScTypeDefinition => {
-          processScala(td.members, subst, map)
-          td.superTypes
+      val (superTypes, s1) = clazz match {
+        case tmpl: ScTemplateDefinition => {
+          processScala(tmpl, subst, map)
+          (tmpl.superTypes, putAliases(tmpl, subst))
         }
         case _ => {
           processJava(clazz, subst, map)
-          clazz.getSuperTypes.map{psiType => ScType.create(psiType, clazz.getProject)}
+          (clazz.getSuperTypes.map{psiType => ScType.create(psiType, clazz.getProject)}, subst)
         }
       }
 
       val superTypesBuff = new ListBuffer[Map]
       for (superType <- superTypes) {
         ScType.extractClassType(superType) match {
-          case Some((superClass, s)) => superTypesBuff += inner(superClass, combine(s, subst, superClass), visited)
+          case Some((superClass, s)) => superTypesBuff += inner(superClass, combine(s, s1, superClass), visited)
           case _ =>
         }
       }
@@ -119,9 +116,21 @@ abstract class MixinNodes {
 
     val map = new Map
     val superTypesBuff = new ListBuffer[Map]
-    for (superType <- superTypesFun(map)) {
+    val (superTypes, subst) = clazz match {
+      case template : ScTemplateDefinition => {
+        processScala(template, ScSubstitutor.empty, map)
+        (template.superTypes, putAliases(template, ScSubstitutor.empty))
+      }
+      case _ => {
+        processJava(clazz, ScSubstitutor.empty, map)
+        (clazz.getSuperTypes.map{psiType => ScType.create(psiType, clazz.getProject)}, ScSubstitutor.empty)
+      }
+    }
+
+    for (superType <- superTypes) {
       ScType.extractClassType(superType) match {
-        case Some((superClass, s)) => superTypesBuff += inner(superClass, s, new HashSet[PsiClass])
+        case Some((superClass, s)) =>
+          superTypesBuff += inner(superClass, combine(s, subst, superClass), new HashSet[PsiClass])
         case _ =>
       }
     }
@@ -153,5 +162,5 @@ abstract class MixinNodes {
   }
 
   def processJava(clazz : PsiClass, subst : ScSubstitutor, map : Map)
-  def processScala(members : Seq[ScMember], subst : ScSubstitutor, map : Map)
+  def processScala(template : ScTemplateDefinition, subst : ScSubstitutor, map : Map)
 }

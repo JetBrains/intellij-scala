@@ -32,7 +32,7 @@ class ScalaClassFinder(project: Project) extends ProjectComponent with PsiElemen
     case _ => {
       val buff = new ArrayBuffer[PsiClass]
       for (dir <- p.getDirectories(scope); file <- dir.getFiles) file match {
-        case scala: ScalaFile => buff ++= scala.getTypeDefinitions
+        case scala: ScalaFile => buff ++= scala.typeDefinitions
         case _ =>
       }
       buff.toArray

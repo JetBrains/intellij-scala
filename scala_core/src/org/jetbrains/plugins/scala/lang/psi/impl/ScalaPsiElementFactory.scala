@@ -51,7 +51,7 @@ object ScalaPsiElementFactory {
     val text = "class a {val b = (" + buffer + ")}"
 
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
-    val classDef = dummyFile.getTypeDefinitions()(0)
+    val classDef = dummyFile.typeDefinitions()(0)
     val p = classDef.members()(0).asInstanceOf[ScPatternDefinition]
     p.expr match {
       case x: ScParenthesisedExpr => x.expr match {
@@ -179,7 +179,7 @@ object ScalaPsiElementFactory {
 
   def createStableReferenceElement(name: String, manager: PsiManager) = {
     val file = createScalaFile("class A extends B with " + name, manager)
-    val classDef = file.getTypeDefinitions()(0)
+    val classDef = file.typeDefinitions()(0)
     val extendsBlock = classDef.extendsBlock
     val parents = extendsBlock.templateParents
     (parents: @unchecked) match {
@@ -195,7 +195,7 @@ object ScalaPsiElementFactory {
     val text = "class a {" + (if (isVariable) "var " else "val ") +
               name + (if (typez != null && ScType.canonicalText(typez) != "") ": "  + ScType.canonicalText(typez) else "") + " = " + expr.getText + "}"
     val dummyFile = createScalaFile(text, manager)
-    val classDef = dummyFile.getTypeDefinitions()(0)
+    val classDef = dummyFile.typeDefinitions()(0)
     if (!isVariable) classDef.members()(0).asInstanceOf[ScPatternDefinition]
     else classDef.members()(0).asInstanceOf[ScVariableDefinition]
   }
@@ -209,7 +209,7 @@ object ScalaPsiElementFactory {
   def createBlockFromExpr(expr: ScExpression, manager: PsiManager): ScExpression = {
     val text = "class a {\nval b = {\n" + expr.getText + "\n}\n}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
-    val classDef = dummyFile.getTypeDefinitions()(0)
+    val classDef = dummyFile.typeDefinitions()(0)
     val p = classDef.members()(0).asInstanceOf[ScPatternDefinition]
     p.expr
   }
@@ -218,7 +218,7 @@ object ScalaPsiElementFactory {
     val text = "class a {\n" + element.getText + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
-    val classDef: ScTypeDefinition = dummyFile.getTypeDefinitions()(0)
+    val classDef: ScTypeDefinition = dummyFile.typeDefinitions()(0)
     val body = classDef.extendsBlock.templateBody match {
       case Some(x) => x
       case None => return null
@@ -230,7 +230,7 @@ object ScalaPsiElementFactory {
     val text = "class a {\n  " + getOverrideImplementSign(sign, "null", isOverride) + "\n}" 
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
-    val classDef = dummyFile.getTypeDefinitions()(0)
+    val classDef = dummyFile.typeDefinitions()(0)
     val function = classDef.functions()(0)
     return function
   }
@@ -239,7 +239,7 @@ object ScalaPsiElementFactory {
     val text = "class a {" + getOverrideImplementTypeSign(alias, substitutor, "this.type", isOverride) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
-    val classDef = dummyFile.getTypeDefinitions()(0)
+    val classDef = dummyFile.typeDefinitions()(0)
     val al = classDef.aliases()(0)
     return al
   }
@@ -248,7 +248,7 @@ object ScalaPsiElementFactory {
     val text = "class a {" + getOverrideImplementVariableSign(variable, substitutor, "_", isOverride, isVal) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, text).asInstanceOf[ScalaFile]
-    val classDef = dummyFile.getTypeDefinitions()(0)
+    val classDef = dummyFile.typeDefinitions()(0)
     val va: PsiElement = classDef.members()(0)
     return va
   }

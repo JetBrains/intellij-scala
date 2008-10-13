@@ -49,7 +49,7 @@ with ScalaFile with ScImportsHolder with ScDeclarationSequenceHolder {
 
   def packageStatement = findChild(classOf[ScPackageStatement])
 
-  override def getClasses = getTypeDefinitions.map(t => t : PsiClass)
+  override def getClasses = typeDefinitions.map(t => t : PsiClass)
 
   def icon = Icons.FILE_TYPE_LOGO
 

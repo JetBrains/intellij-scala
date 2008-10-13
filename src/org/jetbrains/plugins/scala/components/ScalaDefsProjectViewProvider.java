@@ -67,7 +67,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
         ScalaFile scalaFile = (ScalaFile) o;
 
         ViewSettings viewSettings = ((ProjectViewNode) parent).getSettings();
-        if (scalaFile.getTypeDefinitions().length == 0) {
+        if (scalaFile.typeDefinitions().length == 0) {
           result.add(child);
         }
 

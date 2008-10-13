@@ -26,35 +26,15 @@ import base._
  * @author AlexanderPodkhalyuzin
  */
 
-trait ScTypeDefinition extends ScNamedElement with ScMember
+trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable {
 
-  def members(): Seq[ScMember]
-
-  def functions(): Seq[ScFunction]
-
-  def aliases(): Seq[ScTypeAlias]
-
-  def innerTypeDefinitions(): Seq[ScTypeDefinition]
-
   def extendsBlock(): ScExtendsBlock
-
-  def superTypes(): Seq[ScType]
-
-  def getSuperClassNames() = Array[String]() //for build restore
 
   def getPath: String = {
     var qualName = getQualifiedName;
     val index = qualName.lastIndexOf('.');
     if (index < 0) "" else qualName.substring(0, index);
-  }
-
-  def getTypeDefinitions(): Seq[ScTypeDefinition] = {
-    if (extendsBlock == null) return Seq.empty
-    extendsBlock.templateBody match {
-      case None => Seq.empty
-      case Some(body) => body.typeDefinitions
-    }
   }
 
   def functionsByName(name: String): Iterable[PsiMethod]
@@ -68,10 +48,6 @@ trait ScTypeDefinition extends ScNamedElement with ScMember
     }
     case None => None
   }
-
-  def allTypes(): Iterator[Pair[PsiNamedElement, ScSubstitutor]]
-  def allVals(): Iterator[Pair[PsiNamedElement, ScSubstitutor]]
-  def allMethods(): Iterator[PhysicalSignature]
 
   /**
    * Add only real members (not abstract PsiElement) to this class in current caret position.

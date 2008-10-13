@@ -16,10 +16,10 @@ import com.intellij.psi._
  */
 
 trait ScToplevelElement extends ScalaPsiElement {
-  def getTypeDefinitions(): Array[ScTypeDefinition] = {
+  def typeDefinitions(): Array[ScTypeDefinition] = {
     val buff = new ArrayBuffer[ScTypeDefinition]
     for (clazz <- immediateTypeDefinitions) buff += clazz
-    for (pack <- packagings) buff ++= pack.getTypeDefinitions
+    for (pack <- packagings) buff ++= pack.typeDefinitions
     buff.toArray
   }
 

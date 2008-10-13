@@ -7,6 +7,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{JavaPsiFacade, PsiElement, ResolveState, PsiClass}
+import com.intellij.util.IncorrectOperationException
 import psi.ScalaPsiElementImpl
 import api.toplevel.templates._
 import psi.types._
@@ -20,7 +21,7 @@ import typedef.TypeDefinitionMembers
 * Date: 20.02.2008
  */
 
-class ScExtendsBlockImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScExtendsBlock](node) with ScExtendsBlock {
+class ScExtendsBlockImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScExtendsBlock](node) with ScExtendsBlock with PsiClassFake {
 
   def this(stub : ScExtendsBlockStub) = {
     this(DummyASTNode)
@@ -135,4 +136,24 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScExte
 
       true
   }
+
+  def allTypes = TypeDefinitionMembers.getTypes(this).values.map{ n => (n.info, n.substitutor) }
+  def allVals = TypeDefinitionMembers.getVals(this).values.map{ n => (n.info, n.substitutor) }
+  def allMethods = TypeDefinitionMembers.getMethods(this).values.map{ n => n.info }
+
+  def nameId() = null
+
+  def aliases() = templateBody match {
+    case None => Seq.empty
+    case Some(body) => body.aliases
+  }
+
+  def functions() = templateBody match {
+    case None => Seq.empty
+    case Some(body) => body.functions
+  }
+
+  override def name(): String = "<anonymous>"
+
+  override def setName(name: String): PsiElement = throw new IncorrectOperationException("Should not set name for anonymous")
 }
