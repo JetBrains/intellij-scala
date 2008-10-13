@@ -1,18 +1,22 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.compiled
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
+
+import api.statements.{ScFunction, ScTypeAlias}
 import api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import api.toplevel.typedef.{ScTypeDefinition, ScMember}
 import com.intellij.psi.impl.compiled.ClsRepositoryPsiElement
 import com.intellij.psi.impl.source.tree.TreeElement
-import com.intellij.psi.{PsiClass, PsiElementVisitor}
+import com.intellij.psi.{PsiElement, PsiClass, PsiElementVisitor}
 import stubs.ScExtendsBlockStub
+import toplevel.PsiClassFake
+import types.{ScType, PhysicalSignature}
+
 
 /**
  * @author ilyas
  */
 
 class ScClsExtendsBlockImpl(stub: ScExtendsBlockStub)
-extends ScClsElementImpl[ScExtendsBlock, ScExtendsBlockStub](stub) with ScExtendsBlock {
+extends ScClsElementImpl[ScExtendsBlock, ScExtendsBlockStub](stub) with ScExtendsBlock with PsiClassFake {
 
   //todo implement me!
   def setMirror(element: TreeElement): Unit = {}
@@ -27,4 +31,16 @@ extends ScClsElementImpl[ScExtendsBlock, ScExtendsBlockStub](stub) with ScExtend
   def supers: Seq[PsiClass] = Seq.empty
   def isAnonymousClass: Boolean = false
   def empty: Boolean = true
+
+  def nameId(): PsiElement = null
+
+  def aliases() = Seq.empty
+
+  def allVals() = Seq.empty.elements
+
+  def allMethods() = Seq.empty.elements
+
+  def functions() = Seq.empty
+
+  def allTypes() = Seq.empty.elements
 }

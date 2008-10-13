@@ -92,24 +92,14 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
   }
                                                                 
   def members(): Seq[ScMember] = extendsBlock.members
-  
-  def functions(): Seq[ScFunction] =
-    extendsBlock.templateBody match {
-      case None => Seq.empty
-      case Some(body) => body.functions
-    }
-
-  def aliases(): Seq[ScTypeAlias] =
-    extendsBlock.templateBody match {
-      case None => Seq.empty
-      case Some(body) => body.aliases
-    }
+  def functions(): Seq[ScFunction] = extendsBlock.functions
+  def aliases(): Seq[ScTypeAlias] = extendsBlock.aliases
 
   def allTypes = TypeDefinitionMembers.getTypes(this).values.map{ n => (n.info, n.substitutor) }
   def allVals = TypeDefinitionMembers.getVals(this).values.map{ n => (n.info, n.substitutor) }
   def allMethods = TypeDefinitionMembers.getMethods(this).values.map{ n => n.info }
 
-  def innerTypeDefinitions: Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
+  def typeDefinitions: Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
   override def delete() = {
     var parent = getParent
@@ -120,7 +110,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
     }
     parent match {
       case f: ScalaFile => {
-        if (f.getTypeDefinitions.length == 1) {
+        if (f.typeDefinitions.length == 1) {
           f.delete
         } else {
           f.getNode.removeChild(remove.getNode)

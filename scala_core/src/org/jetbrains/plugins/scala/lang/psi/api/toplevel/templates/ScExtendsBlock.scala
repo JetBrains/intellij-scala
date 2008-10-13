@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates
 
 import com.intellij.psi.PsiClass
 import psi.ScalaPsiElement
-import typedef.{ScTypeDefinition, ScMember}
+import typedef.{ScTypeDefinition, ScMember, ScTemplateDefinition}
 import types.ScType
 
 /** 
@@ -10,7 +10,7 @@ import types.ScType
 * Date: 20.02.2008
 */
 
-trait ScExtendsBlock extends ScalaPsiElement {
+trait ScExtendsBlock extends ScTemplateDefinition {
 
   def members : Seq[ScMember]
   

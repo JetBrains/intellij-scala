@@ -60,7 +60,7 @@ class ScClsPackageStatementImpl extends ClsElementImpl with ScPackageStatement {
 
   protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = Array[T]()
 
-  def typeDefs: Seq[ScTypeDefinition] = myFile.getTypeDefinitions
+  def typeDefs: Seq[ScTypeDefinition] = myFile.typeDefinitions
 
   def getParent: PsiElement = myFile
 

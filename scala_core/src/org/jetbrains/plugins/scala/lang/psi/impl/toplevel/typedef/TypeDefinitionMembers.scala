@@ -34,8 +34,8 @@ object TypeDefinitionMembers {
         map += ((sig, new Node(sig, subst)))
       }
 
-    def processScala(members : Seq[ScMember], subst: ScSubstitutor, map: Map) =
-      for (member <- members) {
+    def processScala(template : ScTemplateDefinition, subst: ScSubstitutor, map: Map) =
+      for (member <- template.members) {
         member match {
           case method: ScFunction => {
             val sig = new PhysicalSignature(method, subst)
@@ -63,8 +63,8 @@ object TypeDefinitionMembers {
         map += ((field, new Node(field, subst)))
       }
 
-    def processScala(members : Seq[ScMember], subst: ScSubstitutor, map: Map) =
-      for (member <- members) {
+    def processScala(template : ScTemplateDefinition, subst: ScSubstitutor, map: Map) =
+      for (member <- template.members) {
         member match {
           case obj: ScObject => map += ((obj, new Node(obj, subst)))
           case _var: ScVariable =>
@@ -100,8 +100,8 @@ object TypeDefinitionMembers {
         map += ((inner, new Node(inner, subst)))
       }
 
-    def processScala(members : Seq[ScMember], subst: ScSubstitutor, map: Map) = {
-      for (member <- members) {
+    def processScala(template : ScTemplateDefinition, subst: ScSubstitutor, map: Map) = {
+      for (member <- template.members) {
         member match {
           case alias: ScTypeAlias => map += ((alias, new Node(alias, subst)))
           case _ : ScObject =>
@@ -123,10 +123,6 @@ object TypeDefinitionMembers {
   def getTypes(clazz: PsiClass) = get(clazz, typesKey, new MyProvider(clazz, { clazz : PsiClass => TypeNodes.build(clazz) }))._2
 
   def getSignatures(clazz: PsiClass) = get(clazz, signaturesKey, new SignaturesProvider(clazz))
-
-  def getVals(eb: ScExtendsBlock) = get(eb, valsKey, new MyProvider(eb, { eb : ScExtendsBlock => ValueNodes.build(eb) }))._2
-  def getMethods(eb: ScExtendsBlock) = get(eb, methodsKey, new MyProvider(eb, { eb : ScExtendsBlock => MethodNodes.build(eb) }))._2
-  def getTypes(eb: ScExtendsBlock) = get(eb, typesKey, new MyProvider(eb, { eb : ScExtendsBlock => TypeNodes.build(eb) }))._2
 
   def getSuperVals(c: PsiClass) = get(c, valsKey, new MyProvider(c, { c : PsiClass => ValueNodes.build(c) }))._1
   def getSuperMethods(c: PsiClass) = get(c, methodsKey, new MyProvider(c, { c : PsiClass => MethodNodes.build(c) }))._1
@@ -196,13 +192,6 @@ object TypeDefinitionMembers {
                           lastParent: PsiElement,
                           place: PsiElement) : Boolean =
     processDeclarations(processor, state, lastParent, place, getSuperVals(clazz), getSuperMethods(clazz), getSuperTypes(clazz))
-
-  def processDeclarations(eb : ScExtendsBlock,
-                          processor: PsiScopeProcessor,
-                          state: ResolveState,
-                          lastParent: PsiElement,
-                          place: PsiElement) : Boolean =
-    processDeclarations(processor, state, lastParent, place, getVals(eb), getMethods(eb), getTypes(eb))
 
   private def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,

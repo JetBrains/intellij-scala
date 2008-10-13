@@ -48,7 +48,7 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
       }
     }
 
-    for (typeDef <- element.innerTypeDefinitions)
+    for (typeDef <- element.typeDefinitions)
       children += new ScalaTypeDefinitionStructureViewElement(typeDef)
     return children.toArray
   }
