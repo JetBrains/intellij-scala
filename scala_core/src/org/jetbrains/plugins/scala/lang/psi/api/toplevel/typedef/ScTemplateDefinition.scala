@@ -5,13 +5,8 @@ import statements.{ScFunction, ScTypeAlias}
 import types.{ScType, PhysicalSignature, ScSubstitutor}
 
 /**
- * Created by IntelliJ IDEA.
- * User: test
- * Date: Oct 14, 2008
- * Time: 12:23:38 AM
- * To change this template use File | Settings | File Templates.
+ * @author ven
  */
-
 trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def members(): Seq[ScMember]
 
