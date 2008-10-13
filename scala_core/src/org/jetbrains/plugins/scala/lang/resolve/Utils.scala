@@ -73,7 +73,7 @@ object ResolveUtils {
       TypeDefinitionMembers.processDeclarations(c, processor, ResolveState.initial.put(ScSubstitutor.key, s), null, place)
     case None => superRef.drvClass match {
       case Some(c) => {
-
+        TypeDefinitionMembers.processSuperDeclarations(c, processor, ResolveState.initial.put(ScSubstitutor.key, s), null, place)
       }
       case None =>
     }
