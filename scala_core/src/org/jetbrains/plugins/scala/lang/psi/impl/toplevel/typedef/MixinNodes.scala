@@ -45,12 +45,16 @@ abstract class MixinNodes {
     }
   }
 
-  def mergeWithSupers(thisMap : Map, supersMerged : MultiMap) {
+  //Return primary selected supersMergef
+  def mergeWithSupers(thisMap : Map, supersMerged : MultiMap) = {
+    val primarySupers = new Map
     for ((key, nodes) <- supersMerged) {
       val primarySuper = nodes.find {n => !isAbstract(n.info)} match {
         case None => nodes.toArray(0)
         case Some(concrete) => concrete
       }
+      primarySupers += ((key, primarySuper))
+
       thisMap.get(key) match {
         case Some(node) => {
           node.primarySuper = Some(primarySuper)
@@ -63,19 +67,28 @@ abstract class MixinNodes {
         }
       }
     }
+    primarySupers
   }
 
-  def build (clazz : PsiClass) : Map = build { map =>
-    processJava(clazz, ScSubstitutor.empty, map)
-    clazz.getSuperTypes.map{psiType => ScType.create(psiType, clazz.getProject)}
+  def build (clazz : PsiClass) : (Map, Map) = build { map =>
+    clazz match {
+      case td : ScTypeDefinition => {
+        processScala(td.members, ScSubstitutor.empty, map)
+        td.superTypes
+      }
+      case _ => {
+        processJava(clazz, ScSubstitutor.empty, map)
+        clazz.getSuperTypes.map{psiType => ScType.create(psiType, clazz.getProject)}
+      }
+    }
   }
 
-  def build (eb : ScExtendsBlock) : Map = build { map =>
+  def build (eb : ScExtendsBlock) : (Map, Map) = build { map =>
     processScala(eb.members, ScSubstitutor.empty, map)
     eb.superTypes
   }
 
-  private def build(superTypesFun : Map => Seq[ScType]) = {
+  private def build(superTypesFun : Map => Seq[ScType]) : (Map, Map) = {
     def inner(clazz: PsiClass, subst: ScSubstitutor, visited: Set[PsiClass]): Map = {
       val map = new Map
       if (visited.contains(clazz)) return map
@@ -112,9 +125,9 @@ abstract class MixinNodes {
         case _ =>
       }
     }
-    mergeWithSupers(map, mergeSupers(superTypesBuff.toList))
+    val superMap = mergeWithSupers(map, mergeSupers(superTypesBuff.toList))
 
-    map
+    (superMap, map)
   }
 
   def combine(superSubst : ScSubstitutor, derived : ScSubstitutor, superClass : PsiClass) = {

@@ -112,20 +112,25 @@ object TypeDefinitionMembers {
     }
   }
 
-  val valsKey: Key[CachedValue[ValueNodes.Map]] = Key.create("vals key")
-  val methodsKey: Key[CachedValue[MethodNodes.Map]] = Key.create("methods key")
-  val typesKey: Key[CachedValue[TypeNodes.Map]] = Key.create("types key")
+  import ValueNodes.{Map => VMap}, MethodNodes.{Map => MMap}, TypeNodes.{Map => TMap}
+  val valsKey: Key[CachedValue[(VMap, VMap)]] = Key.create("vals key")
+  val methodsKey: Key[CachedValue[(MMap, MMap)]] = Key.create("methods key")
+  val typesKey: Key[CachedValue[(TMap, TMap)]] = Key.create("types key")
   val signaturesKey: Key[CachedValue[HashMap[Signature, ScType]]] = Key.create("signatures key")
 
-  def getVals(clazz: PsiClass) = get(clazz, valsKey, new MyProvider(clazz, { clazz : PsiClass => ValueNodes.build(clazz) }))
-  def getMethods(clazz: PsiClass) = get(clazz, methodsKey, new MyProvider(clazz, { clazz : PsiClass => MethodNodes.build(clazz) }))
-  def getTypes(clazz: PsiClass) = get(clazz, typesKey, new MyProvider(clazz, { clazz : PsiClass => TypeNodes.build(clazz) }))
+  def getVals(clazz: PsiClass) = get(clazz, valsKey, new MyProvider(clazz, { clazz : PsiClass => ValueNodes.build(clazz) }))._2
+  def getMethods(clazz: PsiClass) = get(clazz, methodsKey, new MyProvider(clazz, { clazz : PsiClass => MethodNodes.build(clazz) }))._2
+  def getTypes(clazz: PsiClass) = get(clazz, typesKey, new MyProvider(clazz, { clazz : PsiClass => TypeNodes.build(clazz) }))._2
 
   def getSignatures(clazz: PsiClass) = get(clazz, signaturesKey, new SignaturesProvider(clazz))
 
-  def getVals(eb: ScExtendsBlock) = get(eb, valsKey, new MyProvider(eb, { eb : ScExtendsBlock => ValueNodes.build(eb) }))
-  def getMethods(eb: ScExtendsBlock) = get(eb, methodsKey, new MyProvider(eb, { eb : ScExtendsBlock => MethodNodes.build(eb) }))
-  def getTypes(eb: ScExtendsBlock) = get(eb, typesKey, new MyProvider(eb, { eb : ScExtendsBlock => TypeNodes.build(eb) }))
+  def getVals(eb: ScExtendsBlock) = get(eb, valsKey, new MyProvider(eb, { eb : ScExtendsBlock => ValueNodes.build(eb) }))._2
+  def getMethods(eb: ScExtendsBlock) = get(eb, methodsKey, new MyProvider(eb, { eb : ScExtendsBlock => MethodNodes.build(eb) }))._2
+  def getTypes(eb: ScExtendsBlock) = get(eb, typesKey, new MyProvider(eb, { eb : ScExtendsBlock => TypeNodes.build(eb) }))._2
+
+  def getSuperVals(c: PsiClass) = get(c, valsKey, new MyProvider(c, { c : PsiClass => ValueNodes.build(c) }))._1
+  def getSuperMethods(c: PsiClass) = get(c, methodsKey, new MyProvider(c, { c : PsiClass => MethodNodes.build(c) }))._1
+  def getSuperTypes(c: PsiClass) = get(c, typesKey, new MyProvider(c, { c : PsiClass => TypeNodes.build(c) }))._1
 
   private def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]) = {
     var computed = e.getUserData(key)
@@ -184,6 +189,13 @@ object TypeDefinitionMembers {
     processDeclarations(processor, state, lastParent, place, getVals(clazz), getMethods(clazz), getTypes(clazz)) &&
     AnyRef.asClass(clazz.getProject).processDeclarations(processor, state, lastParent, place) &&
     Any.asClass(clazz.getProject).processDeclarations(processor, state, lastParent, place)
+
+  def processSuperDeclarations(clazz : PsiClass,
+                          processor: PsiScopeProcessor,
+                          state: ResolveState,
+                          lastParent: PsiElement,
+                          place: PsiElement) : Boolean =
+    processDeclarations(processor, state, lastParent, place, getSuperVals(clazz), getSuperMethods(clazz), getSuperTypes(clazz))
 
   def processDeclarations(eb : ScExtendsBlock,
                           processor: PsiScopeProcessor,
