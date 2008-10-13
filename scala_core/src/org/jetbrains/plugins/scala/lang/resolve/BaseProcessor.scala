@@ -120,7 +120,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     case ta: ScTypeAlias => processType(s.subst(ta.upperBound), place)
 
     //need to process scala way
-    case clazz : PsiClass if !clazz.isInstanceOf[ScTypeDefinition] =>
+    case clazz : PsiClass =>
       TypeDefinitionMembers.processDeclarations(clazz, this, ResolveState.initial.put(ScSubstitutor.key, s),
         null, place)
 
