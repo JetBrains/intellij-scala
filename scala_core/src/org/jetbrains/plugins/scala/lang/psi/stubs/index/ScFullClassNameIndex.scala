@@ -13,7 +13,7 @@ import api.toplevel.typedef.ScTypeDefinition
 class ScFullClassNameIndex extends IntStubIndexExtension[PsiClass] {
 
   override def get(int: java.lang.Integer, project: Project, scope: GlobalSearchScope): java.util.Collection[PsiClass] =
-    super.get(int, project, new ScSourceFilterScope(scope, project));
+    super.get(int, project, new ScSourceFilterScope(scope, project))
 
   def getKey = ScFullClassNameIndex.KEY
 }

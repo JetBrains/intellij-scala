@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
+import base.ScModifierList
 import lexer.ScalaTokenTypes
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -12,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 */
 
 trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
+  def getModifierList = findChildByClass(classOf[ScModifierList])
 
   def getContainingClass = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition])
   override def hasModifierProperty(name: String) = {

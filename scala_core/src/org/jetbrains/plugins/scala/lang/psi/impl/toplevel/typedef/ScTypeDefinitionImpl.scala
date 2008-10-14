@@ -49,6 +49,8 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
 
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
+  override def getModifierList = super[ScTypeDefinition].getModifierList
+
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   override def hasModifierProperty(name: String) = super[ScTypeDefinition].hasModifierProperty(name)

@@ -38,7 +38,7 @@ class ScTypeAliasDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node
   
   override def toString: String = "ScTypeAliasDeclaration"
 
-  def getModifierList: ScModifierList = null
+  override def getModifierList: ScModifierList = null
 
   def lowerBound = {
     val tLower = findChildByType(ScalaTokenTypes.tLOWER_BOUND)

@@ -1,6 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 
+import api.toplevel.typedef.ScMember
+import com.intellij.navigation.ItemPresentation
+import com.intellij.openapi.editor.colors.TextAttributesKey
+import stubs.elements.wrappers.DummyASTNode
+import stubs.ScFunctionStub
 import toplevel.synthetic.JavaIdentifier
 import types.{ScType, ScFunctionType}
 import api.expr.ScAnnotations
@@ -20,7 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
  * @author ilyas
  */
 
-abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScFunction with ScTypeParametersOwner {
+abstract class ScFunctionImpl(node: ASTNode) extends ScalaStubBasedElementImpl(node) with ScMember
+    with ScFunction with ScTypeParametersOwner {
 
   def nameId() = {
     val n = node.findChildByType(ScalaTokenTypes.tIDENTIFIER)
@@ -36,6 +42,15 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScMemberImpl(node) with ScF
   def getReturnType = calcType match {
     case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
     case _ => PsiType.VOID
+  }
+
+  override def getPresentation(): ItemPresentation = {
+    new ItemPresentation() {
+      def getPresentableText(): String = name
+      def getTextAttributesKey(): TextAttributesKey = null
+      def getLocationString(): String = "(" + ScFunctionImpl.this.getContainingClass.getQualifiedName + ")"
+      override def getIcon(open: Boolean) = ScFunctionImpl.this.getIcon(0)
+    }
   }
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)

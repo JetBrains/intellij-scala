@@ -10,7 +10,7 @@ import api.toplevel.typedef.ScTypeDefinition
  * @author ilyas
  */
 
-trait ScTypeDefinitionStub extends PsiClassStub[ScTypeDefinition] with NamedStub[ScTypeDefinition] {
+trait ScTypeDefinitionStub extends PsiClassStub[ScTypeDefinition] {
 
   def qualName: String
 

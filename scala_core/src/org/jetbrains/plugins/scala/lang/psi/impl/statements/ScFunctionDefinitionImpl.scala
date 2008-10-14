@@ -1,6 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
+import com.intellij.navigation.ItemPresentation
+import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.psi.stubs.StubElement
 import lexer.ScalaTokenTypes
+import stubs.elements.wrappers.DummyASTNode
+import stubs.ScFunctionStub
 import types.{Unit, Nothing, ScFunctionType}
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
@@ -20,6 +25,12 @@ import com.intellij.psi.scope._
 */
 
 class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with ScFunctionDefinition {
+  def this(stub: ScFunctionStub) = {
+    this(DummyASTNode)
+    setStub(stub.asInstanceOf[StubElement[Nothing]])
+    setNode(node)
+  }
+
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
