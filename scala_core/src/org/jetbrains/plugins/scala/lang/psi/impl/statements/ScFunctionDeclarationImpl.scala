@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
+import com.intellij.psi.stubs.StubElement
+import stubs.elements.wrappers.DummyASTNode
+import stubs.ScFunctionStub
 import types.{ScFunctionType, Nothing}
 import com.intellij.lang.ASTNode
 
@@ -13,6 +16,11 @@ import api.statements._
 */
 
 class ScFunctionDeclarationImpl(node: ASTNode) extends ScFunctionImpl(node) with ScFunctionDeclaration {
+  def this(stub: ScFunctionStub) = {
+    this(DummyASTNode)
+    setStub(stub.asInstanceOf[StubElement[Nothing]])
+    setNode(node)
+  }
 
   override def toString: String = "ScFunctionDeclaration"
 

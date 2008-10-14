@@ -121,7 +121,7 @@ object ScalaElementTypes {
   /** ***********************************************************************************/
   val VALUE_DECLARATION = new ScalaElementType("value declaration")
   val VARIABLE_DECLARATION = new ScalaElementType("variable declaration")
-  val FUNCTION_DECLARATION = new ScalaElementType("function declaration")
+  val FUNCTION_DECLARATION = new ScFunctionDeclarationElementType
   val TYPE_DECLARATION = new ScalaElementType("type declaration")
 
   /** ***********************************************************************************/
@@ -134,7 +134,7 @@ object ScalaElementTypes {
   val EARLY_DEFINITIONS = new ScalaElementType("early definitions")
 
   /**************** functions *************************/
-  val FUNCTION_DEFINITION = new ScalaElementType("function definition")
+  val FUNCTION_DEFINITION = new ScFunctionDefinitionElementType
   val FUN_SIG = new ScalaElementType("function signature")
   val CONSTR_EXPR = new ScalaElementType("constructor expression")
   val SELF_INVOCATION = new ScalaElementType("self invocation")

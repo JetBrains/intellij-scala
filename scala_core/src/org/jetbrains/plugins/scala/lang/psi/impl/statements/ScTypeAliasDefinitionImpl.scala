@@ -30,7 +30,7 @@ class ScTypeAliasDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   
   override def toString: String = "ScTypeAliasDefinition"
 
-  def getModifierList: ScModifierList = null
+  override def getModifierList: ScModifierList = null
 
   def isDeprecated = false
 

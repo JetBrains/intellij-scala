@@ -16,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 * @author ilyas
 */
 
+//todo: remove this class, or show for what this exist.
 abstract class ScMemberImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScMember {
 
-  def getModifierList = findChildByClass(classOf[ScModifierList])
+  override def getModifierList = findChildByClass(classOf[ScModifierList])
 }
