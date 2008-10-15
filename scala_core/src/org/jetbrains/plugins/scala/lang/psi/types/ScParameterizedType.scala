@@ -4,12 +4,21 @@ package org.jetbrains.plugins.scala.lang.psi.types
 * @author ilyas
 */
 
+import com.intellij.openapi.project.Project
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{PsiTypeParameterListOwner, JavaPsiFacade, PsiElement, PsiNamedElement}
 import resolve.{ResolveProcessor, StdKinds}
 import api.statements.ScTypeAlias
 import api.toplevel.typedef._
 import api.statements.params.ScTypeParam
-import com.intellij.psi.{PsiNamedElement, PsiTypeParameterListOwner}
 import psi.impl.ScalaPsiManager
+
+object ScDesignatorType {
+  def getClassType(fqn : String, context : PsiElement) = {
+    val clazz = JavaPsiFacade.getInstance(context.getProject).findClass(fqn, context.getResolveScope)
+    if (clazz != null) Some(new ScDesignatorType(clazz)) else None
+  }
+}
 
 case class ScDesignatorType(val element: PsiNamedElement) extends ScType {
   override def equiv(t: ScType) = t match {
