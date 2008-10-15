@@ -49,12 +49,5 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     case None => None
   }
 
-  /**
-   * Add only real members (not abstract PsiElement) to this class in current caret position.
-   * If editor is None, add in offset(0) position or to start if offset == -1.
-   * @param methmemberwhich added to this type definition
-  * @param editorcurrenteditor
-  * @param offsetifeditor is None add to offset (if != -1)
-   */  
-  def addMember(member: PsiElement, anchor: Option[PsiElement], newLinePos: Int): Option[PsiElement]
+  def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember
 }

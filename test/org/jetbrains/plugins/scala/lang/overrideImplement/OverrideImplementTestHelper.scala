@@ -42,13 +42,10 @@ object OverrideImplementTestHelper {
       case x: ScTypeDefinition => x
     }
     val method = ScalaOIUtil.getMethod(clazz, methodName, isImplement)
-    val (anchor, pos) = ScalaOIUtil.getAnchorAndPos(offset, clazz)
+    val anchor = ScalaOIUtil.getAnchor(offset, clazz)
     val runnable = new Runnable() {
       def run() {
-        clazz.addMember(method, anchor, pos) match {
-          case Some(meth) => ScalaPsiUtil.adjustTypes(meth)
-          case None =>
-        }
+        ScalaPsiUtil.adjustTypes(clazz.addMember(method, anchor))
         val myTextRange = file.getTextRange()
         CodeStyleManager.getInstance(myProject).reformatText(file, myTextRange.getStartOffset(), myTextRange.getEndOffset())
       }
