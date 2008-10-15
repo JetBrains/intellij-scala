@@ -58,8 +58,7 @@ extends ClsClassImpl(stub) with ScTypeDefinition {
   def typeDefinitions(): Seq[ScTypeDefinition] = Seq.empty
   def superTypes(): Seq[ScType] = Seq.empty
   def allMethods(): Iterator[PhysicalSignature] = Iterator.empty
-  def addMember(meth: PsiElement, editor: Option[Editor], offset: Int) = null
-  def addMember(member: PsiElement, anchor: Option[PsiElement], newLinePos: Int): Option[PsiElement] = null
+  def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = null
   def functions(): Seq[ScFunction] = Seq.empty
   def allTypes(): Iterator[Nothing] = Iterator.empty
   def functionsByName(name: String): Iterable[PsiMethod] = Seq.empty

@@ -184,55 +184,17 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
   def functionsByName(name: String) =
     for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method == name) yield n.info.method
 
-  def addMember(member: PsiElement, anchor: Option[PsiElement], newLinePos: Int): Option[PsiElement] = {
-    var meth: PsiElement = member
-    //checking member
-    meth match {
-      case _: ScValue | _: ScFunction | _: ScVariable | _: ScTypeAlias =>
-      case _ => return None
-    }
-    val body: ScTemplateBody = extendsBlock.templateBody match {
-      case Some(x) => x
-      case None => return None
-    }
-    //if body is not empty
-    if (body.getChildren.length != 0) {
-      anchor match {
-        case Some(anchor) if anchor.getNode.getElementType != ScalaTokenTypes.tLINE_TERMINATOR &&
-            !anchor.isInstanceOf[PsiWhiteSpace] => {
-          body.getNode.addChild(meth.getNode, anchor.getNode)
-          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), anchor.getNode)
-        }
-        case Some(anchor) => {
-          val text: String = anchor.getText
-          val left = text.substring(0, newLinePos)
-          val right = text.substring(newLinePos)
-          val anch = anchor.getNextSibling
-          body.getNode.removeChild(anchor.getNode)
-          body.getNode.addChild(if (left.indexOf('\n') == -1)
-            ScalaPsiElementFactory.createNewLineNode(meth.getManager)
-                                else ScalaPsiElementFactory.createNewLineNode(meth.getManager, left), anch.getNode)
-          body.getNode.addChild(meth.getNode, anch.getNode)
-          body.getNode.addChild(if (right.indexOf('\n') == -1)
-            ScalaPsiElementFactory.createNewLineNode(meth.getManager)
-                                else ScalaPsiElementFactory.createNewLineNode(meth.getManager, right), anch.getNode)
-        }
-        case None => {
-          body.getNode.addChild(meth.getNode, body.getNode.getLastChildNode)
-          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
-        }
+  def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {
+    extendsBlock.templateBody match {
+      case Some(body) => {
+        val before = anchor match {case Some(anchor) => anchor.getNode; case None => body.getNode.getLastChildNode}
+        body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
+        body.getNode.addChild(member.getNode, before)
+        body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
       }
-    } else {
-      val newBody: ScTemplateBody = body.replace(ScalaPsiElementFactory.
-          createBodyFromMember(meth, meth.getManager)).asInstanceOf[ScTemplateBody]
-      meth = member match {
-        case _: ScTypeAlias => newBody.aliases(0)
-        case _: ScFunction => newBody.functions(0)
-        case _: ScValue | _: ScVariable => newBody.members(0)
-      }
-      //newBody.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(meth.getManager), meth.getNode)
+      case None => //todo
     }
-    return Some(meth)
+    return member
   }
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
