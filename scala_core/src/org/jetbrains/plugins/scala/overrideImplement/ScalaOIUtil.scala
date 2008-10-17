@@ -145,8 +145,10 @@ object ScalaOIUtil {
         //todo: this wrong: cheking for Object methods:
         val objectType: PsiClass = JavaPsiFacade.getInstance(clazz.getProject).
             findClass("java.lang.Object", GlobalSearchScope.allScope(clazz.getProject))
-        for (meth <- objectType.getAllMethods) {
-          if (x.equiv(new PhysicalSignature(meth, ScSubstitutor.empty))) flag = true
+        if (objectType != null) {
+          for (meth <- objectType.getAllMethods) {
+            if (x.equiv(new PhysicalSignature(meth, ScSubstitutor.empty))) flag = true
+          }
         }
         if (!flag) buf2 += element
       }
@@ -247,25 +249,24 @@ object ScalaOIUtil {
     }
     val objectType: PsiClass = JavaPsiFacade.getInstance(clazz.getProject).
         findClass("java.lang.Object", GlobalSearchScope.allScope(clazz.getProject))
-    for (meth <- objectType.getAllMethods if !meth.isConstructor && !meth.hasModifierProperty("final")) {
-      var flag = false
-      val signature: PhysicalSignature = new PhysicalSignature(meth, ScSubstitutor.empty)
-      for (signe <- clazz.allMethods if signe.method.getContainingClass == clazz) {
-        if (signe.equiv(signature)) flag = true
+    if (objectType != null) {
+      for (meth <- objectType.getAllMethods if !meth.isConstructor && !meth.hasModifierProperty("final") ) {
+        var flag = false
+        val signature: PhysicalSignature = new PhysicalSignature(meth, ScSubstitutor.empty)
+        for (signe <- clazz.allMethods if signe.method.getContainingClass == clazz) {
+          if (signe.equiv(signature)) flag = true
+        }
+        for (signe <- buf2 if signe.isInstanceOf[PhysicalSignature]; sign = signe.asInstanceOf[PhysicalSignature]) {
+          if (sign.equiv(signature)) flag = true
+        }
+        if (!flag) buf2 += signature
       }
-      for (signe <- buf2 if signe.isInstanceOf[PhysicalSignature]; sign = signe.asInstanceOf[PhysicalSignature]) {
-        if (sign.equiv(signature)) flag = true
-      }
-      if (!flag) buf2 += signature
     }
     return buf2.toArray
   }
 
 
 
-  /*
-   This method used for test class OverrideImplementTest
-   */
   def getMethod(clazz: ScTypeDefinition, methodName: String, isImplement: Boolean): ScMember = {
     val seq: Seq[ScalaObject] = if (isImplement) getMembersToImplement(clazz) else getMembersToOverride(clazz)
     def getObjectByName: ScalaObject = {
