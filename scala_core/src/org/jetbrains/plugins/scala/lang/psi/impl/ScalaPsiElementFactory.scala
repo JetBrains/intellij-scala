@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
+import _root_.com.intellij.extapi.psi.StubBasedPsiElementBase
 import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
 import api.toplevel.ScTyped
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef.{ScTypeDefinition, ScMember}
+import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.util.{IncorrectOperationException, CharTable}
 import api.statements._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
@@ -365,7 +367,12 @@ object ScalaPsiElementFactory {
         }
         res = res + (if (method.getParameterList.getParametersCount == 0) "" else "(")
         for (param <- method.getParameterList.getParameters) {
-          res = res + changeKeyword(param.getName) + ": "
+          //todo: create
+          val paramname = param.getName match {
+            case null => param match {case param: ClsParameterImpl => param.getStub.getName case _ => null}
+            case x => x
+          }
+          res = res + changeKeyword(paramname) + ": "
           val scType: ScType = substitutor.subst(ScType.create(param.getTypeElement.getType, method.getProject))
           res = res + ScType.canonicalText(scType) + ", "
         }

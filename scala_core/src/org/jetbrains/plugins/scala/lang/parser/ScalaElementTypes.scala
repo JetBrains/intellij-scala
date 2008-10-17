@@ -119,7 +119,7 @@ object ScalaElementTypes {
   /** ***********************************************************************************/
   /************************************ DECLARATION ************************************/
   /** ***********************************************************************************/
-  val VALUE_DECLARATION = new ScalaElementType("value declaration")
+  val VALUE_DECLARATION = new ScValueDeclarationElementType
   val VARIABLE_DECLARATION = new ScalaElementType("variable declaration")
   val FUNCTION_DECLARATION = new ScFunctionDeclarationElementType
   val TYPE_DECLARATION = new ScalaElementType("type declaration")
@@ -127,7 +127,7 @@ object ScalaElementTypes {
   /** ***********************************************************************************/
   /************************************ DEFINITION *************************************/
   /** ***********************************************************************************/
-  val PATTERN_DEFINITION = new ScalaElementType("pattern definition")
+  val PATTERN_DEFINITION = new ScValueDefinitionElementType
   val PATTERN_LIST = new ScalaElementType("List of patterns")
   val VARIABLE_DEFINITION = new ScalaElementType("variable definition")
   val TYPE_DEFINITION = new ScalaElementType("type definition")

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
+import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -11,7 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.IElementType
+import stubs.elements.wrappers.DummyASTNode
+import stubs.ScValueStub;
 import com.intellij.psi._
 
 import org.jetbrains.annotations._
@@ -31,7 +34,13 @@ import psi.types.Nothing
 * Time: 9:55:28
 */
 
-class ScValueDeclarationImpl(node: ASTNode) extends ScMemberImpl(node) with ScValueDeclaration{
+class ScValueDeclarationImpl(node: ASTNode) extends ScalaStubBasedElementImpl(node) with ScValueDeclaration{
+  def this(stub: ScValueStub) = {
+    this(DummyASTNode)
+    setStub(stub.asInstanceOf[StubElement[Nothing]])
+    setNode(node)
+  }
+
   override def toString: String = "ScValueDeclaration"
 
   def declaredElements = getIdList.fieldIds
