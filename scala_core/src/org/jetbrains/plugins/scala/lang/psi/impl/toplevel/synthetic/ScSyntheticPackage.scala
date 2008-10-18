@@ -104,7 +104,7 @@ object ScSyntheticPackage {
 
               val fqn1 = p.fqn
               val tail = if (fqn1.length > fqn.length) fqn1.substring(fqn.length + 1) else ""
-              if (tail.isEmpty)
+              if (tail.length == 0)
                 p.packagings.foreach {
                   pack => {
                     val own = pack.ownNamePart
