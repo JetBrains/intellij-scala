@@ -192,7 +192,10 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
         body.getNode.addChild(member.getNode, before)
         body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
       }
-      case None => //todo
+      case None => {
+        extendsBlock.getNode.addChild(ScalaPsiElementFactory.createBodyFromMember(member, member.getManager).getNode)
+        return members.apply(0)
+      }
     }
     return member
   }
