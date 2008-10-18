@@ -21,7 +21,7 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
   for (decl <- decls) {
     decl match {
       case fun: ScFunction =>
-        signatures += new PhysicalSignature(fun, ScSubstitutor.empty)
+        signatures += PhysicalSignature.create(fun, ScSubstitutor.empty)
       case varDecl: ScVariable => {
         varDecl.typeElement match {
           case Some(te) => for (e <- varDecl.declaredElements) {

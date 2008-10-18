@@ -56,24 +56,29 @@ class Signature(val name : String, val types : Seq[ScType], val retType : ScType
 }
 
 import com.intellij.psi.PsiMethod
-class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSubstitutor)
-  extends Signature (method.getName,
-                     method.getParameterList.getParameters.map {p => p match {
-                                                                  case scp : ScParameter => scp.calcType
-                                                                  case _ => ScType.create(p.getType, p.getProject)
-                                                                }},
-                     method match {
-                       case f : ScFunction => f.calcType match {case ScFunctionType(ret, _) => ret}
-                       case _ => {
-                         val psiRet = method.getReturnType
-                         if (psiRet == null) Unit else ScType.create(psiRet, method.getProject)
-                       }
-                     },
-                     method.getTypeParameters,
-                     substitutor,
-                     method match {
-                       case _ : ScFunctionDeclaration => true
-                       case m if m.hasModifierProperty(PsiModifier.ABSTRACT) => true
-                       case _ => false
-                     },
-                     method.getLanguage == ScalaFileType.SCALA_LANGUAGE)
+object PhysicalSignature {
+  def create(method : PsiMethod, substitutor : ScSubstitutor) = {
+    val paramTypes = method.getParameterList.getParameters.map {p => p match {
+      case scp : ScParameter => scp.calcType
+      case _ => ScType.create(p.getType, p.getProject)
+    }}
+    val retType = method match {
+      case f : ScFunction => f.calcType match {case ScFunctionType(ret, _) => ret case _ => Nothing}
+      case _ => {
+        val psiRet = method.getReturnType
+        if (psiRet == null) Unit else ScType.create(psiRet, method.getProject)
+      }
+    }
+    val isAbstract = method match {
+      case _ : ScFunctionDeclaration => true
+      case m if m.hasModifierProperty(PsiModifier.ABSTRACT) => true
+      case _ => false
+    }
+    val isScala = method.getLanguage == ScalaFileType.SCALA_LANGUAGE
+    new PhysicalSignature(method, paramTypes, retType, substitutor, isAbstract, isScala)
+  }
+}
+
+class PhysicalSignature(val method : PsiMethod, types : Seq[ScType], retType : ScType,
+                        substitutor : ScSubstitutor, isAbstract: Boolean, isScala : Boolean)
+  extends Signature (method.getName, types, retType, method.getTypeParameters, substitutor, isScala, isAbstract)

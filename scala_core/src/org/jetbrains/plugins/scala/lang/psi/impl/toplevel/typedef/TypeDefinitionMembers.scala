@@ -27,7 +27,7 @@ object TypeDefinitionMembers {
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map) =
       for (method <- clazz.getMethods) {
-        val sig = new PhysicalSignature(method, subst)
+        val sig = PhysicalSignature.create(method, subst)
         map += ((sig, new Node(sig, subst)))
       }
 
@@ -35,7 +35,7 @@ object TypeDefinitionMembers {
       for (member <- template.members) {
         member match {
           case method: ScFunction => {
-            val sig = new PhysicalSignature(method, subst)
+            val sig = PhysicalSignature.create(method, subst)
             map += ((sig, new Node(sig, subst)))
           }
           case _var: ScVariable =>
