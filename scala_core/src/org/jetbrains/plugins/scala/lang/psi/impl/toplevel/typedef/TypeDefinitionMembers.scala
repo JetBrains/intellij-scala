@@ -3,8 +3,8 @@
 */
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
-import _root_.scala.collection.mutable.HashSet
 import api.base.{ScFieldId, ScPrimaryConstructor}
+import api.statements.params.ScClassParameter
 import api.toplevel.templates.ScExtendsBlock
 import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
 import com.intellij.psi._
@@ -20,14 +20,18 @@ import _root_.scala.collection.mutable.HashMap
 
 object TypeDefinitionMembers {
   object MethodNodes extends MixinNodes {
-    type T = Signature
-    def equiv(s1: Signature, s2: Signature) = s1 equiv s2
-    def computeHashCode(s: Signature) = s.name.hashCode * 31 + s.types.length
-    def isAbstract(s: Signature) = s.isAbstract
+    type T = PhysicalSignature
+    def equiv(s1: PhysicalSignature, s2: PhysicalSignature) = s1 equiv s2
+    def computeHashCode(s: PhysicalSignature) = s.name.hashCode * 31 + s.types.length
+    def isAbstract(s: PhysicalSignature) = s.method match {
+      case _: ScFunctionDeclaration => true
+      case m if m.hasModifierProperty(PsiModifier.ABSTRACT) => true
+      case _ => false
+    }
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map) =
       for (method <- clazz.getMethods) {
-        val sig = PhysicalSignature.create(method, subst)
+        val sig = new PhysicalSignature(method, subst)
         map += ((sig, new Node(sig, subst)))
       }
 
@@ -35,36 +39,9 @@ object TypeDefinitionMembers {
       for (member <- template.members) {
         member match {
           case method: ScFunction => {
-            val sig = PhysicalSignature.create(method, subst)
+            val sig = new PhysicalSignature(method, subst)
             map += ((sig, new Node(sig, subst)))
           }
-          case _var: ScVariable =>
-            for (dcl <- _var.declaredElements) {
-              val t = dcl.calcType
-              val getter = new Signature(dcl.name, Seq.empty, t, subst)
-              map += ((getter, new Node(getter, subst)))
-              val setter = new Signature(dcl.name + "_", Seq.singleton(t), Unit, subst)
-              map += ((setter, new Node(setter, subst)))
-            }
-          case _val: ScValue =>
-            for (dcl <- _val.declaredElements) {
-              val getter = new Signature(dcl.name, Seq.empty, dcl.calcType, subst)
-              map += ((getter, new Node(getter, subst)))
-            }
-          case constr : ScPrimaryConstructor =>
-            for (p <- constr.parameters) {
-              val isvar = p.isVar
-              val isval = p.isVal
-              if (isval || isvar) {
-                val t = p.calcType
-                val getter = new Signature(p.name, Seq.empty, t, subst)
-                map += ((getter, new Node(getter, subst)))
-                if (isvar) {
-                  val setter = new Signature(p.name + "_", Seq.singleton(t), Unit, subst)
-                  map += ((setter, new Node(setter, subst)))
-                }
-              }
-            }
           case _ =>
         }
       }
@@ -138,27 +115,18 @@ object TypeDefinitionMembers {
 
   import ValueNodes.{Map => VMap}, MethodNodes.{Map => MMap}, TypeNodes.{Map => TMap}
   val valsKey: Key[CachedValue[(VMap, VMap)]] = Key.create("vals key")
-  val methodsKey: Key[CachedValue[HashSet[PhysicalSignature]]] = Key.create("vals key")
-  val signaturesKey: Key[CachedValue[(MMap, MMap)]] = Key.create("methods key")
+  val methodsKey: Key[CachedValue[(MMap, MMap)]] = Key.create("methods key")
   val typesKey: Key[CachedValue[(TMap, TMap)]] = Key.create("types key")
+  val signaturesKey: Key[CachedValue[HashMap[Signature, ScType]]] = Key.create("signatures key")
 
   def getVals(clazz: PsiClass) = get(clazz, valsKey, new MyProvider(clazz, { clazz : PsiClass => ValueNodes.build(clazz) }))._2
-  def getSignatures(clazz: PsiClass) = get(clazz, signaturesKey, new MyProvider(clazz, { clazz : PsiClass => MethodNodes.build(clazz) }))._2
+  def getMethods(clazz: PsiClass) = get(clazz, methodsKey, new MyProvider(clazz, { clazz : PsiClass => MethodNodes.build(clazz) }))._2
   def getTypes(clazz: PsiClass) = get(clazz, typesKey, new MyProvider(clazz, { clazz : PsiClass => TypeNodes.build(clazz) }))._2
 
-  def getMethods(clazz: PsiClass) = get(clazz, methodsKey, new MyProvider(clazz, { clazz : PsiClass =>
-          val set = new HashSet[PhysicalSignature]
-          for (sig <- getSignatures(clazz)) {
-            sig._1 match {
-              case phys : PhysicalSignature => set += phys
-              case _ =>
-            }
-          }
-          set
-  }))
-  
+  def getSignatures(clazz: PsiClass) = get(clazz, signaturesKey, new SignaturesProvider(clazz))
+
   def getSuperVals(c: PsiClass) = get(c, valsKey, new MyProvider(c, { c : PsiClass => ValueNodes.build(c) }))._1
-  def getSuperMethods(c: PsiClass) = get(c, signaturesKey, new MyProvider(c, { c : PsiClass => MethodNodes.build(c) }))._1
+  def getSuperMethods(c: PsiClass) = get(c, methodsKey, new MyProvider(c, { c : PsiClass => MethodNodes.build(c) }))._1
   def getSuperTypes(c: PsiClass) = get(c, typesKey, new MyProvider(c, { c : PsiClass => TypeNodes.build(c) }))._1
 
   private def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]) = {
@@ -176,12 +144,51 @@ object TypeDefinitionMembers {
     Array[Object](PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
   }
 
+  class SignaturesProvider(td: PsiClass) extends CachedValueProvider[HashMap[Signature, ScType]] {
+    def compute() = {
+      val res = new HashMap[Signature, ScType]
+      for ((_, n) <- getVals(td)) {
+        val subst = n.substitutor
+        n.info match {
+          case _var: ScVariable =>
+            for (dcl <- _var.declaredElements) {
+              val t = dcl.calcType
+              res += ((new Signature(dcl.name, Seq.empty, Array(), subst), t))
+              res += ((new Signature(dcl.name + "_", Seq.singleton(t), Array(), subst), Unit))
+            }
+          case _val: ScValue =>
+            for (dcl <- _val.declaredElements) {
+              res += ((new Signature(dcl.name, Seq.empty, Array(), subst), dcl.calcType))
+            }
+          case param : ScClassParameter if param.isVal || param.isVar => {
+            val t = param.calcType
+            res += ((new Signature(param.name, Seq.empty, Array(), subst), t))
+            if (param.isVar) res += ((new Signature(param.name + "_", Seq.singleton(t), Array(), subst), Unit))
+          }
+          case _ =>
+        }
+      }
+      for ((s, _) <- getMethods(td)) {
+        import s.substitutor.subst
+        val retType = s.method match {
+          case func : ScFunction => func.calcType
+          case method => method.getReturnType match {
+            case null => Unit
+            case rt => ScType.create(rt, method.getProject)
+          }
+        }
+        res += ((s, s.substitutor.subst(retType)))
+      }
+      new CachedValueProvider.Result(res, Array[Object](PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
+    }
+  }
+
   def processDeclarations(clazz : PsiClass,
                           processor: PsiScopeProcessor,
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement) : Boolean =
-    processDeclarations(processor, state, lastParent, place, getVals(clazz), getSignatures(clazz), getTypes(clazz)) &&
+    processDeclarations(processor, state, lastParent, place, getVals(clazz), getMethods(clazz), getTypes(clazz)) &&
     AnyRef.asClass(clazz.getProject).processDeclarations(processor, state, lastParent, place) &&
     Any.asClass(clazz.getProject).processDeclarations(processor, state, lastParent, place)
 
@@ -208,11 +215,7 @@ object TypeDefinitionMembers {
     }
     if (shouldProcessMethods(processor)) {
       for ((_, n) <- methods) {
-        n.info match {
-          case phys : PhysicalSignature =>
-            if (!processor.execute(phys.method, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
-          case _ => 
-        }
+        if (!processor.execute(n.info.method, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
     if (shouldProcessTypes(processor)) {
