@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 
-import api.statements.ScFunctionDefinition
+import api.statements.{ScFunctionDefinition, ScValue, ScVariable}
+import api.toplevel.typedef.{ScTypeDefinition, ScMember}
+import com.intellij.navigation.ItemPresentation
+import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.psi.PsiElement
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import lang.TokenSets

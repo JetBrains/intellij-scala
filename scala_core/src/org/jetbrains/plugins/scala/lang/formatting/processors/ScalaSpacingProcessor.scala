@@ -451,6 +451,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     //For class methods
     (leftNode.getPsi, rightNode.getPsi, leftNode.getTreeParent.getElementType) match {
+      //case (_, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) if leftNode.getElementType == ScalaTokenTypes.tLBRACE => return DOUBLE_LINE
       case (_: ScFunction, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
       case (_: ScValue | _: ScVariable | _: ScTypeAlias, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
       case (_: ScFunction, _: ScValue | _: ScVariable | _: ScTypeAlias, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE

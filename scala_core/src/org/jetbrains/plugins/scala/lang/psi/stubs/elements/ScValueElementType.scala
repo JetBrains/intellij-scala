@@ -37,9 +37,9 @@ extends ScStubElementType[ScValueStub, ScValue](debugName) {
   }
 
   def indexStub(stub: ScValueStub, sink: IndexSink): Unit = {
-    /*val names = stub.getNames
+    val names = stub.getNames
     for (name <- names if name != null) {
       sink.occurrence(ScalaIndexKeys.VALUE_NAME_KEY, name)
-    }*/
+    }
   }
 }

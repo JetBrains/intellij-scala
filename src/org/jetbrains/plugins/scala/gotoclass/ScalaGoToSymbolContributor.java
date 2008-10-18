@@ -7,10 +7,14 @@ import com.intellij.psi.stubs.StubIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMember;
+import com.intellij.psi.PsiElement;
 
 import java.util.Collection;
 
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
+import scala.Seq;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,8 +29,18 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
 
   public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
     final GlobalSearchScope scope = includeNonProjectItems ? null : GlobalSearchScope.projectScope(project);
-    final Collection<PsiMember> methods = StubIndex.getInstance().get(ScalaIndexKeys.METHOD_NAME_KEY(), name, project, scope);
-    methods.addAll(StubIndex.getInstance().get(ScalaIndexKeys.VALUE_NAME_KEY(), name, project, scope));
+    final Collection<NavigationItem> methods = StubIndex.getInstance().get(ScalaIndexKeys.METHOD_NAME_KEY(), name, project, scope);
+    //methods.addAll(StubIndex.getInstance().get(ScalaIndexKeys.VALUE_NAME_KEY(), name, project, scope));
+    for (PsiElement member: (Collection<PsiElement>) StubIndex.getInstance().get(ScalaIndexKeys.VALUE_NAME_KEY(), name, project, scope)) {
+      if (member instanceof ScValue) {
+        ScValue el = (ScValue) member;
+        Seq seq = el.declaredElements();
+        for (int i = 0; i < seq.length(); ++i) {
+          NavigationItem navigationItem = (NavigationItem) seq.apply(i);
+          if (name.equals(navigationItem.getName())) methods.add(navigationItem);
+        }
+      }
+    }
     return methods.toArray(new NavigationItem[methods.size()]);
   }
 }
