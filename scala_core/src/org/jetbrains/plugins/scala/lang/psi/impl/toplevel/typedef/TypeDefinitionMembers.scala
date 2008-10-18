@@ -149,7 +149,7 @@ object TypeDefinitionMembers {
   def getMethods(clazz: PsiClass) = get(clazz, methodsKey, new MyProvider(clazz, { clazz : PsiClass =>
           val set = new HashSet[PhysicalSignature]
           for (sig <- getSignatures(clazz)) {
-            sig match {
+            sig._1 match {
               case phys : PhysicalSignature => set += phys
               case _ =>
             }
