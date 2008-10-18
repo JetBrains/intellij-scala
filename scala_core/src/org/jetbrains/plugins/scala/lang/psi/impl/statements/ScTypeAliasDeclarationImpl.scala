@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
+import com.intellij.navigation.ItemPresentation
+import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.javadoc.PsiDocComment
+import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
-
-
-
-
-
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.IElementType
+import stubs.elements.wrappers.DummyASTNode
+import stubs.ScTypeAliasStub;
 import com.intellij.psi._
 
 import org.jetbrains.annotations._
@@ -33,7 +33,13 @@ import com.intellij.psi.util.PsiTreeUtil
 * Time: 9:54:54
 */
 
-class ScTypeAliasDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeAliasDeclaration {
+class ScTypeAliasDeclarationImpl(node: ASTNode) extends ScalaStubBasedElementImpl(node) with ScTypeAliasDeclaration {
+  def this(stub: ScTypeAliasStub) = {
+    this(DummyASTNode)
+    setStub(stub.asInstanceOf[StubElement[Nothing]])
+    setNode(node)
+  }
+
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
   
   override def toString: String = "ScTypeAliasDeclaration"
@@ -63,4 +69,13 @@ class ScTypeAliasDeclarationImpl(node: ASTNode) extends ScalaPsiElementImpl(node
   def isDeprecated = false
 
   def getDocComment: PsiDocComment = null
+
+  override def getPresentation(): ItemPresentation = {
+    new ItemPresentation() {
+      def getPresentableText(): String = name
+      def getTextAttributesKey(): TextAttributesKey = null
+      def getLocationString(): String = "(" + ScTypeAliasDeclarationImpl.this.getContainingClass.getQualifiedName + ")"
+      override def getIcon(open: Boolean) = ScTypeAliasDeclarationImpl.this.getIcon(0)
+    }
+  }
 }
