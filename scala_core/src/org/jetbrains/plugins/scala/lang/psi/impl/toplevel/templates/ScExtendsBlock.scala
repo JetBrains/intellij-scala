@@ -139,7 +139,7 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScExte
 
   def allTypes = TypeDefinitionMembers.getTypes(this).values.map{ n => (n.info, n.substitutor) }
   def allVals = TypeDefinitionMembers.getVals(this).values.map{ n => (n.info, n.substitutor) }
-  def allMethods = TypeDefinitionMembers.getMethods(this).values.map{ n => n.info }
+  def allMethods = TypeDefinitionMembers.getMethods(this).elements
 
   def nameId() = null
 

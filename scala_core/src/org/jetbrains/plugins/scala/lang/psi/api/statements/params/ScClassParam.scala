@@ -8,4 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScClassParameter extends ScParameter {
+  def isVal() : Boolean
+  def isVar() : Boolean
 }

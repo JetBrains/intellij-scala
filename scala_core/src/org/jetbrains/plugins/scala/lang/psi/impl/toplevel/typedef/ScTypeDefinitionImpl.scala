@@ -99,7 +99,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
 
   def allTypes = TypeDefinitionMembers.getTypes(this).values.map{ n => (n.info, n.substitutor) }
   def allVals = TypeDefinitionMembers.getVals(this).values.map{ n => (n.info, n.substitutor) }
-  def allMethods = TypeDefinitionMembers.getMethods(this).values.map{ n => n.info }
+  def allMethods = TypeDefinitionMembers.getMethods(this).elements
 
   def typeDefinitions: Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
@@ -148,7 +148,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
 
   override def getAllMethods: Array[PsiMethod] = {
     val methods = TypeDefinitionMembers.getMethods(this)
-    return methods.toArray.map[PsiMethod](_._1.method)
+    return methods.toArray.map[PsiMethod](_.method)
   }
 
   def superTypes() = extendsBlock.superTypes
@@ -182,7 +182,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
   }
 
   def functionsByName(name: String) =
-    for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method == name) yield n.info.method
+    for (sig <- TypeDefinitionMembers.getMethods(this) if sig.method == name) yield sig.method
 
   def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {
     extendsBlock.templateBody match {

@@ -13,13 +13,6 @@ import api.toplevel.typedef._
 import api.statements.params.ScTypeParam
 import psi.impl.ScalaPsiManager
 
-object ScDesignatorType {
-  def getClassType(fqn : String, context : PsiElement) = {
-    val clazz = JavaPsiFacade.getInstance(context.getProject).findClass(fqn, context.getResolveScope)
-    if (clazz != null) Some(new ScDesignatorType(clazz)) else None
-  }
-}
-
 case class ScDesignatorType(val element: PsiNamedElement) extends ScType {
   override def equiv(t: ScType) = t match {
     case ScDesignatorType(element1) => element eq element1
