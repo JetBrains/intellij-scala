@@ -447,6 +447,7 @@ public class JavaEnterHandler extends EditorWriteActionHandler {
       finally {
         codeStyleSettings.ENABLE_JAVADOC_FORMATTING = old;
       }
+      if (comment == null) return null;
       PsiElement next = comment.getNextSibling();
       if (next == null && comment.getParent().getClass() == comment.getClass()) {
         next = comment.getParent().getNextSibling(); // expanding chameleon comment produces comment under comment
