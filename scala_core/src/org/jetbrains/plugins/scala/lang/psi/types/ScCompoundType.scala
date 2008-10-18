@@ -7,7 +7,7 @@ import com.intellij.psi.PsiTypeParameter
 
 case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclaredElementsHolder], val typeDecls: Seq[ScTypeAlias]) extends ScType{
   //compound types are checked by checking the set of signatures in their refinements
-  val signatures = new HashSet[Signature] {
+  val signatureMap = new HashMap[Signature, ScType] {
     override def elemHashCode(s : Signature) = s.name.hashCode* 31 + s.types.length
   }
 
@@ -21,19 +21,19 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
   for (decl <- decls) {
     decl match {
       case fun: ScFunction =>
-        signatures += PhysicalSignature.create(fun, ScSubstitutor.empty)
+        ((signatureMap += new PhysicalSignature(fun, ScSubstitutor.empty), fun.calcType))
       case varDecl: ScVariable => {
         varDecl.typeElement match {
           case Some(te) => for (e <- varDecl.declaredElements) {
-            signatures += new Signature(e.name, Seq.empty, te.getType, ScSubstitutor.empty)
-            signatures += new Signature(e.name + "_", Seq.singleton(te.getType), Unit, ScSubstitutor.empty) //setter
+            signatureMap += ((new Signature(e.name, Seq.empty, Array(), ScSubstitutor.empty), te.getType))
+            signatureMap += ((new Signature(e.name + "_", Seq.singleton(te.getType), Array(), ScSubstitutor.empty), Unit)) //setter
           }
           case None =>
         }
       }
       case valDecl: ScValue => valDecl.typeElement match {
         case Some(te) => for (e <- valDecl.declaredElements) {
-          signatures += new Signature(e.name, Seq.empty, te.getType, ScSubstitutor.empty)
+          signatureMap += ((new Signature(e.name, Seq.empty, Array(), ScSubstitutor.empty), te.getType))
         }
         case None =>
       }
@@ -43,10 +43,10 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
   override def equiv(t: ScType) = t match {
     case other : ScCompoundType => {
       components.equalsWith (other.components) (_ equiv _) &&
-      signatures.size == other.signatures.size &&
-      signatures.forall {case sig => other.signatures.find(sig equiv _) match {
+      signatureMap.size == other.signatureMap.size &&
+      signatureMap.elements.forall {case (sig, t) => other.signatureMap.get(sig) match {
         case None => false
-        case Some(s1) => sig.retType equiv s1.retType
+        case Some(t1) => t equiv t1
       }
       } &&
       typesMatch(types, other.types)

@@ -58,10 +58,10 @@ object Conformance {
         case Some((clazz, subst)) => {
           if (!decls.isEmpty) {
             val sigs = TypeDefinitionMembers.getSignatures(clazz)
-            for (sig <- c.signatures) {
+            for ((sig, t) <- c.signatureMap) {
               sigs.get(sig) match {
                 case None => return false
-                case Some(node) => if (!subst.subst(node.info.retType).conforms(sig.retType)) return false
+                case Some(retType) => if (!subst.subst(retType).conforms(t)) return false
               }
             }
           }
@@ -91,19 +91,21 @@ object Conformance {
         }
         case None => r match {
           case c1@ScCompoundType(comps1, _, _) => comps1.forall(c conforms _) && (
-             c1.signatures.forall {s1 => {
-               c.signatures.find(s1 equiv _) match {
+             c1.signatureMap.forall {p => {
+               val s1 = p._1
+               val rt1 = p._2
+               c.signatureMap.get(s1) match {
                case None => comps.find { t => ScType.extractClassType(t) match {
                    case None => false
                    case Some((clazz, subst)) => {
                      TypeDefinitionMembers.getSignatures(clazz).get(s1) match {
                        case None => false
-                       case Some(node) => s1.retType.conforms(subst.subst(node.info.retType))
+                       case Some(rt) => rt1.conforms(subst.subst(rt))
                      }
                    }
                  }
                }
-               case Some(s) => s1.retType.conforms(s.retType)
+               case Some(rt) => rt1.conforms(rt)
              }
              //todo check for refinement's type decls
            }})
