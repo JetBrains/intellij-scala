@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.index
 
-import api.statements.{ScFunction, ScValue}
+import api.statements.{ScFunction, ScValue, ScVariable}
 import api.toplevel.packaging.ScPackageContainer
 import com.intellij.psi.PsiClass
 import com.intellij.psi.stubs.StubIndexKey
@@ -16,5 +16,6 @@ object ScalaIndexKeys {
   val PACKAGE_FQN_KEY: StubIndexKey[java.lang.Integer, ScPackageContainer]  = StubIndexKey.createIndexKey("sc.package.fqn")
   val METHOD_NAME_KEY: StubIndexKey[String, ScFunction] = StubIndexKey.createIndexKey("sc.method.name")
   val VALUE_NAME_KEY: StubIndexKey[String, ScValue] = StubIndexKey.createIndexKey("sc.field.name")
+  //val VARIABLE_NAME_KEY: StubIndexKey[String, ScVariable] = StubIndexKey.createIndexKey("sc.field.name")
 
 }

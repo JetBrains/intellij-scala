@@ -11,7 +11,7 @@ import com.intellij.psi.stubs.{StringStubIndexExtension, StubIndexKey}
  * Date: 17.10.2008
  */
 
-class ScalaValueNameIndex extends StringStubIndexExtension[ScValue] {
+class ScValueNameIndex extends StringStubIndexExtension[ScValue] {
   override def get(key: String, project: Project, scope: GlobalSearchScope): java.util.Collection[ScValue] =
     super.get(key, project, new ScSourceFilterScope(scope, project))
 
