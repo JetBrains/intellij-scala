@@ -14,6 +14,7 @@ import java.util.Collection;
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable;
 import scala.Seq;
 
 /**
@@ -24,6 +25,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
   public String[] getNames(Project project, boolean includeNonProjectItems) {
     final Collection<String> methodNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.METHOD_NAME_KEY());
     methodNames.addAll(StubIndex.getInstance().getAllKeys(ScalaIndexKeys.VALUE_NAME_KEY()));
+    methodNames.addAll(StubIndex.getInstance().getAllKeys(ScalaIndexKeys.VARIABLE_NAME_KEY()));
     return methodNames.toArray(new String[methodNames.size()]);
   }
 
@@ -34,6 +36,16 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
     for (PsiElement member: (Collection<PsiElement>) StubIndex.getInstance().get(ScalaIndexKeys.VALUE_NAME_KEY(), name, project, scope)) {
       if (member instanceof ScValue) {
         ScValue el = (ScValue) member;
+        Seq seq = el.declaredElements();
+        for (int i = 0; i < seq.length(); ++i) {
+          NavigationItem navigationItem = (NavigationItem) seq.apply(i);
+          if (name.equals(navigationItem.getName())) methods.add(navigationItem);
+        }
+      }
+    }
+    for (PsiElement member: (Collection<PsiElement>) StubIndex.getInstance().get(ScalaIndexKeys.VARIABLE_NAME_KEY(), name, project, scope)) {
+      if (member instanceof ScVariable) {
+        ScVariable el = (ScVariable) member;
         Seq seq = el.declaredElements();
         for (int i = 0; i < seq.length(); ++i) {
           NavigationItem navigationItem = (NavigationItem) seq.apply(i);

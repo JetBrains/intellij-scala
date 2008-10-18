@@ -8,8 +8,7 @@ import com.intellij.psi.stubs.{StubElement, NamedStub}
  * Date: 17.10.2008
  */
 
-/*
 trait ScVariableStub extends StubElement[ScVariable] {
   def isDeclaration: Boolean
   def getNames: Array[String]
-}*/
+}
