@@ -72,6 +72,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JSpinner classCountSpinner;
   private JCheckBox addUnambiguousImportsOnCheckBox;
   private JCheckBox alignIfElseStatementCheckBox;
+  private JSpinner linesAfterLBrace;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -153,6 +154,13 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     } else {
       scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0;
       keepBeforeSpinner.setValue(0);
+    }
+
+    if ((Integer) linesAfterLBrace.getValue() >= 0) {
+      scalaSettings.BLANK_LINES_AFTER_LBRACE = (Integer) linesAfterLBrace.getValue();
+    } else {
+      scalaSettings.BLANK_LINES_AFTER_LBRACE = 0;
+      linesAfterLBrace.setValue(0);
     }
 
     scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION = alignListOfIdentifiersCheckBox.isSelected();
@@ -271,6 +279,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     }
     if (scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE != (Integer) keepBeforeSpinner.getValue()) return true;
     if (scalaSettings.KEEP_BLANK_LINES_IN_CODE != (Integer) keepCodeSpinner.getValue()) return true;
+    if (scalaSettings.BLANK_LINES_AFTER_LBRACE != (Integer) linesAfterLBrace.getValue()) return true;
     if (scalaSettings.KEEP_LINE_BREAKS != keepLineBreaksCheckBox.isSelected()) return true;
     if (scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION != alignListOfIdentifiersCheckBox.isSelected())
       return true;
@@ -338,6 +347,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
     setValue(keepLineBreaksCheckBox, settings.KEEP_LINE_BREAKS);
     setValue(keepBeforeSpinner, settings.KEEP_BLANK_LINES_BEFORE_RBRACE);
+    setValue(linesAfterLBrace, settings.BLANK_LINES_AFTER_LBRACE);
     setValue(keepCodeSpinner, settings.KEEP_BLANK_LINES_IN_CODE);
 
     setValue(alignListOfIdentifiersCheckBox, settings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION);

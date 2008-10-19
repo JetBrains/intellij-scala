@@ -159,7 +159,7 @@ class ScClsFileImpl(stub: ScFileStub) extends ClsRepositoryPsiElement[ScFileStub
 
   override def getStub: ScFileStub = {
     val stubHolder = getStubTree
-    if (stubHolder != null) stubHolder.getRoot.asInstanceOf[ScFileStub] else null
+    if (stubHolder != null && stubHolder.getRoot.isInstanceOf[ScFileStub]) stubHolder.getRoot.asInstanceOf[ScFileStub] else null
   }
 
   def subtreeChanged: Unit = {}
