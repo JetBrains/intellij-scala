@@ -73,15 +73,14 @@ abstract class MixinNodes {
 
   private def putAliases(template : ScTemplateDefinition, s : ScSubstitutor) = {
     var run = s
-    /*for (alias <- template.aliases) {
+    import Misc.opt2bool
+    for (alias <- template.aliases) {
       alias match {
-        case aliasDef: ScTypeAliasDefinition => s.aliasesMap.get(aliasDef.name) match {
-          case Some(_) => *//* derived class already contains a binding *//*
-          case None => run = run + (aliasDef.name, new ScTypeAliasType())
-        }
+        case aliasDef: ScTypeAliasDefinition if !s.aliasesMap.get(aliasDef.name) =>
+          run = run + (aliasDef.name, {() => aliasDef.aliasedType})
         case _ =>
       }
-    }*/
+    }
     run
   }
 
