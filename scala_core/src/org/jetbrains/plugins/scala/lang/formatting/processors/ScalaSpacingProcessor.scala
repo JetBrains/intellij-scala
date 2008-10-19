@@ -56,6 +56,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val WITH_SPACING = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 1, 0)
     val ON_NEW_LINE = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, 1)
     val DOUBLE_LINE = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, 2)
+    def CONCRETE_LINES(x: Int) = Spacing.createSpacing(0, 0, x, false, 0)
     val leftNode = left.getNode
     val rightNode = right.getNode
     val (leftString, rightString) = (left.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText),
@@ -410,6 +411,17 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case _ =>
       }
     }
+
+    //For class methods
+    (leftNode.getPsi, rightNode.getPsi, leftNode.getTreeParent.getElementType) match {
+      case (_, _, ScalaElementTypes.TEMPLATE_BODY) if leftNode.getElementType == ScalaTokenTypes.tLBRACE
+       && leftNode.getTreeParent.getText.indexOf('\n') != -1 => return CONCRETE_LINES(scalaSettings.BLANK_LINES_AFTER_LBRACE + 1)
+      case (_: ScFunction, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
+      case (_: ScValue | _: ScVariable | _: ScTypeAlias, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
+      case (_: ScFunction, _: ScValue | _: ScVariable | _: ScTypeAlias, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
+      case _ =>
+    }
+
     if (rightNode.getElementType == ScalaTokenTypes.tRBRACE) {
       rightNode.getTreeParent.getPsi match {
         case block@(_: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
@@ -449,14 +461,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return Spacing.createSpacing(1, 0, minLineFeeds, true, scalaSettings.KEEP_BLANK_LINES_IN_CODE)
     }
 
-    //For class methods
-    (leftNode.getPsi, rightNode.getPsi, leftNode.getTreeParent.getElementType) match {
-      //case (_, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) if leftNode.getElementType == ScalaTokenTypes.tLBRACE => return DOUBLE_LINE
-      case (_: ScFunction, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
-      case (_: ScValue | _: ScVariable | _: ScTypeAlias, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
-      case (_: ScFunction, _: ScValue | _: ScVariable | _: ScTypeAlias, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
-      case _ =>
-    }
+
 
     (leftNode.getElementType, rightNode.getElementType,
             leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {

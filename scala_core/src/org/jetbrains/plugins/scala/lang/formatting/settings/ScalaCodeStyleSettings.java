@@ -45,6 +45,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   //keep blank lines
   public int KEEP_BLANK_LINES_IN_CODE = 2;
   public int KEEP_BLANK_LINES_BEFORE_RBRACE = 2;
+  public int BLANK_LINES_AFTER_LBRACE = 0;
   public boolean KEEP_LINE_BREAKS = true;
 
   //Alignments
