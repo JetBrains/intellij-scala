@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 
+import api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition, ScTypeAlias}
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import tree.{IElementType, TokenSet}
@@ -10,7 +11,6 @@ import lexer.ScalaTokenTypes
 import scala.lang.resolve.ScalaResolveResult
 import psi.types._
 import api.toplevel.ScPolymorphicElement
-import api.statements.ScTypeAlias
 import psi.impl.toplevel.synthetic.ScSyntheticClass
 
 /** 
@@ -30,7 +30,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         case None => ref.bind match {
           case None => Nothing
           case Some(ScalaResolveResult(e, s)) => e match {
-            case alias: ScTypeAlias =>
+            case aliasDef: ScTypeAliasDefinition => aliasDef.aliasedType
+            case alias: ScTypeAliasDeclaration =>
               new ScTypeAliasType(alias.name, alias.typeParameters.map{ScalaPsiManager.typeVariable(_)}.toList,
                 s.subst(alias.lowerBound),
                 s.subst(alias.upperBound))
