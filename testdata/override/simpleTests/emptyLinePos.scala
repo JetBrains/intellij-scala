@@ -18,8 +18,6 @@ class Empty extends b {
 
 
   def too: b = null
-
-
 }
 abstract class b {
   def too: b

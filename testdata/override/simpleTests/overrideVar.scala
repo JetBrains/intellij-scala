@@ -16,6 +16,7 @@ class A {
 }
 class VarOverride extends A {
   val t = foo()
+
   override var foo: A = _
 
   def y(): Int = 3
