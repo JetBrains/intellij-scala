@@ -20,12 +20,13 @@ object ScSubstitutor {
 
 class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
                     val outerMap: Map[PsiClass, ScType],
-                    val aliasesMap: Map[String, ScType]) {
+                    val aliasesMap: Map[String, Suspension[ScType]]) {
 
   def this() = this (Map.empty, Map.empty, Map.empty)
 
   def +(p: ScTypeVariable, t: ScType) = new ScSubstitutor(tvMap + ((p, t)), outerMap, aliasesMap)
-  def +(name: String, t: ScType) = new ScSubstitutor(tvMap, outerMap, aliasesMap + ((name, t)))
+  def +(name: String, t: ScType) = new ScSubstitutor(tvMap, outerMap, aliasesMap + ((name, new Suspension[ScType](t))))
+  def +(name: String, f: () => ScType) = new ScSubstitutor(tvMap, outerMap, aliasesMap + ((name, new Suspension[ScType](f))))
   def bindOuter(outer: PsiClass, t: ScType) = new ScSubstitutor(tvMap, outerMap + ((outer, t)), aliasesMap)
   def incl(s: ScSubstitutor) = new ScSubstitutor(s.tvMap ++ tvMap, s.outerMap ++ outerMap, s.aliasesMap ++ aliasesMap)
   def followed(s: ScSubstitutor) : ScSubstitutor = new ScSubstitutor(tvMap, outerMap, aliasesMap) {
@@ -54,7 +55,7 @@ class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
       case _ => t
     }
     case ScTypeAliasType(name, args, lower, upper) => aliasesMap.get(name) match {
-      case Some(v) => v
+      case Some(v) => v.t
       case None => new ScTypeAliasType(name, args, subst(lower), subst(upper))
     }
     case ScParameterizedType (des, typeArgs) =>
