@@ -27,7 +27,7 @@ import com.intellij.psi.scope._
 class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with ScFunctionDefinition {
   def this(stub: ScFunctionStub) = {
     this(DummyASTNode)
-    setStub(stub.asInstanceOf[StubElement[Nothing]])
+    setStub(stub)
     setNode(node)
   }
 

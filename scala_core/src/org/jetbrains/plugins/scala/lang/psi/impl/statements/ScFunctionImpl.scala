@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
  * @author ilyas
  */
 
-abstract class ScFunctionImpl(node: ASTNode) extends ScalaStubBasedElementImpl(node) with ScMember
+abstract class ScFunctionImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScFunction](node) with ScMember
     with ScFunction with ScTypeParametersOwner {
 
   def nameId() = {

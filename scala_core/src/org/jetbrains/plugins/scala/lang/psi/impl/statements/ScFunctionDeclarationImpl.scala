@@ -18,7 +18,7 @@ import api.statements._
 class ScFunctionDeclarationImpl(node: ASTNode) extends ScFunctionImpl(node) with ScFunctionDeclaration {
   def this(stub: ScFunctionStub) = {
     this(DummyASTNode)
-    setStub(stub.asInstanceOf[StubElement[Nothing]])
+    setStub(stub)
     setNode(node)
   }
 
