@@ -280,7 +280,8 @@ object ScalaPsiElementFactory {
     var body = defaultBody
     var res = ""
     val method = sign.method
-    val substitutor = sign.substitutor
+    // do not substitute aliases
+    val substitutor = new ScSubstitutor(sign.substitutor.tvMap, sign.substitutor.outerMap, Map.empty)
     method match {
       case method: ScFunction => {
         body = getStandardValue(substitutor subst method.calcType)
