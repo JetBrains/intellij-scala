@@ -12,6 +12,7 @@ class A {
 }
 class TypeAlias extends A {
   val t = foo()
+
   override type K = Int
 
   def y(): Int = 3

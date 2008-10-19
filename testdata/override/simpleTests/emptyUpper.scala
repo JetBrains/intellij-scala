@@ -15,9 +15,7 @@ abstract class b {
 package test
 
 class EmptyUpper extends b {
-
   def too: b = null
-
 
   def foo(): Int = 3
 

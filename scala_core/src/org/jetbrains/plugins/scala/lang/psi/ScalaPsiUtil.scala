@@ -6,6 +6,7 @@ import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiFormatUtil
 import lang.psi.impl.ScalaPsiElementFactory
+import lexer.ScalaTokenTypes
 import structureView.ScalaElementPresentation
 import types.PhysicalSignature
 
@@ -54,5 +55,13 @@ object ScalaPsiUtil {
           PARAM_OPTIONS | PsiFormatUtil.SHOW_PARAMETERS, PARAM_OPTIONS)
       }
     }
+  }
+
+  def isLineTerminator(element: PsiElement): Boolean = {
+    element match {
+      case _: PsiWhiteSpace if element.getText.indexOf('\n') != -1 => return true
+      case _ =>
+    }
+    return element.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR
   }
 }

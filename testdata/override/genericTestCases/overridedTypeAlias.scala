@@ -17,5 +17,6 @@ abstract class A {
 class OverridedTypeAlias extends A {
   override type K = B
 
+
   val y: K = _
 }

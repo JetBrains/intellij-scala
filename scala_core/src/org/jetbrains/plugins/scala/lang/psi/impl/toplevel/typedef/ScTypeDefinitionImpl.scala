@@ -188,9 +188,11 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
     extendsBlock.templateBody match {
       case Some(body) => {
         val before = anchor match {case Some(anchor) => anchor.getNode; case None => body.getNode.getLastChildNode}
-        body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
+        if (ScalaPsiUtil.isLineTerminator(before.getPsi))
+          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
         body.getNode.addChild(member.getNode, before)
-        body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
+        if (!ScalaPsiUtil.isLineTerminator(before.getPsi))
+          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
       }
       case None => {
         extendsBlock.getNode.addChild(ScalaPsiElementFactory.createBodyFromMember(member, member.getManager).getNode)
