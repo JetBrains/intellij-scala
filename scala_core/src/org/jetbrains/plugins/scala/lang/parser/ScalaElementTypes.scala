@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import psi.stubs.elements._
+import psi.stubs.elements.signatures.{ScClassParameterElementType, ScParameterElementType, ScParamClauseElementType, ScParamClausesElementType}
 
 /**
  * User: Dmitry.Krasilschikov
@@ -43,12 +44,12 @@ object ScalaElementTypes {
   /** ***********************************************************************************/
 
   val PARAM_TYPE = new ScalaElementType("parameter type")
-  val PARAM = new ScalaElementType("parameter")
-  val PARAM_CLAUSE = new ScalaElementType("parameters clause")
-  val PARAM_CLAUSES = new ScalaElementType("parameters clause")
+  val PARAM = new ScParameterElementType
+  val PARAM_CLAUSE = new ScParamClauseElementType
+  val PARAM_CLAUSES = new ScParamClausesElementType
 
   /************ class ***************/
-  val CLASS_PARAM = new ScalaElementType("class parameter")
+  val CLASS_PARAM = new ScClassParameterElementType
 
   /** ***********************************************************************************/
   /************************* TYPE PARAMETERS OF CLASS AND FUNCTIONS *************************/

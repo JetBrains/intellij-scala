@@ -173,7 +173,7 @@ class ScClsFileImpl(stub: ScFileStub) extends ClsRepositoryPsiElement[ScFileStub
         stubHolder = if (stub == null) null else stub.get
         if (stubHolder != null) return stubHolder
         stubHolder = StubTree.readFromVFile(getVirtualFile())
-        if (stubHolder != null) {
+        if (stubHolder != null && stubHolder.getRoot.isInstanceOf[ScFileStubImpl]) {
           myStub = new WeakReference[StubTree](stubHolder);
           (stubHolder.getRoot.asInstanceOf[ScFileStubImpl]).setPsi(this);
         }

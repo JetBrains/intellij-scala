@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements.params
 
+import psi.stubs.elements.wrappers.DummyASTNode
 import api.base._
 import api.statements.params._
 import api.statements._
@@ -12,6 +13,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.util._
+import psi.stubs.ScParameterStub
 import toplevel.synthetic.JavaIdentifier
 
 /**
@@ -19,7 +21,12 @@ import toplevel.synthetic.JavaIdentifier
 * Date: 22.02.2008
 */
 
-class ScParameterImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParameter {
+class ScParameterImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScParameter](node) with ScParameter {
+  def this(stub: ScParameterStub) = {
+    this(DummyASTNode)
+    setStub(stub)
+    setNode(null)
+  }
 
   override def toString: String = "Parameter"
 
