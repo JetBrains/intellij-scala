@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
  * @author Alexander.Podkhalyuzin
  */
 
-class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass with ScTypeParametersOwner{
+class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
   def this(stub : ScTypeDefinitionStub) = {
     this(DummyASTNode)
     setStub(stub)
@@ -58,7 +58,7 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
                                   place: PsiElement): Boolean = {
     if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
 
-    return super.processDeclarations(processor, state, lastParent, place)
+    return super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
   }
 
   def isCase = getModifierList.has(ScalaTokenTypes.kCASE)
