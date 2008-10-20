@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import toplevel.PsiClassFake
 import types.ScCompoundType
@@ -31,9 +32,11 @@ class ScNewTemplateDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
 
  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                           lastParent: PsiElement, place: PsiElement): Boolean =
-   if (lastParent == extendsBlock) 
-     super[ScNewTemplateDefinition].processDeclarations(processor, state, lastParent, place) else true
-
+  extendsBlock.templateBody match {
+    case Some(body) if (PsiTreeUtil.isAncestor(body, place, false)) =>
+      super[ScNewTemplateDefinition].processDeclarations(processor, state, lastParent, place)
+    case _ => true
+  }
   def nameId(): PsiElement = null
   override def setName(name: String): PsiElement = throw new IncorrectOperationException("cannot set name")
   override def name(): String = "<anonymous>"

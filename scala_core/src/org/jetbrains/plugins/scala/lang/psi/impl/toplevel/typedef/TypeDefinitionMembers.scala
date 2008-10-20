@@ -191,12 +191,12 @@ object TypeDefinitionMembers {
     AnyRef.asClass(clazz.getProject).processDeclarations(processor, state, lastParent, place) &&
     Any.asClass(clazz.getProject).processDeclarations(processor, state, lastParent, place)
 
-  def processSuperDeclarations(clazz : PsiClass,
+  def processSuperDeclarations(td : ScTemplateDefinition,
                           processor: PsiScopeProcessor,
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement) : Boolean =
-    processDeclarations(processor, state, lastParent, place, getSuperVals(clazz), getSuperMethods(clazz), getSuperTypes(clazz))
+    processDeclarations(processor, state, lastParent, place, getSuperVals(td), getSuperMethods(td), getSuperTypes(td))
 
   private def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,

@@ -70,7 +70,7 @@ object ResolveUtils {
 
   def processSuperReference(superRef: ScSuperReference, processor : BaseProcessor, place : ScalaPsiElement) = superRef.staticSuper match {
     case Some(t) => processor.processType(t, place)
-    case None => superRef.drvClass match {
+    case None => superRef.drvTemplate match {
       case Some(c) => {
         TypeDefinitionMembers.processSuperDeclarations(c, processor, ResolveState.initial.put(ScSubstitutor.key, ScSubstitutor.empty), null, place)
       }
