@@ -88,20 +88,8 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
           m.getName == name // todo check base classes
     ).toArray
 
-  def extendsBlock: ScExtendsBlock = findChildByClass(classOf[ScExtendsBlock])
-
   override def checkDelete() {
   }
-                                                                
-  def members(): Seq[ScMember] = extendsBlock.members
-  def functions(): Seq[ScFunction] = extendsBlock.functions
-  def aliases(): Seq[ScTypeAlias] = extendsBlock.aliases
-
-  def allTypes = TypeDefinitionMembers.getTypes(this).values.map{ n => (n.info, n.substitutor) }
-  def allVals = TypeDefinitionMembers.getVals(this).values.map{ n => (n.info, n.substitutor) }
-  def allMethods = TypeDefinitionMembers.getMethods(this).values.map{ n => n.info }
-
-  def typeDefinitions: Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
   override def delete() = {
     var parent = getParent
@@ -151,16 +139,7 @@ abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElement
     return methods.toArray.map[PsiMethod](_._1.method)
   }
 
-  def superTypes() = extendsBlock.superTypes
-
   import com.intellij.psi.scope.PsiScopeProcessor
-
-  override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
-    if (lastParent == null) extendsBlock.processDeclarations(processor, state, null, place) else true
-  }
 
   override def isInheritor(clazz: PsiClass, deep: Boolean) = {
     def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean, visited: Set[PsiClass]): Boolean = {

@@ -56,8 +56,6 @@ class ScClassImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScClass
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    for (p <- parameters) {if (!processor.execute(p, state)) return false}
-
     if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
 
     return super.processDeclarations(processor, state, lastParent, place)

@@ -21,7 +21,7 @@ import typedef.TypeDefinitionMembers
 * Date: 20.02.2008
  */
 
-class ScExtendsBlockImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScExtendsBlock](node) with ScExtendsBlock with PsiClassFake {
+class ScExtendsBlockImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScExtendsBlock](node) with ScExtendsBlock {
 
   def this(stub : ScExtendsBlockStub) = {
     this(DummyASTNode)
@@ -108,39 +108,6 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScExte
     case Some(body) => body.typeDefinitions
   }
 
-  override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement) : Boolean = templateParents match {
-    case Some(p) if (PsiTreeUtil.isAncestor(p, place, true)) => {
-      earlyDefinitions match {
-        case Some(ed) => for (m <- ed.members) {
-          m match {
-            case _var: ScVariable => for (declared <- _var.declaredElements) {
-              if (!processor.execute(declared, state)) return false
-            }
-            case _val: ScValue => for (declared <- _val.declaredElements) {
-              if (!processor.execute(declared, state)) return false
-            }
-          }
-        }
-        case None =>
-      }
-      true
-    }
-    case _ =>
-      earlyDefinitions match {
-        case Some(ed) if PsiTreeUtil.isAncestor(ed, place, true) =>
-        case _ => if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
-      }
-
-      true
-  }
-
-  def allTypes = TypeDefinitionMembers.getTypes(this).values.map{ n => (n.info, n.substitutor) }
-  def allVals = TypeDefinitionMembers.getVals(this).values.map{ n => (n.info, n.substitutor) }
-  def allMethods = TypeDefinitionMembers.getMethods(this).values.map{ n => n.info }
-
   def nameId() = null
 
   def aliases() = templateBody match {
@@ -152,8 +119,4 @@ class ScExtendsBlockImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScExte
     case None => Seq.empty
     case Some(body) => body.functions
   }
-
-  override def name(): String = "<anonymous>"
-
-  override def setName(name: String): PsiElement = throw new IncorrectOperationException("Should not set name for anonymous")
 }
