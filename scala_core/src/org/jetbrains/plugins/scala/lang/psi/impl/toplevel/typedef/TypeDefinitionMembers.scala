@@ -5,7 +5,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import api.base.{ScFieldId, ScPrimaryConstructor}
 import api.statements.params.ScClassParameter
-import api.toplevel.templates.ScExtendsBlock
 import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
 import com.intellij.psi._
 import synthetic.{SyntheticClasses, ScSyntheticClass}

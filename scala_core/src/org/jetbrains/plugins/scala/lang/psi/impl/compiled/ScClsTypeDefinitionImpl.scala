@@ -52,15 +52,7 @@ extends ClsClassImpl(stub) with ScTypeDefinition {
 
   override def getLanguage: Language = ScalaFileType.SCALA_LANGUAGE
 
-  def aliases(): Seq[ScTypeAlias] = Seq.empty
-  def members(): Seq[ScMember] = Seq.empty
-  def allVals(): Iterator[Nothing] = Iterator.empty
-  def typeDefinitions(): Seq[ScTypeDefinition] = Seq.empty
-  def superTypes(): Seq[ScType] = Seq.empty
-  def allMethods(): Iterator[PhysicalSignature] = Iterator.empty
   def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = null
-  def functions(): Seq[ScFunction] = Seq.empty
-  def allTypes(): Iterator[Nothing] = Iterator.empty
   def functionsByName(name: String): Iterable[PsiMethod] = Seq.empty
 
   protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = Array[T]()
@@ -85,7 +77,7 @@ extends ClsClassImpl(stub) with ScTypeDefinition {
     case TRAIT => Icons.TRAIT
   }
 
-  def extendsBlock(): ScExtendsBlock = {
+  override def extendsBlock(): ScExtendsBlock = {
     val ebStub = new ScExtendsBlockStubImpl(getStub.asInstanceOf[StubElement[_ <: PsiElement]], ScalaElementTypes.EXTENDS_BLOCK)
     new ScClsExtendsBlockImpl(ebStub)
   }

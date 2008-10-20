@@ -29,8 +29,6 @@ import base._
 trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable {
 
-  def extendsBlock(): ScExtendsBlock
-
   def getPath: String = {
     var qualName = getQualifiedName;
     val index = qualName.lastIndexOf('.');

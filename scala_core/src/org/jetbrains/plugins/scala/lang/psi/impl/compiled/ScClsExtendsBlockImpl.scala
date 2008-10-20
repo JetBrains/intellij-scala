@@ -16,7 +16,7 @@ import types.{ScType, PhysicalSignature}
  */
 
 class ScClsExtendsBlockImpl(stub: ScExtendsBlockStub)
-extends ScClsElementImpl[ScExtendsBlock, ScExtendsBlockStub](stub) with ScExtendsBlock with PsiClassFake {
+extends ScClsElementImpl[ScExtendsBlock, ScExtendsBlockStub](stub) with ScExtendsBlock {
 
   //todo implement me!
   def setMirror(element: TreeElement): Unit = {}
@@ -25,22 +25,17 @@ extends ScClsElementImpl[ScExtendsBlock, ScExtendsBlockStub](stub) with ScExtend
   protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = Array[T]()
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = null
   def templateBody: Option[ScTemplateBody] = None
-  def typeDefinitions: Seq[ScTypeDefinition] = Seq.empty
-  def members: Seq[ScMember] = Seq.empty
-  def superTypes: Seq[ScType] = Seq.empty
   def supers: Seq[PsiClass] = Seq.empty
   def isAnonymousClass: Boolean = false
   def empty: Boolean = true
 
-  def nameId(): PsiElement = null
+  def superTypes: Seq[ScType] = Seq.empty
+
+  def typeDefinitions: Seq[ScTypeDefinition] = Seq.empty
 
   def aliases() = Seq.empty
 
-  def allVals() = Seq.empty.elements
-
-  def allMethods() = Seq.empty.elements
-
   def functions() = Seq.empty
 
-  def allTypes() = Seq.empty.elements
+  def members: Seq[ScMember] = Seq.empty
 }

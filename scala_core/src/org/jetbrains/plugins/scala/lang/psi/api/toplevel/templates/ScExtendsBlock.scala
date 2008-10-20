@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates
 
 import com.intellij.psi.PsiClass
 import psi.ScalaPsiElement
+import statements.{ScFunction, ScTypeAlias}
 import typedef.{ScTypeDefinition, ScMember, ScTemplateDefinition}
 import types.ScType
 
@@ -10,10 +11,12 @@ import types.ScType
 * Date: 20.02.2008
 */
 
-trait ScExtendsBlock extends ScTemplateDefinition {
+trait ScExtendsBlock extends ScalaPsiElement {
 
   def members : Seq[ScMember]
-  
+  def functions : Seq[ScFunction]
+  def aliases : Seq[ScTypeAlias]
+
   def templateBody: Option[ScTemplateBody]
 
 
