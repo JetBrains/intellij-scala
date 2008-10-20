@@ -5,7 +5,7 @@ import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import _root_.scala.collection.mutable.ArrayBuffer
 import api.expr._
 import api.toplevel.templates.ScExtendsBlock
-import api.toplevel.typedef.ScTypeDefinition
+import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition}
 import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
 import com.intellij.util.IncorrectOperationException
@@ -22,12 +22,12 @@ import com.intellij.lang.ASTNode
 class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSuperReference {
   override def toString = "SuperReference"
 
-  def drvClass = qualifier match {
+  def drvTemplate = qualifier match {
     case Some(q) => q.bind match {
       case Some(ScalaResolveResult(td : ScTypeDefinition, _)) => Some(td)
       case _ => None
     }
-    case None => Some(PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true))
+    case None => Some(PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true))
   }
 
   def staticSuper = {
