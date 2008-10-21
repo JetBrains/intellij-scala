@@ -27,7 +27,16 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       case Some(ScalaResolveResult(td : ScTypeDefinition, _)) => Some(td)
       case _ => None
     }
-    case None => Some(PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true))
+    case None => {
+      val template = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
+      template.extendsBlock.templateParents match {
+        case Some(parents) if PsiTreeUtil.isAncestor(parents, this, true) => {
+          val ptemplate = PsiTreeUtil.getParentOfType(template, classOf[ScTemplateDefinition], true)
+          if (ptemplate == null) None else Some(ptemplate)
+        }
+        case _ => Some(template)
+      }
+    }
   }
 
   def staticSuper = {
