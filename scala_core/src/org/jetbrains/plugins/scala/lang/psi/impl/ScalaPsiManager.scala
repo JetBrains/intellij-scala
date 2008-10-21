@@ -5,7 +5,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.{PsiManager, PsiTypeParameter}
-import com.intellij.util.containers.{WeakHashMap, WeakValueHashMap}
+import com.intellij.util.containers.WeakValueHashMap
+import java.util.WeakHashMap
 import toplevel.synthetic.{SyntheticPackageCreator, ScSyntheticPackage}
 import types._
 
