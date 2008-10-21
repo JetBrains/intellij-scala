@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures
 
-import api.statements.params.ScParameter
+import api.statements.params.{ScClassParameter, ScParameter}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.util.io.StringRef

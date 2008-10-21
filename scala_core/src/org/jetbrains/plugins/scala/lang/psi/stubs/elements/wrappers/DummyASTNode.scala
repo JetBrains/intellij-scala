@@ -15,6 +15,9 @@ object DummyASTNode extends TreeElement {
   def replaceChild(oldChild: ASTNode, newChild: ASTNode): Unit = {
 
   }
+
+  override def toString: String = "Dummy AST node"
+
   def addChild(child: ASTNode): Unit = {
 
   }

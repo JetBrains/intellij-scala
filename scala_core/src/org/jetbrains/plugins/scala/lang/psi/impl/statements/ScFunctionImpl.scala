@@ -28,11 +28,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 abstract class ScFunctionImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScFunction](node) with ScMember
     with ScFunction with ScTypeParametersOwner {
 
-  def nameId() = {
-    val n = node.findChildByType(ScalaTokenTypes.tIDENTIFIER)
-    (if (n == null) {
-      node.findChildByType(ScalaTokenTypes.kTHIS)
-    } else n).getPsi
+  def nameId(): PsiElement = {
+    val n = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+      case null => getNode.findChildByType(ScalaTokenTypes.kTHIS)
+      case n => n
+    }
+    if (n == null) {
+      return ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScFunctionStub].getName, getManager).getPsi
+    }
+    return n.getPsi
   }
 
   def parameters: Seq[ScParameter] = paramClauses.params

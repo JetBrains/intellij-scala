@@ -30,14 +30,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements._
 
 class ScPrimaryConstructorImpl(node: ASTNode) extends ScMemberImpl(node) with ScPrimaryConstructor {
   override def hasAnnotation: Boolean = {
-    return !(node.getFirstChildNode.getFirstChildNode == null)
+    return !(getNode.getFirstChildNode.getFirstChildNode == null)
   }
 
   //todo rewrite me!
   override def hasModifier: Boolean = false
 
   def getClassNameText: String = {
-    return node.getTreeParent.getPsi.asInstanceOf[ScTypeDefinition].getName
+    return getNode.getTreeParent.getPsi.asInstanceOf[ScTypeDefinition].getName
   }
 
   override def toString: String = "PrimaryConstructor"
