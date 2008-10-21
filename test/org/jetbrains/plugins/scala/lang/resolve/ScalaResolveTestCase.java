@@ -27,9 +27,11 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.ResolveTestCase;
+import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.ScalaLoader;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
 
@@ -51,7 +53,9 @@ public abstract class ScalaResolveTestCase extends ResolveTestCase {
     assertNotNull(sdkRoot);
     ContentEntry contentEntry = rootModel.addContentEntry(sdkRoot);
     rootModel.setSdk(JavaSdk.getInstance().createJdk("java sdk", JDK_HOME, false));
-    contentEntry.addSourceFolder(sdkRoot, false);
+    if (!removeTestDataPath()) {
+      contentEntry.addSourceFolder(sdkRoot, false);
+    }
 
     // Add Scala Library
     LibraryTable libraryTable = rootModel.getModuleLibraryTable();
@@ -74,5 +78,7 @@ public abstract class ScalaResolveTestCase extends ResolveTestCase {
     });
   }
 
-  
+  protected boolean removeTestDataPath() {
+    return false;
+  }
 }
