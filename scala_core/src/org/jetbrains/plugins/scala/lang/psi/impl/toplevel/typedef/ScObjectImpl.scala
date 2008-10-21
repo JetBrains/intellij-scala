@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.{PsiElement, ResolveState}
 import stubs.elements.wrappers.DummyASTNode
 import stubs.ScTypeDefinitionStub
 import com.intellij.psi.stubs.IStubElementType
-import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.lang.ASTNode
 
@@ -17,12 +18,12 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008
 */
 
-class ScObjectImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScObject{
+class ScObjectImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScObject with ScTemplateDefinition{
   def this(stub : ScTypeDefinitionStub) = {
     this(DummyASTNode)
     setStub(stub)
@@ -39,4 +40,10 @@ class ScObjectImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScObje
   override def hasModifierProperty(name: String) = if (getModifierList != null) getModifierList.hasModifierProperty(name: String) else false
 
   override def getContainingClass() = null
+
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean =
+    super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
 }

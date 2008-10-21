@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 * Date: 20.02.2008
 */
 
-class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait with ScTypeParametersOwner {
+class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait with ScTypeParametersOwner with ScTemplateDefinition{
   def this(stub : ScTypeDefinitionStub) = {
     this(DummyASTNode)
     setStub(stub)
@@ -44,6 +44,6 @@ class ScTraitImpl(node: ASTNode) extends ScTypeDefinitionImpl(node) with ScTrait
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place) &&
-    super.processDeclarations(processor, state, lastParent, place)
+    super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
   }
 }
