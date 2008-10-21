@@ -93,6 +93,6 @@ abstract class ScFunctionImpl(node: ASTNode) extends ScalaStubBasedElementImpl[S
 
   def getParameterList: ScParameters = paramClauses
 
-  protected def _calcType(ret : ScType) = paramClauses.clauses.toList.foldRight(ret) {((cl, t) =>
+  def calcType = paramClauses.clauses.toList.foldRight(returnType) {((cl, t) =>
           new ScFunctionType(t, cl.parameters.map {p => p.calcType}))}
 }

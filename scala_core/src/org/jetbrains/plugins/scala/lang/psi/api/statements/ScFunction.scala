@@ -35,6 +35,8 @@ with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with Sc
 
   def returnTypeElement = findChild(classOf[ScTypeElement])
 
+  def returnType : ScType
+
   def declaredType = returnTypeElement match {
     case Some(rte) => rte.getType
     case None => Nothing

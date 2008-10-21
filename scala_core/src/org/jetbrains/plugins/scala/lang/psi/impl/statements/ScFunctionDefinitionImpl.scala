@@ -56,14 +56,11 @@ class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with
 
   import com.intellij.openapi.util.Key
 
-  def calcType = {
-    val ret = returnTypeElement match {
-      case None => if (findChildByType(ScalaTokenTypes.tASSIGN) != null) (body match {
-        case Some(b) => b.getType
-        case _ => Nothing
-      }) else Unit
-      case Some(rte) => rte.getType
-    }
-    _calcType(ret)
+  def returnType = returnTypeElement match {
+    case None => if (findChildByType(ScalaTokenTypes.tASSIGN) != null) (body match {
+      case Some(b) => b.getType
+      case _ => Nothing
+    }) else Unit
+    case Some(rte) => rte.getType
   }
 }
