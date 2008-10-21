@@ -11,5 +11,5 @@ class A[T] {
 }
 
 class Substituting extends A[Float] {
-  override def foo(x: (Float) => Float, y: (Float, Int) => Float): Double = 0.0
+  override def foo(x: (Float) => Float, y: (Float, Int) => Float): Double = null
 }
