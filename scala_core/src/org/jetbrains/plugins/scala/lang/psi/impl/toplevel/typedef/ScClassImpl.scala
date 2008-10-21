@@ -53,9 +53,13 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
+    if (!super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)) return false
+    
+    for (p <- parameters) {
+      if (!processor.execute(p, state)) return false
+    }
 
-    return super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
+    super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
   }
 
   def isCase = getModifierList.has(ScalaTokenTypes.kCASE)
