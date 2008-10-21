@@ -13,6 +13,13 @@ public class ResolveCallTest extends ScalaResolveTestCase {
     return TestUtils.getTestDataPath() + "/resolve/";
   }
 
+  @Override
+  protected boolean removeTestDataPath() {
+    String name = getTestName(false);
+    if (name.equals("ObjectApply")) return true;
+    return false;
+  }
+
   public void testObjectApply() throws Exception {
     PsiReference ref = configureByFile("call/objectApply.scala");
     PsiElement resolved = ref.resolve();
