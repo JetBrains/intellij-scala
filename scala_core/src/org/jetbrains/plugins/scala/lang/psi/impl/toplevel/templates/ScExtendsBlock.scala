@@ -21,13 +21,10 @@ import typedef.TypeDefinitionMembers
 * Date: 20.02.2008
  */
 
-class ScExtendsBlockImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScExtendsBlock](node) with ScExtendsBlock {
+class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with ScExtendsBlock {
 
-  def this(stub : ScExtendsBlockStub) = {
-    this(DummyASTNode)
-    setStub(stub)
-    setNode(null)
-  }
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScExtendsBlockStub) = {this(); setStub(stub)}
 
   override def toString: String = "ExtendsBlock"
 

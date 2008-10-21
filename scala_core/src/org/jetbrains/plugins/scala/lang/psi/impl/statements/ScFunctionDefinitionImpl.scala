@@ -24,13 +24,9 @@ import com.intellij.psi.scope._
 * Date: 22.02.2008
 */
 
-class ScFunctionDefinitionImpl(node: ASTNode) extends ScFunctionImpl (node) with ScFunctionDefinition {
-  def this(stub: ScFunctionStub) = {
-    this(DummyASTNode)
-    setStub(stub)
-    setNode(node)
-  }
-
+class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition {
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScFunctionStub) = {this(); setStub(stub)}
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,

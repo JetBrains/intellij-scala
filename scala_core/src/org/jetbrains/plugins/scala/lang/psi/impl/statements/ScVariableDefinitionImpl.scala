@@ -24,12 +24,9 @@ import com.intellij.psi.scope.PsiScopeProcessor
 * Time: 9:56:07
 */
 
-class ScVariableDefinitionImpl(node: ASTNode) extends ScalaStubBasedElementImpl(node) with ScVariableDefinition {
-  def this(stub: ScVariableStub) = {
-    this(DummyASTNode)
-    setStub(stub.asInstanceOf[StubElement[Nothing]])
-    setNode(node)
-  }
+class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] with ScVariableDefinition {
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScVariableStub) = {this(); setStub(stub)}
 
   override def toString: String = "ScVariableDefinition"
 

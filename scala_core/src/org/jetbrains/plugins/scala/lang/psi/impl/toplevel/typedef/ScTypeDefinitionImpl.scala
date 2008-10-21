@@ -45,9 +45,12 @@ import synthetic.JavaIdentifier
 import types.{ScSubstitutor, ScType}
 import Misc._
 
-abstract class ScTypeDefinitionImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScTypeDefinition](node) with ScTypeDefinition with PsiClassFake  {
+abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake  {
 
-  def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+  def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+    case null => ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScTypeDefinitionStub].getName, getManager).getPsi
+    case n => n
+  }
 
   override def getModifierList = super[ScTypeDefinition].getModifierList
 

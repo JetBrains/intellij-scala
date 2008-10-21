@@ -30,14 +30,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 * Time: 9:55:13
 */
 
-class ScTypeAliasDefinitionImpl(node: ASTNode) extends ScalaStubBasedElementImpl(node) with ScTypeAliasDefinition {
-  def this(stub: ScTypeAliasStub) = {
-    this(DummyASTNode)
-    setStub(stub.asInstanceOf[StubElement[Nothing]])
-    setNode(node)
-  }
+class ScTypeAliasDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeAlias] with ScTypeAliasDefinition {
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScTypeAliasStub) = {this(); setStub(stub)}
 
-  def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+  def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+    case null => ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScTypeAliasStub].getName, getManager).getPsi
+    case n => n
+  }
   
   override def toString: String = "ScTypeAliasDefinition"
 

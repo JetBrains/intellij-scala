@@ -5,6 +5,7 @@ import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.psi.tree.IElementType
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiElement, StubBasedPsiElement}
+import stubs.elements.wrappers.DummyASTNode
 
 /**
   @author ven
@@ -17,8 +18,10 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
   }
 }
 
-abstract class ScalaStubBasedElementImpl[T <: PsiElement](node: ASTNode)
-extends StubBasedPsiElementBase[StubElement[T]](node) with ScalaPsiElement with StubBasedPsiElement[StubElement[T]] {
-  override def getElementType() : IStubElementType[StubElement[T], T] =
-    super.getElementType.asInstanceOf[IStubElementType[StubElement[T], T]]
+abstract class ScalaStubBasedElementImpl[T <: PsiElement]
+extends StubBasedPsiElementBase[StubElement[T]](DummyASTNode) with ScalaPsiElement with StubBasedPsiElement[StubElement[T]] {
+  override def getElementType(): IStubElementType[StubElement[T], T] = {
+    if (getNode != DummyASTNode && getNode != null) getNode.getElementType.asInstanceOf[IStubElementType[StubElement[T], T]]
+    else getStub.getStubType.asInstanceOf[IStubElementType[StubElement[T], T]]
+  }
 }

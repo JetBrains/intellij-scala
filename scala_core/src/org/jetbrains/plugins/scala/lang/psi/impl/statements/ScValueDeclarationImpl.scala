@@ -34,12 +34,9 @@ import psi.types.Nothing
 * Time: 9:55:28
 */
 
-class ScValueDeclarationImpl(node: ASTNode) extends ScalaStubBasedElementImpl(node) with ScValueDeclaration{
-  def this(stub: ScValueStub) = {
-    this(DummyASTNode)
-    setStub(stub.asInstanceOf[StubElement[Nothing]])
-    setNode(node)
-  }
+class ScValueDeclarationImpl extends ScalaStubBasedElementImpl[ScValue] with ScValueDeclaration{
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScValueStub) = {this(); setStub(stub)}
 
   override def toString: String = "ScValueDeclaration"
 
