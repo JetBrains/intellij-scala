@@ -1,22 +1,22 @@
 implement y
-abstract class A {
-  type K = A
+abstract class Aa {
+  type K = Aa
   val y: K
 }
 
-class OverridedTypeAlias extends A {
+class OverridedTypeAlias extends Aa {
   override type K = B
 
   <caret>
 }<end>
-abstract class A {
-  type K = A
+abstract class Aa {
+  type K = Aa
   val y: K
 }
 
-class OverridedTypeAlias extends A {
+class OverridedTypeAlias extends Aa {
   override type K = B
 
 
-  val y: K = _
+  val y: Aa = _
 }
