@@ -26,7 +26,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 
 class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] with ScVariableDefinition {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScVariableStub) = {this(); setStub(stub)}
+  def this(stub: ScVariableStub) = {this(); setStub(stub); setNode(null)}
 
   override def toString: String = "ScVariableDefinition"
 

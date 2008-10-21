@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 
 class ScTypeAliasDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeAlias] with ScTypeAliasDefinition {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTypeAliasStub) = {this(); setStub(stub)}
+  def this(stub: ScTypeAliasStub) = {this(); setStub(stub); setNode(null)}
 
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
     case null => ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScTypeAliasStub].getName, getManager).getPsi

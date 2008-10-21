@@ -19,7 +19,7 @@ import psi.stubs.elements.wrappers.DummyASTNode
 
 class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with ScPackaging {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScPackageContainerStub) = {this(); setStub(stub)}
+  def this(stub: ScPackageContainerStub) = {this(); setStub(stub); setNode(null)}
 
   override def toString = "ScPackaging"
 

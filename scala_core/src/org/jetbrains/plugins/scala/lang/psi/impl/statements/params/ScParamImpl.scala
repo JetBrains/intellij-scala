@@ -23,7 +23,7 @@ import toplevel.synthetic.JavaIdentifier
 
 class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScParameter {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScParameterStub) = {this(); setStub(stub)}
+  def this(stub: ScParameterStub) = {this(); setStub(stub); setNode(null)}
 
   override def toString: String = "Parameter"
 

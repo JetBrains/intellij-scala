@@ -24,7 +24,7 @@ import com.intellij.psi.search._
 class ScParametersImpl extends ScalaStubBasedElementImpl[ScParameters] with ScParameters {
 
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScParamClausesStub) = {this(); setStub(stub)}
+  def this(stub: ScParamClausesStub) = {this(); setStub(stub); setNode(null)}
 
   override def toString: String = "Parameters"
 

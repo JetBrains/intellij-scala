@@ -36,7 +36,7 @@ import psi.types.Nothing
 
 class ScValueDeclarationImpl extends ScalaStubBasedElementImpl[ScValue] with ScValueDeclaration{
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScValueStub) = {this(); setStub(stub)}
+  def this(stub: ScValueStub) = {this(); setStub(stub); setNode(null)}
 
   override def toString: String = "ScValueDeclaration"
 

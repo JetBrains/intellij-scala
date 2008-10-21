@@ -17,7 +17,7 @@ import api.statements._
 
 class ScFunctionDeclarationImpl extends ScFunctionImpl with ScFunctionDeclaration {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScFunctionStub) = {this(); setStub(stub)}
+  def this(stub: ScFunctionStub) = {this(); setStub(stub); setNode(null)}
 
   override def toString: String = "ScFunctionDeclaration"
 
