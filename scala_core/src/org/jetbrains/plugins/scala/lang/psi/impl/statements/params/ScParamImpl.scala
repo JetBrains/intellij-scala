@@ -21,12 +21,9 @@ import toplevel.synthetic.JavaIdentifier
 * Date: 22.02.2008
 */
 
-class ScParameterImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScParameter](node) with ScParameter {
-  def this(stub: ScParameterStub) = {
-    this(DummyASTNode)
-    setStub(stub)
-    setNode(null)
-  }
+class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScParameter {
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScParameterStub) = {this(); setStub(stub)}
 
   override def toString: String = "Parameter"
 
@@ -34,7 +31,10 @@ class ScParameterImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScParamet
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
-  def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+  def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+    case null => ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScParameterStub].getName, getManager).getPsi
+    case n => n
+  }
 
   def paramType = findChild(classOf[ScParameterType])
 

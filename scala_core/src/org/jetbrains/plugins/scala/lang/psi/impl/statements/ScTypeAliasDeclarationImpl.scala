@@ -33,14 +33,14 @@ import com.intellij.psi.util.PsiTreeUtil
 * Time: 9:54:54
 */
 
-class ScTypeAliasDeclarationImpl(node: ASTNode) extends ScalaStubBasedElementImpl(node) with ScTypeAliasDeclaration {
-  def this(stub: ScTypeAliasStub) = {
-    this(DummyASTNode)
-    setStub(stub.asInstanceOf[StubElement[Nothing]])
-    setNode(node)
-  }
+class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] with ScTypeAliasDeclaration {
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScTypeAliasStub) = {this(); setStub(stub)}
 
-  def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+  def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+    case null => ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScTypeAliasStub].getName, getManager).getPsi
+    case n => n
+  }
   
   override def toString: String = "ScTypeAliasDeclaration"
 

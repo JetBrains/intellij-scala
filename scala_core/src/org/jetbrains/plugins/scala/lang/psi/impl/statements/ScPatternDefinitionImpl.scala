@@ -27,11 +27,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 * Time: 9:55:42
 */
 
-class ScPatternDefinitionImpl(node: ASTNode) extends ScalaStubBasedElementImpl(node) with ScPatternDefinition {
-  def this(stub: ScValueStub) = {
-    this(DummyASTNode)
-    setStub(stub.asInstanceOf[StubElement[Nothing]])
+class ScPatternDefinitionImpl extends ScalaStubBasedElementImpl[ScValue] with ScPatternDefinition {
+  def this(node: ASTNode) = {
+    this()
     setNode(node)
+  }
+
+  def this(stub: ScValueStub) = {
+    this()
+    setStub(stub)
   }
   
   override def toString: String = "ScPatternDefinition"

@@ -20,13 +20,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 * Date: 22.02.2008
 */
 
-class ScParameterClauseImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScParameterClause](node) with ScParameterClause {
+class ScParameterClauseImpl extends ScalaStubBasedElementImpl[ScParameterClause] with ScParameterClause {
 
-  def this(stub: ScParamClauseStub) = {
-    this(DummyASTNode)
-    setStub(stub)
-    setNode(null)
-  }
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScParamClauseStub) = {this(); setStub(stub)}
 
   override def toString: String = "ParametersClause"
 

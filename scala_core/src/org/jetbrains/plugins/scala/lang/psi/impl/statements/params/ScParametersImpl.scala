@@ -21,13 +21,10 @@ import com.intellij.psi.search._
 * Date: 22.02.2008
 */
 
-class ScParametersImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScParameters](node) with ScParameters {
+class ScParametersImpl extends ScalaStubBasedElementImpl[ScParameters] with ScParameters {
 
-  def this(stub: ScParamClausesStub) = {
-    this(DummyASTNode)
-    setStub(stub)
-    setNode(null)
-  }
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScParamClausesStub) = {this(); setStub(stub)}
 
   override def toString: String = "Parameters"
 

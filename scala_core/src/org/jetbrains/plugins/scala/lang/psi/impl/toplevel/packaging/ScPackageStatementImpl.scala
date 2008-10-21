@@ -24,12 +24,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 * Date: 20.02.2008
 */
 
-class ScPackageStatementImpl(node: ASTNode) extends ScalaStubBasedElementImpl[ScPackageContainer](node) with ScPackageStatement{
-  def this(stub : ScPackageContainerStub) = {
-    this(DummyASTNode)
-    setStub(stub)
-    setNode(null)
-  }
+class ScPackageStatementImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with ScPackageStatement{
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScPackageContainerStub) = {this(); setStub(stub)}
 
   def packagings: Seq[ScPackaging] = getParent match {
     case f: ScalaFile => List.fromArray(f.getPackagings)
