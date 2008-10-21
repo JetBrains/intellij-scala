@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 class ScPackageStatementImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with ScPackageStatement{
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScPackageContainerStub) = {this(); setStub(stub)}
+  def this(stub: ScPackageContainerStub) = {this(); setStub(stub); setNode(null)}
 
   def packagings: Seq[ScPackaging] = getParent match {
     case f: ScalaFile => List.fromArray(f.getPackagings)

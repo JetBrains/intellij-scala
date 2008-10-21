@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 
 class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDefinition{
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTypeDefinitionStub) = {this(); setStub(stub)}
+  def this(stub: ScTypeDefinitionStub) = {this(); setStub(stub); setNode(null)}
 
   override def toString: String = "ScObject"
 

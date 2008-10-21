@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParametersOwner with ScTemplateDefinition{
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTypeDefinitionStub) = {this(); setStub(stub)}
+  def this(stub: ScTypeDefinitionStub) = {this(); setStub(stub); setNode(null)}
 
   override def getModifierList: ScModifierList = findChildByClass(classOf[ScModifierList])
   override def toString: String = "ScTrait"

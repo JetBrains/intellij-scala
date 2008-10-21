@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
 class ScVariableDeclarationImpl extends ScalaStubBasedElementImpl[ScVariable] with ScVariableDeclaration {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScVariableStub) = {this(); setStub(stub)}
+  def this(stub: ScVariableStub) = {this(); setStub(stub); setNode(null)}
 
   override def toString: String = "ScVariableDeclaration"
 

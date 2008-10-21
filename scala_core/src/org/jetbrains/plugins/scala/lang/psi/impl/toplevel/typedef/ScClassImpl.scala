@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTypeDefinitionStub) = {this(); setStub(stub)}
+  def this(stub: ScTypeDefinitionStub) = {this(); setStub(stub); setNode(null)}
 
   override def toString: String = "ScClass"
 

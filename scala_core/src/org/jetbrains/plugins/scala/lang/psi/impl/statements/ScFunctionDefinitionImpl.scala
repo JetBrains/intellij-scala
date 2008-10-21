@@ -26,7 +26,7 @@ import com.intellij.psi.scope._
 
 class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScFunctionStub) = {this(); setStub(stub)}
+  def this(stub: ScFunctionStub) = {this(); setStub(stub); setNode(null)}
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
