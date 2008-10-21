@@ -22,7 +22,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   override def toString: String = "SimpleTypeElement"
 
-  def singleton = node.findChildByType(ScalaTokenTypes.kTYPE) != null
+  def singleton = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
 
   override def getType() = {
     if (singleton) new ScSingletonType(pathElement) else reference match {

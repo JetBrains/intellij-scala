@@ -12,7 +12,7 @@ import com.intellij.psi.{PsiElement, StubBasedPsiElement}
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node) with ScalaPsiElement {
   // todo override in more specific cases
   override def replace(newElement: PsiElement): PsiElement = {
-    getParent.getNode.replaceChild(node, newElement.getNode)
+    getParent.getNode.replaceChild(getNode, newElement.getNode)
     newElement
   }
 }
