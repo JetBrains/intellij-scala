@@ -53,9 +53,7 @@ public abstract class ScalaResolveTestCase extends ResolveTestCase {
     assertNotNull(sdkRoot);
     ContentEntry contentEntry = rootModel.addContentEntry(sdkRoot);
     rootModel.setSdk(JavaSdk.getInstance().createJdk("java sdk", JDK_HOME, false));
-    if (!removeTestDataPath()) {
-      contentEntry.addSourceFolder(sdkRoot, false);
-    }
+    contentEntry.addSourceFolder(sdkRoot, false);
 
     // Add Scala Library
     LibraryTable libraryTable = rootModel.getModuleLibraryTable();
@@ -76,9 +74,5 @@ public abstract class ScalaResolveTestCase extends ResolveTestCase {
         rootModel.commit();
       }
     });
-  }
-
-  protected boolean removeTestDataPath() {
-    return false;
   }
 }
