@@ -27,7 +27,7 @@ object TypeDefinitionMembers {
   object MethodNodes extends MixinNodes {
     type T = PhysicalSignature
     def equiv(s1: PhysicalSignature, s2: PhysicalSignature) = s1 equiv s2
-    def computeHashCode(s: PhysicalSignature) = s.name.hashCode * 31 + s.types.length
+    def computeHashCode(s: PhysicalSignature) = s.hashCode
     def isAbstract(s: PhysicalSignature) = TypeDefinitionMembers.this.isAbstract(s)
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map) =
