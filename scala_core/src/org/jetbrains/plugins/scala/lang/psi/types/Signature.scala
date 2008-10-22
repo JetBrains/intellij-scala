@@ -67,3 +67,11 @@ class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSub
       case _ => super.paramTypesEquiv(other)
     }
   }
+
+case class FullSignature(val sig : Signature, val retType : ScType) {
+  override def hashCode: Int = sig.hashCode
+  override def equals(obj: Any): Boolean = obj match {
+    case other : FullSignature => sig equals other.sig
+    case _ => false
+  }
+}
