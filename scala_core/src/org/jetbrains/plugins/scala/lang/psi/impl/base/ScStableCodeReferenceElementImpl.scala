@@ -64,8 +64,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case ste : ScSimpleTypeElement => if (incomplete) noPackagesClassCompletion /* todo use the settings to include packages*/
                                         else if (ste.singleton) stableQualRef else stableClass
       case _: ScTypeAlias => stableClass
-      case _: ScConstructorPattern => constructorPattern
-      case _: ScThisReference | _: ScSuperReference => stableClass
+      case _: ScConstructorPattern => stableClassOrObject
+      case _: ScThisReference | _: ScSuperReference => stableClassOrObject
       case _: ScImportSelector => stableImportSelector
       case _ => stableQualRef
     }

@@ -176,7 +176,7 @@ object StdKinds {
   val stableImportSelector = HashSet.empty + OBJECT + VAL + VAR + METHOD + PACKAGE + CLASS
   val stableClass = HashSet.empty + CLASS
 
-  val constructorPattern = HashSet.empty + CLASS + OBJECT
+  val stableClassOrObject = HashSet.empty + CLASS + OBJECT
 
   val refExprLastRef = HashSet.empty + OBJECT + VAL + VAR + METHOD
   val refExprQualRef = refExprLastRef + PACKAGE
