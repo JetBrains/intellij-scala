@@ -58,10 +58,11 @@ object Conformance {
         case Some((clazz, subst)) => {
           if (!decls.isEmpty) {
             val sigs = TypeDefinitionMembers.getSignatures(clazz)
-            for (sig <- c.signatures) {
-              sigs.get(sig) match {
+            for ((sig, t) <- c.signatureMap) {
+              val full = new FullSignature(sig, t)
+              sigs.get(full) match {
                 case None => return false
-                case Some(node) => if (!subst.subst(node.info.retType).conforms(sig.retType)) return false
+                case Some(node) => if (!subst.subst(node.info.retType).conforms(t)) return false
               }
             }
           }
@@ -91,19 +92,22 @@ object Conformance {
         }
         case None => r match {
           case c1@ScCompoundType(comps1, _, _) => comps1.forall(c conforms _) && (
-             c1.signatures.forall {s1 => {
-               c.signatures.find(s1 equals _) match {
+             c1.signatureMap.forall {p => {
+               val s1 = p._1
+               val rt1 = p._2
+               c.signatureMap.get(s1) match {
                case None => comps.find { t => ScType.extractClassType(t) match {
                    case None => false
                    case Some((clazz, subst)) => {
-                     TypeDefinitionMembers.getSignatures(clazz).get(s1) match {
+                     val full1 = new FullSignature(s1, rt1)
+                     TypeDefinitionMembers.getSignatures(clazz).get(full1) match {
                        case None => false
-                       case Some(node) => s1.retType.conforms(subst.subst(node.info.retType))
+                       case Some(node) => rt1.conforms(subst.subst(node.info.retType))
                      }
                    }
                  }
                }
-               case Some(s2) => s1.retType.conforms(s2.retType)
+               case Some(rt) => rt1.conforms(rt)
              }
              //todo check for refinement's type decls
            }})
