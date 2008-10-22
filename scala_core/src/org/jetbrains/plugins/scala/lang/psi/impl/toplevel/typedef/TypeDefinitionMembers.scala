@@ -18,15 +18,17 @@ import util._
 import _root_.scala.collection.mutable.HashMap
 
 object TypeDefinitionMembers {
+  def isAbstract(s: PhysicalSignature) = s.method match {
+    case _: ScFunctionDeclaration => true
+    case m if m.hasModifierProperty(PsiModifier.ABSTRACT) => true
+    case _ => false
+  }
+
   object MethodNodes extends MixinNodes {
     type T = PhysicalSignature
     def equiv(s1: PhysicalSignature, s2: PhysicalSignature) = s1 equiv s2
     def computeHashCode(s: PhysicalSignature) = s.name.hashCode * 31 + s.types.length
-    def isAbstract(s: PhysicalSignature) = s.method match {
-      case _: ScFunctionDeclaration => true
-      case m if m.hasModifierProperty(PsiModifier.ABSTRACT) => true
-      case _ => false
-    }
+    def isAbstract(s: PhysicalSignature) = TypeDefinitionMembers.this.isAbstract(s)
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map) =
       for (method <- clazz.getMethods) {
@@ -112,17 +114,65 @@ object TypeDefinitionMembers {
     }
   }
 
-  import ValueNodes.{Map => VMap}, MethodNodes.{Map => MMap}, TypeNodes.{Map => TMap}
+  object SignatureNodes extends MixinNodes {
+    type T = FullSignature
+    def equiv(s1: FullSignature, s2: FullSignature) = s1.sig equiv s2.sig
+    def computeHashCode(s: FullSignature) = s.sig.name.hashCode * 31 + s.sig.types.length
+    def isAbstract(s: FullSignature) = s.sig match {
+      case phys : PhysicalSignature => TypeDefinitionMembers.this.isAbstract(phys)
+      case _ => false
+    }
+
+    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map) =
+      for (method <- clazz.getMethods) {
+        val phys = new PhysicalSignature(method, subst)
+        val psiRet = method.getReturnType
+        val retType = if (psiRet == null) Unit else ScType.create(psiRet, method.getProject)
+        val sig = new FullSignature(phys, subst.subst(retType))
+        map += ((sig, new Node(sig, subst)))
+      }
+
+    def processScala(template : ScTemplateDefinition, subst: ScSubstitutor, map: Map) = {
+      def addSignature(s : Signature, ret : ScType) {
+        val full = new FullSignature(s, ret)
+        map += ((full, new Node(full, subst)))
+      }
+
+      for (member <- template.members) {
+        member match {
+          case _var: ScVariable =>
+            for (dcl <- _var.declaredElements) {
+              val t = dcl.calcType
+              addSignature(new Signature(dcl.name, Seq.empty, Array(), subst), t)
+              addSignature(new Signature(dcl.name + "_", Seq.singleton(t), Array(), subst), Unit)
+            }
+          case _val: ScValue =>
+            for (dcl <- _val.declaredElements) {
+              addSignature(new Signature(dcl.name, Seq.empty, Array(), subst), dcl.calcType)
+            }
+          case param : ScClassParameter if param.isVal || param.isVar => {
+            val t = param.calcType
+            addSignature(new Signature(param.name, Seq.empty, Array(), subst), t)
+            if (param.isVar) addSignature(new Signature(param.name + "_", Seq.singleton(t), Array(), subst), Unit)
+          }
+          case f : ScFunction => addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType))
+          case _ =>
+        }
+      }
+    }
+  }
+
+  import ValueNodes.{Map => VMap}, MethodNodes.{Map => MMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}
   val valsKey: Key[CachedValue[(VMap, VMap)]] = Key.create("vals key")
   val methodsKey: Key[CachedValue[(MMap, MMap)]] = Key.create("methods key")
   val typesKey: Key[CachedValue[(TMap, TMap)]] = Key.create("types key")
-  val signaturesKey: Key[CachedValue[HashMap[Signature, ScType]]] = Key.create("signatures key")
+  val signaturesKey: Key[CachedValue[(SMap, SMap)]] = Key.create("signatures key")
 
   def getVals(clazz: PsiClass) = get(clazz, valsKey, new MyProvider(clazz, { clazz : PsiClass => ValueNodes.build(clazz) }))._2
   def getMethods(clazz: PsiClass) = get(clazz, methodsKey, new MyProvider(clazz, { clazz : PsiClass => MethodNodes.build(clazz) }))._2
   def getTypes(clazz: PsiClass) = get(clazz, typesKey, new MyProvider(clazz, { clazz : PsiClass => TypeNodes.build(clazz) }))._2
 
-  def getSignatures(clazz: PsiClass) = get(clazz, signaturesKey, new SignaturesProvider(clazz))
+  def getSignatures(c: PsiClass) = get(c, signaturesKey, new MyProvider(c, { c : PsiClass => SignatureNodes.build(c) }))._2
 
   def getSuperVals(c: PsiClass) = get(c, valsKey, new MyProvider(c, { c : PsiClass => ValueNodes.build(c) }))._1
   def getSuperMethods(c: PsiClass) = get(c, methodsKey, new MyProvider(c, { c : PsiClass => MethodNodes.build(c) }))._1
@@ -141,45 +191,6 @@ object TypeDefinitionMembers {
   class MyProvider[Dom, T](e: Dom, builder: Dom => T) extends CachedValueProvider[T] {
     def compute() = new CachedValueProvider.Result(builder(e),
     Array[Object](PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
-  }
-
-  class SignaturesProvider(td: PsiClass) extends CachedValueProvider[HashMap[Signature, ScType]] {
-    def compute() = {
-      val res = new HashMap[Signature, ScType]
-      for ((_, n) <- getVals(td)) {
-        val subst = n.substitutor
-        n.info match {
-          case _var: ScVariable =>
-            for (dcl <- _var.declaredElements) {
-              val t = dcl.calcType
-              res += ((new Signature(dcl.name, Seq.empty, Array(), subst), t))
-              res += ((new Signature(dcl.name + "_", Seq.singleton(t), Array(), subst), Unit))
-            }
-          case _val: ScValue =>
-            for (dcl <- _val.declaredElements) {
-              res += ((new Signature(dcl.name, Seq.empty, Array(), subst), dcl.calcType))
-            }
-          case param : ScClassParameter if param.isVal || param.isVar => {
-            val t = param.calcType
-            res += ((new Signature(param.name, Seq.empty, Array(), subst), t))
-            if (param.isVar) res += ((new Signature(param.name + "_", Seq.singleton(t), Array(), subst), Unit))
-          }
-          case _ =>
-        }
-      }
-      for ((s, _) <- getMethods(td)) {
-        import s.substitutor.subst
-        val retType = s.method match {
-          case func : ScFunction => func.calcType
-          case method => method.getReturnType match {
-            case null => Unit
-            case rt => ScType.create(rt, method.getProject)
-          }
-        }
-        res += ((s, s.substitutor.subst(retType)))
-      }
-      new CachedValueProvider.Result(res, Array[Object](PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
-    }
   }
 
   def processDeclarations(clazz : PsiClass,

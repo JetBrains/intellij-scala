@@ -13,13 +13,13 @@ import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScMember}
 import lang.psi.api.toplevel.{ScModifierListOwner, ScTyped}
-import lang.psi.types.{ScType, PhysicalSignature, ScSubstitutor}
 import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import lang.psi.api.base.types.ScSimpleTypeElement
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import lang.psi.api.statements._
 import com.intellij.ide.highlighter.JavaFileType
 import lang.psi.impl.ScalaPsiElementFactory
+import lang.psi.types.{FullSignature, ScType, PhysicalSignature, ScSubstitutor}
 import lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.util.IncorrectOperationException
@@ -51,7 +51,7 @@ object ScalaOIUtil {
     val classMembersBuf = new ArrayBuffer[ClassMember]
     for (candidate <- candidates) {
       candidate match {
-        case sign: PhysicalSignature => classMembersBuf += new ScMethodMember(sign)
+        case FullSignature(sign: PhysicalSignature, _) => classMembersBuf += new ScMethodMember(sign)
         case (name: PsiNamedElement, subst: ScSubstitutor) => {
           ScalaPsiUtil.nameContext(name) match {
             case x: ScValue => {
@@ -122,7 +122,7 @@ object ScalaOIUtil {
 
   def getMembersToImplement(clazz: ScTypeDefinition): Seq[ScalaObject] = {
     val buf = new ArrayBuffer[ScalaObject]
-    buf ++= clazz.allMethods
+    buf ++= clazz.allSignatures
     buf ++= clazz.allTypes
     buf ++= clazz.allVals
     val buf2 = new ArrayBuffer[ScalaObject]
@@ -146,7 +146,7 @@ object ScalaOIUtil {
         if (!flag) buf2 += element
       }
       element match {
-        case sign: PhysicalSignature => {
+        case FullSignature(sign : PhysicalSignature, _) => {
           sign.method match {
             case x if x.getName == "$tag" =>
             case x if x.getContainingClass == clazz =>

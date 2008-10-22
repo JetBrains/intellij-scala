@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements.params
 
-import psi.stubs.elements.wrappers.DummyASTNode
 import api.base._
 import api.statements.params._
 import api.statements._
@@ -31,11 +30,8 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
-  def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
-    case null => ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScParameterStub].getName, getManager).getPsi
-    case n => n
-  }
-
+  def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+  
   def paramType = findChild(classOf[ScParameterType])
 
   def getDeclarationScope = PsiTreeUtil.getParentOfType(this, classOf[ScParameterOwner])
