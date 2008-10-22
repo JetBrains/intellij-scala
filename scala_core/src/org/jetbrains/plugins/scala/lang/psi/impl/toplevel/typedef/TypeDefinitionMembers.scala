@@ -117,7 +117,7 @@ object TypeDefinitionMembers {
   object SignatureNodes extends MixinNodes {
     type T = FullSignature
     def equiv(s1: FullSignature, s2: FullSignature) = s1.sig equiv s2.sig
-    def computeHashCode(s: FullSignature) = s.sig.name.hashCode * 31 + s.sig.types.length
+    def computeHashCode(s: FullSignature) = s.sig.hashCode
     def isAbstract(s: FullSignature) = s.sig match {
       case phys : PhysicalSignature => TypeDefinitionMembers.this.isAbstract(phys)
       case _ => false
@@ -150,11 +150,14 @@ object TypeDefinitionMembers {
             for (dcl <- _val.declaredElements) {
               addSignature(new Signature(dcl.name, Seq.empty, Array(), subst), dcl.calcType)
             }
-          case param : ScClassParameter if param.isVal || param.isVar => {
-            val t = param.calcType
-            addSignature(new Signature(param.name, Seq.empty, Array(), subst), t)
-            if (param.isVar) addSignature(new Signature(param.name + "_", Seq.singleton(t), Array(), subst), Unit)
-          }
+          case constr : ScPrimaryConstructor =>
+            for (param <- constr.parameters) {
+              if (param.isVal || param.isVar) {
+                val t = param.calcType
+                addSignature(new Signature(param.name, Seq.empty, Array(), subst), t)
+                if (param.isVar) addSignature(new Signature(param.name + "_", Seq.singleton(t), Array(), subst), Unit)
+              }
+            }
           case f : ScFunction => addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType))
           case _ =>
         }
