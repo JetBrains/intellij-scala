@@ -52,6 +52,7 @@ object ScalaOIUtil {
     for (candidate <- candidates) {
       candidate match {
         case FullSignature(sign: PhysicalSignature, _) => classMembersBuf += new ScMethodMember(sign)
+        case sign: PhysicalSignature => classMembersBuf += new ScMethodMember(sign)
         case (name: PsiNamedElement, subst: ScSubstitutor) => {
           ScalaPsiUtil.nameContext(name) match {
             case x: ScValue => {
@@ -147,6 +148,16 @@ object ScalaOIUtil {
       }
       element match {
         case FullSignature(sign : PhysicalSignature, _) => {
+          sign.method match {
+            case x if x.getName == "$tag" =>
+            case x if x.getContainingClass == clazz =>
+            case x if x.getContainingClass.isInterface => addMethod(sign)
+            case x if x.hasModifierProperty("abstract") => addMethod(sign)
+            case x: ScFunctionDeclaration => addMethod(sign)
+            case _ =>
+          }
+        }
+        case sign : PhysicalSignature => {
           sign.method match {
             case x if x.getName == "$tag" =>
             case x if x.getContainingClass == clazz =>
