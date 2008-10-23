@@ -134,7 +134,7 @@ object ScalaOIUtil {
     val buf2 = new ArrayBuffer[ScalaObject]
     for (element <- buf) {
       element match {
-        case FullSignature(_, _) | _: PhysicalSignature => {
+        case FullSignature(_: PhysicalSignature, _) | _: PhysicalSignature => {
           val sign: PhysicalSignature =
             element match {case FullSignature(x: PhysicalSignature, _) => x case x: PhysicalSignature => x}
           sign.method match {
