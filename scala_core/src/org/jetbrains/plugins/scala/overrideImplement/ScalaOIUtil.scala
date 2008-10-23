@@ -251,6 +251,7 @@ object ScalaOIUtil {
     def getObjectByName: ScalaObject = {
       for (obj <- seq) {
         obj match {
+          case FullSignature(sign: PhysicalSignature, _) if sign.method.getName == methodName => return sign
           case sign: PhysicalSignature if sign.method.getName == methodName => return sign
           case obj@(name: PsiNamedElement, subst: ScSubstitutor) if name.getName == methodName => return obj
           case _ =>
