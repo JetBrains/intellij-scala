@@ -120,8 +120,12 @@ trait ScImportsHolder extends ScalaPsiElement {
           if (stmt != null) {
             while (!stmt.isInstanceOf[ScImportStmt]) stmt = stmt.getPrevSibling
             addAfter(importSt, stmt)
+            addAfter(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi, stmt)
           }
-          else addAfter(importSt, getLastChild)
+          else {
+            addAfter(importSt, getLastChild)
+            addAfter(ScalaPsiElementFactory.createNewLineNode(getLastChild.getManager).getPsi, getLastChild)
+          }
         }
       }
       case _ => {

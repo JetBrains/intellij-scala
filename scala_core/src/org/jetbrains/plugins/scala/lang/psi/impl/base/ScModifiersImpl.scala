@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base
 
+
+import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -37,7 +39,26 @@ class ScModifierListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   def hasExplicitModifier(name: String) = false
 
   def setModifierProperty(name: String, value: Boolean) {
-    //todo implement me!
+    checkSetModifierProperty(name, value)
+    if (hasModifierProperty(name) == value) return
+    name match {
+      case "override" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("override", getManager))
+        else getNode.removeChild(findChildByType(ScalaTokenTypes.kOVERRIDE).getNode)
+      case "private" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("private", getManager))
+        else getNode.removeChild(findChildByType(ScalaTokenTypes.kPRIVATE).getNode)
+      case "protected" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("protected", getManager))
+        else getNode.removeChild(findChildByType(ScalaTokenTypes.kPROTECTED).getNode)
+      case "final" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("final", getManager))
+        else getNode.removeChild(findChildByType(ScalaTokenTypes.kFINAL).getNode)
+      case "implicit" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("implicit", getManager))
+        else getNode.removeChild(findChildByType(ScalaTokenTypes.kIMPLICIT).getNode)
+      case "abstract" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("abstract", getManager))
+        else getNode.removeChild(findChildByType(ScalaTokenTypes.kABSTRACT).getNode)
+      case "sealed" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("sealed", getManager))
+        else getNode.removeChild(findChildByType(ScalaTokenTypes.kSEALED).getNode)
+      case _ => return
+    }
+    if (value) getNode.addChild(ScalaPsiElementFactory.createNewLineNode(getManager, " "))
   }
 
   def checkSetModifierProperty(name: String, value: Boolean) {

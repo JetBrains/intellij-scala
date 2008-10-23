@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.annotator
 
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
 import com.intellij.psi.search.GlobalSearchScope
 import gutter.OverrideGutter
 import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
 import lang.psi.api.expr._
-import lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
+
+import lang.psi.api.statements.{ScFunction, ScValue, ScFunctionDeclaration, ScVariable}
 import lang.psi.api.toplevel.imports.ScImportSelector
 import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
 import lang.psi.api.toplevel.{ScEarlyDefinitions, ScTyped}
@@ -23,6 +23,8 @@ import com.intellij.lang.annotation._
 
 import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 
+
+import lang.psi.types.{FullSignature, PhysicalSignature, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.psi._
@@ -30,6 +32,7 @@ import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import quickfix.ImplementMethodsQuickFix
+import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -140,13 +143,13 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def checkOverrideMethods(method: ScFunction, holder: AnnotationHolder) {
+    if (method.isInstanceOf[ScFunctionDeclaration]) return
     val superMethods = TypeDefinitionMembers.getSuperMethods(method.getContainingClass).values.map{ n => n.info}
     var isOverride = false
+    val signature = new PhysicalSignature(method, ScSubstitutor.empty)
     for (sign <- superMethods) {
       sign match {
-        case sign: PhysicalSignature if sign.method.getName == method.getName => {
-          if (sign.equiv(new PhysicalSignature(method, ScSubstitutor.empty))) isOverride = true
-        }
+        case sign: PhysicalSignature if sign.equiv(signature) => isOverride = true
         case _ =>
       }
     }
@@ -155,10 +158,12 @@ class ScalaAnnotator extends Annotator {
       val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
         ScalaBundle.message("method.overrides.nothing", Array[Object](method.getName)))
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+      annotation.registerFix(new RemoveModifierQuickFix(method, "override"))
     } else if (!method.hasModifierProperty("override") && isOverride) {
       val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange, 
         ScalaBundle.message("method.needs.override.modifier", Array[Object](method.getName)))
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+      annotation.registerFix(new AddModifierQuickFix(method, "override"))
     }
   }
 
