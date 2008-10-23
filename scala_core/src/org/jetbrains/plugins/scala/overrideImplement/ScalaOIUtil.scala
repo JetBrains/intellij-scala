@@ -14,7 +14,6 @@ import javax.swing.JCheckBox
 import lang.lexer.ScalaTokenTypes
 import com.intellij.psi._
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement, ScFieldId}
-import annotations.Nullable
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScMember}

@@ -125,7 +125,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   def nameId: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
   //  @throws(IncorrectOperationException)
-  def bindToElement(@NotNull element: PsiElement): PsiElement = {
+  def bindToElement(element: PsiElement): PsiElement = {
     if (isReferenceTo(element)) return this
     else element match {
       case c: PsiClass => {

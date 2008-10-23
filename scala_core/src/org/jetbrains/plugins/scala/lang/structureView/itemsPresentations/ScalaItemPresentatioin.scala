@@ -4,7 +4,6 @@ import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.psi.PsiElement;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing._;
 
@@ -14,17 +13,14 @@ import javax.swing._;
 */
 
 abstract class ScalaItemPresentation(protected val myElement: PsiElement) extends ItemPresentation {
-  @Nullable
   def getLocationString(): String = {
     return null
   }
 
-  @Nullable
   def getIcon(open: Boolean): Icon = {
     return myElement.getIcon(Iconable.ICON_FLAG_OPEN)
   }
 
-  @Nullable
   def getTextAttributesKey(): TextAttributesKey = {
     return null
   }

@@ -10,7 +10,6 @@ import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi.tree.TokenSet
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.icons.Icons
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
