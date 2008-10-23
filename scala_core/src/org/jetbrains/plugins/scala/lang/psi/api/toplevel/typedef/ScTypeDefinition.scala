@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
-import annotations.Nullable
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.impl.ElementBase
 import com.intellij.util.VisibilityIcons

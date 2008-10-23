@@ -4,7 +4,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
  * @author ilyas
  */
 
-import annotations.Nullable
 import api.ScalaFile
 import api.statements._
 import com.intellij.openapi.editor.Editor
