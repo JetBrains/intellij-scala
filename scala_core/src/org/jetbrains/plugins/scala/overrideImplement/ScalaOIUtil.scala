@@ -129,32 +129,14 @@ object ScalaOIUtil {
     buf ++= clazz.allVals
     val buf2 = new ArrayBuffer[ScalaObject]
     for (element <- buf) {
-      def addMethod(x: PhysicalSignature) {
-        var flag = false
-        if (x.method match {case x: ScFunction => x.parameters.length == 0 case method => method.getParameterList.getParametersCount == 0}) {
-          for (obj <- buf) {
-            obj match {
-              case (name: PsiNamedElement, subst: ScSubstitutor) if name.getName == x.method.getName => {
-                ScalaPsiUtil.nameContext(name) match {
-                  case _: ScPatternDefinition | _: ScVariableDefinition => flag = true
-                  case _ =>
-                }
-              }
-              case _ =>
-            }
-          }
-        }
-
-        if (!flag) buf2 += element
-      }
       element match {
         case FullSignature(sign : PhysicalSignature, _) => {
           sign.method match {
             case x if x.getName == "$tag" =>
             case x if x.getContainingClass == clazz =>
-            case x if x.getContainingClass.isInterface => addMethod(sign)
-            case x if x.hasModifierProperty("abstract") => addMethod(sign)
-            case x: ScFunctionDeclaration => addMethod(sign)
+            case x if x.getContainingClass.isInterface => buf2 += sign
+            case x if x.hasModifierProperty("abstract") => buf2 += sign
+            case x: ScFunctionDeclaration => buf2 += sign
             case _ =>
           }
         }
