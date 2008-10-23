@@ -52,6 +52,11 @@ public class OverrideImplementTest extends PsiTestCase {
     });
   }
 
+  public void testOverridedTypeAlias() throws Exception {
+    String name = "genericTestCases/overridedTypeAlias.scala";
+    runTest(name);
+  }
+
   public void testFoo() throws Exception {
     String name = "simpleTests/foo.scala";
     runTest(name);
@@ -124,11 +129,6 @@ public class OverrideImplementTest extends PsiTestCase {
 
   public void testHardSubstituting() throws Exception {
     String name = "genericTestCases/hardSubstituting.scala";
-    runTest(name);
-  }
-
-  public void testOverridedTypeAlias() throws Exception {
-    String name = "genericTestCases/overridedTypeAlias.scala";
     runTest(name);
   }
 
