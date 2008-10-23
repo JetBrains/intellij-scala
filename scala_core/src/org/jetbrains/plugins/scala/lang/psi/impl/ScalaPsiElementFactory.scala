@@ -71,6 +71,13 @@ object ScalaPsiElementFactory {
     return dummyFile.getNode.getLastChildNode.getLastChildNode.getLastChildNode
   }
 
+  def createModifierFromText(name: String, manager: PsiManager): ASTNode = {
+    val text = name + " class a"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    return dummyFile.typeDefinitions.apply(0).getModifierList.getFirstChild.getNode
+  }
+
   def createReferenceFromText(name: String, manager: PsiManager): ScStableCodeReferenceElement = {
     val text = "import " + name
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
