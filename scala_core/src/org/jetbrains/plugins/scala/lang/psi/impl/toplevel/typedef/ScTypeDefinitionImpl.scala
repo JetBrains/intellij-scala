@@ -8,6 +8,8 @@ import annotations.Nullable
 import api.ScalaFile
 import api.statements._
 import com.intellij.openapi.editor.Editor
+
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.stubs.IStubElementType
 import stubs.ScTypeDefinitionStub
 import _root_.scala.collection.immutable.Set

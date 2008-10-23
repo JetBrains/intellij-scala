@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.overrideImplement
 
 import com.intellij.codeInsight.generation.{PsiMethodMember, OverrideImplementUtil, ClassMember, PsiFieldMember}
 import com.intellij.openapi.editor.{Editor, VisualPosition}
+
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
@@ -302,6 +304,10 @@ object ScalaOIUtil {
 
   private def adjustTypesAndSetCaret(meth: PsiElement, editor: Editor): Unit = {
     ScalaPsiUtil.adjustTypes(meth)
+    //hack for postformatting IDEA bug.
+    CodeStyleManager.getInstance(meth.getProject()).reformatText(meth.getContainingFile,
+            meth.getTextRange.getStartOffset(), meth.getTextRange.getEndOffset())
+    //Setting selection
     val body: PsiElement = meth match {
       case meth: ScTypeAliasDefinition => meth.aliasedTypeElement
       case meth: ScPatternDefinition => meth.expr
