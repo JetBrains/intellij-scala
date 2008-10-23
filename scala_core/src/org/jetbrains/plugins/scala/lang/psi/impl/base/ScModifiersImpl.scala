@@ -21,7 +21,18 @@ class ScModifierListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   override def toString: String = "Modifiers"
 
-  def hasModifierProperty(name: String) = false
+  def hasModifierProperty(name: String) = {
+    name match {
+      case "override" => has(ScalaTokenTypes.kOVERRIDE)
+      case "private" => has(ScalaTokenTypes.kPRIVATE)
+      case "protected" => has(ScalaTokenTypes.kPROTECTED)
+      case "final" => has(ScalaTokenTypes.kFINAL)
+      case "implicit" => has(ScalaTokenTypes.kIMPLICIT)
+      case "abstract" => has(ScalaTokenTypes.kABSTRACT)
+      case "sealed" => has(ScalaTokenTypes.kSEALED)
+      case _ => false
+    }
+  }
 
   def hasExplicitModifier(name: String) = false
 
