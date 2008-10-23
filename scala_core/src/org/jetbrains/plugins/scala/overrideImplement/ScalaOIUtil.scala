@@ -53,7 +53,7 @@ object ScalaOIUtil {
     val classMembersBuf = new ArrayBuffer[ClassMember]
     for (candidate <- candidates) {
       candidate match {
-        case FullSignature(sign: PhysicalSignature, _) => classMembersBuf += new ScMethodMember(sign)
+        case sign: PhysicalSignature => classMembersBuf += new ScMethodMember(sign)
         case (name: PsiNamedElement, subst: ScSubstitutor) => {
           ScalaPsiUtil.nameContext(name) match {
             case x: ScValue => {
