@@ -7,6 +7,10 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+
+import java.awt.Component
+
+import javax.swing.JCheckBox
 import lang.lexer.ScalaTokenTypes
 import com.intellij.psi._
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement, ScFieldId}
@@ -130,7 +134,9 @@ object ScalaOIUtil {
     val buf2 = new ArrayBuffer[ScalaObject]
     for (element <- buf) {
       element match {
-        case FullSignature(sign : PhysicalSignature, _) => {
+        case FullSignature(_, _) | _: PhysicalSignature => {
+          val sign: PhysicalSignature =
+            element match {case FullSignature(x: PhysicalSignature, _) => x case x: PhysicalSignature => x}
           sign.method match {
             case x if x.getName == "$tag" =>
             case x if x.getContainingClass == clazz =>
@@ -162,7 +168,9 @@ object ScalaOIUtil {
     val buf2 = new ArrayBuffer[ScalaObject]
     for (element <- buf) {
       element match {
-        case FullSignature(sign: PhysicalSignature, _) => {
+        case FullSignature(_, _) | _: PhysicalSignature => {
+          val sign: PhysicalSignature =
+            element match {case FullSignature(x: PhysicalSignature, _) => x case x: PhysicalSignature => x}
           sign.method match {
             case _: ScFunctionDeclaration =>
             case x if x.getName == "$tag" =>
