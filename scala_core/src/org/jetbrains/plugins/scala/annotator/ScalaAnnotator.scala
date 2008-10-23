@@ -35,8 +35,9 @@ class ScalaAnnotator extends Annotator {
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     element match {
-      case x: ScFunction => {
+      case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         //addOverrideGutter(x, holder)
+        //checkOverrideMethods(x, holder)
       }
       case x: ScTypeDefinition => {
         checkImplementedMethods(x, holder)
@@ -52,8 +53,8 @@ class ScalaAnnotator extends Annotator {
             val function = JavaPsiFacade.getInstance(myProject).getShortNamesCache().getClassesByName _
             val classes = function(x.refName, GlobalSearchScope.allScope(myProject)).filter((y: PsiClass) =>
                 y match {
-                  case _: ScObject => true
-                  case _ => false
+                  case _: ScClass | _: ScTrait => false
+                  case _ => true
                 })
             if (classes.length > 0) checkNotQualifiedReferenceElement(x, holder)
           }

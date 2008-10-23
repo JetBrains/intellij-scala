@@ -21,6 +21,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def typeDefinitions(): Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
   def superTypes(): Seq[ScType] = extendsBlock.superTypes
+  def supers(): Seq[PsiClass] = extendsBlock.supers
 
   def allTypes = TypeDefinitionMembers.getTypes(this).values.map{ n => (n.info, n.substitutor) }
   def allVals = TypeDefinitionMembers.getVals(this).values.map{ n => (n.info, n.substitutor) }
