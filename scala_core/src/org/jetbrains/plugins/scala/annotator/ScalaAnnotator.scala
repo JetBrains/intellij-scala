@@ -149,7 +149,15 @@ class ScalaAnnotator extends Annotator {
     val signature = new PhysicalSignature(method, ScSubstitutor.empty)
     for (sign <- superMethods) {
       sign match {
-        case sign: PhysicalSignature if sign.equiv(signature) => isOverride = true
+        case sign: PhysicalSignature if sign.equiv(signature) => {
+          sign.method match {
+            case method: PsiMethod if method.isConstructor =>
+            case method: PsiMethod if method.hasModifierProperty("abstract") =>
+            case method: PsiMethod if method.getContainingClass.isInterface =>
+            case _: ScFunctionDeclaration =>
+            case _ => isOverride = true
+          }
+        }
         case _ =>
       }
     }
