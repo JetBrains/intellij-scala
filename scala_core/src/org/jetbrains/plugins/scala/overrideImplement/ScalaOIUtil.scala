@@ -162,7 +162,7 @@ object ScalaOIUtil {
     val buf2 = new ArrayBuffer[ScalaObject]
     for (element <- buf) {
       element match {
-        case sign: PhysicalSignature => {
+        case FullSignature(sign: PhysicalSignature, _) => {
           sign.method match {
             case _: ScFunctionDeclaration =>
             case x if x.getName == "$tag" =>
@@ -181,7 +181,7 @@ object ScalaOIUtil {
                   }
                 }
               }
-              if (!flag) buf2 += element
+              if (!flag) buf2 += sign
             }
           }
         }
@@ -287,10 +287,9 @@ object ScalaOIUtil {
   private def adjustTypesAndSetCaret(meth: PsiElement, editor: Editor): Unit = {
     ScalaPsiUtil.adjustTypes(meth)
     //hack for postformatting IDEA bug.
-    CodeStyleManager.getInstance(meth.getProject()).reformatText(meth.getContainingFile,
-            meth.getTextRange.getStartOffset(), meth.getTextRange.getEndOffset())
+    val member = CodeStyleManager.getInstance(meth.getProject()).reformat(meth)
     //Setting selection
-    val body: PsiElement = meth match {
+    val body: PsiElement = member match {
       case meth: ScTypeAliasDefinition => meth.aliasedTypeElement
       case meth: ScPatternDefinition => meth.expr
       case meth: ScVariableDefinition => meth.expr
