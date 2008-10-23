@@ -105,11 +105,13 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
     val myEndOffset = editor.logicalPositionToOffset(new LogicalPosition(endPosition.line + 1, 0));
     new TextRange(myStartOffset, myEndOffset);
   }
-  private def visibleHighlights: Array[HighlightInfo] = {
+  private def visibleHighlights = {
     val highlights = DaemonCodeAnalyzerImpl.getHighlights(document, project)
-    if (highlights == null) return Array[HighlightInfo]()
-    for (info <- highlights if isWrongRef(info.`type`) && startOffset <= info.startOffset && endOffset >= info.endOffset &&
-            !editor.getFoldingModel.isOffsetCollapsed(info.startOffset)) yield info
+    if (highlights == null) Array[HighlightInfo]() else {
+      import collection.jcl.Conversions.convertList
+      for (info <- highlights if isWrongRef(info.`type`) && startOffset <= info.startOffset && endOffset >= info.endOffset &&
+              !editor.getFoldingModel.isOffsetCollapsed(info.startOffset)) yield info
+    }
   }
 
   private def startOffset = range.getStartOffset
