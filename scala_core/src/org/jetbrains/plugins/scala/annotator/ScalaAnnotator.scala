@@ -150,7 +150,7 @@ class ScalaAnnotator extends Annotator {
         case Some(node) => if (!method.hasModifierProperty("override")) {
           val isConcrete = node.info.method match {
             case _ : ScFunctionDefinition => true
-            case method: PsiMethod if !method.isConstructor => true
+            case method: PsiMethod if !method.hasModifierProperty(PsiModifier.ABSTRACT) && !method.isConstructor => true
             case _ => false
           }
           if (isConcrete) {
