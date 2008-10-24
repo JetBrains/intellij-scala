@@ -45,7 +45,7 @@ class ScalaAnnotator extends Annotator {
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     element match {
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
-        //addOverrideGutter(x, holder)
+        addOverrideGutter(x, holder)
         checkOverrideMethods(x, holder)
       }
       case x: ScTypeDefinition => {
@@ -168,9 +168,9 @@ class ScalaAnnotator extends Annotator {
   private def addOverrideGutter(method: ScFunction, holder: AnnotationHolder) {
     val annotation: Annotation = holder.createInfoAnnotation(method, null)
 
-    val supers = method.findSuperMethods
-    if (supers.length > 0) 
-      annotation.setGutterIconRenderer(new OverrideGutter(supers, method.getModifierList.getNode.findChildByType(ScalaTokenTypes.kOVERRIDE) == null))
+    val supers = method.superMethods
+    if (supers.length > 0) annotation.setGutterIconRenderer(new OverrideGutter(supers.map(node => node.info.method), 
+        !method.hasModifierProperty("override")))
   }
 
   private def checkResultExpression(block: ScBlock, holder: AnnotationHolder) {

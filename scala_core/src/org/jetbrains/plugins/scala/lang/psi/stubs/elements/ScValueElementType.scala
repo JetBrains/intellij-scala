@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import api.statements.{ScValue, ScValueDeclaration}
+
+import api.toplevel.templates.ScTemplateBody
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.util.io.StringRef
