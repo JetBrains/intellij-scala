@@ -55,7 +55,7 @@ with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with Sc
 
   def declaredElements = Seq.singleton(this)
 
-  def superMethods: Seq[MethodNodes.Node]
+  def superMethods: Seq[PsiMethod]
 
-  def superMethod: Option[MethodNodes.Node]
+  def superMethod: Option[PsiMethod]
 }

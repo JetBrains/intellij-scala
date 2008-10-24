@@ -62,19 +62,17 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     }
   }
 
-  def superMethods: Seq[MethodNodes.Node] = if (getParent.isInstanceOf[ScTemplateBody]) TypeDefinitionMembers.
-      getMethods(this.getContainingClass).
+  def superMethods = TypeDefinitionMembers.getMethods(getContainingClass).
       get(new PhysicalSignature(this, ScSubstitutor.empty)) match {
-    case None => Seq.empty
-    case Some(x) => x.supers
-  } else Seq.empty
+    //partial match
+    case Some(x) => x.supers.map{_.info.method}
+  }
 
-  def superMethod: Option[MethodNodes.Node] = if (getParent.isInstanceOf[ScTemplateBody]) TypeDefinitionMembers.
-      getMethods(this.getContainingClass).
-      get(new PhysicalSignature(this, ScSubstitutor.empty)) match {
-    case None => None
-    case Some(x) => x.primarySuper
-  } else None
+  def superMethod = TypeDefinitionMembers.getMethods(getContainingClass).
+          get(new PhysicalSignature(this, ScSubstitutor.empty)) match {
+    //partial match
+    case Some(x) => x.primarySuper match {case Some (n) => Some(n.info.method) case None => None}
+  }
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
