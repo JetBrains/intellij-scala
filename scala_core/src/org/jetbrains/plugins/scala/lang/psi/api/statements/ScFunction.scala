@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
-import types.{ScType, Nothing}
+
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, PhysicalSignature, Nothing, ScSubstitutor}
+
+import impl.toplevel.typedef.TypeDefinitionMembers.MethodNodes
+import impl.toplevel.typedef.{TypeDefinitionMembers, MixinNodes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
@@ -12,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import com.intellij.psi._
 
-/** 
+import toplevel.templates.ScTemplateBody
+/**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 * Time: 9:45:38
@@ -49,4 +54,8 @@ with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with Sc
   def paramTypes = parameters.map{_.calcType}
 
   def declaredElements = Seq.singleton(this)
+
+  def superMethods: Seq[MethodNodes.Node]
+
+  def superMethod: Option[MethodNodes.Node]
 }

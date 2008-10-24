@@ -1,14 +1,19 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, PhysicalSignature, ScFunctionType, ScSubstitutor}
+import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef.ScMember
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import stubs.elements.wrappers.DummyASTNode
 import stubs.ScFunctionStub
 import toplevel.synthetic.JavaIdentifier
-import types.{ScType, ScFunctionType}
+
 import api.expr.ScAnnotations
+
+import toplevel.typedef.{TypeDefinitionMembers, MixinNodes}
+import impl.toplevel.typedef.TypeDefinitionMembers.MethodNodes
 import java.util._
 import com.intellij.lang._
 import com.intellij.psi._
@@ -56,6 +61,20 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
       override def getIcon(open: Boolean) = ScFunctionImpl.this.getIcon(0)
     }
   }
+
+  def superMethods: Seq[MethodNodes.Node] = if (getParent.isInstanceOf[ScTemplateBody]) TypeDefinitionMembers.
+      getMethods(this.getContainingClass).
+      get(new PhysicalSignature(this, ScSubstitutor.empty)) match {
+    case None => Seq.empty
+    case Some(x) => x.supers
+  } else Seq.empty
+
+  def superMethod: Option[MethodNodes.Node] = if (getParent.isInstanceOf[ScTemplateBody]) TypeDefinitionMembers.
+      getMethods(this.getContainingClass).
+      get(new PhysicalSignature(this, ScSubstitutor.empty)) match {
+    case None => None
+    case Some(x) => x.primarySuper
+  } else None
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
