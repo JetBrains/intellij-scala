@@ -135,31 +135,26 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def checkOverrideMethods(method: ScFunction, holder: AnnotationHolder) {
-    if (method.isInstanceOf[ScFunctionDeclaration]) return
-    val signature = new PhysicalSignature(method, ScSubstitutor.empty)
-    TypeDefinitionMembers.getMethods(method.getContainingClass).get(signature) match {
+    method.superMethod match {
       case None =>
-      case Some(n) => n.primarySuper match {
-        case None =>
-          if (method.hasModifierProperty("override")) {
-            val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
-              ScalaBundle.message("method.overrides.nothing", Array[Object](method.getName)))
-            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-            annotation.registerFix(new RemoveModifierQuickFix(method, "override"))
-          }
-        case Some(node) => if (!method.hasModifierProperty("override")) {
-          val isConcrete = node.info.method match {
-            case _ : ScFunctionDefinition => true
-            case _ : ScFunctionDeclaration => false
-            case method: PsiMethod if !method.hasModifierProperty(PsiModifier.ABSTRACT) && !method.isConstructor => true
-            case _ => false
-          }
-          if (isConcrete) {
-            val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
-              ScalaBundle.message("method.needs.override.modifier", Array[Object](method.getName)))
-            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-            annotation.registerFix(new AddModifierQuickFix(method, "override"))
-          }
+        if (method.hasModifierProperty("override")) {
+          val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
+            ScalaBundle.message("method.overrides.nothing", Array[Object](method.getName)))
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          annotation.registerFix(new RemoveModifierQuickFix(method, "override"))
+        }
+      case Some(superMethod) => if (!method.hasModifierProperty("override")) {
+        val isConcrete = superMethod match {
+          case _ : ScFunctionDefinition => true
+          case _ : ScFunctionDeclaration => false
+          case method: PsiMethod if !method.hasModifierProperty(PsiModifier.ABSTRACT) && !method.isConstructor => true
+          case _ => false
+        }
+        if (isConcrete) {
+          val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
+            ScalaBundle.message("method.needs.override.modifier", Array[Object](method.getName)))
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          annotation.registerFix(new AddModifierQuickFix(method, "override"))
         }
       }
     }
@@ -169,8 +164,8 @@ class ScalaAnnotator extends Annotator {
     val annotation: Annotation = holder.createInfoAnnotation(method, null)
 
     val supers = method.superMethods
-    if (supers.length > 0) annotation.setGutterIconRenderer(new OverrideGutter(supers.map(node => node.info.method), 
-        !method.hasModifierProperty("override")))
+    if (supers.length > 0) annotation.setGutterIconRenderer(
+      new OverrideGutter(supers, !method.hasModifierProperty("override")))
   }
 
   private def checkResultExpression(block: ScBlock, holder: AnnotationHolder) {
