@@ -126,7 +126,7 @@ object ScType {
     case ScDesignatorType(clazz : PsiClass) => Some(clazz, ScSubstitutor.empty)
     case proj@ScProjectionType(p, _) => proj.resolveResult match {
       case Some(ScalaResolveResult(c: PsiClass, s)) => Some((c, s))
-      case None => None
+      case _ => None
     }
     case p@ScParameterizedType(t1, _) => {
       extractClassType(t1) match {
