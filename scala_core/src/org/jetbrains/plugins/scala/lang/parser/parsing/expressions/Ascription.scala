@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
-import types.CompoundType
+import types.InfixType
 
 /**
 * @author Alexander Podkhalyuzin
@@ -39,7 +39,7 @@ object Ascription {
       }
       case _ => {}
     }
-    if (!CompoundType.parse(builder)) {
+    if (!InfixType.parse(builder)) {
       var x = 0;
       val annotationsMarker = builder.mark
       while (Annotation.parse(builder)) {
