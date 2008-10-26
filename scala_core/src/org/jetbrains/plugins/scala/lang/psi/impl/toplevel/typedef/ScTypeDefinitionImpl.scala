@@ -48,10 +48,7 @@ import Misc._
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake  {
 
-  def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
-    case null => ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScTypeDefinitionStub].getName, getManager).getPsi
-    case n => n
-  }
+  def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
   override def getModifierList = super[ScTypeDefinition].getModifierList
 
