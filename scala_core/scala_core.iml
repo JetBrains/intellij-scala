@@ -29,6 +29,7 @@
     <orderEntry type="module" module-name="lang-api" />
     <orderEntry type="module" module-name="lang-impl" />
     <orderEntry type="module" module-name="psi-extapi" />
+    <orderEntry type="library" name="scalax" level="application" />
   </component>
   <component name="copyright">
     <Base>

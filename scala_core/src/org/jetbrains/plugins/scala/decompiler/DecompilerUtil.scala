@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.decompiler
 
+
 import annotations.Nullable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.vfs.VirtualFile
-import java.io.FileNotFoundException
+import java.io.{ByteArrayOutputStream, FileNotFoundException}
+import scalax.rules.scalasig.{ClassFileParser, ScalaSigAttributeParsers, ScalaSigPrinter, ByteCode}
 
 /**
  * @author ilyas
@@ -17,6 +19,7 @@ object DecompilerUtil {
   def isScalaFile(file: VirtualFile): Boolean = {
     if (file.getFileType != StdFileTypes.CLASS) return false
     try {
+      //todo remove scalap reference
       ScalaDecompiler.isScalaFile(file.contentsToByteArray())
     }
     catch {
@@ -40,4 +43,19 @@ object DecompilerUtil {
     project
   }
 
+  def decompile(bytes : Array[Byte]) = {
+    val byteCode = ByteCode(bytes)
+    val classFile = ClassFileParser.parse(byteCode)
+    classFile.attribute("ScalaSig").map(_.byteCode).map(ScalaSigAttributeParsers.parse) match {
+      case Some(scalaSig) => {
+        val stream = new ByteArrayOutputStream
+        Console.withOut(stream) {
+          for (c <- scalaSig.topLevelClass) ScalaSigPrinter.printSymbol(c)
+          println
+          for (o <- scalaSig.topLevelObject) ScalaSigPrinter.printSymbol(o)
+        }
+        stream.toString
+      }
+    }
+  }
 }
