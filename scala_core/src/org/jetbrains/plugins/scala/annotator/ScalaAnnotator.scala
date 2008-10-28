@@ -121,12 +121,15 @@ class ScalaAnnotator extends Annotator {
         case _: ScObject => ScalaBundle.message("object.must.implement", Array[Object](clazz.getName))
       }
       val start = clazz.getTextRange.getStartOffset
-      var end = clazz.extendsBlock.templateBody match {
-        case Some(x) => x.getTextRange.getStartOffset
-        case None => clazz.extendsBlock.getTextRange.getEndOffset
+      val eb = clazz.extendsBlock
+      var end = eb.templateBody match {
+        case Some(x) => {
+          val shifted = eb.findElementAt(x.getStartOffsetInParent - 1) match {case w : PsiWhiteSpace => w case _ => x}
+          shifted.getTextRange.getStartOffset
+        }
+        case None => eb.getTextRange.getEndOffset
       }
-      val text = clazz.getContainingFile.getText
-      while (end > start && (text.charAt(end - 1) == ' ' || text.charAt(end - 1) == '\n')) end = end - 1
+      
       val annotation: Annotation = holder.createErrorAnnotation(new TextRange(start, end), error)
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
 
