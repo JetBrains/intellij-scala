@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, PhysicalSignature, Nothing, ScSubstitutor}
 
+
+import base.patterns.ScReferencePattern
 import impl.toplevel.typedef.TypeDefinitionMembers.MethodNodes
 import impl.toplevel.typedef.{TypeDefinitionMembers, MixinNodes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -58,4 +60,6 @@ with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with Sc
   def superMethods: Seq[PsiMethod]
 
   def superMethod: Option[PsiMethod]
+
+  def superVals: Seq[PsiNamedElement]
 }

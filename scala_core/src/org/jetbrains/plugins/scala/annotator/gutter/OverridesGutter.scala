@@ -7,7 +7,11 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 
 import com.intellij.openapi.util.{Iconable, IconLoader}
-import com.intellij.psi.{PsiMethod, PsiElement}
+
+
+import com.intellij.psi.util.PsiTreeUtil
+
+import com.intellij.psi.{PsiMethod, PsiElement, PsiClass, PsiNamedElement}
 import com.intellij.ui.awt.RelativePoint
 import java.awt.event.MouseEvent
 import javax.swing.Icon
@@ -18,18 +22,18 @@ import lang.psi.ScalaPsiUtil
  * Date: 21.09.2008
  */
 
-class OverrideGutter(methods: Seq[PsiMethod], isImplements: Boolean) extends GutterIconRenderer {
+class OverrideGutter(methods: Seq[PsiMethod], vals: Seq[PsiNamedElement], isImplements: Boolean) extends GutterIconRenderer {
   def getIcon: Icon = if (isImplements) IconLoader.getIcon("/gutter/implementingMethod.png");
                       else IconLoader.getIcon("/gutter/overridingMethod.png")
   override lazy val getTooltipText: String = {
-    assert(methods.length > 0)
-    val clazz = methods(0).getContainingClass
+    assert(methods.length + vals.length > 0)
+    val clazz = if (methods.length > 0) methods(0).getContainingClass else PsiTreeUtil.getParentOfType(vals(0), classOf[PsiClass])
     assert(clazz != null)
     if (isImplements) ScalaBundle.message("implements.method.from.super", Array[Object](clazz.getQualifiedName))
     else ScalaBundle.message("overrides.method.from.super", Array[Object](clazz.getQualifiedName))
   }
 
-
+  //todo: Add vals
   override lazy val getClickAction: AnAction = new AnAction {
     def actionPerformed(e: AnActionEvent) {
       methods.length match {

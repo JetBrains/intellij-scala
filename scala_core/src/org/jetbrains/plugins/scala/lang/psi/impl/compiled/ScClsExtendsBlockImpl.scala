@@ -38,4 +38,6 @@ extends ScClsElementImpl[ScExtendsBlock, ScExtendsBlockStub](stub) with ScExtend
   def functions() = Seq.empty
 
   def members: Seq[ScMember] = Seq.empty
+
+  def directSupersNames: Seq[String] = Seq.empty
 }

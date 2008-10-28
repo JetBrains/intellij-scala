@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates
 
+
+import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeElement}
 import api.statements.{ScValue, ScVariable}
 import api.toplevel.typedef.ScObject
 import api.expr.ScNewTemplateDefinition
@@ -59,7 +61,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     buffer.toArray
   }
 
-  private def scalaObject() = {
+  private def scalaObject(): ScType = {
     val so = JavaPsiFacade.getInstance(getProject).findClass("scala.ScalaObject")
     if (so != null) new ScDesignatorType(so) else null
   }
@@ -85,6 +87,26 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     }
 
     buf.toArray
+  }
+
+  def directSupersNames: Seq[String] = {
+    templateParents match {
+      case None => Seq.empty
+      case Some(parents) => {
+        val res = new ArrayBuffer[String]
+        val pars = parents.typeElements
+        for (par <- pars) {
+          par match {
+            case _: ScSimpleTypeElement => res += par.getLastChild.getText()
+            case x: ScParameterizedTypeElement => res += x.typeElement.getLastChild.getText()
+            case _ =>
+          }
+        }
+        res += "Object"
+        res += "ScalaObject"
+        res.toSeq
+      }
+    }
   }
 
   def members() = {
