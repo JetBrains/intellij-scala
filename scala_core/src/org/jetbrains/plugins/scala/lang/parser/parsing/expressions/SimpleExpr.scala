@@ -38,7 +38,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
         if (!ClassTemplate.parse(builder, true)) {
           builder error ErrMsg("identifier.expected")
           simpleMarker.drop
-          return true
+          return false
         }
         newMarker = simpleMarker.precede
         simpleMarker.done(ScalaElementTypes.NEW_TEMPLATE)
