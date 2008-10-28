@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.index
 
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import api.toplevel.packaging.ScPackageContainer
+
+import api.toplevel.templates.ScExtendsBlock
 import com.intellij.psi.PsiClass
 import com.intellij.psi.stubs.StubIndexKey
 
@@ -18,4 +20,5 @@ object ScalaIndexKeys {
   val VALUE_NAME_KEY: StubIndexKey[String, ScValue] = StubIndexKey.createIndexKey("sc.value.name")
   val VARIABLE_NAME_KEY: StubIndexKey[String, ScVariable] = StubIndexKey.createIndexKey("sc.variable.name")
   val TYPE_ALIAS_NAME_KEY: StubIndexKey[String, ScTypeAlias] = StubIndexKey.createIndexKey("sc.type.alias.name")
+  val SUPER_CLASS_NAME_KEY: StubIndexKey[String, ScExtendsBlock] = StubIndexKey.createIndexKey("sc.super.class.name")
 }

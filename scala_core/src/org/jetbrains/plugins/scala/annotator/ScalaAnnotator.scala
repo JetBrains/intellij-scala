@@ -162,10 +162,10 @@ class ScalaAnnotator extends Annotator {
 
   private def addOverrideGutter(method: ScFunction, holder: AnnotationHolder) {
     val annotation: Annotation = holder.createInfoAnnotation(method, null)
-
-    val supers = method.superMethods
-    if (supers.length > 0) annotation.setGutterIconRenderer(
-      new OverrideGutter(supers, !method.hasModifierProperty("override")))
+    val superVals = method.superVals.filter(_.getName == method.getName)
+    val supers = (HashSet[PsiMethod](method.superMethods: _*)).toSeq
+    if (supers.length + superVals.length > 0) annotation.setGutterIconRenderer(
+      new OverrideGutter(supers, superVals, !method.hasModifierProperty("override")))
   }
 
   private def checkResultExpression(block: ScBlock, holder: AnnotationHolder) {

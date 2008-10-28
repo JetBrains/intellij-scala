@@ -107,8 +107,8 @@ trait ScImportsHolder extends ScalaPsiElement {
             case im: ScImportStmt => {
               if (importSt.getText.toLowerCase < im.getText.toLowerCase) {
                 added = true
-                addBefore(ScalaPsiElementFactory.createNewLineNode(im.getManager).getPsi, im)
                 addBefore(importSt, im)
+                addBefore(ScalaPsiElementFactory.createNewLineNode(im.getManager).getPsi, im)
               }
             }
             case _ =>

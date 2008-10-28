@@ -37,4 +37,6 @@ trait ScExtendsBlock extends ScalaPsiElement {
   def supers : Seq[PsiClass]
 
   def isAnonymousClass: Boolean
+
+  def directSupersNames: Seq[String]
 }

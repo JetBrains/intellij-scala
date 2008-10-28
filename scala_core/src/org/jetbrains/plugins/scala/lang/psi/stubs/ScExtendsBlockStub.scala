@@ -6,4 +6,6 @@ import com.intellij.psi.stubs.StubElement
  * @author ilyas
  */
 
-trait ScExtendsBlockStub extends StubElement[ScExtendsBlock]
+trait ScExtendsBlockStub extends StubElement[ScExtendsBlock] {
+  def getBaseClasses: Array[String]
+}

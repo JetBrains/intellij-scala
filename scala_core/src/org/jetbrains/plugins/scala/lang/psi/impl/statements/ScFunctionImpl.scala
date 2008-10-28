@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, PhysicalSignature, ScFunctionType, ScSubstitutor}
+
+import api.base.patterns.ScReferencePattern
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef.ScMember
 import com.intellij.navigation.ItemPresentation
@@ -73,6 +75,9 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     //partial match
     case Some(x) => x.primarySuper match {case Some (n) => Some(n.info.method) case None => None}
   }
+
+  def superVals: Seq[PsiNamedElement] =
+    TypeDefinitionMembers.getSuperVals(this.getContainingClass).toSeq.map(_._1)
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
