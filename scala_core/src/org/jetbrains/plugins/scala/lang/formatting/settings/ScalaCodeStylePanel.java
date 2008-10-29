@@ -68,7 +68,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox whileOnNewLineCheckBox;
   private JCheckBox specialElseIfTreatmentCheckBox;
   private JCheckBox indentCaseFromMatchCheckBox;
-  private JSpinner indentSpinner;
   private JSpinner classCountSpinner;
   private JCheckBox addUnambiguousImportsOnCheckBox;
   private JCheckBox alignIfElseStatementCheckBox;
@@ -174,7 +173,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
     scalaSettings.INDENT_CASE_FROM_SWITCH = indentCaseFromMatchCheckBox.isSelected();
     scalaSettings.SPECIAL_ELSE_IF_TREATMENT = specialElseIfTreatmentCheckBox.isSelected();
-    scalaSettings.INDENT = (Integer) indentSpinner.getValue();
     scalaSettings.ELSE_ON_NEW_LINE = elseOnNewLineCheckBox.isSelected();
     scalaSettings.CATCH_ON_NEW_LINE = catchOnNewLineCheckBox.isSelected();
     scalaSettings.FINALLY_ON_NEW_LINE = finallyOnNewLineCheckBox.isSelected();
@@ -298,7 +296,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.FINALLY_ON_NEW_LINE != finallyOnNewLineCheckBox.isSelected()) return true;
     if (scalaSettings.SPECIAL_ELSE_IF_TREATMENT != specialElseIfTreatmentCheckBox.isSelected()) return true;
     if (scalaSettings.INDENT_CASE_FROM_SWITCH != indentCaseFromMatchCheckBox.isSelected()) return true;
-    if (scalaSettings.INDENT != (Integer) indentSpinner.getValue()) return true;
     if (scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND != (Integer) classCountSpinner.getValue()) return true;
     if (scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY != addUnambiguousImportsOnCheckBox.isSelected()) return true;
     return false;
@@ -359,7 +356,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(alignParenthesizedExpressionCheckBox, settings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION);
     setValue(alignIfElseStatementCheckBox, settings.ALIGN_IF_ELSE);
 
-    setValue(indentSpinner, settings.INDENT);
     setValue(elseOnNewLineCheckBox, settings.ELSE_ON_NEW_LINE);
     setValue(whileOnNewLineCheckBox, settings.WHILE_ON_NEW_LINE);
     setValue(catchOnNewLineCheckBox, settings.CATCH_ON_NEW_LINE);
@@ -372,10 +368,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
   private static void setValue(JSpinner spinner, int value) {
     spinner.setValue(value);
-  }
-
-  private static void setValue(final JComboBox box, final int value) {
-    box.setSelectedIndex(value);
   }
 
   private static void setValue(final JCheckBox box, final boolean value) {
