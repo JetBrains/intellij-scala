@@ -67,10 +67,12 @@ public class OverrideImplementTest extends PsiTestCase {
     runTest(name);
   }
 
+/*
   public void testEmptyUpper() throws Exception {
     String name = "simpleTests/emptyUpper.scala";
     runTest(name);
   }
+*/
 
   public void testNewLineBetweenMethods() throws Exception {
     String name = "simpleTests/newLineBetweenMethods.scala";

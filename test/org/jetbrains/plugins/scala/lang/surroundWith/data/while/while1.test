@@ -4,7 +4,5 @@ class a {
 }
 -----
 class a {
-  while (true) {
-    abc
-  }
+  while (true) {abc}
 }

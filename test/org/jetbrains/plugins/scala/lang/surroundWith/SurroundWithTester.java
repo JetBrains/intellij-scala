@@ -90,7 +90,7 @@ public class SurroundWithTester extends BaseScalaFileSetTestCase {
 
   public String transform(String testName, String[] data) throws Exception {
     final int surroundType = Integer.parseInt(data[0].substring(0,2).trim());
-    String fileText = data[0].substring(2,data[0].length()).trim();
+    String fileText = data[0].substring(2).trim();
     final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
 
     final Surrounder[] surrounder = surrounder();
