@@ -6,7 +6,7 @@ class a {
 ------
 class a {
   def foo {
-    val value: Nothing = new Array
+    val value = new Array
     value<caret>
   }
 }

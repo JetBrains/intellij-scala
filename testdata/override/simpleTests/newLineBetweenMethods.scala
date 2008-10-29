@@ -10,10 +10,10 @@ abstract class b {
 package test
 
 class MethodsNewLine extends b {
-  def foo(): Int = 3
+    def foo(): Int = 3
 
-  def too: b = null
+    def too: b = null
 }
 abstract class b {
-  def too: b
+    def too: b
 }

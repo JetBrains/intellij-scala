@@ -4,7 +4,5 @@ class a {
 }
 -----
 class a {
-  {
-    if (a) abc
-  }
+  {if (a) abc}
 }

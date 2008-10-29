@@ -12,12 +12,12 @@ class VarOverride extends A {
 package test
 
 class A {
-  var foo: A = new A
+    var foo: A = new A
 }
 class VarOverride extends A {
-  val t = foo()
+    val t = foo()
 
-  override var foo: A = _
+    override var foo: A = _
 
-  def y(): Int = 3
+    def y(): Int = 3
 }

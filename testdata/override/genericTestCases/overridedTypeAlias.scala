@@ -10,13 +10,13 @@ class OverridedTypeAlias extends Aa {
   <caret>
 }<end>
 abstract class Aa {
-  type K = Aa
-  val y: K
+    type K = Aa
+    val y: K
 }
 
 class OverridedTypeAlias extends Aa {
-  override type K = B
+    override type K = B
 
 
-  val y: Aa = _
+    val y: Aa = _
 }

@@ -44,6 +44,10 @@ public abstract class ScalaFileSetTestCase extends FileSetTestCase {
   }
 
   protected void setSettings() {
+    mySettings = getSettings();
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE = 2;
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).CONTINUATION_INDENT_SIZE = 2;
+    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).TAB_SIZE = 2;
   }
 
   protected void setUp() {

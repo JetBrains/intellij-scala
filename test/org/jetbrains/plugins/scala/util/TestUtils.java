@@ -62,6 +62,7 @@ public class TestUtils {
   private static String TEST_DATA_PATH = null;
 
   public static String getTestDataPath() {
+/*
     if (TEST_DATA_PATH == null) {
       ClassLoader loader = TestUtils.class.getClassLoader();
       URL resource = loader.getResource("testdata");
@@ -72,8 +73,10 @@ public class TestUtils {
         return null;
       }
     }
+*/
 
-    return TEST_DATA_PATH;
+//    return TEST_DATA_PATH;
+    return "/home/ilya/Work/scala/testdata";
   }
 
 
