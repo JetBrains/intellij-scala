@@ -13,7 +13,7 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Additional command line parameters:"/>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.compiler.cmd.line.params"/>
         </properties>
       </component>
       <component id="a24" class="javax.swing.JLabel">
@@ -21,7 +21,7 @@
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Maximum heap size(MB):"/>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.compiler.heap.size"/>
         </properties>
       </component>
       <component id="efdfe" class="com.intellij.ui.RawCommandLineEditor" binding="additionalCommandLineParameters">
@@ -52,7 +52,7 @@
         </constraints>
         <properties>
           <selected value="true"/>
-          <text value="Report use of deprecation feature"/>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.compiler.use.deprecation"/>
         </properties>
       </component>
       <component id="dddce" class="javax.swing.JCheckBox" binding="uncheckedCheckBox">
@@ -61,7 +61,7 @@
         </constraints>
         <properties>
           <selected value="true"/>
-          <text value="Report use of unchecked feature"/>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.compiler.show.unchecked"/>
         </properties>
       </component>
       <component id="903e" class="javax.swing.JCheckBox" binding="noWarningsCheckBox">
@@ -69,7 +69,7 @@
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Generate no warnings"/>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.compiler.generate.no.warnings"/>
         </properties>
       </component>
       <component id="65606" class="javax.swing.JCheckBox" binding="optimizeCheckBox">
@@ -78,7 +78,7 @@
         </constraints>
         <properties>
           <selected value="true"/>
-          <text value="Optimise byte code"/>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.compiler.optimize"/>
         </properties>
       </component>
       <component id="c6a09" class="javax.swing.JCheckBox" binding="scalacBeforeCheckBox">
@@ -86,7 +86,7 @@
           <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Report use scalac before javac"/>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.compiler.scalac.first"/>
         </properties>
       </component>
     </children>
