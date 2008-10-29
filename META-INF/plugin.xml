@@ -54,7 +54,8 @@
     <directClassInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaDirectClassInheritorsSearcher"/>
     <codeInsight.lineMarkerProvider language="Scala" implementationClass="com.intellij.codeInsight.daemon.impl.JavaLineMarkerProvider"/>
     <codeInsight.gotoSuper language="Scala" implementationClass="com.intellij.codeInsight.navigation.JavaGotoSuperHandler"/>
-      
+    <fileTypeIndentOptionsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaIndentOptionsProvider"/>
+
     <gotoClassContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToClassContributor"/>
     <gotoSymbolContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToSymbolContributor"/>
 
