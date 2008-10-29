@@ -7,9 +7,14 @@ import _root_.org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
+
+import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.psi.{PsiElement, PsiFile}
+
+import com.intellij.psi.{PsiFileFactory, PsiElement, PsiFile}
+
+import com.intellij.util.LocalTimeCounter
 import java.io.File
 import psi.api.ScalaFile
 import psi.api.toplevel.typedef.ScTypeDefinition
@@ -17,12 +22,13 @@ import psi.ScalaPsiUtil
 import util.ScalaTestUtils
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 03.10.2008
+ *  User: Alexander Podkhalyuzin
+ *  Date: 03.10.2008
  */
 
 object OverrideImplementTestHelper {
   private val CARET_MARKER = "<caret>"
+
   private def removeMarker(text: String): String = {
     val index = text.indexOf(CARET_MARKER);
     return text.substring(0, index) + text.substring(index + CARET_MARKER.length());
@@ -60,4 +66,20 @@ object OverrideImplementTestHelper {
     System.out.println("");
     return file.getText();
   }
+}
+
+package util {
+
+  object ScalaTestUtils {
+    def createPseudoPhysicalScalaFile(project: Project, text: String): PsiFile = {
+      val TEMP_FILE = project.getProjectFilePath() + "temp.scala";
+      return PsiFileFactory.getInstance(project).createFileFromText(
+        TEMP_FILE,
+        FileTypeManager.getInstance().getFileTypeByFileName(TEMP_FILE),
+        text,
+        LocalTimeCounter.currentTime(),
+        true)
+    }
+  }
+
 }
