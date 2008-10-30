@@ -33,6 +33,7 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
   public boolean DEPRECATION = true;
   public boolean UNCHECKED = true;
   public boolean OPTIMISE = false;
+  public boolean NO_GENERICS = false;
   public boolean SCALAC_BEFORE = false;
 
   public ScalacSettings getState() {
@@ -74,6 +75,9 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
     }
     if(UNCHECKED) {
       options.append("-unchecked ");
+    }
+    if(NO_GENERICS) {
+      options.append("-Yno-generic-signatures ");
     }
     if(OPTIMISE) {
       options.append("-optimise ");
