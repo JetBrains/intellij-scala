@@ -28,6 +28,7 @@ public class ScalacConfigurable implements Configurable {
   private JCheckBox noWarningsCheckBox;
   private JCheckBox optimizeCheckBox;
   private JCheckBox scalacBeforeCheckBox;
+  private JCheckBox myNoGenerics;
   private ScalacSettings mySettings;
   private Project myProject;
 
@@ -61,6 +62,7 @@ public class ScalacConfigurable implements Configurable {
     if (!additionalCommandLineParameters.getText().equals(mySettings.ADDITIONAL_OPTIONS_STRING)) return true;
     if (mySettings.DEPRECATION != deprecationCheckBox.isSelected()) return true;
     if (mySettings.UNCHECKED != uncheckedCheckBox.isSelected()) return true;
+    if (mySettings.NO_GENERICS != myNoGenerics.isSelected()) return true;
     if (mySettings.GENERATE_NO_WARNINGS != noWarningsCheckBox.isSelected()) return true;
     if (mySettings.OPTIMISE != optimizeCheckBox.isSelected()) return true;
     if (mySettings.SCALAC_BEFORE != scalacBeforeCheckBox.isSelected()) return true;
@@ -101,6 +103,7 @@ public class ScalacConfigurable implements Configurable {
     additionalCommandLineParameters.setText(mySettings.ADDITIONAL_OPTIONS_STRING);
     noWarningsCheckBox.setSelected(mySettings.GENERATE_NO_WARNINGS);
     uncheckedCheckBox.setSelected(mySettings.UNCHECKED);
+    myNoGenerics.setSelected(mySettings.NO_GENERICS);
     deprecationCheckBox.setSelected(mySettings.DEPRECATION);
     optimizeCheckBox.setSelected(mySettings.OPTIMISE);
     scalacBeforeCheckBox.setSelected(mySettings.SCALAC_BEFORE);
