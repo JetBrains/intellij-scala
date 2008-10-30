@@ -38,7 +38,9 @@ public class ScalaCompiler implements TranslatingCompiler {
 
   public boolean isCompilableFile(VirtualFile file, CompileContext context) {
     final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
-    return fileType.equals(ScalaFileType.SCALA_FILE_TYPE) || fileType.equals(StdFileTypes.JAVA);
+
+    return fileType.equals(ScalaFileType.SCALA_FILE_TYPE) ||
+        ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE && fileType.equals(StdFileTypes.JAVA);
   }
 
   public ExitStatus compile(CompileContext context, VirtualFile[] files) {

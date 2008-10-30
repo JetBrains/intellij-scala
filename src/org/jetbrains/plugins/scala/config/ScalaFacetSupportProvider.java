@@ -16,6 +16,7 @@
 package org.jetbrains.plugins.scala.config;
 
 import com.intellij.facet.impl.ui.FacetTypeFrameworkSupportProvider;
+import com.intellij.facet.impl.ui.VersionConfigurable;
 import com.intellij.facet.ui.ValidationResult;
 import com.intellij.facet.ui.libraries.LibraryInfo;
 import com.intellij.openapi.module.Module;
@@ -25,6 +26,8 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
+import com.intellij.ide.util.newProjectWizard.FrameworkSupportProvider;
+import com.intellij.ide.util.newProjectWizard.FrameworkSupportModel;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,8 +51,8 @@ public class ScalaFacetSupportProvider extends FacetTypeFrameworkSupportProvider
   }
 
   @NotNull
-  public ScalaVersionConfigurable createConfigurable(final Project project) {
-    return new ScalaVersionConfigurable(project, getDefaultVersion());
+  public ScalaVersionConfigurable createConfigurable(final  @NotNull FrameworkSupportModel model) {
+    return new ScalaVersionConfigurable(model.getProject(), getDefaultVersion());
   }
 
   @Nullable
@@ -150,7 +153,7 @@ public class ScalaFacetSupportProvider extends FacetTypeFrameworkSupportProvider
     }
 
     public ScalaVersionConfigurable(Project project, String defaultVersion) {
-      super(getVersions(), defaultVersion);
+      super(ScalaFacetSupportProvider.this, getVersions(), defaultVersion);
       myFacetEditor = new ScalaFacetEditor(project, getDefaultVersion());
     }
   }
