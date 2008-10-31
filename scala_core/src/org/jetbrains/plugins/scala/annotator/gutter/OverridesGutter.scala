@@ -15,6 +15,7 @@ import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement, PsiClass}
 import com.intellij.ui.awt.RelativePoint
 import java.awt.event.MouseEvent
 import javax.swing.Icon
+import lang.psi.api.statements.ScTypeAlias
 import lang.psi.api.toplevel.typedef.ScMember
 import lang.psi.ScalaPsiUtil
 
@@ -23,12 +24,14 @@ import lang.psi.ScalaPsiUtil
  * Date: 21.09.2008
  */
 
-class OverrideGutter(methods: Seq[PsiMethod], vals: Seq[PsiNamedElement], isImplements: Boolean) extends GutterIconRenderer {
+class OverrideGutter(methods: Seq[PsiMethod], vals: Seq[PsiNamedElement], types: Seq[ScTypeAlias], isImplements: Boolean) extends GutterIconRenderer {
   def getIcon: Icon = if (isImplements) IconLoader.getIcon("/gutter/implementingMethod.png");
                       else IconLoader.getIcon("/gutter/overridingMethod.png")
   override lazy val getTooltipText: String = {
-    assert(methods.length + vals.length > 0)
-    val clazz = if (methods.length > 0) methods(0).getContainingClass else PsiTreeUtil.getParentOfType(vals(0), classOf[PsiClass])
+    assert(methods.length + vals.length + types.length > 0)
+    val clazz = if (methods.length > 0) methods(0).getContainingClass
+    else if (vals.length > 0) PsiTreeUtil.getParentOfType(vals(0), classOf[PsiClass])
+    else PsiTreeUtil.getParentOfType(types(0), classOf[PsiClass])
     assert(clazz != null)
     if (isImplements) ScalaBundle.message("implements.method.from.super", Array[Object](clazz.getQualifiedName))
     else ScalaBundle.message("overrides.method.from.super", Array[Object](clazz.getQualifiedName))
@@ -36,16 +39,15 @@ class OverrideGutter(methods: Seq[PsiMethod], vals: Seq[PsiNamedElement], isImpl
 
   override lazy val getClickAction: AnAction = new AnAction {
     def actionPerformed(e: AnActionEvent) {
-      methods.length + vals.length match {
+      methods.length + vals.length + types.length match {
         case 0 =>
         case 1 => {
           if (methods.length > 0 && methods(0).canNavigateToSource) methods(0).navigate(true)
-          else {
-            EditSourceUtil.getDescriptor(vals(0)).navigate(true)
-          }
+          else if (vals.length > 0 && EditSourceUtil.canNavigate(vals(0))) EditSourceUtil.getDescriptor(vals(0)).navigate(true)
+          else if (types(0).canNavigateToSource) types(0).navigate(true)
         }
         case _ => {
-          val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(methods.toArray ++ vals.toArray, new ScCellRenderer,
+          val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(methods.toArray ++ vals.toArray ++ types.toArray, new ScCellRenderer,
               ScalaBundle.message("goto.override.method.declaration", Array[Object]()))
           gotoDeclarationPopup.show(new RelativePoint(e.getInputEvent.asInstanceOf[MouseEvent]))
         }
