@@ -52,7 +52,7 @@
     <indexPatternBuilder implementation="org.jetbrains.plugins.scala.editor.todo.ScalaIndexPatternBuilder"/>
     <readWriteAccessDetector language="Scala" implementation="org.jetbrains.plugins.scala.highlighter.readWriteAccess.ScalaReadWriteAccessDetector"/>
     <directClassInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaDirectClassInheritorsSearcher"/>
-    <codeInsight.lineMarkerProvider language="Scala" implementationClass="com.intellij.codeInsight.daemon.impl.JavaLineMarkerProvider"/>
+    <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaLineMarkerProvider"/>
     <codeInsight.gotoSuper language="Scala" implementationClass="com.intellij.codeInsight.navigation.JavaGotoSuperHandler"/>
     <fileTypeIndentOptionsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaIndentOptionsProvider"/>
 
