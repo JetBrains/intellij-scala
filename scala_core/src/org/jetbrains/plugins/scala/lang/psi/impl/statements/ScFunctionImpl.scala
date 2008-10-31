@@ -68,6 +68,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
       get(new PhysicalSignature(this, ScSubstitutor.empty)) match {
     //partial match
     case Some(x) => x.supers.map{_.info.method}
+    case None => Seq.empty
   }
 
   def superMethod = TypeDefinitionMembers.getMethods(getContainingClass).
@@ -76,8 +77,8 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     case Some(x) => x.primarySuper match {case Some (n) => Some(n.info.method) case None => None}
   }
 
-  def superVals: Seq[PsiNamedElement] =
-    TypeDefinitionMembers.getSuperVals(this.getContainingClass).toSeq.map(_._1)
+  def superVals: Seq[PsiNamedElement] = if (getParameterList.params.length > 0 || getContainingClass == null) Seq.empty
+    else TypeDefinitionMembers.getSuperVals(getContainingClass).toSeq.map(_._1).filter(_.getName == getName)
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
