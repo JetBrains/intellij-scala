@@ -10,9 +10,13 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.testFramework.PsiTestCase;
+import com.intellij.psi.codeStyle.FileTypeIndentOptionsProvider;
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import junit.framework.Test;
 import org.jetbrains.plugins.scala.ScalaLoader;
+import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaIndentOptionsProvider;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;
@@ -37,6 +41,8 @@ public class OverrideImplementTest extends PsiTestCase {
     super.setUp();
     myProject.getComponent(SyntheticClasses.class).registerClasses();
     ScalaLoader.loadScala();
+
+    CodeStyleSettingsManager.getSettings(myProject).getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE = 2;
 
     final ModifiableRootModel rootModel = ModuleRootManager.getInstance(getModule()).getModifiableModel();
     VirtualFile sdkRoot = LocalFileSystem.getInstance().findFileByPath(rootPath);
@@ -66,13 +72,6 @@ public class OverrideImplementTest extends PsiTestCase {
     String name = "simpleTests/emptyLinePos.scala";
     runTest(name);
   }
-
-/*
-  public void testEmptyUpper() throws Exception {
-    String name = "simpleTests/emptyUpper.scala";
-    runTest(name);
-  }
-*/
 
   public void testNewLineBetweenMethods() throws Exception {
     String name = "simpleTests/newLineBetweenMethods.scala";
