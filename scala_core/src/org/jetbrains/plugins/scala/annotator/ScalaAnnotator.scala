@@ -9,7 +9,7 @@ import lang.psi.api.expr._
 
 import lang.psi.api.statements._
 import lang.psi.api.toplevel.imports.ScImportSelector
-import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
+import lang.psi.api.toplevel.typedef._
 import lang.psi.api.toplevel.{ScEarlyDefinitions, ScTyped}
 import _root_.scala.collection.mutable.HashSet
 import lang.psi.api.base.types.ScSimpleTypeElement
@@ -25,6 +25,7 @@ import com.intellij.lang.annotation._
 import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 
 
+import lang.psi.ScalaPsiUtil
 import lang.psi.types.{FullSignature, PhysicalSignature, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.resolve._
@@ -47,6 +48,19 @@ class ScalaAnnotator extends Annotator {
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         addOverrideGutter(x, holder)
         checkOverrideMethods(x, holder)
+      }
+      case x: ScValue => {
+        for (element <- x.declaredElements) {
+          addNamedElementOverrideGutter(element, holder)
+        }
+      }
+      case x: ScVariable => {
+        for (element <- x.declaredElements) {
+          addNamedElementOverrideGutter(element, holder)
+        }
+      }
+      case x: ScTypeAlias => {
+        addNamedElementOverrideGutter(x, holder)
       }
       case x: ScTypeDefinition => {
         checkImplementedMethods(x, holder)
@@ -141,6 +155,10 @@ class ScalaAnnotator extends Annotator {
     method.superMethod match {
       case None =>
         if (method.hasModifierProperty("override")) {
+          //todo: hack for now
+          val superVals = method.superVals
+          if (superVals.length != 0) return
+
           val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
             ScalaBundle.message("method.overrides.nothing", Array[Object](method.getName)))
           annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
@@ -166,10 +184,18 @@ class ScalaAnnotator extends Annotator {
   private def addOverrideGutter(method: ScFunction, holder: AnnotationHolder) {
     if (!method.getParent.isInstanceOf[ScTemplateBody]) return
     val annotation: Annotation = holder.createInfoAnnotation(method, null)
+
     val superVals = method.superVals
     val supers = (HashSet[PsiMethod](method.superMethods: _*)).toSeq
     if (supers.length + superVals.length > 0) annotation.setGutterIconRenderer(
       new OverrideGutter(supers, superVals, !method.hasModifierProperty("override")))
+  }
+
+  private def addNamedElementOverrideGutter(element: PsiNamedElement, holder: AnnotationHolder) {
+    if (!ScalaPsiUtil.nameContext(element).getParent.isInstanceOf[ScTemplateBody]) return
+    val clazz: ScTemplateDefinition = ScalaPsiUtil.nameContext(element).asInstanceOf[ScMember].getContainingClass
+    if (clazz == null) return
+    //todo:
   }
 
   private def checkResultExpression(block: ScBlock, holder: AnnotationHolder) {

@@ -15,6 +15,7 @@ import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement, PsiClass}
 import com.intellij.ui.awt.RelativePoint
 import java.awt.event.MouseEvent
 import javax.swing.Icon
+import lang.psi.api.toplevel.typedef.ScMember
 import lang.psi.ScalaPsiUtil
 
 /**
@@ -57,6 +58,10 @@ class OverrideGutter(methods: Seq[PsiMethod], vals: Seq[PsiNamedElement], isImpl
       element match {
         case method: PsiMethod if method.getContainingClass != null => {
           val presentation = method.getContainingClass.getPresentation
+          presentation.getPresentableText + " " + presentation.getLocationString
+        }
+        case x: PsiNamedElement if ScalaPsiUtil.nameContext(x) != null => {
+          val presentation = ScalaPsiUtil.nameContext(x).asInstanceOf[ScMember].getContainingClass.getPresentation
           presentation.getPresentableText + " " + presentation.getLocationString
         }
         case _ => element.getText().substring(0, Math.min(element.getText().length, 20))
