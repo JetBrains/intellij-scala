@@ -128,13 +128,13 @@ object TypeDefinitionMembers {
         val phys = new PhysicalSignature(method, subst)
         val psiRet = method.getReturnType
         val retType = if (psiRet == null) Unit else ScType.create(psiRet, method.getProject)
-        val sig = new FullSignature(phys, subst.subst(retType))
+        val sig = new FullSignature(phys, subst.subst(retType), clazz)
         map += ((sig, new Node(sig, subst)))
       }
 
     def processScala(template : ScTemplateDefinition, subst: ScSubstitutor, map: Map) = {
       def addSignature(s : Signature, ret : ScType) {
-        val full = new FullSignature(s, ret)
+        val full = new FullSignature(s, ret, template)
         map += ((full, new Node(full, subst)))
       }
 

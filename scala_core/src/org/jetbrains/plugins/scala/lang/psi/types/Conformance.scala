@@ -59,7 +59,7 @@ object Conformance {
           if (!decls.isEmpty) {
             val sigs = TypeDefinitionMembers.getSignatures(clazz)
             for ((sig, t) <- c.signatureMap) {
-              val full = new FullSignature(sig, t)
+              val full = new FullSignature(sig, t, clazz)
               sigs.get(full) match {
                 case None => return false
                 case Some(node) => if (!subst.subst(node.info.retType).conforms(t)) return false
@@ -99,7 +99,7 @@ object Conformance {
                case None => comps.find { t => ScType.extractClassType(t) match {
                    case None => false
                    case Some((clazz, subst)) => {
-                     val full1 = new FullSignature(s1, rt1)
+                     val full1 = new FullSignature(s1, rt1, clazz)
                      TypeDefinitionMembers.getSignatures(clazz).get(full1) match {
                        case None => false
                        case Some(node) => rt1.conforms(subst.subst(node.info.retType))
