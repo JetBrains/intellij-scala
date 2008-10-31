@@ -37,6 +37,11 @@ public class OverrideImplementTest extends PsiTestCase {
   }
 
   @Override
+  protected void checkForSettingsDamage() throws Exception {
+    
+  }
+
+  @Override
   protected void setUp() throws Exception {
     super.setUp();
     myProject.getComponent(SyntheticClasses.class).registerClasses();
