@@ -80,6 +80,7 @@ public class ScalacConfigurable implements Configurable {
     mySettings.ADDITIONAL_OPTIONS_STRING = additionalCommandLineParameters.getText();
     mySettings.GENERATE_NO_WARNINGS = noWarningsCheckBox.isSelected();
     mySettings.UNCHECKED = uncheckedCheckBox.isSelected();
+    mySettings.NO_GENERICS = myNoGenerics.isSelected();
     mySettings.DEPRECATION = deprecationCheckBox.isSelected();
     mySettings.OPTIMISE = optimizeCheckBox.isSelected();
     if (scalacBeforeCheckBox.isSelected() && mySettings.SCALAC_BEFORE != scalacBeforeCheckBox.isSelected()) {
