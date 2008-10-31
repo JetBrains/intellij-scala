@@ -165,19 +165,22 @@ class ScalaAnnotator extends Annotator {
 
   private def addOverrideGutter(method: ScFunction, holder: AnnotationHolder) {
     val annotation: Annotation = holder.createInfoAnnotation(method, null)
-    val superVals = method.superVals.filter(_.getName == method.getName)
+    val superVals = method.superVals
     val supers = (HashSet[PsiMethod](method.superMethods: _*)).toSeq
     if (supers.length + superVals.length > 0) annotation.setGutterIconRenderer(
       new OverrideGutter(supers, superVals, !method.hasModifierProperty("override")))
   }
 
   private def checkResultExpression(block: ScBlock, holder: AnnotationHolder) {
-    val stat = block.lastStatement match {case None => return case Some(x) => x}
+    val stat  = block.lastStatement match {case None => return case Some(x) => x}
     stat match {
       case _: ScExpression =>
       case _ => {
+        val diff = stat.getText.length - stat.getText.trim.length
         val error = ScalaBundle.message("block.must.end.result.expression", Array[Object]())
-        val annotation: Annotation = holder.createErrorAnnotation(stat.getTextRange, error)
+        val annotation: Annotation = holder.createErrorAnnotation(
+          new TextRange(stat.getTextRange.getStartOffset, stat.getTextRange.getEndOffset - diff),
+          error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     }

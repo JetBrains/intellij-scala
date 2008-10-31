@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator.gutter
 
 
 import com.intellij.codeInsight.navigation.NavigationUtil
-import com.intellij.ide.util.PsiElementListCellRenderer
+import com.intellij.ide.util.{EditSourceUtil, PsiElementListCellRenderer}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 
@@ -11,7 +11,7 @@ import com.intellij.openapi.util.{Iconable, IconLoader}
 
 import com.intellij.psi.util.PsiTreeUtil
 
-import com.intellij.psi.{PsiMethod, PsiElement, PsiClass, PsiNamedElement}
+import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement, PsiClass}
 import com.intellij.ui.awt.RelativePoint
 import java.awt.event.MouseEvent
 import javax.swing.Icon
@@ -33,16 +33,18 @@ class OverrideGutter(methods: Seq[PsiMethod], vals: Seq[PsiNamedElement], isImpl
     else ScalaBundle.message("overrides.method.from.super", Array[Object](clazz.getQualifiedName))
   }
 
-  //todo: Add vals
   override lazy val getClickAction: AnAction = new AnAction {
     def actionPerformed(e: AnActionEvent) {
-      methods.length match {
+      methods.length + vals.length match {
         case 0 =>
         case 1 => {
-          if (methods(0).canNavigateToSource) methods(0).navigate(true)
+          if (methods.length > 0 && methods(0).canNavigateToSource) methods(0).navigate(true)
+          else {
+            EditSourceUtil.getDescriptor(vals(0)).navigate(true)
+          }
         }
         case _ => {
-          val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(methods.toArray, new ScCellRenderer,
+          val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(methods.toArray ++ vals.toArray, new ScCellRenderer,
               ScalaBundle.message("goto.override.method.declaration", Array[Object]()))
           gotoDeclarationPopup.show(new RelativePoint(e.getInputEvent.asInstanceOf[MouseEvent]))
         }
@@ -64,5 +66,14 @@ class OverrideGutter(methods: Seq[PsiMethod], vals: Seq[PsiNamedElement], isImpl
     def getContainerText(psiElement: PsiElement, s: String) = null
 
     def getIconFlags: Int = Iconable.ICON_FLAG_CLOSED
+
+
+    override def getIcon(element: PsiElement): Icon = {
+      element match {
+        case _: PsiMethod => super.getIcon(element)
+        case x: PsiNamedElement if ScalaPsiUtil.nameContext(x) != null => ScalaPsiUtil.nameContext(x).getIcon(getIconFlags)
+        case _ => super.getIcon(element)
+      }
+    }
   }
 }
