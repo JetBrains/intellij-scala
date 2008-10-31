@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, PhysicalSignature, Nothing, ScSubstitutor}
-
-
 import base.patterns.ScReferencePattern
 import impl.toplevel.typedef.TypeDefinitionMembers.MethodNodes
 import impl.toplevel.typedef.{TypeDefinitionMembers, MixinNodes}
@@ -19,6 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import com.intellij.psi._
 
 import toplevel.templates.ScTemplateBody
+import types._
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -61,5 +60,8 @@ with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with Sc
 
   def superMethod: Option[PsiMethod]
 
+  @deprecated
   def superVals: Seq[PsiNamedElement]
+
+  def superSignatures : Seq[FullSignature]
 }
