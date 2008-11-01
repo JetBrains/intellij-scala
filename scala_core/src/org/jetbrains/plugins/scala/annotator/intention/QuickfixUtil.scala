@@ -13,8 +13,7 @@ object QuickfixUtil {
   def ensureFileWritable(project: Project, file: PsiFile): Boolean = {
     val virtualFile = file.getVirtualFile()
     val readonlyStatusHandler = ReadonlyStatusHandler.getInstance(project)
-//    val operationStatus = readonlyStatusHandler.ensureFilesWritable(virtualFile)
-    val operationStatus = readonlyStatusHandler.ensureFilesWritable(Array(virtualFile))
+    val operationStatus = readonlyStatusHandler.ensureFilesWritable(virtualFile)
     return !operationStatus.hasReadonlyFiles()
   }
 }
