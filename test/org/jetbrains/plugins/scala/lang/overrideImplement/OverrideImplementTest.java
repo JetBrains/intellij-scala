@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.testFramework.PsiTestCase;
 import com.intellij.psi.codeStyle.FileTypeIndentOptionsProvider;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
@@ -41,13 +42,14 @@ public class OverrideImplementTest extends PsiTestCase {
     
   }
 
+
   @Override
   protected void setUp() throws Exception {
     super.setUp();
     myProject.getComponent(SyntheticClasses.class).registerClasses();
     ScalaLoader.loadScala();
 
-    CodeStyleSettingsManager.getSettings(myProject).getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE = 2;
+    getCurrentCodeStyleSettings().getAdditionalIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE = 2;
 
     final ModifiableRootModel rootModel = ModuleRootManager.getInstance(getModule()).getModifiableModel();
     VirtualFile sdkRoot = LocalFileSystem.getInstance().findFileByPath(rootPath);
