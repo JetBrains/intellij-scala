@@ -11,7 +11,7 @@ object ScalaSigPrinter {
   def printSymbol(symbol: Symbol) {printSymbol(0, symbol)}
 
   def printSymbol(level: Int, symbol: Symbol)(implicit printer: Printer) {
-    def indent() {for (i <- 1 to level) print("  ")}
+    def indent() {for (i <- 1 to level) printer("  ")}
 
 
     symbol match {
@@ -125,7 +125,7 @@ object ScalaSigPrinter {
 
   def toString(t: Type): String = toString(t, "")
 
-  def genParamName(ts: String) = "0" //todo improve name generation by type
+  def genParamName(ts: String) = "o" //todo improve name generation by type
 
   def toString(t: Type, sep: String): String = t match {
   //case ThisType(symbol) =>
