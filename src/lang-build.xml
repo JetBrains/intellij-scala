@@ -43,7 +43,7 @@
     <fileset dir="${idea.lib}">
       <include name="**/*.jar"/>
       <exclude name="boot.jar"/>
-    </fileset>                                              
+    </fileset>
   </path>
 
   <path id="base.path">
@@ -115,33 +115,24 @@
 
     <mkdir dir="${project.lib}"/>
 
-    <!-- Compile scala_core module -->
-    <javac2 srcdir="${scala_core.dir}/src"
-            destdir="${project.lib}"
-            verbose="yes"
-            debug="true"
-            target="1.5">
-      <classpath refid="base.path"/>
-    </javac2>
-
-
-    <scalac srcdir="${scala_core.dir}/src"
+    <scalac srcdir="${base.dir}"
             destdir="${project.lib}"
             logging="debug"
             scalacdebugging="yes"
-            force="changed"
-            target="jvm-1.5">
+            force="changed">
       <classpath refid="base.path"/>
-      <include name="**/*.scala"/>
+      <include name="src/**/*.scala"/>
+      <include name="scala_core/src/**/*.scala"/>
+      <include name="src/**/*.java"/>
+      <include name="scala_core/src/**/*.java"/>
     </scalac>
-
-    <!--Compile Scala module -->
-    <javac2 srcdir="."
+    <javac2 srcdir=".."
             destdir="${project.lib}"
             verbose="yes"
-            debug="true"
-            target="1.5">
+            debug="true">
       <classpath refid="base.path"/>
+      <include name="src/**/*.java"/>
+      <include name="scala_core/src/**/*.java"/>
     </javac2>
 
     <copy file="../scala_core/src/org/jetbrains/plugins/scala/ScalaBundle.properties"
@@ -226,7 +217,7 @@
       </classpath>
       <include name="**/*.scala"/>
     </scalac>
-    
+
     <javac srcdir="../test"
            destdir="../classes/test/Scala"
            debug="true">

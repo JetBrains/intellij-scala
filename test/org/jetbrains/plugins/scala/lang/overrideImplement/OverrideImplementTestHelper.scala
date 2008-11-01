@@ -22,8 +22,8 @@ import psi.ScalaPsiUtil
 import util.ScalaTestUtils
 
 /**
- *  User: Alexander Podkhalyuzin
- *  Date: 03.10.2008
+ *   User: Alexander Podkhalyuzin
+ *   Date: 03.10.2008
  */
 
 object OverrideImplementTestHelper {
@@ -60,7 +60,7 @@ object OverrideImplementTestHelper {
       def run() {
         CommandProcessor.getInstance().executeCommand(myProject, runnable, "test", null);
       }
-    });
+    });                               
     System.out.println("------------------------ " + file.getName + " ------------------------");
     System.out.println(file.getText());
     System.out.println("");
