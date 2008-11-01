@@ -132,7 +132,9 @@
             debug="true">
       <classpath refid="base.path"/>
       <include name="src/**/*.java"/>
+      <include name="src/**/*.form"/>
       <include name="scala_core/src/**/*.java"/>
+      <include name="scala_core/src/**/*.form"/>
     </javac2>
 
     <copy file="../scala_core/src/org/jetbrains/plugins/scala/ScalaBundle.properties"
