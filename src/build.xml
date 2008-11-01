@@ -110,9 +110,6 @@
       <classpath>
         <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
         <pathelement location="${scala.home}/lib/scala-library.jar"/>
-        <pathelement location="${scala.home}/lib/fjbg.jar"/>
-        <pathelement location="${scala.home}/lib/sbaz.jar"/>
-        <!--<pathelement location="${scala.home}/lib/scala-dbc.jar"/>-->
       </classpath>
     </taskdef>
 
@@ -120,7 +117,6 @@
 
     <mkdir dir="${project.lib}"/>
 
-<!--
     <scalac srcdir="${base.dir}"
             destdir="${project.lib}"
             logging="debug"
@@ -132,7 +128,7 @@
       <include name="src/**/*.java"/>
       <include name="scala_core/src/**/*.java"/>
     </scalac>
-    <javac2 srcdir="."
+    <javac2 srcdir=".."
             destdir="${project.lib}"
             verbose="yes"
             debug="true">
@@ -140,10 +136,9 @@
       <include name="src/**/*.java"/>
       <include name="scala_core/src/**/*.java"/>
     </javac2>
--->
 
 
-    <!-- Compile scala_core module -->
+<!--    --><!-- Compile scala_core module --><!--
     <javac2 srcdir="${scala_core.dir}/src"
             destdir="${project.lib}"
             verbose="yes"
@@ -162,13 +157,13 @@
     </scalac>
 
 
-    <!--Compile Scala module -->
+    --><!--Compile Scala module --><!--
     <javac2 srcdir="."
             destdir="${project.lib}"
             verbose="yes"
             debug="true">
       <classpath refid="base.path"/>
-    </javac2>
+    </javac2>-->
 
     <copy file="../scala_core/src/org/jetbrains/plugins/scala/ScalaBundle.properties"
           tofile="${project.lib}/org/jetbrains/plugins/scala/ScalaBundle.properties"/>

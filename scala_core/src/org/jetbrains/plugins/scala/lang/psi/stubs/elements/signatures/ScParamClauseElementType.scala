@@ -17,11 +17,11 @@ extends ScStubElementType[ScParamClauseStub, ScParameterClause]("parameter claus
 
   def indexStub(stub: ScParamClauseStub, sink: IndexSink) {}
 
-  protected def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScParamClauseStub = {
+  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScParamClauseStub = {
     new ScParamClauseStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
   }
 
-  protected def createStubImpl[ParentPsi <: PsiElement](psi: ScParameterClause, parentStub: StubElement[ParentPsi]) = {
+  def createStubImpl[ParentPsi <: PsiElement](psi: ScParameterClause, parentStub: StubElement[ParentPsi]) = {
     new ScParamClauseStubImpl(parentStub, this)     
   }
 
