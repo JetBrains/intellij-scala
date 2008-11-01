@@ -215,6 +215,7 @@
       <classpath>
         <path location="${project.lib}"/>
       </classpath>
+      <include name="**/*.java"/>
       <include name="**/*.scala"/>
     </scalac>
 
