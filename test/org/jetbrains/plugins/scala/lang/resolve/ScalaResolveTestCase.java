@@ -34,6 +34,7 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author ilyas
@@ -43,17 +44,46 @@ public abstract class ScalaResolveTestCase extends ResolveTestCase {
 
   protected abstract String getTestDataPath();
 
+  private void configureFile(final VirtualFile vFile, String exceptName, final VirtualFile newDir) {
+    if (vFile.isDirectory()) {
+      for (VirtualFile file : vFile.getChildren()) {
+        configureFile(file, exceptName, newDir);
+      }
+    } else {
+      if (vFile.getName().equals(exceptName)) {
+        return;
+      }
+      ApplicationManager.getApplication().runWriteAction(new Runnable() {
+        public void run() {
+          try {
+            vFile.copy(null, newDir, vFile.getName());
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
+      });
+    }
+  }
+
   protected void setUp() throws Exception {
     super.setUp();
     myProject.getComponent(SyntheticClasses.class).registerClasses();
     ScalaLoader.loadScala();
 
     final ModifiableRootModel rootModel = ModuleRootManager.getInstance(getModule()).getModifiableModel();
-    VirtualFile sdkRoot = LocalFileSystem.getInstance().findFileByPath(getTestDataPath());
-    assertNotNull(sdkRoot);
-    ContentEntry contentEntry = rootModel.addContentEntry(sdkRoot);
+
+    VirtualFile testDataRoot = LocalFileSystem.getInstance().findFileByPath(getTestDataPath());
+    String testName = getTestName(true) + ".scala";
+    assertNotNull(testDataRoot);
+    File dir = createTempDir("scalaTest");
+    VirtualFile vDir = LocalFileSystem.getInstance().
+        refreshAndFindFileByPath(dir.getCanonicalPath().replace(File.separatorChar, '/'));
+    assertNotNull(vDir);
+    configureFile(testDataRoot, testName, vDir);
+
+    ContentEntry contentEntry = rootModel.addContentEntry(vDir);
     rootModel.setSdk(JavaSdk.getInstance().createJdk("java sdk", JDK_HOME, false));
-    contentEntry.addSourceFolder(sdkRoot, false);
+    contentEntry.addSourceFolder(vDir, false);
 
     // Add Scala Library
     LibraryTable libraryTable = rootModel.getModuleLibraryTable();
