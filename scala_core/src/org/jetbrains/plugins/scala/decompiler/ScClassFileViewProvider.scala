@@ -10,7 +10,7 @@ import com.intellij.psi.{SingleRootFileViewProvider, PsiManager, PsiFile}
 import com.intellij.testFramework.LightVirtualFile
 
 import java.io.ByteArrayOutputStream
-import lang.psi.ScalaFileImpl
+import lang.psi.impl.ScalaFileImpl
 import scalax.rules.scalasig.{ClassFileParser, ScalaSigAttributeParsers, ScalaSigPrinter, ByteCode}
 
 /**
