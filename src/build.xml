@@ -134,7 +134,9 @@
             debug="true">
       <classpath refid="base.path"/>
       <include name="src/**/*.java"/>
+      <include name="src/**/*.form"/>
       <include name="scala_core/src/**/*.java"/>
+      <include name="scala_core/src/**/*.form"/>
     </javac2>
 
 
