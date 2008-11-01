@@ -2,23 +2,17 @@ package scalax.rules.scalasig
 
 object ScalaSigPrinter {
 
-  type Printer = (String) => Unit
-
-  implicit def getPrinter: Printer = print _
-
-  def printSymbol(symbol: Symbol, printer: Printer) {printSymbol(0, symbol)(printer)}
-
   def printSymbol(symbol: Symbol) {printSymbol(0, symbol)}
 
-  def printSymbol(level: Int, symbol: Symbol)(implicit printer: Printer) {
-    def indent() {for (i <- 1 to level) printer("  ")}
+  def printSymbol(level: Int, symbol: Symbol) {
+    def indent() {for (i <- 1 to level) print("  ")}
 
 
     symbol match {
-      case o: ObjectSymbol => indent(); printObject(level, o)(printer)
-      case c: ClassSymbol => indent(); printClass(level, c)(printer)
-      case m: MethodSymbol => indent(); printMethod(level, m)(printer)
-      case a: AliasSymbol => indent(); printAlias(level, a) (printer)
+      case o: ObjectSymbol => indent(); printObject(level, o)
+      case c: ClassSymbol => indent(); printClass(level, c)
+      case m: MethodSymbol => indent(); printMethod(level, m)
+      case a: AliasSymbol => indent(); printAlias(level, a)
       case t: TypeSymbol => ()
       case s => {}
     }
@@ -28,59 +22,59 @@ object ScalaSigPrinter {
     for (child <- symbol.children) printSymbol(level + 1, child)
   }
 
-  def printWithIndent(level: Int, s: String)(implicit printer: Printer) {
-    def indent() {for (i <- 1 to level) printer("  ")}
+  def printWithIndent(level: Int, s: String) {
+    def indent() {for (i <- 1 to level) print("  ")}
     indent;
-    printer(s)
+    print(s)
   }
 
-  def printModifiers(symbol: Symbol)(implicit printer: Printer) {
-    if (symbol.isSealed) printer("sealed ")
-    if (symbol.isPrivate) printer("private ")
-    else if (symbol.isProtected) printer("protected ")
-    if (symbol.isAbstract) printer("abstract ")
-    if (symbol.isCase && !symbol.isMethod) printer("case ")
+  def printModifiers(symbol: Symbol) {
+    if (symbol.isSealed) print("sealed ")
+    if (symbol.isPrivate) print("private ")
+    else if (symbol.isProtected) print("protected ")
+    if (symbol.isAbstract) print("abstract ")
+    if (symbol.isCase && !symbol.isMethod) print("case ")
   }
 
-  def printClass(level: Int, c: ClassSymbol)(implicit printer: Printer) {
+  def printClass(level: Int, c: ClassSymbol) {
     printAttributes(c)
-    printModifiers(c)(printer)
-    if (c.isTrait) printer("trait ") else printer("class ")
-    printer(c.name)
+    printModifiers(c)
+    if (c.isTrait) print("trait ") else print("class ")
+    print(c.name)
     printType(c)
-    printer("{\n")
+    print("{\n")
     printChildren(level, c)
-    printWithIndent(level, "}\n")(printer)
+    printWithIndent(level, "}\n")
   }
 
-  def printObject(level: Int, o: ObjectSymbol)(implicit printer: Printer) {
+  def printObject(level: Int, o: ObjectSymbol) {
     printAttributes(o)
-    printModifiers(o)(printer)
-    printer("object ")
-    printer(o.name)
+    printModifiers(o)
+    print("object ")
+    print(o.name)
     val TypeRefType(prefix, symbol: ClassSymbol, typeArgs) = o.infoType
     printType(symbol)
-    printer("\n")
+    print("\n")
     printChildren(level, symbol)
-    printWithIndent(level, "}\n")(printer)
+    printWithIndent(level, "}\n")
   }
 
-  def printMethod(level: Int, m: MethodSymbol)(implicit printer: Printer) {
+  def printMethod(level: Int, m: MethodSymbol) {
     printAttributes(m)
-    printModifiers(m)(printer)
-    printer("def ")
-    printer(m.name match {case "<init>" => "this" case name => name})
-    printType(m.infoType, " : ")(printer)
+    printModifiers(m)
+    print("def ")
+    print(m.name match {case "<init>" => "this" case name => name})
+    printType(m.infoType, " : ")
     println()
 
     printChildren(level, m)
   }
 
-  def printAlias(level: Int, a: AliasSymbol)(implicit printer: Printer) {
+  def printAlias(level: Int, a: AliasSymbol) {
     printAttributes(a)
-    printer("type ")
-    printer(a.name)
-    printType(a.infoType, " = ")(printer)
+    print("type ")
+    print(a.name)
+    printType(a.infoType, " = ")
     println()
 
     printChildren(level, a)
@@ -90,38 +84,38 @@ object ScalaSigPrinter {
     for (attrib <- sym.attributes) printAttribute(attrib)
   }
 
-  def printAttribute(attrib: AttributeInfo)(implicit printer: Printer) {
-    printType(attrib.typeRef, "@")(printer)
+  def printAttribute(attrib: AttributeInfo) {
+    printType(attrib.typeRef, "@")
     if (attrib.value.isDefined) {
-      printer("(")
-      printValue(attrib.value.get)(printer)
-      printer(")")
+      print("(")
+      printValue(attrib.value.get)
+      print(")")
     }
     if (!attrib.values.isEmpty) {
-      printer(" {")
+      print(" {")
       for (name ~ value <- attrib.values) {
-        printer(" val ")
-        printer(name)
-        printer(" = ")
-        printValue(value)(printer)
+        print(" val ")
+        print(name)
+        print(" = ")
+        printValue(value)
       }
-      printValue(attrib.value)(printer)
-      printer(" }")
+      printValue(attrib.value)
+      print(" }")
     }
-    printer(" ")
+    print(" ")
   }
 
-  def printValue(value: Any)(implicit printer: Printer): Unit = value match {
-    case t: Type => printType(t)(printer)
+  def printValue(value: Any): Unit = value match {
+    case t: Type => printType(t)
     // TODO string, char, float, etc.
-    case _ => printer(value.toString)
+    case _ => print(value)
   }
 
   def printType(sym: SymbolInfoSymbol): Unit = printType(sym.infoType)
 
-  def printType(t: Type)(implicit printer: Printer): Unit = printer(toString(t))
+  def printType(t: Type): Unit = print(toString(t))
 
-  def printType(t: Type, sep: String)(implicit printer: Printer): Unit = printer(toString(t, sep))
+  def printType(t: Type, sep: String): Unit = print(toString(t, sep))
 
   def toString(t: Type): String = toString(t, "")
 
