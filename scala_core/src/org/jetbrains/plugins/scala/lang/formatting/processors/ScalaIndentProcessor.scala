@@ -37,6 +37,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
     val node = parent.getNode
     if (child.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS ||
                 child.getElementType == ScalaDocTokenType.DOC_COMMENT_END) return Indent.getSpaceIndent(1)
+
     node.getPsi match {
       case _: ScalaFile => Indent.getNoneIndent
       case _: ScPackaging => {
@@ -94,7 +95,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: ScBlock => Indent.getNoneIndent
       case _: ScEnumerators => Indent.getNormalIndent
       case _: ScExtendsBlock if child.getElementType != ScalaElementTypes.TEMPLATE_BODY => {
-        Indent.getContinuationWithoutFirstIndent
+        Indent.getContinuationIndent
       }
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
               _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScTypeArgs => {
