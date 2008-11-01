@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.search.GlobalSearchScope
 import gutter.OverrideGutter
-import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
+import highlighter.{AnnotatorHighlighter}
 import lang.psi.api.expr._
 
 
@@ -17,7 +17,6 @@ import lang.psi.api.base.patterns.ScBindingPattern
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import lang.lexer.ScalaTokenTypes
 import lang.psi.api.statements.params.ScTypeParam
 import com.intellij.openapi.util.TextRange
 import com.intellij.lang.annotation._
@@ -128,7 +127,7 @@ class ScalaAnnotator extends Annotator {
       case _: ScTrait => return
       case _ =>
     }
-    if (clazz.getModifierList.getNode.findChildByType(ScalaTokenTypes.kABSTRACT) != null) return
+    if (clazz.hasModifierProperty("abstract")) return
     if (ScalaOIUtil.getMembersToImplement(clazz).length > 0) {
       val error = clazz match {
         case _: ScClass => ScalaBundle.message("class.must.declared.abstract", Array[Object](clazz.getName))
