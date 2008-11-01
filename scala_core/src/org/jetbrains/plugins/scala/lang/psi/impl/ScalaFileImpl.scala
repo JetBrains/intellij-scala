@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi
+package org.jetbrains.plugins.scala.lang.psi.impl
 
 import _root_.com.intellij.extapi.psi.{PsiFileBase}
 import api.ScalaFile

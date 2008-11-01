@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.util.DebugPrint
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElementImpl, ScalaFileImpl}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.openapi.util.TextRange
 
 import com.intellij.lang.ASTNode

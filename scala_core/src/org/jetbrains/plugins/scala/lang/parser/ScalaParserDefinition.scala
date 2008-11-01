@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaPlainLexer
 import org.jetbrains.plugins.scala.lang.lexer.core.ScalaCoreLexer
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import psi.api.ScalaFile
-import psi.ScalaFileImpl
+import psi.impl.ScalaFileImpl
 
 /**
  * @author ilyas
