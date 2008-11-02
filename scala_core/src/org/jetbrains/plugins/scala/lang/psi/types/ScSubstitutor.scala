@@ -61,7 +61,7 @@ class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
       case None => new ScTypeAliasType(name, args, subst(lower), subst(upper))
     }
     case ScParameterizedType (des, typeArgs) =>
-      new ScParameterizedType(des, typeArgs map {subst _})
+      new ScParameterizedType(subst(des), typeArgs map {subst _})
     case ScExistentialArgument(name, args, lower, upper) =>
       new ScExistentialArgument(name, args, subst(lower), subst(upper))
     case ex@ScExistentialType(q, wildcards) => {

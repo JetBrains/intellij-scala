@@ -181,7 +181,7 @@ object ScType {
       case ScFunctionType(ret, params) => buffer.append("("); appendSeq(params, ", "); buffer.append(") =>"); inner(ret)
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
       case ScDesignatorType(e) => buffer.append(nameFun(e))
-      case ScProjectionType(p, name) => inner(p); buffer.append("#").append(name)
+      case ScProjectionType(p, ref) => inner(p); buffer.append("#").append(ref.refName)
       case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
       case ScTypeVariable(name, _, _, _) => buffer.append(name)
       case ScTypeAliasType(name, _, _, _) => buffer.append(name)
