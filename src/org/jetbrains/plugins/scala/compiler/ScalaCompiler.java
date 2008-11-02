@@ -23,70 +23,70 @@ import org.jetbrains.plugins.scala.ScalaFileType;
  * @author ven, ilyas
  */
 public class ScalaCompiler implements TranslatingCompiler {
-  private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.compiler.ScalaCompiler");
-  private Project myProject;
-  private static final FileTypeManager FILE_TYPE_MANAGER = FileTypeManager.getInstance();
+    private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.compiler.ScalaCompiler");
+    private Project myProject;
+    private static final FileTypeManager FILE_TYPE_MANAGER = FileTypeManager.getInstance();
 
-  public ScalaCompiler(Project project) {
-    myProject = project;
-  }
-
-  @NotNull
-  public String getDescription() {
-    return ScalaBundle.message("scala.compiler.description");
-  }
-
-  public boolean isCompilableFile(VirtualFile file, CompileContext context) {
-    final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
-
-    return fileType.equals(ScalaFileType.SCALA_FILE_TYPE) ||
-        ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE && fileType.equals(StdFileTypes.JAVA);
-  }
-
-  public ExitStatus compile(CompileContext context, VirtualFile[] files) {
-    final BackendCompiler backEndCompiler = getBackEndCompiler();
-    final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(myProject, files, (CompileContextEx) context, backEndCompiler);
-    OutputItem[] outputItems;
-    try {
-      outputItems = wrapper.compile();
-    }
-    catch (CompilerException e) {
-      outputItems = EMPTY_OUTPUT_ITEM_ARRAY;
-      context.addMessage(CompilerMessageCategory.ERROR, e.getMessage(), null, -1, -1);
-    }
-    catch (CacheCorruptedException e) {
-      LOG.info(e);
-      context.requestRebuildNextTime(e.getMessage());
-      outputItems = EMPTY_OUTPUT_ITEM_ARRAY;
+    public ScalaCompiler(Project project) {
+        myProject = project;
     }
 
-    return new ExitStatusImpl(outputItems, wrapper.getFilesToRecompile());
-  }
-
-  public boolean validateConfiguration(CompileScope scope) {
-    return getBackEndCompiler().checkCompiler(scope);
-  }
-
-  private BackendCompiler getBackEndCompiler() {
-    return new ScalacCompiler(myProject);
-  }
-
-  private static class ExitStatusImpl implements ExitStatus {
-
-    private OutputItem[] myOuitputItems;
-    private VirtualFile[] myMyFilesToRecompile;
-
-    public ExitStatusImpl(OutputItem[] ouitputItems, VirtualFile[] myFilesToRecompile) {
-      myOuitputItems = ouitputItems;
-      myMyFilesToRecompile = myFilesToRecompile;
+    @NotNull
+    public String getDescription() {
+        return ScalaBundle.message("scala.compiler.description");
     }
 
-    public OutputItem[] getSuccessfullyCompiled() {
-      return myOuitputItems;
+    public boolean isCompilableFile(VirtualFile file, CompileContext context) {
+        final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
+
+        return fileType.equals(ScalaFileType.SCALA_FILE_TYPE) ||
+                context.getProject() != null && ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE && fileType.equals(StdFileTypes.JAVA);
     }
 
-    public VirtualFile[] getFilesToRecompile() {
-      return myMyFilesToRecompile;
+    public ExitStatus compile(CompileContext context, VirtualFile[] files) {
+        final BackendCompiler backEndCompiler = getBackEndCompiler();
+        final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(myProject, files, (CompileContextEx) context, backEndCompiler);
+        OutputItem[] outputItems;
+        try {
+            outputItems = wrapper.compile();
+        }
+        catch (CompilerException e) {
+            outputItems = EMPTY_OUTPUT_ITEM_ARRAY;
+            context.addMessage(CompilerMessageCategory.ERROR, e.getMessage(), null, -1, -1);
+        }
+        catch (CacheCorruptedException e) {
+            LOG.info(e);
+            context.requestRebuildNextTime(e.getMessage());
+            outputItems = EMPTY_OUTPUT_ITEM_ARRAY;
+        }
+
+        return new ExitStatusImpl(outputItems, wrapper.getFilesToRecompile());
     }
-  }
+
+    public boolean validateConfiguration(CompileScope scope) {
+        return getBackEndCompiler().checkCompiler(scope);
+    }
+
+    private BackendCompiler getBackEndCompiler() {
+        return new ScalacCompiler(myProject);
+    }
+
+    private static class ExitStatusImpl implements ExitStatus {
+
+        private OutputItem[] myOuitputItems;
+        private VirtualFile[] myMyFilesToRecompile;
+
+        public ExitStatusImpl(OutputItem[] ouitputItems, VirtualFile[] myFilesToRecompile) {
+            myOuitputItems = ouitputItems;
+            myMyFilesToRecompile = myFilesToRecompile;
+        }
+
+        public OutputItem[] getSuccessfullyCompiled() {
+            return myOuitputItems;
+        }
+
+        public VirtualFile[] getFilesToRecompile() {
+            return myMyFilesToRecompile;
+        }
+    }
 }
