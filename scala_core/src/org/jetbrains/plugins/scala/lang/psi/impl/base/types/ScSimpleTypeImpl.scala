@@ -40,7 +40,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             case _ => new ScDesignatorType(e)
           }
         }
-        case Some(q) => new ScProjectionType(new ScSingletonType(q), ref.refName)
+        case Some(q) => new ScProjectionType(new ScSingletonType(q), ref)
       }
       case None => Nothing
     }

@@ -59,7 +59,8 @@ object NameSuggester {
           generateCamelNames(names, validator, name)
         }
       }
-      case ScProjectionType(p, name) => {
+      case ScProjectionType(p, ref) => {
+        val name = ref.refName
         if (name != null && name.toUpperCase == name) {
           names += validator.validateName(deleteNonLetterFromString(name).toLowerCase, true)
         } else {
