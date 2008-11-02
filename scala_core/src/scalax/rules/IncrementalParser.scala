@@ -81,7 +81,7 @@ class IncrementalInput[A]
   
   protected def nextElement = next match {
     case Success(element, _) => element
-    case _ => throw new RuntimeException("No next element")
+    case _ => throw new ScalaSigParserError("No next element")
   }
   
   override def toString = "@" + index

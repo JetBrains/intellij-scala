@@ -43,6 +43,7 @@ import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 class ScalaAnnotator extends Annotator {
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
+    val file = element.getContainingFile
     element match {
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         addOverrideGutter(x, holder)

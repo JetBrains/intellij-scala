@@ -36,7 +36,7 @@ sealed abstract class Result[+Out, +A, +X] {
 }
 
 case class Success[+Out, +A](out : Out, value : A) extends Result[Out, A, Nothing] {
-  def error = throw new RuntimeException("No error")
+  def error = throw new ScalaSigParserError("No error")
 
   def toOption = Some(value)
   
@@ -48,8 +48,8 @@ case class Success[+Out, +A](out : Out, value : A) extends Result[Out, A, Nothin
 }
 
 sealed abstract class NoSuccess[+X] extends Result[Nothing, Nothing, X] {
-  def out = throw new RuntimeException("No output")
-  def value = throw new RuntimeException("No value")
+  def out = throw new ScalaSigParserError("No output")
+  def value = throw new ScalaSigParserError("No value")
 
   def toOption = None
   
@@ -61,8 +61,10 @@ sealed abstract class NoSuccess[+X] extends Result[Nothing, Nothing, X] {
 }
 
 case object Failure extends NoSuccess[Nothing] {
-  def error = throw new RuntimeException("No error")
+  def error = throw new ScalaSigParserError("No error")
 }
+
+case class ScalaSigParserError(msg: String) extends RuntimeException(msg)
 
 case class Error[+X](error : X) extends NoSuccess[X] {
 }

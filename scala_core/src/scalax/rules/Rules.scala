@@ -60,8 +60,12 @@ trait Rules {
   /** Converts a rule into a function that throws an Exception on failure. */
   def expect[In, Out, A, Any](rule : Rule[In, Out, A, Any]) : In => A = (in) => rule(in) match {
     case Success(_, a) => a
-    case Failure => throw new RuntimeException("Unexpected failure")
-    case Error(x) => throw new RuntimeException("Unexpected error: " + x)
+    case Failure => {
+      throw new ScalaSigParserError("Unexpected failure")
+    }
+    case Error(x) => {
+      throw new ScalaSigParserError("Unexpected error: " + x)
+    }
   }
 }
 
