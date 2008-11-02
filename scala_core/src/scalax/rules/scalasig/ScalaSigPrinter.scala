@@ -142,7 +142,7 @@ object ScalaSigPrinter {
 
   def toString(t: Type, sep: String): String = t match {
   //case ThisType(symbol) =>
-    case SingleType(typeRef, symbol) => sep + toString(symbol) + "with Singleton"
+    case SingleType(typeRef, symbol) => sep + toString(symbol) + " with Singleton"
     //case ConstantType(typeRef, constant) =>
     case TypeRefType(prefix, symbol, typeArgs) => symbol.path match {
       case "scala.<repeated>" if typeArgs.length == 1 => sep + toString(typeArgs.first, "") + "*"
