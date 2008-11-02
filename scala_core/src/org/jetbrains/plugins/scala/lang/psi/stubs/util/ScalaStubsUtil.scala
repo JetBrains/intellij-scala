@@ -9,6 +9,7 @@ import com.intellij.psi.search.GlobalSearchScope
 
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.{PsiElement, PsiClass}
+import java.util.ArrayList
 
 /**
  * User: Alexander Podkhalyuzin
@@ -20,11 +21,11 @@ object ScalaStubsUtil {
     val name: String = clazz.getName()
     if (name == null) return Seq.empty
     val inheritors = new ArrayBuffer[ScTypeDefinition]
-    val extendsBlocks: java.util.Collection[ScExtendsBlock] = StubIndex.getInstance().get(ScDirectInheritorsIndex.KEY,
-      name, clazz.getProject(), scope);
-    for (exts <- extendsBlocks.toArray if exts.isInstanceOf[PsiElement]; ext = exts.asInstanceOf[PsiElement]) {
-      val parent: PsiElement = ext.getParent()
-      parent match {
+    val extendsBlocks = new ArrayList[ScExtendsBlock](StubIndex.getInstance().get(ScDirectInheritorsIndex.KEY,
+      name, clazz.getProject(), scope));
+    import _root_.scala.collection.jcl.Conversions.convertList
+    for (ext <- extendsBlocks) {
+      ext.getParent match {
         case x: ScTypeDefinition => inheritors += x
         case _ =>
       }
