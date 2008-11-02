@@ -1,5 +1,7 @@
 package scalax.rules.scalasig
 
+import java.util.regex.Pattern
+
 object ScalaSigPrinter {
 
   def printSymbol(symbol: Symbol) {printSymbol(0, symbol)}
@@ -177,11 +179,24 @@ object ScalaSigPrinter {
     if (params.isEmpty) ""
     else params.map(toString).mkString("[", ", ", "]")
 
-  def processName(name: String) = name.replaceAll("\\$bar", "|").replaceAll("\\$tilde", "~").
-          replaceAll("\\$bang", "!").replaceAll("\\$up", "^").replaceAll("\\$plus", "+").
-          replaceAll("\\$minus", "-").replaceAll("\\$eq", "=").replaceAll("\\$less", "<").
-          replaceAll("\\$times", "*").replaceAll("\\$div", "/").replaceAll("\\$bslash", "\\\\").
-          replaceAll("\\$greater", ">").replaceAll("\\$qmark", "?").replaceAll("\\$percent", "%").
-          replaceAll("\\$amp", "&").replaceAll("\\$colon", ":").replaceAll("\\$u2192", "→")
+  val _syms = Map("\\$bar" -> "|", "\\$tilde" -> "~",
+    "\\$bang" -> "!", "\\$up" -> "^", "\\$plus" -> "+",
+    "\\$minus" -> "-", "\\$eq" -> "=", "\\$less" -> "<",
+    "\\$times" -> "*", "\\$div" -> "/", "\\$bslash" -> "\\\\",
+    "\\$greater" -> ">", "\\$qmark" -> "?", "\\$percent" -> "%",
+    "\\$amp" -> "&", "\\$colon" -> ":", "\\$u2192" -> "→")
+  val regex = _syms.keySet.foldLeft("")((x, y) => if (x == "") y else x + "|" + y)
+
+  def processName(name: String) = {
+    val p = Pattern.compile(regex)
+    val m = p.matcher(name)
+    var temp = name
+    while (m.find) {
+      val key = m.group
+      val re = "\\" + key
+      temp = temp.replaceAll(re, _syms(re))
+    }
+    temp
+  }
 
 }
