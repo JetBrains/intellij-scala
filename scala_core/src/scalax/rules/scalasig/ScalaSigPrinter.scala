@@ -32,7 +32,10 @@ object ScalaSigPrinter {
     if (symbol.isSealed) print("sealed ")
     if (symbol.isPrivate) print("private ")
     else if (symbol.isProtected) print("protected ")
-    if (symbol.isAbstract) print("abstract ")
+    if (symbol.isAbstract) symbol match {
+      case c@(_: ClassSymbol | _: ObjectSymbol) if !c.isTrait => print("abstract ")
+      case _ => ()
+    }
     if (symbol.isCase && !symbol.isMethod) print("case ")
   }
 
@@ -40,7 +43,7 @@ object ScalaSigPrinter {
     printAttributes(c)
     printModifiers(c)
     if (c.isTrait) print("trait ") else print("class ")
-    print(c.name)
+    print(processName(c.name))
     printType(c)
     print("{\n")
     printChildren(level, c)
@@ -51,10 +54,10 @@ object ScalaSigPrinter {
     printAttributes(o)
     printModifiers(o)
     print("object ")
-    print(o.name)
+    print(processName(o.name))
     val TypeRefType(prefix, symbol: ClassSymbol, typeArgs) = o.infoType
     printType(symbol)
-    print("\n")
+    print("{\n")
     printChildren(level, symbol)
     printWithIndent(level, "}\n")
   }
@@ -63,17 +66,33 @@ object ScalaSigPrinter {
     printAttributes(m)
     printModifiers(m)
     print("def ")
-    print(m.name match {case "<init>" => "this" case name => name})
-    printType(m.infoType, " : ")
+    m.name match {
+      case "<init>" => {
+        print("this")
+        print(m.infoType match {
+          case MethodType(_, paramTypes) => {
+            paramTypes.map(toString).map(x => genParamName(x) + ": " + x).mkString("(", ", ", ")")
+          }
+        })
+        print(" = { /* compiled code */ }")
+      }
+      case name => {
+        val nn = processName(name)
+        print(nn)
+        printType(m.infoType, " : ")
+        if (!m.isAbstract) { // Print body for non-abstract metods
+          print(" = { /* compiled code */ }")
+        }
+      }
+    }
     println()
-
     printChildren(level, m)
   }
 
   def printAlias(level: Int, a: AliasSymbol) {
     printAttributes(a)
     print("type ")
-    print(a.name)
+    print(processName(a.name))
     printType(a.infoType, " = ")
     println()
 
@@ -95,7 +114,7 @@ object ScalaSigPrinter {
       print(" {")
       for (name ~ value <- attrib.values) {
         print(" val ")
-        print(name)
+        print(processName(name))
         print(" = ")
         printValue(value)
       }
@@ -123,9 +142,13 @@ object ScalaSigPrinter {
 
   def toString(t: Type, sep: String): String = t match {
   //case ThisType(symbol) =>
-  //case SingleType(typeRef, symbol) =>
-  //case ConstantType(typeRef, constant) =>
-    case TypeRefType(prefix, symbol, typeArgs) => sep + symbol.path + typeArgString(typeArgs)
+    case SingleType(typeRef, symbol) => sep + toString(symbol) + "with Singleton"
+    //case ConstantType(typeRef, constant) =>
+    case TypeRefType(prefix, symbol, typeArgs) => symbol.path match {
+      case "scala.<repeated>" if typeArgs.length == 1 => sep + toString(typeArgs.first, "") + "*"
+      case "scala.<byname>" if typeArgs.length == 1 => "=> " + sep + toString(typeArgs.first, "")
+      case _ => sep + symbol.path + typeArgString(typeArgs)
+    }
     case TypeBoundsType(lower, upper) => " >: " + toString(lower) + " <: " + toString(upper)
     //case RefinedType(classSymRef, typeRefs) => 
     case ClassInfoType(symbol, typeRefs) => typeRefs.map(toString).mkString(" extends ", " with ", "")
@@ -142,7 +165,7 @@ object ScalaSigPrinter {
   }
 
   def toString(symbol: Symbol): String = symbol match {
-    case symbol: TypeSymbol => symbol.name + toString(symbol.infoType)
+    case symbol: TypeSymbol => processName(symbol.name) + toString(symbol.infoType)
     case s => symbol.toString
   }
 
@@ -153,4 +176,12 @@ object ScalaSigPrinter {
   def typeParamString(params: Seq[Symbol]): String =
     if (params.isEmpty) ""
     else params.map(toString).mkString("[", ", ", "]")
+
+  def processName(name: String) = name.replaceAll("\\$bar", "|").replaceAll("\\$tilde", "~").
+          replaceAll("\\$bang", "!").replaceAll("\\$up", "^").replaceAll("\\$plus", "+").
+          replaceAll("\\$minus", "-").replaceAll("\\$eq", "=").replaceAll("\\$less", "<").
+          replaceAll("\\$times", "*").replaceAll("\\$div", "/").replaceAll("\\$bslash", "\\\\").
+          replaceAll("\\$greater", ">").replaceAll("\\$qmark", "?").replaceAll("\\$percent", "%").
+          replaceAll("\\$amp", "&").replaceAll("\\$colon", ":")
+
 }

@@ -1,5 +1,6 @@
 package scalax
 
+import java.io.ByteArrayOutputStream
 import rules.scalasig._
 import scala.collection.mutable.{Set, HashSet}
 
@@ -13,7 +14,7 @@ object ScalaxExample {
 
   def checkOccurred(set: Set[Symbol], s: Symbol): Boolean = {
     s match {
-      case c@(_: ClassSymbol | _: ObjectSymbol) if c.isInstanceOf[SymbolInfoSymbol]=>
+      case c@(_: ClassSymbol | _: ObjectSymbol) if c.isInstanceOf[SymbolInfoSymbol] =>
         if (set.contains(c)) true
         else checkOccurred(set, c.asInstanceOf[SymbolInfoSymbol].symbolInfo.owner)
       case _ => false
@@ -21,25 +22,33 @@ object ScalaxExample {
   }
 
   def main(args: Array[String]) {
-    val st = "scala.Seq"
+    //    val st = "scala.Seq"
     //    val st = "scalax.rules.Parsers"
+    //    val st = "scala.util.parsing.combinatorold.Parsers"
+    //    val st = "scala.collection.immutable.Set"
+    val st = "scala.dbc.Vendor"
     val clazz = Class.forName(st)
-    val res = ScalaSigParser.parse(clazz)
-    res match {
-      case Some(sig) => {
-        val symbols = sig.symbols
-
-        val set = new HashSet[Symbol]
-        for (s <- symbols) {
-          if (!set.contains(s)) {
-            s match {
-              case c@(_: ClassSymbol | _: ObjectSymbol) if !checkOccurred(set, c) => ScalaSigPrinter.printSymbol(c); set += s
-              case _ => {}
-            }
-          }
+    val byteCode = ByteCode.forClass(clazz)
+    val classFile = ClassFileParser.parse(byteCode)
+    val sig = classFile.attribute("ScalaSig").map(_.byteCode)
+    val stream = new ByteArrayOutputStream
+    sig.map(ScalaSigAttributeParsers.parse) match {
+      case Some(scalaSig) => {
+        Console.withOut(stream){
+          val owner = ((scalaSig.topLevelClass, scalaSig.topLevelObject) match {
+            case (Some(c), _) => c.symbolInfo.owner
+            case (_, Some(o)) => o.symbolInfo.owner
+            case _ => ""
+          }).toString
+          if (owner.length > 0) {print("package "); print(owner)}
+          {println; println}
+          // Print classes
+          for (c <- scalaSig.topLevelClass) ScalaSigPrinter.printSymbol(c)
+          println
+          for (o <- scalaSig.topLevelObject) ScalaSigPrinter.printSymbol(o)
         }
       }
-      case None =>
     }
+    println(stream.toString)
   }
 }
