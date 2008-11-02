@@ -34,6 +34,11 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     assertTrue(ref.resolve() instanceof ScTypeDefinition);
   }
 
+  public void testHigherKind1() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/higherkind1.scala");
+    assertTrue(ref.resolve() instanceof ScFunction);
+  }
+
   public void testCompoundTypes() throws Exception {
     PsiReference ref = configureByFile("nonlocal/compoundtypes.scala");
     assertTrue(ref.resolve() instanceof ScTypeAlias);

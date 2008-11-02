@@ -4,6 +4,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 * @author ilyas
 */
 
+import api.toplevel.ScTypeParametersOwner
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiTypeParameterListOwner, JavaPsiFacade, PsiElement, PsiNamedElement}
@@ -31,23 +32,24 @@ case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) ex
   }
   
   val substitutor : ScSubstitutor = {
-    val targs = designator match {
-      case ScTypeVariable(_, args, _, _) => args
-      case ScTypeAliasType(_, args, _, _) => args
-      case _ => designated match {
-        case Some(owner : PsiTypeParameterListOwner) => owner.getTypeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}
-        case _ => Seq.empty
+    val (params, initial) = designator match {
+      case ScTypeVariable(_, args, _, _) => (args, ScSubstitutor.empty)
+      case ScTypeAliasType(_, args, _, _) => (args, ScSubstitutor.empty)
+      case _ => ScType.extractDesignated(designator) match {
+        case Some((owner : ScTypeParametersOwner, s)) => (owner.typeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}, s)
+        case Some((owner : PsiTypeParameterListOwner, s)) => (owner.getTypeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}, s)
+        case _ => (Seq.empty, ScSubstitutor.empty)
       }
     }
 
-    targs match {
-      case Seq.empty => ScSubstitutor.empty
+    params match {
+      case Seq.empty => initial
       case _ => {
-        var map : Map[ScTypeVariable, ScType] = HashMap.empty
-        for (p <- targs.toArray zip typeArgs) {
-          map = map + ((p._1, p._2))
+        var res = initial
+        for (p <- params.toArray zip typeArgs) {
+          res = res + (p._1, p._2)
         }
-        new ScSubstitutor(map, Map.empty, Map.empty)
+        res
       }
     }
   }
