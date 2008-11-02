@@ -147,7 +147,7 @@ object ScalaSigPrinter {
     case TypeRefType(prefix, symbol, typeArgs) => symbol.path match {
       case "scala.<repeated>" if typeArgs.length == 1 => sep + toString(typeArgs.first, "") + "*"
       case "scala.<byname>" if typeArgs.length == 1 => "=> " + sep + toString(typeArgs.first, "")
-      case _ => sep + symbol.path + typeArgString(typeArgs)
+      case _ => sep + processName(symbol.path) + typeArgString(typeArgs)
     }
     case TypeBoundsType(lower, upper) => " >: " + toString(lower) + " <: " + toString(upper)
     //case RefinedType(classSymRef, typeRefs) => 
