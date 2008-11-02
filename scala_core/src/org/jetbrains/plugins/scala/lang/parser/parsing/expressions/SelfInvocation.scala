@@ -5,15 +5,16 @@ import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 13.02.2008
-*/
+ * @author Alexander Podkhalyuzin
+ *  Date: 13.02.2008
+ */
 
 /*
  * SelfInvocation ::= 'this' ArgumentExprs {ArgumentExprs}
  */
 
 object SelfInvocation {
+
   def parse(builder: PsiBuilder): Boolean = {
     val selfMarker = builder.mark
     builder.getTokenType match {
@@ -21,7 +22,8 @@ object SelfInvocation {
         builder.advanceLexer //Ate this
       }
       case _ => {
-        builder error ScalaBundle.message("this.expected", new Array[Object](0))
+        //todo[ilyas] provide aspect to suppress this inspection for compiled files
+        //builder error ScalaBundle.message("this.expected", new Array[Object](0))
       }
     }
     val argExprsMarker = builder.mark

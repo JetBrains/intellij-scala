@@ -26,6 +26,7 @@ object ScalaxExample {
     //    val st = "scalax.rules.Parsers"
     //    val st = "scala.util.parsing.combinatorold.Parsers"
     //    val st = "scala.collection.immutable.Set"
+//        val st = "scala.dbc.syntax.DataTypeUtil"
     val st = "scala.dbc.Vendor"
     val clazz = Class.forName(st)
     val byteCode = ByteCode.forClass(clazz)
