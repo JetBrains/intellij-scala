@@ -27,7 +27,9 @@ object ScalaxExample {
     //    val st = "scala.util.parsing.combinatorold.Parsers"
     //    val st = "scala.collection.immutable.Set"
 //        val st = "scala.dbc.syntax.DataTypeUtil"
-    val st = "scala.dbc.Vendor"
+//    val st = "scala.dbc.Vendor"
+//    val st = "scala.Iterable"
+    val st = "scala.Predef"
     val clazz = Class.forName(st)
     val byteCode = ByteCode.forClass(clazz)
     val classFile = ClassFileParser.parse(byteCode)
@@ -37,7 +39,7 @@ object ScalaxExample {
       case Some(scalaSig) => {
         Console.withOut(stream){
           val owner = ((scalaSig.topLevelClass, scalaSig.topLevelObject) match {
-            case (Some(c), _) => c.symbolInfo.owner
+//            case (Seq(c, _*), _) => c.symbolInfo.owner
             case (_, Some(o)) => o.symbolInfo.owner
             case _ => ""
           }).toString
