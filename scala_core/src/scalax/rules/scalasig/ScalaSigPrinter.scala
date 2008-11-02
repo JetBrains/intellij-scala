@@ -182,6 +182,6 @@ object ScalaSigPrinter {
           replaceAll("\\$minus", "-").replaceAll("\\$eq", "=").replaceAll("\\$less", "<").
           replaceAll("\\$times", "*").replaceAll("\\$div", "/").replaceAll("\\$bslash", "\\\\").
           replaceAll("\\$greater", ">").replaceAll("\\$qmark", "?").replaceAll("\\$percent", "%").
-          replaceAll("\\$amp", "&").replaceAll("\\$colon", ":")
+          replaceAll("\\$amp", "&").replaceAll("\\$colon", ":").replaceAll("\\$u2192", "→")
 
 }

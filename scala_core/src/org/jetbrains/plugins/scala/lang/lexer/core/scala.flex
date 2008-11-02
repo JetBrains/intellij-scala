@@ -111,6 +111,7 @@ special =   \u0021 | \u0023
           | \u002D | \u005E
           | \u003A
           | [\u003C-\u0040]
+          | \u2192  // right arrow
           | \u007E
           | \u005C | \u002F     //slashes
 

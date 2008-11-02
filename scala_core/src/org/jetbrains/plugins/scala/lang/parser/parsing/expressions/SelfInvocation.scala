@@ -24,6 +24,8 @@ object SelfInvocation {
       case _ => {
         //todo[ilyas] provide aspect to suppress this inspection for compiled files
         //builder error ScalaBundle.message("this.expected", new Array[Object](0))
+        selfMarker.drop
+        return true
       }
     }
     val argExprsMarker = builder.mark

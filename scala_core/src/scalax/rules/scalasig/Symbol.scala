@@ -53,7 +53,18 @@ abstract class SymbolInfoSymbol extends ScalaSigSymbol {
   def parent = Some(symbolInfo.owner)
   def hasFlag(flag : Long) = (symbolInfo.flags & flag) != 0
 
-  lazy val infoType = applyRule(parseEntry(typeEntry)(symbolInfo.info))
+  lazy val infoType = {
+    try {
+      applyRule(parseEntry(typeEntry)(symbolInfo.info))
+    }
+    catch {
+      case pe@(ScalaSigParserError(msg)) => {
+        // For debug
+        println(pe)
+        throw pe
+      }
+    }
+  }
 }
 
 case class TypeSymbol(symbolInfo : SymbolInfo) extends SymbolInfoSymbol
