@@ -24,7 +24,7 @@ object BaseTypes {
     case sin : ScSingletonType => get(sin.pathType)
     case ScExistentialType(q, wilds) => get(q).map{bt => ScExistentialTypeReducer.reduce(bt, wilds)}
     case ScCompoundType(comps, _, _) => reduce(comps)
-    case proj@ScProjectionType(p, name) => proj.resolveResult match {
+    case proj@ScProjectionType(p, _) => proj.resolveResult match {
       case Some(ScalaResolveResult(td : ScTypeDefinition, s)) => td.superTypes.map{s.subst _}
       case Some(ScalaResolveResult(c : PsiClass, s)) =>
         c.getSuperTypes.map{st => s.subst(ScType.create(st, c.getProject))}

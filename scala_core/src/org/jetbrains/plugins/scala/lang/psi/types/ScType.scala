@@ -137,6 +137,21 @@ object ScType {
     case _ => None
   }
 
+  def extractDesignated(t : ScType) : Option[Pair[PsiNamedElement, ScSubstitutor]] = t match {
+    case ScDesignatorType(e) => Some(e, ScSubstitutor.empty)
+    case proj@ScProjectionType(p, _) => proj.resolveResult match {
+      case Some(ScalaResolveResult(e, s)) => Some((e, s))
+      case _ => None
+    }
+    case p@ScParameterizedType(t1, _) => {
+      extractClassType(t1) match {
+        case Some((e, s)) => Some((e, s.followed(p.substitutor)))
+        case None => None
+      }
+    }
+    case _ => None
+  }
+
   def presentableText(t : ScType) = typeText(t, {e => e.getName})
 
   //todo: resolve cases when java type have keywords as name (type -> `type`)

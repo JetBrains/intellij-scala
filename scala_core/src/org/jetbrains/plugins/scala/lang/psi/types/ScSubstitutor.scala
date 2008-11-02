@@ -3,6 +3,8 @@
 */
 package org.jetbrains.plugins.scala.lang.psi.types
 
+
+import api.base.ScReferenceElement
 import com.intellij.psi.{PsiTypeParameterListOwner, PsiTypeParameter, PsiSubstitutor, PsiClass}
 import com.intellij.openapi.util.Key
 import collection.immutable.{Map, HashMap}
@@ -19,7 +21,7 @@ object ScSubstitutor {
 }
 
 class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
-                    val outerMap: Map[PsiClass, ScType],
+                    val outerMap: Map[PsiClass, Tuple2[ScType, ScReferenceElement]],
                     val aliasesMap: Map[String, Suspension[ScType]]) {
 
   def this() = this (Map.empty, Map.empty, Map.empty)
@@ -27,7 +29,7 @@ class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
   def +(p: ScTypeVariable, t: ScType) = new ScSubstitutor(tvMap + ((p, t)), outerMap, aliasesMap)
   def +(name: String, t: ScType) = new ScSubstitutor(tvMap, outerMap, aliasesMap + ((name, new Suspension[ScType](t))))
   def +(name: String, f: () => ScType) = new ScSubstitutor(tvMap, outerMap, aliasesMap + ((name, new Suspension[ScType](f))))
-  def bindOuter(outer: PsiClass, t: ScType) = new ScSubstitutor(tvMap, outerMap + ((outer, t)), aliasesMap)
+  def bindOuter(outer: PsiClass, t: ScType, ref : ScReferenceElement) = new ScSubstitutor(tvMap, outerMap + ((outer, (t, ref))), aliasesMap)
   def incl(s: ScSubstitutor) = new ScSubstitutor(s.tvMap ++ tvMap, s.outerMap ++ outerMap, s.aliasesMap ++ aliasesMap)
   def followed(s: ScSubstitutor) : ScSubstitutor = new ScSubstitutor(tvMap, outerMap, aliasesMap) {
     override def subst(t: ScType) = s.subst(super.subst(t))
@@ -36,7 +38,7 @@ class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
   def subst(t: ScType) : ScType = t match {
     case ScFunctionType(ret, params) => new ScFunctionType(subst(ret), params map (subst _))
     case ScTupleType(comps) => new ScTupleType(comps map {subst _})
-    case ScProjectionType(proj, name) => new ScProjectionType(subst(proj), name)
+    case ScProjectionType(proj, ref) => new ScProjectionType(subst(proj), ref)
 
     case tv : ScTypeVariable => tvMap.get(tv) match {
       case None => tv
@@ -47,7 +49,7 @@ class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
         val cc = c.getContainingClass
         if (cc != null) {
           outerMap.get(cc) match {
-            case Some(ot) => new ScProjectionType(ot, c.getName)
+            case Some(p) => new ScProjectionType(p._1, p._2)
             case None => t
           }
         } else t

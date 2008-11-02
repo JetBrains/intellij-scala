@@ -39,13 +39,14 @@ object SimpleType {
           builder.getTokenType match {
             case ScalaTokenTypes.tIDENTIFIER => {
               builder.advanceLexer //Ate id
+              curMarker.done(ScalaElementTypes.TYPE_PROJECTION)
+              parseTail(newMarker)
             }
             case _ => {
-              builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
+              newMarker.drop
+              curMarker.drop
             }
           }
-          curMarker.done(ScalaElementTypes.TYPE_PROJECTION)
-          parseTail(newMarker)
         }
         case _ => {
           curMarker.drop
