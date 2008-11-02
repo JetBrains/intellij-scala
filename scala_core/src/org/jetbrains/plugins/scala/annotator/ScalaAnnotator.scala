@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-
 import com.intellij.psi.search.GlobalSearchScope
 import gutter.OverrideGutter
 import highlighter.{AnnotatorHighlighter}
@@ -36,14 +35,16 @@ import quickfix.ImplementMethodsQuickFix
 import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 23.06.2008
+ *  User: Alexander Podkhalyuzin
+ *  Date: 23.06.2008
  */
 
 class ScalaAnnotator extends Annotator {
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     val file = element.getContainingFile
+    val fType = file.getVirtualFile.getFileType
+    if (fType != ScalaFileType.SCALA_FILE_TYPE) return
     element match {
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         addOverrideGutter(x, holder)
@@ -71,7 +72,7 @@ class ScalaAnnotator extends Annotator {
       case x: ScReferenceExpression if x.qualifier == None => {
         x.bind match {
           case Some(_) => AnnotatorHighlighter.highlightReferenceElement(x, holder)
-          case None => 
+          case None =>
         }
       }
       case x: ScReferenceElement if x.qualifier == None => checkNotQualifiedReferenceElement(x, holder)
@@ -79,7 +80,6 @@ class ScalaAnnotator extends Annotator {
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }
   }
-
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
 
@@ -113,7 +113,7 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def registerAddImportFix(refElement: ScReferenceElement, annotation: Annotation) {
-   val actions = OuterImportsActionCreator.getOuterImportFixes(refElement, refElement.getProject())
+    val actions = OuterImportsActionCreator.getOuterImportFixes(refElement, refElement.getProject())
     for (action <- actions) {
       annotation.registerFix(action)
     }
@@ -138,12 +138,12 @@ class ScalaAnnotator extends Annotator {
       val eb = clazz.extendsBlock
       var end = eb.templateBody match {
         case Some(x) => {
-          val shifted = eb.findElementAt(x.getStartOffsetInParent - 1) match {case w : PsiWhiteSpace => w case _ => x}
+          val shifted = eb.findElementAt(x.getStartOffsetInParent - 1) match {case w: PsiWhiteSpace => w case _ => x}
           shifted.getTextRange.getStartOffset
         }
         case None => eb.getTextRange.getEndOffset
       }
-      
+
       val annotation: Annotation = holder.createErrorAnnotation(new TextRange(start, end), error)
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
 
@@ -166,8 +166,8 @@ class ScalaAnnotator extends Annotator {
         }
       case Some(superMethod) => if (!method.hasModifierProperty("override")) {
         val isConcrete = superMethod match {
-          case _ : ScFunctionDefinition => true
-          case _ : ScFunctionDeclaration => false
+          case _: ScFunctionDefinition => true
+          case _: ScFunctionDeclaration => false
           case method: PsiMethod if !method.hasModifierProperty(PsiModifier.ABSTRACT) && !method.isConstructor => true
           case _ => false
         }
@@ -199,7 +199,7 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def checkResultExpression(block: ScBlock, holder: AnnotationHolder) {
-    val stat  = block.lastStatement match {case None => return case Some(x) => x}
+    val stat = block.lastStatement match {case None => return case Some(x) => x}
     stat match {
       case _: ScExpression =>
       case _ => {
