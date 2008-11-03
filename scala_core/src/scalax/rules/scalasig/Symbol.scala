@@ -6,7 +6,7 @@ trait Symbol extends Flags {
   def name : String
   def parent : Option[Symbol]
   def children : Seq[Symbol]
-  
+
   def path : String = parent.map(_.path + ".").getOrElse("") + name
 }
 
