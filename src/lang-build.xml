@@ -252,7 +252,7 @@
         <path refid="test.base.path"/>
       </classpath>
 
-      <jvmarg value="-Xbootclasspath/p:${idea.lib}/boot.jar"/>
+      <jvmarg value="-Xbootclasspath/p:${scala.home}/boot/boot.jar"/>
       <jvmarg value="-Djava.awt.headless=true"/>
       <jvmarg value="-Xmx256M"/>
       <jvmarg value="-ea"/>
