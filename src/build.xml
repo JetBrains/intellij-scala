@@ -18,7 +18,7 @@
   <property name="base.dir" value="${project.lib}/../../.."/>
   <property name="scala.home" value="${base.dir}/SDK"/>
   <property name="scala_core.dir" value="${project.lib}/../../../scala_core"/>
-  <!--  <property name="idea.lib" value="${idea.pack}/lib"/>-->
+  <property name="idea.lib" value="${idea.pack}/lib"/>
   <property name="outpmcut" value="${project.lib}/dist"/>
   <property name="test.lib" value="${project.lib}/../../test/Scala"/>
   <property name="production.dest" location="${project.lib}/.."/>
@@ -243,6 +243,7 @@
     <mkdir dir="${output}/system"/>
 
     <junit fork="yes"
+           showoutput="true"
            dir="${base.dir}"
            printsummary="yes"
            haltonfailure="no"
@@ -254,7 +255,7 @@
         <path refid="test.base.path"/>
       </classpath>
 
-      <jvmarg value="-Xbootclasspath/p:${idea.lib}/boot.jar"/>
+      <jvmarg value="-Xbootclasspath/p:${scala.home}/boot/boot.jar"/>
       <jvmarg value="-Djava.awt.headless=true"/>
       <jvmarg value="-Xmx256M"/>
       <jvmarg value="-ea"/>
