@@ -19,7 +19,7 @@
   <property name="scala.home" value="${base.dir}/SDK"/>
   <property name="scala_core.dir" value="${project.lib}/../../../scala_core"/>
   <property name="idea.lib" value="${idea.pack}/lib"/>
-  <property name="outpmcut" value="${project.lib}/dist"/>
+  <property name="output" value="${project.lib}/dist"/>
   <property name="test.lib" value="${project.lib}/../../test/Scala"/>
   <property name="production.dest" location="${project.lib}/.."/>
   <property name="java.lib" value="${jdk.home}/lib"/>
@@ -32,13 +32,11 @@
   <property name="plugin.version" value="${scala.plugin.version}.${plugin.revision}"/>
 
   <target name="unzip.last.successful.IDEA.build">
-<!--
     <unzip dest="${idea.pack}">
       <fileset dir="${idea.pack}">
         <include name="*.zip"/>
       </fileset>
     </unzip>
--->
   </target>
 
   <path id="idea.lib.path">
@@ -236,14 +234,13 @@
 
   </target>
 
-  <target name="run.tests" depends="build.tests">
+  <target name="run.tests" >
 
     <mkdir dir="${base.dir}/logs"/>
     <mkdir dir="${output}/config"/>
     <mkdir dir="${output}/system"/>
 
     <junit fork="yes"
-           showoutput="true"
            dir="${base.dir}"
            printsummary="yes"
            haltonfailure="no"
