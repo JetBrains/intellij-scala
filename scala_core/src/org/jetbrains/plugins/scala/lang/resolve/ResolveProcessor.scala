@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import psi.api.base.patterns.ScReferencePattern
 import psi.api.base.ScReferenceElement
 import psi.api.statements.{ScFunction, ScVariableDefinition, ScPatternDefinition, ScFun}
 import psi.api.toplevel.typedef.ScObject
@@ -155,10 +156,13 @@ class MethodResolveProcessor(ref : ScReferenceElement, args : Seq[ScType],
                            else f.calcType
     case m : PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty)
 
-    case pd : ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, ref, true)) =>
-      pd.declaredType match {case Some(t) => t; case None => Nothing}
-    case vd : ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, ref, true)) =>
-      vd.declaredType match {case Some(t) => t; case None => Nothing}
+    case refPatt : ScReferencePattern => refPatt.getParent/*id list*/.getParent match {
+      case pd : ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, ref, true)) =>
+        pd.declaredType match {case Some(t) => t; case None => Nothing}
+      case vd : ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, ref, true)) =>
+        vd.declaredType match {case Some(t) => t; case None => Nothing}
+      case _ => refPatt.calcType
+    }
 
     case typed : ScTyped => typed.calcType
     case _ => Nothing
