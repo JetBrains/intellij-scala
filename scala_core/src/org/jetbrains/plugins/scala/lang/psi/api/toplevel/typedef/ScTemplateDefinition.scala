@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState, PsiClass, PsiNamedElement}
+import impl.ScalaPsiElementFactory
 import impl.toplevel.typedef.TypeDefinitionMembers
 import statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import templates.ScExtendsBlock
@@ -58,5 +59,23 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
           true
       }
+  }
+
+  def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {
+    extendsBlock.templateBody match {
+      case Some(body) => {
+        val before = anchor match {case Some(anchor) => anchor.getNode; case None => body.getNode.getLastChildNode}
+        if (ScalaPsiUtil.isLineTerminator(before.getPsi))
+          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
+        body.getNode.addChild(member.getNode, before)
+        if (!ScalaPsiUtil.isLineTerminator(before.getPsi))
+          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
+      }
+      case None => {
+        extendsBlock.getNode.addChild(ScalaPsiElementFactory.createBodyFromMember(member, member.getManager).getNode)
+        return members.apply(0)
+      }
+    }
+    return member
   }
 }

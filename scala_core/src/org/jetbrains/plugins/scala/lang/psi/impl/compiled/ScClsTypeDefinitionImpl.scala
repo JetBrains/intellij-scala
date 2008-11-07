@@ -52,7 +52,7 @@ extends ClsClassImpl(stub) with ScTypeDefinition {
 
   override def getLanguage: Language = ScalaFileType.SCALA_LANGUAGE
 
-  def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = null
+  override def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = null
   def functionsByName(name: String): Iterable[PsiMethod] = Seq.empty
 
   protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = Array[T]()

@@ -45,6 +45,4 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     }
     case None => None
   }
-
-  def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember
 }
