@@ -235,8 +235,9 @@ object ScalaPsiElementFactory {
     return body
   }
 
-  def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, isOverride: Boolean): ScFunction = {
-    val text = "class a {\n  " + getOverrideImplementSign(sign, "null", isOverride) + "\n}" 
+  def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, isOverride: Boolean,
+                                   needsInferType: Boolean): ScFunction = {
+    val text = "class a {\n  " + getOverrideImplementSign(sign, "null", isOverride, needsInferType) + "\n}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.typeDefinitions()(0)
@@ -253,8 +254,8 @@ object ScalaPsiElementFactory {
     return al
   }
 
-  def createOverrideImplementVariable(variable: ScTyped, substitutor: ScSubstitutor, manager: PsiManager, isOverride: Boolean, isVal: Boolean): ScMember = {
-    val text = "class a {" + getOverrideImplementVariableSign(variable, substitutor, "_", isOverride, isVal) + "}"
+  def createOverrideImplementVariable(variable: ScTyped, substitutor: ScSubstitutor, manager: PsiManager, isOverride: Boolean, isVal: Boolean, needsInferType: Boolean): ScMember = {
+    val text = "class a {" + getOverrideImplementVariableSign(variable, substitutor, "_", isOverride, isVal, needsInferType) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.typeDefinitions()(0)
@@ -283,7 +284,7 @@ object ScalaPsiElementFactory {
     }
   }
 
-  private def getOverrideImplementSign(sign: PhysicalSignature, defaultBody: String, isOverride: Boolean): String = {
+  private def getOverrideImplementSign(sign: PhysicalSignature, defaultBody: String, isOverride: Boolean, needsInferType: Boolean): String = {
     var body = defaultBody
     var res = ""
     val method = sign.method
@@ -334,9 +335,11 @@ object ScalaPsiElementFactory {
             res += strings.mkString(if (paramClause.isImplicit) "(implicit " else "(", ", ", ")")
           }
         }
-        method.returnTypeElement match {
-          case None =>
-          case Some(x) => res = res + ": " + ScType.canonicalText(substitutor.subst(x.getType))
+        if (needsInferType) {
+          method.returnTypeElement match {
+            case None =>
+            case Some(x) => res = res + ": " + ScType.canonicalText(substitutor.subst(x.getType))
+          }
         }
         res = res + " = "
         res = res + body
@@ -386,7 +389,10 @@ object ScalaPsiElementFactory {
         }
         if (method.getParameterList.getParametersCount != 0) res = res.substring(0, res.length - 2)
         res = res + (if (method.getParameterList.getParametersCount == 0) "" else ")")
-        res = res + ": " + ScType.canonicalText(substitutor.subst(ScType.create(method.getReturnType, method.getProject))) + " = " + body
+        if (needsInferType) {
+          res = res + ": " + ScType.canonicalText(substitutor.subst(ScType.create(method.getReturnType, method.getProject)))
+        }
+        res = res + " = " + body
       }
     }
     return res
@@ -414,12 +420,13 @@ object ScalaPsiElementFactory {
     }
   }
 
-  def getOverrideImplementVariableSign(variable: ScTyped, substitutor: ScSubstitutor, body: String, isOverride: Boolean, isVal: Boolean): String = {
+  def getOverrideImplementVariableSign(variable: ScTyped, substitutor: ScSubstitutor, body: String, isOverride: Boolean, isVal: Boolean, needsInferType: Boolean): String = {
     var res = ""
     if (isOverride) res = res + "override "
     res = res + (if (isVal) "val " else "var ")
     res = res + variable.name
-    if (ScType.canonicalText(substitutor.subst(variable.calcType)) != "") res = res + ": " + ScType.canonicalText(substitutor.subst(variable.calcType))
+    if (needsInferType && ScType.canonicalText(substitutor.subst(variable.calcType)) != "")
+      res = res + ": " + ScType.canonicalText(substitutor.subst(variable.calcType))
     res = res + " = " + body
     return res
   }
