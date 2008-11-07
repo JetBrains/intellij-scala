@@ -49,8 +49,6 @@ public class OverrideImplementTest extends PsiTestCase {
     myProject.getComponent(SyntheticClasses.class).registerClasses();
     ScalaLoader.loadScala();
 
-    getCurrentCodeStyleSettings().getAdditionalIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE = 2;
-
     final ModifiableRootModel rootModel = ModuleRootManager.getInstance(getModule()).getModifiableModel();
     VirtualFile sdkRoot = LocalFileSystem.getInstance().findFileByPath(rootPath);
     assertNotNull(sdkRoot);
