@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.annotator
 import com.intellij.psi.search.GlobalSearchScope
 import gutter.OverrideGutter
 import highlighter.{AnnotatorHighlighter}
+import lang.lexer.ScalaTokenTypes
 import lang.psi.api.expr._
 
 
@@ -35,12 +36,11 @@ import quickfix.ImplementMethodsQuickFix
 import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 
 /**
- *  User: Alexander Podkhalyuzin
- *  Date: 23.06.2008
+ *    User: Alexander Podkhalyuzin
+ *    Date: 23.06.2008
  */
 
 class ScalaAnnotator extends Annotator {
-
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     val file = element.getContainingFile
     val fType = file.getVirtualFile.getFileType
@@ -199,14 +199,19 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def checkResultExpression(block: ScBlock, holder: AnnotationHolder) {
+    var last = block.getNode.getLastChildNode
+    while (last != null && (last.getElementType == ScalaTokenTypes.tRBRACE ||
+            (ScalaTokenTypes.WHITES_SPACES_TOKEN_SET contains last.getElementType) ||
+            (ScalaTokenTypes.COMMENTS_TOKEN_SET contains last.getElementType))) last = last.getTreePrev
+    if (last.getElementType == ScalaTokenTypes.tSEMICOLON) return
+
     val stat = block.lastStatement match {case None => return case Some(x) => x}
     stat match {
       case _: ScExpression =>
       case _ => {
-        val diff = stat.getText.length - stat.getText.trim.length
         val error = ScalaBundle.message("block.must.end.result.expression", Array[Object]())
         val annotation: Annotation = holder.createErrorAnnotation(
-          new TextRange(stat.getTextRange.getStartOffset, stat.getTextRange.getEndOffset - diff),
+          new TextRange(stat.getTextRange.getStartOffset, stat.getTextRange.getStartOffset + 3),
           error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
