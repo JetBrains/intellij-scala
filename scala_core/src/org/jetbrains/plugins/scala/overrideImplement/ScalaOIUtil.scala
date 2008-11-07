@@ -18,7 +18,7 @@ import com.intellij.psi._
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement, ScFieldId}
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScMember}
+import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScMember, ScTemplateDefinition}
 import lang.psi.api.toplevel.{ScModifierListOwner, ScTyped}
 import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import lang.psi.api.base.types.ScSimpleTypeElement
@@ -45,13 +45,13 @@ object ScalaOIUtil {
     val elem = file.findElementAt(editor.getCaretModel.getOffset)
     def getParentClass(elem: PsiElement): PsiElement = {
       elem match {
-        case _: ScTypeDefinition | null => return elem
+        case _: ScTemplateDefinition | null => return elem
         case _ => getParentClass(elem.getParent)
       }
     }
     val parent = getParentClass(elem)
     if (parent == null) return
-    val clazz = parent.asInstanceOf[ScTypeDefinition]
+    val clazz = parent.asInstanceOf[ScTemplateDefinition]
     //val candidates = if (isImplement) ScalaOIUtil.getMembersToImplement(clazz) else ScalaOIUtil.getMembersToOverride(clazz)
     val candidates = if (isImplement) getMembersToImplement(clazz) else getMembersToOverride(clazz)
     if (candidates.isEmpty) return
@@ -107,7 +107,7 @@ object ScalaOIUtil {
   }
 
   def runAction(selectedMembers: java.util.List[ClassMember],
-               isImplement: Boolean, clazz: ScTypeDefinition, editor: Editor, needsInferType: Boolean) {
+               isImplement: Boolean, clazz: ScTemplateDefinition, editor: Editor, needsInferType: Boolean) {
     ScalaUtils.runWriteAction(new Runnable {
       def run {
         for (member <- selectedMembers.toArray(new Array[ClassMember](selectedMembers.size))) {
@@ -142,7 +142,7 @@ object ScalaOIUtil {
     }, clazz.getProject, if (isImplement) "Implement method" else "Override method")
   }
 
-  def getMembersToImplement(clazz: ScTypeDefinition): Seq[ScalaObject] = {
+  def getMembersToImplement(clazz: ScTemplateDefinition): Seq[ScalaObject] = {
     val buf = new ArrayBuffer[ScalaObject]
     buf ++= clazz.allSignatures
     buf ++= clazz.allTypes
@@ -176,7 +176,7 @@ object ScalaOIUtil {
     return buf2.toSeq
   }
 
-  def getMembersToOverride(clazz: ScTypeDefinition): Seq[ScalaObject] = {
+  def getMembersToOverride(clazz: ScTemplateDefinition): Seq[ScalaObject] = {
     val buf = new ArrayBuffer[ScalaObject]
     buf ++= clazz.allMethods
     buf ++= clazz.allTypes
@@ -290,7 +290,7 @@ object ScalaOIUtil {
     }
   }
 
-  def getAnchor(offset: Int, clazz: ScTypeDefinition) : Option[ScMember] = {
+  def getAnchor(offset: Int, clazz: ScTemplateDefinition) : Option[ScMember] = {
     val body = clazz.extendsBlock.templateBody match {
       case Some(x) => x
       case None => return None

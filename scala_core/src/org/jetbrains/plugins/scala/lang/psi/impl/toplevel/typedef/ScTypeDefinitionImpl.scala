@@ -164,23 +164,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
   def functionsByName(name: String) =
     for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method == name) yield n.info.method
 
-  def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {
-    extendsBlock.templateBody match {
-      case Some(body) => {
-        val before = anchor match {case Some(anchor) => anchor.getNode; case None => body.getNode.getLastChildNode}
-        if (ScalaPsiUtil.isLineTerminator(before.getPsi))
-          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
-        body.getNode.addChild(member.getNode, before)
-        if (!ScalaPsiUtil.isLineTerminator(before.getPsi))
-          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
-      }
-      case None => {
-        extendsBlock.getNode.addChild(ScalaPsiElementFactory.createBodyFromMember(member, member.getManager).getNode)
-        return members.apply(0)
-      }
-    }
-    return member
-  }
+  
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
