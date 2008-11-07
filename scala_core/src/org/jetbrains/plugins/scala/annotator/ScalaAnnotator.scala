@@ -63,7 +63,7 @@ class ScalaAnnotator extends Annotator {
       case x: ScTypeAlias => {
         addNamedElementOverrideGutter(x, holder)
       }
-      case x: ScTypeDefinition => {
+      case x: ScTemplateDefinition => {
         checkImplementedMethods(x, holder)
       }
       case x: ScBlock => {
@@ -123,7 +123,7 @@ class ScalaAnnotator extends Annotator {
     //todo: add body
   }
 
-  private def checkImplementedMethods(clazz: ScTypeDefinition, holder: AnnotationHolder) {
+  private def checkImplementedMethods(clazz: ScTemplateDefinition, holder: AnnotationHolder) {
     clazz match {
       case _: ScTrait => return
       case _ =>
@@ -133,6 +133,7 @@ class ScalaAnnotator extends Annotator {
       val error = clazz match {
         case _: ScClass => ScalaBundle.message("class.must.declared.abstract", Array[Object](clazz.getName))
         case _: ScObject => ScalaBundle.message("object.must.implement", Array[Object](clazz.getName))
+        case _: ScNewTemplateDefinition =>ScalaBundle.message("anonymus.class.must.declared.abstract", Array[Object]()) 
       }
       val start = clazz.getTextRange.getStartOffset
       val eb = clazz.extendsBlock
