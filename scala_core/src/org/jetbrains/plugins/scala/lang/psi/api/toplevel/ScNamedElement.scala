@@ -4,10 +4,12 @@ import com.intellij.navigation.{ItemPresentation, NavigationItem}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiNamedElement, PsiElement}
+import icons.Icons
 import impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import psi.ScalaPsiElement
-import typedef.{ScTypeDefinition, ScMember}
+import statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
+import typedef._
 
 trait ScNamedElement extends ScalaPsiElement with PsiNamedElement with NavigationItem {
 
@@ -35,4 +37,6 @@ trait ScNamedElement extends ScalaPsiElement with PsiNamedElement with Navigatio
       override def getIcon(open: Boolean) = parent match {case mem: ScMember => mem.getIcon(0) case _ => null}
     }
   }
+
+  override def getIcon(flags: Int) = ScalaPsiUtil.nameContext(this).getIcon(flags)
 }
