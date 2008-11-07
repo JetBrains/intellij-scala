@@ -27,6 +27,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public String DEFAULT_SCALA_LIB_NAME = null;
   public Boolean SPECIFY_TYPE_EXPLICITLY = null;
   public Boolean INTRODUCE_LOCAL_CREATE_VARIABLE = null;
+  public Boolean SPECIFY_RETURN_TYPE_EXPLICITLY = null;
 
   public ScalaApplicationSettings getState() {
     return this;

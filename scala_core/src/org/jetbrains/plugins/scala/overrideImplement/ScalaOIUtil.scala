@@ -8,9 +8,11 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 
+import com.intellij.ui.NonFocusableCheckBox
+import com.intellij.util.{IncorrectOperationException, SmartList}
 import java.awt.Component
 
-import javax.swing.JCheckBox
+import javax.swing.{JCheckBox, JComponent}
 import lang.lexer.ScalaTokenTypes
 import com.intellij.psi._
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement, ScFieldId}
@@ -27,11 +29,11 @@ import lang.psi.impl.ScalaPsiElementFactory
 import lang.psi.types.{FullSignature, ScType, PhysicalSignature, ScSubstitutor}
 import lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import org.jetbrains.plugins.scala.util.ScalaUtils
-import com.intellij.util.IncorrectOperationException
 import com.intellij.ide.util.MemberChooser
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.psi.infos.CandidateInfo
 import com.intellij.openapi.project.Project
+import settings.ScalaApplicationSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -79,19 +81,33 @@ object ScalaOIUtil {
       }
     }
     val classMembers = classMembersBuf.toArray
-    val chooser = new MemberChooser[ClassMember](classMembers, false, true, project)
+    val chooser = new {
+      private val dontInferReturnTypeCheckBox: JCheckBox = new NonFocusableCheckBox(
+        ScalaBundle.message("specify.return.type.explicitly", Array[Object]()))
+    }
+       with MemberChooser[ClassMember](classMembers, false, true, project) {
+      if (ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY != null)
+        dontInferReturnTypeCheckBox.setSelected(ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY.booleanValue)
+      override def customizeOptionsPanel: java.util.List[JComponent] = {
+        val list = new SmartList[JComponent]
+        list.add(dontInferReturnTypeCheckBox)
+        return list
+      }
+      def needsInferType = dontInferReturnTypeCheckBox.isSelected
+    }
     chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement", Array[Object]())
                      else ScalaBundle.message("select.method.override", Array[Object]()))
-    chooser.setCopyJavadocVisible(false)
     chooser.show
 
     val selectedMembers = chooser.getSelectedElements
     if (selectedMembers == null || selectedMembers.size == 0) return
-    runAction(selectedMembers, isImplement, clazz, editor)
+    val needsInferType = chooser.needsInferType
+    ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = needsInferType
+    runAction(selectedMembers, isImplement, clazz, editor, needsInferType)
   }
 
   def runAction(selectedMembers: java.util.List[ClassMember],
-               isImplement: Boolean, clazz: ScTypeDefinition, editor: Editor) {
+               isImplement: Boolean, clazz: ScTypeDefinition, editor: Editor, needsInferType: Boolean) {
     ScalaUtils.runWriteAction(new Runnable {
       def run {
         for (member <- selectedMembers.toArray(new Array[ClassMember](selectedMembers.size))) {
@@ -102,7 +118,7 @@ object ScalaOIUtil {
               val method: PsiMethod = member.getElement
               val sign = member.sign
 
-              val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement)
+              val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement, needsInferType)
               adjustTypesAndSetCaret(clazz.addMember(m, anchor), editor)
             }
             case member: ScAliasMember => {
@@ -115,7 +131,8 @@ object ScalaOIUtil {
               val isVal = member match {case _: ScValueMember => true case _: ScVariableMember => false}
               val value = member match {case x: ScValueMember => x.element case x: ScVariableMember => x.element}
               val substitutor = member match {case x: ScValueMember => x.substitutor case x: ScVariableMember => x.substitutor}
-              val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager, !isImplement, isVal)
+              val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager,
+                !isImplement, isVal, needsInferType)
               adjustTypesAndSetCaret(clazz.addMember(m, anchor), editor)
             }
             case _ =>
@@ -254,7 +271,7 @@ object ScalaOIUtil {
     obj match {
       case sign: PhysicalSignature => {
         val method: PsiMethod = sign.method
-        return ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement)
+        return ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement, true)
       }
       case (name: PsiNamedElement, subst: ScSubstitutor) => {
         val element: PsiElement = ScalaPsiUtil.nameContext(name)
@@ -265,7 +282,7 @@ object ScalaOIUtil {
           case _: ScValue | _: ScVariable => {
             val typed: ScTyped = name match {case x: ScTyped => x case _ => return null}
             return ScalaPsiElementFactory.createOverrideImplementVariable(typed, subst, typed.getManager, !isImplement, 
-              element match {case _: ScValue => true case _ => false})
+              element match {case _: ScValue => true case _ => false}, true)
           }
           case _ => return null
         }
