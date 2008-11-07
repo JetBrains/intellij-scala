@@ -15,7 +15,7 @@ package Test
 
 abstract class Aa {
     type K = Aa
-   val y: K
+    val y: K
 }
 
 class OverridedTypeAlias extends Aa {
