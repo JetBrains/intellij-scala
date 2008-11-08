@@ -1,8 +1,7 @@
-0
 class a {
-  a + c
+  <start>a + c
   c - b
-  var t: Int = 4
+  var t: Int = 4<if>
 }
 -----
 class a {

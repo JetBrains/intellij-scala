@@ -1,7 +1,6 @@
-4
 class a {
-  i+2
-  i+3
+  <start>i+2
+  i+3<for>
 }
 -----
 class a {

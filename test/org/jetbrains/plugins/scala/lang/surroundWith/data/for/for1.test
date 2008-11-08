@@ -1,6 +1,5 @@
-4
 class a {
-  abc
+  <start>abc<for>
 }
 -----
 class a {

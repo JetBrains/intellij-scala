@@ -1,6 +1,5 @@
-11
 class a {
-  abc
+  <start>abc<parenthesis>
 }
 -----
 class a {

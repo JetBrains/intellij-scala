@@ -1,6 +1,5 @@
-9
 class a {
-  abc
+  <start>abc<braces>
 }
 -----
 class a {

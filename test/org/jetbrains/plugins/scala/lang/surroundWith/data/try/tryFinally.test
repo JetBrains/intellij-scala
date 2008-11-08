@@ -1,6 +1,5 @@
-7
 class a {
-  tt
+  <start>tt<finally>
 }
 -----
 class a {
