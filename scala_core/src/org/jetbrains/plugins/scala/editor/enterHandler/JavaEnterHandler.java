@@ -7,6 +7,7 @@ package org.jetbrains.plugins.scala.editor.enterHandler;
 import com.intellij.codeInsight.CodeInsightBundle;
 import com.intellij.codeInsight.CodeInsightSettings;
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate;
+import com.intellij.codeInsight.editorActions.enter.EnterInStringLiteralHandler;
 import com.intellij.codeInsight.editorActions.CodeDocumentationUtil;
 import com.intellij.codeInsight.editorActions.TypedHandler;
 import com.intellij.codeInsight.editorActions.JavaLikeQuoteHandler;
@@ -40,6 +41,7 @@ import com.intellij.psi.util.PsiUtilBase;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.text.CharArrayUtil;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 /**
  * This class is copy of IDEA class {@link com.intellij.codeInsight.template.impl.editorActions.EnterHandler} with little changes.
@@ -130,14 +132,18 @@ public class JavaEnterHandler extends EditorWriteActionHandler {
     Ref<Integer> caretAdvanceRef = new Ref<Integer>(0);
 
     for(EnterHandlerDelegate delegate: Extensions.getExtensions(EnterHandlerDelegate.EP_NAME)) {
-      EnterHandlerDelegate.Result result = delegate.preprocessEnter(file, editor, caretOffsetRef, caretAdvanceRef, dataContext, myOriginalHandler);
-      if (result == EnterHandlerDelegate.Result.Stop) return;
-      if (result != EnterHandlerDelegate.Result.Continue) {
-        text = document.getCharsSequence();
-        if (result == EnterHandlerDelegate.Result.DefaultForceIndent) {
-          forceIndent = true;
+      if (!(delegate instanceof EnterInStringLiteralHandler) ||
+          (file.findElementAt(caretOffset).getNode().getElementType() == ScalaTokenTypes.tSTRING && 
+          !file.findElementAt(caretOffset).getText().startsWith("\"\"\""))) {
+        EnterHandlerDelegate.Result result = delegate.preprocessEnter(file, editor, caretOffsetRef, caretAdvanceRef, dataContext, myOriginalHandler);
+        if (result == EnterHandlerDelegate.Result.Stop) return;
+        if (result != EnterHandlerDelegate.Result.Continue) {
+          text = document.getCharsSequence();
+          if (result == EnterHandlerDelegate.Result.DefaultForceIndent) {
+            forceIndent = true;
+          }
+          break;
         }
-        break;
       }
     }
 
