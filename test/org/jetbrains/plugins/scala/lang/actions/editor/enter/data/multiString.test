@@ -1,0 +1,12 @@
+class a {
+  """
+  as<caret>as
+  """
+}
+-----
+class a {
+  """
+  as
+  <caret>as
+  """
+}
