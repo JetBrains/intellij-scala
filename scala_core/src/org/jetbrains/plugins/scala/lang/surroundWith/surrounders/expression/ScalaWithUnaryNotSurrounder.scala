@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import psi.api.expr.ScExpression
+import psi.api.expr.{ScParenthesisedExpr, ScExpression}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,7 +22,15 @@ class ScalaWithUnaryNotSurrounder extends ScalaExpressionSurrounder {
     }
   }
   override def getSurroundSelectionRange(withUnaryNot: ASTNode): TextRange = {
-    val expr: ScExpression = withUnaryNot.getPsi.asInstanceOf[ScExpression]
+    val element: PsiElement = withUnaryNot.getPsi match {
+      case x: ScParenthesisedExpr => x.expr match {
+        case Some(y) => y
+        case _ => return x.getTextRange
+      }
+      case x => x
+    }
+
+    val expr: ScExpression = element.asInstanceOf[ScExpression]
     val offset = expr.getTextRange.getEndOffset
     new TextRange(offset,offset)
   }

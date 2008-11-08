@@ -26,9 +26,15 @@ class ScalaWithIfSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateDescription = "if"
 
   override def getSurroundSelectionRange(nodeWithIfNode : ASTNode ) : TextRange = {
-    def isIfStmt = (e : PsiElement) => e.isInstanceOf[ScIfStmtImpl]
+    val element: PsiElement = nodeWithIfNode.getPsi match {
+      case x: ScParenthesisedExpr => x.expr match {
+        case Some(y) => y
+        case _ => return x.getTextRange
+      }
+      case x => x
+    }
 
-    val stmt = nodeWithIfNode.getPsi.asInstanceOf[ScIfStmtImpl]
+    val stmt = element.asInstanceOf[ScIfStmtImpl]
 
     val conditionNode : ASTNode = (stmt.condition: @unchecked) match {
         case Some(c) => c.getNode

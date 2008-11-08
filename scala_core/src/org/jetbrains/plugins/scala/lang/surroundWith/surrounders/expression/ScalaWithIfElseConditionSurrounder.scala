@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import psi.api.expr.{ScIfStmt, ScExpression}
+import psi.api.expr.{ScParenthesisedExpr, ScIfStmt, ScExpression}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,7 +22,14 @@ class ScalaWithIfElseConditionSurrounder extends ScalaExpressionSurrounder {
     }
   }
   override def getSurroundSelectionRange(withIfNode: ASTNode): TextRange = {
-    val ifStmt: ScIfStmt = withIfNode.getPsi.asInstanceOf[ScIfStmt]
+    val element: PsiElement = withIfNode.getPsi match {
+      case x: ScParenthesisedExpr => x.expr match {
+        case Some(y) => y
+        case _ => return x.getTextRange
+      }
+      case x => x
+    }
+    val ifStmt: ScIfStmt = element.asInstanceOf[ScIfStmt]
     val body = (ifStmt.thenBranch: @unchecked) match {
       case Some(x) => x
     }
