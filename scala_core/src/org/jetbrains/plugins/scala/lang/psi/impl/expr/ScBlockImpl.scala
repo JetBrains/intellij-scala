@@ -26,42 +26,26 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
   override def getType = lastExpr match {
       case None => Unit
       case Some(e) => {
-        def createSubst (oldVars : List[ScTypeVariable], newVars : List[ScTypeVariable]) = {
-          var s = ScSubstitutor.empty
-          for ((tv, tv1) <- oldVars zip newVars) {
-            s = s + (tv, tv1)
-          }
-          s
-        }
-
-        def newTypeVar(v : ScTypeVariable) : ScTypeVariable = {
-          val i1 = v.inner.map {newTypeVar _}
-          var s = createSubst(v.inner, i1)
-          new ScTypeVariable(v.name, i1, s.subst(v.lower), s.subst(v.upper))
-        }
-
         val m = new HashMap[String, ScExistentialArgument]
         def existize (t : ScType) : ScType = t match {
           case ScFunctionType(ret, params) => new ScFunctionType(existize(ret), params.map {existize _})
           case ScTupleType(comps) => new ScTupleType(comps.map {existize _})
           case ScDesignatorType(des) if PsiTreeUtil.isAncestor(this, des, true) => des match {
             case clazz : ScClass => {
-              val oldVars = clazz.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}.toList
-              val newVars = oldVars.map{newTypeVar _}
-              val s = createSubst(oldVars, newVars)
-              val t = s.subst(existize(leastClassType(clazz)))
-              m.put(clazz.name, new ScExistentialArgument(clazz.name, newVars, t, t))
-              new ScTypeAliasType(clazz.name, newVars, t, t) //to be substed by name
+              val t = existize(leastClassType(clazz))
+              val vars = clazz.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}.toList
+              m.put(clazz.name, new ScExistentialArgument(clazz.name, vars, t, t))
+              new ScTypeVariable(clazz.name)
             }
             case obj : ScObject => {
               val t = existize(leastClassType(obj))
               m.put(obj.name, new ScExistentialArgument(obj.name, Nil, t, t))
-              new ScTypeAliasType(obj.name, Nil, t, t) //to be substed by name
+              new ScTypeVariable(obj.name)
             }
             case typed : ScTyped => {
-              val t = existize(typed.calcType); new ScTypeVariable(typed.name, Nil, t, t)
+              val t = existize(typed.calcType)
               m.put(typed.name, new ScExistentialArgument(typed.name, Nil, t, t))
-              new ScTypeAliasType(typed.name, Nil, t, t) //to be substed by name
+              new ScTypeVariable(typed.name)
             }
           }
           case ScProjectionType(p, ref) => new ScProjectionType(existize(p), ref)
