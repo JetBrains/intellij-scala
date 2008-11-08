@@ -40,16 +40,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
 
     node.getPsi match {
       case _: ScalaFile => Indent.getNoneIndent
-      case _: ScPackaging => {
-        child.getElementType match {
-          case ScalaTokenTypes.tLBRACE |
-                  ScalaTokenTypes.tRBRACE |
-                  ScalaTokenTypes.kPACKAGE |
-                  ScalaElementTypes.REFERENCE =>
-            Indent.getNoneIndent
-          case _ => Indent.getNormalIndent
-        }
-      }
+      case _: ScPackaging => Indent.getNoneIndent
       case _: ScMatchStmt => {
         child.getPsi match {
           case _: ScCaseClauses if settings.INDENT_CASE_FROM_SWITCH => Indent.getNormalIndent
