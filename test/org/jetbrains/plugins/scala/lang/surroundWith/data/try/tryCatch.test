@@ -1,7 +1,6 @@
-6
 class a {
-  ABC
-  deF
+  <start>ABC
+  deF<catch>
 }
 -----
 class a {

@@ -1,6 +1,5 @@
-2
 class a {
-  abc
+  <start>abc<while>
 }
 -----
 class a {

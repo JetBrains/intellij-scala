@@ -1,6 +1,5 @@
-3
 class a {
-  abc
+  <start>abc<do>
 }
 -----
 class a {

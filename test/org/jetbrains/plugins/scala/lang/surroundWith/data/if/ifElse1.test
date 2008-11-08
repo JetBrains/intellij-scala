@@ -1,8 +1,7 @@
-1
 class a {
-  if (true) {
+  <start>if (true) {
     again
-  }
+  }<else>
 }
 -----
 class a {

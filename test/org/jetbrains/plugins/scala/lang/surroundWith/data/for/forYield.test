@@ -1,6 +1,5 @@
-5
 class a {
-  abc
+  <start>abc<yield>
 }
 -----
 class a {

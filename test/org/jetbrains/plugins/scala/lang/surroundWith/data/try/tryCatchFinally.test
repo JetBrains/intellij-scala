@@ -1,6 +1,5 @@
-8 
 class a {
-  CNN
+  <start>CNN<try>
 }
 -----
 class a {

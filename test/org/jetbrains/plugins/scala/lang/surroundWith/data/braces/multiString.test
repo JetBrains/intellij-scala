@@ -1,7 +1,6 @@
-9
 class a {
-  val a = 2
-  x+y
+  <start>val a = 2
+  x+y<braces>
 }
 -----
 class a {

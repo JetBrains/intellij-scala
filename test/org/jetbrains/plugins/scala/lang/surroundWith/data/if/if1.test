@@ -1,6 +1,5 @@
-0
 class a {
-  abc
+  <start>abc<if>
 }
 -----
 class a {

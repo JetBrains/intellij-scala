@@ -1,6 +1,5 @@
-10
 class a {
-  true
+  <start>true<match>
 }
 -----
 class a {
