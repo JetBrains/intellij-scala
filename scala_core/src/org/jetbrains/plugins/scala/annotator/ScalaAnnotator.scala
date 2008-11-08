@@ -133,7 +133,7 @@ class ScalaAnnotator extends Annotator {
       val error = clazz match {
         case _: ScClass => ScalaBundle.message("class.must.declared.abstract", Array[Object](clazz.getName))
         case _: ScObject => ScalaBundle.message("object.must.implement", Array[Object](clazz.getName))
-        case _: ScNewTemplateDefinition =>ScalaBundle.message("anonymus.class.must.declared.abstract", Array[Object]()) 
+        case _: ScNewTemplateDefinition =>ScalaBundle.message("anonymous.class.must.declared.abstract", Array[Object]()) 
       }
       val start = clazz.getTextRange.getStartOffset
       val eb = clazz.extendsBlock
