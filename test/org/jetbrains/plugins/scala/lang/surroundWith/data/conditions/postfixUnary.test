@@ -1,0 +1,7 @@
+class a {
+  if (<start>true<unary> op) return
+}
+------
+class a {
+  if ((!(true)) op) return
+}

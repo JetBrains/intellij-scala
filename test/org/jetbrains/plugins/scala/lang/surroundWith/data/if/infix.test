@@ -2,3 +2,6 @@ class a {
   <start>2<else> + 2
 }
 ------
+class a {
+  (if () {2} else {}) + 2
+}
