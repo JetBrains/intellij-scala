@@ -24,8 +24,7 @@ class Signature(val name : String, val types : Seq[ScType],
   protected def unify(subst : ScSubstitutor, tps1 : Array[PsiTypeParameter], tps2 : Array[PsiTypeParameter]) = {
     var res = subst
     for ((tp1, tp2) <- tps1 zip tps2) {
-      val manager = ScalaPsiManager.instance(tp1.getProject)
-      res = res + (manager.typeVariable(tp2), manager.typeVariable(tp1))
+      res = res bindT (tp2.getName, ScalaPsiManager.typeVariable(tp1))
     }
     res
   }

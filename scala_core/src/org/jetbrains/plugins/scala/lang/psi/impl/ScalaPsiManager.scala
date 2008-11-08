@@ -50,24 +50,24 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   def typeVariable(tp: PsiTypeParameter) : ScTypeParameterType = {
     var existing = typeVariables.get(tp)
     if (existing != null) existing else {
+      import Misc.fun2suspension
+
       val tv = tp match {
         case stp: ScTypeParam => {
           val inner = stp.typeParameters.map{typeVariable(_)}.toList
-          typeVariables.put(tp, new ScTypeParameterType(stp, inner, Nothing, Any)) //temp put to avoid SOE
-          val lower = stp.lowerBound
-          val upper = stp.upperBound
-          val res = new ScTypeParameterType(stp, inner, lower, upper)
+          val lower = () => stp.lowerBound
+          val upper = () => stp.upperBound
+          val res = new ScTypeParameterType(stp.name, inner, lower, upper)
           typeVariables.put(tp, res)
           res
         }
         case _ => {
-          typeVariables.put(tp, new ScTypeParameterType(tp, Nil, Nothing, Any)) //temp put to avoid SOE
-          val supers = tp.getSuperTypes
-          val scalaSuper = supers match {
-            case Array(single) => ScType.create(single, project)                                                                        
+          val lower = () => Nothing
+          val upper = () => tp.getSuperTypes match {
+            case Array(single) => ScType.create(single, project)
             case many => new ScCompoundType(many.map{ScType.create(_, project)}, Seq.empty, Seq.empty)
           }
-          val res = new ScTypeParameterType(tp, Nil, Nothing, scalaSuper)
+          val res = new ScTypeParameterType(tp.getName, Nil, lower, upper)
           typeVariables.put(tp, res)
           res
         }

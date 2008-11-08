@@ -77,7 +77,7 @@ abstract class MixinNodes {
     for (alias <- template.aliases) {
       alias match {
         case aliasDef: ScTypeAliasDefinition if !s.aliasesMap.get(aliasDef.name) =>
-          run = run + (aliasDef.name, {() => aliasDef.aliasedType})
+          run = run bindA (aliasDef.name, {() => aliasDef.aliasedType})
         case _ =>
       }
     }
@@ -142,7 +142,7 @@ abstract class MixinNodes {
     var res : ScSubstitutor = ScSubstitutor.empty
     for (tp <- superClass.getTypeParameters) {
       val tv = ScalaPsiManager.typeVariable(tp)
-      res = res + (tv, derived.subst(superSubst.subst(tv)))
+      res = res bindT (tp.getName, derived.subst(superSubst.subst(ScalaPsiManager.typeVariable(tp))))
     }
     superClass match {
       case td : ScTypeDefinition => {
@@ -153,7 +153,7 @@ abstract class MixinNodes {
             case None =>
           }
         }
-        res = new ScSubstitutor(res.tvMap, res.outerMap, aliasesMap)
+        res = new ScSubstitutor(res.tvMap, aliasesMap, res.outerMap)
       }
       case _ => ()
     }

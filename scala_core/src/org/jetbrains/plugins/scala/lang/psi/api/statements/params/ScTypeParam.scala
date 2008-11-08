@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements.params
 
 import toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner, ScPolymorphicElement}
-import types.{ScTypeVariable, ScType}
+import types.ScType
 import psi.ScalaPsiElement
 import com.intellij.psi._
 import toplevel.typedef.ScTypeDefinition

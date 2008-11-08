@@ -92,7 +92,7 @@ object ScType {
       if(wild.isExtends) create(wild.getExtendsBound, project) else Any)
     case capture : PsiCapturedWildcardType =>
       val wild = capture.getWildcard
-      new ScTypeVariable("_", Nil,
+      new ScSkolemizedType("_", Nil,
         if(wild.isSuper) create(capture.getLowerBound, project) else Nothing,
         if(wild.isExtends) create(capture.getUpperBound, project) else Any)
     case null => new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java
@@ -183,8 +183,8 @@ object ScType {
       case ScDesignatorType(e) => buffer.append(nameFun(e))
       case ScProjectionType(p, ref) => inner(p); buffer.append("#").append(ref.refName)
       case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
-      case ScTypeVariable(name, _, _, _) => buffer.append(name)
-      case ScTypeAliasType(name, _, _, _) => buffer.append(name)
+      case ScSkolemizedType(name, _, _, _) => buffer.append(name)
+      case ScPolymorphicType(name, _, _, _) => buffer.append(name)
       case ScExistentialArgument(name, args, lower, upper) => {
         buffer.append(name)
         if (args.length > 0) {
