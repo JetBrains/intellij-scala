@@ -19,10 +19,6 @@ import lang.psi.api.expr._
 
 class ScalaWithIfSurrounder extends ScalaExpressionSurrounder {
 
-  override def getExpressionTemplateAsString (expr : ASTNode) =
-    if (!isNeedBraces(expr)) "if (a) " + expr.getText
-    else "(" + "if (a) " + expr.getText + ")"
-
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
      return "if (a) {\n" + super.getTemplateAsString(elements) + "\n}"
   }

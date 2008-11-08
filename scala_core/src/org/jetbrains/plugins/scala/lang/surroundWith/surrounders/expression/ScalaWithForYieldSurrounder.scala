@@ -18,11 +18,6 @@ import lang.psi.api.expr._
  */
 
 class ScalaWithForYieldSurrounder extends ScalaExpressionSurrounder {
-
-  override def getExpressionTemplateAsString(expr: ASTNode) =
-    if (!isNeedBraces(expr)) "for (val a <- as) yield " + expr.getText
-    else "(" + "for (val a <- as) yield " + expr.getText + ")"
-
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     return "for (a <- as) yield {" + super.getTemplateAsString(elements) + "}"
   }

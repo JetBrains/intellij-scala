@@ -17,14 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr._
  */
 
 class ScalaWithWhileSurrounder extends ScalaExpressionSurrounder {
-
-  override def getExpressionTemplateAsString (expr : ASTNode) = {
-    val exprAsString = "while (true) { \n " + expr.getText + "\n" + "}"
-
-    if (!isNeedBraces(expr)) exprAsString
-    else "(" + exprAsString + ")"
-  }
-
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     return "while (true) {" + super.getTemplateAsString(elements) + "}"
   }

@@ -20,12 +20,6 @@ import org.jetbrains.plugins.scala.lang.parser._
  */
 
 class ScalaWithTryCatchSurrounder extends ScalaExpressionSurrounder {
-  override def getExpressionTemplateAsString (expr : ASTNode) = {
-    val expAsString = "try { \n " + expr.getText + "\n" + "} catch { \n " + "case a=>" +  "\n }"
-    if (!isNeedBraces(expr)) expAsString
-    else "(" + expAsString + ")"
-  }
-
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     return "try {\n" + super.getTemplateAsString(elements) + "\n}\ncatch {\n case _ => \n}"
   }

@@ -40,7 +40,6 @@ class ScalaWithParenthesisSurrounder extends ScalaExpressionSurrounder {
       }
     }
   }
-  override def getExpressionTemplateAsString(expr: ASTNode) = "(" + expr.getText + ")"
 
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     return "(" + super.getTemplateAsString(elements) + ")"

@@ -16,12 +16,6 @@ import org.jetbrains.plugins.scala.lang.parser._
 */
 
 class ScalaWithTryFinallySurrounder extends ScalaExpressionSurrounder {
-  override def getExpressionTemplateAsString (expr : ASTNode) = {
-    val expAsString = "try { \n " + expr.getText + "\n" + "} finally a"
-    if (!isNeedBraces(expr)) expAsString
-    else "(" + expAsString + ")"
-  }
-
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     return "try {\n" + super.getTemplateAsString(elements) + "\n}\nfinally a"
   }

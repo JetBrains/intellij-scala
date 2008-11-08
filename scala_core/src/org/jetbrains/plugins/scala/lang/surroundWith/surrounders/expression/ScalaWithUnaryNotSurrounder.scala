@@ -13,7 +13,6 @@ import psi.api.expr.ScExpression
 class ScalaWithUnaryNotSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String =
     "!(" + super.getTemplateAsString(elements) + ")"
-  override def getExpressionTemplateAsString(exprString: ASTNode): String = "!(" + exprString.getText + ")"
   override def getTemplateDescription: String = "!(expr)"
   override def isApplicable(elements: Array[PsiElement]): Boolean = {
     if (elements.length != 1) return false
