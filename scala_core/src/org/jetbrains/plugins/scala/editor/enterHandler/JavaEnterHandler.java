@@ -133,7 +133,8 @@ public class JavaEnterHandler extends EditorWriteActionHandler {
 
     for(EnterHandlerDelegate delegate: Extensions.getExtensions(EnterHandlerDelegate.EP_NAME)) {
       if (!(delegate instanceof EnterInStringLiteralHandler) ||
-          (file.findElementAt(caretOffset).getNode().getElementType() == ScalaTokenTypes.tSTRING && 
+          (file.findElementAt(caretOffset) != null &&
+           file.findElementAt(caretOffset).getNode().getElementType() == ScalaTokenTypes.tSTRING && 
           !file.findElementAt(caretOffset).getText().startsWith("\"\"\""))) {
         EnterHandlerDelegate.Result result = delegate.preprocessEnter(file, editor, caretOffsetRef, caretAdvanceRef, dataContext, myOriginalHandler);
         if (result == EnterHandlerDelegate.Result.Stop) return;
