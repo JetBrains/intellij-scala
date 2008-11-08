@@ -18,13 +18,6 @@ import lang.psi.api.expr._
  */
 
 class ScalaWithDoWhileSurrounder extends ScalaExpressionSurrounder {
-  override def getExpressionTemplateAsString (expr : ASTNode) = {
-    val exprAsString = "do { \n " + expr.getText + "\n" + "} while (true)"
-
-    if (!isNeedBraces(expr)) exprAsString
-    else "(" + exprAsString + ")"
-  }
-
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     return "do {" + super.getTemplateAsString(elements) + "} while (true)"
   }

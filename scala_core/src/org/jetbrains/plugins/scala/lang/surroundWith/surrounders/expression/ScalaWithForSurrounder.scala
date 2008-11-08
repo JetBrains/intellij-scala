@@ -14,11 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import lang.psi.api.expr._
 
 class ScalaWithForSurrounder extends ScalaExpressionSurrounder {
-
-  override def getExpressionTemplateAsString(expr: ASTNode) =
-    if (!isNeedBraces(expr)) "for (val a <- as) yield " + expr.getText
-    else "(" + "for (val a <- as) yield " + expr.getText + ")"
-
   override def getTemplateDescription = "for"
 
   override def getTemplateAsString(elements: Array[PsiElement]): String = {

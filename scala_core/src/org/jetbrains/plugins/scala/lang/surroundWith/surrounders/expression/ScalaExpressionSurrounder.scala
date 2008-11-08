@@ -7,7 +7,8 @@ package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
  */
 
 import com.intellij.lang.surroundWith.Surrounder
-import com.intellij.psi.{PsiElement, PsiWhiteSpace};
+import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import psi.impl.ScalaPsiElementFactory;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
@@ -28,8 +29,8 @@ import lang.psi.api.statements._
  * Surrounds an expression and return an expression
  */
 
-abstract class ScalaExpressionSurrounder extends ScalaSurrounderByExpression {
-  override def isApplicable(element : PsiElement) : Boolean = {
+abstract class ScalaExpressionSurrounder extends Surrounder {
+  def isApplicable(element : PsiElement) : Boolean = {
     element match {
       case _ : ScExpression | _: PsiWhiteSpace | _: ScValue | _: ScVariable  => {
         true
@@ -42,4 +43,40 @@ abstract class ScalaExpressionSurrounder extends ScalaSurrounderByExpression {
       }
     }
   }
+
+  def needParenthesis: Boolean = false
+
+  override def isApplicable(elements : Array[PsiElement]) : Boolean = {
+    for (val element <- elements)
+      if (!isApplicable(element)) return false
+    true
+  }
+
+  override def surroundElements(project : Project, editor : Editor, elements : Array[PsiElement]) : TextRange = {
+    val newNode = ScalaPsiElementFactory.createExpressionFromText(getTemplateAsString(elements),
+      elements(0).getManager).getNode
+    var childNode: ASTNode = null
+
+    for (child <- elements) {
+      if (childNode == null) {
+        childNode = child.getNode
+        childNode.getTreeParent.replaceChild(childNode,newNode)
+      }
+      else {
+        childNode = child.getNode
+        childNode.getTreeParent.removeChild(childNode)
+      }
+    }
+    return getSurroundSelectionRange(newNode);
+  }
+
+  def getTemplateAsString(elements: Array[PsiElement]): String = {
+    var s: String = ""
+    for (element <- elements) {
+      s = s + element.getNode.getText
+    }
+    return s
+  }
+
+  def getSurroundSelectionRange (node : ASTNode) : TextRange
 }

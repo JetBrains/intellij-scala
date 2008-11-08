@@ -15,7 +15,6 @@ import psi.api.expr.{ScIfStmt, ScExpression}
 class ScalaWithIfConditionSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String =
     "if (" + super.getTemplateAsString(elements) + ") {}"
-  override def getExpressionTemplateAsString(exprString: ASTNode): String = "if (" + exprString.getText + ") {}"
   override def getTemplateDescription: String = "if (expr) {...}"
   override def isApplicable(elements: Array[PsiElement]): Boolean = {
     if (elements.length != 1) return false

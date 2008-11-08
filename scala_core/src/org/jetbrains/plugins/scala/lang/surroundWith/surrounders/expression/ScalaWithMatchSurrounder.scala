@@ -45,13 +45,6 @@ class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
     }
   }
 
-  override def getExpressionTemplateAsString(expr: ASTNode) = {
-    val exprAsString = ""
-
-    if (!isNeedBraces(expr)) exprAsString
-    else "(" + exprAsString + ")"
-  }
-
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     return (if (elements.length == 1 && !needBraces(elements(0))) super.getTemplateAsString(elements)
             else "(" + super.getTemplateAsString(elements) + ")")+ " match {\ncase a  =>\n}"
