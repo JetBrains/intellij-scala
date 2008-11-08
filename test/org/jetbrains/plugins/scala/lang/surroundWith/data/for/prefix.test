@@ -1,0 +1,7 @@
+class a {
+  if (!<start>true<yield>) return
+}
+-----
+class a {
+  if (!(for () yield {true})) return
+}

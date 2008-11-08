@@ -1,0 +1,7 @@
+class a {
+  2 + <start>2<for>
+}
+------
+class a {
+  2 + (for () {2})
+}
