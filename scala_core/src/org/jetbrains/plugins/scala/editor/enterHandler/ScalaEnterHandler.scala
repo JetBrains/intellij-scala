@@ -10,7 +10,7 @@ import com.intellij.openapi.editor.Editor
  */
 
 class ScalaEnterHandler(private val myOriginalHandler: EditorActionHandler) extends EditorWriteActionHandler {
-  private val javaHandler: JavaEnterHandler = new JavaEnterHandler(myOriginalHandler)
+  private val javaHandler: ScalaEnterHandlerImpl = new ScalaEnterHandlerImpl(myOriginalHandler)
   def executeWriteAction(editor: Editor, dataContext: DataContext): Unit = {
    javaHandler.executeWriteAction(editor, dataContext)
   }

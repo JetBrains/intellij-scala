@@ -47,7 +47,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
  * This class is copy of IDEA class {@link com.intellij.codeInsight.template.impl.editorActions.EnterHandler} with little changes.
  * Could be just for time. (for right postformatting ScalaDocs after autoCreation)
  */
-public class JavaEnterHandler extends EditorWriteActionHandler {
+class ScalaEnterHandlerImpl extends EditorWriteActionHandler {
   private static final Logger LOG = Logger.getInstance("#com.intellij.codeInsight.editorActions.EnterHandler");
 
   private final EditorActionHandler myOriginalHandler;
@@ -64,7 +64,7 @@ public class JavaEnterHandler extends EditorWriteActionHandler {
     }
   }
 
-  public JavaEnterHandler(EditorActionHandler originalHandler) {
+  public ScalaEnterHandlerImpl(EditorActionHandler originalHandler) {
     this.originalHandler = originalHandler;
     myOriginalHandler = new Handler();
   }
