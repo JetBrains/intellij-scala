@@ -44,7 +44,15 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
     }
   }
 
-  def needParenthesis: Boolean = false
+  def needParenthesis(elements: Array[PsiElement]): Boolean = {
+    if (elements.length > 1) return false
+    val element = elements(0)
+    val parent = element.getParent
+    parent match {
+      case _: ScInfixExpr => true
+      case _ => false
+    }
+  }
 
   override def isApplicable(elements : Array[PsiElement]) : Boolean = {
     for (val element <- elements)
@@ -53,8 +61,11 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
   }
 
   override def surroundElements(project : Project, editor : Editor, elements : Array[PsiElement]) : TextRange = {
-    val newNode = ScalaPsiElementFactory.createExpressionFromText(getTemplateAsString(elements),
-      elements(0).getManager).getNode
+    val newNode = ScalaPsiElementFactory.createExpressionFromText(
+      if (needParenthesis(elements)) "(" + getTemplateAsString(elements) + ")"
+      else getTemplateAsString(elements),
+      elements(0).getManager
+    ).getNode
     var childNode: ASTNode = null
 
     for (child <- elements) {

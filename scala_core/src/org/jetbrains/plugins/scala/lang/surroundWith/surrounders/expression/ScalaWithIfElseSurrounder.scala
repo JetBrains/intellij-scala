@@ -12,6 +12,7 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
+import psi.api.expr.ScParenthesisedExpr
 
 /*
  * Surrounds expression with { } and if: if { <Cursor> } { Expression }
@@ -25,9 +26,15 @@ class ScalaWithIfElseSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateDescription = "if / else"
 
   override def getSurroundSelectionRange(nodeWithIfNode : ASTNode ) : TextRange = {
-    def isIfStmt = (e : PsiElement) => e.isInstanceOf[ScIfStmtImpl]
+    val element: PsiElement = nodeWithIfNode.getPsi match {
+      case x: ScParenthesisedExpr => x.expr match {
+        case Some(y) => y
+        case _ => return x.getTextRange
+      }
+      case x => x
+    }
 
-    val stmt = nodeWithIfNode.getPsi.asInstanceOf[ScIfStmtImpl]
+    val stmt = element.asInstanceOf[ScIfStmtImpl]
 
     val conditionNode : ASTNode = (stmt.condition: @unchecked) match {
         case Some(c) => c.getNode

@@ -23,9 +23,15 @@ class ScalaWithTryFinallySurrounder extends ScalaExpressionSurrounder {
   override def getTemplateDescription = "try / finally"
 
   override def getSurroundSelectionRange (withTryCatchNode : ASTNode) : TextRange = {
-    def isTryCatchStmt = (e : PsiElement) => e.isInstanceOf[ScTryStmt]
+    val element: PsiElement = withTryCatchNode.getPsi match {
+      case x: ScParenthesisedExpr => x.expr match {
+        case Some(y) => y
+        case _ => return x.getTextRange
+      }
+      case x => x
+    }
 
-    val tryCatchStmt = withTryCatchNode.getPsi.asInstanceOf[ScTryStmt]
+    val tryCatchStmt = element.asInstanceOf[ScTryStmt]
     val caseClause = tryCatchStmt.getNode().getLastChildNode().getLastChildNode().getPsi
 
     val offset = caseClause.getTextRange.getStartOffset
