@@ -25,10 +25,10 @@ object Bounds {
       case (ScTupleType(c1), ScTupleType(c2)) if c1.length == c2.length =>
         ScTupleType(c1.toArray.zip(c2.toArray).map{case (t1, t2) => lub(t1, t2)})
 
-      case (ScTypeVariable(_, Nil, _, upper), _) => lub(upper, t2)
-      case (_, ScTypeVariable(_, Nil, _, upper)) => lub(t1, upper)
-      case (ScTypeAliasType(_, Nil, _, upper), _) => lub(upper, t2)
-      case (_, ScTypeAliasType(_, Nil, _, upper)) => lub(t1, upper)
+      case (ScSkolemizedType(_, Nil, _, upper), _) => lub(upper, t2)
+      case (_, ScSkolemizedType(_, Nil, _, upper)) => lub(t1, upper)
+      case (ScPolymorphicType(_, Nil, _, upper), _) => lub(upper.v, t2)
+      case (_, ScPolymorphicType(_, Nil, _, upper)) => lub(t1, upper.v)
       case (s: ScSingletonType, _) => lub(s.pathType, t2)
       case (_, s: ScSingletonType) => lub(t1, s.pathType)
       case (ex : ScExistentialType, _) => lub(ex.skolem, t2)
@@ -71,7 +71,7 @@ object Bounds {
                       }
                     }
 
-                    curr + (tv, t)
+                    curr bindT (tv.name, t)
                   }
                 }
                 set += ScParameterizedType.create(cbase, substRes)

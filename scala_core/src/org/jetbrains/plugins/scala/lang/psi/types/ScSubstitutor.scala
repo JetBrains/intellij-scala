@@ -20,18 +20,17 @@ object ScSubstitutor {
   val key: Key[ScSubstitutor] = Key.create("scala substitutor key")
 }
 
-class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
-                    val outerMap: Map[PsiClass, Tuple2[ScType, ScReferenceElement]],
-                    val aliasesMap: Map[String, Suspension[ScType]]) {
-
+class ScSubstitutor(val tvMap: Map[String, ScType],
+                    val aliasesMap: Map[String, Suspension[ScType]],
+                    val outerMap: Map[PsiClass, Tuple2[ScType, ScReferenceElement]]) {
   def this() = this (Map.empty, Map.empty, Map.empty)
 
-  def +(p: ScTypeVariable, t: ScType) = new ScSubstitutor(tvMap + ((p, t)), outerMap, aliasesMap)
-  def +(name: String, t: ScType) = new ScSubstitutor(tvMap, outerMap, aliasesMap + ((name, new Suspension[ScType](t))))
-  def +(name: String, f: () => ScType) = new ScSubstitutor(tvMap, outerMap, aliasesMap + ((name, new Suspension[ScType](f))))
-  def bindOuter(outer: PsiClass, t: ScType, ref : ScReferenceElement) = new ScSubstitutor(tvMap, outerMap + ((outer, (t, ref))), aliasesMap)
-  def incl(s: ScSubstitutor) = new ScSubstitutor(s.tvMap ++ tvMap, s.outerMap ++ outerMap, s.aliasesMap ++ aliasesMap)
-  def followed(s: ScSubstitutor) : ScSubstitutor = new ScSubstitutor(tvMap, outerMap, aliasesMap) {
+  def bindT(name : String, t: ScType) = new ScSubstitutor(tvMap + ((name, t)), aliasesMap, outerMap)
+  def bindA(name: String, t: ScType) = new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](t))), outerMap)
+  def bindA(name: String, f: () => ScType) = new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), outerMap)
+  def bindO(outer: PsiClass, t: ScType, ref : ScReferenceElement) = new ScSubstitutor(tvMap, aliasesMap, outerMap + ((outer, (t, ref))))
+  def incl(s: ScSubstitutor) = new ScSubstitutor(s.tvMap ++ tvMap, s.aliasesMap ++ aliasesMap, s.outerMap ++ outerMap)
+  def followed(s: ScSubstitutor) : ScSubstitutor = new ScSubstitutor(tvMap, aliasesMap, outerMap) {
     override def subst(t: ScType) = s.subst(super.subst(t))
   }
 
@@ -40,7 +39,11 @@ class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
     case ScTupleType(comps) => new ScTupleType(comps map {subst _})
     case ScProjectionType(proj, ref) => new ScProjectionType(subst(proj), ref)
 
-    case tv : ScTypeVariable => tvMap.get(tv) match {
+    case tpt : ScTypeParameterType => tvMap.get(tpt.name) match {
+      case None => tpt
+      case Some(v) => v
+    }
+    case tv : ScTypeVariable => tvMap.get(tv.name) match {
       case None => tv
       case Some(v) => v
     }
@@ -57,8 +60,11 @@ class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
       case _ => t
     }
     case ScTypeAliasType(name, args, lower, upper) => aliasesMap.get(name) match {
-      case Some(v) => v.t
-      case None => new ScTypeAliasType(name, args, subst(lower), subst(upper))
+      case Some(t) => t.v
+      case None => {
+        import Misc.fun2suspension
+        new ScTypeAliasType(name, args, () => subst(lower.v), () => subst(upper.v))
+      }
     }
     case ScParameterizedType (des, typeArgs) =>
       new ScParameterizedType(subst(des), typeArgs map {subst _})
@@ -67,7 +73,7 @@ class ScSubstitutor(val tvMap: Map[ScTypeVariable, ScType],
     case ex@ScExistentialType(q, wildcards) => {
       //remove bound names
       val trunc = aliasesMap.excl(ex.boundNames)
-      new ScExistentialType(new ScSubstitutor(tvMap, outerMap, trunc).subst(q), wildcards)
+      new ScExistentialType(new ScSubstitutor(tvMap, trunc, outerMap).subst(q), wildcards)
     }
     case _ => t
   }

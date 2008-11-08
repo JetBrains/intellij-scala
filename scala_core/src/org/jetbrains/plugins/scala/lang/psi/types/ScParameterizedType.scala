@@ -33,8 +33,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) ex
   
   val substitutor : ScSubstitutor = {
     val (params, initial) = designator match {
-      case ScTypeVariable(_, args, _, _) => (args, ScSubstitutor.empty)
-      case ScTypeAliasType(_, args, _, _) => (args, ScSubstitutor.empty)
+      case ScPolymorphicType(_, args, _, _) => (args, ScSubstitutor.empty)
       case _ => ScType.extractDesignated(designator) match {
         case Some((owner : ScTypeParametersOwner, s)) => (owner.typeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}, s)
         case Some((owner : PsiTypeParameterListOwner, s)) => (owner.getTypeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}, s)
@@ -47,7 +46,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) ex
       case _ => {
         var res = initial
         for (p <- params.toArray zip typeArgs) {
-          res = res + (p._1, p._2)
+          res = res bindT (p._1.name, p._2)
         }
         res
       }
@@ -70,22 +69,42 @@ object ScParameterizedType {
     })
 }
 
-case class ScTypeAliasType(name : String, args : List[ScTypeVariable], lower : ScType, upper : ScType) extends ScType {
+abstract case class ScPolymorphicType(name : String, args : List[ScTypeParameterType],
+                                     lower : Suspension[ScType], upper : Suspension[ScType])
+extends ScType {
+  def equivInner(t: ScPolymorphicType): Boolean = name == t.name && args.length == t.args.length && {
+    val s = args.zip(t.args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._2.name, p._1)}
+    lower.v.equiv(s.subst(t.lower.v)) && upper.v.equiv(s.subst(t.upper.v))
+  }
+}
+
+case class ScTypeAliasType(override val name : String, override val args : List[ScTypeParameterType],
+                           override val lower : Suspension[ScType], override val upper : Suspension[ScType])
+extends ScPolymorphicType(name, args, lower, upper) {
+
+  def this(ta : ScTypeAlias, s : ScSubstitutor) =
+    this(ta.name, ta.typeParameters.toList.map{new ScTypeParameterType(_, s)},
+      new Suspension[ScType]({() => s.subst(ta.lowerBound)}),
+      new Suspension[ScType]({() => s.subst(ta.upperBound)}))
+
   override def equiv(t: ScType): Boolean = t match {
-    case ScTypeAliasType(n1, args1, l1, u1) => {
-      name == n1 && args.length == args1.length && {
-        val s = args.zip(args1).foldLeft(ScSubstitutor.empty) {(s, p) => s + (p._2, p._1)}
-        lower.equiv(s.subst(l1)) && upper.equiv(s.subst(u1))
-      }
-    }
+    case tat : ScTypeAliasType => equivInner(tat)
     case _ => false
   }
 }
 
-case class ScTypeVariable(name : String, inner : List[ScTypeVariable], lower : ScType, upper : ScType) extends ScType
+case class ScTypeParameterType(override val name : String, override val args : List[ScTypeParameterType],
+                               override val lower : Suspension[ScType], override val upper : Suspension[ScType])
+extends ScPolymorphicType(name, args, lower, upper) {
+  def this(tp : ScTypeParam, s : ScSubstitutor) =
+    this(tp.name, tp.typeParameters.toList.map{new ScTypeParameterType(_, s)},
+      new Suspension[ScType]({() => s.subst(tp.lowerBound)}),
+      new Suspension[ScType]({() => s.subst(tp.upperBound)}))
 
-case class ScTypeParameterType(val typeParam : PsiTypeParameter,
-                               override val inner : List[ScTypeParameterType],
-                               override val lower : ScType,
-                               override val upper : ScType)
-extends ScTypeVariable(typeParam.getName, inner, lower, upper)
+  override def equiv(t: ScType): Boolean = t match {
+    case tpt : ScTypeParameterType => equivInner(tpt)
+    case _ => false
+  }
+}
+
+case class ScTypeVariable(name : String) extends ScType
