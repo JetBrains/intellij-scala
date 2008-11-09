@@ -189,7 +189,8 @@ class ScalaAnnotator extends Annotator {
     val superVals = method.superVals
     val supers = (HashSet[PsiMethod](method.superMethods: _*)).toSeq
     if (supers.length + superVals.length > 0) annotation.setGutterIconRenderer(
-      new OverrideGutter(supers, superVals, Seq.empty, !method.hasModifierProperty("override")))
+      new OverrideGutter(supers, superVals, Seq.empty, if (method.isInstanceOf[ScFunctionDeclaration]) false 
+      else !method.hasModifierProperty("override")))
   }
 
   private def addNamedElementOverrideGutter(element: PsiNamedElement, holder: AnnotationHolder) {
