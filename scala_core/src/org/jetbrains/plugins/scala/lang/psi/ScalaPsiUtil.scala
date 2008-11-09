@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import api.base.ScStableCodeReferenceElement
+import api.statements.params.ScClassParameter
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiFormatUtil
@@ -20,7 +21,7 @@ object ScalaPsiUtil {
     var parent = x.getParent
     def isAppropriatePsiElement(x: PsiElement): Boolean = {
       x match {
-        case _: ScValue | _: ScVariable | _: ScTypeAlias => true
+        case _: ScValue | _: ScVariable | _: ScTypeAlias | _: ScClassParameter | _: PsiMethod => true
         case _ => false
       }
     }
