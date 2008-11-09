@@ -1,17 +1,22 @@
 package org.jetbrains.plugins.scala.annotator.gutter
 
 
+import _root_.scala.collection.immutable.HashSet
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.impl.MarkerType
 import com.intellij.codeInsight.daemon.{LineMarkerInfo, LineMarkerProvider}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import com.intellij.psi.{PsiElement, PsiClass}
+import com.intellij.psi.{NavigatablePsiElement, PsiMethod, PsiElement, PsiClass}
 import java.util.{Collection, List}
-import lang.psi.api.statements.ScFunction
+import lang.lexer.ScalaTokenTypes
+import lang.psi.api.statements.{ScFunction, ScFunctionDeclaration}
+import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
+import lang.psi.types.FullSignature
 
 /**
  * User: Alexander Podkhalyuzin
@@ -20,7 +25,23 @@ import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
 
 class ScalaLineMarkerProvider extends LineMarkerProvider {
   def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] = {
-    null
+    if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
+      val offset = element.getTextRange.getStartOffset
+      element.getParent match {
+        case method: ScFunction if method.getParent.isInstanceOf[ScTemplateBody] => {
+          val signatures = (HashSet[FullSignature](method.superSignatures: _*)).toSeq
+          val icon = if (GutterUtil.isOverrides(method)) GutterIcons.OVERRIDING_METHOD_ICON
+                     else GutterIcons.IMPLEMENTING_METHOD_ICON
+          val typez = ScalaMarkerType.OVERRIDING_METHOD
+          if (signatures.length > 0) {
+            return new LineMarkerInfo[PsiElement](method, offset, icon, Pass.UPDATE_ALL,
+              typez.fun, typez.handler, GutterIconRenderer.Alignment.LEFT)
+          }
+        }
+        case _ =>
+      }
+    }
+    return null
   }
 
   def collectSlowLineMarkers(elements: List[PsiElement], result: Collection[LineMarkerInfo[_ <: PsiElement]]) {
@@ -56,6 +77,14 @@ private object GutterUtil {
       val typez = MarkerType.SUBCLASSED_CLASS
       val info = new LineMarkerInfo[PsiClass](clazz, offset, icon, Pass.UPDATE_OVERRIDEN_MARKERS, typez.getTooltip[PsiClass], typez.getNavigationHandler[PsiClass])
       result.add(info)
+    }
+  }
+
+  def isOverrides(element: PsiElement) = {
+    element match {
+      case method: PsiMethod => method.isInstanceOf[ScFunctionDeclaration] ||
+                  method.hasModifierProperty("override")
+      case _ => false //todo:
     }
   }
 }
