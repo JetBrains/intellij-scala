@@ -128,13 +128,13 @@ object TypeDefinitionMembers {
         val phys = new PhysicalSignature(method, subst)
         val psiRet = method.getReturnType
         val retType = if (psiRet == null) Unit else ScType.create(psiRet, method.getProject)
-        val sig = new FullSignature(phys, subst.subst(retType), clazz)
+        val sig = new FullSignature(phys, subst.subst(retType), method, clazz)
         map += ((sig, new Node(sig, subst)))
       }
 
     def processScala(template : ScTemplateDefinition, subst: ScSubstitutor, map: Map) = {
-      def addSignature(s : Signature, ret : ScType) {
-        val full = new FullSignature(s, ret, template)
+      def addSignature(s : Signature, ret : ScType, elem : NavigatablePsiElement) {
+        val full = new FullSignature(s, ret, elem, template)
         map += ((full, new Node(full, subst)))
       }
 
@@ -143,20 +143,20 @@ object TypeDefinitionMembers {
           case _var: ScVariable =>
             for (dcl <- _var.declaredElements) {
               val t = dcl.calcType
-              addSignature(new Signature(dcl, false, Seq.empty, Array(), subst), t)
-              addSignature(new Signature(dcl, true, Seq.singleton(t), Array(), subst), Unit)
+              addSignature(new Signature(dcl.name, Seq.empty, Array(), subst), t, dcl)
+              addSignature(new Signature(dcl.name + "_", Seq.singleton(t), Array(), subst), Unit, dcl)
             }
           case _val: ScValue =>
             for (dcl <- _val.declaredElements) {
-              addSignature(new Signature(dcl, false, Seq.empty, Array(), subst), dcl.calcType)
+              addSignature(new Signature(dcl.name, Seq.empty, Array(), subst), dcl.calcType, dcl)
             }
           case constr : ScPrimaryConstructor =>
             for (param <- constr.parameters) {
               val t = param.calcType
-              addSignature(new Signature(param, false, Seq.empty, Array(), subst), t)
-              if (param.isVar) addSignature(new Signature(param, true, Seq.singleton(t), Array(), subst), Unit)
+              addSignature(new Signature(param.name, Seq.empty, Array(), subst), t, param)
+              if (param.isVar) addSignature(new Signature(param.name + "_", Seq.singleton(t), Array(), subst), Unit, param)
             }
-          case f : ScFunction => addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType))
+          case f : ScFunction => addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType), f)
           case _ =>
         }
       }

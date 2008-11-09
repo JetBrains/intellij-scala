@@ -182,11 +182,9 @@ class ScalaAnnotator extends Annotator {
     if (!method.getParent.isInstanceOf[ScTemplateBody]) return
     val annotation: Annotation = holder.createInfoAnnotation(method.getNameIdentifier, null)
 
-    val superSignatures = (HashSet[FullSignature](method.superSignatures: _*)).toSeq.map(_.sig)
-    val supers = superSignatures.filter(_.isInstanceOf[PhysicalSignature]).map(_.asInstanceOf[PhysicalSignature].method)
-    val superVals = superSignatures.filter(!_.isInstanceOf[PhysicalSignature]).map(_.asInstanceOf[Signature].namedElement)
-    if (supers.length + superVals.length > 0) annotation.setGutterIconRenderer(
-      new OverrideGutter(supers, superVals, Seq.empty, if (method.isInstanceOf[ScFunctionDeclaration]) false
+    val superSignatures = method.superSignatures
+    if (!superSignatures.isEmpty) annotation.setGutterIconRenderer(
+      new OverrideGutter(superSignatures, Seq.empty, Seq.empty, if (method.isInstanceOf[ScFunctionDeclaration]) false
       else !method.hasModifierProperty("override")))
   }
 
