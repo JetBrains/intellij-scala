@@ -41,7 +41,7 @@ object ScalaMarkerType {
       element match {
         case method: ScFunction => {
           val signatures = method.superSignatures
-          val elems = (HashSet[NavigatablePsiElement](signatures.map(_.element): _*)).toSeq
+          val elems = signatures.map(_.element)
           elems.length match {
             case 0 =>
             case 1 =>
