@@ -14,6 +14,6 @@ import types.ScType
 * Time: 9:46:00
 */
 
-trait ScTypeAlias extends ScPolymorphicElement with ScMember with PsiDocCommentOwner{
+trait ScTypeAlias extends ScPolymorphicElement with ScMember with PsiDocCommentOwner {
   override def getIcon(flags: Int): Icon = Icons.TYPE_ALIAS
 }
