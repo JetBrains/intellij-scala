@@ -184,7 +184,7 @@ class ScalaAnnotator extends Annotator {
 
   private def addOverrideGutter(method: ScFunction, holder: AnnotationHolder) {
     if (!method.getParent.isInstanceOf[ScTemplateBody]) return
-    val annotation: Annotation = holder.createInfoAnnotation(method, null)
+    val annotation: Annotation = holder.createInfoAnnotation(method.getNameIdentifier, null)
 
     val superVals = method.superVals
     val supers = (HashSet[PsiMethod](method.superMethods: _*)).toSeq
