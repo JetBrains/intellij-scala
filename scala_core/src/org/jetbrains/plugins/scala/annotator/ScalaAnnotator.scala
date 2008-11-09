@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.search.GlobalSearchScope
-import gutter.OverrideGutter
 import highlighter.{AnnotatorHighlighter}
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.expr._
@@ -47,21 +46,7 @@ class ScalaAnnotator extends Annotator {
     if (fType != ScalaFileType.SCALA_FILE_TYPE) return
     element match {
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
-        addOverrideGutter(x, holder)
         checkOverrideMethods(x, holder)
-      }
-      case x: ScValue => {
-        for (element <- x.declaredElements) {
-          addNamedElementOverrideGutter(element, holder)
-        }
-      }
-      case x: ScVariable => {
-        for (element <- x.declaredElements) {
-          addNamedElementOverrideGutter(element, holder)
-        }
-      }
-      case x: ScTypeAlias => {
-        addNamedElementOverrideGutter(x, holder)
       }
       case x: ScTemplateDefinition => {
         checkImplementedMethods(x, holder)
@@ -184,23 +169,6 @@ class ScalaAnnotator extends Annotator {
         }
       }
     }
-  }
-
-  private def addOverrideGutter(method: ScFunction, holder: AnnotationHolder) {
-    if (!method.getParent.isInstanceOf[ScTemplateBody]) return
-    val annotation: Annotation = holder.createInfoAnnotation(method.getNameIdentifier, null)
-
-    val superSignatures = method.superSignatures
-    if (!superSignatures.isEmpty) annotation.setGutterIconRenderer(
-      new OverrideGutter(superSignatures, Seq.empty, Seq.empty, if (method.isInstanceOf[ScFunctionDeclaration]) false
-      else !method.hasModifierProperty("override")))
-  }
-
-  private def addNamedElementOverrideGutter(element: PsiNamedElement, holder: AnnotationHolder) {
-    if (!ScalaPsiUtil.nameContext(element).getParent.isInstanceOf[ScTemplateBody]) return
-    val clazz: ScTemplateDefinition = ScalaPsiUtil.nameContext(element).asInstanceOf[ScMember].getContainingClass
-    if (clazz == null) return
-    //todo:
   }
 
   private def checkResultExpression(block: ScBlock, holder: AnnotationHolder) {
