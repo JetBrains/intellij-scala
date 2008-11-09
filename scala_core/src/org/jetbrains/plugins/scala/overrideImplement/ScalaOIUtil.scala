@@ -182,7 +182,11 @@ object ScalaOIUtil {
     val buf2 = new ArrayBuffer[ScalaObject]
     for (element <- buf) {
       element match {
-        case FullSignature(sign: PhysicalSignature, _, _, _) => {
+        case FullSignature(_, _, _, _)  | _: PhysicalSignature => {
+          val sign: PhysicalSignature = element match {
+            case FullSignature(x: PhysicalSignature, _, _, _) => x
+            case x: PhysicalSignature => x
+          }
           sign.method match {
             case _: ScFunctionDeclaration =>
             case x if x.getName == "$tag" =>
