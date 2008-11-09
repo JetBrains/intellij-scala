@@ -60,8 +60,5 @@ with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with Sc
 
   def superMethod: Option[PsiMethod]
 
-  @deprecated
-  def superVals: Seq[PsiNamedElement]
-
   def superSignatures : Seq[FullSignature]
 }

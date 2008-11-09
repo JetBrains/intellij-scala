@@ -1,15 +1,17 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import api.statements.ScFunction
+import api.toplevel.ScNamedElement
 import com.intellij.openapi.util.Key
 import collection.immutable.{Map, HashMap}
 import com.intellij.openapi.project.Project
 import api.statements.params.ScParameter
-import com.intellij.psi.{PsiTypeParameter, PsiClass}
+import com.intellij.psi.{PsiTypeParameter, PsiNamedElement, PsiClass}
 import psi.impl.ScalaPsiManager
 
-class Signature(val name : String, val types : Seq[ScType],
+class Signature(val namedElement : PsiNamedElement, placeholder: Boolean, val types : Seq[ScType],
                 val typeParams : Array[PsiTypeParameter], val substitutor : ScSubstitutor) {
+  def name = namedElement.getName + (if (placeholder) "_" else "")
   def equiv(other : Signature) : Boolean = {
     name == other.name &&
     typeParams.length == other.typeParams.length &&
@@ -39,7 +41,7 @@ class Signature(val name : String, val types : Seq[ScType],
 
 import com.intellij.psi.PsiMethod
 class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSubstitutor)
-  extends Signature (method.getName,
+  extends Signature (method, false,
                      method.getParameterList.getParameters.map {p => p match {
                                                                   case scp : ScParameter => scp.calcType
                                                                   case _ => ScType.create(p.getType, p.getProject)

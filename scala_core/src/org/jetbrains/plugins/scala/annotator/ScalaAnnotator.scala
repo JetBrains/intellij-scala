@@ -25,7 +25,7 @@ import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 
 
 import lang.psi.ScalaPsiUtil
-import lang.psi.types.{FullSignature, PhysicalSignature, ScSubstitutor}
+import lang.psi.types.{FullSignature, PhysicalSignature, Signature, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.psi._
@@ -156,16 +156,12 @@ class ScalaAnnotator extends Annotator {
     method.superMethod match {
       case None =>
         if (method.hasModifierProperty("override")) {
-          //todo: hack for now
-          val superVals = method.superVals
-          if (superVals.length != 0) return
-
           val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
             ScalaBundle.message("method.overrides.nothing", Array[Object](method.getName)))
           annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
           annotation.registerFix(new RemoveModifierQuickFix(method, "override"))
         }
-      case Some(superMethod) => if (!method.hasModifierProperty("override")) {
+      case Some(superMethod) => if (!method.hasModifierProperty("override") && !method.isInstanceOf[ScFunctionDeclaration]) {
         val isConcrete = superMethod match {
           case _: ScFunctionDefinition => true
           case _: ScFunctionDeclaration => false
@@ -186,10 +182,11 @@ class ScalaAnnotator extends Annotator {
     if (!method.getParent.isInstanceOf[ScTemplateBody]) return
     val annotation: Annotation = holder.createInfoAnnotation(method.getNameIdentifier, null)
 
-    val superVals = method.superVals
-    val supers = (HashSet[PsiMethod](method.superMethods: _*)).toSeq
+    val superSignatures = (HashSet[FullSignature](method.superSignatures: _*)).toSeq.map(_.sig)
+    val supers = superSignatures.filter(_.isInstanceOf[PhysicalSignature]).map(_.asInstanceOf[PhysicalSignature].method)
+    val superVals = superSignatures.filter(!_.isInstanceOf[PhysicalSignature]).map(_.asInstanceOf[Signature].namedElement)
     if (supers.length + superVals.length > 0) annotation.setGutterIconRenderer(
-      new OverrideGutter(supers, superVals, Seq.empty, if (method.isInstanceOf[ScFunctionDeclaration]) false 
+      new OverrideGutter(supers, superVals, Seq.empty, if (method.isInstanceOf[ScFunctionDeclaration]) false
       else !method.hasModifierProperty("override")))
   }
 
