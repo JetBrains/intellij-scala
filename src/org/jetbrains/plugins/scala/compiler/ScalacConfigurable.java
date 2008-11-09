@@ -90,7 +90,7 @@ public class ScalacConfigurable implements Configurable {
       HashSet<FileType> inputSet = new HashSet<FileType>(Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA));
       HashSet<FileType> outputSet = new HashSet<FileType>(Arrays.asList(StdFileTypes.JAVA, StdFileTypes.CLASS));
       CompilerManager.getInstance(myProject).addTranslatingCompiler(new ScalaCompiler(myProject), inputSet, outputSet);
-    } else {
+    } else if (!scalacBeforeCheckBox.isSelected() && mySettings.SCALAC_BEFORE != scalacBeforeCheckBox.isSelected()){
       for (ScalaCompiler compiler: CompilerManager.getInstance(myProject).getCompilers(ScalaCompiler.class)) {
         CompilerManager.getInstance(myProject).removeCompiler(compiler);
       }
