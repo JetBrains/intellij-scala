@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import _root_.scala.collection.mutable.HashMap
 import scala.Misc._
 import api.statements._
 import params._
@@ -57,12 +58,11 @@ object Conformance {
       case c@ScCompoundType(comps, decls, types) => comps.forall(_ conforms r) && (ScType.extractClassType(r) match {
         case Some((clazz, subst)) => {
           if (!decls.isEmpty) {
-            val sigs = TypeDefinitionMembers.getSignatures(clazz)
+            val sigs = getSignatureMap(clazz)
             for ((sig, t) <- c.signatureMap) {
-              val full = new FullSignature(sig, t, clazz)
-              sigs.get(full) match {
+              sigs.get(sig) match {
                 case None => return false
-                case Some(node) => if (!subst.subst(node.info.retType).conforms(t)) return false
+                case Some(t1) => if (!subst.subst(t1).conforms(t)) return false
               }
             }
           }
@@ -99,10 +99,10 @@ object Conformance {
                case None => comps.find { t => ScType.extractClassType(t) match {
                    case None => false
                    case Some((clazz, subst)) => {
-                     val full1 = new FullSignature(s1, rt1, clazz)
-                     TypeDefinitionMembers.getSignatures(clazz).get(full1) match {
+                     val classSigs = getSignatureMap(clazz)
+                     classSigs.get(s1) match {
                        case None => false
-                       case Some(node) => rt1.conforms(subst.subst(node.info.retType))
+                       case Some(rt) => rt1.conforms(subst.subst(rt))
                      }
                    }
                  }
@@ -155,5 +155,14 @@ object Conformance {
     case ex : ScExistentialType => conforms(l, ex.skolem)
 
     case _ => false //todo
+  }
+
+  //todo: cache
+  def getSignatureMap(clazz : PsiClass) = {
+    val m = new HashMap[Signature, ScType]
+    for ((full, _) <- TypeDefinitionMembers.getSignatures(clazz)) {
+      m += ((full.sig, full.retType))
+    }
+    m
   }
 }

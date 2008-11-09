@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 import com.intellij.navigation.{ItemPresentation, NavigationItem}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiNamedElement, PsiElement}
+import com.intellij.psi.{NavigatablePsiElement, PsiElement, PsiNamedElement}
 import icons.Icons
 import impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -11,7 +11,7 @@ import psi.ScalaPsiElement
 import statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import typedef._
 
-trait ScNamedElement extends ScalaPsiElement with PsiNamedElement with NavigationItem {
+trait ScNamedElement extends ScalaPsiElement with PsiNamedElement with NavigatablePsiElement {
 
   def name() : String = nameId.getText
 

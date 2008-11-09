@@ -18,18 +18,19 @@ import javax.swing.Icon
 import lang.psi.api.statements.ScTypeAlias
 import lang.psi.api.toplevel.typedef.ScMember
 import lang.psi.ScalaPsiUtil
+import lang.psi.types.FullSignature
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 21.09.2008
  */
 
-class OverrideGutter(methods: Seq[PsiMethod], vals: Seq[PsiNamedElement], types: Seq[ScTypeAlias], isImplements: Boolean) extends GutterIconRenderer {
+class OverrideGutter(sigs: Seq[FullSignature], vals: Seq[PsiNamedElement], types: Seq[ScTypeAlias], isImplements: Boolean) extends GutterIconRenderer {
   def getIcon: Icon = if (isImplements) IconLoader.getIcon("/gutter/implementingMethod.png");
                       else IconLoader.getIcon("/gutter/overridingMethod.png")
   override lazy val getTooltipText: String = {
-    assert(methods.length + vals.length + types.length > 0)
-    val clazz = if (methods.length > 0) methods(0).getContainingClass
+    assert(sigs.length + vals.length + types.length > 0)
+    val clazz = if (sigs.length > 0) sigs(0).clazz
     else if (vals.length > 0) PsiTreeUtil.getParentOfType(vals(0), classOf[PsiClass])
     else PsiTreeUtil.getParentOfType(types(0), classOf[PsiClass])
     assert(clazz != null)
@@ -39,15 +40,16 @@ class OverrideGutter(methods: Seq[PsiMethod], vals: Seq[PsiNamedElement], types:
 
   override lazy val getClickAction: AnAction = new AnAction {
     def actionPerformed(e: AnActionEvent) {
-      methods.length + vals.length + types.length match {
+      sigs.length + vals.length + types.length match {
         case 0 =>
         case 1 => {
-          if (methods.length > 0 && methods(0).canNavigateToSource) methods(0).navigate(true)
+          if (sigs.length > 0 && sigs(0).element.canNavigateToSource) sigs(0).element.navigate(true)
           else if (vals.length > 0 && EditSourceUtil.canNavigate(vals(0))) EditSourceUtil.getDescriptor(vals(0)).navigate(true)
           else if (types(0).canNavigateToSource) types(0).navigate(true)
         }
         case _ => {
-          val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(methods.toArray ++ vals.toArray ++ types.toArray, new ScCellRenderer,
+          val elems = sigs.map{_.element}.toArray ++ vals.toArray ++ types.toArray
+          val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(elems, new ScCellRenderer,
               ScalaBundle.message("goto.override.method.declaration", Array[Object]()))
           gotoDeclarationPopup.show(new RelativePoint(e.getInputEvent.asInstanceOf[MouseEvent]))
         }

@@ -1,17 +1,15 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import api.statements.ScFunction
-import api.toplevel.ScNamedElement
 import com.intellij.openapi.util.Key
 import collection.immutable.{Map, HashMap}
 import com.intellij.openapi.project.Project
 import api.statements.params.ScParameter
-import com.intellij.psi.{PsiTypeParameter, PsiNamedElement, PsiClass}
+import com.intellij.psi.{NavigatablePsiElement, PsiTypeParameter, PsiNamedElement, PsiClass}
 import psi.impl.ScalaPsiManager
 
-class Signature(val namedElement : PsiNamedElement, placeholder: Boolean, val types : Seq[ScType],
+class Signature(val name : String, val types : Seq[ScType],
                 val typeParams : Array[PsiTypeParameter], val substitutor : ScSubstitutor) {
-  def name = namedElement.getName + (if (placeholder) "_" else "")
   def equiv(other : Signature) : Boolean = {
     name == other.name &&
     typeParams.length == other.typeParams.length &&
@@ -41,7 +39,7 @@ class Signature(val namedElement : PsiNamedElement, placeholder: Boolean, val ty
 
 import com.intellij.psi.PsiMethod
 class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSubstitutor)
-  extends Signature (method, false,
+  extends Signature (method.getName,
                      method.getParameterList.getParameters.map {p => p match {
                                                                   case scp : ScParameter => scp.calcType
                                                                   case _ => ScType.create(p.getType, p.getProject)
@@ -69,7 +67,7 @@ class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSub
     }
   }
 
-case class FullSignature(val sig : Signature, val retType : ScType, val clazz : PsiClass) {
+case class FullSignature(val sig : Signature, val retType : ScType, val element : NavigatablePsiElement, val clazz : PsiClass) {
   override def hashCode: Int = sig.hashCode
   override def equals(obj: Any): Boolean = obj match {
     case other : FullSignature => sig equals other.sig
