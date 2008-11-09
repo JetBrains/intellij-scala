@@ -8,6 +8,7 @@ import lang.psi.api.expr._
 
 
 import lang.psi.api.statements._
+import lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
 import lang.psi.api.toplevel.imports.ScImportSelector
 import lang.psi.api.toplevel.typedef._
 import lang.psi.api.toplevel.{ScEarlyDefinitions, ScTyped}
@@ -17,7 +18,6 @@ import lang.psi.api.base.patterns.ScBindingPattern
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import lang.psi.api.statements.params.ScTypeParam
 import com.intellij.openapi.util.TextRange
 import com.intellij.lang.annotation._
 
@@ -133,7 +133,7 @@ class ScalaAnnotator extends Annotator {
       val error = clazz match {
         case _: ScClass => ScalaBundle.message("class.must.declared.abstract", Array[Object](clazz.getName))
         case _: ScObject => ScalaBundle.message("object.must.implement", Array[Object](clazz.getName))
-        case _: ScNewTemplateDefinition =>ScalaBundle.message("anonymous.class.must.declared.abstract", Array[Object]()) 
+        case _: ScNewTemplateDefinition =>ScalaBundle.message("anonymous.class.must.declared.abstract", Array[Object]())
       }
       val start = clazz.getTextRange.getStartOffset
       val eb = clazz.extendsBlock
@@ -153,22 +153,30 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def checkOverrideMethods(method: ScFunction, holder: AnnotationHolder) {
-    method.superMethod match {
-      case None =>
-        if (method.hasModifierProperty("override")) {
-          val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
-            ScalaBundle.message("method.overrides.nothing", Array[Object](method.getName)))
-          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-          annotation.registerFix(new RemoveModifierQuickFix(method, "override"))
-        }
-      case Some(superMethod) => if (!method.hasModifierProperty("override") && !method.isInstanceOf[ScFunctionDeclaration]) {
-        val isConcrete = superMethod match {
+    val signatures = method.superSignatures
+    if (signatures.length == 0) {
+      if (method.hasModifierProperty("override")) {
+        val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
+          ScalaBundle.message("method.overrides.nothing", Array[Object](method.getName)))
+        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+        annotation.registerFix(new RemoveModifierQuickFix(method, "override"))
+      }
+    } else {
+      if (!method.hasModifierProperty("override") && !method.isInstanceOf[ScFunctionDeclaration]) {
+        def isConcrete(signature: FullSignature): Boolean = if (signature.element.isInstanceOf[PsiNamedElement])
+          ScalaPsiUtil.nameContext(signature.element.asInstanceOf[PsiNamedElement]) match {
           case _: ScFunctionDefinition => true
-          case _: ScFunctionDeclaration => false
           case method: PsiMethod if !method.hasModifierProperty(PsiModifier.ABSTRACT) && !method.isConstructor => true
+          case _: ScPatternDefinition => true
+          case _: ScVariableDeclaration => true
+          case _: ScClassParameter => true
           case _ => false
+        } else false
+        val isConcretes: Boolean = {
+          for (signature <- signatures if isConcrete(signature)) return true
+          return false
         }
-        if (isConcrete) {
+        if (isConcretes) {
           val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
             ScalaBundle.message("method.needs.override.modifier", Array[Object](method.getName)))
           annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
