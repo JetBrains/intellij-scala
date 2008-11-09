@@ -32,7 +32,7 @@ class ScalaLineMarkerProvider extends LineMarkerProvider {
           val signatures = (HashSet[FullSignature](method.superSignatures: _*)).toSeq
           val icon = if (GutterUtil.isOverrides(method)) GutterIcons.OVERRIDING_METHOD_ICON
                      else GutterIcons.IMPLEMENTING_METHOD_ICON
-          val typez = ScalaMarkerType.OVERRIDING_METHOD
+          val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signatures.length > 0) {
             return new LineMarkerInfo[PsiElement](method, offset, icon, Pass.UPDATE_ALL,
               typez.fun, typez.handler, GutterIconRenderer.Alignment.LEFT)

@@ -22,7 +22,7 @@ import lang.psi.types.FullSignature
  */
 
 object ScalaMarkerType {
-  val OVERRIDING_METHOD = ScalaMarkerType(new NullableFunction[PsiElement, String] {
+  val OVERRIDING_MEMBER = ScalaMarkerType(new NullableFunction[PsiElement, String] {
     def fun(element: PsiElement): String = {
       element match {
         case method: ScFunction => {
