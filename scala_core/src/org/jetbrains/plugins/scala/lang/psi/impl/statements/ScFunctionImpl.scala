@@ -85,9 +85,6 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
       case Some(x) => x.supers.map{_.info}
     }
   }
-  
-  def superVals: Seq[PsiNamedElement] =
-    TypeDefinitionMembers.getSuperVals(this.getContainingClass).toSeq.map(_._1)
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 

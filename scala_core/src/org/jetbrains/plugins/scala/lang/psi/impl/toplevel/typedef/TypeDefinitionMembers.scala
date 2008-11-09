@@ -143,18 +143,18 @@ object TypeDefinitionMembers {
           case _var: ScVariable =>
             for (dcl <- _var.declaredElements) {
               val t = dcl.calcType
-              addSignature(new Signature(dcl.name, Seq.empty, Array(), subst), t)
-              addSignature(new Signature(dcl.name + "_", Seq.singleton(t), Array(), subst), Unit)
+              addSignature(new Signature(dcl, false, Seq.empty, Array(), subst), t)
+              addSignature(new Signature(dcl, true, Seq.singleton(t), Array(), subst), Unit)
             }
           case _val: ScValue =>
             for (dcl <- _val.declaredElements) {
-              addSignature(new Signature(dcl.name, Seq.empty, Array(), subst), dcl.calcType)
+              addSignature(new Signature(dcl, false, Seq.empty, Array(), subst), dcl.calcType)
             }
           case constr : ScPrimaryConstructor =>
             for (param <- constr.parameters) {
               val t = param.calcType
-              addSignature(new Signature(param.name, Seq.empty, Array(), subst), t)
-              if (param.isVar) addSignature(new Signature(param.name + "_", Seq.singleton(t), Array(), subst), Unit)
+              addSignature(new Signature(param, false, Seq.empty, Array(), subst), t)
+              if (param.isVar) addSignature(new Signature(param, true, Seq.singleton(t), Array(), subst), Unit)
             }
           case f : ScFunction => addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType))
           case _ =>
