@@ -157,7 +157,7 @@ class ScalaAnnotator extends Annotator {
           case _: ScClassParameter => true
           case _ => false
         } else false
-        val isConcretes: Boolean = {
+        def isConcretes: Boolean = {
           for (signature <- signatures if isConcrete(signature)) return true
           return false
         }
