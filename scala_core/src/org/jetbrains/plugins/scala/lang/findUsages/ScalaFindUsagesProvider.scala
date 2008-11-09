@@ -5,8 +5,9 @@ import psi.api.base.patterns.ScBindingPattern
 import com.intellij.psi.util.PsiFormatUtil
 import com.intellij.lang.cacheBuilder.{DefaultWordsScanner, WordsScanner}
 import lexer.{ScalaLexer, ScalaTokenTypes}
+import psi.api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
+import psi.api.toplevel.ScNamedElement
 import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
-import psi.api.statements.{ScFunction, ScValue, ScVariable}
 import com.intellij.lang.findUsages.FindUsagesProvider
 import org.jetbrains.annotations.{Nullable, NotNull}
 import com.intellij.psi.tree.TokenSet
@@ -20,7 +21,7 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
 
   override def canFindUsagesFor(element: PsiElement): Boolean = {
     element match {
-      case _: ScTypeDefinition | _: PsiMethod | _: ScBindingPattern | _: PsiVariable => true
+      case _: ScNamedElement | _: PsiMethod | _: PsiClass | _: PsiVariable => true
       case _ => false
     }
   }
@@ -31,9 +32,11 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
   @NotNull
   override def getType(element: PsiElement): String = {
     element match {
+      case _: ScTypeAlias => "type"
       case _: ScClass => "class"
       case _: ScObject => "object"
       case _: ScTrait => "trait"
+      case c: PsiClass => if (c.isInterface) "interface" else "class"
       case _: PsiMethod => "method"
       case _: ScBindingPattern => {
         var parent = element
@@ -55,26 +58,24 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
   @NotNull
   override def getDescriptiveName(element: PsiElement): String = {
     element match {
-      case c: ScTypeDefinition => c.getQualifiedName
+      case c: PsiClass => c.getQualifiedName
       case x: PsiMethod => PsiFormatUtil.formatMethod(x, PsiSubstitutor.EMPTY,
         PsiFormatUtil.SHOW_NAME | PsiFormatUtil.SHOW_PARAMETERS,
         PsiFormatUtil.SHOW_TYPE) + " of " + getDescriptiveName(x.getContainingClass)
-      case x: ScBindingPattern => x.getName
       case x: PsiVariable => x.getName
-      case _ => ""
+      case x: ScNamedElement => x.getName
     }
   }
 
   @NotNull
   override def getNodeText(element: PsiElement, useFullName: Boolean): String = {
     element match {
-      case c: ScTypeDefinition => if (useFullName) c.getQualifiedName else c.getName
-      case c: ScBindingPattern => c.getName
+      case c: PsiClass => if (useFullName) c.getQualifiedName else c.getName
       case c: PsiMethod => PsiFormatUtil.formatMethod(c, PsiSubstitutor.EMPTY,
-        PsiFormatUtil.SHOW_NAME | PsiFormatUtil.SHOW_PARAMETERS,
-        PsiFormatUtil.SHOW_TYPE)
+              PsiFormatUtil.SHOW_NAME | PsiFormatUtil.SHOW_PARAMETERS,
+              PsiFormatUtil.SHOW_TYPE)
       case c: PsiVariable => c.getName
-      case _ => ""
+      case c: ScNamedElement => c.getName
     }
   }
 }
