@@ -4,6 +4,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 import _root_.scala.collection.Set
 
 
+import api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition, ScTypeAlias}
 import com.intellij.psi.impl.PsiManagerEx
 
 import com.intellij.psi.impl.source.resolve.ResolveCache
@@ -25,7 +26,13 @@ import resolve._
 class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeProjection{
   override def toString: String = "TypeProjection"
 
-  override def getType() = new ScProjectionType(typeElement.getType, this)
+  override def getType() = bind match {
+    case None => Nothing
+    case Some(ScalaResolveResult(alias : ScTypeAliasDefinition, s)) =>
+      if (alias.typeParameters == 0) s.subst(alias.aliasedType) else new ScTypeConstructorType(alias, s)
+    case Some(ScalaResolveResult(alias : ScTypeAliasDeclaration, s)) => new ScTypeAliasType(alias, s)
+    case _ => new ScProjectionType(typeElement.getType, this)
+  }
 
   def getKinds(incomplete: Boolean) = StdKinds.stableClass
 

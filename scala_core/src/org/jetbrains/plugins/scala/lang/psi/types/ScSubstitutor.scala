@@ -66,8 +66,16 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
         new ScTypeAliasType(name, args, () => subst(lower.v), () => subst(upper.v))
       }
     }
-    case ScParameterizedType (des, typeArgs) =>
-      new ScParameterizedType(subst(des), typeArgs map {subst _})
+    case ScParameterizedType (des, typeArgs) => {
+      val args = typeArgs map {subst _}
+      subst(des) match {
+        case ScTypeConstructorType(_, tcArgs, aliased) => {
+          val s1 = args.zip(tcArgs.toArray).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._2.name, p._1)}
+          s1.subst(aliased.v)
+        }
+        case des => new ScParameterizedType(des, args)
+      }
+    }
     case ScExistentialArgument(name, args, lower, upper) =>
       new ScExistentialArgument(name, args, subst(lower), subst(upper))
     case ex@ScExistentialType(q, wildcards) => {
