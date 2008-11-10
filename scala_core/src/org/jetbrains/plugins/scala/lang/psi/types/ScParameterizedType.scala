@@ -58,6 +58,8 @@ case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) ex
       return designator.equiv(designator1) &&
              typeArgs.equalsWith(typeArgs1) {_ equiv _}
     }
+    case fun : ScFunctionType => fun equiv this
+    case tuple : ScTupleType => tuple equiv this
     case _ => false
   }
 }
