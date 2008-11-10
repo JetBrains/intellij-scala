@@ -1,18 +1,21 @@
 package org.jetbrains.plugins.scala.annotator.gutter
 
 import _root_.scala.collection.mutable.HashSet
-import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
-import _root_.com.intellij.codeInsight.daemon.impl.LineMarkerNavigator
+import com.intellij.codeInsight.CodeInsightBundle
+import com.intellij.codeInsight.daemon.impl.{PsiElementListNavigator, LineMarkerNavigator}
+import com.intellij.codeInsight.daemon.{GutterIconNavigationHandler, DaemonBundle}
+import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
+import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.ui.awt.RelativePoint
+import java.util.Arrays
 import javax.swing.Icon
-import lang.psi.api.toplevel.typedef.ScMember
-import com.intellij.ide.util.PsiElementListCellRenderer
 import com.intellij.util.NullableFunction
 import java.awt.event.MouseEvent
 import lang.psi.api.statements.ScFunction
+import lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScMember, ScObject}
 import lang.psi.ScalaPsiUtil
 import lang.psi.types.FullSignature
 
@@ -55,6 +58,33 @@ object ScalaMarkerType {
         }
         case _ =>
       }
+    }
+  })
+
+  val SUBCLASSED_CLASS = ScalaMarkerType(new NullableFunction[PsiElement, String]{
+    def fun(element: PsiElement): String = {
+      if (!element.isInstanceOf[PsiClass]) return null
+      element match {
+        case _: ScTrait => ScalaBundle.message("trait.has.implementations", Array[Object]())
+        case _: ScObject => ScalaBundle.message("object.has.subclasses", Array[Object]())
+        case _ => ScalaBundle.message("class.has.subclasses", Array[Object]())
+      }
+    }
+  }, new GutterIconNavigationHandler[PsiElement] {
+    def navigate(e: MouseEvent, element: PsiElement): Unit = {
+      val clazz = element match {
+        case x: PsiClass => x
+        case _ => return
+      }
+      val inheritors = ClassInheritorsSearch.search(clazz, clazz.getUseScope, true).toArray(PsiClass.EMPTY_ARRAY)
+      if (inheritors.length == 0) return
+      val title = clazz match {
+        case _: ScTrait => ScalaBundle.message("goto.implementation.chooser.title", Array[Object](clazz.getName, "" + inheritors.length))
+        case _ => ScalaBundle.message("navigation.title.subclass", Array[Object](clazz.getName, "" + inheritors.length))
+      }
+      val renderer = new PsiClassListCellRenderer
+      Arrays.sort(inheritors, renderer.getComparator)
+      PsiElementListNavigator.openTargets(e, inheritors.map(_.asInstanceOf[NavigatablePsiElement]), title, renderer)
     }
   })
 
