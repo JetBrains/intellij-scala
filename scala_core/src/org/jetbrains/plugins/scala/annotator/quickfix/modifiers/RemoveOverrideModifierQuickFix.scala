@@ -17,7 +17,7 @@ import lang.psi.api.toplevel.ScModifierListOwner
  */
 
 class RemoveModifierQuickFix(method: ScModifierListOwner, modifier: String) extends IntentionAction{
-  def getText: String = ScalaBundle.message("remove.modifier.fix", Array[Object](modifier))
+  def getText: String = ScalaBundle.message("remove.modifier.fix", modifier)
 
   def startInWriteAction: Boolean = true
 
@@ -29,5 +29,5 @@ class RemoveModifierQuickFix(method: ScModifierListOwner, modifier: String) exte
     CodeStyleManager.getInstance(method.getProject()).reformat(method.getModifierList)
   }
 
-  def getFamilyName: String = ScalaBundle.message("remove.modifier.fix", Array[Object](modifier))
+  def getFamilyName: String = ScalaBundle.message("remove.modifier.fix", modifier)
 }
