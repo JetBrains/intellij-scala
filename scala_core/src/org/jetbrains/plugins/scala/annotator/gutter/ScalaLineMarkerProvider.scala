@@ -74,8 +74,8 @@ private object GutterUtil {
         case _: ScTrait => GutterIcons.IMPLEMENTED_INTERFACE_MARKER_RENDERER
         case _ => GutterIcons.SUBCLASSED_CLASS_MARKER_RENDERER
       }
-      val typez = MarkerType.SUBCLASSED_CLASS
-      val info = new LineMarkerInfo[PsiClass](clazz, offset, icon, Pass.UPDATE_OVERRIDEN_MARKERS, typez.getTooltip[PsiClass], typez.getNavigationHandler[PsiClass])
+      val typez = ScalaMarkerType.SUBCLASSED_CLASS
+      val info = new LineMarkerInfo[PsiElement](clazz, offset, icon, Pass.UPDATE_OVERRIDEN_MARKERS, typez.fun, typez.handler)
       result.add(info)
     }
   }
