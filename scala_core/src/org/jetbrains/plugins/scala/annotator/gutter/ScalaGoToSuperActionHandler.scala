@@ -57,11 +57,15 @@ private object ScalaGoToSuperActionHandler {
   val empty = Array[PsiElement]()
 
   def findSuperElements(file: PsiFile, offset: Int): Array[PsiElement] = {
-    val element = file.findElementAt(offset)
-    val e: PsiMember = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition], false, classOf[ScFunction],
-      classOf[ScValue], classOf[ScVariable], classOf[ScTypeAlias])
+    var element = file.findElementAt(offset)
+    def test(e: PsiElement): Boolean = e match {
+      case _: ScTemplateDefinition | _: ScFunction | _: ScValue
+        | _: ScVariable | _: ScTypeAlias => true
+      case _ => false
+    }
+    while (element != null && !test(element)) element = element.getParent
 
-    e match {
+    element match {
       case template: ScTemplateDefinition => {
         val supers = template.supers.filter((x: PsiClass) => x.getQualifiedName != "java.lang.Object" && x.getQualifiedName != "scala.ScalaObject")
         return (HashSet[PsiClass](supers: _*)).toArray
