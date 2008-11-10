@@ -9,8 +9,8 @@ import com.intellij.codeInsight.daemon.{LineMarkerInfo, LineMarkerProvider}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import com.intellij.psi.{NavigatablePsiElement, PsiMethod, PsiElement, PsiClass}
 import java.util.{Collection, List}
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.statements.{ScFunction, ScFunctionDeclaration}
@@ -47,19 +47,21 @@ class ScalaLineMarkerProvider extends LineMarkerProvider {
   def collectSlowLineMarkers(elements: List[PsiElement], result: Collection[LineMarkerInfo[_ <: PsiElement]]) {
     ApplicationManager.getApplication().assertReadAccessAllowed()
 
+    val members = new ArrayBuffer[PsiMember]
     for (element <- elements.toArray) {
-      ProgressManager.getInstance().checkCanceled()
+      ProgressManager.getInstance.checkCanceled
 
-      val methods = new ArrayBuffer[ScFunction]
       element match {
         case clazz: ScTypeDefinition => {
           GutterUtil.collectInheritingClasses(clazz, result)
         }
-        case x: ScFunction => methods += x
+        case x: PsiMember => members += x
         case _ =>
       }
     }
-    //todo: process methods
+    if (!members.isEmpty) {
+      GutterUtil.collectOverridingMembers(members.toArray, result)
+    }
   }
 }
 
@@ -77,6 +79,13 @@ private object GutterUtil {
       val typez = ScalaMarkerType.SUBCLASSED_CLASS
       val info = new LineMarkerInfo[PsiElement](clazz, offset, icon, Pass.UPDATE_OVERRIDEN_MARKERS, typez.fun, typez.handler)
       result.add(info)
+    }
+  }
+
+  def collectOverridingMembers(members: Array[PsiMember], result: Collection[LineMarkerInfo[_ <: PsiElement]]) {
+    for (member <- members) {
+      ProgressManager.getInstance.checkCanceled
+
     }
   }
 
