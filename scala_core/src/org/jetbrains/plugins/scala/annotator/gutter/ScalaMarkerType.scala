@@ -67,7 +67,7 @@ object ScalaMarkerType {
     def fun(element: PsiElement): String = {
       element match {
         case _: PsiMember =>
-          if (GutterUtil.isOverrides(element)) ScalaBundle.message("has.implementations")
+          if (GutterUtil.isAbstract(element)) ScalaBundle.message("has.implementations")
           else ScalaBundle.message("is.overriden.by")
         case _ => return null
       }
@@ -80,7 +80,7 @@ object ScalaMarkerType {
       }
       val overrides = ScalaOverridengMemberSearch.search(member)
       if (overrides.length == 0) return
-      val title = if (GutterUtil.isOverrides(element)) ScalaBundle.
+      val title = if (GutterUtil.isAbstract(element)) ScalaBundle.
               message("navigation.title.implementation.method", member.getName, "" + overrides.length)
                   else ScalaBundle.message("navigation.title.overrider.method", member.getName, "" + overrides.length)
       val renderer = new ScCellRenderer

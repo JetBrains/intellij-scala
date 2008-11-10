@@ -93,7 +93,7 @@ private object GutterUtil {
       }
       val overrides = ScalaOverridengMemberSearch.search(member, false)
       if (overrides.length > 0) {
-        val icon = if (!GutterUtil.isOverrides(member)) GutterIcons.OVERRIDEN_METHOD_MARKER_RENDERER
+        val icon = if (!GutterUtil.isAbstract(member)) GutterIcons.OVERRIDEN_METHOD_MARKER_RENDERER
                    else GutterIcons.IMPLEMENTED_INTERFACE_MARKER_RENDERER
         val typez = ScalaMarkerType.OVERRIDEN_MEMBER
         val info = new LineMarkerInfo[PsiElement](member, offset, icon, Pass.UPDATE_OVERRIDEN_MARKERS, typez.fun, typez.handler)
@@ -108,5 +108,10 @@ private object GutterUtil {
                   method.hasModifierProperty("override")
       case _ => false //todo:
     }
+  }
+
+  def isAbstract(element: PsiElement) = element match {
+    case method: ScFunctionDeclaration => true
+    case _ => false //todo:
   }
 }
