@@ -16,7 +16,7 @@ import lang.psi.api.base.types.ScSimpleTypeElement
 import lang.psi.api.base.patterns.ScBindingPattern
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.impl.search.OverridingMemberSearch
+import lang.psi.impl.search.{ScalaOverridengMemberSearch, OverridingMemberSearch}
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.openapi.util.TextRange
 import com.intellij.lang.annotation._
@@ -48,7 +48,6 @@ class ScalaAnnotator extends Annotator {
     element match {
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         checkOverrideMethods(x, holder)
-        //OverridingMemberSearch.search(x)
       }
       case x: ScTemplateDefinition => {
         checkImplementedMethods(x, holder)

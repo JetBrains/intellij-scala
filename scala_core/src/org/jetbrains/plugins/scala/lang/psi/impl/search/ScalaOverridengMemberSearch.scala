@@ -4,23 +4,23 @@ import _root_.scala.collection.mutable.ArrayBuffer
 import api.statements.ScFunction
 import api.toplevel.templates.ScTemplateBody
 import com.intellij.psi.search.searches.{OverridingMethodsSearch, ClassInheritorsSearch, ExtensibleQueryFactory}
-import com.intellij.psi.{PsiMember, PsiMethod, PsiClass}
 import com.intellij.psi.search.SearchScope
+import com.intellij.psi.{PsiMember, PsiMethod, PsiNamedElement, PsiClass}
 import com.intellij.util.{QueryFactory, EmptyQuery, Query}
 import toplevel.typedef.TypeDefinitionMembers
-import types.{Bounds, FullSignature, ScSubstitutor}
+import types.{Bounds, FullSignature, PhysicalSignature, ScSubstitutor}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 10.11.2008
  */
 
-object OverridingMemberSearch {
-  def search(member: PsiMember, scope: SearchScope, deep: Boolean): Array[PsiMember] = {
-    if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiMember]()
+object ScalaOverridengMemberSearch {
+  def search(member: PsiMember, scope: SearchScope, deep: Boolean): Array[PsiNamedElement] = {
+    if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
 
     val parentClass = member.getContainingClass
-    val buffer = new ArrayBuffer[PsiMember]
+    val buffer = new ArrayBuffer[PsiNamedElement]
 
     def process(inheritor: PsiClass): Boolean = {
       val substitutor = Bounds.superSubstitutor(parentClass, inheritor, ScSubstitutor.empty) match {
@@ -29,13 +29,17 @@ object OverridingMemberSearch {
       }
       member match {
         case method: ScFunction => {
-          /*val signatures: Seq[FullSignature] = TypeDefinitionMembers.getSignatures(inheritor).values.map{n => n.info}.
-                  toArray.toSeq.map(_.asInstanceOf[FullSignature])
-          true*/
-          true
+          val signatures: Seq[FullSignature] = TypeDefinitionMembers.getSignatures(inheritor).values.map{n => n.info}.
+                  collect.map(_.asInstanceOf[FullSignature])
+          val sign = new PhysicalSignature(method, substitutor)
+          for (signature <- signatures if sign.equiv(signature.sig)) {
+            buffer += signature.element.asInstanceOf[PsiNamedElement]
+            if (!deep) return false
+          }
         }
-        case _ => true
+        case _ =>
       }
+      true
     }
 
     var break = false
@@ -46,7 +50,7 @@ object OverridingMemberSearch {
     buffer.toArray
   }
 
-  def search(member: PsiMember, checkDeep: Boolean): Array[PsiMember] = search(member, member.getUseScope(), checkDeep)
+  def search(member: PsiMember, checkDeep: Boolean): Array[PsiNamedElement] = search(member, member.getUseScope(), checkDeep)
 
-  def search(member: PsiMember): Array[PsiMember] = search(member, true)
+  def search(member: PsiMember): Array[PsiNamedElement] = search(member, true)
 }
