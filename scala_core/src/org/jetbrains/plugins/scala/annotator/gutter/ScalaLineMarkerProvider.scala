@@ -6,6 +6,7 @@ import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.impl.MarkerType
 import com.intellij.codeInsight.daemon.{LineMarkerInfo, LineMarkerProvider}
+import com.intellij.ide.util.EditSourceUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.progress.ProgressManager
@@ -85,12 +86,10 @@ private object GutterUtil {
   }
 
   def collectOverridingMembers(members: Array[PsiMember], result: Collection[LineMarkerInfo[_ <: PsiElement]]) {
+    val element: PsiElement = null
     for (member <- members) {
       ProgressManager.getInstance.checkCanceled
-      val offset = member match {
-        case x: ScNamedElement => x.nameId.getTextRange.getStartOffset
-        case _ => member.getTextRange.getStartOffset
-      }
+      val offset = member.getTextOffset
       val overrides = ScalaOverridengMemberSearch.search(member, false)
       if (overrides.length > 0) {
         val icon = if (!GutterUtil.isAbstract(member)) GutterIcons.OVERRIDEN_METHOD_MARKER_RENDERER
