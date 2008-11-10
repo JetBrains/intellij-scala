@@ -44,7 +44,7 @@ object AnnotationExpr {
             builder.advanceLexer
           }
           case _ => {
-            builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+            builder error ScalaBundle.message("rbrace.expected")
           }
         }
         rollbackMarker.drop

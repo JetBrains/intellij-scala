@@ -134,7 +134,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
               subparse(tMarker)
             }
             case _ => {
-              builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
+              builder error ScalaBundle.message("identifier.expected")
               marker.drop
             }
           }

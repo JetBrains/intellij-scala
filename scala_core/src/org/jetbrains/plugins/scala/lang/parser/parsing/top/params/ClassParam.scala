@@ -38,7 +38,7 @@ object ClassParam {
       }
       case _ => {
         if (isModifier) {
-          builder error ScalaBundle.message("val.var.expected", new Array[Object](0))
+          builder error ScalaBundle.message("val.var.expected")
         }
       }
     }

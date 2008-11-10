@@ -26,7 +26,7 @@ object Annotation {
       }
     }
     if (!AnnotationExpr.parse(builder)) {
-      builder error ScalaBundle.message("wrong.annotation.expression", new Array[Object](0))
+      builder error ScalaBundle.message("wrong.annotation.expression")
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tLINE_TERMINATOR => {

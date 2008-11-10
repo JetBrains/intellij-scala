@@ -50,7 +50,7 @@ object Packaging {
                 return true
               }
               case _ => {
-                builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+                builder error ScalaBundle.message("rbrace.expected")
                 packMarker.done(ScalaElementTypes.PACKAGING)
                 return true
               }
@@ -59,7 +59,7 @@ object Packaging {
           case ScalaTokenTypes.tLINE_TERMINATOR => {
             if (!LineTerminator(builder.getTokenText)) {
               builder.advanceLexer //Ate nl
-              builder error ScalaBundle.message("lbrace.expected", new Array[Object](0))
+              builder error ScalaBundle.message("lbrace.expected")
               packMarker.done(ScalaElementTypes.PACKAGING)
               return true
             }
@@ -78,14 +78,14 @@ object Packaging {
                       return true
                     }
                     case _ => {
-                      builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+                      builder error ScalaBundle.message("rbrace.expected")
                       packMarker.done(ScalaElementTypes.PACKAGING)
                       return true
                     }
                   }
                 }
                 case _ => {
-                  builder error ScalaBundle.message("lbrace.expected", new Array[Object](0))
+                  builder error ScalaBundle.message("lbrace.expected")
                   packMarker.done(ScalaElementTypes.PACKAGING)
                   return true
                 }
@@ -93,7 +93,7 @@ object Packaging {
             }
           }
           case _ => {
-            builder error ScalaBundle.message("lbrace.expected", new Array[Object](0))
+            builder error ScalaBundle.message("lbrace.expected")
             packMarker.done(ScalaElementTypes.PACKAGING)
             return true
           }
@@ -101,7 +101,7 @@ object Packaging {
       }
       case _ => {
         //this code shouldn't be reachabled, if it is, this is unexpexted error
-        builder error ScalaBundle.message("unreachable.error", new Array[Object](0))
+        builder error ScalaBundle.message("unreachable.error")
         packMarker.drop
         return false
       }

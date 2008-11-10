@@ -18,7 +18,7 @@ object MixinParents {
     val mixinMarker = builder.mark
     //Look for parent
     if (!AnnotType.parse(builder)) {
-      builder error ScalaBundle.message("wrong.simple.type", new Array[Object](0))
+      builder error ScalaBundle.message("wrong.simple.type")
       mixinMarker.done(ScalaElementTypes.TRAIT_PARENTS)
       return false
     }
@@ -26,7 +26,7 @@ object MixinParents {
     while (builder.getTokenType == ScalaTokenTypes.kWITH) {
       builder.advanceLexer //Ate with
       if (!AnnotType.parse(builder)) {
-        builder error ScalaBundle.message("wrong.simple.type", new Array[Object](0))
+        builder error ScalaBundle.message("wrong.simple.type")
         mixinMarker.done(ScalaElementTypes.TRAIT_PARENTS)
         return false
       }

@@ -35,7 +35,7 @@ object Type {
         if (builder.getTokenType == ScalaTokenTypes.tCOMMA) builder.advanceLexer
         builder.getTokenType match {
           case ScalaTokenTypes.tRPARENTHESIS => builder.advanceLexer
-          case _ => builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+          case _ => builder error ScalaBundle.message("rparenthesis.expected")
         }
         m1.done(if (tuple) ScalaElementTypes.TUPLE_TYPE else ScalaElementTypes.TYPE_IN_PARENTHESIS)
       }
@@ -45,7 +45,7 @@ object Type {
           case ">:" => {
             builder.advanceLexer
             if (!Type.parse(builder)) {
-              builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+              builder error ScalaBundle.message("wrong.type")
             }
           }
           case _ => {} //nothing
@@ -54,7 +54,7 @@ object Type {
           case "<:" => {
             builder.advanceLexer
             if (!Type.parse(builder)) {
-              builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+              builder error ScalaBundle.message("wrong.type")
             }
           }
           case _ => {} //nothing
@@ -72,7 +72,7 @@ object Type {
       case ScalaTokenTypes.tFUNTYPE => {
         builder.advanceLexer //Ate =>
         if (!Type.parse(builder,false,isPattern)) {
-          builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+          builder error ScalaBundle.message("wrong.type")
         }
         typeMarker.done(ScalaElementTypes.TYPE)
         return true

@@ -31,134 +31,131 @@ object BNF {
       ScalaTokenTypes.tNOT))
 
   /*********** LAST **************/
-  var lastTemplateStat = TokenSet.create(Array(ScalaTokenTypes.tRBRACE))
+  var lastTemplateStat = TokenSet.create(ScalaTokenTypes.tRBRACE)
 
 
   /********************************************************/
   /*********************** FIRSTS *************************/
 
-  val firstPath: TokenSet = TokenSet.create(Array(ScalaTokenTypes.kTHIS,
+  val firstPath: TokenSet = TokenSet.create(ScalaTokenTypes.kTHIS,
       ScalaTokenTypes.kSUPER,
-      ScalaTokenTypes.tIDENTIFIER))
+      ScalaTokenTypes.tIDENTIFIER)
 
-  val firstStableId: TokenSet = TokenSet.create(Array(ScalaTokenTypes.kTHIS,
+  val firstStableId: TokenSet = TokenSet.create(ScalaTokenTypes.kTHIS,
       ScalaTokenTypes.kSUPER,
-      ScalaTokenTypes.tIDENTIFIER))
+      ScalaTokenTypes.tIDENTIFIER)
 
   val firstXmlPattern = TokenSet.create(Array[IElementType]())
 
-  val firstPattern2: TokenSet = TokenSet.orSet(Array(
+  val firstPattern2: TokenSet = TokenSet.orSet(
     firstLiteral,
-    TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER,
+    TokenSet.create(ScalaTokenTypes.tIDENTIFIER,
       ScalaTokenTypes.tUNDER,
       ScalaTokenTypes.tLPARENTHESIS,
-      ScalaTokenTypes.tLBRACE)),
+      ScalaTokenTypes.tLBRACE),
       firstXmlPattern
-  ))
+  )
                                
-  val firstXmlExpr: TokenSet = TokenSet.create(Array[IElementType]())
+  val firstMethodClosure: TokenSet = TokenSet.create(ScalaTokenTypes.tDOT)
 
-  val firstMethodClosure: TokenSet = TokenSet.create(Array(ScalaTokenTypes.tDOT))
-
-  val firstSimpleExpr: TokenSet = TokenSet.orSet(Array(
+  val firstSimpleExpr: TokenSet = TokenSet.orSet(
       firstLiteral,
       firstPath,
-      TokenSet.create(Array(
+      TokenSet.create(
       ScalaTokenTypes.tLBRACE,
       ScalaTokenTypes.tLPARENTHESIS,
-      ScalaTokenTypes.kNEW)),
-      firstXmlExpr))
+      ScalaTokenTypes.kNEW))
 
-  val firstPrefixExpr: TokenSet = TokenSet.orSet(Array(firstSimpleExpr,
-      TokenSet.create(Array(ScalaTokenTypes.tTILDA,
+  val firstPrefixExpr: TokenSet = TokenSet.orSet(firstSimpleExpr,
+      TokenSet.create(ScalaTokenTypes.tTILDA,
           ScalaTokenTypes.tNOT,
-          ScalaTokenTypes.tAND))))
+          ScalaTokenTypes.tAND))
 
   val firstInfixExpr: TokenSet = firstPrefixExpr
 
   val firstPostfixExpr: TokenSet = firstInfixExpr
 
-  val firstExpr1: TokenSet = TokenSet.orSet(Array(
-      TokenSet.create(Array(
+  val firstExpr1: TokenSet = TokenSet.orSet(
+      TokenSet.create(
       ScalaTokenTypes.kIF,
       ScalaTokenTypes.kTRY,
       ScalaTokenTypes.kWHILE,
       ScalaTokenTypes.kDO,
       ScalaTokenTypes.kFOR,
       ScalaTokenTypes.kTHROW,
-      ScalaTokenTypes.kRETURN)),
-      TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER)),
+      ScalaTokenTypes.kRETURN),
+      TokenSet.create(ScalaTokenTypes.tIDENTIFIER),
       firstSimpleExpr,
       firstPostfixExpr,
-      firstMethodClosure))
+      firstMethodClosure)
 
-  val firstBindings = TokenSet.create(Array(ScalaTokenTypes.tLBRACE))
+  val firstBindings = TokenSet.create(ScalaTokenTypes.tLBRACE)
 
-  val firstExpr: TokenSet = TokenSet.orSet(Array(
+  val firstExpr: TokenSet = TokenSet.orSet(
       firstBindings,
-      TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER)),
-      firstExpr1))
+      TokenSet.create(ScalaTokenTypes.tIDENTIFIER),
+      firstExpr1)
 
 
-  val firstArgumentExprs: TokenSet = TokenSet.create(Array(ScalaTokenTypes.tLBRACE,
-      ScalaTokenTypes.tLPARENTHESIS))
+  val firstArgumentExprs: TokenSet = TokenSet.create(ScalaTokenTypes.tLBRACE,
+      ScalaTokenTypes.tLPARENTHESIS)
 
 
-  val firstSimpleType: TokenSet = TokenSet.orSet(Array(
+  val firstSimpleType: TokenSet = TokenSet.orSet(
       firstStableId,
       firstPath,
-      TokenSet.create(Array(ScalaTokenTypes.tLPARENTHESIS))
-      ))
+      TokenSet.create(ScalaTokenTypes.tLPARENTHESIS)
+      )
 
   val firstType1: TokenSet = firstSimpleType
 
-  val firstType: TokenSet = TokenSet.orSet(Array(
+  val firstType: TokenSet = TokenSet.orSet(
       firstType1,
-      TokenSet.create(Array(ScalaTokenTypes.tLBRACE))
-      ))
+      TokenSet.create(ScalaTokenTypes.tLBRACE)
+      )
 
   /********************************************************************************************/
   /********************************* Import, Attribute and Modifier ***************************/
 
-  val firstImport = TokenSet.create(Array(ScalaTokenTypes.kIMPORT))
+  val firstImport = TokenSet.create(ScalaTokenTypes.kIMPORT)
 
-  val firstImportSelector = TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER))
+  val firstImportSelector = TokenSet.create(ScalaTokenTypes.tIDENTIFIER)
 
-  val firstLocalModifier = TokenSet.create(Array(ScalaTokenTypes.kABSTRACT,
+  val firstLocalModifier = TokenSet.create(ScalaTokenTypes.kABSTRACT,
       ScalaTokenTypes.kFINAL,
       ScalaTokenTypes.kIMPLICIT,
       ScalaTokenTypes.kSEALED,
-      ScalaTokenTypes.kLAZY))
+      ScalaTokenTypes.kLAZY)
 
-  val firstLocalModifierWithoutImplicit = TokenSet.create(Array(ScalaTokenTypes.kABSTRACT,
+  val firstLocalModifierWithoutImplicit = TokenSet.create(ScalaTokenTypes.kABSTRACT,
       ScalaTokenTypes.kFINAL,
       ScalaTokenTypes.kSEALED,
-      ScalaTokenTypes.kLAZY))
+      ScalaTokenTypes.kLAZY)
 
 
-  val firstAccessModifier: TokenSet = TokenSet.create(Array(ScalaTokenTypes.kPRIVATE,
-      ScalaTokenTypes.kPROTECTED))
+  val firstAccessModifier: TokenSet = TokenSet.create(ScalaTokenTypes.kPRIVATE,
+      ScalaTokenTypes.kPROTECTED)
 
 
-  val firstModifierWithoutImplicit: TokenSet = TokenSet.orSet(Array(TokenSet.create(Array(ScalaTokenTypes.kOVERRIDE)),
+  val firstModifierWithoutImplicit: TokenSet = TokenSet.orSet(TokenSet.create(Array(ScalaTokenTypes.kOVERRIDE)),
       firstAccessModifier,
-      firstLocalModifierWithoutImplicit))
+      firstLocalModifierWithoutImplicit)
 
-  val firstModifier: TokenSet = TokenSet.orSet(Array(TokenSet.create(Array(ScalaTokenTypes.kOVERRIDE)),
+  val firstModifier: TokenSet = TokenSet.orSet(TokenSet.create(ScalaTokenTypes.kOVERRIDE),
       firstAccessModifier,
-      firstLocalModifier))
+      firstLocalModifier)
 
   val firstAttributeClause: TokenSet = TokenSet.create(Array(ScalaTokenTypes.tLSQBRACKET))
 
 
   /************* parameters ***************/
 
-  val firstTypeParam = TokenSet.create(Array(ScalaTokenTypes.tIDENTIFIER))
+  val firstTypeParam = TokenSet.create(ScalaTokenTypes.tIDENTIFIER)
 
   val firstVariantTypeParam = firstTypeParam
 
-  val firstFunTypeParam = TokenSet.create(Array(ScalaTokenTypes.tLINE_TERMINATOR,
-      ScalaTokenTypes.tLSQBRACKET))
+  val firstFunTypeParam = TokenSet.create(ScalaTokenTypes.tLINE_TERMINATOR,
+      ScalaTokenTypes.tLSQBRACKET)
 
   val firstTypeParamClause = TokenSet.create(Array(ScalaTokenTypes.tLINE_TERMINATOR,
       ScalaTokenTypes.tLSQBRACKET))

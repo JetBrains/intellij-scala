@@ -50,7 +50,7 @@ object Refinement {
         builder.advanceLexer //Ate }
       }
       case _ => {
-        builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+        builder error ScalaBundle.message("rbrace.expected")
       }
     }
     refineMarker.done(ScalaElementTypes.REFINEMENT)

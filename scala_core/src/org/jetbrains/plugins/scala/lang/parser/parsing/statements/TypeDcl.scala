@@ -38,7 +38,7 @@ object TypeDcl {
         builder.advanceLexer //Ate identifier
       }
       case _ => {
-        builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
+        builder error ScalaBundle.message("identifier.expected")
         /*returnMarker.drop
         return true*/
         returnMarker.rollbackTo
@@ -53,7 +53,7 @@ object TypeDcl {
       case ">:" => {
         builder.advanceLexer
         if (!Type.parse(builder)) {
-          builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+          builder error ScalaBundle.message("wrong.type")
         }
       }
       case _ => {} //nothing
@@ -62,7 +62,7 @@ object TypeDcl {
       case "<:" => {
         builder.advanceLexer
         if (!Type.parse(builder)) {
-          builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+          builder error ScalaBundle.message("wrong.type")
         }
       }
       case _ => {} //nothing

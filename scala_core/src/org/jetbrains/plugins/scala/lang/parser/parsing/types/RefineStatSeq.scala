@@ -26,7 +26,7 @@ object RefineStatSeq {
         //otherwise parse TopStat
         case _ => {
           if (!RefineStat.parse(builder)) {
-            builder error ScalaBundle.message("wrong.top.statment.declaration", new Array[Object](0))
+            builder error ScalaBundle.message("wrong.top.statment.declaration")
             builder.advanceLexer
           }
           else {
@@ -34,7 +34,7 @@ object RefineStatSeq {
               case ScalaTokenTypes.tSEMICOLON |
                    ScalaTokenTypes.tLINE_TERMINATOR => builder.advanceLexer //it is good
               case null | ScalaTokenTypes.tRBRACE => return
-              case _ => builder error ScalaBundle.message("semi.expected", new Array[Object](0))
+              case _ => builder error ScalaBundle.message("semi.expected")
             }
           }
         }

@@ -35,7 +35,7 @@ object TemplateBody {
       case ScalaTokenTypes.tLBRACE => {
         builder.advanceLexer //Ate {
       }
-      case _ => builder error ScalaBundle.message("lbrace.expected", new Array[Object](0))
+      case _ => builder error ScalaBundle.message("lbrace.expected")
     }
     SelfType parse builder
     //this metod parse recursively TemplateStat {semi TemplateStat}
@@ -46,7 +46,7 @@ object TemplateBody {
           return true
         }
         case null => {
-          builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+          builder error ScalaBundle.message("rbrace.expected")
           return true
         }
         case _ => {
@@ -61,14 +61,14 @@ object TemplateBody {
                 return subparse
               }
               case _ => {
-                builder error ScalaBundle.message("semi.expected", new Array[Object](0))
+                builder error ScalaBundle.message("semi.expected")
                 builder.advanceLexer //Ate something
                 return subparse
               }
             }
           }
           else {
-            builder error ScalaBundle.message("def.dcl.expected", new Array[Object](0))
+            builder error ScalaBundle.message("def.dcl.expected")
             builder.advanceLexer //Ate something
             return subparse
           }

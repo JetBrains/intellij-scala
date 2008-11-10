@@ -11,6 +11,6 @@ import ScalaElementTypes._
 
 trait ParserNode extends ScalaTokenTypes{
 
-  def lookAhead(builder: PsiBuilder, elems: IElementType*) = ParserUtils.lookAhead(builder, elems.toArray[IElementType])
+  def lookAhead(builder: PsiBuilder, elems: IElementType*) = ParserUtils.lookAhead(builder, elems: _*)
 
 }

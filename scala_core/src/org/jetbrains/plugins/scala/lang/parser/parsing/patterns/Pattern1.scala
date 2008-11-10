@@ -33,7 +33,7 @@ object Pattern1 {
               builder.advanceLexer //Ate :
               backupMarker.drop
               if (!TypePattern.parse(builder)) {
-                builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+                builder error ScalaBundle.message("wrong.type")
               }
               pattern1Marker.done(ScalaElementTypes.TYPED_PATTERN)
               return true
@@ -52,7 +52,7 @@ object Pattern1 {
             builder.advanceLexer //Ate :
             backupMarker.drop
             if (!TypePattern.parse(builder)) {
-              builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+              builder error ScalaBundle.message("wrong.type")
             }
             pattern1Marker.done(ScalaElementTypes.TYPED_PATTERN)
             return true

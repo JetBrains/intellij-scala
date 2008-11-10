@@ -37,7 +37,7 @@ object FunDcl {
           return true
         }
         else {
-          builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+          builder error ScalaBundle.message("wrong.type")
           //returnMarker.drop
           return true
         }

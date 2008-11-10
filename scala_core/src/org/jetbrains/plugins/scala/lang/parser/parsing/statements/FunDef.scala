@@ -45,7 +45,7 @@ object FunDef {
                     return true
                   }
                   else {
-                    builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+                    builder error ScalaBundle.message("wrong.expression")
                     faultMarker.drop
                     return true
                   }
@@ -68,7 +68,7 @@ object FunDef {
               return true
             }
             else {
-              builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+              builder error ScalaBundle.message("wrong.expression")
               faultMarker.drop
               return true
             }
@@ -111,7 +111,7 @@ object FunDef {
           case ScalaTokenTypes.tASSIGN => {
             builder.advanceLexer //Ate =
             if (!ConstrExpr.parse(builder)) {
-              builder error ScalaBundle.message("wrong.constr.expression", new Array[Object](0))
+              builder error ScalaBundle.message("wrong.constr.expression")
             }
             faultMarker.drop
             return true
@@ -121,19 +121,19 @@ object FunDef {
               builder.advanceLexer //Ate nl
             }
             else {
-              builder error ScalaBundle.message("constr.block.expected", new Array[Object](0))
+              builder error ScalaBundle.message("constr.block.expected")
               faultMarker.drop
               return true
             }
             if (!ConstrBlock.parse(builder)) {
-              builder error ScalaBundle.message("constr.block.expected", new Array[Object](0))
+              builder error ScalaBundle.message("constr.block.expected")
             }
             faultMarker.drop
             return true
           }
           case _ => {
             if (!ConstrBlock.parse(builder)) {
-              builder error ScalaBundle.message("constr.block.expected", new Array[Object](0))
+              builder error ScalaBundle.message("constr.block.expected")
             }
             faultMarker.drop
             return true

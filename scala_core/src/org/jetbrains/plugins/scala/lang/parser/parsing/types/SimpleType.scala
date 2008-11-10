@@ -69,7 +69,7 @@ object SimpleType {
                 tupleMarker.done(ScalaElementTypes.TUPLE_TYPE)
               }
               case _ => {
-                builder error ScalaBundle.message("rparenthesis.expacted", new Array[Object](0))
+                builder error ScalaBundle.message("rparenthesis.expacted")
                 tupleMarker.done(ScalaElementTypes.TUPLE_TYPE)
               }
             }
@@ -80,7 +80,7 @@ object SimpleType {
             else tupleMarker.done(ScalaElementTypes.TYPE_IN_PARENTHESIS)
           }
           case _ => {
-            builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+            builder error ScalaBundle.message("rparenthesis.expected")
             if (isTuple) tupleMarker.done(ScalaElementTypes.TUPLE_TYPE)
             else tupleMarker.done(ScalaElementTypes.TYPE_IN_PARENTHESIS)
           }

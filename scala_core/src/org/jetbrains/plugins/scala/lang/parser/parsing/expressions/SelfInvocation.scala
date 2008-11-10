@@ -23,7 +23,7 @@ object SelfInvocation {
       }
       case _ => {
         //todo[ilyas] provide aspect to suppress this inspection for compiled files
-        //builder error ScalaBundle.message("this.expected", new Array[Object](0))
+        //builder error ScalaBundle.message("this.expected")
         selfMarker.drop
         return true
       }
@@ -36,7 +36,7 @@ object SelfInvocation {
       numberOfArgExprs = 1
     }
     else {
-      builder error ScalaBundle.message("arg.expr.expected", new Array[Object](0))
+      builder error ScalaBundle.message("arg.expr.expected")
     }
 
     while (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {

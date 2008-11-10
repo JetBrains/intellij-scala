@@ -44,7 +44,7 @@ object CompoundType {
             isCompound = true
             builder.advanceLexer //Ate with
             if (!AnnotType.parse(builder)) {
-              builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+              builder error ScalaBundle.message("wrong.type")
             }
           }
           val hasRefinement = Refinement parse builder

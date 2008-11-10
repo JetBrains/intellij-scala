@@ -34,7 +34,7 @@ object TypeDef {
         builder.advanceLexer //Ate identifier
       }
       case _ => {
-        builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
+        builder error ScalaBundle.message("identifier.expected")
         faultMarker.rollbackTo
         return false
       }
@@ -52,7 +52,7 @@ object TypeDef {
         }
         else {
           faultMarker.drop
-          builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+          builder error ScalaBundle.message("wrong.type")
           return false
         }
       }

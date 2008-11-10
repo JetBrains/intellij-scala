@@ -70,7 +70,7 @@ class ScalaAnnotator extends Annotator {
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
 
     def processError = {
-      val error = ScalaBundle.message("cannot.resolve", Array[Object](refElement.refName))
+      val error = ScalaBundle.message("cannot.resolve", refElement.refName)
       val annotation = holder.createErrorAnnotation(refElement.nameId, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       if (refElement.getManager.isInProject(refElement) && refElement.multiResolve(false).length == 0) {
@@ -117,9 +117,9 @@ class ScalaAnnotator extends Annotator {
     if (clazz.hasModifierProperty("abstract")) return
     if (ScalaOIUtil.getMembersToImplement(clazz).length > 0) {
       val error = clazz match {
-        case _: ScClass => ScalaBundle.message("class.must.declared.abstract", Array[Object](clazz.getName))
-        case _: ScObject => ScalaBundle.message("object.must.implement", Array[Object](clazz.getName))
-        case _: ScNewTemplateDefinition =>ScalaBundle.message("anonymous.class.must.declared.abstract", Array[Object]())
+        case _: ScClass => ScalaBundle.message("class.must.declared.abstract", clazz.getName)
+        case _: ScObject => ScalaBundle.message("object.must.implement", clazz.getName)
+        case _: ScNewTemplateDefinition =>ScalaBundle.message("anonymous.class.must.declared.abstract")
       }
       val start = clazz.getTextRange.getStartOffset
       val eb = clazz.extendsBlock
@@ -143,7 +143,7 @@ class ScalaAnnotator extends Annotator {
     if (signatures.length == 0) {
       if (method.hasModifierProperty("override")) {
         val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
-          ScalaBundle.message("method.overrides.nothing", Array[Object](method.getName)))
+          ScalaBundle.message("method.overrides.nothing", method.getName))
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         annotation.registerFix(new RemoveModifierQuickFix(method, "override"))
       }
@@ -164,7 +164,7 @@ class ScalaAnnotator extends Annotator {
         }
         if (isConcretes) {
           val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
-            ScalaBundle.message("method.needs.override.modifier", Array[Object](method.getName)))
+            ScalaBundle.message("method.needs.override.modifier", method.getName))
           annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
           annotation.registerFix(new AddModifierQuickFix(method, "override"))
         }
@@ -183,7 +183,7 @@ class ScalaAnnotator extends Annotator {
     stat match {
       case _: ScExpression =>
       case _ => {
-        val error = ScalaBundle.message("block.must.end.result.expression", Array[Object]())
+        val error = ScalaBundle.message("block.must.end.result.expression")
         val annotation: Annotation = holder.createErrorAnnotation(
           new TextRange(stat.getTextRange.getStartOffset, stat.getTextRange.getStartOffset + 3),
           error)

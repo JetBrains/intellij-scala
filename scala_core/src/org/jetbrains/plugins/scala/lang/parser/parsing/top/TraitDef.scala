@@ -18,7 +18,7 @@ object TraitDef {
     builder.getTokenType match {
         case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer //Ate identifier
         case _ => {
-          builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
+          builder error ScalaBundle.message("identifier.expected")
           return false
         }
       }

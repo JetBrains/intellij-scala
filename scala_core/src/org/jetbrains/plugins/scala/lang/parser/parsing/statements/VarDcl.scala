@@ -38,20 +38,20 @@ object VarDcl {
               return true
             }
             else {
-              builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+              builder error ScalaBundle.message("wrong.type")
               returnMarker.drop
               return true
             }
           }
           case _ => {
-            builder error ScalaBundle.message("wrong.var.declaration", new Array[Object](0))
+            builder error ScalaBundle.message("wrong.var.declaration")
             returnMarker.drop
             return true
           }
         }
       }
       case _ => {
-        builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
+        builder error ScalaBundle.message("identifier.expected")
         returnMarker.drop
         return false
       }

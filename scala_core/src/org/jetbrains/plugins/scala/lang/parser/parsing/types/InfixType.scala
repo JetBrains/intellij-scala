@@ -41,7 +41,7 @@ object InfixType {
           assoc match {
             case 0 => assoc = -1
             case 1 => {
-              builder error ScalaBundle.message("wrong.type.associativity", new Array[Object](0))
+              builder error ScalaBundle.message("wrong.type.associativity")
             }
             case -1 => {}
           }
@@ -51,7 +51,7 @@ object InfixType {
             case 0 => assoc = 1
             case 1 => {}
             case -1 => {
-              builder error ScalaBundle.message("wrong.type.associativity", new Array[Object](0))
+              builder error ScalaBundle.message("wrong.type.associativity")
             }
           }
         }
@@ -66,7 +66,7 @@ object InfixType {
       builder.getTokenType match {
         case ScalaTokenTypes.tLINE_TERMINATOR => {
           if (!LineTerminator(builder.getTokenText)) {
-            builder error ScalaBundle.message("compound.type.expected", new Array[Object](0))
+            builder error ScalaBundle.message("compound.type.expected")
           }
           else {
             builder.advanceLexer //Ale nl
@@ -75,7 +75,7 @@ object InfixType {
         case _ => {}
       }
       if (!CompoundType.parse(builder)) {
-        builder error ScalaBundle.message("compound.type.expected", new Array[Object](0))
+        builder error ScalaBundle.message("compound.type.expected")
       }
       if (assoc == 1) {
         val newMarker = infixTypeMarker.precede

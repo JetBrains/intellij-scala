@@ -1,6 +1,6 @@
 object InfixExpr {
   def parse(builder: PsiBuilder): Boolean = {
-    builder error ScalaBundle.message("fun.sign.expected", new Array[Object](0))
+    builder error ScalaBundle.message("fun.sign.expected")
     caseClauseMarker.done(ScalaElementTypes.CASE_CLAUSE)
     return true
   }

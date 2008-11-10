@@ -56,7 +56,7 @@ object Pattern3 {
       builder.getTokenType match {
         case ScalaTokenTypes.tLINE_TERMINATOR => {
           if (!LineTerminator(builder.getTokenText)) {
-            builder error ScalaBundle.message("simple.pattern.expected", new Array[Object](0))
+            builder error ScalaBundle.message("simple.pattern.expected")
           }
           else {
             builder.advanceLexer //Ale nl
@@ -67,7 +67,7 @@ object Pattern3 {
       backupMarker.drop
       backupMarker = builder.mark
       if (!SimplePattern.parse(builder)) {
-        builder error ScalaBundle.message("simple.pattern.expected", new Array[Object](0))
+        builder error ScalaBundle.message("simple.pattern.expected")
       }
     }
     backupMarker.drop

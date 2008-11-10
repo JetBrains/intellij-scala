@@ -20,7 +20,7 @@ object EarlyDef {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => builder.advanceLexer //Ate {
       case _ => {
-        builder error ScalaBundle.message("unreachable.error", new Array[Object](0))
+        builder error ScalaBundle.message("unreachable.error")
         earlyMarker.drop
         return false
       }
@@ -57,7 +57,7 @@ object EarlyDef {
       }
     }
     if (!subparse) {
-      builder error ScalaBundle.message("unreachable.error", new Array[Object](0))
+      builder error ScalaBundle.message("unreachable.error")
       earlyMarker.rollbackTo
       return false
     }
@@ -69,7 +69,7 @@ object EarlyDef {
         return true
       }
       case _ => {
-        builder error ScalaBundle.message("unreachable.error", new Array[Object](0))
+        builder error ScalaBundle.message("unreachable.error")
         earlyMarker.rollbackTo
         return false
       }

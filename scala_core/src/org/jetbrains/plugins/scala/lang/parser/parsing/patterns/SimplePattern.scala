@@ -57,7 +57,7 @@ object SimplePattern extends ParserNode {
               return true
             }
             case _ => {
-              builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+              builder error ScalaBundle.message("rparenthesis.expected")
               simplePatternMarker.done(ScalaElementTypes.TUPLE_PATTERN)
               return true
             }
@@ -69,7 +69,7 @@ object SimplePattern extends ParserNode {
               builder.advanceLexer //Ate )
             }
             case _ => {
-              builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+              builder error ScalaBundle.message("rparenthesis.expected")
             }
           }
           simplePatternMarker.done(ScalaElementTypes.PATTERN_IN_PARENTHESIS)
