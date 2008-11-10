@@ -14,8 +14,10 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import java.util.{Collection, List}
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.statements.{ScFunction, ScFunctionDeclaration}
+import lang.psi.api.toplevel.ScNamedElement
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
+import lang.psi.impl.search.ScalaOverridengMemberSearch
 import lang.psi.types.FullSignature
 
 /**
@@ -85,7 +87,18 @@ private object GutterUtil {
   def collectOverridingMembers(members: Array[PsiMember], result: Collection[LineMarkerInfo[_ <: PsiElement]]) {
     for (member <- members) {
       ProgressManager.getInstance.checkCanceled
-
+      val offset = member match {
+        case x: ScNamedElement => x.nameId.getTextRange.getStartOffset
+        case _ => member.getTextRange.getStartOffset
+      }
+      val overrides = ScalaOverridengMemberSearch.search(member, false)
+      if (overrides.length > 0) {
+        val icon = if (!GutterUtil.isOverrides(member)) GutterIcons.OVERRIDEN_METHOD_MARKER_RENDERER
+                   else GutterIcons.IMPLEMENTED_INTERFACE_MARKER_RENDERER
+        val typez = ScalaMarkerType.OVERRIDEN_MEMBER
+        val info = new LineMarkerInfo[PsiElement](member, offset, icon, Pass.UPDATE_OVERRIDEN_MARKERS, typez.fun, typez.handler)
+        result.add(info)
+      }
     }
   }
 
