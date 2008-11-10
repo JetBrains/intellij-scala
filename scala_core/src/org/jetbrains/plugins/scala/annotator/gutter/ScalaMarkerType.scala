@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator.gutter
 
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.codeInsight.CodeInsightBundle
-import com.intellij.codeInsight.daemon.impl.{PsiElementListNavigator, LineMarkerNavigator}
+import com.intellij.codeInsight.daemon.impl.{PsiElementListNavigator}
 import com.intellij.codeInsight.daemon.{GutterIconNavigationHandler, DaemonBundle}
 import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
 import com.intellij.codeInsight.navigation.NavigationUtil
