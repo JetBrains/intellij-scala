@@ -16,7 +16,7 @@ import lang.psi.api.base.types.ScSimpleTypeElement
 import lang.psi.api.base.patterns.ScBindingPattern
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.impl.search.{ScalaOverridengMemberSearch, OverridingMemberSearch}
+import lang.psi.impl.search.{ScalaOverridengMemberSearch}
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.openapi.util.TextRange
 import com.intellij.lang.annotation._
