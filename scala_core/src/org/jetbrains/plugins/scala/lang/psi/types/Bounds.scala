@@ -87,6 +87,9 @@ object Bounds {
     }
   }
 
+  def superSubstitutor(base : PsiClass, drv : PsiClass, drvSubst : ScSubstitutor) : Option[ScSubstitutor] =
+    superSubstitutor(base, drv, drvSubst, HashSet[PsiClass]())
+
   private def superSubstitutor(base : PsiClass, drv : PsiClass, drvSubst : ScSubstitutor, visited : Set[PsiClass]) : Option[ScSubstitutor] =
     //todo: move somewhere and cache
     if (base == drv) Some(drvSubst) else {
