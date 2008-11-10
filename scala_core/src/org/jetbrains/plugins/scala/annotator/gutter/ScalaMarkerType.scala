@@ -17,6 +17,7 @@ import com.intellij.util.NullableFunction
 import java.awt.event.MouseEvent
 import lang.psi.api.statements.ScFunction
 import lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScMember, ScObject}
+import lang.psi.impl.search.ScalaOverridengMemberSearch
 import lang.psi.ScalaPsiUtil
 import lang.psi.types.FullSignature
 
@@ -34,8 +35,8 @@ object ScalaMarkerType {
           assert(sigs.length != 0)
           val clazz = sigs(0).clazz
           assert(clazz != null)
-          if (!GutterUtil.isOverrides(element)) ScalaBundle.message("implements.method.from.super", Array[Object](clazz.getQualifiedName))
-          else ScalaBundle.message("overrides.method.from.super", Array[Object](clazz.getQualifiedName))
+          if (!GutterUtil.isOverrides(element)) ScalaBundle.message("implements.method.from.super", clazz.getQualifiedName)
+          else ScalaBundle.message("overrides.method.from.super", clazz.getQualifiedName)
         }
         case _ => null
       }
@@ -77,7 +78,14 @@ object ScalaMarkerType {
         case memb: PsiMember => memb
         case _ => return
       }
-      ;
+      val overrides = ScalaOverridengMemberSearch.search(member)
+      if (overrides.length == 0) return
+      val title = if (GutterUtil.isOverrides(element)) ScalaBundle.
+              message("navigation.title.implementation.method", member.getName, "" + overrides.length)
+                  else ScalaBundle.message("navigation.title.overrider.method", member.getName, "" + overrides.length)
+      val renderer = new ScCellRenderer
+      Arrays.sort(overrides.map(_.asInstanceOf[PsiElement]), renderer.getComparator)
+      PsiElementListNavigator.openTargets(e, overrides.map(_.asInstanceOf[NavigatablePsiElement]), title, renderer)
     }
   })
 

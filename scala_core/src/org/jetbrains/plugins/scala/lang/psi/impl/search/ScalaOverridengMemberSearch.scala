@@ -5,6 +5,7 @@ import api.statements.ScFunction
 import api.toplevel.templates.ScTemplateBody
 import com.intellij.psi.search.searches.{OverridingMethodsSearch, ClassInheritorsSearch, ExtensibleQueryFactory}
 import com.intellij.psi.search.SearchScope
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiMember, PsiMethod, PsiNamedElement, PsiClass}
 import com.intellij.util.{QueryFactory, EmptyQuery, Query}
 import toplevel.typedef.TypeDefinitionMembers
@@ -30,7 +31,8 @@ object ScalaOverridengMemberSearch {
       member match {
         case method: ScFunction => {
           val signatures: Seq[FullSignature] = TypeDefinitionMembers.getSignatures(inheritor).values.map{n => n.info}.
-                  collect.map(_.asInstanceOf[FullSignature])
+                  collect.map(_.asInstanceOf[FullSignature]).
+                  filter((x: FullSignature) => PsiTreeUtil.getParentOfType(x.element, classOf[PsiClass]) == inheritor)
           val sign = new PhysicalSignature(method, substitutor)
           for (signature <- signatures if sign.equiv(signature.sig)) {
             buffer += signature.element.asInstanceOf[PsiNamedElement]
