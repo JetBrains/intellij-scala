@@ -160,7 +160,7 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
     def chooseClass {
       val list = new JList(classes.asInstanceOf[Array[Object]])
       list.setCellRenderer(new FQNameCellRenderer())
-      new PopupChooserBuilder(list).setTitle(ScalaBundle.message("class.import.title", Array[Object]())).
+      new PopupChooserBuilder(list).setTitle(ScalaBundle.message("class.import.title")).
               setItemChoosenCallback(new Runnable {
         def run {
           val index = list.getSelectedIndex()

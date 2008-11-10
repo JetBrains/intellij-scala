@@ -21,7 +21,7 @@ object Requires {
           SimpleType parse builder
         }
         else {
-          builder error ScalaBundle.message("simple.type.expected.requires", new Array[Object](0))
+          builder error ScalaBundle.message("simple.type.expected.requires")
         }
         requiresMarker.done(ScalaElementTypes.REQUIRES_BLOCK)
         return true

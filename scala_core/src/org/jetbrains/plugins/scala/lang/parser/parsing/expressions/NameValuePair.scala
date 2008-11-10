@@ -25,7 +25,7 @@ object NameValuePair {
         builder.advanceLexer //Ate id
       }
       case _ => {
-        builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
+        builder error ScalaBundle.message("identifier.expected")
         nameMarker.done(ScalaElementTypes.NAME_VALUE_PAIR)
         return true
       }
@@ -35,11 +35,11 @@ object NameValuePair {
         builder.advanceLexer //Ate =
       }
       case _ => {
-        builder error ScalaBundle.message("assign.expected", new Array[Object](0))
+        builder error ScalaBundle.message("assign.expected")
       }
     }
     if (!PrefixExpr.parse(builder)) {
-      builder error ScalaBundle.message("wrong.expression", new Array[Object](0))
+      builder error ScalaBundle.message("wrong.expression")
     }
     nameMarker.done(ScalaElementTypes.NAME_VALUE_PAIR)
     return true

@@ -50,7 +50,7 @@ object ParamClause {
         builder.advanceLexer //Ate )
       }
       case _ => {
-        builder error ScalaBundle.message("rparenthesis.expected", new Array[Object](0))
+        builder error ScalaBundle.message("rparenthesis.expected")
       }
     }
     paramMarker.done(ScalaElementTypes.PARAM_CLAUSE)

@@ -23,7 +23,7 @@ object Pattern {
       isComposite = true
       builder.advanceLexer //Ate |
       if (!Pattern1.parse(builder)) {
-        builder error ScalaBundle.message("wrong.pattern", new Array[Object](0))
+        builder error ScalaBundle.message("wrong.pattern")
       }
     }
     if (isComposite) patternMarker.done(ScalaElementTypes.PATTERN)

@@ -31,7 +31,7 @@ object Ascription {
             builder.advanceLexer //Ate *
           }
           case _ => {
-            builder error ScalaBundle.message("star.expected", new Array[Object](0))
+            builder error ScalaBundle.message("star.expected")
           }
         }
         seqArgMarker.done(ScalaElementTypes.SEQUENCE_ARG)
@@ -46,7 +46,7 @@ object Ascription {
         x = x + 1
       }
       annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
-      if (x == 0) builder error ScalaBundle.message("annotation.expected", new Array[Object](0))
+      if (x == 0) builder error ScalaBundle.message("annotation.expected")
     }
     ascriptionMarker.drop
     return true

@@ -40,7 +40,7 @@ object Qual_Id {
         }
       }
       case _ => {
-        builder error ScalaBundle.message("wrong.qual.identifier", new Array[Object](0))
+        builder error ScalaBundle.message("wrong.qual.identifier")
         qualMarker.drop
         return true
       }

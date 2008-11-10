@@ -29,7 +29,7 @@ object Binding {
       case ScalaTokenTypes.tCOLON => {
         builder.advanceLexer //Ate :
         if (!Type.parse(builder)) {
-          builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+          builder error ScalaBundle.message("wrong.type")
         }
       }
       case _ => {}

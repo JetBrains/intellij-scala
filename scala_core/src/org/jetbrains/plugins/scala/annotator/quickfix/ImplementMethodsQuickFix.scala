@@ -13,9 +13,9 @@ import overrideImplement.ScalaOIUtil
  */
 
 class ImplementMethodsQuickFix(clazz: ScTemplateDefinition) extends IntentionAction {
-  def getText: String = ScalaBundle.message("implement.methods.fix", Array[Object]())
+  def getText: String = ScalaBundle.message("implement.methods.fix")
   def startInWriteAction: Boolean = false
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = clazz.isValid && clazz.getManager.isInProject(file)
   def invoke(project: Project, editor: Editor, file: PsiFile): Unit = ScalaOIUtil.invokeOverrideImplement(project, editor, file, true)
-  def getFamilyName: String = ScalaBundle.message("implement.methods.fix", Array[Object]())
+  def getFamilyName: String = ScalaBundle.message("implement.methods.fix")
 }

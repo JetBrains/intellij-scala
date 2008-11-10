@@ -17,7 +17,7 @@ object Constructor {
   def parse(builder: PsiBuilder): Boolean = {
     val constrMarker = builder.mark
     if (!AnnotType.parse(builder)) {
-      builder error ScalaBundle.message("identifier.expected", new Array[Object](0))
+      builder error ScalaBundle.message("identifier.expected")
       constrMarker.rollbackTo
       return false
     }

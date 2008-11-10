@@ -34,7 +34,7 @@ object TopStatSeq {
         //otherwise parse TopStat
         case _ => {
           if (!TopStat.parse(builder)) {
-            builder error ScalaBundle.message("wrong.top.statment.declaration", new Array[Object](0))
+            builder error ScalaBundle.message("wrong.top.statment.declaration")
             builder.advanceLexer
           }
           else {
@@ -43,7 +43,7 @@ object TopStatSeq {
                    ScalaTokenTypes.tLINE_TERMINATOR => builder.advanceLexer //it is good
               case ScalaTokenTypes.tRBRACE if waitBrace => return
               case null => return
-              case _ => builder error ScalaBundle.message("semi.expected", new Array[Object](0))
+              case _ => builder error ScalaBundle.message("semi.expected")
             }
           }
         }

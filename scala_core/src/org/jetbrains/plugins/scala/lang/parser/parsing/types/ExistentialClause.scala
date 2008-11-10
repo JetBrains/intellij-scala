@@ -36,7 +36,7 @@ object ExistentialClause {
         builder.advanceLexer //Ate {
       }
       case _ => {
-        builder error ScalaBundle.message("existential.block.expected", new Array[Object](0))
+        builder error ScalaBundle.message("existential.block.expected")
         existMarker.done(ScalaElementTypes.EXISTENTIAL_CLAUSE)
         return true
       }

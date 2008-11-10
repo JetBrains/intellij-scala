@@ -30,7 +30,7 @@ object ExistentialDclSeq {
         Dcl parse (builder,false)
       }
       case _ => {
-        builder error ScalaBundle.message("wrong.existential.declaration", new Array[Object](0))
+        builder error ScalaBundle.message("wrong.existential.declaration")
         return
       }
     }
@@ -42,7 +42,7 @@ object ExistentialDclSeq {
           Dcl parse (builder,false)
         }
         case _ => {
-          builder error ScalaBundle.message("wrong.existential.declaration", new Array[Object](0))
+          builder error ScalaBundle.message("wrong.existential.declaration")
         }
       }
     }

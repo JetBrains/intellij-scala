@@ -31,15 +31,15 @@ object TypeArgs {
           while (builder.getTokenType == ScalaTokenTypes.tCOMMA && parsedType) {
             builder.advanceLexer
             parsedType = Type.parse(builder)
-            if (!parsedType) builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+            if (!parsedType) builder error ScalaBundle.message("wrong.type")
           }
-        } else builder error ScalaBundle.message("wrong.type", new Array[Object](0))
+        } else builder error ScalaBundle.message("wrong.type")
 
         builder.getTokenType match {
           case ScalaTokenTypes.tRSQBRACKET => {
             builder.advanceLexer //Ate ]
           }
-          case _ => builder error ScalaBundle.message("rsqbracket.expected", new Array[Object](0))
+          case _ => builder error ScalaBundle.message("rsqbracket.expected")
         }
         true
       }

@@ -25,12 +25,12 @@ object TypeParamClause {
       }
     }
     if (!TypeParam.parse(builder, true)) {
-      builder error ScalaBundle.message("wrong.parameter", new Array[Object](0))
+      builder error ScalaBundle.message("wrong.parameter")
     }
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
       builder.advanceLexer //Ate
       if (!TypeParam.parse(builder, true)) {
-        builder error ScalaBundle.message("wrong.parameter", new Array[Object](0))
+        builder error ScalaBundle.message("wrong.parameter")
       }
     }
     builder.getTokenType match {
@@ -38,7 +38,7 @@ object TypeParamClause {
         builder.advanceLexer //Ate ]
       }
       case _ => {
-        builder error ScalaBundle.message("rsqbracket.expected", new Array[Object](0))
+        builder error ScalaBundle.message("rsqbracket.expected")
       }
     }
     typeMarker.done(ScalaElementTypes.TYPE_PARAM_CLAUSE)

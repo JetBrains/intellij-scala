@@ -10,7 +10,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettings
  */
  
 class ScalaFormatConfigurable(settings: CodeStyleSettings, originalSettings: CodeStyleSettings)
-  extends CodeStyleAbstractConfigurable(settings, originalSettings, ScalaBundle.message("title.scala.settings", Array[Object]())) {
+  extends CodeStyleAbstractConfigurable(settings, originalSettings, ScalaBundle.message("title.scala.settings")) {
     protected def createPanel(settings: CodeStyleSettings): CodeStyleAbstractPanel = new ScalaCodeStylePanel(settings)
     override def getIcon = Icons.FILE_TYPE_LOGO
     def getHelpTopic: String = null

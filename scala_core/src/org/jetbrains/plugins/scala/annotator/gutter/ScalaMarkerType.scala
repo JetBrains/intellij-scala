@@ -53,7 +53,7 @@ object ScalaMarkerType {
               if (elems(0).canNavigate) elems(0).navigate(true)
             case _ => {
               val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(elems.toArray, new ScCellRenderer,
-              ScalaBundle.message("goto.override.method.declaration", Array[Object]()))
+              ScalaBundle.message("goto.override.method.declaration"))
               gotoDeclarationPopup.show(new RelativePoint(e))
             }
           }
@@ -93,9 +93,9 @@ object ScalaMarkerType {
     def fun(element: PsiElement): String = {
       if (!element.isInstanceOf[PsiClass]) return null
       element match {
-        case _: ScTrait => ScalaBundle.message("trait.has.implementations", Array[Object]())
-        case _: ScObject => ScalaBundle.message("object.has.subclasses", Array[Object]())
-        case _ => ScalaBundle.message("class.has.subclasses", Array[Object]())
+        case _: ScTrait => ScalaBundle.message("trait.has.implementations")
+        case _: ScObject => ScalaBundle.message("object.has.subclasses")
+        case _ => ScalaBundle.message("class.has.subclasses")
       }
     }
   }, new GutterIconNavigationHandler[PsiElement] {

@@ -35,7 +35,7 @@ import psi.api.toplevel.typedef.ScMember
 */
 
 abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
-  val REFACTORING_NAME = ScalaBundle.message("introduce.variable.title", Array[Object]())
+  val REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
   var deleteOccurence = false;
 
   private def getLineText(editor: Editor): String = {
@@ -63,17 +63,17 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
   def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
     PsiDocumentManager.getInstance(project).commitAllDocuments()
     if (!file.isInstanceOf[ScalaFile]) {
-      showErrorMessage(ScalaBundle.message("only.for.scala", Array[Object]()), project)
+      showErrorMessage(ScalaBundle.message("only.for.scala"), project)
       return
     }
     if (!ScalaRefactoringUtil.ensureFileWritable(project, file)) {
-      showErrorMessage(ScalaBundle.message("file.is.not.writable", Array[Object]()), project)
+      showErrorMessage(ScalaBundle.message("file.is.not.writable"), project)
       return
     }
     val expr: ScExpression = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset) match {
       case Some(x) => x
       case None => {
-        showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression", Array[Object]()), project)
+        showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project)
         return
       }
     }
@@ -82,14 +82,14 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
     while (parent != null && !parent.isInstanceOf[ScalaFile] && !parent.isInstanceOf[ScGuard]) parent = parent.getParent
     parent match {
       case _: ScGuard => {
-        showErrorMessage(ScalaBundle.message("refactoring.is.not.supported.in.guard", Array[Object]()), project)
+        showErrorMessage(ScalaBundle.message("refactoring.is.not.supported.in.guard"), project)
         return
       }
       case _ =>
     }
     val enclosingContainer: PsiElement = ScalaRefactoringUtil.getEnclosingContainer(expr)
     if (enclosingContainer == null) {
-      showErrorMessage(ScalaBundle.message("wrong.refactoring.context", Array[Object]()), project)
+      showErrorMessage(ScalaBundle.message("wrong.refactoring.context"), project)
       return
     }
 
@@ -270,7 +270,7 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
             declType match {case Some(declType) => ScalaPsiUtil.adjustTypes(declType) case None =>}
           }
           case _ => {
-            showErrorMessage(ScalaBundle.message("operation.not.supported.in.current.block", Array[Object]()), editor.getProject)
+            showErrorMessage(ScalaBundle.message("operation.not.supported.in.current.block"), editor.getProject)
             return
           }
         }

@@ -83,7 +83,7 @@ object ScalaOIUtil {
     val classMembers = classMembersBuf.toArray
     val chooser = new {
       private val dontInferReturnTypeCheckBox: JCheckBox = new NonFocusableCheckBox(
-        ScalaBundle.message("specify.return.type.explicitly", Array[Object]()))
+        ScalaBundle.message("specify.return.type.explicitly"))
     }
        with MemberChooser[ClassMember](classMembers, false, true, project) {
       if (ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY != null)
@@ -95,8 +95,8 @@ object ScalaOIUtil {
       }
       def needsInferType = dontInferReturnTypeCheckBox.isSelected
     }
-    chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement", Array[Object]())
-                     else ScalaBundle.message("select.method.override", Array[Object]()))
+    chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement")
+                     else ScalaBundle.message("select.method.override"))
     chooser.show
 
     val selectedMembers = chooser.getSelectedElements

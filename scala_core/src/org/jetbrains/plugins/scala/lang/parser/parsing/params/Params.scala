@@ -20,7 +20,7 @@ object Params {
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
       builder.advanceLexer //Ate ,
       if (!Param.parse(builder)) {
-        builder error ScalaBundle.message("wrong.parameter", new Array[Object](0))
+        builder error ScalaBundle.message("wrong.parameter")
       }
     }
     return true

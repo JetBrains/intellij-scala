@@ -48,7 +48,7 @@ object CompilationUnit {
               builder.getTokenType match {
                 case ScalaTokenTypes.tRBRACE => builder.advanceLexer
                 //Ate '}'
-                case _ => builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+                case _ => builder error ScalaBundle.message("rbrace.expected")
               }
               packChooseMarker.done(ScalaElementTypes.PACKAGING)
             }
@@ -67,7 +67,7 @@ object CompilationUnit {
                     builder.getTokenType match {
                       case ScalaTokenTypes.tRBRACE => builder.advanceLexer
                       //Ate '}'
-                      case _ => builder error ScalaBundle.message("rbrace.expected", new Array[Object](0))
+                      case _ => builder error ScalaBundle.message("rbrace.expected")
                     }
                     packChooseMarker.done(ScalaElementTypes.PACKAGING)
                   }
@@ -88,7 +88,7 @@ object CompilationUnit {
             }
 
             case _ => {
-              builder error ScalaBundle.message("semi.expected", new Array[Object](0))
+              builder error ScalaBundle.message("semi.expected")
               packChooseMarker.done(ScalaElementTypes.PACKAGE_STMT)
             }
           }
