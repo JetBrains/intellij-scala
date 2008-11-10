@@ -107,8 +107,8 @@ object ScalaMarkerType {
       val inheritors = ClassInheritorsSearch.search(clazz, clazz.getUseScope, true).toArray(PsiClass.EMPTY_ARRAY)
       if (inheritors.length == 0) return
       val title = clazz match {
-        case _: ScTrait => ScalaBundle.message("goto.implementation.chooser.title", Array[Object](clazz.getName, "" + inheritors.length))
-        case _ => ScalaBundle.message("navigation.title.subclass", Array[Object](clazz.getName, "" + inheritors.length))
+        case _: ScTrait => ScalaBundle.message("goto.implementation.chooser.title", clazz.getName, "" + inheritors.length)
+        case _ => ScalaBundle.message("navigation.title.subclass", clazz.getName, "" + inheritors.length)
       }
       val renderer = new PsiClassListCellRenderer
       Arrays.sort(inheritors, renderer.getComparator)
@@ -116,11 +116,15 @@ object ScalaMarkerType {
     }
   })
 
-  private class ScCellRenderer extends PsiElementListCellRenderer[PsiElement] {
+  class ScCellRenderer extends PsiElementListCellRenderer[PsiElement] {
     def getElementText(element: PsiElement): String = {
       element match {
         case method: PsiMethod if method.getContainingClass != null => {
           val presentation = method.getContainingClass.getPresentation
+          presentation.getPresentableText + " " + presentation.getLocationString
+        }
+        case xlass: PsiClass => {
+          val presentation = xlass.getPresentation
           presentation.getPresentableText + " " + presentation.getLocationString
         }
         case x: PsiNamedElement if ScalaPsiUtil.nameContext(x) != null => {

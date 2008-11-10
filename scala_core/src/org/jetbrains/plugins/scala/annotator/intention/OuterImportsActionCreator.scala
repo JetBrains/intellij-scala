@@ -42,7 +42,7 @@ object OuterImportsActionCreator {
       val qName = clazz.getQualifiedName()
       if (qName != null && qName.indexOf('.') != -1 && ResolveUtils.kindMatches(clazz, kinds)) {
         val action: IntentionAction = new IntentionAction() {
-          def getText = ScalaBundle.message("import.with", Array[Object](qName))
+          def getText = ScalaBundle.message("import.with", qName)
           def getFamilyName = ScalaBundle.message("import.class")
           def isAvailable(project: Project, editor: Editor, file: PsiFile) = refElement.isValid
           def invoke(project: Project, editor: Editor, file: PsiFile) = file match {
