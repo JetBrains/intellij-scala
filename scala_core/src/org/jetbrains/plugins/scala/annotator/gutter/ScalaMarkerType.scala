@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.gutter
 
+import _root_.scala.collection.immutable.HashMap
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.daemon.impl.{PsiElementListNavigator}
@@ -58,6 +59,25 @@ object ScalaMarkerType {
         }
         case _ =>
       }
+    }
+  })
+
+  val OVERRIDEN_MEMBER = ScalaMarkerType(new NullableFunction[PsiElement, String]{
+    def fun(element: PsiElement): String = {
+      element match {
+        case _: PsiMember =>
+          if (GutterUtil.isOverrides(element)) ScalaBundle.message("has.implementations")
+          else ScalaBundle.message("is.overriden.by")
+        case _ => return null
+      }
+    }
+  }, new GutterIconNavigationHandler[PsiElement] {
+    def navigate(e: MouseEvent, element: PsiElement): Unit = {
+      val member = element match {
+        case memb: PsiMember => memb
+        case _ => return
+      }
+      ;
     }
   })
 
