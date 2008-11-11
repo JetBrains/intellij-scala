@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import api.base.ScStableCodeReferenceElement
+import api.base.{ScStableCodeReferenceElement, ScModifierList}
 import api.statements.params.ScClassParameter
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import com.intellij.psi._
+import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiFormatUtil
+import com.jniwrapper.S
 import lang.psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
 import structureView.ScalaElementPresentation
@@ -56,6 +58,12 @@ object ScalaPsiUtil {
           PARAM_OPTIONS | PsiFormatUtil.SHOW_PARAMETERS, PARAM_OPTIONS)
       }
     }
+  }
+
+  def getModifiersPresentableText(modifiers: ScModifierList): String = {
+    val buffer = new StringBuilder(" ")
+    for (modifier <- modifiers.getNode.getChildren(null) if !isLineTerminator(modifier.getPsi)) buffer.append(modifier.getText + " ")
+    return buffer.substring(1).toString
   }
 
   def isLineTerminator(element: PsiElement): Boolean = {
