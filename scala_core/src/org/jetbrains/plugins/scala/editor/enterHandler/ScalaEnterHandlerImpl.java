@@ -348,9 +348,11 @@ class ScalaEnterHandlerImpl extends EditorWriteActionHandler {
           myOffset = CodeStyleManager.getInstance(getProject()).adjustLineIndent(myFile, myOffset);
           if (docStart) {
             PsiComment comment = PsiTreeUtil.getNonStrictParentOfType(myFile.findElementAt(myOffset), PsiComment.class);
-            TextRange myTextRange = comment.getTextRange();
-            CodeStyleManager.getInstance(getProject()).reformatText(myFile,
+            if (comment != null) {
+              TextRange myTextRange = comment.getTextRange();
+              CodeStyleManager.getInstance(getProject()).reformatText(myFile,
               myTextRange.getStartOffset(), myTextRange.getEndOffset());
+            }
           }
         }
 
