@@ -11,7 +11,7 @@ import lang.psi.api.statements._
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef._
 
-import lang.psi.api.toplevel.{ScNamedElement, ScTyped}
+import lang.psi.api.toplevel.{ScNamedElement, ScTyped, ScTypeParametersOwner}
 import lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 
@@ -56,6 +56,13 @@ private object ScalaDocumentationProvider {
     else trimed.substring(0, i) + " ..."
   }
 
+  private def appendTypeParams(owner: ScTypeParametersOwner, buffer: StringBuilder) {
+    buffer.append(owner.typeParametersClause match {
+      case Some(x) => x.getText
+      case None => ""
+    })
+  }
+
   def generateClassInfo(clazz: ScTypeDefinition): String = {
     val buffer = new StringBuilder
     val module = ModuleUtil.findModuleForPsiElement(clazz)
@@ -73,6 +80,7 @@ private object ScalaDocumentationProvider {
       case _: ScTrait => "trait "
     })
     buffer.append(clazz.name)
+    appendTypeParams(clazz, buffer)
     clazz match {
       case clazz: ScClass => {
         clazz.constructor match {
@@ -155,6 +163,16 @@ private object ScalaDocumentationProvider {
   def generateTypeAliasInfo(alias: ScTypeAlias): String = {
     val buffer = new StringBuilder
     buffer.append(getMemberHeader(alias))
+    buffer.append("type ")
+    buffer.append(alias.name)
+    appendTypeParams(alias, buffer)
+    alias match {
+      case d: ScTypeAliasDefinition => {
+        buffer.append(" = ")
+        buffer.append(ScType.presentableText(d.aliasedType))
+      }
+      case _ =>
+    }
     buffer.toString
   }
 }
