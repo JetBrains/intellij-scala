@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.structureView
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
@@ -43,13 +44,10 @@ object ScalaElementPresentation {
 
     if (function.paramClauses != null)
       presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses))
-    function.returnTypeElement match {
-      case Some(rte) => {
-        presentableText.append(": ")
-        presentableText.append(rte.getText)
-      }
-      case None =>
-    }
+
+    presentableText.append(": ")
+    presentableText.append(ScType.presentableText(function.returnType))
+
 
     presentableText.toString()
   }
