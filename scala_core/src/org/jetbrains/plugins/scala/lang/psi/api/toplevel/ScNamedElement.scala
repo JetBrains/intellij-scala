@@ -38,5 +38,5 @@ trait ScNamedElement extends ScalaPsiElement with PsiNamedElement with Navigatab
     }
   }
 
-  override def getIcon(flags: Int) = ScalaPsiUtil.nameContext(this).getIcon(flags)
+  override def getIcon(flags: Int) = ScalaPsiUtil.nameContext(this) match {case null => null case x => x.getIcon(flags)}
 }
