@@ -6,12 +6,12 @@ import icons.Icons
 import javax.swing.Icon
 import params.ScParameterClause
 import toplevel.templates.ScExtendsBlock
+import toplevel.{ScTyped, ScTypeParametersOwner}
 import types.ScType
 import psi.ScalaPsiElement
 import toplevel.typedef._
 import com.intellij.psi._
 import base.types.ScTypeElement
-import toplevel.ScTyped
 import expr.ScBlockStatement
 
 /**
