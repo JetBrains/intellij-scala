@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.structureView
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 /** 
@@ -8,21 +9,28 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 */
 
 object StructureViewUtil {
-  def getParametersAsString(x: ScParameters): String = {
+  def getParametersAsString(x: ScParameters): String = getParametersAsString(x, true)
+  def getParametersAsString(x: ScParameters, short: Boolean): String = {
     val res: StringBuffer = new StringBuffer("")
     for (child <- x.clauses) {
       res.append("(")
-      res.append(getParametersAsString(child))
+      res.append(getParametersAsString(child, short))
       res.append(")")
     }
     return res.toString()
   }
-  def getParametersAsString(x: ScParameterClause): String = {
+  def getParametersAsString(x: ScParameterClause, short: Boolean): String = {
     val res = new StringBuffer("");
     for (param <- x.parameters) {
-      param.paramType match {
-        case Some(pt) => res.append(pt.getText()).append(", ")
-        case None => res.append("AnyRef").append(", ")
+      if (short) {
+        param.paramType match {
+          case Some(pt) => res.append(pt.getText()).append(", ")
+          case None => res.append("AnyRef").append(", ")
+        }
+      } else {
+        res.append(param.name + ": ")
+        res.append(ScType.presentableText(param.calcType))
+        res.append(", ")
       }
     }
     if (res.length >= 2)
