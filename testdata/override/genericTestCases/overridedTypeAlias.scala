@@ -7,7 +7,7 @@ abstract class Aa {
 }
 
 class OverridedTypeAlias extends Aa {
-  override type K = B
+  override type K = Bfg
 
   <caret>
 }<end>
@@ -19,8 +19,8 @@ abstract class Aa {
 }
 
 class OverridedTypeAlias extends Aa {
-    override type K = B
+    override type K = Bfg
 
 
-    val y: Aa = _
+    val y: K = _
 }
