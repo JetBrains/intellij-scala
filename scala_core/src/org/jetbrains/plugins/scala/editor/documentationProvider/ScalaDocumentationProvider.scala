@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.lang.documentation.DocumentationProvider
 import com.intellij.psi.{PsiManager, PsiElement}
-import lang.psi.api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
-import lang.psi.api.toplevel.ScNamedElement
+import lang.psi.api.statements._
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScMember}
+import lang.psi.api.toplevel.{ScNamedElement, ScTyped}
 import lang.psi.ScalaPsiUtil
 
 /**
@@ -43,6 +44,13 @@ private object ScalaDocumentationProvider {
     member.getContainingClass.getName + " " + member.getContainingClass.getPresentation.getLocationString + "\n"
   }
 
+  private def getOneLine(s: String): String = {
+    val trimed = s.trim
+    val i = trimed.indexOf('\n')
+    if (i == -1) trimed
+    else trimed.substring(0, i) + " ..."
+  }
+
   def generateClassInfo(clazz: ScTypeDefinition): String = {
     return clazz.name
   }
@@ -56,13 +64,52 @@ private object ScalaDocumentationProvider {
     buffer.toString
   }
 
-  def generateValueInfo(value: ScNamedElement): String = {
-    val member = ScalaPsiUtil.nameContext(value) match {
+  def generateValueInfo(field: ScNamedElement): String = {
+    val member = ScalaPsiUtil.nameContext(field) match {
       case x: ScMember => x
       case _ => return null
     }
     val buffer = new StringBuilder
     buffer.append(getMemberHeader(member))
+    buffer.append(ScalaPsiUtil.getModifiersPresentableText(member.getModifierList))
+    member match {
+      case value: ScValue => {
+        buffer.append("val ")
+        buffer.append(field.name)
+        field match {
+          case typed: ScTyped => {
+            val typez = typed.calcType
+            if (typez != null) buffer.append(": " + ScType.presentableText(typez))
+          }
+          case _ =>
+        }
+        value match {
+          case d: ScPatternDefinition => {
+            buffer.append(" = ")
+            buffer.append(getOneLine(d.expr.getText))
+          }
+          case _ =>
+        }
+      }
+      case variable: ScVariable => {
+        buffer.append("var ")
+        buffer.append(field.name)
+        field match {
+          case typed: ScTyped => {
+            val typez = typed.calcType
+            if (typez != null) buffer.append(": " + ScType.presentableText(typez))
+          }
+          case _ =>
+        }
+        variable match {
+          case d: ScVariableDefinition => {
+            buffer.append(" = ")
+            buffer.append(getOneLine(d.expr.getText))
+          }
+          case _ =>
+        }
+      }
+    }
     buffer.toString
   }
 
