@@ -5,9 +5,11 @@ import _root_.scala.collection.immutable.HashSet
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.lang.documentation.DocumentationProvider
 import com.intellij.openapi.module.ModuleUtil
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiManager, PsiElement}
 import lang.psi.api.base.ScPrimaryConstructor
 import lang.psi.api.statements._
+import lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef._
 
@@ -33,6 +35,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
       case value: ScNamedElement if ScalaPsiUtil.nameContext(value).isInstanceOf[ScValue]
               || ScalaPsiUtil.nameContext(value).isInstanceOf[ScVariable] => generateValueInfo(value)
       case alias: ScTypeAlias => generateTypeAliasInfo(alias)
+      case parameter: ScParameter => generateParameterInfo(parameter)
       case _ => null
     }
   }
@@ -174,5 +177,17 @@ private object ScalaDocumentationProvider {
       case _ =>
     }
     buffer.toString
+  }
+
+  def generateParameterInfo(parameter: ScParameter): String = {
+    parameter match {
+      case clParameter: ScClassParameter => {
+        val clazz = PsiTreeUtil.getParentOfType(clParameter, classOf[ScTypeDefinition])
+        clazz.getName + " " + clazz.getPresentation.getLocationString + "\n" +
+        (if (clParameter.isVal) "val " else if (clParameter.isVar) "var " else "") + clParameter.name +
+        ": " + ScType.presentableText(clParameter.calcType)
+      }
+      case _ => parameter.name + ": " + ScType.presentableText(parameter.calcType)
+    }
   }
 }
