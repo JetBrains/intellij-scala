@@ -45,14 +45,6 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
         }
       }
       case Some(parents) => {
-        parents match {
-          case classParents: ScClassParents =>
-            classParents.constructor match {
-              case None => ()
-              case Some(c) => buffer += c.typeElement.getType
-            }
-          case _ =>
-        }
         buffer ++= (parents.typeElements map {
           typeElement => typeElement.getType
         }).toArray

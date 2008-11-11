@@ -33,7 +33,8 @@ object ScalaElementPresentation {
     presentableText.toString()
   }
 
-  def getMethodPresentableText(function: ScFunction): String = {
+  def getMethodPresentableText(function: ScFunction): String = getMethodPresentableText(function, true)
+  def getMethodPresentableText(function: ScFunction, short: Boolean): String = {
     val presentableText: StringBuffer = new StringBuffer
       presentableText.append(function.getName)
 
@@ -43,7 +44,7 @@ object ScalaElementPresentation {
     }
 
     if (function.paramClauses != null)
-      presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses))
+      presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses, short))
 
     presentableText.append(": ")
     presentableText.append(ScType.presentableText(function.returnType))

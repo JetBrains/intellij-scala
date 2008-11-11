@@ -1,14 +1,19 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
+import _root_.scala.collection.immutable.HashSet
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.lang.documentation.DocumentationProvider
+import com.intellij.openapi.module.ModuleUtil
 import com.intellij.psi.{PsiManager, PsiElement}
+import lang.psi.api.base.ScPrimaryConstructor
 import lang.psi.api.statements._
 import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScMember}
+import lang.psi.api.toplevel.typedef._
+
 import lang.psi.api.toplevel.{ScNamedElement, ScTyped}
 import lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -52,7 +57,41 @@ private object ScalaDocumentationProvider {
   }
 
   def generateClassInfo(clazz: ScTypeDefinition): String = {
-    return clazz.name
+    val buffer = new StringBuilder
+    val module = ModuleUtil.findModuleForPsiElement(clazz)
+    if (module != null) {
+      buffer.append('[').append(module.getName()).append("] ")
+    }
+    val locationString = clazz.getPresentation.getLocationString
+    val length = locationString.length
+    if (length > 1) buffer.append(locationString.substring(1, length - 1))
+    if (buffer.length > 0) buffer.append("\n")
+    buffer.append(ScalaPsiUtil.getModifiersPresentableText(clazz.getModifierList))
+    buffer.append(clazz match {
+      case _: ScObject => "object "
+      case _: ScClass => "class "
+      case _: ScTrait => "trait "
+    })
+    buffer.append(clazz.name)
+    clazz match {
+      case clazz: ScClass => {
+        clazz.constructor match {
+          case Some(x: ScPrimaryConstructor) => buffer.append(StructureViewUtil.getParametersAsString(x.parameterList, false))
+          case None =>
+        }
+      }
+      case _ =>
+    }
+    buffer.append(" extend")
+    val types = clazz.superTypes
+    if (types.length > 0) {
+      for (i <- 0 to types.length - 1) {
+        buffer.append(if (i == 1)  "\n  " else " ")
+        if (i != 0) buffer.append("with ")
+        buffer.append(ScType.presentableText(types(i)))
+      }
+    }
+    buffer.toString
   }
 
   def generateFunctionInfo(function: ScFunction): String = {

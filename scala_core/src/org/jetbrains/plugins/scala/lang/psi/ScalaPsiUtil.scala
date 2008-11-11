@@ -50,7 +50,7 @@ object ScalaPsiUtil {
     val buffer = new StringBuffer("")
     method match {
       case method: ScFunction => {
-        return ScalaElementPresentation.getMethodPresentableText(method)
+        return ScalaElementPresentation.getMethodPresentableText(method, false)
       }
       case _ => {
         val PARAM_OPTIONS: Int = PsiFormatUtil.SHOW_NAME | PsiFormatUtil.SHOW_TYPE | PsiFormatUtil.TYPE_AFTER
