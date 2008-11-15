@@ -5,6 +5,8 @@ import api.toplevel.imports.ScImportExpr
 import api.toplevel.typedef.{ScClass, ScTrait}
 import api.statements._
 import api.base.patterns.ScReferencePattern
+import resolve._
+
 import types._
 import api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -20,7 +22,6 @@ import util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.openapi.util._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTyped
 

@@ -47,6 +47,14 @@ import types.{ScSubstitutor, ScType}
 import Misc._
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake  {
+  override def add(element: PsiElement): PsiElement = {
+    element match {
+      case mem: ScMember => addMember(mem, None)
+      case _ => super.add(element)
+    }
+  }
+
+  
 
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
