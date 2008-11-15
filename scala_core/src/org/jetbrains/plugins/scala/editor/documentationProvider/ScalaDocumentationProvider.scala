@@ -93,7 +93,7 @@ private object ScalaDocumentationProvider {
       }
       case _ =>
     }
-    buffer.append(" extend")
+    buffer.append(" extends")
     val types = clazz.superTypes
     if (types.length > 0) {
       for (i <- 0 to types.length - 1) {
