@@ -78,4 +78,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     }
     return member
   }
+
+  def deleteMember(member: ScMember): Unit = {
+    member.getParent.getNode.removeChild(member.getNode)
+  }
 }
