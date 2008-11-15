@@ -42,6 +42,8 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
         case _ => {
           val so = scalaObject()
           if (so != null) buffer += so
+          val jo = javaObject()
+          if (jo != null) buffer += jo
         }
       }
       case Some(parents) => {
@@ -55,6 +57,11 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   private def scalaObject(): ScType = {
     val so = JavaPsiFacade.getInstance(getProject).findClass("scala.ScalaObject")
+    if (so != null) new ScDesignatorType(so) else null
+  }
+
+  private def javaObject(): ScType = {
+    val so = JavaPsiFacade.getInstance(getProject).findClass("java.lang.Object")
     if (so != null) new ScDesignatorType(so) else null
   }
 
