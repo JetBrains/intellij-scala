@@ -46,11 +46,14 @@ object ScalaMarkerType {
       element match {
         case method: ScFunction => {
           val signatures = method.superSignatures
-          val elems = signatures.map(_.element)
-          elems.length match {
+          val elems = new HashSet[NavigatablePsiElement]
+          signatures.foreach(elems += _.element)
+          elems.size match {
             case 0 =>
-            case 1 =>
-              if (elems(0).canNavigate) elems(0).navigate(true)
+            case 1 => {
+              val elem = elems.elements.next
+              if (elem.canNavigate) elem.navigate(true)
+            }
             case _ => {
               val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(elems.toArray, new ScCellRenderer,
               ScalaBundle.message("goto.override.method.declaration"))
@@ -63,7 +66,7 @@ object ScalaMarkerType {
     }
   })
 
-  val OVERRIDEN_MEMBER = ScalaMarkerType(new NullableFunction[PsiElement, String]{
+  val OVERRIDDEN_MEMBER = ScalaMarkerType(new NullableFunction[PsiElement, String]{
     def fun(element: PsiElement): String = {
       element match {
         case _: PsiMember =>

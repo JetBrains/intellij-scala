@@ -94,7 +94,7 @@ private object GutterUtil {
       if (overrides.length > 0) {
         val icon = if (!GutterUtil.isAbstract(member)) GutterIcons.OVERRIDEN_METHOD_MARKER_RENDERER
                    else GutterIcons.IMPLEMENTED_INTERFACE_MARKER_RENDERER
-        val typez = ScalaMarkerType.OVERRIDEN_MEMBER
+        val typez = ScalaMarkerType.OVERRIDDEN_MEMBER
         val info = new LineMarkerInfo[PsiElement](member, offset, icon, Pass.UPDATE_OVERRIDEN_MARKERS, typez.fun, typez.handler)
         result.add(info)
       }
