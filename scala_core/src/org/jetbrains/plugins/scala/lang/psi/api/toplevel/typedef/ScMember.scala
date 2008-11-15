@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   def getModifierList = findChildByClass(classOf[ScModifierList])
 
-  def getContainingClass = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])
+  def getContainingClass: ScTemplateDefinition = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])
   override def hasModifierProperty(name: String) = {
     if (name == PsiModifier.STATIC) {
       getContainingClass match {
