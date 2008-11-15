@@ -63,7 +63,9 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
         PsiFormatUtil.SHOW_NAME | PsiFormatUtil.SHOW_PARAMETERS,
         PsiFormatUtil.SHOW_TYPE) + " of " + getDescriptiveName(x.getContainingClass)
       case x: PsiVariable => x.getName
+      case x: PsiFile => x.getName
       case x: ScNamedElement => x.getName
+      case _ => element.getText
     }
   }
 
@@ -75,7 +77,9 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
               PsiFormatUtil.SHOW_NAME | PsiFormatUtil.SHOW_PARAMETERS,
               PsiFormatUtil.SHOW_TYPE)
       case c: PsiVariable => c.getName
+      case c: PsiFile => c.getName
       case c: ScNamedElement => c.getName
+      case _ => element.getText
     }
   }
 }
