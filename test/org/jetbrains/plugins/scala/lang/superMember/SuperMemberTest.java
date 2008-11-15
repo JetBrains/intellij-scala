@@ -39,6 +39,16 @@ public class SuperMemberTest extends PsiTestCase {
     runTest(name);
   }
 
+  public void testHashCode() throws Exception {
+    String name = "objectMethods/hashCode.scala";
+    runTest(name);
+  }
+
+  public void testTraitSuper() throws Exception {
+    String name = "traits/traitSuper.scala";
+    runTest(name);
+  }
+
   private void configureFile(final VirtualFile vFile, String exceptName, final VirtualFile newDir) {
     if (vFile.isDirectory()) {
       for (VirtualFile file : vFile.getChildren()) {
