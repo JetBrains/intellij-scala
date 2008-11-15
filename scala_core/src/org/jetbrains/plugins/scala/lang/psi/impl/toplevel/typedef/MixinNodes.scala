@@ -55,14 +55,13 @@ abstract class MixinNodes {
         case Some(concrete) => concrete
       }
       primarySupers += ((key, primarySuper))
-      nodes -= primarySuper
-
       thisMap.get(key) match {
         case Some(node) => {
           node.primarySuper = Some(primarySuper)
           node.supers = nodes.toArray
         }
         case None => {
+          nodes -= primarySuper
           primarySuper.supers = nodes.toArray
           thisMap += ((key, primarySuper))
         }
