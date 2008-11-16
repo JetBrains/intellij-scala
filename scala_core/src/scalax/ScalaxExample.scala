@@ -12,7 +12,7 @@ object ScalaxExample {
 
   import scalax.rules.scalasig.Symbol
 
-  def checkOccurred(set: Set[Symbol], s: Symbol): Boolean = {
+  def checkOccurred(set: scala.collection.immutable.Set[Symbol], s: Symbol): Boolean = {
     s match {
       case c@(_: ClassSymbol | _: ObjectSymbol) if c.isInstanceOf[SymbolInfoSymbol] =>
         if (set.contains(c)) true
@@ -25,11 +25,12 @@ object ScalaxExample {
     //    val st = "scala.Seq"
     //    val st = "scalax.rules.Parsers"
     //    val st = "scala.util.parsing.combinatorold.Parsers"
-    //    val st = "scala.collection.immutable.Set"
+//        val st = "scala.collection.immutable.Set"
 //        val st = "scala.dbc.syntax.DataTypeUtil"
 //    val st = "scala.dbc.Vendor"
 //    val st = "scala.Iterable"
-    val st = "scala.Predef"
+//    val st = "scala.Predef"
+    val st = "scalax.Set"
     val clazz = Class.forName(st)
     val byteCode = ByteCode.forClass(clazz)
     val classFile = ClassFileParser.parse(byteCode)
