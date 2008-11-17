@@ -176,7 +176,7 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
       19 -~ symbolRef ~ (typeRef*) ^~^ ClassInfoType |
       20 -~ typeRef ~ (typeRef*) ^~^ MethodType |
       21 -~ typeRef ~ (refTo(typeSymbol)*) ^~^ PolyType |
-      22 -~ typeRef ~ (typeRef*) ^~^ ImplicitMethodType
+      22 -~ typeRef ~ (typeRef*) ^~^ ImplicitMethodType |
       42 -~ typeRef ~ (attribTreeRef*) ^~^ AnnotatedType |
       51 -~ typeRef ~ symbolRef ~ (attribTreeRef*) ^~~^ AnnotatedWithSelfType |
       47 -~ typeLevel ~ typeIndex ^~^ DeBruijnIndexType |
