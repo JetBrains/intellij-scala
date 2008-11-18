@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.highlighter
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import lang.psi.api.statements._
 import com.intellij.psi._
 import lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScBindingPattern}
@@ -9,7 +10,6 @@ import lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferen
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.lang.annotation.AnnotationHolder
 import lang.psi.api.base.types.ScSimpleTypeElement
-import lang.psi.api.toplevel.ScEarlyDefinitions
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScObject}
 import lang.lexer.ScalaTokenTypes
@@ -67,7 +67,7 @@ object AnnotatorHighlighter {
         while (parent != null && !(parent.isInstanceOf[ScValue] || parent.isInstanceOf[ScVariable]
                 || parent.isInstanceOf[ScCaseClause])) parent = parent.getParent
         parent match {
-          case _: ScValue | _: ScVariable => {
+          case r@(_: ScValue | _: ScVariable) => {
             parent.getParent match {
               case _: ScTemplateBody | _: ScEarlyDefinitions => {
                 parent.getParent.getParent.getParent match {
@@ -85,7 +85,13 @@ object AnnotatorHighlighter {
               }
               case _ => {
                 val annotation = holder.createInfoAnnotation(refElement, null)
-                annotation.setTextAttributes(DefaultHighlighter.LOCAL)
+                r match {
+                  case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
+                    annotation.setTextAttributes(DefaultHighlighter.LOCAL_LAZY)
+                  case _: ScValue => annotation.setTextAttributes(DefaultHighlighter.LOCAL_VALUES)
+                  case _: ScVariable => annotation.setTextAttributes(DefaultHighlighter.LOCAL_VARIABLES)
+                  case _ =>
+                }
               }
             }
           }
@@ -169,7 +175,7 @@ object AnnotatorHighlighter {
             var parent: PsiElement = x
             while (parent != null && !(parent.isInstanceOf[ScValue] || parent.isInstanceOf[ScVariable])) parent = parent.getParent
             parent match {
-              case _: ScValue | _: ScVariable => {
+              case r@(_: ScValue | _: ScVariable) => {
                 parent.getParent match {
                   case _: ScTemplateBody | _: ScEarlyDefinitions => {
                     parent.getParent.getParent.getParent match {
@@ -190,7 +196,13 @@ object AnnotatorHighlighter {
                   }
                   case _ => {
                     val annotation = holder.createInfoAnnotation(element, null)
-                    annotation.setTextAttributes(DefaultHighlighter.LOCAL)
+                    r match {
+                      case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
+                        annotation.setTextAttributes(DefaultHighlighter.LOCAL_LAZY)
+                      case _: ScValue => annotation.setTextAttributes(DefaultHighlighter.LOCAL_VALUES)
+                      case _: ScVariable => annotation.setTextAttributes(DefaultHighlighter.LOCAL_VARIABLES)
+                      case _ =>
+                    }
                   }
                 }
               }
