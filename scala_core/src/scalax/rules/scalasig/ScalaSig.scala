@@ -169,7 +169,7 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
       12 -^ NoPrefixType |
       13 -~ symbolRef ^^ ThisType |
       14 -~ typeRef ~ symbolRef ^~^ SingleType |
-      15 -~ typeRef ~ constantRef ^~^ ConstantType |
+      15 -~ constantRef ^^ ConstantType |
       16 -~ typeRef ~ symbolRef ~ (typeRef*) ^~~^ TypeRefType |
       17 -~ typeRef ~ typeRef ^~^ TypeBoundsType |
       18 -~ classSymRef ~ (typeRef*) ^~^ RefinedType |

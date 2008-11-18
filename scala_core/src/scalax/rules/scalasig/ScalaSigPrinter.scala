@@ -143,9 +143,23 @@ object ScalaSigPrinter {
   def genParamName(ts: String) = "o" //todo improve name generation by type
 
   def toString(t: Type, sep: String): String = t match {
-  //case ThisType(symbol) =>
-    case SingleType(typeRef, symbol) => sep + toString(symbol) + " with Singleton"
-    //case ConstantType(typeRef, constant) =>
+    case ThisType(symbol) => symbol.path + ".type"
+
+    //todo
+    case SingleType(typeRef, symbol) => toString(typeRef, sep) + " with Singleton"
+
+    case ConstantType(constant) => sep + (constant match {
+      case _ : Unit => "scala.Unit"
+      case _ : Boolean => "scala.Boolean"
+      case _ : Byte => "scala.Byte"
+      case _ : Char => "scala.Char"
+      case _ : Short => "scala.Short"
+      case _ : Int => "scala.Int"
+      case _ : Long => "scala.Long"
+      case _ : Float => "scala.Float"
+      case _ : Double => "scala.Double"
+      case c : Class[_] => "java.lang.Class[" + c.getComponentType.getCanonicalName.replace ("$", ".") + "]"
+    })
     case TypeRefType(prefix, symbol, typeArgs) => symbol.path match {
       case "scala.<repeated>" if typeArgs.length == 1 => sep + toString(typeArgs.first, "") + "*"
       case "scala.<byname>" if typeArgs.length == 1 => "=> " + sep + toString(typeArgs.first, "")
@@ -159,8 +173,8 @@ object ScalaSigPrinter {
 
     case PolyType(typeRef, symbols) => typeParamString(symbols) + toString(typeRef, sep)
     //case ImplicitMethodType(resultType, paramTypes) => 
-    //case AnnotatedType(typeRef, attribTreeRefs) => 
-    //case AnnotatedWithSelfType(typeRef, symbol, attribTreeRefs) => 
+    case AnnotatedType(typeRef, attribTreeRefs) => toString(typeRef, sep)
+    case AnnotatedWithSelfType(typeRef, symbol, attribTreeRefs) => toString(typeRef, sep)
     //case DeBruijnIndexType(typeLevel, typeIndex) => 
     //case ExistentialType(typeRef, symbols) => 
     case _ => sep + t.toString
