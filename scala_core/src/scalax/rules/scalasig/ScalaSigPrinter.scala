@@ -149,6 +149,7 @@ object ScalaSigPrinter {
     case SingleType(typeRef, symbol) => toString(typeRef, sep) + " with Singleton"
 
     case ConstantType(constant) => sep + (constant match {
+      case null => "scala.Null"
       case _ : Unit => "scala.Unit"
       case _ : Boolean => "scala.Boolean"
       case _ : Byte => "scala.Byte"
@@ -158,6 +159,7 @@ object ScalaSigPrinter {
       case _ : Long => "scala.Long"
       case _ : Float => "scala.Float"
       case _ : Double => "scala.Double"
+      case _ : String => "java.lang.String"
       case c : Class[_] => "java.lang.Class[" + c.getComponentType.getCanonicalName.replace ("$", ".") + "]"
     })
     case TypeRefType(prefix, symbol, typeArgs) => symbol.path match {
