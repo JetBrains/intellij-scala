@@ -61,7 +61,9 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
             new AttributesDescriptor(DefaultHighlighter.TYPEPARAM_ID, DefaultHighlighter.TYPEPARAM),
             new AttributesDescriptor(DefaultHighlighter.PREDEF_ID, DefaultHighlighter.PREDEF),
             new AttributesDescriptor(DefaultHighlighter.TRAIT_ID, DefaultHighlighter.TRAIT),
-            new AttributesDescriptor(DefaultHighlighter.LOCAL_ID, DefaultHighlighter.LOCAL),
+            new AttributesDescriptor(DefaultHighlighter.LOCAL_VALUES_ID, DefaultHighlighter.LOCAL_VALUES),
+            new AttributesDescriptor(DefaultHighlighter.LOCAL_VARIABLES_ID, DefaultHighlighter.LOCAL_VARIABLES),
+            new AttributesDescriptor(DefaultHighlighter.LOCAL_LAZY_ID, DefaultHighlighter.LOCAL_LAZY),
             new AttributesDescriptor(DefaultHighlighter.CLASS_FIELD_DEFINITION_ID, DefaultHighlighter.CLASS_FIELD_DEFINITION),
             new AttributesDescriptor(DefaultHighlighter.CLASS_FIELD_DECLARATION_ID, DefaultHighlighter.CLASS_FIELD_DECLARATION),
             new AttributesDescriptor(DefaultHighlighter.PARAMETER_ID, DefaultHighlighter.PARAMETER),
@@ -158,7 +160,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("markup",DefaultHighlighter.SCALA_DOC_MARKUP);
     map.put("tag",DefaultHighlighter.SCALA_DOC_TAG);
     map.put("abstract",DefaultHighlighter.ABSTRACT_CLASS);
-    map.put("local", DefaultHighlighter.LOCAL);
+    map.put("local", DefaultHighlighter.LOCAL_VALUES);
     map.put("param",DefaultHighlighter.PARAMETER);
     map.put("method", DefaultHighlighter.METHOD_CALL);
     map.put("objectmethod", DefaultHighlighter.OBJECT_METHOD_CALL);

@@ -4,13 +4,13 @@ package org.jetbrains.plugins.scala.lang.psi.types
 * @author ilyas
 */
 
+import api.toplevel.typedef._
 import api.statements.{ScTypeAliasDefinition, ScTypeAlias}
 import api.toplevel.ScTypeParametersOwner
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiTypeParameterListOwner, JavaPsiFacade, PsiElement, PsiNamedElement}
 import resolve.{ResolveProcessor, StdKinds}
-import api.toplevel.typedef._
 import api.statements.params.ScTypeParam
 import psi.impl.ScalaPsiManager
 
