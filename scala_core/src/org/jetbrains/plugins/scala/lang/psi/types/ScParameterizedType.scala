@@ -72,13 +72,7 @@ object ScParameterizedType {
 }
 
 abstract case class ScPolymorphicType(name : String, args : List[ScTypeParameterType],
-                                     lower : Suspension[ScType], upper : Suspension[ScType])
-extends ScType {
-  def equivInner(t: ScPolymorphicType): Boolean = name == t.name && args.length == t.args.length && {
-    val s = args.zip(t.args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._2.name, p._1)}
-    lower.v.equiv(s.subst(t.lower.v)) && upper.v.equiv(s.subst(t.upper.v))
-  }
-}
+                                     lower : Suspension[ScType], upper : Suspension[ScType]) extends ScType
 
 case class ScTypeConstructorType(override val name : String, override val args : List[ScTypeParameterType],
                                  aliased : Suspension[ScType])
@@ -86,14 +80,6 @@ extends ScPolymorphicType(name, args, aliased, aliased) {
   def this(tad : ScTypeAliasDefinition, s : ScSubstitutor) =
     this(tad.name, tad.typeParameters.toList.map{new ScTypeParameterType(_, s)},
       new Suspension[ScType]({() => s.subst(tad.aliasedType)}))
-
-  override def equiv(t: ScType) = t match {
-    case tct : ScTypeConstructorType => name == tct.name && args.length == tct.args.length && {
-      val s = args.zip(tct.args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._2.name, p._1)}
-      aliased.v.equiv(s.subst(tct.aliased.v))
-    }
-    case _ => false
-  }
 }
 
 case class ScTypeAliasType(override val name : String, override val args : List[ScTypeParameterType],
@@ -104,11 +90,6 @@ extends ScPolymorphicType(name, args, lower, upper) {
     this(ta.name, ta.typeParameters.toList.map{new ScTypeParameterType(_, s)},
       new Suspension[ScType]({() => s.subst(ta.lowerBound)}),
       new Suspension[ScType]({() => s.subst(ta.upperBound)}))
-
-  override def equiv(t: ScType): Boolean = t match {
-    case tat : ScTypeAliasType => equivInner(tat)
-    case _ => false
-  }
 }
 
 case class ScTypeParameterType(override val name : String, override val args : List[ScTypeParameterType],
@@ -118,11 +99,6 @@ extends ScPolymorphicType(name, args, lower, upper) {
     this(tp.name, tp.typeParameters.toList.map{new ScTypeParameterType(_, s)},
       new Suspension[ScType]({() => s.subst(tp.lowerBound)}),
       new Suspension[ScType]({() => s.subst(tp.upperBound)}))
-
-  override def equiv(t: ScType): Boolean = t match {
-    case tpt : ScTypeParameterType => equivInner(tpt)
-    case _ => false
-  }
 }
 
 case class ScTypeVariable(name : String) extends ScType

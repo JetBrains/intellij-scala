@@ -115,7 +115,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   //todo implement me!
   def isVarArgs = false
 
-  def isConstructor = false
+  def isConstructor = name == "this"
 
   def getBody = null
 
