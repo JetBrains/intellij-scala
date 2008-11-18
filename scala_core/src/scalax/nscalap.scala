@@ -118,7 +118,6 @@ object nscalap {
     //info("cfparser._clazz.defString",  cfparser._clazz.defString)
     //info("cfparser._clazz.infosString",  cfparser._clazz.infosString)
     info("cfparser._clazz.linkedSym",  cfparser._clazz.linkedSym)
-    //info("cfparser._clazz.sourceFile",  cfparser._clazz.sourceFile)
     info("cfparser._clazz.validTo",  Int.box(cfparser._clazz.validTo))
     info("cfparser._clazz.attributes",  cfparser._clazz.attributes)
 
