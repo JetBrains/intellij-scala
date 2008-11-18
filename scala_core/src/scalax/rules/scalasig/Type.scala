@@ -7,7 +7,7 @@ case object NoPrefixType extends Type
 
 case class ThisType(symbol : Symbol) extends Type
 case class SingleType(typeRef : Type, symbol : Symbol) extends Type
-case class ConstantType(typeRef : Type, constant : Any) extends Type
+case class ConstantType(constant : Any) extends Type
 case class TypeRefType(prefix : Type, symbol : Symbol, typeArgs : Seq[Type]) extends Type
 case class TypeBoundsType(lower : Type, upper : Type) extends Type
 case class RefinedType(classSymRef : Int, typeRefs : List[Type]) extends Type
