@@ -162,19 +162,15 @@ object ScalaSigPrinter {
       case _ : String => "java.lang.String"
       case c : Class[_] => "java.lang.Class[" + c.getComponentType.getCanonicalName.replace ("$", ".") + "]"
     })
-    case TypeRefType(prefix, symbol, typeArgs) => symbol.path match {
-      case "scala.<repeated>" if typeArgs.length == 1 => sep + toString(typeArgs.first, "") + "*"
-      case "scala.<byname>" if typeArgs.length == 1 => "=> " + sep + toString(typeArgs.first, "")
-      case _ => sep + processName(symbol.path) + typeArgString(typeArgs)
-    }
+    case TypeRefType(prefix, symbol, typeArgs) => sep + processName(symbol.path) + typeArgString(typeArgs)
     case TypeBoundsType(lower, upper) => " >: " + toString(lower) + " <: " + toString(upper)
     //case RefinedType(classSymRef, typeRefs) => 
     case ClassInfoType(symbol, typeRefs) => typeRefs.map(toString).mkString(" extends ", " with ", "")
 
-    case MethodType(resultType, paramTypes) => paramTypes.map(toString).map(x => genParamName(x) + ": " + x).mkString("(", ", ", ") : ") + toString(resultType)
+    case ImplicitMethodType(resultType, _) => toString(resultType)
+    case MethodType(resultType, _) => toString(resultType)
 
     case PolyType(typeRef, symbols) => typeParamString(symbols) + toString(typeRef, sep)
-    //case ImplicitMethodType(resultType, paramTypes) => 
     case AnnotatedType(typeRef, attribTreeRefs) => toString(typeRef, sep)
     case AnnotatedWithSelfType(typeRef, symbol, attribTreeRefs) => toString(typeRef, sep)
     //case DeBruijnIndexType(typeLevel, typeIndex) => 
