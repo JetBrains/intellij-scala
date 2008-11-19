@@ -197,7 +197,7 @@ case class ClassFileHeader(
 case class ConstantPool(len : Int) {
   val size = len - 1
   
-  private val buffer = new scala.collection.mutable.ListBuffer[ConstantPool => Any]
+  private val buffer = new scala.collection.mutable.ArrayBuffer[ConstantPool => Any]
   private val values = Array.make[Option[Any]](size, None)
     
   def isFull = buffer.length >= size
