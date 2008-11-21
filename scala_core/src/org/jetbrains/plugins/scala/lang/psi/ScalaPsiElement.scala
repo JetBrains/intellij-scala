@@ -36,9 +36,4 @@ trait ScalaPsiElement extends PsiElement {
     }
     if (child == null) None else Some(child.asInstanceOf[T])  
   }
-
-
-  override def delete: Unit = {
-    getParent.getNode.removeChild(getNode)
-  }
 }

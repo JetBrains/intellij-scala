@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, PhysicalSignature, ScFunctionType, ScSubstitutor}
 
+import _root_.scala.collection.mutable.ArrayBuffer
 import api.base.patterns.ScReferencePattern
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef.ScMember
