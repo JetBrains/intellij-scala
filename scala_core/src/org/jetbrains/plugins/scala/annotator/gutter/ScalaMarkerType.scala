@@ -78,7 +78,7 @@ object ScalaMarkerType {
   }, new GutterIconNavigationHandler[PsiElement] {
     def navigate(e: MouseEvent, element: PsiElement): Unit = {
       val member = element match {
-        case memb: PsiMember => memb
+        case memb: PsiNamedElement => memb
         case _ => return
       }
       val overrides = ScalaOverridengMemberSearch.search(member)

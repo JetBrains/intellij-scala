@@ -1,24 +1,47 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.{FullSignature, PhysicalSignature, Signature, ScSubstitutor}
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import api.base.{ScStableCodeReferenceElement, ScModifierList}
 import api.statements.params.ScClassParameter
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
+import api.toplevel.templates.ScTemplateBody
+import api.toplevel.{ScNamedElement, ScTyped}
 import com.intellij.psi._
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiFormatUtil
 import com.jniwrapper.S
+import impl.toplevel.typedef.TypeDefinitionMembers
+import impl.toplevel.typedef.TypeDefinitionMembers
 import lang.psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
 import structureView.ScalaElementPresentation
-import types.PhysicalSignature
-
 /**
  * User: Alexander Podkhalyuzin
  * Date: 06.10.2008
  */
 
 object ScalaPsiUtil {
+  def namedElementSig(x: PsiNamedElement): Signature = new Signature(x.getName, Seq.empty, Array[PsiTypeParameter](), ScSubstitutor.empty)
+
+  def superValsSignatures(x: PsiNamedElement): Seq[FullSignature] = {
+    val empty = Seq.empty
+    val typed = x match {case x: ScTyped => x case _ => return empty}
+    val context: PsiElement = nameContext(typed) match {
+      case value: ScValue if value.getParent.isInstanceOf[ScTemplateBody] => value
+      case value: ScVariable if value.getParent.isInstanceOf[ScTemplateBody] => value
+      case _ => return empty
+    }
+    val clazz = context.asInstanceOf[PsiMember].getContainingClass
+    val s = new FullSignature(namedElementSig(x), typed.calcType,
+      x.asInstanceOf[NavigatablePsiElement], clazz)
+    val t = TypeDefinitionMembers.getSignatures(clazz).get(s) match {
+      //partial match
+      case Some(x) => x.supers.map{_.info}
+    }
+    return t
+  }
+
   def nameContext(x: PsiNamedElement): PsiElement = {
     var parent = x.getParent
     def isAppropriatePsiElement(x: PsiElement): Boolean = {

@@ -90,7 +90,7 @@ private object GutterUtil {
     for (member <- members) {
       ProgressManager.getInstance.checkCanceled
       val offset = member.getTextOffset
-      val overrides = ScalaOverridengMemberSearch.search(member, false)
+      val overrides = ScalaOverridengMemberSearch.search(member match {case x: PsiNamedElement => x case _ => return}, false)
       if (overrides.length > 0) {
         val icon = if (!GutterUtil.isAbstract(member)) GutterIcons.OVERRIDEN_METHOD_MARKER_RENDERER
                    else GutterIcons.IMPLEMENTED_INTERFACE_MARKER_RENDERER
