@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.gutter
 
 
-import _root_.scala.collection.immutable.HashSet
+import _root_.scala.collection.mutable.HashSet
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.impl.MarkerType
@@ -14,11 +14,12 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import java.util.{Collection, List}
 import lang.lexer.ScalaTokenTypes
-import lang.psi.api.statements.{ScFunction, ScFunctionDeclaration}
-import lang.psi.api.toplevel.ScNamedElement
+import lang.psi.api.statements._
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
+import lang.psi.api.toplevel.{ScNamedElement, ScTyped}
 import lang.psi.impl.search.ScalaOverridengMemberSearch
+import lang.psi.ScalaPsiUtil
 import lang.psi.types.FullSignature
 
 /**
@@ -30,14 +31,32 @@ class ScalaLineMarkerProvider extends LineMarkerProvider {
   def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] = {
     if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
       val offset = element.getTextRange.getStartOffset
-      element.getParent match {
-        case method: ScFunction if method.getParent.isInstanceOf[ScTemplateBody] => {
+      def getParent: PsiElement = {
+        var e = element
+        while (e != null && !e.isInstanceOf[ScFunction] && !e.isInstanceOf[ScValue] && !e.isInstanceOf[ScVariable]) e = e.getParent
+        e
+      }
+      getParent match {
+        case method: ScFunction if method.getParent.isInstanceOf[ScTemplateBody] && method.nameId == element => {
           val signatures = (HashSet[FullSignature](method.superSignatures: _*)).toSeq
           val icon = if (GutterUtil.isOverrides(method)) GutterIcons.OVERRIDING_METHOD_ICON
                      else GutterIcons.IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signatures.length > 0) {
             return new LineMarkerInfo[PsiElement](method, offset, icon, Pass.UPDATE_ALL,
+              typez.fun, typez.handler, GutterIconRenderer.Alignment.LEFT)
+          }
+        }
+        case x@(_: ScValue | _: ScVariable) if x.getParent.isInstanceOf[ScTemplateBody] &&
+                x.asInstanceOf[{def declaredElements: Seq[ScTyped]}].declaredElements.exists(_.nameId == element) => {
+          val signature = new ArrayBuffer[FullSignature]
+          val bindings = x match {case v: {def declaredElements: Seq[ScTyped]} => v.declaredElements case _ => return null}
+          for (z <- bindings) signature ++= ScalaPsiUtil.superValsSignatures(z)
+          val icon = if (GutterUtil.isOverrides(x)) GutterIcons.OVERRIDING_METHOD_ICON
+                     else GutterIcons.IMPLEMENTING_METHOD_ICON
+          val typez = ScalaMarkerType.OVERRIDING_MEMBER
+          if (signature.length > 0) {
+            return new LineMarkerInfo[PsiElement](x, offset, icon, Pass.UPDATE_ALL,
               typez.fun, typez.handler, GutterIconRenderer.Alignment.LEFT)
           }
         }
@@ -86,11 +105,16 @@ private object GutterUtil {
   }
 
   def collectOverridingMembers(members: Array[PsiMember], result: Collection[LineMarkerInfo[_ <: PsiElement]]) {
-    val element: PsiElement = null
     for (member <- members) {
       ProgressManager.getInstance.checkCanceled
       val offset = member.getTextOffset
-      val overrides = ScalaOverridengMemberSearch.search(member match {case x: PsiNamedElement => x case _ => return}, false)
+      val members = member match {
+        case memb: PsiNamedElement => Array[PsiNamedElement](memb)
+        case d: {def declaredElements: Seq[ScTyped]} => d.declaredElements.toArray
+        case _ => return
+      }
+      val overrides = new ArrayBuffer[PsiNamedElement]
+      for (member <- members) overrides ++= ScalaOverridengMemberSearch.search(member)
       if (overrides.length > 0) {
         val icon = if (!GutterUtil.isAbstract(member)) GutterIcons.OVERRIDEN_METHOD_MARKER_RENDERER
                    else GutterIcons.IMPLEMENTED_INTERFACE_MARKER_RENDERER
@@ -105,12 +129,16 @@ private object GutterUtil {
     element match {
       case method: PsiMethod => method.isInstanceOf[ScFunctionDeclaration] ||
                   method.hasModifierProperty("override")
-      case _ => false //todo:
+      case value: ScValue => value.isInstanceOf[ScValueDeclaration] || value.hasModifierProperty("override")
+      case value: ScVariable => value.isInstanceOf[ScVariableDeclaration] || value.hasModifierProperty("override")
+      case _ => false
     }
   }
 
   def isAbstract(element: PsiElement) = element match {
     case method: ScFunctionDeclaration => true
-    case _ => false //todo:
+    case value: ScValueDeclaration => true
+    case variable: ScVariableDeclaration => true
+    case _ => false
   }
 }

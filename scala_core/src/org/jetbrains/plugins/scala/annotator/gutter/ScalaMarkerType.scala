@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.gutter
 
 import _root_.scala.collection.immutable.HashMap
+import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.daemon.impl.{PsiElementListNavigator}
@@ -15,7 +16,9 @@ import java.util.Arrays
 import javax.swing.Icon
 import com.intellij.util.NullableFunction
 import java.awt.event.MouseEvent
-import lang.psi.api.statements.ScFunction
+import lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
+
+import lang.psi.api.toplevel.ScTyped
 import lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScMember, ScObject}
 import lang.psi.impl.search.ScalaOverridengMemberSearch
 import lang.psi.ScalaPsiUtil
@@ -37,6 +40,16 @@ object ScalaMarkerType {
           assert(clazz != null)
           if (!GutterUtil.isOverrides(element)) ScalaBundle.message("implements.method.from.super", clazz.getQualifiedName)
           else ScalaBundle.message("overrides.method.from.super", clazz.getQualifiedName)
+        }
+        case _: ScValue | _: ScVariable => {
+          val sigs = new ArrayBuffer[FullSignature]
+          val bindings = element match {case v: {def declaredElements: Seq[ScTyped]} => v.declaredElements case _ => return null}
+          for (z <- bindings) sigs ++= ScalaPsiUtil.superValsSignatures(z)
+          assert(sigs.length != 0)
+          val clazz = sigs(0).clazz
+          assert(clazz != null)
+          if (!GutterUtil.isOverrides(element)) ScalaBundle.message("implements.val.from.super", clazz.getQualifiedName)
+          else ScalaBundle.message("overrides.val.from.super", clazz.getQualifiedName)
         }
         case _ => null
       }
@@ -61,6 +74,25 @@ object ScalaMarkerType {
             }
           }
         }
+        case _: ScValue | _: ScVariable => {
+          val signatures = new ArrayBuffer[FullSignature]
+          val bindings = element match {case v: {def declaredElements: Seq[ScTyped]} => v.declaredElements case _ => return null}
+          for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z)
+          val elems = new HashSet[NavigatablePsiElement]
+          signatures.foreach(elems += _.element)
+          elems.size match {
+            case 0 =>
+            case 1 => {
+              val elem = elems.elements.next
+              if (elem.canNavigate) elem.navigate(true)
+            }
+            case _ => {
+              val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(elems.toArray, new ScCellRenderer,
+              ScalaBundle.message("goto.override.val.declaration"))
+              gotoDeclarationPopup.show(new RelativePoint(e))
+            }
+          }
+        }
         case _ =>
       }
     }
@@ -77,18 +109,20 @@ object ScalaMarkerType {
     }
   }, new GutterIconNavigationHandler[PsiElement] {
     def navigate(e: MouseEvent, element: PsiElement): Unit = {
-      val member = element match {
-        case memb: PsiNamedElement => memb
+      val members = element match {
+        case memb: PsiNamedElement => Array[PsiNamedElement](memb)
+        case d: {def declaredElements: Seq[ScTyped]} => d.declaredElements.toArray
         case _ => return
       }
-      val overrides = ScalaOverridengMemberSearch.search(member)
+      val overrides = new ArrayBuffer[PsiNamedElement]
+      for (member <- members) overrides ++= ScalaOverridengMemberSearch.search(member)
       if (overrides.length == 0) return
       val title = if (GutterUtil.isAbstract(element)) ScalaBundle.
-              message("navigation.title.implementation.method", member.getName, "" + overrides.length)
-                  else ScalaBundle.message("navigation.title.overrider.method", member.getName, "" + overrides.length)
+              message("navigation.title.implementation.member", members(0).getName, "" + overrides.length)
+                  else ScalaBundle.message("navigation.title.overrider.member", members(0).getName, "" + overrides.length)
       val renderer = new ScCellRenderer
-      Arrays.sort(overrides.map(_.asInstanceOf[PsiElement]), renderer.getComparator)
-      PsiElementListNavigator.openTargets(e, overrides.map(_.asInstanceOf[NavigatablePsiElement]), title, renderer)
+      Arrays.sort(overrides.map(_.asInstanceOf[PsiElement]).toArray, renderer.getComparator)
+      PsiElementListNavigator.openTargets(e, overrides.map(_.asInstanceOf[NavigatablePsiElement]).toArray, title, renderer)
     }
   })
 
