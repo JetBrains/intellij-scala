@@ -1,6 +1,6 @@
 package scalax
 
-import java.io.ByteArrayOutputStream
+import java.io.{PrintStream, ByteArrayOutputStream}
 import rules.scalasig._
 import scala.collection.mutable.{Set, HashSet}
 
@@ -26,33 +26,21 @@ object ScalaxExample {
     //    val st = "scalax.rules.Parsers"
     //    val st = "scala.util.parsing.combinatorold.Parsers"
 //        val st = "scala.collection.immutable.Set"
-//        val st = "scala.dbc.syntax.DataTypeUtil"
+//       val st = "scala.dbc.syntax.DataTypeUtil"
 //    val st = "scala.dbc.Vendor"
 //    val st = "scala.Iterable"
-//    val st = "scala.Predef"
-    val st = "scalax.Set"
+    //val st = "scala.Predef"
+    val st = "scala.collection.Set"
     val clazz = Class.forName(st)
     val byteCode = ByteCode.forClass(clazz)
     val classFile = ClassFileParser.parse(byteCode)
     val sig = classFile.attribute("ScalaSig").map(_.byteCode)
-    val stream = new ByteArrayOutputStream
-    sig.map(ScalaSigAttributeParsers.parse) match {
-      case Some(scalaSig) => {
-        Console.withOut(stream){
-          val owner = ((scalaSig.topLevelClass, scalaSig.topLevelObject) match {
-//            case (Seq(c, _*), _) => c.symbolInfo.owner
-            case (_, Some(o)) => o.symbolInfo.owner
-            case _ => ""
-          }).toString
-          if (owner.length > 0) {print("package "); print(owner)}
-          {println; println}
-          // Print classes
-          for (c <- scalaSig.topLevelClass) ScalaSigPrinter.printSymbol(c)
-          println
-          for (o <- scalaSig.topLevelObject) ScalaSigPrinter.printSymbol(o)
-        }
-      }
-    }
-    println(stream.toString)
+    val Some(scalaSig) = ScalaSigParser.parse(Class.forName("scala.Predef"))
+    val baos = new ByteArrayOutputStream
+    val stream = new PrintStream(baos)
+    val printer = new ScalaSigPrinter(stream)
+    for (c <- scalaSig.topLevelClasses) printer.printSymbol(c)
+    for (c <- scalaSig.topLevelObjects) printer.printSymbol(c)
+    println(baos.toString)
   }
 }
