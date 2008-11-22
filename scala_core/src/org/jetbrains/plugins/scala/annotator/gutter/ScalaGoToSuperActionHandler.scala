@@ -73,7 +73,7 @@ private object ScalaGoToSuperActionHandler {
         return (HashSet[PsiClass](supers: _*)).toArray
       }
       case func: ScFunction => {
-        val supers = func.superSignatures.map(_.element)
+        val supers = HashSet[NavigatablePsiElement](func.superSignatures.map(_.element): _*)
         return supers.toArray
       }
       case d: {def declaredElements: Seq[ScTyped]} => {
@@ -81,9 +81,9 @@ private object ScalaGoToSuperActionHandler {
         while (el != null && !el.isInstanceOf[ScTyped]) el = el.getParent
         val elements = d.declaredElements
         if (elements.length == 0) return empty
-        val supers = (if (el != null && elements.contains(el.asInstanceOf[ScTyped])) {
+        val supers = HashSet[NavigatablePsiElement]((if (el != null && elements.contains(el.asInstanceOf[ScTyped])) {
           ScalaPsiUtil.superValsSignatures(el.asInstanceOf[ScTyped])
-        } else ScalaPsiUtil.superValsSignatures(elements(0))).map(_.element)
+        } else ScalaPsiUtil.superValsSignatures(elements(0))).map(_.element): _*)
         return supers.toArray
       }
       case _ => empty//todo:
