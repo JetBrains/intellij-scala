@@ -81,7 +81,8 @@ object ScalaSigPrinter {
       case name => {
         val nn = processName(name)
         print(nn)
-        printType(m.infoType, " : ")
+        print(" : ")
+        printType(m.infoType)
         if (!m.isAbstract) { // Print body for non-abstract metods
           print(" = { /* compiled code */ }")
         }
@@ -95,7 +96,8 @@ object ScalaSigPrinter {
     printAttributes(a)
     print("type ")
     print(processName(a.name))
-    printType(a.infoType, " = ")
+    print(" = ")
+    printType(a.infoType)
     println()
 
     printChildren(level, a)
@@ -106,7 +108,8 @@ object ScalaSigPrinter {
   }
 
   def printAttribute(attrib: AttributeInfo) {
-    printType(attrib.typeRef, "@")
+    print("@")
+    printType(attrib.typeRef)
     if (attrib.value.isDefined) {
       print("(")
       printValue(attrib.value.get)
@@ -136,19 +139,15 @@ object ScalaSigPrinter {
 
   def printType(t: Type): Unit = print(toString(t))
 
-  def printType(t: Type, sep: String): Unit = print(toString(t, sep))
-
-  def toString(t: Type): String = toString(t, "")
-
   def genParamName(ts: String) = "o" //todo improve name generation by type
 
-  def toString(t: Type, sep: String): String = t match {
+  def toString(t: Type): String = t match {
     case ThisType(symbol) => symbol.path + ".type"
 
     //todo
-    case SingleType(typeRef, symbol) => toString(typeRef, sep) + " with Singleton"
+    case SingleType(typeRef, symbol) => toString(typeRef) + " with Singleton"
 
-    case ConstantType(constant) => sep + (constant match {
+    case ConstantType(constant) => constant match {
       case null => "scala.Null"
       case _ : Unit => "scala.Unit"
       case _ : Boolean => "scala.Boolean"
@@ -161,8 +160,8 @@ object ScalaSigPrinter {
       case _ : Double => "scala.Double"
       case _ : String => "java.lang.String"
       case c : Class[_] => "java.lang.Class[" + c.getComponentType.getCanonicalName.replace ("$", ".") + "]"
-    })
-    case TypeRefType(prefix, symbol, typeArgs) => sep + processName(symbol.path) + typeArgString(typeArgs)
+    }
+    case TypeRefType(prefix, symbol, typeArgs) => processName(symbol.path) + typeArgString(typeArgs)
     case TypeBoundsType(lower, upper) => " >: " + toString(lower) + " <: " + toString(upper)
     //case RefinedType(classSymRef, typeRefs) => 
     case ClassInfoType(symbol, typeRefs) => typeRefs.map(toString).mkString(" extends ", " with ", "")
@@ -170,12 +169,12 @@ object ScalaSigPrinter {
     case ImplicitMethodType(resultType, _) => toString(resultType)
     case MethodType(resultType, _) => toString(resultType)
 
-    case PolyType(typeRef, symbols) => typeParamString(symbols) + toString(typeRef, sep)
-    case AnnotatedType(typeRef, attribTreeRefs) => toString(typeRef, sep)
-    case AnnotatedWithSelfType(typeRef, symbol, attribTreeRefs) => toString(typeRef, sep)
+    case PolyType(typeRef, symbols) => typeParamString(symbols) + toString(typeRef)
+    case AnnotatedType(typeRef, attribTreeRefs) => toString(typeRef)
+    case AnnotatedWithSelfType(typeRef, symbol, attribTreeRefs) => toString(typeRef)
     //case DeBruijnIndexType(typeLevel, typeIndex) => 
     //case ExistentialType(typeRef, symbols) => 
-    case _ => sep + t.toString
+    case _ => t.toString
   }
 
   def toString(symbol: Symbol): String = symbol match {
