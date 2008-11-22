@@ -59,17 +59,14 @@ object DecompilerUtil {
         case Some(scalaSig) => {
           val stream = new ByteArrayOutputStream
           Console.withOut(stream){
-            val owner = ((scalaSig.topLevelClass, scalaSig.topLevelObject) match {
-              case (Some(c), _) => c.symbolInfo.owner
-              case (_, Some(o)) => o.symbolInfo.owner
-              case _ => ""
-            }).toString
+            val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
+            val owner = syms.first.path
             if (owner.length > 0) {print("package "); print(owner)}
-            {println; println}
             // Print classes
-            for (c <- scalaSig.topLevelClass) ScalaSigPrinter.printSymbol(c)
-            println
-            for (o <- scalaSig.topLevelObject) ScalaSigPrinter.printSymbol(o)
+            for (c <- syms) {
+              println
+              ScalaSigPrinter.printSymbol(c)
+            }
           }
           stream.toString
         }

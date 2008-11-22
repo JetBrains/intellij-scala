@@ -72,8 +72,8 @@ case class ScalaSig(majorVersion : Int, minorVersion : Int, table : Seq[Int ~ By
 
   lazy val symbols : Seq[Symbol] = ScalaSigParsers.symbols
 
-  lazy val topLevelClass : Option[ClassSymbol] = ScalaSigParsers.topLevelClass
-  lazy val topLevelObject : Option[ObjectSymbol] = ScalaSigParsers.topLevelObject
+  lazy val topLevelClasses : List[ClassSymbol] = ScalaSigParsers.topLevelClasses
+  lazy val topLevelObjects : List[ObjectSymbol] = ScalaSigParsers.topLevelObjects
 }
 
 object ScalaSigParsers extends RulesWithState with MemoisableRules {
@@ -97,8 +97,8 @@ object ScalaSigParsers extends RulesWithState with MemoisableRules {
   lazy val methods = allEntries(ScalaSigEntryParsers.methodSymbol) as "methods"
   lazy val attributes = allEntries(ScalaSigEntryParsers.attributeInfo) as "attributes"
 
-  lazy val topLevelClass = allEntries(ScalaSigEntryParsers.topLevelClass) ^^ (_ firstOption)
-  lazy val topLevelObject = allEntries(ScalaSigEntryParsers.topLevelObject) ^^ (_ firstOption)
+  lazy val topLevelClasses = allEntries(ScalaSigEntryParsers.topLevelClass)
+  lazy val topLevelObjects = allEntries(ScalaSigEntryParsers.topLevelObject)
 }
 
 object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {

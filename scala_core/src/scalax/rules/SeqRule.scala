@@ -22,18 +22,6 @@ class InRule[In, +Out, +A, +X](rule : Rule[In, Out, A, X]) {
     in : In => f(rule(in))(in)
   }
 
-  def orElse[Out2 >: Out, A2 >: A, X2 >: X](other : => Rule[In, Out2, A2, X2]) : Rule[In, Out2, A2, X2] = {
-    // this one optimisation makes Scala parser about 20% faster!
-    lazy val otherRule = other
-    mapRule { 
-      case s @ Success(_, _) => in : In => s
-      case Failure => in : In => otherRule(in)
-      case err @ Error(_) => in : In => err
-    }
-  }
-
-  def |[Out2 >: Out, A2 >: A, X2 >: X](other : => Rule[In, Out2, A2, X2]) = orElse(other)
-
   /** Creates a rule that suceeds only if the original rule would fail on the given context. */
   def unary_! : Rule[In, In, Unit, Nothing] = mapRule { 
     case Success(_, _) => in : In => Failure
