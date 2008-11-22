@@ -196,11 +196,10 @@ object ScalaSigPrinter {
     "\\$times" -> "*", "\\$div" -> "/", "\\$bslash" -> "\\\\",
     "\\$greater" -> ">", "\\$qmark" -> "?", "\\$percent" -> "%",
     "\\$amp" -> "&", "\\$colon" -> ":", "\\$u2192" -> "→")
-  val regex = _syms.keySet.foldLeft("")((x, y) => if (x == "") y else x + "|" + y)
+  val pattern = Pattern.compile(_syms.keySet.foldLeft("")((x, y) => if (x == "") y else x + "|" + y))
 
   def processName(name: String) = {
-    val p = Pattern.compile(regex)
-    val m = p.matcher(name)
+    val m = pattern.matcher(name)
     var temp = name
     while (m.find) {
       val key = m.group
