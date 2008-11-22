@@ -7,7 +7,7 @@ import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.vfs.VirtualFile
-import java.io.{ByteArrayOutputStream, FileNotFoundException}
+import java.io.{PrintStream, ByteArrayOutputStream, FileNotFoundException}
 import scalax.rules.scalasig.{ClassFileParser, ScalaSigAttributeParsers, ScalaSigPrinter, ByteCode}
 import scalax.rules.ScalaSigParserError
 
@@ -57,18 +57,18 @@ object DecompilerUtil {
       val classFile = ClassFileParser.parse(byteCode)
       classFile.attribute("ScalaSig").map(_.byteCode).map(ScalaSigAttributeParsers.parse) match {
         case Some(scalaSig) => {
-          val stream = new ByteArrayOutputStream
-          Console.withOut(stream){
-            val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
+          val baos = new ByteArrayOutputStream
+          val stream = new PrintStream(baos)
+          val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
             val owner = syms.first.path
-            if (owner.length > 0) {print("package "); print(owner)}
+            if (owner.length > 0) {stream.print("package "); stream.print(owner)}
             // Print classes
+          val printer = new ScalaSigPrinter(stream)
             for (c <- syms) {
               println
-              ScalaSigPrinter.printSymbol(c)
+              printer.printSymbol(c)
             }
-          }
-          stream.toString
+            baos.toString
         }
       }
     }
