@@ -17,7 +17,6 @@ import com.intellij.psi.impl.compiled.ClsRepositoryPsiElement
 import com.intellij.psi.PsiManager
 import lang.psi.stubs.impl.ScFileStubImpl
 import lang.psi.stubs.ScFileStub
-import scalax.rules.scalasig.{ClassFileParser, ScalaSigAttributeParsers, ScalaSigPrinter, ByteCode}
 
 /**
  * @author ilyas
