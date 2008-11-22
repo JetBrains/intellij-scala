@@ -45,8 +45,11 @@ trait Rules {
   def error[In] = rule { in : In => Error(in) }
   def error[X](err : X) = rule { in : Any => Error(err) }
       
-  def oneOf[In, Out, A, X](rules : Seq[Rule[In, Out, A, X]]) : Rule[In, Out, A, X] = rules.reduceLeft[Rule[In, Out, A, X]](_ | _)
-
+  def oneOf[In, Out, A, X](rules : Rule[In, Out, A, X] *) : Rule[In, Out, A, X] = new Choice[In, Out, A, X] {
+    val factory = Rules.this
+    val choices = rules.toList
+  }
+    
   def ruleWithName[In, Out, A, X](_name : String, f : In => Result[Out, A, X]) : Rule[In, Out, A, X] with Name = 
     new DefaultRule(f) with Name {
       val name = _name
@@ -57,7 +60,7 @@ trait Rules {
     def apply(in : In) = f(in)
   }
   
-  /** Converts a rule into a function that throws an Exception on failure. */
+ /** Converts a rule into a function that throws an Exception on failure. */
   def expect[In, Out, A, Any](rule : Rule[In, Out, A, Any]) : In => A = (in) => rule(in) match {
     case Success(_, a) => a
     case Failure => throw new ScalaSigParserError("Unexpected failure")
