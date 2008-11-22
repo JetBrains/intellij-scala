@@ -5,6 +5,7 @@ import api.toplevel.imports.ScImportExpr
 import api.toplevel.typedef.{ScClass, ScTrait}
 import api.statements._
 import api.base.patterns.ScReferencePattern
+import com.intellij.util.IncorrectOperationException
 import resolve._
 
 import types._
@@ -41,6 +42,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case _: ScTrait => this
       case c: ScClass if !c.isCase => this
       case c: PsiClass => {
+        if (!ResolveUtils.kindMatches(element, getKinds(false)))
+          throw new IncorrectOperationException("class does not match expected kind")
+        if (nameId.getText != c.getName)
+          throw new IncorrectOperationException("class does not match expected name")
         val file = getContainingFile.asInstanceOf[ScalaFile]
         if (isReferenceTo(element)) return this
         val qualName = c.getQualifiedName
@@ -49,6 +54,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
         this
       }
+      case _ => throw new IncorrectOperationException("Cannot bind to anything but class")
     }
   }
 

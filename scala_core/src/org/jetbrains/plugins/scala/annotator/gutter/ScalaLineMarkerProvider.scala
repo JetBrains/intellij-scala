@@ -109,9 +109,9 @@ private object GutterUtil {
       ProgressManager.getInstance.checkCanceled
       val offset = member.getTextOffset
       val members = member match {
-        case memb: PsiNamedElement => Array[PsiNamedElement](memb)
+        case memb: ScFunction => Array[PsiNamedElement](memb)
         case d: ScDeclaredElementsHolder => d.declaredElements.toArray
-        case _ => return
+        case _ => Array[PsiNamedElement]()
       }
       val overrides = new ArrayBuffer[PsiNamedElement]
       for (member <- members) overrides ++= ScalaOverridengMemberSearch.search(member)
