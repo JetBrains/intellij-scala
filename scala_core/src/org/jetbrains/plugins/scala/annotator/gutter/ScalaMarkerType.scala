@@ -16,8 +16,7 @@ import java.util.Arrays
 import javax.swing.Icon
 import com.intellij.util.NullableFunction
 import java.awt.event.MouseEvent
-import lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
-
+import lang.psi.api.statements.{ScFunction, ScValue, ScDeclaredElementsHolder, ScVariable}
 import lang.psi.api.toplevel.ScTyped
 import lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScMember, ScObject}
 import lang.psi.impl.search.ScalaOverridengMemberSearch
@@ -43,7 +42,7 @@ object ScalaMarkerType {
         }
         case _: ScValue | _: ScVariable => {
           val sigs = new ArrayBuffer[FullSignature]
-          val bindings = element match {case v: {def declaredElements: Seq[ScTyped]} => v.declaredElements case _ => return null}
+          val bindings = element match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
           for (z <- bindings) sigs ++= ScalaPsiUtil.superValsSignatures(z)
           assert(sigs.length != 0)
           val clazz = sigs(0).clazz
@@ -76,7 +75,7 @@ object ScalaMarkerType {
         }
         case _: ScValue | _: ScVariable => {
           val signatures = new ArrayBuffer[FullSignature]
-          val bindings = element match {case v: {def declaredElements: Seq[ScTyped]} => v.declaredElements case _ => return null}
+          val bindings = element match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
           for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z)
           val elems = new HashSet[NavigatablePsiElement]
           signatures.foreach(elems += _.element)
@@ -111,7 +110,7 @@ object ScalaMarkerType {
     def navigate(e: MouseEvent, element: PsiElement): Unit = {
       val members = element match {
         case memb: PsiNamedElement => Array[PsiNamedElement](memb)
-        case d: {def declaredElements: Seq[ScTyped]} => d.declaredElements.toArray
+        case d: ScDeclaredElementsHolder => d.declaredElements.toArray
         case _ => return
       }
       val overrides = new ArrayBuffer[PsiNamedElement]

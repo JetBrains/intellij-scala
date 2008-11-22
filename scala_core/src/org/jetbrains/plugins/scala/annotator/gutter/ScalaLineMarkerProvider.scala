@@ -50,7 +50,7 @@ class ScalaLineMarkerProvider extends LineMarkerProvider {
         case x@(_: ScValue | _: ScVariable) if x.getParent.isInstanceOf[ScTemplateBody] &&
                 x.asInstanceOf[{def declaredElements: Seq[ScTyped]}].declaredElements.exists(_.nameId == element) => {
           val signature = new ArrayBuffer[FullSignature]
-          val bindings = x match {case v: {def declaredElements: Seq[ScTyped]} => v.declaredElements case _ => return null}
+          val bindings = x match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
           for (z <- bindings) signature ++= ScalaPsiUtil.superValsSignatures(z)
           val icon = if (GutterUtil.isOverrides(x)) GutterIcons.OVERRIDING_METHOD_ICON
                      else GutterIcons.IMPLEMENTING_METHOD_ICON
@@ -110,7 +110,7 @@ private object GutterUtil {
       val offset = member.getTextOffset
       val members = member match {
         case memb: PsiNamedElement => Array[PsiNamedElement](memb)
-        case d: {def declaredElements: Seq[ScTyped]} => d.declaredElements.toArray
+        case d: ScDeclaredElementsHolder => d.declaredElements.toArray
         case _ => return
       }
       val overrides = new ArrayBuffer[PsiNamedElement]
