@@ -161,8 +161,8 @@ object BNF {
       ScalaTokenTypes.tLSQBRACKET)
 
 
-  val firstParamClause = TokenSet.create(Array(ScalaTokenTypes.tLINE_TERMINATOR,
-      ScalaTokenTypes.tLPARENTHESIS))
+  val firstParamClause = TokenSet.create(ScalaTokenTypes.tLINE_TERMINATOR,
+      ScalaTokenTypes.tLPARENTHESIS)
 
   val firstClassParamClause = TokenSet.create(Array(ScalaTokenTypes.tLINE_TERMINATOR,
       ScalaTokenTypes.tLPARENTHESIS))
