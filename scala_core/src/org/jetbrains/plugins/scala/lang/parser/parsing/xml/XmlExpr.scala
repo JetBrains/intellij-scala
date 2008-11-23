@@ -28,6 +28,9 @@ object XmlExpr {
     }
     while (Element.parse(builder)) {}
     xmlMarker.done(ScalaElementTypes.XML_EXPR)
+    while (builder.getTokenType == ScalaTokenTypes.tLINE_TERMINATOR) {
+      builder.advanceLexer
+    }
     return true
   }
 }

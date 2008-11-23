@@ -1,0 +1,25 @@
+class XmlFun {
+  (
+    <a/>
+  )
+}
+-----
+class {class}
+white space in line { }
+identifier {XmlFun}
+white space in line { }
+{ {{}
+white space in line {
+  }
+( {(}
+white space in line {
+    }
+XML_START_TAG_START {<}
+XML_NAME {a}
+XML_EMPTY_ELEMENT_END {/>}
+white space in line {
+  }
+) {)}
+white space in line {
+}
+} {}}

@@ -1,27 +1,7 @@
-Reading skeleton file "idea-flex.skeleton".
-Reading "scala.flex"
-
-Warning in file "scala.flex" (line 237): 
-Dangerous lookahead expression, yytext might contain too many characters.
-{mNLS} / "case" ({LineTerminator}|{WhiteSpace})+("class" | "object")
-
-Warning in file "scala.flex" (line 246): 
-Dangerous lookahead expression, yytext might contain too many characters.
-{mNLS} / {specNotFollow} ([:jletter:] | [:jletterdigit:])
-
-Warning in file "scala.flex" (line 260): 
-Dangerous lookahead expression, yytext might contain too many characters.
-{mNLS} / {floatingPointLiteral}                 {   changeState();
-
-Warning in file "scala.flex" (line 270): 
-Dangerous lookahead expression, yytext might contain too many characters.
-{mNLS} / {notFollowNewLine}
-
-Warning in file "scala.flex" (line 444): 
-Dangerous lookahead expression, yytext might contain too many characters.
-{integerLiteral} / "." ({LineTerminator}|{WhiteSpace})* {identifier}
-Constructing NFA : 2,292 states in NFA
+Reading skeleton file "../../scaladoc/lexer/scaladoc.skeleton".
+Reading "../../scaladoc/lexer/scaladoc.flex"
+Constructing NFA : 113 states in NFA
 Converting NFA to DFA : 
-..............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
-632 states before minimization, 407 states in minimized DFA
-Writing code to "_ScalaCoreLexer.java"
+..........................................................
+76 states before minimization, 41 states in minimized DFA
+Writing code to "../../scaladoc/lexer/_ScalaDocLexer.java"

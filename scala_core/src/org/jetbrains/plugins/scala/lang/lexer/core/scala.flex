@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
     private Stack <IElementType> braceStack = new Stack<IElementType>();
 
     /* Defines, is in this section new line is whitespace or not? */
-    private boolean newLineAllowed(){
+    public boolean newLineAllowed(){
       if (braceStack.isEmpty()){
         return true;
       } else {

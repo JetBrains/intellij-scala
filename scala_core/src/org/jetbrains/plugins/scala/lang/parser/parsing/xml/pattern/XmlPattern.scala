@@ -36,6 +36,9 @@ object XmlPattern {
     ContentP parse builder
     if (!ETagP.parse(builder)) builder error ErrMsg("xml.end.tag.expected")
     patternMarker.done(ScalaElementTypes.XML_PATTERN)
+    while (builder.getTokenType == ScalaTokenTypes.tLINE_TERMINATOR) {
+      builder.advanceLexer
+    }
     return true
   }
 }
