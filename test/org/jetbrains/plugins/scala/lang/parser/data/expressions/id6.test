@@ -33,7 +33,7 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 Pattern Argument List
                   PsiElement(()('(')
-                  ReferencePattern
+                  CodeReferenceElement
                     PsiElement(identifier)('`m`')
                   PsiElement())(')')
               PsiWhiteSpace(' ')
