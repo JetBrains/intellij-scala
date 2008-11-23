@@ -77,6 +77,10 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
         return
       }
     }
+    expr match {
+      case _: ScConstrExpr => showErrorMessage(ScalaBundle.message("cannot.refactor.constr.expression"), project); return
+      case _ =>
+    }
     val typez: ScType = expr.getType match {
       case ScFunctionType(ret, params) if params.length == 0 => ret
       case x => x
