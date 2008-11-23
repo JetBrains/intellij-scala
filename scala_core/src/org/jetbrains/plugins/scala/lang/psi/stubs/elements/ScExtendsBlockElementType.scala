@@ -1,5 +1,4 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.elements
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.compiled.ScClsExtendsBlockImpl
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
 import api.toplevel.templates.ScExtendsBlock
 import api.toplevel.typedef.ScTypeDefinition
@@ -40,11 +39,6 @@ extends ScStubElementType[ScExtendsBlockStub, ScExtendsBlock]("extends block") {
     new ScExtendsBlockStubImpl(parentStub, this, baseNames.toArray)
   }
 
-  def createPsi(stub: ScExtendsBlockStub): ScExtendsBlock = if (isCompiled(stub)) {
-    new ScClsExtendsBlockImpl(stub)
-  } else {
-    new ScExtendsBlockImpl(stub)
-  }
-}
+  def createPsi(stub: ScExtendsBlockStub): ScExtendsBlock = new ScExtendsBlockImpl(stub)}
 
 
