@@ -21,7 +21,11 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def typeDefinitions(): Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
-  def superTypes(): Seq[ScType] = extendsBlock.superTypes
+  def selfTypeElement = extendsBlock.selfTypeElement
+
+  def selfType = extendsBlock.selfType
+
+  def superTypes(): List[ScType] = extendsBlock.superTypes
   def supers(): Seq[PsiClass] = extendsBlock.supers
 
   def allTypes = TypeDefinitionMembers.getTypes(this).values.map{ n => (n.info, n.substitutor) }
@@ -54,7 +58,10 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         case _ =>
           eb.earlyDefinitions match {
             case Some(ed) if PsiTreeUtil.isAncestor(ed, place, true) =>
-            case _ => if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
+            case _ => selfTypeElement match {
+              case Some(ste) if (PsiTreeUtil.isAncestor(ste, place, true)) =>
+              case _ => if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
+            }
           }
 
           true

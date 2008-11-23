@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates
 
+import base.types.ScSelfTypeElement
 import com.intellij.psi.PsiClass
 import psi.ScalaPsiElement
 import statements.{ScFunction, ScTypeAlias}
@@ -32,11 +33,14 @@ trait ScExtendsBlock extends ScalaPsiElement {
 
   def typeDefinitions : Seq[ScTypeDefinition]
 
-  def superTypes : Seq[ScType]
+  def superTypes : List[ScType]
 
   def supers : Seq[PsiClass]
 
   def isAnonymousClass: Boolean
 
   def directSupersNames: Seq[String]
+
+  def selfTypeElement() : Option[ScSelfTypeElement]
+  def selfType() : Option[ScType]
 }
