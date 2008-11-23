@@ -17,7 +17,9 @@ import lexer.ScalaTokenTypes
 object Pattern1 {
   def parse(builder: PsiBuilder): Boolean = {
 
-    def isVarId = builder.getTokenText.substring(0, 1).toLowerCase != builder.getTokenText.substring(0, 1)
+    def isVarId = builder.getTokenText.substring(0, 1).toLowerCase != builder.getTokenText.substring(0, 1) || (
+            builder.getTokenText.apply(0) == '`' && builder.getTokenText.apply(builder.getTokenText.length - 1) == '`'
+            )
 
     val pattern1Marker = builder.mark
     val backupMarker = builder.mark

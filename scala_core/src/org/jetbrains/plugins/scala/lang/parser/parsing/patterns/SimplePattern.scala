@@ -25,6 +25,10 @@ import xml.pattern.XmlPattern
 
 object SimplePattern extends ParserNode {
   def parse(builder: PsiBuilder): Boolean = {
+    def isVarId = builder.getTokenText.substring(0, 1).toLowerCase ==
+            builder.getTokenText.substring(0, 1) && !(
+            builder.getTokenText.apply(0) == '`' && builder.getTokenText.apply(builder.getTokenText.length - 1) == '`'
+            )
     val simplePatternMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tUNDER => {
@@ -89,7 +93,7 @@ object SimplePattern extends ParserNode {
     if (lookAhead(builder, ScalaTokenTypes.tIDENTIFIER) &&
             !lookAhead(builder, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tDOT) &&
             !lookAhead(builder, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tLPARENTHESIS) &&
-            builder.getTokenText.substring(0, 1).toLowerCase == builder.getTokenText.substring(0, 1)) {
+            isVarId) {
       val rpm = builder.mark
       builder.getTokenText
       builder.advanceLexer
@@ -133,8 +137,7 @@ object SimplePattern extends ParserNode {
               val wild = builder.mark
               if (withComma) builder.advanceLexer // ,
               builder.getTokenType
-              if (builder.getTokenText.substring(0, 1).toLowerCase ==
-                      builder.getTokenText.substring(0, 1)) {
+              if (isVarId) {
                 builder.advanceLexer // id
               } else {
                 wild.rollbackTo
