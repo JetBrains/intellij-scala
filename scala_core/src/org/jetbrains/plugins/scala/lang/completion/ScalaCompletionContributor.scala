@@ -22,5 +22,12 @@ import com.intellij.patterns.ElementPattern;
 */
 
 class ScalaCompletionContributor extends CompletionContributor {
-
+  override def advertise(parameters: CompletionParameters): String = {
+    val messages = Array[String](
+      "Local variables rename is inplace now.",
+      "Scala plugin page is available now.",
+      null
+    )
+    messages apply (new _root_.scala.util.Random).nextInt(messages.size)
+  }
 }
