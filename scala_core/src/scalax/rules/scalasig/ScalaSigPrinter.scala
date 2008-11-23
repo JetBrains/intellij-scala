@@ -44,14 +44,18 @@ class ScalaSigPrinter(stream : PrintStream) {
     if (symbol.isCase && !symbol.isMethod) print("case ")
   }
 
+  private def refinementClass(c : ClassSymbol) = c.name == "<refinement>"
+
   def printClass(level: Int, c: ClassSymbol) {
-    printModifiers(c)
-    if (c.isTrait) print("trait ") else print("class ")
-    print(processName(c.name))
-    printType(c)
-    print("{\n")
-    printChildren(level, c)
-    printWithIndent(level, "}\n")
+    if (!refinementClass(c)) {
+      printModifiers(c)
+      if (c.isTrait) print("trait ") else print("class ")
+      print(processName(c.name))
+      printType(c)
+      print("{\n")
+      printChildren(level, c)
+      printWithIndent(level, "}\n")
+    }
   }
 
   def printObject(level: Int, o: ObjectSymbol) {
