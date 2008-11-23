@@ -51,6 +51,9 @@ object Def {
         getAll()
       }
       modifierMarker.done(ScalaElementTypes.MODIFIERS)
+    } else {
+      val modifierMarker = builder.mark
+      modifierMarker.done(ScalaElementTypes.MODIFIERS)
     }
     //Look for val,var,def or type
     builder.getTokenType match {
