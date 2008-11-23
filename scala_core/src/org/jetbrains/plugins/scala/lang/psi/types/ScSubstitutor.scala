@@ -59,11 +59,11 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
       }
       case _ => t
     }
-    case ScTypeAliasType(name, args, lower, upper) => aliasesMap.get(name) match {
+    case ScTypeAliasType(alias, args, lower, upper) => aliasesMap.get(alias.name) match {
       case Some(t) => t.v
       case None => {
         import Misc.fun2suspension
-        new ScTypeAliasType(name, args, () => subst(lower.v), () => subst(upper.v))
+        new ScTypeAliasType(alias, args, () => subst(lower.v), () => subst(upper.v))
       }
     }
     case ScParameterizedType (des, typeArgs) => {

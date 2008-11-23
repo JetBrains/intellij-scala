@@ -18,7 +18,7 @@ import psi.ScalaPsiUtil
  */
 
 object ScalaInplaceVariableRenamer {
-  def mayImplaceRename(element: PsiElement, context: PsiElement): Boolean = {
+  def myRenameInPlace(element: PsiElement, context: PsiElement): Boolean = {
     element match {
       case name: ScNamedElement => {
         ScalaPsiUtil.nameContext(name) match {
