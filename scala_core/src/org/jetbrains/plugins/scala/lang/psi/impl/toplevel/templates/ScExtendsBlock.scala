@@ -45,24 +45,24 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   def superTypes(): List[ScType] = {
     val buffer = new ListBuffer[ScType]
+    def addType(t : ScType) : Unit = t match {
+      case ScCompoundType(comps, _, _) => comps.foreach {addType _}
+      case _ => buffer += t
+    }
     templateParents match {
       case None => getParent match {
         case obj : ScObject => buffer += AnyRef
         case _ => {
           val so = scalaObject()
           if (so != null) buffer += so
-          val jo = javaObject()
-          if (jo != null) buffer += jo
         }
       }
       case Some(parents) => {
-        buffer ++= (parents.typeElements map {
-          typeElement => typeElement.getType
-        }).toArray
+        parents.typeElements foreach { typeElement => addType(typeElement.getType) }
       }
     }
     selfType match {
-      case Some(st) => buffer += st
+      case Some(st) => addType(st)
       case None =>
     }
     buffer.toList
@@ -70,11 +70,6 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   private def scalaObject(): ScType = {
     val so = JavaPsiFacade.getInstance(getProject).findClass("scala.ScalaObject")
-    if (so != null) new ScDesignatorType(so) else null
-  }
-
-  private def javaObject(): ScType = {
-    val so = JavaPsiFacade.getInstance(getProject).findClass("java.lang.Object")
     if (so != null) new ScDesignatorType(so) else null
   }
 
