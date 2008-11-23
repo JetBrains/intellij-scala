@@ -4,7 +4,7 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import introduceVariable.typeManipulator.IType
 import java.util.{HashMap, Comparator}
 import parser.ScalaElementTypes
-import psi.api.base.patterns.ScReferencePattern
+import psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
 import psi.api.statements.ScVariable
 import psi.api.expr.ScReferenceExpression
 import psi.api.statements.ScValue
@@ -109,7 +109,7 @@ object ScalaRefactoringUtil {
         case null =>
         case x: ScBlock if x != expr =>
         case _: ScExpression => parent.getParent match {
-          case _: ScForStatement |
+          case _: ScForStatement | _: ScCaseClause |
               _: ScFinallyBlock | _: ScFunctionDefinition=>
           case x => return get(x)
         }
