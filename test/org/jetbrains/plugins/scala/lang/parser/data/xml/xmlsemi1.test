@@ -46,5 +46,5 @@ ScalaFile
                 XmlToken:XML_END_TAG_START('</')
                 XmlToken:XML_NAME('span')
                 XmlToken:XML_TAG_END('>')
-        PsiElement(newline)('\n')
+          PsiElement(newline)('\n')
         PsiElement(})('}')

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
-import bnf.BNF
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 
@@ -29,21 +28,11 @@ object SelfInvocation {
       }
     }
     val argExprsMarker = builder.mark
-    var numberOfArgExprs = 0;
 
-    if (BNF.firstArgumentExprs.contains(builder.getTokenType)) {
-      ArgumentExprs parse builder
-      numberOfArgExprs = 1
-    }
-    else {
+    if (!ArgumentExprs.parse(builder)) {
       builder error ScalaBundle.message("arg.expr.expected")
     }
-
-    while (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
-      ArgumentExprs parse builder
-      numberOfArgExprs = numberOfArgExprs + 1
-    }
-
+    while (ArgumentExprs parse builder) {}
     argExprsMarker.drop
     selfMarker.done(ScalaElementTypes.SELF_INVOCATION)
     return true
