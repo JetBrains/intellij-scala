@@ -100,7 +100,6 @@ object Pattern2 {
       }
     }
     pattern2Marker.drop
-    if (Pattern3.parse(builder)) return true
-    else return false
+    Pattern3.parse(builder)
   }
 }

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.parser.bnf.BNF
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -28,8 +27,7 @@ object AnnotType {
     if (isAnnotation) annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
     else annotationsMarker.drop
     //parse Simple type
-    if (BNF.firstSimpleType.contains(builder.getTokenType)){
-      SimpleType parse builder
+    if (SimpleType parse builder){
       if (isAnnotation) annotMarker.done(ScalaElementTypes.ANNOT_TYPE)
       else annotMarker.drop
       return true

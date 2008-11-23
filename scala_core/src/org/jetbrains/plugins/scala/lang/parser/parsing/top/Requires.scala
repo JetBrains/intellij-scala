@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
-import bnf.BNF
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import types.SimpleType
@@ -17,10 +16,7 @@ object Requires {
       case ScalaTokenTypes.kREQUIRES => {
         builder.advanceLexer //Ate requires
         //parsing simple type
-        if (BNF.firstSimpleType.contains(builder.getTokenType)) {
-          SimpleType parse builder
-        }
-        else {
+        if (!SimpleType.parse(builder)) {
           builder error ScalaBundle.message("simple.type.expected.requires")
         }
         requiresMarker.done(ScalaElementTypes.REQUIRES_BLOCK)

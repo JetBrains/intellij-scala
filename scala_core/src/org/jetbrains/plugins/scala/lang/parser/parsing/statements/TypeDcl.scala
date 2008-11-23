@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
-import bnf.BNF
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import params.TypeParamClause
@@ -45,10 +44,9 @@ object TypeDcl {
         return false
       }
     }
-    var isTypeParamClause = false;
-    if (BNF.firstTypeParamClause.contains(builder.getTokenType)) {
-      isTypeParamClause = TypeParamClause parse builder
-    }
+    val isTypeParamClause = if (TypeParamClause parse builder) {
+      true
+    } else false
     builder.getTokenText match {
       case ">:" => {
         builder.advanceLexer

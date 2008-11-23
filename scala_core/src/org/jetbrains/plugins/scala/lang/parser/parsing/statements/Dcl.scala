@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
 import base.Modifier
-import bnf.BNF
 import com.intellij.lang.PsiBuilder
 import expressions.Annotation
 import lexer.ScalaTokenTypes
@@ -30,8 +29,7 @@ object Dcl {
       //parse modifiers
       val modifierMarker = builder.mark
       var isModifier = false
-      while (BNF.firstModifier.contains(builder.getTokenType)) {
-        Modifier.parse(builder)
+      while (Modifier.parse(builder)) {
         isModifier = true
       }
       modifierMarker.done(ScalaElementTypes.MODIFIERS)
