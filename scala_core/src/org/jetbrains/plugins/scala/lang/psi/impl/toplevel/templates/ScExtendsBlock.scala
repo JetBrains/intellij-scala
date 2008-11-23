@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates
 
 
-import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeElement}
+import _root_.scala.collection.mutable.ListBuffer
+import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScSelfTypeElement, ScTypeElement}
 import api.statements.{ScValue, ScVariable}
 import api.toplevel.typedef.ScObject
 import api.expr.ScNewTemplateDefinition
@@ -34,8 +35,16 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   def empty = getNode.getFirstChildNode == null
 
-  def superTypes(): Seq[ScType] = {
-    val buffer = new ArrayBuffer[ScType]
+  def selfType = selfTypeElement match {
+    case Some(ste) => ste.typeElement match {
+      case Some(te) => Some(te.getType)
+      case None => None
+    }
+    case None => None
+  }
+
+  def superTypes(): List[ScType] = {
+    val buffer = new ListBuffer[ScType]
     templateParents match {
       case None => getParent match {
         case obj : ScObject => buffer += AnyRef
@@ -52,7 +61,11 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
         }).toArray
       }
     }
-    buffer.toArray
+    selfType match {
+      case Some(st) => buffer += st
+      case None =>
+    }
+    buffer.toList
   }
 
   private def scalaObject(): ScType = {
@@ -136,5 +149,10 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   def functions() = templateBody match {
     case None => Seq.empty
     case Some(body) => body.functions
+  }
+
+  def selfTypeElement() = templateBody match {
+    case None => None
+    case Some(body) => body.selfTypeElement
   }
 }

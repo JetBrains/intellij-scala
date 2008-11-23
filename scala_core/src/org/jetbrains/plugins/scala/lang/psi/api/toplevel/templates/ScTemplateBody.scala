@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates
 
+import base.types.ScSelfTypeElement
 import statements.{ScFunction, ScDeclaredElementsHolder, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import toplevel.typedef.ScMember
@@ -20,4 +21,6 @@ trait ScTemplateBody extends ScalaPsiElement {
   def aliases = findChildrenByClass(classOf[ScTypeAlias])
 
   def typeDefinitions: Seq[ScTypeDefinition] = findChildrenByClass(classOf[ScTypeDefinition])
+
+  def selfTypeElement() = findChild(classOf[ScSelfTypeElement])
 }
