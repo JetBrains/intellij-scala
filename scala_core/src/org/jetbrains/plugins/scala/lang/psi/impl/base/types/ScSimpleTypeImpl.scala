@@ -31,7 +31,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           case None => Nothing
           case Some(ScalaResolveResult(e, s)) => e match {
             case aliasDef: ScTypeAliasDefinition =>
-              if (aliasDef.typeParameters == 0) s.subst(aliasDef.aliasedType) else new ScTypeConstructorType(aliasDef, s)
+              if (aliasDef.typeParameters.length == 0) s.subst(aliasDef.aliasedType) else new ScTypeConstructorType(aliasDef, s)
             case alias: ScTypeAliasDeclaration => new ScTypeAliasType(alias, s)
             case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
             case synth: ScSyntheticClass => synth.t
