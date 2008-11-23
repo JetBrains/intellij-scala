@@ -9,6 +9,7 @@ import psi.api.statements.params.{ScClassParameter, ScParameter}
 import psi.api.statements.{ScFunction, ScValue, ScVariable}
 import psi.api.toplevel.templates.ScTemplateBody
 import psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
+import psi.impl.statements.params.ScParameterImpl
 import psi.ScalaPsiUtil
 
 /**

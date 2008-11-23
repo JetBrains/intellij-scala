@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
 import _root_.scala.collection.mutable.HashSet
+import com.intellij.openapi.project.Project
 import com.intellij.psi.{JavaPsiFacade, PsiClass}
 import psi.types._
 import psi.api.expr._
@@ -15,6 +16,11 @@ import _root_.scala.collection.mutable.ArrayBuffer
 */
 
 object NameSuggester {
+  private def emptyValidator(project: Project) = new NameValidator {
+    def getProject(): Project = project
+    def validateName(name: String, increaseNumber: Boolean): String = name
+  }
+  def suggestNames(expr: ScExpression): Array[String] = suggestNames(expr, emptyValidator(expr.getProject))
   def suggestNames(expr: ScExpression, validator: NameValidator): Array[String] = {
     val names = new HashSet[String]
     generateNamesByType(expr.getType, names, validator)
@@ -23,6 +29,17 @@ object NameSuggester {
       names += validator.validateName("value", true)
     }
 
+    return (for (name <- names if name != "" && ScalaNamesUtil.isIdentifier(name) || name == "class") yield {
+      if (name != "class") name else "clazz"
+    }).toList.reverse.toArray
+  }
+
+  def suggestNamesByType(typez: ScType): Array[String] = {
+    val names = new HashSet[String]
+    generateNamesByType(typez, names, emptyValidator(null))
+    if (names.size == 0) {
+      names += "value"
+    }
     return (for (name <- names if name != "" && ScalaNamesUtil.isIdentifier(name) || name == "class") yield {
       if (name != "class") name else "clazz"
     }).toList.reverse.toArray
