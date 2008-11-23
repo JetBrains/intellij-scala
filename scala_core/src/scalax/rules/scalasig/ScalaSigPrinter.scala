@@ -44,7 +44,6 @@ class ScalaSigPrinter(stream : PrintStream) {
   }
 
   def printClass(level: Int, c: ClassSymbol) {
-    printAttributes(c)
     printModifiers(c)
     if (c.isTrait) print("trait ") else print("class ")
     print(processName(c.name))
@@ -55,7 +54,6 @@ class ScalaSigPrinter(stream : PrintStream) {
   }
 
   def printObject(level: Int, o: ObjectSymbol) {
-    printAttributes(o)
     printModifiers(o)
     print("object ")
     print(processName(o.name))
@@ -67,7 +65,6 @@ class ScalaSigPrinter(stream : PrintStream) {
   }
 
   def printMethod(level: Int, m: MethodSymbol) {
-    printAttributes(m)
     printModifiers(m)
     print("def ")
     m.name match {
@@ -94,7 +91,6 @@ class ScalaSigPrinter(stream : PrintStream) {
   }
 
   def printAlias(level: Int, a: AliasSymbol) {
-    printAttributes(a)
     print("type ")
     print(processName(a.name))
     printType(a.infoType, " = ")
@@ -166,7 +162,7 @@ class ScalaSigPrinter(stream : PrintStream) {
     })
     case TypeRefType(prefix, symbol, typeArgs) => sep + processName(symbol.path) + typeArgString(typeArgs)
     case TypeBoundsType(lower, upper) => " >: " + toString(lower) + " <: " + toString(upper)
-    case RefinedType(classSym, typeRefs) => sep + processName(classSym.path) + typeRefs.map(toString).mkString(" with ", " with ", "")
+    case RefinedType(classSym, typeRefs) => sep + typeRefs.map(toString).mkString("", " with ", "")
     case ClassInfoType(symbol, typeRefs) => sep + typeRefs.map(toString).mkString(" extends ", " with ", "")
 
     case ImplicitMethodType(resultType, _) => toString(resultType, sep)
