@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 import com.intellij.openapi.editor.{Editor, VisualPosition}
 import psi.api.ScalaFile
 import psi.ScalaPsiUtil
+import psi.types.{ScType, ScFunctionType}
 import util.ScalaUtils
 import psi.api.expr._
 import psi.api.statements.ScFunction
@@ -15,7 +16,6 @@ import psi.api.base.ScReferenceElement
 import _root_.scala.collection.mutable.ArrayBuffer
 import typeManipulator.TypeManipulator
 import typeManipulator.IType
-import psi.types.ScType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.psi.PsiType
@@ -77,7 +77,10 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
         return
       }
     }
-    val typez: ScType = expr.getType
+    val typez: ScType = expr.getType match {
+      case ScFunctionType(ret, params) if params.length == 0 => ret
+      case x => x
+    }
     var parent: PsiElement = expr
     while (parent != null && !parent.isInstanceOf[ScalaFile] && !parent.isInstanceOf[ScGuard]) parent = parent.getParent
     parent match {
