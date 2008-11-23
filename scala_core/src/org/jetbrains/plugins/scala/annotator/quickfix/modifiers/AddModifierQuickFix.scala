@@ -14,7 +14,7 @@ import lang.psi.api.toplevel.ScModifierListOwner
  */
 
 class AddModifierQuickFix(method: ScModifierListOwner, modifier: String) extends IntentionAction {
-  def getText: String = ScalaBundle.message("add.modifier.fix", Array[Object](modifier))
+  def getText: String = ScalaBundle.message("add.modifier.fix", modifier)
 
   def startInWriteAction: Boolean = true
 
@@ -22,5 +22,5 @@ class AddModifierQuickFix(method: ScModifierListOwner, modifier: String) extends
 
   def invoke(project: Project, editor: Editor, file: PsiFile): Unit = method.setModifierProperty(modifier, true)
 
-  def getFamilyName: String = ScalaBundle.message("add.modifier.fix", Array[Object](modifier))
+  def getFamilyName: String = ScalaBundle.message("add.modifier.fix", modifier)
 }
