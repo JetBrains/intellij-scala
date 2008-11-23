@@ -191,7 +191,7 @@ object TypeDefinitionMembers {
 
   class MyProvider[Dom, T](e: Dom, builder: Dom => T) extends CachedValueProvider[T] {
     def compute() = new CachedValueProvider.Result(builder(e),
-    Array[Object](PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
+      PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
   }
 
   def processDeclarations(clazz : PsiClass,

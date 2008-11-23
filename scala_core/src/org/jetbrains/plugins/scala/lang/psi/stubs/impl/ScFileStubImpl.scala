@@ -30,7 +30,7 @@ class ScFileStubImpl(file: ScalaFile) extends PsiFileStubWrapperImpl[ScalaFile](
 
   def getClasses = {
     import ScalaElementTypes._
-    getChildrenByType(TokenSet.create(Array(CLASS_DEF, OBJECT_DEF, TRAIT_DEF)), PsiClass.ARRAY_FACTORY)
+    getChildrenByType(TokenSet.create(CLASS_DEF, OBJECT_DEF, TRAIT_DEF), PsiClass.ARRAY_FACTORY)
   }
 
   def getFileName = name
