@@ -31,6 +31,19 @@ object ArgumentExprs {
           case ScalaTokenTypes.tRPARENTHESIS => {
             builder.advanceLexer //Ate )
           }
+          case ScalaTokenTypes.tLINE_TERMINATOR => {
+            val rMarker = builder.mark
+            builder.advanceLexer
+            builder.getTokenType match {
+              case ScalaTokenTypes.tLPARENTHESIS => {
+                builder.advanceLexer
+              }
+              case _ => {
+                rMarker.rollbackTo
+                builder error ScalaBundle.message("rparenthesis.expected")
+              }
+            }
+          }
           case _ => {
             builder error ScalaBundle.message("rparenthesis.expected")
           }
