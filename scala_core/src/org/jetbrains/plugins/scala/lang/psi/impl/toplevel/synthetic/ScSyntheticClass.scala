@@ -16,7 +16,7 @@ import com.intellij.psi.impl.light.LightElement
 import _root_.scala.collection.mutable.{ListBuffer, Map, HashMap, Set, HashSet, MultiMap}
 
 abstract class SyntheticNamedElement(val manager: PsiManager, name: String)
-extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNamedElement {
+extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifierOwner {
   def getName = name
   def getText = ""
   def setName(newName: String) : PsiElement = throw new IncorrectOperationException("nonphysical element")
@@ -25,6 +25,7 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNamedElement
   override def getContainingFile = SyntheticClasses.get(manager.getProject).file
 
   def nameId(): PsiElement = null
+  override def getNameIdentifier: PsiIdentifier = null
   protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = Array[T]()
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = null
 }

@@ -5,15 +5,15 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, PhysicalSignat
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import api.base.patterns.ScReferencePattern
+import api.expr.{ScAnnotations, ScBlock}
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef.ScMember
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import stubs.elements.wrappers.DummyASTNode
 import stubs.ScFunctionStub
 import toplevel.synthetic.JavaIdentifier
-
-import api.expr.ScAnnotations
 
 import toplevel.typedef.{TypeDefinitionMembers, MixinNodes}
 import impl.toplevel.typedef.TypeDefinitionMembers.MethodNodes
@@ -130,4 +130,16 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def calcType = paramClauses.clauses.toList.foldRight(returnType) {((cl, t) =>
           new ScFunctionType(t, cl.parameters.map {p => p.calcType}))}
+
+  override def getUseScope: SearchScope = {
+    getParent match {
+      case _: ScTemplateBody => super.getUseScope
+      case _ => {
+        var el: PsiElement = getParent
+        while (el != null && !el.isInstanceOf[ScBlock] && !el.isInstanceOf[ScMember]) el = el.getParent
+        if (el != null) new LocalSearchScope(el)
+        else super.getUseScope
+      }
+    }
+  }
 }
