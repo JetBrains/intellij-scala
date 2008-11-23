@@ -41,7 +41,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
   val BLOCK_ELEMENT_TYPES = {
     import ScalaElementTypes._
-    TokenSet.create(Array(BLOCK_EXPR, TEMPLATE_BODY, PACKAGING, TRY_BLOCK, MATCH_STMT, CATCH_BLOCK))
+    TokenSet.create(BLOCK_EXPR, TEMPLATE_BODY, PACKAGING, TRY_BLOCK, MATCH_STMT, CATCH_BLOCK)
   }
 
 
