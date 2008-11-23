@@ -46,7 +46,7 @@ import synthetic.JavaIdentifier
 import types.{ScSubstitutor, ScType}
 import Misc._
 
-abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake  {
+abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
     element match {
       case mem: ScMember => addMember(mem, None)
@@ -54,7 +54,6 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     }
   }
 
-  
 
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
@@ -68,15 +67,19 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
 
   override def getQualifiedName: String = {
     def _packageName(e: PsiElement): String = e.getParent match {
-      case t: ScTypeDefinition => _packageName(t) + "." + t.name
+      case t: ScTypeDefinition => {
+        val pn = _packageName(t)
+        if (pn.length > 0) pn + "." + t.name else t.name
+      }
       case p: ScPackaging => {
         val _packName = _packageName(p)
         if (_packName.length > 0) _packName + "." + p.getPackageName else p.getPackageName
       }
       case f: ScalaFile => f.getPackageName
-      case null => ""
+      case _: PsiFile | null => ""
       case parent => _packageName(parent)
     }
+
     val packageName = _packageName(this)
     if (packageName.length > 0) packageName + "." + name else name
   }
@@ -84,11 +87,14 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
   override def getPresentation(): ItemPresentation = {
     new ItemPresentation() {
       def getPresentableText(): String = name
+
       def getTextAttributesKey(): TextAttributesKey = null
+
       def getLocationString(): String = getPath match {
         case "" => "<default>"
         case p => '(' + p + ')'
       }
+
       override def getIcon(open: Boolean) = ScTypeDefinitionImpl.this.getIcon(0)
     }
   }
@@ -160,9 +166,10 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
             case _ => false
           }
         }
-        case _ => drv.getSuperTypes.find{ psiT =>
-                val c = psiT.resolveGenerics.getElement
-                if (c == null) false else c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
+        case _ => drv.getSuperTypes.find{
+          psiT =>
+                  val c = psiT.resolveGenerics.getElement
+                  if (c == null) false else c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
         }
       }
     }
@@ -172,14 +179,13 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
   def functionsByName(name: String) =
     for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method == name) yield n.info.method
 
-  
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
   override def getIcon(flags: Int) = {
     val icon = getIconInner
     val isLocked = (flags & Iconable.ICON_FLAG_READ_STATUS) != 0 && !isWritable
-    val rowIcon = ElementBase.createLayeredIcon(icon,  0)
+    val rowIcon = ElementBase.createLayeredIcon(icon, 0)
     if ((flags & Iconable.ICON_FLAG_VISIBILITY) != 0) {
       VisibilityIcons.setVisibilityIcon(getModifierList, rowIcon);
     }
