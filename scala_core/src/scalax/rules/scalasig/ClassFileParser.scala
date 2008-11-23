@@ -152,10 +152,10 @@ object ClassFileParser extends ByteCodeReader {
   val classFile = header ~ fields ~ methods ~ attributes ~- !u1 ^~~~^ ClassFile 
 
   // TODO create a useful object, not just a string
-  def memberRef(description : String) = u2 ~ u2 ^^ add1 { 
-    case classRef ~ nameAndTypeRef => pool => description + ": " + pool(classRef) + ", " + pool(nameAndTypeRef) 
+  def memberRef(description : String) = u2 ~ u2 ^^ add1 {
+    case classRef ~ nameAndTypeRef => pool => description + ": " + pool(classRef) + ", " + pool(nameAndTypeRef)
   }
-  
+
   def add1[T](f : T => ConstantPool => Any)(raw : T)(pool : ConstantPool) = pool add f(raw)
   def add2[T](f : T => ConstantPool => Any)(raw : T)(pool : ConstantPool) = pool add f(raw) add { pool => "<empty>" }
 }

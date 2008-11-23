@@ -31,8 +31,6 @@ abstract class ScalaSigSymbol extends Symbol {
 case class ExternalSymbol(name : String, parent : Option[Symbol], entry : ScalaSig#Entry) extends ScalaSigSymbol {
   override def toString = path
   def hasFlag(flag : Long) = false
-
-  override def path = if (name == "<empty>") "" else super.path
 }
 
 case class SymbolInfo(name : String, owner : Symbol, flags : Int, privateWithin : Option[AnyRef], info : Int, entry : ScalaSig#Entry) {

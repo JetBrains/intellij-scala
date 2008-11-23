@@ -166,7 +166,7 @@ class ScalaSigPrinter(stream : PrintStream) {
     })
     case TypeRefType(prefix, symbol, typeArgs) => sep + processName(symbol.path) + typeArgString(typeArgs)
     case TypeBoundsType(lower, upper) => " >: " + toString(lower) + " <: " + toString(upper)
-    //case RefinedType(classSymRef, typeRefs) =>
+    case RefinedType(classSym, typeRefs) => sep + processName(classSym.path) + typeRefs.map(toString).mkString(" with ", " with ", "")
     case ClassInfoType(symbol, typeRefs) => sep + typeRefs.map(toString).mkString(" extends ", " with ", "")
 
     case ImplicitMethodType(resultType, _) => toString(resultType, sep)
@@ -176,7 +176,8 @@ class ScalaSigPrinter(stream : PrintStream) {
     case AnnotatedType(typeRef, attribTreeRefs) => toString(typeRef, sep)
     case AnnotatedWithSelfType(typeRef, symbol, attribTreeRefs) => toString(typeRef, sep)
     //case DeBruijnIndexType(typeLevel, typeIndex) =>
-    //case ExistentialType(typeRef, symbols) =>
+    case ExistentialType(typeRef, symbols) =>
+      toString(typeRef, sep) + symbols.map(printSymbol _).mkString(" forSome {", ";", "}")
     case _ => sep + t.toString
   }
 

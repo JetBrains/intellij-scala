@@ -60,15 +60,19 @@ object DecompilerUtil {
           val baos = new ByteArrayOutputStream
           val stream = new PrintStream(baos)
           val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
-            val owner = syms.first.path
-            if (owner.length > 0) {stream.print("package "); stream.print(owner)}
-            // Print classes
-          val printer = new ScalaSigPrinter(stream)
-            for (c <- syms) {
-              println
-              printer.printSymbol(c)
+          syms.first.parent match {
+            case Some(p) if (p.name != "<empty>") => {
+              stream.print("package "); stream.print(p.path); stream.println
             }
-            baos.toString
+            case _ =>
+          }
+          // Print classes
+          val printer = new ScalaSigPrinter(stream)
+          for (c <- syms) {
+            println
+            printer.printSymbol(c)
+          }
+          baos.toString
         }
       }
     }
