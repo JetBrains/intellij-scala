@@ -9,16 +9,17 @@ class ScalaSigPrinter(stream : PrintStream) {
   def printSymbol(symbol: Symbol) {printSymbol(0, symbol)}
 
   def printSymbol(level: Int, symbol: Symbol) {
-    def indent() {for (i <- 1 to level) print("  ")}
+    if (!symbol.isLocal) {
+      def indent() {for (i <- 1 to level) print("  ")}
 
-
-    symbol match {
-      case o: ObjectSymbol => indent(); printObject(level, o)
-      case c: ClassSymbol => indent(); printClass(level, c)
-      case m: MethodSymbol => indent(); printMethod(level, m)
-      case a: AliasSymbol => indent(); printAlias(level, a)
-      case t: TypeSymbol => ()
-      case s => {}
+      symbol match {
+        case o: ObjectSymbol => indent(); printObject(level, o)
+        case c: ClassSymbol => indent(); printClass(level, c)
+        case m: MethodSymbol => indent(); printMethod(level, m)
+        case a: AliasSymbol => indent(); printAlias(level, a)
+        case t: TypeSymbol => ()
+        case s => {}
+      }
     }
   }
 
@@ -143,8 +144,7 @@ class ScalaSigPrinter(stream : PrintStream) {
   def toString(t: Type, sep: String): String = t match {
     case ThisType(symbol) => sep + symbol.path + ".type"
 
-    //todo
-    case SingleType(typeRef, symbol) => toString(typeRef, sep) + " with Singleton"
+    case SingleType(typeRef, symbol) => sep + symbol.path + ".type"
 
     case ConstantType(constant) => sep + (constant match {
       case null => "scala.Null"
