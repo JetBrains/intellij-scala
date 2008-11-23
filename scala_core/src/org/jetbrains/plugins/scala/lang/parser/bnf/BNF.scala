@@ -16,7 +16,7 @@ object BNF {
         ScalaTokenTypes.tSYMBOL,
         ScalaTokenTypes.kNULL)
 
-  val tLITERALS = TokenSet.create(literals)
+  val tLITERALS = TokenSet.create(literals: _*)
 
   val firstLiteral: TokenSet = TokenSet.create(literals)
 
@@ -157,11 +157,11 @@ object BNF {
   val firstFunTypeParam = TokenSet.create(ScalaTokenTypes.tLINE_TERMINATOR,
       ScalaTokenTypes.tLSQBRACKET)
 
-  val firstTypeParamClause = TokenSet.create(Array(ScalaTokenTypes.tLINE_TERMINATOR,
-      ScalaTokenTypes.tLSQBRACKET))
+  val firstTypeParamClause = TokenSet.create(ScalaTokenTypes.tLINE_TERMINATOR,
+      ScalaTokenTypes.tLSQBRACKET)
 
-  val firstClassTypeParamClause = TokenSet.create(Array(ScalaTokenTypes.tLINE_TERMINATOR,
-      ScalaTokenTypes.tLSQBRACKET))
+  val firstClassTypeParamClause = TokenSet.create(ScalaTokenTypes.tLINE_TERMINATOR,
+      ScalaTokenTypes.tLSQBRACKET)
 
 
   val firstParamClause = TokenSet.create(Array(ScalaTokenTypes.tLINE_TERMINATOR,

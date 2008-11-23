@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.intention
 
+import codeInspection.importInspections.ScalaAddImportPass
 import lang.psi._
 import lang.psi.api.ScalaFile
 import lang.resolve.{ResolveUtils}
@@ -35,7 +36,8 @@ object OuterImportsActionCreator {
     val actionList = new ListBuffer[IntentionAction]
 
     val facade = JavaPsiFacade.getInstance(project)
-    val classes = facade.getShortNamesCache().getClassesByName(refElement.refName, GlobalSearchScope.allScope(project))
+    val classes = ScalaAddImportPass.getClasses(refElement, project)
+    //facade.getShortNamesCache().getClassesByName(refElement.refName, GlobalSearchScope.allScope(project))
 
     val kinds = refElement.getKinds(false)
     for (clazz <- classes) {

@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.codeInspection.importInspections
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.imports.ScImportStmt
-import lang.psi.api.toplevel.typedef.ScObject
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import lang.psi.api.expr.ScReferenceExpression
+import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import lang.resolve.ResolveUtils
 import com.intellij.codeInsight.hint.{HintManagerImpl, HintManager, QuestionAction}
 import lang.formatting.settings.ScalaCodeStyleSettings
@@ -58,7 +59,7 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
           !importsElement(element)) {
         element.getParent match {
           case x: ScReferenceElement if x.refName != null && (x.multiResolve(false).length == 0) => {
-            val classes = getClasses(x)
+            val classes = ScalaAddImportPass.getClasses(x, myProject)
             classes.length match {
               case 0 =>
               case 1 if scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY &&
@@ -86,14 +87,7 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
     return elem != null
   }
 
-  private def getClasses(ref : ScReferenceElement) = {
-    val kinds = ref.getKinds(false)
-    val cache = JavaPsiFacade.getInstance(myProject).getShortNamesCache
-    cache.getClassesByName(ref.refName, ref.getResolveScope).filter {
-      clazz => clazz.getQualifiedName.indexOf(".") > 0 &&
-              ResolveUtils.kindMatches(clazz, kinds)
-    }
-  }
+
 
   private def caretNear(ref: ScReferenceElement): Boolean = ref.getTextRange.grown(1).contains(editor.getCaretModel.getOffset)
 
@@ -124,7 +118,7 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
 
         if (HintManagerImpl.getInstanceImpl.hasShownHintsThatWillHideByOtherHint()) return
 
-        val classes = getClasses(ref)
+        val classes = ScalaAddImportPass.getClasses(ref, myProject)
         val action = new ScalaAddImportAction(classes: Array[PsiClass], ref: ScReferenceElement)
         val offset = ref.getTextRange.getStartOffset
         if (classes.length > 0 && offset >= startOffset && offset <= endOffset) {
@@ -179,6 +173,30 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
       else chooseClass
 
       return true
+    }
+  }
+}
+
+object ScalaAddImportPass {
+  private def notInner(clazz: PsiClass): Boolean = {
+    clazz match {
+      case t: ScTypeDefinition => {
+        t.getParent match {
+          case _: ScalaFile => true
+          case f: ScObject => notInner(f)
+          case _ => false
+        }
+      }
+      case _ => true
+    }
+  }
+
+  def getClasses(ref : ScReferenceElement, myProject: Project) = {
+    val kinds = ref.getKinds(false)
+    val cache = JavaPsiFacade.getInstance(myProject).getShortNamesCache
+    cache.getClassesByName(ref.refName, ref.getResolveScope).filter {
+      clazz => clazz.getQualifiedName.indexOf(".") > 0 &&
+              ResolveUtils.kindMatches(clazz, kinds) && notInner(clazz)
     }
   }
 }
