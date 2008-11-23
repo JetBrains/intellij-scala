@@ -24,7 +24,7 @@ object ScExistentialTypeReducer {
     t match {
       case ScFunctionType(ret, params) => params.foldLeft(collectNames(ret)) {(curr, p) => curr ++ collectNames(p)}
       case ScTupleType(comps) => comps.foldLeft(Set.empty[String]) {(curr, p) => curr ++ collectNames(p)}
-      case ScTypeAliasType(name, _, _, _) => HashSet.empty + name
+      case ScTypeAliasType(alias, _, _, _) => HashSet.empty + alias.name
       case ScDesignatorType(elem) => HashSet.empty + elem.getName
       case ScParameterizedType (des, typeArgs) =>
         typeArgs.foldLeft(Set.empty[String]) {(curr, p) => curr ++ collectNames(p)}

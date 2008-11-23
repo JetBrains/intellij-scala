@@ -35,6 +35,6 @@ public class ScalaRefactoringSupportProvider extends DefaultRefactoringSupportPr
 
   @Override
   public boolean doInplaceRenameFor(PsiElement element, PsiElement context) {
-    return ScalaInplaceVariableRenamer.mayImplaceRename(element, context);
+    return ScalaInplaceVariableRenamer.myRenameInPlace(element, context);
   }
 }
