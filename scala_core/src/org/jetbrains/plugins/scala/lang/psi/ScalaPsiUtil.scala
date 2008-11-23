@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{FullSignature, PhysicalSignature, Signature, ScSubstitutor}
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import api.base.{ScStableCodeReferenceElement, ScModifierList}
-import api.statements.params.ScClassParameter
+import api.statements.params.{ScClassParameter, ScParameter}
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.{ScNamedElement, ScTyped}
@@ -46,7 +46,7 @@ object ScalaPsiUtil {
     var parent = x.getParent
     def isAppropriatePsiElement(x: PsiElement): Boolean = {
       x match {
-        case _: ScValue | _: ScVariable | _: ScTypeAlias | _: ScClassParameter | _: PsiMethod => true
+        case _: ScValue | _: ScVariable | _: ScTypeAlias | _: ScParameter | _: PsiMethod => true
         case _ => false
       }
     }
