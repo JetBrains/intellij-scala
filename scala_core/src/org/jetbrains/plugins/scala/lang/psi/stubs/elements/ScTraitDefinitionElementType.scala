@@ -1,5 +1,4 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.elements
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.compiled.ScClsTypeDefinitionImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import api.toplevel.typedef.ScTrait
@@ -13,8 +12,6 @@ class ScTraitDefinitionElementType extends ScTypeDefinitionElementType[ScTrait](
 
   def createElement(node: ASTNode): PsiElement = new ScTraitImpl(node)
 
-  def createPsi(stub: ScTypeDefinitionStub) = if (isCompiled(stub))
-    new ScClsTypeDefinitionImpl(stub) else
-    new ScTraitImpl(stub)
+  def createPsi(stub: ScTypeDefinitionStub) = new ScTraitImpl(stub)
 
 }

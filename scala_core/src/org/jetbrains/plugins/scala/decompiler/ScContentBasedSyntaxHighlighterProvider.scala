@@ -7,7 +7,6 @@ import com.intellij.psi.impl.PsiManagerImpl
 import java.io.{File, ByteArrayOutputStream}
 
 import lang.psi.api.ScalaFile
-import lang.psi.impl.compiled.ScClsFileImpl
 import com.intellij.lang.Language
 import com.intellij.openapi.fileTypes.{StdFileTypes, FileType, ContentBasedClassFileProcessor}
 import com.intellij.openapi.fileTypes.{StdFileTypes, FileType}
