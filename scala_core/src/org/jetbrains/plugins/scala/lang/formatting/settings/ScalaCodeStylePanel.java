@@ -72,6 +72,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox addUnambiguousImportsOnCheckBox;
   private JCheckBox alignIfElseStatementCheckBox;
   private JSpinner linesAfterLBrace;
+  private JCheckBox donTUseContinuationCheckBox;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -141,6 +142,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.SPACE_WITHIN_METHOD_PARENTHESES = withinMethodBox.isSelected();
     scalaSettings.SPACE_WITHIN_PARENTHESES = withinBox.isSelected();
     scalaSettings.SPACE_WITHIN_WHILE_PARENTHESES = withinWhileBox.isSelected();
+    scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS = donTUseContinuationCheckBox.isSelected();
     scalaSettings.KEEP_LINE_BREAKS = keepLineBreaksCheckBox.isSelected();
     if ((Integer) keepCodeSpinner.getValue() >= 0) {
       scalaSettings.KEEP_BLANK_LINES_IN_CODE = (Integer) keepCodeSpinner.getValue();
@@ -275,6 +277,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.SPACE_WITHIN_WHILE_PARENTHESES != withinWhileBox.isSelected()) {
       return true;
     }
+    if (scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS != donTUseContinuationCheckBox.isSelected()) {
+      return true;
+    }
     if (scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE != (Integer) keepBeforeSpinner.getValue()) return true;
     if (scalaSettings.KEEP_BLANK_LINES_IN_CODE != (Integer) keepCodeSpinner.getValue()) return true;
     if (scalaSettings.BLANK_LINES_AFTER_LBRACE != (Integer) linesAfterLBrace.getValue()) return true;
@@ -341,6 +346,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(beforeTryLBraceBox, settings.SPACE_BEFORE_TRY_LBRACE);
     setValue(beforeCatchLBraceBox, settings.SPACE_BEFORE_CATCH_LBRACE);
     setValue(beforeFinallyLBraceBox, settings.SPACE_BEFORE_FINALLY_LBRACE);
+    setValue(donTUseContinuationCheckBox, settings.NOT_CONTINUATION_INDENT_FOR_PARAMS);
 
     setValue(keepLineBreaksCheckBox, settings.KEEP_LINE_BREAKS);
     setValue(keepBeforeSpinner, settings.KEEP_BLANK_LINES_BEFORE_RBRACE);

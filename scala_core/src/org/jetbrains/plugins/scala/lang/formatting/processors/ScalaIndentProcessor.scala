@@ -88,6 +88,10 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: ScExtendsBlock if child.getElementType != ScalaElementTypes.TEMPLATE_BODY => {
         Indent.getContinuationIndent
       }
+      case _: ScParameterClause if  scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS => {
+        if (child.getElementType == ScalaTokenTypes.tRPARENTHESIS) return Indent.getNoneIndent
+        else return Indent.getNormalIndent
+      }
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
               _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScTypeArgs => {
         Indent.getContinuationWithoutFirstIndent
