@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
-import bnf.BNF
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import params.{ParamClauses, FunTypeParamClause}
@@ -16,9 +15,7 @@ object FunSig {
   def parse(builder: PsiBuilder): Boolean = {
     if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
-      if (BNF.firstFunTypeParam.contains(builder.getTokenType)) {
-        FunTypeParamClause parse builder
-      }
+      FunTypeParamClause parse builder
       ParamClauses parse builder
       true
     } else {

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
 import base.Modifier
-import bnf.BNF
 import com.intellij.lang.PsiBuilder
 import expressions.Annotation
 import lexer.ScalaTokenTypes
@@ -27,9 +26,7 @@ object TmplDef {
     annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
     //parsing modifiers
     val modifierMarker = builder.mark
-    while (BNF.firstModifier.contains(builder.getTokenType)) {
-      Modifier.parse(builder)
-    }
+    while (Modifier.parse(builder)) {}
     //could be case modifier
     val caseMarker = builder.mark
     if (builder.getTokenType == ScalaTokenTypes.kCASE)

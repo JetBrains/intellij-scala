@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
 import base.Modifier
-import bnf.BNF
 import com.intellij.lang.PsiBuilder
 import expressions.Annotation
 import lexer.ScalaTokenTypes
@@ -24,9 +23,7 @@ object PatVarDef {
     annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
     //parse modifiers
     val modifierMarker = builder.mark
-    while (BNF.firstModifier.contains(builder.getTokenType)) {
-      Modifier.parse(builder)
-    }
+    while (Modifier.parse(builder)) {}
     modifierMarker.done(ScalaElementTypes.MODIFIERS)
     builder.getTokenType match {
       case ScalaTokenTypes.kVAL => {

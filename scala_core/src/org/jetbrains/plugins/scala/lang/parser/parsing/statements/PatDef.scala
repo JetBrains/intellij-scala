@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
-import bnf.BNF
 import com.intellij.lang.PsiBuilder
 import expressions.Expr
 import lexer.ScalaTokenTypes
@@ -22,9 +21,7 @@ object PatDef {
     val someMarker = builder.mark
     val pattern2sMarker = builder.mark
 
-    if (BNF.firstPattern2.contains(builder.getTokenType)) {
-      Pattern2.parse(builder, true)
-    } else {
+    if (!Pattern2.parse(builder, true)) {
       builder error "pattern expected"
       pattern2sMarker.rollbackTo
       someMarker.rollbackTo
@@ -34,9 +31,7 @@ object PatDef {
     while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
-      if (BNF.firstPattern2.contains(builder.getTokenType)) {
-        Pattern2.parse(builder, true)
-      } else {
+      if (!Pattern2.parse(builder, true))  {
         builder error "pattern expected"
         pattern2sMarker.rollbackTo()
         someMarker.drop
@@ -51,9 +46,7 @@ object PatDef {
     if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
 
-      if (BNF.firstType.contains(builder.getTokenType)) {
-        Type parse builder
-      } else {
+      if (!Type.parse(builder)) {
         builder error "type declaration expected"
       }
 

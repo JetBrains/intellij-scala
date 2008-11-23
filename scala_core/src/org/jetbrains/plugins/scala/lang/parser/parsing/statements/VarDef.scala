@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
 import base.Ids
-import bnf.BNF
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import types.Type
@@ -31,9 +30,7 @@ object VarDef {
 
         if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-          if (BNF.firstType.contains(builder.getTokenType)) {
-            Type parse builder
-          } else {
+          if (!Type.parse(builder)) {
             builder error "type declaration expected"
           }
           hasTypeDcl = true
