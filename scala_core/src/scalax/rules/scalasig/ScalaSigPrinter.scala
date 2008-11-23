@@ -47,7 +47,7 @@ class ScalaSigPrinter(stream : PrintStream) {
   private def refinementClass(c : ClassSymbol) = c.name == "<refinement>"
 
   def printClass(level: Int, c: ClassSymbol) {
-    if (!refinementClass(c)) {
+    if (!refinementClass(c) && !c.isModule) {
       printModifiers(c)
       if (c.isTrait) print("trait ") else print("class ")
       print(processName(c.name))

@@ -200,14 +200,14 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
   lazy val children = 41 -~ (nat*) ^^ Children //sym_Ref {sym_Ref}
   lazy val annotInfo = 43 -~ (nat*) ^^ AnnotInfo // attarg_Ref {constant_Ref attarg_Ref}
 
-  lazy val topLevelClass = classSymbol filter isTopLevel
+  lazy val topLevelClass = classSymbol filter isTopLevelClass
   lazy val topLevelObject = objectSymbol filter isTopLevel
 
   def isTopLevel(symbol : Symbol) = symbol.parent match {
     case Some(ext : ExternalSymbol) => true
     case _ => false
   }
-
+  def isTopLevelClass (symbol : Symbol) = !symbol.isModule && isTopLevel(symbol)
 }
 
   case class AttributeInfo(symbol : Symbol, typeRef : Type, value : Option[Any], values : Seq[String ~ Any]) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
