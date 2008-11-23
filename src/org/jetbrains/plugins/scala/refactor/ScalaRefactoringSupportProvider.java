@@ -6,6 +6,7 @@ import com.intellij.refactoring.RefactoringActionHandler;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.refactor.introduceVariable.ScalaIntroduceVariableHandler;
+import org.jetbrains.plugins.scala.lang.rename.ScalaInplaceVariableRenamer;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -30,5 +31,10 @@ public class ScalaRefactoringSupportProvider extends DefaultRefactoringSupportPr
   @Nullable
   public RefactoringActionHandler getExtractMethodHandler() {
     return null;
+  }
+
+  @Override
+  public boolean doInplaceRenameFor(PsiElement element, PsiElement context) {
+    return ScalaInplaceVariableRenamer.mayImplaceRename(element, context);
   }
 }
