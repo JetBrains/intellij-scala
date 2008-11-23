@@ -4,9 +4,9 @@ import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 29.02.2008
-*/
+ * @author Alexander Podkhalyuzin
+ *   Date: 29.02.2008
+ */
 
 /*
  * Pattern2 ::= varid '@' Pattern3
@@ -25,9 +25,9 @@ object Pattern2 {
       val m = builder.mark
       builder.advanceLexer
       val s = Set(ScalaTokenTypes.tAT,
-      ScalaTokenTypes.tIDENTIFIER,
-      ScalaTokenTypes.tDOT,
-      ScalaTokenTypes.tLPARENTHESIS)
+        ScalaTokenTypes.tIDENTIFIER,
+        ScalaTokenTypes.tDOT,
+        ScalaTokenTypes.tLPARENTHESIS)
       val b = !s.contains(builder.getTokenType)
       m.rollbackTo
       b
@@ -46,21 +46,25 @@ object Pattern2 {
           backupMarker.rollbackTo
         } else {
           builder.advanceLexer //Ate id
+          val idMarker = builder.mark
           builder.getTokenType match {
             case ScalaTokenTypes.tAT => {
               builder.advanceLexer //Ate @
               backupMarker.drop
-              /*if (ParserUtils.eatSeqWildcardNext(builder)) {
-                pattern2Marker.done(ScalaElementTypes.NAMING_PATTERN)
-                return true
-              }*/
               if (!Pattern3.parse(builder)) {
-                builder error ErrMsg("wrong.pattern")
+                idMarker.rollbackTo
+                pattern2Marker.done(ScalaElementTypes.REFERENCE_PATTERN)
+                val err = builder.mark
+                builder.advanceLexer
+                err.error(ErrMsg("wrong.pattern"))
+              } else {
+                idMarker.drop
+                pattern2Marker.done(ScalaElementTypes.NAMING_PATTERN)
               }
-              pattern2Marker.done(ScalaElementTypes.NAMING_PATTERN)
               return true
             }
             case _ => {
+              idMarker.drop
               backupMarker.rollbackTo
             }
           }
@@ -68,17 +72,25 @@ object Pattern2 {
       }
       case ScalaTokenTypes.tUNDER => {
         builder.advanceLexer //Ate id
+        val idMarker = builder.mark
         builder.getTokenType match {
           case ScalaTokenTypes.tAT => {
             builder.advanceLexer //Ate @
             backupMarker.drop
             if (!Pattern3.parse(builder)) {
-              builder error ErrMsg("wrong.pattern")
+              idMarker.rollbackTo
+              pattern2Marker.done(ScalaElementTypes.REFERENCE_PATTERN)
+              val err = builder.mark
+              builder.advanceLexer
+              err.error(ErrMsg("wrong.pattern"))
+            } else {
+              idMarker.drop
+              pattern2Marker.done(ScalaElementTypes.NAMING_PATTERN)
             }
-            pattern2Marker.done(ScalaElementTypes.NAMING_PATTERN)
             return true
           }
           case _ => {
+            idMarker.drop
             backupMarker.rollbackTo
           }
         }
