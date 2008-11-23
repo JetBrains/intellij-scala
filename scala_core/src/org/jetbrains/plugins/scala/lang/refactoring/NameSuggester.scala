@@ -65,6 +65,7 @@ object NameSuggester {
         }
       }
       case ScTupleType(comps) => add("tuple")
+      case ScFunctionType(ret, params) if params.length == 0 => generateNamesByType(ret, names, validator)
       case ScFunctionType(ret, params) => add("function");
       case ScDesignatorType(e) => {
         val name = e.getName
