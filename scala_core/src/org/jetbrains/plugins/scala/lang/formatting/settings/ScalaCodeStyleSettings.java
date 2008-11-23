@@ -48,6 +48,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public int BLANK_LINES_AFTER_LBRACE = 0;
   public boolean KEEP_LINE_BREAKS = true;
 
+  //indents
+  public boolean NOT_CONTINUATION_INDENT_FOR_PARAMS = false;
+
   //Alignments
   public boolean ALIGN_MULTILINE_PARAMETERS = true;
   public boolean ALIGN_MULTILINE_PARAMETERS_IN_CALLS = false;
