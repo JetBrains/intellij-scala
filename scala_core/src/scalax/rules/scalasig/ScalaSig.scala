@@ -159,7 +159,7 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
       extRef |
       extModClassRef as "symbol"
 
-  val classSymRef = ref
+  val classSymRef = refTo(classSymbol)
   val attribTreeRef = ref
   val typeLevel = nat
   val typeIndex = nat
