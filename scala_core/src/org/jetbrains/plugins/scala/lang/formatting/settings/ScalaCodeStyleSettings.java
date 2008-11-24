@@ -70,6 +70,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public boolean ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = false;
   public int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
+  public boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
 
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);

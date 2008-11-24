@@ -2,11 +2,13 @@ package org.jetbrains.plugins.scala.codeInspection.importInspections
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.imports.ScImportStmt
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import lang.psi.api.expr.ScReferenceExpression
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
+import lang.psi.ScImportsHolder
 import lang.resolve.ResolveUtils
 import com.intellij.codeInsight.hint.{HintManagerImpl, HintManager, QuestionAction}
 import lang.formatting.settings.ScalaCodeStyleSettings
@@ -41,13 +43,14 @@ import com.intellij.openapi.editor.Editor
  * Date: 07.07.2008
  */
 
-class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = file.getProject
-  val document = editor.getDocument}
-  with TextEditorHighlightingPass(project, document) {
+class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {
+  val project = file.getProject
+  val document = editor.getDocument
+  val scalaSettings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
+}  with TextEditorHighlightingPass(project, document) {
   def doCollectInformation(progress: ProgressIndicator) {
   }
   def doApplyInformationToEditor {
-    val scalaSettings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
     val added = new ArrayBuffer[PsiClass]
     ApplicationManager.getApplication.assertIsDispatchThread
     if (!editor.getContentComponent.hasFocus) return
@@ -120,6 +123,7 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
 
         val classes = ScalaAddImportPass.getClasses(ref, myProject)
         val action = new ScalaAddImportAction(classes: Array[PsiClass], ref: ScReferenceElement)
+        
         val offset = ref.getTextRange.getStartOffset
         if (classes.length > 0 && offset >= startOffset && offset <= endOffset) {
           HintManager.getInstance().showQuestionHint(editor,
@@ -143,13 +147,17 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {val project = f
           file match {
             case file: ScalaFile => {
               ScalaUtils.runWriteAction(new Runnable {
-                def run: Unit = file.addImportForClass(clazz)
+                def run: Unit = getImportHolder.addImportForClass(clazz, ref)
               }, clazz.getProject, "Add import action")
             }
           }
         }
       })
     }
+
+    def getImportHolder: ScImportsHolder = if (scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE)
+        PsiTreeUtil.getParentOfType(ref, classOf[ScImportsHolder])
+      else file.asInstanceOf[ScImportsHolder]
 
     def chooseClass {
       val list = new JList(classes.asInstanceOf[Array[Object]])

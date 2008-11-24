@@ -37,7 +37,6 @@ object OuterImportsActionCreator {
 
     val facade = JavaPsiFacade.getInstance(project)
     val classes = ScalaAddImportPass.getClasses(refElement, project)
-    //facade.getShortNamesCache().getClassesByName(refElement.refName, GlobalSearchScope.allScope(project))
 
     val kinds = refElement.getKinds(false)
     for (clazz <- classes) {
