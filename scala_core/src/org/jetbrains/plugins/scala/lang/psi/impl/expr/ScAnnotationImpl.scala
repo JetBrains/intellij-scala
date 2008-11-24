@@ -29,12 +29,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Date: 07.03.2008
 */
 
-class ScAnnotationImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScAnnotation{
+class ScAnnotationImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScAnnotation with PsiAnnotationParameterList{
   override def toString: String = "Annotation"
 
   def getMetaData: PsiMetaData = null
 
-  def getParameterList: PsiAnnotationParameterList = null
+  def getAttributes: Array[PsiNameValuePair] = annotationExpr.getAttributes.map(_.asInstanceOf[PsiNameValuePair])
+
+  def getParameterList: PsiAnnotationParameterList = this
 
   def getQualifiedName: String = ScType.extractClassType(annotationExpr.constr.typeElement.getType) match {
     case None => null
