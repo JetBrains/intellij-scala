@@ -52,7 +52,7 @@ object DecompilerUtil {
 
   val _error_msg = "//ScalaSig parsing error"
 
-  private val myFileSourseTextAttr = new FileAttribute("_file_source_text_", 1)
+  private val myFileSourceTextAttr = new FileAttribute("_file_source_text_", 1)
 
   def decompile(bytes: Array[Byte], file: VirtualFile) = {
     val byteCode = ByteCode(bytes)
