@@ -10,4 +10,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScAnnotationExpr extends ScalaPsiElement {
   def constr = findChildByClass(classOf[ScConstructor])
+  def getAttributes: Array[ScNameValuePair] = findChildrenByClass(classOf[ScNameValuePair])
 }
