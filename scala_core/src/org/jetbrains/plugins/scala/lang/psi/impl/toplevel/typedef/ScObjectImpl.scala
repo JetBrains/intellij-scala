@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.{PsiElement, ResolveState}
+import com.intellij.psi.{PsiElement, PsiModifier, ResolveState}
 import stubs.elements.wrappers.DummyASTNode
 import stubs.ScTypeDefinitionStub
 import com.intellij.psi.stubs.IStubElementType
@@ -34,7 +34,16 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
   //todo refactor
   override def getModifierList = findChildByClass(classOf[ScModifierList])
 
-  override def hasModifierProperty(name: String) = if (getModifierList != null) getModifierList.hasModifierProperty(name: String) else false
+  override def hasModifierProperty(name: String): Boolean = {
+    if (getModifierList != null) {
+      if (name == PsiModifier.PUBLIC) {
+        val list = getModifierList
+        return !list.has(ScalaTokenTypes.kPRIVATE) && !list.has(ScalaTokenTypes.kPROTECTED)
+      }
+      getModifierList.hasModifierProperty(name: String)
+    }
+    else false
+  }
 
   override def getContainingClass() = null
 
