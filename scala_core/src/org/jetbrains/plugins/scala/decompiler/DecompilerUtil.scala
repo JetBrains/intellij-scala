@@ -56,7 +56,7 @@ object DecompilerUtil {
 
   def decompile(bytes: Array[Byte], file: VirtualFile) = {
     val byteCode = ByteCode(bytes)
-    val ba = myFileSourseTextAttr.readAttributeBytes(file)
+    val ba = myFileSourceTextAttr.readAttributeBytes(file)
     if (ba != null) new String(ba, CharsetToolkit.UTF8_CHARSET)
     else try {
       val classFile = ClassFileParser.parse(byteCode)
@@ -81,7 +81,7 @@ object DecompilerUtil {
           }
           val text = baos.toString
           val bs = text.getBytes(CharsetToolkit.UTF8_CHARSET)
-          myFileSourseTextAttr.writeAttributeBytes(file, bs, 0, bs.length)
+          myFileSourceTextAttr.writeAttributeBytes(file, bs, 0, bs.length)
           text
         }
       }
