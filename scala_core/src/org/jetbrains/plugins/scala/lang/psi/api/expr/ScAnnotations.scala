@@ -19,4 +19,5 @@ trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
   //todo return appropriate roles
   def getRole = PsiReferenceList.Role.THROWS_LIST
 
+  def getAnnotations: Array[ScAnnotation] = findChildrenByClass(classOf[ScAnnotation])
 }

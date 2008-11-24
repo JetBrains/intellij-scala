@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
+import lang.psi.api.statements._
 import lang.psi.api.toplevel.ScTyped
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition}
 import lang.psi.ScalaPsiUtil
@@ -76,7 +76,7 @@ private object ScalaGoToSuperActionHandler {
         val supers = HashSet[NavigatablePsiElement](func.superSignatures.map(_.element): _*)
         return supers.toArray
       }
-      case d: {def declaredElements: Seq[ScTyped]} => {
+      case d: ScDeclaredElementsHolder => {
         var el = file.findElementAt(offset)
         while (el != null && !el.isInstanceOf[ScTyped]) el = el.getParent
         val elements = d.declaredElements

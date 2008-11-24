@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 
+import api.expr.ScAnnotations
 import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -65,11 +66,20 @@ class ScModifierListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     //todo implement me!
   }
 
-  //todo implement me!
-  def getAnnotations = PsiAnnotation.EMPTY_ARRAY
+  def getAnnotations: Array[PsiAnnotation] = {
+    getParent.getNode.findChildByType(ScalaElementTypes.ANNOTATIONS) match {
+      case null =>  PsiAnnotation.EMPTY_ARRAY
+      case x => x.getPsi.asInstanceOf[ScAnnotations].getAnnotations.map(_.asInstanceOf[PsiAnnotation])
+    }
 
-  //todo implement me!
-  def findAnnotation(name: String) = null
+  }
+
+  def findAnnotation(name: String): PsiAnnotation = {
+    getAnnotations.find(_.getQualifiedName == name) match {
+      case None => null
+      case Some(x) => x
+    }
+  }
 
   def has (prop : IElementType) = findChildByType(prop) != null
 }
