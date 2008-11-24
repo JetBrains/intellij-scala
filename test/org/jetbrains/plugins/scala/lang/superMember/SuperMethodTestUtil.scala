@@ -15,6 +15,7 @@ import psi.types.FullSignature
 
 object SuperMethodTestUtil {
   def transform(myFile: PsiFile, offset: Int): String = {
+    var resa = ""
     val el = myFile.findElementAt(offset)
     val member = PsiTreeUtil.getParentOfType(el, classOf[ScMember], false)
     member match {
@@ -29,9 +30,11 @@ object SuperMethodTestUtil {
             case _ => "Something"
           }) + "\n")
         }
-        return if (res.toString == "") "" else res.substring(0, res.length - 1).toString
+        resa = if (res.toString == "") "" else res.substring(0, res.length - 1).toString
       }
-      case _ => return "Not implemented test"
+      case _ => resa = "Not implemented test"
     }
+    println(resa)
+    return resa
   }
 }
