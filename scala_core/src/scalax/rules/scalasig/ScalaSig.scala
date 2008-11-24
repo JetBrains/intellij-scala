@@ -149,52 +149,52 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
   val extRef = 9 -~ nameRef ~ (symbolRef?) ~ get ^~~^ ExternalSymbol as "extRef"
   val extModClassRef = 10 -~ nameRef ~ (symbolRef?) ~ get ^~~^ ExternalSymbol as "extModClassRef"
 
-  lazy val symbol : EntryParser[Symbol] =
-      noSymbol |
-      typeSymbol |
-      aliasSymbol |
-      classSymbol |
-      objectSymbol |
-      methodSymbol |
-      extRef |
-      extModClassRef as "symbol"
+  lazy val symbol : EntryParser[Symbol] = oneOf(
+      noSymbol,
+      typeSymbol,
+      aliasSymbol,
+      classSymbol,
+      objectSymbol,
+      methodSymbol,
+      extRef,
+      extModClassRef) as "symbol"
 
   val classSymRef = refTo(classSymbol)
   val attribTreeRef = ref
   val typeLevel = nat
   val typeIndex = nat
 
-  lazy val typeEntry : EntryParser[Type] =
-      11 -^ NoType |
-      12 -^ NoPrefixType |
-      13 -~ symbolRef ^^ ThisType |
-      14 -~ typeRef ~ symbolRef ^~^ SingleType |
-      15 -~ constantRef ^^ ConstantType |
-      16 -~ typeRef ~ symbolRef ~ (typeRef*) ^~~^ TypeRefType |
-      17 -~ typeRef ~ typeRef ^~^ TypeBoundsType |
-      18 -~ classSymRef ~ (typeRef*) ^~^ RefinedType |
-      19 -~ symbolRef ~ (typeRef*) ^~^ ClassInfoType |
-      20 -~ typeRef ~ (typeRef*) ^~^ MethodType |
-      21 -~ typeRef ~ (refTo(typeSymbol)*) ^~^ PolyType |
-      22 -~ typeRef ~ (typeRef*) ^~^ ImplicitMethodType |
-      42 -~ typeRef ~ (attribTreeRef*) ^~^ AnnotatedType |
-      51 -~ typeRef ~ symbolRef ~ (attribTreeRef*) ^~~^ AnnotatedWithSelfType |
-      47 -~ typeLevel ~ typeIndex ^~^ DeBruijnIndexType |
-      48 -~ typeRef ~ (symbolRef*) ^~^ ExistentialType as "type"
+  lazy val typeEntry : EntryParser[Type] = oneOf(
+      11 -^ NoType,
+      12 -^ NoPrefixType,
+      13 -~ symbolRef ^^ ThisType,
+      14 -~ typeRef ~ symbolRef ^~^ SingleType,
+      15 -~ constantRef ^^ ConstantType,
+      16 -~ typeRef ~ symbolRef ~ (typeRef*) ^~~^ TypeRefType,
+      17 -~ typeRef ~ typeRef ^~^ TypeBoundsType,
+      18 -~ classSymRef ~ (typeRef*) ^~^ RefinedType,
+      19 -~ symbolRef ~ (typeRef*) ^~^ ClassInfoType,
+      20 -~ typeRef ~ (typeRef*) ^~^ MethodType,
+      21 -~ typeRef ~ (refTo(typeSymbol)*) ^~^ PolyType,
+      22 -~ typeRef ~ (typeRef*) ^~^ ImplicitMethodType,
+      42 -~ typeRef ~ (attribTreeRef*) ^~^ AnnotatedType,
+      51 -~ typeRef ~ symbolRef ~ (attribTreeRef*) ^~~^ AnnotatedWithSelfType,
+      47 -~ typeLevel ~ typeIndex ^~^ DeBruijnIndexType,
+      48 -~ typeRef ~ (symbolRef*) ^~^ ExistentialType) as "type"
 
-  lazy val literal =
-      24 -^ () |
-      25 -~ longValue ^^ (_ != 0) |
-      26 -~ longValue ^^ (_.asInstanceOf[Byte]) |
-      27 -~ longValue ^^ (_.asInstanceOf[Short]) |
-      28 -~ longValue ^^ (_.asInstanceOf[Char]) |
-      29 -~ longValue ^^ (_.asInstanceOf[Int]) |
-      30 -~ longValue ^^ (_.asInstanceOf[Long]) |
-      31 -~ longValue ^^ (l => java.lang.Float.intBitsToFloat(l.asInstanceOf[Int])) |
-      32 -~ longValue ^^ (java.lang.Double.longBitsToDouble) |
-      33 -~ nameRef |
-      34 -^ null |
-      35 -~ typeRef
+  lazy val literal = oneOf(
+      24 -^ (),
+      25 -~ longValue ^^ (_ != 0),
+      26 -~ longValue ^^ (_.asInstanceOf[Byte]),
+      27 -~ longValue ^^ (_.asInstanceOf[Short]),
+      28 -~ longValue ^^ (_.asInstanceOf[Char]),
+      29 -~ longValue ^^ (_.asInstanceOf[Int]),
+      30 -~ longValue ^^ (_.asInstanceOf[Long]),
+      31 -~ longValue ^^ (l => java.lang.Float.intBitsToFloat(l.asInstanceOf[Int])),
+      32 -~ longValue ^^ (java.lang.Double.longBitsToDouble),
+      33 -~ nameRef,
+      34 -^ null,
+      35 -~ typeRef)
 
   lazy val attributeInfo = 40 -~ symbolRef ~ typeRef ~ (constantRef?) ~ (nameRef ~ constantRef *) ^~~~^ AttributeInfo // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
   lazy val children = 41 -~ (nat*) ^^ Children //sym_Ref {sym_Ref}

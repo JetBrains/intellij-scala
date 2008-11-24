@@ -102,8 +102,20 @@ trait StateRules {
   /** Create a rule that succeeds if all of the given rules succeed.
       @param rules the rules to apply in sequence.
   */
-  def allOf[A, X](rules : Seq[Rule[A, X]]) = 
-    rules.foldRight[Rule[List[A], X]](nil)(_ ~++ _)
+  def allOf[A, X](rules : Seq[Rule[A, X]]) = {
+    def rep(in : S, rules : List[Rule[A, X]], results : List[A]) : Result[S, List[A], X] = {
+      rules match {
+        case Nil => Success(in, results.reverse)
+        case rule::tl => rule(in) match {
+          case Failure => Failure
+          case Error(x) => Error(x)
+          case Success(out, v) => rep(out, tl, v::results)
+        }
+      }
+    }
+    in : S => rep(in, rules.toList, Nil)
+  }
+
 
   /** Create a rule that succeeds with a list of all the provided rules that succeed.
       @param rules the rules to apply in sequence.
