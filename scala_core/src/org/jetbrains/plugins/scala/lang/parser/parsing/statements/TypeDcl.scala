@@ -38,9 +38,7 @@ object TypeDcl {
       }
       case _ => {
         builder error ScalaBundle.message("identifier.expected")
-        /*returnMarker.drop
-        return true*/
-        returnMarker.rollbackTo
+        returnMarker.drop
         return false
       }
     }
