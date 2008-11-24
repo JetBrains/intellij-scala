@@ -57,7 +57,7 @@ object DecompilerUtil {
   def decompile(bytes: Array[Byte], file: VirtualFile) = {
     val byteCode = ByteCode(bytes)
     val ba = myFileSourceTextAttr.readAttributeBytes(file)
-    if (ba != null) new String(ba, CharsetToolkit.UTF8_CHARSET)
+    if (ba != null) new String(ba, CharsetToolkit.UTF8)
     else try {
       val classFile = ClassFileParser.parse(byteCode)
       classFile.attribute("ScalaSig").map(_.byteCode).map(ScalaSigAttributeParsers.parse) match {
@@ -80,7 +80,7 @@ object DecompilerUtil {
             printer.printSymbol(c)
           }
           val text = baos.toString
-          val bs = text.getBytes(CharsetToolkit.UTF8_CHARSET)
+          val bs = text.getBytes(CharsetToolkit.UTF8)
           myFileSourceTextAttr.writeAttributeBytes(file, bs, 0, bs.length)
           text
         }
