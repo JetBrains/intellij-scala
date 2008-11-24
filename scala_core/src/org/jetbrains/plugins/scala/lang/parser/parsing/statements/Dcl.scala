@@ -52,7 +52,7 @@ object Dcl {
           return true
         }
         else {
-          dclMarker.rollbackTo
+          dclMarker.drop
           return false
         }
       }
@@ -62,7 +62,7 @@ object Dcl {
           return true
         }
         else {
-          dclMarker.rollbackTo
+          dclMarker.drop
           return false
         }
       }
@@ -72,7 +72,7 @@ object Dcl {
           return true
         }
         else {
-          dclMarker.rollbackTo
+          dclMarker.drop
           return false
         }
       }
