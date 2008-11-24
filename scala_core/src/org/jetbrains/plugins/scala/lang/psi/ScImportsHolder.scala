@@ -46,31 +46,25 @@ trait ScImportsHolder extends ScalaPsiElement {
   }
 
   //Utility method to find first import statement, but only in element header
-  private def findFirstImportStmt: Option[PsiElement] = {
-    def tryImport(imp: PsiElement): Boolean = {
+  private def findFirstImportStmt(ref: PsiElement): Option[PsiElement] = {
+    def checkReference(imp: PsiElement): Boolean = {
       var prev: PsiElement = imp.getPrevSibling
-      prev match {
-        case null => return true
-        case _: ScTypeDefinition => return false
-        case _: ScPackaging => return false
-        case _ => {
-          prev.getNode.getElementType match {
-            case ScalaTokenTypes.tRBRACE => return true
-            case _ => return tryImport(prev)
-          }
-        }
-      }
+      var par = ref
+      while (par != null && par.getParent != this) par = par.getParent
+      while (prev != null && prev != par) prev = prev.getPrevSibling
+      prev == null
     }
     findChild(classOf[ScImportStmt]) match {
       case Some(x) => {
-        if (tryImport(x)) return Some(x)
+        if (checkReference(x)) return Some(x)
         else return None
       }
       case None => return None
     }
   }
 
-  def addImportForClass(clazz: PsiClass) {
+  def addImportForClass(clazz: PsiClass): Unit = addImportForClass(clazz, null)
+  def addImportForClass(clazz: PsiClass, ref: PsiElement) {
     //Create simple variant what to import
     var importSt = ScalaPsiElementFactory.createImportStatementFromClass(this, clazz, this.getManager)
     //Getting qualifier resolve, to compare with other import expressions
@@ -94,7 +88,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
 
     //looking for td import statemnt to find place which we will use for new import statement
-    findFirstImportStmt match {
+    findFirstImportStmt(ref) match {
       case Some(x: ScImportStmt) => {
         //now we walking throw foward siblings, and seeking appropriate place (lexicografical)
         var stmt: PsiElement = x
@@ -107,8 +101,8 @@ trait ScImportsHolder extends ScalaPsiElement {
             case im: ScImportStmt => {
               if (importSt.getText.toLowerCase < im.getText.toLowerCase) {
                 added = true
-                addBefore(importSt, im)
-                addBefore(ScalaPsiElementFactory.createNewLineNode(im.getManager).getPsi, im)
+                addBeforeI(importSt, im)
+                addBeforeI(ScalaPsiElementFactory.createNewLineNode(im.getManager).getPsi, im)
               }
             }
             case _ =>
@@ -119,12 +113,12 @@ trait ScImportsHolder extends ScalaPsiElement {
         if (!added) {
           if (stmt != null) {
             while (!stmt.isInstanceOf[ScImportStmt]) stmt = stmt.getPrevSibling
-            addAfter(importSt, stmt)
-            addAfter(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi, stmt)
+            addAfterI(importSt, stmt)
+            addAfterI(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi, stmt)
           }
           else {
-            addAfter(importSt, getLastChild)
-            addAfter(ScalaPsiElementFactory.createNewLineNode(getLastChild.getManager).getPsi, getLastChild)
+            addAfterI(importSt, getLastChild)
+            addAfterI(ScalaPsiElementFactory.createNewLineNode(getLastChild.getManager).getPsi, getLastChild)
           }
         }
       }
@@ -132,17 +126,17 @@ trait ScImportsHolder extends ScalaPsiElement {
         //we haven't td import statement, so we insert new import statement so close to element begin as possible
         findChild(classOf[ScPackageStatement]) match {
           case Some(x) => {
-            addAfter(ScalaPsiElementFactory.createNewLineNode(x.getManager).getPsi, addAfter(importSt, x))
+            addAfterI(ScalaPsiElementFactory.createNewLineNode(x.getManager).getPsi, addAfterI(importSt, x))
           }
           case None => {
             //Here we must to find left brace, if not => it's ScalaFile
-            getNode.findChildByType(ScalaTokenTypes.tRBRACE) match {
+            getNode.findChildByType(ScalaTokenTypes.tLBRACE) match {
               case null => {
-                if (getFirstChild != null) addBefore(importSt, getFirstChild)
-                else add(importSt)
+                if (getFirstChild != null) addBeforeI(importSt, getFirstChild)
+                else addI(importSt)
               }
               case node => {
-                addAfter(importSt, node.getPsi)
+                addAfterI(importSt, addAfterI(ScalaPsiElementFactory.createNewLineNode(importSt.getManager).getPsi, node.getPsi))
               }
             }
 
@@ -150,6 +144,22 @@ trait ScImportsHolder extends ScalaPsiElement {
         }
       }
     }
+  }
+
+
+  def addI(element: PsiElement): PsiElement = {
+    getNode.addChild(element.getNode)
+    return getNode.getLastChildNode.getPsi
+  }
+
+  def addBeforeI(element: PsiElement, anchor: PsiElement): PsiElement = {
+    getNode.addChild(element.getNode, anchor.getNode)
+    return anchor.getNode.getTreePrev.getPsi
+  }
+
+  def addAfterI(element: PsiElement, anchor: PsiElement): PsiElement = {
+    if (anchor.getNode == getNode.getLastChildNode) return addI(element)
+    addBeforeI(element, anchor.getNode.getTreeNext.getPsi)
   }
 
   def deleteImportStmt(stmt: ScImportStmt): Unit = {

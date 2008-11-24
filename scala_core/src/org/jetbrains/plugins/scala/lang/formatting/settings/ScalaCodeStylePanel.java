@@ -73,6 +73,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox alignIfElseStatementCheckBox;
   private JSpinner linesAfterLBrace;
   private JCheckBox donTUseContinuationCheckBox;
+  private JCheckBox addImportStatementInCheckBox;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -181,6 +182,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.WHILE_ON_NEW_LINE = whileOnNewLineCheckBox.isSelected();
 
     scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = addUnambiguousImportsOnCheckBox.isSelected();
+    scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = addImportStatementInCheckBox.isSelected();
     scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = (Integer) classCountSpinner.getValue();
   }
 
@@ -303,6 +305,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.INDENT_CASE_FROM_SWITCH != indentCaseFromMatchCheckBox.isSelected()) return true;
     if (scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND != (Integer) classCountSpinner.getValue()) return true;
     if (scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY != addUnambiguousImportsOnCheckBox.isSelected()) return true;
+    if (scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE != addImportStatementInCheckBox.isSelected()) return true;
     return false;
   }
 
@@ -369,6 +372,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(specialElseIfTreatmentCheckBox, settings.SPECIAL_ELSE_IF_TREATMENT);
     setValue(indentCaseFromMatchCheckBox, settings.INDENT_CASE_FROM_SWITCH);
     setValue(addUnambiguousImportsOnCheckBox, settings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY);
+    setValue(addImportStatementInCheckBox, settings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE);
     setValue(classCountSpinner, settings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND);
   }
 
