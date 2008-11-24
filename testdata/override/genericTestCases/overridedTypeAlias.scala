@@ -22,5 +22,5 @@ class OverridedTypeAlias extends Aa {
     override type K = Bfg
 
 
-    val y: K = _
+    val y: Aa = _
 }
