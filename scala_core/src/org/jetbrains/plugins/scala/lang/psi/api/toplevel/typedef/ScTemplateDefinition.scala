@@ -13,7 +13,7 @@ import types.{ScType, PhysicalSignature, ScSubstitutor}
  * @author ven
  */
 trait ScTemplateDefinition extends ScNamedElement with PsiClass {
-  def extendsBlock() = findChildByClass(classOf[ScExtendsBlock])
+  def extendsBlock() : ScExtendsBlock = findChildByClass(classOf[ScExtendsBlock])
 
   def members(): Seq[ScMember] = extendsBlock.members
   def functions(): Seq[ScFunction] = extendsBlock.functions
