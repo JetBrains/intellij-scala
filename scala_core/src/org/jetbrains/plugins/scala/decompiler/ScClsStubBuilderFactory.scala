@@ -27,6 +27,6 @@ class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
   }
 
   def canBeProcessed(file: VirtualFile, bytes: Array[Byte]) = {
-    DecompilerUtil.isScalaFile(bytes)
+    DecompilerUtil.isScalaFile(file, bytes)
   }
 }

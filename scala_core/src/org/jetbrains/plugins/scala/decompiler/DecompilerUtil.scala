@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.decompiler
 
+import _root_.scala.runtime.RichBoolean
 import annotations.Nullable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -20,18 +21,29 @@ import scalax.rules.ScalaSigParserError
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.groovy.lang.psi.impl.statements.arguments.GrArgumentListImpl");
 
+  private val myFileSourceTextAttr = new FileAttribute("_file_source_text_", 3)
+  private val isScalaFileAttr = new FileAttribute("_is_scala_file_", 3)
+
   def isScalaFile(file: VirtualFile): Boolean = {
     if (file.getFileType != StdFileTypes.CLASS) return false
     val bytes = file.contentsToByteArray()
-    isScalaFile(bytes)
+    isScalaFile(file, bytes)
   }
 
-  def isScalaFile(bytes: Array[Byte]) = {
-    val bc = ByteCode(bytes)
-    val classFile = ClassFileParser.parse(bc)
-    classFile.attribute("ScalaSig") match {
-      case None => false
-      case _ => true
+  def isScalaFile(file: VirtualFile, bytes: Array[Byte]) = {
+    val attr = isScalaFileAttr.readAttributeBytes(file)
+    if (attr != null) {
+      attr(0) == 1
+    } else {
+      val bc = ByteCode(bytes)
+      val classFile = ClassFileParser.parse(bc)
+      val res = classFile.attribute("ScalaSig") match {
+        case None => false
+        case _ => true
+      }
+      val bs: Array[Byte] = Array(if (res) 1 else 0)
+      isScalaFileAttr.writeAttributeBytes(file, bs, 0, bs.length)
+      res
     }
   }
 
@@ -50,12 +62,10 @@ object DecompilerUtil {
     project
   }
 
-  private val myFileSourceTextAttr = new FileAttribute("_file_source_text_", 1)
-
   def decompile(bytes: Array[Byte], file: VirtualFile) = {
     val byteCode = ByteCode(bytes)
     val ba = myFileSourceTextAttr.readAttributeBytes(file)
-    val bytes = if (ba != null) ba else {
+    val bts = if (ba != null) ba else {
       val classFile = ClassFileParser.parse(byteCode)
       classFile.attribute("ScalaSig").map(_.byteCode).map(ScalaSigAttributeParsers.parse) match {
         case Some(scalaSig) => {
@@ -82,6 +92,6 @@ object DecompilerUtil {
         }
       }
     }
-    new String(bytes, CharsetToolkit.UTF8)
+    new String(bts, CharsetToolkit.UTF8)
   }
 }
