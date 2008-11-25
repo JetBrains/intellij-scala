@@ -20,7 +20,8 @@ object SuperMethodTestUtil {
     val member = PsiTreeUtil.getParentOfType(el, classOf[ScMember], false)
     member match {
       case method: ScFunction => {
-        val clazz = (method.getContainingClass : ScTemplateDefinition).supers.apply(0)
+        val supers = (method.getContainingClass: ScTemplateDefinition).supers
+        val clazz = supers(0)
         val signs = method.superSignatures
         val res: StringBuilder = new StringBuilder("")
         for (sign <- signs) {
