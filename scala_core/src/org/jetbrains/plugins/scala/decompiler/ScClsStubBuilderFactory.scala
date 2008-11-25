@@ -26,7 +26,5 @@ class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
     return stub.asInstanceOf[PsiFileStub[ScalaFile]]
   }
 
-  def canBeProcessed(file: VirtualFile, bytes: Array[Byte]) = {
-    DecompilerUtil.isScalaFile(file, bytes)
-  }
+  def canBeProcessed(file: VirtualFile, bytes: Array[Byte]) = DecompilerUtil.isScalaFile(file, bytes)
 }
