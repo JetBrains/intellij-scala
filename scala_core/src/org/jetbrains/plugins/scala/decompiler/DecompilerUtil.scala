@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.decompiler
 
 import _root_.scala.runtime.RichBoolean
-import annotations.Nullable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.StdFileTypes
@@ -21,50 +20,38 @@ import scalax.rules.ScalaSigParserError
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.groovy.lang.psi.impl.statements.arguments.GrArgumentListImpl");
 
-  private val myFileSourceTextAttr = new FileAttribute("_file_source_text_", 3)
-  private val isScalaFileAttr = new FileAttribute("_is_scala_file_", 3)
+  private val decompiledTextAttribute = new FileAttribute("_file_decompiled_text_", 3)
+  private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", 3)
 
-  def isScalaFile(file: VirtualFile): Boolean = {
+  def isScalaFile(file: VirtualFile) : Boolean = isScalaFile(file, file.contentsToByteArray)
+  
+  def isScalaFile(file: VirtualFile, bytes : => Array[Byte]) : Boolean = {
     if (file.getFileType != StdFileTypes.CLASS) return false
-    val bytes = file.contentsToByteArray()
-    isScalaFile(file, bytes)
-  }
-
-  def isScalaFile(file: VirtualFile, bytes: Array[Byte]) = {
-    val attr = isScalaFileAttr.readAttributeBytes(file)
-    if (attr != null) {
-      attr(0) == 1
-    } else {
-      val bc = ByteCode(bytes)
-      val classFile = ClassFileParser.parse(bc)
-      val res = classFile.attribute("ScalaSig") match {
-        case None => false
-        case _ => true
-      }
-      val bs: Array[Byte] = Array(if (res) 1 else 0)
-      isScalaFileAttr.writeAttributeBytes(file, bs, 0, bs.length)
-      res
+    val read = isScalaCompiledAttribute.readAttribute(file)
+    if (read != null) try {read.readBoolean} finally {read.close} else {
+      val byteCode = ByteCode(bytes)
+      val classFile = ClassFileParser.parse(byteCode)
+      val isScala = classFile.attribute("ScalaSig") match {case Some(_) => true; case None => false}
+      val write = isScalaCompiledAttribute.writeAttribute(file)
+      write.writeBoolean(isScala)
+      write.close
+      isScala
     }
   }
 
-  @Nullable
   def obtainProject: Project = {
-    var project: Project = null
-    if (ApplicationManager.getApplication().isUnitTestMode()) {
-      project = ProjectManager.getInstance().asInstanceOf[ProjectManagerEx].getCurrentTestProject
+    val manager = ProjectManager.getInstance
+    if (ApplicationManager.getApplication.isUnitTestMode) {
+      manager.asInstanceOf[ProjectManagerEx].getCurrentTestProject
     } else {
-      val projects = ProjectManager.getInstance().getOpenProjects();
-      if (projects.length == 0) {
-        return null
-      }
-      project = projects(0)
+      val projects = manager.getOpenProjects();
+      if (projects.length == 0) manager.getDefaultProject else projects(0)
     }
-    project
   }
 
   def decompile(bytes: Array[Byte], file: VirtualFile) = {
     val byteCode = ByteCode(bytes)
-    val ba = myFileSourceTextAttr.readAttributeBytes(file)
+    val ba = decompiledTextAttribute.readAttributeBytes(file)
     val bts = if (ba != null) ba else {
       val classFile = ClassFileParser.parse(byteCode)
       classFile.attribute("ScalaSig").map(_.byteCode).map(ScalaSigAttributeParsers.parse) match {
@@ -87,7 +74,7 @@ object DecompilerUtil {
             printer.printSymbol(c)
           }
           val bs = baos.toByteArray
-          myFileSourceTextAttr.writeAttributeBytes(file, bs, 0, bs.length)
+          decompiledTextAttribute.writeAttributeBytes(file, bs, 0, bs.length)
           bs
         }
       }
