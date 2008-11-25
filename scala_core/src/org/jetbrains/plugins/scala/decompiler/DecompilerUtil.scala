@@ -79,8 +79,7 @@ object DecompilerUtil {
             println
             printer.printSymbol(c)
           }
-          val text = baos.toString
-          val bs = text.getBytes(CharsetToolkit.UTF8)
+          val bs = baos.toByteArray
           myFileSourceTextAttr.writeAttributeBytes(file, bs, 0, bs.length)
           text
         }
