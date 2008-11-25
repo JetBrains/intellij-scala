@@ -158,6 +158,11 @@ public class ScalaFacetEditor {
       myPathToScala.setVisible(true);
     }
 
+    final String scalaHome = System.getenv("SCALA_HOME");
+    if (scalaHome != null) {
+      myPathToScala.setText(scalaHome);
+    }
+
     myAddNewSdkCb.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
         boolean status = myAddNewSdkCb.isSelected();
