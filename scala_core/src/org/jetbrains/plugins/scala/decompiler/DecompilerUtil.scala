@@ -50,15 +50,12 @@ object DecompilerUtil {
     project
   }
 
-  val _error_msg = "//ScalaSig parsing error"
-
   private val myFileSourceTextAttr = new FileAttribute("_file_source_text_", 1)
 
   def decompile(bytes: Array[Byte], file: VirtualFile) = {
     val byteCode = ByteCode(bytes)
     val ba = myFileSourceTextAttr.readAttributeBytes(file)
-    if (ba != null) new String(ba, CharsetToolkit.UTF8)
-    else try {
+    val bytes = if (ba != null) ba else {
       val classFile = ClassFileParser.parse(byteCode)
       classFile.attribute("ScalaSig").map(_.byteCode).map(ScalaSigAttributeParsers.parse) match {
         case Some(scalaSig) => {
@@ -81,15 +78,10 @@ object DecompilerUtil {
           }
           val bs = baos.toByteArray
           myFileSourceTextAttr.writeAttributeBytes(file, bs, 0, bs.length)
-          text
+          bs
         }
       }
     }
-    catch {
-      case pe: ScalaSigParserError => {
-        LOG.error(pe)
-        _error_msg
-      }
-    }
+    new String(bytes, CharsetToolkit.UTF8)
   }
 }
