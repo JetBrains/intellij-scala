@@ -48,7 +48,7 @@ class ScalaLineMarkerProvider extends LineMarkerProvider {
           }
         }
         case x@(_: ScValue | _: ScVariable) if x.getParent.isInstanceOf[ScTemplateBody] &&
-                x.asInstanceOf[ScDeclaredElementsHolder].declaredElements.exists(_.nameId == element) => {
+                x.asInstanceOf[ScDeclaredElementsHolder].declaredElements.exists(_.asInstanceOf[ScNamedElement].nameId == element) => {
           val signature = new ArrayBuffer[FullSignature]
           val bindings = x match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
           for (z <- bindings) signature ++= ScalaPsiUtil.superValsSignatures(z)
