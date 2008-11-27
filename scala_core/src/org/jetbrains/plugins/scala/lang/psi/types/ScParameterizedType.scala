@@ -74,11 +74,19 @@ object ScParameterizedType {
 abstract case class ScPolymorphicType(name : String, args : List[ScTypeParameterType],
                                      lower : Suspension[ScType], upper : Suspension[ScType]) extends ScType
 
-case class ScTypeConstructorType(override val name : String, override val args : List[ScTypeParameterType],
+case class ScTypeConstructorType(alias : ScTypeAliasDefinition, override val args : List[ScTypeParameterType],
                                  aliased : Suspension[ScType])
-extends ScPolymorphicType(name, args, aliased, aliased) {
+extends ScPolymorphicType(alias.name, args, aliased, aliased) {
+  override def equiv(t: ScType) = t match {
+    case tct : ScTypeConstructorType => alias == tct.alias && {
+      val s = args.zip(tct.args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._2.name, p._1)}
+      lower.v.equiv(s.subst(tct.lower.v)) && upper.v.equiv(s.subst(tct.upper.v))
+    }
+    case _ => false
+  }
+
   def this(tad : ScTypeAliasDefinition, s : ScSubstitutor) =
-    this(tad.name, tad.typeParameters.toList.map{new ScTypeParameterType(_, s)},
+    this(tad, tad.typeParameters.toList.map{new ScTypeParameterType(_, s)},
       new Suspension[ScType]({() => s.subst(tad.aliasedType)}))
 }
 
