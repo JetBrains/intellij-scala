@@ -16,6 +16,8 @@ trait ScType {
   sealed def conforms(t: ScType): Boolean = Conformance.conforms(this, t)
 
   override def toString = ScType.presentableText(this)
+
+  def parts: Seq[ScType] = Seq(this)
 }
 
 abstract case class StdType(val name : String, val tSuper : Option[StdType]) extends ScType {
@@ -119,6 +121,15 @@ object ScType {
                   {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope))}
         JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
       }
+    case ScProjectionType(pr, ref) => JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName(
+      ref.bind match {
+        case Some(result) if result.getElement.isInstanceOf[PsiClass] => {
+          val clazz = result.getElement.asInstanceOf[PsiClass]
+          val fqn = clazz.getQualifiedName
+          if (fqn != null) fqn else "java.lang.Object"
+        }
+        case None => "java.lang.Object"
+      }, scope)
     case _ => JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
   }
 
@@ -181,7 +192,7 @@ object ScType {
       case ScFunctionType(ret, params) => buffer.append("("); appendSeq(params, ", "); buffer.append(") =>"); inner(ret)
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
       case ScDesignatorType(e) => buffer.append(nameFun(e))
-      case ScProjectionType(p, ref) => inner(p); buffer.append("#").append(ref.refName)
+      case ScProjectionType(p, ref) => inner(p); buffer.append(if (buffer.toString.length > 0) "#" else "").append(ref.refName)
       case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
       case ScSkolemizedType(name, _, _, _) => buffer.append(name)
       case ScPolymorphicType(name, _, _, _) => buffer.append(name)
