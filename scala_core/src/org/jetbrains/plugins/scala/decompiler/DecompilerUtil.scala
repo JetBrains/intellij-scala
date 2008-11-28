@@ -8,7 +8,7 @@ import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{CharsetToolkit, VirtualFile}
-import java.io.{PrintStream, ByteArrayOutputStream, FileNotFoundException}
+import java.io.{PrintStream, IOException, ByteArrayOutputStream, FileNotFoundException}
 import java.nio.ByteBuffer
 import scalax.rules.scalasig.{ClassFileParser, ScalaSigAttributeParsers, ScalaSigPrinter, ByteCode}
 import scalax.rules.ScalaSigParserError
@@ -23,9 +23,14 @@ object DecompilerUtil {
   private val decompiledTextAttribute = new FileAttribute("_file_decompiled_text_", 3)
   private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", 3)
 
-  def isScalaFile(file: VirtualFile) : Boolean = isScalaFile(file, file.contentsToByteArray)
-  
-  def isScalaFile(file: VirtualFile, bytes : => Array[Byte]) : Boolean = {
+  def isScalaFile(file: VirtualFile): Boolean = try {
+    isScalaFile(file, file.contentsToByteArray)
+  }
+  catch {
+    case e: IOException => false
+  }
+
+  def isScalaFile(file: VirtualFile, bytes: => Array[Byte]): Boolean = {
     if (file.getFileType != StdFileTypes.CLASS) return false
     val read = isScalaCompiledAttribute.readAttribute(file)
     if (read != null) try {read.readBoolean} finally {read.close} else {
