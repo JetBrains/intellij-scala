@@ -193,7 +193,7 @@ object ScType {
       case ScFunctionType(ret, params) => buffer.append("("); appendSeq(params, ", "); buffer.append(") =>"); inner(ret)
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
       case ScDesignatorType(e) => buffer.append(nameFun(e))
-      case ScProjectionType(p, ref) => inner(p); buffer.append(if (p.toString.length > 0) "#" else "").append(ref.refName)
+      case ScProjectionType(p, ref) => inner(p); buffer.append("#").append(ref.refName)
       case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
       case ScSkolemizedType(name, _, _, _) => buffer.append(name)
       case ScPolymorphicType(name, _, _, _) => buffer.append(name)
