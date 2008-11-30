@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import api.statements.ScTypeAlias
 import api.toplevel.typedef.ScTypeDefinition
 import impl.ScalaPsiManager
@@ -193,7 +194,20 @@ object ScType {
       case ScFunctionType(ret, params) => buffer.append("("); appendSeq(params, ", "); buffer.append(") =>"); inner(ret)
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
       case ScDesignatorType(e) => buffer.append(nameFun(e))
-      case ScProjectionType(p, ref) => inner(p); buffer.append("#").append(ref.refName)
+      case ScProjectionType(p, ref) => p match {
+        case ScSingletonType(path: ScStableCodeReferenceElement) => path.bind match {
+          case Some(res) => res match {
+            case r : ScalaResolveResult if r.getElement.isInstanceOf[PsiPackage] => buffer.append(ref.refName)
+            case o => inner(p); buffer.append("#").append(ref.refName)
+          }
+          case None => buffer.append(ref.refName)
+        }
+        case ScDesignatorType(elem) => elem match {
+          case _ : PsiPackage => buffer.append(ref.refName)
+          case o => inner(p); buffer.append("#").append(ref.refName)
+        }
+        case _ => inner(p); buffer.append("#").append(ref.refName)
+      }
       case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
       case ScSkolemizedType(name, _, _, _) => buffer.append(name)
       case ScPolymorphicType(name, _, _, _) => buffer.append(name)
