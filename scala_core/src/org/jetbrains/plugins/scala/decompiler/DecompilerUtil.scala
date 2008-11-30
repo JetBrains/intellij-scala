@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{CharsetToolkit, VirtualFile}
 import java.io.{PrintStream, IOException, ByteArrayOutputStream, FileNotFoundException}
 import java.nio.ByteBuffer
-import scalax.rules.scalasig.{ClassFileParser, ScalaSigAttributeParsers, ScalaSigPrinter, ByteCode}
+import scalax.rules.scalasig._
 import scalax.rules.ScalaSigParserError
 
 /**
@@ -20,8 +20,9 @@ import scalax.rules.ScalaSigParserError
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.groovy.lang.psi.impl.statements.arguments.GrArgumentListImpl");
 
-  private val decompiledTextAttribute = new FileAttribute("_file_decompiled_text_", 3)
-  private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", 3)
+  private val decompiledTextAttribute = new FileAttribute("_file_decompiled_text_", 4)
+  private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", 4)
+  private val sourceFileAttribute = new FileAttribute("_scala_source_file_", 4)
 
   def isScalaFile(file: VirtualFile): Boolean = try {
     isScalaFile(file, file.contentsToByteArray)
@@ -54,12 +55,16 @@ object DecompilerUtil {
     }
   }
 
+  val SOURCE_FILE = "SourceFile"
+  val SCALA_SIG = "ScalaSig"
+
   def decompile(bytes: Array[Byte], file: VirtualFile) = {
     val byteCode = ByteCode(bytes)
     val ba = decompiledTextAttribute.readAttributeBytes(file)
-    val bts = if (ba != null) ba else {
+    val sf = sourceFileAttribute.readAttributeBytes(file)
+    val (bts, sourceFile) = if (ba != null && sf != null) (ba, sf) else {
       val classFile = ClassFileParser.parse(byteCode)
-      classFile.attribute("ScalaSig").map(_.byteCode).map(ScalaSigAttributeParsers.parse) match {
+      classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse) match {
         case Some(scalaSig) => {
           val baos = new ByteArrayOutputStream
           val stream = new PrintStream(baos)
@@ -80,10 +85,19 @@ object DecompilerUtil {
           }
           val bs = baos.toByteArray
           decompiledTextAttribute.writeAttributeBytes(file, bs, 0, bs.length)
-          bs
+
+          // Obtain source file name
+          val Some(SourceFileInfo(index)) = classFile.attribute(SOURCE_FILE).map(_.byteCode).map(SourceFileAttributeParser.parse)
+          val source : String = classFile.header.constants(index) match {
+            case s: String => s
+            case _ => ""
+          }
+          val sBytes = source.getBytes(CharsetToolkit.UTF8)
+          sourceFileAttribute.writeAttributeBytes(file, sBytes, 0, sBytes.length)
+          (bs, sBytes)
         }
       }
     }
-    new String(bts, CharsetToolkit.UTF8)
+    (new String(bts, CharsetToolkit.UTF8), new String(sourceFile, CharsetToolkit.UTF8))
   }
 }

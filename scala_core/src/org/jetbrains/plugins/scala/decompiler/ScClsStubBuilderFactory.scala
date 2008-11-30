@@ -19,7 +19,7 @@ import lang.psi.stubs.ScalaFileStubBuilder
 class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
 
   def buildFileStub(vFile: VirtualFile, bytes: Array[Byte]): PsiFileStub[ScalaFile] = {
-    val text = DecompilerUtil.decompile(bytes, vFile)
+    val text = DecompilerUtil.decompile(bytes, vFile)._1
     val file = ScalaPsiElementFactory.createScalaFile(text, PsiManager.getInstance(DecompilerUtil.obtainProject))
     val fType = LanguageParserDefinitions.INSTANCE.forLanguage(ScalaFileType.SCALA_LANGUAGE).getFileNodeType()
     val stub = fType.asInstanceOf[IStubFileElementType[PsiFileStub[PsiFile]]].getBuilder().buildStubTree(file)

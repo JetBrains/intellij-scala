@@ -34,7 +34,7 @@ class ScContentBasedClassFileProcessor extends ContentBasedClassFileProcessor {
 
   def obtainFileText(project: Project, file: VirtualFile): String = {
     val bytes = file.contentsToByteArray
-    DecompilerUtil.decompile(bytes, file)
+    DecompilerUtil.decompile(bytes, file)._1
   }
 
   def obtainLanguageForFile(file: VirtualFile): Language = {
