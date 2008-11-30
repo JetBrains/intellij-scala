@@ -62,18 +62,26 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     }
   }
 
-  private def getSourceMirrorClass : PsiClass = {
+  private def hasSameScalaKind(other: PsiClass) = (this, other) match {
+    case (_: ScTrait, _: ScTrait)
+            | (_: ScObject, _: ScObject)
+            | (_: ScClass, _: ScClass) => true
+    case _ => false
+  }
+
+  private def getSourceMirrorClass: PsiClass = {
     val classParent = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true)
     val name = getName
     if (classParent == null) {
-      for (c <- getContainingFile.getNavigationElement.asInstanceOf[PsiClassOwner].getClasses){
-        if (name == c.getName) return c
+      for (c <- getContainingFile.getNavigationElement.asInstanceOf[PsiClassOwner].getClasses) {
+        if (name == c.getName && hasSameScalaKind(c)) return c
       }
     } else {
       val parentSourceMirror = classParent.asInstanceOf[ScTypeDefinitionImpl].getSourceMirrorClass
-      if (parentSourceMirror == null) return this
-      for (i <- parentSourceMirror.getInnerClasses) {
-        if (name == i) return i
+      parentSourceMirror match {
+        case td: ScTypeDefinitionImpl => for (i <- td.typeDefinitions if name == i.getName && hasSameScalaKind(i))
+          return i
+        case _ => this
       }
     }
     this

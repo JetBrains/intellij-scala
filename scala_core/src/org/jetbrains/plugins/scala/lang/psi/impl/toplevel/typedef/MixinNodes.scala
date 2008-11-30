@@ -30,7 +30,7 @@ abstract class MixinNodes {
     override def elemHashCode(t : T) = computeHashCode(t)
     override def elemEquals(t1 : T, t2 : T) = equiv(t1, t2)
 
-    override def makeSet = new LinkedHashSet[Node]
+    override def makeSet = new LinkedHashSet[Node]   
   }
 
   object MultiMap {def empty = new MultiMap}
@@ -128,7 +128,10 @@ abstract class MixinNodes {
     for (superType <- superTypes) {
       ScType.extractClassType(superType) match {
         case Some((superClass, s)) =>
-          superTypesBuff += inner(superClass, combine(s, subst, superClass), new HashSet[PsiClass])
+          // Do not include scala.ScalaObject to Predef's basetypes to prevent SOE
+          if (!(superClass.getQualifiedName == "scala.ScalaObject" && clazz.getQualifiedName == "scala.Predef")) {
+            superTypesBuff += inner(superClass, combine(s, subst, superClass), new HashSet[PsiClass])
+          }
         case _ =>
       }
     }
