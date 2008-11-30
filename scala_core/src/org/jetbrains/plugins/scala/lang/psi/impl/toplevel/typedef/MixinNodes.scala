@@ -125,8 +125,7 @@ abstract class MixinNodes {
       }
     }
 
-    // Assume, that scala.Predef extends nothing to prevent SOE
-    for (superType <- superTypes if clazz.getQualifiedName != "scala.Predef") {
+    for (superType <- superTypes) {
       ScType.extractClassType(superType) match {
         case Some((superClass, s)) =>
           superTypesBuff += inner(superClass, combine(s, subst, superClass), new HashSet[PsiClass])
