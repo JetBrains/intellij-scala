@@ -55,6 +55,8 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
   }
 
 
+  override def getNavigationElement = this
+
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
   override def getModifierList = super[ScTypeDefinition].getModifierList
