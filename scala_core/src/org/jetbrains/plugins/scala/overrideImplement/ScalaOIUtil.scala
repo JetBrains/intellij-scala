@@ -152,7 +152,7 @@ object ScalaOIUtil {
       element match {
         case FullSignature(sign: PhysicalSignature, _, _, _) => {
           sign.method match {
-            case x if x.getName == "$tag" =>
+            case x if x.getName == "$tag" || x.getName == "$init$" =>
             case x if x.getContainingClass == clazz =>
             case x if x.getContainingClass.isInterface => buf2 += sign
             case x if x.hasModifierProperty("abstract") => buf2 += sign
@@ -189,7 +189,7 @@ object ScalaOIUtil {
           }
           sign.method match {
             case _: ScFunctionDeclaration =>
-            case x if x.getName == "$tag" =>
+            case x if x.getName == "$tag" || x.getName == "$init$"=>
             case x if x.getContainingClass == clazz =>
             case x: PsiModifierListOwner if x.hasModifierProperty("abstract")
                 || x.hasModifierProperty("final") /*|| x.hasModifierProperty("sealed")*/ =>
