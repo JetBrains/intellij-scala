@@ -14,7 +14,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.compiled.ClsRepositoryPsiElement
 import com.intellij.psi.PsiManager
-import lang.psi.stubs.impl.ScFileStubImpl
 import lang.psi.stubs.ScFileStub
 
 /**
