@@ -22,12 +22,14 @@ class ScStubFileElementType(lang: Language) extends IStubFileElementWrapper[Scal
   override def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScFileStub = {
     val compiled = dataStream.readBoolean
     val packName = dataStream.readName
-    return new ScFileStubImpl(null, StringRef.fromString(""), packName, compiled)
+    val fileName = dataStream.readName
+    return new ScFileStubImpl(null, packName, fileName, compiled)
   }
 
   override def serialize(stub: ScFileStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.isCompiled)
     dataStream.writeName(stub.packageName)
+    dataStream.writeName(stub.getFileName)
   }
 
   def indexStub(stub: ScFileStub, sink: IndexSink){
@@ -36,5 +38,5 @@ class ScStubFileElementType(lang: Language) extends IStubFileElementWrapper[Scal
 }
 
 private[elements] object StubVersion {
-  val STUB_VERSION: Int = 12
+  val STUB_VERSION: Int = 14
 }

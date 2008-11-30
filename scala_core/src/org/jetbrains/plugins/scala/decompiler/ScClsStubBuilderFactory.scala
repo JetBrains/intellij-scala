@@ -10,17 +10,20 @@ import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.psi.{PsiManager, PsiElement, PsiFile}
 import lang.psi.api.ScalaFile
 import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.stubs.ScalaFileStubBuilder
 
 /**
  * @author ilyas
  */
 
 class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
-
   def buildFileStub(vFile: VirtualFile, bytes: Array[Byte]): PsiFileStub[ScalaFile] = {
-    val text = DecompilerUtil.decompile(bytes, vFile)._1
+    val (text, source) = DecompilerUtil.decompile(bytes, vFile)
     val file = ScalaPsiElementFactory.createScalaFile(text, PsiManager.getInstance(DecompilerUtil.obtainProject))
+    
+    val adj = file.asInstanceOf[CompiledFileAdjuster]
+    adj.setCompiled(true)
+    adj.setSourceFileName(source)
+
     val fType = LanguageParserDefinitions.INSTANCE.forLanguage(ScalaFileType.SCALA_LANGUAGE).getFileNodeType()
     val stub = fType.asInstanceOf[IStubFileElementType[PsiFileStub[PsiFile]]].getBuilder().buildStubTree(file)
     return stub.asInstanceOf[PsiFileStub[ScalaFile]]

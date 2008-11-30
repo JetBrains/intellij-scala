@@ -1,13 +1,17 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
+import com.intellij.openapi.roots.{OrderEntry, ProjectRootManager, OrderRootType}
+import stubs.ScFileStub
 import _root_.com.intellij.extapi.psi.{PsiFileBase}
 import api.ScalaFile
+import com.intellij.psi.stubs.StubElement
 import com.intellij.util.IncorrectOperationException
 import api.toplevel.typedef.ScTypeDefinition
 import api.toplevel.imports.ScImportStmt
 import com.intellij.lang.Language
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import decompiler.CompiledFileAdjuster
 import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.icons.Icons
@@ -26,16 +30,53 @@ import _root_.scala.collection.mutable._
 
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
-extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
-with ScalaFile with ScImportsHolder with ScDeclarationSequenceHolder {
-
+        extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
+                with ScalaFile with ScImportsHolder with ScDeclarationSequenceHolder with CompiledFileAdjuster {
   override def getViewProvider = viewProvider
+
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE
+
   override def toString = "ScalaFile"
 
-  def setPackageName(name: String) = {
+  def isCompiled = {
+    val stub = getStub
+    if (stub != null) stub.isCompiled else compiled
+  }
+
+  def sourceName = if (isCompiled) sourceFileName else ""
+
+  override def getNavigationElement: PsiElement = {
+    if (!isCompiled) this
+    else {
+      val pName = getPackageName
+      val sourceFile = sourceName
+      val relPath = if (pName.length == 0) sourceFile else pName.replace(".", "/") + "/" + sourceFile
+
+      val vFile = getContainingFile.getVirtualFile
+      val index = ProjectRootManager.getInstance(getProject).getFileIndex
+      val entries = index.getOrderEntriesForFile(vFile).toArray(OrderEntry.EMPTY_ARRAY)
+      for (entry <- entries) {
+        val files = entry.getFiles(OrderRootType.SOURCES)
+        for (file <- files) {
+          val source = file.findFileByRelativePath(relPath)
+          if (source != null) {
+            val psiSource = getManager.findFile(source)
+            return psiSource match {
+              case o: PsiClassOwner => o
+              case _ => this
+            }
+          }
+        }
+      }
+      this
+    }
+  }
+
+  def setPackageName(name: String) {
     //todo
   }
+
+  override def getStub: ScFileStub = super[PsiFileBase].getStub.asInstanceOf[ScFileStub]
 
   def getPackagings = findChildrenByClass(classOf[ScPackaging])
 
@@ -48,7 +89,7 @@ with ScalaFile with ScImportsHolder with ScDeclarationSequenceHolder {
 
   def packageStatement = findChild(classOf[ScPackageStatement])
 
-  override def getClasses = typeDefinitions.map(t => t : PsiClass)
+  override def getClasses = typeDefinitions.map(t => t: PsiClass)
 
   def icon = Icons.FILE_TYPE_LOGO
 
@@ -58,7 +99,7 @@ with ScalaFile with ScImportsHolder with ScDeclarationSequenceHolder {
                                   place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
 
-   if (!super[ScDeclarationSequenceHolder].processDeclarations(processor,
+    if (!super[ScDeclarationSequenceHolder].processDeclarations(processor,
       state, lastParent, place)) return false
 
     if (!super[ScImportsHolder].processDeclarations(processor,

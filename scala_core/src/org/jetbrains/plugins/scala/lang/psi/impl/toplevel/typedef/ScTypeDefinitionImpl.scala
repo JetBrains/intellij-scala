@@ -55,7 +55,29 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
   }
 
 
-  override def getNavigationElement = this
+  override def getNavigationElement = {
+    getContainingFile match {
+      case s: ScalaFileImpl if s.isCompiled => getSourceMirrorClass
+      case _ => this
+    }
+  }
+
+  private def getSourceMirrorClass : PsiClass = {
+    val classParent = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true)
+    val name = getName
+    if (classParent == null) {
+      for (c <- getContainingFile.getNavigationElement.asInstanceOf[PsiClassOwner].getClasses){
+        if (name == c.getName) return c
+      }
+    } else {
+      val parentSourceMirror = classParent.asInstanceOf[ScTypeDefinitionImpl].getSourceMirrorClass
+      if (parentSourceMirror == null) return this
+      for (i <- parentSourceMirror.getInnerClasses) {
+        if (name == i) return i
+      }
+    }
+    this
+  }
 
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 

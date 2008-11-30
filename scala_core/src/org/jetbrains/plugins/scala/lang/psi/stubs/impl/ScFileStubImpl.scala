@@ -18,12 +18,12 @@ class ScFileStubImpl(file: ScalaFile) extends PsiFileStubWrapperImpl[ScalaFile](
   implicit  def refToStr(ref: StringRef) = StringRef.toString(ref)
 
   var packName: StringRef = _
-  var name: StringRef = _
+  var sourceFileName: StringRef = _
   var compiled: Boolean = false
 
   def this(file: ScalaFile, pName : StringRef, name: StringRef, compiled: Boolean) = {
     this(file)
-    this.name = name
+    this.sourceFileName = name
     packName = pName
     this.compiled = compiled
   }
@@ -33,7 +33,7 @@ class ScFileStubImpl(file: ScalaFile) extends PsiFileStubWrapperImpl[ScalaFile](
     getChildrenByType(TokenSet.create(CLASS_DEF, OBJECT_DEF, TRAIT_DEF), PsiClass.ARRAY_FACTORY)
   }
 
-  def getFileName = name
+  def getFileName = sourceFileName
 
   def packageName = packName
 

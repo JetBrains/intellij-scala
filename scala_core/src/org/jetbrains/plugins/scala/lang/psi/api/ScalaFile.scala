@@ -18,4 +18,8 @@ trait ScalaFile extends ScalaPsiElement with ScToplevelElement with PsiClassOwne
 
   def packageStatement: Option[ScPackageStatement]
 
+  def isCompiled: Boolean
+
+  def sourceName: String
+
 }
