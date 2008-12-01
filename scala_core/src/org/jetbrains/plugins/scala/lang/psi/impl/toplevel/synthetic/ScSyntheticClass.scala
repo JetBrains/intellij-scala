@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
 
 import api.statements.params.ScTypeParam
+import api.toplevel.typedef.ScTemplateDefinition
 import api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.psi.search.GlobalSearchScope
@@ -44,10 +45,12 @@ extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake 
 }
 // we could try and implement all type system related stuff
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly
-class ScSyntheticClass(manager: PsiManager, val name: String, val t: StdType)
-extends SyntheticNamedElement(manager, name) with PsiClass with PsiClassFake {
+class ScSyntheticClass(manager: PsiManager, val className: String, val t: StdType)
+extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFake {
 
   override def toString = "Synthetic class"
+
+  def syntheticMethods = methods.values.toList.flatMap(s => s).toList.toArray
 
   object methods extends HashMap[String, Set[ScSyntheticFunction]] with MultiMap[String, ScSyntheticFunction]
 
@@ -91,6 +94,7 @@ class ScSyntheticFunction(manager: PsiManager, val name: String,
                           val retType: ScType, val paramTypes: Seq[ScType],
                           typeParameterNames : Seq[String])
 extends SyntheticNamedElement(manager, name) with ScFun {
+  
   def this(manager: PsiManager, name: String, retType: ScType, paramTypes: Seq[ScType]) =
     this(manager, name, retType, paramTypes, Seq.empty)
 
@@ -171,7 +175,7 @@ class SyntheticClasses(project: Project) extends ProjectComponent with PsiElemen
       for (nc1 <- numeric; op <- numeric_arith_ops)
         nc.addMethod(new ScSyntheticFunction(manager, op, op_type(nc, nc1), Seq.singleton(nc1.t)))
       for (nc1 <- numeric if nc1 ne nc)
-        nc.addMethod(new ScSyntheticFunction(manager, "to" + nc1.name, nc1.t, Seq.empty))
+        nc.addMethod(new ScSyntheticFunction(manager, "to" + nc1.className, nc1.t, Seq.empty))
       for (un_op <- numeric_arith_unary_ops)
         nc.addMethod(new ScSyntheticFunction(manager, un_op, nc.t, Seq.empty))
     }

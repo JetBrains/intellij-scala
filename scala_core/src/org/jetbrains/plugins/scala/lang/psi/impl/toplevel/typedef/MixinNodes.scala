@@ -10,6 +10,7 @@ import api.toplevel.typedef.{ScTypeDefinition, ScMember, ScTemplateDefinition}
 import collection.mutable.{HashMap, ArrayBuffer, HashSet, Set, ListBuffer}
 import com.intellij.psi.{PsiElement, PsiClass}
 import psi.types._
+import synthetic.ScSyntheticClass
 
 abstract class MixinNodes {
   type T
@@ -94,6 +95,10 @@ abstract class MixinNodes {
           processScala(tmpl, subst, map)
           (tmpl.superTypes, putAliases(tmpl, subst))
         }
+        case syn : ScSyntheticClass => {
+          processSyntheticScala(syn, subst, map)
+          (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)}, subst)
+        }
         case _ => {
           processJava(clazz, subst, map)
           (clazz.getSuperTypes.map{psiType => ScType.create(psiType, clazz.getProject)}, subst)
@@ -118,6 +123,10 @@ abstract class MixinNodes {
       case template : ScTemplateDefinition => {
         processScala(template, ScSubstitutor.empty, map)
         (template.superTypes, putAliases(template, ScSubstitutor.empty))
+      }
+      case syn: ScSyntheticClass => {
+        processSyntheticScala(syn, ScSubstitutor.empty, map)
+        (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)}, ScSubstitutor.empty)
       }
       case _ => {
         processJava(clazz, ScSubstitutor.empty, map)
@@ -164,4 +173,5 @@ abstract class MixinNodes {
 
   def processJava(clazz : PsiClass, subst : ScSubstitutor, map : Map)
   def processScala(template : ScTemplateDefinition, subst : ScSubstitutor, map : Map)
+  def processSyntheticScala(clazz : ScSyntheticClass, subst : ScSubstitutor, map : Map)
 }
