@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import api.statements.ScTypeAlias
 import api.toplevel.typedef.ScTypeDefinition
+import decompiler.DecompilerUtil
 import impl.ScalaPsiManager
 import impl.toplevel.synthetic.SyntheticClasses
 import resolve.ScalaResolveResult
@@ -146,6 +147,7 @@ object ScType {
         case None => None
       }
     }
+    case std@StdType(_, _) => Some((std.asClass(DecompilerUtil.obtainProject), ScSubstitutor.empty)) 
     case _ => None
   }
 

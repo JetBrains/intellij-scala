@@ -7,6 +7,7 @@ import api.base.{ScFieldId, ScPrimaryConstructor}
 import api.statements.params.ScClassParameter
 import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import synthetic.{SyntheticClasses, ScSyntheticClass}
 import types._
 import api.toplevel.typedef._
@@ -36,6 +37,21 @@ object TypeDefinitionMembers {
         map += ((sig, new Node(sig, subst)))
       }
 
+    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map) {
+      clazz.getName match {
+        case "Any" => {
+          val project = clazz.getProject
+          val facade = JavaPsiFacade.getInstance(project)
+          val obj = facade.findClass("java.lang.Object", GlobalSearchScope.allScope(project))
+          for (m <- obj.getMethods) {
+            val sig = new PhysicalSignature(m, subst)
+            map += ((sig, new Node(sig, subst)))
+          }
+        }
+        case _ =>
+      }
+    }
+
     def processScala(template : ScTemplateDefinition, subst: ScSubstitutor, map: Map) =
       for (member <- template.members) {
         member match {
@@ -59,6 +75,8 @@ object TypeDefinitionMembers {
       case f: PsiField if f.hasModifierProperty(PsiModifier.ABSTRACT) => true
       case _ => false
     }
+
+    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map) {}
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map) =
       for (field <- clazz.getFields) {
@@ -102,6 +120,8 @@ object TypeDefinitionMembers {
         map += ((inner, new Node(inner, subst)))
       }
 
+    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map) {}
+
     def processScala(template : ScTemplateDefinition, subst: ScSubstitutor, map: Map) = {
       for (member <- template.members) {
         member match {
@@ -131,6 +151,8 @@ object TypeDefinitionMembers {
         val sig = new FullSignature(phys, subst.subst(retType), method, clazz)
         map += ((sig, new Node(sig, subst)))
       }
+
+    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map) {}
 
     def processScala(template : ScTemplateDefinition, subst: ScSubstitutor, map: Map) = {
       def addSignature(s : Signature, ret : ScType, elem : NavigatablePsiElement) {

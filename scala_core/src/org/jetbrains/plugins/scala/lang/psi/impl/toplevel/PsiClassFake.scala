@@ -87,8 +87,6 @@ trait PsiClassFake extends PsiClass{
 
   def getRBrace: PsiJavaToken = null
 
-  //override def getNameIdentifier: PsiIdentifier = null
-
   def getScope: PsiElement = null
 
   def isInheritor(baseClass: PsiClass, checkDeep: Boolean): Boolean = false
