@@ -43,9 +43,11 @@ object TypeDefinitionMembers {
           val project = clazz.getProject
           val facade = JavaPsiFacade.getInstance(project)
           val obj = facade.findClass("java.lang.Object", GlobalSearchScope.allScope(project))
-          for (m <- obj.getMethods) {
-            val sig = new PhysicalSignature(m, subst)
-            map += ((sig, new Node(sig, subst)))
+          if (obj != null) {
+            for (m <- obj.getMethods) {
+              val sig = new PhysicalSignature(m, subst)
+              map += ((sig, new Node(sig, subst)))
+            }
           }
         }
         case _ =>
