@@ -384,12 +384,16 @@ object ScalaPsiElementFactory {
           }
           res = res + changeKeyword(paramname) + ": "
           val scType: ScType = substitutor.subst(ScType.create(param.getTypeElement.getType, method.getProject))
-          res = res + ScType.canonicalText(scType) + ", "
+          var text = ScType.canonicalText(scType)
+          if (text == "_root_.java.lang.Object") text = "Any"
+          res = res + text + ", "
         }
         if (method.getParameterList.getParametersCount != 0) res = res.substring(0, res.length - 2)
         res = res + (if (method.getParameterList.getParametersCount == 0) "" else ")")
         if (needsInferType) {
-          res = res + ": " + ScType.canonicalText(substitutor.subst(ScType.create(method.getReturnType, method.getProject)))
+          var text = ScType.canonicalText(substitutor.subst(ScType.create(method.getReturnType, method.getProject)))
+          if (text == "_root_.java.lang.Object") text = "AnyRef"
+          res = res + ": " + text
         }
         res = res + " = " + body
       }
