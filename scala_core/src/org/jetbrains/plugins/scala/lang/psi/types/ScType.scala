@@ -130,7 +130,7 @@ object ScType {
           val fqn = clazz.getQualifiedName
           if (fqn != null) fqn else "java.lang.Object"
         }
-        case None => "java.lang.Object"
+        case _ => "java.lang.Object"
       }, scope)
     case _ => JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
   }
