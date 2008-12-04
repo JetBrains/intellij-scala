@@ -5,9 +5,9 @@ import lexer.ScalaTokenTypes
 import nl.LineTerminator
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
+ * @author Alexander Podkhalyuzin
+ *  Date: 06.03.2008
+ */
 
 /*
  * Annmotation ::= '@' AnnotationExpr [nl]
@@ -27,14 +27,16 @@ object Annotation {
     }
     if (!AnnotationExpr.parse(builder)) {
       builder error ScalaBundle.message("wrong.annotation.expression")
-    }
-    builder.getTokenType match {
-      case ScalaTokenTypes.tLINE_TERMINATOR => {
-        if (LineTerminator(builder.getTokenText)) builder.advanceLexer
+      annotMarker.drop
+    } else {
+      builder.getTokenType match {
+        case ScalaTokenTypes.tLINE_TERMINATOR => {
+          if (LineTerminator(builder.getTokenText)) builder.advanceLexer
+        }
+        case _ => {}
       }
-      case _ => {}
+      annotMarker.done(ScalaElementTypes.ANNOTATION)
     }
-    annotMarker.done(ScalaElementTypes.ANNOTATION)
-    return true
+    true
   }
 }
