@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
@@ -29,6 +29,7 @@ class ScModifierListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       case "override" => has(ScalaTokenTypes.kOVERRIDE)
       case "private" => has(ScalaTokenTypes.kPRIVATE)
       case "protected" => has(ScalaTokenTypes.kPROTECTED)
+      case "public" => !(has(ScalaTokenTypes.kPROTECTED) || has(ScalaTokenTypes.kPRIVATE))
       case "final" => has(ScalaTokenTypes.kFINAL)
       case "implicit" => has(ScalaTokenTypes.kIMPLICIT)
       case "abstract" => has(ScalaTokenTypes.kABSTRACT)
@@ -81,5 +82,18 @@ class ScModifierListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
   }
 
-  def has (prop : IElementType) = findChildByType(prop) != null
+  def has(prop: IElementType) = {
+    val access = findChildByClass(classOf[ScAccessModifier])
+    prop match {
+      case ScalaTokenTypes.kPRIVATE if access != null => access.access match {
+        case access.Access.PRIVATE | access.Access.THIS_PRIVATE => true
+        case _ => false
+      }
+      case ScalaTokenTypes.kPROTECTED if access != null => access.access match {
+        case access.Access.PROTECTED | access.Access.THIS_PROTECTED => true
+        case _ => false
+      }
+      case _ => findChildByType(prop) != null
+    }
+  }
 }
