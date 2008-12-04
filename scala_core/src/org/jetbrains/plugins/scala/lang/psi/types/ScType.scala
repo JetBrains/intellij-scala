@@ -114,6 +114,7 @@ object ScType {
     case Byte => PsiType.BYTE
     case Short => PsiType.SHORT
     case Null => PsiType.NULL
+    case ScCompoundType(Seq(t, _*), _, _) => toPsi(t, project, scope)
     case ScDesignatorType(c : PsiClass) => JavaPsiFacade.getInstance(project).getElementFactory.createType(c, PsiSubstitutor.EMPTY)
     case ScParameterizedType(ScDesignatorType(c : PsiClass), args) =>
       if (c.getQualifiedName == "scala.Array" && args.length == 1)
