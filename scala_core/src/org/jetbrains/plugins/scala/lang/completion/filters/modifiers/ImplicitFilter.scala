@@ -8,8 +8,8 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import psi.api.statements.params.ScParameter
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 27.09.2008
+ *  User: Alexander Podkhalyuzin
+ *  Date: 27.09.2008
  */
 
 class ImplicitFilter extends ElementFilter {
@@ -21,7 +21,8 @@ class ImplicitFilter extends ElementFilter {
       parent match {
         case _: ScParameter => {
           val prev = parent.getPrevSibling
-          if (prev.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS) return true
+          if (prev != null && prev.getNode != null &&
+                  prev.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS) return true
         }
         case _ =>
       }

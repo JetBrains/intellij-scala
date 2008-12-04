@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
+import base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /** 
@@ -8,5 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScGenericCall extends ScExpression {
+
+  def referencedExpr = findChildByClass(classOf[ScExpression])
+
+  def typeArgs = findChildByClass(classOf[ScTypeArgs])
 
 }
