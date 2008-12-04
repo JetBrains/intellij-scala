@@ -10,12 +10,17 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /**
  * @author Alexander Podkhalyuzin
- *                Date: 07.03.2008
+ *                        Date: 07.03.2008
  */
 
 trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
   def getReferenceElements = Array[PsiJavaCodeReferenceElement]()
 
+
+  def foldFuns(initial: Any)(fail: Any)(l: List[PartialFunction[Any, _]]): Any = l match {
+    case h :: t => if (h.isDefinedAt(initial)) foldFuns(h(initial))(fail)(t) else fail
+    case Nil => initial
+  }
 
   // todo rewrite via continuations
   private def getExceptionTypes: Array[PsiClassType] = {
@@ -25,29 +30,21 @@ trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
 
   private def extractExceptionType(a: ScAnnotation) = {
     val constr = a.annotationExpr.constr
-    try {
-      constr.typeElement.reference.map(_.bind) match {
-        case Some(Some(res: ScalaResolveResult)) => res.getElement match {
-          case c: PsiClass if c.getQualifiedName == "scala.throws" => constr.args match {
-            case args: ScArgumentExprList if args != null => args.exprs match {
-              case Seq(gc@(_: ScGenericCall)) => gc.referencedExpr match {
-                case ref: ScReferenceExpression => ref.bind.map(_.getElement) match {
-                  case Some(m: PsiMethod) if m.getName == "classOf" => gc.typeArgs.typeArgs match {
-                    case Seq(s: ScSimpleTypeElement) => s.reference.map(_.bind) match {
-                      case Some(Some(res1: ScalaResolveResult)) => res1.getElement match {
-                        case p: PsiClass => JavaPsiFacade.getInstance(getProject).getElementFactory.createTypeByFQClassName(p.getQualifiedName, GlobalSearchScope.allScope(getProject))
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    catch {
-      case e: MatchError => null
+    val result = foldFuns(constr.typeElement.reference.map(_.bind))(null)(List(
+      {case Some(Some(res: ScalaResolveResult)) => res.getElement},
+      {case c: PsiClass if c.getQualifiedName == "scala.throws" => constr.args},
+      {case args: ScArgumentExprList if args != null => args.exprs},
+      {case Seq(gc@(_: ScGenericCall)) => (gc.referencedExpr, gc.typeArgs.typeArgs)},
+      {case (ref: ScReferenceExpression, ta) => (ref.bind.map(_.getElement), ta)},
+      {case (Some(m: PsiMethod), ta) if m.getName == "classOf" => ta},
+      {case Seq(s: ScSimpleTypeElement) => s.reference.map(_.bind)},
+      {case Some(Some(res1: ScalaResolveResult)) => res1.getElement},
+      {case p: PsiClass => JavaPsiFacade.getInstance(getProject).getElementFactory.createTypeByFQClassName(p.getQualifiedName, GlobalSearchScope.allScope(getProject))}
+      ))
+
+    result match {
+      case p: PsiClassType => p
+      case _ => null
     }
   }
 
