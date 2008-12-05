@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /**
  * @author Alexander Podkhalyuzin
- *                        Date: 07.03.2008
+ *                         Date: 07.03.2008
  */
 
 trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
@@ -30,7 +30,8 @@ trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
 
   private def extractExceptionType(a: ScAnnotation) = {
     val constr = a.annotationExpr.constr
-    val result = foldFuns(constr.typeElement.reference.map(_.bind))(null)(List(
+    val result = foldFuns(constr.typeElement)(null)(List(
+      {case s: ScSimpleTypeElement => s.reference.map(_.bind)},
       {case Some(Some(res: ScalaResolveResult)) => res.getElement},
       {case c: PsiClass if c.getQualifiedName == "scala.throws" => constr.args},
       {case args: ScArgumentExprList if args != null => args.exprs},
