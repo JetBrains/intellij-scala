@@ -167,6 +167,7 @@ public class OverrideImplementTest extends PsiTestCase {
 
     myFile = createFile(myModule, fileName, fileText);
 
-    assertEquals(OverrideImplementTestHelper.transform(myProject, myFile, offset, isImplement, methodName), answer);
+    String s = OverrideImplementTestHelper.transform(myProject, myFile, offset, isImplement, methodName);
+    assertEquals(s, answer);
   }
 }

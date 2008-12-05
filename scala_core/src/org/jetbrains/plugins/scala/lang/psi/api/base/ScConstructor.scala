@@ -11,7 +11,7 @@ import types.{ScSimpleTypeElement, ScTypeElement}
 */
 
 trait ScConstructor extends ScalaPsiElement {
-  def typeElement = findChildByClass(classOf[ScSimpleTypeElement])
+  def typeElement = findChildByClass(classOf[ScTypeElement])
 
   def args = findChildByClass(classOf[ScArgumentExprList]) 
 }
