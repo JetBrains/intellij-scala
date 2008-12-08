@@ -18,7 +18,7 @@ import lang.psi.impl.ScalaPsiElementFactory
 class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
   def buildFileStub(vFile: VirtualFile, bytes: Array[Byte]): PsiFileStub[ScalaFile] = {
     val (text, source) = DecompilerUtil.decompile(bytes, vFile)
-    val file = ScalaPsiElementFactory.createScalaFile(text, PsiManager.getInstance(DecompilerUtil.obtainProject))
+    val file = ScalaPsiElementFactory.createScalaFile(text.replace("\r", ""), PsiManager.getInstance(DecompilerUtil.obtainProject))
     
     val adj = file.asInstanceOf[CompiledFileAdjuster]
     adj.setCompiled(true)
