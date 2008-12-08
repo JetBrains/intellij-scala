@@ -73,14 +73,14 @@ object DecompilerUtil {
             case Some(p) if (p.name != "<empty>") => {
               stream.print("package ");
               stream.print(p.path);
-              stream.println
+              stream.print("\n")
             }
             case _ =>
           }
           // Print classes
           val printer = new ScalaSigPrinter(stream)
           for (c <- syms) {
-            println
+            print("\n")
             printer.printSymbol(c)
           }
           val bs = baos.toByteArray

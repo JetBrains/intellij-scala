@@ -91,7 +91,7 @@ class ScalaSigPrinter(stream : PrintStream) {
         }
       }
     }
-    println()
+    print("\n")
     printChildren(level, m)
   }
 
@@ -99,7 +99,7 @@ class ScalaSigPrinter(stream : PrintStream) {
     print("type ")
     print(processName(a.name))
     printType(a.infoType, " = ")
-    println()
+    print("\n")
 
     printChildren(level, a)
   }
