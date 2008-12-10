@@ -23,6 +23,7 @@ import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.TranslatingCompiler;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.JavaModuleType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -234,7 +235,7 @@ public class ScalaCompilerOld implements TranslatingCompiler {
 
     for (Module module : modules) {
       final String installPath = ScalaConfigUtils.getScalaInstallPath(module);
-      if (installPath.length() == 0) {
+      if (installPath.length() == 0 && module.getModuleType() instanceof JavaModuleType) {
         Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.facet"), ScalaBundle.message("cannot.compile"));
         return false;
       }
@@ -242,6 +243,7 @@ public class ScalaCompilerOld implements TranslatingCompiler {
 
     Set<Module> nojdkModules = new HashSet<Module>();
     for (Module module : compileScope.getAffectedModules()) {
+      if (!(module.getModuleType() instanceof JavaModuleType)) continue;
       Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
       if (sdk == null || !(sdk.getSdkType() instanceof JavaSdkType)) {
         nojdkModules.add(module);
