@@ -9,7 +9,6 @@ import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
  */
 public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
-  public int INDENT = 2;
 
   //spcaing settings:
   public boolean SPACE_BEFORE_COMMA = false;

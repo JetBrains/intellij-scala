@@ -59,21 +59,20 @@ extends Object with ScalaTokenTypes with Block {
 
   def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val scalaSettings = mySettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    val indentCount = scalaSettings.INDENT
     val parent = getNode.getPsi
     parent match {
       case _: ScBlockExpr | _: ScTemplateBody | _: ScForStatement  | _: ScWhileStmt |
            _: ScTryBlock | _: ScCatchBlock | _: ScPackaging | _: ScMatchStmt => {
-        return new ChildAttributes(Indent.getSpaceIndent(indentCount), null)
+        return new ChildAttributes(Indent.getNormalIndent, null)
       }
-      case _: ScIfStmt => return new ChildAttributes(Indent.getSpaceIndent(indentCount), this.getAlignment)
+      case _: ScIfStmt => return new ChildAttributes(Indent.getNormalIndent, this.getAlignment)
       case x: ScDoStmt => {
         if (x.hasExprBody)
           return new ChildAttributes(Indent.getNoneIndent(), null)
-        else return new ChildAttributes(Indent.getSpaceIndent(indentCount), null)
+        else return new ChildAttributes(Indent.getNormalIndent, null)
       }
       case _: ScalaFile => return new ChildAttributes(Indent.getNoneIndent, null)
-      case _: ScCaseClause => return new ChildAttributes(Indent.getSpaceIndent(indentCount), null)
+      case _: ScCaseClause => return new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScExpression | _: ScPattern | _: ScParameters =>
         return new ChildAttributes(Indent.getContinuationWithoutFirstIndent, this.getAlignment)
       case _ => new ChildAttributes(Indent.getNoneIndent(), null)
