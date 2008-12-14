@@ -10,7 +10,7 @@ import psi.api.statements.ScFunction
 * Date: 04.05.2008
 */
 
-class ScalaFunctionStructureViewElement(private val func: ScFunction, isInherited: Boolean) extends ScalaStructureViewElement(func) {
+class ScalaFunctionStructureViewElement(private val func: ScFunction, val isInherited: Boolean) extends ScalaStructureViewElement(func) {
 
   def getPresentation(): ItemPresentation = {
     return new ScalaFunctionItemPresentation(func, isInherited);

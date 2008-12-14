@@ -17,9 +17,9 @@ import com.intellij.psi._
 * Date: 08.05.2008
 */
 
-class ScalaValueStructureViewElement(private val element: PsiElement) extends ScalaStructureViewElement(element) {
+class ScalaValueStructureViewElement(private val element: PsiElement, val isInherited: Boolean) extends ScalaStructureViewElement(element) {
   def getPresentation(): ItemPresentation = {
-    return new ScalaValueItemPresentation(element);
+    return new ScalaValueItemPresentation(element, isInherited);
   }
 
   def getChildren(): Array[TreeElement] = {

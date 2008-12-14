@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.structureView
 
+import com.intellij.ide.structureView.impl.java.InheritedMembersFilter
 import com.intellij.ide.structureView.StructureViewTreeElement
 import com.intellij.ide.structureView.TextEditorBasedStructureViewModel
 import com.intellij.ide.util.treeView.smartTree._
@@ -47,7 +48,7 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile) extends Text
 
   @NotNull
   def getFilters(): Array[Filter] = {
-    return Filter.EMPTY_ARRAY;
+    return Array[Filter](new ScalaInheritedMembersFilter)
   }
 
   override def isSuitable(element: PsiElement) = element != null && isSuitableElementImpl(element)
@@ -78,4 +79,16 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile) extends Text
     case _ => false
   }
 
+
+  private class ScalaInheritedMembersFilter extends InheritedMembersFilter {
+    override def isVisible(treeNode: TreeElement): Boolean = {
+      treeNode match {
+        case x: ScalaFunctionStructureViewElement => !x.isInherited
+        case x: ScalaValueStructureViewElement => !x.isInherited
+        case x: ScalaVariableStructureViewElement => !x.isInherited
+        case x: ScalaTypeAliasStructureViewElement => !x.isInherited
+        case _ => super.isVisible(treeNode)
+      }
+    }
+  }
 }
