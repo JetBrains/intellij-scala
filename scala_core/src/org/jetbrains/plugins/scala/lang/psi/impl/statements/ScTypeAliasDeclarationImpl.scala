@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
+import com.intellij.ide.util.EditSourceUtil
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.javadoc.PsiDocComment
@@ -36,6 +37,11 @@ import com.intellij.psi.util.PsiTreeUtil
 class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] with ScTypeAliasDeclaration {
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScTypeAliasStub) = {this(); setStub(stub); setNode(null)}
+
+  override def navigate(requestFocus: Boolean): Unit = {
+    val descriptor = EditSourceUtil.getDescriptor(nameId);
+    if (descriptor != null) descriptor.navigate(requestFocus)
+  }
 
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
     case null => ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScTypeAliasStub].getName, getManager).getPsi

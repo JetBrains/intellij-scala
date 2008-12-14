@@ -1,7 +1,13 @@
 package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
-import com.intellij.ide.util.treeView.smartTree.TreeElement;
-import com.intellij.navigation.ItemPresentation;
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.{FullSignature, PhysicalSignature, ScSubstitutor}
+import com.intellij.ide.structureView.impl.java.PsiMethodTreeElement
+import com.intellij.ide.util.treeView.smartTree.TreeElement
+
+
+import com.intellij.navigation.ItemPresentation
+import psi.api.toplevel.ScNamedElement
+import psi.impl.toplevel.typedef.TypeDefinitionMembers;
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi._
@@ -23,8 +29,9 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
   }
 
   def getChildren(): Array[TreeElement] = {
-    val children = new ArrayBuffer[ScalaStructureViewElement]
-    val members = element.asInstanceOf[ScTypeDefinition].members
+    val children = new ArrayBuffer[TreeElement]
+    val clazz: ScTypeDefinition = element.asInstanceOf[ScTypeDefinition]
+    val members = clazz.members
     for (member <- members) {
       member match {
         case func: ScFunction => {
@@ -35,18 +42,51 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
         }
         case member: ScVariable => {
           for (f <- member.declaredElements)
-            children += new ScalaVariableStructureViewElement(f.nameId)
+            children += new ScalaVariableStructureViewElement(f.nameId, false)
         }
         case member: ScValue => {
           for (f <- member.declaredElements)
-            children += new ScalaValueStructureViewElement(f.nameId)
+            children += new ScalaValueStructureViewElement(f.nameId, false)
         }
         case member: ScTypeAlias => {
-          children += new ScalaTypeAliasStructureViewElement(member)
+          children += new ScalaTypeAliasStructureViewElement(member, false)
         }
         case _ =>
       }
     }
+
+    val signs = clazz.allSignatures
+    for (sign <- signs) {
+      sign match {
+        case FullSignature(sign: PhysicalSignature, _, _, _) => {
+          sign.method match {
+            case x if x.getName == "$tag" || x.getName == "$init$" =>
+            case x if x.getContainingClass.getQualifiedName == "java.lang.Object" =>
+            case x if x.getContainingClass == clazz =>
+            case x: ScFunction => children += new ScalaFunctionStructureViewElement(x, true)
+            case x: PsiMethod => children += new PsiMethodTreeElement(x, true)
+          }
+        }
+        case FullSignature(_, _, element, _) => {
+          element match {
+            case named: ScNamedElement => ScalaPsiUtil.nameContext(named) match {
+              case _: ScValue => children += new ScalaValueStructureViewElement(named.nameId, true)
+              case _: ScVariable => children += new ScalaVariableStructureViewElement(named.nameId, true)
+              case _ =>
+            }
+          }
+        }
+      }
+    }
+    val types = clazz.allTypes
+    val t: TypeDefinitionMembers.TypeNodes.T = null
+    for {
+      typex <- types
+      t = typex._1
+      if t.isInstanceOf[ScTypeAlias]
+      alias = t.asInstanceOf[ScTypeAlias]
+      if alias.getContainingClass != clazz
+    } children += new ScalaTypeAliasStructureViewElement(alias, true)
 
     for (typeDef <- element.typeDefinitions)
       children += new ScalaTypeDefinitionStructureViewElement(typeDef)
