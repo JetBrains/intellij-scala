@@ -34,7 +34,7 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
   public boolean UNCHECKED = true;
   public boolean OPTIMISE = false;
   public boolean NO_GENERICS = false;
-  public boolean SCALAC_BEFORE = false;
+  public boolean SCALAC_BEFORE = true;
 
   public ScalacSettings getState() {
     return this;
