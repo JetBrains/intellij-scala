@@ -114,6 +114,13 @@ extends ScPolymorphicType(name, args, lower, upper) {
     this(tp.name, tp.typeParameters.toList.map{new ScTypeParameterType(_, s)},
       new Suspension[ScType]({() => s.subst(tp.lowerBound)}),
       new Suspension[ScType]({() => s.subst(tp.upperBound)}))
+
+
+  override def equiv(t: ScType) = t match {
+    case stp: ScTypeParameterType => lower.v.equiv(stp.lower.v) &&
+            upper.v.equiv(stp.upper.v)
+    case _ => false
+  }
 }
 
 case class ScTypeVariable(name : String) extends ScType
