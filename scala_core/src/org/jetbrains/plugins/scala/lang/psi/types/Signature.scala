@@ -8,8 +8,10 @@ import api.statements.params.ScParameter
 import com.intellij.psi.{NavigatablePsiElement, PsiTypeParameter, PsiNamedElement, PsiClass}
 import psi.impl.ScalaPsiManager
 
-class Signature(val name : String, val types : Seq[ScType],
+class Signature(val name : String, val typesEval: Suspension[Seq[ScType]], val paramLength: Int,
                 val typeParams : Array[PsiTypeParameter], val substitutor : ScSubstitutor) {
+  def types = typesEval.v
+
   def equiv(other : Signature) : Boolean = {
     name == other.name &&
     typeParams.length == other.typeParams.length &&
@@ -35,16 +37,17 @@ class Signature(val name : String, val types : Seq[ScType],
     case _ => false
   }
 
-  override def hashCode = name.hashCode * 31 + types.length
+  override def hashCode = name.hashCode * 31 + paramLength
 }
 
 import com.intellij.psi.PsiMethod
 class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSubstitutor)
-  extends Signature (method.getName,
-                     method.getParameterList.getParameters.map {p => p match {
+  extends Signature(method.getName,
+                     new Suspension(() => method.getParameterList.getParameters.map {p => p match {
                                                                   case scp : ScParameter => scp.calcType
                                                                   case _ => ScType.create(p.getType, p.getProject)
-                                                                }},
+                                                                }}),
+                     method.getParameterList.getParameters.length,
                      method.getTypeParameters,
                      substitutor) {
     override def paramTypesEquiv(other: Signature) = other match {

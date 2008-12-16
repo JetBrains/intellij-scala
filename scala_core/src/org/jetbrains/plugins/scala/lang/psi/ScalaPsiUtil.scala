@@ -22,7 +22,7 @@ import structureView.ScalaElementPresentation
  */
 
 object ScalaPsiUtil {
-  def namedElementSig(x: PsiNamedElement): Signature = new Signature(x.getName, Seq.empty, Array[PsiTypeParameter](), ScSubstitutor.empty)
+  def namedElementSig(x: PsiNamedElement): Signature = new Signature(x.getName, Seq.empty, 0, Array[PsiTypeParameter](), ScSubstitutor.empty)
 
   def superValsSignatures(x: PsiNamedElement): Seq[FullSignature] = {
     val empty = Seq.empty

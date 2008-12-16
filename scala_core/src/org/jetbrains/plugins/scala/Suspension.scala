@@ -8,3 +8,7 @@ class Suspension[T](fun: () => T) {
 
   lazy val v = fun()
 }
+
+object Suspension {
+  implicit def any2Susp[T](t: T) = new Suspension(t)
+}
