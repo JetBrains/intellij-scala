@@ -34,6 +34,10 @@ object AnnotatorHighlighter {
         val annotation = holder.createInfoAnnotation(refElement, null)
         annotation.setTextAttributes(DefaultHighlighter.TYPEPARAM)
       }
+      case _: ScTypeAlias => {
+        val annotation = holder.createInfoAnnotation(refElement, null)
+        annotation.setTextAttributes(DefaultHighlighter.TYPE_ALIAS)
+      }
       case _: ScClass => {
         val annotation = holder.createInfoAnnotation(refElement, null)
         annotation.setTextAttributes(DefaultHighlighter.CLASS)
@@ -153,6 +157,7 @@ object AnnotatorHighlighter {
       case x: ScClass => visitClass(x, holder)
       case x: ScParameter => visitParameter(x, holder)
       case x: ScCaseClause => visitCaseClause(x, holder)
+      case x: ScTypeAlias => visitTypeAlias(x, holder)
       case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => {
         element.getParent match {
           case _: ScNameValuePair => {
@@ -238,6 +243,11 @@ object AnnotatorHighlighter {
     val element = annotation.annotationExpr.constr.typeElement
     val annotation2 = holder.createInfoAnnotation(element, null)
     annotation2.setTextAttributes(DefaultHighlighter.ANNOTATION)
+  }
+
+  private def visitTypeAlias(typeAlias: ScTypeAlias, holder: AnnotationHolder): Unit = {
+    val annotation = holder.createInfoAnnotation(typeAlias.nameId, null)
+    annotation.setTextAttributes(DefaultHighlighter.TYPE_ALIAS)
   }
 
   private def visitClass(clazz: ScClass, holder: AnnotationHolder): Unit = {

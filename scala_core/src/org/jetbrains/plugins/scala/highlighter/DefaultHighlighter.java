@@ -100,6 +100,8 @@ public class DefaultHighlighter {
   static final String ANNOTATION_ATTRIBUTE_ID = "Annotation attribute name";
   @NonNls
   static final String PATTERN_ID = "Pattern value";
+  @NonNls
+  static final String TYPE_ALIAS_ID = "Type Alias";
 
   // Registering TextAttributes
   static {
@@ -137,6 +139,7 @@ public class DefaultHighlighter {
     TextAttributesKey.createTextAttributesKey(METHOD_DECLARATION_ID, HighlightInfoType.METHOD_DECLARATION.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(ANNOTATION_ID, HighlightInfoType.ANNOTATION_NAME.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(ANNOTATION_ATTRIBUTE_ID, HighlightInfoType.ANNOTATION_ATTRIBUTE_NAME.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(TYPE_ALIAS_ID, HighlightInfoType.TYPE_PARAMETER_NAME.getAttributesKey().getDefaultAttributes());
 
 
     TextAttributesKey.createTextAttributesKey(ASSIGN_ID, SyntaxHighlighterColors.OPERATION_SIGN.getDefaultAttributes());
@@ -176,6 +179,7 @@ public class DefaultHighlighter {
   public static TextAttributesKey METHOD_DECLARATION = TextAttributesKey.createTextAttributesKey(METHOD_DECLARATION_ID);
   public static TextAttributesKey ANNOTATION = TextAttributesKey.createTextAttributesKey(ANNOTATION_ID);
   public static TextAttributesKey ANNOTATION_ATTRIBUTE = TextAttributesKey.createTextAttributesKey(ANNOTATION_ATTRIBUTE_ID);                                                                                                            
+  public static TextAttributesKey TYPE_ALIAS = TextAttributesKey.createTextAttributesKey(TYPE_ALIAS_ID);
 
   public static TextAttributesKey ASSIGN = TextAttributesKey.createTextAttributesKey(ASSIGN_ID);
   public static TextAttributesKey BAD_CHARACTER = TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID);
