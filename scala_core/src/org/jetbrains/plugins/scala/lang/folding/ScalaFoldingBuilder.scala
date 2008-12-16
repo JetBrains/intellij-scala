@@ -94,7 +94,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 
   private def isMultilineImport(node: ASTNode): Boolean = {
     if (node.getElementType != ScalaElementTypes.IMPORT_STMT) return false
-    var next = node
+    var next = node.getTreeNext
     var flag = false
     while (next != null && (next.getPsi.isInstanceOf[LeafPsiElement] || next.getElementType == ScalaElementTypes.IMPORT_STMT)) {
       if (next.getElementType == ScalaElementTypes.IMPORT_STMT) flag = true
