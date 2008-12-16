@@ -30,7 +30,7 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
+                                   place: PsiElement): Boolean = {
     for (e <- importExprs) {
       if (e == lastParent) return true
       val elems = e.reference match {
