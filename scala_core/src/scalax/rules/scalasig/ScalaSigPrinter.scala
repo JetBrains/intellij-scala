@@ -79,6 +79,7 @@ class ScalaSigPrinter(stream : PrintStream) {
           case MethodType(_, paramTypes) => {
             paramTypes.map(toString).map(x => genParamName(x) + ": " + x).mkString("(", ", ", ")")
           }
+	  case _ => ""
         })
         print(" = { /* compiled code */ }")
       }
@@ -93,6 +94,7 @@ class ScalaSigPrinter(stream : PrintStream) {
           case PolyType(_ ,paramTypes) => {
             paramTypes.map(toString).map(x => genParamName(x) + ": " + x).mkString("(", ", ", ")")
           }
+	  case _ => ""
         })
         if (!m.isAbstract) { // Print body for non-abstract metods
           print(" = { /* compiled code */ }")
