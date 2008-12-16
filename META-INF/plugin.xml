@@ -61,6 +61,7 @@
     <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.rename.RenameScalaValsProcessor" order="first"/>
     <renameHandler implementation="org.jetbrains.plugins.scala.lang.rename.ScalaInplaceRenameHandler"/>
     <nameSuggestionProvider language="Scala" implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaNameSuggestionProvider"/>
+    <definitionsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.MethodImplementationsSearch"/>
 
     <gotoClassContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToClassContributor"/>
     <gotoSymbolContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToSymbolContributor"/>
