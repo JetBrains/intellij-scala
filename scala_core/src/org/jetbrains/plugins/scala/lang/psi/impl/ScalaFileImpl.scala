@@ -139,6 +139,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     true
   }
 
+
+  override def findReferenceAt(offset: Int): PsiReference = null
 }
 
 object ImplicitlyImported {

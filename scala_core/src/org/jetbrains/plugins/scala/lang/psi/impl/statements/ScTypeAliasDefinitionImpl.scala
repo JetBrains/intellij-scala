@@ -40,6 +40,8 @@ class ScTypeAliasDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeAlias] w
     case n => n
   }
 
+  override def getTextOffset: Int = nameId.getTextRange.getStartOffset
+
   override def navigate(requestFocus: Boolean): Unit = {
     val descriptor =  EditSourceUtil.getDescriptor(nameId);
     if (descriptor != null) descriptor.navigate(requestFocus)
