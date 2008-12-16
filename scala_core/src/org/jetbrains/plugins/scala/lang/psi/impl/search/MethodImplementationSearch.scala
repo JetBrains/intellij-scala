@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.search
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import api.statements.ScFunction
+import api.toplevel.ScNamedElement
 import com.intellij.psi.search.searches.OverridingMethodsSearch
 import com.intellij.psi.{PsiMember, PsiMethod, PsiElement, PsiNamedElement}
 import com.intellij.util.{QueryExecutor, Processor}
@@ -12,8 +13,8 @@ import com.intellij.util.{QueryExecutor, Processor}
 
 class MethodImplementationsSearch extends QueryExecutor[PsiElement, PsiElement] {
   override def execute(sourceElement: PsiElement, consumer: Processor[PsiElement]): Boolean = {
-    if (sourceElement.isInstanceOf[ScFunction]) {
-      for (implementation <- getMethodImplementations(sourceElement.asInstanceOf[PsiMethod])) {
+    if (sourceElement.isInstanceOf[ScNamedElement]) {
+      for (implementation <- getMethodImplementations(sourceElement.asInstanceOf[ScNamedElement])) {
         if ( !consumer.process(implementation) ) {
           return false
         }
@@ -22,13 +23,13 @@ class MethodImplementationsSearch extends QueryExecutor[PsiElement, PsiElement] 
     return true;
   }
 
-  def getOverridingMethods(method: PsiMethod, list: ArrayBuffer[PsiNamedElement]) {
+  def getOverridingMethods(method: ScNamedElement, list: ArrayBuffer[PsiNamedElement]) {
     for (psiMethod <- ScalaOverridengMemberSearch.search(method, true)) {
       list += psiMethod
     }
   }
 
-  def getMethodImplementations(method: PsiMethod): Array[PsiNamedElement] = {
+  def getMethodImplementations(method: ScNamedElement): Array[PsiNamedElement] = {
     val result = new ArrayBuffer[PsiNamedElement]
 
     getOverridingMethods(method, result)
