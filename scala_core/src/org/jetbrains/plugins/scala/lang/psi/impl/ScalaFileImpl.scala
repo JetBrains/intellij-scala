@@ -140,7 +140,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
 
-  override def findReferenceAt(offset: Int): PsiReference = null
+  override def findReferenceAt(offset: Int): PsiReference = super.findReferenceAt(offset)
 }
 
 object ImplicitlyImported {
