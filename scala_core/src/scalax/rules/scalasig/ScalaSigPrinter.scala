@@ -76,9 +76,10 @@ class ScalaSigPrinter(stream : PrintStream) {
       case "<init>" => {
         print("this")
         print(m.infoType match {
-          case MethodType(_, paramTypes) => {
+          
+	  /*case MethodType(_, paramTypes) => {
             paramTypes.map(toString).map(x => genParamName(x) + ": " + x).mkString("(", ", ", ")")
-          }
+          }*/
 	  case _ => ""
         })
         print(" = { /* compiled code */ }")
@@ -87,13 +88,13 @@ class ScalaSigPrinter(stream : PrintStream) {
         val nn = processName(name)
         print(nn)
         print(m.infoType match {
-          case MethodType(_, paramTypes) => {
+          */case MethodType(_, paramTypes) => {
             paramTypes.map(toString).map(x => genParamName(x) + ": " + x).mkString("(", ", ", ")")
           }
           //todo correctly pase PolyType case
           case PolyType(_ ,paramTypes) => {
             paramTypes.map(toString).map(x => genParamName(x) + ": " + x).mkString("(", ", ", ")")
-          }
+          }*/
 	  case _ => ""
         })
         if (!m.isAbstract) { // Print body for non-abstract metods
