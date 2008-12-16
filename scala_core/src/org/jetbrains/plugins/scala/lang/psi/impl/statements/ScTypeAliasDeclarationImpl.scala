@@ -38,6 +38,8 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScTypeAliasStub) = {this(); setStub(stub); setNode(null)}
 
+  override def getTextOffset: Int = nameId.getTextRange.getStartOffset
+
   override def navigate(requestFocus: Boolean): Unit = {
     val descriptor = EditSourceUtil.getDescriptor(nameId);
     if (descriptor != null) descriptor.navigate(requestFocus)

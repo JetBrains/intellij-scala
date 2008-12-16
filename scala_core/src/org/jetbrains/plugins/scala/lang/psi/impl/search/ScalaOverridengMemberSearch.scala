@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.search
 
 import _root_.scala.collection.mutable.ArrayBuffer
-import api.statements.ScFunction
+import api.statements.{ScFunction, ScTypeAlias}
 import api.toplevel.templates.ScTemplateBody
-import api.toplevel.typedef.ScTemplateDefinition
+import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition}
 import com.intellij.psi.search.searches.{OverridingMethodsSearch, ClassInheritorsSearch, ExtensibleQueryFactory}
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiMember, PsiMethod, PsiNamedElement, PsiClass}
 import com.intellij.util.{QueryFactory, EmptyQuery, Query}
+import java.util.Arrays
 import toplevel.typedef.TypeDefinitionMembers
 import types.{Bounds, FullSignature, PhysicalSignature, ScSubstitutor}
 
@@ -21,6 +22,7 @@ object ScalaOverridengMemberSearch {
   def search(member: PsiNamedElement, scope: SearchScope, deep: Boolean): Array[PsiNamedElement] = {
     member match {
       case _: ScFunction =>  if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
+      case _: ScTypeAlias => if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
       case x: PsiNamedElement if ScalaPsiUtil.nameContext(x) != null && ScalaPsiUtil.nameContext(x).getParent.isInstanceOf[ScTemplateBody] =>
       case _ => return Array[PsiNamedElement]()
     }
@@ -46,6 +48,15 @@ object ScalaOverridengMemberSearch {
           for (signature <- signatures if sign.equiv(signature.sig)) {
             buffer += signature.element.asInstanceOf[PsiNamedElement]
             if (!deep) return false
+          }
+        }
+        case alias: ScTypeAlias => {
+          inheritor match {
+            case inheritor: ScTypeDefinition => for (aliass <- inheritor.aliases if alias.getName == aliass.getName) {
+              buffer += aliass
+              if (!deep) return false
+            }
+            case _ =>
           }
         }
         case x: PsiNamedElement => {
