@@ -554,6 +554,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (_, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _) => return NO_SPACING_WITH_NEWLINE
       case (_, ScalaDocTokenType.DOC_COMMENT_END, _, _) => return NO_SPACING_WITH_NEWLINE
       case (ScalaDocTokenType.DOC_COMMENT_START, _, _, _) => return NO_SPACING_WITH_NEWLINE
+      case (_, x, _, _)  if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x)
+              && rightNode.getText.apply(0) == ' ' => return NO_SPACING
+      case (x, _, _, _)  if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x)
+              && leftNode.getText.apply(leftNode.getText.length - 1) == ' ' => return NO_SPACING
       //Other cases
       case _ => {
         return COMMON_SPACING
