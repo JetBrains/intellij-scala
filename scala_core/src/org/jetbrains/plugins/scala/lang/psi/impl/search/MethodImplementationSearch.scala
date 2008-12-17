@@ -14,7 +14,7 @@ import com.intellij.util.{QueryExecutor, Processor}
 class MethodImplementationsSearch extends QueryExecutor[PsiElement, PsiElement] {
   override def execute(sourceElement: PsiElement, consumer: Processor[PsiElement]): Boolean = {
     if (sourceElement.isInstanceOf[ScNamedElement]) {
-      for (implementation <- getMethodImplementations(sourceElement.asInstanceOf[ScNamedElement])) {
+      for (implementation <- getOverridingMethods(sourceElement.asInstanceOf[ScNamedElement])) {
         if ( !consumer.process(implementation) ) {
           return false
         }
@@ -23,16 +23,11 @@ class MethodImplementationsSearch extends QueryExecutor[PsiElement, PsiElement] 
     return true;
   }
 
-  def getOverridingMethods(method: ScNamedElement, list: ArrayBuffer[PsiNamedElement]) {
-    for (psiMethod <- ScalaOverridengMemberSearch.search(method, true)) {
-      list += psiMethod
-    }
-  }
-
-  def getMethodImplementations(method: ScNamedElement): Array[PsiNamedElement] = {
+  def getOverridingMethods(method: ScNamedElement): Array[PsiNamedElement] = {
     val result = new ArrayBuffer[PsiNamedElement]
-
-    getOverridingMethods(method, result)
+    for (psiMethod <- ScalaOverridengMemberSearch.search(method, true)) {
+      result += psiMethod
+    }
     return result.toArray
   }
 }
