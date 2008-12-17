@@ -163,8 +163,6 @@ class ScalaSigPrinter(stream: PrintStream) {
 
   def toString(t: Type): String = toString(t, "")
 
-  def genParamName(ts: String) = "o" //todo improve name generation by type
-
   def toString(t: Type, sep: String): String = t match {
     case ThisType(symbol) => sep + symbol.path + ".type"
 
@@ -201,8 +199,10 @@ class ScalaSigPrinter(stream: PrintStream) {
     case _ => sep + t.toString
   }
 
+  def getVariance(t: TypeSymbol) = if (t.isCovariant) "+ " else if (t.isContravariant) "- " else ""
+
   def toString(symbol: Symbol): String = symbol match {
-    case symbol: TypeSymbol => processName(symbol.name) + toString(symbol.infoType)
+    case symbol: TypeSymbol =>  getVariance(symbol) + processName(symbol.name) + toString(symbol.infoType)
     case s => symbol.toString
   }
 
