@@ -38,6 +38,7 @@ class ScalaSigPrinter(stream: PrintStream) {
     if (symbol.isSealed) print("sealed ")
     if (symbol.isPrivate) print("private ")
     else if (symbol.isProtected) print("protected ")
+    if (symbol.isOverride) print("override ")
     if (symbol.isAbstract) symbol match {
       case c@(_: ClassSymbol | _: ObjectSymbol) if !c.isTrait => print("abstract ")
       case _ => ()
@@ -77,17 +78,17 @@ class ScalaSigPrinter(stream: PrintStream) {
     StringUtil.decapitalize(res.substring(0, 1))
   })
 
-  def printMethodType(t: Type): Unit = t match {
+  def printMethodType(t: Type, printResult: Boolean): Unit = t match {
     case mt@MethodType(resType, paramTypes) => {
       print(genParamNames(mt).zip(paramTypes.toList.map(toString)).map(p => p._1 + " : " + p._2).mkString("(", ", ", ")"))
       resType match {
-        case mt: MethodType => printMethodType(mt)
+        case mt: MethodType => printMethodType(mt, printResult)
         case x => print(" : "); printType(x)
       }
     }
     case pt@PolyType(mt, typeParams) => {
       print(typeParamString(typeParams))
-      printMethodType(mt)
+      printMethodType(mt, printResult)
     }
     //todo consider another method types
     case x => print(" : "); printType(x)
@@ -99,13 +100,13 @@ class ScalaSigPrinter(stream: PrintStream) {
     m.name match {
       case "<init>" => {
         print("this")
-        printMethodType(m.infoType)
+        printMethodType(m.infoType, false)
         print(" = { /* compiled code */ }")
       }
       case name => {
         val nn = processName(name)
         print(nn)
-        printMethodType(m.infoType)
+        printMethodType(m.infoType, true)
         if (!m.isAbstract) { // Print body for non-abstract metods
           print(" = { /* compiled code */ }")
         }
