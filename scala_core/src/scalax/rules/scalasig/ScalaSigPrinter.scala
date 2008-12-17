@@ -14,10 +14,10 @@ class ScalaSigPrinter(stream: PrintStream) {
       def indent() {for (i <- 1 to level) print("  ")}
 
       symbol match {
-        case o: ObjectSymbol => indent(); printObject(level, o)
-        case c: ClassSymbol => indent(); printClass(level, c)
-        case m: MethodSymbol => indent(); printMethod(level, m)
-        case a: AliasSymbol => indent(); printAlias(level, a)
+        case o: ObjectSymbol => indent; printObject(level, o)
+        case c: ClassSymbol if !refinementClass(c) && !c.isModule => indent; printClass(level, c)
+        case m: MethodSymbol => indent; printMethod(level, m)
+        case a: AliasSymbol => indent; printAlias(level, a)
         case t: TypeSymbol => ()
         case s => {}
       }
@@ -36,6 +36,7 @@ class ScalaSigPrinter(stream: PrintStream) {
 
   def printModifiers(symbol: Symbol) {
     if (symbol.isSealed) print("sealed ")
+    if (symbol.isImplicit) print("implicit ")
     if (symbol.isPrivate) print("private ")
     else if (symbol.isProtected) print("protected ")
     if (symbol.isOverride) print("override ")
@@ -49,25 +50,23 @@ class ScalaSigPrinter(stream: PrintStream) {
   private def refinementClass(c: ClassSymbol) = c.name == "<refinement>"
 
   def printClass(level: Int, c: ClassSymbol) {
-    if (!refinementClass(c) && !c.isModule) {
       printModifiers(c)
       if (c.isTrait) print("trait ") else print("class ")
       print(processName(c.name))
       printType(c)
-      print("{\n")
+      print(" {\n")
       printChildren(level, c)
       printWithIndent(level, "}\n")
-    }
   }
 
   def printObject(level: Int, o: ObjectSymbol) {
     printModifiers(o)
     print("object ")
     print(processName(o.name))
-    val TypeRefType(prefix, symbol: ClassSymbol, typeArgs) = o.infoType
-    printType(symbol)
-    print("{\n")
-    printChildren(level, symbol)
+    val TypeRefType(prefix, classSymbol: ClassSymbol, typeArgs) = o.infoType
+    printType(classSymbol)
+    print(" {\n")
+    printChildren(level, classSymbol)
     printWithIndent(level, "}\n")
   }
 
@@ -124,7 +123,6 @@ class ScalaSigPrinter(stream: PrintStream) {
     print(processName(a.name))
     printType(a.infoType, " = ")
     print("\n")
-
     printChildren(level, a)
   }
 
@@ -198,8 +196,10 @@ class ScalaSigPrinter(stream: PrintStream) {
     case AnnotatedType(typeRef, attribTreeRefs) => toString(typeRef, sep)
     case AnnotatedWithSelfType(typeRef, symbol, attribTreeRefs) => toString(typeRef, sep)
     //case DeBruijnIndexType(typeLevel, typeIndex) =>
-    case ExistentialType(typeRef, symbols) =>
-      toString(typeRef, sep) + symbols.map(printSymbol _).mkString(" forSome {", ";", "}")
+    case ExistentialType(typeRef, symbols) => {
+      val refs = symbols.map(toString _).filter(!_.startsWith("_ "))
+      toString(typeRef, sep) + (if (refs.size > 0) refs.mkString(" forSome {", ";", "}") else "")
+    }
     case _ => sep + t.toString
   }
 
@@ -225,6 +225,7 @@ class ScalaSigPrinter(stream: PrintStream) {
     "\\$greater" -> ">", "\\$qmark" -> "?", "\\$percent" -> "%",
     "\\$amp" -> "&", "\\$colon" -> ":", "\\$u2192" -> "→")
   val pattern = Pattern.compile(_syms.keySet.foldLeft("")((x, y) => if (x == "") y else x + "|" + y))
+  val placeholderPattern = "_\\$(\\d)+"
 
   def processName(name: String) = {
     val m = pattern.matcher(name)
@@ -234,7 +235,7 @@ class ScalaSigPrinter(stream: PrintStream) {
       val re = "\\" + key
       temp = temp.replaceAll(re, _syms(re))
     }
-    temp
+    temp.replaceAll(placeholderPattern, "_")
   }
 
 }
