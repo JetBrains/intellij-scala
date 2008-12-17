@@ -50,13 +50,13 @@ class ScalaSigPrinter(stream: PrintStream) {
   private def refinementClass(c: ClassSymbol) = c.name == "<refinement>"
 
   def printClass(level: Int, c: ClassSymbol) {
-      printModifiers(c)
-      if (c.isTrait) print("trait ") else print("class ")
-      print(processName(c.name))
-      printType(c)
-      print(" {\n")
-      printChildren(level, c)
-      printWithIndent(level, "}\n")
+    printModifiers(c)
+    if (c.isTrait) print("trait ") else print("class ")
+    print(processName(c.name))
+    printType(c)
+    print(" {\n")
+    printChildren(level, c)
+    printWithIndent(level, "}\n")
   }
 
   def printObject(level: Int, o: ObjectSymbol) {
@@ -203,7 +203,7 @@ class ScalaSigPrinter(stream: PrintStream) {
     case _ => sep + t.toString
   }
 
-  def getVariance(t: TypeSymbol) = if (t.isCovariant) "+ " else if (t.isContravariant) "- " else ""
+  def getVariance(t: TypeSymbol) = if (t.isCovariant) "+" else if (t.isContravariant) "-" else ""
 
   def toString(symbol: Symbol): String = symbol match {
     case symbol: TypeSymbol =>  getVariance(symbol) + processName(symbol.name) + toString(symbol.infoType)
