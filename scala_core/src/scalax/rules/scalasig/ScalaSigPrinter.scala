@@ -1,9 +1,10 @@
 package scalax.rules.scalasig
 
+import com.intellij.openapi.util.text.StringUtil
 import java.io.PrintStream
 import java.util.regex.Pattern
 
-class ScalaSigPrinter(stream : PrintStream) {
+class ScalaSigPrinter(stream: PrintStream) {
   import stream._
 
   def printSymbol(symbol: Symbol) {printSymbol(0, symbol)}
@@ -44,7 +45,7 @@ class ScalaSigPrinter(stream : PrintStream) {
     if (symbol.isCase && !symbol.isMethod) print("case ")
   }
 
-  private def refinementClass(c : ClassSymbol) = c.name == "<refinement>"
+  private def refinementClass(c: ClassSymbol) = c.name == "<refinement>"
 
   def printClass(level: Int, c: ClassSymbol) {
     if (!refinementClass(c) && !c.isModule) {
@@ -69,36 +70,42 @@ class ScalaSigPrinter(stream : PrintStream) {
     printWithIndent(level, "}\n")
   }
 
+  def genParamNames(t: MethodType): List[String] = t.paramTypes.toList.map(x => {
+    val str = toString(x)
+    val i = str.lastIndexOf(".")
+    val res = if (i > 0) str.substring(i + 1) else str
+    StringUtil.decapitalize(res.substring(0, 1))
+  })
+
+  def printMethodType(t: Type): Unit = t match {
+    case mt@MethodType(resType, paramTypes) => {
+      print(genParamNames(mt).zip(paramTypes.toList.map(toString)).map(p => p._1 + " : " + p._2).mkString("(", ", ", ")"))
+      resType match {
+        case mt: MethodType => printMethodType(mt)
+        case x => print(" : "); printType(x)
+      }
+    }
+    case pt@PolyType(mt, typeParams) => {
+      print(typeParamString(typeParams))
+      printMethodType(mt)
+    }
+    //todo consider another method types
+    case x => print(" : "); printType(x)
+  }
+
   def printMethod(level: Int, m: MethodSymbol) {
     printModifiers(m)
     print("def ")
     m.name match {
       case "<init>" => {
         print("this")
-        print(m.infoType match {
-          case MethodType(_, paramTypes) => {
-            paramTypes.map(toString).map(x => genParamName(x) + ": " + x).mkString("(", ", ", ")")
-          }
-          case _ => ""
-        })
+        printMethodType(m.infoType)
         print(" = { /* compiled code */ }")
       }
       case name => {
         val nn = processName(name)
         print(nn)
-        m.infoType match {
-          case MethodType(resType, paramTypes) => {
-            print(paramTypes.map(toString).map(x => genParamName(x) + ": " + x).mkString("(", ", ", ") : "))
-            printType(resType) 
-          }
-          //todo correctly pase PolyType case
-          case PolyType(res, paramTypes) => {
-            //paramTypes.map(toString).map(x => genParamName(x) + ": " + x).mkString("(", ", ", ")")
-            print(" : ")
-            printType(res)
-          }
-          case _ => ""
-        }
+        printMethodType(m.infoType)
         if (!m.isAbstract) { // Print body for non-abstract metods
           print(" = { /* compiled code */ }")
         }
@@ -165,17 +172,17 @@ class ScalaSigPrinter(stream : PrintStream) {
 
     case ConstantType(constant) => sep + (constant match {
       case null => "scala.Null"
-      case _ : Unit => "scala.Unit"
-      case _ : Boolean => "scala.Boolean"
-      case _ : Byte => "scala.Byte"
-      case _ : Char => "scala.Char"
-      case _ : Short => "scala.Short"
-      case _ : Int => "scala.Int"
-      case _ : Long => "scala.Long"
-      case _ : Float => "scala.Float"
-      case _ : Double => "scala.Double"
-      case _ : String => "java.lang.String"
-      case c : Class[_] => "java.lang.Class[" + c.getComponentType.getCanonicalName.replace ("$", ".") + "]"
+      case _: Unit => "scala.Unit"
+      case _: Boolean => "scala.Boolean"
+      case _: Byte => "scala.Byte"
+      case _: Char => "scala.Char"
+      case _: Short => "scala.Short"
+      case _: Int => "scala.Int"
+      case _: Long => "scala.Long"
+      case _: Float => "scala.Float"
+      case _: Double => "scala.Double"
+      case _: String => "java.lang.String"
+      case c: Class[_] => "java.lang.Class[" + c.getComponentType.getCanonicalName.replace("$", ".") + "]"
     })
     case TypeRefType(prefix, symbol, typeArgs) => sep + processName(symbol.path) + typeArgString(typeArgs)
     case TypeBoundsType(lower, upper) => " >: " + toString(lower) + " <: " + toString(upper)
