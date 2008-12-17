@@ -197,8 +197,8 @@ class ScalaSigPrinter(stream: PrintStream) {
     case AnnotatedWithSelfType(typeRef, symbol, attribTreeRefs) => toString(typeRef, sep)
     //case DeBruijnIndexType(typeLevel, typeIndex) =>
     case ExistentialType(typeRef, symbols) => {
-      val refs = symbols.map(toString _).filter(!_.startsWith("_ "))
-      toString(typeRef, sep) + (if (refs.size > 0) refs.mkString(" forSome {", ";", "}") else "")
+      val refs = symbols.map(toString _).filter(!_.startsWith("_ ")).map("type " + _)
+      toString(typeRef, sep) + (if (refs.size > 0) refs.mkString(" forSome {", "; ", "}") else "")
     }
     case _ => sep + t.toString
   }
