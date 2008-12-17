@@ -83,7 +83,10 @@ class ScalaSigPrinter(stream: PrintStream) {
       print(genParamNames(mt).zip(paramTypes.toList.map(toString)).map(p => p._1 + " : " + p._2).mkString("(", ", ", ")"))
       resType match {
         case mt: MethodType => printMethodType(mt, printResult)
-        case x => print(" : "); printType(x)
+        case x => if (printResult) {
+          print(" : ");
+          printType(x)
+        }
       }
     }
     case pt@PolyType(mt, typeParams) => {
