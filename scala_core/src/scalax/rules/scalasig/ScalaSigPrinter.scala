@@ -88,7 +88,7 @@ class ScalaSigPrinter(stream : PrintStream) {
         val nn = processName(name)
         print(nn)
         print(m.infoType match {
-          */case MethodType(_, paramTypes) => {
+          /*case MethodType(_, paramTypes) => {
             paramTypes.map(toString).map(x => genParamName(x) + ": " + x).mkString("(", ", ", ")")
           }
           //todo correctly pase PolyType case
