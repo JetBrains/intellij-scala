@@ -48,7 +48,8 @@ object Literal {
       case ScalaTokenTypes.tINTEGER | ScalaTokenTypes.tFLOAT |
            ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE |
            ScalaTokenTypes.tCHAR | ScalaTokenTypes.tSYMBOL |
-           ScalaTokenTypes.kNULL | ScalaTokenTypes.tSTRING => {
+           ScalaTokenTypes.kNULL | ScalaTokenTypes.tSTRING |
+           ScalaTokenTypes.tMULTILINE_STRING => {
         builder.advanceLexer //Ate literal
         marker.done(ScalaElementTypes.LITERAL)
         return true

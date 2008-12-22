@@ -144,8 +144,8 @@ SOME_ESCAPE=\\{octalDigit} {octalDigit}? {octalDigit}?
 CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{UNICODE_ESCAPE}|{SOME_ESCAPE})("'"|\\) | \'\\u000A\'
 
 STRING_BEGIN = \"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*
-STRING_LITERAL={STRING_BEGIN} \" |
-               \"\"\" ( (\"(\")?)? [^\"] )* \"\"\"                                                 // Multi-line string
+STRING_LITERAL={STRING_BEGIN} \"
+MULTI_LINE_STRING = \"\"\" ( (\"(\")?)? [^\"] )* \"\"\" // Multi-line string
 
 WRONG_STRING = {STRING_BEGIN}
 
@@ -324,6 +324,10 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 {STRING_LITERAL}                        {   yybegin(PROCESS_NEW_LINE);
                                             return process(tSTRING);
+                                        }
+
+{MULTI_LINE_STRING }                    {   yybegin(PROCESS_NEW_LINE);
+                                            return process(tMULTILINE_STRING);
                                         }
 
 {WRONG_STRING}                          {   yybegin(PROCESS_NEW_LINE);
