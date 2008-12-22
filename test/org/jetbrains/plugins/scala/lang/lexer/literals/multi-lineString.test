@@ -16,7 +16,7 @@ identifier {x}
 white space in line { }
 = {=}
 white space in line { }
-string content {"""It's simple
+multiline string {"""It's simple
   multi-line
   string"""}
 white space in line {
