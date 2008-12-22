@@ -189,7 +189,10 @@ class ScalaSigPrinter(stream: PrintStream) {
       case _: String => "java.lang.String"
       case c: Class[_] => "java.lang.Class[" + c.getComponentType.getCanonicalName.replace("$", ".") + "]"
     })
-    case TypeRefType(prefix, symbol, typeArgs) => sep + processName(symbol.path) + typeArgString(typeArgs)
+    case TypeRefType(prefix, symbol, typeArgs) => symbol.path match {
+      case "scala.<byname>" => "=> " + toString (typeArgs.first)
+      case _ => sep + processName(symbol.path) + typeArgString(typeArgs)
+    }
     case TypeBoundsType(lower, upper) => " >: " + toString(lower) + " <: " + toString(upper)
     case RefinedType(classSym, typeRefs) => sep + typeRefs.map(toString).mkString("", " with ", "")
     case ClassInfoType(symbol, typeRefs) => sep + typeRefs.map(toString).mkString(" extends ", " with ", "")
@@ -233,14 +236,19 @@ class ScalaSigPrinter(stream: PrintStream) {
   val placeholderPattern = "_\\$(\\d)+"
 
   def processName(name: String) = {
-    val m = pattern.matcher(name)
-    var temp = name
-    while (m.find) {
-      val key = m.group
-      val re = "\\" + key
-      temp = temp.replaceAll(re, _syms(re))
+    name match {
+      case "scala.<byname>" =>
+      case _ => {
+        val m = pattern.matcher(name)
+        var temp = name
+        while (m.find) {
+          val key = m.group
+          val re = "\\" + key
+          temp = temp.replaceAll(re, _syms(re))
+        }
+        temp.replaceAll(placeholderPattern, "_")
+      }
     }
-    temp.replaceAll(placeholderPattern, "_")
   }
 
 }
