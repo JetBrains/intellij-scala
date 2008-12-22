@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Nothing}
 trait ScExpression extends ScBlockStatement {
   def getType(): ScType = Nothing //todo
 
-  def expectedType() : Option[ScType] = None //todo
+  def expectedType : Option[ScType] = None //todo
   
   def replaceExpression(expr: ScExpression, removeParenthesis: Boolean): ScExpression = {
     val oldParent = getParent

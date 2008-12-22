@@ -76,10 +76,11 @@ class ScalaSigPrinter(stream: PrintStream) {
   }
 
   def genParamNames(t: MethodType): List[String] = t.paramTypes.toList.map(x => {
-    val str = toString(x)
+    var str = toString(x)
     val j = str.indexOf("[")
     var i = str.lastIndexOf(".")
     if (i > j && j > 0) i = str.substring(0 , j).lastIndexOf(".")
+    str = StringUtil.trimStart(str, "=> ")
     val res = if (i > 0) str.substring(i + 1) else str
     StringUtil.decapitalize(res.substring(0, 1))
   })
