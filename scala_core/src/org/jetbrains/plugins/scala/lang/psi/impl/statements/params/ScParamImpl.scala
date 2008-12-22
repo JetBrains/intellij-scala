@@ -41,8 +41,8 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   def getTypeElement = null
 
   def typeElement = paramType match {
-    case Some(x) => Some(x.typeElement)
-    case None => None
+    case Some(x) if x.typeElement != null => Some(x.typeElement)
+    case _ => None
   }
 
   override def getUseScope = new LocalSearchScope(getDeclarationScope)
