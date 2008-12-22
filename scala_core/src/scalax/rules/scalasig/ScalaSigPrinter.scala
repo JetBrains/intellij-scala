@@ -3,7 +3,6 @@ package scalax.rules.scalasig
 import com.intellij.openapi.util.text.StringUtil
 import java.io.PrintStream
 import java.util.regex.Pattern
-
 class ScalaSigPrinter(stream: PrintStream) {
   import stream._
 
@@ -54,7 +53,13 @@ class ScalaSigPrinter(stream: PrintStream) {
     if (c.isTrait) print("trait ") else print("class ")
     print(processName(c.name))
     printType(c)
-    print(" {\n")
+    print(" {")
+    //Print class selftype
+    c.selfType match {
+      case Some(t: Type) => print("\n"); print(" this : " + toString(t) + " =>")
+      case None =>
+    }
+    print("\n")
     printChildren(level, c)
     printWithIndent(level, "}\n")
   }

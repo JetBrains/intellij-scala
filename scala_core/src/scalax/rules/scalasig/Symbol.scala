@@ -53,18 +53,7 @@ abstract class SymbolInfoSymbol extends ScalaSigSymbol {
   def parent = Some(symbolInfo.owner)
   def hasFlag(flag : Long) = (symbolInfo.flags & flag) != 0
 
-  lazy val infoType = {
-    try {
-      applyRule(parseEntry(typeEntry)(symbolInfo.info))
-    }
-    catch {
-      case pe@(ScalaSigParserError(msg)) => {
-        // For debug
-        println(pe)
-        throw pe
-      }
-    }
-  }
+  lazy val infoType = applyRule(parseEntry(typeEntry)(symbolInfo.info))
 }
 
 case class TypeSymbol(symbolInfo : SymbolInfo) extends SymbolInfoSymbol{
@@ -74,6 +63,8 @@ case class TypeSymbol(symbolInfo : SymbolInfo) extends SymbolInfoSymbol{
 case class AliasSymbol(symbolInfo : SymbolInfo) extends SymbolInfoSymbol{
   override def path = name
 }
-case class ClassSymbol(symbolInfo : SymbolInfo, thisTypeRef : Option[Int]) extends SymbolInfoSymbol
+case class ClassSymbol(symbolInfo : SymbolInfo, thisTypeRef : Option[Int]) extends SymbolInfoSymbol {
+  lazy val selfType = thisTypeRef.map{(x: Int) => applyRule(parseEntry(typeEntry)(x))}
+}
 case class ObjectSymbol(symbolInfo : SymbolInfo) extends SymbolInfoSymbol
 case class MethodSymbol(symbolInfo : SymbolInfo, aliasRef : Option[Int]) extends SymbolInfoSymbol
