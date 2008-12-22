@@ -64,6 +64,7 @@ public interface ScalaTokenTypes {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   final IElementType tSTRING = new ScalaElementType("string content");
+  final IElementType tMULTILINE_STRING = new ScalaElementType("multiline string");
   final IElementType tWRONG_STRING = new ScalaElementType("wrong string content");
 
   final IElementType tCHAR = new ScalaElementType("Character");
@@ -234,7 +235,7 @@ public interface ScalaTokenTypes {
   );
 
   TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER);
-  TokenSet STRING_LITERAL_TOKEN_SET = TokenSet.create(tSTRING, tWRONG_STRING);
+  TokenSet STRING_LITERAL_TOKEN_SET = TokenSet.create(tSTRING, tWRONG_STRING, tMULTILINE_STRING);
 
   TokenSet STATEMENT_SEPARATORS = TokenSet.create(tLINE_TERMINATOR, tSEMICOLON);
 }

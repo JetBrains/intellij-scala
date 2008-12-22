@@ -61,7 +61,8 @@ public class ScalaQuoteHandler implements JavaLikeQuoteHandler {
   public boolean isInsideLiteral(HighlighterIterator iterator) {
     final IElementType tokenType = iterator.getTokenType();
     return tokenType == ScalaTokenTypes.tSTRING ||
-        tokenType == ScalaTokenTypes.tCHAR;
+        tokenType == ScalaTokenTypes.tCHAR ||
+        tokenType == ScalaTokenTypes.tMULTILINE_STRING;
   }
 
   public TokenSet getConcatenatableStringTokenTypes() {

@@ -32,7 +32,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
         val sym = JavaPsiFacade.getInstance(getProject).findClass("scala.Symbol", getResolveScope)
         if (sym != null) new ScDesignatorType(sym) else Nothing
       }
-      case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING => {
+      case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING | ScalaTokenTypes.tMULTILINE_STRING => {
         val str = JavaPsiFacade.getInstance(getProject).findClass("java.lang.String", getResolveScope)
         if (str != null) new ScDesignatorType(str) else Nothing
       }

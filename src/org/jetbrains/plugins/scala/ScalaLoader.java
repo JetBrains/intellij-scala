@@ -40,6 +40,7 @@ import org.jetbrains.plugins.scala.debugger.ScalaPositionManager;
 import org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
 import org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner;
+import org.jetbrains.plugins.scala.editor.selectioner.ScalaLiteralSelectioner;
 import org.jetbrains.plugins.scala.editor.ScalaEditorActionsManager;
 
 import java.util.Set;
@@ -81,6 +82,7 @@ public class ScalaLoader implements ApplicationComponent {
             ScalaToolsFactory.getInstance().createScalaCompletionData());
 
     SelectWordUtil.registerSelectioner(new ScalaWordSelectioner());
+    SelectWordUtil.registerSelectioner(new ScalaLiteralSelectioner());
 
     ScalaEditorActionsManager.registerScalaActionHandlers();
 
