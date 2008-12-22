@@ -6,6 +6,8 @@ import java.util.regex.Pattern
 class ScalaSigPrinter(stream: PrintStream) {
   import stream._
 
+  case class TypeFlags(printRep: Boolean)
+
   def printSymbol(symbol: Symbol) {printSymbol(0, symbol)}
 
   def printSymbol(level: Int, symbol: Symbol) {
@@ -36,6 +38,7 @@ class ScalaSigPrinter(stream: PrintStream) {
   def printModifiers(symbol: Symbol) {
     if (symbol.isSealed) print("sealed ")
     if (symbol.isImplicit) print("implicit ")
+    if (symbol.isFinal) print("final ")
     if (symbol.isPrivate) print("private ")
     else if (symbol.isProtected) print("protected ")
     if (symbol.isOverride) print("override ")
@@ -87,7 +90,7 @@ class ScalaSigPrinter(stream: PrintStream) {
 
   def printMethodType(t: Type, printResult: Boolean): Unit = t match {
     case mt@MethodType(resType, paramTypes) => {
-      print(genParamNames(mt).zip(paramTypes.toList.map(toString)).map(p => p._1 + " : " + p._2).mkString("(", ", ", ")"))
+      print(genParamNames(mt).zip(paramTypes.toList.map(toString(_)(TypeFlags(true)))).map(p => p._1 + " : " + p._2).mkString("(", ", ", ")"))
       resType match {
         case mt: MethodType => printMethodType(mt, printResult)
         case x => if (printResult) {
@@ -165,19 +168,19 @@ class ScalaSigPrinter(stream: PrintStream) {
     case _ => print(value)
   }
 
-  def printType(sym: SymbolInfoSymbol): Unit = printType(sym.infoType)
+  implicit object _tf extends TypeFlags(false)
 
-  def printType(t: Type): Unit = print(toString(t))
+  def printType(sym: SymbolInfoSymbol)(implicit flags: TypeFlags): Unit = printType(sym.infoType)(flags)
 
-  def printType(t: Type, sep: String): Unit = print(toString(t, sep))
+  def printType(t: Type)(implicit flags: TypeFlags): Unit = print(toString(t)(flags))
 
-  def toString(t: Type): String = toString(t, "")
+  def printType(t: Type, sep: String)(implicit flags: TypeFlags): Unit = print(toString(t, sep)(flags))
 
-  def toString(t: Type, sep: String): String = t match {
+  def toString(t: Type)(implicit flags: TypeFlags): String = toString(t, "")(flags)
+
+  def toString(t: Type, sep: String)(implicit flags: TypeFlags): String = t match {
     case ThisType(symbol) => sep + symbol.path + ".type"
-
     case SingleType(typeRef, symbol) => sep + symbol.path + ".type"
-
     case ConstantType(constant) => sep + (constant match {
       case null => "scala.Null"
       case _: Unit => "scala.Unit"
@@ -192,9 +195,13 @@ class ScalaSigPrinter(stream: PrintStream) {
       case _: String => "java.lang.String"
       case c: Class[_] => "java.lang.Class[" + c.getComponentType.getCanonicalName.replace("$", ".") + "]"
     })
-    case TypeRefType(prefix, symbol, typeArgs) => symbol.path match {
-      case "scala.<byname>" => "=> " + toString (typeArgs.first)
-      case _ => sep + processName(symbol.path) + typeArgString(typeArgs)
+    case TypeRefType(prefix, symbol, typeArgs) => sep + symbol.path match {
+      case "scala.<repeated>" => flags match {
+        case TypeFlags(true) => toString(typeArgs.first) + "*"  
+        case _ => "scala.Seq" + typeArgString(typeArgs)
+      }
+      case "scala.<byname>" => "=> " + toString(typeArgs.first)
+      case _ => processName(symbol.path) + typeArgString(typeArgs)
     }
     case TypeBoundsType(lower, upper) => " >: " + toString(lower) + " <: " + toString(upper)
     case RefinedType(classSym, typeRefs) => sep + typeRefs.map(toString).mkString("", " with ", "")
@@ -239,19 +246,14 @@ class ScalaSigPrinter(stream: PrintStream) {
   val placeholderPattern = "_\\$(\\d)+"
 
   def processName(name: String) = {
-    name match {
-      case "scala.<byname>" =>
-      case _ => {
-        val m = pattern.matcher(name)
-        var temp = name
-        while (m.find) {
-          val key = m.group
-          val re = "\\" + key
-          temp = temp.replaceAll(re, _syms(re))
-        }
-        temp.replaceAll(placeholderPattern, "_")
-      }
+    val m = pattern.matcher(name)
+    var temp = name
+    while (m.find) {
+      val key = m.group
+      val re = "\\" + key
+      temp = temp.replaceAll(re, _syms(re))
     }
+    temp.replaceAll(placeholderPattern, "_")
   }
 
 }
