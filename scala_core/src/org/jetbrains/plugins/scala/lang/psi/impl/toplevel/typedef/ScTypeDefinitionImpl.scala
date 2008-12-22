@@ -9,6 +9,7 @@ import api.statements._
 import com.intellij.openapi.editor.Editor
 
 import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.IStubElementType
 import stubs.ScTypeDefinitionStub
 import _root_.scala.collection.immutable.Set
@@ -225,4 +226,20 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
   }
 
   protected def getIconInner: Icon
+
+  override def getImplementsListTypes = getExtendsListTypes
+
+  override def getExtendsListTypes = {
+    val eb = extendsBlock
+    if (eb != null) {
+      val tp = eb.templateParents
+      tp match {
+        case Some (tp1) => (for (te <- tp1.typeElements;
+              t = te.getType;
+              asPsi = ScType.toPsi(t, getProject, GlobalSearchScope.allScope(getProject));
+              if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
+        case _ => PsiClassType.EMPTY_ARRAY
+      }
+    } else PsiClassType.EMPTY_ARRAY
+  }
 }
