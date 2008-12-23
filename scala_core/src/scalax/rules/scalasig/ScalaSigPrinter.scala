@@ -195,14 +195,14 @@ class ScalaSigPrinter(stream: PrintStream) {
       case _: String => "java.lang.String"
       case c: Class[_] => "java.lang.Class[" + c.getComponentType.getCanonicalName.replace("$", ".") + "]"
     })
-    case TypeRefType(prefix, symbol, typeArgs) => sep + symbol.path match {
+    case TypeRefType(prefix, symbol, typeArgs) => sep + (symbol.path match {
       case "scala.<repeated>" => flags match {
         case TypeFlags(true) => toString(typeArgs.first) + "*"  
         case _ => "scala.Seq" + typeArgString(typeArgs)
       }
       case "scala.<byname>" => "=> " + toString(typeArgs.first)
       case _ => processName(symbol.path) + typeArgString(typeArgs)
-    }
+    })
     case TypeBoundsType(lower, upper) => " >: " + toString(lower) + " <: " + toString(upper)
     case RefinedType(classSym, typeRefs) => sep + typeRefs.map(toString).mkString("", " with ", "")
     case ClassInfoType(symbol, typeRefs) => sep + typeRefs.map(toString).mkString(" extends ", " with ", "")
