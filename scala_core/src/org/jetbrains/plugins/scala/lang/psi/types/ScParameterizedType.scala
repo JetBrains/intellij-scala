@@ -6,7 +6,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import api.toplevel.typedef._
 import api.statements.{ScTypeAliasDefinition, ScTypeAlias}
-import api.toplevel.ScTypeParametersOwner
+import api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiTypeParameterListOwner, JavaPsiFacade, PsiElement, PsiNamedElement}
@@ -87,7 +87,7 @@ extends ScPolymorphicType(alias.name, args, aliased, aliased) {
 
   def this(tad : ScTypeAliasDefinition, s : ScSubstitutor) =
     this(tad, tad.typeParameters.toList.map{new ScTypeParameterType(_, s)},
-      new Suspension[ScType]({() => s.subst(tad.aliasedType)}))
+      new Suspension[ScType]({() => s.subst(tad.aliasedType(Set[ScNamedElement]()).resType)}))
 }
 
 case class ScTypeAliasType(alias : ScTypeAlias, override val args : List[ScTypeParameterType],

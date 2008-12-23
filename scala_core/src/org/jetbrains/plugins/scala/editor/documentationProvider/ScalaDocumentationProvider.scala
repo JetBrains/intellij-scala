@@ -172,7 +172,7 @@ private object ScalaDocumentationProvider {
     alias match {
       case d: ScTypeAliasDefinition => {
         buffer.append(" = ")
-        buffer.append(ScType.presentableText(d.aliasedType))
+        buffer.append(ScType.presentableText(d.aliasedType(Set[ScNamedElement]()).resType))
       }
       case _ =>
     }

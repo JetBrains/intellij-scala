@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 
+import api.toplevel.ScNamedElement
 import psi.ScalaPsiElementImpl
 import api.base.types._
 import api.statements.{ScTypeAliasDeclaration, ScValueDeclaration}
@@ -19,8 +20,8 @@ import _root_.scala.collection.mutable.ListBuffer
 class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExistentialTypeElement {
   override def toString: String = "ExistentialType"
 
-  override def getType() = {
-    val q = quantified.getType
+  override def getType(implicit visited: Set[ScNamedElement]) = {
+    val q = quantified.getType(visited)
     val wildcards: List[ScExistentialArgument] = {
       var buff: ListBuffer[ScExistentialArgument] = new ListBuffer
       for (decl <- clause.declarations) {
@@ -33,7 +34,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
           case value: ScValueDeclaration => {
             value.typeElement match {
               case Some(te) =>
-                val t = new ScCompoundType(Array(te.getType, Singleton), Seq.empty, Seq.empty)
+                val t = new ScCompoundType(Array(te.getType(visited).resType, Singleton), Seq.empty, Seq.empty)
                 for (declared <- value.declaredElements) {
                   buff += new ScExistentialArgument(declared.name, Nil, Nothing, t)
                 }

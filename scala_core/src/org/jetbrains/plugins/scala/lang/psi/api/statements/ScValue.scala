@@ -23,7 +23,7 @@ trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with
   def declaredElements: Seq[ScTyped]
   def typeElement = findChild(classOf[ScTypeElement])
 
-  def declaredType = typeElement match {
+  def declaredType : Option[ScType] = typeElement match {
     case Some(te) => Some(te.getType)
     case None => None
   }

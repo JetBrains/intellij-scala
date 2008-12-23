@@ -25,15 +25,17 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
       case varDecl: ScVariable => {
         varDecl.typeElement match {
           case Some(te) => for (e <- varDecl.declaredElements) {
-            signatureMap += ((new Signature(e.name, Seq.empty, 0, Array(), ScSubstitutor.empty), te.getType))
-            signatureMap += ((new Signature(e.name + "_", Seq.singleton(te.getType), 1, Array(), ScSubstitutor.empty), Unit)) //setter
+            val varType = te.getType(Set(varDecl.declaredElements: _*)).resType
+            signatureMap += ((new Signature(e.name, Seq.empty, 0, Array(), ScSubstitutor.empty),varType))
+            signatureMap += ((new Signature(e.name + "_", Seq.singleton(varType), 1, Array(), ScSubstitutor.empty), Unit)) //setter
           }
           case None =>
         }
       }
       case valDecl: ScValue => valDecl.typeElement match {
         case Some(te) => for (e <- valDecl.declaredElements) {
-          signatureMap += ((new Signature(e.name, Seq.empty, 0, Array(), ScSubstitutor.empty), te.getType))
+          val valType = te.getType(Set(valDecl.declaredElements: _*)).resType
+          signatureMap += ((new Signature(e.name, Seq.empty, 0, Array(), ScSubstitutor.empty), valType))
         }
         case None =>
       }

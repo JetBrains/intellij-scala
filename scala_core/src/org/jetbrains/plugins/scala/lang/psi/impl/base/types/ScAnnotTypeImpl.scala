@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 
+import api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -20,5 +21,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 class ScAnnotTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScAnnotTypeElement{
   override def toString: String = "TypeWithAnnotation"
 
-  override def getType() = typeElement.getType
+  override def getType(implicit visited: Set[ScNamedElement]) = typeElement.getType(visited)
 }

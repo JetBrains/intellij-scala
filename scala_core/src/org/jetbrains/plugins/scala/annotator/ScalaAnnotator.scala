@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.search.GlobalSearchScope
+import compilerErrors.CyclicReferencesSearcher
 import highlighter.{AnnotatorHighlighter}
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.expr._
@@ -40,7 +41,8 @@ import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
  *    Date: 23.06.2008
  */
 
-class ScalaAnnotator extends Annotator {
+class ScalaAnnotator extends Annotator
+        with CyclicReferencesSearcher {
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     val file = element.getContainingFile
     val fType = file.getVirtualFile.getFileType
@@ -78,6 +80,8 @@ class ScalaAnnotator extends Annotator {
       }
     }
 
+    checkCyclicReferences(refElement, holder)
+
     refElement.bind() match {
       case None =>
         refElement.getParent match {
@@ -91,7 +95,17 @@ class ScalaAnnotator extends Annotator {
     }
   }
 
+  /**
+   * @see CyclicReferenceSearcher for implementation
+   */
+  def checkCyclicReferences(refElement: ScReferenceElement, holder: AnnotationHolder) = {
+    checkCyclicTypeAliases(refElement, holder)
+  }
+
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+
+    checkCyclicReferences(refElement, holder)
+
     refElement.bind() match {
       case None =>
       case _ => AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
