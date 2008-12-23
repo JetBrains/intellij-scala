@@ -1,9 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
+import api.base.types.ScTypeInferenceResult
+import api.toplevel.ScNamedElement
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.{TokenSet, IElementType}
 
-trait ScalaPsiElement extends PsiElement {
+trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper{
+
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T
 
   protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T]

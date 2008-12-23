@@ -43,7 +43,7 @@ with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with Sc
 
   def returnType : ScType
 
-  def declaredType = returnTypeElement match {
+  def declaredType : ScType = returnTypeElement match {
     case Some(rte) => rte.getType
     case None => Nothing
   }

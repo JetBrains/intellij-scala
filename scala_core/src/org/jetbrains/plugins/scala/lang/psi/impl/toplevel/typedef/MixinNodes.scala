@@ -5,6 +5,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import _root_.scala.collection.mutable.LinkedHashSet
 import api.statements.ScTypeAliasDefinition
+import api.toplevel.ScNamedElement
 import api.toplevel.templates.ScExtendsBlock
 import api.toplevel.typedef.{ScTypeDefinition, ScMember, ScTemplateDefinition}
 import collection.mutable.{HashMap, ArrayBuffer, HashSet, Set, ListBuffer}
@@ -77,7 +78,7 @@ abstract class MixinNodes {
     for (alias <- template.aliases) {
       alias match {
         case aliasDef: ScTypeAliasDefinition if !s.aliasesMap.get(aliasDef.name) =>
-          run = run bindA (aliasDef.name, {() => aliasDef.aliasedType})
+          run = run bindA (aliasDef.name, {() => aliasDef.aliasedType(Predef.Set[ScNamedElement]()).resType})
         case _ =>
       }
     }

@@ -3,9 +3,9 @@ package org.jetbrains.plugins.scala.lang.psi.impl
 import _root_.com.intellij.extapi.psi.StubBasedPsiElementBase
 import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
-import api.toplevel.ScTyped
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef.{ScTypeDefinition, ScMember}
+import api.toplevel.{ScNamedElement, ScTyped}
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.util.{IncorrectOperationException, CharTable}
 import api.statements._
@@ -44,7 +44,7 @@ import com.intellij.psi.impl.source.CharTableImpl
 import refactoring.ScalaNamesUtil
 import types._
 
-object ScalaPsiElementFactory {
+object ScalaPsiElementFactory extends ScTypeInferenceHelper {
 
   private val DUMMY = "dummy."
 
@@ -410,7 +410,7 @@ object ScalaPsiElementFactory {
     try {
       alias match {
         case alias: ScTypeAliasDefinition => {
-          return "override type " + alias.getName + " = " + ScType.canonicalText(substitutor.subst(alias.aliasedType))
+          return "override type " + alias.getName + " = " + ScType.canonicalText(substitutor.subst(alias.aliasedType(Set[ScNamedElement]())))
         }
         case alias: ScTypeAliasDeclaration => {
           return "type " + alias.getName + " = " + body

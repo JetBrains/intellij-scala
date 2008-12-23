@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, Nothing}
 import base.types.ScTypeElement
-import types.Nothing
 import toplevel.ScTyped
 
 trait ScTypedDeclaration extends ScDeclaration {
   def typeElement : Option[ScTypeElement]
-  def calcType = typeElement match {
+  def calcType : ScType = typeElement match {
     case Some(te) => te.getType
     case None => Nothing
   }

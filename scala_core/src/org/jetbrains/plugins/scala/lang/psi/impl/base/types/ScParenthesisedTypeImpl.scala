@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.Unit
+import api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -28,8 +29,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 class ScParenthesisedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParenthesisedTypeElement{
   override def toString: String = "TypeInParenthesis"
 
-  override def getType() = typeElement match {
-    case Some(te) => te.getType
+  override def getType(implicit visited: Set[ScNamedElement]) = typeElement match {
+    case Some(te) => te.getType(visited)
     case None => Unit
   }
 }

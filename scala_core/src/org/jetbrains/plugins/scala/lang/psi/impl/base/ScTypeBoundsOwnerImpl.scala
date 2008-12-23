@@ -8,6 +8,7 @@ import api.base.types.ScTypeElement
 import com.intellij.lang.ASTNode
 
 class ScTypeBoundsOwnerImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeBoundsOwner {
+  //todo[CYCLIC]
   def lowerBound = {
     val tLower = findChildByType(ScalaTokenTypes.tLOWER_BOUND)
     if (tLower != null) {

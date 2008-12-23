@@ -20,9 +20,9 @@ import scalax.rules.ScalaSigParserError
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.groovy.lang.psi.impl.statements.arguments.GrArgumentListImpl");
 
-  private val decompiledTextAttribute = new FileAttribute("_file_decompiled_text_", 4)
-  private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", 4)
-  private val sourceFileAttribute = new FileAttribute("_scala_source_file_", 4)
+  private val decompiledTextAttribute = new FileAttribute("_file_decompiled_text_", 5)
+  private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", 5)
+  private val sourceFileAttribute = new FileAttribute("_scala_source_file_", 5)
 
   def isScalaFile(file: VirtualFile): Boolean = try {
     isScalaFile(file, file.contentsToByteArray)
