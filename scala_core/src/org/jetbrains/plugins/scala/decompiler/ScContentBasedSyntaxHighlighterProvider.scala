@@ -25,7 +25,10 @@ class ScContentBasedClassFileProcessor extends ContentBasedClassFileProcessor {
   def isApplicable(project: Project, vFile: VirtualFile): Boolean = {
     val ft = vFile.getFileType
     if (ft == StdFileTypes.CLASS) {
-      PsiManager.getInstance(project).findFile(vFile) match {case scalaFile : ScalaFile => true case _ => false}
+      PsiManager.getInstance(project).findFile(vFile) match {
+        case scalaFile : ScalaFile => true
+        case _ => DecompilerUtil.isScalaFile(vFile)
+      }
     } else false
   }
 
