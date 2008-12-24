@@ -78,7 +78,7 @@ class ScalaSigPrinter(stream: PrintStream) {
     printWithIndent(level, "}\n")
   }
 
-  def genParamNames(t: MethodType): List[String] = t.paramTypes.toList.map(x => {
+  def genParamNames(t: {def paramTypes : Seq[Type]}): List[String] = t.paramTypes.toList.map(x => {
     var str = toString(x)
     val j = str.indexOf("[")
     var i = str.lastIndexOf(".")
@@ -88,23 +88,30 @@ class ScalaSigPrinter(stream: PrintStream) {
     StringUtil.decapitalize(res.substring(0, 1))
   })
 
-  def printMethodType(t: Type, printResult: Boolean): Unit = t match {
-    case mt@MethodType(resType, paramTypes) => {
-      print(genParamNames(mt).zip(paramTypes.toList.map(toString(_)(TypeFlags(true)))).map(p => p._1 + " : " + p._2).mkString("(", ", ", ")"))
-      resType match {
+  def printMethodType(t: Type, printResult: Boolean): Unit = {
+    def _pmt(mt: Type {def resultType: Type; def paramTypes: Seq[Type]}) = {
+      print(genParamNames(mt).zip(mt.paramTypes.toList.map(toString(_)(TypeFlags(true)))).map(p => p._1 + " : " + p._2).mkString(
+        "(" + (mt match {case ImplicitMethodType(_, _) => "implicit "; case _ => ""})
+        , ", ", ")"))
+      mt.resultType match {
         case mt: MethodType => printMethodType(mt, printResult)
+        case imt: ImplicitMethodType => printMethodType(imt, printResult)
         case x => if (printResult) {
           print(" : ");
           printType(x)
         }
       }
     }
-    case pt@PolyType(mt, typeParams) => {
-      print(typeParamString(typeParams))
-      printMethodType(mt, printResult)
+    t match {
+      case mt@MethodType(resType, paramTypes) => _pmt(mt)
+      case mt@ImplicitMethodType(resType, paramTypes) => _pmt(mt)
+      case pt@PolyType(mt, typeParams) => {
+        print(typeParamString(typeParams))
+        printMethodType(mt, printResult)
+      }
+      //todo consider another method types
+      case x => print(" : "); printType(x)
     }
-    //todo consider another method types
-    case x => print(" : "); printType(x)
   }
 
   def printMethod(level: Int, m: MethodSymbol) {
@@ -197,11 +204,11 @@ class ScalaSigPrinter(stream: PrintStream) {
     })
     case TypeRefType(prefix, symbol, typeArgs) => sep + (symbol.path match {
       case "scala.<repeated>" => flags match {
-        case TypeFlags(true) => toString(typeArgs.first) + "*"  
+        case TypeFlags(true) => toString(typeArgs.first) + "*"
         case _ => "scala.Seq" + typeArgString(typeArgs)
       }
       case "scala.<byname>" => "=> " + toString(typeArgs.first)
-      case _ => processName(symbol.path) + typeArgString(typeArgs)
+      case _ => StringUtil.trimStart(processName(symbol.path) + typeArgString(typeArgs), "<empty>.")
     })
     case TypeBoundsType(lower, upper) => " >: " + toString(lower) + " <: " + toString(upper)
     case RefinedType(classSym, typeRefs) => sep + typeRefs.map(toString).mkString("", " with ", "")
