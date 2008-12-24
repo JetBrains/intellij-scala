@@ -219,6 +219,19 @@
       <include name="**/*.scala"/>
     </scalac>
 
+    <scalac srcdir="../scala_core/test"
+            destdir="../classes/test/Scala"
+            logging="debug"
+            scalacdebugging="yes"
+            force="changed">
+      <classpath refid="base.path"/>
+      <classpath>
+        <path location="${project.lib}"/>
+      </classpath>
+      <include name="**/*.java"/>
+      <include name="**/*.scala"/>
+    </scalac>
+
     <javac srcdir="../test"
            destdir="../classes/test/Scala"
            debug="true">
