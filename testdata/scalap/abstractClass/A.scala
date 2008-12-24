@@ -1,5 +1,5 @@
 abstract class AbstractClass {
 
-    def foo: Unit
+    def foo: String
 
 }
