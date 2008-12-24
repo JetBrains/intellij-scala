@@ -15,6 +15,8 @@ class ScFileStubImpl(file: ScalaFile) extends PsiFileStubWrapperImpl[ScalaFile](
 
   override def getType = ScalaElementTypes.FILE.asInstanceOf[IStubFileElementType[Nothing]]
 
+  override def getPsi = file
+
   implicit  def refToStr(ref: StringRef) = StringRef.toString(ref)
 
   var packName: StringRef = _
