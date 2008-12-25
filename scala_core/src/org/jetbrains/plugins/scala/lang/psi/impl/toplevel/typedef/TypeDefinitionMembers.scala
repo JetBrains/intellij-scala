@@ -155,7 +155,25 @@ object TypeDefinitionMembers {
         map += ((sig, new Node(sig, subst)))
       }
 
-    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map) {}
+    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map) {
+      clazz.getName match {
+        case "Any" => {
+          val project = clazz.getProject
+          val facade = JavaPsiFacade.getInstance(project)
+          val obj = facade.findClass("java.lang.Object", GlobalSearchScope.allScope(project))
+          if (obj != null) {
+            for (m <- obj.getMethods) {
+              val phys = new PhysicalSignature(m, subst)
+              val psiRet = m.getReturnType
+              val retType = if (psiRet == null) Unit else ScType.create(psiRet, m.getProject)
+              val sig = new FullSignature(phys, subst.subst(retType), m, obj)
+              map += ((sig, new Node(sig, subst)))
+            }
+          }
+        }
+        case _ =>
+      }
+    }
 
     def processScala(template : ScTemplateDefinition, subst: ScSubstitutor, map: Map) = {
       def addSignature(s : Signature, ret : ScType, elem : NavigatablePsiElement) {
