@@ -68,7 +68,7 @@
     <fileset dir="${java.lib}">
       <include name="**/*.jar"/>
     </fileset>
-   <fileset dir="${idea.pack}/plugins/">
+    <fileset dir="${idea.pack}/plugins/">
       <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${idea.lib}">
@@ -199,14 +199,14 @@
          scala_core/src/**/*.skeleton,
          scala_core/src/**/*.xml"
          excludes="src/**/*junit*"
-            />
+        />
   </target>
   <target name="build.tests" depends="make.project">
 
     <mkdir dir="${project.lib}/../../test"/>
     <mkdir dir="${project.lib}/../../test/Scala"/>
 
-    <scalac srcdir="../test"
+    <scalac srcdir=".."
             destdir="../classes/test/Scala"
             logging="debug"
             scalacdebugging="yes"
@@ -215,22 +215,14 @@
       <classpath>
         <path location="${project.lib}"/>
       </classpath>
-      <include name="**/*.java"/>
-      <include name="**/*.scala"/>
+
+      <include name="test/**/*.java"/>
+      <include name="scala_core/test/**/*.java"/>
+
+      <include name="test**/*.scala"/>
+      <include name="scala_core/test**/*.scala"/>
     </scalac>
 
-    <scalac srcdir="../scala_core/test"
-            destdir="../classes/test/Scala"
-            logging="debug"
-            scalacdebugging="yes"
-            force="changed">
-      <classpath refid="base.path"/>
-      <classpath>
-        <path location="${project.lib}"/>
-      </classpath>
-      <include name="**/*.java"/>
-      <include name="**/*.scala"/>
-    </scalac>
 
     <javac srcdir="../test"
            destdir="../classes/test/Scala"
