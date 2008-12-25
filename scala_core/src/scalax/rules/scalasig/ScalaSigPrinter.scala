@@ -85,7 +85,7 @@ class ScalaSigPrinter(stream: PrintStream) {
     if (j > i) i = str.substring(0 , j).lastIndexOf(".")
     str = StringUtil.trimStart(str, "=> ")
     val res = if (i > 0) str.substring(i + 1) else str
-    StringUtil.decapitalize(res.substring(0, 1))
+    if (res.length > 1) StringUtil.decapitalize(res.substring(0, 1)) else res.toLowerCase
   })
 
   def printMethodType(t: Type, printResult: Boolean): Unit = {
