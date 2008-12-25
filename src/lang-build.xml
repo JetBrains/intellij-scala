@@ -231,6 +231,7 @@
       <classpath refid="base.path"/>
       <classpath>
         <path location="${project.lib}"/>
+        <path location="${project.lib}/../../test/Scala"/>
       </classpath>
 
       <include name="test/**/*.java"/>
