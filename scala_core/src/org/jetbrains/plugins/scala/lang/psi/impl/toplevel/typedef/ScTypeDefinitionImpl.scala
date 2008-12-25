@@ -199,9 +199,9 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean, visited: Set[PsiClass]): Boolean = {
       if (visited.contains(drv)) false
       else drv match {
-        case drv: ScTypeDefinition => drv.superTypes.find{
+        case drg: ScTypeDefinition => drg.superTypes.find{
           t => ScType.extractClassType(t) match {
-            case Some((c, _)) => c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
+            case Some((c, _)) => c == clazz || (deep && isInheritorInner(base, c, deep, visited + drg))
             case _ => false
           }
         }
