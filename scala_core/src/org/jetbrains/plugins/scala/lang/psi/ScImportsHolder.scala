@@ -64,6 +64,7 @@ trait ScImportsHolder extends ScalaPsiElement {
   }
 
   def addImportForClass(clazz: PsiClass): Unit = addImportForClass(clazz, null)
+
   def addImportForClass(clazz: PsiClass, ref: PsiElement) {
     //Create simple variant what to import
     var importSt = ScalaPsiElementFactory.createImportStatementFromClass(this, clazz, this.getManager)
@@ -101,8 +102,8 @@ trait ScImportsHolder extends ScalaPsiElement {
             case im: ScImportStmt => {
               if (importSt.getText.toLowerCase < im.getText.toLowerCase) {
                 added = true
-                addBeforeI(importSt, im)
-                addBeforeI(ScalaPsiElementFactory.createNewLineNode(im.getManager).getPsi, im)
+                addImportBefore(importSt, im)
+                addImportBefore(ScalaPsiElementFactory.createNewLineNode(im.getManager).getPsi, im)
               }
             }
             case _ =>
@@ -113,30 +114,47 @@ trait ScImportsHolder extends ScalaPsiElement {
         if (!added) {
           if (stmt != null) {
             while (!stmt.isInstanceOf[ScImportStmt]) stmt = stmt.getPrevSibling
-            addAfterI(importSt, stmt)
-            addAfterI(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi, stmt)
+            addImportAfter(importSt, stmt)
+            addImportAfter(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi, stmt)
           }
           else {
-            addAfterI(importSt, getLastChild)
-            addAfterI(ScalaPsiElementFactory.createNewLineNode(getLastChild.getManager).getPsi, getLastChild)
+            addImportAfter(importSt, getLastChild)
+            addImportAfter(ScalaPsiElementFactory.createNewLineNode(getLastChild.getManager).getPsi, getLastChild)
           }
         }
       }
       case _ => {
-        //we haven't td import statement, so we insert new import statement so close to element begin as possible
+        //we have not import statement, so we insert new import statement as close to element begin as possible
         findChild(classOf[ScPackageStatement]) match {
           case Some(x) => {
-            addAfterI(ScalaPsiElementFactory.createNewLineNode(x.getManager).getPsi, addAfterI(importSt, x))
+            val next = x.getNextSibling
+            if (next != null && !next.getText.contains("\n")){
+              val nl = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
+              addBefore(importSt, next)
+              addBefore(nl, next)
+            } else addAfter(importSt, x)
           }
           case None => {
             //Here we must to find left brace, if not => it's ScalaFile
             getNode.findChildByType(ScalaTokenTypes.tLBRACE) match {
               case null => {
-                if (getFirstChild != null) addBeforeI(importSt, getFirstChild)
-                else addI(importSt)
+                val first = getFirstChild
+                if (first != null) {
+                  val manager = first.getManager
+                  if (first.getText.trim.length > 0) {
+                    val n2 = ScalaPsiElementFactory.createNewLineNode(manager, "\n\n").getPsi
+                    addBefore(importSt, first)
+                    addBefore(n2, first)
+                  } else addBefore(importSt, first) 
+                } else addImoprt(importSt)
               }
               case node => {
-                addAfterI(importSt, addAfterI(ScalaPsiElementFactory.createNewLineNode(importSt.getManager).getPsi, node.getPsi))
+                val manager = node.getPsi.getManager
+                val n1 = ScalaPsiElementFactory.createNewLineNode(manager, "\n").getPsi
+                val n2 = ScalaPsiElementFactory.createNewLineNode(manager, "\n").getPsi
+                addBefore(n1, node.getPsi)
+                addImportBefore(importSt, n1)
+                addAfter(n2, importSt)
               }
             }
 
@@ -147,19 +165,19 @@ trait ScImportsHolder extends ScalaPsiElement {
   }
 
 
-  def addI(element: PsiElement): PsiElement = {
+  def addImoprt(element: PsiElement): PsiElement = {
     getNode.addChild(element.getNode)
     return getNode.getLastChildNode.getPsi
   }
 
-  def addBeforeI(element: PsiElement, anchor: PsiElement): PsiElement = {
+  def addImportBefore(element: PsiElement, anchor: PsiElement): PsiElement = {
     getNode.addChild(element.getNode, anchor.getNode)
     return anchor.getNode.getTreePrev.getPsi
   }
 
-  def addAfterI(element: PsiElement, anchor: PsiElement): PsiElement = {
-    if (anchor.getNode == getNode.getLastChildNode) return addI(element)
-    addBeforeI(element, anchor.getNode.getTreeNext.getPsi)
+  def addImportAfter(element: PsiElement, anchor: PsiElement): PsiElement = {
+    if (anchor.getNode == getNode.getLastChildNode) return addImoprt(element)
+    addImportBefore(element, anchor.getNode.getTreeNext.getPsi)
   }
 
   def deleteImportStmt(stmt: ScImportStmt): Unit = {

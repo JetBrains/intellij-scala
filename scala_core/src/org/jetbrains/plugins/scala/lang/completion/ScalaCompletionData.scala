@@ -62,7 +62,16 @@ class ScalaCompletionData extends CompletionData {
   }
 
   private def registerExpressionCompletion {
-    registerStandardCompletion(new ExpressionFilter, "true", "false", "null", "new", "super", "this")
+    val filter = new ExpressionFilter
+    registerStandardCompletion(filter, "new")
+
+    val exprs = Seq("true", "false", "null", "new", "super", "this")
+    val afterDotFilter = new LeftNeighbour(new TextFilter("."))
+    val variant = new CompletionVariant(new AndFilter(new NotFilter(afterDotFilter), filter))
+    variant.setItemProperty(LookupItem.HIGHLIGHTED_ATTR, "")
+    variant.includeScopeClass(classOf[LeafPsiElement])
+    for (val completion <- exprs) variant.addCompletion(completion, TailType.NONE)
+    registerVariant(variant)
   }
 
   private def registerModifiersCompletion {
