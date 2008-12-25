@@ -12,5 +12,8 @@ import psi.api.ScalaFile
 */
 
 class ScalaStructureViewFactory extends PsiStructureViewFactory {
-  def getStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder = new ScalaStructureViewBuilder(psiFile.asInstanceOf[ScalaFile])
+  def getStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder = psiFile match {
+    case sf: ScalaFile => new ScalaStructureViewBuilder(sf)
+    case _ => null
+  }
 }
