@@ -280,8 +280,8 @@
       <formatter type="plain"/>
 
       <batchtest todir="${base.dir}/logs">
-        <fileset dir="${base.dir}/test">
-          <include name="**/*Test.java"/>
+        <fileset dir="../classes/test/Scala">
+          <include name="**/*Test.class"/>
         </fileset>
       </batchtest>
 
