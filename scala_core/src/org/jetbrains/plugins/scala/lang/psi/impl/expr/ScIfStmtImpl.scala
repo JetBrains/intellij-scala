@@ -42,8 +42,7 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
 
   override def getType = (thenBranch, elseBranch) match {
     case (Some(t), Some(e)) => Bounds.lub(t.getType, e.getType)
-    case (Some(t), None) => t.getType
-    case (None, Some(e)) => e.getType
+    case (Some(t), None) => types.Unit
     case _ => Nothing
   }
 }

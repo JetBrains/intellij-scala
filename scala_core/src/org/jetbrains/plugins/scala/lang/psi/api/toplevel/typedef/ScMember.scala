@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
 import base.ScModifierList
+import impl.toplevel.typedef.ScTypeDefinitionImpl
 import lexer.ScalaTokenTypes
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -20,6 +21,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     if (name == PsiModifier.STATIC) {
       getContainingClass match {
         case obj : ScObject => true
+        case td : ScTypeDefinition if td.getQualifiedName == "scala.Application" => true // To run applications
         case _ =>  false
       }
     } else if (name == PsiModifier.PUBLIC) {

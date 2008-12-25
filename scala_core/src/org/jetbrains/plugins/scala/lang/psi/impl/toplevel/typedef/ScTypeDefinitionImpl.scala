@@ -134,7 +134,12 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
 
   override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = {
     val filterFun = (m: PsiMethod) => m.getName == name
-    (if (!checkBases) functions.filter(filterFun) else functionsByName(name).toSeq).toArray[PsiMethod]
+    (if (checkBases || lookForMainMethod(name)) getAllMethods else functions.toArray[PsiMethod]).filter(filterFun)
+  }
+
+  private def lookForMainMethod(name : String) = name == "main" && this.isInstanceOf[ScObject] && {
+    val apps = JavaPsiFacade.getInstance(getProject).findClasses("scala.Application", GlobalSearchScope.allScope(getProject))
+    apps.length > 0 && isInheritor (apps(0), true)
   }
 
   override def checkDelete() {
