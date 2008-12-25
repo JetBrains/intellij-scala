@@ -220,7 +220,7 @@
       <include name="test/**/*.java"/>
       <include name="scala_core/test/**/*.java"/>
 
-      <include name="test**/*.scala"/>
+      <include name="test/**/*.scala"/>
       <include name="scala_core/test/**/*.scala"/>
     </scalac>
 
