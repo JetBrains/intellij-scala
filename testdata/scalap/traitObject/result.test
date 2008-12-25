@@ -1,4 +1,8 @@
-class ImplicitParam extends java.lang.Object with scala.ScalaObject {
+trait TraitObject extends java.lang.Object with scala.ScalaObject {
+  def $init$() : scala.Unit = { /* compiled code */ }
+  def foo : scala.Int = { /* compiled code */ }
+}
+final object TraitObject extends java.lang.Object with scala.ScalaObject {
   def this() = { /* compiled code */ }
-  def foo(i : scala.Int)(implicit f : scala.Float, d : scala.Double) : scala.Int = { /* compiled code */ }
+  def bar : scala.Int = { /* compiled code */ }
 }
