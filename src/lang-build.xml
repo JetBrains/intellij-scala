@@ -201,6 +201,7 @@
          excludes="src/**/*junit*"
         />
   </target>
+
   <target name="build.tests" depends="make.project">
 
     <mkdir dir="${project.lib}/../../test"/>
@@ -220,7 +221,7 @@
       <include name="scala_core/test/**/*.java"/>
 
       <include name="test**/*.scala"/>
-      <include name="scala_core/test**/*.scala"/>
+      <include name="scala_core/test/**/*.scala"/>
     </scalac>
 
 

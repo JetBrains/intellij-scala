@@ -71,4 +71,10 @@ class ScalapTest extends TestCase {
 
   def testParamClauses = doTest
 
+  def testCaseClass = doTest
+
+  def testTraitObject = doTest
+
+  def testCovariantParam = doTest
+
 }
