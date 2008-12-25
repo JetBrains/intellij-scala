@@ -58,7 +58,7 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
 
   private def typesMatch(types1 : HashMap[String, Bounds],
                          types2 : HashMap[String, Bounds]) : Boolean = {
-    if (types1 != types.size) return false
+    if (types1.size != types.size) return false
     else {
       for ((name, bounds1) <- types1) {
         types2.get(name) match {
