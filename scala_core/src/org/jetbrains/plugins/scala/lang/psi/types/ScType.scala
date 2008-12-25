@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import api.statements.ScTypeAlias
 import api.toplevel.typedef.ScTypeDefinition
+import com.intellij.psi.util.PsiTypesUtil
 import decompiler.DecompilerUtil
 import impl.ScalaPsiManager
 import impl.toplevel.synthetic.SyntheticClasses
@@ -114,6 +115,33 @@ object ScType {
     case Byte => PsiType.BYTE
     case Short => PsiType.SHORT
     case Null => PsiType.NULL
+    //todo add generics
+    case ScFunctionType(rt, args) => {
+      val facade = JavaPsiFacade.getInstance(project)
+      val c : PsiClass = facade.findClass("scala.Function" + (args.length))
+      val typeParams = c.getTypeParameters
+      val subst = (args ++ Seq(rt)).toArray[ScType].zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY){
+        case (s, (targ, tp)) => {
+          val str = toPsi(targ, project, scope).getPresentableText
+          val boxed = PsiTypesUtil.boxIfPossible(str)
+          s.put(tp, facade.getElementFactory.createTypeByFQClassName(boxed, scope))
+        }
+      }
+      facade.getElementFactory.createType(c, subst)
+    }
+    case ScTupleType(args) => {
+      val facade = JavaPsiFacade.getInstance(project)
+      val c : PsiClass = facade.findClass("scala.Tuple" + (args.length))
+      val typeParams = c.getTypeParameters
+      val subst = args.toArray[ScType].zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY){
+        case (s, (targ, tp)) => {
+          val str = toPsi(targ, project, scope).getPresentableText
+          val boxed = PsiTypesUtil.boxIfPossible(str)
+          s.put(tp, facade.getElementFactory.createTypeByFQClassName(boxed, scope))
+        }
+      }
+      facade.getElementFactory.createType(c, subst)
+    }
     case ScCompoundType(Seq(t, _*), _, _) => toPsi(t, project, scope)
     case ScDesignatorType(c : PsiClass) => JavaPsiFacade.getInstance(project).getElementFactory.createType(c, PsiSubstitutor.EMPTY)
     case ScParameterizedType(ScDesignatorType(c : PsiClass), args) =>
@@ -148,7 +176,7 @@ object ScType {
         case None => None
       }
     }
-    case std@StdType(_, _) => Some((std.asClass(DecompilerUtil.obtainProject), ScSubstitutor.empty)) 
+    case std@StdType(_, _) => Some((std.asClass(DecompilerUtil.obtainProject), ScSubstitutor.empty))
     case _ => None
   }
 
