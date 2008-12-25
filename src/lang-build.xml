@@ -225,14 +225,18 @@
     </scalac>
 
 
-    <javac srcdir="../test"
+    <javac srcdir=".."
            destdir="../classes/test/Scala"
            debug="true">
       <classpath refid="base.path"/>
       <classpath>
         <path location="${project.lib}"/>
       </classpath>
+
+      <include name="test/**/*.java"/>
+      <include name="scala_core/test/**/*.java"/>
     </javac>
+
 
     <copy toDir="${project.lib}/testdata">
       <fileset dir="${base.dir}/testdata"/>
