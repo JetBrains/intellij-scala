@@ -194,11 +194,11 @@ public class ScalaConfigUtils {
 
   public static ScalaSDK[] getScalaSDKs(final Module module) {
     final ScalaSDK[] projectSdks =
-      ContainerUtil.map2Array(getProjectScalaLibraries(module.getProject()), ScalaSDK.class, new Function<Library, ScalaSDK>() {
-        public ScalaSDK fun(final Library library) {
-          return new ScalaSDK(library, module, true);
-        }
-      });
+        ContainerUtil.map2Array(getProjectScalaLibraries(module.getProject()), ScalaSDK.class, new Function<Library, ScalaSDK>() {
+          public ScalaSDK fun(final Library library) {
+            return new ScalaSDK(library, module, true);
+          }
+        });
     final ScalaSDK[] globals = ContainerUtil.map2Array(getGlobalScalaLibraries(), ScalaSDK.class, new Function<Library, ScalaSDK>() {
       public ScalaSDK fun(final Library library) {
         return new ScalaSDK(library, module, false);
@@ -257,10 +257,10 @@ public class ScalaConfigUtils {
 
   @Nullable
   public static Library createScalaLibrary(final String path,
-                                            final String name,
-                                            final Project project,
-                                            final boolean inModuleSettings,
-                                            final boolean inProject) {
+                                           final String name,
+                                           final Project project,
+                                           final boolean inModuleSettings,
+                                           final boolean inProject) {
     if (project == null) return null;
     final Ref<Library> libRef = new Ref<Library>();
     ApplicationManager.getApplication().runWriteAction(new Runnable() {
@@ -274,10 +274,10 @@ public class ScalaConfigUtils {
 
 
   private static Library createScalaLibImmediately(String path,
-                                                    String name,
-                                                    Project project,
-                                                    boolean inModuleSettings,
-                                                    final boolean inProject) {
+                                                   String name,
+                                                   Project project,
+                                                   boolean inModuleSettings,
+                                                   final boolean inProject) {
     String version = getScalaVersion(path);
     String libName = name != null ? name : generateNewScalaLibName(version, project);
     if (path.length() > 0) {
@@ -288,12 +288,12 @@ public class ScalaConfigUtils {
       if (inModuleSettings) {
         StructureConfigurableContext context = ModuleStructureConfigurable.getInstance(project).getContext();
         LibraryTableModifiableModelProvider provider = context
-          .createModifiableModelProvider(inProject ? LibraryTablesRegistrar.PROJECT_LEVEL : LibraryTablesRegistrar.APPLICATION_LEVEL, true);
+            .createModifiableModelProvider(inProject ? LibraryTablesRegistrar.PROJECT_LEVEL : LibraryTablesRegistrar.APPLICATION_LEVEL, true);
         modifiableModel = provider.getModifiableModel();
         library = modifiableModel.createLibrary(libName);
       } else {
         LibraryTable libTable =
-          inProject ? ProjectLibraryTable.getInstance(project) : LibraryTablesRegistrar.getInstance().getLibraryTable();
+            inProject ? ProjectLibraryTable.getInstance(project) : LibraryTablesRegistrar.getInstance().getLibraryTable();
         library = libTable.getLibraryByName(libName);
         if (library == null) {
           library = LibraryUtil.createLibrary(libTable, libName);
@@ -303,7 +303,7 @@ public class ScalaConfigUtils {
       // fill library
       final Library.ModifiableModel model;
       if (inModuleSettings) {
-        model = ((LibrariesModifiableModel)modifiableModel).getLibraryEditor(library).getModel();
+        model = ((LibrariesModifiableModel) modifiableModel).getLibraryEditor(library).getModel();
       } else {
         model = library.getModifiableModel();
       }
@@ -377,7 +377,11 @@ public class ScalaConfigUtils {
 
 
   public static Collection<String> getScalaVersions(final Module module) {
-    return ContainerUtil.map2List(getAllScalaLibraries(module.getProject()), new Function<Library, String>() {
+    return getScalaVersions(module.getProject());
+  }
+
+  public static Collection<String> getScalaVersions(final Project project) {
+    return ContainerUtil.map2List(getAllScalaLibraries(project), new Function<Library, String>() {
       public String fun(Library library) {
         return getScalaLibVersion(library);
       }
