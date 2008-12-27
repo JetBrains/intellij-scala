@@ -84,7 +84,7 @@ class ScAccessModifierImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
         val buff = new ArrayBuffer[Object]
         def processPackages(qname : String) = {
           var pack = JavaPsiFacade.getInstance(getProject).findPackage(qname)
-          while (pack != null) {
+          while (pack != null && pack.getName != null) {
             buff += pack
             pack = pack.getParentPackage
           }
