@@ -1,3 +1,0 @@
-class WildcardType extends java.lang.Object with scala.ScalaObject {
-  def this(i : scala.Function1[scala.Int, _]) = { /* compiled code */ }
-}

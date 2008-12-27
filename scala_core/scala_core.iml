@@ -16,6 +16,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="scala-2.7.3.RC1" level="application" />
     <orderEntry type="inheritedJdk" />
+    <orderEntry type="module" module-name="scalax" />
   </component>
   <component name="copyright">
     <Base>
