@@ -75,7 +75,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       case _: ScalaFile | _: ScPackaging => {
         //looking for expresssions which collecting
         val sameExpressions: Array[ScImportExpr] = (for (importStmt <- importStatementsInHeader; importExpr <- importStmt.importExprs
-          if resolve != null && importExpr.qualifier.resolve == resolve)
+          if resolve != null && importExpr.qualifier != null && importExpr.qualifier.resolve == resolve)
           yield importExpr).toArray
         if (sameExpressions.length != 0) {
           //getting collected import statement

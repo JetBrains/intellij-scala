@@ -33,7 +33,7 @@ class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
         case _ => false
       })) reference match {
     case Some(x) => x.qualifier match {
-      case None => throw new IncorrectOperationException
+      case None => null
       case Some(x) => x
     }
     case _ => throw new IncorrectOperationException
