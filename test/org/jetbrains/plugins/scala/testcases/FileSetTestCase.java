@@ -78,14 +78,14 @@ public abstract class FileSetTestCase extends TestSuite {
   protected void addFileTest(File file) {
     if (!StringUtil.startsWithChar(file.getName(), '_') &&
             !"CVS".equals(file.getName())) {
-      final ActualTest t = new ActualTest(file){};
+      final ActualTest t = new ActualTest(file);
       addTest(t);
     }
   }
 
   protected abstract void runTest(final File file) throws Throwable;
 
-  private abstract class ActualTest extends LightIdeaTestCase {
+  private class ActualTest extends LightIdeaTestCase {
     private File myTestFile;
 
     public ActualTest(File testFile) {
