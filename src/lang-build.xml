@@ -18,6 +18,7 @@
   <property name="base.dir" value="${project.lib}/../../.."/>
   <property name="scala.home" value="${base.dir}/SDK"/>
   <property name="scala_core.dir" value="${project.lib}/../../../scala_core"/>
+  <property name="scalax.dir" value="${project.lib}/../../../scalax"/>
   <property name="idea.lib" value="${idea.pack}/lib"/>
   <property name="output" value="${project.lib}/dist"/>
   <property name="test.lib" value="${project.lib}/../../test/Scala"/>
@@ -122,8 +123,10 @@
       <classpath refid="base.path"/>
       <include name="src/**/*.scala"/>
       <include name="scala_core/src/**/*.scala"/>
+      <include name="scalax/src/**/*.scala"/>
       <include name="src/**/*.java"/>
       <include name="scala_core/src/**/*.java"/>
+      <include name="scalax/src/**/*.java"/>
     </scalac>
     <javac2 srcdir=".."
             destdir="${project.lib}"
@@ -197,7 +200,15 @@
          scala_core/src/**/*.flex,
          scala_core/src/**/*.jar,
          scala_core/src/**/*.skeleton,
-         scala_core/src/**/*.xml"
+         scala_core/src/**/*.xml,
+
+         scalax/src/**/*.java,
+         scalax/src/**/*.scala,
+         scalax/src/**/*.properties,
+         scalax/src/**/*.flex,
+         scalax/src/**/*.jar,
+         scalax/src/**/*.skeleton,
+         scalax/src/**/*.xml"
          excludes="src/**/*junit*"
         />
   </target>
@@ -222,6 +233,8 @@
 
       <include name="test/**/*.scala"/>
       <include name="scala_core/test/**/*.scala"/>
+
+      <include name="scalax/tests/**/*.scala"/>
     </scalac>
 
 
@@ -236,11 +249,13 @@
 
       <include name="test/**/*.java"/>
       <include name="scala_core/test/**/*.java"/>
+      <include name="scalax/test/**/*.java"/>
     </javac>
 
 
     <copy toDir="${project.lib}/testdata">
       <fileset dir="${base.dir}/testdata"/>
+      <fileset dir="${scalax.dir}/testdata"/>
     </copy>
 
   </target>

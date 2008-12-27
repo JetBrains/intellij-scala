@@ -1,6 +1,7 @@
 package scalax.rules.scalasig
 
-import com.intellij.openapi.util.text.StringUtil
+import _root_.scala.Symbol
+import util.StringUtil
 import java.io.PrintStream
 import java.util.regex.Pattern
 class ScalaSigPrinter(stream: PrintStream) {

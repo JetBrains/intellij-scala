@@ -3,25 +3,25 @@ package scalax.scalap
 import _root_.junit.framework.TestCase
 import java.io._
 import java.net.{URLClassLoader, URL}
-import org.jetbrains.plugins.scala.util.TestUtils
-import org.junit.Assert
 import rules.scalasig.{ClassFileParser, ScalaSigAttributeParsers, ScalaSigPrinter, ByteCode}
+import util.ScalaxTestUtil
+import util.ScalaxTestUtil._
 
 /**
  * @author ilyas
  */
 
 class ScalapTest extends TestCase {
-  def getTestDataPath = TestUtils.getTestDataPath + "/scalap/"
+  def getTestDataPath = ScalaxTestUtil.getTestDataPath + "/scalap/"
 
   def doTest() {
-    val className = TestUtils.getTestName(getName, false)
-    val testFolderPath = getTestDataPath + TestUtils.getTestName(getName, true) + "/"
+    val className = ScalaxTestUtil.getTestName(getName, false)
+    val testFolderPath = getTestDataPath + getTestName(getName, true) + "/"
     val file = new File(testFolderPath)
     val url = file.toURI.toURL
     val loader = new URLClassLoader(Array(url), getClass.getClassLoader)
+    assert(true)
     val clazz = loader.loadClass(className)
-
     val resultFile = new File(testFolderPath + "result.test")
     val in = new BufferedReader(new FileReader(resultFile))
     var line: String = null

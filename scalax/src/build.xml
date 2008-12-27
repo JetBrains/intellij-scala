@@ -1,0 +1,126 @@
+<project name="Build scalax utility tools" default="build.scalap">
+
+  <property file="scalax.properties"/>
+  <property name="scala.home" value="${project.dir}/lib"/>
+  <property name="output.dir" value="${project.dir}/out/classes"/>
+  <property name="test.output.dir" value="${project.dir}/out/test"/>
+  <property name="java.lib" value="${jdk.home}/lib"/>
+
+  <path id="base.path">
+    <fileset dir="${scala.home}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${java.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
+
+
+  <target name="build.scalap" description="Builds scalax.* libraries">
+
+    <!--Scalac taskdef-->
+    <taskdef resource="scala/tools/ant/antlib.xml">
+      <classpath>
+        <pathelement location="${scala.home}/scala-compiler.jar"/>
+        <pathelement location="${scala.home}/scala-library.jar"/>
+      </classpath>
+    </taskdef>
+
+    <mkdir dir="${output.dir}"/>
+
+    <scalac srcdir="${project.dir}/src"
+            destdir="${output.dir}"
+            logging="debug"
+            scalacdebugging="yes"
+            force="changed">
+      <classpath refid="base.path"/>
+      <include name="**/*.scala"/>
+      <include name="**/*.java"/>
+    </scalac>
+
+  </target>
+
+  <target name="build.tests">
+    <!--Scalac taskdef-->
+    <taskdef resource="scala/tools/ant/antlib.xml">
+      <classpath>
+        <pathelement location="${scala.home}/scala-compiler.jar"/>
+        <pathelement location="${scala.home}/scala-library.jar"/>
+      </classpath>
+    </taskdef>
+
+    <mkdir dir="${test.output.dir}"/>
+
+    <scalac srcdir="${project.dir}/tests/"
+            destdir="${test.output.dir}"
+            logging="debug"
+            scalacdebugging="no"
+            force="changed">
+      <classpath refid="base.path"/>
+      <classpath>
+        <path location="${output.dir}"/>
+      </classpath>
+
+      <include name="**/*.scala"/>
+    </scalac>
+
+
+    <javac srcdir="${project.dir}/tests"
+           destdir="${test.output.dir}"
+           debug="true">
+      <classpath refid="base.path"/>
+      <classpath>
+        <path location="${output.dir}"/>
+      </classpath>
+
+      <include name="${project.dir}/tests/**/*.java"/>
+    </javac>
+
+    <copy toDir="${test.output.dir}/testdata">
+      <fileset dir="${project.dir}/testdata"/>
+    </copy>
+
+  </target>
+
+  <target name="run.tests" depends="build.tests">
+
+    <mkdir dir="${project.dir}/logs"/>
+
+    <junit fork="yes"
+           dir="${project.dir}"
+           printsummary="yes"
+           haltonfailure="no"
+           haltonerror="no">
+
+      <classpath>
+        <path location="${output.dir}"/>
+        <path location="${test.output.dir}"/>
+        <path refid="base.path"/>
+      </classpath>
+
+      <jvmarg value="-Xdebug"/>
+      <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5112"/>
+      <formatter type="plain"/>
+
+      <batchtest todir="${project.dir}/logs">
+        <fileset dir="${test.output.dir}">
+          <include name="**/*Test.class"/>
+        </fileset>
+      </batchtest>
+
+    </junit>
+  </target>
+
+  <target name="jar.scalap" depends="build.scalap" description="Makes jar">
+    <jar destfile="${project.dir}/scala-utility.jar">
+      <fileset dir="${output.dir}" excludes="**/*build.xml, **/scalax.properties"/>
+
+      <manifest>
+        <attribute name="Version" value="${scalax.version}"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="build.all.scalax" depends="build.scalap, jar.scalap"/>
+
+</project>
