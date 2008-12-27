@@ -11,12 +11,12 @@ class TypeAlias extends Aa {
 package Y
 
 class Aa {
-    type K = Int
+  type K = Int
 }
 class TypeAlias extends Aa {
-    val t = foo()
+  val t = foo()
 
-    override type K = Int
+  override type K = Int
 
-    def y(): Int = 3
+  def y(): Int = 3
 }

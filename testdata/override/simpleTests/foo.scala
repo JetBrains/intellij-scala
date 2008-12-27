@@ -10,8 +10,8 @@ abstract class b {
 package test
 
 class Foo extends b {
-    def foo(x: b): b = null
+  def foo(x: b): b = null
 }
 abstract class b {
-    def foo(x: b): b
+  def foo(x: b): b
 }

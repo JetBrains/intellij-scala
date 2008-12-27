@@ -11,10 +11,10 @@ class OverrideValue extends A {
 package test
 
 class A {
-    val foo: A = new A
+  val foo: A = new A
 }
 class OverrideValue extends A {
-    val t = foo()
+  val t = foo()
 
-    override val foo: A = _
+  override val foo: A = _
 }

@@ -10,8 +10,8 @@ abstract class b {
 package test
 
 class Val extends b {
-    val too: b = _
+  val too: b = _
 }
 abstract class b {
-    val too: b
+  val too: b
 }
