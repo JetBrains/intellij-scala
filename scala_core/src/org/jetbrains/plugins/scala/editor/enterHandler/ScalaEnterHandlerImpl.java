@@ -75,6 +75,10 @@ class ScalaEnterHandlerImpl extends EditorWriteActionHandler {
 
   public void executeWriteAction(final Editor editor, final DataContext dataContext) {
     final Project project = PlatformDataKeys.PROJECT.getData(dataContext);
+    if (project == null) {
+      originalHandler.execute(editor, dataContext);
+      return;
+    }
     final PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
     if (file == null || !file.getLanguage().getDisplayName().equals("Scala")) {
       originalHandler.execute(editor, dataContext);
