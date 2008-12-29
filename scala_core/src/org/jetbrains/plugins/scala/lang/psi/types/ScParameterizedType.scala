@@ -115,10 +115,9 @@ extends ScPolymorphicType(name, args, lower, upper) {
       new Suspension[ScType]({() => s.subst(tp.lowerBound)}),
       new Suspension[ScType]({() => s.subst(tp.upperBound)}))
 
-
   override def equiv(t: ScType) = t match {
-    case stp: ScTypeParameterType => lower.v.equiv(stp.lower.v) &&
-            upper.v.equiv(stp.upper.v)
+    case stp: ScTypeParameterType => (t eq this) ||
+            lower.v.equiv(stp.lower.v) && upper.v.equiv(stp.upper.v)
     case _ => false
   }
 }

@@ -13,5 +13,5 @@ import com.intellij.psi._
 class ScNamingPatternImpl(node: ASTNode) extends ScBindingPatternImpl (node) with ScNamingPattern{
   override def toString: String = "NamingPattern"
 
-  override def calcType = named.calcType
+  override def calcType = if (named == null) psi.types.Nothing else named.calcType //todo fix parser
 }
