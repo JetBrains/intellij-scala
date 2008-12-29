@@ -12,8 +12,8 @@ object ScalaxTestUtil {
     val loader = getClass.getClassLoader
     val resource = loader.getResource("testdata")
     try {
-      new File(resource.toURI()).getPath().replace(File.separatorChar, '/')
-      //      "/home/ilya/work/scala/scalax/testdata"
+//      new File(resource.toURI()).getPath().replace(File.separatorChar, '/')
+            "/home/ilya/work/scala/scalax/testdata"
     }
     catch {
       case _: URISyntaxException => ""

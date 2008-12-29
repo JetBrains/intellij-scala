@@ -38,5 +38,5 @@ class ScStubFileElementType(lang: Language) extends IStubFileElementWrapper[Scal
 }
 
 private[elements] object StubVersion {
-  val STUB_VERSION: Int = 18
+  val STUB_VERSION: Int = 19
 }

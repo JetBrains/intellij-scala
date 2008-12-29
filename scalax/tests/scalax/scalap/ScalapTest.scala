@@ -77,4 +77,6 @@ class ScalapTest extends TestCase {
 
   def testCovariantParam = doTest
 
+  def testParamNames = doTest
+
 }
