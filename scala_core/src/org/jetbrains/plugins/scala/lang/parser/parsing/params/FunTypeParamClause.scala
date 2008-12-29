@@ -22,7 +22,7 @@ object FunTypeParamClause {
         return false
       }
     }
-    if (!TypeParam.parse(builder, true)) {
+    if (!TypeParam.parse(builder, false)) {
       builder error ErrMsg("wrong.parameter")
     }
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
