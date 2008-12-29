@@ -238,7 +238,7 @@ class ScalaSigPrinter(stream: PrintStream) {
 
   def typeArgString(typeArgs: Seq[Type]): String =
     if (typeArgs.isEmpty) ""
-    else typeArgs.map(toString).mkString("[", ", ", "]")
+    else typeArgs.map(toString).map(StringUtil.trimStart(_, "=> ")).mkString("[", ", ", "]")
 
   def typeParamString(params: Seq[Symbol]): String =
     if (params.isEmpty) ""
