@@ -80,7 +80,6 @@ object DecompilerUtil {
           // Print classes
           val printer = new ScalaSigPrinter(stream)
           for (c <- syms) {
-            print("\n")
             printer.printSymbol(c)
           }
           val bs = baos.toByteArray
