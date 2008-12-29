@@ -55,7 +55,9 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
       deleteOccurence = true;
     }
     
-    if (editor.getSelectionModel.getSelectedText.trim == getLineText(editor).trim) deleteOccurence = true
+    val lineText = getLineText(editor)
+    if (editor != null && editor.getSelectionModel.getSelectedText != null &&
+            lineText != null && editor.getSelectionModel.getSelectedText.trim == lineText.trim) deleteOccurence = true
     ScalaRefactoringUtil.trimSpacesAndComments(editor, file);
     invoke(project, editor, file, editor.getSelectionModel().getSelectionStart(), editor.getSelectionModel().getSelectionEnd());
   }
