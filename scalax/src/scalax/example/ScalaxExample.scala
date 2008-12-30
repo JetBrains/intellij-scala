@@ -28,7 +28,7 @@ object ScalaxExample {
     //    val st = "org.jetbrains.plugins.scala.decompiler.Tupo"
 //        val st = "scala.xml.Elem"
 //    val st = "scala.Predef"
-    val st = "scala.util.parsing.combinator.Parsers"
+    val st = "scala.tools.nsc.backend.icode.ICodes"
 
     val clazz = Class.forName(st)
     val byteCode = ByteCode.forClass(clazz)

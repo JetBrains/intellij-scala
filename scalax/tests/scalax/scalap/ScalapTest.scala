@@ -79,4 +79,6 @@ class ScalapTest extends TestCase {
 
   def testParamNames = doTest
 
+  def testValAndVar = doTest
+
 }

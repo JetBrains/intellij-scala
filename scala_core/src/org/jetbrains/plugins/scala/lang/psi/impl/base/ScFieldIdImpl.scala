@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
+import api.toplevel.imports.ScImportStmt
+import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -23,4 +26,15 @@ class ScFieldIdImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFiel
   override def toString: String = "Field identifier"
 
   def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement) = lastParent match {
+    case _: ScImportStmt => {
+      ScType.extractClassType(calcType) match {
+        case Some((c, _)) => c.processDeclarations(processor, state, null, place)
+        case _ => true
+      }
+    }
+    case _ => true
+  }
+
 }
