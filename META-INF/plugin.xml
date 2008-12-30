@@ -65,6 +65,7 @@
     <nameSuggestionProvider language="Scala" implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaNameSuggestionProvider"/>
     <definitionsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.MethodImplementationsSearch"/>
     <antCustomCompiler implementation="org.jetbrains.plugins.scala.ant.ScalaAntCustomCompilerProvider"/>
+    <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.moveHandler.MoveClassHandler" order="first"/>
 
     <gotoClassContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToClassContributor"/>
     <gotoSymbolContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToSymbolContributor"/>
