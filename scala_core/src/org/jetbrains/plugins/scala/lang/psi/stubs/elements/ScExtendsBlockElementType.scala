@@ -17,7 +17,7 @@ class ScExtendsBlockElementType
 extends ScStubElementType[ScExtendsBlockStub, ScExtendsBlock]("extends block") {
 
   def serialize(stub: ScExtendsBlockStub, dataStream: StubOutputStream) {
-    dataStream.writeByte(stub.getBaseClasses.length)
+    dataStream.writeInt(stub.getBaseClasses.length)
     for (name <- stub.getBaseClasses) dataStream.writeName(name)
   }
 
@@ -28,7 +28,7 @@ extends ScStubElementType[ScExtendsBlockStub, ScExtendsBlock]("extends block") {
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScExtendsBlockStub = {
-    val n = dataStream.readByte
+    val n = dataStream.readInt
     val baseClasses = new Array[String](n)
     for (i <- 0 to n-1) baseClasses(i) = StringRef.toString(dataStream.readName)
     new ScExtendsBlockStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, baseClasses)

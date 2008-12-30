@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.util
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.stubs.index.ScDirectInheritorsIndex
 import _root_.scala.collection.mutable.ArrayBuffer
-import api.toplevel.templates.ScExtendsBlock
+import api.base.types.ScSimpleTypeElement
+import api.toplevel.templates.{ScTemplateParents, ScExtendsBlock}
 import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.search.GlobalSearchScope
 
@@ -21,9 +22,7 @@ object ScalaStubsUtil {
     val name: String = clazz.getName()
     if (name == null) return Seq.empty
     val inheritors = new ArrayBuffer[ScTypeDefinition]
-    val extendsBlocks = new ArrayList[ScExtendsBlock](StubIndex.getInstance().get(ScDirectInheritorsIndex.KEY,
-      name, clazz.getProject(), scope));
-    import _root_.scala.collection.jcl.Conversions.convertList
+    val extendsBlocks = StubIndex.getInstance().get(ScDirectInheritorsIndex.KEY, name, clazz.getProject(), scope).toArray(Array[ScExtendsBlock]())
     for (ext <- extendsBlocks) {
       ext.getParent match {
         case x: ScTypeDefinition => inheritors += x
