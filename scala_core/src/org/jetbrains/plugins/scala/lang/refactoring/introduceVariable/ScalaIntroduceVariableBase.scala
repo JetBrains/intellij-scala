@@ -278,6 +278,9 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
             val declType = varDecl match {case v: ScVariable => v.typeElement case v: ScValue => v.typeElement}
             declType match {case Some(declType) => ScalaPsiUtil.adjustTypes(declType) case None =>}
           }
+          case x: ScEnumerators => {
+            //todo: 
+          }
           case _ => {
             showErrorMessage(ScalaBundle.message("operation.not.supported.in.current.block"), editor.getProject)
             return
