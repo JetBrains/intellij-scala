@@ -125,7 +125,8 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {
         val action = new ScalaAddImportAction(classes: Array[PsiClass], ref: ScReferenceElement)
         
         val offset = ref.getTextRange.getStartOffset
-        if (classes.length > 0 && offset >= startOffset && offset <= endOffset && editor != null) {
+        if (classes.length > 0 && offset >= startOffset && offset <= endOffset && editor != null &&
+                offset <= editor.getDocument.getTextLength) {
           HintManager.getInstance().showQuestionHint(editor,
           if (classes.length == 1) classes(0).getQualifiedName + "? Alt+Enter"
           else classes(0).getQualifiedName + "? (multiple choices...) Alt+Enter",
