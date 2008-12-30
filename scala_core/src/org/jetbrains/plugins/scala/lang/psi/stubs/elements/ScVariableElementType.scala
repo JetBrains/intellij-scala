@@ -23,13 +23,13 @@ extends ScStubElementType[ScVariableStub, ScVariable](debugName) {
   def serialize(stub: ScVariableStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.isDeclaration)
     val names = stub.getNames
-    dataStream.writeByte(names.length)
+    dataStream.writeInt(names.length)
     for (name <- names) dataStream.writeName(name)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScVariableStub = {
     val isDecl = dataStream.readBoolean
-    val namesLength = dataStream.readByte
+    val namesLength = dataStream.readInt
     val names = new Array[String](namesLength)
     for (i <- 0 to (namesLength - 1)) names(i) = StringRef.toString(dataStream.readName)
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
