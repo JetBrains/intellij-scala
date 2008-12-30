@@ -5,20 +5,13 @@ import introduceVariable.typeManipulator.IType
 import java.util.{HashMap, Comparator}
 import parser.ScalaElementTypes
 import psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
+import psi.api.expr._
 import psi.api.statements.ScVariable
-import psi.api.expr.ScReferenceExpression
 import psi.api.statements.ScValue
 import psi.api.toplevel.typedef.ScMember
 import psi.api.base.ScStableCodeReferenceElement
 import psi.impl.ScalaPsiElementFactory
-import psi.api.expr.ScMethodCall
-import psi.api.expr.ScFinallyBlock
-import psi.api.expr.ScDoStmt
-import psi.api.expr.ScWhileStmt
-import psi.api.expr.ScIfStmt
-import psi.api.expr.ScForStatement
 import psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import _root_.scala.collection.mutable.ArrayBuffer
@@ -26,12 +19,8 @@ import com.intellij.util.ReflectionCache
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTryBlock
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import com.intellij.psi.PsiElement
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.PsiFile
@@ -108,9 +97,10 @@ object ScalaRefactoringUtil {
       parent match {
         case null =>
         case x: ScBlock if x != expr =>
+        case _: ScEnumerators =>
         case _: ScExpression => parent.getParent match {
           case _: ScForStatement | _: ScCaseClause |
-              _: ScFinallyBlock | _: ScFunctionDefinition=>
+               _: ScFinallyBlock | _: ScFunctionDefinition =>
           case x => return get(x)
         }
         case _ => return get(parent.getParent)

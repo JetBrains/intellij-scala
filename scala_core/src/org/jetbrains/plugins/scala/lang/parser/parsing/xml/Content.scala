@@ -30,6 +30,9 @@ object Content {
       case XmlTokenType.XML_DATA_CHARACTERS => {
         builder.advanceLexer()
       }
+      case XmlTokenType.XML_CHAR_ENTITY_REF => {
+        builder.advanceLexer()
+      }
       case _ =>
     }
     def subparse() {
@@ -40,6 +43,9 @@ object Content {
       builder.getTokenType match {
         case XmlTokenType.XML_DATA_CHARACTERS => {
           builder.advanceLexer()
+        }
+        case XmlTokenType.XML_CHAR_ENTITY_REF => {
+          builder.advanceLexer
         }
         case _ => {
           if (isReturn) return
