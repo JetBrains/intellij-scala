@@ -42,7 +42,7 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
         e.selectorSet match {
           case None =>
             if (e.singleWildcard) {
-              if (!elem.processDeclarations(processor, state, null, place)) return false
+              if (!elem.processDeclarations(processor, state, this, place)) return false
             } else {
               if (!processor.execute(elem, state)) return false
             }

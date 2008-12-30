@@ -4,6 +4,7 @@ import _root_.scala.Symbol
 import util.StringUtil
 import java.io.PrintStream
 import java.util.regex.Pattern
+
 class ScalaSigPrinter(stream: PrintStream) {
   import stream._
 
@@ -18,7 +19,7 @@ class ScalaSigPrinter(stream: PrintStream) {
       symbol match {
         case o: ObjectSymbol => indent; printObject(level, o)
         case c: ClassSymbol if !refinementClass(c) && !c.isModule => indent; printClass(level, c)
-        case m: MethodSymbol => indent; printMethod(level, m)
+        case m: MethodSymbol => printMethod(level, m, indent)
         case a: AliasSymbol => indent; printAlias(level, a)
         case t: TypeSymbol => ()
         case s => {}
@@ -79,10 +80,10 @@ class ScalaSigPrinter(stream: PrintStream) {
     printWithIndent(level, "}\n")
   }
 
-  def genParamNames(t: {def paramTypes : Seq[Type]}): List[String] = t.paramTypes.toList.map(x => {
+  def genParamNames(t: {def paramTypes: Seq[Type]}): List[String] = t.paramTypes.toList.map(x => {
     var str = toString(x)
     val j = str.indexOf("[")
-    if (j > 0) str = str.substring(0 , j)
+    if (j > 0) str = str.substring(0, j)
     str = StringUtil.trimStart(str, "=> ")
     var i = str.lastIndexOf(".")
     val res = if (i > 0) str.substring(i + 1) else str
@@ -115,10 +116,19 @@ class ScalaSigPrinter(stream: PrintStream) {
     }
   }
 
-  def printMethod(level: Int, m: MethodSymbol) {
+  def printMethod(level: Int, m: MethodSymbol, indent : () => Unit): Unit = {
+    val n = m.name
+    if (m.isAccessor && n.endsWith("_$eq")) return
+    indent()
     printModifiers(m)
-    print("def ")
-    m.name match {
+    if (m.isAccessor) {
+      val indexOfSetter = m.parent.get.children.findIndexOf(x => x.isInstanceOf[MethodSymbol] &&
+                      x.asInstanceOf[MethodSymbol].name == n + "_$eq")
+      print(if (indexOfSetter > 0) "var " else "val ")
+    } else {
+      print("def ")
+    }
+    n match {
       case "<init>" => {
         print("this")
         printMethodType(m.infoType, false)
@@ -232,7 +242,7 @@ class ScalaSigPrinter(stream: PrintStream) {
   def getVariance(t: TypeSymbol) = if (t.isCovariant) "+" else if (t.isContravariant) "-" else ""
 
   def toString(symbol: Symbol): String = symbol match {
-    case symbol: TypeSymbol =>  getVariance(symbol) + processName(symbol.name) + toString(symbol.infoType)
+    case symbol: TypeSymbol => getVariance(symbol) + processName(symbol.name) + toString(symbol.infoType)
     case s => symbol.toString
   }
 
