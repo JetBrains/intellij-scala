@@ -3,25 +3,24 @@ package org.jetbrains.plugins.scala.ant;
 import com.intellij.compiler.ant.*;
 import com.intellij.compiler.ant.taskdefs.PatternSetRef;
 import com.intellij.compiler.ant.taskdefs.Property;
-import com.intellij.compiler.ant.taskdefs.Javac;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.util.Pair;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.config.ScalaConfigUtils;
 import org.jetbrains.plugins.scala.config.ScalaFacet;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  * @author ilyas, Constatntine Plotnikov
  */
-public class ScalaAntCustomCompilerProvider extends ChunkCustomCompilerExtension {
+public class ScalaAntCustomCompilerProvider /*extends ChunkCustomCompilerExtension*/ {
   /**
    * The property for scalac task SDK
    */
