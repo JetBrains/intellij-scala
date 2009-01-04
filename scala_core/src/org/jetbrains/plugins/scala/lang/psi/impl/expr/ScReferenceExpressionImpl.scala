@@ -44,7 +44,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case c: PsiClass => {
         if (!ResolveUtils.kindMatches(element, getKinds(false)))
           throw new IncorrectOperationException("class does not match expected kind")
-        if (nameId.getText != c.getName)
+        if (refName != c.getName)
           throw new IncorrectOperationException("class does not match expected name")
         val file = getContainingFile.asInstanceOf[ScalaFile]
         if (isReferenceTo(element)) return this
