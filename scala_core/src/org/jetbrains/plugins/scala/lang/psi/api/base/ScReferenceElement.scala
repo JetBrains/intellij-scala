@@ -13,12 +13,11 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import statements.ScTypeAlias
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
+ * @author Alexander Podkhalyuzin
+ * Date: 22.02.2008
+ */
 
 trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
-
   def bind(): Option[ScalaResolveResult] = {
     val results = multiResolve(false)
     results.length match {
@@ -36,28 +35,30 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
 
   def nameId: PsiElement
 
-  def refName: String = nameId.getText
+  def refName: String = nameId.getText.replace("`", "")
 
   def getElement = this
 
   def getRangeInElement: TextRange =
-      new TextRange(nameId.getTextRange.getStartOffset - getTextRange.getStartOffset, getTextLength)
+    new TextRange(nameId.getTextRange.getStartOffset - getTextRange.getStartOffset, getTextLength)
 
   def getCanonicalText: String = null
 
   def isSoft(): Boolean = false
 
   def handleElementRename(newElementName: String): PsiElement = {
+    val isQuoted = refName.startsWith("`")
     val id = nameId.getNode
     val parent = id.getTreeParent
-    parent.replaceChild(id, ScalaPsiElementFactory.createIdentifier(newElementName, getManager))
+    parent.replaceChild(id,
+      ScalaPsiElementFactory.createIdentifier(if (isQuoted) "`" + newElementName + "`" else newElementName, getManager))
     return this
   }
 
   def isReferenceTo(element: PsiElement): Boolean = resolve() == element
 
-  def qualifier : Option[ScalaPsiElement]
+  def qualifier: Option[ScalaPsiElement]
 
   //provides the set of possible namespace alternatives based on syntactic position 
-  def getKinds(incomplete: Boolean) : Set[ResolveTargets.Value]
+  def getKinds(incomplete: Boolean): Set[ResolveTargets.Value]
 }
