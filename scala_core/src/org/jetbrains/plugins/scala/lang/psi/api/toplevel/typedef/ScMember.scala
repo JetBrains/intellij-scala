@@ -7,6 +7,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import statements.ScFunction
 
 /**
 * @author Alexander Podkhalyuzin
@@ -21,7 +22,16 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     if (name == PsiModifier.STATIC) {
       getContainingClass match {
         case obj : ScObject => true
-        case td : ScTypeDefinition if td.getQualifiedName == "scala.Application" => true // To run applications
+        case _ : ScTrait  | _ : ScClass => this match { //dirty hack for runnable objects, inherited traits with 'main' methos
+          case f: ScFunction => f.name == "main" && {
+            val params = f.getParameterList.getParameters
+            params.length == 1 && (params(0).getType match {
+              case at: PsiArrayType => at.getComponentType.equalsToText("java.lang.String")
+              case _ => false
+            })
+          }
+          case _ => false
+        }
         case _ =>  false
       }
     } else if (name == PsiModifier.PUBLIC) {
