@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import api.base.{ScReferenceElement, ScStableCodeReferenceElement}
-import api.statements.ScTypeAlias
+import api.statements.{ScTypeAliasDefinition, ScTypeAlias}
+import api.toplevel.ScNamedElement
 import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.util.PsiTypesUtil
 import decompiler.DecompilerUtil
 import impl.ScalaPsiManager
-import impl.toplevel.synthetic.SyntheticClasses
+import impl.toplevel.synthetic.{SyntheticClasses, ScSyntheticClass}
 import resolve.ScalaResolveResult
 import com.intellij.psi._
 import com.intellij.openapi.project.Project
@@ -152,15 +153,32 @@ object ScType {
                   {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope))}
         JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
       }
-    case ScProjectionType(pr, ref) => JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName(
-      ref.bind match {
-        case Some(result) if result.getElement.isInstanceOf[PsiClass] => {
-          val clazz = result.getElement.asInstanceOf[PsiClass]
-          val fqn = clazz.getQualifiedName
-          if (fqn != null) fqn else "java.lang.Object"
+    case ScParameterizedType(ScProjectionType(pr, ref), args) => ref.bind.map(_.getElement) match {
+      case Some(c: PsiClass) => if (c.getQualifiedName == "scala.Array" && args.length == 1)
+        new PsiArrayType(toPsi(args(0), project, scope))
+      else {
+        val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY)
+                  {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope))}
+        JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
+      }
+      case _ => JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope) 
+    }
+
+    case ScProjectionType(pr, ref) => ref.bind match {
+      case Some(result) if result.getElement.isInstanceOf[PsiClass] => {
+        val clazz = result.getElement.asInstanceOf[PsiClass]
+        clazz match {
+          case syn: ScSyntheticClass => toPsi(syn.t, project, scope)
+          case _ => {
+            val fqn = clazz.getQualifiedName
+            JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName(if (fqn != null) fqn else "java.lang.Object", scope)
+          }
         }
-        case _ => "java.lang.Object"
-      }, scope)
+      }
+      case Some(res) if res.getElement.isInstanceOf[ScTypeAliasDefinition] =>
+        toPsi(res.getElement.asInstanceOf[ScTypeAliasDefinition].aliasedType(Set[ScNamedElement]()).resType, project, scope)
+      case _ => JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
+    }
     case _ => JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
   }
 
@@ -229,7 +247,8 @@ object ScType {
         case ScSingletonType(path: ScStableCodeReferenceElement) => path.bind match {
           case Some(res) => res match {
             case r : ScalaResolveResult if r.getElement.isInstanceOf[PsiPackage] => buffer.append(ref.refName)
-            case o => inner(p); buffer.append("#").append(ref.refName)
+            case o if o != null => inner(p); buffer.append("#").append(ref.refName)
+            case _ => buffer.append(ref.refName)
           }
           case None => buffer.append(ref.refName)
         }
