@@ -7,6 +7,7 @@ import com.intellij.lang.documentation.DocumentationProvider
 import com.intellij.openapi.module.ModuleUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiManager, PsiElement}
+import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.base.ScPrimaryConstructor
 import lang.psi.api.statements._
 import lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -24,9 +25,13 @@ import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 
 class ScalaDocumentationProvider extends DocumentationProvider {
   import ScalaDocumentationProvider._
-  def getDocumentationElementForLookupItem(psiManager: PsiManager, `object` : Object, element: PsiElement): PsiElement = null
+  def getDocumentationElementForLookupItem(psiManager: PsiManager, `object` : Object, element: PsiElement): PsiElement = {
+    null
+  }
 
-  def getUrlFor(element: PsiElement, originalElement: PsiElement): String = null
+  def getUrlFor(element: PsiElement, originalElement: PsiElement): String = {
+    null
+  }
 
   def getQuickNavigateInfo(element: PsiElement): String = {
     element match {
@@ -40,9 +45,13 @@ class ScalaDocumentationProvider extends DocumentationProvider {
     }
   }
 
-  def getDocumentationElementForLink(psiManager: PsiManager, link: String, context: PsiElement): PsiElement = null
+  def getDocumentationElementForLink(psiManager: PsiManager, link: String, context: PsiElement): PsiElement = {
+    null
+  }
 
-  def generateDoc(element: PsiElement, originalElement: PsiElement): String = null
+  def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
+    null
+  }
 }
 
 private object ScalaDocumentationProvider {

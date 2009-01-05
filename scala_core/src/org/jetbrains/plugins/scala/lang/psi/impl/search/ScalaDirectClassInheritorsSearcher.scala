@@ -23,7 +23,9 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
           val candidates = ScalaStubsUtil.getClassInheritors(clazz, scope)
           for (candidate <- candidates) {
             if (candidate.isInheritor(clazz, false)) {
-              if (!consumer.process(candidate)) return false
+              if (!consumer.process(candidate)) {
+                return false
+              }
             }
           }
           true
