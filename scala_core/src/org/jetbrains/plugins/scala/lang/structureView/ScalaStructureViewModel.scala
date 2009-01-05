@@ -6,6 +6,7 @@ import com.intellij.ide.structureView.TextEditorBasedStructureViewModel
 import com.intellij.ide.util.treeView.smartTree._
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiElement
+import java.lang.String
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -80,15 +81,17 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile) extends Text
   }
 
 
-  private class ScalaInheritedMembersFilter extends InheritedMembersFilter {
-    override def isVisible(treeNode: TreeElement): Boolean = {
-      treeNode match {
-        case x: ScalaFunctionStructureViewElement => !x.isInherited
-        case x: ScalaValueStructureViewElement => !x.isInherited
-        case x: ScalaVariableStructureViewElement => !x.isInherited
-        case x: ScalaTypeAliasStructureViewElement => !x.isInherited
-        case _ => super.isVisible(treeNode)
-      }
+
+}
+
+class ScalaInheritedMembersFilter extends InheritedMembersFilter {
+  override def isVisible(treeNode: TreeElement): Boolean = {
+    treeNode match {
+      case x: ScalaFunctionStructureViewElement => !x.isInherited
+      case x: ScalaValueStructureViewElement => !x.isInherited
+      case x: ScalaVariableStructureViewElement => !x.isInherited
+      case x: ScalaTypeAliasStructureViewElement => !x.isInherited
+      case _ => super.isVisible(treeNode)
     }
   }
 }

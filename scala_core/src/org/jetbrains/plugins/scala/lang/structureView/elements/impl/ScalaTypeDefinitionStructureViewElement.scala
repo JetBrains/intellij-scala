@@ -70,8 +70,8 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
         case FullSignature(_, _, element, _) => {
           element match {
             case named: ScNamedElement => ScalaPsiUtil.nameContext(named) match {
-              case _: ScValue => children += new ScalaValueStructureViewElement(named.nameId, true)
-              case _: ScVariable => children += new ScalaVariableStructureViewElement(named.nameId, true)
+              case x: ScValue if x.getContainingClass != clazz => children += new ScalaValueStructureViewElement(named.nameId, true)
+              case x: ScVariable if x.getContainingClass != clazz => children += new ScalaVariableStructureViewElement(named.nameId, true)
               case _ =>
             }
           }

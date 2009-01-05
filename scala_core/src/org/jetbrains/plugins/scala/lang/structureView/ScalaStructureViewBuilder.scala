@@ -16,4 +16,6 @@ class ScalaStructureViewBuilder(private val myPsiFile: ScalaFile) extends TreeBa
   def createStructureViewModel(): StructureViewModel = {
     return new ScalaStructureViewModel(myPsiFile)
   }
+
+  override def isRootNodeShown: Boolean = false
 }
