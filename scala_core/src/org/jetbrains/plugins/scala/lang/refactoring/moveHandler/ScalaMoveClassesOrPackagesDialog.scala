@@ -17,11 +17,5 @@ class ScalaMoveClassesOrPackagesDialog(project: Project, searchTextOccurences: B
                                       initialTargetElement: PsiElement, moveCallback: MoveCallback)
         extends MoveClassesOrPackagesDialog(project, searchTextOccurences, psiElements, initialTargetElement, moveCallback) {
   override def doAction: Unit = {
-    if (isMoveToPackage) moveToPackage
-    else {}
-  }
-
-  private def moveToPackage {
-    
   }
 }
