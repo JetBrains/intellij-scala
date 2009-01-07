@@ -85,6 +85,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
       case x: ScValue =>
       case x: ScVariable =>
       case x: ScParameter =>
+      case _ =>
     }
     null
   }
