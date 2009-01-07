@@ -4,11 +4,13 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import _root_.scala.collection.immutable.HashSet
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.lang.documentation.DocumentationProvider
+import com.intellij.lang.java.JavaDocumentationProvider
 import com.intellij.openapi.module.ModuleUtil
+import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiManager, PsiElement}
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.base.ScPrimaryConstructor
+import lang.psi.api.ScalaFile
 import lang.psi.api.statements._
 import lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import lang.psi.api.toplevel.templates.ScTemplateBody
@@ -50,11 +52,54 @@ class ScalaDocumentationProvider extends DocumentationProvider {
   }
 
   def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
+    val e = getDocedElement(originalElement)
+    e match {
+      case null =>
+      case _: ScTypeAlias => //todo:
+      case x: ScTypeDefinition => {
+        val text: StringBuffer = new StringBuffer("")
+        val qualifiedName = x.getQualifiedName
+        val f = qualifiedName.lastIndexOf(".", qualifiedName.length)
+        if (f != -1) text.append("package " + qualifiedName.substring(0, f) + "\n")
+        var prev = x.getPrevSibling
+        while (prev != null && (prev.getText.charAt(0) == ' ' || prev.getText.charAt(0) == '\n')) prev = prev.getPrevSibling
+        prev match {
+          case _: PsiComment =>text.append(prev.getText + "\n")
+          case _ =>
+        }
+        text.append("class " + originalElement.getText)
+        if (x.supers.length > 0) {
+          text.append(" extends ")
+          for (sup <- x.supers) {
+            text.append(sup.getQualifiedName + ", ")
+          }
+          text.replace(text.length - 2, text.length, "")
+        }
+        text.append(" {\n}")
+        val dummyFile: PsiJavaFile = PsiFileFactory.getInstance(element.getProject).
+                createFileFromText(originalElement.getText + ".java", text.toString).asInstanceOf[PsiJavaFile]
+        val elem = dummyFile.getClasses.apply(0)
+        return JavaDocumentationProvider.generateExternalJavadoc(elem)
+      }
+      case x: ScFunction =>
+      case x: ScValue =>
+      case x: ScVariable =>
+      case x: ScParameter =>
+    }
     null
   }
 }
 
 private object ScalaDocumentationProvider {
+  private def getDocedElement(originalElement: PsiElement): PsiElement = {
+    originalElement match {
+      case null => null
+      case _:ScTypeDefinition | _: ScTypeAlias | _: ScValue
+              | _: ScVariable | _: ScFunction | _: ScParameter => originalElement
+      case _ => getDocedElement(originalElement.getParent)
+    }
+  }
+
   private def getMemberHeader(member: ScMember): String = {
     if (!member.getParent.isInstanceOf[ScTemplateBody]) return ""
     if (!member.getParent.getParent.getParent.isInstanceOf[ScTypeDefinition]) return ""
