@@ -113,7 +113,7 @@ class ScalaSigPrinter(stream: PrintStream) {
       }
       //todo consider another method types
       case x => print(" : "); printType(x)
-    }
+    }                                                                                                                                                               
   }
 
   def printMethod(level: Int, m: MethodSymbol, indent : () => Unit): Unit = {

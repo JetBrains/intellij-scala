@@ -45,12 +45,8 @@ class ScalapTest extends TestCase {
     val byteCode = ByteCode.forClass(clazz)
     val classFile = ClassFileParser.parse(byteCode)
     val Some(sig) = classFile.attribute("ScalaSig").map(_.byteCode).map(ScalaSigAttributeParsers.parse)
-    val baos = new ByteArrayOutputStream
-    val stream = new PrintStream(baos)
-    val printer = new ScalaSigPrinter(stream)
-    for (c <- sig.topLevelClasses) printer.printSymbol(c)
-    for (c <- sig.topLevelObjects) printer.printSymbol(c)
-    baos.toString
+    import scala.tools.scalap.Main._
+    parseScalaSignature(sig)
   }
 
   def testAbstractClass = doTest
