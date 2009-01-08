@@ -38,5 +38,6 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.METHOD_NAME_KEY, name)
     }
+
   }
 }
