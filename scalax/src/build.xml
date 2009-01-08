@@ -112,7 +112,7 @@
   </target>
 
   <target name="jar.scalap" depends="build.scalap" description="Makes jar">
-    <jar destfile="${project.dir}/scala-utility.jar">
+    <jar destfile="${project.dir}/scala-decoder.jar">
       <fileset dir="${output.dir}" excludes="**/*build.xml, **/scalax.properties"/>
 
       <manifest>
