@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.util
 
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.stubs.index.ScDirectInheritorsIndex
+import _root_.org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScDirectInheritorsIndex, ScAnnotatedMemberIndex}
 import _root_.scala.collection.mutable.ArrayBuffer
 import api.toplevel.templates.ScExtendsBlock
-import api.toplevel.typedef.ScTypeDefinition
-import com.intellij.psi.search.GlobalSearchScope
-
+import api.toplevel.typedef.{ScTypeDefinition, ScMember}
+import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.{PsiElement, PsiClass}
 import java.util.ArrayList
@@ -31,5 +30,13 @@ object ScalaStubsUtil {
       }
     }
     inheritors.toSeq
+  }
+
+  def getAnnotatedMembers(clazz: PsiClass, scope: GlobalSearchScope): Seq[ScMember] = {
+    val name = clazz.getName
+    if (name == null) return Seq.empty
+    val members = new ArrayList[ScMember](StubIndex.getInstance.get(ScAnnotatedMemberIndex.KEY, name, clazz.getProject, scope))
+    import _root_.scala.collection.jcl.Conversions.convertList
+    members.toSeq
   }
 }

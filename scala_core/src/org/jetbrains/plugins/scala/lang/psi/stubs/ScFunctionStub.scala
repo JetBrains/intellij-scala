@@ -11,5 +11,5 @@ import com.intellij.psi.stubs.NamedStub
 trait ScFunctionStub extends NamedStub[ScFunction] {
   def isDeclaration: Boolean
 
-//  def getAnnotations : Seq[String]
+  def getAnnotations : Seq[String]
 }
