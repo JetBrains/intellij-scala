@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.impl
 
 import api.statements.ScFunction
+import api.toplevel.typedef.ScTemplateDefinition
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.util.io.StringRef

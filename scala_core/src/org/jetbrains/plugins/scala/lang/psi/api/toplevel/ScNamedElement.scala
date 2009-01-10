@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 
 import com.intellij.navigation.{ItemPresentation, NavigationItem}
 import com.intellij.openapi.editor.colors.TextAttributesKey
+import expr.ScNewTemplateDefinition
 import impl.toplevel.synthetic.JavaIdentifier
 import impl.ScalaPsiElementFactory
 import com.intellij.psi._
@@ -30,13 +31,17 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
   }
 
   override def getPresentation: ItemPresentation = {
-    val clazz = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true)
+    val clazz = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
     var parent: PsiElement = this
     while (parent != null && !(parent.isInstanceOf[ScMember])) parent = parent.getParent
     return new ItemPresentation {
       def getPresentableText(): String = name
       def getTextAttributesKey(): TextAttributesKey = null
-      def getLocationString(): String = if (clazz != null)"(" + clazz.getQualifiedName + ")" else ""
+      def getLocationString(): String = clazz match {
+        case _: ScTypeDefinition => "(" + clazz.getQualifiedName + ")"
+        case x: ScNewTemplateDefinition => "(<anonymous>)"
+        case _ => ""
+      }
       override def getIcon(open: Boolean) = parent match {case mem: ScMember => mem.getIcon(0) case _ => null}
     }
   }

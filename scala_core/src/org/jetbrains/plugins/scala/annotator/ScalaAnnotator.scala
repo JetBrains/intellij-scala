@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.search.GlobalSearchScope
+import com.jniwrapper.A
 import compilerErrors.CyclicReferencesSearcher
 import highlighter.{AnnotatorHighlighter}
 import lang.lexer.ScalaTokenTypes

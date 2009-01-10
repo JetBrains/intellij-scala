@@ -81,8 +81,9 @@ public class ScalaShortNamesCacheImpl implements ScalaShortNamesCache {
 
   @NotNull
   public PsiMethod[] getMethodsByName(@NonNls @NotNull String name, @NotNull GlobalSearchScope scope) {
-    final Collection<? extends PsiMethod> plainMethods = StubIndex.getInstance().get(ScalaIndexKeys.METHOD_NAME_KEY(), name, myProject, scope);
-    return plainMethods.toArray(new PsiMethod[plainMethods.size()]);
+    /*final Collection<? extends PsiMethod> plainMethods = StubIndex.getInstance().get(ScalaIndexKeys.METHOD_NAME_KEY(), name, myProject, scope);
+    return plainMethods.toArray(new PsiMethod[plainMethods.size()]);*/
+    return PsiMethod.EMPTY_ARRAY;
   }
 
   @NotNull
@@ -92,9 +93,9 @@ public class ScalaShortNamesCacheImpl implements ScalaShortNamesCache {
 
   @NotNull
   public String[] getAllMethodNames() {
-    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.METHOD_NAME_KEY());
-    return classNames.toArray(new String[classNames.size()]);
-
+    /*final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.METHOD_NAME_KEY());
+    return classNames.toArray(new String[classNames.size()]);*/
+    return new String[0];
   }
 
   public void getAllMethodNames(@NotNull HashSet<String> set) {

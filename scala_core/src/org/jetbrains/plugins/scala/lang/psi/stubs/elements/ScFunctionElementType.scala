@@ -4,6 +4,7 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDec
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImpl
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionImpl
 import api.statements.{ScFunction, ScFunctionDeclaration}
+import api.toplevel.typedef.ScTemplateDefinition
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.util.io.StringRef
@@ -34,6 +35,7 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
   }
 
   def indexStub(stub: ScFunctionStub, sink: IndexSink): Unit = {
+
     val name = stub.getName
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.METHOD_NAME_KEY, name)
