@@ -57,13 +57,10 @@ class ScalaAnnotator extends Annotator
       case x: ScBlock => {
         checkResultExpression(x, holder)
       }
-      case x: ScReferenceExpression if x.qualifier == None => {
-        x.bind match {
-          case Some(_) => AnnotatorHighlighter.highlightReferenceElement(x, holder)
-          case None =>
-        }
+      case x: ScReferenceElement if x.qualifier == None => {
+        checkCyclicReferences(x, holder)
+        checkNotQualifiedReferenceElement(x, holder)
       }
-      case x: ScReferenceElement if x.qualifier == None => checkNotQualifiedReferenceElement(x, holder)
       case x: ScReferenceElement => checkQualifiedReferenceElement(x, holder)
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }
@@ -79,8 +76,6 @@ class ScalaAnnotator extends Annotator
         registerAddImportFix(refElement, annotation)
       }
     }
-
-    checkCyclicReferences(refElement, holder)
 
     refElement.bind() match {
       case None =>
