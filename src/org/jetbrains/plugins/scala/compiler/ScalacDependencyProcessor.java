@@ -18,8 +18,7 @@ class ScalacDependencyProcessor implements DependencyProcessor {
     final CompileContextEx contextEx = (CompileContextEx) context;
     final DependencyCache cache = contextEx.getDependencyCache();
     try {
-      final String name = cache.resolve(classQualifiedName);
-      System.out.println(name);
+      cache.resolve(classQualifiedName);
     } catch (CacheCorruptedException e) {
       LOG.info(e);
     }

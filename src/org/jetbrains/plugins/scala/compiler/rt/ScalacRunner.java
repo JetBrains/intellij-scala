@@ -28,7 +28,6 @@ public class ScalacRunner {
   public static final String SCALAC_QUALIFIED_NAME = "scala.tools.nsc.Main";
 
   public static void main(String[] args) {
-    System.out.println("preved!");
     if (args.length != 1) {
       System.err.println("ScalacRunner usage: ScalacRunner args_for_scalac_file");
       return;
