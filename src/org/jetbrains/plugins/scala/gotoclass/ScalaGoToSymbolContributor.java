@@ -11,12 +11,14 @@ import com.intellij.psi.PsiElement;
 
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable;
 import scala.Seq;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -32,6 +34,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
   }
 
   public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
+    final boolean searchAll = false;
     final GlobalSearchScope scope = includeNonProjectItems ? null : GlobalSearchScope.projectScope(project);
     final Collection<? extends NavigationItem> methods = StubIndex.getInstance().get(ScalaIndexKeys.METHOD_NAME_KEY(), name, project, scope);
     final Collection<? extends NavigationItem> types = StubIndex.getInstance().get(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY(), name, project, scope);
@@ -40,11 +43,20 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
 
     final ArrayList<NavigationItem> items = new ArrayList<NavigationItem>();
 
-    items.addAll(methods);
-    items.addAll(types);
-
+    if (searchAll) {
+      items.addAll(methods);
+      items.addAll(types);
+    }
+    else {
+      for (NavigationItem method : methods) {
+        if (!isLocal(method)) items.add(method);
+      }
+      for (NavigationItem type : types) {
+        if (!isLocal(type)) items.add(type);
+      }
+    }
     for (NavigationItem value : values) {
-      if (value instanceof ScValue) {
+      if (value instanceof ScValue && (!isLocal(value) || searchAll)) {
         final ScValue el = (ScValue) value;
         final Seq seq = el.declaredElements();
         for (int i = 0; i < seq.length(); ++i) {
@@ -55,7 +67,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
     }
 
     for (NavigationItem var : vars) {
-      if (var instanceof ScVariable) {
+      if (var instanceof ScVariable && (!isLocal(var) || searchAll)) {
         final ScVariable el = (ScVariable) var;
         final Seq seq = el.declaredElements();
         for (int i = 0; i < seq.length(); ++i) {
@@ -66,5 +78,15 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
     }
 
     return items.toArray(new NavigationItem[items.size()]);
+  }
+
+  private boolean isLocal(NavigationItem item) {
+    if (item instanceof PsiElement) {
+      PsiElement element = (PsiElement) item;
+      if (element.getParent() instanceof ScTemplateBody) {
+        return false;
+      }
+    }
+    return true;
   }
 }

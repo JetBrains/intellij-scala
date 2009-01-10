@@ -59,15 +59,6 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     }
   }
 
-  override def getPresentation(): ItemPresentation = {
-    new ItemPresentation() {
-      def getPresentableText(): String = name
-      def getTextAttributesKey(): TextAttributesKey = null
-      def getLocationString(): String = "(" + ScFunctionImpl.this.getContainingClass.getQualifiedName + ")"
-      override def getIcon(open: Boolean) = ScFunctionImpl.this.getIcon(0)
-    }
-  }
-
   def superMethods = TypeDefinitionMembers.getMethods(getContainingClass).
       get(new PhysicalSignature(this, ScSubstitutor.empty)) match {
     //partial match

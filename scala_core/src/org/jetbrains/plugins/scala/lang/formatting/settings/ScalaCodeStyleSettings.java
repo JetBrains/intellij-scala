@@ -71,6 +71,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
   public boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
 
+  public boolean SEARCH_ALL_SYMBOLS = false;
+
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);
   }

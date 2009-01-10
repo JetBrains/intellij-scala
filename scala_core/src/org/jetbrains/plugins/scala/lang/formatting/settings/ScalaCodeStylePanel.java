@@ -74,6 +74,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JSpinner linesAfterLBrace;
   private JCheckBox donTUseContinuationCheckBox;
   private JCheckBox addImportStatementInCheckBox;
+  private JCheckBox searchAllSymbolsIncludeCheckBox;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -184,6 +185,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = addUnambiguousImportsOnCheckBox.isSelected();
     scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = addImportStatementInCheckBox.isSelected();
     scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = (Integer) classCountSpinner.getValue();
+
+    scalaSettings.SEARCH_ALL_SYMBOLS = searchAllSymbolsIncludeCheckBox.isSelected();
   }
 
   private boolean getBoxValue(JCheckBox checkBox) {
@@ -306,6 +309,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND != (Integer) classCountSpinner.getValue()) return true;
     if (scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY != addUnambiguousImportsOnCheckBox.isSelected()) return true;
     if (scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE != addImportStatementInCheckBox.isSelected()) return true;
+
+    if (scalaSettings.SEARCH_ALL_SYMBOLS != searchAllSymbolsIncludeCheckBox.isSelected()) return true;
     return false;
   }
 
@@ -374,6 +379,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(addUnambiguousImportsOnCheckBox, settings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY);
     setValue(addImportStatementInCheckBox, settings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE);
     setValue(classCountSpinner, settings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND);
+    setValue(searchAllSymbolsIncludeCheckBox, settings.SEARCH_ALL_SYMBOLS);
   }
 
   private static void setValue(JSpinner spinner, int value) {
