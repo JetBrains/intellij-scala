@@ -16,16 +16,20 @@ class ScFunctionStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi]
 extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   private var name: StringRef = _
   private var declaration: Boolean = false
+  private var annotations: Seq[String] = Seq.empty
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
-          name: String, isDeclaration: Boolean) = {
+          name: String, isDeclaration: Boolean, annotations: Seq[String]) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
     this.declaration = isDeclaration
+    this.annotations = annotations
   }
 
   def getName: String = StringRef.toString(name)
 
   def isDeclaration = declaration
+
+  def getAnnotations: Seq[String] = annotations
 }
