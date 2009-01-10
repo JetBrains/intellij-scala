@@ -8,6 +8,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMember;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 
 import java.util.Collection;
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable;
 import scala.Seq;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
+
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -34,7 +37,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
   }
 
   public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
-    final boolean searchAll = false;
+    final boolean searchAll = CodeStyleSettingsManager.getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class).SEARCH_ALL_SYMBOLS;
     final GlobalSearchScope scope = includeNonProjectItems ? null : GlobalSearchScope.projectScope(project);
     final Collection<? extends NavigationItem> methods = StubIndex.getInstance().get(ScalaIndexKeys.METHOD_NAME_KEY(), name, project, scope);
     final Collection<? extends NavigationItem> types = StubIndex.getInstance().get(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY(), name, project, scope);

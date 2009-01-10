@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatting.settings;
 
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 
 /**
  * User: Alexander Podkhalyuzin
