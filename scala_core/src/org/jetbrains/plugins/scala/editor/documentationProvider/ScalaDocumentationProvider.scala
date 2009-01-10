@@ -52,7 +52,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
   }
 
   def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
-    val e = getDocedElement(originalElement)
+    val e = getDocedElement(element)
     e match {
       case null =>
       case _: ScTypeAlias => //todo:
@@ -67,7 +67,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
           case _: PsiComment =>text.append(prev.getText + "\n")
           case _ =>
         }
-        text.append("class " + originalElement.getText)
+        text.append("class " + x.getName)
         if (x.supers.length > 0) {
           text.append(" extends ")
           for (sup <- x.supers) {
@@ -77,7 +77,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
         }
         text.append(" {\n}")
         val dummyFile: PsiJavaFile = PsiFileFactory.getInstance(element.getProject).
-                createFileFromText(originalElement.getText + ".java", text.toString).asInstanceOf[PsiJavaFile]
+                createFileFromText(x.getName + ".java", text.toString).asInstanceOf[PsiJavaFile]
         val elem = dummyFile.getClasses.apply(0)
         return JavaDocumentationProvider.generateExternalJavadoc(elem)
       }
