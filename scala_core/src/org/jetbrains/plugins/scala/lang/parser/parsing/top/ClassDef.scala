@@ -50,7 +50,7 @@ object ClassDef {
         ClassParamClauses parse builder
         isPrimary = true
       }
-      case _ => {/*it could be without class parameters clausese*/}
+      case _ => builder.mark.done(ScalaElementTypes.PARAM_CLAUSES)
     }
     if (isPrimary) constructorMarker.done(ScalaElementTypes.PRIMARY_CONSTRUCTOR)
     else constructorMarker.rollbackTo

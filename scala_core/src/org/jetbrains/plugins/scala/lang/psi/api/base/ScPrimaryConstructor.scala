@@ -12,15 +12,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 trait ScPrimaryConstructor extends ScMember {
   /**
-   *  Returns does constructor have annotation
-   *
    *  @return has annotation
    */
   def hasAnnotation: Boolean
 
   /**
-   *  Returns does constructor have access modifier
-   *
    *  @return has access modifier
    */
   def hasModifier: Boolean
