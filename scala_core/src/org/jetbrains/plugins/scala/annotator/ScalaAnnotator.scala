@@ -84,6 +84,8 @@ class ScalaAnnotator extends Annotator
       case None =>
         refElement.getParent match {
           case s: ScImportSelector if refElement.multiResolve(false).length > 0 =>
+          case infix: ScInfixExpr if infix.operation == refElement => //todo: remove when resolve of infix operators will work.
+          case prefix: ScPrefixExpr if prefix.operation == refElement => //todo: remove when resolve of prefix operators will work.
           case _ => processError
         }
       case Some(result) => {
