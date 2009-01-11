@@ -120,6 +120,7 @@ object ScType {
     case ScFunctionType(rt, args) => {
       val facade = JavaPsiFacade.getInstance(project)
       val c : PsiClass = facade.findClass("scala.Function" + (args.length))
+      if (c == null) return JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
       val typeParams = c.getTypeParameters
       val subst = (args ++ Seq(rt)).toArray[ScType].zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY){
         case (s, (targ, tp)) => {
@@ -133,6 +134,7 @@ object ScType {
     case ScTupleType(args) => {
       val facade = JavaPsiFacade.getInstance(project)
       val c : PsiClass = facade.findClass("scala.Tuple" + (args.length))
+      if (c == null) return JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
       val typeParams = c.getTypeParameters
       val subst = args.toArray[ScType].zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY){
         case (s, (targ, tp)) => {
