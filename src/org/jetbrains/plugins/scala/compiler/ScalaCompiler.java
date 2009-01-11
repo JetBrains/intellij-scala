@@ -15,8 +15,6 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.JavaModuleType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
@@ -41,14 +39,8 @@ public class ScalaCompiler implements TranslatingCompiler {
     public boolean isCompilableFile(VirtualFile file, CompileContext context) {
         final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
 
-      final Module module = context.getModuleByFile(file);
-
-      return fileType.equals(ScalaFileType.SCALA_FILE_TYPE) ||
-                context.getProject() != null &&
-                    fileType.equals(StdFileTypes.JAVA) &&
-                    ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE &&
-                    module != null &&
-                    module.getModuleType() instanceof JavaModuleType;
+        return fileType.equals(ScalaFileType.SCALA_FILE_TYPE) ||
+                context.getProject() != null && ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE && fileType.equals(StdFileTypes.JAVA);
     }
 
     public ExitStatus compile(CompileContext context, VirtualFile[] files) {
