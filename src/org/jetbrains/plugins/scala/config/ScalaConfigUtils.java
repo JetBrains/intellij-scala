@@ -58,7 +58,7 @@ import java.util.jar.JarFile;
  * @author ilyas
  */
 public class ScalaConfigUtils {
-  private static final String SCALA_STARTER_FILE_NAME = "scala";
+  private static final String SCALA_MAIN_LIB = "scala-library.jar";
   public static final String UNDEFINED_VERSION = "undefined";
   public static final String SCALA_LIB_PREFIX = "scala-";
 
@@ -91,11 +91,11 @@ public class ScalaConfigUtils {
 
   private static void processFilesUnderScalaSDKRoot(VirtualFile file, final Processor<VirtualFile> processor) {
     if (file != null && file.isDirectory()) {
-      final VirtualFile child = file.findChild("bin");
+      final VirtualFile child = file.findChild("lib");
 
       if (child != null && child.isDirectory()) {
         for (VirtualFile grandChild : child.getChildren()) {
-          if (SCALA_STARTER_FILE_NAME.equals(grandChild.getNameWithoutExtension())) {
+          if (SCALA_MAIN_LIB.equals(grandChild.getNameWithoutExtension())) {
             if (!processor.process(grandChild)) return;
           }
         }

@@ -36,8 +36,12 @@ object DecompilerUtil {
     val read = isScalaCompiledAttribute.readAttribute(file)
     if (read != null) try {read.readBoolean} finally {read.close} else {
       val byteCode = ByteCode(bytes)
-      val classFile = ClassFileParser.parse(byteCode)
-      val isScala = classFile.attribute("ScalaSig") match {case Some(_) => true; case None => false}
+      val isScala = try {
+        val classFile = ClassFileParser.parse(byteCode)
+        classFile.attribute("ScalaSig") match {case Some(_) => true; case None => false}
+      } catch {
+        case _ => false
+      }
       val write = isScalaCompiledAttribute.writeAttribute(file)
       write.writeBoolean(isScala)
       write.close
