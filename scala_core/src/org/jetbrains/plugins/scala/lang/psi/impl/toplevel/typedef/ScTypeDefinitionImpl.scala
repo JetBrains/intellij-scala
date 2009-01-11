@@ -243,4 +243,10 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
       }
     } else PsiClassType.EMPTY_ARRAY
   }
+
+
+  override def getDocComment: PsiDocComment = super[ScTypeDefinition].getDocComment
+
+
+  override def isDeprecated: Boolean = super[ScTypeDefinition].isDeprecated
 }

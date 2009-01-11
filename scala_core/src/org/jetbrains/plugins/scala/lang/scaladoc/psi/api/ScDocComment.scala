@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.scaladoc.psi.api
 
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.PsiComment
 
 /**
@@ -9,6 +10,6 @@ import com.intellij.psi.PsiComment
 * Date: 22.07.2008
 */
 
-trait ScDocComment extends PsiComment with ScalaPsiElement {
+trait ScDocComment extends PsiDocComment with ScalaPsiElement {
 
 }
