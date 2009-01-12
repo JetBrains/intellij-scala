@@ -58,7 +58,7 @@ import java.util.jar.JarFile;
  * @author ilyas
  */
 public class ScalaConfigUtils {
-  private static final String SCALA_MAIN_LIB = "scala-library.jar";
+  private static final String SCALA_MAIN_LIB = "scala-library";
   public static final String UNDEFINED_VERSION = "undefined";
   public static final String SCALA_LIB_PREFIX = "scala-";
 
