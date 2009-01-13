@@ -300,7 +300,7 @@ object TypeDefinitionMembers {
   }
 
   def shouldProcessTypes(processor: PsiScopeProcessor) = processor match {
-    case BaseProcessor(kinds) => kinds contains CLASS
+    case BaseProcessor(kinds) => (kinds contains CLASS)  || (kinds contains METHOD)
     case _ => false //important: do not process inner classes!
   }
 }

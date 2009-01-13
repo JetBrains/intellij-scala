@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 
+import api.statements.ScDeclaredElementsHolder
+import api.toplevel.ScNamedElement
+import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -19,11 +22,40 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 07.03.2008
-*/
+/**
+ * @author Alexander Podkhalyuzin
+ * Date: 07.03.2008
+ */
 
-class ScExistentialClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScExistentialClause{
+class ScExistentialClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExistentialClause {
   override def toString: String = "ExistentialClause"
+
+
+  override def processDeclarations(processor: PsiScopeProcessor,
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
+    import org.jetbrains.plugins.scala.lang.resolve._
+
+    if (lastParent != null) {
+      var run = lastParent
+      while (run != null) {
+        if (!processElement(run, processor, state)) return false
+        run = run.getPrevSibling
+      }
+    }
+    true
+  }
+
+  private def processElement(e: PsiElement, processor: PsiScopeProcessor, state: ResolveState): Boolean = e match {
+    case named: ScNamedElement => processor.execute(named, state)
+    case holder: ScDeclaredElementsHolder => {
+      for (declared <- holder.declaredElements) {
+        if (!processor.execute(declared, state)) return false
+      }
+      true
+    }
+    case _ => true
+  }
+
 }

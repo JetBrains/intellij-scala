@@ -45,14 +45,14 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiPackage {
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    processor match {
+     processor match {
       case bp: BaseProcessor => {
         if (bp.kinds.contains(PACKAGE)) {
           for (subp <- getSubPackages) {
             if (!processor.execute(subp, state)) return false
           }
         }
-        if (bp.kinds.contains(CLASS) || bp.kinds.contains(OBJECT)) {
+        if (bp.kinds.contains(CLASS) || bp.kinds.contains(OBJECT) || bp.kinds.contains(METHOD)) {
           for (clazz <- getClasses) {
             if (!processor.execute(clazz, state)) return false
           }
