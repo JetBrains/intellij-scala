@@ -88,7 +88,7 @@ class ScalaAnnotator extends Annotator
     refElement.bind() match {
       case None =>
         refElement match {
-          case e: ScReferenceExpression => processError(false, getFixes)
+          case e: ScReferenceExpression => //todo implement! processError(false, getFixes)
           case _ => refElement.getParent match {
             case s: ScImportSelector if refElement.multiResolve(false).length > 0 =>
             case infix: ScInfixExpr if infix.operation == refElement => //todo: remove when resolve of infix operators will work.
