@@ -109,10 +109,6 @@ extends SyntheticNamedElement(manager, name) with ScFun {
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 
-object SyntheticClasses {
-  def get(project: Project) = project.getComponent(classOf[SyntheticClasses])
-}
-
 class SyntheticClasses(project: Project) extends ProjectComponent with PsiElementFinder {
   def projectOpened {}
   def projectClosed {}
@@ -249,3 +245,8 @@ class SyntheticClasses(project: Project) extends ProjectComponent with PsiElemen
 
   def getClasses(p : PsiPackage, scope : GlobalSearchScope) = findClasses(p.getQualifiedName, scope)
 }
+
+object SyntheticClasses {
+  def get(project: Project) = project.getComponent(classOf[SyntheticClasses])
+}
+
