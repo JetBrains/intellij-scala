@@ -147,7 +147,10 @@ private object ScalaDocumentationProvider {
   def generateFunctionInfo(function: ScFunction): String = {
     val buffer = new StringBuilder
     buffer.append(getMemberHeader(function))
-    buffer.append(ScalaPsiUtil.getModifiersPresentableText(function.getModifierList))
+    val list = function.getModifierList
+    if (list != null) {
+      buffer.append(ScalaPsiUtil.getModifiersPresentableText(list))
+    }
     buffer.append("def ")
     buffer.append(ScalaPsiUtil.getMethodPresentableText(function))
     buffer.toString
