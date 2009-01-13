@@ -125,7 +125,7 @@ object Conformance {
   private def rightRec(l: ScType, r: ScType, visited : Set[PsiClass]) : Boolean = r match {
     case sin : ScSingletonType => conforms(l, sin.pathType) 
 
-    case ScDesignatorType(td: ScTypeDefinition) => td.superTypes.find {t => conforms(l, t, visited + td)}
+    case ScDesignatorType(td: ScTypeDefinition) => if (visited.contains(td)) false else td.superTypes.find {t => conforms(l, t, visited + td)}
     case ScDesignatorType(clazz: PsiClass) =>
     clazz.getSuperTypes.find {t => conforms(l, ScType.create(t, clazz.getProject), visited + clazz)}
 
@@ -136,7 +136,14 @@ object Conformance {
       }
     }
 
-    case ScPolymorphicType(_, _, _, upper) => conforms(l, upper.v)
+    case ScPolymorphicType(_, _, _, upper) => {
+      val uBound = upper.v
+      ScType.extractClassType(uBound) match {
+        case Some((pc, _)) if visited.contains(pc) => conforms(l, ScDesignatorType(pc), visited + pc)
+        case Some((pc, _)) => conforms(l, uBound, visited + pc)
+        case None => conforms(l, uBound, visited)
+      }
+    }
     case ScSkolemizedType(_, _, _, upper) => conforms(l, upper)
 
     case p@ScParameterizedType(ScDesignatorType(td: ScTypeDefinition), _) => {

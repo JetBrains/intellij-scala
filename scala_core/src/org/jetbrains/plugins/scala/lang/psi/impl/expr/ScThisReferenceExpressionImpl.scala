@@ -18,7 +18,7 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
   override def getType = refClass match {
     case Some(td) => {
       val des = new ScDesignatorType(td)
-      td.selfType match {
+       td.selfType match {
         case Some(t) => Bounds.glb(des, t)
         case None => des
       }

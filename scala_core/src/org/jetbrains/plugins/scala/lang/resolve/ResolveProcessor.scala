@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.resolve
 import psi.api.base.patterns.ScReferencePattern
 import psi.api.base.ScReferenceElement
 import psi.api.statements.{ScFunction, ScVariableDefinition, ScPatternDefinition, ScFun}
-import psi.api.toplevel.typedef.ScObject
+import psi.api.toplevel.typedef.{ScClass, ScObject}
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.api.statements.params.ScTypeParam
 import psi.api.toplevel.ScTyped
@@ -84,6 +84,10 @@ class MethodResolveProcessor(ref : ScReferenceElement, args : Seq[ScType],
       element match {
         case m : PsiMethod => {
           candidatesSet += new ScalaResolveResult(m, s.incl(inferMethodTypesArgs(m, s)))
+          true
+        }
+        case cc : ScClass if (cc.isCase) => {
+          candidatesSet += new ScalaResolveResult(cc, s) //todo add all constructors
           true
         }
         case o: ScObject => {

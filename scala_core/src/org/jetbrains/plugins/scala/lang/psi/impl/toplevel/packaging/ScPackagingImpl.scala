@@ -14,12 +14,13 @@ import psi.stubs.elements.wrappers.DummyASTNode
 
 /**
  * @author AlexanderPodkhalyuzin
-* Date: 20.02.2008
+ * Date: 20.02.2008
  */
 
-class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with ScPackaging {
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScPackageContainerStub) = {this(); setStub(stub); setNode(null)}
+class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with ScPackaging with ScImportsHolder with ScDeclarationSequenceHolder {
+  def this(node: ASTNode) = {this (); setNode(node)}
+
+  def this(stub: ScPackageContainerStub) = {this (); setStub(stub); setNode(null)}
 
   override def toString = "ScPackaging"
 
@@ -31,7 +32,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
   }
 
   private def innerRefName() = {
-    def _innerRefName(ref : ScStableCodeReferenceElement) : String = ref.qualifier match {
+    def _innerRefName(ref: ScStableCodeReferenceElement): String = ref.qualifier match {
       case Some(q) => _innerRefName(q)
       case None => ref.refName
     }
@@ -41,7 +42,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
   def ownNamePart = reference match {case Some(r) => r.qualName case None => ""}
 
   def prefix = {
-    def parentPackageName(e : PsiElement): String = e.getParent match {
+    def parentPackageName(e: PsiElement): String = e.getParent match {
       case p: ScPackaging => {
         val _packName = parentPackageName(p)
         if (_packName.length > 0) _packName + "." + p.getPackageName else p.getPackageName
@@ -73,6 +74,15 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
     val top = if (i > 0) own.substring(0, i) else own
 
     var p = JavaPsiFacade.getInstance(getProject).findPackage(concat(prefix, top))
-    p == null || p.processDeclarations(processor, state, lastParent, place)
+    if (!(p == null || p.processDeclarations(processor, state, lastParent, place))) {
+      return false
+    }
+
+    if (lastParent != null && lastParent.getParent == this) {
+      if (!super[ScImportsHolder].processDeclarations(processor,
+        state, lastParent, place)) return false
+    }
+
+    true
   }
 }

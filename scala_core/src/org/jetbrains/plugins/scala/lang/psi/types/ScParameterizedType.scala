@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 /**
-* @author ilyas
-*/
+ * @author ilyas
+ */
 
 import api.toplevel.typedef._
 import api.statements.{ScTypeAliasDefinition, ScTypeAlias}
@@ -30,13 +30,13 @@ case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) ex
     case Some((e, _)) => Some(e)
     case _ => None
   }
-  
+
   val substitutor : ScSubstitutor = {
     val (params, initial) = designator match {
       case ScPolymorphicType(_, args, _, _) => (args, ScSubstitutor.empty)
       case _ => ScType.extractDesignated(designator) match {
-        case Some((owner : ScTypeParametersOwner, s)) => (owner.typeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}, s)
-        case Some((owner : PsiTypeParameterListOwner, s)) => (owner.getTypeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}, s)
+        case Some((owner: ScTypeParametersOwner, s)) => (owner.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}, s)
+        case Some((owner: PsiTypeParameterListOwner, s)) => (owner.getTypeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}, s)
         case _ => (Seq.empty, ScSubstitutor.empty)
       }
     }
@@ -96,7 +96,10 @@ extends ScPolymorphicType(alias.name, args, lower, upper) {
     override def equiv(t: ScType) = t match {
       case tat : ScTypeAliasType => alias == tat.alias && {
         val s = args.zip(tat.args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._2.name, p._1)}
-        lower.v.equiv(s.subst(tat.lower.v)) && upper.v.equiv(s.subst(tat.upper.v))
+        (CyclicHelper.compute(alias, tat.alias)(() => lower.v.equiv(s.subst(tat.lower.v)) && upper.v.equiv(s.subst(tat.upper.v))) match {
+          case None => true
+          case Some(b) => b
+        })
       }
       case _ => false
     }
@@ -107,19 +110,43 @@ extends ScPolymorphicType(alias.name, args, lower, upper) {
       new Suspension[ScType]({() => s.subst(ta.upperBound)}))
 }
 
-case class ScTypeParameterType(override val name : String, override val args : List[ScTypeParameterType],
-                               override val lower : Suspension[ScType], override val upper : Suspension[ScType])
+case class ScTypeParameterType(override val name: String, override val args: List[ScTypeParameterType],
+                              override val lower: Suspension[ScType], override val upper: Suspension[ScType],
+                              param: PsiTypeParameter)
 extends ScPolymorphicType(name, args, lower, upper) {
   def this(tp : ScTypeParam, s : ScSubstitutor) =
     this(tp.name, tp.typeParameters.toList.map{new ScTypeParameterType(_, s)},
       new Suspension[ScType]({() => s.subst(tp.lowerBound)}),
-      new Suspension[ScType]({() => s.subst(tp.upperBound)}))
+      new Suspension[ScType]({() => s.subst(tp.upperBound)}),
+      tp)
 
   override def equiv(t: ScType) = t match {
     case stp: ScTypeParameterType => (t eq this) ||
-            lower.v.equiv(stp.lower.v) && upper.v.equiv(stp.upper.v)
+      (CyclicHelper.compute(param, stp.param)(() => lower.v.equiv(stp.lower.v) && upper.v.equiv(stp.upper.v)) match {
+        case None => true
+        case Some(b) => b
+      })
     case _ => false
   }
 }
 
-case class ScTypeVariable(name : String) extends ScType
+private[types] object CyclicHelper {
+  private var pairs: List[(PsiNamedElement, PsiNamedElement)] = Nil
+
+  def compute[R](pn1: PsiNamedElement, pn2: PsiNamedElement)(fun: () => R): Option[R] = {
+    pairs.find(p => p._1 == pn1 && p._2 == pn2 || p._1 == pn2 && p._2 == pn1) match {
+      case Some(_) => {
+        pairs = Nil
+        None
+      }
+      case None => {
+        pairs = (pn1, pn2) :: pairs
+        val res = Some(fun.apply)
+        pairs = pairs - (pn1, pn2) 
+        res
+      }
+    }
+  }
+}
+
+case class ScTypeVariable(name: String) extends ScType

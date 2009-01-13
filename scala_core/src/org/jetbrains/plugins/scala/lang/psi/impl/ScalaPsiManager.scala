@@ -57,7 +57,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
           val inner = stp.typeParameters.map{typeVariable(_)}.toList
           val lower = () => stp.lowerBound
           val upper = () => stp.upperBound
-          val res = new ScTypeParameterType(stp.name, inner, lower, upper)
+          val res = new ScTypeParameterType(stp.name, inner, lower, upper, stp)
           typeVariables.put(tp, res)
           res
         }
@@ -67,7 +67,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
             case Array(single) => ScType.create(single, project)
             case many => new ScCompoundType(many.map{ScType.create(_, project)}, Seq.empty, Seq.empty)
           }
-          val res = new ScTypeParameterType(tp.getName, Nil, lower, upper)
+          val res = new ScTypeParameterType(tp.getName, Nil, lower, upper, tp)
           typeVariables.put(tp, res)
           res
         }
