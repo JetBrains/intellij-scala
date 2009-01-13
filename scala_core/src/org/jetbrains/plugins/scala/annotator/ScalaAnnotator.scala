@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.psi.search.GlobalSearchScope
 import com.jniwrapper.A
 import compilerErrors.CyclicReferencesSearcher
@@ -71,23 +72,30 @@ class ScalaAnnotator extends Annotator
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
 
-    def processError = {
-      val error = ScalaBundle.message("cannot.resolve", refElement.refName)
-      val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-      if (refElement.getManager.isInProject(refElement) && refElement.multiResolve(false).length == 0) {
-        registerAddImportFix(refElement, annotation)
+    def getFixes = OuterImportsActionCreator.getOuterImportFixes(refElement, refElement.getProject())
+
+    def processError(countError: Boolean, fixes: => Seq[IntentionAction]) = {
+      //todo remove when resolve of unqualified expression will be fully implemented
+      if (refElement.getManager.isInProject(refElement) && refElement.multiResolve(false).length == 0 &&
+              (fixes.length > 0 || countError)) {
+        val error = ScalaBundle.message("cannot.resolve", refElement.refName)
+        val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+        annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+        registerAddImportFix(refElement, annotation, fixes: _*)
       }
     }
 
     refElement.bind() match {
       case None =>
-        refElement.getParent match {
-          case s: ScImportSelector if refElement.multiResolve(false).length > 0 =>
-          case infix: ScInfixExpr if infix.operation == refElement => //todo: remove when resolve of infix operators will work.
-          case prefix: ScPrefixExpr if prefix.operation == refElement => //todo: remove when resolve of prefix operators will work.
-          case _ if refElement.isInstanceOf[ScReferenceExpression] && refElement.multiResolve(false).length > 0 => //todo: Resolve for Some token
-          case _ => processError
+        refElement match {
+          case e: ScReferenceExpression => processError(false, getFixes)
+          case _ => refElement.getParent match {
+            case s: ScImportSelector if refElement.multiResolve(false).length > 0 =>
+            case infix: ScInfixExpr if infix.operation == refElement => //todo: remove when resolve of infix operators will work.
+            case prefix: ScPrefixExpr if prefix.operation == refElement => //todo: remove when resolve of prefix operators will work.
+            case _ if refElement.isInstanceOf[ScReferenceExpression] && refElement.multiResolve(false).length > 0 => //todo: Resolve for Some token
+            case _ => processError(true, getFixes)
+          }
         }
       case Some(result) => {
         registerUsedImports(refElement, result)
@@ -110,8 +118,7 @@ class ScalaAnnotator extends Annotator
     }
   }
 
-  private def registerAddImportFix(refElement: ScReferenceElement, annotation: Annotation) {
-    val actions = OuterImportsActionCreator.getOuterImportFixes(refElement, refElement.getProject())
+  private def registerAddImportFix(refElement: ScReferenceElement, annotation: Annotation, actions: IntentionAction*) {
     for (action <- actions) {
       annotation.registerFix(action)
     }
@@ -131,7 +138,7 @@ class ScalaAnnotator extends Annotator
       val error = clazz match {
         case _: ScClass => ScalaBundle.message("class.must.declared.abstract", clazz.getName)
         case _: ScObject => ScalaBundle.message("object.must.implement", clazz.getName)
-        case _: ScNewTemplateDefinition =>ScalaBundle.message("anonymous.class.must.declared.abstract")
+        case _: ScNewTemplateDefinition => ScalaBundle.message("anonymous.class.must.declared.abstract")
       }
       val start = clazz.getTextRange.getStartOffset
       val eb = clazz.extendsBlock
@@ -163,13 +170,13 @@ class ScalaAnnotator extends Annotator
       if (!method.hasModifierProperty("override") && !method.isInstanceOf[ScFunctionDeclaration]) {
         def isConcrete(signature: FullSignature): Boolean = if (signature.element.isInstanceOf[PsiNamedElement])
           ScalaPsiUtil.nameContext(signature.element.asInstanceOf[PsiNamedElement]) match {
-          case _: ScFunctionDefinition => true
-          case method: PsiMethod if !method.hasModifierProperty(PsiModifier.ABSTRACT) && !method.isConstructor => true
-          case _: ScPatternDefinition => true
-          case _: ScVariableDeclaration => true
-          case _: ScClassParameter => true
-          case _ => false
-        } else false
+            case _: ScFunctionDefinition => true
+            case method: PsiMethod if !method.hasModifierProperty(PsiModifier.ABSTRACT) && !method.isConstructor => true
+            case _: ScPatternDefinition => true
+            case _: ScVariableDeclaration => true
+            case _: ScClassParameter => true
+            case _ => false
+          } else false
         def isConcretes: Boolean = {
           for (signature <- signatures if isConcrete(signature)) return true
           return false
