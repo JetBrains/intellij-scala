@@ -48,7 +48,10 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   override def getUseScope = new LocalSearchScope(getDeclarationScope)
 
   def calcType() = typeElement match {
-    case None => Nothing //todo inference here
+    case None => expectedType match {
+      case Some(t) => t
+      case None => Nothing
+    }
     case Some(e) => e.getType
   }
 
@@ -65,5 +68,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   def getType: PsiType = ScType.toPsi(calcType, getProject, getResolveScope)
 
   def getModifierList = findChildByClass(classOf[ScModifierList])
+
+  def expectedType : Option[ScType] = None
 
 }

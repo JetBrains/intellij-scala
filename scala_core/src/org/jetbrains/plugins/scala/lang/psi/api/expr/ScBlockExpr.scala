@@ -13,5 +13,4 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 */
 
 trait ScBlockExpr extends ScExpression with ScBlock {
-  
 }

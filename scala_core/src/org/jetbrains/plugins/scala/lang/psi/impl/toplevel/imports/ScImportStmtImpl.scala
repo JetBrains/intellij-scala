@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
 
+import _root_.org.jetbrains.plugins.scala.lang.resolve.{ResolverEnv, BaseProcessor}
 import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
@@ -13,14 +14,13 @@ import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.icons.Icons
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
-import org.jetbrains.plugins.scala.lang.resolve.ResolverEnv
 import com.intellij.psi._
 import _root_.scala.collection.mutable.HashSet
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 20.02.2008
-*/
+/**
+ * @author Alexander Podkhalyuzin
+ * Date: 20.02.2008
+ */
 
 class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScImportStmt {
   override def toString: String = "ScImportStatement"
@@ -30,11 +30,11 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,
-                                   place: PsiElement): Boolean = {
+                                  place: PsiElement): Boolean = {
     for (e <- importExprs) {
       if (e == lastParent) return true
       val elems = e.reference match {
-        case Some(ref) => ref.multiResolve(false).map {_.getElement}
+        case Some(ref) => ref.multiResolve(false).map{_.getElement}
         case _ => Seq.empty
       }
 
@@ -55,17 +55,23 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
               }
             }
             if (set.hasWildcard) {
-              val p1 = new PsiScopeProcessor {
-                def getHint[T](hintClass: Class[T]): T = processor.getHint(hintClass)
+              processor match {
+                case bp: BaseProcessor => {
+                  val p1 = new BaseProcessor(bp.kinds) {
+                    override def getHint[T](hintClass: Class[T]): T = processor.getHint(hintClass)
 
-                def handleEvent(event: PsiScopeProcessor.Event, associated: Object) =
-                  processor.handleEvent(event, associated)
+                    override def handleEvent(event: PsiScopeProcessor.Event, associated: Object) =
+                      processor.handleEvent(event, associated)
 
-                def execute(element: PsiElement, state: ResolveState): Boolean = {
-                  if (shadowed.contains(element)) true else processor.execute(element, state)
+                    override def execute(element: PsiElement, state: ResolveState): Boolean = {
+                      if (shadowed.contains(element)) true else processor.execute(element, state)
+                    }
+                  }
+                  if (!elem.processDeclarations(p1, state, null, place)) return false
                 }
+                case _  => true
               }
-              if (!elem.processDeclarations(p1, state, null, place)) return false
+
             }
           }
         }
