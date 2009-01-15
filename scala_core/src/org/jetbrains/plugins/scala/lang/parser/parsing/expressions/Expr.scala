@@ -17,7 +17,7 @@ object Expr {
   def parse(builder: PsiBuilder): Boolean = {
     val exprMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER=> {
         val pmarker = builder.mark
         builder.advanceLexer //Ate id
         builder.getTokenType match {

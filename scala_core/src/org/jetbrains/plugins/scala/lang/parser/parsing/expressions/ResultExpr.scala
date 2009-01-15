@@ -39,7 +39,7 @@ object ResultExpr {
         Bindings parse builder
         return parseFunctionEnd
       }
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER=> {
         val pmarker = builder.mark
         builder.advanceLexer //Ate id
         if (ScalaTokenTypes.tCOLON == builder.getTokenType) {
