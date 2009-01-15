@@ -297,6 +297,7 @@
       <batchtest todir="${base.dir}/logs">
         <fileset dir="../classes/test/Scala">
           <include name="**/*Test.class"/>
+          <exclude name="**/*ActualTest.class"/>
         </fileset>
       </batchtest>
 
