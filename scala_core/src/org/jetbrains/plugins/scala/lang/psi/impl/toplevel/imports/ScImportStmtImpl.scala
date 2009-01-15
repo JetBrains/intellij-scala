@@ -67,7 +67,7 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
                       if (shadowed.contains(element)) true else processor.execute(element, state)
                     }
                   }
-                  if (!elem.processDeclarations(p1, state, null, place)) return false
+                  if (!elem.processDeclarations(p1, state, this, place)) return false
                 }
                 case _  => true
               }
