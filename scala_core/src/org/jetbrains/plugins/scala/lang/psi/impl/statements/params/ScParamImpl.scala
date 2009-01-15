@@ -30,8 +30,11 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
-  def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
-  
+  def nameId = {
+    val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+    if (id == null) findChildByType(ScalaTokenTypes.tUNDER) else id
+  }
+
   def paramType = findChild(classOf[ScParameterType])
 
   def getDeclarationScope = PsiTreeUtil.getParentOfType(this, classOf[ScParameterOwner])
