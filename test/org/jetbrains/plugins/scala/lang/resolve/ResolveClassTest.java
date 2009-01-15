@@ -4,6 +4,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
@@ -27,6 +28,20 @@ public class ResolveClassTest extends ScalaResolveTestCase {
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScTrait);
     assertEquals(((PsiClass) resolved).getQualifiedName(), "org.MyTrait");
+  }
+
+  public void testWildcardImport() throws Exception {
+    PsiReference ref = configureByFile("wild/A.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScClass);
+    assertEquals(((PsiClass) resolved).getQualifiedName(), "bbb.BB");
+  }
+
+  public void testWildcardImport2() throws Exception {
+    PsiReference ref = configureByFile("wild2/A.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScClass);
+    assertEquals(((PsiClass) resolved).getQualifiedName(), "Foo.BB");
   }
 
   public void testLocalClass2() throws Exception {
