@@ -20,6 +20,8 @@ trait ScParameter extends ScNamedElement with ScTyped with PsiParameter {
 
   def getTypeElement: PsiTypeElement
 
+  def isWildcard: Boolean = "_" == name
+
   def typeElement: Option[ScTypeElement]
 
   def paramType: Option[ScParameterType]

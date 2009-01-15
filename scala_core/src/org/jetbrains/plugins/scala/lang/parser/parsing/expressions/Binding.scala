@@ -17,7 +17,7 @@ object Binding {
   def parse(builder: PsiBuilder): Boolean = {
     val bindingMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER => {
         builder.advanceLexer //Ate id
       }
       case _ => {
