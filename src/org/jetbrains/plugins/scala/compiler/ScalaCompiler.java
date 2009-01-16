@@ -40,7 +40,9 @@ public class ScalaCompiler implements TranslatingCompiler {
         final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
 
         return fileType.equals(ScalaFileType.SCALA_FILE_TYPE) ||
-                context.getProject() != null && ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE && fileType.equals(StdFileTypes.JAVA);
+                context.getProject() != null && ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE &&
+                    fileType.equals(StdFileTypes.JAVA) &&
+                    !context.getModuleByFile(file).getModuleType().getId().equals("J2ME_MODULE");
     }
 
     public ExitStatus compile(CompileContext context, VirtualFile[] files) {
