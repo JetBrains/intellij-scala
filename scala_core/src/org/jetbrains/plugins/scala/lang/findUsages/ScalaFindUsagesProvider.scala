@@ -57,7 +57,7 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
 
   @NotNull
   override def getDescriptiveName(element: PsiElement): String = {
-    element match {
+    val name = element match {
       case c: PsiClass => c.getQualifiedName
       case x: PsiMethod => PsiFormatUtil.formatMethod(x, PsiSubstitutor.EMPTY,
         PsiFormatUtil.SHOW_NAME | PsiFormatUtil.SHOW_PARAMETERS,
@@ -67,6 +67,7 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
       case x: ScNamedElement => x.getName
       case _ => element.getText
     }
+    if (name == null) return "null" else name
   }
 
   @NotNull
