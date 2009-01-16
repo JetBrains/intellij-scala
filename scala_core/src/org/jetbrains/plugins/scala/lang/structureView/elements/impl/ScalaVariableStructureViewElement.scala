@@ -17,7 +17,7 @@ import com.intellij.psi._
 * Date: 05.05.2008
 */
 
-class ScalaVariableStructureViewElement(private val element: PsiElement, val isInherited: Boolean) extends ScalaStructureViewElement(element) {
+class ScalaVariableStructureViewElement(private val element: PsiElement, val isInherited: Boolean) extends ScalaStructureViewElement(element, isInherited) {
   def getPresentation(): ItemPresentation = {
     return new ScalaVariableItemPresentation(element, isInherited);
   }

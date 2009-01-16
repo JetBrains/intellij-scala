@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 * Date: 04.05.2008
 */
 
-class ScalaFileStructureViewElement(file: ScalaFile) extends ScalaStructureViewElement(file) {
+class ScalaFileStructureViewElement(file: ScalaFile) extends ScalaStructureViewElement(file, false) {
   def getPresentation(): ItemPresentation = {
     return new ScalaFileItemPresentation(file);
   }
