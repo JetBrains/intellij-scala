@@ -97,7 +97,7 @@ object ScalaRefactoringUtil {
       parent match {
         case null =>
         case x: ScBlock if x != expr =>
-        case _: ScEnumerators =>
+        //todo: case _: ScEnumerators =>
         case _: ScExpression => parent.getParent match {
           case _: ScForStatement | _: ScCaseClause |
                _: ScFinallyBlock | _: ScFunctionDefinition =>

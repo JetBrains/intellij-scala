@@ -53,10 +53,14 @@ class ScalaDocumentationProvider extends DocumentationProvider {
   }
 
   def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
-    val e = getDocedElement(element)
+    var e = getDocedElement(element).getNavigationElement
     e match {
       case clazz: ScTypeDefinition => {
         val buffer: StringBuilder = new StringBuilder("")
+
+        buffer.append("<PRE>")
+        clazz.annotations
+        buffer.append("</PRE>")
         val comment = clazz.docComment
         comment match {
           case Some(x) => {
@@ -68,6 +72,17 @@ class ScalaDocumentationProvider extends DocumentationProvider {
           case None =>
         }
         return "<html><body>" + buffer.toString + "</body></html>"
+      }
+      case _: ScFunction => {
+        //tested code
+        val codeText = """
+         @Annotation(x = 2)
+         class Test
+         """
+        val dummyFile: PsiJavaFile = PsiFileFactory.getInstance(element.getProject).
+                createFileFromText("dummy" + ".java", codeText).asInstanceOf[PsiJavaFile]
+        val javadoc = JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0))
+        println(javadoc)
       }
       case _ =>
     }
