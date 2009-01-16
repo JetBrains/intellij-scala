@@ -59,7 +59,6 @@ public class ScalacCompiler extends ExternalCompiler {
   @NonNls private static final String WARNINGS_PROPERTY = "-unchecked";
   private final static HashSet<FileType> COMPILABLE_FILE_TYPES = new HashSet<FileType>(Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA));
 
-
   public ScalacCompiler(Project project) {
     myProject = project;
   }
@@ -83,7 +82,8 @@ public class ScalacCompiler extends ExternalCompiler {
         hasJava = true;
       }
     }
-    if (!hasJava) return false;
+    if (!hasJava) return false; //this compiler work with only Java modules, so we don't need to continue.
+
     for (Module module : modules) {
       final String installPath = ScalaConfigUtils.getScalaInstallPath(module);
       if (installPath.length() == 0 && module.getModuleType() instanceof JavaModuleType) {
@@ -273,7 +273,7 @@ public class ScalacCompiler extends ExternalCompiler {
     printer.println("-cp");
 
     for (Module module : chunk.getModules()) {
-      if (module.getModuleType() instanceof JavaModuleType){
+      if (module.getModuleType() instanceof JavaModuleType) {
       ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
             OrderEntry[] entries = moduleRootManager.getOrderEntries();
             Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
