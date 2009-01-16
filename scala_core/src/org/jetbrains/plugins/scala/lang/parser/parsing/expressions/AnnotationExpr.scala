@@ -17,7 +17,7 @@ import nl.LineTerminator
 object AnnotationExpr {
   def parse(builder: PsiBuilder): Boolean = {
     val annotExprMarker = builder.mark
-    if (!Constructor.parse(builder)) {
+    if (!Constructor.parse(builder, true)) {
       annotExprMarker.drop
       return false
     }

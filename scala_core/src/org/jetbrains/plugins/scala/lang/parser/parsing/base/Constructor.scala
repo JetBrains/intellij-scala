@@ -14,7 +14,8 @@ import types.AnnotType
  */
 
 object Constructor {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: PsiBuilder): Boolean = parse(builder, false)
+  def parse(builder: PsiBuilder, isAnnotation: Boolean): Boolean = {
     val constrMarker = builder.mark
     if (!AnnotType.parse(builder)) {
       builder error ScalaBundle.message("identifier.expected")
@@ -22,7 +23,8 @@ object Constructor {
       return false
     }
     if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
-      while (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
+      ArgumentExprs parse builder
+      while (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS && !isAnnotation) {
         ArgumentExprs parse builder
       }
     }

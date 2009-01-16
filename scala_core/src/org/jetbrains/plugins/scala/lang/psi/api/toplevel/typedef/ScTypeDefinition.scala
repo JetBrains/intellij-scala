@@ -4,10 +4,9 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.impl.ElementBase
 import com.intellij.util.VisibilityIcons
 import javax.swing.Icon
+import statements._
 import types.{ScType, PhysicalSignature, ScSubstitutor}
 import base.types.ScSelfTypeElement
-import statements.ScVariable
-import statements.ScValue
 import com.intellij.psi._
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.util.Iconable
@@ -17,7 +16,6 @@ import psi.ScalaPsiElement
 import lexer._
 import packaging._
 import templates._
-import statements.{ScTypeAlias, ScFunction}
 import statements.params._
 import base._
 
@@ -26,7 +24,7 @@ import base._
  */
 
 trait ScTypeDefinition extends ScTemplateDefinition with ScMember
-    with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable with ScDocCommentOwner{
+    with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable with ScDocCommentOwner with ScAnnotationsHolder {
 
   def getPath: String = {
     var qualName = getQualifiedName;
