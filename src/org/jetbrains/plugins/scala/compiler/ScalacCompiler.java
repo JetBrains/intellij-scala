@@ -9,7 +9,6 @@ import com.intellij.compiler.impl.javaCompiler.javac.JavacSettings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
-import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.StdFileTypes;
@@ -272,13 +271,20 @@ public class ScalacCompiler extends ExternalCompiler {
     //write classpath
     printer.println("-cp");
 
-    for (Module module : chunk.getModules()) {
+    final List<Module> modules = Arrays.asList(chunk.getModules());
+    final Set<VirtualFile> sourceDependencies = new HashSet<VirtualFile>();
+
+    for (Module module : modules) {
       if (module.getModuleType() instanceof JavaModuleType) {
       ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
             OrderEntry[] entries = moduleRootManager.getOrderEntries();
             Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
             for (OrderEntry orderEntry : entries) {
               cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)));
+              // Add Java dependencies
+              if (orderEntry instanceof ModuleOrderEntry && !(modules.contains(((ModuleOrderEntry) orderEntry).getModule()))) {
+                sourceDependencies.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
+              }
             }
             for (VirtualFile file : cpVFiles) {
               String path = file.getPath();
@@ -295,7 +301,20 @@ public class ScalacCompiler extends ExternalCompiler {
     for (VirtualFile file : chunk.getFilesToCompile()) {
       printer.println(file.getPath());
     }
+    for (VirtualFile sourceDependency : sourceDependencies) {
+      addJavaSourceFiles(printer, sourceDependency);
+    }
     printer.close();
+  }
+
+  private static void addJavaSourceFiles(PrintStream stream, VirtualFile src) {
+    if (src.isDirectory()) {
+      for (VirtualFile file : src.getChildren()) {
+        addJavaSourceFiles(stream, file);
+      }
+    } else if (src.getFileType() == StdFileTypes.JAVA){
+      stream.println(src.getPath());
+    }
   }
 
 
