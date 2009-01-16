@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 * Date: 04.05.2008
 */
 
-class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinition) extends ScalaStructureViewElement(element) {
+class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinition) extends ScalaStructureViewElement(element, false) {
 
   def getPresentation(): ItemPresentation = {
     return new ScalaTypeDefinitionItemPresentation(element);

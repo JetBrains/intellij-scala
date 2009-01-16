@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 * Date: 05.05.2008
 */
 
-class ScalaPackagingStructureViewElement(private val element: ScPackaging) extends ScalaStructureViewElement(element) {
+class ScalaPackagingStructureViewElement(private val element: ScPackaging) extends ScalaStructureViewElement(element, false) {
   def getPresentation(): ItemPresentation = {
     return new ScalaPackagingItemPresentation(element);
   }
