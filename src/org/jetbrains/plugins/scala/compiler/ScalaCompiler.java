@@ -16,6 +16,7 @@ import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.JavaModuleType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
@@ -42,10 +43,11 @@ public class ScalaCompiler implements TranslatingCompiler {
 
       Module module = context.getModuleByFile(file);
       return fileType.equals(ScalaFileType.SCALA_FILE_TYPE) ||
-                context.getProject() != null && ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE &&
-                    fileType.equals(StdFileTypes.JAVA) &&
-                    module != null &&
-                    !module.getModuleType().getId().equals("J2ME_MODULE");
+               context.getProject() != null &&
+                   fileType.equals(StdFileTypes.JAVA) &&
+                   ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE &&
+                   module != null &&
+                   module.getModuleType() instanceof JavaModuleType; 
     }
 
     public ExitStatus compile(CompileContext context, VirtualFile[] files) {
