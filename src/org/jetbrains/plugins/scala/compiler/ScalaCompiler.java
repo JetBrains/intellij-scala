@@ -4,6 +4,7 @@ import com.intellij.compiler.CompilerException;
 import com.intellij.compiler.impl.javaCompiler.BackendCompiler;
 import com.intellij.compiler.impl.javaCompiler.BackendCompilerWrapper;
 import com.intellij.compiler.make.CacheCorruptedException;
+import com.intellij.facet.FacetManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerMessageCategory;
@@ -13,14 +14,14 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.fileTypes.StdFileTypes;
+import com.intellij.openapi.module.JavaModuleType;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.JavaModuleType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.config.ScalaConfigUtils;
+import org.jetbrains.plugins.scala.config.ScalaFacet;
 
 /**
  * @author ven, ilyas
@@ -40,7 +41,7 @@ public class ScalaCompiler implements TranslatingCompiler {
     }
 
     public boolean isCompilableFile(VirtualFile file, CompileContext context) {
-        final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
+      final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
 
       Module module = context.getModuleByFile(file);
       return fileType.equals(ScalaFileType.SCALA_FILE_TYPE) ||
@@ -49,10 +50,15 @@ public class ScalaCompiler implements TranslatingCompiler {
                    ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE &&
                    module != null &&
                    module.getModuleType() instanceof JavaModuleType &&
-                   ScalaConfigUtils.getScalaInstallPath(module).length() > 0;
+                   isScalaModule(module);
     }
 
-    public ExitStatus compile(CompileContext context, VirtualFile[] files) {
+  private static boolean isScalaModule(Module module) {
+    final FacetManager facetManager = FacetManager.getInstance(module);
+    return facetManager.getFacetByType(ScalaFacet.ID)  != null;
+  }
+
+  public ExitStatus compile(CompileContext context, VirtualFile[] files) {
         final BackendCompiler backEndCompiler = getBackEndCompiler();
         final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(myProject, files, (CompileContextEx) context, backEndCompiler);
         OutputItem[] outputItems;
