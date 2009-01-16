@@ -77,6 +77,13 @@ public class ScalacCompiler extends ExternalCompiler {
       }
     }
 
+    boolean hasJava = false;
+    for (Module module : modules) {
+      if (module.getModuleType() instanceof JavaModuleType) {
+        hasJava = true;
+      }
+    }
+    if (!hasJava) return false;
     for (Module module : modules) {
       final String installPath = ScalaConfigUtils.getScalaInstallPath(module);
       if (installPath.length() == 0 && module.getModuleType() instanceof JavaModuleType) {
@@ -266,21 +273,23 @@ public class ScalacCompiler extends ExternalCompiler {
     printer.println("-cp");
 
     for (Module module : chunk.getModules()) {
+      if (module.getModuleType() instanceof JavaModuleType){
       ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
-      OrderEntry[] entries = moduleRootManager.getOrderEntries();
-      Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
-      for (OrderEntry orderEntry : entries) {
-        cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)));
-      }
-      for (VirtualFile file : cpVFiles) {
-        String path = file.getPath();
-        int jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR);
-        if (jarSeparatorIndex > 0) {
-          path = path.substring(0, jarSeparatorIndex);
-        }
-        printer.print(path);
-        printer.print(File.pathSeparator);
-      }
+            OrderEntry[] entries = moduleRootManager.getOrderEntries();
+            Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
+            for (OrderEntry orderEntry : entries) {
+              cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)));
+            }
+            for (VirtualFile file : cpVFiles) {
+              String path = file.getPath();
+              int jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR);
+              if (jarSeparatorIndex > 0) {
+                path = path.substring(0, jarSeparatorIndex);
+              }
+              printer.print(path);
+              printer.print(File.pathSeparator);
+            }
+          }
     }
     printer.println();
     for (VirtualFile file : chunk.getFilesToCompile()) {
