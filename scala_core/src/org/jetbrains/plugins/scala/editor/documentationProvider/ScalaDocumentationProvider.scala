@@ -89,7 +89,6 @@ class ScalaDocumentationProvider extends DocumentationProvider {
         return "<html><body>" + buffer.toString + "</body></html>"
       }
       case fun: ScFunction => {
-        val clazz = fun.getContainingClass
         val buffer: StringBuilder = new StringBuilder("")
         buffer.append(parseClassUrl(fun))
         buffer.append("<PRE>")
@@ -102,6 +101,19 @@ class ScalaDocumentationProvider extends DocumentationProvider {
         buffer.append(parseType(fun))
         buffer.append("</PRE>")
         buffer.append(parseDocComment(fun))
+        return "<html><body>" + buffer.toString + "</body></html>"
+      }
+      case decl: ScDeclaredElementsHolder if decl.isInstanceOf[ScValue] || decl.isInstanceOf[ScVariable] => {
+        val buffer: StringBuilder = new StringBuilder("")
+        decl match {case decl: ScMember => buffer.append(parseClassUrl(decl)) case _ =>}
+        buffer.append("<PRE>")
+        decl match {case an: ScAnnotationsHolder => buffer.append(parseAnnotations(an)) case _ =>}
+        decl match {case m: ScModifierListOwner => buffer.append(parseModifiers(m)) case _ =>}
+        buffer.append(decl match {case _: ScValue => "val " case _: ScVariable => "var " case _ => ""})
+        buffer.append("<b>" + (element match {case named: ScNamedElement => named.name case _ => "unknown"}) + "</b>")
+        buffer.append(element match {case typed: ScTyped => parseType(typed) case _ => ": Nothing"} )
+        buffer.append("</PRE>")
+        decl match {case doc: ScDocCommentOwner => buffer.append(parseDocComment(doc)) case _ =>}
         return "<html><body>" + buffer.toString + "</body></html>"
       }
       case _: ScTypeAlias => {
