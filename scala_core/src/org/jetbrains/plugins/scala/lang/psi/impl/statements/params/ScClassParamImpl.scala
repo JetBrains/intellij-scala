@@ -32,9 +32,6 @@ class ScClassParameterImpl(node: ASTNode) extends ScParameterImpl(node) with ScC
 
   override def toString: String = "ClassParameter"
 
-  // todo change me!
-  override def hasModifierProperty(p: String) = false
-
   def isVal() = findChildByType(ScalaTokenTypes.kVAL) != null
   def isVar() = findChildByType(ScalaTokenTypes.kVAR) != null
 }
