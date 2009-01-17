@@ -184,7 +184,9 @@ private object ScalaDocumentationProvider {
     buffer.toString
   }
 
-  private def parseTypeParameters(elems: ScTypeParametersOwner): String = ""
+  private def parseTypeParameters(elems: ScTypeParametersOwner): String = {
+    elems.typeParameters.map(_.name).mkString("[", ", ", "]")
+  }
 
   private def parseExtendsBlock(elem: ScExtendsBlock): String = ""
 
