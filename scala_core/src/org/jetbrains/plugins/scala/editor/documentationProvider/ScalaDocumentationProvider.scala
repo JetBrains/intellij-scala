@@ -60,7 +60,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
         val buffer: StringBuilder = new StringBuilder("")
         val qualName = clazz.getQualifiedName
         val pack = {
-          val lastIndexOf = qualName.lastIndexOf(".", 0)
+          val lastIndexOf = qualName.lastIndexOf(".")
           if (lastIndexOf >= 0) qualName.substring(0, lastIndexOf) else ""
         }
 
@@ -192,7 +192,9 @@ private object ScalaDocumentationProvider {
   }
 
   private def parseTypeParameters(elems: ScTypeParametersOwner): String = {
-    elems.typeParameters.map(_.name).mkString("[", ", ", "]")
+    val typeParameters = elems.typeParameters
+    if (typeParameters.length > 0)typeParameters.map(_.name).mkString("[", ", ", "]")
+    else ""
   }
 
   private def parseExtendsBlock(elem: ScExtendsBlock): String = ""
@@ -219,6 +221,8 @@ private object ScalaDocumentationProvider {
       }
       case None => ""
     })
+    val modifiers = Array("abstract", "final", "sealed", "implicit", "lazy", "override")
+    for (modifier <- modifiers if elem.hasModifierProperty(modifier)) buffer.append(modifier + " ")
     return buffer.toString
   }
 
