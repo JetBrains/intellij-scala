@@ -48,6 +48,9 @@ with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with Sc
     case None => Nothing
   }
 
+
+  def clauses: Option[ScParameters] = Some(paramClauses)
+
   def parameters: Seq[ScParameter]
 
   def getModifierList(): ScModifierList
