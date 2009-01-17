@@ -116,6 +116,20 @@ class ScalaDocumentationProvider extends DocumentationProvider {
         decl match {case doc: ScDocCommentOwner => buffer.append(parseDocComment(doc)) case _ =>}
         return "<html><body>" + buffer.toString + "</body></html>"
       }
+      case param: ScParameter => {
+        val buffer: StringBuilder = new StringBuilder("")
+        buffer.append("<PRE>")
+        buffer.append(parseAnnotations(param))
+        param match {case cl: ScClassParameter => buffer.append(parseModifiers(cl)) case _ => }
+        buffer.append(param match {
+          case c: ScClassParameter if c.isVal => "val "
+          case c: ScClassParameter if c.isVar => "var "
+          case _ => ""
+        })
+        buffer.append("<b>" + param.name + "</b>")
+        buffer.append(parseType(param))
+        return "<html><body>" + buffer.toString + "</body></html>"
+      }
       case _: ScTypeAlias => {
         //tested code
         val codeText = """
