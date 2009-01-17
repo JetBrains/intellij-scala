@@ -16,7 +16,7 @@ import api.toplevel.ScTyped
 * Date: 22.02.2008
 */
 
-trait ScParameter extends ScNamedElement with ScTyped with PsiParameter {
+trait ScParameter extends ScNamedElement with ScTyped with PsiParameter with ScAnnotationsHolder {
 
   def getTypeElement: PsiTypeElement
 
