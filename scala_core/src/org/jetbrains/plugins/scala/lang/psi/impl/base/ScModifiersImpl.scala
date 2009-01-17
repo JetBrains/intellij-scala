@@ -34,6 +34,7 @@ class ScModifierListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       case "implicit" => has(ScalaTokenTypes.kIMPLICIT)
       case "abstract" => has(ScalaTokenTypes.kABSTRACT)
       case "sealed" => has(ScalaTokenTypes.kSEALED)
+      case "lazy" => has(ScalaTokenTypes.kLAZY)
       case _ => false
     }
   }
@@ -58,6 +59,8 @@ class ScModifierListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         else getNode.removeChild(findChildByType(ScalaTokenTypes.kABSTRACT).getNode)
       case "sealed" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("sealed", getManager))
         else getNode.removeChild(findChildByType(ScalaTokenTypes.kSEALED).getNode)
+      case "lazy" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("lazy", getManager))
+        else getNode.removeChild(findChildByType(ScalaTokenTypes.kLAZY).getNode)
       case _ => return
     }
     if (value) getNode.addChild(ScalaPsiElementFactory.createNewLineNode(getManager, " "))

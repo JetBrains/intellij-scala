@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements.params
 
+import base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import toplevel.ScModifierListOwner
 
