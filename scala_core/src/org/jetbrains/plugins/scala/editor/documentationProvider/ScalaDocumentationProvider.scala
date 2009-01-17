@@ -8,6 +8,7 @@ import com.intellij.lang.documentation.DocumentationProvider
 import com.intellij.lang.java.JavaDocumentationProvider
 import com.intellij.openapi.module.ModuleUtil
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.base.ScPrimaryConstructor
@@ -75,7 +76,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
           case _: ScTrait => "trait "
         })
         buffer.append("<b>" + clazz.name + "</b>")
-        buffer.append(parseTypeParameters(clazz.typeParameters))
+        buffer.append(parseTypeParameters(clazz))
         clazz match {
           case par: ScParameterOwner => buffer.append(parseParameters(par))
           case _ =>
@@ -87,8 +88,21 @@ class ScalaDocumentationProvider extends DocumentationProvider {
 
         return "<html><body>" + buffer.toString + "</body></html>"
       }
-      case _: ScFunction => {
-
+      case fun: ScFunction => {
+        val clazz = fun.getContainingClass
+        val buffer: StringBuilder = new StringBuilder("")
+        buffer.append(parseClassUrl(fun))
+        buffer.append("<PRE>")
+        buffer.append(parseAnnotations(fun))
+        buffer.append(parseModifiers(fun))
+        buffer.append("def ")
+        buffer.append("<b>" + fun.name + "</b>")
+        buffer.append(parseTypeParameters(fun))
+        buffer.append(parseParameters(fun))
+        buffer.append(parseType(fun))
+        buffer.append("</PRE>")
+        buffer.append(parseDocComment(fun))
+        return "<html><body>" + buffer.toString + "</body></html>"
       }
       case _: ScTypeAlias => {
         //tested code
@@ -97,11 +111,15 @@ class ScalaDocumentationProvider extends DocumentationProvider {
          import com.sun.istack.internal.NotNull;
 
          @NotNull
-         public class Test
+         public class Test extends Object {
+           public int x() {
+             return 0;
+           }
+         }
          """
         val dummyFile: PsiJavaFile = PsiFileFactory.getInstance(element.getProject).
                 createFileFromText("dummy" + ".java", codeText).asInstanceOf[PsiJavaFile]
-        val javadoc = JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0))
+        val javadoc = JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0)/*.getAllMethods.apply(0)*/)
         println("\n" + javadoc)
       }
       case _ =>
@@ -111,22 +129,50 @@ class ScalaDocumentationProvider extends DocumentationProvider {
 }
 
 private object ScalaDocumentationProvider {
+  private def parseType(elem: ScTyped): String = "" 
+  private def parseClassUrl(elem: ScMember): String = {
+    val clazz = elem.getContainingClass
+    if (clazz == null) return ""
+    return "<a href=\"psi_element://" + clazz.getQualifiedName + "\"><code>" + clazz.getQualifiedName + "</code></a>"
+  }
   private def parseParameters(elem: ScParameterOwner): String = ""
-  private def parseTypeParameters(elems: Seq[ScTypeParam]): String = ""
+  private def parseTypeParameters(elems: ScTypeParametersOwner): String = ""
   private def parseExtendsBlock(elem: ScExtendsBlock): String = ""
   private def parseModifiers(elem: ScModifierListOwner): String = ""
   private def parseAnnotations(elem: ScAnnotationsHolder): String = ""
+  
   private def parseDocComment(elem: ScDocCommentOwner): String = {
+    def getParams(fun: ScFunction): String = {
+      fun.parameters.map((param: ScParameter) => "int     " + param.name).mkString("(", ",\n", ")")
+    }
     val comment = elem.docComment
-        comment match {
-          case Some(x) => {
-            val dummyFile: PsiJavaFile = PsiFileFactory.getInstance(elem.getProject).
-                createFileFromText("dummy" + ".java", x.getText + "\nclass A").asInstanceOf[PsiJavaFile]
-            val javadoc = JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0))
-            return javadoc.substring(110, javadoc.length-14)
+    comment match {
+      case Some(x) => {
+        val text = elem match {
+          case _: ScTypeDefinition => x.getText + "\nclass A"
+          case f: ScFunction => {
+            "class A {\n" + x.getText + "\npublic int f" + getParams(f) + " {}\n}"
           }
-          case None =>return ""
+          case _ => x.getText + "\nclass A"
         }
+        val dummyFile: PsiJavaFile = PsiFileFactory.getInstance(elem.getProject).
+                createFileFromText("dummy" + ".java", text).asInstanceOf[PsiJavaFile]
+        val javadoc: String = elem match {
+          case _: ScTypeDefinition => JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0))
+          case _: ScFunction => JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0).getAllMethods.apply(0))
+          case _ => JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0))
+        }
+        return elem match {
+          case _: ScTypeDefinition => javadoc.substring(110, javadoc.length - 14)
+          case f: ScFunction => {
+            val i = javadoc.indexOf("</PRE>")
+            javadoc.substring(i + 6, javadoc.length - 14)
+          }
+          case _ => javadoc.substring(110, javadoc.length - 14)
+        }
+      }
+      case None => return ""
+    }
   }
 
   private def getDocedElement(originalElement: PsiElement): PsiElement = {
