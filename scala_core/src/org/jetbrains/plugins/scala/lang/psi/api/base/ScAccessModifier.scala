@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
-import com.intellij.psi.PsiNamedElement
+import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector.Access
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -13,7 +15,12 @@ trait ScAccessModifier extends ScalaPsiElement {
 
   type AccessType = Access.Value
 
-  def access() : AccessType 
+  def access() : AccessType
+
+  def id(): Option[PsiElement] = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+    case null => None
+    case x => Some(x.getPsi)
+  }
 
   object Access extends Enumeration {
     val PRIVATE, PROTECTED, THIS_PRIVATE, THIS_PROTECTED = Value

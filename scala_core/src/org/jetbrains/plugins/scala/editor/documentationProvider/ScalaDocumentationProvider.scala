@@ -11,7 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.base.patterns.ScReferencePattern
-import lang.psi.api.base.ScPrimaryConstructor
+import lang.psi.api.base.{ScAccessModifier, ScPrimaryConstructor}
 import lang.psi.api.ScalaFile
 import lang.psi.api.statements._
 import lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
@@ -69,6 +69,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
 
         buffer.append("<PRE>")
         buffer.append(parseAnnotations(clazz))
+        val start = buffer.length
         buffer.append(parseModifiers(clazz))
         buffer.append(clazz match {
           case _: ScClass => "class "
@@ -77,8 +78,9 @@ class ScalaDocumentationProvider extends DocumentationProvider {
         })
         buffer.append("<b>" + clazz.name + "</b>")
         buffer.append(parseTypeParameters(clazz))
+        val end = buffer.length
         clazz match {
-          case par: ScParameterOwner => buffer.append(parseParameters(par))
+          case par: ScParameterOwner => buffer.append(parseParameters(par, end - start - 7))
           case _ =>
         }
         buffer.append("\n")
@@ -93,11 +95,13 @@ class ScalaDocumentationProvider extends DocumentationProvider {
         buffer.append(parseClassUrl(fun))
         buffer.append("<PRE>")
         buffer.append(parseAnnotations(fun))
+        val start = buffer.length
         buffer.append(parseModifiers(fun))
         buffer.append("def ")
         buffer.append("<b>" + fun.name + "</b>")
         buffer.append(parseTypeParameters(fun))
-        buffer.append(parseParameters(fun))
+        val end = buffer.length
+        buffer.append(parseParameters(fun, end - start - 7))
         buffer.append(parseType(fun))
         buffer.append("</PRE>")
         buffer.append(parseDocComment(fun))
@@ -162,12 +166,15 @@ private object ScalaDocumentationProvider {
     return "<a href=\"psi_element://" + clazz.getQualifiedName + "\"><code>" + clazz.getQualifiedName + "</code></a>"
   }
 
-  private def parseParameters(elem: ScParameterOwner): String = {
-    elem.allClauses.map(parseParameterClause(_)).mkString("")
+  private def parseParameters(elem: ScParameterOwner, spaces: Int): String = {
+    elem.allClauses.map(parseParameterClause(_, spaces)).mkString("\n")
   }
 
-  private def parseParameterClause(elem: ScParameterClause): String = {
-    elem.parameters.map(parseParameter(_)).mkString(if (elem.isImplicit) "(implicit " else "(", ", ", ")")
+  private def parseParameterClause(elem: ScParameterClause, spaces: Int): String = {
+    val buffer: StringBuilder = new StringBuilder(" ")
+    for (i <- 1 to spaces) buffer.append(" ")
+    val separator = if (spaces < 0) ", " else ",\n" + buffer
+    elem.parameters.map(parseParameter(_)).mkString(if (elem.isImplicit) "(implicit " else "(", separator, ")")
   }
 
   private def parseParameter(param: ScParameter): String = {
@@ -190,7 +197,30 @@ private object ScalaDocumentationProvider {
 
   private def parseExtendsBlock(elem: ScExtendsBlock): String = ""
 
-  private def parseModifiers(elem: ScModifierListOwner): String = ""
+  private def parseModifiers(elem: ScModifierListOwner): String = {
+    val buffer: StringBuilder = new StringBuilder("")
+    def accessQualifier(x: ScAccessModifier): String = (x.getReference match {
+      case null => ""
+      case ref => ref.resolve match {
+        case clazz: PsiClass => "[<a href=\"psi_element://" +
+                clazz.getQualifiedName + "\"><code>" +
+                (x.id match {case Some(x) => x.getText case None => ""}) + "</code></a>]"
+        case pack: PsiPackage => "[" + pack.getQualifiedName + "]"
+        case _ => x.id match {case Some(x) => "[" + x.getText + "]" case None => ""}
+      }
+    }) + " "
+
+    buffer.append(elem.getModifierList.accessModifier match {
+      case Some(x: ScAccessModifier) => x.access match {
+        case x.Access.PRIVATE => "private" + accessQualifier(x)
+        case x.Access.PROTECTED => "protected" + accessQualifier(x)
+        case x.Access.THIS_PRIVATE => "private[this] "
+        case x.Access.THIS_PROTECTED => "protected[this] "
+      }
+      case None => ""
+    })
+    return buffer.toString
+  }
 
   private def parseAnnotations(elem: ScAnnotationsHolder): String = ""
 
