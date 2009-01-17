@@ -14,7 +14,7 @@ import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.base.ScPrimaryConstructor
 import lang.psi.api.ScalaFile
 import lang.psi.api.statements._
-import lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
+import lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
 import lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import lang.psi.api.toplevel.typedef._
 
@@ -161,11 +161,37 @@ private object ScalaDocumentationProvider {
     if (clazz == null) return ""
     return "<a href=\"psi_element://" + clazz.getQualifiedName + "\"><code>" + clazz.getQualifiedName + "</code></a>"
   }
-  private def parseParameters(elem: ScParameterOwner): String = ""
+
+  private def parseParameters(elem: ScParameterOwner): String = {
+    elem.allClauses.map(parseParameterClause(_)).mkString("")
+  }
+
+  private def parseParameterClause(elem: ScParameterClause): String = {
+    elem.parameters.map(parseParameter(_)).mkString(if (elem.isImplicit) "(implicit " else "(", ", ", ")")
+  }
+
+  private def parseParameter(param: ScParameter): String = {
+    val buffer: StringBuilder = new StringBuilder("")
+    buffer.append(parseAnnotations(param))
+    param match {case cl: ScClassParameter => buffer.append(parseModifiers(cl)) case _ =>}
+    buffer.append(param match {
+      case c: ScClassParameter if c.isVal => "val "
+      case c: ScClassParameter if c.isVar => "var "
+      case _ => ""
+    })
+    buffer.append(param.name)
+    buffer.append(parseType(param))
+    buffer.toString
+  }
+
   private def parseTypeParameters(elems: ScTypeParametersOwner): String = ""
+
   private def parseExtendsBlock(elem: ScExtendsBlock): String = ""
+
   private def parseModifiers(elem: ScModifierListOwner): String = ""
+
   private def parseAnnotations(elem: ScAnnotationsHolder): String = ""
+
   
   private def parseDocComment(elem: ScDocCommentOwner): String = {
     def getParams(fun: ScFunction): String = {
