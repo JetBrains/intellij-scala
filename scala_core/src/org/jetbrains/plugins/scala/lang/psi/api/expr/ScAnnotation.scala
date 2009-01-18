@@ -9,5 +9,23 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
-  def annotationExpr = findChildByClass(classOf[ScAnnotationExpr])
+  /**
+   * Return full annotation only without @ token.
+   * @return annotation expression
+   */
+  def annotationExpr: ScAnnotationExpr = findChildByClass(classOf[ScAnnotationExpr])
+
+  /**
+   * Return constructor element af annotation expressison. For example
+   * if annotation is <code>@Nullable</code> then method returns <code>
+   * Nullable</code> psiElement.
+   * @return constructor element
+   */
+  def constructor = annotationExpr.constr
+
+  /**
+   * Return attributes for current annotation (NameValuePair).
+   * @return annotation attributes.
+   */
+  def attributes = annotationExpr.getAttributes
 }
