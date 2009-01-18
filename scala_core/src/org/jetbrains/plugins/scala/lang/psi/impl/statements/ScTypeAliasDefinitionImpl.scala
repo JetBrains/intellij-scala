@@ -49,12 +49,6 @@ class ScTypeAliasDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeAlias] w
   
   override def toString: String = "ScTypeAliasDefinition"
 
-  override def getModifierList: ScModifierList = null
-
-  def isDeprecated = false
-
-  def getDocComment: PsiDocComment = null
-
   override def getPresentation(): ItemPresentation = {
     new ItemPresentation() {
       def getPresentableText(): String = name

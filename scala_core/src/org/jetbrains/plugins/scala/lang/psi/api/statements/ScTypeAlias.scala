@@ -5,7 +5,7 @@ import icons.Icons
 import javax.swing.Icon
 import psi.ScalaPsiElement
 import toplevel.ScPolymorphicElement
-import toplevel.typedef.ScMember
+import toplevel.typedef.{ScDocCommentOwner, ScMember}
 import types.ScType
 
 /**
@@ -14,6 +14,6 @@ import types.ScType
 * Time: 9:46:00
 */
 
-trait ScTypeAlias extends ScPolymorphicElement with ScMember with PsiDocCommentOwner {
+trait ScTypeAlias extends ScPolymorphicElement with ScMember with ScAnnotationsHolder with ScDocCommentOwner {
   override def getIcon(flags: Int): Icon = Icons.TYPE_ALIAS
 }
