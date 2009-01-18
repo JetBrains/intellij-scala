@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.parameterInfo
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import com.intellij.codeInsight.completion.JavaCompletionUtil
+import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
 import com.intellij.lang.parameterInfo._
-
-import com.intellij.codeInsight.lookup.LookupElement
-
 
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.tree.IElementType
@@ -69,13 +68,28 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     }
   }
 
-  def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {}
+  def showParameterInfo(element: ScArgumentExprList, context: CreateParameterInfoContext): Unit = {
+    context.showHint(element, element.getTextRange.getStartOffset, this)
+  }
 
-  def showParameterInfo(element: ScArgumentExprList, context: CreateParameterInfoContext): Unit = {}
+  def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = {
+    val allElements = JavaCompletionUtil.getAllPsiElements(item.asInstanceOf[LookupItem])
 
-  def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = null
+    if (allElements != null &&
+        allElements.size > 0 &&
+        allElements.get(0).isInstanceOf[PsiMethod]) {
+      return allElements.toArray(new Array[PsiMethod](allElements.size));
+    }
+    return null
+  }
 
-  def updateParameterInfo(o: ScArgumentExprList, context: UpdateParameterInfoContext): Unit = {}
+  def updateParameterInfo(o: ScArgumentExprList, context: UpdateParameterInfoContext): Unit = {
+    //todo:
+  }
 
-  def tracksParameterIndex: Boolean = false
+  def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
+    //todo:
+  }
+
+  def tracksParameterIndex: Boolean = true
 }
