@@ -54,6 +54,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
   }
 
   def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
+    if (!element.getContainingFile.isInstanceOf[ScalaFile]) return null
     var e = getDocedElement(element).getNavigationElement
     e match {
       case clazz: ScTypeDefinition => {
@@ -159,7 +160,15 @@ class ScalaDocumentationProvider extends DocumentationProvider {
 }
 
 private object ScalaDocumentationProvider {
-  private def parseType(elem: ScTyped): String = "" 
+  private def parseType(elem: ScTyped): String = {
+    val buffer: StringBuilder = new StringBuilder(": ")
+    val typez = elem match {
+      case fun: ScFunction => fun.returnType
+      case _ => elem.calcType
+    }
+    buffer.append(ScType.urlText(typez))
+    return buffer.toString
+  }
   private def parseClassUrl(elem: ScMember): String = {
     val clazz = elem.getContainingClass
     if (clazz == null) return ""
