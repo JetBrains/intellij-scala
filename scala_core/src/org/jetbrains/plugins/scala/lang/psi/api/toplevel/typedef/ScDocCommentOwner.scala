@@ -6,17 +6,16 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
 import annotations.Nullable
 import com.intellij.psi.javadoc.PsiDocComment
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiWhiteSpace, PsiDocCommentOwner}
 import scaladoc.psi.api.ScDocComment
 
 trait ScDocCommentOwner extends PsiDocCommentOwner {
 
   def docComment: Option[ScDocComment] = {
-    var prev = getPrevSibling
-    while (prev != null && (prev.isInstanceOf[PsiWhiteSpace] || ScalaPsiUtil.isLineTerminator(prev))) prev = prev.getPrevSibling
-    prev match {
-      case x: ScDocComment => Some(x)
-      case _ => None
+    PsiTreeUtil.getPrevSiblingOfType(this, classOf[ScDocComment]) match {
+      case null => None
+      case x => Some(x)
     }
   }
 
