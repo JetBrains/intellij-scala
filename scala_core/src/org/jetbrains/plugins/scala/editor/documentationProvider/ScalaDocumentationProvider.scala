@@ -136,23 +136,22 @@ class ScalaDocumentationProvider extends DocumentationProvider {
         buffer.append(parseType(param))
         return "<html><body>" + buffer.toString + "</body></html>"
       }
-      case _: ScTypeAlias => {
-        //tested code
-        val codeText = """
-         package test
-         import com.sun.istack.internal.NotNull;
+      case typez: ScTypeAlias => {
+        val buffer: StringBuilder = new StringBuilder("")
+        buffer.append(parseClassUrl(typez))
 
-         @NotNull
-         public class Test extends Object {
-           public int x() {
-             return 0;
-           }
-         }
-         """
-        val dummyFile: PsiJavaFile = PsiFileFactory.getInstance(element.getProject).
-                createFileFromText("dummy" + ".java", codeText).asInstanceOf[PsiJavaFile]
-        val javadoc = JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0)/*.getAllMethods.apply(0)*/)
-        println("\n" + javadoc)
+        buffer.append("<PRE>")
+        buffer.append(parseAnnotations(typez))
+        buffer.append(parseModifiers(typez))
+        buffer.append("type <b>" + typez.name + "</b>")
+        typez match {
+          case definition: ScTypeAliasDefinition =>
+            buffer.append(" = " + ScType.urlText(definition.aliasedTypeElement.calcType))
+          case _ =>
+        }
+        buffer.append("</PRE>")
+        buffer.append(parseDocComment(typez))
+        return "<html><body>" + buffer.toString + "</body></html>"
       }
       case _ =>
     }

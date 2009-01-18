@@ -52,8 +52,6 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
   
   override def toString: String = "ScTypeAliasDeclaration"
 
-  override def getModifierList: ScModifierList = null
-
   def lowerBound = {
     val tLower = findChildByType(ScalaTokenTypes.tLOWER_BOUND)
     if (tLower != null) {
@@ -74,9 +72,6 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
     } else Any
   }
 
-  def isDeprecated = false
-
-  def getDocComment: PsiDocComment = null
 
   override def getPresentation(): ItemPresentation = {
     new ItemPresentation() {
