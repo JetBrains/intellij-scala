@@ -13,7 +13,8 @@ trait ScDocCommentOwner extends PsiDocCommentOwner {
 
   def docComment: Option[ScDocComment] = {
     var prev = getPrevSibling
-    while (prev != null && (prev.getText.charAt(0) == ' ' || prev.getText.charAt(0) == '\n')) prev = prev.getPrevSibling
+    while (prev != null && prev.getText != "" &&
+            (prev.getText.charAt(0) == ' ' || prev.getText.charAt(0) == '\n')) prev = prev.getPrevSibling
     prev match {
       case x: ScDocComment => Some(x)
       case _ => None
