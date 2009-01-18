@@ -67,7 +67,7 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
       case x: ScNamedElement => x.getName
       case _ => element.getText
     }
-    if (name == null) return "null" else name
+    if (name == null) return "anonymous" else name
   }
 
   @NotNull
