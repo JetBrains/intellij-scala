@@ -204,7 +204,7 @@ object ScalaAddImportPass {
     val kinds = ref.getKinds(false)
     val cache = JavaPsiFacade.getInstance(myProject).getShortNamesCache
     cache.getClassesByName(ref.refName, ref.getResolveScope).filter {
-      clazz => clazz != null && clazz.getQualifiedName.indexOf(".") > 0 &&
+      clazz => clazz != null && clazz.getQualifiedName() != null && clazz.getQualifiedName.indexOf(".") > 0 &&
               ResolveUtils.kindMatches(clazz, kinds) && notInner(clazz)
     }
   }
