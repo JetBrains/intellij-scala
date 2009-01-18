@@ -16,10 +16,10 @@ import lang.psi.api.expr.{ScAnnotationExpr, ScConstrExpr, ScAnnotation, ScNameVa
 import lang.psi.api.ScalaFile
 import lang.psi.api.statements._
 import lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
-import lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import lang.psi.api.toplevel._
+import lang.psi.api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
 import lang.psi.api.toplevel.typedef._
 
-import lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTyped, ScTypeParametersOwner}
 import lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 
@@ -207,7 +207,19 @@ private object ScalaDocumentationProvider {
     else ""
   }
 
-  private def parseExtendsBlock(elem: ScExtendsBlock): String = ""
+  private def parseExtendsBlock(elem: ScExtendsBlock): String = {
+    val buffer: StringBuilder = new StringBuilder("extends ")
+    elem.templateParents match {
+      case Some(x: ScTemplateParents) => {
+        val seq = x.typeElements
+        buffer.append(ScType.urlText(seq(0).calcType) + "\n")
+        for (i <- 1 to seq.length - 1) buffer append "with " + ScType.urlText(seq(i).calcType)
+      }
+      case None => buffer.append("<a href=\"psi_element://scala.ScalaObject\"><code>ScalaObject</code></a>")
+    }
+
+    return buffer.toString
+  }
 
   private def parseModifiers(elem: ScModifierListOwner): String = {
     val buffer: StringBuilder = new StringBuilder("")
