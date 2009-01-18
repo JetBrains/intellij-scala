@@ -216,6 +216,12 @@ object ScType {
   }
 
   def presentableText(t : ScType) = typeText(t, {e => e.getName})
+  def urlText(t: ScType) = typeText(t, e => {
+    e match {
+      case e: PsiClass => "<a href=\"psi_element://" + e.getQualifiedName + "\"><code>" + e.getName + "</code></a>"
+      case _ => e.getName
+    }
+  })
 
   //todo: resolve cases when java type have keywords as name (type -> `type`)
   def canonicalText(t : ScType) = typeText(t,
