@@ -11,7 +11,8 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.base.patterns.ScReferencePattern
-import lang.psi.api.base.{ScAccessModifier, ScPrimaryConstructor}
+import lang.psi.api.base.{ScConstructor, ScAccessModifier, ScPrimaryConstructor}
+import lang.psi.api.expr.{ScAnnotationExpr, ScConstrExpr, ScAnnotation, ScNameValuePair}
 import lang.psi.api.ScalaFile
 import lang.psi.api.statements._
 import lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
@@ -235,7 +236,24 @@ private object ScalaDocumentationProvider {
     return buffer.toString
   }
 
-  private def parseAnnotations(elem: ScAnnotationsHolder): String = ""
+  private def parseAnnotations(elem: ScAnnotationsHolder): String = {
+    val buffer: StringBuilder = new StringBuilder("")
+    def parseAnnotation(elem: ScAnnotation): String = {
+      var s = "@"
+      val constr: ScConstructor = elem.constructor
+      val attributes = elem.attributes
+      s += ScType.urlText(constr.typeElement.calcType)
+      if (attributes.length > 0) {
+        val array = attributes.map("val " + _.name)
+        s += array.mkString("{","; ","}")
+      }
+      return s
+    }
+    for (ann <- elem.annotations) {
+      buffer.append(parseAnnotation(ann) + "\n")
+    }
+    return buffer.toString
+  }
 
   
   private def parseDocComment(elem: ScDocCommentOwner): String = {
