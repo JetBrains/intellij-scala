@@ -11,22 +11,13 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
     </content>
-    <orderEntry type="library" name="scala-2.7.3.RC1" level="application" />
+    <orderEntry type="library" name="scala_lib" level="project" />
     <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
       <library name="junit">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/junit.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="ог">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../temp/junit-4.5.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
