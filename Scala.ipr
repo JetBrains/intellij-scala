@@ -372,6 +372,9 @@
     <option name="ADDITIONAL_OPTIONS_STRING" value="" />
   </component>
   <component name="ScalacSettings">
+    <option name="MAXIMUM_HEAP_SIZE" value="768" />
+    <option name="DEPRECATION" value="false" />
+    <option name="UNCHECKED" value="false" />
     <option name="NO_GENERICS" value="true" />
   </component>
   <component name="SvnBranchConfigurationManager">
@@ -435,7 +438,7 @@
           <option name="lenBefore" value="80" />
           <option name="lenAfter" value="80" />
           <option name="box" value="false" />
-          <option name="filler" value=" " />
+          <option name="filler" value="$TEMPLATE$" />
         </value>
       </option>
       <option name="notice" value="Copyright 2000-2008 JetBrains s.r.o.&#10;Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);&#10;you may not use this file except in compliance with the License.&#10;You may obtain a copy of the License at&#10;&#10;http://www.apache.org/licenses/LICENSE-2.0&#10;&#10;Unless required by applicable law or agreed to in writing, software&#10;distributed under the License is distributed on an &quot;AS IS&quot; BASIS,&#10;WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.&#10;See the License for the specific language governing permissions and&#10;limitations under the License." />
@@ -456,7 +459,7 @@
           <option name="lenBefore" value="80" />
           <option name="lenAfter" value="80" />
           <option name="box" value="false" />
-          <option name="filler" value=" " />
+          <option name="filler" value="$TEMPLATE$" />
         </value>
       </option>
       <option name="notice" value="Copyright (c) &amp;#36;today.year, Your Corporation. All Rights Reserved." />
@@ -477,7 +480,7 @@
           <option name="lenBefore" value="80" />
           <option name="lenAfter" value="80" />
           <option name="box" value="false" />
-          <option name="filler" value=" " />
+          <option name="filler" value="$TEMPLATE$" />
         </value>
       </option>
       <option name="notice" value="Copyright (c) &amp;#36;today.year, Your Corporation. All Rights Reserved." />
@@ -498,7 +501,7 @@
           <option name="lenBefore" value="80" />
           <option name="lenAfter" value="80" />
           <option name="box" value="false" />
-          <option name="filler" value=" " />
+          <option name="filler" value="$TEMPLATE$" />
         </value>
       </option>
       <option name="notice" value="Copyright (c) &amp;#36;today.year, Your Corporation. All Rights Reserved." />
@@ -519,7 +522,7 @@
           <option name="lenBefore" value="80" />
           <option name="lenAfter" value="80" />
           <option name="box" value="false" />
-          <option name="filler" value=" " />
+          <option name="filler" value="$TEMPLATE$" />
         </value>
       </option>
       <option name="notice" value="Copyright (c) &amp;#36;today.year, Your Corporation. All Rights Reserved." />
@@ -540,7 +543,7 @@
           <option name="lenBefore" value="80" />
           <option name="lenAfter" value="80" />
           <option name="box" value="false" />
-          <option name="filler" value=" " />
+          <option name="filler" value="$TEMPLATE$" />
         </value>
       </option>
       <option name="notice" value="Copyright (c) &amp;#36;today.year, Your Corporation. All Rights Reserved." />
@@ -561,7 +564,7 @@
           <option name="lenBefore" value="80" />
           <option name="lenAfter" value="80" />
           <option name="box" value="false" />
-          <option name="filler" value=" " />
+          <option name="filler" value="$TEMPLATE$" />
         </value>
       </option>
       <option name="notice" value="Copyright (c) &amp;#36;today.year, Your Corporation. All Rights Reserved." />
@@ -574,28 +577,11 @@
     </LanguageOptions>
   </component>
   <component name="libraryTable">
-    <library name="python">
-      <CLASSES />
-      <JAVADOC />
-      <SOURCES />
-    </library>
-    <library name="scala-2.7.2.final">
+    <library name="scala_lib">
       <CLASSES>
-        <root url="jar:///home/ilya/work/scala-2.7.2.final/lib/scala-library.jar!/" />
-        <root url="jar:///home/ilya/work/scala-2.7.2.final/lib/scala-compiler.jar!/" />
-        <root url="jar:///home/ilya/work/scala-2.7.2.final/lib/scala-dbc.jar!/" />
-        <root url="jar:///home/ilya/work/scala-2.7.2.final/lib/scala-swing.jar!/" />
+        <root url="jar://$PROJECT_DIR$/SDK/lib/scala-compiler.jar!/" />
+        <root url="jar://$PROJECT_DIR$/SDK/lib/scala-library.jar!/" />
       </CLASSES>
-      <JAVADOC />
-      <SOURCES>
-        <root url="jar:///home/ilya/work/scala-2.7.2.final/src/scala-dbc-src.jar!/" />
-        <root url="jar:///home/ilya/work/scala-2.7.2.final/src/scala-swing-src.jar!/" />
-        <root url="jar:///home/ilya/work/scala-2.7.2.final/src/scala-compiler-src.jar!/" />
-        <root url="jar:///home/ilya/work/scala-2.7.2.final/src/scala-library-src.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="junit">
-      <CLASSES />
       <JAVADOC />
       <SOURCES />
     </library>

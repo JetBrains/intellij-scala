@@ -14,7 +14,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.fileTypes.StdFileTypes;
-import com.intellij.openapi.module.JavaModuleType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -22,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.config.ScalaFacet;
+import org.jetbrains.plugins.scala.util.ScalaUtils;
 
 /**
  * @author ven, ilyas
@@ -49,7 +49,7 @@ public class ScalaCompiler implements TranslatingCompiler {
                    fileType.equals(StdFileTypes.JAVA) &&
                    ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE &&
                    module != null &&
-                   (module.getModuleType() instanceof JavaModuleType || "PLUGIN_MODULE".equals(module.getModuleType().getId())) &&
+                   ScalaUtils.isSuitableModule(module) &&
                    isScalaModule(module);
     }
 
