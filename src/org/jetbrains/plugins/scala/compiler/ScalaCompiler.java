@@ -49,7 +49,7 @@ public class ScalaCompiler implements TranslatingCompiler {
                    fileType.equals(StdFileTypes.JAVA) &&
                    ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE &&
                    module != null &&
-                   module.getModuleType() instanceof JavaModuleType &&
+                   (module.getModuleType() instanceof JavaModuleType || "PLUGIN_MODULE".equals(module.getModuleType().getId())) &&
                    isScalaModule(module);
     }
 
