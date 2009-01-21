@@ -2,14 +2,16 @@ package org.jetbrains.plugins.scala.lang.parameterInfo
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import com.intellij.codeInsight.completion.JavaCompletionUtil
+import com.intellij.codeInsight.hint.HintUtil
 import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
 import com.intellij.lang.parameterInfo._
 
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiMethod, PsiNamedElement}
+import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement}
 import com.intellij.util.ArrayUtil
 import com.intellij.util.containers.hash.HashSet
+import java.awt.Color
 import java.lang.{Class, String}
 import java.util.Set
 import lexer.ScalaTokenTypes
@@ -81,12 +83,40 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
   }
 
   def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
-    /*context.setUIComponentEnabled(true)
-    context.setupUIComponentPresentation("texting", 0, 4,false, false,false, context.getDefaultParameterColor)*/
+    context.getParameterOwner match {
+      case args: ScArgumentExprList => {
+        args.getParent match {
+          case call: ScMethodCall => {
+            def getRef(call: ScMethodCall): ScReferenceExpression = {
+              call.getInvokedExpr match {
+                case ref: ScReferenceExpression => ref
+                case call: ScMethodCall => getRef(call)
+                case _ => null
+              }
+            }
+            val ref = getRef(call) //not null because filtered by findCall
+            val color = if (ref.resolve == p) ParameterInfoUtil.highlightedColor
+                        else context.getDefaultParameterColor
+            val index = context.getCurrentParameterIndex
+            var paramCount = 0
+            ;
+            //context.setupUIComponentPresentation("text", 0, 0, false, false, false, color)
+          }
+          case _ => //todo: Constructor
+        }
+      }
+      case _ =>
+    }
   }
 
   def tracksParameterIndex: Boolean = true
 
+  /**
+   * Returns context's ScArgumentExprList and fill context items
+   * by appropriate PsiElements (in which we can resolve)
+   * @param context current context
+   * @return context's argument expression
+   */
   private def findCall(context: ParameterInfoContext): ScArgumentExprList = {
     val (file, offset) = (context.getFile, context.getOffset)
     val element = file.findElementAt(offset)
@@ -97,16 +127,21 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         case context: CreateParameterInfoContext => {
           args.getParent match {
             case call: ScMethodCall => {
-              call.getInvokedExpr match {
-                case ref: ScReferenceExpression => {
-                  val name = ref.refName
-                  val variants = ref.getSameNameVariants
-                  context.setItemsToShow(variants)
+              def getRef(call: ScMethodCall): ScReferenceExpression = {
+                call.getInvokedExpr match {
+                  case ref: ScReferenceExpression => ref
+                  case call: ScMethodCall => getRef(call)
+                  case _ => null
                 }
-                case _ =>
+              }
+              val ref = getRef(call)
+              if (ref != null) {
+                val name = ref.refName
+                val variants = ref.getSameNameVariants
+                context.setItemsToShow(variants)
               }
             }
-            case _ =>
+            case _ => //todo: Constructor
           }
         }
         case _ =>
@@ -114,4 +149,11 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     }
     return args
   }
+}
+
+object ParameterInfoUtil {
+  /**
+   * Light green colour. Used for current resolve context showing.
+   */
+  val highlightedColor = new Color(231, 254, 234)
 }
