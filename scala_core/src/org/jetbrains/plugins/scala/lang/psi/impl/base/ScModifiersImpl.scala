@@ -8,7 +8,9 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.IElementType
+import stubs.{ScModifiersStub, ScParameterStub}
+
 import com.intellij.psi._
 import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -20,7 +22,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 * Date: 22.02.2008
 */
 
-class ScModifierListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScModifierList {
+class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with ScModifierList {
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScModifiersStub) = {this(); setStub(stub); setNode(null)}
 
   override def toString: String = "Modifiers"
 

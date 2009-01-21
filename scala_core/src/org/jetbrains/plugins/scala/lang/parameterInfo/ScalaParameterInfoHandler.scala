@@ -24,7 +24,7 @@ import psi.ScalaPsiElement
  */
 
 class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActionSupport[ScArgumentExprList, Any, ScExpression] {
-  def getParameterCloseChars: String = ",)"
+  def getParameterCloseChars: String = "{},);\n"
 
   def couldShowInLookup: Boolean = true
 
