@@ -60,6 +60,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement)
 
+  def getSameNameVariants: Array[Object] = _resolve(this, new SameNameCompletionProcessor(getKinds(true), refName)).map(r => r.getElement)
+
   import com.intellij.psi.impl.PsiManagerEx
 
   def multiResolve(incomplete: Boolean) =
