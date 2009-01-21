@@ -5,16 +5,16 @@ import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
 import com.intellij.lang.parameterInfo._
 
-import com.intellij.psi.PsiMethod
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiMethod, PsiNamedElement}
 import com.intellij.util.ArrayUtil
 import com.intellij.util.containers.hash.HashSet
 import java.lang.{Class, String}
 import java.util.Set
 import lexer.ScalaTokenTypes
 import psi.api.base.ScConstructor
-import psi.api.expr.{ScArgumentExprList, ScMethodCall, ScExpression}
+import psi.api.expr.{ScArgumentExprList, ScReferenceExpression, ScMethodCall, ScExpression}
 import psi.api.statements.ScFunction
 import psi.ScalaPsiElement
 
@@ -44,19 +44,11 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
   }
 
   def findElementForParameterInfo(context: CreateParameterInfoContext): ScArgumentExprList = {
-    val (file, offset, parameterStart) = (context.getFile, context.getOffset, context.getParameterListStart)
-    val element = file.findElementAt(offset)
-    if (element == null) return null
-    val args = PsiTreeUtil.getParentOfType(element, getArgumentListClass)
-    return args
+    findCall(context)
   }
 
   def findElementForUpdatingParameterInfo(context: UpdateParameterInfoContext): ScArgumentExprList = {
-    val (file, offset, parameterStart) = (context.getFile, context.getOffset, context.getParameterListStart)
-    val element = file.findElementAt(offset)
-    if (element == null) return null
-    val args = PsiTreeUtil.getParentOfType(element, getArgumentListClass)
-    return args
+    findCall(context)
   }
 
   def getParametersForDocumentation(p: Any, context: ParameterInfoContext): Array[Object] = {
@@ -84,12 +76,42 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
   }
 
   def updateParameterInfo(o: ScArgumentExprList, context: UpdateParameterInfoContext): Unit = {
-    //todo:
+    /*val index = context.getOffset
+    context.setCurrentParameter(index)*/
   }
 
   def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
-    //todo:
+    /*context.setUIComponentEnabled(true)
+    context.setupUIComponentPresentation("texting", 0, 4,false, false,false, context.getDefaultParameterColor)*/
   }
 
   def tracksParameterIndex: Boolean = true
+
+  private def findCall(context: ParameterInfoContext): ScArgumentExprList = {
+    val (file, offset) = (context.getFile, context.getOffset)
+    val element = file.findElementAt(offset)
+    if (element == null) return null
+    val args = PsiTreeUtil.getParentOfType(element, getArgumentListClass)
+    if (args != null) {
+      context match {
+        case context: CreateParameterInfoContext => {
+          args.getParent match {
+            case call: ScMethodCall => {
+              call.getInvokedExpr match {
+                case ref: ScReferenceExpression => {
+                  val name = ref.refName
+                  val variants = ref.getSameNameVariants
+                  context.setItemsToShow(variants)
+                }
+                case _ =>
+              }
+            }
+            case _ =>
+          }
+        }
+        case _ =>
+      }
+    }
+    return args
+  }
 }
