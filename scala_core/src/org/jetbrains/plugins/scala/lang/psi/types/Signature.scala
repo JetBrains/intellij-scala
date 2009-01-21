@@ -54,18 +54,10 @@ class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSub
       case phys1 : PhysicalSignature => {
         val unified1 = unify(substitutor, typeParams, typeParams)
         val unified2 = unify(other.substitutor, typeParams, other.typeParams)
-        val scala1 = method match {case _ : ScFunction => true; case _ => false}
-        val scala2 = phys1.method match {case _ : ScFunction => true; case _ => false}
-        types.equalsWith(other.types) {(t1, t2) => (t1, t2) match {
-          case ((Any | AnyRef), _) if !scala2 => t2 match {
-            case ScDesignatorType(c : PsiClass) if c.getQualifiedName == "java.lang.Object" => true
-            case _ => false
-          }
-          case (_, (Any | AnyRef)) if !scala1 => t1 match {
-            case ScDesignatorType(c : PsiClass) if c.getQualifiedName == "java.lang.Object" => true
-            case _ => false
-          }
-          case _ => unified1.subst(t1) equiv unified2.subst(t2)
+        types.equalsWith(other.types) {(t1, t2) => (unified1.subst(t1), unified2.subst(t2)) match {
+          case ((Any | AnyRef), ScDesignatorType(c : PsiClass)) if c.getQualifiedName == "java.lang.Object" => true
+          case (ScDesignatorType(c : PsiClass), (Any | AnyRef)) if c.getQualifiedName == "java.lang.Object" => true
+          case (t1, t2) => t1 equiv t2
         }
       }}
       case _ => super.paramTypesEquiv(other)
