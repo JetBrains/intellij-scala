@@ -153,7 +153,6 @@ class ScalaAnnotator extends Annotator
 
       val annotation: Annotation = holder.createErrorAnnotation(new TextRange(start, end), error)
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-
       annotation.registerFix(new ImplementMethodsQuickFix(clazz))
     }
   }

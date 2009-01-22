@@ -46,7 +46,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       val proc = ref.getParent match {
         //last ref may import many elements with the same name
         case e : ScImportExpr if (e.selectorSet == None && !e.singleWildcard) => new CollectAllProcessor(kinds, refName)
-        case _: ScImportSelector => new CollectAllProcessor(kinds, refName)
+        case e : ScImportExpr if e.singleWildcard => new ResolveProcessor(kinds, refName)
+        case _ : ScImportSelector => new CollectAllProcessor(kinds, refName)
 
         case _ => new ResolveProcessor(kinds, refName)
       }
@@ -60,7 +61,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case _: ScStableCodeReferenceElement => stableQualRef
       case e: ScImportExpr => if (e.selectorSet != None
               //import Class._ is not allowed
-              || qualifier == None) stableQualRef else stableImportSelector
+              || qualifier == None || e.singleWildcard) stableQualRef else stableImportSelector
       case ste : ScSimpleTypeElement => if (incomplete) noPackagesClassCompletion /* todo use the settings to include packages*/
                                         else if (ste.singleton) stableQualRef else stableClass
       case _: ScTypeAlias => stableClass

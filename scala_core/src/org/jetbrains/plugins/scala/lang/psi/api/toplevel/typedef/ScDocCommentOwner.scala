@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
-/** 
-* @author ilyas
-*/
+/**
+ * @author ilyas
+ */
 
 import annotations.Nullable
 import com.intellij.psi.javadoc.PsiDocComment
@@ -11,11 +11,12 @@ import com.intellij.psi.{PsiWhiteSpace, PsiDocCommentOwner}
 import scaladoc.psi.api.ScDocComment
 
 trait ScDocCommentOwner extends PsiDocCommentOwner {
-
   def docComment: Option[ScDocComment] = {
-    PsiTreeUtil.getPrevSiblingOfType(this, classOf[ScDocComment]) match {
-      case null => None
-      case x => Some(x)
+    val prev = getPrevSibling
+    val cur = if (prev.isInstanceOf[PsiWhiteSpace]) prev else this
+    cur.getPrevSibling match {
+      case dc: ScDocComment => Some(dc)
+      case x => None
     }
   }
 
