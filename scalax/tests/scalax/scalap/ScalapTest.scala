@@ -63,11 +63,15 @@ class ScalapTest extends TestCase {
 
   def testSimpleClass = doTest
 
+  def testAbstractMethod= doTest
+
   def testWildcardType = doTest
 
   def testParamClauses = doTest
 
   def testCaseClass = doTest
+
+  def testCaseObject = doTest
 
   def testTraitObject = doTest
 

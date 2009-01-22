@@ -151,7 +151,10 @@ object ScalaOIUtil {
     for (element <- buf) {
       element match {
         case FullSignature(sign: PhysicalSignature, _, _, _) => {
-          sign.method match {
+          val m = sign.method
+          val name = if (m == null) "" else m.getName
+          m match {
+            case _ if isProductAbstractMethod(m, clazz) =>
             case x if x.getName == "$tag" || x.getName == "$init$" =>
             case x if x.getContainingClass == clazz =>
             case x if x.getContainingClass.isInterface => buf2 += sign
@@ -174,6 +177,25 @@ object ScalaOIUtil {
     return buf2.toSeq
   }
 
+  def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass) : Boolean = clazz match {
+    case td: ScTypeDefinition if td.isCase => {
+      val clazz = m.getContainingClass
+      clazz != null && clazz.getQualifiedName == "scala.Product" &&
+              (m.getName match {
+                case "productArity" | "productElement" => true
+                case _ => false
+              })
+    }
+    case x : ScTemplateDefinition => (x.superTypes.map(t => ScType.extractClassType(t)).find{
+      case Some((c, _)) => isProductAbstractMethod(m, c)
+      case None => false
+    }) match {
+      case Some(_) => true
+      case _ => false
+    }
+    case _ => false
+  }
+
   def getMembersToOverride(clazz: ScTemplateDefinition): Seq[ScalaObject] = {
     val buf = new ArrayBuffer[ScalaObject]
     buf ++= clazz.allMethods
@@ -188,6 +210,7 @@ object ScalaOIUtil {
             case x: PhysicalSignature => x
           }
           sign.method match {
+            case _ if isProductAbstractMethod(sign.method, clazz) => buf2 += sign
             case _: ScFunctionDeclaration =>
             case x if x.getName == "$tag" || x.getName == "$init$"=>
             case x if x.getContainingClass == clazz =>

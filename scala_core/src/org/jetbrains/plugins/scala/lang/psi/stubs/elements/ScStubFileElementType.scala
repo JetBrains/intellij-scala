@@ -4,6 +4,7 @@ import com.intellij.lang.Language
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.util.io.StringRef
+import decompiler.DecompilerUtil
 import impl.ScFileStubImpl
 import wrappers.IStubFileElementWrapper
 
@@ -38,5 +39,5 @@ class ScStubFileElementType(lang: Language) extends IStubFileElementWrapper[Scal
 }
 
 private[elements] object StubVersion {
-  val STUB_VERSION: Int = 27
+  val STUB_VERSION: Int = DecompilerUtil.DECOMPILER_VERSION
 }

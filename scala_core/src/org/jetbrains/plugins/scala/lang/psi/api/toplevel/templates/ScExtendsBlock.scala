@@ -42,5 +42,13 @@ trait ScExtendsBlock extends ScalaPsiElement {
   def directSupersNames: Seq[String]
 
   def selfTypeElement() : Option[ScSelfTypeElement]
+
   def selfType() : Option[ScType]
+  
+  def isUnderCaseClass = getParent match {
+    case td: ScTypeDefinition if td.isCase => true
+    case _ => false
+  }
+
+
 }

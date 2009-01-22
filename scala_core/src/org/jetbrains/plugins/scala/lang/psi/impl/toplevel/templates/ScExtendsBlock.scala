@@ -4,8 +4,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates
 import _root_.scala.collection.mutable.ListBuffer
 import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScSelfTypeElement, ScTypeElement}
 import api.statements.{ScValue, ScVariable}
-import api.toplevel.typedef.ScObject
 import api.expr.ScNewTemplateDefinition
+import api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
@@ -21,13 +21,13 @@ import typedef.TypeDefinitionMembers
 
 /**
  * @author AlexanderPodkhalyuzin
-* Date: 20.02.2008
+ * Date: 20.02.2008
  */
 
 class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with ScExtendsBlock {
+  def this(node: ASTNode) = {this (); setNode(node)}
 
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScExtendsBlockStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScExtendsBlockStub) = {this (); setStub(stub); setNode(null)}
 
   override def toString: String = "ExtendsBlock"
 
@@ -45,20 +45,24 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   def superTypes(): List[ScType] = {
     val buffer = new ListBuffer[ScType]
-    def addType(t : ScType) : Unit = t match {
-      case ScCompoundType(comps, _, _) => comps.foreach {addType _}
+    def addType(t: ScType): Unit = t match {
+      case ScCompoundType(comps, _, _) => comps.foreach{addType _}
       case _ => buffer += t
     }
     templateParents match {
       case None => getParent match {
-        case obj : ScObject => buffer += AnyRef
+        case obj: ScObject => buffer += AnyRef
         case _ => {
           val so = scalaObject()
           if (so != null) buffer += so
+          if (isUnderCaseClass) {
+            val prod = scalaProduct()
+            if (prod != null) buffer += prod
+          }
         }
       }
       case Some(parents) => {
-        parents.typeElements foreach { typeElement => addType(typeElement.getType) }
+        parents.typeElements foreach {typeElement => addType(typeElement.getType)}
       }
     }
     selfType match {
@@ -73,6 +77,11 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     if (so != null) new ScDesignatorType(so) else null
   }
 
+  private def scalaProduct(): ScType = {
+    val so = JavaPsiFacade.getInstance(getProject).findClass("scala.Product")
+    if (so != null) new ScDesignatorType(so) else null
+  }
+
   def isAnonymousClass: Boolean = {
     getParent match {
       case _: ScNewTemplateDefinition =>
@@ -84,7 +93,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     }
   }
 
-  def supers() ={
+  def supers() = {
     val buf = new ArrayBuffer[PsiClass]
     for (t <- superTypes) {
       ScType.extractClassType(t) match {
@@ -111,6 +120,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
         }
         res += "Object"
         res += "ScalaObject"
+        if (isUnderCaseClass) res += "Product"
         res.toSeq
       }
     }

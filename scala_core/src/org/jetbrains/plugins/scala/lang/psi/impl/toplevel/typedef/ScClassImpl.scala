@@ -62,5 +62,5 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
   }
 
-  def isCase = getModifierList.has(ScalaTokenTypes.kCASE)
+  override def isCase = getModifierList.has(ScalaTokenTypes.kCASE)
 }
