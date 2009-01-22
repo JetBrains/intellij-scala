@@ -45,6 +45,8 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     else false
   }
 
+  override def isCase = getModifierList.has(ScalaTokenTypes.kCASE)
+
   override def getContainingClass() = null
 
   override def processDeclarations(processor: PsiScopeProcessor,

@@ -26,6 +26,8 @@ import base._
 trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable with ScDocCommentOwner with ScAnnotationsHolder {
 
+  def isCase : Boolean = false
+
   def getPath: String = {
     var qualName = getQualifiedName;
     val index = qualName.lastIndexOf('.');

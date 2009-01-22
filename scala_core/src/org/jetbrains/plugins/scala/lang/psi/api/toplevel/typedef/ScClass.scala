@@ -19,5 +19,4 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
     case None => None
   }
 
-  def isCase : Boolean
 }
