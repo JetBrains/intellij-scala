@@ -5,6 +5,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId;
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
@@ -49,6 +51,12 @@ public class ResolveClassTest extends ScalaResolveTestCase {
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScClass);
     assertEquals(((PsiClass) resolved).getQualifiedName(), "AAA.CaseClass");
+  }
+
+  public void testWildcardImport4() throws Exception {
+    PsiReference ref = configureByFile("wild4/A.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScReferencePattern);
   }
 
   public void testLocalClass2() throws Exception {
