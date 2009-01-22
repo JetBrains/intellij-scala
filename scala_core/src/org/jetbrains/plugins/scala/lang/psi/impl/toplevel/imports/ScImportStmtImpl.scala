@@ -37,7 +37,6 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
         case Some(ref) => ref.multiResolve(false).map{_.getElement}
         case _ => Seq.empty
       }
-
       for (elem <- elems) {
         e.selectorSet match {
           case None =>

@@ -61,8 +61,11 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
             case _ => selfTypeElement match {
               case Some(ste) if (PsiTreeUtil.isAncestor(ste, place, true)) =>
               case _ => extendsBlock match {
-                case e : ScExtendsBlock if (PsiTreeUtil.isAncestor(e, place, true)) =>
-                  if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
+                case e : ScExtendsBlock if e != null => {
+                  if (PsiTreeUtil.isAncestor(e, place, true) || !PsiTreeUtil.isAncestor(this, place, true)) {
+                    if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
+                  }
+                }
                 case _ => true
               }
             }
