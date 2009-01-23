@@ -54,7 +54,8 @@ class ScalaAnnotator extends Annotator
         //checkOverrideMethods(x, holder)
       }
       case x: ScTemplateDefinition => {
-        checkImplementedMethods(x, holder)
+// todo uncomment when lineariztion problems will be fixed       
+//        checkImplementedMethods(x, holder)
       }
       case x: ScBlock => {
         checkResultExpression(x, holder)
