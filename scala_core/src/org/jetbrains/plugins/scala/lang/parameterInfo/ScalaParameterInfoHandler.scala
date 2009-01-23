@@ -10,9 +10,9 @@ import com.intellij.codeInsight.hint.HintUtil
 import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
 import com.intellij.lang.parameterInfo._
 
+import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement}
 import com.intellij.util.ArrayUtil
 import com.intellij.util.containers.hash.HashSet
 import java.awt.Color
@@ -20,7 +20,7 @@ import java.lang.{Class, String}
 import java.util.Set
 import lexer.ScalaTokenTypes
 import psi.api.base.ScConstructor
-import psi.api.expr.{ScArgumentExprList, ScReferenceExpression, ScMethodCall, ScExpression}
+import psi.api.expr._
 import psi.api.statements.params.{ScParameter, ScParameters, ScParameterClause}
 import psi.api.statements.{ScFunction, ScValue, ScVariable}
 import psi.ScalaPsiElement
@@ -93,7 +93,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     context.setCurrentParameter(i)
   }
 
-  def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
+  def updateUI(p: Any, context: ParameterInfoUIContext): Unit = { //todo: substituting types
     context.getParameterOwner match {
       case args: ScArgumentExprList => {
         args.getParent match {
@@ -101,6 +101,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             def getRef(call: ScMethodCall): ScReferenceExpression = {
               call.getInvokedExpr match {
                 case ref: ScReferenceExpression => ref
+                case gen: ScGenericCall => gen.referencedExpr match {
+                  case ref: ScReferenceExpression => ref
+                  case _ => null
+                }
                 case call: ScMethodCall => getRef(call)
                 case _ => null
               }
@@ -112,19 +116,28 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
             val buffer: StringBuilder = new StringBuilder("")
 
-            def isBoldParam(param: ScParameter): Boolean = {
-              val clause: ScParameterClause = param.getParent.asInstanceOf[ScParameterClause]
-              val clauses: ScParameters = clause.getParent.asInstanceOf[ScParameters]
-              val allClauses = clauses.clauses
-              val allArgs = call.allArgumentExprLists //argsLists until current argList
-              for (i <- 0 to allArgs.length - 1) {
-                if (i >= allClauses.length) return false
-                if (i == allArgs.length - 1) {
-                  if (allClauses(i).parameters.indexOf(param) == index) return true
+            def isBoldParam(param: PsiParameter): Boolean = {
+              param match {
+                case param: ScParameter => {
+                  val clause: ScParameterClause = param.getParent.asInstanceOf[ScParameterClause]
+                  val clauses: ScParameters = clause.getParent.asInstanceOf[ScParameters]
+                  val allClauses = clauses.clauses
+                  val allArgs = call.allArgumentExprLists //argsLists until current argList
+                  for (i <- 0 to allArgs.length - 1) {
+                    if (i >= allClauses.length) return false
+                    if (i == allArgs.length - 1) {
+                      if (allClauses(i).parameters.indexOf(param) == index) return true
+                    }
+                    if (allArgs(i).exprs.length != allClauses(i).parameters.length) return false //todo: add typechecking
+                  }
                 }
-                if (allArgs(i).exprs.length != allClauses(i).parameters.length) return false  //todo: add typechecking
+                case _ => {
+                  val clause: PsiParameterList = param.getParent.asInstanceOf[PsiParameterList]
+                  if (clause.getParameters.indexOf(param) == index) return true
+                  else return false
+                }
               }
-              false
+              false //unreachable code
             }
 
             p match {
@@ -147,8 +160,38 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 }
               }
               case method: PsiMethod => {
+                val p = method.getParameterList
+                if (p.getParameters.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+                else {
+                  buffer.append(p.getParameters.
+                          map((param: PsiParameter) => {
+                    val buffer: StringBuilder = new StringBuilder("")
+                    val list = param.getModifierList
+                    if (list == null) return;
+                    val lastSize = buffer.length
+                    for (a <- list.getAnnotations) {
+                      if (lastSize != buffer.length) buffer.append(" ")
+                      val element = a.getNameReferenceElement();
+                      if (element != null) buffer.append("@").append(element.getText)
+                    }
+                    if (lastSize != buffer.length) buffer.append(" ")
+                    val paramType = param.getType
 
+                    val name = param.getName
+                    if (name != null) {
+                      buffer.append(name)
+                    }
+                    buffer.append(": ")
+                    buffer.append(paramType.getPresentableText)
+                    val isBold = isBoldParam(param)
+                    val paramText = buffer.toString
+                    if (isBold) "<b>" + paramText + "</b>" else paramText
+                  }).mkString(", "))
+                }
               }
+              case clazz: PsiClass => //todo: for case classes
+
+              case _ =>
             }
 
             val startOffset = buffer.indexOf("<b>")
@@ -157,7 +200,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             val endOffset = buffer.indexOf("</b>")
             if (endOffset != -1) buffer.replace(endOffset, endOffset + 4, "")
 
-            context.setupUIComponentPresentation(buffer.toString, startOffset, endOffset, false, false, false, color)
+            if (buffer.toString != "")
+              context.setupUIComponentPresentation(buffer.toString, startOffset, endOffset, false, false, false, color)
+            else
+              context.setUIComponentEnabled(false)
           }
           case _ => //todo: Constructor
         }
@@ -187,6 +233,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               def getRef(call: ScMethodCall): ScReferenceExpression = {
                 call.getInvokedExpr match {
                   case ref: ScReferenceExpression => ref
+                  case gen: ScGenericCall => gen.referencedExpr match {
+                    case ref: ScReferenceExpression => ref
+                    case _ => null
+                  }
                   case call: ScMethodCall => getRef(call)
                   case _ => null
                 }
