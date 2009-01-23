@@ -157,9 +157,15 @@ object ScalaOIUtil {
             case _ if isProductAbstractMethod(m, clazz) =>
             case x if x.getName == "$tag" || x.getName == "$init$" =>
             case x if x.getContainingClass == clazz =>
-            case x if x.getContainingClass.isInterface => buf2 += sign
-            case x if x.hasModifierProperty("abstract") => buf2 += sign
-            case x: ScFunctionDeclaration => buf2 += sign
+            case x if x.getContainingClass.isInterface => {
+              buf2 += sign
+            }
+            case x if x.hasModifierProperty("abstract") => {
+              buf2 += sign
+            }
+            case x: ScFunctionDeclaration => {
+              buf2 += sign
+            }
             case _ =>
           }
         }
@@ -179,6 +185,7 @@ object ScalaOIUtil {
 
   def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass) : Boolean = clazz match {
     case td: ScTypeDefinition if td.isCase => {
+      if (m.getName == "apply") return true
       val clazz = m.getContainingClass
       clazz != null && clazz.getQualifiedName == "scala.Product" &&
               (m.getName match {
