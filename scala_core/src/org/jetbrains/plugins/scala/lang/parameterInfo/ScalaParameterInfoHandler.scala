@@ -123,7 +123,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
             val buffer: StringBuilder = new StringBuilder("")
 
-            def isBoldParam(param: PsiParameter): Boolean = {
+            def isBoldParam(param: PsiParameter): Boolean = {//todo: add case with repeated parameters
               param match {
                 case param: ScParameter => {
                   val clause: ScParameterClause = param.getParent.asInstanceOf[ScParameterClause]

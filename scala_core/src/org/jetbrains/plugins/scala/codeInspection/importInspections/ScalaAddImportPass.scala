@@ -148,7 +148,10 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {
           file match {
             case file: ScalaFile => {
               ScalaUtils.runWriteAction(new Runnable {
-                def run: Unit = getImportHolder.addImportForClass(clazz, ref)
+                def run: Unit = {
+                  PsiDocumentManager.getInstance(project).commitDocument(document)
+                  getImportHolder.addImportForClass(clazz, ref)
+                }
               }, clazz.getProject, "Add import action")
             }
           }
