@@ -196,7 +196,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
       else drv match {
         case drg: ScTypeDefinition => drg.superTypes.find{
           t => ScType.extractClassType(t) match {
-            case Some((c, _)) => c.getQualifiedName == clazz.getQualifiedName || (deep && isInheritorInner(base, c, deep, visited + drg))
+            case Some((c, _)) => (c.getQualifiedName == clazz.getQualifiedName && clazz.isInstanceOf[c.type]) || (deep && isInheritorInner(base, c, deep, visited + drg))
             case _ => false
           }
         }
