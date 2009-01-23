@@ -83,30 +83,14 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
   }
 
   def updateParameterInfo(o: ScArgumentExprList, context: UpdateParameterInfoContext): Unit = {
-    context.setCurrentParameter(-1)
-    val exprs = o.exprs
     val offset = context.getOffset
-    def getStartOffset(element: PsiElement): Int = {
-      var el = element
-      while (el != null && el.getText != "," && el.getText != "(")  el = el.getPrevSibling
-
-      if (el != null && el.getText == "(") el.getTextRange.getStartOffset
-      else if (el != null) el.getTextRange.getEndOffset
-      else element.getTextRange.getStartOffset
+    var child = o.getNode.getFirstChildNode
+    var i = 0
+    while (child != null && child.getStartOffset < offset) {
+      if (child.getElementType == ScalaTokenTypes.tCOMMA) i = i + 1
+      child = child.getTreeNext
     }
-    def getEndOffset(element: PsiElement): Int = {
-      var el = element
-      while (el != null && el.getText != "," && el.getText != ")")  el = el.getNextSibling
-      if (el == null) o.getTextRange.getEndOffset
-      else el.getTextRange.getEndOffset
-    }
-    for {
-      i <- 0 to exprs.length - 1
-      expr = exprs(i)
-      if getStartOffset(expr) <= offset && getEndOffset(expr) > offset
-    } {
-      context.setCurrentParameter(i)
-    }
+    context.setCurrentParameter(i)
   }
 
   def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
