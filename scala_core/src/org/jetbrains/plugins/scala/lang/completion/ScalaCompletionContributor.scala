@@ -26,6 +26,7 @@ class ScalaCompletionContributor extends CompletionContributor {
     val messages = Array[String](
       "Local variables rename is inplace now.",
       "Scala plugin page is available now.",
+      "Ctrl+Q documentation lookup was added.",
       null
     )
     messages apply (new _root_.scala.util.Random).nextInt(messages.size)
