@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parameterInfo
 
+import _root_.org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.codeInsight.hint.HintUtil
 import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
@@ -17,7 +21,8 @@ import java.util.Set
 import lexer.ScalaTokenTypes
 import psi.api.base.ScConstructor
 import psi.api.expr.{ScArgumentExprList, ScReferenceExpression, ScMethodCall, ScExpression}
-import psi.api.statements.ScFunction
+import psi.api.statements.params.{ScParameter, ScParameterClause}
+import psi.api.statements.{ScFunction, ScValue, ScVariable}
 import psi.ScalaPsiElement
 
 /**
@@ -36,7 +41,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
   def getArgumentListClass: Class[ScArgumentExprList] = classOf[ScArgumentExprList]
 
-  def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRPARENTHESIS
+  def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
 
   def getArgumentListAllowedParentClasses: Set[Class[_]] = {
     val set = new HashSet[Class[_]]()
@@ -97,10 +102,32 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             val ref = getRef(call) //not null because filtered by findCall
             val color = if (ref.resolve == p) ParameterInfoUtil.highlightedColor
                         else context.getDefaultParameterColor
-            val index = context.getCurrentParameterIndex
-            var paramCount = 0
-            ;
-            //context.setupUIComponentPresentation("text", 0, 0, false, false, false, color)
+            var startOffset = 0
+            var endOffset = 0
+
+            val buffer: StringBuilder = new StringBuilder("")
+
+            p match {
+              case v: ScValue => buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+              case v: ScVariable => buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+              case method: ScFunction => {
+                val clauses = method.paramClauses.clauses
+                val haveParentheses = clauses.length != 1
+                for (clause <- clauses) {
+                  if (haveParentheses || clause.isImplicit) buffer.append("(")
+                  if (clause.isImplicit) buffer.append("implicit ")
+                  buffer.append(clause.parameters.
+                          map((param: ScParameter) => ScalaDocumentationProvider.parseParameter(param, ScType.presentableText(_))).
+                          mkString(", "))
+                  if (haveParentheses || clause.isImplicit) buffer.append(")")
+                }
+              }
+              case method: PsiMethod => {
+
+              }
+            }
+
+            context.setupUIComponentPresentation(buffer.toString, startOffset, endOffset, false, false, false, color)
           }
           case _ => //todo: Constructor
         }
@@ -121,7 +148,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     val (file, offset) = (context.getFile, context.getOffset)
     val element = file.findElementAt(offset)
     if (element == null) return null
-    val args = PsiTreeUtil.getParentOfType(element, getArgumentListClass)
+    val args: ScArgumentExprList = PsiTreeUtil.getParentOfType(element, getArgumentListClass)
     if (args != null) {
       context match {
         case context: CreateParameterInfoContext => {
@@ -143,6 +170,14 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             }
             case _ => //todo: Constructor
           }
+        }
+        case context: UpdateParameterInfoContext => {
+          var el = element
+          while (el.getParent != args) el = el.getParent
+          var index = 1
+          for (expr <- args.exprs if expr != el) index += 1
+          context.setCurrentParameter(index)
+          context.setHighlightedParameter(el)
         }
         case _ =>
       }
