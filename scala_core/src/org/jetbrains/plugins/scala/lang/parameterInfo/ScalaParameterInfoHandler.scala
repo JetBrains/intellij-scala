@@ -23,6 +23,7 @@ import psi.api.base.ScConstructor
 import psi.api.expr._
 import psi.api.statements.params.{ScParameter, ScParameters, ScParameterClause}
 import psi.api.statements.{ScFunction, ScValue, ScVariable}
+import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.ScalaPsiElement
 
 /**
@@ -245,7 +246,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               if (ref != null) {
                 val name = ref.refName
                 val variants = ref.getSameNameVariants
-                context.setItemsToShow(variants)
+                context.setItemsToShow(variants.filter(!_.isInstanceOf[ScTypeDefinition]) /*todo: remove filter*/)
               }
             }
             case _ => //todo: Constructor
