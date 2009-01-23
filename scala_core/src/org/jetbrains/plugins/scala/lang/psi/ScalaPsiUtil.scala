@@ -1,17 +1,17 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.{FullSignature, PhysicalSignature, Signature, ScSubstitutor}
+import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import api.base.{ScStableCodeReferenceElement, ScModifierList}
+import api.base.{ScConstructor, ScStableCodeReferenceElement, ScModifierList}
+import api.expr.ScAnnotation
+import api.statements._
 import api.statements.params.{ScClassParameter, ScParameter}
-import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.{ScNamedElement, ScTyped}
 import com.intellij.psi._
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiFormatUtil
 import com.jniwrapper.S
-import impl.toplevel.typedef.TypeDefinitionMembers
 import impl.toplevel.typedef.TypeDefinitionMembers
 import lang.psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
@@ -84,6 +84,7 @@ object ScalaPsiUtil {
   }
 
   def getModifiersPresentableText(modifiers: ScModifierList): String = {
+    //todo: AccessModifiers can produce bug?
     val buffer = new StringBuilder(" ")
     for (modifier <- modifiers.getNode.getChildren(null) if !isLineTerminator(modifier.getPsi)) buffer.append(modifier.getText + " ")
     return buffer.substring(1).toString
