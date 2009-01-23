@@ -111,8 +111,14 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               }
             }
             val ref = getRef(call) //not null because filtered by findCall
-            val color = if (ref.resolve == p) ParameterInfoUtil.highlightedColor
-                        else context.getDefaultParameterColor
+
+            val color: Color = try {
+              if (ref.resolve == p) ParameterInfoUtil.highlightedColor
+              else context.getDefaultParameterColor
+            }
+            catch {
+              case e: PsiInvalidElementAccessException => context.getDefaultParameterColor
+            }
             val index = context.getCurrentParameterIndex
 
             val buffer: StringBuilder = new StringBuilder("")
