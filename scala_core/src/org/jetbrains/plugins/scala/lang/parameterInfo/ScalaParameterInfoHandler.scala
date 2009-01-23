@@ -21,7 +21,7 @@ import java.util.Set
 import lexer.ScalaTokenTypes
 import psi.api.base.ScConstructor
 import psi.api.expr.{ScArgumentExprList, ScReferenceExpression, ScMethodCall, ScExpression}
-import psi.api.statements.params.{ScParameter, ScParameterClause}
+import psi.api.statements.params.{ScParameter, ScParameters, ScParameterClause}
 import psi.api.statements.{ScFunction, ScValue, ScVariable}
 import psi.ScalaPsiElement
 
@@ -83,8 +83,30 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
   }
 
   def updateParameterInfo(o: ScArgumentExprList, context: UpdateParameterInfoContext): Unit = {
-    /*val index = context.getOffset
-    context.setCurrentParameter(index)*/
+    context.setCurrentParameter(-1)
+    val exprs = o.exprs
+    val offset = context.getOffset
+    def getStartOffset(element: PsiElement): Int = {
+      var el = element
+      while (el != null && el.getText != "," && el.getText != "(")  el = el.getPrevSibling
+
+      if (el != null && el.getText == "(") el.getTextRange.getStartOffset
+      else if (el != null) el.getTextRange.getEndOffset
+      else element.getTextRange.getStartOffset
+    }
+    def getEndOffset(element: PsiElement): Int = {
+      var el = element
+      while (el != null && el.getText != "," && el.getText != ")")  el = el.getNextSibling
+      if (el == null) o.getTextRange.getEndOffset
+      else el.getTextRange.getEndOffset
+    }
+    for {
+      i <- 0 to exprs.length - 1
+      expr = exprs(i)
+      if getStartOffset(expr) <= offset && getEndOffset(expr) > offset
+    } {
+      context.setCurrentParameter(i)
+    }
   }
 
   def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
@@ -102,10 +124,24 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             val ref = getRef(call) //not null because filtered by findCall
             val color = if (ref.resolve == p) ParameterInfoUtil.highlightedColor
                         else context.getDefaultParameterColor
-            var startOffset = 0
-            var endOffset = 0
+            val index = context.getCurrentParameterIndex
 
             val buffer: StringBuilder = new StringBuilder("")
+
+            def isBoldParam(param: ScParameter): Boolean = {
+              val clause: ScParameterClause = param.getParent.asInstanceOf[ScParameterClause]
+              val clauses: ScParameters = clause.getParent.asInstanceOf[ScParameters]
+              val allClauses = clauses.clauses
+              val allArgs = call.allArgumentExprLists //argsLists until current argList
+              for (i <- 0 to allArgs.length - 1) {
+                if (i >= allClauses.length) return false
+                if (i == allArgs.length - 1) {
+                  if (allClauses(i).parameters.indexOf(param) == index) return true
+                }
+                if (allArgs(i).exprs.length != allClauses(i).parameters.length) return false  //todo: add typechecking
+              }
+              false
+            }
 
             p match {
               case v: ScValue => buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
@@ -113,12 +149,16 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               case method: ScFunction => {
                 val clauses = method.paramClauses.clauses
                 val haveParentheses = clauses.length != 1
+                if (clauses.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
                 for (clause <- clauses) {
                   if (haveParentheses || clause.isImplicit) buffer.append("(")
                   if (clause.isImplicit) buffer.append("implicit ")
                   buffer.append(clause.parameters.
-                          map((param: ScParameter) => ScalaDocumentationProvider.parseParameter(param, ScType.presentableText(_))).
-                          mkString(", "))
+                          map((param: ScParameter) => {
+                    val isBold = isBoldParam(param)
+                    val paramText = ScalaDocumentationProvider.parseParameter(param, ScType.presentableText(_))
+                    if (isBold) "<b>" + paramText + "</b>" else paramText
+                  }).mkString(", "))
                   if (haveParentheses || clause.isImplicit) buffer.append(")")
                 }
               }
@@ -126,6 +166,12 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
               }
             }
+
+            val startOffset = buffer.indexOf("<b>")
+            if (startOffset != -1) buffer.replace(startOffset, startOffset + 3, "")
+
+            val endOffset = buffer.indexOf("</b>")
+            if (endOffset != -1) buffer.replace(endOffset, endOffset + 4, "")
 
             context.setupUIComponentPresentation(buffer.toString, startOffset, endOffset, false, false, false, color)
           }
