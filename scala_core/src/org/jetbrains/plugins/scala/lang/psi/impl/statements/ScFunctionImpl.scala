@@ -135,4 +135,10 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
       }
     }
   }
+
+  override protected def findSameMemberInSource(m: ScMember) = m match {
+    case f : ScFunction => f.name == name && f.parameters.length == parameters.length
+    case _ => false
+  }
+  
 }
