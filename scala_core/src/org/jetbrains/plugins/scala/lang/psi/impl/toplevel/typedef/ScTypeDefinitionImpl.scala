@@ -56,11 +56,9 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
   }
 
 
-  override def getNavigationElement = {
-    getContainingFile match {
-      case s: ScalaFileImpl if s.isCompiled => getSourceMirrorClass
-      case _ => this
-    }
+  override def getNavigationElement = getContainingFile match {
+    case s: ScalaFileImpl if s.isCompiled => getSourceMirrorClass
+    case _ => this
   }
 
   private def hasSameScalaKind(other: PsiClass) = (this, other) match {
@@ -235,10 +233,10 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     if (eb != null) {
       val tp = eb.templateParents
       tp match {
-        case Some (tp1) => (for (te <- tp1.typeElements;
-              t = te.getType;
-              asPsi = ScType.toPsi(t, getProject, GlobalSearchScope.allScope(getProject));
-              if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
+        case Some(tp1) => (for (te <- tp1.typeElements;
+                                t = te.getType;
+                                asPsi = ScType.toPsi(t, getProject, GlobalSearchScope.allScope(getProject));
+                                if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
         case _ => PsiClassType.EMPTY_ARRAY
       }
     } else PsiClassType.EMPTY_ARRAY

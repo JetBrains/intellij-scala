@@ -19,35 +19,35 @@ import toplevel.templates.ScTemplateBody
 import types._
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-* Time: 9:45:38
-*/
+ * @author Alexander Podkhalyuzin
+ * Date: 22.02.2008
+ * Time: 9:45:38
+ */
 
 //some functions are not PsiMethods and are e.g. not visible from java
 //see ScSyntheticFunction
 trait ScFun extends ScTypeParametersOwner {
-  def retType : ScType
-  def paramTypes : Seq[ScType]
-  def typeParameters : Seq[ScTypeParam]
+  def retType: ScType
+
+  def paramTypes: Seq[ScType]
+
+  def typeParameters: Seq[ScTypeParam]
 }
 
 trait ScFunction extends ScalaPsiElement with ScNamedElement with ScMember with ScTypeParametersOwner
-with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with ScDeclaredElementsHolder with ScAnnotationsHolder {
-
+        with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with ScDeclaredElementsHolder with ScAnnotationsHolder {
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   def paramClauses: ScParameters = findChildByClass(classOf[ScParameters])
 
   def returnTypeElement = findChild(classOf[ScTypeElement])
 
-  def returnType : ScType
+  def returnType: ScType
 
-  def declaredType : ScType = returnTypeElement match {
+  def declaredType: ScType = returnTypeElement match {
     case Some(rte) => rte.getType
     case None => Nothing
   }
-
 
   def clauses: Option[ScParameters] = Some(paramClauses)
 
@@ -63,5 +63,6 @@ with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with Sc
 
   def superMethod: Option[PsiMethod]
 
-  def superSignatures : Seq[FullSignature]
+  def superSignatures: Seq[FullSignature]
+
 }
