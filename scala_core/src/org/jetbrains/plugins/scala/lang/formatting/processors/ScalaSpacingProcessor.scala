@@ -44,6 +44,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     TokenSet.create(BLOCK_EXPR, TEMPLATE_BODY, PACKAGING, TRY_BLOCK, MATCH_STMT, CATCH_BLOCK)
   }
 
+  private def getText(node: ASTNode, fileText: String): String = {
+    node.getTextRange.substring(fileText)
+  }
 
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
     val settings = left.getSettings
@@ -59,8 +62,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     def CONCRETE_LINES(x: Int) = Spacing.createSpacing(0, 0, x, false, 0)
     val leftNode = left.getNode
     val rightNode = right.getNode
-    val (leftString, rightString) = (left.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText),
-            right.getTextRange.substring(leftNode.getPsi.getContainingFile.getNode.getText))
+    val fileText = leftNode.getPsi.getContainingFile.getText
+
+    /**
+     * This is not nodes text! This is blocks text, which can be different from node.
+     */
+    val (leftString, rightString) = (left.getTextRange.substring(fileText),
+            right.getTextRange.substring(fileText))
     //comments processing
     if (leftNode.getPsi.isInstanceOf[ScDocComment]) return ON_NEW_LINE
     if (rightNode.getPsi.isInstanceOf[ScDocComment] && leftNode.getElementType == ScalaTokenTypes.tLBRACE) return ON_NEW_LINE
@@ -84,7 +92,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         left = left.getLastChildNode
       }
       return if (left.getElementType == ScalaTokenTypes.tIDENTIFIER &&
-              !left.getText.matches(".*[A-Za-z0-9]")) WITH_SPACING else WITHOUT_SPACING
+              !getText(left, fileText).matches(".*[A-Za-z0-9]")) WITH_SPACING else WITHOUT_SPACING
     }
     if (rightString.length > 0 && rightString(0) == ';') {
       if (scalaSettings.SPACE_BEFORE_SEMICOLON && !(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
@@ -111,7 +119,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     if (leftNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
-      if (leftNode.getTreeParent.getText.indexOf('\n') == -1) return WITH_SPACING
+      if (getText(leftNode.getTreeParent, fileText).indexOf('\n') == -1) return WITH_SPACING
       else ON_NEW_LINE
     }
 
@@ -386,7 +394,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     //todo: processing spasing operators
 
     //processing right brace
-    if (leftString != leftNode.getText && rightString != rightNode.getText && rightNode.getElementType == ScalaTokenTypes.kELSE) {
+    if (leftString != getText(leftNode, fileText) && rightString != getText(rightNode, fileText) && rightNode.getElementType == ScalaTokenTypes.kELSE) {
       if (scalaSettings.ELSE_ON_NEW_LINE) return ON_NEW_LINE
       else return WITH_SPACING
     }
@@ -415,7 +423,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     //For class methods
     (leftNode.getPsi, rightNode.getPsi, leftNode.getTreeParent.getElementType) match {
       case (_, _, ScalaElementTypes.TEMPLATE_BODY) if leftNode.getElementType == ScalaTokenTypes.tLBRACE
-       && leftNode.getTreeParent.getText.indexOf('\n') != -1 => return CONCRETE_LINES(scalaSettings.BLANK_LINES_AFTER_LBRACE + 1)
+       && getText(leftNode.getTreeParent, fileText).indexOf('\n') != -1 => return CONCRETE_LINES(scalaSettings.BLANK_LINES_AFTER_LBRACE + 1)
       case (_: ScFunction, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
       case (_: ScValue | _: ScVariable | _: ScTypeAlias, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
       case (_: ScFunction, _: ScValue | _: ScVariable | _: ScTypeAlias, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
@@ -426,7 +434,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       rightNode.getTreeParent.getPsi match {
         case block@(_: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
                 _: ScTryBlock | _: ScCatchBlock) => {
-          val minLineFeeds = if (block.getText.contains("\n")) 1 else 0
+          val minLineFeeds = if (block.getTextRange.substring(fileText).contains("\n")) 1 else 0
           return Spacing.createSpacing(0, 0, minLineFeeds, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
         }
         case _ => return Spacing.createSpacing(0, 0, 0, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
@@ -436,7 +444,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       leftNode.getTreeParent.getPsi match {
         case block@(_: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
                 _: ScTryBlock | _: ScCatchBlock) => {
-          val minLineFeeds = if (block.getText.contains("\n")) 1 else 0
+          val minLineFeeds = if (block.getTextRange.substring(fileText).contains("\n")) 1 else 0
           return Spacing.createSpacing(0, 0, minLineFeeds, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
         }
         case _ => return Spacing.createSpacing(0, 0, 0, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
@@ -457,7 +465,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     //Case Clauses case
     if (leftNode.getElementType == ScalaElementTypes.CASE_CLAUSE && rightNode.getElementType == ScalaElementTypes.CASE_CLAUSE) {
       val block = leftNode.getTreeParent
-      val minLineFeeds = if (block.getText.contains("\n")) 1 else 0
+      val minLineFeeds = if (block.getTextRange.substring(fileText).contains("\n")) 1 else 0
       return Spacing.createSpacing(1, 0, minLineFeeds, true, scalaSettings.KEEP_BLANK_LINES_IN_CODE)
     }
 
@@ -516,7 +524,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (_, ScalaTokenTypes.tRBRACE, _, _) => return NO_SPACING_WITH_NEWLINE
       //Semicolon
       case (ScalaTokenTypes.tSEMICOLON, _, parentType, _) => {
-        if ((BLOCK_ELEMENT_TYPES contains parentType) && !leftNode.getTreeParent.getText.contains("\n")) return COMMON_SPACING
+        if ((BLOCK_ELEMENT_TYPES contains parentType) && !getText(leftNode.getTreeParent, fileText).contains("\n")) return COMMON_SPACING
         else return IMPORT_BETWEEN_SPACING
       }
       case (_, ScalaTokenTypes.tSEMICOLON, _, _) => {
@@ -555,9 +563,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (_, ScalaDocTokenType.DOC_COMMENT_END, _, _) => return NO_SPACING_WITH_NEWLINE
       case (ScalaDocTokenType.DOC_COMMENT_START, _, _, _) => return NO_SPACING_WITH_NEWLINE
       case (_, x, _, _)  if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x)
-              && rightNode.getText.apply(0) == ' ' => return NO_SPACING
+              && getText(rightNode, fileText).apply(0) == ' ' => return NO_SPACING
       case (x, _, _, _)  if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x)
-              && leftNode.getText.apply(leftNode.getText.length - 1) == ' ' => return NO_SPACING
+              && getText(leftNode, fileText).apply(getText(leftNode, fileText).length - 1) == ' ' => return NO_SPACING
       //Other cases
       case _ => {
         return COMMON_SPACING
