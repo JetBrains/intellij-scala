@@ -135,7 +135,7 @@ trait ScImportsHolder extends ScalaPsiElement {
             } else addAfter(importSt, x)
           }
           case None => {
-            //Here we must to find left brace, if not => it's ScalaFile
+            //Here we must to find left brace, if not => it's ScalaFile (we can use addBefore etc.)
             getNode.findChildByType(ScalaTokenTypes.tLBRACE) match {
               case null => {
                 val first = getFirstChild
@@ -152,9 +152,9 @@ trait ScImportsHolder extends ScalaPsiElement {
                 val manager = node.getPsi.getManager
                 val n1 = ScalaPsiElementFactory.createNewLineNode(manager, "\n").getPsi
                 val n2 = ScalaPsiElementFactory.createNewLineNode(manager, "\n").getPsi
-                addBefore(n1, node.getPsi)
-                addImportBefore(importSt, n1)
-                addAfter(n2, importSt)
+                addImportAfter(n1, node.getPsi)
+                addImportAfter(importSt, n1)
+                addImportAfter(n2, importSt)
               }
             }
 
