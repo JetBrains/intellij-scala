@@ -92,9 +92,9 @@ public class ScalaLexer implements Lexer {
   public int getState() {
     locateToken();
     int state = 0;
-    if (myLayeredTagStack.size() > 0) state += 1;
-    if (myXmlState != 0) state += 1;
-    if (myScalaPlainLexer.getState() != 0) state += 1;
+    if (myLayeredTagStack.size() > 0) state = 239;
+    if (myXmlState != 0) state = 239;
+    if (myScalaPlainLexer.getState() != 0) state = 239;
     return state;
     //todo: pssible rollback: return myTokenStart == 0 ? 0 : 239;
   }
