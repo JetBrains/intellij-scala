@@ -16,6 +16,7 @@ import java.util.Arrays
 import javax.swing.Icon
 import com.intellij.util.NullableFunction
 import java.awt.event.MouseEvent
+import lang.psi.api.statements.params.ScClassParameter
 import lang.psi.api.statements.{ScFunction, ScValue, ScDeclaredElementsHolder, ScVariable}
 import lang.psi.api.toplevel.ScTyped
 import lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScMember, ScObject}
@@ -163,10 +164,15 @@ object ScalaMarkerType {
           val presentation = xlass.getPresentation
           presentation.getPresentableText + " " + presentation.getLocationString
         }
-        case x: PsiNamedElement if ScalaPsiUtil.nameContext(x) != null => {
+        case x: PsiNamedElement if ScalaPsiUtil.nameContext(x).isInstanceOf[ScMember] => {
           val presentation = ScalaPsiUtil.nameContext(x).asInstanceOf[ScMember].getContainingClass.getPresentation
           presentation.getPresentableText + " " + presentation.getLocationString
         }
+        case x: ScClassParameter => {
+          val presentation = x.getPresentation
+          presentation.getPresentableText + " " + presentation.getLocationString
+        }
+        case x: PsiNamedElement => x.getName
         case _ => element.getText().substring(0, Math.min(element.getText().length, 20))
       }
     }
