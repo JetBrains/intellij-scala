@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import com.jniwrapper.A
 import compilerErrors.CyclicReferencesSearcher
 import highlighter.{AnnotatorHighlighter}
@@ -66,6 +68,9 @@ class ScalaAnnotator extends Annotator
           case None => checkNotQualifiedReferenceElement(ref, holder)
           case Some(_) => checkQualifiedReferenceElement(ref, holder)
         }
+      }
+      case ret: ScReturnStmt => {
+        checkExplicitTypeForReturnStatement(ret, holder)
       }
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }
@@ -208,6 +213,24 @@ class ScalaAnnotator extends Annotator
           new TextRange(stat.getTextRange.getStartOffset, stat.getTextRange.getStartOffset + 3),
           error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+      }
+    }
+  }
+
+  private def checkExplicitTypeForReturnStatement(ret: ScReturnStmt, holder: AnnotationHolder) {
+    var fun: ScFunction = PsiTreeUtil.getParentOfType(ret, classOf[ScFunction])
+    fun match {
+      case null => return
+      case _ if fun.getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).size == 0 => return
+      case _ => fun.returnTypeElement match {
+        case Some(x) => return
+        case _ => { //todo: add checking type
+          val error = ScalaBundle.message("function.must.define.type.explicitly", fun.getName)
+          val annotation: Annotation = holder.createErrorAnnotation(
+            new TextRange(ret.getTextRange.getStartOffset, ret.getTextRange.getStartOffset + 6),
+            error)
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+        }
       }
     }
   }
