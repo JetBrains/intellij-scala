@@ -52,7 +52,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   override def getIcon(flags: Int) = Icons.FUNCTION
 
-  def getReturnType = {
+  lazy val getReturnType = {
     calcType match {
       case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
       case x => ScType.toPsi(x, getProject, getResolveScope)

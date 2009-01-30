@@ -5,6 +5,7 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDef
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionImpl
 import api.statements.{ScFunction, ScFunctionDeclaration}
 import api.toplevel.typedef.ScTemplateDefinition
+import com.intellij.psi.impl.cache.{RecordUtil, TypeInfo}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.util.io.StringRef
