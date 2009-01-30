@@ -84,10 +84,15 @@ object ScalaPsiUtil {
   }
 
   def getModifiersPresentableText(modifiers: ScModifierList): String = {
+    //todo: remove assert
+    if (modifiers == null) {
+      assert(true)
+    }
+
     //todo: AccessModifiers can produce bug?
-    val buffer = new StringBuilder(" ")
+    val buffer = new StringBuilder("")
     for (modifier <- modifiers.getNode.getChildren(null) if !isLineTerminator(modifier.getPsi)) buffer.append(modifier.getText + " ")
-    return buffer.substring(1).toString
+    return buffer.toString
   }
 
   def isLineTerminator(element: PsiElement): Boolean = {
