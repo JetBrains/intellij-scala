@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.codeInsight.template
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.CodeInsightBundle
@@ -11,6 +10,8 @@ import com.intellij.psi.{PsiDocumentManager, PsiType}
 import java.lang.String
 import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.ScTyped
+import lang.psi.api.toplevel.typedef.ScTypeDefinition
+import lang.psi.types.{FullSignature, ScType, PhysicalSignature}
 import util.MacroUtil
 
 /**
@@ -27,6 +28,7 @@ class ScalaVariableOfTypeMacro extends Macro {
     calculateLookupItems(exprs.map(_.calculateResult(context).toString()), context, false)
   }
   def calculateLookupItems(exprs: Array[String], context: ExpressionContext, showOne: Boolean): Array[LookupElement] = {
+    if (exprs.length == 0) return null
     val offset = context.getStartOffset
     val editor = context.getEditor
     val array = new ArrayBuffer[LookupElement]
@@ -40,11 +42,27 @@ class ScalaVariableOfTypeMacro extends Macro {
           variant.getElement match {
             case typed: ScTyped => {
               val t = typed.calcType
-              for (expr <- exprs) {
-                if ((ScType.extractClassType(t) match {
-                  case Some((x, _)) => x.getQualifiedName
-                  case None => ""
-                }) == expr) array +=  new LookupItem(variant.getElement, variant.getElement.getName)
+              if (exprs.apply(0) != "foreach") {
+                for (expr <- exprs) {
+                  if ((ScType.extractClassType(t) match {
+                    case Some((x, _)) => x.getQualifiedName
+                    case None => ""
+                  }) == expr) array += new LookupItem(variant.getElement, variant.getElement.getName)
+                }
+              } else {
+                ScType.extractClassType(t) match {
+                  case Some((x: ScTypeDefinition, _)) => {
+                    for (sign <- x.allSignatures) {
+                      sign match {
+                        case FullSignature(sign: PhysicalSignature, _, _, _) => {
+                          if (sign.method.getName == "foreach") array += new LookupItem(variant.getElement, variant.getElement.getName)
+                        }
+                        case _ => 
+                      }
+                    }
+                  }
+                  case _ =>
+                }
               }
             }
             case _ =>
@@ -58,6 +76,7 @@ class ScalaVariableOfTypeMacro extends Macro {
   }
 
   def calculateResult(exprs: Array[Expression], context: ExpressionContext): Result = {
+    if (exprs.length == 0) return null
     val offset = context.getStartOffset
     val editor = context.getEditor
     val file = PsiDocumentManager.getInstance(editor.getProject).getPsiFile(editor.getDocument)
@@ -70,11 +89,27 @@ class ScalaVariableOfTypeMacro extends Macro {
           variant.getElement match {
             case typed: ScTyped => {
               val t = typed.calcType
-              for (expr <- exprs) {
-                if ((ScType.extractClassType(t) match {
-                  case Some((x, _)) => x.getQualifiedName
-                  case None => ""
-                }) == expr.calculateResult(context).toString) return new TextResult(variant.getElement.getName)
+              if (exprs.apply(0).calculateResult(context).toString != "foreach") {
+                for (expr <- exprs) {
+                  if ((ScType.extractClassType(t) match {
+                    case Some((x, _)) => x.getQualifiedName
+                    case None => ""
+                  }) == expr.calculateResult(context).toString) return new TextResult(variant.getElement.getName)
+                }
+              } else {
+                ScType.extractClassType(t) match {
+                  case Some((x: ScTypeDefinition, _)) => {
+                    for (sign <- x.allSignatures) {
+                      sign match {
+                        case FullSignature(sign: PhysicalSignature, _, _, _) => {
+                          if (sign.method.getName == "foreach") return new TextResult(variant.getElement.getName)
+                        }
+                        case _ =>
+                      }
+                    }
+                  }
+                  case _ =>
+                }
               }
             }
             case _ =>

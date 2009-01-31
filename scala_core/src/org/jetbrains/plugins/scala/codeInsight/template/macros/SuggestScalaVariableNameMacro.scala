@@ -47,9 +47,12 @@ object SuggestNamesUtil {
     val element = file.findElementAt(offset)
     val typez: ScType = p match {
       case x if x.length == 0 => return Array[String]("x") //todo:
-      case x if x(0) == "option" => {
+      case x if x(0) == "option" || x(0) == "foreach" => {
         try {
-          val items = (new ScalaVariableOfTypeMacro).calculateLookupItems(Array[String]("scala.Option"), context, true).
+          val items = (new ScalaVariableOfTypeMacro).calculateLookupItems(Array[String](x(0) match {
+            case "option" => "scala.Option"
+            case "foreach" => "foreach"
+          }), context, true).
                   map(_.asInstanceOf[LookupItem[_]].getObject.asInstanceOf[PsiNamedElement]).
                   filter(_.getName == x(1))
           if (items.length == 0) return Array[String]("x")

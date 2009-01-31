@@ -14,4 +14,12 @@
       <option name="SCALA" value="true"/>
     </context>
   </template>
+  <template name="itr" value="for ($NAME$ &lt;- $FOR$) {&#13;&#10;  $END$&#13;&#10;  }"
+      description="Template for scala foreach" toReformat="true" toShortenFQNames="true">
+    <variable name="FOR" expression="scalaVariableOfType(&quot;foreach&quot;)" defaultValue="option" alwaysStopAt="true"/>
+    <variable name="NAME" expression="suggestScalaVariableName(&quot;foreach&quot;, FOR)" defaultValue="x" alwaysStopAt="true"/>
+    <context>
+      <option name="SCALA" value="true"/>
+    </context>
+  </template>
 </templateSet>
