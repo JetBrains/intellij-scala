@@ -18,12 +18,20 @@ import util.MacroUtil
  * Date: 30.01.2009
  */
 
+/**
+ * This class provides macros for live templates. Return elements
+ * of given class type (or class types).
+ */
 class ScalaVariableOfTypeMacro extends Macro {
   def calculateLookupItems(exprs: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
+    calculateLookupItems(exprs.map(_.calculateResult(context).toString()), context, false)
+  }
+  def calculateLookupItems(exprs: Array[String], context: ExpressionContext, showOne: Boolean): Array[LookupElement] = {
     val offset = context.getStartOffset
     val editor = context.getEditor
     val array = new ArrayBuffer[LookupElement]
     val file = PsiDocumentManager.getInstance(editor.getProject).getPsiFile(editor.getDocument)
+    PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
     file match {
       case file: ScalaFile => {
         val element = file.findElementAt(offset)
@@ -36,7 +44,7 @@ class ScalaVariableOfTypeMacro extends Macro {
                 if ((ScType.extractClassType(t) match {
                   case Some((x, _)) => x.getQualifiedName
                   case None => ""
-                }) == expr.calculateResult(context).toString) array +=  new LookupItem(variant.getElement, variant.getElement.getName)
+                }) == expr) array +=  new LookupItem(variant.getElement, variant.getElement.getName)
               }
             }
             case _ =>
@@ -45,6 +53,7 @@ class ScalaVariableOfTypeMacro extends Macro {
       }
       case _ =>
     }
+    if (array.length < 2 && !showOne) return null
     array.toArray
   }
 
@@ -52,6 +61,7 @@ class ScalaVariableOfTypeMacro extends Macro {
     val offset = context.getStartOffset
     val editor = context.getEditor
     val file = PsiDocumentManager.getInstance(editor.getProject).getPsiFile(editor.getDocument)
+    PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
     file match {
       case file: ScalaFile => {
         val element = file.findElementAt(offset)
