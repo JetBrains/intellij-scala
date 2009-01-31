@@ -190,6 +190,8 @@ object StdKinds {
   val refExprQualRef = refExprLastRef + PACKAGE
 
   val methodRef = HashSet.empty + VAL + VAR + METHOD
+
+  val valuesRef = HashSet.empty + VAL + VAR
 }
 
 object ResolverEnv {

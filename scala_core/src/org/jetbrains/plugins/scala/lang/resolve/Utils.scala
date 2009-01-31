@@ -63,7 +63,7 @@ object ResolveUtils {
   def isAccessible(member : PsiMember, place : PsiElement) = member match {
     case scMember : ScMember => scMember.getModifierList.accessModifier match {
       case None => true
-      case Some (am) => true /* todo */
+      case Some (am) => true //todo:
     }
     case _ => JavaPsiFacade.getInstance(place.getProject).getResolveHelper.isAccessible(member, place, null)
   }
