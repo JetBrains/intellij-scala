@@ -81,6 +81,8 @@ object NameSuggester {
         val name = ref.refName
         if (name != null && name.toUpperCase == name) {
           names += validator.validateName(deleteNonLetterFromString(name).toLowerCase, true)
+        } else if (name == "String") {
+          add("s")
         } else {
           generateCamelNames(names, validator, name)
         }

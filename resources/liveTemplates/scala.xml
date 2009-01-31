@@ -6,10 +6,10 @@
       <option name="SCALA" value="true"/>
     </context>
   </template>
-  <template name="opt" value="$Option$ match {&#13;&#10;  case Some($Name$) => $END$&#13;&#10; case None =>&#13;&#10;  }"
+  <template name="opt" value="$OPTION$ match {&#13;&#10;  case Some($NAME$) => {&#13;&#10;  $END$&#13;&#10; }&#13;&#10; case None =>&#13;&#10;  }"
       description="Template for matching Option type" toReformat="true" toShortenFQNames="true">
-    <variable name="Option" expression="scalaVariableOfType(&quot;scala.Option&quot;)" defaultValue="option" alwaysStopAt="true"/>
-    <variable name="Name" expression="" defaultValue="x" alwaysStopAt="true"/>
+    <variable name="OPTION" expression="scalaVariableOfType(&quot;scala.Option&quot;)" defaultValue="option" alwaysStopAt="true"/>
+    <variable name="NAME" expression="suggestScalaVariableName(&quot;option&quot;, OPTION)" defaultValue="x" alwaysStopAt="true"/>
     <context>
       <option name="SCALA" value="true"/>
     </context>
