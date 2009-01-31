@@ -27,6 +27,8 @@ class ScalaCompletionContributor extends CompletionContributor {
       "Local variables rename is inplace now.",
       "Scala plugin page is available now.",
       "Ctrl+Q documentation lookup was added.",
+      "Ctrl+P parameter lookup was added.",
+      "Perfomance was improved.",
       null
     )
     messages apply (new _root_.scala.util.Random).nextInt(messages.size)
