@@ -141,6 +141,16 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
 
   override def findReferenceAt(offset: Int): PsiReference = super.findReferenceAt(offset)
+
+  private var context: PsiElement = null
+
+
+  override def getContext: PsiElement = {
+    if (context != null) context
+    else super.getContext
+  }
+
+  def setContext(context: PsiElement): Unit = this.context = context
 }
 
 object ImplicitlyImported {
