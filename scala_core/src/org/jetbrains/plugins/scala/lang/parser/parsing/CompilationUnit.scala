@@ -108,14 +108,14 @@ object CompilationUnit {
 
 
         while (builder.getTokenType != null) {
-          TopStatSeq parse builder
+          TopStatSeq.parse(builder, false, true)
           builder.advanceLexer
         }
       }
 
       case _ => {
         while (builder.getTokenType != null) {
-          TopStatSeq parse builder
+          TopStatSeq.parse(builder, false, false)
           builder.advanceLexer
         }
       }
