@@ -20,7 +20,7 @@ public class ScalaGoToClassContributor implements ChooseByNameContributor {
   }
 
   public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
-    final GlobalSearchScope scope = includeNonProjectItems ? null : GlobalSearchScope.projectScope(project);
+    final GlobalSearchScope scope = includeNonProjectItems ? GlobalSearchScope.allScope(project) : GlobalSearchScope.projectScope(project);
     final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.SHORT_NAME_KEY(), name, project, scope);
     return classes.toArray(new NavigationItem[classes.size()]);
   }

@@ -38,7 +38,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
 
   public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
     final boolean searchAll = CodeStyleSettingsManager.getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class).SEARCH_ALL_SYMBOLS;
-    final GlobalSearchScope scope = includeNonProjectItems ? null : GlobalSearchScope.projectScope(project);
+    final GlobalSearchScope scope = includeNonProjectItems ? GlobalSearchScope.allScope(project) : GlobalSearchScope.projectScope(project);
     final Collection<? extends NavigationItem> methods = StubIndex.getInstance().get(ScalaIndexKeys.METHOD_NAME_KEY(), name, project, scope);
     final Collection<? extends NavigationItem> types = StubIndex.getInstance().get(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY(), name, project, scope);
     final Collection<? extends NavigationItem> values = StubIndex.getInstance().get(ScalaIndexKeys.VALUE_NAME_KEY(), name, project, scope);
