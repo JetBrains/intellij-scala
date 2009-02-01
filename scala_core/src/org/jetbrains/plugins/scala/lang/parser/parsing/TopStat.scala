@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing
 
+import com.intellij.codeInsight.template.impl.TemplateState
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -14,6 +15,7 @@ import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
+import top.template.TemplateStat
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -27,17 +29,30 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 */
 
 object TopStat {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: PsiBuilder, state: Int): Int = {
     builder.getTokenType match {
       case ScalaTokenTypes.kIMPORT => {
         Import parse builder
-        true
+        3
       }
       case ScalaTokenTypes.kPACKAGE => {
-        Packaging parse builder
+        if (state == 2) 0
+        else {
+          if (Packaging parse builder) 1
+          else 0
+        }
       }
       case _ => {
-        TmplDef parse builder
+        state match {
+          case 0 => if (!TmplDef.parse(builder)) {
+              if (!TemplateStat.parse(builder)) 0
+              else 2
+            } else 1
+          case 1 => if (!TmplDef.parse(builder)) 0
+            else 1
+          case 2 => if (!TemplateStat.parse(builder)) 0
+            else 2
+        }
       }
     }
   }
