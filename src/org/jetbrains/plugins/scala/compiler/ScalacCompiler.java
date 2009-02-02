@@ -308,6 +308,7 @@ public class ScalacCompiler extends ExternalCompiler {
   }
 
   private static void addJavaSourceFiles(PrintStream stream, VirtualFile src) {
+    if (src.getPath().contains("!/")) return;
     if (src.isDirectory()) {
       for (VirtualFile file : src.getChildren()) {
         addJavaSourceFiles(stream, file);
