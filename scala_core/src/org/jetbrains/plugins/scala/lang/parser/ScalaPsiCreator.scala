@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser
 
+import psi.api.toplevel.typedef.ScScriptClass
 import scaladoc.parser.ScalaDocElementTypes
 import scaladoc.psi.impl.ScDocCommentImpl
 import scaladoc.psi.{ScalaDocPsiCreator}
@@ -36,6 +37,8 @@ object ScalaPsiCreator {
     /*****************************************************/
 
       case ScalaElementTypes.PACKAGING => new ScPackagingImpl(node)
+
+     case ScalaElementTypes.SCALA_SCRIPT_CLASS => new ScScriptClassImpl(node)
 
       /***************************************************/
       /********************* IMPORT **********************/

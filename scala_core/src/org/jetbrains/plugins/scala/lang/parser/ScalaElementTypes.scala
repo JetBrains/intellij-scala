@@ -27,6 +27,8 @@ object ScalaElementTypes {
 
   val EXTENDS_BLOCK = new ScExtendsBlockElementType()
 
+  val SCALA_SCRIPT_CLASS = new ScalaElementType("script class")
+
   val CLASS_PARENTS = new ScalaElementType("template parents")
   val TRAIT_PARENTS = new ScalaElementType("mixin parents")
   val CONSTRUCTOR = new ScalaElementType("constructor")

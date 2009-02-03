@@ -18,13 +18,13 @@ import com.intellij.lang.PsiBuilder
 
 class Program {
 
-  def parse(builder: PsiBuilder): Unit = {
-
+  def parse(builder: PsiBuilder): Int = {
+    var parseState = 0
     // Debug print mode off
     DebugPrint.displayLog_=(false) 
 
     if ( !builder.eof() ){
-      CompilationUnit.parse(builder)
+      parseState = CompilationUnit.parse(builder)
     }
 
     if (!builder.eof()) {
@@ -33,6 +33,8 @@ class Program {
         builder.advanceLexer
       }
     }
+
+    return parseState
 
   }
 }
