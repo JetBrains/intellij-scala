@@ -21,17 +21,17 @@ import org.jetbrains.plugins.scala.ScalaBundle
 */
 
 object TopStatSeq {
-  def parse(builder: PsiBuilder): Unit = parse(builder, false)
-  def parse(builder: PsiBuilder, waitBrace: Boolean): Unit = parse(builder, waitBrace, false)
-  def parse(builder: PsiBuilder, waitBrace: Boolean, hasPackage: Boolean): Unit = {
-    var parseState = 0
-    if (waitBrace) parseState = 1
-    if(hasPackage) parseState = 1
+  def parse(builder: PsiBuilder): Int = parse(builder, false)
+  def parse(builder: PsiBuilder, waitBrace: Boolean): Int = parse(builder, waitBrace, false)
+  def parse(builder: PsiBuilder, waitBrace: Boolean, hasPackage: Boolean): Int = {
+    var parseState = ParserState.FILE_STATE //ParserState.EMPTY_STATE
+    if (waitBrace) parseState = ParserState.FILE_STATE
+    if(hasPackage) parseState = ParserState.FILE_STATE
     while (true) {
       builder.getTokenType match {
         //end of parsing when find } or builder.eof
-        case ScalaTokenTypes.tRBRACE if waitBrace => return
-        case null => return
+        case ScalaTokenTypes.tRBRACE if waitBrace => return parseState
+        case null => return parseState
         case ScalaTokenTypes.tLINE_TERMINATOR |
              ScalaTokenTypes.tSEMICOLON => builder.advanceLexer //not interesting case
         //otherwise parse TopStat
@@ -47,8 +47,8 @@ object TopStatSeq {
               builder.getTokenType match {
                 case ScalaTokenTypes.tSEMICOLON |
                         ScalaTokenTypes.tLINE_TERMINATOR => builder.advanceLexer //it is good
-                case ScalaTokenTypes.tRBRACE if waitBrace => return
-                case null => return
+                case ScalaTokenTypes.tRBRACE if waitBrace => return parseState
+                case null => return parseState
                 case _ => builder error ScalaBundle.message("semi.expected")
               }
             }
@@ -56,8 +56,8 @@ object TopStatSeq {
               builder.getTokenType match {
                 case ScalaTokenTypes.tSEMICOLON |
                         ScalaTokenTypes.tLINE_TERMINATOR => builder.advanceLexer //it is good
-                case ScalaTokenTypes.tRBRACE if waitBrace => return
-                case null => return
+                case ScalaTokenTypes.tRBRACE if waitBrace => return parseState
+                case null => return parseState
                 case _ => builder error ScalaBundle.message("semi.expected")
               }
             }
@@ -65,5 +65,6 @@ object TopStatSeq {
         }
       }
     }
+    return parseState
   }
 }

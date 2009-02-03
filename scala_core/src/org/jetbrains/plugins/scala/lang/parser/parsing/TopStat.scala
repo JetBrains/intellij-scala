@@ -33,25 +33,25 @@ object TopStat {
     builder.getTokenType match {
       case ScalaTokenTypes.kIMPORT => {
         Import parse builder
-        3
+        ParserState.ADDITIONAL_STATE
       }
       case ScalaTokenTypes.kPACKAGE => {
-        if (state == 2) 0
+        if (state == 2) ParserState.EMPTY_STATE
         else {
-          if (Packaging parse builder) 1
-          else 0
+          if (Packaging parse builder) ParserState.FILE_STATE
+          else ParserState.EMPTY_STATE
         }
       }
       case _ => {
         state match {
-          case 0 => if (!TmplDef.parse(builder)) {
-              if (!TemplateStat.parse(builder)) 0
-              else 2
-            } else 1
-          case 1 => if (!TmplDef.parse(builder)) 0
-            else 1
-          case 2 => if (!TemplateStat.parse(builder)) 0
-            else 2
+          case ParserState.EMPTY_STATE => if (!TmplDef.parse(builder)) {
+              if (!TemplateStat.parse(builder)) ParserState.EMPTY_STATE
+              else ParserState.SCRIPT_STATE
+            } else ParserState.FILE_STATE
+          case ParserState.FILE_STATE => if (!TmplDef.parse(builder)) ParserState.EMPTY_STATE
+            else ParserState.FILE_STATE
+          case ParserState.SCRIPT_STATE => if (!TemplateStat.parse(builder)) ParserState.EMPTY_STATE
+            else ParserState.SCRIPT_STATE
         }
       }
     }

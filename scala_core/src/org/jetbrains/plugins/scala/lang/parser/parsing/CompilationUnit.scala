@@ -25,7 +25,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
  */
 
 object CompilationUnit {
-  def parse(builder: PsiBuilder) = {
+  def parse(builder: PsiBuilder): Int = {
+    var parseState = ParserState.EMPTY_STATE
     //look for file package
     builder.getTokenType match {
       case ScalaTokenTypes.kPACKAGE => {
@@ -108,17 +109,28 @@ object CompilationUnit {
 
 
         while (builder.getTokenType != null) {
-          TopStatSeq.parse(builder, false, true)
+          TopStatSeq.parse(builder, false, true) match {
+            case ParserState.EMPTY_STATE =>
+            case ParserState.SCRIPT_STATE => parseState = ParserState.SCRIPT_STATE
+            case ParserState.FILE_STATE if parseState != ParserState.SCRIPT_STATE => parseState = ParserState.FILE_STATE
+            case _ => parseState = ParserState.SCRIPT_STATE
+          }
           builder.advanceLexer
         }
       }
 
       case _ => {
         while (builder.getTokenType != null) {
-          TopStatSeq.parse(builder, false, false)
+          TopStatSeq.parse(builder, false, false) match {
+            case ParserState.EMPTY_STATE =>
+            case ParserState.SCRIPT_STATE => parseState = ParserState.SCRIPT_STATE
+            case ParserState.FILE_STATE if parseState != ParserState.SCRIPT_STATE => parseState = ParserState.FILE_STATE
+            case _ => parseState = ParserState.SCRIPT_STATE
+          }
           builder.advanceLexer
         }
       }
     }
+    return parseState
   }
 }
