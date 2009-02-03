@@ -16,7 +16,6 @@ import com.intellij.psi.{PsiFileFactory, PsiElement, PsiFile}
 
 import com.intellij.util.LocalTimeCounter
 import java.io.File
-import psi.api.ScalaFile
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.ScalaPsiUtil
 import util.ScalaTestUtils

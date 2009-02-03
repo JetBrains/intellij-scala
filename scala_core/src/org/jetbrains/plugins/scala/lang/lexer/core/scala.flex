@@ -132,6 +132,7 @@ plainid = {varid}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 END_OF_LINE_COMMENT="/""/"[^\r\n]*
+SH_COMMENT="#!" [^]* "!#" | "::#!" [^]* "::!#"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// String & chars //////////////////////////////////////////////////////////////////////////////////////////////
@@ -236,6 +237,8 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 {END_OF_LINE_COMMENT}                           {  return process(tLINE_COMMENT); }
 
+{SH_COMMENT}                                    { return process(tSH_COMMENT); }
+
 
 
 
@@ -320,6 +323,8 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 
 {END_OF_LINE_COMMENT}                   { return process(tLINE_COMMENT); }
+
+{SH_COMMENT}                            { return process(tSH_COMMENT); }
 
 
 {STRING_LITERAL}                        {   yybegin(PROCESS_NEW_LINE);

@@ -43,7 +43,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   );
 
   static final TokenSet tBLOCK_COMMENTS = TokenSet.create(
-          ScalaTokenTypes.tBLOCK_COMMENT
+          ScalaTokenTypes.tBLOCK_COMMENT, ScalaTokenTypes.tSH_COMMENT
   );
 
   static final TokenSet tDOC_COMMENTS = TokenSet.create(

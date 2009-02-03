@@ -32,7 +32,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 
     if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
-        case ScalaTokenTypes.tBLOCK_COMMENT | ScalaElementTypes.TEMPLATE_BODY |
+        case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tSH_COMMENT | ScalaElementTypes.TEMPLATE_BODY |
                 ScalaDocElementTypes.SCALA_DOC_COMMENT => descriptors += (new FoldingDescriptor(node, node.getTextRange))
         case ScalaElementTypes.PACKAGING => descriptors += (new FoldingDescriptor(node,
           new TextRange(node.getTextRange.getStartOffset + PACKAGE_KEYWORD.length + 1, node.getTextRange.getEndOffset)))
@@ -69,6 +69,8 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case ScalaElementTypes.TEMPLATE_BODY => return "{...}"
         case ScalaElementTypes.PACKAGING => return "{...}"
         case ScalaElementTypes.IMPORT_STMT => return "..."
+        case ScalaTokenTypes.tSH_COMMENT if node.getText.charAt(0) == ':' => return "::#!...::!#"
+        case ScalaTokenTypes.tSH_COMMENT => return "#!...!#"
         case _ =>
       }
     }
