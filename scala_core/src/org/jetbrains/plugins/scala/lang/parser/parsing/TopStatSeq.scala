@@ -24,7 +24,7 @@ object TopStatSeq {
   def parse(builder: PsiBuilder): Int = parse(builder, false)
   def parse(builder: PsiBuilder, waitBrace: Boolean): Int = parse(builder, waitBrace, false)
   def parse(builder: PsiBuilder, waitBrace: Boolean, hasPackage: Boolean): Int = {
-    var parseState = ParserState.FILE_STATE //ParserState.EMPTY_STATE
+    var parseState = ParserState.EMPTY_STATE
     if (waitBrace) parseState = ParserState.FILE_STATE
     if(hasPackage) parseState = ParserState.FILE_STATE
     while (true) {

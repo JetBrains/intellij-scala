@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.runner
 
 import com.intellij.codeInsight.runner.JavaMainMethodProvider
 import com.intellij.psi._
+import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.typedef.ScObject
 
 /**
@@ -12,7 +13,7 @@ class ScalaMainMethodProvider extends JavaMainMethodProvider {
   def hasMainMethod(clazz: PsiClass) = findMainInClass(clazz) != null
 
   def findMainInClass(clazz: PsiClass): PsiMethod = clazz match {
-    case o: ScObject => {
+    case o: ScObject if clazz.getContainingFile.asInstanceOf[ScalaFile].isScriptFile == false => {
       val mainMethods = o.findMethodsByName("main", true)
       for (m <- mainMethods) {
         if (isMainMethod(m)) return m
@@ -37,8 +38,5 @@ class ScalaMainMethodProvider extends JavaMainMethodProvider {
       }
     }
 
-  def isApplicable(clazz: PsiClass) = clazz match {
-    case _: ScObject => true
-    case _ => false
-  }
+  def isApplicable(clazz: PsiClass) = clazz.getContainingFile.isInstanceOf[ScalaFile]
 }

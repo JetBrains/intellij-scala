@@ -5,9 +5,8 @@ import com.intellij.testFramework.LightVirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 
 import java.lang.String
-import lang.psi.api.ScalaFile
-import lang.psi.impl.ScalaFileImpl
 import com.intellij.psi._
+import lang.psi.impl.ScalaFileImpl
 
 /**
  * User: Alexander Podkhalyuzin

@@ -11,11 +11,7 @@ class ScalaParser extends PsiParser {
 
   def parse(root: IElementType, builder: PsiBuilder): ASTNode = {
     val rootMarker = builder.mark
-    val scriptMarker = builder.mark
-    new Program parse (builder) match {
-      case ParserState.SCRIPT_STATE => scriptMarker.done(ScalaElementTypes.SCALA_SCRIPT_CLASS)
-      case _ => scriptMarker.drop
-    }
+    new Program parse (builder)
     rootMarker.done(root)
     builder.getTreeBuilt
   }

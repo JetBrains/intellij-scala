@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import psi._
-import psi.api.ScalaFile;
-import com.intellij.navigation.ItemPresentation;
+import psi.api.ScalaFile
+import com.intellij.navigation.ItemPresentation
+import psi.api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable};
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import com.intellij.psi._
@@ -23,11 +24,36 @@ class ScalaFileStructureViewElement(file: ScalaFile) extends ScalaStructureViewE
 
   def getChildren(): Array[TreeElement] = {
     val children = new ArrayBuffer[ScalaStructureViewElement]
-    for (td <- file.immediateTypeDefinitions) {
+    /*for (td <- file.immediateTypeDefinitions) {
       children += new ScalaTypeDefinitionStructureViewElement(td)
     }
     for (p <- file.packagings) {
       children += new ScalaPackagingStructureViewElement(p)
+    }*/
+    for (child <- file.getChildren) {
+      child match {
+        case td: ScTypeDefinition => {
+          children += new ScalaTypeDefinitionStructureViewElement(td)
+        }
+        case p: ScPackaging => {
+          children += new ScalaPackagingStructureViewElement(p)
+        }
+        case member: ScVariable => {
+          for (f <- member.declaredElements)
+            children += new ScalaVariableStructureViewElement(f.nameId, false)
+        }
+        case member: ScValue => {
+          for (f <- member.declaredElements)
+            children += new ScalaValueStructureViewElement(f.nameId, false)
+        }
+        case member: ScTypeAlias => {
+          children += new ScalaTypeAliasStructureViewElement(member, false)
+        }
+        case func: ScFunction => {
+          children += new ScalaFunctionStructureViewElement(func, false)
+        }
+        case _ =>
+      }
     }
     return children.toArray
   }

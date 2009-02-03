@@ -47,7 +47,7 @@ object TopStat {
           case ParserState.EMPTY_STATE => if (!TmplDef.parse(builder)) {
               if (!TemplateStat.parse(builder)) ParserState.EMPTY_STATE
               else ParserState.SCRIPT_STATE
-            } else ParserState.FILE_STATE
+            } else ParserState.ADDITIONAL_STATE
           case ParserState.FILE_STATE => if (!TmplDef.parse(builder)) ParserState.EMPTY_STATE
             else ParserState.FILE_STATE
           case ParserState.SCRIPT_STATE => if (!TemplateStat.parse(builder)) ParserState.EMPTY_STATE

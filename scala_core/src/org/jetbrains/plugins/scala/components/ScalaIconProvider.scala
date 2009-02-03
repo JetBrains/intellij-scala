@@ -13,6 +13,7 @@ class ScalaIconProvider extends IconProvider {
 
     if (element.isInstanceOf[ScalaFile]) {
       val file = element.asInstanceOf[ScalaFile]
+      if (file.isScriptFile) return null //todo: Script icon
       val name = file.getVirtualFile.getNameWithoutExtension
       val defs = file.typeDefinitions
       for (val clazz <- defs) {

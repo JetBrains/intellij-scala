@@ -1,6 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
+
+import api.expr.ScExpression
+import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
+
+
 import com.intellij.openapi.roots.{OrderEntry, ProjectRootManager, OrderRootType}
+import lexer.ScalaTokenTypes
 import stubs.ScFileStub
 import _root_.com.intellij.extapi.psi.{PsiFileBase}
 import api.ScalaFile
@@ -72,6 +78,18 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     }
   }
 
+
+  def isScriptFile: Boolean = {
+    for (n <- getNode.getChildren(null); child = n.getPsi) {
+      child match {
+        case _: ScPackageStatement | _: ScPackaging => return false
+        case _: ScValue | _: ScVariable | _: ScFunction | _:ScExpression | _: ScTypeAlias => return true
+        case _ => if (n.getElementType == ScalaTokenTypes.tSH_COMMENT) return true
+      }
+    }
+    return false
+  }
+
   def setPackageName(name: String) {
     //todo
   }
@@ -89,7 +107,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   def packageStatement = findChild(classOf[ScPackageStatement])
 
-  override def getClasses = typeDefinitions.map(t => t: PsiClass)
+  override def getClasses = if (!isScriptFile) typeDefinitions.map(t => t: PsiClass) else PsiClass.EMPTY_ARRAY
 
   def icon = Icons.FILE_TYPE_LOGO
 
