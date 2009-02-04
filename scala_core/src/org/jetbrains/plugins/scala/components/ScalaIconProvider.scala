@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.components
 
 import com.intellij.psi._
+import icons.Icons
 import javax.swing.Icon
 import com.intellij.ide.IconProvider
 import lang.psi.api.ScalaFile
@@ -13,7 +14,7 @@ class ScalaIconProvider extends IconProvider {
 
     if (element.isInstanceOf[ScalaFile]) {
       val file = element.asInstanceOf[ScalaFile]
-      if (file.isScriptFile) return null //todo: Script icon
+      if (file.isScriptFile) return Icons.SCRIPT_FILE_LOGO
       val name = file.getVirtualFile.getNameWithoutExtension
       val defs = file.typeDefinitions
       for (val clazz <- defs) {
