@@ -5,6 +5,7 @@ import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.{PsiComment, PsiElement}
 import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
+import psi.api.ScalaFile
 import psi.api.statements.params.ScParameter
 
 /**
@@ -15,7 +16,8 @@ import psi.api.statements.params.ScParameter
 class ImplicitFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    var leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    if (leaf != null && leaf.getContainingFile.asInstanceOf[ScalaFile].isScriptFile) leaf = leaf.getParent
     if (leaf != null) {
       val parent = leaf.getParent
       parent match {
