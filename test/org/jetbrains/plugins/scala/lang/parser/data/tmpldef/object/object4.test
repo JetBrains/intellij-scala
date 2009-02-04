@@ -15,9 +15,8 @@ ScalaFile
   PsiErrorElement:';' or newline expected
     <empty list>
   PsiElement([)('[')
-  PsiErrorElement:Wrong top statement declaration
-    <empty list>
-  PsiElement(identifier)('T')
-  PsiErrorElement:Wrong top statement declaration
+  ReferenceExpression
+    PsiElement(identifier)('T')
+  PsiErrorElement:';' or newline expected
     <empty list>
   PsiElement(])(']')
