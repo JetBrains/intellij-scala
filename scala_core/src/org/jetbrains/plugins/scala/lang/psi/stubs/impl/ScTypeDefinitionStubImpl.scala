@@ -18,16 +18,19 @@ extends StubBaseWrapper[ScTypeDefinition](parent, elemType) with ScTypeDefinitio
   var myName: StringRef = _
   var myQualName: StringRef = _
   var mySourceFileName: StringRef = _
+  var myMethodNames: Array[StringRef] = Array[StringRef]()
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
           name: String,
           qualName: String,
-          sourceFileName: String) {
+          sourceFileName: String,
+          methodNames: Array[String]) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     mySourceFileName = StringRef.fromString(sourceFileName)
     myName = StringRef.fromString(name)
     myQualName = StringRef.fromString(qualName)
+    myMethodNames = methodNames.map(StringRef.fromString(_))
   }
 
   def sourceFileName = StringRef.toString(mySourceFileName)
@@ -36,7 +39,10 @@ extends StubBaseWrapper[ScTypeDefinition](parent, elemType) with ScTypeDefinitio
 
   def getName = StringRef.toString(myName)
 
+  def methodNames: Array[String] = myMethodNames.map(StringRef.toString(_))
+
   //todo PsiClassStub methods
+
   def getLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_5
   def isEnum: Boolean = false
   def isInterface: Boolean = false

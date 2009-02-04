@@ -20,4 +20,9 @@ trait ScTypeDefinitionStub extends PsiClassStub[ScTypeDefinition] {
 
   def getQualifiedName: String = qualName
 
+  /**
+   * Only method names without values and variables.
+   * @return method names
+   */
+  def methodNames: Array[String]
 }

@@ -83,6 +83,7 @@
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFullClassNameIndex"/>
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFullPackagingNameIndex"/>
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFunctionNameIndex"/>
+    <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFunctionNameToClassIndex"/>
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScValueNameIndex"/>
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScVariableNameIndex"/>
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTypeAliasNameIndex"/>

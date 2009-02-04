@@ -52,14 +52,7 @@ class ScalaVariableOfTypeMacro extends Macro {
               } else {
                 ScType.extractClassType(t) match {
                   case Some((x: ScTypeDefinition, _)) => {
-                    for (sign <- x.allSignatures) {
-                      sign match {
-                        case FullSignature(sign: PhysicalSignature, _, _, _) => {
-                          if (sign.method.getName == "foreach") array += new LookupItem(variant.getElement, variant.getElement.getName)
-                        }
-                        case _ => 
-                      }
-                    }
+                    if (!x.functionsByName("foreach").isEmpty) array += new LookupItem(variant.getElement, variant.getElement.getName)
                   }
                   case _ =>
                 }
@@ -99,14 +92,7 @@ class ScalaVariableOfTypeMacro extends Macro {
               } else {
                 ScType.extractClassType(t) match {
                   case Some((x: ScTypeDefinition, _)) => {
-                    for (sign <- x.allSignatures) {
-                      sign match {
-                        case FullSignature(sign: PhysicalSignature, _, _, _) => {
-                          if (sign.method.getName == "foreach") return new TextResult(variant.getElement.getName)
-                        }
-                        case _ =>
-                      }
-                    }
+                    if (!x.functionsByName("foreach").isEmpty) return new TextResult(variant.getElement.getName)
                   }
                   case _ =>
                 }
