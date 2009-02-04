@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion.filters.other
 
-import com.intellij.lang.ASTNode;
+import com.intellij.lang.ASTNode
+import psi.api.ScalaFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.filters.ElementFilter;
@@ -22,9 +23,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 class ExtendsFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    var leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    val file = leaf.getContainingFile.asInstanceOf[ScalaFile]
+    if (leaf != null && file.isScriptFile) {
+      leaf = leaf.getParent
+    }
     if (leaf != null) {
-      val prev = leaf.getPrevSibling
+      var prev = leaf.getPrevSibling
+      if (prev == null && file.isScriptFile) prev = leaf.getParent.getPrevSibling
       prev match {
         case _: PsiErrorElement =>
         case _ => return false

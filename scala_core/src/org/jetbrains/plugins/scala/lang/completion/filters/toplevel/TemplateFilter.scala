@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.lang.completion.filters.toplevel
 import psi.api.base.ScStableCodeReferenceElement
 import psi.api.base.patterns.ScCaseClause
 import psi.api.base.patterns.ScReferencePattern
-import com.intellij.lang.ASTNode;
+import com.intellij.lang.ASTNode
+import psi.api.ScalaFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.filters.ElementFilter;
@@ -26,7 +27,8 @@ import org.jetbrains.plugins.scala.lang.parser._
 class TemplateFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    var leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    if (leaf != null && leaf.getContainingFile.asInstanceOf[ScalaFile].isScriptFile) leaf = leaf.getParent
     if (leaf != null) {
       val parent = leaf.getParent();
       val tuple = ScalaCompletionUtil.getForAll(parent,leaf)
