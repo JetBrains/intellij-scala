@@ -60,7 +60,7 @@ public class ScalaFileType extends LanguageFileType {
   }
 
   public Icon getIcon() {
-    return Icons.FILE_TYPE_LOGO;
+     return Icons.FILE_TYPE_LOGO;
   }
 
   public boolean isJVMDebuggingSupported() {
