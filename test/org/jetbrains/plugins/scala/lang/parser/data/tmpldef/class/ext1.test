@@ -22,4 +22,5 @@ ScalaFile
   PsiErrorElement:';' or newline expected
     <empty list>
   PsiWhiteSpace(' ')
-  PsiElement(integer)('3')
+  Literal
+    PsiElement(integer)('3')
