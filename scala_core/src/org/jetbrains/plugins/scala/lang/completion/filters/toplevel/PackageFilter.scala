@@ -24,7 +24,8 @@ import org.jetbrains.plugins.scala.lang.parser._
 class PackageFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    var leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    if (leaf != null && leaf.getContainingFile.asInstanceOf[ScalaFile].isScriptFile) leaf = leaf.getParent
     if (leaf != null) {
       val parent = leaf.getParent();
       if (parent.isInstanceOf[ScalaFile]) {
