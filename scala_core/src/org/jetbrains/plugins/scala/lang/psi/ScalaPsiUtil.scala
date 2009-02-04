@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import api.base.{ScConstructor, ScStableCodeReferenceElement, ScModifierList}
@@ -12,8 +13,6 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.{CachedValueProvider, CachedValue, PsiFormatUtil}
-import com.jniwrapper.S
-import impl.toplevel.typedef.TypeDefinitionMembers
 import lang.psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
 import structureView.ScalaElementPresentation
