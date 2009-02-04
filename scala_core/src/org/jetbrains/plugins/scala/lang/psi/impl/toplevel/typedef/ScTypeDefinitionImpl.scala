@@ -10,7 +10,9 @@ import com.intellij.openapi.editor.Editor
 
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.IStubElementType
+import com.intellij.psi.stubs.{IStubElementType, StubIndex}
+import java.util.ArrayList
+import stubs.index.ScalaIndexKeys
 import stubs.ScTypeDefinitionStub
 import _root_.scala.collection.immutable.Set
 import api.base.{ScStableCodeReferenceElement, ScPrimaryConstructor}
@@ -160,7 +162,13 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
 
   override def getTypeParameters = typeParameters.toArray
 
-  override def getSupers: Array[PsiClass] = extendsBlock.supers.toArray
+  override def getSupers: Array[PsiClass] = {
+    val direct = extendsBlock.supers.toArray
+    val res = new ArrayBuffer[PsiClass]
+    res ++= direct
+    for (sup <- direct) res ++= sup.getSupers
+    res.toArray
+  }
 
   override def setName(name: String): PsiElement = {
     val id = nameId.getNode
@@ -188,28 +196,29 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
 
   import com.intellij.psi.scope.PsiScopeProcessor
 
-  override def isInheritor(clazz: PsiClass, deep: Boolean) = {
+  override def isInheritor(baseClass: PsiClass, deep: Boolean) = {
     def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean, visited: Set[PsiClass]): Boolean = {
       if (visited.contains(drv)) false
       else drv match {
         case drg: ScTypeDefinition => drg.superTypes.find{
           t => ScType.extractClassType(t) match {
-            case Some((c, _)) => (c.getQualifiedName == clazz.getQualifiedName && clazz.isInstanceOf[c.type]) || (deep && isInheritorInner(base, c, deep, visited + drg))
+            case Some((c, _)) => (c.getQualifiedName == baseClass.getQualifiedName && baseClass.isInstanceOf[c.type]) || (deep && isInheritorInner(base, c, deep, visited + drg))
             case _ => false
           }
         }
         case _ => drv.getSuperTypes.find{
           psiT =>
                   val c = psiT.resolveGenerics.getElement
-                  if (c == null) false else c == clazz || (deep && isInheritorInner(base, c, deep, visited + drv))
+                  if (c == null) false else c == baseClass || (deep && isInheritorInner(base, c, deep, visited + drv))
         }
       }
     }
-    isInheritorInner(clazz, this, deep, Set.empty)
+    isInheritorInner(baseClass, this, deep, Set.empty)
   }
 
   def functionsByName(name: String) =
-    for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method == name) yield n.info.method
+    for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield n.info.method
+
 
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)

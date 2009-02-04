@@ -196,7 +196,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   }).mkString(", "))
                 }
               }
-              case clazz: PsiClass => //todo: for case classes
+              case clazz: PsiClass => //todo: for case classes and Objects
 
               case _ =>
             }

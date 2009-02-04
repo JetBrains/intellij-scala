@@ -8,9 +8,10 @@ import api.statements._
 import api.statements.params.{ScClassParameter, ScParameter}
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.{ScNamedElement, ScTyped}
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.tree.TokenSet
-import com.intellij.psi.util.PsiFormatUtil
+import com.intellij.psi.util.{CachedValueProvider, CachedValue, PsiFormatUtil}
 import com.jniwrapper.S
 import impl.toplevel.typedef.TypeDefinitionMembers
 import lang.psi.impl.ScalaPsiElementFactory
