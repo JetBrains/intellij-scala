@@ -1,17 +1,18 @@
 package org.jetbrains.plugins.scala.highlighter
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
+import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.statements._
 import com.intellij.psi._
 import lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScBindingPattern}
 import lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import lang.psi.api.expr.{ScAnnotationExpr, ScAnnotation, ScReferenceExpression, ScNameValuePair}
 import lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
+import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.lang.annotation.AnnotationHolder
 import lang.psi.api.base.types.ScSimpleTypeElement
 import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScObject}
 import lang.lexer.ScalaTokenTypes
 
 /**
@@ -21,6 +22,11 @@ import lang.lexer.ScalaTokenTypes
 
 object AnnotatorHighlighter {
   def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+    val c = PsiTreeUtil.getParentOfType(refElement, classOf[ScConstructor])
+    c match {
+      case null =>
+      case c => if (c.getParent.isInstanceOf[ScAnnotationExpr]) return
+    }
     refElement.resolve match {
       case _: ScSyntheticClass => { //this is td, it's important!
         val annotation = holder.createInfoAnnotation(refElement, null)
@@ -154,7 +160,6 @@ object AnnotatorHighlighter {
   def highlightElement(element: PsiElement, holder: AnnotationHolder) {
     element match {
       case x: ScAnnotation => visitAnnotation(x, holder)
-      case x: ScClass => visitClass(x, holder)
       case x: ScParameter => visitParameter(x, holder)
       case x: ScCaseClause => visitCaseClause(x, holder)
       case x: ScTypeAlias => visitTypeAlias(x, holder)
@@ -167,6 +172,15 @@ object AnnotatorHighlighter {
           case _: ScTypeParam => {
             val annotation = holder.createInfoAnnotation(element, null)
             annotation.setTextAttributes(DefaultHighlighter.TYPEPARAM)
+          }
+          case clazz: ScClass => {
+            if (clazz.getModifierList.has(ScalaTokenTypes.kABSTRACT)) {
+              val annotation = holder.createInfoAnnotation(clazz.nameId, null)
+              annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
+            } else {
+              val annotation = holder.createInfoAnnotation(clazz.nameId, null)
+              annotation.setTextAttributes(DefaultHighlighter.CLASS)
+            }
           }
           case _: ScObject => {
             val annotation = holder.createInfoAnnotation(element, null)
