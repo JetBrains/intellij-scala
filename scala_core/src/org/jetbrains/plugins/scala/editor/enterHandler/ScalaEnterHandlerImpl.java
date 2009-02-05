@@ -377,7 +377,11 @@ class ScalaEnterHandlerImpl extends EditorWriteActionHandler {
 
         if (docStart) {
           PsiComment comment = PsiTreeUtil.getNonStrictParentOfType(myFile.findElementAt(myOffset), PsiComment.class);
-          myOffset = comment.getFirstChild().getNextSibling().getNextSibling().getTextRange().getEndOffset();
+          try {
+            myOffset = comment.getFirstChild().getNextSibling().getNextSibling().getTextRange().getEndOffset();
+          } catch (Exception e) {
+            myOffset = comment.getTextRange().getStartOffset() + 3;
+          }
           myDocument.insertString(myOffset, " ");
           myOffset++;
         }
