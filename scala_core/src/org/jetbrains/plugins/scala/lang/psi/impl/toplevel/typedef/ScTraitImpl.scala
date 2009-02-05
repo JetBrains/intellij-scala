@@ -43,4 +43,7 @@ class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParameter
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place) &&
     super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
   }
+
+
+  override def isInterface: Boolean = false
 }
