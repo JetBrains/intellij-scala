@@ -45,5 +45,5 @@ class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParameter
   }
 
 
-  override def isInterface: Boolean = false
+  override def isInterface: Boolean = true
 }
