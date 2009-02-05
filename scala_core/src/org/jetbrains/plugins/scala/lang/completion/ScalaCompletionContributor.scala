@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.TailType;
+import com.intellij.codeInsight.TailType
+import psi.api.ScalaFile;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupItem;
 import com.intellij.lang.ASTNode;
@@ -23,6 +24,7 @@ import com.intellij.patterns.ElementPattern;
 
 class ScalaCompletionContributor extends CompletionContributor {
   override def advertise(parameters: CompletionParameters): String = {
+    if (!parameters.getOriginalFile.isInstanceOf[ScalaFile]) return null
     val messages = Array[String](
       "Local variables rename is inplace now.",
       "Scala plugin page is available now.",
