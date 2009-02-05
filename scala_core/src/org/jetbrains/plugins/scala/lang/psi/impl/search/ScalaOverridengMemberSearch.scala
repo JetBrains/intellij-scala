@@ -4,10 +4,10 @@ import _root_.scala.collection.mutable.ArrayBuffer
 import api.statements.{ScFunction, ScTypeAlias}
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition}
+import com.intellij.psi._
 import com.intellij.psi.search.searches.{OverridingMethodsSearch, ClassInheritorsSearch, ExtensibleQueryFactory}
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiMember, PsiMethod, PsiNamedElement, PsiClass}
 import com.intellij.util.{QueryFactory, EmptyQuery, Query}
 import java.util.Arrays
 import toplevel.typedef.TypeDefinitionMembers
@@ -24,12 +24,13 @@ object ScalaOverridengMemberSearch {
       case _: ScFunction =>  if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
       case _: ScTypeAlias => if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
       case x: PsiNamedElement if ScalaPsiUtil.nameContext(x) != null && ScalaPsiUtil.nameContext(x).getParent.isInstanceOf[ScTemplateBody] =>
+      //case _: PsiMethod =>
       case _ => return Array[PsiNamedElement]()
     }
 
 
     val parentClass = member match {
-      case f: ScFunction => f.getContainingClass
+      case m: PsiMethod => m.getContainingClass
       case x: PsiNamedElement => PsiTreeUtil.getParentOfType(x, classOf[ScTemplateDefinition])
     }
     val buffer = new ArrayBuffer[PsiNamedElement]
@@ -43,7 +44,7 @@ object ScalaOverridengMemberSearch {
                   collect.map(_.asInstanceOf[FullSignature]).
                   filter((x: FullSignature) => PsiTreeUtil.getParentOfType(x.element, classOf[PsiClass]) == inheritor)
       member match {
-        case method: ScFunction => {
+        case method: PsiMethod => {
           val sign = new PhysicalSignature(method, substitutor)
           for (signature <- signatures if sign.equiv(signature.sig)) {
             buffer += signature.element.asInstanceOf[PsiNamedElement]
