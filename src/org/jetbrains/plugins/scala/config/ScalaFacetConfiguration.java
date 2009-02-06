@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.config.ui.ScalaFacetTab;
 /**
  * @author ilyas
  */
-public class ScalaFacetConfiguration implements FacetConfiguration{
+public class ScalaFacetConfiguration implements FacetConfiguration {
 
   public String getDisplayName() {
     return "Scala";
