@@ -2,15 +2,26 @@ package org.jetbrains.plugins.scala.script
 
 
 import _root_.scala.collection.mutable.ArrayBuffer
+import com.intellij.compiler.impl.javaCompiler.ModuleChunk
+import com.intellij.compiler.ModuleCompilerUtil
 import com.intellij.execution.configurations._
+import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.execution.Executor
+import com.intellij.execution.{CantRunException, ExecutionException, Executor}
 import com.intellij.facet.FacetManager
-import com.intellij.openapi.module.{ModuleManager, Module}
+import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.options.SettingsEditor
+import com.intellij.openapi.projectRoots.{JavaSdkType, Sdk}
+
+import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.JDOMExternalizer
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiManager
+import com.intellij.vcsUtil.VcsUtil
 import config.{ScalaConfigUtils, ScalaSDK}
+import java.io.{File}
+
 import java.util.{Arrays, Collection}
 import jdom.Element
 
@@ -21,6 +32,10 @@ import jdom.Element
 
 class ScalaScriptRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
         extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project), configurationFactory) {
+  val SCALA_HOME = "-Dscala.home="
+  val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
+  val EMACS = "-Denv.emacs=\"%EMACS%\""
+  val MAIN_CLASS = "scala.tools.nsc.MainGenericRunner"
   private var scriptPath = ""
   private var scriptArgs = ""
   private var javaOptions = ""
@@ -39,9 +54,59 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
-    new ScalaScriptRunCommandLineState(this, env)
+    val module = getModule
+    if (module == null) throw new ExecutionException("Module is not specified")
+    val scalaSdkPath = getScalaInstallPath
+    if (scalaSdkPath == "") throw new ExecutionException("Scala SDK is not specified")
+    val rootManager = ModuleRootManager.getInstance(module);
+    val sdk = rootManager.getSdk();
+    if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
+      throw CantRunException.noJdkForModule(module);
+    }
+    val sdkType = sdk.getSdkType
+
+    val script = VcsUtil.getVirtualFile(scriptPath)
+    val state = new JavaCommandLineState(env) {
+      protected override def createJavaParameters: JavaParameters = {
+        val params = new JavaParameters();
+
+        params.setJdk(sdk)
+
+        params.setCharset(null)
+        params.getVMParametersList.addParametersString(getJavaOptions)
+        //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5008")
+        params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath )
+        params.getVMParametersList.add(CLASSPATH)
+        params.getVMParametersList.add(EMACS)
+        val list = new java.util.ArrayList[String]
+        val dir: VirtualFile = VcsUtil.getVirtualFile(scalaSdkPath + File.separator + "lib")
+        for (child <- dir.getChildren) {
+          params.getClassPath.add(child)
+        }
+        params.setMainClass(MAIN_CLASS)
+
+        params.getProgramParametersList.add(scriptPath)
+        params.getProgramParametersList.addParametersString(scriptArgs)
+        return params
+      }
+    }
+
+    state.setConsoleBuilder(TextConsoleBuilderFactory.getInstance().createBuilder(getProject()));
+    return state;
   }
 
+  def getModule: Module = {
+    var module: Module = null
+    try {
+      val file: VirtualFile = VcsUtil.getVirtualFile(scriptPath)
+      module = ModuleUtil.findModuleForFile(file, getProject)
+    }
+    catch {
+      case e =>
+    }
+    if (module == null) module = getConfigurationModule.getModule
+    return module
+  }
 
   def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
     new ScalaScriptRunConfiguration(getProject, getFactory, getName)
@@ -62,14 +127,17 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaScriptRunConfigurationEditor(project, this)
 
   def getSdk(): ScalaSDK = {
-    val modules = getValidModules
-    if (modules.size > 0) ScalaConfigUtils.getScalaSDKs(modules.get(0)).apply(0)
+    if (getModule != null) ScalaConfigUtils.getScalaSDKs(getModule).apply(0)
     else null
   }
 
   def getScalaInstallPath(): String = {
-    val modules = getValidModules
-    if (modules.size > 0) ScalaConfigUtils.getScalaInstallPath(modules.get(0))
+    if (getModule != null) {
+      val sdk = ScalaConfigUtils.getScalaInstallPath(getModule)
+      var exePath = sdk.replace('\\', File.separatorChar)
+      //if (!exePath.endsWith(File.separator)) exePath += File.separator
+      return exePath
+    }
     else ""
   }
 
