@@ -3,8 +3,6 @@ package org.jetbrains.plugins.scala.script;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.RawCommandLineEditor;
 
 import javax.swing.*;
@@ -19,6 +17,7 @@ public class ScalaScriptRunConfigurationForm {
   private JPanel myPanel;
   private TextFieldWithBrowseButton textFieldWithBrowseButton1;
   private RawCommandLineEditor scriptArgsEditor;
+  private RawCommandLineEditor javaOptionsEditor;
 
   public ScalaScriptRunConfigurationForm(final Project project, final ScalaScriptRunConfiguration configuration) {
     myProject = project;
@@ -26,6 +25,8 @@ public class ScalaScriptRunConfigurationForm {
     addFileChooser("Select scala script file", textFieldWithBrowseButton1, project);
     scriptArgsEditor.setName("Scala script program arguments");
     scriptArgsEditor.setDialogCaption("Scala script program arguments editor");
+    javaOptionsEditor.setName("VM options");
+    javaOptionsEditor.setDialogCaption("VM opotions editor");
   }
 
   public JPanel getPanel() {
@@ -48,9 +49,18 @@ public class ScalaScriptRunConfigurationForm {
     scriptArgsEditor.setText(scriptArgs);
   }
 
+  public String getJavaOptions() {
+    return javaOptionsEditor.getText();
+  }
+
+  public void setJavaOptions(String s) {
+    javaOptionsEditor.setText(s);
+  }
+
   public void apply(ScalaScriptRunConfiguration configuration) {
     setScriptArgs(configuration.getScriptArgs());
     setScriptPath(configuration.getScriptPath());
+    setJavaOptions(configuration.getJavaOptions());
   }
 
   private FileChooserDescriptor addFileChooser(final String title,

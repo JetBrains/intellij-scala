@@ -9,8 +9,10 @@ import com.intellij.facet.FacetManager
 import com.intellij.openapi.module.{ModuleManager, Module}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.options.SettingsEditor
+import com.intellij.openapi.util.JDOMExternalizer
 import config.{ScalaConfigUtils, ScalaSDK}
 import java.util.{Arrays, Collection}
+import jdom.Element
 
 /**
  * User: Alexander Podkhalyuzin
@@ -21,15 +23,19 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project), configurationFactory) {
   private var scriptPath = ""
   private var scriptArgs = ""
+  private var javaOptions = ""
 
   def getScriptPath = scriptPath
   def getScriptArgs = scriptArgs
+  def getJavaOptions = javaOptions
   def setScriptPath(s: String): Unit = scriptPath = s
   def setScriptArgs(s: String): Unit = scriptArgs = s
+  def setJavaOptions(s: String): Unit = javaOptions = s
 
   def apply(params: ScalaScriptRunConfigurationForm) {
     setScriptArgs(params.getScriptArgs)
     setScriptPath(params.getScriptPath)
+    setJavaOptions(params.getJavaOptions)
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
@@ -65,5 +71,22 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     val modules = getValidModules
     if (modules.size > 0) ScalaConfigUtils.getScalaInstallPath(modules.get(0))
     else ""
+  }
+
+
+  override def writeExternal(element: Element): Unit = {
+    super.writeExternal(element)
+    writeModule(element)
+    JDOMExternalizer.write(element, "path", getScriptPath)
+    JDOMExternalizer.write(element, "vmparams", getJavaOptions)
+    JDOMExternalizer.write(element, "params", getScriptArgs)
+  }
+
+  override def readExternal(element: Element): Unit = {
+    super.readExternal(element)
+    readModule(element)
+    scriptPath = JDOMExternalizer.readString(element, "path")
+    javaOptions = JDOMExternalizer.readString(element, "vmparams")
+    scriptArgs = JDOMExternalizer.readString(element, "params")
   }
 }
