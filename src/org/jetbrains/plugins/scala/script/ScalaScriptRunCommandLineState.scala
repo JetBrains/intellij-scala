@@ -30,7 +30,13 @@ class ScalaScriptRunCommandLineState(configuration: ScalaScriptRunConfiguration,
     if (!exePath.endsWith(File.separator)) exePath += File.separator
     exePath += "bin" + File.separator + "scala.bat"
     commandLine.setExePath(exePath)
+    //todo: add classpath
     commandLine.addParameter(configuration.getScriptPath)
+    val scriptArgs = configuration.getScriptArgs
+    val params = scriptArgs.split("[ ]")
+    for (param <- params) commandLine.addParameter(param)
+
+    //todo: add env
     return commandLine
   }
 
