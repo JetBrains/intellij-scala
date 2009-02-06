@@ -24,7 +24,7 @@ object ScalaOverridengMemberSearch {
       case _: ScFunction =>  if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
       case _: ScTypeAlias => if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
       case x: PsiNamedElement if ScalaPsiUtil.nameContext(x) != null && ScalaPsiUtil.nameContext(x).getParent.isInstanceOf[ScTemplateBody] =>
-      //case _: PsiMethod =>
+      case _: PsiMethod =>
       case _ => return Array[PsiNamedElement]()
     }
 
