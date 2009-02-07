@@ -19,7 +19,7 @@ public class ScalaDebuggerClassFilterProvider implements DebuggerClassFilterProv
   private static final String[] PROHIBITED_CLASS_PATTERNS =
     {"scala.runtime.*"};
 
-  private static ClassFilter[] FITERS = ContainerUtil.map(PROHIBITED_CLASS_PATTERNS, new Function<String, ClassFilter>() {
+  private static ClassFilter[] FILTERS = ContainerUtil.map(PROHIBITED_CLASS_PATTERNS, new Function<String, ClassFilter>() {
     public ClassFilter fun(final String s) {
       return new ClassFilter(s);
     }
@@ -31,7 +31,7 @@ public class ScalaDebuggerClassFilterProvider implements DebuggerClassFilterProv
     final Boolean flag = settings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS;
     final ArrayList<ClassFilter> list = new ArrayList<ClassFilter>();
     if (flag == null || flag.booleanValue()) {
-      list.addAll(Arrays.asList(FITERS));
+      list.addAll(Arrays.asList(FILTERS));
       return list;
     }
     return list;
