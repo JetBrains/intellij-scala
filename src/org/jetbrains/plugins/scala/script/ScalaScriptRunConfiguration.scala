@@ -83,7 +83,6 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath)
         params.getVMParametersList.add(CLASSPATH)
         params.getVMParametersList.add(EMACS)
-        //params.getVMParametersList.add("-nocompdaemon")
         val list = new java.util.ArrayList[String]
         val dir: VirtualFile = VcsUtil.getVirtualFile(scalaSdkPath + File.separator + "lib")
         for (child <- dir.getChildren) {

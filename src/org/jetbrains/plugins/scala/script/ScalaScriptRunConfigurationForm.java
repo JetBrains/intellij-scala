@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.script;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.RawCommandLineEditor;
 
 import javax.swing.*;
@@ -66,9 +67,14 @@ public class ScalaScriptRunConfigurationForm {
   private FileChooserDescriptor addFileChooser(final String title,
                                                final TextFieldWithBrowseButton textField,
                                                final Project project) {
-      final FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(true, false, false, false, false, false);
-      fileChooserDescriptor.setTitle(title);
-      textField.addBrowseFolderListener(title, null, project, fileChooserDescriptor);
-      return fileChooserDescriptor;
+    final FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(true, false, false, false, false, false) {
+      @Override
+      public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles) {
+        return super.isFileVisible(file, showHiddenFiles) && (file.isDirectory() || "scala".equals(file.getExtension()));
+      }
+    };
+    fileChooserDescriptor.setTitle(title);
+    textField.addBrowseFolderListener(title, null, project, fileChooserDescriptor);
+    return fileChooserDescriptor;
   }
 }
