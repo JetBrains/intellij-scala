@@ -18,6 +18,7 @@ import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.openapi.roots.{OrderEntry, ModuleOrderEntry, OrderRootType, ModuleRootManager}
 
 
+import lang.psi.api.ScalaFile
 import util.{ScalaUtils}
 
 
@@ -59,6 +60,20 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
+    def fileNotFoundError {
+      throw new ExecutionException("Scala script file not found.")
+    }
+    try {
+      val file: VirtualFile = VcsUtil.getVirtualFile(scriptPath)
+      PsiManager.getInstance(project).findFile(file) match {
+        case f: ScalaFile if f.isScriptFile =>
+        case _ => fileNotFoundError
+      }
+    }
+    catch {
+      case e => fileNotFoundError
+    }
+
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
     val scalaSdkPath = getScalaInstallPath
