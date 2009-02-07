@@ -79,7 +79,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
 
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
-        //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5008")
+        //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
         params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath)
         params.getVMParametersList.add(CLASSPATH)
         params.getVMParametersList.add(EMACS)
