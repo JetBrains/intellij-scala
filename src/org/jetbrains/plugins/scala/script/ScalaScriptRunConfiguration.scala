@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.script
 
 
 import _root_.scala.collection.mutable.ArrayBuffer
+import _root_.scala.collection.mutable.HashSet
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk
 import com.intellij.compiler.ModuleCompilerUtil
 import com.intellij.execution.configurations._
@@ -13,10 +14,15 @@ import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.projectRoots.{JavaSdkType, Sdk}
+import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
+import com.intellij.openapi.roots.{OrderEntry, ModuleOrderEntry, OrderRootType, ModuleRootManager}
 
-import com.intellij.openapi.roots.ModuleRootManager
+
+import util.{ScalaUtils}
+
+
+
 import com.intellij.openapi.util.JDOMExternalizer
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.intellij.vcsUtil.VcsUtil
 import config.{ScalaConfigUtils, ScalaSDK}
@@ -24,7 +30,6 @@ import java.io.{File}
 
 import java.util.{Arrays, Collection}
 import jdom.Element
-
 /**
  * User: Alexander Podkhalyuzin
  * Date: 04.02.2009
@@ -75,9 +80,10 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
         //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5008")
-        params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath )
+        params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath)
         params.getVMParametersList.add(CLASSPATH)
         params.getVMParametersList.add(EMACS)
+        //params.getVMParametersList.add("-nocompdaemon")
         val list = new java.util.ArrayList[String]
         val dir: VirtualFile = VcsUtil.getVirtualFile(scalaSdkPath + File.separator + "lib")
         for (child <- dir.getChildren) {
@@ -85,6 +91,9 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         }
         params.setMainClass(MAIN_CLASS)
 
+        params.getProgramParametersList.add("-nocompdaemon") //todo: seems to be a bug in scala compiler. Ticket #1498
+        params.getProgramParametersList.add("-classpath")
+        params.getProgramParametersList.add(getClassPath(module))
         params.getProgramParametersList.add(scriptPath)
         params.getProgramParametersList.addParametersString(scriptArgs)
         return params
@@ -156,5 +165,24 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     scriptPath = JDOMExternalizer.readString(element, "path")
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     scriptArgs = JDOMExternalizer.readString(element, "params")
+  }
+
+  private def getClassPath(module: Module): String = {
+    val moduleRootManager = ModuleRootManager.getInstance(module)
+    val entries = moduleRootManager.getOrderEntries
+    val cpVFiles = new HashSet[VirtualFile];
+    for (orderEntry <- entries) {
+      cpVFiles ++= orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)
+    }
+    val res = new StringBuilder("")
+    for (file <- cpVFiles) {
+      var path = file.getPath
+      val jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR)
+      if (jarSeparatorIndex > 0) {
+        path = path.substring(0, jarSeparatorIndex)
+      }
+      res.append(path).append(File.pathSeparator)
+    }
+    return res.toString
   }
 }
