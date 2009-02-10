@@ -78,6 +78,7 @@
     <gotoSymbolContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToSymbolContributor"/>
 
     <configurationType implementation="org.jetbrains.plugins.scala.script.ScalaScriptConfigurationType"/>
+    <configurationType implementation="org.jetbrains.plugins.scala.script.console.ScalaScriptConsoleConfigurationType"/>
 
     <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes"/>
     <!--Stub indeces -->

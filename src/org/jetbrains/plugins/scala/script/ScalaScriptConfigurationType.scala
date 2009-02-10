@@ -6,6 +6,7 @@ import com.intellij.facet.FacetManager
 import com.intellij.openapi.module.ModuleUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import config.ScalaFacet
+import console.ScalaScriptConsoleRunConfigurationFactory
 import icons.Icons
 import javax.swing.Icon
 import java.lang.String
@@ -21,7 +22,7 @@ class ScalaScriptConfigurationType extends LocatableConfigurationType {
 
   def getIcon: Icon = Icons.SCRIPT_FILE_LOGO
 
-  def getDisplayName: String = "Scala script"
+  def getDisplayName: String = "Scala Script"
 
   def getConfigurationTypeDescription: String = "Scala script run configurations"
 

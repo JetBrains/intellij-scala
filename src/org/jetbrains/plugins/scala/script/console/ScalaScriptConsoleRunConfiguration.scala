@@ -1,85 +1,58 @@
-package org.jetbrains.plugins.scala.script
+package org.jetbrains.plugins.scala.script.console
+
 
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.collection.mutable.HashSet
-import com.intellij.compiler.impl.javaCompiler.ModuleChunk
-import com.intellij.compiler.ModuleCompilerUtil
-import com.intellij.execution.configurations._
-import com.intellij.execution.filters.TextConsoleBuilderFactory
-import com.intellij.execution.process.ProcessHandler
-import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.execution.ui.{ConsoleViewContentType, ConsoleView}
-import com.intellij.execution.{CantRunException, ExecutionException, Executor}
-import com.intellij.facet.FacetManager
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
-import com.intellij.openapi.editor.actions.EnterAction
-import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.options.SettingsEditor
-import com.intellij.openapi.projectRoots.{JavaSdkType, Sdk}
-import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
-import com.intellij.openapi.roots.{OrderEntry, ModuleOrderEntry, OrderRootType, ModuleRootManager}
-
-
 import com.intellij.util.PathUtil
-import compiler.rt.ScalacRunner
-import lang.psi.api.ScalaFile
-import util.{ScalaUtils}
-
-
-
+import jdom.Element
+import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
+import com.intellij.execution.configurations._
+import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
 import com.intellij.openapi.util.JDOMExternalizer
+import com.intellij.openapi.options.SettingsEditor
+import com.intellij.execution.{CantRunException, ExecutionException, Executor}
+import com.intellij.openapi.projectRoots.JavaSdkType
+
+import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
+
+import com.intellij.execution.filters.TextConsoleBuilderFactory
+
+
 import com.intellij.psi.PsiManager
 import com.intellij.vcsUtil.VcsUtil
+import com.intellij.execution.runners.ExecutionEnvironment
+import java.io.File
 import config.{ScalaConfigUtils, ScalaSDK}
-import java.io.{File}
 
-import java.util.{Arrays, Collection}
-import jdom.Element
+import java.util.Arrays
+import com.intellij.facet.FacetManager
+
+import lang.psi.api.ScalaFile
+
 /**
  * User: Alexander Podkhalyuzin
- * Date: 04.02.2009
+ * Date: 10.02.2009
  */
 
-class ScalaScriptRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
+class ScalaScriptConsoleRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
         extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project), configurationFactory) {
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
-  val MAIN_CLASS = "scala.tools.nsc.MainGenericRunner"
-  private var scriptPath = ""
-  private var scriptArgs = ""
+  val MAIN_CLASS = "org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner"
   private var javaOptions = ""
 
-  def getScriptPath = scriptPath
-  def getScriptArgs = scriptArgs
   def getJavaOptions = javaOptions
-  def setScriptPath(s: String): Unit = scriptPath = s
-  def setScriptArgs(s: String): Unit = scriptArgs = s
+
   def setJavaOptions(s: String): Unit = javaOptions = s
 
-  def apply(params: ScalaScriptRunConfigurationForm) {
-    setScriptArgs(params.getScriptArgs)
-    setScriptPath(params.getScriptPath)
+  def apply(params: ScalaScriptConsoleRunConfigurationForm) {
     setJavaOptions(params.getJavaOptions)
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
-    def fileNotFoundError {
-      throw new ExecutionException("Scala script file not found.")
-    }
-    try {
-      val file: VirtualFile = VcsUtil.getVirtualFile(scriptPath)
-      PsiManager.getInstance(project).findFile(file) match {
-        case f: ScalaFile if f.isScriptFile =>
-        case _ => fileNotFoundError
-      }
-    }
-    catch {
-      case e => fileNotFoundError
-    }
-
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
     val scalaSdkPath = getScalaInstallPath
@@ -91,7 +64,6 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     }
     val sdkType = sdk.getSdkType
 
-    val script = VcsUtil.getVirtualFile(scriptPath)
     val state = new JavaCommandLineState(env) {
       protected override def createJavaParameters: JavaParameters = {
         val params = new JavaParameters();
@@ -102,20 +74,17 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         params.getVMParametersList.addParametersString(getJavaOptions)
         //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
         params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath)
-        params.getVMParametersList.add(CLASSPATH)
-        params.getVMParametersList.add(EMACS)
         val list = new java.util.ArrayList[String]
         val dir: VirtualFile = VcsUtil.getVirtualFile(scalaSdkPath + File.separator + "lib")
         for (child <- dir.getChildren) {
           params.getClassPath.add(child)
         }
+        val rtJarPath = PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner])
+        params.getClassPath.add(rtJarPath)
         params.setMainClass(MAIN_CLASS)
 
-        params.getProgramParametersList.add("-nocompdaemon") //todo: seems to be a bug in scala compiler. Ticket #1498
-        params.getProgramParametersList.add("-classpath")
-        params.getProgramParametersList.add(getClassPath(module))
-        params.getProgramParametersList.add(scriptPath)
-        params.getProgramParametersList.addParametersString(scriptArgs)
+        /*params.getProgramParametersList.add("-classpath")
+        params.getProgramParametersList.add(getClassPath(module))*/ //todo: uncomment with ticket #1707 (add checking compiler version)
         return params
       }
     }
@@ -125,21 +94,10 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     return state;
   }
 
-  def getModule: Module = {
-    var module: Module = null
-    try {
-      val file: VirtualFile = VcsUtil.getVirtualFile(scriptPath)
-      module = ModuleUtil.findModuleForFile(file, getProject)
-    }
-    catch {
-      case e =>
-    }
-    if (module == null) module = getConfigurationModule.getModule
-    return module
-  }
+  def getModule: Module = getConfigurationModule.getModule
 
   def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
-    new ScalaScriptRunConfiguration(getProject, getFactory, getName)
+    new ScalaScriptConsoleRunConfiguration(getProject, getFactory, getName)
 
   def getValidModules: java.util.List[Module] = {
     val result = new ArrayBuffer[Module]
@@ -154,7 +112,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     return Arrays.asList(result.toArray: _*)
   }
 
-  def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaScriptRunConfigurationEditor(project, this)
+  def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaScriptConsoleRunConfigurationEditor(project, this)
 
   def getSdk(): ScalaSDK = {
     if (getModule != null) ScalaConfigUtils.getScalaSDKs(getModule).apply(0)
@@ -165,7 +123,6 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     if (getModule != null) {
       val sdk = ScalaConfigUtils.getScalaInstallPath(getModule)
       var exePath = sdk.replace('\\', File.separatorChar)
-      //if (!exePath.endsWith(File.separator)) exePath += File.separator
       return exePath
     }
     else ""
@@ -175,17 +132,13 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
   override def writeExternal(element: Element): Unit = {
     super.writeExternal(element)
     writeModule(element)
-    JDOMExternalizer.write(element, "path", getScriptPath)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
-    JDOMExternalizer.write(element, "params", getScriptArgs)
   }
 
   override def readExternal(element: Element): Unit = {
     super.readExternal(element)
     readModule(element)
-    scriptPath = JDOMExternalizer.readString(element, "path")
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
-    scriptArgs = JDOMExternalizer.readString(element, "params")
   }
 
   private def getClassPath(module: Module): String = {
