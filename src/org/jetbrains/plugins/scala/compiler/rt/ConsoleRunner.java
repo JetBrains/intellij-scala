@@ -27,14 +27,9 @@ public class ConsoleRunner {
 
   @NotNull
   public static String join(@NotNull final String[] strings, @NotNull final String separator) {
-    return join(strings, 0, strings.length, separator);
-  }
-
-  @NotNull
-  public static String join(@NotNull final String[] strings, int startIndex, int endIndex, @NotNull final String separator) {
     final StringBuilder result = new StringBuilder();
-    for (int i = startIndex; i < endIndex; i++) {
-      if (i > startIndex) result.append(separator);
+    for (int i = 0; i < strings.length; i++) {
+      if (i > 0) result.append(separator);
       result.append(strings[i]);
     }
     return result.toString();
