@@ -102,9 +102,12 @@ object SimplePattern extends ParserNode {
       return true
     }
 
-    if (StableId parse (builder, ScalaElementTypes.REFERENCE)) {
+    val rb1 = builder.mark
+    if (StableId parse (builder, ScalaElementTypes.REFERENCE_EXPRESSION)) {
       builder.getTokenType match {
         case ScalaTokenTypes.tLPARENTHESIS => {
+          rb1.rollbackTo
+          StableId parse (builder, ScalaElementTypes.REFERENCE)
           val args = builder.mark
           builder.advanceLexer //Ate (
 
@@ -177,6 +180,7 @@ object SimplePattern extends ParserNode {
           return true
         }
         case _ => {
+          rb1.drop
           simplePatternMarker.done(ScalaElementTypes.STABLE_REFERENCE_PATTERN)
           return true
         }

@@ -19,6 +19,14 @@ public class ResolveCallTest extends ScalaResolveTestCase {
     assertTrue(resolved instanceof ScFunction);
     assertEquals("apply", ((ScFunction) resolved).getName());
   }
+
+  public void testStableRefPattern() throws Exception {
+    PsiReference ref = configureByFile("call/refPattern.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScFunction);
+    assertEquals("foo", ((ScFunction) resolved).getName());
+  }
+
   public void testSuperConstructorInvocation() throws Exception {
     PsiReference ref = configureByFile("call/SuperConstructorInvocation.scala");
     PsiElement resolved = ref.resolve();

@@ -49,7 +49,7 @@ ScalaFile
                   PatternInParenthesis
                     PsiElement(()('(')
                     StableElementPattern
-                      CodeReferenceElement
+                      ReferenceExpression
                         PsiElement(identifier)('ARROW')
                     PsiElement())(')')
                 PsiWhiteSpace(' ')
