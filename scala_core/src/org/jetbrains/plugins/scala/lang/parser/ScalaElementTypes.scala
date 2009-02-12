@@ -235,6 +235,7 @@ object ScalaElementTypes {
   val CASE_CLAUSES = new ScalaElementType("case clauses")
   val LITERAL_PATTERN = new ScalaElementType("literal pattern")
   val REFERENCE_PATTERN = new ScalaElementType("reference pattern")
+  val STABLE_REFERENCE_PATTERN = new ScalaElementType("stable reference pattern")
   val PATTERN_IN_PARENTHESIS = new ScalaElementType("pattern in parenthesis")
 
   /************************************** TYPE PATTERNS ********************************/

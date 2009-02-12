@@ -1,5 +1,5 @@
 class B {
-  var Any_==: Symbol = _
+  var Any_== : Symbol = _
 }
 -----
 ScalaFile
@@ -24,14 +24,14 @@ ScalaFile
           PsiElement(var)('var')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            InfixPattern
-              InfixPattern
-                CodeReferenceElement
-                  PsiElement(identifier)('Any_==:')
-                PsiWhiteSpace(' ')
-                PsiElement(identifier)('Symbol')
-                PsiErrorElement:Illegal start of simple pattern
-                  <empty list>
+            ReferencePattern
+              PsiElement(identifier)('Any_==')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleTypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('Symbol')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')

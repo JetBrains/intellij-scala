@@ -177,7 +177,7 @@ object SimplePattern extends ParserNode {
           return true
         }
         case _ => {
-          simplePatternMarker.drop
+          simplePatternMarker.done(ScalaElementTypes.STABLE_REFERENCE_PATTERN)
           return true
         }
       }

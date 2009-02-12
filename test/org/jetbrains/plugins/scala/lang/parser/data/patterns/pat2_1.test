@@ -34,8 +34,9 @@ ScalaFile
                     PsiElement(integer)('1')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                CodeReferenceElement
-                  PsiElement(identifier)('Ku')
+                StableElementPattern
+                  CodeReferenceElement
+                    PsiElement(identifier)('Ku')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

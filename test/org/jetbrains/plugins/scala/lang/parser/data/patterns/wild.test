@@ -158,8 +158,9 @@ ScalaFile
                           PsiWhiteSpace(' ')
                           PsiElement(@)('@')
                           PsiWhiteSpace(' ')
-                          CodeReferenceElement
-                            PsiElement(identifier)('Success')
+                          StableElementPattern
+                            CodeReferenceElement
+                              PsiElement(identifier)('Success')
                         PsiWhiteSpace(' ')
                         PsiElement(=>)('=>')
                         PsiWhiteSpace(' ')
