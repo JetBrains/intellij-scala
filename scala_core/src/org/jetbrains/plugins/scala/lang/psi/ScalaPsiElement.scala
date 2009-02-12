@@ -6,7 +6,9 @@ import api.toplevel.ScNamedElement
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.{TokenSet, IElementType}
 
-trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper{
+trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper {
+
+  var locked = false
 
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T
 
@@ -39,5 +41,16 @@ trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper{
       child = child.getPrevSibling
     }
     if (child == null) None else Some(child.asInstanceOf[T])  
+  }
+
+  def lock(handler: => Unit) {
+    if (!locked) {
+      locked = true
+      handler
+    }
+  }
+
+  def unlock() = {
+    locked = false
   }
 }

@@ -1,17 +1,14 @@
 package org.jetbrains.plugins.scala.compiler.rt;
 
-import scala.tools.nsc.Settings;
-import scala.tools.nsc.InterpreterLoop;
-import scala.tools.nsc.GenericRunnerCommand;
+import com.intellij.openapi.util.text.StringUtil;
 import scala.Some;
-import scala.Function1;
+import scala.tools.nsc.GenericRunnerCommand;
+import scala.tools.nsc.InterpreterLoop;
+import scala.tools.nsc.Settings;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-
-import com.intellij.openapi.util.text.StringUtil;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -19,19 +16,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ConsoleRunner {
   public static void main(String[] args) {
-    GenericRunnerCommand command = new GenericRunnerCommand(ConsoleRunnerUtil.listOf(args), ConsoleRunnerUtil.getFunction());
+    GenericRunnerCommand command = new GenericRunnerCommand(ConsoleRunnerUtil.listOf(args), ConsoleRunnerUtil.getUnitFunction());
     Settings settings = command.settings();
-    settings.parseParams(join(args, " "), ConsoleRunnerUtil.getFunction());
+    ConsoleRunnerUtil.setParamParser(args, settings);
     (new InterpreterLoop(new Some(new BufferedReader(new InputStreamReader(System.in))), new PrintWriter(System.out))).main(settings);
   }
 
-  @NotNull
-  public static String join(@NotNull final String[] strings, @NotNull final String separator) {
-    final StringBuilder result = new StringBuilder();
-    for (int i = 0; i < strings.length; i++) {
-      if (i > 0) result.append(separator);
-      result.append(strings[i]);
-    }
-    return result.toString();
-  }
 }
