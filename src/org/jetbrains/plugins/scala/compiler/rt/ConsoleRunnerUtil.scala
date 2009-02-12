@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.compiler.rt
 
+import _root_.scala.tools.nsc.Settings
+import com.intellij.openapi.util.text.StringUtil
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 10.02.2009
@@ -9,9 +12,15 @@ object ConsoleRunnerUtil {
   private def function(s: String): Unit = {
     System.out.println(s)
   }
-  def getFunction: String => Unit = {
+
+  def getUnitFunction: String => Unit = {
     function(_)
   }
+
+  def setParamParser(args: Array[String], settings: Settings) =
+    settings.parseParams(StringUtil.join(args, " "), getNothingFunction);
+
+  def getNothingFunction: String => Nothing = getUnitFunction.asInstanceOf[String => Nothing]
 
   def listOf(args: Array[String]) = args.toList
 }
