@@ -45,7 +45,7 @@ ScalaFile
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
                 StableElementPattern
-                  CodeReferenceElement
+                  ReferenceExpression
                     PsiElement(identifier)('None')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
