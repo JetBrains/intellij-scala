@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion.filters.expression
 
+import psi.api.base.patterns.ScStableReferenceElementPattern
 import psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
@@ -23,7 +24,9 @@ class StatementFilter extends ElementFilter {
     val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
     if (leaf != null) {
       val parent = leaf.getParent();
-      if (parent.isInstanceOf[ScReferenceExpression] && (!parent.getParent.isInstanceOf[ScInfixExpr]) && (parent.getPrevSibling == null ||
+      if (parent.isInstanceOf[ScReferenceExpression] &&
+              !parent.getParent.isInstanceOf[ScStableReferenceElementPattern] &&
+              (!parent.getParent.isInstanceOf[ScInfixExpr]) && (parent.getPrevSibling == null ||
               parent.getPrevSibling.getPrevSibling == null ||
               (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT ||
                       !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement]))) {

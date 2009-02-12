@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion.filters.expression
 
-import com.intellij.lang.ASTNode;
+import com.intellij.lang.ASTNode
+import psi.api.base.patterns.ScStableReferenceElementPattern;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.filters.ElementFilter;
@@ -22,7 +23,9 @@ class ExpressionFilter extends ElementFilter {
     val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
     if (leaf != null) {
       val parent = leaf.getParent();
-      if (parent.isInstanceOf[ScReferenceExpression] && !parent.getParent.isInstanceOf[ScPostfixExpr] && (parent.getPrevSibling == null ||
+      if (parent.isInstanceOf[ScReferenceExpression] && !parent.getParent.isInstanceOf[ScPostfixExpr] &&
+              !parent.getParent.isInstanceOf[ScStableReferenceElementPattern] &&
+              (parent.getPrevSibling == null ||
               parent.getPrevSibling.getPrevSibling == null ||
               (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT || !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement]))) {
         return true
