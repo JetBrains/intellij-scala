@@ -44,8 +44,9 @@ ScalaFile
               CaseClause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                CodeReferenceElement
-                  PsiElement(identifier)('IOException')
+                StableElementPattern
+                  CodeReferenceElement
+                    PsiElement(identifier)('IOException')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
@@ -55,8 +56,9 @@ ScalaFile
               CaseClause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                CodeReferenceElement
-                  PsiElement(identifier)('DivisionByZeroException')
+                StableElementPattern
+                  CodeReferenceElement
+                    PsiElement(identifier)('DivisionByZeroException')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')

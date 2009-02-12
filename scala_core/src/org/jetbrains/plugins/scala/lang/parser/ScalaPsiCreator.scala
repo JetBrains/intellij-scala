@@ -227,6 +227,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.CASE_CLAUSES => new ScCaseClausesImpl(node)
     case ScalaElementTypes.LITERAL_PATTERN => new ScLiteralPatternImpl(node)
     case ScalaElementTypes.REFERENCE_PATTERN => new ScReferencePatternImpl(node)
+    case ScalaElementTypes.STABLE_REFERENCE_PATTERN => new ScStableReferenceElementPatternImpl(node)
     case ScalaElementTypes.PATTERN_IN_PARENTHESIS => new ScParenthesisedPatternImpl(node)
 
     case ScalaElementTypes.TYPE_PATTERN => new ScTypePatternImpl(node)

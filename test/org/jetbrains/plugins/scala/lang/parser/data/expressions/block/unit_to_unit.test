@@ -44,8 +44,9 @@ ScalaFile
               CaseClause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                CodeReferenceElement
-                  PsiElement(identifier)('None')
+                StableElementPattern
+                  CodeReferenceElement
+                    PsiElement(identifier)('None')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
