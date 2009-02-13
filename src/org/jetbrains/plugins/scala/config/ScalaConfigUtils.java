@@ -130,7 +130,9 @@ public class ScalaConfigUtils {
       }
       Properties properties = new Properties();
       properties.load(jarFile.getInputStream(jarEntry));
-      return properties.getProperty(VERSION_PROPERTY_KEY);
+      String version = properties.getProperty(VERSION_PROPERTY_KEY);
+      jarFile.close();
+      return version;
     }
     catch (Exception e) {
       return null;
@@ -178,6 +180,7 @@ public class ScalaConfigUtils {
             } else if (SCALA_COMPILER_LIB_NAME.equals(name)) {
               hasCompilerJar = jarFile.getJarEntry(COMPILER_CLASS_PATH) != null;
             }
+            jarFile.close();
           } catch (IOException e) {
             return false;
           }
