@@ -67,6 +67,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       p.designator match {
         case ScPolymorphicType(_, _, _, upper) => processType(p.substitutor.subst(upper.v), place)
         case _ => p.designated match {
+          case Some(null) => true
           case Some(des) => processElement(des, p.substitutor, place)
           case None => true
         }

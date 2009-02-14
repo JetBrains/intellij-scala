@@ -105,83 +105,87 @@ object ScType {
     case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
   }
 
-  def toPsi(t : ScType, project : Project, scope : GlobalSearchScope) : PsiType = t match {
-    case Unit => PsiType.VOID
-    case Boolean => PsiType.BOOLEAN
-    case Char => PsiType.CHAR
-    case Int => PsiType.INT
-    case Long => PsiType.LONG
-    case Float => PsiType.FLOAT
-    case Double => PsiType.DOUBLE
-    case Byte => PsiType.BYTE
-    case Short => PsiType.SHORT
-    case Null => PsiType.NULL
-    //todo add generics
-    case ScFunctionType(rt, args) => {
-      val facade = JavaPsiFacade.getInstance(project)
-      val c : PsiClass = facade.findClass("scala.Function" + (args.length))
-      if (c == null) return JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
-      val typeParams = c.getTypeParameters
-      val subst = (args ++ Seq(rt)).toArray[ScType].zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY){
-        case (s, (targ, tp)) => {
-          val str = toPsi(targ, project, scope).getPresentableText
-          val boxed = PsiTypesUtil.boxIfPossible(str)
-          s.put(tp, facade.getElementFactory.createTypeByFQClassName(boxed, scope))
-        }
-      }
-      facade.getElementFactory.createType(c, subst)
-    }
-    case ScTupleType(args) => {
-      val facade = JavaPsiFacade.getInstance(project)
-      val c : PsiClass = facade.findClass("scala.Tuple" + (args.length))
-      if (c == null) return JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
-      val typeParams = c.getTypeParameters
-      val subst = args.toArray[ScType].zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY){
-        case (s, (targ, tp)) => {
-          val str = toPsi(targ, project, scope).getPresentableText
-          val boxed = PsiTypesUtil.boxIfPossible(str)
-          s.put(tp, facade.getElementFactory.createTypeByFQClassName(boxed, scope))
-        }
-      }
-      facade.getElementFactory.createType(c, subst)
-    }
-    case ScCompoundType(Seq(t, _*), _, _) => toPsi(t, project, scope)
-    case ScDesignatorType(c : PsiClass) => JavaPsiFacade.getInstance(project).getElementFactory.createType(c, PsiSubstitutor.EMPTY)
-    case ScParameterizedType(ScDesignatorType(c : PsiClass), args) =>
-      if (c.getQualifiedName == "scala.Array" && args.length == 1)
-        new PsiArrayType(toPsi(args(0), project, scope))
-      else {
-        val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY)
-                  {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope))}
-        JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
-      }
-    case ScParameterizedType(ScProjectionType(pr, ref), args) => ref.bind.map(_.getElement) match {
-      case Some(c: PsiClass) => if (c.getQualifiedName == "scala.Array" && args.length == 1)
-        new PsiArrayType(toPsi(args(0), project, scope))
-      else {
-        val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY)
-                  {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope))}
-        JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
-      }
-      case _ => JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope) 
-    }
-
-    case ScProjectionType(pr, ref) => ref.bind match {
-      case Some(result) if result.getElement.isInstanceOf[PsiClass] => {
-        val clazz = result.getElement.asInstanceOf[PsiClass]
-        clazz match {
-          case syn: ScSyntheticClass => toPsi(syn.t, project, scope)
-          case _ => {
-            val fqn = clazz.getQualifiedName
-            JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName(if (fqn != null) fqn else "java.lang.Object", scope)
+  def toPsi(t : ScType, project : Project, scope : GlobalSearchScope) : PsiType = {
+    def javaObj = JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
+    t match {
+      case Unit => PsiType.VOID
+      case Boolean => PsiType.BOOLEAN
+      case Char => PsiType.CHAR
+      case Int => PsiType.INT
+      case Long => PsiType.LONG
+      case Float => PsiType.FLOAT
+      case Double => PsiType.DOUBLE
+      case Byte => PsiType.BYTE
+      case Short => PsiType.SHORT
+      case Null => PsiType.NULL
+      //todo add generics
+      case ScFunctionType(rt, args) => {
+        val facade = JavaPsiFacade.getInstance(project)
+        val c: PsiClass = facade.findClass("scala.Function" + (args.length))
+        if (c == null) return javaObj
+        val typeParams = c.getTypeParameters
+        val subst = (args ++ Seq(rt)).toArray[ScType].zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY){
+          case (s, (targ, tp)) => {
+            val str = toPsi(targ, project, scope).getPresentableText
+            val boxed = PsiTypesUtil.boxIfPossible(str)
+            s.put(tp, facade.getElementFactory.createTypeByFQClassName(boxed, scope))
           }
         }
+        facade.getElementFactory.createType(c, subst)
       }
-      case Some(res) if res.getElement.isInstanceOf[ScTypeAliasDefinition] =>
-        toPsi(res.getElement.asInstanceOf[ScTypeAliasDefinition].aliasedType(Set[ScNamedElement]()).resType, project, scope)
-      case _ => JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
+      case ScTupleType(args) => {
+        val facade = JavaPsiFacade.getInstance(project)
+        val c: PsiClass = facade.findClass("scala.Tuple" + (args.length))
+        if (c == null) return javaObj
+        val typeParams = c.getTypeParameters
+        val subst = args.toArray[ScType].zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY){
+          case (s, (targ, tp)) => {
+            val str = toPsi(targ, project, scope).getPresentableText
+            val boxed = PsiTypesUtil.boxIfPossible(str)
+            s.put(tp, facade.getElementFactory.createTypeByFQClassName(boxed, scope))
+          }
+        }
+        facade.getElementFactory.createType(c, subst)
+      }
+      case ScCompoundType(Seq(t, _*), _, _) => toPsi(t, project, scope)
+      case ScDesignatorType(c: PsiClass) => JavaPsiFacade.getInstance(project).getElementFactory.createType(c, PsiSubstitutor.EMPTY)
+      case ScParameterizedType(ScDesignatorType(c: PsiClass), args) =>
+        if (c.getQualifiedName == "scala.Array" && args.length == 1)
+          new PsiArrayType(toPsi(args(0), project, scope))
+        else {
+          val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY)
+                    {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope))}
+          JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
+        }
+      case ScParameterizedType(ScProjectionType(pr, ref), args) => ref.bind.map(_.getElement) match {
+        case Some(c: PsiClass) => if (c.getQualifiedName == "scala.Array" && args.length == 1)
+          new PsiArrayType(toPsi(args(0), project, scope))
+        else {
+          val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY)
+                    {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope))}
+          JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
+        }
+        case _ => javaObj
+      }
+
+      case ScProjectionType(pr, ref) => ref.bind match {
+        case Some(result) if result.isCyclicReference => javaObj
+        case Some(result) if result.getElement.isInstanceOf[PsiClass] => {
+          val clazz = result.getElement.asInstanceOf[PsiClass]
+          clazz match {
+            case syn: ScSyntheticClass => toPsi(syn.t, project, scope)
+            case _ => {
+              val fqn = clazz.getQualifiedName
+              JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName(if (fqn != null) fqn else "java.lang.Object", scope)
+            }
+          }
+        }
+        case Some(res) if res.getElement.isInstanceOf[ScTypeAliasDefinition] =>
+          toPsi(res.getElement.asInstanceOf[ScTypeAliasDefinition].aliasedType(Set[ScNamedElement]()).resType, project, scope)
+        case _ => javaObj
+      }
+      case _ => javaObj
     }
-    case _ => JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
   }
 
   def extractClassType(t : ScType) : Option[Pair[PsiClass, ScSubstitutor]] = t match {

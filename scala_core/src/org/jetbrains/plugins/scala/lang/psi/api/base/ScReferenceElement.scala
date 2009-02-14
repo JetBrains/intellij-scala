@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
+import _root_.org.jetbrains.plugins.scala.lang.resolve._
 import _root_.scala.collection.Set
 import impl.ScalaPsiElementFactory
 import impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import com.intellij.psi.PsiPolyVariantReference
 import org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.lang.resolve._
 import statements.ScTypeAlias
 
 /**
@@ -19,15 +18,30 @@ import statements.ScTypeAlias
 
 trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   def bind(): Option[ScalaResolveResult] = {
-    val results = multiResolve(false)
-    results.length match {
-      case 1 => Some(results(0).asInstanceOf[ScalaResolveResult])
-      case _ => None
+    var res : Option[ScalaResolveResult] = None
+    lock {
+      val results = multiResolve(false)
+      res = results.length match {
+        case 1 => Some(results(0).asInstanceOf[ScalaResolveResult])
+        case _ => None
+      }
+      unlock
+    }
+
+    if (locked) {
+      unlock
+      None
+//      Some(new ScalaResolveResult(null, ScSubstitutor.empty) {
+//        override def isCyclicReference = true
+//      })
+    } else {
+      res
     }
   }
 
   def resolve(): PsiElement = bind match {
     case None => null
+    case Some(result) if result.isCyclicReference => null
     case Some(res) => res.element
   }
 

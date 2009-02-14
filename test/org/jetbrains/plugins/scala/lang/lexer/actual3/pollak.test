@@ -1,0 +1,50 @@
+class A {
+  object C  {
+    def toHtml = <a/>
+  }
+  val validAttributes = List(/*"style", "dir",*/ "lang")
+}
+-----
+class {class}
+white space in line { }
+identifier {A}
+white space in line { }
+{ {{}
+white space in line {
+  }
+object {object}
+white space in line { }
+identifier {C}
+white space in line {  }
+{ {{}
+white space in line {
+    }
+def {def}
+white space in line { }
+identifier {toHtml}
+white space in line { }
+= {=}
+white space in line { }
+XML_START_TAG_START {<}
+XML_NAME {a}
+XML_EMPTY_ELEMENT_END {/>}
+newline {
+  }
+} {}}
+newline {
+  }
+val {val}
+white space in line { }
+identifier {validAttributes}
+white space in line { }
+= {=}
+white space in line { }
+identifier {List}
+( {(}
+BlockComment {/*"style", "dir",*/}
+white space in line { }
+string content {"lang"}
+) {)}
+white space in line {
+}
+} {}}
