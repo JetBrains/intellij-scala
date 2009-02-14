@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
+import _root_.scala.collection.mutable.HashSet
 import api.base.types.ScTypeInferenceResult
 import api.toplevel.ScNamedElement
 import com.intellij.psi.PsiElement
@@ -8,7 +9,7 @@ import com.intellij.psi.tree.{TokenSet, IElementType}
 
 trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper {
 
-  protected var locked = false
+  private val passedThreads = new HashSet[Thread]
 
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T
 
@@ -44,13 +45,19 @@ trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper {
   }
 
   def lock(handler: => Unit) {
-    if (!locked) {
-      locked = true
+    val ct = Thread.currentThread
+    if (!passedThreads.contains(ct)) {
+      passedThreads.addEntry(ct)
       handler
     }
   }
 
+  def locked = passedThreads.contains(Thread.currentThread)
+
   def unlock() = {
-    locked = false
+    val ct = Thread.currentThread
+    if (passedThreads.contains(ct)) {
+      passedThreads -= ct
+    }
   }
 }
