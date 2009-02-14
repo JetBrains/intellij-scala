@@ -1,0 +1,9 @@
+import .
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiErrorElement:Identifier expected
+      <empty list>
+  PsiWhiteSpace(' ')
+  PsiElement(.)('.')

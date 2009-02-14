@@ -17,6 +17,8 @@ object ImportExpr {
     val importExprMarker = builder.mark
     if (!StableId.parse(builder, true, ScalaElementTypes.REFERENCE)) {
       builder error ErrMsg("identifier.expected")
+      importExprMarker.drop
+      return true
     }
 
     if (builder.getTokenType != ScalaTokenTypes.tDOT) {
