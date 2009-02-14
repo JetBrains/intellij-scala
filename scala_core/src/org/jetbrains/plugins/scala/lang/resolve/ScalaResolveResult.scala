@@ -17,6 +17,8 @@ class ScalaResolveResult(val element : PsiNamedElement, val substitutor : ScSubs
 
   def isValidResult() = true
 
+  def isCyclicReference = false
+
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element
   override def equals(other : Any): Boolean = other match {

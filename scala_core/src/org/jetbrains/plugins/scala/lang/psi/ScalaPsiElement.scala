@@ -8,7 +8,7 @@ import com.intellij.psi.tree.{TokenSet, IElementType}
 
 trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper {
 
-  var locked = false
+  protected var locked = false
 
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T
 

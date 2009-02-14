@@ -136,6 +136,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   override def getType(): ScType = {
     bind match {
     //prevent infinite recursion for recursive method invocation
+      case Some(result) if result.isCyclicReference => Nothing
       case Some(ScalaResolveResult(f: ScFunction, s)) if (PsiTreeUtil.getParentOfType(this, classOf[ScFunction]) == f) =>
         new ScFunctionType(s.subst(f.declaredType), f.paramTypes.map{
           s.subst _
