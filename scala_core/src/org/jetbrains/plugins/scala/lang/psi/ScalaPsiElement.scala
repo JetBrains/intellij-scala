@@ -8,8 +8,9 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.{TokenSet, IElementType}
 
 trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper {
-
-  private val passedThreads = new HashSet[Thread]
+  private val _locked = new ThreadLocal[Boolean] {
+    override def initialValue: Boolean = false
+  }
 
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T
 
@@ -20,17 +21,17 @@ trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper {
     case e => Some(e)
   }
 
-  def findLastChildByType(t : IElementType) = {
+  def findLastChildByType(t: IElementType) = {
     var node = getNode.getLastChildNode
-    while(node != null && node.getElementType != t) {
+    while (node != null && node.getElementType != t) {
       node = node.getTreePrev
     }
     if (node == null) null else node.getPsi
   }
 
-  def findLastChildByType(set : TokenSet) = {
+  def findLastChildByType(set: TokenSet) = {
     var node = getNode.getLastChildNode
-    while(node != null && !set.contains(node.getElementType)) {
+    while (node != null && !set.contains(node.getElementType)) {
       node = node.getTreePrev
     }
     if (node == null) null else node.getPsi
@@ -38,26 +39,20 @@ trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper {
 
   protected def findLastChild[T >: Null <: ScalaPsiElement](clazz: Class[T]): Option[T] = {
     var child = getLastChild
-    while(child != null && !clazz.isInstance(child)) {
+    while (child != null && !clazz.isInstance(child)) {
       child = child.getPrevSibling
     }
-    if (child == null) None else Some(child.asInstanceOf[T])  
+    if (child == null) None else Some(child.asInstanceOf[T])
   }
 
-  def lock(handler: => Unit) {
-    val ct = Thread.currentThread
-    if (!passedThreads.contains(ct)) {
-      passedThreads.addEntry(ct)
+  protected def locked = _locked.get
+
+  protected def lock(handler: => Unit) {
+    if (!locked) {
+      _locked.set(true)
       handler
     }
   }
 
-  def locked = passedThreads.contains(Thread.currentThread)
-
-  def unlock() = {
-    val ct = Thread.currentThread
-    if (passedThreads.contains(ct)) {
-      passedThreads -= ct
-    }
-  }
+  protected def unlock = _locked.set(false)
 }
