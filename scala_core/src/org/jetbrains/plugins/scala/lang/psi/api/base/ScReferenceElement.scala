@@ -31,9 +31,6 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
     if (locked) {
       unlock
       None
-//      Some(new ScalaResolveResult(null, ScSubstitutor.empty) {
-//        override def isCyclicReference = true
-//      })
     } else {
       res
     }
