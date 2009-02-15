@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.rt
 
 import _root_.scala.tools.nsc.Settings
-import com.intellij.openapi.util.text.StringUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -18,7 +17,7 @@ object ConsoleRunnerUtil {
   }
 
   def setParamParser(args: Array[String], settings: Settings) =
-    settings.parseParams(StringUtil.join(args, " "), getNothingFunction);
+    settings.parseParams(args.mkString(" "), getNothingFunction);
 
   def getNothingFunction: String => Nothing = getUnitFunction.asInstanceOf[String => Nothing]
 

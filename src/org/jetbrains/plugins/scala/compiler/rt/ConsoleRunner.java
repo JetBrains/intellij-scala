@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compiler.rt;
 
-import com.intellij.openapi.util.text.StringUtil;
 import scala.Some;
 import scala.tools.nsc.GenericRunnerCommand;
 import scala.tools.nsc.InterpreterLoop;
@@ -21,5 +20,4 @@ public class ConsoleRunner {
     ConsoleRunnerUtil.setParamParser(args, settings);
     (new InterpreterLoop(new Some(new BufferedReader(new InputStreamReader(System.in))), new PrintWriter(System.out))).main(settings);
   }
-
 }
