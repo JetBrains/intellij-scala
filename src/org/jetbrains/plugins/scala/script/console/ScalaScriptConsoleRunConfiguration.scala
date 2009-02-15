@@ -83,8 +83,8 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
         params.getClassPath.add(rtJarPath)
         params.setMainClass(MAIN_CLASS)
 
-        /*params.getProgramParametersList.add("-classpath")
-        params.getProgramParametersList.add(getClassPath(module))*/ //todo: uncomment with ticket #1707 (add checking compiler version)
+        params.getProgramParametersList.add("-classpath")
+        params.getProgramParametersList.add(getClassPath(module))
         return params
       }
     }
