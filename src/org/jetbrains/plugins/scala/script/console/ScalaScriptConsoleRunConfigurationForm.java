@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.script.console;
 
 import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.plugins.scala.script.ScalaScriptRunConfiguration;
 
 import javax.swing.*;
 
@@ -14,6 +13,7 @@ public class ScalaScriptConsoleRunConfigurationForm {
 
   private RawCommandLineEditor javaOptionsEditor;
   private JPanel myPanel;
+  private RawCommandLineEditor consoleArgsEditor;
   private Project myProject;
   private ScalaScriptConsoleRunConfiguration myConfiguration;
 
@@ -21,7 +21,9 @@ public class ScalaScriptConsoleRunConfigurationForm {
     myProject = project;
     myConfiguration = configuration;
     javaOptionsEditor.setName("VM options");
-    javaOptionsEditor.setDialogCaption("VM opotions editor");
+    javaOptionsEditor.setDialogCaption("VM options editor");
+    consoleArgsEditor.setName("Console arguments");
+    consoleArgsEditor.setDialogCaption("Console arguments editor");
   }
 
   public JPanel getPanel() {
@@ -38,5 +40,14 @@ public class ScalaScriptConsoleRunConfigurationForm {
 
   public void apply(ScalaScriptConsoleRunConfiguration configuration) {
     setJavaOptions(configuration.getJavaOptions());
+    setConsoleArgs(configuration.getConsoleArgs());
+  }
+
+  public String getConsoleArgs() {
+    return consoleArgsEditor.getText();
+  }
+
+  public void setConsoleArgs(String consoleArgs) {
+    this.consoleArgsEditor.setText(consoleArgs);
   }
 }
