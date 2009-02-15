@@ -4,17 +4,20 @@ package org.jetbrains.plugins.scala.script.console
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.collection.mutable.HashSet
+import com.intellij.execution.configurations._
+
+
+import com.intellij.execution.runners.{ExecutionEnvironment}
+import com.intellij.execution.{CantRunException, ExecutionException, Executor}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.{JavaSdkType}
 import com.intellij.openapi.project.Project
 import com.intellij.util.PathUtil
 import jdom.Element
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
-import com.intellij.execution.configurations._
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
 import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.openapi.options.SettingsEditor
-import com.intellij.execution.{CantRunException, ExecutionException, Executor}
-import com.intellij.openapi.projectRoots.JavaSdkType
-
 import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
 
 import com.intellij.execution.filters.TextConsoleBuilderFactory
@@ -22,7 +25,6 @@ import com.intellij.execution.filters.TextConsoleBuilderFactory
 
 import com.intellij.psi.PsiManager
 import com.intellij.vcsUtil.VcsUtil
-import com.intellij.execution.runners.ExecutionEnvironment
 import java.io.File
 import config.{ScalaConfigUtils, ScalaSDK}
 
@@ -43,13 +45,19 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
   val EMACS = "-Denv.emacs=\"%EMACS%\""
   val MAIN_CLASS = "org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner"
   private var javaOptions = ""
+  private var consoleArgs = ""
 
   def getJavaOptions = javaOptions
 
   def setJavaOptions(s: String): Unit = javaOptions = s
 
+  def getConsoleArgs: String = consoleArgs
+
+  def setConsoleArgs(s: String): Unit = consoleArgs = s
+
   def apply(params: ScalaScriptConsoleRunConfigurationForm) {
     setJavaOptions(params.getJavaOptions)
+    setConsoleArgs(params.getConsoleArgs)
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
@@ -85,6 +93,8 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
 
         params.getProgramParametersList.add("-classpath")
         params.getProgramParametersList.add(getClassPath(module))
+
+        params.getProgramParametersList.addParametersString(consoleArgs)
         return params
       }
     }
@@ -133,12 +143,14 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     super.writeExternal(element)
     writeModule(element)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
+    JDOMExternalizer.write(element, "consoleArgs", getConsoleArgs)
   }
 
   override def readExternal(element: Element): Unit = {
     super.readExternal(element)
     readModule(element)
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
+    consoleArgs = JDOMExternalizer.readString(element, "consoleArgs")
   }
 
   private def getClassPath(module: Module): String = {
