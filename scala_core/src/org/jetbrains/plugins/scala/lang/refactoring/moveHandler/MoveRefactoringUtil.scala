@@ -25,7 +25,7 @@ object MoveRefactoringUtil {
     val initialTargetDirectory = getInitialTargetDirectory(initialTargetElement, elements)
     val isTargetDirectoryFixed = getContainerDirectory(initialTargetElement) != null;
     val moveDialog =
-      new ScalaMoveClassesOrPackagesDialog(project, searchTextOccurences, elements, initialTargetElement, moveCallback)
+      new MoveClassesOrPackagesDialog(project, searchTextOccurences, elements, initialTargetElement, moveCallback)
     val searchForTextOccurences = JavaRefactoringSettings.getInstance().MOVE_SEARCH_FOR_TEXT
     val searchInComments = JavaRefactoringSettings.getInstance().MOVE_SEARCH_IN_COMMENTS
     moveDialog.setData(elements, initialTargetPackageName, initialTargetDirectory, isTargetDirectoryFixed, searchInComments,
