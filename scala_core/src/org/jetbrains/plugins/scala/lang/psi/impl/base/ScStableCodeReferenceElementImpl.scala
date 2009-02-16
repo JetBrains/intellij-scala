@@ -107,7 +107,6 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
             }
             pack.processDeclarations(processor, ResolveState.initial, null, ScStableCodeReferenceElementImpl.this)
           }
-          case Some(other) if other.isCyclicReference =>
           case Some(other) => {
             other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),
             null, ScStableCodeReferenceElementImpl.this)

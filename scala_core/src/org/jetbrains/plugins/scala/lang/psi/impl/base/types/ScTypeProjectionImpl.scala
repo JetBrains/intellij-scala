@@ -26,7 +26,6 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
 
   override def getType(implicit visited: Set[ScNamedElement]) = bind match {
     case None => Nothing
-    case Some(result) if result.isCyclicReference => Nothing
     case Some(ScalaResolveResult(alias : ScTypeAliasDefinition, s)) =>
       if (alias.typeParameters == 0) s.subst(alias.aliasedType(visited)) else new ScTypeConstructorType(alias, s)
     case Some(ScalaResolveResult(alias : ScTypeAliasDeclaration, s)) => new ScTypeAliasType(alias, s)
