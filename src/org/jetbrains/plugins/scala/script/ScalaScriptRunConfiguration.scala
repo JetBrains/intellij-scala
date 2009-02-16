@@ -6,7 +6,18 @@ import _root_.scala.collection.mutable.HashSet
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk
 import com.intellij.compiler.ModuleCompilerUtil
 import com.intellij.execution.configurations._
-import com.intellij.execution.filters.TextConsoleBuilderFactory
+import com.intellij.execution.filters._
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.project.{Project}
+
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.{PsiManager, PsiFile}
+import java.io.{File}
+import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
+import com.intellij.openapi.roots.{OrderEntry, ModuleOrderEntry, OrderRootType, ModuleRootManager}
+
+import com.intellij.openapi.util.{JDOMExternalizer}
+import config.{ScalaConfigUtils, ScalaSDK}
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.{ConsoleViewContentType, ConsoleView}
@@ -15,13 +26,8 @@ import com.intellij.facet.FacetManager
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.editor.actions.EnterAction
 import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.projectRoots.{JavaSdkType, Sdk}
-import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
-import com.intellij.openapi.roots.{OrderEntry, ModuleOrderEntry, OrderRootType, ModuleRootManager}
-
-
 import com.intellij.util.PathUtil
 import compiler.rt.ScalacRunner
 import lang.psi.api.ScalaFile
@@ -29,12 +35,7 @@ import util.{ScalaUtils}
 
 
 
-import com.intellij.openapi.util.JDOMExternalizer
-import com.intellij.psi.PsiManager
 import com.intellij.vcsUtil.VcsUtil
-import config.{ScalaConfigUtils, ScalaSDK}
-import java.io.{File}
-
 import java.util.{Arrays, Collection}
 import jdom.Element
 /**
@@ -121,6 +122,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     }
 
     val consoleBuilder = TextConsoleBuilderFactory.getInstance.createBuilder(getProject)
+    consoleBuilder.addFilter(getFilter(script))
     state.setConsoleBuilder(consoleBuilder);
     return state;
   }
@@ -205,5 +207,30 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
       res.append(path).append(File.pathSeparator)
     }
     return res.toString
+  }
+
+  private def getFilter(file: VirtualFile): Filter = {
+    import Filter._
+    new Filter {
+      def applyFilter(line: String, entireLength: Int): Result = {
+        var start = entireLength - line.length
+        var end = entireLength - line.length
+        if (line.startsWith("(fragment of ")) {
+          try {
+            var cache = line.replaceFirst("[(][f][r][a][g][m][e][n][t][ ][o][f][ ]", "")
+            val fileName = cache.substring(0, cache.indexOf("):"))
+            cache = cache.replaceFirst("[^)]*[)][:]", "")
+            val lineNumber = Integer.parseInt(cache.substring(0, cache.indexOf(":")))
+            cache = cache.replaceFirst("[^:]", "")
+            end += line.length - cache.length
+            val hyperlink = new OpenFileHyperlinkInfo(getProject, file, lineNumber-1)
+            return new Result(start, end, hyperlink)
+          }
+          catch {
+            case _ => return null
+          }
+        } else return null
+      }
+    }
   }
 }
