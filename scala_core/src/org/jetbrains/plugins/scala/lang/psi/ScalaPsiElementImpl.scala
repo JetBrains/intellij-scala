@@ -10,10 +10,26 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiElement, StubBasedPsiElement}
 import stubs.elements.wrappers.DummyASTNode
 
-/**
+/**         
   @author ven
 */
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node) with ScalaPsiElement {
+
+  private val _locked = new ThreadLocal[Int] {
+    override def initialValue: Int = 0
+  }
+
+  override protected def locked = _locked.get > 15
+
+  override protected def lock(handler: => Unit) {
+    if (!locked) {
+      _locked.set(_locked.get + 1)
+      handler
+    }
+  }
+
+  override protected def unlock = _locked.set(0)
+
   // todo override in more specific cases
   override def replace(newElement: PsiElement): PsiElement = {
     getParent.getNode.replaceChild(getNode, newElement.getNode)

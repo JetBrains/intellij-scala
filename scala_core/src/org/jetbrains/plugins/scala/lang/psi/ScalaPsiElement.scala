@@ -8,10 +8,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.{TokenSet, IElementType}
 
 trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper {
-  private val _locked = new ThreadLocal[Boolean] {
-    override def initialValue: Boolean = false
-  }
-
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T
 
   protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T]
@@ -45,14 +41,9 @@ trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper {
     if (child == null) None else Some(child.asInstanceOf[T])
   }
 
-  protected def locked = _locked.get
+  protected def locked: Boolean = false
 
-  protected def lock(handler: => Unit) {
-    if (!locked) {
-      _locked.set(true)
-      handler
-    }
-  }
+  protected def lock(handler: => Unit): Unit = {}
 
-  protected def unlock = _locked.set(false)
+  protected def unlock: Unit = {}
 }
