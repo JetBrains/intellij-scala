@@ -12,7 +12,6 @@ case class ScSingletonType(path: ScPathElement) extends ScType {
   val pathType = path match {
     case ref: ScReferenceElement => ref.bind match {
       case None => Nothing
-      case Some(result) if result.isCyclicReference => Nothing
       case Some(r) => r.element match {
         case typed: ScTyped => typed.calcType
         case e => new ScDesignatorType(e)
