@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.highlighter
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import com.intellij.psi.util.PsiTreeUtil
+import com.sun.xml.internal.xsom.impl.parser.state.annotation
+import lang.psi.api.base.patterns._
 import lang.psi.api.statements._
 import com.intellij.psi._
-import lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScBindingPattern}
 import lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import lang.psi.api.expr.{ScAnnotationExpr, ScAnnotation, ScReferenceExpression, ScNameValuePair}
 import lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
@@ -259,7 +260,7 @@ object AnnotatorHighlighter {
 
   private def visitPattern(pattern: ScPattern, holder: AnnotationHolder): Unit = {
     for (binding <- pattern.bindings if !binding.isWildcard) {
-      val annotation = holder.createInfoAnnotation(binding, null)
+      val annotation = holder.createInfoAnnotation(binding.nameId, null)
       annotation.setTextAttributes(DefaultHighlighter.PATTERN)
     }
   }

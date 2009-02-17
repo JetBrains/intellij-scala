@@ -9,9 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 */
 
 trait ScTypedPattern extends ScBindingPattern  {
-  def typePattern() = findChild(classOf[ScTypePattern])
+  def typePattern = findChild(classOf[ScTypePattern])
 
-  override def calcType() = typePattern match {
+  override def calcType = typePattern match {
     case None => Nothing
     case Some(tp) => tp.typeElement.getType
   }
