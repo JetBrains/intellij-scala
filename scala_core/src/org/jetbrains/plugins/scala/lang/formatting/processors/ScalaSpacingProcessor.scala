@@ -328,7 +328,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     //processing before left brace
-    if (rightString.length > 0 && rightString(0) == '{') {
+    if (rightString.length > 0 && rightString(0) == '{' && rightNode.getElementType != ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START) {
       rightNode.getTreeParent.getPsi match {
         case _: ScTypeDefinition => {
           if (scalaSettings.SPACE_BEFORE_CLASS_LBRACE) return WITH_SPACING
@@ -398,7 +398,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (scalaSettings.ELSE_ON_NEW_LINE) return ON_NEW_LINE
       else return WITH_SPACING
     }
-    if (leftString.length > 0 && leftString(leftString.length - 1) == '}') {
+    if (leftString.length > 0 && leftString(leftString.length - 1) == '}' && leftNode.getElementType != ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END) {
       rightNode.getElementType match {
         case ScalaTokenTypes.kELSE => {
           if (scalaSettings.ELSE_ON_NEW_LINE) return ON_NEW_LINE
@@ -478,6 +478,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       //case for covariant or contrvariant type params
       case (ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tIDENTIFIER, ScalaElementTypes.TYPE_PARAM, ScalaElementTypes.TYPE_PARAM) => return NO_SPACING
       //xml
+      case (_, ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START | ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END, _, _) => return NO_SPACING
       case (XmlTokenType.XML_DATA_CHARACTERS, XmlTokenType.XML_DATA_CHARACTERS, _, _) => return COMMON_SPACING
       case (XmlTokenType.XML_START_TAG_START | XmlTokenType.XML_END_TAG_START |
               XmlTokenType.XML_CDATA_START | XmlTokenType.XML_PI_START, _, _, _) => return NO_SPACING
@@ -489,8 +490,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START, _, _) => return NO_SPACING
       case (XmlTokenType.XML_ATTRIBUTE_VALUE_START_DELIMITER, XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN, _, _) => return NO_SPACING
       case (XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN, XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER, _, _) => return NO_SPACING
-      case (ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START, _, _, _) => return NO_SPACING
-      case (_, ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END, _, _) => return NO_SPACING
+      case (ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START | ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END, _, _, _) => return NO_SPACING
       case (_, XmlTokenType.XML_DATA_CHARACTERS | XmlTokenType.XML_COMMENT_END
               | XmlTokenType.XML_COMMENT_CHARACTERS, _, _) => return NO_SPACING
       case (XmlTokenType.XML_DATA_CHARACTERS | XmlTokenType.XML_COMMENT_START
