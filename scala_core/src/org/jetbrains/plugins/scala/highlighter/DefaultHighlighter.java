@@ -61,11 +61,7 @@ public class DefaultHighlighter {
   @NonNls
   static final String OBJECT_ID = "Object";
   @NonNls
-  static final String CLASS_FIELD_DECLARATION_ID = "Field declaration";
-  @NonNls
   static final String CLASS_ID = "Class";
-  @NonNls
-  static final String CLASS_FIELD_DEFINITION_ID = "Field definition";
   @NonNls
   static final String BAD_CHARACTER_ID = "Bad character";
   @NonNls
@@ -84,6 +80,12 @@ public class DefaultHighlighter {
   static final String LOCAL_VARIABLES_ID = "Local var";
   @NonNls
   static final String LOCAL_LAZY_ID = "Local lazy val/var";
+  @NonNls
+  static final String VALUES_ID = "Template val";
+  @NonNls
+  static final String VARIABLES_ID = "Template var";
+  @NonNls
+  static final String LAZY_ID = "Template lazy val/var";
   @NonNls
   static final String PARAMETER_ID = "Parameter";
   @NonNls
@@ -121,9 +123,7 @@ public class DefaultHighlighter {
     TextAttributesKey.createTextAttributesKey(PREDEF_ID, SyntaxHighlighterColors.COMMA.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(TYPEPARAM_ID, HighlightInfoType.TYPE_PARAMETER_NAME.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(OBJECT_ID, HighlightInfoType.CLASS_NAME.getAttributesKey().getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(CLASS_FIELD_DECLARATION_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(CLASS_ID, HighlightInfoType.CLASS_NAME.getAttributesKey().getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(CLASS_FIELD_DEFINITION_ID, HighlightInfoType.INSTANCE_FIELD.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(SCALA_DOC_TAG_ID, SyntaxHighlighterColors.DOC_COMMENT_TAG.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(SCALA_DOC_MARKUP_ID, SyntaxHighlighterColors.DOC_COMMENT_MARKUP.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(ABSTRACT_CLASS_ID, HighlightInfoType.ABSTRACT_CLASS_NAME.getAttributesKey().getDefaultAttributes());
@@ -131,6 +131,9 @@ public class DefaultHighlighter {
     TextAttributesKey.createTextAttributesKey(LOCAL_VALUES_ID, HighlightInfoType.LOCAL_VARIABLE.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(LOCAL_VARIABLES_ID, HighlightInfoType.LOCAL_VARIABLE.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(LOCAL_LAZY_ID, HighlightInfoType.LOCAL_VARIABLE.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(VALUES_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(VARIABLES_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(LAZY_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(PATTERN_ID, HighlightInfoType.LOCAL_VARIABLE.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(PARAMETER_ID, HighlightInfoType.PARAMETER.getAttributesKey().getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(METHOD_CALL_ID, HighlightInfoType.METHOD_CALL.getAttributesKey().getDefaultAttributes());
@@ -161,9 +164,7 @@ public class DefaultHighlighter {
   public static TextAttributesKey TYPEPARAM = TextAttributesKey.createTextAttributesKey(TYPEPARAM_ID);
   public static TextAttributesKey PREDEF = TextAttributesKey.createTextAttributesKey(PREDEF_ID);
   public static TextAttributesKey CLASS = TextAttributesKey.createTextAttributesKey(CLASS_ID);
-  public static TextAttributesKey CLASS_FIELD_DEFINITION = TextAttributesKey.createTextAttributesKey(CLASS_FIELD_DEFINITION_ID);
   public static TextAttributesKey OBJECT = TextAttributesKey.createTextAttributesKey(OBJECT_ID);
-  public static TextAttributesKey CLASS_FIELD_DECLARATION = TextAttributesKey.createTextAttributesKey(CLASS_FIELD_DECLARATION_ID);
   public static TextAttributesKey SCALA_DOC_TAG = TextAttributesKey.createTextAttributesKey(SCALA_DOC_TAG_ID);
   public static TextAttributesKey SCALA_DOC_MARKUP = TextAttributesKey.createTextAttributesKey(SCALA_DOC_MARKUP_ID);
   public static TextAttributesKey ABSTRACT_CLASS = TextAttributesKey.createTextAttributesKey(ABSTRACT_CLASS_ID);
@@ -171,6 +172,9 @@ public class DefaultHighlighter {
   public static TextAttributesKey LOCAL_VALUES = TextAttributesKey.createTextAttributesKey(LOCAL_VALUES_ID);
   public static TextAttributesKey LOCAL_VARIABLES = TextAttributesKey.createTextAttributesKey(LOCAL_VARIABLES_ID);
   public static TextAttributesKey LOCAL_LAZY = TextAttributesKey.createTextAttributesKey(LOCAL_LAZY_ID);
+  public static TextAttributesKey VALUES = TextAttributesKey.createTextAttributesKey(VALUES_ID);
+  public static TextAttributesKey VARIABLES = TextAttributesKey.createTextAttributesKey(VARIABLES_ID);
+  public static TextAttributesKey LAZY = TextAttributesKey.createTextAttributesKey(LAZY_ID);
   public static TextAttributesKey PATTERN = TextAttributesKey.createTextAttributesKey(PATTERN_ID);
   public static TextAttributesKey PARAMETER = TextAttributesKey.createTextAttributesKey(PARAMETER_ID);
   public static TextAttributesKey METHOD_CALL = TextAttributesKey.createTextAttributesKey(METHOD_CALL_ID);
