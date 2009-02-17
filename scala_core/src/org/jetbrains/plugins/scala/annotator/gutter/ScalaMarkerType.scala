@@ -35,7 +35,8 @@ object ScalaMarkerType {
       element match {
         case method: ScFunction => {
           val sigs = method.superSignatures
-          assert(sigs.length != 0)
+          //removed assertion, because can be change beforLe adding gutter, so just need to return ""
+          if (sigs.length != 0) return ""
           val clazz = sigs(0).clazz
           assert(clazz != null)
           if (!GutterUtil.isOverrides(element)) ScalaBundle.message("implements.method.from.super", clazz.getQualifiedName)
