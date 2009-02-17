@@ -80,16 +80,12 @@ object AnnotatorHighlighter {
           case r@(_: ScValue | _: ScVariable) => {
             parent.getParent match {
               case _: ScTemplateBody | _: ScEarlyDefinitions => {
-                parent.getParent.getParent.getParent match {
-                  case _: ScClass | _: ScTrait | _: ScObject => {
-                    val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
-                    parent match {
-                      case _: ScPatternDefinition | _: ScVariableDefinition =>
-                        annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DEFINITION)
-                      case _ =>
-                        annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DECLARATION)
-                    }
-                  }
+                val annotation = holder.createInfoAnnotation(refElement, null)
+                r match {
+                  case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
+                    annotation.setTextAttributes(DefaultHighlighter.LAZY)
+                  case _: ScValue => annotation.setTextAttributes(DefaultHighlighter.VALUES)
+                  case _: ScVariable => annotation.setTextAttributes(DefaultHighlighter.VARIABLES)
                   case _ =>
                 }
               }
@@ -114,7 +110,8 @@ object AnnotatorHighlighter {
       }
       case x: PsiField => {
         val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
-        annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DEFINITION)
+        if (!x.hasModifierProperty("final")) annotation.setTextAttributes(DefaultHighlighter.VARIABLES)
+        else annotation.setTextAttributes(DefaultHighlighter.VALUES)
       }
       case x: ScParameter => {
         val annotation = holder.createInfoAnnotation(refElement.getLastChild, null)
@@ -197,19 +194,12 @@ object AnnotatorHighlighter {
               case r@(_: ScValue | _: ScVariable) => {
                 parent.getParent match {
                   case _: ScTemplateBody | _: ScEarlyDefinitions => {
-                    parent.getParent.getParent.getParent match {
-                      case _: ScClass | _: ScTrait | _: ScObject => {
-                        parent match {
-                          case _: ScPatternDefinition | _: ScVariableDefinition => {
-                            val annotation = holder.createInfoAnnotation(element, null)
-                            annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DEFINITION)
-                          }
-                          case _ => {
-                            val annotation = holder.createInfoAnnotation(element, null)
-                            annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DECLARATION)
-                          }
-                        }
-                      }
+                    val annotation = holder.createInfoAnnotation(element, null)
+                    r match {
+                      case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
+                        annotation.setTextAttributes(DefaultHighlighter.LAZY)
+                      case _: ScValue => annotation.setTextAttributes(DefaultHighlighter.VALUES)
+                      case _: ScVariable => annotation.setTextAttributes(DefaultHighlighter.VARIABLES)
                       case _ =>
                     }
                   }
@@ -236,18 +226,6 @@ object AnnotatorHighlighter {
         }
       }
       case _ =>
-    }
-  }
-
-  private def highlightDeclaredElementsHolder(deh: ScDeclaredElementsHolder, holder: AnnotationHolder) {
-    for (named <- deh.declaredElements) {
-      val annotation = holder.createInfoAnnotation(named, null)
-      deh match {
-        case _ : ScDeclaration =>
-          annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DECLARATION)
-        case _ =>
-          annotation.setTextAttributes(DefaultHighlighter.CLASS_FIELD_DEFINITION)
-      }
     }
   }
 
