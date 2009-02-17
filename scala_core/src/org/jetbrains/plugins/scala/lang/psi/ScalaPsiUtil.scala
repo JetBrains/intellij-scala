@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import annotations.NotNull
 import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -84,11 +85,7 @@ object ScalaPsiUtil {
   }
 
   def getModifiersPresentableText(modifiers: ScModifierList): String = {
-    //todo: remove assert
-    if (modifiers == null) {
-      assert(true)
-    }
-
+    if (modifiers == null) return ""
     //todo: AccessModifiers can produce bug?
     val buffer = new StringBuilder("")
     for (modifier <- modifiers.getNode.getChildren(null) if !isLineTerminator(modifier.getPsi)) buffer.append(modifier.getText + " ")
