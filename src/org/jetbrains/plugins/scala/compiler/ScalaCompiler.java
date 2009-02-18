@@ -17,6 +17,8 @@ import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
@@ -43,9 +45,13 @@ public class ScalaCompiler implements TranslatingCompiler {
         return ScalaBundle.message("scala.compiler.description");
     }
 
-    public boolean isCompilableFile(VirtualFile file, CompileContext context) {
+    public boolean isCompilableFile(final VirtualFile file, CompileContext context) {
       final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
-      PsiFile psi = PsiManager.getInstance(myProject).findFile(file);
+      PsiFile psi = ApplicationManager.getApplication().runReadAction(new Computable<PsiFile>() {
+        public PsiFile compute() {
+          return PsiManager.getInstance(myProject).findFile(file);
+        }
+      });
 
       Module module = context.getModuleByFile(file);
       return (fileType.equals(ScalaFileType.SCALA_FILE_TYPE) && psi instanceof ScalaFile && !((ScalaFile) psi).isScriptFile()) ||
