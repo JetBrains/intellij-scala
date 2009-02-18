@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.highlighter
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import com.intellij.psi.util.PsiTreeUtil
-import com.sun.xml.internal.xsom.impl.parser.state.annotation
 import lang.psi.api.base.patterns._
 import lang.psi.api.statements._
 import com.intellij.psi._
