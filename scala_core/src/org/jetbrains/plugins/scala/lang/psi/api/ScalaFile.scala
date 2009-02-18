@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
 import com.intellij.psi.impl.source.PsiFileWithStubSupport
-import com.intellij.psi.PsiClassOwner
+import com.intellij.psi.{PsiClassOwner, PsiImportHolder, PsiClass}
+
 import toplevel.packaging.{ScPackageStatement, ScPackaging}
 import toplevel.ScToplevelElement
 

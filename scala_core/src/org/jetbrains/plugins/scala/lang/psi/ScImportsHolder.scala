@@ -10,7 +10,12 @@ import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi._
 import scope._
 
-trait ScImportsHolder extends ScalaPsiElement {
+trait ScImportsHolder extends ScalaPsiElement with PsiImportHolder{
+
+  def importClass(aClass: PsiClass): Boolean = {
+    addImportForClass(aClass)
+    true
+  }
 
   def getImportStatements: Seq[ScImportStmt] = findChildrenByClass(classOf[ScImportStmt])
 
