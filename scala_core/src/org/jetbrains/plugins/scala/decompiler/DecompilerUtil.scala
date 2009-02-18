@@ -8,6 +8,7 @@ import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{CharsetToolkit, VirtualFile}
+import com.intellij.testFramework.LightVirtualFile
 import java.io.{PrintStream, IOException, ByteArrayOutputStream, FileNotFoundException}
 import java.nio.ByteBuffer
 import scalax.rules.scalasig._
@@ -34,6 +35,7 @@ object DecompilerUtil {
 
   def isScalaFile(file: VirtualFile, bytes: => Array[Byte]): Boolean = {
     if (file.getFileType != StdFileTypes.CLASS) return false
+    if (file.isInstanceOf[LightVirtualFile]) return false
     val read = isScalaCompiledAttribute.readAttribute(file)
     if (read != null) try {read.readBoolean} finally {read.close} else {
       val byteCode = ByteCode(bytes)
