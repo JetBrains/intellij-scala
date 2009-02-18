@@ -11,7 +11,12 @@ import toplevel.ScToplevelElement
  */
 
 trait ScalaFile extends ScalaPsiElement with ScToplevelElement with PsiClassOwner with ScDeclarationSequenceHolder 
-    with ScImportsHolder with PsiFileWithStubSupport {
+    with PsiImportHolder with ScImportsHolder with PsiFileWithStubSupport {
+
+  def importClass(aClass: PsiClass): Boolean = {
+    addImportForClass(aClass)
+    true
+  }
 
   def getPackagings: Array[ScPackaging]
 

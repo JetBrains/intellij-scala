@@ -56,6 +56,4 @@ class ScalaCodeFragment(project: Project, text: CharSequence) extends ScalaFileI
   def getSuperType: PsiType = superType
 
   def setThisType(psiType: PsiType): Unit = thisType = psiType
-
-  def importClass(aClass: PsiClass): Boolean = false
 }
