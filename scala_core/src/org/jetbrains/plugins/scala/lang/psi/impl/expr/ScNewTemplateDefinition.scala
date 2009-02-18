@@ -27,7 +27,10 @@ class ScNewTemplateDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
     val superTypes = extendsBlock.superTypes
     if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
       new ScCompoundType(superTypes, holders, aliases)
-    } else superTypes(0)
+    } else superTypes.headOption match {
+      case Some(t) => t
+      case None => org.jetbrains.plugins.scala.lang.psi.types.Any
+    }
   }
 
  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
