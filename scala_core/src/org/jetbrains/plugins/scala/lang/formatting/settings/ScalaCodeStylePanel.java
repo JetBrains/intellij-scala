@@ -75,6 +75,17 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox donTUseContinuationCheckBox;
   private JCheckBox addImportStatementInCheckBox;
   private JCheckBox searchAllSymbolsIncludeCheckBox;
+  private JCheckBox fileHeaderCheckBox;
+  private JCheckBox importStatementsCheckBox;
+  private JCheckBox scaladocCommentsCheckBox;
+  private JCheckBox blockExpressionsCheckBox;
+  private JCheckBox templateBodiesCheckBox;
+  private JCheckBox shellCommentsInScriptCheckBox;
+  private JCheckBox blockCommentsCheckBox;
+  private JCheckBox packagingsCheckBox;
+  private JCheckBox headerImportStatementsCheckBox;
+
+
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -187,6 +198,16 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = (Integer) classCountSpinner.getValue();
 
     scalaSettings.SEARCH_ALL_SYMBOLS = searchAllSymbolsIncludeCheckBox.isSelected();
+
+    scalaSettings.FOLD_FILE_HEADER = fileHeaderCheckBox.isSelected();
+    scalaSettings.FOLD_IMPORT_STATEMETS = importStatementsCheckBox.isSelected();
+    scalaSettings.FOLD_SCALADOC = scaladocCommentsCheckBox.isSelected();
+    scalaSettings.FOLD_BLOCK = blockExpressionsCheckBox.isSelected();
+    scalaSettings.FOLD_TEMPLATE_BODIES = templateBodiesCheckBox.isSelected();
+    scalaSettings.FOLD_SHELL_COMMENTS = shellCommentsInScriptCheckBox.isSelected();
+    scalaSettings.FOLD_PACKAGINGS = packagingsCheckBox.isSelected();
+    scalaSettings.FOLD_IMPORT_IN_HEADER = headerImportStatementsCheckBox.isSelected();
+    scalaSettings.FOLD_BLOCK_COMMENTS = blockCommentsCheckBox.isSelected();
   }
 
   private boolean getBoxValue(JCheckBox checkBox) {
@@ -311,6 +332,16 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE != addImportStatementInCheckBox.isSelected()) return true;
 
     if (scalaSettings.SEARCH_ALL_SYMBOLS != searchAllSymbolsIncludeCheckBox.isSelected()) return true;
+
+    if (scalaSettings.FOLD_BLOCK != blockExpressionsCheckBox.isSelected()) return true;
+    if (scalaSettings.FOLD_BLOCK_COMMENTS != blockCommentsCheckBox.isSelected()) return true;
+    if (scalaSettings.FOLD_FILE_HEADER != fileHeaderCheckBox.isSelected()) return true;
+    if (scalaSettings.FOLD_IMPORT_IN_HEADER != headerImportStatementsCheckBox.isSelected()) return true;
+    if (scalaSettings.FOLD_IMPORT_STATEMETS != importStatementsCheckBox.isSelected()) return true;
+    if (scalaSettings.FOLD_PACKAGINGS != packagingsCheckBox.isSelected()) return true;
+    if (scalaSettings.FOLD_SCALADOC != scaladocCommentsCheckBox.isSelected()) return true;
+    if (scalaSettings.FOLD_SHELL_COMMENTS != shellCommentsInScriptCheckBox.isSelected()) return true;
+    if (scalaSettings.FOLD_TEMPLATE_BODIES != templateBodiesCheckBox.isSelected()) return true;
     return false;
   }
 
@@ -380,6 +411,16 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(addImportStatementInCheckBox, settings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE);
     setValue(classCountSpinner, settings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND);
     setValue(searchAllSymbolsIncludeCheckBox, settings.SEARCH_ALL_SYMBOLS);
+
+    setValue(blockExpressionsCheckBox, settings.FOLD_BLOCK);
+    setValue(blockCommentsCheckBox, settings.FOLD_BLOCK_COMMENTS);
+    setValue(fileHeaderCheckBox, settings.FOLD_FILE_HEADER);
+    setValue(headerImportStatementsCheckBox, settings.FOLD_IMPORT_IN_HEADER);
+    setValue(importStatementsCheckBox, settings.FOLD_IMPORT_STATEMETS);
+    setValue(packagingsCheckBox, settings.FOLD_PACKAGINGS);
+    setValue(scaladocCommentsCheckBox, settings.FOLD_SCALADOC);
+    setValue(shellCommentsInScriptCheckBox, settings.FOLD_SHELL_COMMENTS);
+    setValue(templateBodiesCheckBox, settings.FOLD_TEMPLATE_BODIES);
   }
 
   private static void setValue(JSpinner spinner, int value) {
