@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.folding
 
+import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleSettings}
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.PsiWhiteSpace
+import formatting.settings.ScalaCodeStyleSettings
 import scaladoc.parser.ScalaDocElementTypes
 import _root_.scala.collection.mutable._
 import java.util.ArrayList;
@@ -85,10 +87,24 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   }
 
   def isCollapsedByDefault(node: ASTNode): Boolean = {
+    val settings: ScalaCodeStyleSettings =
+      CodeStyleSettingsManager.getSettings(node.getPsi.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
     if (node.getTreeParent.getElementType == ScalaElementTypes.FILE &&
-            node.getTreePrev == null && node.getElementType != ScalaElementTypes.PACKAGING) true
-    else if (node.getTreeParent.getElementType == ScalaElementTypes.FILE && node.getElementType == ScalaElementTypes.IMPORT_STMT) true
-    else false
+            node.getTreePrev == null && node.getElementType != ScalaElementTypes.PACKAGING && settings.FOLD_FILE_HEADER) true
+    else if (node.getTreeParent.getElementType == ScalaElementTypes.FILE && node.getElementType == ScalaElementTypes.IMPORT_STMT &&
+      settings.FOLD_IMPORT_IN_HEADER) true
+    else {
+      node.getElementType match {
+        case ScalaTokenTypes.tBLOCK_COMMENT if settings.FOLD_BLOCK_COMMENTS=> true
+        case ScalaDocElementTypes.SCALA_DOC_COMMENT if settings.FOLD_SCALADOC=> true
+        case ScalaElementTypes.TEMPLATE_BODY if settings.FOLD_TEMPLATE_BODIES=> true
+        case ScalaElementTypes.PACKAGING if settings.FOLD_PACKAGINGS=> true
+        case ScalaElementTypes.IMPORT_STMT if settings.FOLD_IMPORT_STATEMETS=> true
+        case ScalaTokenTypes.tSH_COMMENT if settings.FOLD_SHELL_COMMENTS=> true
+        case _ if node.getPsi.isInstanceOf[ScBlockExpr] && settings.FOLD_BLOCK => true
+        case _ => false
+      }
+    }
   }
 
   private def isMultiline(node: ASTNode): Boolean = {

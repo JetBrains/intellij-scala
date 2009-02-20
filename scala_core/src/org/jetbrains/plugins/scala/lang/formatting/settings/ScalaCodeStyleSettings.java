@@ -74,6 +74,17 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public boolean SEARCH_ALL_SYMBOLS = false;
 
+  //collapse by default
+  public boolean FOLD_FILE_HEADER = true;
+  public boolean FOLD_IMPORT_STATEMETS = false;
+  public boolean FOLD_SCALADOC = false;
+  public boolean FOLD_BLOCK = false;
+  public boolean FOLD_TEMPLATE_BODIES = false;
+  public boolean FOLD_SHELL_COMMENTS = true;
+  public boolean FOLD_BLOCK_COMMENTS = false;
+  public boolean FOLD_PACKAGINGS = false;
+  public boolean FOLD_IMPORT_IN_HEADER = true;
+
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);
   }
