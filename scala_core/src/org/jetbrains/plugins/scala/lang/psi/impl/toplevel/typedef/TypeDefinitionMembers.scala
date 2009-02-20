@@ -213,7 +213,7 @@ object TypeDefinitionMembers {
   val signaturesKey: Key[CachedValue[(SMap, SMap)]] = Key.create("signatures key")
 
   def getVals(clazz: PsiClass) = get(clazz, valsKey, new MyProvider(clazz, { clazz : PsiClass => ValueNodes.build(clazz) }))._2
-  def getMethods(clazz: PsiClass) = get(clazz, methodsKey, new MyProvider(clazz, { clazz : PsiClass => MethodNodes.build(clazz) }))._2
+  def getMethods(clazz: PsiClass): MMap = get(clazz, methodsKey, new MyProvider(clazz, { clazz : PsiClass => MethodNodes.build(clazz) }))._2
   def getTypes(clazz: PsiClass) = get(clazz, typesKey, new MyProvider(clazz, { clazz : PsiClass => TypeNodes.build(clazz) }))._2
 
   def getSignatures(c: PsiClass) = get(c, signaturesKey, new MyProvider(c, { c : PsiClass => SignatureNodes.build(c) }))._2
@@ -222,8 +222,8 @@ object TypeDefinitionMembers {
   def getSuperMethods(c: PsiClass) = get(c, methodsKey, new MyProvider(c, { c : PsiClass => MethodNodes.build(c) }))._1
   def getSuperTypes(c: PsiClass) = get(c, typesKey, new MyProvider(c, { c : PsiClass => TypeNodes.build(c) }))._1
 
-  private def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]) = {
-    var computed = e.getUserData(key)
+  private def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]): T = {
+    var computed: CachedValue[T] = e.getUserData(key)
     if (computed == null) {
       val manager = PsiManager.getInstance(e.getProject).getCachedValuesManager
       computed = manager.createCachedValue(provider, false)
