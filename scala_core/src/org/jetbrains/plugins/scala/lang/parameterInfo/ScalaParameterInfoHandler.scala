@@ -22,6 +22,7 @@ import java.lang.{Class, String}
 import java.util.Set
 import lexer.ScalaTokenTypes
 import psi.api.base.ScConstructor
+import psi.api.base.types.ScTypeElement
 import psi.api.expr._
 import psi.api.statements.params.{ScParameter, ScParameters, ScParameterClause}
 import psi.api.statements.{ScFunction, ScValue, ScVariable}
@@ -264,7 +265,22 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                         }
                       }
                       ref.getParent match {
-                        case gen: ScGenericCall => res += Tuple(getSign, gen.typeArgs)
+                        case gen: ScGenericCall => {
+                          var substitutor = ScSubstitutor.empty
+                          method match {
+                            case fun: ScFunction => {
+                              val tp = fun.typeParameters
+                              val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
+                              val map = new collection.mutable.HashMap[String, ScType]
+                              for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+                                map += Tuple(tp(i).name, typeArgs(i).calcType)
+                              }
+                              substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                            }
+                            case _ => //todo: java method
+                          }
+                          res += new PhysicalSignature(method, getSign.substitutor.followed(substitutor))
+                        }
                         case _ => res += getSign
                       }
                     }
