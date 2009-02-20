@@ -184,9 +184,22 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   }
                 }
               }
+              case ScFunctionType(_, params) => {
+                if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+                buffer.append(params.map((param: ScType) => {
+                  val paramText = "p" + params.indexOf(param) + ": " + ScType.presentableText(param)
+                  val isBold = if (params.indexOf(param) == index) true
+                  else {
+                    //todo: check type
+                    false
+                  }
+                  if (isBold) "<b>" + paramText + "</b>" else paramText
+                }).mkString(", "))
+              }
               case _ =>
             }
-
+            val isGrey = buffer.indexOf("<g>")
+            if (isGrey != -1) buffer.replace(isGrey, isGrey + 3, "")
             val startOffset = buffer.indexOf("<b>")
             if (startOffset != -1) buffer.replace(startOffset, startOffset + 3, "")
 
