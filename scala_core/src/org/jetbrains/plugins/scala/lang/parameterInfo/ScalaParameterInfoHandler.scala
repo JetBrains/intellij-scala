@@ -211,7 +211,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             else
               context.setUIComponentEnabled(false)
           }
-          case _ => //todo: Constructor
+          case _ => //todo: constructors and patterns
         }
       }
       case _ =>
@@ -298,7 +298,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               }
               context.setItemsToShow(res.toArray)
             }
-            case _ => //todo: Constructor
+            case _ => //todo: constructors and patterns
           }
         }
         case context: UpdateParameterInfoContext => {
