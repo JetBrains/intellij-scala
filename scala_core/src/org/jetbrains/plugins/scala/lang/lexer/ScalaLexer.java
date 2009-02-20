@@ -96,7 +96,6 @@ public class ScalaLexer implements Lexer {
     if (myXmlState != 0) state = 239;
     if (myScalaPlainLexer.getState() != 0) state = 239;
     return state;
-    //todo: pssible rollback: return myTokenStart == 0 ? 0 : 239;
   }
 
   @Nullable
