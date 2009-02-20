@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parameterInfo
 
 import _root_.org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import _root_.scala.collection.mutable.ArrayBuffer
+import annotations.Nullable
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.codeInsight.hint.HintUtil
@@ -23,9 +24,11 @@ import psi.api.base.ScConstructor
 import psi.api.expr._
 import psi.api.statements.params.{ScParameter, ScParameters, ScParameterClause}
 import psi.api.statements.{ScFunction, ScValue, ScVariable}
-import psi.api.toplevel.typedef.ScTypeDefinition
+import psi.api.toplevel.ScTyped
+import psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
+import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import psi.ScalaPsiElement
-
+import psi.types.{ScType, PhysicalSignature, ScFunctionType}
 /**
  * User: Alexander Podkhalyuzin
  * Date: 18.01.2009
@@ -94,7 +97,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     context.setCurrentParameter(i)
   }
 
-  def updateUI(p: Any, context: ParameterInfoUIContext): Unit = { //todo: substituting types
+  def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
     context.getParameterOwner match {
       case args: ScArgumentExprList => {
         args.getParent match {
@@ -110,60 +113,35 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 case _ => null
               }
             }
-            val ref = getRef(call) //not null because filtered by findCall
+            val ref = getRef(call)
 
-            val color: Color = try {
-              if (ref.resolve == p) ParameterInfoUtil.highlightedColor
+            var color: Color = try {
+              if (ref != null && ref.resolve == p) ParameterInfoUtil.highlightedColor
               else context.getDefaultParameterColor
             }
             catch {
               case e: PsiInvalidElementAccessException => context.getDefaultParameterColor
             }
             val index = context.getCurrentParameterIndex
-
             val buffer: StringBuilder = new StringBuilder("")
 
-            def isBoldParam(param: PsiParameter): Boolean = {//todo: add case with repeated parameters
-              param match {
-                case param: ScParameter => {
-                  val clause: ScParameterClause = param.getParent.asInstanceOf[ScParameterClause]
-                  val clauses: ScParameters = clause.getParent.asInstanceOf[ScParameters]
-                  val allClauses = clauses.clauses
-                  val allArgs = call.allArgumentExprLists //argsLists until current argList
-                  for (i <- 0 to allArgs.length - 1) {
-                    if (i >= allClauses.length) return false
-                    if (i == allArgs.length - 1) {
-                      if (allClauses(i).parameters.indexOf(param) == index) return true
-                    }
-                    if (allArgs(i).exprs.length != allClauses(i).parameters.length) return false //todo: add typechecking
-                  }
-                }
-                case _ => {
-                  val clause: PsiParameterList = param.getParent.asInstanceOf[PsiParameterList]
-                  if (clause.getParameters.indexOf(param) == index) return true
-                  else return false
-                }
-              }
-              false //unreachable code
-            }
-
             p match {
-              case v: ScValue => buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-              case v: ScVariable => buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
               case method: ScFunction => {
                 val clauses = method.paramClauses.clauses
-                val haveParentheses = clauses.length != 1
                 if (clauses.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-                for (clause <- clauses) {
-                  if (haveParentheses || clause.isImplicit) buffer.append("(")
+                else {
+                  val clause: ScParameterClause = clauses(0)
                   if (clause.isImplicit) buffer.append("implicit ")
                   buffer.append(clause.parameters.
                           map((param: ScParameter) => {
-                    val isBold = isBoldParam(param)
+                    val isBold = if (clause.parameters.indexOf(param) == index) true
+                      else {
+                      //todo: check type
+                      false
+                    }
                     val paramText = ScalaDocumentationProvider.parseParameter(param, ScType.presentableText(_))
                     if (isBold) "<b>" + paramText + "</b>" else paramText
                   }).mkString(", "))
-                  if (haveParentheses || clause.isImplicit) buffer.append(")")
                 }
               }
               case method: PsiMethod => {
@@ -190,14 +168,17 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     }
                     buffer.append(": ")
                     buffer.append(paramType.getPresentableText)
-                    val isBold = isBoldParam(param)
+
+                    val isBold = if (p.getParameters.indexOf(param) == index) true
+                                 else {
+                                   //todo: check type
+                                   false
+                                 }
                     val paramText = buffer.toString
                     if (isBold) "<b>" + paramText + "</b>" else paramText
                   }).mkString(", "))
                 }
               }
-              case clazz: PsiClass => //todo: for case classes and Objects
-
               case _ =>
             }
 
@@ -244,16 +225,51 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     case ref: ScReferenceExpression => ref
                     case _ => null
                   }
-                  case call: ScMethodCall => getRef(call)
                   case _ => null
                 }
               }
+              val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
               val ref = getRef(call)
               if (ref != null) {
                 val name = ref.refName
-                val variants = ref.getSameNameVariants
-                context.setItemsToShow(variants.filter(!_.isInstanceOf[ScTypeDefinition]) /*todo: remove filter*/)
+                val variants: Array[Object] = ref.getSameNameVariants
+                for (variant <- variants) {
+                  variant match {
+                    case method: PsiMethod => {
+                      ref.getParent match {
+                        case gen: ScGenericCall => res += (method, gen.typeArgs)
+                        case _ => res += method
+                      }
+                    }
+                    case v: ScTyped => v.calcType match {
+                      case fun: ScFunctionType => res += fun
+                      case typez => ScType.extractClassType(typez) match {
+                        case Some((clazz: PsiClass, subst)) => {
+                          for ((_, n: PhysicalSignature) <- TypeDefinitionMembers.getMethods(clazz)
+                          if n.method.getName == "apply"  &&
+                                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) res += n
+                        }
+                        case None =>
+                      }
+                    }
+                    case cl: PsiClass => //todo: Objects apply, case classses
+                  }
+                }
+              } else {
+                val expr: ScExpression = call.getInvokedExpr
+                val typez = expr.getType
+                typez match {
+                  case fun: ScFunctionType => res += fun
+                  case _ => ScType.extractClassType(typez) match {
+                    case Some((clazz: PsiClass, subst)) => {
+                      for ((_, n: PhysicalSignature) <- TypeDefinitionMembers.getMethods(clazz)
+                        if n.method.getName == "apply" && (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) res += n
+                    }
+                    case None =>
+                  }
+                }
               }
+              context.setItemsToShow(res.toArray)
             }
             case _ => //todo: Constructor
           }
