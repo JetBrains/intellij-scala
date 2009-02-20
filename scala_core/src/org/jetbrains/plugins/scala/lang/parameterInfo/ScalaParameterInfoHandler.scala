@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parameterInfo
 
 import _root_.org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, PhysicalSignature, ScFunctionType}
+import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import _root_.scala.collection.mutable.ArrayBuffer
@@ -127,6 +127,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
             p match {
               case sign: PhysicalSignature => {
+                val subst = sign.substitutor
                 sign.method match {
                   case method: ScFunction => {
                     val clauses = method.paramClauses.clauses
@@ -141,7 +142,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                           //todo: check type
                           false
                         }
-                        val paramText = ScalaDocumentationProvider.parseParameter(param, ScType.presentableText(_))
+                        val paramText = ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)))
                         if (isBold) "<b>" + paramText + "</b>" else paramText
                       }).mkString(", "))
                     }
@@ -246,7 +247,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                             case Some((_, subst)) => subst
                             case _ => null
                           })
-                          case None => new PhysicalSignature(method, null)
+                          case None => new PhysicalSignature(method, ScSubstitutor.empty)
                         }
                       }
                       ref.getParent match {
