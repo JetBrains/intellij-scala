@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.codeInsight.template
+package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import _root_.scala.collection.mutable.ArrayBuffer
