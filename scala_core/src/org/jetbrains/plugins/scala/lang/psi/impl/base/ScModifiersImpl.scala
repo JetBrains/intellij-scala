@@ -39,6 +39,7 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
       case "abstract" => has(ScalaTokenTypes.kABSTRACT)
       case "sealed" => has(ScalaTokenTypes.kSEALED)
       case "lazy" => has(ScalaTokenTypes.kLAZY)
+      case "case" => has(ScalaTokenTypes.kCASE)
       case _ => false
     }
   }
@@ -65,6 +66,8 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
         else getNode.removeChild(findChildByType(ScalaTokenTypes.kSEALED).getNode)
       case "lazy" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("lazy", getManager))
         else getNode.removeChild(findChildByType(ScalaTokenTypes.kLAZY).getNode)
+      case "case" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("case", getManager))
+        else getNode.removeChild(findChildByType(ScalaTokenTypes.kCASE).getNode)
       case _ => return
     }
     if (value) getNode.addChild(ScalaPsiElementFactory.createNewLineNode(getManager, " "))
