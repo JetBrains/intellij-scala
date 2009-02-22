@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
 import api.statements.ScTypeAlias
 
 object ScSubstitutor {
-  val empty = new ScSubstitutor {
+  val empty = new ScSubstitutor { //todo: override bind* - not supported or use 'new ScSubstitutor()'
     override def subst(t: ScType): ScType = t
     override def followed(s : ScSubstitutor) : ScSubstitutor = s
   }
