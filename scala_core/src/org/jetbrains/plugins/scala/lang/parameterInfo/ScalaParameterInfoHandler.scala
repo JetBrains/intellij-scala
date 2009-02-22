@@ -21,13 +21,13 @@ import java.awt.Color
 import java.lang.{Class, String}
 import java.util.Set
 import lexer.ScalaTokenTypes
-import psi.api.base.ScConstructor
 import psi.api.base.types.ScTypeElement
+import psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import psi.api.expr._
 import psi.api.statements.params.{ScParameter, ScParameters, ScParameterClause}
 import psi.api.statements.{ScFunction, ScValue, ScVariable}
 import psi.api.toplevel.ScTyped
-import psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
+import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import psi.ScalaPsiElement
 /**
@@ -282,6 +282,16 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                         case _ => res += getSign
                       }
                     }
+                    case obj: ScObject => {
+                      for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(obj)
+                          if n.method.getName == "apply") res += n
+                    }
+                    case cl: ScClass if cl.hasModifierProperty("case") => {
+                      cl.constructor match {
+                        case Some(constr: ScPrimaryConstructor) => res += constr
+                        case _ =>
+                      }
+                    }
                     case v: ScTyped => v.calcType match {
                       case fun: ScFunctionType => res += fun
                       case typez => ScType.extractClassType(typez) match {
@@ -293,7 +303,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                         case None =>
                       }
                     }
-                    case cl: PsiClass => //todo: Objects apply, case classses
+                    case _ =>
                   }
                 }
               } else {
