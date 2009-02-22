@@ -9,5 +9,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 */
 
 trait ScArgumentExprList extends ScArguments {
-  def exprs: Seq[ScExpression] = for (child <- getChildren if child.isInstanceOf[ScExpression]) yield child.asInstanceOf[ScExpression]
+  def exprs: Seq[ScExpression] = findChildrenByClass(classOf[ScExpression]).toSeq
 }

@@ -22,7 +22,7 @@ import psi.api.expr.{ScArgumentExprList, ScMethodCall, ScExpression}
  * Date: 22.02.2009
  */
 
-class ScalaPatternParameterInfoHandler/* extends ParameterInfoHandlerWithTabActionSupport[ScPatternArgumentList, Any, ScPattern]*/ {
+class ScalaPatternParameterInfoHandler/*todo extends ParameterInfoHandlerWithTabActionSupport[ScPatternArgumentList, Any, ScPattern]*/ {
   def getParameterCloseChars: String = "{},);\n"
 
   def couldShowInLookup: Boolean = true
