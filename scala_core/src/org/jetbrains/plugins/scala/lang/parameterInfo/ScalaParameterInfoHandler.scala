@@ -21,10 +21,11 @@ import java.awt.Color
 import java.lang.{Class, String}
 import java.util.Set
 import lexer.ScalaTokenTypes
+import psi.api.base.patterns.{ScConstructorPattern, ScPatternArgumentList}
 import psi.api.base.types.ScTypeElement
 import psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import psi.api.expr._
-import psi.api.statements.params.{ScParameter, ScParameters, ScParameterClause}
+import psi.api.statements.params.{ScParameter, ScArguments, ScParameters, ScParameterClause}
 import psi.api.statements.{ScFunction, ScValue, ScVariable}
 import psi.api.toplevel.ScTyped
 import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
@@ -88,6 +89,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
   }
 
   def updateParameterInfo(o: ScArgumentExprList, context: UpdateParameterInfoContext): Unit = {
+    if (context.getParameterOwner != o) context.removeHint
     val offset = context.getOffset
     var child = o.getNode.getFirstChildNode
     var i = 0
@@ -230,7 +232,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             else
               context.setUIComponentEnabled(false)
           }
-          case _ => //todo: constructors and patterns
+          case _ => //todo: constructors
         }
       }
       case _ =>
@@ -393,7 +395,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               }
               context.setItemsToShow(res.toArray)
             }
-            case _ => //todo: constructors and patterns
+            case _ => //todo: constructors
           }
         }
         case context: UpdateParameterInfoContext => {
