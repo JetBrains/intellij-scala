@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion.handlers
 
+import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
 import com.intellij.psi.{PsiDocumentManager, PsiMethod}
@@ -40,11 +41,14 @@ class ScalaInsertHandler extends InsertHandler[LookupItem[_]] {
             }
           }
 
+          var refInv = false
           // for reference invocations
           if (endOffset == document.getTextLength() || document.getCharsSequence().charAt(endOffset) != '(') {
             document.insertString(endOffset, "()");
+            refInv = true
           }
           editor.getCaretModel.moveToOffset(endOffset + 1);
+          if (refInv) AutoPopupController.getInstance(element.getProject).autoPopupParameterInfo(editor, element)
         }
 
       }
