@@ -197,6 +197,24 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   if (isBold) "<b>" + paramText + "</b>" else paramText
                 }).mkString(", "))
               }
+              case (constr: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) => {
+                val clauses = constr.parameterList.clauses
+                if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+                else {
+                  val clause: ScParameterClause = clauses(i)
+                  if (clause.isImplicit) buffer.append("implicit ")
+                  buffer.append(clause.parameters.
+                          map((param: ScParameter) => {
+                    val isBold = if (clause.parameters.indexOf(param) == index) true
+                    else {
+                      //todo: check type
+                      false
+                    }
+                    val paramText = ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)))
+                    if (isBold) "<b>" + paramText + "</b>" else paramText
+                  }).mkString(", "))
+                }
+              }
               case _ =>
             }
             val isGrey = buffer.indexOf("<g>")
@@ -227,7 +245,22 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
    * @param context current context
    * @return context's argument expression
    */
-  private def findCall(context: ParameterInfoContext): ScArgumentExprList = {
+  private def findCall(context: ParameterInfoContext): ScArgumentExprList = { //todo: filter private, protected access
+    case class Ints(var i: Int)
+    def getRef(call: ScMethodCall)(implicit deep: Boolean, calc: Ints): ScReferenceExpression = {
+      call.getInvokedExpr match {
+        case ref: ScReferenceExpression => ref
+        case gen: ScGenericCall => gen.referencedExpr match {
+          case ref: ScReferenceExpression => ref
+          case _ => null
+        }
+        case call: ScMethodCall if deep => {
+          calc.i += 1
+          getRef(call)(true, calc)
+        }
+        case _ => null
+      }
+    }
     val (file, offset) = (context.getFile, context.getOffset)
     val element = file.findElementAt(offset)
     if (element == null) return null
@@ -237,16 +270,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         case context: CreateParameterInfoContext => {
           args.getParent match {
             case call: ScMethodCall => {
-              def getRef(call: ScMethodCall): ScReferenceExpression = {
-                call.getInvokedExpr match {
-                  case ref: ScReferenceExpression => ref
-                  case gen: ScGenericCall => gen.referencedExpr match {
-                    case ref: ScReferenceExpression => ref
-                    case _ => null
-                  }
-                  case _ => null
-                }
-              }
+              implicit val bool = false
+              implicit val calc: Ints = Ints(0)
               val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
               val ref = getRef(call)
               if (ref != null) {
@@ -288,7 +313,21 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     }
                     case cl: ScClass if cl.hasModifierProperty("case") => {
                       cl.constructor match {
-                        case Some(constr: ScPrimaryConstructor) => res += constr
+                        case Some(constr: ScPrimaryConstructor) => {
+                          ref.getParent match {
+                            case gen: ScGenericCall => {
+                              val tp = cl.typeParameters.map(_.name)
+                              val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
+                              val map = new collection.mutable.HashMap[String, ScType]
+                              for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+                                map += Tuple(tp(i), typeArgs(i).calcType)
+                              }
+                              val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                              res += (constr, substitutor, 0)
+                            }
+                            case _ => res += (constr, ScSubstitutor.empty, 0)
+                          }
+                        }
                         case _ =>
                       }
                     }
@@ -313,10 +352,42 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   case fun: ScFunctionType => res += fun
                   case _ => ScType.extractClassType(typez) match {
                     case Some((clazz: PsiClass, subst)) => {
-                      for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
-                        if n.method.getName == "apply" && (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) res += n
+                      def end = {
+                        for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
+                          if n.method.getName == "apply" && (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) res += n
+                      }
+                      val ints = Ints(0)
+                      val ref = getRef(call)(true, ints)
+                      if (res != null) {
+                        ref.resolve match {
+                          case cl: ScClass if cl.hasModifierProperty("case") => {
+                            cl.constructor match {
+                              case Some(constr: ScPrimaryConstructor) if ints.i < constr.parameterList.clauses.length => {
+                                ref.getParent match {
+                                  case gen: ScGenericCall => {
+                                    val tp = cl.typeParameters.map(_.name)
+                                    val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
+                                    val map = new collection.mutable.HashMap[String, ScType]
+                                    for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+                                      map += Tuple(tp(i), typeArgs(i).calcType)
+                                    }
+                                    val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                                    res += (constr, substitutor, ints.i)
+                                  }
+                                  case _ => res += (constr, ScSubstitutor.empty, ints.i)
+                                }
+                              }
+                              case _ => end
+                            }
+                          }
+                          case _ => end
+                        }
+                      } else end
+
                     }
-                    case None =>
+                    case None => { //here case for case classes currings
+
+                    }
                   }
                 }
               }
