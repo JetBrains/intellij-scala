@@ -267,18 +267,16 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       ref.getParent match {
                         case gen: ScGenericCall => {
                           var substitutor = ScSubstitutor.empty
-                          method match {
-                            case fun: ScFunction => {
-                              val tp = fun.typeParameters
-                              val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
-                              val map = new collection.mutable.HashMap[String, ScType]
-                              for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
-                                map += Tuple(tp(i).name, typeArgs(i).calcType)
-                              }
-                              substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
-                            }
-                            case _ => //todo: java method
+                          val tp = method match {
+                            case fun: ScFunction => fun.typeParameters.map(_.name)
+                            case _ => method.getTypeParameters.map(_.getName)
                           }
+                          val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
+                          val map = new collection.mutable.HashMap[String, ScType]
+                          for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+                            map += Tuple(tp(i), typeArgs(i).calcType)
+                          }
+                          substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
                           res += new PhysicalSignature(method, getSign.substitutor.followed(substitutor))
                         }
                         case _ => res += getSign
