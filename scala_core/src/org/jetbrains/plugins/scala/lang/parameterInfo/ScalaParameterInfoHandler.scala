@@ -6,6 +6,7 @@ import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import annotations.Nullable
+import com.incors.plaf.alloy.cl
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.codeInsight.hint.HintUtil
@@ -22,7 +23,7 @@ import java.lang.{Class, String}
 import java.util.Set
 import lexer.ScalaTokenTypes
 import psi.api.base.patterns.{ScConstructorPattern, ScPatternArgumentList}
-import psi.api.base.types.ScTypeElement
+import psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement}
 import psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import psi.api.expr._
 import psi.api.statements.params.{ScParameter, ScArguments, ScParameters, ScParameterClause}
@@ -103,107 +104,41 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
   def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
     context.getParameterOwner match {
       case args: ScArgumentExprList => {
-        args.getParent match {
+        def getRef(call: PsiElement): ScReferenceExpression = call match {
           case call: ScMethodCall => {
-            def getRef(call: ScMethodCall): ScReferenceExpression = {
-              call.getInvokedExpr match {
+            call.getInvokedExpr match {
+              case ref: ScReferenceExpression => ref
+              case gen: ScGenericCall => gen.referencedExpr match {
                 case ref: ScReferenceExpression => ref
-                case gen: ScGenericCall => gen.referencedExpr match {
-                  case ref: ScReferenceExpression => ref
-                  case _ => null
-                }
-                case call: ScMethodCall => getRef(call)
                 case _ => null
               }
+              case call: ScMethodCall => getRef(call)
+              case _ => null
             }
-            val ref = getRef(call)
+          }
+          case _ => null
+        }
+        val ref = getRef(args.getParent)
 
-            var color: Color = try {
-              if (ref != null && ref.resolve == p) ParameterInfoUtil.highlightedColor
-              else context.getDefaultParameterColor
-            }
-            catch {
-              case e: PsiInvalidElementAccessException => context.getDefaultParameterColor
-            }
-            val index = context.getCurrentParameterIndex
-            val buffer: StringBuilder = new StringBuilder("")
+        var color: Color = try {
+          if (ref != null && ref.resolve == p) ParameterInfoUtil.highlightedColor
+          else context.getDefaultParameterColor
+        }
+        catch {
+          case e: PsiInvalidElementAccessException => context.getDefaultParameterColor
+        }
+        val index = context.getCurrentParameterIndex
+        val buffer: StringBuilder = new StringBuilder("")
 
-            p match {
-              case sign: PhysicalSignature => {
-                val subst = sign.substitutor
-                sign.method match {
-                  case method: ScFunction => {
-                    val clauses = method.paramClauses.clauses
-                    if (clauses.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-                    else {
-                      val clause: ScParameterClause = clauses(0)
-                      if (clause.isImplicit) buffer.append("implicit ")
-                      buffer.append(clause.parameters.
-                              map((param: ScParameter) => {
-                        val isBold = if (clause.parameters.indexOf(param) == index) true
-                        else {
-                          //todo: check type
-                          false
-                        }
-                        val paramText = ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)))
-                        if (isBold) "<b>" + paramText + "</b>" else paramText
-                      }).mkString(", "))
-                    }
-                  }
-                  case method: PsiMethod => {
-                    val p = method.getParameterList
-                    if (p.getParameters.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-                    else {
-                      buffer.append(p.getParameters.
-                              map((param: PsiParameter) => {
-                        val buffer: StringBuilder = new StringBuilder("")
-                        val list = param.getModifierList
-                        if (list == null) return;
-                        val lastSize = buffer.length
-                        for (a <- list.getAnnotations) {
-                          if (lastSize != buffer.length) buffer.append(" ")
-                          val element = a.getNameReferenceElement();
-                          if (element != null) buffer.append("@").append(element.getText)
-                        }
-                        if (lastSize != buffer.length) buffer.append(" ")
-                        val paramType = param.getType
-
-                        val name = param.getName
-                        if (name != null) {
-                          buffer.append(name)
-                        }
-                        buffer.append(": ")
-                        buffer.append(paramType.getPresentableText)
-
-                        val isBold = if (p.getParameters.indexOf(param) == index) true
-                        else {
-                          //todo: check type
-                          false
-                        }
-                        val paramText = buffer.toString
-                        if (isBold) "<b>" + paramText + "</b>" else paramText
-                      }).mkString(", "))
-                    }
-                  }
-                }
-              }
-              case ScFunctionType(_, params) => {
-                if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-                buffer.append(params.map((param: ScType) => {
-                  val paramText = "p" + params.indexOf(param) + ": " + ScType.presentableText(param)
-                  val isBold = if (params.indexOf(param) == index) true
-                  else {
-                    //todo: check type
-                    false
-                  }
-                  if (isBold) "<b>" + paramText + "</b>" else paramText
-                }).mkString(", "))
-              }
-              case (constr: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) => {
-                val clauses = constr.parameterList.clauses
-                if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+        p match {
+          case sign: PhysicalSignature => {
+            val subst = sign.substitutor
+            sign.method match {
+              case method: ScFunction => {
+                val clauses = method.paramClauses.clauses
+                if (clauses.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
                 else {
-                  val clause: ScParameterClause = clauses(i)
+                  val clause: ScParameterClause = clauses(0)
                   if (clause.isImplicit) buffer.append("implicit ")
                   buffer.append(clause.parameters.
                           map((param: ScParameter) => {
@@ -217,23 +152,90 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   }).mkString(", "))
                 }
               }
-              case _ =>
+              case method: PsiMethod => {
+                val p = method.getParameterList
+                if (p.getParameters.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+                else {
+                  buffer.append(p.getParameters.
+                          map((param: PsiParameter) => {
+                    val buffer: StringBuilder = new StringBuilder("")
+                    val list = param.getModifierList
+                    if (list == null) return;
+                    val lastSize = buffer.length
+                    for (a <- list.getAnnotations) {
+                      if (lastSize != buffer.length) buffer.append(" ")
+                      val element = a.getNameReferenceElement();
+                      if (element != null) buffer.append("@").append(element.getText)
+                    }
+                    if (lastSize != buffer.length) buffer.append(" ")
+                    val paramType = param.getType
+
+                    val name = param.getName
+                    if (name != null) {
+                      buffer.append(name)
+                    }
+                    buffer.append(": ")
+                    buffer.append(paramType.getPresentableText)
+
+                    val isBold = if (p.getParameters.indexOf(param) == index) true
+                    else {
+                      //todo: check type
+                      false
+                    }
+                    val paramText = buffer.toString
+                    if (isBold) "<b>" + paramText + "</b>" else paramText
+                  }).mkString(", "))
+                }
+              }
             }
-            val isGrey = buffer.indexOf("<g>")
-            if (isGrey != -1) buffer.replace(isGrey, isGrey + 3, "")
-            val startOffset = buffer.indexOf("<b>")
-            if (startOffset != -1) buffer.replace(startOffset, startOffset + 3, "")
-
-            val endOffset = buffer.indexOf("</b>")
-            if (endOffset != -1) buffer.replace(endOffset, endOffset + 4, "")
-
-            if (buffer.toString != "")
-              context.setupUIComponentPresentation(buffer.toString, startOffset, endOffset, false, false, false, color)
-            else
-              context.setUIComponentEnabled(false)
           }
-          case _ => //todo: constructors
+          case ScFunctionType(_, params) => {
+            if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+            buffer.append(params.map((param: ScType) => {
+              val paramText = "p" + params.indexOf(param) + ": " + ScType.presentableText(param)
+              val isBold = if (params.indexOf(param) == index) true
+              else {
+                //todo: check type
+                false
+              }
+              if (isBold) "<b>" + paramText + "</b>" else paramText
+            }).mkString(", "))
+          }
+          case (constr: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) => {
+            val clauses = constr.parameterList.clauses
+            if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+            else {
+              val clause: ScParameterClause = clauses(i)
+              if (clause.parameters.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+              else {
+                if (clause.isImplicit) buffer.append("implicit ")
+                buffer.append(clause.parameters.
+                        map((param: ScParameter) => {
+                  val isBold = if (clause.parameters.indexOf(param) == index) true
+                  else {
+                    //todo: check type
+                    false
+                  }
+                  val paramText = ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)))
+                  if (isBold) "<b>" + paramText + "</b>" else paramText
+                }).mkString(", "))
+              }
+            }
+          }
+          case _ =>
         }
+        val isGrey = buffer.indexOf("<g>")
+        if (isGrey != -1) buffer.replace(isGrey, isGrey + 3, "")
+        val startOffset = buffer.indexOf("<b>")
+        if (startOffset != -1) buffer.replace(startOffset, startOffset + 3, "")
+
+        val endOffset = buffer.indexOf("</b>")
+        if (endOffset != -1) buffer.replace(endOffset, endOffset + 4, "")
+
+        if (buffer.toString != "")
+          context.setupUIComponentPresentation(buffer.toString, startOffset, endOffset, false, false, false, color)
+        else
+          context.setUIComponentEnabled(false)
       }
       case _ =>
     }
@@ -395,7 +397,41 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               }
               context.setItemsToShow(res.toArray)
             }
-            case _ => //todo: constructors
+            case constr: ScConstructor => {
+              val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
+              val typeElement = constr.typeElement
+              val i = constr.arguments.indexOf(args)
+              ScType.extractClassType(typeElement.calcType) match {
+                case Some((clazz: PsiClass, substitutor: ScSubstitutor)) => {
+                  clazz match {
+                    case clazz: ScClass => {
+                      clazz.constructor match {
+                        case Some(constr: ScPrimaryConstructor) if i < constr.parameterList.clauses.length => {
+                          typeElement match {
+                            case gen: ScParameterizedTypeElement => {
+                              val tp = clazz.typeParameters.map(_.name)
+                              val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
+                              val map = new collection.mutable.HashMap[String, ScType]
+                              for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+                                map += Tuple(tp(i), typeArgs(i).calcType)
+                              }
+                              val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                              res += (constr, substitutor, i)
+                            }
+                            case _ => res += (constr, ScSubstitutor.empty, i)
+                          }
+                        }
+                        case _ =>
+                      }
+                    }
+                    case clazz: PsiClass if !clazz.isInstanceOf[ScTypeDefinition] =>
+                    case _ =>
+                  }
+                }
+                case _ =>
+              }
+              context.setItemsToShow(res.toArray)
+            }
           }
         }
         case context: UpdateParameterInfoContext => {
