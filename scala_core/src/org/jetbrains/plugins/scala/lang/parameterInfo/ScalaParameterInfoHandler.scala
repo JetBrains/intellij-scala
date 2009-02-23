@@ -431,7 +431,23 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                         }) > i))
                         res += (new PhysicalSignature(n.method, substitutor), i)
                     }
-                    case clazz: PsiClass if !clazz.isInstanceOf[ScTypeDefinition] =>
+                    case clazz: PsiClass if !clazz.isInstanceOf[ScTypeDefinition] => {
+                      for (constr <- clazz.getConstructors) {
+                        typeElement match {
+                          case gen: ScParameterizedTypeElement => {
+                            val tp = clazz.getTypeParameters.map(_.getName)
+                            val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
+                            val map = new collection.mutable.HashMap[String, ScType]
+                            for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+                              map += Tuple(tp(i), typeArgs(i).calcType)
+                            }
+                            val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                            res += (new PhysicalSignature(constr, substitutor), i)
+                          }
+                          case _ => res += (new PhysicalSignature(constr, ScSubstitutor.empty), i)
+                        }
+                      }
+                    }
                     case _ =>
                   }
                 }
