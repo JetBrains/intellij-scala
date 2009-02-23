@@ -4,6 +4,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalaTest
 import _root_.java.io.File
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.openapi.project.Project
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{JavaPsiFacade, PsiManager, PsiClass}
 import jdom.Element
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
@@ -18,7 +20,6 @@ import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 
 import com.intellij.openapi.projectRoots.JavaSdkType
 import lang.psi.api.ScalaFile
-import com.intellij.psi.PsiManager
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.filters.TextConsoleBuilderFactory
 
@@ -38,36 +39,42 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
-  val MAIN_CLASS = "scala.tools.nsc.MainGenericRunner"
+  val MAIN_CLASS = "org.scalatest.tools.Runner"
   private var testClassPath = ""
-  private var scriptArgs = ""
+  private var testArgs = ""
   private var javaOptions = ""
 
-  def getScriptPath = testClassPath
-  def getScriptArgs = scriptArgs
+  def getTestClassPath = testClassPath
+  def getTestArgs = testArgs
   def getJavaOptions = javaOptions
-  def setScriptPath(s: String): Unit = testClassPath = s
-  def setScriptArgs(s: String): Unit = scriptArgs = s
+  def setTestClassPath(s: String): Unit = testClassPath = s
+  def setTestArgs(s: String): Unit = testArgs = s
   def setJavaOptions(s: String): Unit = javaOptions = s
 
-  def apply(params: ScalaTestRunConfigurationForm) {
-    //todo:
+  def apply(configuration: ScalaTestRunConfigurationForm) {
+    setTestClassPath(configuration.getTestClassPath)
+    setJavaOptions(configuration.getJavaOptions)
+    setTestArgs(configuration.getTestArgs)
+  }
+
+  def getClazz: PsiClass = {
+    val facade = JavaPsiFacade.getInstance(project)
+    facade.findClass(testClassPath, GlobalSearchScope.allScope(project))
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
-    def fileNotFoundError {
-      throw new ExecutionException("Scala script file not found.")
+    def classNotFoundError {
+      throw new ExecutionException("Test class not found.")
     }
+    var clazz: PsiClass = null
     try {
-      val file: VirtualFile = VcsUtil.getVirtualFile(testClassPath)
-      PsiManager.getInstance(project).findFile(file) match {
-        case f: ScalaFile if f.isScriptFile =>
-        case _ => fileNotFoundError
-      }
+      clazz = getClazz
     }
     catch {
-      case e => fileNotFoundError
+      case e => classNotFoundError
     }
+    if (clazz == null) classNotFoundError
+    //todo: check test file
 
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
@@ -80,7 +87,6 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     }
     val sdkType = sdk.getSdkType
 
-    val script = VcsUtil.getVirtualFile(testClassPath)
     val state = new JavaCommandLineState(env) {
       protected override def createJavaParameters: JavaParameters = {
         val params = new JavaParameters();
@@ -90,21 +96,18 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
         //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
-        params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath)
-        params.getVMParametersList.add(CLASSPATH)
-        params.getVMParametersList.add(EMACS)
         val list = new java.util.ArrayList[String]
         val dir: VirtualFile = VcsUtil.getVirtualFile(scalaSdkPath + File.separator + "lib")
         for (child <- dir.getChildren) {
           params.getClassPath.add(child)
         }
+        params.getClassPath.add(getClassPath(module))
         params.setMainClass(MAIN_CLASS)
 
-        params.getProgramParametersList.add("-nocompdaemon")
-        params.getProgramParametersList.add("-classpath")
-        params.getProgramParametersList.add(getClassPath(module))
+        params.getProgramParametersList.add("-s")
         params.getProgramParametersList.add(testClassPath)
-        params.getProgramParametersList.addParametersString(scriptArgs)
+        params.getProgramParametersList.add("-o")
+        params.getProgramParametersList.addParametersString(testArgs)
         return params
       }
     }
@@ -117,8 +120,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   def getModule: Module = {
     var module: Module = null
     try {
-      val file: VirtualFile = VcsUtil.getVirtualFile(testClassPath)
-      module = ModuleUtil.findModuleForFile(file, getProject)
+      module = JavaRunConfigurationModule.getModulesForClass(project, testClassPath).toArray()(0).asInstanceOf[Module]
     }
     catch {
       case e =>
@@ -154,7 +156,6 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     if (getModule != null) {
       val sdk = ScalaConfigUtils.getScalaInstallPath(getModule)
       var exePath = sdk.replace('\\', File.separatorChar)
-      //if (!exePath.endsWith(File.separator)) exePath += File.separator
       return exePath
     }
     else ""
@@ -164,9 +165,9 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   override def writeExternal(element: Element): Unit = {
     super.writeExternal(element)
     writeModule(element)
-    JDOMExternalizer.write(element, "path", getScriptPath)
+    JDOMExternalizer.write(element, "path", getTestClassPath)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
-    JDOMExternalizer.write(element, "params", getScriptArgs)
+    JDOMExternalizer.write(element, "params", getTestArgs)
   }
 
   override def readExternal(element: Element): Unit = {
@@ -174,7 +175,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     readModule(element)
     testClassPath = JDOMExternalizer.readString(element, "path")
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
-    scriptArgs = JDOMExternalizer.readString(element, "params")
+    testArgs = JDOMExternalizer.readString(element, "params")
   }
 
   private def getClassPath(module: Module): String = {

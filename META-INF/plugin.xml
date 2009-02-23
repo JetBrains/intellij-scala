@@ -79,6 +79,7 @@
 
     <configurationType implementation="org.jetbrains.plugins.scala.script.ScalaScriptConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.script.console.ScalaScriptConsoleConfigurationType"/>
+    <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestConfigurationType"/>
 
     <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes"/>
     <!--Stub indeces -->
