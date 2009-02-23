@@ -3,7 +3,17 @@ package org.jetbrains.plugins.scala.testingSupport.scalaTest
 
 import _root_.java.io.File
 import _root_.scala.collection.mutable.ArrayBuffer
+import com.intellij.execution._
+import com.intellij.execution.process.ProcessHandler
+import com.intellij.execution.runners.{ProgramRunner, ExecutionEnvironment}
+import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
+import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
+import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
+import com.intellij.execution.testframework.sm.runner.ui.SMTestRunnerResultsForm
+import com.intellij.execution.testframework.TestConsoleProperties
+import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.{JDOMExternalizer, JDOMExternalizable}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiManager, PsiClass}
 import jdom.Element
@@ -15,18 +25,15 @@ import config.{ScalaConfigUtils, ScalaSDK}
 import com.intellij.execution.configurations._
 import _root_.java.util.Arrays
 import com.intellij.facet.FacetManager
-import com.intellij.execution.{CantRunException, ExecutionException, Executor}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 
 import com.intellij.openapi.projectRoots.JavaSdkType
 import lang.psi.api.ScalaFile
-import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.filters.TextConsoleBuilderFactory
 
 
 import com.intellij.vcsUtil.VcsUtil
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
-import com.intellij.openapi.util.JDOMExternalizer
 import script.ScalaScriptRunConfiguration
 
 /**
@@ -110,10 +117,22 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         params.getProgramParametersList.addParametersString(testArgs)
         return params
       }
-    }
 
-    val consoleBuilder = TextConsoleBuilderFactory.getInstance.createBuilder(getProject)
-    state.setConsoleBuilder(consoleBuilder);
+
+      override def execute(executor: Executor, runner: ProgramRunner[_ <: JDOMExternalizable]): ExecutionResult = {
+        val processHandler = startProcess
+        val config = ScalaTestRunConfiguration.this
+        val consoleProperties = new SMTRunnerConsoleProperties(config);
+
+        // Results viewer component
+        val resultsViewer = new SMTestRunnerResultsForm(config, consoleProperties,
+                                                        getRunnerSettings, getConfigurationSettings)
+
+        // console view
+        val testRunnerConsole = SMTestRunnerConnectionUtil.attachRunner(project, processHandler, consoleProperties, resultsViewer)
+        new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler))
+      }
+    }
     return state;
   }
 

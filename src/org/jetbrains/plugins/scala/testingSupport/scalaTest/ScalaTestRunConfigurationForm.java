@@ -73,7 +73,15 @@ public class ScalaTestRunConfigurationForm {
                               final Project project) {
      ClassBrowser browser = new ClassBrowser(project, title) {
        protected TreeClassChooser.ClassFilterWithScope getFilter() throws NoFilterException {
-         return null;
+         return new TreeClassChooser.ClassFilterWithScope() {
+           public GlobalSearchScope getScope() {
+             return GlobalSearchScope.allScope(project);
+           }
+
+           public boolean isAccepted(PsiClass aClass) {
+             return true;
+           }
+         };
        }
 
        protected PsiClass findClass(String className) {
