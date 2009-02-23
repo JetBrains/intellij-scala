@@ -288,9 +288,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     case method: PsiMethod => {
                       val getSign: PhysicalSignature = {
                         ref.qualifier match {
-                          case Some(x: ScExpression) => new PhysicalSignature(method, ScType.extractDesignated(x.getType) match {
+                          case Some(x: ScExpression) => new PhysicalSignature(method, ScType.extractClassType(x.getType) match {
                             case Some((_, subst)) => subst
-                            case _ => null
+                            case _ => ScSubstitutor.empty
                           })
                           case None => new PhysicalSignature(method, ScSubstitutor.empty)
                         }

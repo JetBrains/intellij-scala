@@ -34,6 +34,5 @@ class ScalaScriptRunConfigurationFactory(val typez: ConfigurationType) extends C
   }
 
   private def initDefault(configuration: ScalaScriptRunConfiguration): Unit = {
-    //todo: may be nothing to do
   }
 }
