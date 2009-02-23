@@ -6,7 +6,7 @@ import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import annotations.Nullable
-import com.incors.plaf.alloy.cl
+
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.codeInsight.hint.HintUtil
@@ -313,9 +313,24 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                         case _ => res += (getSign, 0)
                       }
                     }
-                    case obj: ScObject => { //todo: generic apply
+                    case obj: ScObject => {
                       for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(obj)
-                          if n.method.getName == "apply") res += (n, 0)
+                          if n.method.getName == "apply") {
+                        val meth: ScFunction = n.method.asInstanceOf[ScFunction]
+                        ref.getParent match {
+                          case gen: ScGenericCall => {
+                            val tp = meth.typeParameters.map(_.name)
+                            val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
+                            val map = new collection.mutable.HashMap[String, ScType]
+                            for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+                              map += Tuple(tp(i), typeArgs(i).calcType)
+                            }
+                            val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                            res += (new PhysicalSignature(meth, n.substitutor.followed(substitutor)), 0)
+                          }
+                          case _ => res += (n, 0)
+                        }
+                      }
                     }
                     case cl: ScClass if cl.hasModifierProperty("case") => {
                       cl.constructor match {
@@ -352,19 +367,37 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   }
                 }
               } else {
-                val expr: ScExpression = call.getInvokedExpr
-                val typez = expr.getType
+                var expr: ScExpression = call.getInvokedExpr
+                val typez = expr match {
+                  case gen: ScGenericCall => gen.referencedExpr.getType
+                  case _ => expr.getType
+                }
                 typez match {
                   case fun: ScFunctionType => res += fun
                   case _ => ScType.extractClassType(typez) match {
                     case Some((clazz: PsiClass, subst)) => {
-                      def end = { //todo: generic apply
+                      def end = {
                         for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
-                          if n.method.getName == "apply" && (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) res += (n, 0)
+                          if n.method.getName == "apply" && (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) {
+                          val meth: ScFunction = n.method.asInstanceOf[ScFunction]
+                          expr match {
+                            case gen: ScGenericCall => {
+                              val tp = meth.typeParameters.map(_.name)
+                              val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
+                              val map = new collection.mutable.HashMap[String, ScType]
+                              for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+                                map += Tuple(tp(i), typeArgs(i).calcType)
+                              }
+                              val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                              res += (new PhysicalSignature(meth, n.substitutor.followed(substitutor)), 0)
+                            }
+                            case _ => res += (n, 0)
+                          }
+                        }
                       }
                       val ints = Ints(0)
                       val ref = getRef(call)(true, ints)
-                      if (res != null) {
+                      if (ref != null) {
                         ref.resolve match {
                           case cl: ScClass if cl.hasModifierProperty("case") => {
                             cl.constructor match {
