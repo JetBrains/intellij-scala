@@ -168,6 +168,7 @@
       </fileset>
       <fileset dir="${scala.home}/lib">
         <include name="**/*scala-library.jar"/>
+        <include name="**/*scalatest-*.jar"/>
       </fileset>
     </copy>
 
@@ -213,7 +214,7 @@
         />
   </target>
 
-  <target name="build.tests" depends="make.project">
+  <target name="build.tests" depends="make.project, jar.plugin">
 
     <mkdir dir="${project.lib}/../../test"/>
     <mkdir dir="${project.lib}/../../test/Scala"/>
