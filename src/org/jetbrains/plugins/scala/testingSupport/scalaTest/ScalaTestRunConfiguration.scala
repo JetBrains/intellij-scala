@@ -34,6 +34,7 @@ import com.intellij.execution.filters.TextConsoleBuilderFactory
 
 import com.intellij.vcsUtil.VcsUtil
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
+import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import script.ScalaScriptRunConfiguration
 
 /**
@@ -47,6 +48,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
   val MAIN_CLASS = "org.scalatest.tools.Runner"
+  val SUITE_PATH = "org.scalatest.Suite"
   private var testClassPath = ""
   private var testArgs = ""
   private var javaOptions = ""
@@ -64,9 +66,9 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     setTestArgs(configuration.getTestArgs)
   }
 
-  def getClazz: PsiClass = {
+  def getClazz(path: String): PsiClass = {
     val facade = JavaPsiFacade.getInstance(project)
-    facade.findClass(testClassPath, GlobalSearchScope.allScope(project))
+    facade.findClass(path, GlobalSearchScope.allScope(project))
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
@@ -74,14 +76,18 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
       throw new ExecutionException("Test class not found.")
     }
     var clazz: PsiClass = null
+    var suiteClass: PsiClass = null
     try {
-      clazz = getClazz
+      clazz = getClazz(testClassPath)
+      suiteClass = getClazz(SUITE_PATH)
     }
     catch {
       case e => classNotFoundError
     }
     if (clazz == null) classNotFoundError
-    //todo: check test file
+    if (suiteClass == null)
+      throw new ExecutionException("ScalaTest not specified.")
+    if (!clazz.isInheritor(suiteClass, true)) throw new ExecutionException("Not found suite class.")
 
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
