@@ -7,6 +7,7 @@ import com.intellij.execution._
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.{ProgramRunner, ExecutionEnvironment}
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
+import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.execution.testframework.sm.runner.ui.SMTestRunnerResultsForm
 import com.intellij.execution.testframework.TestConsoleProperties
@@ -15,6 +16,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{JDOMExternalizer, JDOMExternalizable}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiManager, PsiClass}
+import com.intellij.util.PathUtil
 import jdom.Element
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
@@ -48,6 +50,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   val EMACS = "-Denv.emacs=\"%EMACS%\""
   val MAIN_CLASS = "org.scalatest.tools.Runner"
   val SUITE_PATH = "org.scalatest.Suite"
+  val REPORTER = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter"
   private var testClassPath = ""
   private var testArgs = ""
   private var javaOptions = ""
@@ -114,11 +117,14 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
           params.getClassPath.add(child)
         }
         params.getClassPath.add(getClassPath(module))
+        val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalaTestReporter])
+        params.getClassPath.add(rtJarPath)
         params.setMainClass(MAIN_CLASS)
 
         params.getProgramParametersList.add("-s")
         params.getProgramParametersList.add(testClassPath)
-        params.getProgramParametersList.add("-o")
+        params.getProgramParametersList.add("-r")
+        params.getProgramParametersList.add(REPORTER)
         params.getProgramParametersList.addParametersString(testArgs)
         return params
       }
@@ -134,7 +140,6 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
                                                         getRunnerSettings, getConfigurationSettings)
 
         // console view
-        import scalaTest.util.SMTestRunnerConnectionUtil  //todo: remove hack after change API
         val testRunnerConsole = SMTestRunnerConnectionUtil.attachRunner(project, processHandler, consoleProperties, resultsViewer)
         new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler))
       }
