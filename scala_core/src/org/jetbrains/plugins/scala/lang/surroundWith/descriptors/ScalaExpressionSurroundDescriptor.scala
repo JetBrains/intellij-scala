@@ -96,6 +96,7 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
     def findAllInRange(file: PsiFile, startOffset: Int, endOffset: Int): Array[PsiElement] = {
       var element = file.findElementAt(startOffset)
       while (element != null && !element.isInstanceOf[ScExpression] && !element.isInstanceOf[ScValue] &&
+              !element.isInstanceOf[ScFunction] && !element.isInstanceOf[ScTypeAlias] &&
               !element.isInstanceOf[ScVariable] && !element.isInstanceOf[PsiWhiteSpace] &&
               element.getNode.getElementType != ScalaTokenTypes.tLINE_TERMINATOR &&
               element.getNode.getElementType != ScalaTokenTypes.tSEMICOLON &&
@@ -103,7 +104,9 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
               (element.getParent().getTextRange().getStartOffset() == startOffset &&
                       (element.getParent().isInstanceOf[ScExpression] ||
                               element.getParent().isInstanceOf[ScValue] ||
-                              element.getParent().isInstanceOf[ScVariable]) &&
+                              element.getParent().isInstanceOf[ScVariable] ||
+                              element.getParent().isInstanceOf[ScFunction] ||
+                              element.getParent().isInstanceOf[ScTypeAlias]) &&
                       element.getParent().getTextRange().getEndOffset <= endOffset)) {
         element = element.getParent()
         if (element.getTextRange().getStartOffset() != startOffset) return null
