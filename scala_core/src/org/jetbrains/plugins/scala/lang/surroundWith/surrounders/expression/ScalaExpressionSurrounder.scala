@@ -32,7 +32,7 @@ import lang.psi.api.statements._
 abstract class ScalaExpressionSurrounder extends Surrounder {
   def isApplicable(element : PsiElement) : Boolean = {
     element match {
-      case _ : ScExpression | _: PsiWhiteSpace | _: ScValue | _: ScVariable  => {
+      case _ : ScExpression | _: PsiWhiteSpace | _: ScValue | _: ScVariable | _: ScFunction | _: ScTypeAlias => {
         true
       }
       case e => {
