@@ -7,7 +7,6 @@ import com.intellij.execution._
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.{ProgramRunner, ExecutionEnvironment}
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
-import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.execution.testframework.sm.runner.ui.SMTestRunnerResultsForm
 import com.intellij.execution.testframework.TestConsoleProperties
@@ -135,6 +134,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
                                                         getRunnerSettings, getConfigurationSettings)
 
         // console view
+        import scalaTest.util.SMTestRunnerConnectionUtil  //todo: remove hack after change API
         val testRunnerConsole = SMTestRunnerConnectionUtil.attachRunner(project, processHandler, consoleProperties, resultsViewer)
         new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler))
       }
