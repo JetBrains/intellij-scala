@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.testingSupport.scalaTest
 
 import _root_.org.scalatest.{Report, Reporter}
+import _root_.scala.collection.mutable.HashMap
+import java.util.Date
 
 /**
  * User: Alexander Podkhalyuzin
@@ -8,8 +10,12 @@ import _root_.org.scalatest.{Report, Reporter}
  */
 
 class ScalaTestReporter extends Reporter {
+  private val map = new HashMap[String, Long]
+
   override def testSucceeded(r: Report): Unit = {
-    println("##teamcity[testFinished name='" + r.name + "']")
+    val duration = System.currentTimeMillis - map(r.name)
+    println("##teamcity[testFinished name='" + r.name + "' duration='"+ duration +"']")
+    map.excl(r.name)
   }
 
   override def testFailed(r: Report): Unit = {
@@ -23,6 +29,7 @@ class ScalaTestReporter extends Reporter {
   override def testStarting(r: Report): Unit = {
     println("##teamcity[testStarted name='" + r.name +
             "' captureStandardOutput='true']")
+    map.put(r.name, System.currentTimeMillis)
   }
 
 
@@ -31,10 +38,14 @@ class ScalaTestReporter extends Reporter {
   }
 
   override def suiteStarting(r: Report): Unit = {
-    println("##teamcity[testSuiteStarted name='" + r.name + "']")
+    println("##teamcity[testSuiteStarted name='" + escapeString(r.name) + "']")
   }
 
   override def runStarting(i: Int): Unit = {
     println("##teamcity[testCount count='" + i + "']")
+  }
+
+  private def escapeString(s: String) = {
+    s.replaceAll("[|]", "||").replaceAll("[']", "|'").replaceAll("[\n]", "|n").replaceAll("[\r]", "|r").replaceAll("]","|]")
   }
 }
