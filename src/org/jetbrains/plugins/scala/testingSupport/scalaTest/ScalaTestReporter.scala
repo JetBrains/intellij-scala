@@ -15,14 +15,16 @@ class ScalaTestReporter extends Reporter {
 
   override def testSucceeded(r: Report): Unit = {
     val duration = System.currentTimeMillis - map(r.name)
-    println("\n##teamcity[testFinished name='" + r.name + "' duration='"+ duration +"']")
+    println("\n##teamcity[testFinished name='" + escapeString(r.name) + "' duration='"+ duration +"']")
     map.excl(r.name)
   }
 
   override def testFailed(r: Report): Unit = {
     val duration = System.currentTimeMillis - map(r.name)
+    var error = true
     val detail = r.throwable match {
       case Some(x: Throwable) => {
+        if (x.isInstanceOf[AssertionError]) error = false
         val writer = new StringWriter
         x.printStackTrace(new PrintWriter(writer))
         writer.getBuffer.toString
@@ -31,13 +33,13 @@ class ScalaTestReporter extends Reporter {
     }
     println("\n##teamcity[testFailed name='" + escapeString(r.name) + "' message='" + escapeString(r.message) +
             "' details='"+ escapeString(detail) +"'"
-            + "error = 'true'" +
-            "timestamp='" + r.date.toString + "']")
+            + (if (error) "error = '" + error + "'" else "")+
+            "timestamp='" + escapeString(r.date.toString) + "']")
     testSucceeded(r)
   }
 
   override def suiteCompleted(r: Report): Unit = {
-    println("\n##teamcity[testSuiteFinished name='" + r.name + "']")
+    println("\n##teamcity[testSuiteFinished name='" + escapeString(r.name) + "']")
   }
 
   override def testStarting(r: Report): Unit = {
@@ -48,11 +50,11 @@ class ScalaTestReporter extends Reporter {
 
 
   override def testIgnored(r: Report): Unit = {
-    println("\n##teamcity[testIgnored name='" + r.name + "' message='" + r.message + "']")
+    println("\n##teamcity[testIgnored name='" + escapeString(r.name) + "' message='" + escapeString(r.message) + "']")
   }
 
   override def suiteStarting(r: Report): Unit = {
-    println("##teamcity[testSuiteStarted name='" + escapeString(r.name) + "']")
+    println("##teamcity[testSuiteStarted name='" + escapeString(r.name) + "' location='scala://" + escapeString(r.name) + "']")
   }
 
   override def runStarting(i: Int): Unit = {
