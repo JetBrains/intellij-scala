@@ -123,7 +123,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
         params.getProgramParametersList.add("-s")
         params.getProgramParametersList.add(testClassPath)
-        params.getProgramParametersList.add("-r")
+        params.getProgramParametersList.add("-rYZTFGUPBISAR")
         params.getProgramParametersList.add(REPORTER)
         params.getProgramParametersList.addParametersString(testArgs)
         return params
