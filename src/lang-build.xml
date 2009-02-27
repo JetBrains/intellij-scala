@@ -19,6 +19,7 @@
   <property name="scala.home" value="${base.dir}/SDK"/>
   <property name="scala_core.dir" value="${project.lib}/../../../scala_core"/>
   <property name="scalax.dir" value="${project.lib}/../../../scalax"/>
+  <property name="runners.dir" value="${project.lib}/../../../Runners"/>
   <property name="idea.lib" value="${idea.pack}/lib"/>
   <property name="output" value="${project.lib}/dist"/>
   <property name="test.lib" value="${project.lib}/../../test/Scala"/>
@@ -108,6 +109,8 @@
       <classpath>
         <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
         <pathelement location="${scala.home}/lib/scala-library.jar"/>
+        <pathelement location="${scala.home}/lib/runners.jar"/>
+        <pathelement location="${scala.home}/lib/scalatest-0.9.4.jar"/>
       </classpath>
     </taskdef>
 
@@ -124,9 +127,11 @@
       <include name="src/**/*.scala"/>
       <include name="scala_core/src/**/*.scala"/>
       <include name="scalax/src/**/*.scala"/>
+      <include name="Runners/src/**/*.scala"/>
       <include name="src/**/*.java"/>
       <include name="scala_core/src/**/*.java"/>
       <include name="scalax/src/**/*.java"/>
+      <include name="Runners/src/**/*.java"/>
     </scalac>
     <javac2 srcdir=".."
             destdir="${project.lib}"
@@ -137,6 +142,7 @@
       <include name="src/**/*.form"/>
       <include name="scala_core/src/**/*.java"/>
       <include name="scala_core/src/**/*.form"/>
+      <include name="Runners/src/**/*.java"/>
     </javac2>
 
     <copy file="../scala_core/src/org/jetbrains/plugins/scala/ScalaBundle.properties"
@@ -154,7 +160,16 @@
     <mkdir dir="${base.dir}/tempjar/Scala/lib"/>
 
     <jar destfile="${base.dir}/Scala.jar">
-      <fileset dir="${project.lib}" excludes="**/*build.xml, **/scala.properties"/>
+      <fileset dir="${project.lib}" excludes="**/*build.xml, **/scala.properties, Runners/**/*"/>
+
+      <manifest>
+        <attribute name="Revision" value="${plugin.revision}"/>
+        <attribute name="Build" value="${plugin.version}"/>
+      </manifest>
+    </jar>
+
+    <jar destfile="${base.dir}/runners.jar">
+      <fileset dir="${runners.dir}"/>
 
       <manifest>
         <attribute name="Revision" value="${plugin.revision}"/>
@@ -165,15 +180,15 @@
     <copy todir="${base.dir}/tempjar/Scala/lib">
       <fileset dir="${base.dir}">
         <include name="Scala.jar"/>
+        <include name="runners.jar"/>
       </fileset>
       <fileset dir="${scala.home}/lib">
         <include name="**/*scala-library.jar"/>
-        <include name="**/*runners.jar"/>
       </fileset>
     </copy>
 
     <delete>
-      <fileset dir="${base.dir}" includes="Scala.jar"/>
+      <fileset dir="${base.dir}" includes="Scala.jar, runners.jar"/>
     </delete>
     <zip destfile="${base.dir}/scala-intellij-bin-${plugin.version}.zip" basedir="${base.dir}/tempjar"/>
     <delete dir="${base.dir}/tempjar"/>
