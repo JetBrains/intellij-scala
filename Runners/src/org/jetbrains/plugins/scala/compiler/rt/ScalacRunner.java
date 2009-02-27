@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @author ven
  */
-public class ScalacRunnerClass {
+public class ScalacRunner {
   public static final String SCALAC_QUALIFIED_NAME = "scala.tools.nsc.Main";
 
   public static void main(String[] args) {
