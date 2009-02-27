@@ -168,6 +168,7 @@
       </fileset>
       <fileset dir="${scala.home}/lib">
         <include name="**/*scala-library.jar"/>
+        <include name="**/*runners.jar"/>
       </fileset>
     </copy>
 
