@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module relativePaths="false" type="PLUGIN_MODULE" version="4">
+  <component name="CodeStyleSettingsManager" />
   <component name="DevKit.ModuleBuildProperties" url="file://$MODULE_DIR$/META-INF/plugin.xml" />
   <component name="FacetManager">
     <facet type="Scala" name="Scala">
@@ -20,19 +21,13 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="scala_core" />
     <orderEntry type="library" name="scalatest" level="project" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/SDK/lib/runners.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
+    <orderEntry type="module" module-name="Runners" />
   </component>
+  <component name="ProjectFileVersion" />
   <component name="VcsManagerConfiguration">
     <option name="ACTIVE_VCS_NAME" value="svn" />
     <option name="USE_PROJECT_VCS" value="false" />
   </component>
+  <component name="libraryTable" />
 </module>
 
