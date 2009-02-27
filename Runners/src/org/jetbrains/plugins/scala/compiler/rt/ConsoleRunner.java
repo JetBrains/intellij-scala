@@ -14,7 +14,7 @@ import java.io.PrintWriter;
  * User: Alexander Podkhalyuzin
  * Date: 10.02.2009
  */
-public class ConsoleRunnerClass {
+public class ConsoleRunner {
   public static void main(String[] args) {
     //ConsoleRunnerUtil.addQuotes(args);
     GenericRunnerCommand command = new GenericRunnerCommand(ConsoleRunnerUtil.listOf(args),
