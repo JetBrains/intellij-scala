@@ -117,8 +117,16 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
           params.getClassPath.add(child)
         }
         params.getClassPath.add(getClassPath(module))
-        val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalaTestReporter])
-        params.getClassPath.add(rtJarPath)
+        val jarPathForClass = PathUtil.getJarPathForClass(classOf[ScalaTestRunConfiguration])
+        val virtFile = VcsUtil.getVirtualFile(jarPathForClass)
+        if (virtFile.getExtension != "jar") { //so it's debug mode, we can free use ScalaTestReporter class
+          val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalaTestReporter])
+          params.getClassPath.add(rtJarPath)
+        } else { //so we must to find jar
+          val rtJarPath = jarPathForClass.substring(0, jarPathForClass.lastIndexOf(File.separator)) + "runners.jar"
+          params.getClassPath.add(rtJarPath)
+        }
+
         params.setMainClass(MAIN_CLASS)
 
         params.getProgramParametersList.add("-s")
