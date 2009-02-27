@@ -34,6 +34,7 @@ class ScalaTestConfigurationType extends LocatableConfigurationType {
   def createConfigurationByLocation(location: Location[_ <: PsiElement]): RunnerAndConfigurationSettings = {
     val element = location.getPsiElement
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])
+    if (parent == null) return null
     val facade = JavaPsiFacade.getInstance(element.getProject)
     val suiteClazz = facade.findClass("org.scalatest.Suite", GlobalSearchScope.allScope(element.getProject))
     if (suiteClazz == null) return null
