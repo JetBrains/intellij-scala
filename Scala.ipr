@@ -7,7 +7,7 @@
       <antReference projectDefault="true" />
       <customJdkName value="" />
       <maximumHeapSize value="128" />
-      <maximumStackSize value="32" />
+      <maximumStackSize value="64" />
       <properties />
     </buildFile>
     <buildFile url="file://$PROJECT_DIR$/src/build.xml">
@@ -51,7 +51,7 @@
         <option name="OTHER_INDENT_OPTIONS">
           <value>
             <option name="INDENT_SIZE" value="2" />
-            <option name="CONTINUATION_INDENT_SIZE" value="8" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
             <option name="TAB_SIZE" value="2" />
             <option name="USE_TAB_CHARACTER" value="false" />
             <option name="SMART_TABS" value="false" />
@@ -59,8 +59,11 @@
             <option name="LABEL_INDENT_ABSOLUTE" value="false" />
           </value>
         </option>
+        <ScalaCodeStyleSettings>
+          <option name="ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY" value="true" />
+        </ScalaCodeStyleSettings>
         <ADDITIONAL_INDENT_OPTIONS fileType="">
-          <option name="INDENT_SIZE" value="4" />
+          <option name="INDENT_SIZE" value="2" />
           <option name="CONTINUATION_INDENT_SIZE" value="8" />
           <option name="TAB_SIZE" value="4" />
           <option name="USE_TAB_CHARACTER" value="false" />
@@ -86,6 +89,15 @@
           <option name="LABEL_INDENT_SIZE" value="0" />
           <option name="LABEL_INDENT_ABSOLUTE" value="false" />
         </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="haml">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
         <ADDITIONAL_INDENT_OPTIONS fileType="java">
           <option name="INDENT_SIZE" value="2" />
           <option name="CONTINUATION_INDENT_SIZE" value="4" />
@@ -95,10 +107,55 @@
           <option name="LABEL_INDENT_SIZE" value="0" />
           <option name="LABEL_INDENT_ABSOLUTE" value="false" />
         </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="js">
+          <option name="INDENT_SIZE" value="4" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="jsp">
+          <option name="INDENT_SIZE" value="4" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="rb">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
         <ADDITIONAL_INDENT_OPTIONS fileType="scala">
           <option name="INDENT_SIZE" value="2" />
           <option name="CONTINUATION_INDENT_SIZE" value="8" />
           <option name="TAB_SIZE" value="2" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="sql">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="txt">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
           <option name="USE_TAB_CHARACTER" value="false" />
           <option name="SMART_TABS" value="false" />
           <option name="LABEL_INDENT_SIZE" value="0" />
@@ -343,12 +400,17 @@
   <component name="ProjectDetails">
     <option name="projectName" value="Scala" />
   </component>
-  <component name="ProjectFileVersion" converted="true" />
+  <component name="ProjectFileVersion" converted="true">
+    <converter id="javaee-modules" />
+    <converter id="ror-modules" />
+    <converter id="SelenaRunConfToDiana" />
+  </component>
   <component name="ProjectKey">
     <option name="state" value="http://svn.jetbrains.org/idea/Trunk/scala/Scala.ipr" />
   </component>
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Runners/Runners.iml" filepath="$PROJECT_DIR$/Runners/Runners.iml" />
       <module fileurl="file://$PROJECT_DIR$/Scala.iml" filepath="$PROJECT_DIR$/Scala.iml" />
       <module fileurl="file://$PROJECT_DIR$/scala_core/scala_core.iml" filepath="$PROJECT_DIR$/scala_core/scala_core.iml" />
       <module fileurl="file://$PROJECT_DIR$/scalax/scalax.iml" filepath="$PROJECT_DIR$/scalax/scalax.iml" />
@@ -577,13 +639,31 @@
     </LanguageOptions>
   </component>
   <component name="libraryTable">
-    <library name="scala_lib">
+    <library name="scala-2.7.3.final">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/SDK/lib/scala-compiler.jar!/" />
-        <root url="jar://$PROJECT_DIR$/SDK/lib/scala-library.jar!/" />
+        <root url="jar://C:/Program Files/Scala2.7.3/lib/scala-compiler.jar!/" />
+        <root url="jar://C:/Program Files/Scala2.7.3/lib/scala-dbc.jar!/" />
+        <root url="jar://C:/Program Files/Scala2.7.3/lib/scala-library.jar!/" />
+        <root url="jar://C:/Program Files/Scala2.7.3/lib/scala-swing.jar!/" />
       </CLASSES>
       <JAVADOC />
-      <SOURCES />
+      <SOURCES>
+        <root url="jar://C:/Program Files/Scala2.7.3/src/scala-compiler-src.jar!/" />
+        <root url="jar://C:/Program Files/Scala2.7.3/src/scala-dbc-src.jar!/" />
+        <root url="jar://C:/Program Files/Scala2.7.3/src/scala-library-src.jar!/" />
+        <root url="jar://C:/Program Files/Scala2.7.3/src/scala-swing-src.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="scalatest">
+      <CLASSES>
+        <root url="jar://C:/work/ScalaTest/scalatest-0.9.4/scalatest-0.9.4/scalatest-0.9.4.jar!/" />
+        <root url="jar://C:/work/ScalaTest/scalatest-0.9.4/scalatest-0.9.4/scalatest-0.9.4-tests.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="file://C:/work/ScalaTest/scalatest-0.9.4/scalatest-0.9.4/tests" />
+        <root url="file://C:/work/ScalaTest/scalatest-0.9.4/scalatest-0.9.4/src" />
+      </SOURCES>
     </library>
   </component>
   <UsedPathMacros>
