@@ -10,7 +10,7 @@ import java.util.Date
  * Date: 24.02.2009
  */
 
-class ScalaTestReporter extends Reporter {
+class ScalaTestReporterClass extends Reporter {
   private val map = new HashMap[String, Long]
 
   override def testSucceeded(r: Report): Unit = {

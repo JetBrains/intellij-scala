@@ -8,7 +8,7 @@ import _root_.scala.tools.nsc.Settings
  * Date: 10.02.2009
  */
 
-object ConsoleRunnerUtil {
+object ConsoleRunnerUtilClass {
   private def function(s: String): Unit = {
     System.out.println(s)
   }
