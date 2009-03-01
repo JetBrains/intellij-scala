@@ -23,6 +23,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.roots.*;
+import com.intellij.openapi.roots.impl.libraries.LibraryEx;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
@@ -82,6 +83,7 @@ public abstract class LibrariesUtil {
   @NotNull
   public static String getScalaLibraryHome(Library library) {
     String path = "";
+    if (library instanceof LibraryEx && ((LibraryEx) library).isDisposed()) return path;
     for (VirtualFile file : library.getFiles(OrderRootType.CLASSES)) {
       if (ScalaConfigUtils.SCALA_LIB_NAME.equals(file.getName())) {
         String jarPath = file.getPresentableUrl();
