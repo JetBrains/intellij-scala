@@ -170,6 +170,7 @@ public class ScalaFacetTab extends FacetEditorTab {
 
   public void reset() {
     Module module = myEditorContext.getModule();
+    if (module != null && module.isDisposed()) return;
     if (module != null && FacetManager.getInstance(module).getFacetByType(ScalaFacet.ID) != null) {
       Library[] libraries = ScalaConfigUtils.getScalaLibrariesByModule(myEditorContext.getModule());
       if (libraries.length == 0) {
