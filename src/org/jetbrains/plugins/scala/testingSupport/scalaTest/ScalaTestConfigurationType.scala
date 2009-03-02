@@ -9,6 +9,7 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{JavaPsiFacade, PsiElement}
+import icons.Icons
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import script.ScalaScriptRunConfigurationFactory
 
@@ -20,7 +21,7 @@ import script.ScalaScriptRunConfigurationFactory
 class ScalaTestConfigurationType extends LocatableConfigurationType {
   val confFactory = new ScalaTestRunConfigurationFactory(this)
 
-  def getIcon: Icon = IconLoader.getIcon("/runConfigurations/junit.png")
+  def getIcon: Icon = Icons.SCALA_TEST
 
   def getDisplayName: String = "ScalaTest"
 
