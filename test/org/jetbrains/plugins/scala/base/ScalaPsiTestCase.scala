@@ -71,7 +71,7 @@ abstract class ScalaPsiTestCase extends PsiTestCase with JUnit3Suite {
     /*val resourcePath = rootPath + testPath + ".testoptions"
     val resourceFile = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     confiureOption(StringUtil.convertLineSeparators(VfsUtil.loadText(resourceFile), "\n"))*/
-    assert(output === realOutput)
+    _root_.junit.framework.Assert.assertEquals(StringUtil.convertLineSeparators(output), StringUtil.convertLineSeparators(realOutput))
   }
 
   //protected def confiureOption(text: String): Unit

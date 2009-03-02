@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.parameterInfo
 
+import _root_.scala.collection.mutable.ArrayBuffer
+import _root_.scala.runtime.RichString
+import _root_.scala.util.Sorting
 import base.ScalaPsiTestCase
 import com.intellij.codeInsight.hint.{HintUtil, ShowParameterInfoContext}
 import com.intellij.lang.parameterInfo.ParameterInfoUIContext
@@ -20,14 +23,233 @@ import psi.api.ScalaFile
 class FunctionParameterInfoTest extends ScalaPsiTestCase {
   val caretMarker = "/*caret*/"
 
-  /* //use it if you want to generate tests from appropriate folder
+  /*//use it if you want to generate tests from appropriate folder
   def testGenerate {
     generateTests
+  }*/
+
+  def testClassApply{
+    testPath = "/parameterInfo/apply/ClassApply"
+    realOutput = """
+x: Int
+"""
+    realOutput = realOutput.trim
+    playTest
   }
-  */
-  
-  protected def getTestOutput(file: VirtualFile): String = {
-    val res = new StringBuilder("")
+
+  def testGenericClassApply{
+    testPath = "/parameterInfo/apply/GenericClassApply"
+    realOutput = """
+x: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testObjectApply{
+    testPath = "/parameterInfo/apply/ObjectApply"
+    realOutput = """
+x: Double, y: Int
+x: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testObjectGenericApply{
+    testPath = "/parameterInfo/apply/ObjectGenericApply"
+    realOutput = """
+x: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testClassGenericApply{
+    testPath = "/parameterInfo/apply/ClassGenericApply"
+    realOutput = """
+x: Int
+x: Double
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testSimple{
+    testPath = "/parameterInfo/simple/Simple"
+    realOutput = """
+x: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testLocal{
+    testPath = "/parameterInfo/simple/Local"
+    realOutput = """
+x: Boolean
+x: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testGenericJavaLibrary{
+    testPath = "/parameterInfo/simple/GenericJavaLibrary"
+    realOutput = """
+index: Int, element: Int
+o: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testJavaLibrary{
+    testPath = "/parameterInfo/simple/JavaLibrary"
+    realOutput = """
+ch: Int
+ch: Int, fromIndex: Int
+source: Array[Char], sourceOffset: Int, sourceCount: Int, target: Array[Char], targetOffset: Int, targetCount: Int, fromIndex: Int
+str: String
+str: String, fromIndex: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testScalaLibrary{
+    testPath = "/parameterInfo/simple/ScalaLibrary"
+    realOutput = """
+<no parameters>
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testGenericUpdate{
+    testPath = "/parameterInfo/update/GenericUpdate"
+    realOutput = """
+x: Boolean
+x: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testNoUpdate{
+    testPath = "/parameterInfo/update/NoUpdate"
+    realOutput = """
+x: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testUpdateOnly{
+    testPath = "/parameterInfo/update/UpdateOnly"
+    realOutput = """
+x: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testFunctionType{
+    testPath = "/parameterInfo/functionType/FunctionType"
+    realOutput = """
+p0: String
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testFunctionTypeTwo{
+    testPath = "/parameterInfo/functionType/FunctionTypeTwo"
+    realOutput = """
+v1: T1, v2: T2
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testApplyCurrings{
+    testPath = "/parameterInfo/currings/ApplyCurrings"
+    realOutput = """
+p0: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testCurringDef{
+    testPath = "/parameterInfo/currings/CurringDef"
+    realOutput = """
+p0: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testFunctionTypeCurrings{
+    testPath = "/parameterInfo/currings/FunctionTypeCurrings"
+    realOutput = """
+p0: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testNoCurrings{
+    testPath = "/parameterInfo/currings/NoCurrings"
+    realOutput = """
+
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testGenericScalaConstructor{
+    testPath = "/parameterInfo/constructors/GenericScalaConstructor"
+    realOutput = """
+x: Boolean
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testJavaConstructor{
+    testPath = "/parameterInfo/constructors/JavaConstructor"
+    realOutput = """
+<no parameters>
+c: Collection[_ <: Int]
+initialCapacity: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testScalaConstructor{
+    testPath = "/parameterInfo/constructors/ScalaConstructor"
+    realOutput = """
+x: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testThisScalaConstructor{
+    testPath = "/parameterInfo/constructors/ThisScalaConstructor"
+    realOutput = """
+<no parameters>
+x: Boolean
+x: Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  protected def getTestOutput(file: VirtualFile): String =  getTestOutput(file, true)
+  private def getTestOutput(file: VirtualFile, useOutput: Boolean): String = {
     val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
     val fileText = scalaFile.getText
     val offset = fileText.indexOf(caretMarker)
@@ -39,6 +261,7 @@ class FunctionParameterInfoTest extends ScalaPsiTestCase {
     val leafElement = scalaFile.findElementAt(offset)
     val element = PsiTreeUtil.getParentOfType(leafElement, handler.getArgumentListClass)
     handler.findElementForParameterInfo(context)
+    val items = new ArrayBuffer[String]
 
     for (item <- context.getItemsToShow) {
       val uiContext = new ParameterInfoUIContext {
@@ -46,7 +269,7 @@ class FunctionParameterInfoTest extends ScalaPsiTestCase {
         def setupUIComponentPresentation(text: String, highlightStartOffset: Int, highlightEndOffset: Int,
                                         isDisabled: Boolean, strikeout: Boolean, isDisabledBeforeHighlight: Boolean,
                                         background: Color): Unit = {
-          res.append(text).append("\n")
+          items.append(text)
         }
         def isUIComponentEnabled: Boolean = false
         def getCurrentParameterIndex: Int = 0
@@ -55,9 +278,18 @@ class FunctionParameterInfoTest extends ScalaPsiTestCase {
       }
       handler.updateUI(item, uiContext)
     }
+
+    val itemsArray = items.toArray
+    Sorting.quickSort[String](itemsArray)
+
+    val res = new StringBuilder("")
+
+    for (item <- itemsArray) res.append(item).append("\n")
     if (res.length > 0) res.replace(res.length - 1, res.length, "")
-    println("------------------------ " + scalaFile.getName + " ------------------------")
-    println(res)
+    if (useOutput) {
+      println("------------------------ " + scalaFile.getName + " ------------------------")
+      println(res)
+    }
     res.toString
   }
 
@@ -77,12 +309,12 @@ class FunctionParameterInfoTest extends ScalaPsiTestCase {
     val files = new java.util.ArrayList[VirtualFile]()
     VcsUtil.collectFiles(LocalFileSystem.getInstance.findFileByPath(testPaths.replace(File.separatorChar, '/')), files, true, false)
 
-    for (file: VirtualFile <- files.toArray(Array[VirtualFile]())) {
+    for (file: VirtualFile <- files.toArray(Array[VirtualFile]()) if file.getExtension == "scala") {
       print("  def test" + file.getNameWithoutExtension + "{\n")
       val path = file.getPath
-      print("    testPath = \"" + path.substring(path.indexOf("parameterInfo") + 13, path.indexOf(".scala")) + "\"\n")
+      print("    testPath = \"/" + path.substring(path.indexOf("parameterInfo"), path.indexOf(".scala")) + "\"\n")
       print("    realOutput = \"\"\"\n")
-      print(getTestOutput(file) + "\n\"\"\"\n")
+      print(getTestOutput(file, false) + "\n\"\"\"\n")
       print("    realOutput = realOutput.trim\n")
       print("    playTest\n  }\n\n")
     }

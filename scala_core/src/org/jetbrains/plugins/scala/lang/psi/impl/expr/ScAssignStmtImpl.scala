@@ -12,5 +12,5 @@ import types.Unit
 
 class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScAssignStmt {
   override def toString: String = "AssignStatement"
-  override def getType = Unit
+  override def getType = Unit //todo:
 }
