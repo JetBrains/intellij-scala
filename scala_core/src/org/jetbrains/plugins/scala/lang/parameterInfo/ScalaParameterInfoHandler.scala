@@ -131,6 +131,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         val buffer: StringBuilder = new StringBuilder("")
 
         p match {
+          case x: String if x == "" => {
+            buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+          }
           case (sign: PhysicalSignature, i: Int) => {
             val subst = sign.substitutor
             sign.method match {
@@ -349,7 +352,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                             case _ => res += (constr, ScSubstitutor.empty, 0)
                           }
                         }
-                        case _ =>
+                        case None => res += ""
                       }
                     }
                     case v: ScTyped => v.calcType match {
@@ -416,6 +419,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                                   case _ => res += (constr, ScSubstitutor.empty, ints.i)
                                 }
                               }
+                              case None => res += ""
                               case _ => end
                             }
                           }
@@ -454,6 +458,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                             case _ => res += (constr, ScSubstitutor.empty, i)
                           }
                         }
+                        case None => res += ""
                         case _ =>
                       }
                       for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
