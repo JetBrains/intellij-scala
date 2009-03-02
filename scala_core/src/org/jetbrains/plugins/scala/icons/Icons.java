@@ -46,4 +46,6 @@ public interface Icons {
   Icon FIELD_VAR = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/field_variable.png");
   Icon FIELD_VAL = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/field_value.png");
 
+  //Testing support
+  Icon SCALA_TEST = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_test_icon.png");
 }
