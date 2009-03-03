@@ -166,7 +166,7 @@ p0: String
   def testFunctionTypeTwo{
     testPath = "/parameterInfo/functionType/FunctionTypeTwo"
     realOutput = """
-v1: T1, v2: T2
+v1: Int, v2: Int
 """
     realOutput = realOutput.trim
     playTest
