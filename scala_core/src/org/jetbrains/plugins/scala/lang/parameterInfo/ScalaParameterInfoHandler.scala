@@ -416,7 +416,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                                 case gen: ScGenericCall => {
                                   //todo: can be generic
                                 }
-                                case _ => res += (n, -1)
+                                case _ => res += (new PhysicalSignature(meth, n.substitutor.followed(subst)), -1)
                               }
                               case _ => { //todo: java case
 
