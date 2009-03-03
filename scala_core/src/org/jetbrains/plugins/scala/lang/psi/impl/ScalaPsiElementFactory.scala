@@ -150,7 +150,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
         //cannot be
         null
     }).importExprs(0).qualifier
-    return imp.resolve
+    return if (imp == null) null else imp.resolve
   }
 
   def createBigImportStmt(expr: ScImportExpr, exprs: Array[ScImportExpr], manager: PsiManager): ScImportStmt = {
