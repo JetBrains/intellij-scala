@@ -68,12 +68,25 @@ abstract class ScalaPsiTestCase extends PsiTestCase with JUnit3Suite {
     assert(vFile != null, "file " + filePath + " not found")
     val output = getTestOutput(vFile)
 
-    /*val resourcePath = rootPath + testPath + ".testoptions"
-    val resourceFile = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
-    confiureOption(StringUtil.convertLineSeparators(VfsUtil.loadText(resourceFile), "\n"))*/
-    _root_.junit.framework.Assert.assertEquals(StringUtil.convertLineSeparators(output), StringUtil.convertLineSeparators(realOutput))
+    _root_.junit.framework.Assert.assertEquals(StringUtil.convertLineSeparators(realOutput), StringUtil.convertLineSeparators(output))
   }
 
-  //protected def confiureOption(text: String): Unit
+  /**
+   * Use this method to convert given file to output String.
+   * This outout compared with <code>realOutput</code> string.
+   * In the test method you should assign value to
+   * <code>testPath</code> (relative to testdata)
+   * and <code>realOutput</code>. For example:
+   * <blockquote><pre>
+   *      def testGenericClassApply{
+   *        testPath = "/parameterInfo/apply/GenericClassApply"
+   *        realOutput = "answer"
+   *        playTest
+   *      }
+   * </pre></blockquote>
+   * Be careful. This test class not suppert concurrent test
+   * running, because of <code>realOutput</code> and
+   * <code>testPath</code> fields.
+   */
   protected def getTestOutput(file: VirtualFile): String
 }
