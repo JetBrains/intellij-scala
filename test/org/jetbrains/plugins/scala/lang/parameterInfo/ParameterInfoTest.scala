@@ -120,7 +120,7 @@ str: String, fromIndex: Int
   def testScalaLibrary{
     testPath = "/parameterInfo/simple/ScalaLibrary"
     realOutput = """
-<no parameters>
+s: Int
 """
     realOutput = realOutput.trim
     playTest
