@@ -68,8 +68,8 @@ x: Int
   def testClassGenericApply{
     testPath = "/parameterInfo/apply/ClassGenericApply"
     realOutput = """
-x: Int
 x: Double
+x: Int
 """
     realOutput = realOutput.trim
     playTest
