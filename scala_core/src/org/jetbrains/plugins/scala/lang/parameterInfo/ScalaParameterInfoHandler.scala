@@ -134,19 +134,21 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
           case x: String if x == "" => {
             buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
           }
-          case (sign: PhysicalSignature, i: Int) => {
+          case (sign: PhysicalSignature, i: Int) => { //i  can be -1 (it's update method)
             val subst = sign.substitutor
             sign.method match {
               case method: ScFunction => {
                 val clauses = method.paramClauses.clauses
-                if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+                if (clauses.length <= i || (i == -1 && clauses.length == 0)) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
                 else {
-                  val clause: ScParameterClause = clauses(i)
-                  if (clause.parameters.length > 0) {
+                  val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses(0)
+                  val length = clause.parameters.length
+                  val parameters = if (i != -1) clause.parameters else clause.parameters.subseq(0, length - 1)
+                  if (parameters.length > 0) {
                     if (clause.isImplicit) buffer.append("implicit ")
-                    buffer.append(clause.parameters.
+                    buffer.append(parameters.
                             map((param: ScParameter) => {
-                      val isBold = if (clause.parameters.indexOf(param) == index) true
+                      val isBold = if (parameters.indexOf(param) == index) true
                       else {
                         //todo: check type
                         false
@@ -279,6 +281,12 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         case context: CreateParameterInfoContext => {
           args.getParent match {
             case call: ScMethodCall => {
+              val parent = call.getParent
+              val canBeUpdate = parent match {
+                case ass: ScAssignStmt if call == ass.getLExpression => true
+                case notExpr if !notExpr.isInstanceOf[ScExpression] || notExpr.isInstanceOf[ScBlockExpr] => true
+                case _ => false
+              }
               implicit val bool = false
               implicit val calc: Ints = Ints(0)
               val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
@@ -317,6 +325,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       }
                     }
                     case obj: ScObject => {
+                      //apply method
                       for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(obj)
                           if n.method.getName == "apply") {
                         val meth: ScFunction = n.method.asInstanceOf[ScFunction]
@@ -332,6 +341,19 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                             res += (new PhysicalSignature(meth, n.substitutor.followed(substitutor)), 0)
                           }
                           case _ => res += (n, 0)
+                        }
+                      }
+                      //update method
+                      if (canBeUpdate) {
+                        for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(obj)
+                        if n.method.getName == "update") {
+                          val meth: ScFunction = n.method.asInstanceOf[ScFunction]
+                          ref.getParent match {
+                            case gen: ScGenericCall => {
+                              //todo: can be generic
+                            }
+                            case _ => res += (n, -1)
+                          }
                         }
                       }
                     }
@@ -359,9 +381,16 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       case fun: ScFunctionType => res += fun
                       case typez => ScType.extractClassType(typez) match {
                         case Some((clazz: PsiClass, subst)) => {
+                          //apply mehtod
                           for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
-                          if n.method.getName == "apply"  &&
+                            if n.method.getName == "apply"  &&
                                   (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) res += (n, 0)
+                          //update method
+                          if (canBeUpdate) {
+                            for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
+                            if n.method.getName == "update" &&
+                                    (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) res += (n, -1)
+                          }
                         }
                         case None =>
                       }
@@ -380,21 +409,43 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   case _ => ScType.extractClassType(typez) match {
                     case Some((clazz: PsiClass, subst)) => {
                       def end = {
+                        //apply method
                         for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
-                          if n.method.getName == "apply" && (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) {
-                          val meth: ScFunction = n.method.asInstanceOf[ScFunction]
-                          expr match {
-                            case gen: ScGenericCall => {
-                              val tp = meth.typeParameters.map(_.name)
-                              val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
-                              val map = new collection.mutable.HashMap[String, ScType]
-                              for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
-                                map += Tuple(tp(i), typeArgs(i).calcType)
+                        if n.method.getName == "apply" && (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) {
+                          n.method match {
+                            case meth: ScFunction => expr match {
+                              case gen: ScGenericCall => {
+                                val tp = meth.typeParameters.map(_.name)
+                                val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
+                                val map = new collection.mutable.HashMap[String, ScType]
+                                for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+                                  map += Tuple(tp(i), typeArgs(i).calcType)
+                                }
+                                val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                                res += (new PhysicalSignature(meth, n.substitutor.followed(substitutor)), 0)
                               }
-                              val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
-                              res += (new PhysicalSignature(meth, n.substitutor.followed(substitutor)), 0)
+                              case _ => res += (n, 0)
                             }
-                            case _ => res += (n, 0)
+                            case _ => {//todo: java case
+
+                            }
+                          }
+                        }
+                        //update method
+                        if (canBeUpdate) {
+                          for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
+                          if n.method.getName == "update" && (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) {
+                            n.method match {
+                              case meth: ScFunction => expr match {
+                                case gen: ScGenericCall => {
+                                  //todo: can be generic (just method)
+                                }
+                                case _ => res += (n, -1)
+                              }
+                              case _ => { //todo: java case
+
+                              }
+                            }
                           }
                         }
                       }
