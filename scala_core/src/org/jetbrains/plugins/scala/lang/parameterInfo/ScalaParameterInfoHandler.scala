@@ -384,7 +384,27 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                           //apply mehtod
                           for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
                             if n.method.getName == "apply"  &&
-                                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) res += (n, 0)
+                                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) {
+                            val expr = call.getInvokedExpr
+                            n.method match {
+                              case meth: ScFunction => expr match {
+                                case gen: ScGenericCall => {
+                                  val tp = meth.typeParameters.map(_.name)
+                                  val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
+                                  val map = new collection.mutable.HashMap[String, ScType]
+                                  for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+                                    map += Tuple(tp(i), typeArgs(i).calcType)
+                                  }
+                                  val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                                  res += (new PhysicalSignature(meth, n.substitutor.followed(substitutor)), 0)
+                                }
+                                case _ => res += (n, 0)
+                              }
+                              case _ => { //todo: java case
+
+                              }
+                            }
+                          }
                           //update method
                           if (canBeUpdate) {
                             for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
