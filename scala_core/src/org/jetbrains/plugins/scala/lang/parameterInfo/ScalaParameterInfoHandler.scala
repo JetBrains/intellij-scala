@@ -396,9 +396,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                                     map += Tuple(tp(i), typeArgs(i).calcType)
                                   }
                                   val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
-                                  res += (new PhysicalSignature(meth, n.substitutor.followed(substitutor)), 0)
+                                  res += (new PhysicalSignature(meth, n.substitutor.followed(substitutor).followed(subst)), 0)
                                 }
-                                case _ => res += (n, 0)
+                                case _ => res += (new PhysicalSignature(meth, n.substitutor.followed(subst)), 0)
                               }
                               case _ => { //todo: java case
 
@@ -409,7 +409,20 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                           if (canBeUpdate) {
                             for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
                             if n.method.getName == "update" &&
-                                    (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) res += (n, -1)
+                                    (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) {
+                            val expr = call.getInvokedExpr
+                            n.method match {
+                              case meth: ScFunction => expr match {
+                                case gen: ScGenericCall => {
+                                  //todo: can be generic
+                                }
+                                case _ => res += (n, -1)
+                              }
+                              case _ => { //todo: java case
+
+                              }
+                            }
+                          }
                           }
                         }
                         case None =>
@@ -442,9 +455,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                                   map += Tuple(tp(i), typeArgs(i).calcType)
                                 }
                                 val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
-                                res += (new PhysicalSignature(meth, n.substitutor.followed(substitutor)), 0)
+                                res += (new PhysicalSignature(meth, n.substitutor.followed(substitutor).followed(subst)), 0)
                               }
-                              case _ => res += (n, 0)
+                              case _ => res += (new PhysicalSignature(meth, n.substitutor.followed(subst)), 0)
                             }
                             case _ => {//todo: java case
 
@@ -460,7 +473,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                                 case gen: ScGenericCall => {
                                   //todo: can be generic (just method)
                                 }
-                                case _ => res += (n, -1)
+                                case _ => res += (new PhysicalSignature(meth, n.substitutor.followed(subst)), -1)
                               }
                               case _ => { //todo: java case
 
@@ -510,7 +523,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               val typeElement = constr.typeElement
               val i = constr.arguments.indexOf(args)
               ScType.extractClassType(typeElement.calcType) match {
-                case Some((clazz: PsiClass, substitutor: ScSubstitutor)) => {
+                case Some((clazz: PsiClass, subst: ScSubstitutor)) => {
                   clazz match {
                     case clazz: ScClass => {
                       clazz.constructor match {
@@ -524,9 +537,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                                 map += Tuple(tp(i), typeArgs(i).calcType)
                               }
                               val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
-                              res += (constr, substitutor, i)
+                              res += (constr, substitutor.followed(subst), i)
                             }
-                            case _ => res += (constr, ScSubstitutor.empty, i)
+                            case _ => res += (constr, subst, i)
                           }
                         }
                         case None => res += ""
@@ -538,7 +551,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                           case Some(x) => x.clauses.length
                           case None => 1
                         }) > i))
-                        res += (new PhysicalSignature(n.method, substitutor), i)
+                        res += (new PhysicalSignature(n.method, subst), i)
                     }
                     case clazz: PsiClass if !clazz.isInstanceOf[ScTypeDefinition] => {
                       for (constr <- clazz.getConstructors) {
@@ -551,9 +564,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                               map += Tuple(tp(i), typeArgs(i).calcType)
                             }
                             val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
-                            res += (new PhysicalSignature(constr, substitutor), i)
+                            res += (new PhysicalSignature(constr, substitutor.followed(subst)), i)
                           }
-                          case _ => res += (new PhysicalSignature(constr, ScSubstitutor.empty), i)
+                          case _ => res += (new PhysicalSignature(constr, subst), i)
                         }
                       }
                     }
