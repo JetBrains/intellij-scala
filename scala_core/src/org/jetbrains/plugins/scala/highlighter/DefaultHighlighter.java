@@ -34,13 +34,13 @@ public class DefaultHighlighter {
   @NonNls
   static final String KEYWORD_ID = "Keyword";
   @NonNls
-  static final String NUMBER_ID = "Number";
+  static final String NUMBER_ID = "Scala Number";
   @NonNls
-  static final String STRING_ID = "String";
+  static final String STRING_ID = "Scala String";
   @NonNls
   static final String BRACKETS_ID = "Brackets";
   @NonNls
-  static final String BRACES_ID = "Braces";
+  static final String BRACES_ID = "Scala Braces";
   @NonNls
   static final String COLON_ID = "Colon";
   @NonNls
@@ -75,9 +75,9 @@ public class DefaultHighlighter {
   @NonNls
   static final String TRAIT_ID = "Trait";
   @NonNls
-  static final String LOCAL_VALUES_ID = "Local val";
+  static final String LOCAL_VALUES_ID = "Local value";
   @NonNls
-  static final String LOCAL_VARIABLES_ID = "Local var";
+  static final String LOCAL_VARIABLES_ID = "Local variable";
   @NonNls
   static final String LOCAL_LAZY_ID = "Local lazy val/var";
   @NonNls
