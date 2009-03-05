@@ -44,7 +44,7 @@ public class DefaultHighlighter {
   @NonNls
   static final String COLON_ID = "Colon";
   @NonNls
-  static final String PARENTHESES_ID = "Parentheses";
+  static final String PARENTHESES_ID = "Scala Parentheses";
   @NonNls
   static final String ASSIGN_ID = "Assign";
   @NonNls
