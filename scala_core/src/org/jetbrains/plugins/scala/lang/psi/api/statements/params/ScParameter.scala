@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements.params
 
 import icons.Icons
 import javax.swing.Icon
+import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -33,4 +34,8 @@ trait ScParameter extends ScNamedElement with ScTyped with PsiParameter with ScA
 
   override def getIcon(flags: Int): Icon = Icons.PARAMETER
 
+  def isRepeatedParameter: Boolean = paramType match {
+    case Some(p: ScParameterType) => p.isRepeatedParameter
+    case None => false
+  }
 }

@@ -197,6 +197,7 @@ object ScalaDocumentationProvider {
     })
     buffer.append(param.name)
     buffer.append(parseType(param, typeToString))
+    if (param.isRepeatedParameter) buffer.append("*")
     buffer.toString
   }
 
@@ -452,14 +453,14 @@ object ScalaDocumentationProvider {
   }
 
   def generateParameterInfo(parameter: ScParameter): String = {
-    parameter match {
+    (parameter match {
       case clParameter: ScClassParameter => {
         val clazz = PsiTreeUtil.getParentOfType(clParameter, classOf[ScTypeDefinition])
         clazz.getName + " " + clazz.getPresentation.getLocationString + "\n" +
-        (if (clParameter.isVal) "val " else if (clParameter.isVar) "var " else "") + clParameter.name +
-        ": " + ScType.presentableText(clParameter.calcType)
+                (if (clParameter.isVal) "val " else if (clParameter.isVar) "var " else "") + clParameter.name +
+                ": " + ScType.presentableText(clParameter.calcType)
       }
       case _ => parameter.name + ": " + ScType.presentableText(parameter.calcType)
-    }
+    }) + (if (parameter.isRepeatedParameter) "*" else "")
   }
 }

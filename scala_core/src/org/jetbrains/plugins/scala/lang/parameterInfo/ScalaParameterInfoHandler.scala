@@ -148,7 +148,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     if (clause.isImplicit) buffer.append("implicit ")
                     buffer.append(parameters.
                             map((param: ScParameter) => {
-                      val isBold = if (parameters.indexOf(param) == index) true
+                      val isBold = if (parameters.indexOf(param) == index || (param.isRepeatedParameter && index >= parameters.indexOf(param))) true
                       else {
                         //todo: check type
                         false
@@ -184,7 +184,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     buffer.append(": ")
                     buffer.append(ScType.presentableText(subst.subst(ScType.create(paramType, method.getProject))))
 
-                    val isBold = if (p.getParameters.indexOf(param) == index) true
+                    val isBold = if (p.getParameters.indexOf(param) == index || (param.isVarArgs && p.getParameters.indexOf(param) <= index)) true
                     else {
                       //todo: check type
                       false
