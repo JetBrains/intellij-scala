@@ -22,31 +22,24 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
 
 
   def isContextAccepted(context: PsiElement): Boolean = context != null && context.getLanguage == ScalaFileType.SCALA_LANGUAGE
-          /*|| (context.getParent.isInstanceOf[JavaDummyHolder]
-          && context.getParent.asInstanceOf[JavaDummyHolder].getContext.getContainingFile.isInstanceOf[ScalaFile]))*/
 
   def createCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
     val text = item.getText
     val imports = item.getImports
     val toEval = ScalaPsiElementFactory.createScalaFile(text, context.getManager)
     val elementFactory = JavaPsiFacade.getInstance(toEval.getProject).getElementFactory
-    val javaText = new StringBuilder("")
-    def convertToJava(element: PsiElement) {
+    def convertToJava(element: PsiElement): String = {
+      val res = new StringBuilder("")
       element match {
         case _: ScalaFile => {
-          for (child <- element.getNode.getChildren(null); psi = child.getPsi) convertToJava(psi)
+          for (child <- element.getNode.getChildren(null); psi = child.getPsi) res.append(convertToJava(psi))
         }
-        case e if e.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR => javaText.append(";")
-        case ref: ScReferenceExpression if ref.resolve != null => {
-          ref.resolve match {
-            case obj: ScObject => javaText.append("(new " + obj.getQualifiedName + "$())")
-            case _ => javaText.append(element.getText)
-          }
-        }
-        case _ => javaText.append(element.getText)
+        case e if e.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR => res.append(";\n")
+        case _ =>
       }
+      res.toString
     }
-    convertToJava(toEval)
+    val javaText = convertToJava(toEval)
     val result = elementFactory.createCodeBlockCodeFragment(javaText.toString, null, true)
     result
   }

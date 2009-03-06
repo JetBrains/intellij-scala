@@ -29,7 +29,7 @@ object StructureViewUtil {
         }
       } else {
         res.append(param.name + ": ")
-        res.append(ScType.presentableText(param.calcType))
+        res.append(ScType.presentableText(param.calcType) + (if (param.isRepeatedParameter) "*" else ""))
         res.append(", ")
       }
     }
