@@ -9,6 +9,7 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DataConstants
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.ui.Messages
 import com.intellij.util.ActionRunner
+import icons.Icons
 import lang.psi.api.ScalaFile
 
 /**
@@ -19,6 +20,7 @@ import lang.psi.api.ScalaFile
 class RunConsoleAction extends AnAction {
   override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
+    presentation.setIcon(Icons.SCRIPT_FILE_LOGO)
     def enable {
       presentation.setEnabled(true)
       presentation.setVisible(true)
