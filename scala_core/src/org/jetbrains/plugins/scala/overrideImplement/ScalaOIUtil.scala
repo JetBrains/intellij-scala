@@ -194,8 +194,8 @@ object ScalaOIUtil {
               })
     }
     case x : ScTemplateDefinition => (x.superTypes.map(t => ScType.extractClassType(t)).find{
-      case Some((c, _)) => isProductAbstractMethod(m, c)
-      case None => false
+      case Some((c, _)) if c != x /*variant for infinite loop*/ => isProductAbstractMethod(m, c)
+      case _ => false
     }) match {
       case Some(_) => true
       case _ => false
