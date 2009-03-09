@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.refactoring.util.TextOccurrencesUtil
 import com.intellij.usageView.UsageInfo
 import java.util.ArrayList
+import psi.api.base.patterns.ScCaseClause
 import psi.api.statements.params.{ScClassParameter, ScParameter}
 import psi.api.statements.{ScFunction, ScValue, ScVariable}
 import psi.api.toplevel.templates.ScTemplateBody
@@ -22,7 +23,7 @@ object ScalaInplaceVariableRenamer {
     element match {
       case name: ScNamedElement => {
         ScalaPsiUtil.nameContext(name) match {
-          case v@(_: ScValue | _: ScVariable | _: ScParameter | _: ScFunction) if !v.getParent.isInstanceOf[ScTemplateBody] &&
+          case v@(_: ScValue | _: ScVariable | _: ScParameter | _: ScFunction | _: ScCaseClause) if !v.getParent.isInstanceOf[ScTemplateBody] &&
                   !v.isInstanceOf[ScClassParameter] && !v.getParent.isInstanceOf[ScEarlyDefinitions] => {
             val stringToSearch = name.getName
             val usages = new ArrayList[UsageInfo]

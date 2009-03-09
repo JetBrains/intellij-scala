@@ -32,6 +32,7 @@ import psi.api.toplevel.ScTyped
 import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import psi.ScalaPsiElement
+import _root_.org.jetbrains.plugins.scala.util.ScalaUtils
 /**
  * User: Alexander Podkhalyuzin
  * Date: 18.01.2009
@@ -101,7 +102,17 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     context.setCurrentParameter(i)
   }
 
+
   def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
+    val runnable = new Runnable {
+      def run: Unit = {
+        updateUIBody(p, context)
+      }
+    }
+    ScalaUtils.runReadAction(runnable, context.getParameterOwner.getProject, "ScalaParameterInfo")
+  }
+
+  def updateUIBody(p: Any, context: ParameterInfoUIContext): Unit = {
     context.getParameterOwner match {
       case args: ScArgumentExprList => {
         def getRef(call: PsiElement): ScReferenceExpression = call match {

@@ -136,6 +136,14 @@ public abstract class ScalaUtils {
     }, name, null);
   }
 
+  public static void runReadAction(final Runnable runnable, Project project, String name) {
+    CommandProcessor.getInstance().executeCommand(project, new Runnable() {
+      public void run() {
+        ApplicationManager.getApplication().runReadAction(runnable);
+      }
+    }, name, null);
+  }
+
   public static boolean isSuitableModule(Module module) {
     if (module == null) return false;
     ModuleType moduleType = module.getModuleType();
