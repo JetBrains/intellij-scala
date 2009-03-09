@@ -149,7 +149,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (rightNode.getPsi.isInstanceOf[ScArguments] &&
             (leftNode.getTreeParent.getPsi.isInstanceOf[ScMethodCall] ||
                     leftNode.getTreeParent.getPsi.isInstanceOf[ScConstructor])) {
-      if (scalaSettings.SPACE_BEFORE_METHOD_CALL_PARENTHESES) return WITH_SPACING
+      if (scalaSettings.SPACE_BEFORE_METHOD_CALL_PARENTHESES && !rightString.startsWith("{")) return WITH_SPACING
+      else if (scalaSettings.SPACE_BEFORE_BRACE_METHOD_CALL && rightString.startsWith("{")) return WITH_SPACING
       else return WITHOUT_SPACING
     }
 
