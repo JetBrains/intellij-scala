@@ -203,8 +203,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
         case drg: ScTypeDefinition => drg.superTypes.find{
           t => ScType.extractClassType(t) match {
             case Some((c, _)) => {
-              val value = baseClass match {  //todo: it was wrong to write baseClass.isInstanceOf[c.type]
-                case _: ScObject if c.isInstanceOf[ScObject] => true
+              val value = baseClass match { //todo: it was wrong to write baseClass.isInstanceOf[c.type]
                 case _: ScTrait if c.isInstanceOf[ScTrait] => true
                 case _: ScClass if c.isInstanceOf[ScClass] => true
                 case _ if !c.isInstanceOf[ScTypeDefinition] => true
@@ -227,7 +226,6 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
 
   def functionsByName(name: String) =
     for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield n.info.method
-
 
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
