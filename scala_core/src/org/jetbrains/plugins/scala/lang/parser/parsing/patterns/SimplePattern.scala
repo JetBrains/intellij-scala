@@ -18,7 +18,7 @@ import xml.pattern.XmlPattern
  *                 | Literal
  *                 | StableId
  *                 | StableId '(' [Patterns [',']] ')'
- *                 | StableId '(' [Patterns ','] [varid ‘@’] '_' '*'')'
+ *                 | StableId '(' [Patterns ','] [varid '@'] '_' '*'')'
  *                 |'(' [Patterns [',']] ')'
  *                 | XmlPattern
  */
