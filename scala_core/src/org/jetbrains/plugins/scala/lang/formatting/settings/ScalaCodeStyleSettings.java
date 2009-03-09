@@ -28,6 +28,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACE_WITHIN_PARENTHESES = false;
   public boolean SPACE_WITHIN_METHOD_PARENTHESES = false;
   public boolean SPACE_WITHIN_METHOD_CALL_PARENTHESES = false;
+  public boolean SPACE_BEFORE_BRACE_METHOD_CALL = true;
   public boolean SPACE_WITHIN_BRACKETS = false;
   public boolean SPACE_BEFORE_CLASS_LBRACE = true;
   public boolean SPACE_BEFORE_METHOD_LBRACE = true;

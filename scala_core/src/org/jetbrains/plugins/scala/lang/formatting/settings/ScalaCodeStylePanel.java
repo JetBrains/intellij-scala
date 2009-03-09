@@ -84,7 +84,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox blockCommentsCheckBox;
   private JCheckBox packagingsCheckBox;
   private JCheckBox headerImportStatementsCheckBox;
-
+  private JCheckBox beforeMethodBracesCallCheckBox;
 
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
@@ -143,6 +143,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.SPACE_BEFORE_WHILE_PARENTHESES = beforeWhileBox.isSelected();
     scalaSettings.SPACE_BEFORE_MATCH_LBRACE = beforeMatchLBrace.isSelected();
     scalaSettings.SPACE_BEFORE_METHOD_CALL_PARENTHESES = beforeMethodCallBox.isSelected();
+    scalaSettings.SPACE_BEFORE_BRACE_METHOD_CALL = beforeMethodBracesCallCheckBox.isSelected();
     scalaSettings.SPACE_BEFORE_METHOD_LBRACE = beforeMethodLBraceBox.isSelected();
     scalaSettings.SPACE_BEFORE_METHOD_PARENTHESES = beforeMethodBox.isSelected();
     scalaSettings.SPACE_BEFORE_SEMICOLON = beforeSemicolonBox.isSelected();
@@ -267,6 +268,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.SPACE_BEFORE_METHOD_CALL_PARENTHESES != beforeMethodCallBox.isSelected()) {
       return true;
     }
+    if (scalaSettings.SPACE_BEFORE_BRACE_METHOD_CALL != beforeMethodBracesCallCheckBox.isSelected()) {
+      return true;
+    }
     if (scalaSettings.SPACE_BEFORE_METHOD_LBRACE != beforeMethodLBraceBox.isSelected()) {
       return true;
     }
@@ -367,6 +371,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(beforeForBox, settings.SPACE_BEFORE_FOR_PARENTHESES);
     setValue(beforeMethodBox, settings.SPACE_BEFORE_METHOD_PARENTHESES);
     setValue(beforeMethodCallBox, settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES);
+    setValue(beforeMethodBracesCallCheckBox, settings.SPACE_BEFORE_BRACE_METHOD_CALL);
     setValue(withinForBox, settings.SPACE_WITHIN_FOR_PARENTHESES);
     setValue(withinIfBox, settings.SPACE_WITHIN_IF_PARENTHESES);
     setValue(withinWhileBox, settings.SPACE_WITHIN_WHILE_PARENTHESES);
