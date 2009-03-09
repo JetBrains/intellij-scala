@@ -8,6 +8,7 @@ import api.base.patterns.ScReferencePattern
 import com.intellij.util.IncorrectOperationException
 import resolve._
 
+import toplevel.synthetic.ScSyntheticFunction
 import types._
 import api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes

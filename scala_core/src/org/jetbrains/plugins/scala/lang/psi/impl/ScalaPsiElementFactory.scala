@@ -64,7 +64,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   }
 
   def createIdentifier(name: String, manager: PsiManager): ASTNode = {
-    val text = "package " + (if (!ScalaNamesUtil.isKeyword(name) name else "`" + name + "`")
+    val text = "package " + (if (!ScalaNamesUtil.isKeyword(name)) name else "`" + name + "`")
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     return dummyFile.getNode.getLastChildNode.getLastChildNode.getLastChildNode

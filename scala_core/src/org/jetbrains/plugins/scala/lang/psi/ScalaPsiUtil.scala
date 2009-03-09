@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import annotations.NotNull
 import api.base.patterns.ScCaseClause
+import api.base.types.ScTypeElement
+import api.expr.{ScGenericCall, ScAnnotation}
 import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import api.base.{ScConstructor, ScStableCodeReferenceElement, ScModifierList}
-import api.expr.ScAnnotation
 import api.statements._
 import api.statements.params.{ScClassParameter, ScParameter}
 import api.toplevel.templates.ScTemplateBody
@@ -24,6 +25,15 @@ import structureView.ScalaElementPresentation
  */
 
 object ScalaPsiUtil {
+  def genericCallSubstitutor(tp: Seq[String], gen: ScGenericCall): ScSubstitutor = {
+    val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
+    val map = new collection.mutable.HashMap[String, ScType]
+    for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+      map += Tuple(tp(i), typeArgs(i).calcType)
+    }
+    new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+  }
+
   def namedElementSig(x: PsiNamedElement): Signature = new Signature(x.getName, Seq.empty, 0, Array[PsiTypeParameter](), ScSubstitutor.empty)
 
   def superValsSignatures(x: PsiNamedElement): Seq[FullSignature] = {

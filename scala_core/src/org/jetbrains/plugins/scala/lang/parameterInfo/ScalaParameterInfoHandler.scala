@@ -31,8 +31,8 @@ import psi.api.statements.{ScFunction, ScValue, ScVariable}
 import psi.api.toplevel.ScTyped
 import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
-import psi.ScalaPsiElement
 import _root_.org.jetbrains.plugins.scala.util.ScalaUtils
+import psi.{ScalaPsiUtil, ScalaPsiElement}
 /**
  * User: Alexander Podkhalyuzin
  * Date: 18.01.2009
@@ -374,12 +374,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                           ref.getParent match {
                             case gen: ScGenericCall => {
                               val tp = cl.typeParameters.map(_.name)
-                              val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
-                              val map = new collection.mutable.HashMap[String, ScType]
-                              for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
-                                map += Tuple(tp(i), typeArgs(i).calcType)
-                              }
-                              val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                              val substitutor = ScalaPsiUtil.genericCallSubstitutor(tp, gen)
                               res += (constr, substitutor, 0)
                             }
                             case _ => res += (constr, ScSubstitutor.empty, 0)
@@ -401,12 +396,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                               case meth: ScFunction => expr match {
                                 case gen: ScGenericCall => {
                                   val tp = meth.typeParameters.map(_.name)
-                                  val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
-                                  val map = new collection.mutable.HashMap[String, ScType]
-                                  for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
-                                    map += Tuple(tp(i), typeArgs(i).calcType)
-                                  }
-                                  val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                                  val substitutor = ScalaPsiUtil.genericCallSubstitutor(tp, gen)
                                   res += (new PhysicalSignature(meth, n.substitutor.followed(substitutor).followed(subst)), 0)
                                 }
                                 case _ => res += (new PhysicalSignature(meth, n.substitutor.followed(subst)), 0)
@@ -460,12 +450,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                             case meth: ScFunction => expr match {
                               case gen: ScGenericCall => {
                                 val tp = meth.typeParameters.map(_.name)
-                                val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
-                                val map = new collection.mutable.HashMap[String, ScType]
-                                for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
-                                  map += Tuple(tp(i), typeArgs(i).calcType)
-                                }
-                                val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                                val substitutor = ScalaPsiUtil.genericCallSubstitutor(tp, gen)
                                 res += (new PhysicalSignature(meth, n.substitutor.followed(substitutor).followed(subst)), 0)
                               }
                               case _ => res += (new PhysicalSignature(meth, n.substitutor.followed(subst)), 0)
@@ -503,12 +488,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                                 ref.getParent match {
                                   case gen: ScGenericCall => {
                                     val tp = cl.typeParameters.map(_.name)
-                                    val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
-                                    val map = new collection.mutable.HashMap[String, ScType]
-                                    for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
-                                      map += Tuple(tp(i), typeArgs(i).calcType)
-                                    }
-                                    val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                                    val substitutor = ScalaPsiUtil.genericCallSubstitutor(tp, gen)
                                     res += (constr, substitutor, ints.i)
                                   }
                                   case _ => res += (constr, ScSubstitutor.empty, ints.i)
