@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import annotations.NotNull
+import api.base.patterns.ScCaseClause
 import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -47,7 +48,7 @@ object ScalaPsiUtil {
     var parent = x.getParent
     def isAppropriatePsiElement(x: PsiElement): Boolean = {
       x match {
-        case _: ScValue | _: ScVariable | _: ScTypeAlias | _: ScParameter | _: PsiMethod => true
+        case _: ScValue | _: ScVariable | _: ScTypeAlias | _: ScParameter | _: PsiMethod | _: ScCaseClause => true
         case _ => false
       }
     }
