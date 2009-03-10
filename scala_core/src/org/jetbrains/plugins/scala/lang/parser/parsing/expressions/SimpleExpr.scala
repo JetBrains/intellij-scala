@@ -55,7 +55,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
         state = true
         builder.advanceLexer //Ate _
         newMarker = simpleMarker.precede
-        simpleMarker.done(ScalaElementTypes.SIMPLE_EXPR)
+        simpleMarker.done(ScalaElementTypes.PLACEHOLDER_EXPR)
       }
       case ScalaTokenTypes.tLPARENTHESIS => {
         state = true
@@ -116,7 +116,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
           if (state) {
             builder.advanceLexer
             val tMarker = marker.precede
-            marker.done(ScalaElementTypes.SIMPLE_EXPR)
+            marker.done(ScalaElementTypes.PLACEHOLDER_EXPR)
             subparse(tMarker)
           }
           else {

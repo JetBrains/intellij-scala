@@ -53,7 +53,7 @@ object TokenSets {
       TYPED_EXPR_STMT,
       POSTFIX_EXPR,
       INFIX_EXPR,
-      SIMPLE_EXPR,
+      PLACEHOLDER_EXPR,
       PREFIX_EXPR)
 
   val STABLE_ID_BIT_SET = TokenSet.create(STABLE_ID,
@@ -75,7 +75,7 @@ object TokenSets {
           PREFIX,
           POSTFIX_EXPR,
           INFIX_EXPR,
-          SIMPLE_EXPR,
+          PLACEHOLDER_EXPR,
           EXPR1,
           FUNCTION_EXPR,
           AN_FUN,
@@ -89,7 +89,7 @@ object TokenSets {
           BLOCK,
           PARENT_EXPR))
 
-  val SIMPLE_EXPR_BIT_SET = TokenSet.create(SIMPLE_EXPR,
+  val SIMPLE_EXPR_BIT_SET = TokenSet.create(PLACEHOLDER_EXPR,
       LITERAL,
       BLOCK_EXPR)
 
