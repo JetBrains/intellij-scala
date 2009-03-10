@@ -13,6 +13,7 @@ import com.intellij.codeInsight.hint.HintUtil
 import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
 import com.intellij.lang.parameterInfo._
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
@@ -109,10 +110,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         updateUIBody(p, context)
       }
     }
-    ScalaUtils.runReadAction(runnable, context.getParameterOwner.getProject, "ScalaParameterInfo")
+    ApplicationManager.getApplication.runReadAction(runnable)
   }
 
-  def updateUIBody(p: Any, context: ParameterInfoUIContext): Unit = {
+  private def updateUIBody(p: Any, context: ParameterInfoUIContext): Unit = {
     context.getParameterOwner match {
       case args: ScArgumentExprList => {
         def getRef(call: PsiElement): ScReferenceExpression = call match {
