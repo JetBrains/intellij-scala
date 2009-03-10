@@ -176,7 +176,7 @@ object ScalaElementTypes {
   val PREFIX = new ScalaElementType("prefix")
   val POSTFIX_EXPR = new ScalaElementType("postfix expression")
   val INFIX_EXPR = new ScalaElementType("infix expression")
-  val SIMPLE_EXPR = new ScalaElementType("simple expression")
+  val PLACEHOLDER_EXPR = new ScalaElementType("simple expression")
 
   val PARENT_EXPR = new ScalaElementType("Expression in parentheses")
   val METHOD_CALL = new ScalaElementType("Method call")
