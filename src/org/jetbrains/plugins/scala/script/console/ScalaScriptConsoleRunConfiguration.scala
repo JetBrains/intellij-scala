@@ -92,7 +92,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
         params.setMainClass(MAIN_CLASS)
 
         params.getProgramParametersList.add("-classpath")
-        params.getProgramParametersList.add(getClassPath(module))
+        params.getProgramParametersList.add(getClassPath(project))
 
         params.getProgramParametersList.addParametersString(consoleArgs)
         return params
@@ -153,6 +153,10 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     consoleArgs = JDOMExternalizer.readString(element, "consoleArgs")
   }
 
+  private def getClassPath(project: Project): String = {
+    val pathes = for (module <- ModuleManager.getInstance(project).getModules) yield getClassPath(module)
+    pathes.mkString(File.pathSeparator)
+  }
   private def getClassPath(module: Module): String = {
     val moduleRootManager = ModuleRootManager.getInstance(module)
     val entries = moduleRootManager.getOrderEntries
