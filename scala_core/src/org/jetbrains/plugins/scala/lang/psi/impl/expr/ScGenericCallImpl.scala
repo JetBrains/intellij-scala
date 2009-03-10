@@ -28,38 +28,57 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   override def getType(): ScType = {
     val refType = referencedExpr.getType
+
+    /**
+     * Utility method to get generics for apply methods of concrecte class.
+     */
+    def processClass(clazz: PsiClass): Seq[String] = {
+      val parent: PsiElement = getParent
+      var isPlaceholder = false
+      val params: Seq[ScExpression] = parent match {
+        case call: ScMethodCall => call.args.exprs
+        case placeholder: ScPlaceholderExpr => {
+          isPlaceholder = true
+          Seq.empty
+        }
+        case _ => return null
+      }
+      val methods = if (!isPlaceholder)
+        ScalaPsiUtil.getMethodsConforsToMethodCall(ScalaPsiUtil.getApplyMethods(clazz), params)
+      else
+        ScalaPsiUtil.getApplyMethods(clazz)
+      if (methods.length == 1) {
+        methods(0).method match {
+          case fun: ScFunction => fun.typeParameters.map(_.name)
+          case meth: PsiMethod => meth.getTypeParameters.map(_.getName)
+        }
+      } else {
+        return null
+        //todo: according to expected type choose appropriate method
+      }
+    }
+
     val tp: Seq[String] = referencedExpr match {
       case expr: ScReferenceExpression => expr.resolve match {
         case fun: ScFunction => fun.typeParameters.map(_.name)
         case meth: PsiMethod => meth.getTypeParameters.map(_.getName)
         case synth: ScSyntheticFunction => synth.typeParams.map(_.name)
-        case _ => return Nothing //todo:
+        case clazz: ScObject => {
+          val res = processClass(clazz)
+          if (res == null) return Nothing
+          else res
+        }
+        case _ => return Nothing //todo: case classes
       }
       case _ => { //here we must investigate method apply (not update, because can't be generic)
-        val parent: PsiElement = getParent
-        val params: Seq[ScExpression] = parent match {
-          case call: ScMethodCall => call.args.exprs
-          case placeholder: ScPlaceholderExpr => Seq.empty //todo:
-          case _ => Seq.empty
-        }
-        //result, we set here to stop loop
-        var res: Seq[String] = null
         ScType.extractClassType(refType) match {
           case clazz: PsiClass => {
-            val methods = ScalaPsiUtil.getMethodsConforsToMethodCall(ScalaPsiUtil.getApplyMethods(clazz), params)
-            if (methods.length == 1) {
-              methods(0).method match {
-                case fun: ScFunction => fun.typeParameters.map(_.name)
-                case meth: PsiMethod => meth.getTypeParameters.map(_.getName)
-              }
-            } else {
-              //todo: according to expected type choose appropriate method
-            }
+            val res = processClass(clazz)
+            if (res == null) return Nothing
+            else res
           }
           case _ => return Nothing
         }
-        if (res == null) return Nothing
-        res
       }
     }
     val substitutor = ScalaPsiUtil.genericCallSubstitutor(tp, this)

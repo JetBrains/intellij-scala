@@ -98,7 +98,6 @@ object ScalaPsiUtil {
 
   def getModifiersPresentableText(modifiers: ScModifierList): String = {
     if (modifiers == null) return ""
-    //todo: AccessModifiers can produce bug?
     val buffer = new StringBuilder("")
     for (modifier <- modifiers.getNode.getChildren(null) if !isLineTerminator(modifier.getPsi)) buffer.append(modifier.getText + " ")
     return buffer.toString
@@ -153,7 +152,7 @@ object ScalaPsiUtil {
               val parameter: ScParameter = methodParams(Math.min(i, length -1))
               val typez: ScType = parameter.typeElement match {
                 case Some(te) => te.calcType
-                case None => types.AnyRef
+                case None => types.Any
               }
               if (!(params(i).getType: ScType).conforms(typez)) return false
             }
