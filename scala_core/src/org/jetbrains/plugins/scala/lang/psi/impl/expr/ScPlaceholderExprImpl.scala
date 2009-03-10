@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -22,4 +23,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 class ScPlaceholderExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPlaceholderExpr {
   override def toString: String = "PlaceholderExpression"
+
+
+  override def getType(): ScType = {
+   placeholdedExpr match {
+     case Some(x) => x.getType
+     case None => types.Nothing //todo: according to exprected type
+   }
+  }
 }
