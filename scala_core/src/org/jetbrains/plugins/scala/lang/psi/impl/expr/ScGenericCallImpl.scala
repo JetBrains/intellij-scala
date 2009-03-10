@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import api.statements.{ScFunction, ScFun}
+import api.toplevel.ScTyped
 import api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -32,7 +33,14 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     /**
      * Utility method to get generics for apply methods of concrecte class.
      */
-    def processClass(clazz: PsiClass): Seq[String] = {
+    def processClass(clazz: PsiClass, subst: ScSubstitutor): Seq[String] = {
+      def createSubst(method: PsiMethod): ScSubstitutor = {
+        val tp = method match {
+          case fun: ScFunction => fun.typeParameters.map(_.name)
+          case meth: PsiMethod => meth.getTypeParameters.map(_.getName)
+        }
+        subst.followed(ScalaPsiUtil.genericCallSubstitutor(tp, this))
+      }
       val parent: PsiElement = getParent
       var isPlaceholder = false
       val params: Seq[ScExpression] = parent match {
@@ -44,7 +52,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         case _ => return null
       }
       val methods = if (!isPlaceholder)
-        ScalaPsiUtil.getMethodsConforsToMethodCall(ScalaPsiUtil.getApplyMethods(clazz), params)
+        ScalaPsiUtil.getMethodsConforsToMethodCall(ScalaPsiUtil.getApplyMethods(clazz), params, createSubst(_))
       else
         ScalaPsiUtil.getApplyMethods(clazz)
       if (methods.length == 1) {
@@ -65,19 +73,30 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         case meth: PsiMethod => meth.getTypeParameters.map(_.getName)
         case synth: ScSyntheticFunction => synth.typeParams.map(_.name)
         case clazz: ScObject => {
-          val res = processClass(clazz)
+          val res = processClass(clazz, ScSubstitutor.empty)
           if (res == null) return Nothing
           else res
         }
         case clazz: ScClass if clazz.hasModifierProperty("case") => {
           clazz.typeParameters.map(_.name)
         }
+        case typed: ScTyped => { //here we must investigate method apply (not update, because can't be generic)
+          val scType = typed.calcType
+          ScType.extractClassType(scType) match {
+            case Some((clazz: PsiClass, subst)) => {
+              val res = processClass(clazz, subst)
+              if (res == null) return Nothing
+              else res
+            }
+            case _ => return Nothing
+          }
+        }
         case _ => return Nothing
       }
       case _ => { //here we must investigate method apply (not update, because can't be generic)
         ScType.extractClassType(refType) match {
-          case clazz: PsiClass => {
-            val res = processClass(clazz)
+          case Some((clazz: PsiClass, subst)) => {
+            val res = processClass(clazz, subst)
             if (res == null) return Nothing
             else res
           }

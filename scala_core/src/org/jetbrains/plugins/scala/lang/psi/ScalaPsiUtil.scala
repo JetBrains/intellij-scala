@@ -127,7 +127,7 @@ object ScalaPsiUtil {
    * This method try to conform given expression to method's first parameter clause.
    * @return all methods which can by applied to given expressions
    */
-  def getMethodsConforsToMethodCall(methods: Seq[PhysicalSignature], params: Seq[ScExpression]): Seq[PhysicalSignature] = {
+  def getMethodsConforsToMethodCall(methods: Seq[PhysicalSignature], params: Seq[ScExpression], subst: PsiMethod => ScSubstitutor): Seq[PhysicalSignature] = {
     def check(sign: PhysicalSignature): Boolean = {
       val meth = sign.method
       meth match {
@@ -146,12 +146,12 @@ object ScalaPsiUtil {
             }
             //so method have not zero params
             //length sould be equal or last parameter should be repeated
-            if (!(length != params.length ||
+            if (!(length == params.length ||
                     (length < params.length && methodParams(length - 1).isRepeatedParameter))) return false
             for (i <- 0 to params.length - 1) {
               val parameter: ScParameter = methodParams(Math.min(i, length -1))
               val typez: ScType = parameter.typeElement match {
-                case Some(te) => te.calcType
+                case Some(te) => subst(meth).subst(te.calcType)
                 case None => types.Any
               }
               if (!(params(i).getType: ScType).conforms(typez)) return false
@@ -173,7 +173,7 @@ object ScalaPsiUtil {
                   ))) return false
           for (i <- 0 to params.length - 1) {
             val parameter: PsiParameter = methodParams(Math.min(i, length - 1))
-            val typez: ScType = ScType.create(parameter.getType, meth.getProject)
+            val typez: ScType = subst(meth).subst(ScType.create(parameter.getType, meth.getProject))
             if (!(params(i).getType: ScType).conforms(typez)) return false
           }
           return true
