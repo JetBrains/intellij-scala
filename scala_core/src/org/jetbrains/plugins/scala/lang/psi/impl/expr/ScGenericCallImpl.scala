@@ -58,6 +58,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       }
     }
 
+    // here we get generic names to replace with appropriate substitutor to appropriate types
     val tp: Seq[String] = referencedExpr match {
       case expr: ScReferenceExpression => expr.resolve match {
         case fun: ScFunction => fun.typeParameters.map(_.name)
@@ -68,7 +69,10 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           if (res == null) return Nothing
           else res
         }
-        case _ => return Nothing //todo: case classes
+        case clazz: ScClass if clazz.hasModifierProperty("case") => {
+          clazz.typeParameters.map(_.name)
+        }
+        case _ => return Nothing
       }
       case _ => { //here we must investigate method apply (not update, because can't be generic)
         ScType.extractClassType(refType) match {

@@ -310,7 +310,7 @@ x: Int
     VcsUtil.collectFiles(LocalFileSystem.getInstance.findFileByPath(testPaths.replace(File.separatorChar, '/')), files, true, false)
 
     for (file: VirtualFile <- files.toArray(Array[VirtualFile]()) if file.getExtension == "scala") {
-      print("  def test" + file.getNameWithoutExtension + "{\n")
+      print("  def test" + file.getNameWithoutExtension + " {\n")
       val path = file.getPath
       print("    testPath = \"/" + path.substring(path.indexOf("parameterInfo"), path.indexOf(".scala")) + "\"\n")
       print("    realOutput = \"\"\"\n")
