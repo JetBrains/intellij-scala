@@ -31,6 +31,60 @@ class TypeInferenceTest extends ScalaPsiTestCase {
     playTest
   }
 
+  def testJavaGenericFunction {
+    testPath = "/typeInference/genericCall/JavaGenericFunction"
+    realOutput = """
+ArrayList[Int]
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testAsInstanceOf {
+    testPath = "/typeInference/genericCall/AsInstanceOf"
+    realOutput = """
+() => Float
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testGenericFunction {
+    testPath = "/typeInference/genericCall/GenericFunction"
+    realOutput = """
+Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testCaseClasses {
+    testPath = "/typeInference/genericCall/CaseClasses"
+    realOutput = """
+CaseClasses[Int]
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testObjectGenericApply {
+    testPath = "/typeInference/genericCall/ObjectGenericApply"
+    realOutput = """
+Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testInstanceGenericApply {
+    testPath = "/typeInference/genericCall/InstanceGenericApply"
+    realOutput = """
+(Int, Double)
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
   protected def getTestOutput(file: VirtualFile, useOutput: Boolean): String = {
     val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
     val fileText = scalaFile.getText

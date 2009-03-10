@@ -91,7 +91,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
             case _ => return Nothing
           }
         }
-        case _ => return Nothing
+        case _ => return Nothing //todo: check Java cases (PsiField for example)
       }
       case _ => { //here we must investigate method apply (not update, because can't be generic)
         ScType.extractClassType(refType) match {
