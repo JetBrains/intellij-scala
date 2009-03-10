@@ -23,10 +23,10 @@ import psi.api.ScalaFile
 class FunctionParameterInfoTest extends ScalaPsiTestCase {
   val caretMarker = "/*caret*/"
 
-  /*//use it if you want to generate tests from appropriate folder
+  //use it if you want to generate tests from appropriate folder
   def testGenerate {
     generateTests
-  }*/
+  }
 
   def testClassApply{
     testPath = "/parameterInfo/apply/ClassApply"
@@ -248,8 +248,7 @@ x: Int
     playTest
   }
 
-  protected def getTestOutput(file: VirtualFile): String =  getTestOutput(file, true)
-  private def getTestOutput(file: VirtualFile, useOutput: Boolean): String = {
+  protected def getTestOutput(file: VirtualFile, useOutput: Boolean): String = {
     val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
     val fileText = scalaFile.getText
     val offset = fileText.indexOf(caretMarker)
@@ -294,29 +293,6 @@ x: Int
   }
 
   private def generateTests {
-    import com.intellij.openapi.fileTypes.FileTypeManager
-    import com.intellij.openapi.vcs.VcsBundle
-    import com.intellij.openapi.vfs.LocalFileSystem
-    import com.intellij.openapi.vfs.VirtualFile
-    import com.intellij.vcsUtil.VcsUtil
-    import java.io.File
-    import com.intellij.vcsUtil.VcsUtil
-    import org.jetbrains.plugins.scala.util.TestUtils
-
-    val testDataPath = TestUtils.getTestDataPath
-    val testPaths = testDataPath + "/parameterInfo"
-
-    val files = new java.util.ArrayList[VirtualFile]()
-    VcsUtil.collectFiles(LocalFileSystem.getInstance.findFileByPath(testPaths.replace(File.separatorChar, '/')), files, true, false)
-
-    for (file: VirtualFile <- files.toArray(Array[VirtualFile]()) if file.getExtension == "scala") {
-      print("  def test" + file.getNameWithoutExtension + " {\n")
-      val path = file.getPath
-      print("    testPath = \"/" + path.substring(path.indexOf("parameterInfo"), path.indexOf(".scala")) + "\"\n")
-      print("    realOutput = \"\"\"\n")
-      print(getTestOutput(file, false) + "\n\"\"\"\n")
-      print("    realOutput = realOutput.trim\n")
-      print("    playTest\n  }\n\n")
-    }
+    generateTests("parameterInfo")
   }
 }

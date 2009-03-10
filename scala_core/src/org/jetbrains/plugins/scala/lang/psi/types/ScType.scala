@@ -252,7 +252,7 @@ object ScType {
 
     def inner(t : ScType) : Unit = t match {
       case StdType(name, _) => buffer.append(name)
-      case ScFunctionType(ret, params) => buffer.append("("); appendSeq(params, ", "); buffer.append(") =>"); inner(ret)
+      case ScFunctionType(ret, params) => buffer.append("("); appendSeq(params, ", "); buffer.append(") => "); inner(ret)
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
       case ScDesignatorType(e) => buffer.append(nameFun(e))
       case ScProjectionType(p, ref) => p match {
