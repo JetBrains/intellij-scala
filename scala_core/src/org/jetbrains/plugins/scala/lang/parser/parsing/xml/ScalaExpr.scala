@@ -28,7 +28,7 @@ object ScalaExpr {
       }
       case _ => return false
     }
-    if (!Expr.parse(builder)) {
+    if (!Block.parse(builder)) {
       builder error ErrMsg("xml.scala.expression.exected")
     }
     while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON ||
