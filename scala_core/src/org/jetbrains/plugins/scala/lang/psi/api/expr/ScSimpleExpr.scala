@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScPlaceholderExpr extends ScExpression {
-
+  def placeholdedExpr: Option[ScExpression] = findChild(classOf[ScExpression])
 }
