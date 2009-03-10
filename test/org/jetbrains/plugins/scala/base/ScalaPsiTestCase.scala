@@ -62,6 +62,9 @@ abstract class ScalaPsiTestCase extends PsiTestCase with JUnit3Suite {
     })
   }
 
+  /**
+   * main tests runner. Please call it at the.
+   */
   protected def playTest {
     val filePath = rootPath + testPath + ".scala"
     val vFile = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
@@ -88,5 +91,37 @@ abstract class ScalaPsiTestCase extends PsiTestCase with JUnit3Suite {
    * running, because of <code>realOutput</code> and
    * <code>testPath</code> fields.
    */
-  protected def getTestOutput(file: VirtualFile): String
+  protected def getTestOutput(file: VirtualFile): String = getTestOutput(file, true)
+  protected def getTestOutput(file: VirtualFile, useOutput: Boolean): String
+
+  /**
+   * Tests generator.
+   * @param testPath relative tests loaction (for example "paramterInfo")
+   */
+  protected def generateTests(testPath: String) {
+    import com.intellij.openapi.fileTypes.FileTypeManager
+    import com.intellij.openapi.vcs.VcsBundle
+    import com.intellij.openapi.vfs.LocalFileSystem
+    import com.intellij.openapi.vfs.VirtualFile
+    import com.intellij.vcsUtil.VcsUtil
+    import java.io.File
+    import com.intellij.vcsUtil.VcsUtil
+    import org.jetbrains.plugins.scala.util.TestUtils
+
+    val testDataPath = TestUtils.getTestDataPath
+    val testPaths = testDataPath + "/" + testPath
+
+    val files = new java.util.ArrayList[VirtualFile]()
+    VcsUtil.collectFiles(LocalFileSystem.getInstance.findFileByPath(testPaths.replace(File.separatorChar, '/')), files, true, false)
+
+    for (file: VirtualFile <- files.toArray(Array[VirtualFile]()) if file.getExtension == "scala") {
+      print("  def test" + file.getNameWithoutExtension + " {\n")
+      val path = file.getPath
+      print("    testPath = \"/" + path.substring(path.indexOf(testPath), path.indexOf(".scala")) + "\"\n")
+      print("    realOutput = \"\"\"\n")
+      print(getTestOutput(file, false) + "\n\"\"\"\n")
+      print("    realOutput = realOutput.trim\n")
+      print("    playTest\n  }\n\n")
+    }
+  }
 }
