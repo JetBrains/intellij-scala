@@ -330,18 +330,12 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     }
                     case obj: ScObject => {
                       //apply method
-                      for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(obj)
-                          if n.method.getName == "apply") {
+                      for (n <- ScalaPsiUtil.getApplyMethods(obj)) {
                         val meth: ScFunction = n.method.asInstanceOf[ScFunction]
                         ref.getParent match {
                           case gen: ScGenericCall => {
                             val tp = meth.typeParameters.map(_.name)
-                            val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
-                            val map = new collection.mutable.HashMap[String, ScType]
-                            for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
-                              map += Tuple(tp(i), typeArgs(i).calcType)
-                            }
-                            val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                            val substitutor = ScalaPsiUtil.genericCallSubstitutor(tp, gen)
                             res += (new PhysicalSignature(meth, n.substitutor.followed(substitutor)), 0)
                           }
                           case _ => res += (n, 0)
@@ -349,8 +343,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       }
                       //update method
                       if (canBeUpdate) {
-                        for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(obj)
-                        if n.method.getName == "update") {
+                        for (n <- ScalaPsiUtil.getUpdateMethods(obj)) {
                           val meth: ScFunction = n.method.asInstanceOf[ScFunction]
                           ref.getParent match {
                             case gen: ScGenericCall => {
@@ -381,9 +374,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       case typez => ScType.extractClassType(typez) match {
                         case Some((clazz: PsiClass, subst)) => {
                           //apply mehtod
-                          for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
-                            if n.method.getName == "apply"  &&
-                                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) {
+                          for (n <- ScalaPsiUtil.getApplyMethods(clazz)) {
                             val expr = call.getInvokedExpr
                             n.method match {
                               case meth: ScFunction => expr match {
@@ -401,9 +392,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                           }
                           //update method
                           if (canBeUpdate) {
-                            for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
-                            if n.method.getName == "update" &&
-                                    (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) {
+                            for (n <- ScalaPsiUtil.getUpdateMethods(clazz)) {
                             val expr = call.getInvokedExpr
                             n.method match {
                               case meth: ScFunction => expr match {
@@ -437,8 +426,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     case Some((clazz: PsiClass, subst)) => {
                       def end = {
                         //apply method
-                        for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
-                        if n.method.getName == "apply" && (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) {
+                        for (n <- ScalaPsiUtil.getApplyMethods(clazz)) {
                           n.method match {
                             case meth: ScFunction => expr match {
                               case gen: ScGenericCall => {
@@ -455,8 +443,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                         }
                         //update method
                         if (canBeUpdate) {
-                          for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
-                          if n.method.getName == "update" && (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) {
+                          for (n <- ScalaPsiUtil.getUpdateMethods(clazz)) {
                             n.method match {
                               case meth: ScFunction => expr match {
                                 case gen: ScGenericCall => {
