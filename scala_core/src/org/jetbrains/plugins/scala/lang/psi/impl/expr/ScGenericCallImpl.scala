@@ -33,7 +33,8 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     /**
      * Utility method to get generics for apply methods of concrecte class.
      */
-    def processClass(clazz: PsiClass, subst: ScSubstitutor): Seq[String] = {
+    def processClass(clazz: PsiClass, subst: ScSubstitutor): ScType = {
+      //ugly method for appling it to methods chooser (to substitute types for every method)
       def createSubst(method: PsiMethod): ScSubstitutor = {
         val tp = method match {
           case fun: ScFunction => fun.typeParameters.map(_.name)
@@ -56,12 +57,15 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       else
         ScalaPsiUtil.getApplyMethods(clazz)
       if (methods.length == 1) {
-        methods(0).method match {
-          case fun: ScFunction => fun.typeParameters.map(_.name)
-          case meth: PsiMethod => meth.getTypeParameters.map(_.getName)
+        val method = methods(0).method
+        val typez = method match {
+          case fun: ScFunction => ScFunctionType(fun.returnType, fun.paramTypes)
+          case meth: PsiMethod => ScFunctionType(ScType.create(meth.getReturnType, meth.getProject),
+            meth.getParameterList.getParameters.map(param => ScType.create(param.getType, meth.getProject)))
         }
+        return createSubst(method).subst(typez)
       } else {
-        return null
+        return Nothing
         //todo: according to expected type choose appropriate method
       }
     }
@@ -73,9 +77,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         case meth: PsiMethod => meth.getTypeParameters.map(_.getName)
         case synth: ScSyntheticFunction => synth.typeParams.map(_.name)
         case clazz: ScObject => {
-          val res = processClass(clazz, ScSubstitutor.empty)
-          if (res == null) return Nothing
-          else res
+          return processClass(clazz, ScSubstitutor.empty)
         }
         case clazz: ScClass if clazz.hasModifierProperty("case") => {
           clazz.typeParameters.map(_.name)
@@ -84,9 +86,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           val scType = typed.calcType
           ScType.extractClassType(scType) match {
             case Some((clazz: PsiClass, subst)) => {
-              val res = processClass(clazz, subst)
-              if (res == null) return Nothing
-              else res
+              return processClass(clazz, subst)
             }
             case _ => return Nothing
           }
@@ -96,9 +96,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       case _ => { //here we must investigate method apply (not update, because can't be generic)
         ScType.extractClassType(refType) match {
           case Some((clazz: PsiClass, subst)) => {
-            val res = processClass(clazz, subst)
-            if (res == null) return Nothing
-            else res
+            return processClass(clazz, subst)
           }
           case _ => return Nothing
         }
