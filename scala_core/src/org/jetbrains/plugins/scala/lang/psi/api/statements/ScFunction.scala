@@ -55,7 +55,7 @@ trait ScFunction extends ScalaPsiElement with ScNamedElement with ScMember with 
 
   def getModifierList(): ScModifierList
 
-  def paramTypes = parameters.map{_.calcType}
+  def paramTypes: Seq[ScType] = parameters.map{_.calcType}
 
   def declaredElements = Seq.singleton(this)
 
