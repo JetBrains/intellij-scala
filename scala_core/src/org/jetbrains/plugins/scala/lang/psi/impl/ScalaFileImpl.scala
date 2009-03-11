@@ -131,7 +131,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       }
       case _ => {
         var curr = JavaPsiFacade.getInstance(getProject).findPackage(getPackageName)
-        while (curr != null && curr.getQualifiedName != "") {
+        while (curr != null) {
           if (!curr.processDeclarations(processor, state, null, place)) return false
           curr = curr.getParentPackage
         }
