@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import api.ScalaFile
+import api.toplevel.packaging.ScPackaging
 import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang._
 import lexer.ScalaTokenTypes
 import parser.ScalaElementTypes
@@ -31,11 +33,10 @@ import toplevel.typedef.TypeDefinitionMembers
 
 /**
  * @author AlexanderPodkhalyuzin
-* Date: 22.02.2008
+ * Date: 22.02.2008
  */
 
 class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScStableCodeReferenceElement {
-
   def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement)
 
   override def toString: String = "CodeReferenceElement"
@@ -44,10 +45,10 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     def resolve(ref: ScStableCodeReferenceElementImpl, incomplete: Boolean) = {
       val kinds = ref.getKinds(false)
       val proc = ref.getParent match {
-        //last ref may import many elements with the same name
-        case e : ScImportExpr if (e.selectorSet == None && !e.singleWildcard) => new CollectAllProcessor(kinds, refName)
-        case e : ScImportExpr if e.singleWildcard => new ResolveProcessor(kinds, refName)
-        case _ : ScImportSelector => new CollectAllProcessor(kinds, refName)
+      //last ref may import many elements with the same name
+        case e: ScImportExpr if (e.selectorSet == None && !e.singleWildcard) => new CollectAllProcessor(kinds, refName)
+        case e: ScImportExpr if e.singleWildcard => new ResolveProcessor(kinds, refName)
+        case _: ScImportSelector => new CollectAllProcessor(kinds, refName)
 
         case _ => new ResolveProcessor(kinds, refName)
       }
@@ -62,8 +63,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case e: ScImportExpr => if (e.selectorSet != None
               //import Class._ is not allowed
               || qualifier == None || e.singleWildcard) stableQualRef else stableImportSelector
-      case ste : ScSimpleTypeElement => if (incomplete) noPackagesClassCompletion /* todo use the settings to include packages*/
-                                        else if (ste.singleton) stableQualRef else stableClass
+      case ste: ScSimpleTypeElement => if (incomplete) noPackagesClassCompletion /* todo use the settings to include packages*/
+      else if (ste.singleton) stableQualRef else stableClass
       case _: ScTypeAlias => stableClass
       case _: ScConstructorPattern => stableClassOrObject
       case _: ScThisReference | _: ScSuperReference => stableClassOrObject
@@ -86,8 +87,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
             case null =>
             case p => {
               if (!p.processDeclarations(processor,
-              ResolveState.initial,
-              lastParent, ref)) return
+                ResolveState.initial,
+                lastParent, ref)) return
               if (!processor.changedLevel) return
               treeWalkUp(place.getParent, place)
             }
@@ -95,7 +96,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         }
         treeWalkUp(ref, null)
       }
-      case Some(q : ScStableCodeReferenceElement) => {
+      case Some(q: ScStableCodeReferenceElement) => {
         q.bind match {
           case None =>
           case Some(ScalaResolveResult(typed: ScTyped, s)) => processor.processType(s.subst(typed.calcType), this)
@@ -109,18 +110,28 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
           }
           case Some(other) => {
             other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),
-            null, ScStableCodeReferenceElementImpl.this)
+              null, ScStableCodeReferenceElementImpl.this)
           }
         }
       }
-      case Some(thisQ : ScThisReference) => processor.processType(thisQ.getType, this)
-      case Some(superQ : ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
+      case Some(thisQ: ScThisReference) => processor.processType(thisQ.getType, this)
+      case Some(superQ: ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
     }
-    processor.candidates
+    processor.candidates.filter(srr => srr.element match {
+      case c: PsiClass if c.getName == c.getQualifiedName => c.getContainingFile match {
+        case s: ScalaFile => true // scala classes are available from default package
+        // Other clases from default package are available only for top-level Scala statmenets
+        case _ => PsiTreeUtil.getParentOfType(this, classOf[ScPackaging], true) == null && (getContainingFile match {
+          case s : ScalaFile => s.getPackageName.length == 0
+          case _ => true
+        })
+      }
+      case _ => true
+    }).toArray[ResolveResult]
   }
 
   def multiResolve(incomplete: Boolean) = {
-     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, false, incomplete)
+    getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, false, incomplete)
   }
 
   def nameId: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)

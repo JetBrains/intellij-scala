@@ -21,7 +21,12 @@ class ScalaClassFinder(project: Project) extends ProjectComponent with PsiElemen
     project.getComponent(classOf[ScalaCachesManager]).getNamesCache.getClassByFQName(qName, scope)
 
   def findClasses(qName: String, scope: GlobalSearchScope) =
-    project.getComponent(classOf[ScalaCachesManager]).getNamesCache.getClassesByFQName(qName, scope)
+    project.getComponent(classOf[ScalaCachesManager]).getNamesCache.getClassesByFQName(qName, scope).filter {
+      c => c.getContainingFile match {
+        case s : ScalaFile => !s.isScriptFile
+        case _ => true
+      }
+    }
 
   def findPackage(qName: String): PsiPackage = ScalaPsiManager.instance(project).syntheticPackage(qName)
   
@@ -32,7 +37,7 @@ class ScalaClassFinder(project: Project) extends ProjectComponent with PsiElemen
     case _ => {
       val buff = new ArrayBuffer[PsiClass]
       for (dir <- p.getDirectories(scope); file <- dir.getFiles) file match {
-        case scala: ScalaFile => buff ++= scala.typeDefinitions
+        case scala: ScalaFile if !scala.isScriptFile => buff ++= scala.typeDefinitions
         case _ =>
       }
       buff.toArray

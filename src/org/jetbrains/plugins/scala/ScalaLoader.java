@@ -18,8 +18,8 @@ package org.jetbrains.plugins.scala;
 import com.intellij.codeHighlighting.Pass;
 import com.intellij.codeHighlighting.TextEditorHighlightingPassRegistrar;
 import com.intellij.codeInsight.completion.CompletionUtil;
-import com.intellij.codeInsight.editorActions.TypedHandler;
 import com.intellij.codeInsight.editorActions.SelectWordUtil;
+import com.intellij.codeInsight.editorActions.TypedHandler;
 import com.intellij.debugger.DebuggerManager;
 import com.intellij.debugger.PositionManager;
 import com.intellij.debugger.engine.DebugProcess;
@@ -34,14 +34,13 @@ import com.intellij.util.Function;
 import com.intellij.util.containers.HashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.codeInspection.importInspections.ScalaAddImportPassFactory;
-import org.jetbrains.plugins.scala.compiler.ScalaCompiler;
 import org.jetbrains.plugins.scala.debugger.ScalaJVMNameMapper;
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager;
+import org.jetbrains.plugins.scala.editor.ScalaEditorActionsManager;
+import org.jetbrains.plugins.scala.editor.selectioner.ScalaLiteralSelectioner;
+import org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner;
 import org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
-import org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner;
-import org.jetbrains.plugins.scala.editor.selectioner.ScalaLiteralSelectioner;
-import org.jetbrains.plugins.scala.editor.ScalaEditorActionsManager;
 
 import java.util.Set;
 
