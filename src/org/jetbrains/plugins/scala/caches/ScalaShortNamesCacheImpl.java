@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,7 +52,13 @@ public class ScalaShortNamesCacheImpl implements ScalaShortNamesCache {
   public PsiClass getClassByFQName(@NotNull @NonNls String name, @NotNull GlobalSearchScope scope) {
     final Collection<? extends PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY(), name.hashCode(), myProject, scope);
     for (PsiClass clazz : classes) {
-      if (name.equals(clazz.getQualifiedName())) return clazz;
+      if (name.equals(clazz.getQualifiedName())) {
+        if (clazz.getContainingFile() instanceof ScalaFile) {
+          ScalaFile file = (ScalaFile) clazz.getContainingFile();
+          if (file.isScriptFile()) continue;
+        }
+        return clazz;
+      }
     }
     return null;
   }

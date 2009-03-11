@@ -6,6 +6,7 @@ import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 
 
 import com.intellij.openapi.roots.{OrderEntry, ProjectRootManager, OrderRootType}
+import com.intellij.psi.impl.file.PsiPackageImpl
 import lexer.ScalaTokenTypes
 import stubs.ScFileStub
 import _root_.com.intellij.extapi.psi.{PsiFileBase}
@@ -83,7 +84,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     for (n <- getNode.getChildren(null); child = n.getPsi) {
       child match {
         case _: ScPackageStatement | _: ScPackaging => return false
-        case _: ScValue | _: ScVariable | _: ScFunction | _:ScExpression | _: ScTypeAlias => return true
+        case _: ScValue | _: ScVariable | _: ScFunction | _: ScExpression | _: ScTypeAlias => return true
         case _ => if (n.getElementType == ScalaTokenTypes.tSH_COMMENT) return true
       }
     }
