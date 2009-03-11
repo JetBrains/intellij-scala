@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
+import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import api.statements.{ScFunction, ScFun}
 import api.toplevel.ScTyped
 import api.toplevel.typedef.{ScClass, ScObject}
+import com.sun.swing.internal.plaf.synth.resources.synth
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -70,24 +72,24 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         return createSubst(method).subst(typez)
       } else {
         return Nothing
-        //todo: according to expected type choose appropriate method
+        //todo: according to expected type choose appropriate method if it's possible, else => Nothing
       }
     }
 
     // here we get generic names to replace with appropriate substitutor to appropriate types
     val tp: Seq[String] = referencedExpr match {
-      case expr: ScReferenceExpression => expr.resolve match {
-        case fun: ScFunction => fun.typeParameters.map(_.name)
-        case meth: PsiMethod => meth.getTypeParameters.map(_.getName)
-        case synth: ScSyntheticFunction => synth.typeParams.map(_.name)
-        case clazz: ScObject => {
-          return processClass(clazz, ScSubstitutor.empty)
+      case expr: ScReferenceExpression => expr.bind match {
+        case Some(ScalaResolveResult(fun: ScFunction, _)) => fun.typeParameters.map(_.name)
+        case Some(ScalaResolveResult(meth: PsiMethod, _)) => meth.getTypeParameters.map(_.getName)
+        case Some(ScalaResolveResult(synth: ScSyntheticFunction, _)) => synth.typeParams.map(_.name)
+        case Some(ScalaResolveResult(clazz: ScObject, subst)) => {
+          return processClass(clazz, subst)
         }
-        case clazz: ScClass if clazz.hasModifierProperty("case") => {
+        case Some(ScalaResolveResult(clazz: ScClass, _)) if clazz.hasModifierProperty("case") => {
           clazz.typeParameters.map(_.name)
         }
-        case typed: ScTyped => { //here we must investigate method apply (not update, because can't be generic)
-          val scType = typed.calcType
+        case Some(ScalaResolveResult(typed: ScTyped, subst)) => { //here we must investigate method apply (not update, because can't be generic)
+          val scType = subst.subst(typed.calcType)
           ScType.extractClassType(scType) match {
             case Some((clazz: PsiClass, subst)) => {
               return processClass(clazz, subst)
