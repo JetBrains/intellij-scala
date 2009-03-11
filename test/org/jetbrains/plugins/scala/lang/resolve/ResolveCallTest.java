@@ -20,6 +20,13 @@ public class ResolveCallTest extends ScalaResolveTestCase {
     assertEquals("apply", ((ScFunction) resolved).getName());
   }
 
+  public void testObjectGenericApply() throws Exception {
+    PsiReference ref = configureByFile("call/ObjectGenericApply.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScFunction);
+    assertEquals("apply", ((ScFunction) resolved).getName());
+  }
+
   public void testStableRefPattern() throws Exception {
     PsiReference ref = configureByFile("call/refPattern.scala");
     PsiElement resolved = ref.resolve();

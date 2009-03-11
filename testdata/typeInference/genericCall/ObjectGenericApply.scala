@@ -1,5 +1,5 @@
-object ObjectGenericApply {
+object ObjectGenericApply3 {
   def apply[T](x: T) = x
 }
 
-/*start*/ObjectGenericApply[Int](4)/*end*/
+/*start*/ObjectGenericApply3[Int](4)/*end*/

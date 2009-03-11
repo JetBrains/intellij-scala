@@ -1,5 +1,5 @@
-object ObjectGenericApply {
+object ObjectGenericApply2 {
   def apply[T](x: T) = 1
 }
 
-ObjectGenericApply[Int](/*caret*/)
+ObjectGenericApply2[Int](/*caret*/)
