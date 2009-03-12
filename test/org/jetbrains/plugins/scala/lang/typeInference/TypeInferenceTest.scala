@@ -17,10 +17,10 @@ class TypeInferenceTest extends ScalaPsiTestCase {
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"
 
-  //use it if you want to generate tests from appropriate folder
+  /*//use it if you want to generate tests from appropriate folder
   def testGenerate {
     generateTests
-  }
+  }*/
 
   //--------------------------------------- Generic Call ---------------------------------------------------
   def testIsInstanceOf {
@@ -127,6 +127,89 @@ Int
     testPath = "/typeInference/methodCall/SimpleCall"
     realOutput = """
 Float
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  //------------------------------------------- Literals -------------------------------------------------------------
+
+  def testBoolean {
+    testPath = "/typeInference/literals/Boolean"
+    realOutput = """
+Boolean
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testChar {
+    testPath = "/typeInference/literals/Char"
+    realOutput = """
+Char
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testDouble {
+    testPath = "/typeInference/literals/Double"
+    realOutput = """
+Double
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testFloat {
+    testPath = "/typeInference/literals/Float"
+    realOutput = """
+Float
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testInt {
+    testPath = "/typeInference/literals/Int"
+    realOutput = """
+Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testLong {
+    testPath = "/typeInference/literals/Long"
+    realOutput = """
+Long
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testNull {
+    testPath = "/typeInference/literals/Null"
+    realOutput = """
+Null
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testString {
+    testPath = "/typeInference/literals/String"
+    realOutput = """
+String
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testSymbol {
+    testPath = "/typeInference/literals/Symbol"
+    realOutput = """
+Symbol
 """
     realOutput = realOutput.trim
     playTest
