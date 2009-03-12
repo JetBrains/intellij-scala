@@ -111,7 +111,7 @@
         <pathelement location="${scala.home}/lib/scala-library.jar"/>
         <pathelement location="${scala.home}/lib/scalap.jar"/>
         <pathelement location="${scala.home}/lib/runners.jar"/>
-        <pathelement location="${scala.home}/lib/scalatest-0.9.4.jar"/>
+        <pathelement location="${scala.home}/lib/scalatest-0.9.5.jar"/>
       </classpath>
     </taskdef>
 
