@@ -236,6 +236,62 @@ AssignStatement
     doTest
   }
 
+  //----------------------------------------- Xml -----------------------------------------------------
+
+  def testCDSect {
+    testPath = "/typeInference/xml/CDSect"
+    realOutput = """
+Text
+"""
+    realOutput = realOutput.trim
+    doTest
+  }
+
+  def testComment {
+    testPath = "/typeInference/xml/Comment"
+    realOutput = """
+Comment
+"""
+    realOutput = realOutput.trim
+    doTest
+  }
+
+  def testElement {
+    testPath = "/typeInference/xml/Element"
+    realOutput = """
+Elem
+"""
+    realOutput = realOutput.trim
+    doTest
+  }
+
+  def testEmptyElement {
+    testPath = "/typeInference/xml/EmptyElement"
+    realOutput = """
+Elem
+"""
+    realOutput = realOutput.trim
+    doTest
+  }
+
+  def testNodeBuffer {
+    testPath = "/typeInference/xml/NodeBuffer"
+    realOutput = """
+NodeBuffer
+"""
+    realOutput = realOutput.trim
+    doTest
+  }
+
+  def testProcInstr {
+    testPath = "/typeInference/xml/ProcInstr"
+    realOutput = """
+ProcInstr
+"""
+    realOutput = realOutput.trim
+    doTest
+  }
+
   protected def getTestOutput(file: VirtualFile, useOutput: Boolean): String = {
     val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
     val fileText = scalaFile.getText
@@ -244,7 +300,8 @@ AssignStatement
     assert(offset != -1, "Not specified start marker in test case. Use /*start*/ in scala file for this.")
     val endOffset = fileText.indexOf(endExprMarker)
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
-    val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset, endOffset, classOf[ScExpression])
+    val addOne = if(PsiTreeUtil.getParentOfType(scalaFile.findElementAt(startOffset),classOf[ScExpression]) != null) 0 else 1 //for xml tests
+    val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset + addOne, endOffset, classOf[ScExpression])
     assert(expr != null, "Not specified expression in range to infer type.")
     val typez = expr.getType
     val res = ScType.presentableText(typez)
