@@ -1,0 +1,1 @@
+/*start*/ <![CDATA[content]]> /*end*/
