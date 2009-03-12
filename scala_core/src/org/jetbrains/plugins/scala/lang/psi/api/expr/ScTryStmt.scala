@@ -6,5 +6,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 */
 
 trait ScTryStmt extends ScExpression {
-  def catchBlock = findChildByClass(classOf[ScCatchBlock])
+  def tryBlock = findChildByClass(classOf[ScTryBlock])
+  def catchBlock = findChild(classOf[ScCatchBlock])
+  def finallyBlock = findChild(classOf[ScFinallyBlock])
 }
