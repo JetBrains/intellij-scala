@@ -48,49 +48,58 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
     }
 
     //method used to convert expression to return type
-    def tail: ScType = {
+    def tail(convertType: Boolean): ScType = {
       getInvokedExpr.getType match {
         case ScFunctionType(r, _) => r
-        case t => ScType.extractClassType(t) match {
+        case t if convertType => ScType.extractClassType(t) match {
           case Some((clazz: PsiClass, subst: ScSubstitutor)) => return processClass(clazz, subst)
           case _ => return Nothing
         }
+        case t => t
       }
     }
 
     getInvokedExpr match {
       //if it's generic call, so we know that type will be substituted right and to not double functionality
-      case call: ScGenericCall => return tail
+      case call: ScGenericCall => return tail(false)
       //If we have reference we must to check type erasure
       case ref: ScReferenceExpression => {
         val bind = ref.bind
         bind match {
           //three methods cases
-          case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.typeParameters.length == 0 => return tail
+          case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.typeParameters.length == 0 => return tail(true)
           case Some(ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor)) => {
             //todo: type erasure to get type params implicitly
-            return tail
+            return tail(true)
           }
-          case Some(ScalaResolveResult(fun: ScFun, _)) if fun.typeParameters.length == 0 => return tail
+          case Some(ScalaResolveResult(fun: ScFun, _)) if fun.typeParameters.length == 0 => return tail(true)
           case Some(ScalaResolveResult(fun: ScFun, subst: ScSubstitutor)) => {
             //todo: type erasure to get type params implicitly
-            return tail
+            return tail(true)
           }
-          case Some(ScalaResolveResult(meth: PsiMethod, _)) if meth.getTypeParameters.length == 0 => return tail
+          case Some(ScalaResolveResult(meth: PsiMethod, _)) if meth.getTypeParameters.length == 0 => return tail(true)
           case Some(ScalaResolveResult(meth: PsiMethod, subst: ScSubstitutor)) => {
             //todo: type erasure to get type params implicitly
-            return tail
+            return tail(true)
           }
           //if we resolve to object, so should try to check apply and update methods
           case Some(ScalaResolveResult(obj: ScObject, subst: ScSubstitutor)) => {
             return processClass(obj, subst)
           }
-          case Some(ScalaResolveResult(typed: ScTyped, _)) => return tail
+          //case classes
+          case Some(ScalaResolveResult(clazz: ScClass, subst: ScSubstitutor)) if clazz.isCase && clazz.typeParameters.length == 0 => {
+            return getInvokedExpr.getType
+          }
+          case Some(ScalaResolveResult(clazz: ScClass, subst: ScSubstitutor)) if clazz. isCase => {
+            //todo: type erasure to get type params implicitly
+            return getInvokedExpr.getType
+          }
+          case Some(ScalaResolveResult(typed: ScTyped, _)) => return tail(true)
           case _ => return Nothing //todo: case classes, java cases (PsiField for example)
         }
       }
       case _ => {
-        return tail
+        return tail(true)
       }
     }
   }

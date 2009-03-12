@@ -21,7 +21,7 @@ import scalax.rules.ScalaSigParserError
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.groovy.lang.psi.impl.statements.arguments.GrArgumentListImpl");
 
-  val DECOMPILER_VERSION = 35
+  val DECOMPILER_VERSION = 36
   private val decompiledTextAttribute = new FileAttribute("_file_decompiled_text_", DECOMPILER_VERSION)
   private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION)
   private val sourceFileAttribute = new FileAttribute("_scala_source_file_", DECOMPILER_VERSION)
