@@ -1,8 +1,0 @@
-class A{}
-
-class Temp{
-  var temp = new A()
-  <caret>temp
-}
------
-Temp.AnonymousClassInstance <: A

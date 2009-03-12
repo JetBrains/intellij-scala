@@ -1,8 +1,0 @@
-class VEN{}
-class DSL{}
-
-class Temp {
-  var foo = <caret>(v: VEN, d: DSL) => v
-}
------
-(VEN,DSL)=>VEN

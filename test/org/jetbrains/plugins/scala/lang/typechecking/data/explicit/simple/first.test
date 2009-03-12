@@ -1,8 +1,0 @@
-class VEN{}
-
-class Temp {
-  var ven : VEN = new VEN()
-  var temp = <caret>ven
-}
------
-VEN
