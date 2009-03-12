@@ -1,6 +1,12 @@
 package org.jetbrains.plugins.scala.decompiler
 
 import _root_.scala.runtime.RichBoolean
+import _root_.scala.tools.scalap.scalax.rules.scalasig.ByteCode
+import _root_.scala.tools.scalap.scalax.rules.scalasig.SourceFileInfo
+import _root_.scala.tools.scalap.scalax.rules.scalasig.SourceFileAttributeParser
+import _root_.scala.tools.scalap.scalax.rules.scalasig.ScalaSigPrinter
+import _root_.scala.tools.scalap.scalax.rules.scalasig.ScalaSigAttributeParsers
+import _root_.scala.tools.scalap.scalax.rules.scalasig.ClassFileParser
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.StdFileTypes
@@ -11,8 +17,6 @@ import com.intellij.openapi.vfs.{VirtualFileWithId, CharsetToolkit, VirtualFile}
 import com.intellij.testFramework.LightVirtualFile
 import java.io.{PrintStream, IOException, ByteArrayOutputStream, FileNotFoundException}
 import java.nio.ByteBuffer
-import scalax.rules.scalasig._
-import scalax.rules.ScalaSigParserError
 
 /**
  * @author ilyas
@@ -85,7 +89,7 @@ object DecompilerUtil {
             case _ =>
           }
           // Print classes
-          val printer = new ScalaSigPrinter(stream)
+          val printer = new ScalaSigPrinter(stream, true)
           for (c <- syms) {
             printer.printSymbol(c)
           }

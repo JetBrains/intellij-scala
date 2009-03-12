@@ -189,6 +189,57 @@
     <option name="OPEN_IN_BROWSER" value="false" />
     <option name="OUTPUT_DIRECTORY" />
   </component>
+  <component name="FacetAutodetectingManager">
+    <autodetection-disabled>
+      <facet-type id="Scala">
+        <modules>
+          <module name="scalax">
+            <files>
+              <file url="file://$PROJECT_DIR$/scalax/src/scala/tools/scalap/Arguments.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scala/tools/scalap/ByteArrayReader.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scala/tools/scalap/Classfile.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scala/tools/scalap/Classfiles.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scala/tools/scalap/CodeWriter.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scala/tools/scalap/JavaWriter.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scala/tools/scalap/Main.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scala/tools/scalap/MetaParser.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scala/tools/scalap/Names.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scala/tools/scalap/Properties.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/Arrows.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/Functors.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/Input.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/Memoisable.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/Monad.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/Result.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/Rule.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/Rules.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/SeqRule.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/scalasig/ClassFileParser.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/scalasig/Flags.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/scalasig/ScalaSig.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/scalasig/ScalaSigPrinter.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/scalasig/SourceFileAttributeParser.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/scalasig/Symbol.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/rules/scalasig/Type.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/src/scalax/util/StringUtil.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/testdata/scalap/abstractClass/A.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/testdata/scalap/abstractMethod/A.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/testdata/scalap/caseClass/A.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/testdata/scalap/caseObject/A.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/testdata/scalap/covariantParam/A.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/testdata/scalap/implicitParam/A.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/testdata/scalap/paramClauses/A.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/testdata/scalap/paramNames/A.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/testdata/scalap/traitObject/A.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/testdata/scalap/valAndVar/A.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/tests/scalax/scalap/ScalapTest.scala" />
+              <file url="file://$PROJECT_DIR$/scalax/tests/scalax/util/ScalaxTestUtil.scala" />
+            </files>
+          </module>
+        </modules>
+      </facet-type>
+    </autodetection-disabled>
+  </component>
   <component name="IdProvider" IDEtalkID="CA57306CD032AD7AF462C2DE24318A97" />
   <component name="InspectionProjectProfileManager">
     <option name="PROJECT_PROFILE" value="Project Default" />
@@ -373,7 +424,6 @@
       <module fileurl="file://$PROJECT_DIR$/Runners/Runners.iml" filepath="$PROJECT_DIR$/Runners/Runners.iml" />
       <module fileurl="file://$PROJECT_DIR$/Scala.iml" filepath="$PROJECT_DIR$/Scala.iml" />
       <module fileurl="file://$PROJECT_DIR$/scala_core/scala_core.iml" filepath="$PROJECT_DIR$/scala_core/scala_core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/scalax/scalax.iml" filepath="$PROJECT_DIR$/scalax/scalax.iml" />
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA SDK" project-jdk-type="IDEA JDK">
@@ -610,6 +660,7 @@
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/SDK/lib/scala-compiler.jar!/" />
         <root url="jar://$PROJECT_DIR$/SDK/lib/scala-library.jar!/" />
+        <root url="jar://$PROJECT_DIR$/SDK/lib/scalap.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />
