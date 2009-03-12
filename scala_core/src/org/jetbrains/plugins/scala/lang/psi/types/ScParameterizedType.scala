@@ -4,6 +4,8 @@ package org.jetbrains.plugins.scala.lang.psi.types
  * @author ilyas
  */
 
+import _root_.scala.::
+import _root_.scala.::
 import api.toplevel.typedef._
 import api.statements.{ScTypeAliasDefinition, ScTypeAlias}
 import api.toplevel.{ScNamedElement, ScTypeParametersOwner}
@@ -119,6 +121,20 @@ extends ScPolymorphicType(name, args, lower, upper) {
       new Suspension[ScType]({() => s.subst(tp.lowerBound)}),
       new Suspension[ScType]({() => s.subst(tp.upperBound)}),
       tp)
+
+  def this(ptp: PsiTypeParameter, s: ScSubstitutor) = 
+    this(ptp.getName, ptp.getTypeParameters.toList.map(new ScTypeParameterType(_, s)),
+      new Suspension[ScType]({() =>
+              s.subst(
+        ScCompoundType(ptp.getExtendsListTypes.map(ScType.create(_, ptp.getProject)).toSeq ++
+                ptp.getImplementsListTypes.map(ScType.create(_, ptp.getProject)).toSeq, Seq.empty, Seq.empty))
+      }),
+      new Suspension[ScType]({() =>
+              s.subst(
+        ScCompoundType(ptp.getSuperTypes.map(ScType.create(_, ptp.getProject)).toSeq, Seq.empty, Seq.empty))
+      }),
+      ptp
+    )
 
   override def equiv(t: ScType) = t match {
     case stp: ScTypeParameterType => (t eq this) ||
