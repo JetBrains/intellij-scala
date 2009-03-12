@@ -5,11 +5,12 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase;
 
 /**
  * @author ilyas
  */
-public class TypeInferenceTest2 extends ResolveTestCase {
+public class TypeInferenceTest2 extends ScalaResolveTestCase {
   @Override
   protected String getTestDataPath() {
     return TestUtils.getTestDataPath() + "/typeInference/";
@@ -20,6 +21,6 @@ public class TypeInferenceTest2 extends ResolveTestCase {
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScParameter);
     String string = (((ScParameter) resolved)).calcType().toString();
-    assertFalse(string.equals("Nothing"));
+    assertTrue(string.equals("String"));
   }
 }
