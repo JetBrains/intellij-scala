@@ -17,11 +17,12 @@ class TypeInferenceTest extends ScalaPsiTestCase {
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"
 
-  /*//use it if you want to generate tests from appropriate folder
+  //use it if you want to generate tests from appropriate folder
   def testGenerate {
     generateTests
-  }*/
+  }
 
+  //--------------------------------------- Generic Call ---------------------------------------------------
   def testIsInstanceOf {
     testPath = "/typeInference/genericCall/IsInstanceOf"
     realOutput = """
@@ -80,6 +81,52 @@ Int
     testPath = "/typeInference/genericCall/InstanceGenericApply"
     realOutput = """
 (Int, Double)
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  //-------------------------------------------------- Method Call ----------------------------------------------
+  def testApplyCall {
+    testPath = "/typeInference/methodCall/ApplyCall"
+    realOutput = """
+Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testCaseClassCall {
+    testPath = "/typeInference/methodCall/CaseClassCall"
+    realOutput = """
+CaseClassCall
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testObjectApplyCall {
+    testPath = "/typeInference/methodCall/ObjectApplyCall"
+    realOutput = """
+Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testOverloadedCall {
+    testPath = "/typeInference/methodCall/OverloadedCall"
+    realOutput = """
+Int
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
+  def testSimpleCall {
+    testPath = "/typeInference/methodCall/SimpleCall"
+    realOutput = """
+Float
 """
     realOutput = realOutput.trim
     playTest
