@@ -21,6 +21,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
   override def toString: String = "MethodCall"
 
   override def getType: ScType = {
+    //todo: add logic to get type for methods with implicit parameter clause
     /**
      * Utility method to get type for apply (and update) methods of concrecte class.
      */

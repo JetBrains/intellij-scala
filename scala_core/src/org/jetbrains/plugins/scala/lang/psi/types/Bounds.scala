@@ -33,6 +33,7 @@ object Bounds {
       case (_, s: ScSingletonType) => lub(t1, s.pathType)
       case (ex : ScExistentialType, _) => lub(ex.skolem, t2)
       case (_, ex : ScExistentialType) => lub(t1, ex.skolem)
+      case (_: ValType, _: ValType) => types.AnyVal
 
       case _ => ScType.extractClassType(t1) match {
         case Some((c1, s1)) => {
