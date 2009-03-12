@@ -220,13 +220,14 @@ public class ScalaPositionManager implements PositionManager {
             enclosingName = typeDefinition.getQualifiedName();
           }
           if (enclosingName != null) {
-            String specificName = getSpecificName(enclosingName, typeDefinition.getClass());
-            final List<ReferenceType> outers = myDebugProcess.getVirtualMachineProxy().classesByName(specificName);
+            final List<ReferenceType> outers = myDebugProcess.getVirtualMachineProxy().allClasses();
             final List<ReferenceType> result = new ArrayList<ReferenceType>(outers.size());
             for (ReferenceType outer : outers) {
-              final ReferenceType nested = findNested(outer, sourceImage, position);
-              if (nested != null) {
-                result.add(nested);
+              if (outer.name().startsWith(enclosingName)) {
+                final ReferenceType nested = findNested(outer, sourceImage, position);
+                if (nested != null) {
+                  result.add(nested);
+                }
               }
             }
             return result;
