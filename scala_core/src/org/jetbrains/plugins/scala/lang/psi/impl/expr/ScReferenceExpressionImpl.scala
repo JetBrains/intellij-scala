@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import api.ScalaFile
+import api.statements.params.ScTypeParam
 import api.toplevel.imports.ScImportExpr
-import api.toplevel.typedef.{ScClass, ScTrait}
 import api.statements._
 import api.base.patterns.ScReferencePattern
+import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
 import com.intellij.util.IncorrectOperationException
 import resolve._
 
@@ -160,8 +161,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
 
       case Some(ScalaResolveResult(typed: ScTyped, s)) => s.subst(typed.calcType)
-      case Some(ScalaResolveResult(pack: PsiPackage, _)) => new ScDesignatorType(pack)
-      case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz)
+      case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScDesignatorType(pack)
+      case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.length != 0 =>
+        s.subst(ScParameterizedType(ScDesignatorType(clazz), clazz.typeParameters.map(new ScTypeParameterType(_, s)).toArray))
+      case Some(ScalaResolveResult(clazz: PsiClass, s)) => s.subst(ScDesignatorType(clazz))
       case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject))
       case Some(ScalaResolveResult(method: PsiMethod, s)) => ResolveUtils.methodType(method, s)
       case _ => Nothing
