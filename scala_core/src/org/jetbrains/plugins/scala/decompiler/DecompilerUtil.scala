@@ -25,7 +25,7 @@ import java.nio.ByteBuffer
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.groovy.lang.psi.impl.statements.arguments.GrArgumentListImpl");
 
-  val DECOMPILER_VERSION = 36
+  val DECOMPILER_VERSION = 37
   private val decompiledTextAttribute = new FileAttribute("_file_decompiled_text_", DECOMPILER_VERSION)
   private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION)
   private val sourceFileAttribute = new FileAttribute("_scala_source_file_", DECOMPILER_VERSION)
@@ -47,7 +47,7 @@ object DecompilerUtil {
         val classFile = ClassFileParser.parse(byteCode)
         classFile.attribute("ScalaSig") match {case Some(_) => true; case None => false}
       } catch {
-        case _ => false
+        case e => false
       }
       val write = isScalaCompiledAttribute.writeAttribute(file)
       write.writeBoolean(isScala)
@@ -98,7 +98,7 @@ object DecompilerUtil {
 
           // Obtain source file name
           val Some(SourceFileInfo(index)) = classFile.attribute(SOURCE_FILE).map(_.byteCode).map(SourceFileAttributeParser.parse)
-          val source : String = classFile.header.constants(index) match {
+          val source: String = classFile.header.constants(index) match {
             case s: String => s
             case _ => ""
           }
