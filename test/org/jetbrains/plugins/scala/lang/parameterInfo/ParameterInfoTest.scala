@@ -26,6 +26,7 @@ class FunctionParameterInfoTest extends ScalaPsiTestCase {
   /*//use it if you want to generate tests from appropriate folder
   def testGenerate {
     generateTests
+    assert(false) //to not forgot to comment this
   }*/
 
   def testClassApply{
@@ -34,7 +35,7 @@ class FunctionParameterInfoTest extends ScalaPsiTestCase {
 x: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testGenericClassApply{
@@ -43,7 +44,7 @@ x: Int
 x: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testObjectApply{
@@ -53,7 +54,7 @@ x: Double, y: Int
 x: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testObjectGenericApply{
@@ -62,7 +63,7 @@ x: Int
 x: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testClassGenericApply{
@@ -72,7 +73,7 @@ x: Double
 x: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testSimple{
@@ -81,7 +82,7 @@ x: Int
 x: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testLocal{
@@ -91,7 +92,7 @@ x: Boolean
 x: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testGenericJavaLibrary{
@@ -101,7 +102,7 @@ index: Int, element: Int
 o: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testJavaLibrary{
@@ -114,7 +115,7 @@ str: String
 str: String, fromIndex: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testScalaLibrary{
@@ -123,7 +124,7 @@ str: String, fromIndex: Int
 s: Int*
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testGenericUpdate{
@@ -133,7 +134,7 @@ x: Boolean
 x: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testNoUpdate{
@@ -142,7 +143,7 @@ x: Int
 x: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testUpdateOnly{
@@ -151,7 +152,7 @@ x: Int
 x: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testFunctionType{
@@ -160,7 +161,7 @@ x: Int
 p0: String
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testFunctionTypeTwo{
@@ -169,7 +170,7 @@ p0: String
 v1: Int, v2: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testApplyCurrings{
@@ -178,7 +179,7 @@ v1: Int, v2: Int
 p0: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testCurringDef{
@@ -187,7 +188,7 @@ p0: Int
 p0: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testFunctionTypeCurrings{
@@ -196,7 +197,7 @@ p0: Int
 p0: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testNoCurrings{
@@ -205,7 +206,7 @@ p0: Int
 
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testGenericScalaConstructor{
@@ -214,7 +215,7 @@ p0: Int
 x: Boolean
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testJavaConstructor{
@@ -225,7 +226,7 @@ c: Collection[_ <: Int]
 initialCapacity: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testScalaConstructor{
@@ -234,7 +235,7 @@ initialCapacity: Int
 x: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testThisScalaConstructor{
@@ -245,7 +246,7 @@ x: Boolean
 x: Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   protected def getTestOutput(file: VirtualFile, useOutput: Boolean): String = {

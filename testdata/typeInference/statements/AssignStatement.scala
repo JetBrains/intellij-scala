@@ -1,6 +1,6 @@
-object A {
-  def update(x: Int, y: Int) = A
+object AssignStatement {
+  def update(x: Int, y: Int) = AssignStatement
 }
 
-val x = A
+val x = AssignStatement
 /*start*/x(1) = 3/*end*/ 
