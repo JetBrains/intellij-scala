@@ -25,7 +25,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
       }
       case ScalaTokenTypes.tFLOAT => {
         if (child.getText.endsWith("f") || child.getText.endsWith("F")) Float
-        Double
+        else Double
       }
       case ScalaTokenTypes.tCHAR => Char
       case ScalaTokenTypes.tSYMBOL => {
