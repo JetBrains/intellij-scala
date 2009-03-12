@@ -65,7 +65,7 @@ abstract class ScalaPsiTestCase extends PsiTestCase with JUnit3Suite {
   /**
    * main tests runner. Please call it at the.
    */
-  protected def playTest {
+  protected def doTest {
     val filePath = rootPath + testPath + ".scala"
     val vFile = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(vFile != null, "file " + filePath + " not found")
@@ -126,7 +126,7 @@ abstract class ScalaPsiTestCase extends PsiTestCase with JUnit3Suite {
           print("    realOutput = \"\"\"\n")
           print(getTestOutput(file, false) + "\n\"\"\"\n")
           print("    realOutput = realOutput.trim\n")
-          print("    playTest\n  }\n\n")
+          print("    doTest\n  }\n\n")
         }
       }
     }

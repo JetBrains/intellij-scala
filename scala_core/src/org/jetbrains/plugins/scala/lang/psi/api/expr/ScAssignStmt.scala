@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScAssignStmt extends ScExpression {
   def getLExpression: ScExpression = findChildByClass(classOf[ScExpression])
-  def getRExpression: Option[ScExpression] = getLastChild match {
-    case expr: ScExpression => Some(expr)
+  def getRExpression: Option[ScExpression] = findLastChild(classOf[ScExpression]) match {
+    case expr: ScExpression if expr != getLExpression => Some(expr)
     case _ => None
   }
 }

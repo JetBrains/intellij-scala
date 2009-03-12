@@ -1,6 +1,6 @@
-object A {
-  def update(x: Int, y: Int) = A
+object UpdateCall {
+  def update(x: Int, y: Int) = UpdateCall
 }
 
-val x = A
+val x = UpdateCall
 /*start*/x(1)/*end*/ = 3

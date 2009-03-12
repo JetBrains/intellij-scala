@@ -17,10 +17,11 @@ class TypeInferenceTest extends ScalaPsiTestCase {
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"
 
-  //use it if you want to generate tests from appropriate folder
+  /*//use it if you want to generate tests from appropriate folder
   def testGenerate {
     generateTests
-  }
+    assert(false) //to not forgot to comment this
+  }*/
 
   //--------------------------------------- Generic Call ---------------------------------------------------
   def testIsInstanceOf {
@@ -29,7 +30,7 @@ class TypeInferenceTest extends ScalaPsiTestCase {
 () => Boolean
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testJavaGenericFunction {
@@ -38,7 +39,7 @@ class TypeInferenceTest extends ScalaPsiTestCase {
 ArrayList[Int]
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testAsInstanceOf {
@@ -47,7 +48,7 @@ ArrayList[Int]
 () => Float
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testGenericFunction {
@@ -56,7 +57,7 @@ ArrayList[Int]
 Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testCaseClasses {
@@ -65,7 +66,7 @@ Int
 CaseClasses[Int]
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testObjectGenericApply {
@@ -74,7 +75,7 @@ CaseClasses[Int]
 Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testInstanceGenericApply {
@@ -83,7 +84,7 @@ Int
 (Int, Double)
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   //-------------------------------------------------- Method Call ----------------------------------------------
@@ -93,7 +94,7 @@ Int
 Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testCaseClassCall {
@@ -102,7 +103,7 @@ Int
 CaseClassCall
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testObjectApplyCall {
@@ -111,7 +112,7 @@ CaseClassCall
 Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testOverloadedCall {
@@ -120,7 +121,7 @@ Int
 Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testSimpleCall {
@@ -129,16 +130,16 @@ Int
 Float
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testUpdateCall {
     testPath = "/typeInference/methodCall/UpdateCall"
     realOutput = """
-A
+UpdateCall
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   //------------------------------------------- Literals -------------------------------------------------------------
@@ -149,7 +150,7 @@ A
 Boolean
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testChar {
@@ -158,7 +159,7 @@ Boolean
 Char
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testDouble {
@@ -167,7 +168,7 @@ Char
 Double
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testFloat {
@@ -176,7 +177,7 @@ Double
 Float
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testInt {
@@ -185,7 +186,7 @@ Float
 Int
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testLong {
@@ -194,7 +195,7 @@ Int
 Long
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testNull {
@@ -203,7 +204,7 @@ Long
 Null
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testString {
@@ -212,7 +213,7 @@ Null
 String
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   def testSymbol {
@@ -221,7 +222,7 @@ String
 Symbol
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   //---------------------------------------- Statements -----------------------------------------------
@@ -229,10 +230,10 @@ Symbol
   def testAssignStatement {
     testPath = "/typeInference/statements/AssignStatement"
     realOutput = """
-A
+AssignStatement
 """
     realOutput = realOutput.trim
-    playTest
+    doTest
   }
 
   protected def getTestOutput(file: VirtualFile, useOutput: Boolean): String = {
