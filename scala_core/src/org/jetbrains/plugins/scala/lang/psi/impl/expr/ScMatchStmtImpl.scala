@@ -24,6 +24,7 @@ class ScMatchStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScMa
   override def toString: String = "MatchStatement"
 
   override def getType(): ScType = {
+    //todo: it's wrong now (bounds)
     var result: ScType = null
     getBranches.length match {
       case 0 => types.Nothing

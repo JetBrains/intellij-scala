@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
+import impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import api.base.patterns._
 import lang.parser.ScalaElementTypes
@@ -16,4 +17,10 @@ trait ScCatchBlock extends ScalaPsiElement {
 
   def caseClauses = caseClauseList.caseClauses
 
+  def getBranches: Seq[ScExpression] = caseClauses.map {
+    (clause: ScCaseClause) => clause.expr match {
+      case Some(expr) => expr
+      case None => ScalaPsiElementFactory.createExpressionFromText("{}", getManager)
+    }
+  }
 }
