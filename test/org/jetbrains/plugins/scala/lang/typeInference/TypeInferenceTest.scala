@@ -17,10 +17,10 @@ class TypeInferenceTest extends ScalaPsiTestCase {
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"
 
-  /*//use it if you want to generate tests from appropriate folder
+  //use it if you want to generate tests from appropriate folder
   def testGenerate {
     generateTests
-  }*/
+  }
 
   //--------------------------------------- Generic Call ---------------------------------------------------
   def testIsInstanceOf {
@@ -132,6 +132,15 @@ Float
     playTest
   }
 
+  def testUpdateCall {
+    testPath = "/typeInference/methodCall/UpdateCall"
+    realOutput = """
+A
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
   //------------------------------------------- Literals -------------------------------------------------------------
 
   def testBoolean {
@@ -215,6 +224,17 @@ Symbol
     playTest
   }
 
+  //---------------------------------------- Statements -----------------------------------------------
+
+  def testAssignStatement {
+    testPath = "/typeInference/statements/AssignStatement"
+    realOutput = """
+A
+"""
+    realOutput = realOutput.trim
+    playTest
+  }
+
   protected def getTestOutput(file: VirtualFile, useOutput: Boolean): String = {
     val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
     val fileText = scalaFile.getText
@@ -237,4 +257,7 @@ Symbol
   private def generateTests {
     generateTests("typeInference")
   }
+
+
+  override protected def getTestClass = classOf[TypeInferenceTest]
 }
