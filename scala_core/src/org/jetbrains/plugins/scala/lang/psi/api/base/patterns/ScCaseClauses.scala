@@ -8,5 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScCaseClauses extends ScalaPsiElement {
-  def caseClauses = findChildByClass(classOf[ScCaseClause])
+  def caseClause = findChildByClass(classOf[ScCaseClause])
+  def caseClauses = findChildrenByClass(classOf[ScCaseClause])
 }
