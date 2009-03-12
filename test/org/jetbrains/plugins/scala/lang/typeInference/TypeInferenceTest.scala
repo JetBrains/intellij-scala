@@ -17,11 +17,11 @@ class TypeInferenceTest extends ScalaPsiTestCase {
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"
 
-  //use it if you want to generate tests from appropriate folder
+  /*//use it if you want to generate tests from appropriate folder
   def testGenerate {
     generateTests
     assert(false) //to not forgot to comment this
-  }
+  }*/
 
   //--------------------------------------- Generic Call ---------------------------------------------------
   def testIsInstanceOf {
