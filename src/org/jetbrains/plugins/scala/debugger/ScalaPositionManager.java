@@ -117,7 +117,8 @@ public class ScalaPositionManager implements PositionManager {
         || sourceImage instanceof ScExtendsBlock) {
       ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
       if (typeDefinition != null) {
-        qName = getSpecificName(typeDefinition.getQualifiedName(), typeDefinition.getClass()) + "*";
+        final String fqn = typeDefinition.getQualifiedName();
+        qName = fqn + "$*";
       }
     }
     // Enclosinc closure not found
@@ -128,7 +129,6 @@ public class ScalaPositionManager implements PositionManager {
       }
       if (qName == null) throw new NoDataException();
     }
-
 
     ClassPrepareRequestor waitRequestor = new MyClassPrepareRequestor(position, requestor);
     return myDebugProcess.getRequestsManager().createClassPrepareRequest(waitRequestor, qName);

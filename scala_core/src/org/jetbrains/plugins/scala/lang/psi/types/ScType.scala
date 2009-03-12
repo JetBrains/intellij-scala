@@ -14,7 +14,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 
 trait ScType {
-
   def equiv(t: ScType): Boolean = t == this
 
   sealed def conforms(t: ScType): Boolean = Conformance.conforms(this, t)
@@ -42,7 +41,7 @@ case object Singleton extends StdType("Singleton", Some(AnyRef))
 
 case object AnyVal extends StdType("AnyVal", Some(Any))
 
-abstract case class ValType(override val name : String) extends StdType(name, Some(AnyVal))
+abstract case class ValType(override val name: String) extends StdType(name, Some(AnyVal))
 
 object Unit extends ValType("Unit")
 object Boolean extends ValType("Boolean")
@@ -55,11 +54,11 @@ object Byte extends ValType("Byte")
 object Short extends ValType("Float")
 
 object ScType {
-  def create(psiType : PsiType, project : Project) : ScType = psiType match {
-    case classType : PsiClassType => {
+  def create(psiType: PsiType, project: Project): ScType = psiType match {
+    case classType: PsiClassType => {
       val result = classType.resolveGenerics
       result.getElement match {
-        case tp : PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
+        case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
         case clazz if clazz != null => {
           val tps = clazz.getTypeParameters
           val des = new ScDesignatorType(clazz)
@@ -72,7 +71,7 @@ object ScType {
         case _ => Nothing
       }
     }
-    case arrayType : PsiArrayType => {
+    case arrayType: PsiArrayType => {
       val arrayClass = JavaPsiFacade.getInstance(project).findClass("scala.Array", GlobalSearchScope.allScope(project))
       if (arrayClass != null) {
         val tps = arrayClass.getTypeParameters
@@ -105,7 +104,7 @@ object ScType {
     case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
   }
 
-  def toPsi(t : ScType, project : Project, scope : GlobalSearchScope) : PsiType = {
+  def toPsi(t: ScType, project: Project, scope: GlobalSearchScope): PsiType = {
     def javaObj = JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
     t match {
       case Unit => PsiType.VOID
@@ -188,8 +187,8 @@ object ScType {
     }
   }
 
-  def extractClassType(t : ScType) : Option[Pair[PsiClass, ScSubstitutor]] = t match {
-    case ScDesignatorType(clazz : PsiClass) => Some(clazz, ScSubstitutor.empty)
+  def extractClassType(t: ScType): Option[Pair[PsiClass, ScSubstitutor]] = t match {
+    case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
     case proj@ScProjectionType(p, _) => proj.resolveResult match {
       case Some(ScalaResolveResult(c: PsiClass, s)) => Some((c, s))
       case _ => None
@@ -204,7 +203,7 @@ object ScType {
     case _ => None
   }
 
-  def extractDesignated(t : ScType) : Option[Pair[PsiNamedElement, ScSubstitutor]] = t match {
+  def extractDesignated(t: ScType): Option[Pair[PsiNamedElement, ScSubstitutor]] = t match {
     case ScDesignatorType(e) => Some(e, ScSubstitutor.empty)
     case proj@ScProjectionType(p, _) => proj.resolveResult match {
       case Some(ScalaResolveResult(e, s)) => Some((e, s))
@@ -219,7 +218,8 @@ object ScType {
     case _ => None
   }
 
-  def presentableText(t : ScType) = typeText(t, {e => e.getName})
+  def presentableText(t: ScType) = typeText(t, {e => e.getName})
+
   def urlText(t: ScType) = typeText(t, e => {
     e match {
       case e: PsiClass => "<a href=\"psi_element://" + e.getQualifiedName + "\"><code>" + e.getName + "</code></a>"
@@ -228,20 +228,21 @@ object ScType {
   })
 
   //todo: resolve cases when java type have keywords as name (type -> `type`)
-  def canonicalText(t : ScType) = typeText(t,
-    {e => e match {
-      case c : PsiClass => {
-        val qname = c.getQualifiedName
-        if (qname != null) "_root_." + qname else c.getName
+  def canonicalText(t: ScType) = typeText(t,
+    {
+      e => e match {
+        case c: PsiClass => {
+          val qname = c.getQualifiedName
+          if (qname != null) "_root_." + qname else c.getName
+        }
+        case p: PsiPackage => "_root_." + p.getQualifiedName
+        case _ => e.getName
       }
-      case p : PsiPackage => "_root_." + p.getQualifiedName
-      case _ => e.getName
-    }
-  })
+    })
 
-  private def typeText(t : ScType, nameFun : PsiNamedElement => String): String = {
+  private def typeText(t: ScType, nameFun: PsiNamedElement => String): String = {
     val buffer = new StringBuilder
-    def appendSeq(ts : Seq[ScType], sep : String) = {
+    def appendSeq(ts: Seq[ScType], sep: String) = {
       var first = true
       for (t <- ts) {
         if (!first) buffer.append(sep)
@@ -250,7 +251,7 @@ object ScType {
       }
     }
 
-    def inner(t : ScType) : Unit = t match {
+    def inner(t: ScType): Unit = t match {
       case StdType(name, _) => buffer.append(name)
       case ScFunctionType(ret, params) => buffer.append("("); appendSeq(params, ", "); buffer.append(") => "); inner(ret)
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
@@ -258,19 +259,19 @@ object ScType {
       case ScProjectionType(p, ref) => p match {
         case ScSingletonType(path: ScStableCodeReferenceElement) => path.bind match {
           case Some(res) => res match {
-            case r : ScalaResolveResult if r.getElement.isInstanceOf[PsiPackage] => buffer.append(ref.refName)
+            case r: ScalaResolveResult if r.getElement.isInstanceOf[PsiPackage] => buffer.append(ref.refName)
             case o if o != null => inner(p); buffer.append("#").append(ref.refName)
             case _ => buffer.append(ref.refName)
           }
           case None => buffer.append(ref.refName)
         }
         case ScDesignatorType(elem) => elem match {
-          case _ : PsiPackage => buffer.append(ref.refName)
+          case _: PsiPackage => buffer.append(ref.refName)
           case o => inner(p); buffer.append("#").append(ref.refName)
         }
         case _ => inner(p); buffer.append("#").append(ref.refName)
       }
-      case ScParameterizedType (des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
+      case ScParameterizedType(des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
       case ScSkolemizedType(name, _, _, _) => buffer.append(name)
       case ScPolymorphicType(name, _, _, _) => buffer.append(name)
       case ScExistentialArgument(name, args, lower, upper) => {
@@ -295,7 +296,9 @@ object ScType {
       }
       case ScExistentialType(q, wilds) => {
         inner(q)
-        buffer.append(" forSome{"); appendSeq(wilds, "; "); buffer.append("}")
+        buffer.append(" forSome{");
+        appendSeq(wilds, "; ");
+        buffer.append("}")
       }
       case _ => null //todo
     }

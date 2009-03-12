@@ -29,7 +29,7 @@ abstract class ScalaPsiTestCase extends PsiTestCase with JUnit3Suite {
   override protected def setUp: Unit = {
     super.setUp
     myProject.getComponent(classOf[SyntheticClasses]).registerClasses
-    ScalaLoader.loadScala
+//    ScalaLoader.loadScala
 
     val rootModel = ModuleRootManager.getInstance(getModule).getModifiableModel
 
