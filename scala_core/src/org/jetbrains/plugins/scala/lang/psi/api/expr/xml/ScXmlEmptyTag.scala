@@ -7,6 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Date: 21.04.2008
 */
 
-trait ScXmlEmptyTag extends ScalaPsiElement {
+trait ScXmlEmptyTag extends ScXmlElement {
 
 }
