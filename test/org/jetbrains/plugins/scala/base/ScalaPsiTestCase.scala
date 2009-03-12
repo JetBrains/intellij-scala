@@ -113,15 +113,27 @@ abstract class ScalaPsiTestCase extends PsiTestCase with JUnit3Suite {
 
     val files = new java.util.ArrayList[VirtualFile]()
     VcsUtil.collectFiles(LocalFileSystem.getInstance.findFileByPath(testPaths.replace(File.separatorChar, '/')), files, true, false)
-
     for (file: VirtualFile <- files.toArray(Array[VirtualFile]()) if file.getExtension == "scala") {
-      print("  def test" + file.getNameWithoutExtension + " {\n")
-      val path = file.getPath
-      print("    testPath = \"/" + path.substring(path.indexOf(testPath), path.indexOf(".scala")) + "\"\n")
-      print("    realOutput = \"\"\"\n")
-      print(getTestOutput(file, false) + "\n\"\"\"\n")
-      print("    realOutput = realOutput.trim\n")
-      print("    playTest\n  }\n\n")
+      try {
+        val method = getTestClass.getDeclaredMethod("test" + file.getNameWithoutExtension)
+        method
+      }
+      catch {
+        case e: NoSuchMethodException => {
+          print("  def test" + file.getNameWithoutExtension + " {\n")
+          val path = file.getPath
+          print("    testPath = \"/" + path.substring(path.indexOf(testPath), path.indexOf(".scala")) + "\"\n")
+          print("    realOutput = \"\"\"\n")
+          print(getTestOutput(file, false) + "\n\"\"\"\n")
+          print("    realOutput = realOutput.trim\n")
+          print("    playTest\n  }\n\n")
+        }
+      }
     }
   }
+
+  /**
+   * override this to filter methods in tests generator
+   */
+  protected def getTestClass: Class[_] = classOf[ScalaPsiTestCase]
 }

@@ -4,7 +4,7 @@ import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import api.statements.{ScFunction, ScFun}
 import api.toplevel.ScTyped
 import api.toplevel.typedef.{ScClass, ScObject}
-import com.intellij.psi.{PsiMethod, PsiElement, PsiClass}
+import com.intellij.psi.{PsiMethod, PsiField, PsiElement, PsiClass}
 import types.{ScType, PhysicalSignature, ScFunctionType, ScSubstitutor}
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
@@ -31,8 +31,16 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
         //todo: type erasure
         subst
       }
-      val params: Seq[ScExpression] = this.args.exprs  //todo: add aditional argument in case for update methods
-      val applyMethods = ScalaPsiUtil.getApplyMethods(clazz) //todo: add update methods
+      val isUpdate = getParent.isInstanceOf[ScAssignStmt] && getParent.asInstanceOf[ScAssignStmt].getLExpression == this
+      val params: Seq[ScExpression] = this.args.exprs ++ (
+              if (isUpdate) getParent.asInstanceOf[ScAssignStmt].getRExpression match {
+                case Some(x) => Seq[ScExpression](x)
+                case None =>
+                  Seq[ScExpression](ScalaPsiElementFactory.createExpressionFromText("{val x: Nothing = null; x}",
+                    clazz.getManager)) //we can't to not add something => add Nothing expression
+              }
+              else Seq.empty)
+      val applyMethods = if (!isUpdate) ScalaPsiUtil.getApplyMethods(clazz) else ScalaPsiUtil.getUpdateMethods(clazz)
       val methods = ScalaPsiUtil.getMethodsConforsToMethodCall(applyMethods, params, createSubst(_))
       if (methods.length == 1) {
         val method = methods(0).method
@@ -95,7 +103,8 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
             return getInvokedExpr.getType
           }
           case Some(ScalaResolveResult(typed: ScTyped, _)) => return tail(true)
-          case _ => return Nothing //todo: case classes, java cases (PsiField for example)
+          case Some(ScalaResolveResult(field: PsiField, _)) => return tail(true)
+          case _ => return Nothing
         }
       }
       case _ => {

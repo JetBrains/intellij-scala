@@ -23,10 +23,10 @@ import psi.api.ScalaFile
 class FunctionParameterInfoTest extends ScalaPsiTestCase {
   val caretMarker = "/*caret*/"
 
-  //use it if you want to generate tests from appropriate folder
+  /*//use it if you want to generate tests from appropriate folder
   def testGenerate {
     generateTests
-  }
+  }*/
 
   def testClassApply{
     testPath = "/parameterInfo/apply/ClassApply"
