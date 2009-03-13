@@ -33,16 +33,11 @@ class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryS
 
 
   override def getType(): ScType = {
-    //todo: it's wrong for now (wrong bounds)
-    //todo: add tests
-    //bound catch block, all case braches under catch block, finally should be ignored
     var result = tryBlock.getType
     catchBlock match {
-      case Some(catchBlock) => for (i <- 0 to catchBlock.getBranches.length - 1) {
-        result = Bounds.lub(result, catchBlock.getBranches(i).getType)
-      }
-      case None =>
+      case Some(catchBlock) =>
+        catchBlock.getBranches.foldLeft(tryBlock.getType: ScType)((t, b) => Bounds.lub(t, b.getType))
+      case None => tryBlock.getType
     }
-    result
   }
 }

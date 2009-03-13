@@ -2,9 +2,13 @@ package org.jetbrains.plugins.scala.lang.typeInference
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import base.ScalaPsiTestCase
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiManager
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiComment, PsiManager}
+import java.io.File
+import java.lang.String
+import lexer.ScalaTokenTypes
+import parser.ScalaElementTypes
 import psi.api.expr.ScExpression
 import psi.api.ScalaFile
 
@@ -17,309 +21,13 @@ class TypeInferenceTest extends ScalaPsiTestCase {
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"
 
-  /*//use it if you want to generate tests from appropriate folder
-  def testGenerate {
-    generateTests
-    assert(false) //to not forgot to comment this
-  }*/
+  override def rootPath: String = super.rootPath + "typeInference/"
 
-  //--------------------------------------- Generic Call ---------------------------------------------------
-  def testIsInstanceOf {
-    testPath = "/typeInference/genericCall/IsInstanceOf"
-    realOutput = """
-() => Boolean
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testJavaGenericFunction {
-    testPath = "/typeInference/genericCall/JavaGenericFunction"
-    realOutput = """
-ArrayList[Int]
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testAsInstanceOf {
-    testPath = "/typeInference/genericCall/AsInstanceOf"
-    realOutput = """
-() => Float
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testGenericFunction {
-    testPath = "/typeInference/genericCall/GenericFunction"
-    realOutput = """
-Int
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testCaseClasses {
-    testPath = "/typeInference/genericCall/CaseClasses"
-    realOutput = """
-CaseClasses[Int]
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testObjectGenericApply {
-    testPath = "/typeInference/genericCall/ObjectGenericApply"
-    realOutput = """
-Int
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testInstanceGenericApply {
-    testPath = "/typeInference/genericCall/InstanceGenericApply"
-    realOutput = """
-(Int, Double)
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  //-------------------------------------------------- Method Call ----------------------------------------------
-  def testApplyCall {
-    testPath = "/typeInference/methodCall/ApplyCall"
-    realOutput = """
-Int
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testCaseClassCall {
-    testPath = "/typeInference/methodCall/CaseClassCall"
-    realOutput = """
-CaseClassCall
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testObjectApplyCall {
-    testPath = "/typeInference/methodCall/ObjectApplyCall"
-    realOutput = """
-Int
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testOverloadedCall {
-    testPath = "/typeInference/methodCall/OverloadedCall"
-    realOutput = """
-Int
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testSimpleCall {
-    testPath = "/typeInference/methodCall/SimpleCall"
-    realOutput = """
-Float
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testUpdateCall {
-    testPath = "/typeInference/methodCall/UpdateCall"
-    realOutput = """
-UpdateCall
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  //------------------------------------------- Literals -------------------------------------------------------------
-
-  def testBoolean {
-    testPath = "/typeInference/literals/Boolean"
-    realOutput = """
-Boolean
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testChar {
-    testPath = "/typeInference/literals/Char"
-    realOutput = """
-Char
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testDouble {
-    testPath = "/typeInference/literals/Double"
-    realOutput = """
-Double
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testFloat {
-    testPath = "/typeInference/literals/Float"
-    realOutput = """
-Float
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testInt {
-    testPath = "/typeInference/literals/Int"
-    realOutput = """
-Int
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testLong {
-    testPath = "/typeInference/literals/Long"
-    realOutput = """
-Long
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testNull {
-    testPath = "/typeInference/literals/Null"
-    realOutput = """
-Null
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testString {
-    testPath = "/typeInference/literals/String"
-    realOutput = """
-String
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testSymbol {
-    testPath = "/typeInference/literals/Symbol"
-    realOutput = """
-Symbol
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  //---------------------------------------- Statements -----------------------------------------------
-
-  def testAssignStatement {
-    testPath = "/typeInference/statements/AssignStatement"
-    realOutput = """
-AssignStatement
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testUnitIfStatement {
-    testPath = "/typeInference/statements/UnitIfStatement"
-    realOutput = """
-Unit
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testMatchStatement {
-    testPath = "/typeInference/statements/MatchStatement"
-    realOutput = """
-Int
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testIfStatement {
-    testPath = "/typeInference/statements/IfStatement"
-    realOutput = """
-IfStatementInheritor
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  //----------------------------------------- Xml -----------------------------------------------------
-
-  def testCDSect {
-    testPath = "/typeInference/xml/CDSect"
-    realOutput = """
-Text
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testComment {
-    testPath = "/typeInference/xml/Comment"
-    realOutput = """
-Comment
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testElement {
-    testPath = "/typeInference/xml/Element"
-    realOutput = """
-Elem
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testEmptyElement {
-    testPath = "/typeInference/xml/EmptyElement"
-    realOutput = """
-Elem
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testNodeBuffer {
-    testPath = "/typeInference/xml/NodeBuffer"
-    realOutput = """
-NodeBuffer
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  def testProcInstr {
-    testPath = "/typeInference/xml/ProcInstr"
-    realOutput = """
-ProcInstr
-"""
-    realOutput = realOutput.trim
-    doTest
-  }
-
-  protected def getTestOutput(file: VirtualFile, useOutput: Boolean): String = {
+  protected def doTest = {
+    import _root_.junit.framework.Assert._
+    val filePath = rootPath + getTestName(false) + ".scala"
+    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
+    assert(file != null, "file " + filePath + " not found")
     val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
     val fileText = scalaFile.getText
     val offset = fileText.indexOf(startExprMarker)
@@ -332,17 +40,15 @@ ProcInstr
     assert(expr != null, "Not specified expression in range to infer type.")
     val typez = expr.getType
     val res = ScType.presentableText(typez)
-    if (useOutput) {
-      println("------------------------ " + scalaFile.getName + " ------------------------")
-      println(res)
+    println("------------------------ " + scalaFile.getName + " ------------------------")
+    println(res)
+    val lastPsi = scalaFile.getLastChild
+    assertTrue("Test result must be in last comment statement.", lastPsi.isInstanceOf[PsiComment])
+    val text = lastPsi.getText
+    val output = lastPsi.getNode.getElementType match {
+      case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
+      case _ => text.substring(2, text.length - 2).trim
     }
-    res
+    assertEquals(res, output)
   }
-
-  private def generateTests {
-    generateTests("typeInference")
-  }
-
-
-  override protected def getTestClass = classOf[TypeInferenceTest]
 }

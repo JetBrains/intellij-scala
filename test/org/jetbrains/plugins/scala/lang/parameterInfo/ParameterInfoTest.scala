@@ -1,3 +1,4 @@
+/*
 package org.jetbrains.plugins.scala.lang.parameterInfo
 
 import _root_.scala.collection.mutable.ArrayBuffer
@@ -15,19 +16,21 @@ import java.lang.String
 import com.intellij.vcsUtil.VcsUtil
 import psi.api.ScalaFile
 
+*/
 /**
  * User: Alexander Podkhalyuzin
  * Date: 02.03.2009
  */
+/*
 
 class FunctionParameterInfoTest extends ScalaPsiTestCase {
-  val caretMarker = "/*caret*/"
+  val caretMarker = "*/
+/*caret*//*
+"
 
-  /*//use it if you want to generate tests from appropriate folder
-  def testGenerate {
-    generateTests
-    assert(false) //to not forgot to comment this
-  }*/
+  */
+
+/*
 
   def testClassApply{
     testPath = "/parameterInfo/apply/ClassApply"
@@ -253,7 +256,9 @@ x: Int
     val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
     val fileText = scalaFile.getText
     val offset = fileText.indexOf(caretMarker)
-    assert(offset != -1, "Not specified caret marker in test case. Use /*caret*/ in scala file for this.")
+    assert(offset != -1, "Not specified caret marker in test case. Use */
+/*caret*/ /*
+in scala file for this.")
     val fileEditorManager = FileEditorManager.getInstance(myProject)
     val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, file, offset), false)
     val context = new ShowParameterInfoContext(editor, myProject, scalaFile, offset, -1)
@@ -296,4 +301,4 @@ x: Int
   private def generateTests {
     generateTests("parameterInfo")
   }
-}
+}*/

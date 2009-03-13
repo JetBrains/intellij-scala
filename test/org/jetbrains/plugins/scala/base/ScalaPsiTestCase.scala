@@ -18,13 +18,15 @@ import _root_.org.scalatest.junit.JUnit3Suite
  * Date: 24.02.2009
  */
 
-abstract class ScalaPsiTestCase extends PsiTestCase with JUnit3Suite {
+abstract class ScalaPsiTestCase extends PsiTestCase {
   private val JDK_HOME = TestUtils.getMockJdk
 
-  protected val rootPath = TestUtils.getTestDataPath
-  protected var testPath = ""
+  protected def rootPath = TestUtils.getTestDataPath + "/"
 
-  protected var realOutput: String = ""
+  /**
+   * Main test body. All tests should be with same body: def testSmthing = doTest
+   */
+  protected def doTest: Unit
 
   override protected def setUp: Unit = {
     super.setUp
@@ -62,43 +64,7 @@ abstract class ScalaPsiTestCase extends PsiTestCase with JUnit3Suite {
     })
   }
 
-  /**
-   * main tests runner. Please call it at the.
-   */
-  protected def doTest {
-    val filePath = rootPath + testPath + ".scala"
-    val vFile = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
-    assert(vFile != null, "file " + filePath + " not found")
-    val output = getTestOutput(vFile)
-
-    _root_.junit.framework.Assert.assertEquals(StringUtil.convertLineSeparators(realOutput), StringUtil.convertLineSeparators(output))
-  }
-
-  /**
-   * Use this method to convert given file to output String.
-   * This outout compared with <code>realOutput</code> string.
-   * In the test method you should assign value to
-   * <code>testPath</code> (relative to testdata)
-   * and <code>realOutput</code>. For example:
-   * <blockquote><pre>
-   *      def testGenericClassApply{
-   *        testPath = "/parameterInfo/apply/GenericClassApply"
-   *        realOutput = "answer"
-   *        playTest
-   *      }
-   * </pre></blockquote>
-   * Be careful. This test class not suppert concurrent test
-   * running, because of <code>realOutput</code> and
-   * <code>testPath</code> fields.
-   */
-  protected def getTestOutput(file: VirtualFile): String = getTestOutput(file, true)
-  protected def getTestOutput(file: VirtualFile, useOutput: Boolean): String
-
-  /**
-   * Tests generator.
-   * @param testPath relative tests loaction (for example "paramterInfo")
-   */
-  protected def generateTests(testPath: String) {
+  /*protected def generateTests(testPath: String) {
     import com.intellij.openapi.fileTypes.FileTypeManager
     import com.intellij.openapi.vcs.VcsBundle
     import com.intellij.openapi.vfs.LocalFileSystem
@@ -130,10 +96,5 @@ abstract class ScalaPsiTestCase extends PsiTestCase with JUnit3Suite {
         }
       }
     }
-  }
-
-  /**
-   * override this to filter methods in tests generator
-   */
-  protected def getTestClass: Class[_] = classOf[ScalaPsiTestCase]
+  }*/
 }
