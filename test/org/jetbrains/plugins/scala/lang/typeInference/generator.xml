@@ -1,0 +1,38 @@
+<project name="Generate Type Inference test" default="generate.test">
+  <property file="../../../../../../../src/scala.properties"/>
+  <property name="base.dir" value="${project.lib}/../../.."/>
+  <property name="output.dir" value="${base.dir}/test/org/jetbrains/plugins/scala/lang/typeInference/generated"/>
+  <property name="testdata.dir" value="${base.dir}/testdata/typeInference"/>
+
+  <target name="generate.test" depends="clear.output">
+    <script language="javascript"><![CDATA[
+       importClass(java.io.File)
+       output = project.getProperty("output.dir");
+       testData = project.getProperty("testdata.dir");
+       // Create a <fileset dir="" includes=""/>
+       fs = project.createDataType("fileset");
+       fs.setDir(new File(testData));
+
+       // Get the files (array) of that fileset
+       ds = fs.getDirectoryScanner(project);
+       srcDirs = ds.getIncludedDirectories();
+       
+       for (i = 0; i < srcDirs.length; i++) {
+         echo = project.createTask("echo");
+         str = srcDirs[i].toString().substring(0, srcDirs[i].toString().length())
+         echo.setFile(new File(output + "/TypeInference_" +  + "Test.scala"))
+         echo.addText(srcDirs[i])
+         echo.perform();
+       }
+
+    ]]></script>
+  </target>
+
+  <target name="clear.output">
+    <mkdir dir="${output.dir}"/>
+    <delete includeemptydirs="true">
+      <fileset dir="${output.dir}"/>
+    </delete>
+    <mkdir dir="${output.dir}"/>
+  </target>
+</project>

@@ -17,7 +17,7 @@ import psi.api.ScalaFile
  * Date: 10.03.2009
  */
 
-class TypeInferenceTest extends ScalaPsiTestCase {
+class TypeInferenceTestBase extends ScalaPsiTestCase {
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"
 
