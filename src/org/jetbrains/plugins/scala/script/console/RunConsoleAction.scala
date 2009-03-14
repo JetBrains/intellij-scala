@@ -20,7 +20,7 @@ import lang.psi.api.ScalaFile
 class RunConsoleAction extends AnAction {
   override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
-    presentation.setIcon(Icons.SCRIPT_FILE_LOGO)
+    presentation.setIcon(Icons.SCALA_CONSOLE)
     def enable {
       presentation.setEnabled(true)
       presentation.setVisible(true)
