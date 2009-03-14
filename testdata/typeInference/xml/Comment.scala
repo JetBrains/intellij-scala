@@ -1,1 +1,2 @@
-/*start*/ <!-- comment --> /*end*/
+/*start*/ <!-- comment --> /*end*/;
+//Comment

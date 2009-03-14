@@ -4,3 +4,4 @@ class ApplyCall {
 
 val x = new ApplyCall
 /*start*/x(3)/*end*/
+//Int

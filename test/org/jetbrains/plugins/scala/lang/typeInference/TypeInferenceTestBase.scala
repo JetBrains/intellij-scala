@@ -17,7 +17,7 @@ import psi.api.ScalaFile
  * Date: 10.03.2009
  */
 
-class TypeInferenceTestBase extends ScalaPsiTestCase {
+abstract class TypeInferenceTestBase extends ScalaPsiTestCase {
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"
 
@@ -43,12 +43,13 @@ class TypeInferenceTestBase extends ScalaPsiTestCase {
     println("------------------------ " + scalaFile.getName + " ------------------------")
     println(res)
     val lastPsi = scalaFile.getLastChild
-    assertTrue("Test result must be in last comment statement.", lastPsi.isInstanceOf[PsiComment])
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {
       case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
-      case _ => text.substring(2, text.length - 2).trim
+      case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
+        text.substring(2, text.length - 2).trim
+      case _ => assertTrue("Test result must be in last comment statement.", false)
     }
-    assertEquals(res, output)
+    assertEquals(output, res)
   }
 }

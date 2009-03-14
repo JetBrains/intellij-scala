@@ -1,1 +1,2 @@
-/*start*/ <elem/>/*end*/
+/*start*/ <elem/>/*end*/;
+//Elem

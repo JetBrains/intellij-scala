@@ -36,7 +36,6 @@ abstract class ScalaPsiTestCase extends PsiTestCase {
     val rootModel = ModuleRootManager.getInstance(getModule).getModifiableModel
 
     val testDataRoot = LocalFileSystem.getInstance.findFileByPath(rootPath)
-    val testName = getTestName(true) + ".scala"
     assert(testDataRoot != null)
 
     val contentEntry = rootModel.addContentEntry(testDataRoot);
@@ -63,38 +62,4 @@ abstract class ScalaPsiTestCase extends PsiTestCase {
       }
     })
   }
-
-  /*protected def generateTests(testPath: String) {
-    import com.intellij.openapi.fileTypes.FileTypeManager
-    import com.intellij.openapi.vcs.VcsBundle
-    import com.intellij.openapi.vfs.LocalFileSystem
-    import com.intellij.openapi.vfs.VirtualFile
-    import com.intellij.vcsUtil.VcsUtil
-    import java.io.File
-    import com.intellij.vcsUtil.VcsUtil
-    import org.jetbrains.plugins.scala.util.TestUtils
-
-    val testDataPath = TestUtils.getTestDataPath
-    val testPaths = testDataPath + "/" + testPath
-
-    val files = new java.util.ArrayList[VirtualFile]()
-    VcsUtil.collectFiles(LocalFileSystem.getInstance.findFileByPath(testPaths.replace(File.separatorChar, '/')), files, true, false)
-    for (file: VirtualFile <- files.toArray(Array[VirtualFile]()) if file.getExtension == "scala") {
-      try {
-        val method = getTestClass.getDeclaredMethod("test" + file.getNameWithoutExtension)
-        method
-      }
-      catch {
-        case e: NoSuchMethodException => {
-          print("  def test" + file.getNameWithoutExtension + " {\n")
-          val path = file.getPath
-          print("    testPath = \"/" + path.substring(path.indexOf(testPath), path.indexOf(".scala")) + "\"\n")
-          print("    realOutput = \"\"\"\n")
-          print(getTestOutput(file, false) + "\n\"\"\"\n")
-          print("    realOutput = realOutput.trim\n")
-          print("    doTest\n  }\n\n")
-        }
-      }
-    }
-  }*/
 }

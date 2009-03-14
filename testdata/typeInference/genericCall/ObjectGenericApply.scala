@@ -3,3 +3,4 @@ object ObjectGenericApply3 {
 }
 
 /*start*/ObjectGenericApply3[Int](4)/*end*/
+//Int
