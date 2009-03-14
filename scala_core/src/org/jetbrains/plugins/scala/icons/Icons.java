@@ -48,4 +48,7 @@ public interface Icons {
 
   //Testing support
   Icon SCALA_TEST = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_test_icon.png");
+
+  //Console
+  Icon SCALA_CONSOLE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_console.png");
 }

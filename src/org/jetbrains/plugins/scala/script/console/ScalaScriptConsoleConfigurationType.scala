@@ -20,7 +20,7 @@ import lang.psi.api.ScalaFile
 class ScalaScriptConsoleConfigurationType extends ConfigurationType {
   val confFactory = new ScalaScriptConsoleRunConfigurationFactory(this)
 
-  def getIcon: Icon = Icons.SCRIPT_FILE_LOGO
+  def getIcon: Icon = Icons.SCALA_CONSOLE
 
   def getDisplayName: String = "Scala Console"
 
