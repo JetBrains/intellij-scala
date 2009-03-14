@@ -3,3 +3,4 @@
   case 2 => 2
   case _ => 3
 }/*end*/
+//Int

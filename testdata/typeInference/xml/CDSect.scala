@@ -1,1 +1,2 @@
-/*start*/ <![CDATA[content]]> /*end*/
+/*start*/ <![CDATA[content]]> /*end*/;
+//Text

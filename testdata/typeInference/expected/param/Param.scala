@@ -1,11 +1,7 @@
-class Foo[T] {
-  def act(f : T => String) {}
+class Param[T] {
+  def act(f: T => String) {}
 }
 
-object Main {
-  def main = {
-    val foo = new Foo[String]
-    foo.act(x => <ref>x.toString)
-  }
-}
-
+val foo = new Param[String]
+foo.act(x => /*start*/x/*end*/.toString)
+//String

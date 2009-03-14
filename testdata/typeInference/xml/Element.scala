@@ -1,1 +1,2 @@
-/*start*/ <elem> content </elem> /*end*/
+/*start*/ <elem> content </elem> /*end*/;
+//Elem

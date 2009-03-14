@@ -1,1 +1,0 @@
-val g = new java.util.ArrayList[Int](/*caret*/)

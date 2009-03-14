@@ -5,3 +5,4 @@ class InstanceGenericApply {
 val g = new InstanceGenericApply
 
 /*start*/g[Int, Double](1, 1.0)/*end*/
+//(Int, Double)
