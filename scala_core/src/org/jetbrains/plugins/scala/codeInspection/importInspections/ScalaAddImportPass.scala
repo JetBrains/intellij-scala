@@ -140,7 +140,7 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {
 
   private def isWrongRef(info: HighlightInfoType): Boolean = info.getAttributesKey == HighlightInfoType.WRONG_REF.getAttributesKey
 
-  private class ScalaAddImportAction(classes: Array[PsiClass], ref: ScReferenceElement) extends QuestionAction {
+  class ScalaAddImportAction(classes: Array[PsiClass], ref: ScReferenceElement) extends QuestionAction {
     def addImport(clazz: PsiClass) {
       ApplicationManager.getApplication().invokeLater(new Runnable() {
         def run() {
