@@ -71,7 +71,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     //Getting qualifier resolve, to compare with other import expressions
     val resolve = ScalaPsiElementFactory.getResolveForClassQualifier(this, clazz, getManager)
     this match {
-      //If we have not Block we tring to collect same qualifiers to one import expression
+      //If we have not Block we trying to collect same qualifiers to one import expression
       case _: ScalaFile | _: ScPackaging => {
         //looking for expresssions which collecting
         val sameExpressions: Array[ScImportExpr] = (for (importStmt <- importStatementsInHeader; importExpr <- importStmt.importExprs
