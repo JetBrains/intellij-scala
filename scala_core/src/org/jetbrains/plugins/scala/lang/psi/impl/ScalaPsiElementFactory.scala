@@ -125,7 +125,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     val packageName = file match {
       case file: ScalaFile => file.packageStatement match {
         case Some(x) => x.getPackageName
-        case None => "IntelliJIDEARulezzz"
+        case None => "intelliJIDEARulezzz"
       }
       case file: ScPackaging => file.getPackageName
       case _ => {
@@ -137,14 +137,15 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
             case None => null
           }
           case file: ScPackaging => file.getPackageName
-          case _ => "IntelliJIDEARulezzz"
+          case _ => "intelliJIDEARulezzz"
         }
       }
     }
     val text = "package " + packageName + "\nimport " + getShortName(clazz.getQualifiedName, packageName)
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+    val dummyFile: ScalaFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
-    val imp: ScStableCodeReferenceElement = (dummyFile.getImportStatements.firstOption match {
+    val importStatements = dummyFile.getImportStatements
+    val imp: ScStableCodeReferenceElement = (importStatements.firstOption match {
       case Some(x) => x
       case None =>
         //cannot be

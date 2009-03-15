@@ -46,7 +46,7 @@
            var filesNumber = 0;
            for (j = 0; j < files.length; j++) {
              fstr = files[j].toString();
-             if (fstr.indexOf("\\") == -1) filesNumber += 1
+             if (fstr.indexOf("\\") == -1 && !fstr.startsWith("Source")) filesNumber += 1
            }
 
            if (filesNumber > 0) {
@@ -58,7 +58,7 @@
                "override def rootPath: String = super.rootPath + \"" + convertedDirStr + "\"";
              for (j = 0; j < files.length; j++) {
                fstr = files[j].toString();
-               if (fstr.indexOf("\\") == -1) {
+               if (fstr.indexOf("\\") == -1 && !fstr.startsWith("Source")) {
                  text = text + "\n\n  def test" + fstr.substring(0, fstr.indexOf(".")) + " = doTest"
                }
              }

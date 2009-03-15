@@ -5,4 +5,6 @@ class AutoImportSimpleTest extends AutoImportTestBase {
   override def rootPath: String = super.rootPath + "simple/"
 
   def testArrayBuffer = doTest
+
+  def testBufferProxy = doTest
 }
