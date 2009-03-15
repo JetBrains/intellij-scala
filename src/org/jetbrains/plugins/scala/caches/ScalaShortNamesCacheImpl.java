@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.scala.caches;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiMethod;
+import com.intellij.psi.*;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
@@ -30,6 +27,7 @@ public class ScalaShortNamesCacheImpl implements ScalaShortNamesCache {
   }
 
   public void runStartupActivity() {
+    JavaPsiFacade.getInstance(myProject).registerShortNamesCache(this);
   }
 
   @NotNull
