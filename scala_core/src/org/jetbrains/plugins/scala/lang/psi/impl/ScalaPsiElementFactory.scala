@@ -77,6 +77,12 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     return dummyFile.typeDefinitions.apply(0).getModifierList.getFirstChild.getNode
   }
 
+  def createImportFromText(text: String, manager: PsiManager): ScImportStmt = {
+    val dummyFile: ScalaFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    return dummyFile.getFirstChild.asInstanceOf[ScImportStmt]
+  }
+
   def createReferenceFromText(name: String, manager: PsiManager): ScStableCodeReferenceElement = {
     val text = "import " + name
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).

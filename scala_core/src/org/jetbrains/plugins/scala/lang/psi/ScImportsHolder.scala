@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import _root_.org.jetbrains.plugins.scala.lang.resolve.{CompletionProcessor, ScalaResolveResult, StdKinds}
+import api.base.ScStableCodeReferenceElement
 import api.ScalaFile
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager
+import com.intellij.psi.util.PsiTreeUtil
 import lexer.ScalaTokenTypes
 import _root_.scala.collection.mutable.ArrayBuffer
 import impl.ScalaPsiElementFactory
@@ -66,26 +70,70 @@ trait ScImportsHolder extends ScalaPsiElement {
   def addImportForClass(clazz: PsiClass): Unit = addImportForClass(clazz, null)
 
   def addImportForClass(clazz: PsiClass, ref: PsiElement) {
-    //Create simple variant what to import
-    var importSt = ScalaPsiElementFactory.createImportStatementFromClass(this, clazz, this.getManager)
-    //Getting qualifier resolve, to compare with other import expressions
-    val resolve = ScalaPsiElementFactory.getResolveForClassQualifier(this, clazz, getManager)
-    this match {
-      //If we have not Block we trying to collect same qualifiers to one import expression
-      case _: ScalaFile | _: ScPackaging => {
-        //looking for expresssions which collecting
-        val sameExpressions: Array[ScImportExpr] = (for (importStmt <- importStatementsInHeader; importExpr <- importStmt.importExprs
-          if resolve != null && importExpr.qualifier != null && importExpr.qualifier.resolve == resolve)
-          yield importExpr).toArray
-        if (sameExpressions.length != 0) {
-          //getting collected import statement
-          val stmt = ScalaPsiElementFactory.createBigImportStmt(importSt.importExprs(0), sameExpressions, this.getManager)
-          //deleting collected expressions
-          for (expr <- sameExpressions) expr.deleteExpr
-          importSt = stmt
+    val selectors = new ArrayBuffer[String]
+
+    val qualName = clazz.getQualifiedName
+    val index = qualName.lastIndexOf('.')
+    if (index == -1) return  //cannot import anything
+    var classPackageQual = qualName.substring(0, index)
+
+    //collecting selectors to add into new import statement
+    for (imp <- importStatementsInHeader) {
+      for (expr: ScImportExpr <- imp.importExprs) {
+        val qual = expr.qualifier
+        val qn = qual.resolve match {
+          case pack: PsiPackage => pack.getQualifiedName
+          case clazz: PsiClass => clazz.getQualifiedName
+          case _ => ""
+        }
+        if (qn == classPackageQual) {
+          selectors ++= expr.getNames
+          expr.deleteExpr
         }
       }
-      case _ =>
+    }
+
+    def getSplitQualifierElement(s: String) = {
+      val index = s.lastIndexOf('.')
+      if (index == -1) ("", s)
+      else (s.substring(0, index), s.substring(index + 1))
+    }
+
+    //creating selectors string (after last '.' in import expression)
+    var isPlaceHolderImport = false //todo: for cheking all imports for failing
+    clazz.getName +: selectors
+    if (selectors.exists(_ == "_") ||
+            selectors.length >= CodeStyleSettingsManager.getSettings(getProject).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND) {
+      selectors.clear
+      selectors += "_"
+      isPlaceHolderImport = true
+    }
+    var importString =
+      if (selectors.length == 1) selectors(0)
+      else {
+        selectors.mkString("{", ", ", "}")
+      }
+
+
+    val completionProcessor = new CompletionProcessor(StdKinds.packageRef)
+    this.processDeclarations(completionProcessor, ResolveState.initial, null, getLastChild)
+    val packages = completionProcessor.candidates.map((result: ScalaResolveResult) => result match {
+      case ScalaResolveResult(pack: PsiPackage, _) => pack.getQualifiedName
+      case _ => ""
+    })
+
+    var importSt: ScImportStmt = null
+    while (importSt == null) {
+      val (pre, last) = getSplitQualifierElement(classPackageQual)
+      importString = last + "." + importString
+      if (packages.contains(classPackageQual)) {
+        importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)
+      } else {
+        classPackageQual = pre
+        if (classPackageQual == "") {
+          importSt = ScalaPsiElementFactory.createImportFromText("import _root_." + importString, getManager)
+        }
+      }
     }
 
     //looking for td import statemnt to find place which we will use for new import statement
