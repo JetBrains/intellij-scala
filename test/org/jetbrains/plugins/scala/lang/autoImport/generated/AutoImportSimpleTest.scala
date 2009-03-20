@@ -7,4 +7,6 @@ class AutoImportSimpleTest extends AutoImportTestBase {
   def testArrayBuffer = doTest
 
   def testBufferProxy = doTest
+
+  def testImportedPackage = doTest
 }
