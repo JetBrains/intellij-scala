@@ -95,6 +95,6 @@ abstract class AutoImportTestBase extends ScalaPsiTestCase {
         text.substring(2, text.length - 2).trim
       case _ => assertTrue("Test result must be in last comment statement.", false)
     }
-    assertEquals(output, res)
+    assertEquals(output, res.trim)
   }
 }
