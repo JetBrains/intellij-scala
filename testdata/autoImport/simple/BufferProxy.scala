@@ -1,5 +1,5 @@
 import scala.collection.mutable.ArrayBuffer
 
-val x = new /*ref*/ ArrayBuffer[Int]
-val y = new BufferProxy
-//import scala.collection.mutable.{ArrayBuffer, BufferProxy}
+val x = new ArrayBuffer[Int]
+val y = new /*ref*/BufferProxy
+//import collection.mutable.{BufferProxy, ArrayBuffer}

@@ -42,7 +42,7 @@ abstract class TypeInferenceTestBase extends ScalaPsiTestCase {
     val res = ScType.presentableText(typez)
     println("------------------------ " + scalaFile.getName + " ------------------------")
     println(res)
-    val lastPsi = scalaFile.getLastChild
+    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {
       case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim

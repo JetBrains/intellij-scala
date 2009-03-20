@@ -71,7 +71,7 @@ abstract class FunctionParameterInfoTestBase extends ScalaPsiTestCase {
     if (res.length > 0) res.replace(res.length - 1, res.length, "")
     println("------------------------ " + scalaFile.getName + " ------------------------")
     println(res)
-    val lastPsi = scalaFile.getLastChild
+    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {
       case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
