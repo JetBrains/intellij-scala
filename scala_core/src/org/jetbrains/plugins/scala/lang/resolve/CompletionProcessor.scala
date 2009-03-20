@@ -9,6 +9,7 @@ import _root_.scala.collection.mutable.HashSet
 import psi.api.base.patterns.ScBindingPattern
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value]) extends BaseProcessor(kinds) {
   private val signatures = new HashSet[Signature]
+  private val names = new HashSet[String]
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     def substitutor: ScSubstitutor = {
@@ -36,7 +37,10 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value]) extends
           }
         }
         case _ => {
-          candidatesSet += new ScalaResolveResult(named)
+          if (!names.contains(named.getName)) {
+            candidatesSet += new ScalaResolveResult(named)
+            names += named.getName
+          }
         }
       }
     }

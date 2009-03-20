@@ -20,7 +20,7 @@
   <description>Plugin for Scala language support</description>
   <version>VERSION</version>
   <vendor logo="/org/jetbrains/plugins/scala/images/scala16.png" url="http://www.jetbrains.com">JetBrains Inc.</vendor>
-  <idea-version since-build="9684" until-build="10142"/>
+  <idea-version since-build="9684" until-build="9999"/>
   <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
   <extensions defaultExtensionNs="com.intellij">

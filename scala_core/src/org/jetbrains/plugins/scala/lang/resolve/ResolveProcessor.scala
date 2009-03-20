@@ -192,6 +192,8 @@ object StdKinds {
   val methodRef = HashSet.empty + VAL + VAR + METHOD
 
   val valuesRef = HashSet.empty + VAL + VAR
+
+  val packageRef = HashSet.empty + PACKAGE
 }
 
 object ResolverEnv {

@@ -15,7 +15,7 @@ trait ScImportExpr extends ScalaPsiElement {
 
   def selectorSet = findChild(classOf[ScImportSelectors])
 
-  def selectors = {
+  def selectors: Seq[ScImportSelector] = {
     selectorSet match {
       case None => Seq.empty
       case Some(s) => s.selectors
