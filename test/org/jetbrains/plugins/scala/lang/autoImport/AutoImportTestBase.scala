@@ -93,7 +93,10 @@ abstract class AutoImportTestBase extends ScalaPsiTestCase {
       case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
       case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
         text.substring(2, text.length - 2).trim
-      case _ => assertTrue("Test result must be in last comment statement.", false)
+      case _ => {
+        assertTrue("Test result must be in last comment statement.", false)
+        ""
+      }
     }
     assertEquals(output, res.trim)
   }

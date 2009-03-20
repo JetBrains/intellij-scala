@@ -8,8 +8,8 @@ import mutable.bt.SourceInside3
 val x: /*ref*/SourceInside4
 /*
 import _root_.mutable.bt._
-import scala.collection.BitSet, scala.collection.mutable.DefaultEntry
-import collection.mutable.ArrayBuffer
+import scala.collection.BitSet, scala.collection.mutable.DefaultEntry 
+import collection.mutable.ArrayBuffer 
 import collection.mutable.End
 import collection.mutable.FlatHashTable
 */
