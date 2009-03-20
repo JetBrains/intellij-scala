@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
 import _root_.org.jetbrains.plugins.scala.lang.resolve.{CompletionProcessor, ScalaResolveResult, StdKinds}
 import api.base.ScStableCodeReferenceElement
 import api.ScalaFile
@@ -100,7 +101,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
 
     //creating selectors string (after last '.' in import expression)
-    var isPlaceHolderImport = false //todo: for cheking all imports for failing
+    var isPlaceHolderImport = false
     clazz.getName +: selectors
     if (selectors.exists(_ == "_") ||
             selectors.length >= CodeStyleSettingsManager.getSettings(getProject).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND) {
@@ -131,8 +132,57 @@ trait ScImportsHolder extends ScalaPsiElement {
       } else {
         classPackageQual = pre
         if (classPackageQual == "") {
-          importSt = ScalaPsiElementFactory.createImportFromText("import _root_." + importString, getManager)
+          importString = "_root_." + importString
+          importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)
         }
+      }
+    }
+
+    //cheek all imports under new import to fix problems
+    if (isPlaceHolderImport) {
+      val synthPackage = ScSyntheticPackage.get(getSplitQualifierElement(qualName)._1, getProject)
+      val subPackages = synthPackage.getSubPackages
+      def checkImports(element: PsiElement) {
+        element match {
+          case expr: ScImportExpr => {
+            def iterateExpr {
+              val qual = expr.qualifier
+              var firstQualifier = qual
+              if (firstQualifier.getText == "_root_") return
+              while (firstQualifier.qualifier != None) firstQualifier = firstQualifier.qualifier match {case Some(e) => e}
+              if (subPackages.map(_.getName).contains(firstQualifier.getText)) {
+                var classPackageQual = getSplitQualifierElement(firstQualifier.resolve match {
+                  case pack: PsiPackage => pack.getQualifiedName
+                  case cl: PsiClass => cl.getQualifiedName
+                  case _ => return
+                })._1
+                var importString = qual.getText
+                var break = true
+                while (break) {
+                  val (pre, last) = getSplitQualifierElement(classPackageQual)
+                  if (last != "") importString = last + "." + importString
+                  if (packages.contains(classPackageQual)) {
+                    break = false
+                  } else {
+                    classPackageQual = pre
+                    if (classPackageQual == "") {
+                      importString = "_root_." + importString
+                      break = false
+                    }
+                  }
+                }
+                val newQual = ScalaPsiElementFactory.createReferenceFromText(importString, getManager)
+                qual.replace(newQual)
+                iterateExpr
+              }
+            }
+            iterateExpr
+          }
+          case _ => for (child <- element.getChildren) checkImports(child)
+        }
+      }
+      if (subPackages.length > 0) {
+        checkImports(this)
       }
     }
 
