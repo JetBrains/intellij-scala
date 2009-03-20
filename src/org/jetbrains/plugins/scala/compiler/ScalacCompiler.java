@@ -271,7 +271,8 @@ public class ScalacCompiler extends ExternalCompiler {
     //write classpath
     printer.println("-cp");
 
-    final List<Module> modules = Arrays.asList(chunk.getModules());
+    final Module[] chunkModules = chunk.getModules();
+    final List<Module> modules = Arrays.asList(chunkModules);
     final Set<VirtualFile> sourceDependencies = new HashSet<VirtualFile>();
 
     for (Module module : modules) {
@@ -298,6 +299,22 @@ public class ScalacCompiler extends ExternalCompiler {
           }
     }
     printer.println();
+
+    boolean isTestChunk = false;
+    if (chunkModules.length > 0) {
+      ProjectRootManager rm = ProjectRootManager.getInstance(chunkModules[0].getProject());
+      for (VirtualFile file : chunk.getSourceRoots()) {
+        if (file != null && rm.getFileIndex().isInTestSourceContent(file)) {
+          isTestChunk = true;
+          break;
+        }
+      }
+    }
+
+    //Little hack to make compiler fork with java files from test sources
+    if (isTestChunk) {
+      chunk.setSourcesFilter(ModuleChunk.ALL_SOURCES);
+    }
     for (VirtualFile file : chunk.getFilesToCompile()) {
       printer.println(file.getPath());
     }
