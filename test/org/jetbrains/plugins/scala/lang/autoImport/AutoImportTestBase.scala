@@ -58,13 +58,15 @@ abstract class AutoImportTestBase extends ScalaPsiTestCase {
 
     var res: String = null
 
+    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
+
     try {
       ScalaUtils.runWriteAction(new Runnable {
         def run {
           scalaFile.addImportForClass(classes(0))
         }
       }, myProject, "Test")
-      res = scalaFile.getImportStatements.map(_.getText()).mkString("\n")
+      res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
       assert(ref.resolve != null, "reference is unresolved after import action")
     }
     catch {
@@ -87,7 +89,7 @@ abstract class AutoImportTestBase extends ScalaPsiTestCase {
 
     println("------------------------ " + scalaFile.getName + " ------------------------")
     println(res)
-    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
+
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {
       case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
@@ -98,6 +100,6 @@ abstract class AutoImportTestBase extends ScalaPsiTestCase {
         ""
       }
     }
-    assertEquals(output, res.trim)
+    assertEquals(output, res)
   }
 }

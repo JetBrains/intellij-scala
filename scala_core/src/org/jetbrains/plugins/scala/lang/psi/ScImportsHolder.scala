@@ -228,9 +228,16 @@ trait ScImportsHolder extends ScalaPsiElement {
             val next = x.getNextSibling
             if (next != null && !next.getText.contains("\n")){
               val nl = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
-              addBefore(importSt, next)
-              addBefore(nl, next)
-            } else addAfter(importSt, x)
+              addImportBefore(importSt, next)
+              addImportBefore(nl, next)
+            } else {
+              //unnessecary nl will be removed by formatter
+              val nl1 = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
+              val nl2 = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
+              addImportAfter(nl1, x)
+              addImportAfter(importSt, nl1)
+              addImportAfter(nl2, importSt)
+            }
           }
           case None => {
             //Here we must to find left brace, if not => it's ScalaFile (we can use addBefore etc.)
