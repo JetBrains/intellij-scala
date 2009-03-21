@@ -109,7 +109,7 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
                               element.getParent().isInstanceOf[ScTypeAlias]) &&
                       element.getParent().getTextRange().getEndOffset <= endOffset)) {
         element = element.getParent()
-        if (element.getTextRange().getStartOffset() != startOffset) return null
+        if (element == null || element.getTextRange().getStartOffset() != startOffset) return null
       }
       if (element == null) return null
       val result: Array[PsiElement] = Array.apply(element)
