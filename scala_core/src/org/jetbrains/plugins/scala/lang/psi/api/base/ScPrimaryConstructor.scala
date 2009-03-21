@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
+import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -26,4 +27,8 @@ trait ScPrimaryConstructor extends ScMember {
 
   //hack: no ClassParamList present at the moment
   def parameters : Seq[ScClassParameter] = parameterList.params.asInstanceOf[Seq[ScClassParameter]]
+
+  def accessModifier = findChild(classOf[ScAccessModifier])
+
+  def getFakePsiMethod: PsiMethod
 }

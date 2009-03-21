@@ -22,6 +22,9 @@ trait ScAccessModifier extends ScalaPsiElement {
     case x => Some(x.getPsi)
   }
 
+  def isPrivate = getNode.findChildByType(ScalaTokenTypes.kPRIVATE) != null
+  def isProtected = getNode.findChildByType(ScalaTokenTypes.kPROTECTED) != null
+
   object Access extends Enumeration {
     val PRIVATE, PROTECTED, THIS_PRIVATE, THIS_PROTECTED = Value
   }
