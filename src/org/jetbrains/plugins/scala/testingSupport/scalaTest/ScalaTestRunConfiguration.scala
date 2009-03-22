@@ -113,10 +113,6 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
         val list = new java.util.ArrayList[String]
         val dir: VirtualFile = VcsUtil.getVirtualFile(scalaSdkPath + File.separator + "lib")
-        for (child <- dir.getChildren) {
-          params.getClassPath.add(child)
-        }
-        params.getClassPath.add(getClassPath(module))
         val jarPathForClass = PathUtil.getJarPathForClass(classOf[ScalaTestRunConfiguration])
         val virtFile = VcsUtil.getVirtualFile(jarPathForClass)
         if (virtFile.getExtension != "jar") { //so it's debug mode, we can free use ScalaTestReporter class
@@ -126,6 +122,11 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
           val rtJarPath = jarPathForClass.substring(0, jarPathForClass.lastIndexOf(File.separator)) + File.separator + "runners.jar"
           params.getClassPath.add(rtJarPath)
         }
+        for (child <- dir.getChildren) {
+          params.getClassPath.add(child)
+        }
+        params.getClassPath.add(getClassPath(module))
+
 
         params.setMainClass(MAIN_CLASS)
 
