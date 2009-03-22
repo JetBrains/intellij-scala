@@ -141,7 +141,14 @@ trait ScImportsHolder extends ScalaPsiElement {
     //cheek all imports under new import to fix problems
     if (isPlaceHolderImport) {
       val synthPackage = ScSyntheticPackage.get(getSplitQualifierElement(qualName)._1, getProject)
-      val subPackages = synthPackage.getSubPackages
+
+      val subPackages = if (synthPackage != null)
+        synthPackage.getSubPackages
+      else {
+        val psiPack = JavaPsiFacade.getInstance(getProject).findPackage(getSplitQualifierElement(qualName)._1)
+        if (psiPack != null) psiPack.getSubPackages
+        else Array[PsiPackage]()
+      }
       def checkImports(element: PsiElement) {
         element match {
           case expr: ScImportExpr => {
