@@ -7,6 +7,7 @@ import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.imports.ScImportStmt
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import lang.psi.api.expr.ScReferenceExpression
+import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import lang.psi.ScImportsHolder
 import lang.resolve.ResolveUtils
@@ -190,12 +191,15 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {
 }
 
 object ScalaAddImportPass {
-  private def notInner(clazz: PsiClass): Boolean = {
+  private def notInner(clazz: PsiClass, ref: PsiElement): Boolean = {
     clazz match {
       case t: ScTypeDefinition => {
         t.getParent match {
           case _: ScalaFile => true
-          case f: ScObject => notInner(f)
+          case _: ScTemplateBody if t.getContainingClass.isInstanceOf[ScObject] => {
+            val obj = t.getContainingClass.asInstanceOf[ScObject]
+            ResolveUtils.isAccessible(obj, ref) && notInner(obj, ref)
+          }
           case _ => false
         }
       }
@@ -208,7 +212,7 @@ object ScalaAddImportPass {
     val cache = JavaPsiFacade.getInstance(myProject).getShortNamesCache
     cache.getClassesByName(ref.refName, ref.getResolveScope).filter {
       clazz => clazz != null && clazz.getQualifiedName() != null && clazz.getQualifiedName.indexOf(".") > 0 &&
-              ResolveUtils.kindMatches(clazz, kinds) && notInner(clazz) && ResolveUtils.isAccessible (clazz, ref)
+              ResolveUtils.kindMatches(clazz, kinds) && notInner(clazz, ref) && ResolveUtils.isAccessible(clazz, ref)
     }
   }
 }
