@@ -62,6 +62,11 @@ public class ScalaFacetSupportProvider extends FacetTypeFrameworkSupportProvider
     return "scala-" + name;
   }
 
+  @NonNls
+  public String getTitle() {
+    return "Sca&la";
+  }
+
   @NotNull
   public String[] getVersions() {
     List<String> versions = new ArrayList<String>();
