@@ -183,23 +183,22 @@ object ScalaPsiUtil {
     for (method <- methods if check(method)) yield method
   }
 
+  /**
+   * For one classOf use PsiTreeUtil.getParenteOfType instead
+   */
   def getParentOfType(element: PsiElement, classes: Class[_ <: PsiElement]*): PsiElement = {
     getParentOfType(element, false, classes: _*)
   }
+
+  /**
+   * For one classOf use PsiTreeUtil.getParenteOfType instead
+   */
   def getParentOfType(element: PsiElement, strict: Boolean, classes: Class[_ <: PsiElement]*): PsiElement = {
     var el: PsiElement = if (!strict) element else {
       if (element == null) return null
       element.getParent
     }
-    def isAcceptable: Boolean = {
-      var i = 0
-      while (i < classes.length) {
-        if (classes(i).isInstance(el)) return true
-        i = i + 1
-      }
-      false
-    }
-    while (el != null && !isAcceptable) el = el.getParent
+    while (el != null && classes.find(_.isInstance(el)) == None) el = el.getParent
     return el
   }
 }
