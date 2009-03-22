@@ -24,7 +24,7 @@ import util.ScalaUtils
  */
 
 abstract class AutoImportTestBase extends ScalaPsiTestCase {
-  private val refMarker = "/*ref*/"
+  private val refMarker =  "/*ref*/"
 
   override protected def rootPath = super.rootPath + "autoImport/"
 
