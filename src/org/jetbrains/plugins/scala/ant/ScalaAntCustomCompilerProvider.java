@@ -9,7 +9,7 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.Pair;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.config.ScalaConfigUtils;
+import org.jetbrains.plugins.scala.config.ScalaCompilerUtil;
 import org.jetbrains.plugins.scala.config.ScalaFacet;
 
 import java.util.ArrayList;
@@ -105,16 +105,16 @@ public class ScalaAntCustomCompilerProvider extends ChunkCustomCompilerExtension
    */
   public void generateCustomCompilerTaskRegistration(Project project, GenerationOptions genOptions, CompositeGenerator generator) {
     // find SDK library with maximum version number in order to use for compiler
-    final Library[] libraries = ScalaConfigUtils.getAllScalaLibraries(project);
+    final Library[] libraries = ScalaCompilerUtil.getAllScalaCompilerLibraries(project);
     if (libraries.length == 0) {
       // no SDKs in the project, the task registration is not generated
       return;
     }
-    final Collection<String> versions = ScalaConfigUtils.getScalaVersions(project);
+    final Collection<String> versions = ScalaCompilerUtil.getScalaCompilerVersions(project);
     String maxVersion = versions.isEmpty() ? null : Collections.max(versions);
     Library sdkLib = null;
     for (Library lib : libraries) {
-      if (maxVersion == null || maxVersion.equals(ScalaConfigUtils.getScalaLibVersion(lib))) {
+      if (maxVersion == null || maxVersion.equals(ScalaCompilerUtil.getScalaCompilerLibVersion(lib))) {
         sdkLib = lib;
       }
     }

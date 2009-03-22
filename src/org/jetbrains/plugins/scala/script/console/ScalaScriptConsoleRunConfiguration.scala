@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType}
 import com.intellij.openapi.project.Project
 import com.intellij.util.PathUtil
+import config.{ScalaCompilerUtil, ScalaConfigUtils}
 import jdom.Element
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
@@ -26,8 +27,6 @@ import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.psi.PsiManager
 import com.intellij.vcsUtil.VcsUtil
 import java.io.File
-import config.{ScalaConfigUtils, ScalaSDK}
-
 import java.util.Arrays
 import com.intellij.facet.FacetManager
 
@@ -63,8 +62,11 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
-    val scalaSdkPath = getScalaInstallPath
-    if (scalaSdkPath == "") throw new ExecutionException("Scala SDK is not specified")
+
+    val jarPath = ScalaConfigUtils.getScalaSdkJarPath(getModule)
+    val compilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(getModule)
+    if (jarPath == "" || compilerJarPath == "") throw new ExecutionException("Scala SDK is not specified")
+
     val rootManager = ModuleRootManager.getInstance(module);
     val sdk = rootManager.getSdk();
     if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
@@ -81,12 +83,18 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
         //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
-        params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath)
-        val list = new java.util.ArrayList[String]
-        val dir: VirtualFile = VcsUtil.getVirtualFile(scalaSdkPath + File.separator + "lib")
-        for (child <- dir.getChildren) {
-          params.getClassPath.add(child)
+//        params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath)
+
+        val sdkJar = VcsUtil.getVirtualFile(jarPath)
+        if (sdkJar != null) {
+          params.getClassPath.add(sdkJar)
         }
+
+        val compilerJar = VcsUtil.getVirtualFile(compilerJarPath)
+        if (sdkJar != null) {
+          params.getClassPath.add(compilerJar)
+        }
+
         val rtJarPath = PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner])
         params.getClassPath.add(rtJarPath)
         params.setMainClass(MAIN_CLASS)
@@ -123,21 +131,6 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
   }
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaScriptConsoleRunConfigurationEditor(project, this)
-
-  def getSdk(): ScalaSDK = {
-    if (getModule != null) ScalaConfigUtils.getScalaSDKs(getModule).apply(0)
-    else null
-  }
-
-  def getScalaInstallPath(): String = {
-    if (getModule != null) {
-      val sdk = ScalaConfigUtils.getScalaInstallPath(getModule)
-      var exePath = sdk.replace('\\', File.separatorChar)
-      return exePath
-    }
-    else ""
-  }
-
 
   override def writeExternal(element: Element): Unit = {
     super.writeExternal(element)

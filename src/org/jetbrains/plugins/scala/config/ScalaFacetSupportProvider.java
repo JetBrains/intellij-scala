@@ -16,34 +16,14 @@
 package org.jetbrains.plugins.scala.config;
 
 import com.intellij.facet.impl.ui.FacetTypeFrameworkSupportProvider;
-import com.intellij.facet.impl.ui.VersionConfigurable;
-import com.intellij.facet.ui.ValidationResult;
 import com.intellij.facet.ui.libraries.LibraryInfo;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.util.Function;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.ide.util.newProjectWizard.FrameworkSupportProvider;
-import com.intellij.ide.util.newProjectWizard.FrameworkSupportModel;
+import com.intellij.openapi.roots.ModifiableRootModel;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.ScalaBundle;
-import org.jetbrains.plugins.scala.config.ui.ScalaFacetEditor;
-import org.jetbrains.plugins.scala.config.ui.CreateLibraryDialog;
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
-import org.jetbrains.plugins.scala.util.LibrariesUtil;
 
-import javax.swing.*;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author ilyas

@@ -12,12 +12,12 @@ import com.intellij.openapi.project.{Project}
 
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiManager, PsiFile}
+import config.{ScalaCompilerUtil, ScalaConfigUtils}
 import java.io.{File}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.openapi.roots.{OrderEntry, ModuleOrderEntry, OrderRootType, ModuleRootManager}
 
 import com.intellij.openapi.util.{JDOMExternalizer}
-import config.{ScalaConfigUtils, ScalaSDK}
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.{ConsoleViewContentType, ConsoleView}
@@ -83,8 +83,11 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
 
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
-    val scalaSdkPath = getScalaInstallPath
-    if (scalaSdkPath == "") throw new ExecutionException("Scala SDK is not specified")
+
+    val jarPath = ScalaConfigUtils.getScalaSdkJarPath(getModule)
+    val compilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(getModule)
+    if (jarPath == "" || compilerJarPath == "") throw new ExecutionException("Scala SDK is not specified")
+
     val rootManager = ModuleRootManager.getInstance(module);
     val sdk = rootManager.getSdk();
     if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
@@ -101,17 +104,22 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
 
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
-        //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
-        params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath)
+//        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
+//        params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath)
         params.getVMParametersList.add(CLASSPATH)
         params.getVMParametersList.add(EMACS)
-        val list = new java.util.ArrayList[String]
-        val dir: VirtualFile = VcsUtil.getVirtualFile(scalaSdkPath + File.separator + "lib")
-        for (child <- dir.getChildren) {
-          params.getClassPath.add(child)
-        }
-        params.setMainClass(MAIN_CLASS)
 
+        val sdkJar = VcsUtil.getVirtualFile(jarPath)
+        if (sdkJar != null) {
+          params.getClassPath.add(sdkJar)
+        }
+
+        val compilerJar = VcsUtil.getVirtualFile(compilerJarPath)
+        if (sdkJar != null) {
+          params.getClassPath.add(compilerJar)
+        }
+
+        params.setMainClass(MAIN_CLASS)
         params.getProgramParametersList.add("-nocompdaemon") //todo: seems to be a bug in scala compiler. Ticket #1498
         params.getProgramParametersList.add("-classpath")
         params.getProgramParametersList.add(getClassPath(module))
@@ -157,22 +165,6 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
   }
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaScriptRunConfigurationEditor(project, this)
-
-  def getSdk(): ScalaSDK = {
-    if (getModule != null) ScalaConfigUtils.getScalaSDKs(getModule).apply(0)
-    else null
-  }
-
-  def getScalaInstallPath(): String = {
-    if (getModule != null) {
-      val sdk = ScalaConfigUtils.getScalaInstallPath(getModule)
-      var exePath = sdk.replace('\\', File.separatorChar)
-      //if (!exePath.endsWith(File.separator)) exePath += File.separator
-      return exePath
-    }
-    else ""
-  }
-
 
   override def writeExternal(element: Element): Unit = {
     super.writeExternal(element)

@@ -22,14 +22,15 @@ import com.intellij.openapi.roots.*;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.JarFileSystem;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
+import org.jetbrains.plugins.scala.config.ScalaCompilerUtil;
 import org.jetbrains.plugins.scala.config.ScalaConfigUtils;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 
@@ -47,15 +48,22 @@ public class ScalacCompiler extends ExternalCompiler {
   private final List<File> myTempFiles = new ArrayList<File>();
 
   // VM properties
-  @NonNls private static final String XMX_COMPILER_PROPERTY = "-Xmx300m";
-  @NonNls private final String XSS_COMPILER_PROPERTY = "-Xss128m";
+  @NonNls
+  private static final String XMX_COMPILER_PROPERTY = "-Xmx300m";
+  @NonNls
+  private final String XSS_COMPILER_PROPERTY = "-Xss128m";
 
   // Scalac parameters
-  @NonNls private static final String DEBUG_INFO_LEVEL_PROPEERTY = "-g:vars";
-  @NonNls private static final String VERBOSE_PROPERTY = "-verbose";
-  @NonNls private static final String DESTINATION_COMPILER_PROPERTY = "-d";
-  @NonNls private static final String DEBUG_PROPERTY = "-Ydebug";
-  @NonNls private static final String WARNINGS_PROPERTY = "-unchecked";
+  @NonNls
+  private static final String DEBUG_INFO_LEVEL_PROPEERTY = "-g:vars";
+  @NonNls
+  private static final String VERBOSE_PROPERTY = "-verbose";
+  @NonNls
+  private static final String DESTINATION_COMPILER_PROPERTY = "-d";
+  @NonNls
+  private static final String DEBUG_PROPERTY = "-Ydebug";
+  @NonNls
+  private static final String WARNINGS_PROPERTY = "-unchecked";
   private final static HashSet<FileType> COMPILABLE_FILE_TYPES = new HashSet<FileType>(Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA));
 
   public ScalacCompiler(Project project) {
@@ -84,8 +92,7 @@ public class ScalacCompiler extends ExternalCompiler {
     if (!hasJava) return false; //this compiler work with only Java modules, so we don't need to continue.
 
     for (Module module : modules) {
-      final String installPath = ScalaConfigUtils.getScalaInstallPath(module);
-      if (installPath.length() == 0 && ScalaUtils.isSuitableModule(module)) {
+      if (!(ScalaCompilerUtil.isScalaCompilerSetUpForModule(module) && ScalaUtils.isSuitableModule(module))) {
         Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.facet", module.getName()), ScalaBundle.message("cannot.compile"));
         return false;
       }
@@ -223,17 +230,19 @@ public class ScalacCompiler extends ExternalCompiler {
     classPathBuilder.append(rtJarPath).append(File.pathSeparator);
     classPathBuilder.append(sdkType.getToolsPath(jdk)).append(File.pathSeparator);
 
-    String scalaPath = ScalaConfigUtils.getScalaInstallPath(chunk.getModules()[0]);
-    String libPath = (scalaPath + "/lib").replace(File.separatorChar, '/');
+    //Add Scala SDK jar
+    String scalaSdkJarPath = ScalaConfigUtils.getScalaSdkJarPath(chunk.getModules()[0]);
+    if (scalaSdkJarPath.length() > 0) {
+      classPathBuilder.append(scalaSdkJarPath);
+      classPathBuilder.append(File.pathSeparator);
+    }
 
-    VirtualFile lib = LocalFileSystem.getInstance().findFileByPath(libPath);
-    if (lib != null) {
-      for (VirtualFile file : lib.getChildren()) {
-        if (required(file.getName())) {
-          classPathBuilder.append(file.getPath());
-          classPathBuilder.append(File.pathSeparator);
-        }
-      }
+    //Add Scala Compiler jar
+
+    String scalaCompilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(chunk.getModules()[0]);
+    if (scalaCompilerJarPath.length() > 0) {
+      classPathBuilder.append(scalaCompilerJarPath);
+      classPathBuilder.append(File.pathSeparator);
     }
 
     commandLine.add(classPathBuilder.toString());
@@ -252,7 +261,7 @@ public class ScalacCompiler extends ExternalCompiler {
 
 
   private static void fillFileWithScalacParams(ModuleChunk chunk, File fileWithParameters, String outputPath, Project myProject)
-          throws FileNotFoundException {
+      throws FileNotFoundException {
 
     PrintStream printer = new PrintStream(new FileOutputStream(fileWithParameters));
 
@@ -277,26 +286,26 @@ public class ScalacCompiler extends ExternalCompiler {
 
     for (Module module : modules) {
       if (ScalaUtils.isSuitableModule(module)) {
-      ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
-            OrderEntry[] entries = moduleRootManager.getOrderEntries();
-            Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
-            for (OrderEntry orderEntry : entries) {
-              cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)));
-              // Add Java dependencies
-              if (orderEntry instanceof ModuleOrderEntry && !(modules.contains(((ModuleOrderEntry) orderEntry).getModule()))) {
-                sourceDependencies.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
-              }
-            }
-            for (VirtualFile file : cpVFiles) {
-              String path = file.getPath();
-              int jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR);
-              if (jarSeparatorIndex > 0) {
-                path = path.substring(0, jarSeparatorIndex);
-              }
-              printer.print(path);
-              printer.print(File.pathSeparator);
-            }
+        ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
+        OrderEntry[] entries = moduleRootManager.getOrderEntries();
+        Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
+        for (OrderEntry orderEntry : entries) {
+          cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)));
+          // Add Java dependencies
+          if (orderEntry instanceof ModuleOrderEntry && !(modules.contains(((ModuleOrderEntry) orderEntry).getModule()))) {
+            sourceDependencies.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
           }
+        }
+        for (VirtualFile file : cpVFiles) {
+          String path = file.getPath();
+          int jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR);
+          if (jarSeparatorIndex > 0) {
+            path = path.substring(0, jarSeparatorIndex);
+          }
+          printer.print(path);
+          printer.print(File.pathSeparator);
+        }
+      }
     }
     printer.println();
 
@@ -330,7 +339,7 @@ public class ScalacCompiler extends ExternalCompiler {
       for (VirtualFile file : src.getChildren()) {
         addJavaSourceFiles(stream, file);
       }
-    } else if (src.getFileType() == StdFileTypes.JAVA){
+    } else if (src.getFileType() == StdFileTypes.JAVA) {
       stream.println(src.getPath());
     }
   }
@@ -340,11 +349,11 @@ public class ScalacCompiler extends ExternalCompiler {
     if (chunk.getModuleCount() == 0) return false;
     final Module[] modules = chunk.getModules();
     final Module first = modules[0];
-    final String firstVersion = ScalaConfigUtils.getScalaVersion(ScalaConfigUtils.getScalaInstallPath(first));
+    final String firstVersion = ScalaCompilerUtil.getScalaCompilerVersion(ScalaCompilerUtil.getScalaCompilerJarPath(first));
 
     for (Module module : modules) {
-      final String path = ScalaConfigUtils.getScalaInstallPath(module);
-      final String version = ScalaConfigUtils.getScalaVersion(path);
+      final String path = ScalaCompilerUtil.getScalaCompilerJarPath(module);
+      final String version = ScalaCompilerUtil.getScalaCompilerVersion(path);
       if (!version.equals(firstVersion)) return false;
     }
     return true;

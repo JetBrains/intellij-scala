@@ -45,11 +45,7 @@ public class ScalaFacetListener extends FacetManagerAdapter implements ModuleCom
 
       public void facetRemoved(@NotNull Facet facet) {
         if (facet.getTypeId() == ScalaFacet.ID) {
-          Module module = facet.getModule();
-          ModuleRootManager manager = ModuleRootManager.getInstance(module);
-          ModifiableRootModel model = manager.getModifiableModel();
-          ScalaConfigUtils.removeScalaLibrariesFormModule(model);
-          model.commit();
+          //todo do somethig
         }
       }
     });

@@ -17,12 +17,11 @@ import com.intellij.openapi.util.{JDOMExternalizer, JDOMExternalizable}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiManager, PsiClass}
 import com.intellij.util.PathUtil
+import config.{ScalaCompilerUtil, ScalaConfigUtils}
 import jdom.Element
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
 import com.intellij.openapi.options.SettingsEditor
-import config.{ScalaConfigUtils, ScalaSDK}
-
 import com.intellij.execution.configurations._
 import _root_.java.util.Arrays
 import com.intellij.facet.FacetManager
@@ -93,8 +92,11 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
-    val scalaSdkPath = getScalaInstallPath
-    if (scalaSdkPath == "") throw new ExecutionException("Scala SDK is not specified")
+
+    val jarPath = ScalaConfigUtils.getScalaSdkJarPath(getModule)
+    val compilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(getModule)
+    if (jarPath == "" || compilerJarPath == "") throw new ExecutionException("Scala SDK is not specified")
+
     val rootManager = ModuleRootManager.getInstance(module);
     val sdk = rootManager.getSdk();
     if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
@@ -112,7 +114,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         params.getVMParametersList.addParametersString(getJavaOptions)
         //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
         val list = new java.util.ArrayList[String]
-        val dir: VirtualFile = VcsUtil.getVirtualFile(scalaSdkPath + File.separator + "lib")
+
         val jarPathForClass = PathUtil.getJarPathForClass(classOf[ScalaTestRunConfiguration])
         val virtFile = VcsUtil.getVirtualFile(jarPathForClass)
         if (virtFile.getExtension != "jar") { //so it's debug mode, we can free use ScalaTestReporter class
@@ -122,9 +124,17 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
           val rtJarPath = jarPathForClass.substring(0, jarPathForClass.lastIndexOf(File.separator)) + File.separator + "runners.jar"
           params.getClassPath.add(rtJarPath)
         }
-        for (child <- dir.getChildren) {
-          params.getClassPath.add(child)
+
+        val sdkJar = VcsUtil.getVirtualFile(jarPath)
+        if (sdkJar != null) {
+          params.getClassPath.add(sdkJar)
         }
+
+        val compilerJar = VcsUtil.getVirtualFile(compilerJarPath)
+        if (sdkJar != null) {
+          params.getClassPath.add(compilerJar)
+        }
+
         params.getClassPath.add(getClassPath(module))
 
 
@@ -185,21 +195,6 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   }
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaTestRunConfigurationEditor(project, this)
-
-  def getSdk(): ScalaSDK = {
-    if (getModule != null) ScalaConfigUtils.getScalaSDKs(getModule).apply(0)
-    else null
-  }
-
-  def getScalaInstallPath(): String = {
-    if (getModule != null) {
-      val sdk = ScalaConfigUtils.getScalaInstallPath(getModule)
-      var exePath = sdk.replace('\\', File.separatorChar)
-      return exePath
-    }
-    else ""
-  }
-
 
   override def writeExternal(element: Element): Unit = {
     super.writeExternal(element)
