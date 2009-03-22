@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.resolve
 import com.intellij.psi.util.PsiTreeUtil
-import psi.api.base.{ScAccessModifier, ScFieldId}
+import lexer.ScalaTokenTypes
+import psi.api.base.{ScStableCodeReferenceElement, ScAccessModifier, ScFieldId}
 import psi.api.expr.ScSuperReference
 import psi.api.ScalaFile
 import psi.api.toplevel.typedef._
@@ -62,64 +63,103 @@ object ResolveUtils {
                                                                      else s.subst(ScType.create(pt, m.getProject))
                                                               })
 
-  def isAccessible(member: PsiMember, place: PsiElement): Boolean = member match {
-    case scMember: ScMember => scMember.getModifierList.accessModifier match {
-      case None => true
-      case Some(am: ScAccessModifier) => {
-        if (am.isPrivate) {
-          am.id match {
-            case Some(id: PsiElement) => true //todo:
-            case None => {
-              /*
-               ScalaRefernce.pdf:
-                 Such members can be accessed only from within the directly enclosing
-                 template and its companion module or companion class
-               */
-              val enclosing = ScalaPsiUtil.getParentOfType(scMember,
-                classOf[ScalaFile], classOf[ScPackaging], classOf[ScTemplateDefinition])
-              enclosing match {
-                case td: ScTemplateDefinition => {
-                  val name = td.getName
-                  val scope = td.getParent
-                  var companion: PsiElement = null
-                  td match {
-                    case _: ScClass => {
-                      companion = scope.getChildren.find((child: PsiElement) =>
-                              child.isInstanceOf[ScObject] && child.asInstanceOf[ScObject].getName == name).getOrElse(null: PsiElement)
+  def isAccessible(member: PsiMember, place: PsiElement): Boolean = {
+    def getCompanionModule(td: ScTemplateDefinition): PsiElement = {
+      val name = td.getName
+      val scope = td.getParent
+      td match {
+        case _: ScClass => {
+          scope.getChildren.find((child: PsiElement) =>
+                  child.isInstanceOf[ScObject] && child.asInstanceOf[ScObject].getName == name).getOrElse(null: PsiElement)
+        }
+        case _: ScObject => {
+          scope.getChildren.find((child: PsiElement) =>
+                  child.isInstanceOf[ScObject] && child.asInstanceOf[ScObject].getName == name).getOrElse(null: PsiElement)
+        }
+        case _ => null
+      }
+    }
+    member match {
+      case scMember: ScMember => scMember.getModifierList.accessModifier match {
+        case None => true
+        case Some(am: ScAccessModifier) => {
+          if (am.isPrivate) {
+            am.id match {
+              case Some(id: PsiElement) => {
+                id match {
+                  case x if x.getNode.getElementType == ScalaTokenTypes.kTHIS => {
+                    /*
+                    ScalaRefernce.pdf:
+                      A member M marked with this modifier can be accessed only from
+                      within the object in which it is defined.
+                    */
+                    val enclosing = PsiTreeUtil.getParentOfType(scMember, classOf[ScTemplateDefinition])
+                    if (enclosing == null) return true
+                    PsiTreeUtil.isAncestor(enclosing, place, false)
+                  }
+                  case _ => {
+                    val ref = am.getReference
+                    val bind = ref.resolve
+                    if (bind == null) return true
+                    bind match {
+                      case td: ScTemplateDefinition => {
+                        PsiTreeUtil.isAncestor(td, place, false) || PsiTreeUtil.isAncestor(getCompanionModule(td), place, false)
+                      }
+                      case pack: PsiPackage => {
+                        val packageName = pack.getQualifiedName
+                        val placeEnclosing: PsiElement = ScalaPsiUtil.getParentOfType(place, classOf[ScPackaging], classOf[ScalaFile])
+                        if (placeEnclosing == null) return false //todo: not Scala, could be useful to implement
+                        val placePackageName = placeEnclosing match {
+                          case file: ScalaFile => file.getPackageName
+                          case pack: ScPackaging => pack.getPackageName
+                        }
+                        return placePackageName.startsWith(packageName)
+                      }
+                      case _ => true
                     }
-                    case _: ScObject => {
-                      companion = scope.getChildren.find((child: PsiElement) =>
-                              child.isInstanceOf[ScObject] && child.asInstanceOf[ScObject].getName == name).getOrElse(null: PsiElement)
+                  }
+                }
+              }
+              case None => {
+                /*
+                ScalaRefernce.pdf:
+                  Such members can be accessed only from within the directly enclosing
+                  template and its companion module or companion class
+                */
+                val enclosing = ScalaPsiUtil.getParentOfType(scMember,
+                  classOf[ScalaFile], classOf[ScPackaging], classOf[ScTemplateDefinition])
+                enclosing match {
+                  case td: ScTemplateDefinition => {
+                    PsiTreeUtil.isAncestor(td, place, false) || PsiTreeUtil.isAncestor(getCompanionModule(td), place, false)
+                  }
+                  case file: ScalaFile if file.isScriptFile => {
+                    PsiTreeUtil.isAncestor(file, place, false)
+                  }
+                  case _ => {
+                    val packageName = enclosing match {
+                      case file: ScalaFile => file.getPackageName
+                      case packaging: ScPackaging => packaging.getPackageName
                     }
-                    case _ =>
+                    val placeEnclosing: PsiElement = ScalaPsiUtil.getParentOfType(place, classOf[ScPackaging], classOf[ScalaFile])
+                    if (placeEnclosing == null) return false //todo: not Scala, could be useful to implement
+                    val placePackageName = placeEnclosing match {
+                      case file: ScalaFile => file.getPackageName
+                      case pack: ScPackaging => pack.getPackageName
+                    }
+                    return placePackageName.startsWith(packageName)
                   }
-                  if (PsiTreeUtil.isAncestor(td, place, false) || PsiTreeUtil.isAncestor(companion, place, false)) true
-                  else false
-                }
-                case file: ScalaFile if file.isScriptFile => {
-                  PsiTreeUtil.isAncestor(file, place, false)
-                }
-                case _ => {
-                  val packageName = enclosing match {
-                    case file: ScalaFile => file.getPackageName
-                    case packaging: ScPackaging => packaging.getPackageName
-                  }
-                  val placeEnclosing: PsiElement = ScalaPsiUtil.getParentOfType(place, classOf[ScPackaging], classOf[ScalaFile])
-                  if (placeEnclosing == null) return false //todo: not Scala, could be useful to implement
-                  val placePackageName = placeEnclosing match {
-                    case file: ScalaFile => file.getPackageName
-                    case pack: ScPackaging => pack.getPackageName
-                  }
-                  return placePackageName.startsWith(packageName)
                 }
               }
             }
-          }
-        } else true //todo: protected
+          } else if (am.isProtected) {
+            true
+            //todo:
+          } else true
+        }
       }
+      case _ => JavaPsiFacade.getInstance(place.getProject).
+              getResolveHelper.isAccessible(member, place, null) //todo: maybe it's not work
     }
-    case _ => JavaPsiFacade.getInstance(place.getProject).
-            getResolveHelper.isAccessible(member, place, null) //todo: maybe it's not work
   }
 
   def processSuperReference(superRef: ScSuperReference, processor : BaseProcessor, place : ScalaPsiElement) = superRef.staticSuper match {
