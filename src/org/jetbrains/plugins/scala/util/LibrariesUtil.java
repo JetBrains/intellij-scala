@@ -85,7 +85,7 @@ public abstract class LibrariesUtil {
     String path = "";
     if (library instanceof LibraryEx && ((LibraryEx) library).isDisposed()) return path;
     for (VirtualFile file : library.getFiles(OrderRootType.CLASSES)) {
-      if (ScalaConfigUtils.SCALA_LIB_NAME.equals(file.getName())) {
+      if (ScalaConfigUtils.SCALA_LIB_JAR_NAME_PREFIX.equals(file.getName())) {
         String jarPath = file.getPresentableUrl();
         File realFile = new File(jarPath);
         if (realFile.exists()) {
@@ -144,23 +144,6 @@ public abstract class LibrariesUtil {
         }
       }
   }
-
-  public static String generateNewLibraryName(String version, String prefix, final Project project) {
-    List<Object> libNames = ContainerUtil.map(ScalaConfigUtils.getAllScalaLibraries(project), new Function<Library, Object>() {
-      public Object fun(Library library) {
-        return library.getName();
-      }
-    });
-    String originalName = prefix + version;
-    String newName = originalName;
-    int index = 1;
-    while (libNames.contains(newName)) {
-      newName = originalName + " (" + index + ")";
-      index++;
-    }
-    return newName;
-  }
-
 
   @Nullable
   public static Library getLibraryByName(String name) {

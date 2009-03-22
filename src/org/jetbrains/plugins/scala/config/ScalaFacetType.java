@@ -107,7 +107,6 @@ public class ScalaFacetType extends FacetType<ScalaFacet, ScalaFacetConfiguratio
     }
 
     public void beforeFacetAdded(@NotNull Facet facet, FacetModel facetModel, @NotNull ModifiableRootModel model) {
-      ScalaConfigUtils.setUpScalaFacet(model);
     }
   }
 
