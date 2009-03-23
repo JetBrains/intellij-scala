@@ -16,22 +16,35 @@
 package org.jetbrains.plugins.scala.config;
 
 import com.intellij.facet.FacetConfiguration;
+import com.intellij.facet.FacetManagerImpl;
 import com.intellij.facet.ui.FacetEditorContext;
 import com.intellij.facet.ui.FacetEditorTab;
-import com.intellij.facet.ui.FacetEditorsFactory;
 import com.intellij.facet.ui.FacetValidatorsManager;
-import com.intellij.facet.ui.libraries.FacetLibrariesValidator;
-import com.intellij.facet.ui.libraries.FacetLibrariesValidatorDescription;
-import com.intellij.facet.ui.libraries.LibraryInfo;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.StorageScheme;
+import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jdom.Element;
 import org.jetbrains.plugins.scala.config.ui.ScalaFacetTab;
 
 /**
  * @author ilyas
  */
-public class ScalaFacetConfiguration implements FacetConfiguration {
+
+@State(
+    name = "ScalaFacetConfiguration",
+    storages = {
+      @Storage(
+        id = "default",
+        file = "$MODULE_FILE$"
+      )
+    }
+)
+public class ScalaFacetConfiguration implements FacetConfiguration, PersistentStateComponent<ScalaLibrariesConfiguration> {
+  private final ScalaLibrariesConfiguration myScalaLibrariesConfiguration = new ScalaLibrariesConfiguration();
 
   public String getDisplayName() {
     return "Scala";
@@ -39,7 +52,7 @@ public class ScalaFacetConfiguration implements FacetConfiguration {
 
   public FacetEditorTab[] createEditorTabs(FacetEditorContext editorContext, FacetValidatorsManager validatorsManager) {
     return new FacetEditorTab[]{
-        new ScalaFacetTab(editorContext, validatorsManager)
+        new ScalaFacetTab(editorContext, validatorsManager, myScalaLibrariesConfiguration)
     };
   }
 
@@ -47,5 +60,17 @@ public class ScalaFacetConfiguration implements FacetConfiguration {
   }
 
   public void writeExternal(Element element) throws WriteExternalException {
+  }
+
+  public ScalaLibrariesConfiguration getMyScalaLibrariesConfiguration() {
+    return myScalaLibrariesConfiguration;
+  }
+
+  public ScalaLibrariesConfiguration getState() {
+    return myScalaLibrariesConfiguration;
+  }
+
+  public void loadState(ScalaLibrariesConfiguration state) {
+    XmlSerializerUtil.copyBean(state, myScalaLibrariesConfiguration);
   }
 }
