@@ -239,6 +239,9 @@ class ScalaAnnotator extends Annotator
   }
 
   private def checkModifiers(ml: ScModifierList, holder: AnnotationHolder) {
+    if (!ml.getParent.isInstanceOf[ScModifierListOwner]) {
+      return
+    }
     val owner = ml.getParent.asInstanceOf[ScModifierListOwner]
     for (modifier <- ml.getNode.getChildren(null)) {
       modifier.getPsi match {
@@ -255,6 +258,9 @@ class ScalaAnnotator extends Annotator
                     new RemoveModifierQuickFix(owner, "lazy"))
                 }
               }
+            }
+            case "final" => {
+              
             }
             case _ => //todo: 
           }
