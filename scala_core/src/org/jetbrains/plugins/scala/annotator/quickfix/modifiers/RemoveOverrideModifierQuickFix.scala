@@ -26,7 +26,9 @@ class RemoveModifierQuickFix(method: ScModifierListOwner, modifier: String) exte
   def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     method.setModifierProperty(modifier, false)
     //Should be handled by autoformatting
-    CodeStyleManager.getInstance(method.getProject()).reformat(method.getModifierList)
+    CodeStyleManager.getInstance(method.getProject()).reformatText(method.getContainingFile,
+      method.getModifierList.getTextRange.getStartOffset,
+      method.getModifierList.getTextRange.getEndOffset)
   }
 
   def getFamilyName: String = ScalaBundle.message("remove.modifier.fix", modifier)

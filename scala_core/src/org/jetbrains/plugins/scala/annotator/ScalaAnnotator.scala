@@ -15,12 +15,12 @@ import lang.psi.api.statements._
 import lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
 import lang.psi.api.toplevel.imports.ScImportSelector
 import lang.psi.api.toplevel.typedef._
-import lang.psi.api.toplevel.{ScEarlyDefinitions, ScTyped}
 import _root_.scala.collection.mutable.HashSet
 import lang.psi.api.base.types.ScSimpleTypeElement
 import lang.psi.api.base.patterns.ScBindingPattern
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.toplevel.templates.ScTemplateBody
+import lang.psi.api.toplevel.{ScModifierListOwner, ScEarlyDefinitions, ScTyped}
 import lang.psi.impl.search.{ScalaOverridengMemberSearch}
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.openapi.util.TextRange
@@ -71,6 +71,9 @@ class ScalaAnnotator extends Annotator
       }
       case ret: ScReturnStmt => {
         checkExplicitTypeForReturnStatement(ret, holder)
+      }
+      case ml: ScModifierList => {
+        checkModifiers(ml, holder)
       }
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }
@@ -223,8 +226,8 @@ class ScalaAnnotator extends Annotator
       case null => return
       case _ if fun.getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).size == 0 => return
       case _ => fun.returnTypeElement match {
-        case Some(x) => return
-        case _ => { //todo: add checking type
+        case Some(x) => return //todo: add checking type
+        case _ => {
           val error = ScalaBundle.message("function.must.define.type.explicitly", fun.getName)
           val annotation: Annotation = holder.createErrorAnnotation(
             new TextRange(ret.getTextRange.getStartOffset, ret.getTextRange.getStartOffset + 6),
@@ -233,5 +236,40 @@ class ScalaAnnotator extends Annotator
         }
       }
     }
+  }
+
+  private def checkModifiers(ml: ScModifierList, holder: AnnotationHolder) {
+    val owner = ml.getParent.asInstanceOf[ScModifierListOwner]
+    for (modifier <- ml.getNode.getChildren(null)) {
+      modifier.getPsi match {
+        case am: ScAccessModifier => {
+          //todo:
+        }
+        case _ => {
+          modifier.getText match {
+            case "lazy" => {
+              owner match {
+                case _: ScPatternDefinition =>
+                case _ => {
+                  proccessError(ScalaBundle.message("lazy.modifier.not.allowed"), modifier.getPsi, holder,
+                    new RemoveModifierQuickFix(owner, "lazy"))
+                }
+              }
+            }
+            case _ => //todo: 
+          }
+        }
+      }
+    }
+  }
+
+  private def proccessError(error: String, element: PsiElement, holder: AnnotationHolder, fixes: IntentionAction*) {
+    proccessError(error, element.getTextRange, holder, fixes: _*)
+  }
+
+  private def proccessError(error: String, range: TextRange, holder: AnnotationHolder, fixes: IntentionAction*) {
+    val annotation = holder.createErrorAnnotation(range, error)
+    annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+    for (fix <- fixes) annotation.registerFix(fix)
   }
 }
