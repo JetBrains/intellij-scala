@@ -1,12 +1,8 @@
 package org.jetbrains.plugins.scala.script.console
 
-
-
 import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.execution.configurations._
-
-
 import com.intellij.execution.runners.{ExecutionEnvironment}
 import com.intellij.execution.{CantRunException, ExecutionException, Executor}
 import com.intellij.openapi.project.Project
@@ -20,16 +16,12 @@ import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
 import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
-
 import com.intellij.execution.filters.TextConsoleBuilderFactory
-
-
 import com.intellij.psi.PsiManager
 import com.intellij.vcsUtil.VcsUtil
 import java.io.File
 import java.util.Arrays
 import com.intellij.facet.FacetManager
-
 import lang.psi.api.ScalaFile
 
 /**

@@ -21,6 +21,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.ScalaBundle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,7 @@ public class ScalaFacetSupportProvider extends FacetTypeFrameworkSupportProvider
 
   @NonNls
   public String getTitle() {
-    return "Sca&la";
+    return ScalaBundle.message("scala.facet.title");
   }
 
   @NotNull
