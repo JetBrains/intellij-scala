@@ -58,6 +58,9 @@
     <fileset dir="${idea.lib}">
       <include name="**/*.jar"/>
     </fileset>
+    <fileset dir="${idea.pack}/plugins/maven/lib/">
+      <include name="**/*.jar"/>
+    </fileset>
     <fileset dir="${project.lib}">
       <include name="**/*.class"/>
     </fileset>
@@ -68,6 +71,9 @@
       <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${java.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${idea.pack}/plugins/maven/lib/">
       <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${idea.pack}/plugins/">
