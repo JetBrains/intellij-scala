@@ -5,11 +5,11 @@ import api.base._
 import api.expr.ScFunctionExpr
 import api.statements.params._
 import api.statements._
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import icons.Icons
 import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.util._
 import psi.stubs.ScParameterStub
 import toplevel.synthetic.JavaIdentifier
@@ -49,7 +49,10 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     case _ => None
   }
 
-  override def getUseScope = new LocalSearchScope(getDeclarationScope)
+  override def getUseScope = {
+    val scope = getDeclarationScope
+    if (scope != null) new LocalSearchScope(scope) else GlobalSearchScope.allScope(getProject)
+  }
 
   def calcType() = typeElement match {
     case None => expectedType match {
