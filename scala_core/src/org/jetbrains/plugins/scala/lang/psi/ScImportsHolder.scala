@@ -117,7 +117,7 @@ trait ScImportsHolder extends ScalaPsiElement {
 
 
     val completionProcessor = new CompletionProcessor(StdKinds.packageRef)
-    this.processDeclarations(completionProcessor, ResolveState.initial, null, getLastChild)
+    this.processDeclarations(completionProcessor, ResolveState.initial, getLastChild, getLastChild)
     val packages = completionProcessor.candidates.map((result: ScalaResolveResult) => result match {
       case ScalaResolveResult(pack: PsiPackage, _) => pack.getQualifiedName
       case _ => ""
