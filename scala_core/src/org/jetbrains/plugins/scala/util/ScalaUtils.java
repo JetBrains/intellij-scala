@@ -26,9 +26,11 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiPackage;
+import com.intellij.psi.PsiClass;
 import com.intellij.facet.FacetManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
@@ -150,4 +152,10 @@ public abstract class ScalaUtils {
     return moduleType instanceof JavaModuleType || moduleType.getId().equals(PLUGIN_MODULE_ID);
   }
 
+  public static boolean isUnderTestSources(PsiClass c) {
+    ProjectRootManager rm = ProjectRootManager.getInstance(c.getProject());
+    VirtualFile f = c.getContainingFile().getVirtualFile();
+    if (f == null) return false;
+    return rm.getFileIndex().isInTestSourceContent(f);
+  }
 }
