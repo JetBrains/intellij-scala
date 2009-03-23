@@ -40,6 +40,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
         val list = getModifierList
         return !list.has(ScalaTokenTypes.kPRIVATE) && !list.has(ScalaTokenTypes.kPROTECTED)
       }
+      if (name == "final") return true
       getModifierList.hasModifierProperty(name: String)
     }
     else false
