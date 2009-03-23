@@ -51,7 +51,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   override def getUseScope = {
     val scope = getDeclarationScope
-    if (scope != null) new LocalSearchScope(scope) else GlobalSearchScope.allScope(getProject)
+    if (scope != null) new LocalSearchScope(scope) else GlobalSearchScope.EMPTY_SCOPE
   }
 
   def calcType() = typeElement match {
