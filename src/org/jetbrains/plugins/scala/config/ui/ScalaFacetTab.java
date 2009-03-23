@@ -57,6 +57,9 @@ public class ScalaFacetTab extends FacetEditorTab {
 
     myCompilerExcludeCb.setSelected(myConfiguration.myExcludeCompilerFromModuleScope);
     myLibraryExcludeCb.setSelected(myConfiguration.myExcludeSdkFromModuleScope);
+    
+    myCompilerExcludeCb.setVisible(false);
+    myLibraryExcludeCb.setVisible(false);
     reset();
   }
 
