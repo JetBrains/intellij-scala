@@ -74,7 +74,7 @@ object ResolveUtils {
         }
         case _: ScObject => {
           scope.getChildren.find((child: PsiElement) =>
-                  child.isInstanceOf[ScObject] && child.asInstanceOf[ScObject].getName == name).getOrElse(null: PsiElement)
+                  child.isInstanceOf[ScClass] && child.asInstanceOf[ScClass].getName == name).getOrElse(null: PsiElement)
         }
         case _ => null
       }
