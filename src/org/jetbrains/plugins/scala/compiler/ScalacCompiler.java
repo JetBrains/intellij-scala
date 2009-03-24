@@ -375,33 +375,4 @@ public class ScalacCompiler extends ExternalCompiler {
     return jdk;
   }
 
-  static HashSet<String> required = new HashSet<String>();
-
-  static {
-    required.add("scala");
-    required.add("sbaz");
-    required.add("fjbg");
-    required.add("jline");
-  }
-
-  private static boolean required(String name) {
-    name = name.toLowerCase();
-    if (!name.endsWith(".jar"))
-      return false;
-
-    final String realName = name;
-    name = name.substring(0, name.lastIndexOf('.'));
-    int ind = name.lastIndexOf('-');
-    if (ind != -1 && name.length() > ind + 1 && Character.isDigit(name.charAt(ind + 1))) {
-      name = name.substring(0, ind);
-    }
-
-    for (String requiredStr : required) {
-      if (name.contains(requiredStr)) return true;
-    }
-
-    return false;
-  }
-
-
 }
