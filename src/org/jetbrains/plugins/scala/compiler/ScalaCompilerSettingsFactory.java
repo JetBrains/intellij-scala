@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project;
  * User: Alexander Podkhalyuzin
  * Date: 05.10.2008
  */
-public class CompilerSettingsEP implements CompilerSettingsFactory{
+public class ScalaCompilerSettingsFactory implements CompilerSettingsFactory{
   public Configurable create(Project project) {
     return new ScalacConfigurable(ScalacSettings.getInstance(project), project);
   }
