@@ -63,7 +63,7 @@ public class ScalaFacetSupportProvider extends FacetTypeFrameworkSupportProvider
         return version;
       }
     }
-    LOG.error("invalid struts version: " + versionName);
+    LOG.error("invalid scala version: " + versionName);
     return null;
   }
 
