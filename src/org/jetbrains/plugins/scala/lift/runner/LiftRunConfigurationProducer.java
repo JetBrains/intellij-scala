@@ -49,7 +49,7 @@ public class LiftRunConfigurationProducer extends RuntimeConfigurationProducer i
     return mySourceElement;
   }
 
-  private static MavenRunnerParameters createBuildParameters(Location l) {
+  private MavenRunnerParameters createBuildParameters(Location l) {
     final PsiElement element = l.getPsiElement();
     final Project project = l.getProject();
 
@@ -73,6 +73,7 @@ public class LiftRunConfigurationProducer extends RuntimeConfigurationProducer i
       }
 
       if (!isCorrectPom) return null;
+      mySourceElement = element;
 
       List<String> profiles = MavenProjectsManager.getInstance(project).getActiveProfiles();
       List<String> goals = new ArrayList<String>();
