@@ -53,9 +53,19 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
       case "override" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("override", getManager))
         else getNode.removeChild(findChildByType(ScalaTokenTypes.kOVERRIDE).getNode)
       case "private" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("private", getManager))
-        else getNode.removeChild(findChildByType(ScalaTokenTypes.kPRIVATE).getNode)
+        else {
+        for (child <- getChildren if child.isInstanceOf[ScAccessModifier] && child.asInstanceOf[ScAccessModifier].isPrivate) {
+          getNode.removeChild(child.getNode)
+          return
+        }
+      }
       case "protected" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("protected", getManager))
-        else getNode.removeChild(findChildByType(ScalaTokenTypes.kPROTECTED).getNode)
+        else {
+        for (child <- getChildren if child.isInstanceOf[ScAccessModifier] && child.asInstanceOf[ScAccessModifier].isProtected) {
+          getNode.removeChild(child.getNode)
+          return
+        }
+      }
       case "final" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("final", getManager))
         else getNode.removeChild(findChildByType(ScalaTokenTypes.kFINAL).getNode)
       case "implicit" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("implicit", getManager))

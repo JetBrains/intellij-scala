@@ -39,7 +39,8 @@ import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import quickfix.ImplementMethodsQuickFix
 import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
-
+import modifiers.ModifierChecker
+import AnnotatorUtils._
 /**
  *    User: Alexander Podkhalyuzin
  *    Date: 23.06.2008
@@ -73,7 +74,7 @@ class ScalaAnnotator extends Annotator
         checkExplicitTypeForReturnStatement(ret, holder)
       }
       case ml: ScModifierList => {
-        //checkModifiers(ml, holder)
+        //ModifierChecker.checkModifiers(ml, holder)
       }
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }
@@ -236,113 +237,5 @@ class ScalaAnnotator extends Annotator
         }
       }
     }
-  }
-
-  private def checkModifiers(ml: ScModifierList, holder: AnnotationHolder) {
-    if (!ml.getParent.isInstanceOf[ScModifierListOwner]) {
-      return
-    }
-    val owner = ml.getParent.asInstanceOf[ScModifierListOwner]
-    val modifiersSet = new HashSet[String]
-    def checkDublicates(element: PsiElement, text: String): Boolean = {
-      text match {
-        case "final" => {
-          if (modifiersSet.contains("sealed")) {
-            proccessError(ScalaBundle.message("illegal.modifiers.combination", text, "sealed"), element, holder,
-              new RemoveModifierQuickFix(owner, text))
-            return false
-          }
-          if (modifiersSet.contains("private")) {
-            proccessError(ScalaBundle.message("illegal.modifiers.combination", text, "private"), element, holder,
-              new RemoveModifierQuickFix(owner, text))
-            return true
-          }
-        }
-        case _ =>
-      }
-      if (modifiersSet.contains(text)) {
-        proccessError(ScalaBundle.message("illegal.modifiers.combination", text, text), element, holder,
-          new RemoveModifierQuickFix(owner, text))
-        false
-      } else {
-        modifiersSet += text
-        true
-      }
-    }
-    for (modifier <- ml.getNode.getChildren(null)) {
-      val modifierPsi = modifier.getPsi
-      modifierPsi match {
-        case am: ScAccessModifier => {
-          //todo:
-        }
-        case _ => {
-          modifier.getText match {
-            case "lazy" => {
-              owner match {
-                case _: ScPatternDefinition => checkDublicates(modifierPsi, "lazy")
-                case _ => {
-                  proccessError(ScalaBundle.message("lazy.modifier.is.not.allowed.here"), modifierPsi, holder,
-                    new RemoveModifierQuickFix(owner, "lazy"))
-                }
-              }
-            }
-            case "final" => {
-              owner match {
-                case _: ScDeclaration => {
-                  proccessError(ScalaBundle.message("final.modifier.not.with.declarations"), modifierPsi, holder,
-                    new RemoveModifierQuickFix(owner, "final"))
-                }
-                case _: ScTrait => {
-                  proccessError(ScalaBundle.message("final.modifier.not.with.trait"), modifierPsi, holder,
-                    new RemoveModifierQuickFix(owner, "final"))
-                }
-                case _: ScClass => checkDublicates(modifierPsi, "final")
-                case _: ScObject => {
-                  if (checkDublicates(modifierPsi, "final")) {
-                    proccessWarning(ScalaBundle.message("final.modifier.is.redundant.with.object"), modifierPsi, holder,
-                      new RemoveModifierQuickFix(owner, "final"))
-                  }
-                }
-                case e: ScMember if e.getParent.isInstanceOf[ScTemplateBody] => {
-                  if (e.getContainingClass.hasModifierProperty("final")) {
-                    if (checkDublicates(modifierPsi, "final")) {
-                      proccessWarning(ScalaBundle.message("final.modifier.is.redundant.with.final.parents"), modifierPsi, holder,
-                        new RemoveModifierQuickFix(owner, "final"))
-                    }
-                  } else {
-                   checkDublicates(modifierPsi, "final")
-                  }
-                }
-                case _ => {
-                  proccessError(ScalaBundle.message("final.modifier.is.not.allowed.here"), modifierPsi, holder,
-                    new RemoveModifierQuickFix(owner, "final"))
-                }
-              }
-            }
-            case _ => //todo: 
-          }
-        }
-      }
-    }
-  }
-
-  private def proccessError(error: String, element: PsiElement, holder: AnnotationHolder, fixes: IntentionAction*) {
-    proccessError(error, element.getTextRange, holder, fixes: _*)
-  }
-
-  private def proccessError(error: String, range: TextRange, holder: AnnotationHolder, fixes: IntentionAction*) {
-    val annotation = holder.createErrorAnnotation(range, error)
-    annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-    for (fix <- fixes) annotation.registerFix(fix)
-  }
-
-  private def proccessWarning(error: String, element: PsiElement, holder: AnnotationHolder, fixes: IntentionAction*) {
-    proccessWarning(error, element.getTextRange, holder, fixes: _*)
-  }
-
-  private def proccessWarning(error: String, range: TextRange, holder: AnnotationHolder, fixes: IntentionAction*) {
-    val annotation: Annotation = holder.createWarningAnnotation(range, error)
-    annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-    for (fix <- fixes) annotation.registerFix(fix)
   }
 }
