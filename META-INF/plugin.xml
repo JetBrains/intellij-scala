@@ -21,7 +21,7 @@
   <version>VERSION</version>
   <vendor logo="/org/jetbrains/plugins/scala/images/scala16.png" url="http://www.jetbrains.com">JetBrains Inc.</vendor>
   <idea-version since-build="9684" until-build="9999"/>
-  <depends>org.jetbrains.idea.maven</depends>
+  <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
   <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
   <extensions defaultExtensionNs="com.intellij">
@@ -82,7 +82,6 @@
     <configurationType implementation="org.jetbrains.plugins.scala.script.ScalaScriptConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.script.console.ScalaScriptConsoleConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestConfigurationType"/>
-    <configurationProducer implementation="org.jetbrains.plugins.scala.lift.runner.LiftRunConfigurationProducer"/>
 
     <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes"/>
     <!--Stub indeces -->
