@@ -125,10 +125,13 @@
 
     <mkdir dir="${project.lib}"/>
 
+    <!--logging="debug"-->
+    <!--scalacdebugging="yes"-->
+
+
     <scalac srcdir="${base.dir}"
             destdir="${project.lib}"
-            logging="debug"
-            scalacdebugging="yes"
+            target="jvm-1.5"
             force="changed">
       <classpath refid="base.path"/>
       <include name="src/**/*.scala"/>
@@ -234,10 +237,13 @@
     <mkdir dir="${project.lib}/../../test"/>
     <mkdir dir="${project.lib}/../../test/Scala"/>
 
+    <!--logging="debug"-->
+    <!--scalacdebugging="yes"-->
+    
+
     <scalac srcdir=".."
             destdir="../classes/test/Scala"
-            logging="debug"
-            scalacdebugging="yes"
+            target="jvm-1.5"
             force="changed">
       <classpath refid="base.path"/>
       <classpath>
