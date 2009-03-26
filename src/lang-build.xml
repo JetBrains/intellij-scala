@@ -14,7 +14,9 @@
   -->
 
 <project name="Generate various scala packages for parser needs" default="rebuild.all">
-  <!--<property file="scala.properties"/>-->
+  <property file="scala.properties"/>
+
+  <property name="project.lib" value="../classes/production/Scala"/>
   <property name="base.dir" value="${project.lib}/../../.."/>
   <property name="scala.home" value="${base.dir}/SDK"/>
   <property name="scala_core.dir" value="${project.lib}/../../../scala_core"/>
