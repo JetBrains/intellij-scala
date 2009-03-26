@@ -140,6 +140,7 @@
     </scalac>
     <javac2 srcdir=".."
             destdir="${project.lib}"
+            target="1.5"
             verbose="yes"
             debug="true">
       <classpath refid="base.path"/>
