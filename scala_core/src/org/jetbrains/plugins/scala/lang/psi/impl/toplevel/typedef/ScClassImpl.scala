@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
-import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement, PsiModifierList}
+import com.intellij.psi.{PsiElement, PsiNamedElement, PsiModifierList}
 import stubs.elements.wrappers.DummyASTNode
 import stubs.ScTypeDefinitionStub
 import api.base.ScModifierList
@@ -54,7 +54,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     if (!super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)) return false
-    
+
     for (p <- parameters) {
       if (!processor.execute(p, state)) return false
     }
@@ -63,12 +63,4 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
   }
 
   override def isCase = getModifierList.has(ScalaTokenTypes.kCASE)
-
-
-  override def getConstructors: Array[PsiMethod] = {
-    constructor match {
-      case Some(pc) => Array[PsiMethod](pc.getFakePsiMethod)
-      case _ => PsiMethod.EMPTY_ARRAY
-    }
-  }
 }
