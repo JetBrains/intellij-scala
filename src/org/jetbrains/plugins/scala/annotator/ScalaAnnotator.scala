@@ -54,6 +54,7 @@ class ScalaAnnotator extends Annotator
     if (fType != ScalaFileType.SCALA_FILE_TYPE) return
     element match {
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
+        //todo: unhandled case abstract override
         //checkOverrideMethods(x, holder)
       }
       case x: ScTemplateDefinition => {

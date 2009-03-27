@@ -1,6 +1,5 @@
 <project name="Generate Type Inference test" default="generate.test">
-  <property file="../../../../../../../src/scala.properties"/>
-  <property name="base.dir" value="${project.lib}/../../.."/>
+  <property name="base.dir" value="../../../../../../../"/>
   <property name="output.dir" value="${base.dir}/test/org/jetbrains/plugins/scala/lang/typeInference/generated"/>
   <property name="testdata.dir" value="${base.dir}/testdata/typeInference"/>
 
@@ -84,7 +83,7 @@
   </target>
 
   <target name="move.testdata">
-     <copy toDir="${project.lib}/testdata">
+     <copy toDir="${base.dir}/classes/production/Scala/testdata">
        <fileset dir="${base.dir}/testdata"/>
      </copy>
     <copy toDir="${base.dir}/classes/test/Scala/testData">
