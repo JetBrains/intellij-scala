@@ -117,7 +117,7 @@
 
     <scalac srcdir="${base.dir}"
             destdir="${production.dest}"
-            target="jvm-1.4"
+            target="jvm-1.5"
             logging="debug"
             scalacdebugging="yes"
             force="changed">
@@ -128,7 +128,8 @@
 
     <javac2 srcdir="${base.dir}"
             destdir="${production.dest}"
-            target="1.4"
+            target="1.5"
+            source="1.5"
             verbose="yes"
             debug="true">
       <classpath refid="base.path"/>
@@ -217,7 +218,7 @@
   </target>
 
 
-  <target name="build.tests" depends="make.project">
+  <target name="build.tests" >
 
     <mkdir dir="${test.dest}"/>
 
@@ -252,7 +253,7 @@
 
   </target>
 
-  <target name="run.tests" depends="build.tests">
+  <target name="run.tests" >
 
     <mkdir dir="${base.dir}/logs"/>
     <mkdir dir="${output}/config"/>

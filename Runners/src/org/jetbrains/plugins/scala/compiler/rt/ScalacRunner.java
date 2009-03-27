@@ -17,6 +17,7 @@ package org.jetbrains.plugins.scala.compiler.rt;
 
 import java.io.*;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -71,7 +72,7 @@ public class ScalacRunner {
     try {
       Class scalacMain = Class.forName(SCALAC_QUALIFIED_NAME);
       Method method = scalacMain.getMethod("main", new Class[]{String[].class});
-      method.invoke(((Object) null), ((Object[]) scalacArgs.toArray(new String[scalacArgs.size()])));
+      method.invoke(null, ((Object) scalacArgs.toArray(new String[scalacArgs.size()])));
     } catch (Exception e) {
       Throwable cause = e.getCause();
       System.err.println("Scalac internal error: " + e.getClass() + " " + Arrays.toString(e.getStackTrace()) +
