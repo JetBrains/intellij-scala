@@ -249,7 +249,7 @@
 
   </target>
 
-  <target name="run.tests">
+  <target name="run.tests" depends="build.tests">
 
     <mkdir dir="${base.dir}/logs"/>
     <mkdir dir="${output}/config"/>
