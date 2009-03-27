@@ -5,7 +5,7 @@ import api.base.patterns.ScCaseClause
 import api.base.types.ScTypeElement
 import api.expr.{ScGenericCall, ScAnnotation, ScExpression}
 import api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
-import api.toplevel.typedef.ScObject
+import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition, ScClass, ScObject}
 import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -200,5 +200,27 @@ object ScalaPsiUtil {
     }
     while (el != null && classes.find(_.isInstance(el)) == None) el = el.getParent
     return el
+  }
+
+  def getCompanionModule(td: ScTemplateDefinition): Option[ScTypeDefinition] = {
+    val name = td.getName
+    val scope = td.getParent
+    td match {
+      case _: ScClass => {
+        scope.getChildren.map((child: PsiElement) => child match {
+          case td: ScTypeDefinition => td
+          case _ => null: ScTypeDefinition
+        }).find((child: ScTypeDefinition) =>
+                child.isInstanceOf[ScObject] && child.asInstanceOf[ScObject].getName == name)
+      }
+      case _: ScObject => {
+        scope.getChildren.map((child: PsiElement) => child match {
+          case td: ScTypeDefinition => td
+          case _ => null: ScTypeDefinition
+        }).find((child: ScTypeDefinition) =>
+                child.isInstanceOf[ScClass] && child.asInstanceOf[ScClass].getName == name)
+      }
+      case _ => None
+    }
   }
 }

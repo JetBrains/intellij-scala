@@ -64,21 +64,6 @@ object ResolveUtils {
                                                               })
 
   def isAccessible(member: PsiMember, place: PsiElement): Boolean = {
-    def getCompanionModule(td: ScTemplateDefinition): PsiElement = {
-      val name = td.getName
-      val scope = td.getParent
-      td match {
-        case _: ScClass => {
-          scope.getChildren.find((child: PsiElement) =>
-                  child.isInstanceOf[ScObject] && child.asInstanceOf[ScObject].getName == name).getOrElse(null: PsiElement)
-        }
-        case _: ScObject => {
-          scope.getChildren.find((child: PsiElement) =>
-                  child.isInstanceOf[ScClass] && child.asInstanceOf[ScClass].getName == name).getOrElse(null: PsiElement)
-        }
-        case _ => null
-      }
-    }
     member match {
       case scMember: ScMember => scMember.getModifierList.accessModifier match {
         case None => true
@@ -103,7 +88,7 @@ object ResolveUtils {
                     if (bind == null) return true
                     bind match {
                       case td: ScTemplateDefinition => {
-                        PsiTreeUtil.isAncestor(td, place, false) || PsiTreeUtil.isAncestor(getCompanionModule(td), place, false)
+                        PsiTreeUtil.isAncestor(td, place, false) || PsiTreeUtil.isAncestor(ScalaPsiUtil.getCompanionModule(td).getOrElse(null: PsiElement), place, false)
                       }
                       case pack: PsiPackage => {
                         val packageName = pack.getQualifiedName
@@ -130,7 +115,7 @@ object ResolveUtils {
                   classOf[ScalaFile], classOf[ScPackaging], classOf[ScTemplateDefinition])
                 enclosing match {
                   case td: ScTemplateDefinition => {
-                    PsiTreeUtil.isAncestor(td, place, false) || PsiTreeUtil.isAncestor(getCompanionModule(td), place, false)
+                    PsiTreeUtil.isAncestor(td, place, false) || PsiTreeUtil.isAncestor(ScalaPsiUtil.getCompanionModule(td).getOrElse(null: PsiElement), place, false)
                   }
                   case file: ScalaFile if file.isScriptFile => {
                     PsiTreeUtil.isAncestor(file, place, false)

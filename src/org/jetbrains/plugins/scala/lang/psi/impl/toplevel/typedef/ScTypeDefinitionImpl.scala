@@ -170,7 +170,8 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     res.toArray
   }
 
-  override def setName(name: String): PsiElement = {
+  override def setName(name: String): PsiElement = setName(name, true)
+  private[typedef] def setName(name: String, renameCompanion: Boolean): PsiElement = {
     val id = nameId.getNode
     val parent = id.getTreeParent
     def shortName(s: String): String = {
@@ -182,6 +183,11 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
         case x: ScalaFile => x.setName(name + ".scala")
         case _ =>
       }
+    }
+
+    if (renameCompanion) ScalaPsiUtil.getCompanionModule(this) match {
+      case Some(td: ScTypeDefinitionImpl) => td.setName(name, false)
+      case _ =>
     }
 
     super.setName(name)

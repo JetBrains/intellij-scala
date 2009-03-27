@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements.params
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScFunctionType}
+import psi.types.{ScType, ScFunctionType}
 import api.base._
 import api.expr.ScFunctionExpr
 import api.statements.params._
