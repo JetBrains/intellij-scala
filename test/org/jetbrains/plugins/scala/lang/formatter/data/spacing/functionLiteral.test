@@ -5,5 +5,5 @@ class a {
 -----
 class a {
   (x: Int,
-  y: Int) => Expr
+   y: Int) => Expr
 }
