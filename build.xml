@@ -45,7 +45,7 @@
   <target name="unzip.last.successful.IDEA.build">
     <unzip dest="${idea.home}">
       <fileset dir="${idea.home}">
-        <include name="*.zip"/>
+        <include name="idea*.zip"/>
       </fileset>
     </unzip>
   </target>
@@ -86,9 +86,6 @@
       </classpath>
     </taskdef>
 
-    <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.lib.path"/>
-
-
   <target name="clear.all" description="Clears results">
     <mkdir dir="${compiled.dest}"/>
     <delete includeemptydirs="true">
@@ -102,6 +99,8 @@
   </target>
 
   <target name="make.project" depends="unzip.last.successful.IDEA.build" description="Builds all classes">
+
+    <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.lib.path"/>
 
     <mkdir dir="${production.dest}"/>
     <mkdir dir="${production.dest}/META-INF"/>
