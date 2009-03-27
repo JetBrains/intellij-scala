@@ -61,7 +61,13 @@ object getDummyBlocks {
     else null
     for (val child <- children if isCorrectBlock(child)) {
       val indent = ScalaIndentProcessor.getChildIndent(block, child)
-      subBlocks.add(new ScalaBlock (block, child, null, alignment, indent, block.getWrap, block.getSettings))
+      val childAlignment = if (node.getPsi.isInstanceOf[ScParameterClause]) {
+        child.getElementType match {
+          case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tLPARENTHESIS => null
+          case _ => alignment
+        }
+      } else alignment
+      subBlocks.add(new ScalaBlock (block, child, null, childAlignment, indent, block.getWrap, block.getSettings))
       prevChild = child
     }
     return subBlocks
