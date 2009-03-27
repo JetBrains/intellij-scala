@@ -67,6 +67,8 @@ public class LiftRunConfigurationProducer extends RuntimeConfigurationProducer i
     final MavenProjectsManager mavenProjectsManager = MavenProjectsManager.getInstance(project);
     final MavenProjectModel mavenProjectModel = mavenProjectsManager.findProject(module);
 
+    if (mavenProjectModel == null) return null;
+
     final MavenArtifact artifact = mavenProjectModel.findDependency(GROUP_ID_LIFT, ARTIFACT_ID_LIDT);
 
     if (artifact == null) return null;
