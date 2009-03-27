@@ -75,7 +75,7 @@ class ScalaAnnotator extends Annotator
         checkExplicitTypeForReturnStatement(ret, holder)
       }
       case ml: ScModifierList => {
-        //ModifierChecker.checkModifiers(ml, holder)
+        ModifierChecker.checkModifiers(ml, holder)
       }
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }
