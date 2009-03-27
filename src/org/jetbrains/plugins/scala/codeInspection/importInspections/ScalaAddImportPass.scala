@@ -3,12 +3,12 @@ package org.jetbrains.plugins.scala.codeInspection.importInspections
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
+import lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.imports.ScImportStmt
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
-import lang.psi.api.expr.ScReferenceExpression
 import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
+import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
 import lang.psi.ScImportsHolder
 import lang.resolve.ResolveUtils
 import com.intellij.codeInsight.hint.{HintManagerImpl, HintManager, QuestionAction}
@@ -210,9 +210,14 @@ object ScalaAddImportPass {
   def getClasses(ref : ScReferenceElement, myProject: Project) = {
     val kinds = ref.getKinds(false)
     val cache = JavaPsiFacade.getInstance(myProject).getShortNamesCache
-    cache.getClassesByName(ref.refName, ref.getResolveScope).filter {
+    val classes = cache.getClassesByName(ref.refName, ref.getResolveScope).filter {
       clazz => clazz != null && clazz.getQualifiedName() != null && clazz.getQualifiedName.indexOf(".") > 0 &&
               ResolveUtils.kindMatches(clazz, kinds) && notInner(clazz, ref) && ResolveUtils.isAccessible(clazz, ref)
     }
+    if (ref.getParent.isInstanceOf[ScMethodCall]) {
+      classes.filter((clazz: PsiClass) => (clazz.isInstanceOf[ScClass] && clazz.hasModifierProperty("case")) &&
+              (clazz.isInstanceOf[ScObject] && clazz.asInstanceOf[ScObject].functionsByName("apply").toSeq.length > 0))
+    }
+    else classes
   }
 }
