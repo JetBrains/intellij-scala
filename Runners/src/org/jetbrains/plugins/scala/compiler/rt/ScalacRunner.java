@@ -40,7 +40,7 @@ public class ScalacRunner {
       return;
     }
 
-    List<String> scalacArgs = new ArrayList<String>();
+    List scalacArgs = new ArrayList();
     BufferedReader reader = null;
     FileInputStream inputStream = null;
     try {
@@ -69,19 +69,21 @@ public class ScalacRunner {
     }
 
     try {
-      Class<?> scalacMain = Class.forName(SCALAC_QUALIFIED_NAME);
-      Method method = scalacMain.getMethod("main", String[].class);
-      method.invoke(null, ((Object) scalacArgs.toArray(new String[scalacArgs.size()])));
+      Class scalacMain = Class.forName(SCALAC_QUALIFIED_NAME);
+      Method method = scalacMain.getMethod("main", new Class[]{String[].class});
+      method.invoke(((Object) null), ((Object[]) scalacArgs.toArray(new String[scalacArgs.size()])));
     } catch (Exception e) {
       Throwable cause = e.getCause();
       System.err.println("Scalac internal error: " + e.getClass() + " " + Arrays.toString(e.getStackTrace()) +
               (cause != null ? Arrays.toString(e.getCause().getStackTrace()) : ""));
-      for (StackTraceElement element : e.getStackTrace()) {
+      for (int i1 = 0; i1 < e.getStackTrace().length; i1++) {
+        StackTraceElement element = e.getStackTrace()[i1];
         System.err.println(element);
       }
       while (cause != null) {
         System.err.println("Caused by " + cause);
-        for (StackTraceElement element : cause.getStackTrace()) {
+        for (int i = 0; i < cause.getStackTrace().length; i++) {
+          StackTraceElement element = cause.getStackTrace()[i];
           System.err.println(element);
         }
         cause = cause.getCause();

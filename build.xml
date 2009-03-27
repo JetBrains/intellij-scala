@@ -113,6 +113,29 @@
       <fileset dir="${base.dir}/resources/"/>
     </copy>
 
+    <!-- Compile runners -->
+
+    <scalac srcdir="${base.dir}"
+            destdir="${production.dest}"
+            target="jvm-1.4"
+            logging="debug"
+            scalacdebugging="yes"
+            force="changed">
+      <classpath refid="base.path"/>
+      <include name="Runners/src/**/*.scala"/>
+      <include name="Runners/src/**/*.java"/>
+    </scalac>
+
+    <javac2 srcdir="${base.dir}"
+            destdir="${production.dest}"
+            target="1.4"
+            verbose="yes"
+            debug="true">
+      <classpath refid="base.path"/>
+      <include name="Runners/src/**/*.java"/>
+    </javac2>
+
+
     <scalac srcdir="${base.dir}"
             destdir="${production.dest}"
             target="jvm-1.5"
@@ -122,8 +145,6 @@
       <classpath refid="base.path"/>
       <include name="src/**/*.scala"/>
       <include name="src/**/*.java"/>
-      <include name="Runners/src/**/*.scala"/>
-      <include name="Runners/src/**/*.java"/>
     </scalac>
 
     <javac2 srcdir="${base.dir}"
@@ -134,7 +155,6 @@
       <classpath refid="base.path"/>
       <include name="src/**/*.java"/>
       <include name="src/**/*.form"/>
-      <include name="Runners/src/**/*.java"/>
     </javac2>
 
     <copy file="${base.dir}/src/org/jetbrains/plugins/scala/ScalaBundle.properties"
