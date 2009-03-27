@@ -16,6 +16,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Collection;
+import java.util.jar.JarFile;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author ilyas
@@ -27,8 +30,11 @@ public class ScalaCompilerUtil {
   }
 };
   public static final String COMPILER_PROPERTIES_PATH = "compiler.properties";
-  public static final String COMPILER_CLASS_PATH = "scala/tools/nsc/Main.class";
+  private static final String FJBG_JAR_PREFIX = "fjbg";
   public static final String SCALA_COMPILER_JAR_NAME_PREFIX = "scala-compiler";
+
+  public static final String COMPILER_CLASS_PATH = "scala/tools/nsc/Main.class";
+  public static final String LAMP_PATCKAGE_PATH = "ch/epfl/lamp/fjbg";
 
   /**
    * Checks wheter given IDEA library contaions Scala Compiler classes
@@ -99,4 +105,31 @@ public class ScalaCompilerUtil {
   }
 
 
+  public static boolean isJarFileContainsClassFile(String jarPath, String classFile) {
+    if (jarPath == null || !jarPath.endsWith(".jar")) return false;
+    File realFile = new File(jarPath);
+    if (realFile.exists()) {
+      try {
+        JarFile jarFile = new JarFile(realFile);
+        if (jarFile.getJarEntry(classFile) != null) {
+          return true;
+        }
+        jarFile.close();
+      } catch (IOException e) {
+        //do nothing
+      }
+    }
+    return false;
+
+  }
+
+  public static String getFJDBJarPAth(Module module) {
+    final Library[] libraries = LibrariesUtil.getLibrariesByCondition(module, new Condition<Library>() {
+      public boolean value(Library library) {
+        return library != null && ScalaConfigUtils.checkLibrary(library, FJBG_JAR_PREFIX, LAMP_PATCKAGE_PATH);
+      }
+    });
+    final Library library = libraries[0];
+    return ScalaConfigUtils.getSpecificJarForLibrary(library, FJBG_JAR_PREFIX, LAMP_PATCKAGE_PATH);
+  }
 }

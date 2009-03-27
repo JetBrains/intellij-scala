@@ -81,7 +81,6 @@
         <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
         <pathelement location="${scala.home}/lib/scala-library.jar"/>
         <pathelement location="${scala.home}/lib/scalap.jar"/>
-        <pathelement location="${scala.home}/lib/runners.jar"/>
         <pathelement location="${scala.home}/lib/scalatest-0.9.5.jar"/>
       </classpath>
     </taskdef>
@@ -250,14 +249,15 @@
 
   </target>
 
-  <target name="run.tests" >
+  <target name="run.tests">
 
     <mkdir dir="${base.dir}/logs"/>
     <mkdir dir="${output}/config"/>
     <mkdir dir="${output}/system"/>
 
-    <junit fork="yes"
+    <junit fork="no"
            dir="${base.dir}"
+           showoutput="yes"
            printsummary="yes"
            haltonfailure="no"
            haltonerror="no">
@@ -272,8 +272,8 @@
       <jvmarg value="-Djava.awt.headless=true"/>
       <jvmarg value="-Xmx256M"/>
       <jvmarg value="-ea"/>
-      <jvmarg value="-Xdebug"/>
       <jvmarg value="-Djava.compiler=NONE"/>
+      <jvmarg value="-Xdebug"/>
       <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5112"/>
 
       <jvmarg value="-Didea.config.path=${output}/config"/>

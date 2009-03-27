@@ -24,6 +24,8 @@ import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.VirtualFileSystem;
 import com.intellij.util.Function;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.ContainerUtil;
@@ -72,7 +74,7 @@ public class ScalaConfigUtils {
     return library != null && checkLibrary(library, SCALA_LIB_JAR_NAME_PREFIX, PREFED_CLASS_PATH);
   }
 
-  static boolean checkLibrary(Library library, String jarNamePrefix, String necessaryClass) {
+  public static boolean checkLibrary(Library library, String jarNamePrefix, String necessaryClass) {
     boolean result = false;
     VirtualFile[] classFiles = library.getFiles(OrderRootType.CLASSES);
     for (VirtualFile file : classFiles) {
@@ -151,7 +153,7 @@ public class ScalaConfigUtils {
     return LibrariesUtil.getGlobalLibraries(SCALA_SDK_LIB_CONDITION);
   }
 
-  static String getSpecificJarForLibrary(Library library, String jarNamePrefix, String necessaryClass) {
+  public static String getSpecificJarForLibrary(Library library, String jarNamePrefix, String necessaryClass) {
     VirtualFile[] classFiles = library.getFiles(OrderRootType.CLASSES);
     for (VirtualFile file : classFiles) {
       String path = file.getPath();
