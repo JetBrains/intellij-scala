@@ -1,0 +1,283 @@
+<!--
+  ~ Copyright 2000-2009 JetBrains s.r.o.
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project name="Generate various scala packages for parser needs" default="rebuild.all">
+
+  <property name="base.dir" value="."/>
+  
+  <property file="${base.dir}/scala.properties"/>
+
+  <property name="scala_core.dir" value="${base.dir}/scala_core"/>
+  <property name="runners.dir" value="${base.dir}/Runners"/>
+
+  <property name="compiled.dest" value="${base.dir}/classes/"/>
+  <property name="test.dest" value="${compiled.dest}/test/"/>
+  <property name="production.dest" location="${compiled.dest}/production/"/>
+
+  <property name="idea.lib" value="${idea.home}/lib"/>
+  <property name="scala.home" value="${base.dir}/SDK"/>
+  <property name="java.lib" value="${jdk.home}/lib"/>
+
+  <property name="output" value="${basedir}/test_dist"/>
+
+  <property name="0" value="unknown"/>
+  <property name="build.vcs.number.scala_svn" value="unknown"/>
+  <property name="plugin.revision" value="${build.vcs.number.scala_svn}"/>
+  <property name="plugin.version" value="${scala.plugin.version}.${plugin.revision}"/>
+
+  <property name="scala.jar" value="scala-plugin.jar"/>
+  <property name="runners.jar" value="scala-plugin-runners.jar"/>
+  <property name="temp.jar.dir" value="${base.dir}/tempjar"/>
+
+
+  <target name="unzip.last.successful.IDEA.build">
+    <unzip dest="${idea.home}">
+      <fileset dir="${idea.home}">
+        <include name="idea*.zip"/>
+      </fileset>
+    </unzip>
+  </target>
+
+  <path id="idea.lib.path">
+    <fileset dir="${idea.lib}">
+      <include name="**/*.jar"/>
+      <exclude name="boot.jar"/>
+    </fileset>
+  </path>
+
+  <path id="base.path">
+    <fileset dir="${scala.home}/lib">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${java.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${idea.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${idea.home}/plugins/maven/lib/">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${production.dest}">
+      <include name="**/*.class"/>
+    </fileset>
+  </path>
+
+  <!--Scalac taskdef-->
+    <taskdef resource="scala/tools/ant/antlib.xml">
+      <classpath>
+        <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
+        <pathelement location="${scala.home}/lib/scala-library.jar"/>
+        <pathelement location="${scala.home}/lib/scalap.jar"/>
+        <pathelement location="${scala.home}/lib/runners.jar"/>
+        <pathelement location="${scala.home}/lib/scalatest-0.9.5.jar"/>
+      </classpath>
+    </taskdef>
+
+    <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.lib.path"/>
+
+
+  <target name="clear.all" description="Clears results">
+    <mkdir dir="${compiled.dest}"/>
+    <delete includeemptydirs="true">
+      <fileset dir="${compiled.dest}"/>
+    </delete>
+  </target>
+
+  <target name="create.lexer" description="Makes lexer file">
+    <ant dir="${scala_core.dir}/src/org/jetbrains/plugins/scala/lang/lexer/core"
+         antfile="build.xml" target="generate.lexer"/>
+  </target>
+
+  <target name="make.project" depends="unzip.last.successful.IDEA.build" description="Builds all classes">
+
+    <mkdir dir="${production.dest}"/>
+    <mkdir dir="${production.dest}/META-INF"/>
+
+    <copy todir="${production.dest}/META-INF">
+      <fileset dir="${base.dir}/META-INF"/>
+    </copy>
+
+    <copy todir="${production.dest}">
+      <fileset dir="${base.dir}/resources/"/>
+    </copy>
+
+    <scalac srcdir="${base.dir}"
+            destdir="${production.dest}"
+            target="jvm-1.5"
+            logging="debug"
+            scalacdebugging="yes"
+            force="changed">
+      <classpath refid="base.path"/>
+      <include name="src/**/*.scala"/>
+      <include name="scala_core/src/**/*.scala"/>
+      <include name="Runners/src/**/*.scala"/>
+      <include name="src/**/*.java"/>
+      <include name="scala_core/src/**/*.java"/>
+      <include name="Runners/src/**/*.java"/>
+    </scalac>
+    <javac2 srcdir="${base.dir}"
+            destdir="${production.dest}"
+            target="1.5"
+            verbose="yes"
+            debug="true">
+      <classpath refid="base.path"/>
+      <include name="src/**/*.java"/>
+      <include name="src/**/*.form"/>
+      <include name="scala_core/src/**/*.java"/>
+      <include name="scala_core/src/**/*.form"/>
+      <include name="Runners/src/**/*.java"/>
+    </javac2>
+
+    <copy file="${scala_core.dir}/src/org/jetbrains/plugins/scala/ScalaBundle.properties"
+          tofile="${production.dest}/org/jetbrains/plugins/scala/ScalaBundle.properties"/>
+
+    <replace file="${production.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
+  </target>
+
+  <target name="jar.plugin" depends="make.project" description="Makes jar">
+
+    <mkdir dir="${temp.jar.dir}/Scala/lib"/>
+
+    <jar destfile="${temp.jar.dir}/Scala/lib/${scala.jar}">
+      <fileset dir="${production.dest}" excludes="**/*build.xml, **/scala.properties, **/*Runner*, **/*Reporter*"/>
+      <manifest>
+        <attribute name="Revision" value="${plugin.revision}"/>
+        <attribute name="Build" value="${plugin.version}"/>
+      </manifest>
+    </jar>
+
+    <jar destfile="${temp.jar.dir}/Scala/lib/${runners.jar}">
+      <fileset dir="${production.dest}" includes="**/*Runner*, **/*Reporter*"/>
+      <manifest>
+        <attribute name="Revision" value="${plugin.revision}"/>
+        <attribute name="Build" value="${plugin.version}"/>
+      </manifest>
+    </jar>
+
+    <copy todir="${temp.jar.dir}/Scala/lib">
+      <fileset dir="${scala.home}/lib">
+        <include name="**/scala-library.jar"/>
+        <include name="**/scalap.jar"/>
+      </fileset>
+    </copy>
+
+    <zip destfile="${base.dir}/dist/scala-intellij-bin-${plugin.version}.zip" basedir="${temp.jar.dir}"/>
+    <delete dir="${temp.jar.dir}"/>
+  </target>
+
+  <target name="rebuild.all" depends="clear.all, make.project, jar.plugin, zip.sources"
+          description="Builds all classes"/>
+
+  <target name="zip.sources" description="Zips sources">
+    <zip destfile="${base.dir}/dist/scala-intellij-src-${plugin.version}.zip"
+         basedir="${base.dir}"
+         includes="**/*.java,
+         **/*.scala,
+         **/*.properties,
+         **/*.flex,
+         **/*.jar,
+         **/*.skeleton,
+         **/*.xml,
+         **/*.png,
+         META-INF/**/*.xml"
+         excludes="testdata/*, test/*"
+        />
+  </target>
+
+
+  <target name="build.tests" depends="make.project">
+
+    <mkdir dir="${test.dest}"/>
+
+    <scalac srcdir="${base.dir}/test"
+            destdir="${test.dest}"
+            scalacdebugging="yes"
+            logging="debug"
+            target="jvm-1.5"
+            force="changed">
+      <classpath refid="base.path"/>
+      <classpath>
+        <path location="${production.dest}"/>
+      </classpath>
+      <include name="**/*.java"/>
+      <include name="**/*.scala"/>
+    </scalac>
+
+
+    <javac srcdir="${base.dir}/test"
+           destdir="${test.dest}"
+           debug="true">
+      <classpath refid="base.path"/>
+      <classpath>
+        <path location="${production.dest}"/>
+      </classpath>
+      <include name="**/*.java"/>
+    </javac>
+
+    <copy toDir="${production.dest}/testdata">
+      <fileset dir="${base.dir}/testdata"/>
+    </copy>
+
+  </target>
+
+  <target name="run.tests" depends="build.tests">
+
+    <mkdir dir="${base.dir}/logs"/>
+    <mkdir dir="${output}/config"/>
+    <mkdir dir="${output}/system"/>
+
+    <junit fork="yes"
+           dir="${base.dir}"
+           printsummary="yes"
+           haltonfailure="no"
+           haltonerror="no">
+
+      <classpath>
+        <path location="${production.dest}"/>
+        <path location="${test.dest}"/>
+        <path refid="base.path"/>
+      </classpath>
+
+      <jvmarg value="-Xbootclasspath/p:./SDK/boot/boot.jar"/>
+      <jvmarg value="-Djava.awt.headless=true"/>
+      <jvmarg value="-Xmx256M"/>
+      <jvmarg value="-ea"/>
+      <jvmarg value="-Xdebug"/>
+      <jvmarg value="-Djava.compiler=NONE"/>
+      <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5112"/>
+
+      <jvmarg value="-Didea.config.path=${output}/config"/>
+      <jvmarg value="-Didea.system.path=${output}/system"/>
+      <jvmarg value="-Didea.plugins.path=${production.dest}"/>
+
+      <jvmarg value="-Didea.load.plugins.id=org.intellij.scala"/>
+
+      <formatter type="plain"/>
+
+      <batchtest todir="${base.dir}/logs">
+        <fileset dir="${test.dest}">
+          <include name="**/*Test.class"/>
+          <exclude name="**/*ActualTest.class"/>
+        </fileset>
+      </batchtest>
+
+    </junit>
+    <delete dir="${output}/config"/>
+    <delete dir="${output}/system"/>
+
+  </target>
+
+</project>
