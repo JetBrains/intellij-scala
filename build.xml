@@ -115,11 +115,12 @@
 
     <!-- Compile runners -->
 
+    <!--logging="debug"-->
+    <!--scalacdebugging="yes"-->
+
     <scalac srcdir="${base.dir}"
             destdir="${production.dest}"
             target="jvm-1.5"
-            logging="debug"
-            scalacdebugging="yes"
             force="changed">
       <classpath refid="base.path"/>
       <include name="Runners/src/**/*.scala"/>
@@ -140,8 +141,6 @@
     <scalac srcdir="${base.dir}"
             destdir="${production.dest}"
             target="jvm-1.5"
-            logging="debug"
-            scalacdebugging="yes"
             force="changed">
       <classpath refid="base.path"/>
       <include name="src/**/*.scala"/>
@@ -202,9 +201,10 @@
   <target name="zip.sources" description="Zips sources">
     <mkdir dir="${dist.dir}"/>
 
-    <zip destfile="${dist.dir}/scala-intellij-src-${plugin.version}.zip"
+        <zip destfile="${dist.dir}/scala-intellij-src-${plugin.version}.zip"
          basedir="${base.dir}"
-         includes="**/*.java,
+         includes="
+         **/*.java,
          **/*.scala,
          **/*.properties,
          **/*.flex,
@@ -213,19 +213,16 @@
          **/*.xml,
          **/*.png,
          META-INF/**/*.xml"
-         excludes="testdata/*, test/*"
+         excludes="idea_pack/**/*"
         />
   </target>
 
-
-  <target name="build.tests" >
+  <target name="build.tests" depends="make.project">
 
     <mkdir dir="${test.dest}"/>
 
     <scalac srcdir="${base.dir}/test"
             destdir="${test.dest}"
-            scalacdebugging="yes"
-            logging="debug"
             target="jvm-1.5"
             force="changed">
       <classpath refid="base.path"/>
