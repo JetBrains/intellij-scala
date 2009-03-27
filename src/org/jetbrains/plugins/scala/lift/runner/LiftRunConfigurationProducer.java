@@ -13,16 +13,22 @@ import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.SourceFolder;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFileSystem;
 import com.intellij.util.xml.GenericDomValue;
 import org.jetbrains.idea.maven.runner.*;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
+import org.jetbrains.idea.maven.project.MavenProjectModel;
+import org.jetbrains.idea.maven.project.MavenArtifact;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.dom.model.MavenModel;
 import org.jetbrains.idea.maven.dom.model.Dependencies;
@@ -38,7 +44,9 @@ import java.util.ArrayList;
 public class LiftRunConfigurationProducer extends RuntimeConfigurationProducer implements Cloneable {
 
   private PsiElement mySourceElement;
-  private static final String NET_LIFTWEB = "net.liftweb";
+  private static final String GROUP_ID_LIFT = "net.liftweb";
+  private static final String ARTIFACT_ID_LIDT = "lift-webkit";
+
   private static final String JETTY_RUN = "jetty:run";
 
   public LiftRunConfigurationProducer() {
@@ -53,37 +61,24 @@ public class LiftRunConfigurationProducer extends RuntimeConfigurationProducer i
     final PsiElement element = l.getPsiElement();
     final Project project = l.getProject();
 
-    if (element instanceof PsiFile) {
-      VirtualFile f = ((PsiFile) element).getVirtualFile();
+    final Module module = ModuleUtil.findModuleForPsiElement(element);
+    if (module == null) return null;
 
-      final MavenModel model = MavenUtil.getMavenModel(project, f);
-      if (model == null) return null;
+    final MavenProjectsManager mavenProjectsManager = MavenProjectsManager.getInstance(project);
+    final MavenProjectModel mavenProjectModel = mavenProjectsManager.findProject(module);
 
-      boolean isCorrectPom = false;
-      final Dependencies dependencies = model.getDependencies();
-      for (Dependency dependency : dependencies.getDependencies()) {
-        final GenericDomValue<String> value = dependency.getGroupId();
-        if (value != null) {
-          final String str = value.getStringValue();
-          if (NET_LIFTWEB.equals(str)) {
-            isCorrectPom = true;
-            break;
-          }
-        }
-      }
+    final MavenArtifact artifact = mavenProjectModel.findDependency(GROUP_ID_LIFT, ARTIFACT_ID_LIDT);
 
-      if (!isCorrectPom) return null;
-      mySourceElement = element;
+    if (artifact == null) return null;
 
-      List<String> profiles = MavenProjectsManager.getInstance(project).getActiveProfiles();
-      List<String> goals = new ArrayList<String>();
+    mySourceElement = element;
 
-      goals.add(JETTY_RUN);
+    List<String> profiles = MavenProjectsManager.getInstance(project).getActiveProfiles();
+    List<String> goals = new ArrayList<String>();
 
-      return new MavenRunnerParameters(true, f.getParent().getPath(), goals, profiles);
-    }
+    goals.add(JETTY_RUN);
 
-    return null;
+    return new MavenRunnerParameters(true, module.getModuleFile().getParent().getPath(), goals, profiles);
   }
 
   private static RunnerAndConfigurationSettingsImpl createRunnerAndConfigurationSettings(MavenGeneralSettings generalSettings,
