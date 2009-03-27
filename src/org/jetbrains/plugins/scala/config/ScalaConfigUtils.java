@@ -69,7 +69,7 @@ public class ScalaConfigUtils {
    * Checks wheter given IDEA library contaions Scala Library classes
    */
   public static boolean isScalaSdkLibrary(Library library) {
-    return  library != null && checkLibrary(library, SCALA_LIB_JAR_NAME_PREFIX, PREFED_CLASS_PATH);
+    return library != null && checkLibrary(library, SCALA_LIB_JAR_NAME_PREFIX, PREFED_CLASS_PATH);
   }
 
   static boolean checkLibrary(Library library, String jarNamePrefix, String necessaryClass) {
@@ -86,7 +86,10 @@ public class ScalaConfigUtils {
           try {
             JarFile jarFile = new JarFile(realFile);
             if (name.startsWith(jarNamePrefix)) {
-              result = jarFile.getJarEntry(necessaryClass) != null;
+              if (jarFile.getJarEntry(necessaryClass) != null) {
+                jarFile.close();
+                return true;
+              }
             }
             jarFile.close();
           } catch (IOException e) {
