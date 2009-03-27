@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.parameterInfo
 
 import _root_.org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
-import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import _root_.org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import annotations.Nullable
@@ -298,8 +298,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               if (ref != null) {
                 val name = ref.refName
                 val variants: Array[Object] = ref.getSameNameVariants
-                for (variant <- variants) {
+                for (variant <- variants if !variant.isInstanceOf[PsiMember] ||
+                        ResolveUtils.isAccessible(variant.asInstanceOf[PsiMember], ref)) {
                   variant match {
+                    //todo: Synnthetic Function
                     case method: PsiMethod => {
                       val getSign: PhysicalSignature = {
                         ref.qualifier match {
@@ -548,6 +550,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               }
               context.setItemsToShow(res.toArray)
             }
+            case _: ScSelfInvocation => // todo:
           }
         }
         case context: UpdateParameterInfoContext => {
