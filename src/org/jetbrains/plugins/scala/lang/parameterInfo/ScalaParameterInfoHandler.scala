@@ -260,7 +260,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
    * @param context current context
    * @return context's argument expression
    */
-  private def findCall(context: ParameterInfoContext): ScArgumentExprList = { //todo: filter private, protected access
+  private def findCall(context: ParameterInfoContext): ScArgumentExprList = {
     case class Ints(var i: Int)
     def getRef(call: ScMethodCall)(implicit deep: Boolean, calc: Ints): ScReferenceExpression = {
       call.getInvokedExpr match {
