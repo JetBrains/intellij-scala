@@ -105,7 +105,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
 
   def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
-    if (!context.getParameterOwner.isValid) return
+    if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
       case args: ScArgumentExprList => {
         def getRef(call: PsiElement): ScReferenceExpression = call match {
