@@ -80,7 +80,13 @@ public class LiftRunConfigurationProducer extends RuntimeConfigurationProducer i
 
     goals.add(JETTY_RUN);
 
-    return new MavenRunnerParameters(true, module.getModuleFile().getParent().getPath(), goals, profiles);
+    final VirtualFile file = module.getModuleFile();
+    if (file == null) return null;
+
+    final VirtualFile parent = file.getParent();
+    if (parent  == null) return null;
+    
+    return new MavenRunnerParameters(true, parent.getPath(), goals, profiles);
   }
 
   private static RunnerAndConfigurationSettingsImpl createRunnerAndConfigurationSettings(MavenGeneralSettings generalSettings,
