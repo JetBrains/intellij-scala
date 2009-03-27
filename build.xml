@@ -121,12 +121,11 @@
             force="changed">
       <classpath refid="base.path"/>
       <include name="src/**/*.scala"/>
-      <include name="scala_core/src/**/*.scala"/>
-      <include name="Runners/src/**/*.scala"/>
       <include name="src/**/*.java"/>
-      <include name="scala_core/src/**/*.java"/>
+      <include name="Runners/src/**/*.scala"/>
       <include name="Runners/src/**/*.java"/>
     </scalac>
+
     <javac2 srcdir="${base.dir}"
             destdir="${production.dest}"
             target="1.5"
@@ -135,8 +134,6 @@
       <classpath refid="base.path"/>
       <include name="src/**/*.java"/>
       <include name="src/**/*.form"/>
-      <include name="scala_core/src/**/*.java"/>
-      <include name="scala_core/src/**/*.form"/>
       <include name="Runners/src/**/*.java"/>
     </javac2>
 
