@@ -19,7 +19,6 @@
   
   <property file="${base.dir}/scala.properties"/>
 
-  <property name="scala_core.dir" value="${base.dir}/scala_core"/>
   <property name="runners.dir" value="${base.dir}/Runners"/>
 
   <property name="compiled.dest" value="${base.dir}/classes/"/>
@@ -40,12 +39,13 @@
   <property name="scala.jar" value="scala-plugin.jar"/>
   <property name="runners.jar" value="scala-plugin-runners.jar"/>
   <property name="temp.jar.dir" value="${base.dir}/tempjar"/>
+  <property name="dist.dir" value="${base.dir}/dist"/>
 
 
   <target name="unzip.last.successful.IDEA.build">
     <unzip dest="${idea.home}">
       <fileset dir="${idea.home}">
-        <include name="idea*.zip"/>
+        <include name="*.zip"/>
       </fileset>
     </unzip>
   </target>
@@ -97,7 +97,7 @@
   </target>
 
   <target name="create.lexer" description="Makes lexer file">
-    <ant dir="${scala_core.dir}/src/org/jetbrains/plugins/scala/lang/lexer/core"
+    <ant dir="${base.dir}/src/org/jetbrains/plugins/scala/lang/lexer/core"
          antfile="build.xml" target="generate.lexer"/>
   </target>
 
@@ -141,7 +141,7 @@
       <include name="Runners/src/**/*.java"/>
     </javac2>
 
-    <copy file="${scala_core.dir}/src/org/jetbrains/plugins/scala/ScalaBundle.properties"
+    <copy file="${base.dir}/src/org/jetbrains/plugins/scala/ScalaBundle.properties"
           tofile="${production.dest}/org/jetbrains/plugins/scala/ScalaBundle.properties"/>
 
     <replace file="${production.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
@@ -150,6 +150,7 @@
   <target name="jar.plugin" depends="make.project" description="Makes jar">
 
     <mkdir dir="${temp.jar.dir}/Scala/lib"/>
+    <mkdir dir="${dist.dir}"/>
 
     <jar destfile="${temp.jar.dir}/Scala/lib/${scala.jar}">
       <fileset dir="${production.dest}" excludes="**/*build.xml, **/scala.properties, **/*Runner*, **/*Reporter*"/>
@@ -174,7 +175,7 @@
       </fileset>
     </copy>
 
-    <zip destfile="${base.dir}/dist/scala-intellij-bin-${plugin.version}.zip" basedir="${temp.jar.dir}"/>
+    <zip destfile="${dist.dir}/scala-intellij-bin-${plugin.version}.zip" basedir="${temp.jar.dir}"/>
     <delete dir="${temp.jar.dir}"/>
   </target>
 
@@ -182,7 +183,9 @@
           description="Builds all classes"/>
 
   <target name="zip.sources" description="Zips sources">
-    <zip destfile="${base.dir}/dist/scala-intellij-src-${plugin.version}.zip"
+    <mkdir dir="${dist.dir}"/>
+
+    <zip destfile="${dist.dir}/scala-intellij-src-${plugin.version}.zip"
          basedir="${base.dir}"
          includes="**/*.java,
          **/*.scala,
