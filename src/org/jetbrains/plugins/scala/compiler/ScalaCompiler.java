@@ -93,7 +93,7 @@ public class ScalaCompiler implements TranslatingCompiler {
     }
 
     private BackendCompiler getBackEndCompiler() {
-        return new ScalacCompiler(myProject);
+        return new ScalacBackendCompiler(myProject);
     }
 
     private static class ExitStatusImpl implements ExitStatus {
