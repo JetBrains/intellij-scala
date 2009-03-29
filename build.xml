@@ -264,7 +264,7 @@
     <mkdir dir="${test.dist}/config"/>
     <mkdir dir="${test.dist}/system"/>
 
-    <junit fork="no"
+    <junit fork="yes"
            dir="${base.dir}"
            showoutput="yes"
            printsummary="yes"
@@ -284,7 +284,7 @@
       <jvmarg value="-ea"/>
       <jvmarg value="-Djava.compiler=NONE"/>
       <jvmarg value="-Xdebug"/>
-      <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5112"/>
+      <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5113"/>
 
       <jvmarg value="-Didea.config.path=${test.dist}/config"/>
       <jvmarg value="-Didea.system.path=${test.dist}/system"/>
