@@ -22,8 +22,8 @@
   <property name="runners.dir" value="${base.dir}/Runners"/>
 
   <property name="compiled.dest" value="${base.dir}/classes/"/>
-  <property name="test.dest" value="${compiled.dest}/test/"/>
   <property name="production.dest" location="${compiled.dest}/production/"/>
+  <property name="test.dest" value="${compiled.dest}/test/"/>
   <property name="main.dest" location="${production.dest}/Scala"/>
   <property name="runners.dest" location="${production.dest}/Runners"/>
 
@@ -252,13 +252,13 @@
       <include name="**/*.java"/>
     </javac>
 
-    <copy toDir="${production.dest}/testdata">
-      <fileset dir="${base.dir}/testdata"/>
-    </copy>
-
   </target>
 
-  <target name="run.tests" depends="build.tests">
+  <target name="run.tests" >
+
+    <copy toDir="${main.dest}/testdata">
+      <fileset dir="${base.dir}/testdata"/>
+    </copy>
 
     <mkdir dir="${base.dir}/logs"/>
     <mkdir dir="${test.dist}/config"/>
@@ -272,10 +272,10 @@
            haltonerror="no">
 
       <classpath>
+        <path refid="base.path"/>
         <path location="${main.dest}"/>
         <path location="${runners.dest}"/>
         <path location="${test.dest}"/>
-        <path refid="base.path"/>
       </classpath>
 
       <jvmarg value="-Xbootclasspath/p:./SDK/boot/boot.jar"/>
@@ -288,7 +288,7 @@
 
       <jvmarg value="-Didea.config.path=${test.dist}/config"/>
       <jvmarg value="-Didea.system.path=${test.dist}/system"/>
-      <jvmarg value="-Didea.plugins.path=${production.dest}"/>
+      <jvmarg value="-Didea.plugins.path=${main.dest}"/>
 
       <jvmarg value="-Didea.load.plugins.id=org.intellij.scala"/>
 
