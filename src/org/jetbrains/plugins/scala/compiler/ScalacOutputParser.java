@@ -54,7 +54,7 @@ class ScalacOutputParser extends OutputParser {
   public boolean processMessageLine(Callback callback) {
     final String line = callback.getNextLine();
 
-//    System.out.println(line);
+/*
     if (line == null) {
       //ensure that all "written" files are really written
       for (String s : myWrittenList) {
@@ -63,6 +63,7 @@ class ScalacOutputParser extends OutputParser {
       myWrittenList.clear();
       return false;
     }
+*/
 
     String text = line.trim();
     if (fullCrash && text.length( ) > 0) {
@@ -123,7 +124,9 @@ class ScalacOutputParser extends OutputParser {
           callback.setProgressText(info);
           String outputPath = info.substring(ourWroteMarker.length());
           final String path = outputPath.replace(File.separatorChar, '/');
-          myWrittenList.add(path);
+          callback.fileGenerated(path);
+
+//          myWrittenList.add(path);
         }
       }
     }
