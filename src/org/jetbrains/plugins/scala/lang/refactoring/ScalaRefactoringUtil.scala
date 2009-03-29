@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
-import introduceVariable.typeManipulator.IType
 import java.util.{HashMap, Comparator}
 import parser.ScalaElementTypes
 import psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
@@ -159,9 +158,9 @@ object ScalaRefactoringUtil {
     return hasNlToken
   }
 
-  def getCompatibleTypeNames(myType: IType): HashMap[String, IType] = {
-    val map = new HashMap[String, IType]
-    map.put(myType.getName, myType)
+  def getCompatibleTypeNames(myType: ScType): HashMap[String, ScType] = {
+    val map = new HashMap[String, ScType]
+    map.put(ScType.presentableText(myType), myType)
     return map
   }
 

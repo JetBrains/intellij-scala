@@ -33,12 +33,12 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableHandle
                             myProject: Project,
                             selectedExpr: ScExpression,
                             occurrences: Array[ScExpression],
-                            enclosingContainer: PsiElement) extends ScalaValidator {
+                            enclosingContainer: PsiElement) extends NameValidator {
   def getProject(): Project = {
     myProject
   }
 
-  def isOK(dialog: ScalaIntroduceVariableDialogInterface): Boolean = {
+  def isOK(dialog: ScalaIntroduceVariableDialog): Boolean = {
     val name = dialog.getEnteredName
     val allOcc = dialog.isReplaceAllOccurrences
     val conflicts = isOKImpl(name, allOcc)
