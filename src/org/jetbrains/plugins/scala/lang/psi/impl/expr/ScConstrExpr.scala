@@ -8,6 +8,6 @@ import com.intellij.lang.ASTNode
 * Date: 22.02.2008
 */
 
-class ScConstrExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScConstrExpr{
+class ScConstrExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScConstrExpr {
   override def toString: String = "ConstructorExpression"
 }
