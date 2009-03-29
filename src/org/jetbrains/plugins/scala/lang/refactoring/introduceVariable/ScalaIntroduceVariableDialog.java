@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.refactor.introduceVariable;
+package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable;
 
 
 import com.intellij.openapi.editor.event.DocumentEvent;

@@ -16,9 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableBase;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaVariableValidator;
-import org.jetbrains.plugins.scala.refactor.introduceVariable.ScalaIntroduceVariableHandler;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import scala.Some;
 
@@ -72,7 +71,7 @@ public class IntroduceVariableValidatorTest extends ActionTestBase {
       myEditor.getSelectionModel().setSelection(startOffset, endOffset);
 
       // gathering data for introduce variable
-      ScalaIntroduceVariableBase introduceVariableBase = new ScalaIntroduceVariableHandler();
+      ScalaIntroduceVariableHandler introduceVariableHandler = new ScalaIntroduceVariableHandler();
 
       Assert.assertTrue(myFile instanceof ScalaFile);
       ScExpression selectedExpr = null;
@@ -90,7 +89,7 @@ public class IntroduceVariableValidatorTest extends ActionTestBase {
       String varName = "value";
       final ScType varType = null;
 
-      ScalaVariableValidator validator = new ScalaVariableValidator(introduceVariableBase, myProject,
+      ScalaVariableValidator validator = new ScalaVariableValidator(introduceVariableHandler, myProject,
           selectedExpr, occurrences, (PsiElement)tempContainer);
       String[] res = validator.isOKImpl(varName, replaceAllOccurences);
       for (String s: res) result += s + "\n";

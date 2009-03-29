@@ -1,12 +1,12 @@
-package org.jetbrains.plugins.scala.refactor;
+package org.jetbrains.plugins.scala.lang.refactoring;
 
 import com.intellij.lang.refactoring.DefaultRefactoringSupportProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.refactoring.RefactoringActionHandler;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
-import org.jetbrains.plugins.scala.refactor.introduceVariable.ScalaIntroduceVariableHandler;
 import org.jetbrains.plugins.scala.lang.rename.ScalaInplaceVariableRenamer;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler;
 
 /**
  * User: Alexander Podkhalyuzin

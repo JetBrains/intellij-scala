@@ -1,6 +1,14 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+
+import com.intellij.codeInsight.highlighting.HighlightManager
+import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
+import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Editor, VisualPosition}
+import com.intellij.openapi.wm.WindowManager
+import com.intellij.refactoring.ui.ConflictsDialog
+import com.intellij.refactoring.util.RefactoringMessageDialog
+import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
 import psi.api.ScalaFile
 import psi.ScalaPsiUtil
 import psi.types.{ScType, ScFunctionType}
@@ -26,7 +34,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.psi.PsiFile
 import com.intellij.openapi.project.Project
-import com.intellij.refactoring.RefactoringActionHandler
 import psi.api.toplevel.typedef.ScMember
 
 /**
@@ -34,9 +41,16 @@ import psi.api.toplevel.typedef.ScMember
 * Date: 23.06.2008
 */
 
-abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
+class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
   val REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
   var deleteOccurence = false;
+
+  def showErrorMessage(text: String, project: Project) {
+    if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(text)
+    val dialog = new RefactoringMessageDialog("Introduce variable refactoring", text,
+            HelpID.INTRODUCE_VARIABLE, "OptionPane.errorIcon", false, project)
+    dialog.show
+  }
 
   private def getLineText(editor: Editor): String = {
     val lineNumber = editor.getCaretModel().getLogicalPosition().line
@@ -298,10 +312,43 @@ abstract class ScalaIntroduceVariableBase extends RefactoringActionHandler {
     //nothing to do
   }
 
-  protected def showErrorMessage(text: String, project: Project)
-
   protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: IType, occurrences: Array[ScExpression],
-                         declareVariable: Boolean, validator: ScalaValidator): ScalaIntroduceVariableDialogInterface
+                         declareVariable: Boolean, validator: ScalaValidator): ScalaIntroduceVariableDialogInterface = {
+    // Add occurences highlighting
+    val highlighters = new java.util.ArrayList[RangeHighlighter]
+    var highlightManager: HighlightManager = null
+    if (editor != null) {
+      highlightManager = HighlightManager.getInstance(project);
+      val colorsManager = EditorColorsManager.getInstance
+      val attributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
+      if (occurrences.length > 1) {
+        highlightManager.addOccurrenceHighlights(editor, occurrences.asInstanceOf[Array[PsiElement]], attributes, true, highlighters)
+      }
+    }
 
-  def reportConflicts(conflicts: Array[String], project: Project): Boolean
+    val possibleNames = NameSuggester.suggestNames(expr, validator)
+    val dialog = new ScalaIntroduceVariableDialog(project, typez, occurrences.length, validator, possibleNames)
+    dialog.show
+    if (!dialog.isOK()) {
+      if (occurrences.length > 1) {
+        WindowManager.getInstance.getStatusBar(project).setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
+      }
+    } else {
+      if (editor != null) {
+        import _root_.scala.collection.jcl.Conversions._
+
+        for (highlighter <- highlighters) {
+          highlightManager.removeSegmentHighlighter(editor, highlighter);
+        }
+      }
+    }
+
+    return dialog
+  }
+
+  def reportConflicts(conflicts: Array[String], project: Project): Boolean = {
+    val conflictsDialog = new ConflictsDialog(project, conflicts: _*)
+    conflictsDialog.show
+    return conflictsDialog.isOK
+  }
 }
