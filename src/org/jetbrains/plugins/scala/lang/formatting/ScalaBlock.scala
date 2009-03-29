@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatting
 
 import psi._
+import impl.expr.ScBlockImpl
 import psi.api.ScalaFile
 import settings.ScalaCodeStyleSettings
 import com.intellij.formatting._;
@@ -65,6 +66,7 @@ extends Object with ScalaTokenTypes with Block {
            _: ScTryBlock | _: ScCatchBlock | _: ScPackaging | _: ScMatchStmt => {
         return new ChildAttributes(Indent.getNormalIndent, null)
       }
+      case _: ScBlock => new ChildAttributes(Indent.getNoneIndent, null)
       case _: ScIfStmt => return new ChildAttributes(Indent.getNormalIndent, this.getAlignment)
       case x: ScDoStmt => {
         if (x.hasExprBody)
