@@ -213,7 +213,7 @@ object ScalaDocumentationProvider {
       case Some(x: ScTemplateParents) => {
         val seq = x.typeElements
         buffer.append(ScType.urlText(seq(0).calcType) + "\n")
-        for (i <- 1 to seq.length - 1) buffer append "with " + ScType.urlText(seq(i).calcType)
+        for (i <- 1 to seq.length - 1) buffer append " with " + ScType.urlText(seq(i).calcType)
       }
       case None => {
         buffer.append("<a href=\"psi_element://scala.ScalaObject\"><code>ScalaObject</code></a>")
