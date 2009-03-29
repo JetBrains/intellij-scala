@@ -326,11 +326,6 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     }
     printer.println();
 
-
-    //Little hack to make compiler fork with java files from test sources
-    if (isTestChunk) {
-      chunk.setSourcesFilter(ModuleChunk.ALL_SOURCES);
-    }
     for (VirtualFile file : chunk.getFilesToCompile()) {
       printer.println(file.getPath());
     }

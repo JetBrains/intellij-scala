@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NonNls;
 import static org.jetbrains.plugins.scala.compiler.ScalacOutputParser.MESSAGE_TYPE.*;
 
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * @author ilyas
@@ -39,6 +40,7 @@ class ScalacOutputParser extends OutputParser {
   private MESSAGE_TYPE myMsgType = PLAIN;
   @NonNls
   private static final String PARSER_ON = "parser on ";
+  private ArrayList<String> myWrittenList = new ArrayList<String>();
 
   static enum MESSAGE_TYPE {
     ERROR, WARNING, PLAIN
