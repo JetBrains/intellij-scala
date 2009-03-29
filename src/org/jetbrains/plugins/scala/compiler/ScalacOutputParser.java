@@ -56,6 +56,7 @@ class ScalacOutputParser extends OutputParser {
 
 //    System.out.println(line);
     if (line == null) {
+      //ensure that all "written" files are really written
       for (String s : myWrittenList) {
         callback.fileGenerated(s);
       }
@@ -64,7 +65,7 @@ class ScalacOutputParser extends OutputParser {
     }
 
     String text = line.trim();
-    if (fullCrash && text.length() > 0) {
+    if (fullCrash && text.length( ) > 0) {
       callback.message(CompilerMessageCategory.ERROR, text, "", 0, 0);
       return true;
     }
