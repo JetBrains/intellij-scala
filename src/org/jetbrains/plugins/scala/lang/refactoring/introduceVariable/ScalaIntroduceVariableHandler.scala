@@ -21,7 +21,7 @@ import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.toplevel.typedef.ScTrait
 import psi.api.toplevel.typedef.ScClass
 import psi.api.base.ScReferenceElement
-import _root_.scala.collection.mutable.ArrayBuffer
+import collection.mutable.ArrayBuffer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.psi.PsiType
@@ -48,7 +48,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
 
 
   private def getLineText(editor: Editor): String = {
-    val lineNumber = editor.getCaretModel().getLogicalPosition().line
+    val lineNumber = editor.getCaretModel.getLogicalPosition.line
     if (lineNumber >= editor.getDocument.getLineCount) return ""
     val caret = editor.getCaretModel.getVisualPosition
     val lineStart = editor.visualToLogicalPosition(new VisualPosition(caret.line, 0));
@@ -59,71 +59,54 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
-    if (!editor.getSelectionModel().hasSelection()) {
-      editor.getSelectionModel().selectLineAtCaret();
-      deleteOccurence = true;
-    }
+    if (!editor.getSelectionModel.hasSelection) editor.getSelectionModel.selectLineAtCaret
     
     val lineText = getLineText(editor)
-    if (editor != null && editor.getSelectionModel.getSelectedText != null &&
+    if (editor.getSelectionModel.getSelectedText != null &&
             lineText != null && editor.getSelectionModel.getSelectedText.trim == lineText.trim) deleteOccurence = true
-    ScalaRefactoringUtil.trimSpacesAndComments(editor, file);
-    invoke(project, editor, file, editor.getSelectionModel().getSelectionStart(), editor.getSelectionModel().getSelectionEnd());
+    ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
+    invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
-    PsiDocumentManager.getInstance(project).commitAllDocuments()
-    if (!file.isInstanceOf[ScalaFile]) {
-      showErrorMessage(ScalaBundle.message("only.for.scala"), project)
-      return
-    }
-    if (!ScalaRefactoringUtil.ensureFileWritable(project, file)) {
-      showErrorMessage(ScalaBundle.message("file.is.not.writable"), project)
-      return
-    }
-    val expr: ScExpression = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset) match {
-      case Some(x) => x
-      case None => {
-        showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project)
-        return
+    try {
+      PsiDocumentManager.getInstance(project).commitAllDocuments
+      if (!file.isInstanceOf[ScalaFile])
+        showErrorMessage(ScalaBundle.message("only.for.scala"), project)
+
+      if (!ScalaRefactoringUtil.ensureFileWritable(project, file))
+        showErrorMessage(ScalaBundle.message("file.is.not.writable"), project)
+
+      val expr: ScExpression = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
+              getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project))
+
+      if (expr.isInstanceOf[ScConstrExpr]) showErrorMessage(ScalaBundle.message("cannot.refactor.constr.expression"), project)
+
+      val typez: ScType = expr.getType match {
+        case ScFunctionType(ret, params) if params.length == 0 => ret
+        case x => x
       }
-    }
-    expr match {
-      case _: ScConstrExpr => showErrorMessage(ScalaBundle.message("cannot.refactor.constr.expression"), project); return
-      case _ =>
-    }
-    val typez: ScType = expr.getType match {
-      case ScFunctionType(ret, params) if params.length == 0 => ret
-      case x => x
-    }
-    var parent: PsiElement = expr
-    while (parent != null && !parent.isInstanceOf[ScalaFile] && !parent.isInstanceOf[ScGuard]) parent = parent.getParent
-    parent match {
-      case _: ScGuard => {
-        showErrorMessage(ScalaBundle.message("refactoring.is.not.supported.in.guard"), project)
-        return
-      }
-      case _ =>
-    }
-    val enclosingContainer: PsiElement = ScalaRefactoringUtil.getEnclosingContainer(expr)
-    if (enclosingContainer == null) {
-      showErrorMessage(ScalaBundle.message("wrong.refactoring.context"), project)
-      return
-    }
+      var parent: PsiElement = ScalaPsiUtil.getParentOfType(expr, classOf[ScalaFile], classOf[ScGuard])
+      if (parent.isInstanceOf[ScGuard]) showErrorMessage(ScalaBundle.message("refactoring.is.not.supported.in.guard"), project)
 
-    val occurrences: Array[ScExpression] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), enclosingContainer)
-    // Getting settings
-    var validator = new ScalaVariableValidator(this, project, expr, occurrences, enclosingContainer)
-    var dialog = getDialog(project, editor, expr, typez, occurrences, false, validator)
-    if (!dialog.isOK) return
+      val enclosingContainer: PsiElement = ScalaRefactoringUtil.getEnclosingContainer(expr)
+      if (enclosingContainer == null) showErrorMessage(ScalaBundle.message("wrong.refactoring.context"), project)
 
-    val varName: String = dialog.getEnteredName
-    var varType: ScType = dialog.getSelectedType
-    val isVariable: Boolean = dialog.isDeclareVariable
-    val replaceAllOccurrences: Boolean = dialog.isReplaceAllOccurrences
-    runRefactoring(expr, editor, enclosingContainer, occurrences, varName, varType, replaceAllOccurrences, isVariable);
+      val occurrences: Array[ScExpression] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), enclosingContainer)
+      // Getting settings
+      var validator = new ScalaVariableValidator(this, project, expr, occurrences, enclosingContainer)
+      var dialog = getDialog(project, editor, expr, typez, occurrences, false, validator)
+      if (!dialog.isOK) return
 
-    return
+      val varName: String = dialog.getEnteredName
+      var varType: ScType = dialog.getSelectedType
+      val isVariable: Boolean = dialog.isDeclareVariable
+      val replaceAllOccurrences: Boolean = dialog.isReplaceAllOccurrences
+      runRefactoring(expr, editor, enclosingContainer, occurrences, varName, varType, replaceAllOccurrences, isVariable)
+    }
+    catch {
+      case _: IntroduceException => return
+    }
   }
 
   def runRefactoring(selectedExpr: ScExpression, editor: Editor, tempContainer: PsiElement,
@@ -341,10 +324,16 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
     return conflictsDialog.isOK
   }
 
-  def showErrorMessage(text: String, project: Project) {
+  /**
+   * @throws IntroduceException
+   */
+  def showErrorMessage(text: String, project: Project): Nothing = {
     if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(text)
     val dialog = new RefactoringMessageDialog("Introduce variable refactoring", text,
             HelpID.INTRODUCE_VARIABLE, "OptionPane.errorIcon", false, project)
     dialog.show
+    throw new IntroduceException
   }
+
+  private class IntroduceException extends Exception
 }

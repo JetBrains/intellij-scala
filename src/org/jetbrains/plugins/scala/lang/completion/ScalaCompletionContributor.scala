@@ -25,12 +25,7 @@ import com.intellij.patterns.ElementPattern;
 class ScalaCompletionContributor extends CompletionContributor {
   override def advertise(parameters: CompletionParameters): String = {
     if (!parameters.getOriginalFile.isInstanceOf[ScalaFile]) return null
-    val messages = Array[String](
-      "Local variables rename is inplace now.",
-      "Scala plugin page is available now.",
-      "Ctrl+Q documentation lookup was added.",
-      "Ctrl+P parameter lookup was added.",
-      "Perfomance was improved.",
+    val messages = Array[String]( //todo:
       null
     )
     messages apply (new _root_.scala.util.Random).nextInt(messages.size)
