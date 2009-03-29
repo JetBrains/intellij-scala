@@ -15,11 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses$;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableBase;
-import org.jetbrains.plugins.scala.refactor.introduceVariable.ScalaIntroduceVariableHandler;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import scala.Some;
 
@@ -79,7 +77,7 @@ public class IntroduceVariableTest extends ActionTestBase {
       myEditor.getSelectionModel().setSelection(startOffset, endOffset);
 
       // gathering data for introduce variable
-      ScalaIntroduceVariableBase introduceVariableBase = new ScalaIntroduceVariableHandler();
+      ScalaIntroduceVariableHandler introduceVariableHandler = new ScalaIntroduceVariableHandler();
 
       Assert.assertTrue(myFile instanceof ScalaFile);
       ScExpression selectedExpr = null;
@@ -98,7 +96,7 @@ public class IntroduceVariableTest extends ActionTestBase {
       String varName = "value";
       final ScType varType = selectedExpr.getType();
 
-      introduceVariableBase.runRefactoring(selectedExpr, myEditor, tempContainer, occurences, varName, varType, replaceAllOccurences, false);
+      introduceVariableHandler.runRefactoring(selectedExpr, myEditor, tempContainer, occurences, varName, varType, replaceAllOccurences, false);
 
 
       result = myEditor.getDocument().getText();

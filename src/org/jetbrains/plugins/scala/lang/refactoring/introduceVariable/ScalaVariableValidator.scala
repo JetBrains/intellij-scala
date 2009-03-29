@@ -29,7 +29,7 @@ import com.intellij.psi.PsiElement
 * Date: 24.06.2008
 */
 
-class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableBase,
+class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableHandler,
                             myProject: Project,
                             selectedExpr: ScExpression,
                             occurrences: Array[ScExpression],
