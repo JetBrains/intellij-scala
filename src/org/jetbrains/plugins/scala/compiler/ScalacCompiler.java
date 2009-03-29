@@ -23,6 +23,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -229,16 +230,30 @@ public class ScalacCompiler extends ExternalCompiler {
     classPathBuilder.append(rtJarPath).append(File.pathSeparator);
     classPathBuilder.append(sdkType.getToolsPath(jdk)).append(File.pathSeparator);
 
+    String scalaSdkJarPath = "";
+    String scalaCompilerJarPath = "";
+
+    final Module[] modules = chunk.getModules();
+    for (Module module : modules) {
+      if (ScalaCompilerUtil.isScalaCompilerSetUpForModule(module)) {
+        scalaCompilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(module);
+      }
+    }
+
+    for (Module module : modules) {
+      scalaSdkJarPath = ScalaConfigUtils.getScalaSdkJarPath(module);
+      if (scalaSdkJarPath.length() > 0) {
+        break;
+      }
+    }
+
     //Add Scala SDK jar
-    String scalaSdkJarPath = ScalaConfigUtils.getScalaSdkJarPath(chunk.getModules()[0]);
     if (scalaSdkJarPath.length() > 0) {
       classPathBuilder.append(scalaSdkJarPath);
       classPathBuilder.append(File.pathSeparator);
     }
 
     //Add Scala Compiler jar
-
-    String scalaCompilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(chunk.getModules()[0]);
     if (scalaCompilerJarPath.length() > 0) {
       classPathBuilder.append(scalaCompilerJarPath);
       classPathBuilder.append(File.pathSeparator);

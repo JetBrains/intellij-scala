@@ -17,7 +17,6 @@ package org.jetbrains.plugins.scala.compiler.rt;
 
 import java.io.*;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +40,7 @@ public class ScalacRunner {
       return;
     }
 
-    List scalacArgs = new ArrayList();
+    List<String> scalacArgs = new ArrayList<String>();
     BufferedReader reader = null;
     FileInputStream inputStream = null;
     try {
@@ -70,21 +69,19 @@ public class ScalacRunner {
     }
 
     try {
-      Class scalacMain = Class.forName(SCALAC_QUALIFIED_NAME);
-      Method method = scalacMain.getMethod("main", new Class[]{String[].class});
+      Class<?> scalacMain = Class.forName(SCALAC_QUALIFIED_NAME);
+      Method method = scalacMain.getMethod("main", String[].class);
       method.invoke(null, ((Object) scalacArgs.toArray(new String[scalacArgs.size()])));
     } catch (Exception e) {
       Throwable cause = e.getCause();
       System.err.println("Scalac internal error: " + e.getClass() + " " + Arrays.toString(e.getStackTrace()) +
-          (cause != null ? Arrays.toString(e.getCause().getStackTrace()) : ""));
-      for (int i1 = 0; i1 < e.getStackTrace().length; i1++) {
-        StackTraceElement element = e.getStackTrace()[i1];
+              (cause != null ? Arrays.toString(e.getCause().getStackTrace()) : ""));
+      for (StackTraceElement element : e.getStackTrace()) {
         System.err.println(element);
       }
       while (cause != null) {
         System.err.println("Caused by " + cause);
-        for (int i = 0; i < cause.getStackTrace().length; i++) {
-          StackTraceElement element = cause.getStackTrace()[i];
+        for (StackTraceElement element : cause.getStackTrace()) {
           System.err.println(element);
         }
         cause = cause.getCause();
