@@ -34,7 +34,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.openapi.project.Project
 import psi.api.toplevel.typedef.ScMember
 import scala.util.ScalaUtils
-import refactoring.uitl.ScalaRefactoringUtil
+import refactoring.util.ScalaRefactoringUtil
 
 /**
 * User: Alexander Podkhalyuzin
