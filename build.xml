@@ -72,12 +72,6 @@
     <fileset dir="${idea.home}/plugins/maven/lib/">
       <include name="**/*.jar"/>
     </fileset>
-    <fileset dir="${main.dest}">
-      <include name="**/*.class"/>
-    </fileset>
-    <fileset dir="${runners.dest}">
-      <include name="**/*.class"/>
-    </fileset>
   </path>
 
   <!--Scalac taskdef-->
@@ -137,7 +131,6 @@
             destdir="${runners.dest}"
             target="1.5"
             source="1.5"
-            verbose="yes"
             debug="true">
       <classpath refid="base.path"/>
       <include name="Runners/src/**/*.java"/>
@@ -156,9 +149,13 @@
     <javac2 srcdir="${base.dir}"
             destdir="${main.dest}"
             target="1.5"
-            verbose="yes"
             debug="true">
       <classpath refid="base.path"/>
+      <classpath>
+        <fileset dir="${production.dest}">
+          <include name="**/*.class"/>
+        </fileset>
+      </classpath>
       <include name="src/**/*.java"/>
       <include name="src/**/*.form"/>
     </javac2>
@@ -233,8 +230,9 @@
             force="changed">
       <classpath refid="base.path"/>
       <classpath>
-        <path location="${main.dest}"/>
-        <path location="${runners.dest}"/>
+        <fileset dir="${production.dest}">
+          <include name="**/*.class"/>
+        </fileset>
       </classpath>
       <include name="**/*.java"/>
       <include name="**/*.scala"/>
