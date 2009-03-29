@@ -24,12 +24,14 @@
   <property name="compiled.dest" value="${base.dir}/classes/"/>
   <property name="test.dest" value="${compiled.dest}/test/"/>
   <property name="production.dest" location="${compiled.dest}/production/"/>
+  <property name="runners.dest" location="${production.dest}/Scala"/>
+  <property name="main.dest" location="${production.dest}/Runners"/>
 
   <property name="idea.lib" value="${idea.home}/lib"/>
   <property name="scala.home" value="${base.dir}/SDK"/>
   <property name="java.lib" value="${jdk.home}/lib"/>
 
-  <property name="output" value="${basedir}/test_dist"/>
+  <property name="test.dist" value="${basedir}/test_dist"/>
 
   <property name="0" value="unknown"/>
   <property name="build.vcs.number.scala_svn" value="unknown"/>
@@ -70,7 +72,10 @@
     <fileset dir="${idea.home}/plugins/maven/lib/">
       <include name="**/*.jar"/>
     </fileset>
-    <fileset dir="${production.dest}">
+    <fileset dir="${main.dest}">
+      <include name="**/*.class"/>
+    </fileset>
+    <fileset dir="${runners.dest}">
       <include name="**/*.class"/>
     </fileset>
   </path>
@@ -101,14 +106,14 @@
 
     <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.lib.path"/>
 
-    <mkdir dir="${production.dest}"/>
-    <mkdir dir="${production.dest}/META-INF"/>
+    <mkdir dir="${main.dest}"/>
+    <mkdir dir="${main.dest}/META-INF"/>
 
-    <copy todir="${production.dest}/META-INF">
+    <copy todir="${main.dest}/META-INF">
       <fileset dir="${base.dir}/META-INF"/>
     </copy>
 
-    <copy todir="${production.dest}">
+    <copy todir="${main.dest}">
       <fileset dir="${base.dir}/resources/"/>
     </copy>
 
@@ -118,7 +123,7 @@
     <!--scalacdebugging="yes"-->
 
     <scalac srcdir="${base.dir}"
-            destdir="${production.dest}"
+            destdir="${runners.dest}"
             target="jvm-1.5"
             force="changed">
       <classpath refid="base.path"/>
@@ -127,7 +132,7 @@
     </scalac>
 
     <javac2 srcdir="${base.dir}"
-            destdir="${production.dest}"
+            destdir="${runners.dest}"
             target="1.5"
             source="1.5"
             verbose="yes"
@@ -138,7 +143,7 @@
 
 
     <scalac srcdir="${base.dir}"
-            destdir="${production.dest}"
+            destdir="${main.dest}"
             target="jvm-1.5"
             force="changed">
       <classpath refid="base.path"/>
@@ -147,7 +152,7 @@
     </scalac>
 
     <javac2 srcdir="${base.dir}"
-            destdir="${production.dest}"
+            destdir="${main.dest}"
             target="1.5"
             verbose="yes"
             debug="true">
@@ -157,9 +162,9 @@
     </javac2>
 
     <copy file="${base.dir}/src/org/jetbrains/plugins/scala/ScalaBundle.properties"
-          tofile="${production.dest}/org/jetbrains/plugins/scala/ScalaBundle.properties"/>
+          tofile="${main.dest}/org/jetbrains/plugins/scala/ScalaBundle.properties"/>
 
-    <replace file="${production.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
+    <replace file="${main.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
   </target>
 
   <target name="jar.plugin" depends="make.project" description="Makes jar">
@@ -226,7 +231,8 @@
             force="changed">
       <classpath refid="base.path"/>
       <classpath>
-        <path location="${production.dest}"/>
+        <path location="${main.dest}"/>
+        <path location="${runners.dest}"/>
       </classpath>
       <include name="**/*.java"/>
       <include name="**/*.scala"/>
@@ -252,8 +258,8 @@
   <target name="run.tests" depends="build.tests">
 
     <mkdir dir="${base.dir}/logs"/>
-    <mkdir dir="${output}/config"/>
-    <mkdir dir="${output}/system"/>
+    <mkdir dir="${test.dist}/config"/>
+    <mkdir dir="${test.dist}/system"/>
 
     <junit fork="no"
            dir="${base.dir}"
@@ -276,8 +282,8 @@
       <jvmarg value="-Xdebug"/>
       <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5112"/>
 
-      <jvmarg value="-Didea.config.path=${output}/config"/>
-      <jvmarg value="-Didea.system.path=${output}/system"/>
+      <jvmarg value="-Didea.config.path=${test.dist}/config"/>
+      <jvmarg value="-Didea.system.path=${test.dist}/system"/>
       <jvmarg value="-Didea.plugins.path=${production.dest}"/>
 
       <jvmarg value="-Didea.load.plugins.id=org.intellij.scala"/>
@@ -292,8 +298,8 @@
       </batchtest>
 
     </junit>
-    <delete dir="${output}/config"/>
-    <delete dir="${output}/system"/>
+    <delete dir="${test.dist}/config"/>
+    <delete dir="${test.dist}/system"/>
 
   </target>
 
