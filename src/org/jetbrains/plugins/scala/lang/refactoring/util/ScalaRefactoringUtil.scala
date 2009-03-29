@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.refactoring
+package org.jetbrains.plugins.scala.lang.refactoring.util
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import java.util.{HashMap, Comparator}

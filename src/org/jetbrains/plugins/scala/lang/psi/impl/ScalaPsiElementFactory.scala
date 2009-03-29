@@ -41,7 +41,7 @@ import com.intellij.lang.impl.PsiBuilderImpl
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.impl.source.CharTableImpl
-import refactoring.ScalaNamesUtil
+import refactoring.util.ScalaNamesUtil
 import types._
 
 object ScalaPsiElementFactory extends ScTypeInferenceHelper {

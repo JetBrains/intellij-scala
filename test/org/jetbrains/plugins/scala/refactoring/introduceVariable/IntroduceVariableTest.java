@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import scala.Some;
 
 import java.io.IOException;

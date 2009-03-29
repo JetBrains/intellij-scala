@@ -9,10 +9,10 @@ import com.intellij.openapi.wm.WindowManager
 import com.intellij.refactoring.ui.ConflictsDialog
 import com.intellij.refactoring.util.RefactoringMessageDialog
 import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
+import namesSuggester.NameSuggester
 import psi.api.ScalaFile
 import psi.ScalaPsiUtil
 import psi.types.{ScType, ScFunctionType}
-import util.ScalaUtils
 import psi.api.expr._
 import psi.api.statements.ScFunction
 import psi.api.statements.ScValue
@@ -33,6 +33,8 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.psi.PsiFile
 import com.intellij.openapi.project.Project
 import psi.api.toplevel.typedef.ScMember
+import scala.util.ScalaUtils
+import refactoring.uitl.ScalaRefactoringUtil
 
 /**
 * User: Alexander Podkhalyuzin

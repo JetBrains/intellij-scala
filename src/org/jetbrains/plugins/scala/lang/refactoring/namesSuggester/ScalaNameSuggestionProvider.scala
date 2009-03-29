@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.refactoring
+package org.jetbrains.plugins.scala.lang.refactoring.namesSuggester
 
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.codeStyle.SuggestedNameInfo

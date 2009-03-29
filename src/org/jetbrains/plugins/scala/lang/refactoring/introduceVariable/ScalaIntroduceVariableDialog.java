@@ -15,9 +15,9 @@ import com.intellij.ui.StringComboboxEditor;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesUtil;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeUtil;
 

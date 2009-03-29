@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.refactoring;
+package org.jetbrains.plugins.scala.lang.refactoring.util;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.lexer.Lexer;

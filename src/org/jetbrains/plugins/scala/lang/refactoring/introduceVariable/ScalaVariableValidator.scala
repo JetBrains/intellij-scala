@@ -23,6 +23,7 @@ import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import com.intellij.psi.PsiElement
+import util.NameValidator
 
 /**
 * User: Alexander Podkhalyuzin
