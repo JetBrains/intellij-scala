@@ -151,12 +151,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     val dummyFile: ScalaFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     val importStatements = dummyFile.getImportStatements
-    val imp: ScStableCodeReferenceElement = (importStatements.firstOption match {
-      case Some(x) => x
-      case None =>
-        //cannot be
-        null
-    }).importExprs(0).qualifier
+    val imp: ScStableCodeReferenceElement = (importStatements.firstOption match {case Some(x) => x}).importExprs(0).qualifier
     return if (imp == null) null else imp.resolve
   }
 
