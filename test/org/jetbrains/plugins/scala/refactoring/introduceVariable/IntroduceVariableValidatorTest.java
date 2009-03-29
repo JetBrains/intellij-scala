@@ -15,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaVariableValidator;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import scala.Some;
 

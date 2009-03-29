@@ -6,7 +6,7 @@ import com.intellij.codeInsight.template._
 import com.intellij.psi.{PsiDocumentManager, PsiNamedElement}
 import java.lang.{UnsupportedOperationException, String}
 import lang.psi.api.toplevel.ScTyped
-import lang.refactoring.NameSuggester
+import lang.refactoring.namesSuggester.NameSuggester
 /**
  * User: Alexander Podkhalyuzin
  * Date: 31.01.2009

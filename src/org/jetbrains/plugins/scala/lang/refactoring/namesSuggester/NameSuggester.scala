@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.refactoring
+package org.jetbrains.plugins.scala.lang.refactoring.namesSuggester
 
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.openapi.project.Project
@@ -9,7 +9,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import _root_.scala.collection.mutable.ArrayBuffer
-
+import util.{NameValidator, ScalaNamesUtil}
 /**
 * User: Alexander.Podkhalyuz
 * Date: 26.06.2008
