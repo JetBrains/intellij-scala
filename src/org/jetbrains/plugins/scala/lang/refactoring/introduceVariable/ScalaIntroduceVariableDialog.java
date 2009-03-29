@@ -16,12 +16,10 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableDialogInterface;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableSettings;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaValidator;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.typeManipulator.IType;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringUtil;
+import org.jetbrains.plugins.scala.lang.psi.types.ScType;
+import org.jetbrains.plugins.scala.lang.psi.types.ScType$;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -33,7 +31,7 @@ import java.util.HashMap;
  * User: Alexander Podkhalyuzin
  * Date: 01.07.2008
  */
-public class ScalaIntroduceVariableDialog extends DialogWrapper implements ScalaIntroduceVariableDialogInterface {
+public class ScalaIntroduceVariableDialog extends DialogWrapper {
   private JCheckBox myCbTypeSpec;
   private JCheckBox declareVariableCheckBox;
   private JCheckBox myCbReplaceAllOccurences;
@@ -46,21 +44,21 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
   public String myEnteredName;
 
   private Project project;
-  private IType myType;
+  private ScType myType;
   private int occurrencesCount;
-  private ScalaValidator validator;
+  private ScalaVariableValidator validator;
   private String[] possibleNames;
 
-  private HashMap<String, IType> myTypeMap = null;
+  private HashMap<String, ScType> myTypeMap = null;
   private EventListenerList myListenerList = new EventListenerList();
 
   private static final String REFACTORING_NAME = ScalaBundle.message("introduce.variable.title");
 
 
   public ScalaIntroduceVariableDialog(Project project,
-                                      IType myType,
+                                      ScType myType,
                                       int occurrencesCount,
-                                      ScalaValidator validator,
+                                      ScalaVariableValidator validator,
                                       String[] possibleNames) {
     super(project, true);
     this.project = project;
@@ -101,11 +99,11 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
     return myCbReplaceAllOccurences.isSelected();
   }
 
-  private boolean isDeclareVariable() {
+  public boolean isDeclareVariable() {
     return declareVariableCheckBox.isSelected();
   }
 
-  private IType getSelectedType() {
+  public ScType getSelectedType() {
     if (!myCbTypeSpec.isSelected() || !myCbTypeSpec.isEnabled()) {
       return null;
     } else {
@@ -125,7 +123,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
     myTypeLabel.setLabelFor(myTypeComboBox);
 
     // Type specification
-    if (myType == null || myType.getName() == null) {
+    if (myType == null || (new ScType$()).presentableText(myType) == null) {
       myCbTypeSpec.setSelected(false);
       myCbTypeSpec.setEnabled(false);
       myTypeComboBox.setEnabled(false);
@@ -256,40 +254,5 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Scala
         ((DataChangedListener) aList).dataChanged();
       }
     }
-  }
-
-  public ScalaIntroduceVariableSettings getSettings() {
-    return new MyScalaIntroduceVariableSettings(this);
-  }
-
-  private static class MyScalaIntroduceVariableSettings implements ScalaIntroduceVariableSettings {
-    String myEnteredName;
-    boolean myIsReplaceAllOccurrences;
-    boolean myIsDeclareFinal;
-    IType mySelectedType;
-
-    public MyScalaIntroduceVariableSettings(ScalaIntroduceVariableDialog dialog) {
-      myEnteredName = dialog.getEnteredName();
-      myIsReplaceAllOccurrences = dialog.isReplaceAllOccurrences();
-      myIsDeclareFinal = dialog.isDeclareVariable();
-      mySelectedType = dialog.getSelectedType();
-    }
-
-    public String getEnteredName() {
-      return myEnteredName;
-    }
-
-    public boolean isReplaceAllOccurrences() {
-      return myIsReplaceAllOccurrences;
-    }
-
-    public boolean isDeclareVariable() {
-      return myIsDeclareFinal;
-    }
-
-    public IType getSelectedType() {
-      return mySelectedType;
-    }
-
   }
 }

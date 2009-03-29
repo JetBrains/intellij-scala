@@ -22,8 +22,6 @@ import psi.api.toplevel.typedef.ScTrait
 import psi.api.toplevel.typedef.ScClass
 import psi.api.base.ScReferenceElement
 import _root_.scala.collection.mutable.ArrayBuffer
-import typeManipulator.TypeManipulator
-import typeManipulator.IType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.psi.PsiType
@@ -45,12 +43,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
   val REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
   var deleteOccurence = false;
 
-  def showErrorMessage(text: String, project: Project) {
-    if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(text)
-    val dialog = new RefactoringMessageDialog("Introduce variable refactoring", text,
-            HelpID.INTRODUCE_VARIABLE, "OptionPane.errorIcon", false, project)
-    dialog.show
-  }
+
 
   private def getLineText(editor: Editor): String = {
     val lineNumber = editor.getCaretModel().getLogicalPosition().line
@@ -118,23 +111,17 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
 
     val occurrences: Array[ScExpression] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), enclosingContainer)
     // Getting settings
-    var validator: ScalaValidator = new ScalaVariableValidator(this, project, expr, occurrences, enclosingContainer)
-    var dialog: ScalaIntroduceVariableDialogInterface = getDialog(project, editor, expr,
-      TypeManipulator.wrapType(typez), occurrences, false, validator)
-    if (!dialog.isOK()) {
-      return
-    }
+    var validator = new ScalaVariableValidator(this, project, expr, occurrences, enclosingContainer)
+    var dialog = getDialog(project, editor, expr, typez, occurrences, false, validator)
+    if (!dialog.isOK) return
 
-    var settings: ScalaIntroduceVariableSettings = dialog.getSettings();
-
-    val varName: String = settings.getEnteredName()
-    var varType: ScType = TypeManipulator.unwrapType(settings.getSelectedType())
-    val isVariable: Boolean = settings.isDeclareVariable()
-    val replaceAllOccurrences: Boolean = settings.isReplaceAllOccurrences()
+    val varName: String = dialog.getEnteredName
+    var varType: ScType = dialog.getSelectedType
+    val isVariable: Boolean = dialog.isDeclareVariable
+    val replaceAllOccurrences: Boolean = dialog.isReplaceAllOccurrences
     runRefactoring(expr, editor, enclosingContainer, occurrences, varName, varType, replaceAllOccurrences, isVariable);
 
     return
-
   }
 
   def runRefactoring(selectedExpr: ScExpression, editor: Editor, tempContainer: PsiElement,
@@ -312,8 +299,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
     //nothing to do
   }
 
-  protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: IType, occurrences: Array[ScExpression],
-                         declareVariable: Boolean, validator: ScalaValidator): ScalaIntroduceVariableDialogInterface = {
+  protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: ScType, occurrences: Array[ScExpression],
+                          declareVariable: Boolean, validator: ScalaVariableValidator): ScalaIntroduceVariableDialog = {
     // Add occurences highlighting
     val highlighters = new java.util.ArrayList[RangeHighlighter]
     var highlightManager: HighlightManager = null
@@ -350,5 +337,12 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
     val conflictsDialog = new ConflictsDialog(project, conflicts: _*)
     conflictsDialog.show
     return conflictsDialog.isOK
+  }
+
+  def showErrorMessage(text: String, project: Project) {
+    if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(text)
+    val dialog = new RefactoringMessageDialog("Introduce variable refactoring", text,
+            HelpID.INTRODUCE_VARIABLE, "OptionPane.errorIcon", false, project)
+    dialog.show
   }
 }
