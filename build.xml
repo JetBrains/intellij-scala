@@ -288,7 +288,7 @@
 
       <jvmarg value="-Didea.config.path=${test.dist}/config"/>
       <jvmarg value="-Didea.system.path=${test.dist}/system"/>
-      <jvmarg value="-Didea.plugins.path=${main.dest}"/>
+      <jvmarg value="-Didea.plugins.path=${production.dest}"/>
 
       <jvmarg value="-Didea.load.plugins.id=org.intellij.scala"/>
 
