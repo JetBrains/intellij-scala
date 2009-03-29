@@ -19,10 +19,8 @@ import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.MockJdkWrapper;
 import com.intellij.openapi.roots.*;
-import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PathUtil;
@@ -94,16 +92,9 @@ public class ScalacCompiler extends ExternalCompiler {
 
     for (Module module : modules) {
       if (!(ScalaCompilerUtil.isScalaCompilerSetUpForModule(module) && ScalaUtils.isSuitableModule(module))) {
-        Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.facet", module.getName()), ScalaBundle.message("cannot.compile"));
+        Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.compiler", module.getName()), ScalaBundle.message("cannot.compile"));
         return false;
       }
-
-/*
-      if (!ScalaCompilerUtil.isJarFileContainsClassFile(ScalaCompilerUtil.getScalaCompilerJarPath(module), ScalaCompilerUtil.LAMP_PATCKAGE_PATH)) {
-        Messages.showErrorDialog(myProject, ScalaBundle.message("jtype.is.not.found", module.getName()), ScalaBundle.message("cannot.compile"));
-        return false;
-      }
-*/
     }
 
     Set<Module> nojdkModules = new HashSet<Module>();
@@ -247,24 +238,11 @@ public class ScalacCompiler extends ExternalCompiler {
 
     //Add Scala Compiler jar
 
-    final Module module = chunk.getModules()[0];
-    String scalaCompilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(module);
-    // Special check to compile scala language library
-    if (ScalaCompilerUtil.isJarFileContainsClassFile(scalaCompilerJarPath, ScalaCompilerUtil.LAMP_PATCKAGE_PATH)) {
-
+    String scalaCompilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(chunk.getModules()[0]);
+    if (scalaCompilerJarPath.length() > 0) {
       classPathBuilder.append(scalaCompilerJarPath);
       classPathBuilder.append(File.pathSeparator);
-
-    } else {
-      final Library[] libraries = ScalaCompilerUtil.getScalaCompilerLibrariesByModule(module);
-      if (libraries.length > 0) {
-        for (VirtualFile file : libraries[0].getFiles(OrderRootType.CLASSES)) {
-          classPathBuilder.append(StringUtil.trimEnd(file.getPath(), "!/"));
-          classPathBuilder.append(File.pathSeparator);
-        }
-      }
     }
-
 
     commandLine.add(classPathBuilder.toString());
     commandLine.add(ScalacRunner.class.getName());
