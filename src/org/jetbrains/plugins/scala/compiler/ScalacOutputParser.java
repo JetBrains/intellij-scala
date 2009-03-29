@@ -54,16 +54,16 @@ class ScalacOutputParser extends OutputParser {
   public boolean processMessageLine(Callback callback) {
     final String line = callback.getNextLine();
 
-/*
     if (line == null) {
+/*
       //ensure that all "written" files are really written
       for (String s : myWrittenList) {
         callback.fileGenerated(s);
       }
+*/
       myWrittenList.clear();
       return false;
     }
-*/
 
     String text = line.trim();
     if (fullCrash && text.length( ) > 0) {
