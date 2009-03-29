@@ -19,11 +19,15 @@ import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.MockJdkWrapper;
 import com.intellij.openapi.roots.*;
+import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.Condition;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PathUtil;
+import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
@@ -249,11 +253,28 @@ public class ScalacBackendCompiler extends ExternalCompiler {
       classPathBuilder.append(File.pathSeparator);
     }
 
-    //Add Scala Compiler jar
-    if (scalaCompilerJarPath.length() > 0) {
+    // Special check to compile scala language library
+    if (ScalaCompilerUtil.isJarFileContainsClassFile(scalaCompilerJarPath, ScalaCompilerUtil.LAMP_PATCKAGE_PATH)) {
       classPathBuilder.append(scalaCompilerJarPath);
       classPathBuilder.append(File.pathSeparator);
+    } else {
+      final Module module = ContainerUtil.find(modules, new Condition<Module>() {
+        public boolean value(Module module) {
+          return ScalaCompilerUtil.isScalaCompilerSetUpForModule(module);
+        }
+      });
+
+      assert module != null;
+
+      final Library[] libraries = ScalaCompilerUtil.getScalaCompilerLibrariesByModule(module);
+      if (libraries.length > 0) {
+        for (VirtualFile file : libraries[0].getFiles(OrderRootType.CLASSES)) {
+          classPathBuilder.append(StringUtil.trimEnd(file.getPath(), "!/"));
+          classPathBuilder.append(File.pathSeparator);
+        }
+      }
     }
+
 
     commandLine.add(classPathBuilder.toString());
     commandLine.add(ScalacRunner.class.getName());
