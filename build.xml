@@ -24,8 +24,8 @@
   <property name="compiled.dest" value="${base.dir}/classes/"/>
   <property name="test.dest" value="${compiled.dest}/test/"/>
   <property name="production.dest" location="${compiled.dest}/production/"/>
-  <property name="runners.dest" location="${production.dest}/Scala"/>
-  <property name="main.dest" location="${production.dest}/Runners"/>
+  <property name="main.dest" location="${production.dest}/Scala"/>
+  <property name="runners.dest" location="${production.dest}/Runners"/>
 
   <property name="idea.lib" value="${idea.home}/lib"/>
   <property name="scala.home" value="${base.dir}/SDK"/>
@@ -108,6 +108,8 @@
 
     <mkdir dir="${main.dest}"/>
     <mkdir dir="${main.dest}/META-INF"/>
+    <mkdir dir="${main.dest}"/>
+    <mkdir dir="${runners.dest}"/>
 
     <copy todir="${main.dest}/META-INF">
       <fileset dir="${base.dir}/META-INF"/>
