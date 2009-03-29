@@ -23,7 +23,6 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -40,16 +39,14 @@ import java.util.*;
 /**
  * @author ilyas
  */
-public class ScalacCompiler extends ExternalCompiler {
+public class ScalacBackendCompiler extends ExternalCompiler {
 
-  private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.compiler.ScalacCompiler");
+  private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.compiler.ScalacBackendCompiler");
 
   private final Project myProject;
   private final List<File> myTempFiles = new ArrayList<File>();
 
   // VM properties
-  @NonNls
-  private static final String XMX_COMPILER_PROPERTY = "-Xmx300m";
   @NonNls
   private final String XSS_COMPILER_PROPERTY = "-Xss128m";
 
@@ -62,11 +59,10 @@ public class ScalacCompiler extends ExternalCompiler {
   private static final String DESTINATION_COMPILER_PROPERTY = "-d";
   @NonNls
   private static final String DEBUG_PROPERTY = "-Ydebug";
-  @NonNls
-  private static final String WARNINGS_PROPERTY = "-unchecked";
+
   private final static HashSet<FileType> COMPILABLE_FILE_TYPES = new HashSet<FileType>(Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA));
 
-  public ScalacCompiler(Project project) {
+  public ScalacBackendCompiler(Project project) {
     myProject = project;
   }
 
@@ -297,6 +293,7 @@ public class ScalacCompiler extends ExternalCompiler {
     final Module[] chunkModules = chunk.getModules();
     final List<Module> modules = Arrays.asList(chunkModules);
     final Set<VirtualFile> sourceDependencies = new HashSet<VirtualFile>();
+    final boolean isTestChunk = isTestChunk(chunk);
 
     for (Module module : modules) {
       if (ScalaUtils.isSuitableModule(module)) {
@@ -307,6 +304,12 @@ public class ScalacCompiler extends ExternalCompiler {
           cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)));
           // Add Java dependencies
           if (orderEntry instanceof ModuleOrderEntry && !(modules.contains(((ModuleOrderEntry) orderEntry).getModule()))) {
+            sourceDependencies.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
+          }
+          if (isTestChunk &&
+              (orderEntry instanceof ModuleSourceOrderEntry) &&
+              orderEntry.getOwnerModule() == module) {
+            //add Java sources for test compilation
             sourceDependencies.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
           }
         }
@@ -323,23 +326,11 @@ public class ScalacCompiler extends ExternalCompiler {
     }
     printer.println();
 
-    boolean isTestChunk = false;
-    if (chunkModules.length > 0) {
-      ProjectRootManager rm = ProjectRootManager.getInstance(chunkModules[0].getProject());
-      for (VirtualFile file : chunk.getSourceRoots()) {
-        if (file != null && rm.getFileIndex().isInTestSourceContent(file)) {
-          isTestChunk = true;
-          break;
-        }
-      }
-    }
 
     //Little hack to make compiler fork with java files from test sources
-/*
     if (isTestChunk) {
       chunk.setSourcesFilter(ModuleChunk.ALL_SOURCES);
     }
-*/
     for (VirtualFile file : chunk.getFilesToCompile()) {
       printer.println(file.getPath());
     }
@@ -347,6 +338,21 @@ public class ScalacCompiler extends ExternalCompiler {
       addJavaSourceFiles(printer, sourceDependency);
     }
     printer.close();
+  }
+
+  private static boolean isTestChunk(ModuleChunk chunk) {
+    boolean isTestChunk = false;
+    final Module[] modules = chunk.getModules();
+    if (modules.length > 0) {
+      ProjectRootManager rm = ProjectRootManager.getInstance(modules[0].getProject());
+      for (VirtualFile file : chunk.getSourceRoots()) {
+        if (file != null && rm.getFileIndex().isInTestSourceContent(file)) {
+          isTestChunk = true;
+          break;
+        }
+      }
+    }
+    return isTestChunk;
   }
 
   private static void addJavaSourceFiles(PrintStream stream, VirtualFile src) {
