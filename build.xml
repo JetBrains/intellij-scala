@@ -141,8 +141,8 @@
             destdir="${main.dest}"
             target="jvm-1.5"
             force="changed">
-      <classpath refid="base.path"/>
       <classpath>
+        <path  refid="base.path"/>
         <path location="${main.dest}"/>
         <path location="${runners.dest}"/>
       </classpath>
@@ -154,8 +154,8 @@
             destdir="${main.dest}"
             target="1.5"
             debug="true">
-      <classpath refid="base.path"/>
       <classpath>
+        <path  refid="base.path"/>
         <path location="${main.dest}"/>
         <path location="${runners.dest}"/>
       </classpath>
@@ -244,8 +244,8 @@
     <javac srcdir="${base.dir}/test"
            destdir="${test.dest}"
            debug="true">
-      <classpath refid="base.path"/>
       <classpath>
+        <path  refid="base.path"/>
         <path location="${main.dest}"/>
         <path location="${runners.dest}"/>
       </classpath>
