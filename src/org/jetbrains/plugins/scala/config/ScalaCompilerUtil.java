@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.config;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
+import com.intellij.openapi.roots.impl.libraries.LibraryImpl;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -53,6 +54,7 @@ public class ScalaCompilerUtil {
     Library[] libraries = getScalaCompilerLibrariesByModule(module);
     if (libraries.length == 0) return "";
     final Library library = libraries[0];
+    if (library instanceof LibraryImpl && ((LibraryImpl) library).isDisposed()) return "";
     return getScalaCompilerJarPathForLibrary(library);
   }
 
