@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.rename
+package org.jetbrains.plugins.scala.lang.refactoring.rename
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.psi.PsiElement
