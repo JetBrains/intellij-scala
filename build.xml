@@ -254,7 +254,7 @@
 
   </target>
 
-  <target name="run.tests" >
+  <target name="run.tests" depends="build.tests">
 
     <copy toDir="${main.dest}/testdata">
       <fileset dir="${base.dir}/testdata"/>
