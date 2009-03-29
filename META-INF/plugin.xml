@@ -60,9 +60,9 @@
     <xdebugger.settings implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings"/>
     <fileTypeIndentOptionsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaIndentOptionsProvider"/>
     <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider"/>
-    <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.rename.RenameScalaMethodProcessor" order="first"/>
-    <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.rename.RenameScalaValsProcessor" order="first"/>
-    <renameHandler implementation="org.jetbrains.plugins.scala.lang.rename.ScalaInplaceRenameHandler"/>
+    <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaMethodProcessor" order="first"/>
+    <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaValsProcessor" order="first"/>
+    <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaInplaceRenameHandler"/>
     <nameSuggestionProvider language="Scala" implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaNameSuggestionProvider"/>
     <definitionsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.MethodImplementationsSearch"/>
     <antCustomCompiler implementation="org.jetbrains.plugins.scala.ant.ScalaAntCustomCompilerProvider"/>

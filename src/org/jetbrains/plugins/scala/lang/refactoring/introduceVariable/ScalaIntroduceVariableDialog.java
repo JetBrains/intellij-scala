@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesUtil;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
-import org.jetbrains.plugins.scala.lang.psi.types.ScType$;
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeUtil;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -123,7 +123,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper {
     myTypeLabel.setLabelFor(myTypeComboBox);
 
     // Type specification
-    if (myType == null || (new ScType$()).presentableText(myType) == null) {
+    if (myType == null || ScTypeUtil.presentableText(myType) == null) {
       myCbTypeSpec.setSelected(false);
       myCbTypeSpec.setEnabled(false);
       myTypeComboBox.setEnabled(false);

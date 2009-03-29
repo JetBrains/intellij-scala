@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.rename
+package org.jetbrains.plugins.scala.lang.refactorin.rename
 
 import com.intellij.lang.LanguageRefactoringSupport
 import com.intellij.lang.refactoring.RefactoringSupportProvider
