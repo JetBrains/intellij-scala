@@ -54,7 +54,7 @@ public class ScalacRunner {
       } while (line != null);
     } catch (IOException e) {
       e.printStackTrace();
-      System.err.println("Scalac internal error: " + e.getMessage());
+      System.err.println("Scalac internal error: " + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
       return;
     } finally {
       try {
@@ -62,7 +62,7 @@ public class ScalacRunner {
           reader.close();
         } catch (IOException e) {
           e.printStackTrace();
-          System.err.println("Scalac internal error: " + e.getMessage());
+          System.err.println("Scalac internal error: " + e.getMessage()+ "\n" + Arrays.toString(e.getStackTrace()));
         }
       } finally {
         f.delete();
@@ -76,7 +76,7 @@ public class ScalacRunner {
     } catch (Exception e) {
       Throwable cause = e.getCause();
       System.err.println("Scalac internal error: " + e.getClass() + " " + Arrays.toString(e.getStackTrace()) +
-              (cause != null ? Arrays.toString(e.getCause().getStackTrace()) : ""));
+          (cause != null ? Arrays.toString(e.getCause().getStackTrace()) : ""));
       for (int i1 = 0; i1 < e.getStackTrace().length; i1++) {
         StackTraceElement element = e.getStackTrace()[i1];
         System.err.println(element);
