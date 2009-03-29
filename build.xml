@@ -142,6 +142,10 @@
             target="jvm-1.5"
             force="changed">
       <classpath refid="base.path"/>
+      <classpath>
+        <path location="${main.dest}"/>
+        <path location="${runners.dest}"/>
+      </classpath>
       <include name="src/**/*.scala"/>
       <include name="src/**/*.java"/>
     </scalac>
@@ -152,9 +156,8 @@
             debug="true">
       <classpath refid="base.path"/>
       <classpath>
-        <fileset dir="${production.dest}">
-          <include name="**/*.class"/>
-        </fileset>
+        <path location="${main.dest}"/>
+        <path location="${runners.dest}"/>
       </classpath>
       <include name="src/**/*.java"/>
       <include name="src/**/*.form"/>
@@ -230,9 +233,8 @@
             force="changed">
       <classpath refid="base.path"/>
       <classpath>
-        <fileset dir="${production.dest}">
-          <include name="**/*.class"/>
-        </fileset>
+        <path location="${main.dest}"/>
+        <path location="${runners.dest}"/>
       </classpath>
       <include name="**/*.java"/>
       <include name="**/*.scala"/>
@@ -244,7 +246,8 @@
            debug="true">
       <classpath refid="base.path"/>
       <classpath>
-        <path location="${production.dest}"/>
+        <path location="${main.dest}"/>
+        <path location="${runners.dest}"/>
       </classpath>
       <include name="**/*.java"/>
     </javac>
@@ -269,7 +272,8 @@
            haltonerror="no">
 
       <classpath>
-        <path location="${production.dest}"/>
+        <path location="${main.dest}"/>
+        <path location="${runners.dest}"/>
         <path location="${test.dest}"/>
         <path refid="base.path"/>
       </classpath>
