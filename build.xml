@@ -175,7 +175,7 @@
     <mkdir dir="${dist.dir}"/>
 
     <jar destfile="${temp.jar.dir}/Scala/lib/${scala.jar}">
-      <fileset dir="${production.dest}" excludes="**/*build.xml, **/scala.properties, **/*Runner*, **/*Reporter*"/>
+      <fileset dir="${main.dest}"/>
       <manifest>
         <attribute name="Revision" value="${plugin.revision}"/>
         <attribute name="Build" value="${plugin.version}"/>
@@ -183,7 +183,7 @@
     </jar>
 
     <jar destfile="${temp.jar.dir}/Scala/lib/${runners.jar}">
-      <fileset dir="${production.dest}" includes="**/*Runner*, **/*Reporter*"/>
+      <fileset dir="${runners.dest}"/>
       <manifest>
         <attribute name="Revision" value="${plugin.revision}"/>
         <attribute name="Build" value="${plugin.version}"/>
