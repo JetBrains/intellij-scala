@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.modifiers
 
 import _root_.scala.collection.mutable.HashSet
+import lang.psi.api.statements.params.{ScParameter, ScClassParameter}
 import lang.psi.api.toplevel.typedef._
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.statements.{ScPatternDefinition, ScDeclaration}
@@ -60,6 +61,10 @@ private[annotator] object ModifierChecker {
             case "lazy" => {
               owner match {
                 case _: ScPatternDefinition => checkDublicates(modifierPsi, "lazy")
+                case _: ScParameter => {
+                  proccessError(ScalaBundle.message("lazy.modifier.is.not.allowed.with.param"), modifierPsi, holder,
+                    new RemoveModifierQuickFix(owner, "lazy"))
+                }
                 case _ => {
                   proccessError(ScalaBundle.message("lazy.modifier.is.not.allowed.here"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "lazy"))
@@ -93,6 +98,16 @@ private[annotator] object ModifierChecker {
                    checkDublicates(modifierPsi, "final")
                   }
                 }
+                case e: ScClassParameter => {
+                  if (e.getContainingClass.hasModifierProperty("final")) {
+                    if (checkDublicates(modifierPsi, "final")) {
+                      proccessWarning(ScalaBundle.message("final.modifier.is.redundant.with.final.parents"), modifierPsi, holder,
+                        new RemoveModifierQuickFix(owner, "final"))
+                    }
+                  } else {
+                   checkDublicates(modifierPsi, "final")
+                  }
+                }
                 case _ => {
                   proccessError(ScalaBundle.message("final.modifier.is.not.allowed.here"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "final"))
@@ -101,7 +116,8 @@ private[annotator] object ModifierChecker {
             }
             case "sealed" => {
               owner match {
-                case _: ScClass => checkDublicates(modifierPsi, "sealed")
+                case _: ScClass | _: ScTrait | _: ScClassParameter => checkDublicates(modifierPsi, "sealed")
+                case e: ScMember if e.getParent.isInstanceOf[ScTemplateBody] => checkDublicates(modifierPsi, "sealed")
                 case _ => {
                   proccessError(ScalaBundle.message("sealed.modifier.is.not.allowed.here"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "sealed"))
@@ -135,6 +151,7 @@ private[annotator] object ModifierChecker {
                 case member: ScMember if member.getParent.isInstanceOf[ScTemplateBody] => {
                   checkDublicates(owner, "override")
                 }
+                case param: ScClassParameter => checkDublicates(owner, "override")
                 case _ => {
                   proccessError(ScalaBundle.message("override.modifier.is.not.allowed"),modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "override"))
