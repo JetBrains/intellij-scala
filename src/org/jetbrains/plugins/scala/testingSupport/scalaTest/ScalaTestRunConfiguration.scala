@@ -17,6 +17,7 @@ import com.intellij.openapi.util.{JDOMExternalizer, JDOMExternalizable}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiManager, PsiClass}
 import com.intellij.util.PathUtil
+import compiler.rt.ScalacRunner
 import config.{ScalaCompilerUtil, ScalaConfigUtils}
 import jdom.Element
 import _root_.scala.collection.mutable.HashSet
@@ -117,13 +118,15 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
         val jarPathForClass = PathUtil.getJarPathForClass(classOf[ScalaTestRunConfiguration])
         val virtFile = VcsUtil.getVirtualFile(jarPathForClass)
-        if (virtFile.getExtension != "jar") { //so it's debug mode, we can free use ScalaTestReporter class
+        /*if (virtFile.getExtension != "jar") { //so it's debug mode, we can free use ScalaTestReporter class
           val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalaTestReporter])
           params.getClassPath.add(rtJarPath)
         } else { //so we must to find jar
           val rtJarPath = jarPathForClass.substring(0, jarPathForClass.lastIndexOf(File.separator)) + File.separator + "scala-plugin-runners.jar"
           params.getClassPath.add(rtJarPath)
-        }
+        }*/
+        val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalacRunner])
+        params.getClassPath.add(rtJarPath)
 
         val sdkJar = VcsUtil.getVirtualFile(jarPath)
         if (sdkJar != null) {
