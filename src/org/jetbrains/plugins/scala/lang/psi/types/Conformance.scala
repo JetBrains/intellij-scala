@@ -131,7 +131,7 @@ object Conformance {
 
     case proj : ScProjectionType => {
       proj.element match {
-        case clazz : PsiClass => BaseTypes.get(proj).find{t => conforms(l, t, visited + clazz)}
+        case clazz : PsiClass if !visited.contains(clazz) => BaseTypes.get(proj).find{t => conforms(l, t, visited + clazz)}
         case _ => false
       }
     }
