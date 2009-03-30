@@ -148,7 +148,7 @@ object Conformance {
 
     case p@ScParameterizedType(ScDesignatorType(td: ScTypeDefinition), _) => {
       val s = p.substitutor
-      td.superTypes.find {t => conforms(l, s.subst(t), visited + td)}
+      if (!visited.contains(td)) td.superTypes.find {t => conforms(l, s.subst(t), visited + td)} else None
     }
     case p@ScParameterizedType(ScDesignatorType(clazz: PsiClass), _) => {
       val s = p.substitutor
