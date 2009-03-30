@@ -132,12 +132,15 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
             PsiDocumentManager.getInstance(editor.getProject).commitDocument(document)
           }
           if (i == 0) {
-            val createStmt = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable, expression, file.getManager)
+            val createStmt = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable, ScalaRefactoringUtil.unparExpr(expression),
+              file.getManager)
             var elem = file.findElementAt(occurrences(0).getStartOffset)
             while (elem != null && elem.getParent != container) elem = elem.getParent
             if (elem != null) {
-              val nl = ScalaPsiElementFactory.createNewLineNode(file.getManager).getPsi
-              container.addBefore(createStmt, container.addBefore(nl, elem))
+              container.addBefore(createStmt, elem)
+              PsiDocumentManager.getInstance(editor.getProject).commitDocument(document)
+              val offset1 = elem.getTextRange.getStartOffset
+              document.insertString(offset1, "\n")
             }
           }
           i = i - 1
