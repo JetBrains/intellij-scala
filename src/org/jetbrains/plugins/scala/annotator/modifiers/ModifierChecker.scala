@@ -25,16 +25,17 @@ private[annotator] object ModifierChecker {
     }
     val owner = ml.getParent.asInstanceOf[ScModifierListOwner]
     val modifiersSet = new HashSet[String]
-    def checkDublicates(element: PsiElement, text: String): Boolean = {
+    def checkDublicates(element: PsiElement, text: String): Boolean = checkDublicate(element, text, false)
+    def checkDublicate(element: PsiElement, text: String, withPrivate: Boolean): Boolean = {
       val illegalCombinations = Array[(String, String)](
         ("final", "sealed"),
-        ("final", "private"),
+        if (withPrivate)("final", "private") else ("", ""),
         ("private", "protected"),
-        ("private", "override")
+        if (withPrivate) ("private", "override") else ("", "")
       )
       for ((bad1, bad2) <- illegalCombinations if (bad1 == text && owner.hasModifierProperty(bad2)) ||
-        (bad2 == text && owner.hasModifierProperty(bad1))) {
-        proccessError(ScalaBundle.message("illegal.modifiers.combination", bad1,bad2), element, holder,
+              (bad2 == text && owner.hasModifierProperty(bad1))) {
+        proccessError(ScalaBundle.message("illegal.modifiers.combination", bad1, bad2), element, holder,
           new RemoveModifierQuickFix(owner, text))
         return false
       }
