@@ -43,6 +43,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.impl.source.CharTableImpl
 import refactoring.util.ScalaNamesUtil
 import types._
+import util.PsiTreeUtil
 
 object ScalaPsiElementFactory extends ScTypeInferenceHelper {
 
@@ -60,6 +61,16 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
         case _ => x
       }
       case x => x
+    }
+  }
+
+  def createOptionExpressionFromText(text: String, manager: PsiManager): Option[ScExpression] = {
+    val dummyFile: ScalaFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text.trim).asInstanceOf[ScalaFile]
+    val child = dummyFile.getFirstChild
+    child match {
+      case expr: ScExpression => if (expr.getNextSibling == null && !PsiTreeUtil.hasErrorElements(expr)) Some(expr) else None
+      case _ => None
     }
   }
 

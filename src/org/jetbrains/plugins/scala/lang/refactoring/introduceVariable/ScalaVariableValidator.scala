@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import com.intellij.openapi.util.TextRange
 import psi.api.statements.params.ScParameters
 import psi.api.statements.ScFunction
 import psi.api.statements.ScValue
@@ -33,13 +34,14 @@ import util.NameValidator
 class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableHandler,
                             myProject: Project,
                             selectedExpr: ScExpression,
-                            occurrences: Array[ScExpression],
+                            occurrences: Array[TextRange],
                             enclosingContainer: PsiElement) extends NameValidator {
   def getProject(): Project = {
     myProject
   }
 
   def isOK(dialog: ScalaIntroduceVariableDialog): Boolean = {
+    if (occurrences.length == 0) return true
     val name = dialog.getEnteredName
     val allOcc = dialog.isReplaceAllOccurrences
     val conflicts = isOKImpl(name, allOcc)
@@ -146,7 +148,7 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableHandle
     else {
       var from = {
         var parent: PsiElement = if (allOcc) {
-          occurrences(0)
+          selectedExpr //todo:
         } else {
           selectedExpr
         }
@@ -187,6 +189,7 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableHandle
   }
 
   def validateName(name: String, increaseNumber: Boolean): String = {
+    if (occurrences.length == 0) return name
     var res = name
     if (isOKImpl(res, true).length == 0) return res
     if (!increaseNumber) return ""

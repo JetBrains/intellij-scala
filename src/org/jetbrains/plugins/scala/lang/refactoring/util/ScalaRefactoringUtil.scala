@@ -1,10 +1,13 @@
 package org.jetbrains.plugins.scala.lang.refactoring.util
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi._
 import java.util.{HashMap, Comparator}
 import parser.ScalaElementTypes
 import psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
 import psi.api.expr._
+import psi.api.ScalaFile
 import psi.api.statements.ScVariable
 import psi.api.statements.ScValue
 import psi.api.toplevel.typedef.ScMember
@@ -18,14 +21,10 @@ import com.intellij.util.ReflectionCache
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import com.intellij.psi.PsiElement
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiComment
-import com.intellij.psi.PsiWhiteSpace
-import com.intellij.psi.PsiFile
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.lexer._
-
+import scala.util.ScalaUtils
 /**
  * User: Alexander Podkhalyuzin
  * Date: 23.06.2008
@@ -72,30 +71,65 @@ object ScalaRefactoringUtil {
     }
   }
 
-  def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScExpression] = {
-    val element1 = file.findElementAt(startOffset)
-    var element2 = file.findElementAt(endOffset - 1)
-    if (element1 == null || element2 == null) {
+  def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, ScType)] = {
+    val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScExpression])
+    if (element == null || element.getTextRange.getStartOffset != startOffset || element.getTextRange.getEndOffset != endOffset) {
+      val rangeText = file.getText.substring(startOffset, endOffset)
+      val expr = ScalaPsiElementFactory.createOptionExpressionFromText(rangeText, file.getManager)
+      expr match {
+        case Some(expression: ScInfixExpr) => {
+          val op1 = expression.operation
+          if (ScalaRefactoringUtil.ensureFileWritable(project, file)) {
+            var res: Option[(ScExpression, ScType)] = None
+            ScalaUtils.runWriteAction(new Runnable {
+              def run: Unit = {
+                val document = editor.getDocument
+                document.insertString(endOffset, ")")
+                document.insertString(startOffset, "(")
+                val documentManager: PsiDocumentManager = PsiDocumentManager.getInstance(project)
+                documentManager.commitDocument(document)
+                val newOpt = getExpression(project, editor, file, startOffset, endOffset + 2)
+                newOpt match {
+                  case Some((expression: ScExpression, typez)) => {
+                    expression.getParent match {
+                      case inf: ScInfixExpr => {
+                        val op2 = inf.operation
+                        import parser.util.ParserUtils.priority
+                        if (priority(op1.getText) == priority(op2.getText)) {
+                          res = Some((expression.copy.asInstanceOf[ScExpression], typez))
+                        }
+                      }
+                      case _ =>
+                    }
+                  }
+                  case None =>
+                }
+                document.deleteString(endOffset + 1, endOffset + 2)
+                document.deleteString(startOffset, startOffset + 1)
+                documentManager.commitDocument(document)
+              }
+            }, project, "IntroduceVariable helping writer")
+            return res
+          } else return None
+        }
+        case _ => return None
+      }
       return None
     }
-    if (element2.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
-      element2 = file.findElementAt(endOffset - 2)
-      if (element2 == null) return None
-    }
-    val common = PsiTreeUtil.findCommonParent(element1, element2)
-    val element: ScExpression = if (common.isInstanceOf[ScExpression])
-      common.asInstanceOf[ScExpression] else PsiTreeUtil.getParentOfType(common, classOf[ScExpression]);
-    if (element == null || element.getTextRange.getStartOffset != startOffset) {
-      return None
-    }
-    return Some(element)
+    return Some((element, element.getType))
   }
 
-  def getEnclosingContainer(expr: ScExpression): PsiElement = {
+  def getEnclosingContainer(file: PsiFile, startOffset: Int, endOffset: Int): PsiElement = {
+    val common = PsiTreeUtil.findCommonParent(file.findElementAt(startOffset), file.findElementAt(endOffset))
+    getEnclosingContainer(common)
+  }
+
+  //todo: rewrite tests and make it private
+  def getEnclosingContainer(element: PsiElement): PsiElement = {
     def get(parent: PsiElement): PsiElement = {
       parent match {
         case null =>
-        case x: ScBlock if x != expr =>
+        case x: ScBlock if x != element =>
         //todo: case _: ScEnumerators =>
         case _: ScExpression => parent.getParent match {
           case _: ScForStatement | _: ScCaseClause |
@@ -106,25 +140,26 @@ object ScalaRefactoringUtil {
       }
       return parent
     }
-    return get(expr)
+    return get(element)
   }
+
   def ensureFileWritable(project: Project, file: PsiFile): Boolean = {
     val virtualFile = file.getVirtualFile()
     val readonlyStatusHandler = ReadonlyStatusHandler.getInstance(project)
     val operationStatus = readonlyStatusHandler.ensureFilesWritable(virtualFile)
     return !operationStatus.hasReadonlyFiles()
   }
-  def getOccurrences(expr: ScExpression, enclosingContainer: PsiElement): Array[ScExpression] = {
-    val occurrences: ArrayBuffer[ScExpression] = new ArrayBuffer[ScExpression]()
-    if (enclosingContainer == expr) occurrences += enclosingContainer.asInstanceOf[ScExpression]
+  def getOccurrences(expr: ScExpression, enclosingContainer: PsiElement): Array[TextRange] = {
+    val occurrences: ArrayBuffer[TextRange] = new ArrayBuffer[TextRange]()
+    if (enclosingContainer == expr) occurrences += enclosingContainer.asInstanceOf[ScExpression].getTextRange
     else
       for (child <- enclosingContainer.getChildren) {
         if (PsiEquivalenceUtil.areElementsEquivalent(child, expr, comparator, false)) {
           child match {
             case x: ScExpression => {
               x.getParent match {
-                case y: ScMethodCall if y.args.exprs.size == 0 => occurrences += y
-                case _ => occurrences += x
+                case y: ScMethodCall if y.args.exprs.size == 0 => occurrences += y.getTextRange
+                case _ => occurrences += x.getTextRange
               }
             }
             case _ =>
@@ -135,6 +170,7 @@ object ScalaRefactoringUtil {
       }
     return occurrences.toArray
   }
+
   def unparExpr(expr: ScExpression): ScExpression = {
     expr match {
       case x: ScParenthesisedExpr => {

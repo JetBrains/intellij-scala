@@ -51,7 +51,7 @@ private[annotator] object ModifierChecker {
     for (modifier <- ml.getNode.getChildren(null)) {
       val modifierPsi = modifier.getPsi
       modifierPsi match {
-        case am: ScAccessModifier => {
+        case am: ScAccessModifier => { //todo: check private with final or sealed combination.
           if (am.isPrivate) {
             checkDublicates(am,  "private")
           } else if (am.isProtected) {
