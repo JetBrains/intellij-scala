@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.modifiers
 
 import _root_.scala.collection.mutable.HashSet
+import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.statements.params.{ScParameter, ScClassParameter}
 import lang.psi.api.toplevel.typedef._
 import lang.psi.api.toplevel.templates.ScTemplateBody
@@ -99,7 +100,7 @@ private[annotator] object ModifierChecker {
                   }
                 }
                 case e: ScClassParameter => {
-                  if (e.getContainingClass.hasModifierProperty("final")) {
+                  if (PsiTreeUtil.getParentOfType(e, classOf[ScTypeDefinition]).hasModifierProperty("final")) {
                     if (checkDublicates(modifierPsi, "final")) {
                       proccessWarning(ScalaBundle.message("final.modifier.is.redundant.with.final.parents"), modifierPsi, holder,
                         new RemoveModifierQuickFix(owner, "final"))
