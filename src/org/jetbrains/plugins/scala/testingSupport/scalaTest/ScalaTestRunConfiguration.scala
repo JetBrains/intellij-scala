@@ -121,7 +121,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
           val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalaTestReporter])
           params.getClassPath.add(rtJarPath)
         } else { //so we must to find jar
-          val rtJarPath = jarPathForClass.substring(0, jarPathForClass.lastIndexOf(File.separator)) + File.separator + "runners.jar"
+          val rtJarPath = jarPathForClass.substring(0, jarPathForClass.lastIndexOf(File.separator)) + File.separator + "scala-plugin-runners.jar"
           params.getClassPath.add(rtJarPath)
         }
 
