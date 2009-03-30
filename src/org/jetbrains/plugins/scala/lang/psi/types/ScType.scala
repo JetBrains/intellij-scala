@@ -306,8 +306,3 @@ object ScType {
     buffer.toString
   }
 }
-
-object ScTypeUtil {
-  //for java
-  def presentableText(typez: ScType) = ScType.presentableText(typez)
-}

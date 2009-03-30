@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeUtil;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;

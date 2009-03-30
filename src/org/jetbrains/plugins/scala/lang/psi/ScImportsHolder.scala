@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
 import api.base.ScStableCodeReferenceElement
 import api.ScalaFile
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.util.PsiTreeUtil
 import lang.resolve.{ResolveProcessor, CompletionProcessor, ScalaResolveResult, StdKinds}
 import lexer.ScalaTokenTypes
-import _root_.scala.collection.mutable.ArrayBuffer
+import collection.mutable.ArrayBuffer
 import impl.ScalaPsiElementFactory
 import api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import api.toplevel.packaging.{ScPackageStatement, ScPackaging}
 import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi._
+import psi.impl.toplevel.synthetic.ScSyntheticPackage
 import scope._
 
 trait ScImportsHolder extends ScalaPsiElement {
