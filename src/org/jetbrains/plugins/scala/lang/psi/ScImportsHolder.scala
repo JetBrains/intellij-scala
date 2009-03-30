@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
-import _root_.org.jetbrains.plugins.scala.lang.resolve.{CompletionProcessor, ScalaResolveResult, StdKinds}
 import api.base.ScStableCodeReferenceElement
 import api.ScalaFile
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.util.PsiTreeUtil
+import lang.resolve.{ResolveProcessor, CompletionProcessor, ScalaResolveResult, StdKinds}
 import lexer.ScalaTokenTypes
 import _root_.scala.collection.mutable.ArrayBuffer
 import impl.ScalaPsiElementFactory
@@ -205,7 +205,13 @@ trait ScImportsHolder extends ScalaPsiElement {
             || stmt.getNode.getElementType == ScalaTokenTypes.tSEMICOLON)) {
           stmt match {
             case im: ScImportStmt => {
-              if (importSt.getText.toLowerCase < im.getText.toLowerCase) {
+              def processPackage(elem: PsiElement): Boolean = {
+                if (classPackageQual == "") return true
+                val completionProcessor = new ResolveProcessor(StdKinds.packageRef, getSplitQualifierElement(classPackageQual)._2)
+                elem.getContainingFile.processDeclarations(completionProcessor, ResolveState.initial, elem, elem)
+                completionProcessor.candidates.length > 0
+              }
+              if (importSt.getText.toLowerCase < im.getText.toLowerCase && processPackage(im)) {
                 added = true
                 addImportBefore(importSt, im)
                 addImportBefore(ScalaPsiElementFactory.createNewLineNode(im.getManager).getPsi, im)
