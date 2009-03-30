@@ -5,12 +5,15 @@ import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Editor, VisualPosition}
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.wm.WindowManager
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.ui.ConflictsDialog
 import com.intellij.refactoring.util.RefactoringMessageDialog
 import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
 import namesSuggester.NameSuggester
 import psi.api.ScalaFile
+import psi.api.toplevel.templates.ScTemplateBody
 import psi.ScalaPsiUtil
 import psi.types.{ScType, ScFunctionType}
 import psi.api.expr._
@@ -60,7 +63,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     if (!editor.getSelectionModel.hasSelection) editor.getSelectionModel.selectLineAtCaret
-    
+
     val lineText = getLineText(editor)
     if (editor.getSelectionModel.getSelectedText != null &&
             lineText != null && editor.getSelectionModel.getSelectedText.trim == lineText.trim) deleteOccurence = true
@@ -73,28 +76,24 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       PsiDocumentManager.getInstance(project).commitAllDocuments
       if (!file.isInstanceOf[ScalaFile])
         showErrorMessage(ScalaBundle.message("only.for.scala"), project)
-
+      
       if (!ScalaRefactoringUtil.ensureFileWritable(project, file))
         showErrorMessage(ScalaBundle.message("file.is.not.writable"), project)
 
-      val expr: ScExpression = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
+      val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
               getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project))
 
       if (expr.isInstanceOf[ScConstrExpr]) showErrorMessage(ScalaBundle.message("cannot.refactor.constr.expression"), project)
 
-      val typez: ScType = expr.getType match {
-        case ScFunctionType(ret, params) if params.length == 0 => ret
-        case x => x
-      }
       var parent: PsiElement = ScalaPsiUtil.getParentOfType(expr, classOf[ScalaFile], classOf[ScGuard])
       if (parent.isInstanceOf[ScGuard]) showErrorMessage(ScalaBundle.message("refactoring.is.not.supported.in.guard"), project)
 
-      val enclosingContainer: PsiElement = ScalaRefactoringUtil.getEnclosingContainer(expr)
+      val enclosingContainer: PsiElement = ScalaRefactoringUtil.getEnclosingContainer(file, startOffset, endOffset)
       if (enclosingContainer == null) showErrorMessage(ScalaBundle.message("wrong.refactoring.context"), project)
 
-      val occurrences: Array[ScExpression] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), enclosingContainer)
+      val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), enclosingContainer) //todo:
       // Getting settings
-      var validator = new ScalaVariableValidator(this, project, expr, occurrences, enclosingContainer)
+      var validator = new ScalaVariableValidator(this, project, expr, occurrences, enclosingContainer) //todo:
       var dialog = getDialog(project, editor, expr, typez, occurrences, false, validator)
       if (!dialog.isOK) return
 
@@ -102,177 +101,47 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       var varType: ScType = dialog.getSelectedType
       val isVariable: Boolean = dialog.isDeclareVariable
       val replaceAllOccurrences: Boolean = dialog.isReplaceAllOccurrences
-      runRefactoring(expr, editor, enclosingContainer, occurrences, varName, varType, replaceAllOccurrences, isVariable)
+      runRefactoring(startOffset, endOffset, file, editor, expr, occurrences, varName, varType, replaceAllOccurrences, isVariable)
     }
     catch {
       case _: IntroduceException => return
     }
   }
 
-  def runRefactoring(selectedExpr: ScExpression, editor: Editor, tempContainer: PsiElement,
-                    occurrences_ : Array[ScExpression], varName: String, varType: ScType,
+  def runRefactoring(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression: ScExpression,
+                    occurrences_ : Array[TextRange], varName: String, varType: ScType,
                     replaceAllOccurrences: Boolean, isVariable: Boolean) {
-    var offset = -1
     val runnable = new Runnable() {
       def run() {
-        val occurrences: Array[ScExpression] = if (!replaceAllOccurrences) {
-          Array[ScExpression](selectedExpr)
+        val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
+          Array[TextRange](new TextRange(startOffset, endOffset))
         } else occurrences_
-        var mark = 0
-        for (i <- 0 to occurrences.length - 1 if occurrences(i) == selectedExpr) mark = i
-        var parent: PsiElement = occurrences(0);
-        if (parent != tempContainer)
-          while (parent.getParent() != tempContainer) parent = parent.getParent
-        def getReferencesTo(binding: PsiElement, element: PsiElement): Array[PsiElement] = {
-          val buf = new ArrayBuffer[PsiElement]
-          element match {
-            case x: ScReferenceElement if (x.resolve == binding) => buf += element
-            case _ => for (child <- element.getChildren) buf ++= getReferencesTo(binding, child)
+        val document = editor.getDocument
+        var i = occurrences.length - 1
+        val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq
+        val commonParent = PsiTreeUtil.findCommonParent(elemSeq: _*)
+        val container: PsiElement = ScalaPsiUtil.getParentOfType(commonParent, classOf[ScalaFile], classOf[ScBlock], classOf[ScTemplateBody])
+        while (i >= 0) {
+          val offset = occurrences(i).getStartOffset
+          document.replaceString(offset, occurrences(i).getEndOffset, varName)
+          PsiDocumentManager.getInstance(editor.getProject).commitDocument(document)
+          val leaf = file.findElementAt(offset)
+          if (leaf.getParent != null && leaf.getParent.getParent.isInstanceOf[ScParenthesisedExpr]) {
+            val textRange = leaf.getParent.getParent.getTextRange
+            document.replaceString(textRange.getStartOffset, textRange.getEndOffset, varName)
+            PsiDocumentManager.getInstance(editor.getProject).commitDocument(document)
           }
-          return buf.toArray
+          if (i == 0) {
+            val createStmt = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable, expression, file.getManager)
+            var elem = file.findElementAt(occurrences(0).getStartOffset)
+            while (elem != null && elem.getParent != container) elem = elem.getParent
+            if (elem != null) {
+              val nl = ScalaPsiElementFactory.createNewLineNode(file.getManager).getPsi
+              container.addBefore(createStmt, container.addBefore(nl, elem))
+            }
+          }
+          i = i - 1
         }
-        tempContainer match {
-          case x: ScBlock => {
-            var ref: PsiElement = null
-            var cl = tempContainer
-            while (cl != null && !cl.isInstanceOf[ScClass] && !cl.isInstanceOf[ScTrait]) cl = cl.getParent
-            if (cl != null) {
-              cl match {
-                case x: ScTypeDefinition => {
-                  for (member <- x.members) {
-                    member match {
-                      case x: ScVariable => for (el <- x.declaredElements if el.name == varName) ref = el
-                      case x: ScValue => for (el <- x.declaredElements if el.name == varName) ref = el
-                      case _ =>
-                    }
-                  }
-                  for (function <- x.functions) {
-                    function match {
-                      case x: ScFunction if x.name == varName && x.parameters.size == 0 => ref = x
-                      case _ =>
-                    }
-                  }
-                }
-              }
-            }
-            if (ref != null) {
-              for (el <- getReferencesTo(ref, tempContainer)) {
-                if (occurrences.contains(el)) {
-                  for (i <- 1 to occurrences.size - 1 if occurrences(i) == el)
-                    occurrences(i) = el.asInstanceOf[ScExpression].replaceExpression(ScalaPsiElementFactory.createExpressionFromText("this." + el.getText, el.getManager), false)
-                } else
-                  el.asInstanceOf[ScExpression].replaceExpression(ScalaPsiElementFactory.createExpressionFromText("this." + el.getText, el.getManager), false)
-              }
-            }
-            val varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName,
-              isVariable, ScalaRefactoringUtil.getExprFrom(occurrences(0)), selectedExpr.getManager)
-            x.addDefinition(varDecl, parent)
-            val declType = varDecl match {case v: ScVariable => v.typeElement case v: ScValue => v.typeElement}
-            declType match {case Some(declType) => ScalaPsiUtil.adjustTypes(declType) case None =>}
-            if (!deleteOccurence || replaceAllOccurrences) {
-              for (i <- 0 to occurrences.length - 1; occurrence = occurrences(i)) {
-                if (occurrence.isInstanceOf[ScBlockExpr] && occurrence.getParent.isInstanceOf[ScArgumentExprList]) {
-                  val newExpr: ScExpression = occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
-                  if (i == mark) offset = newExpr.getTextRange.getEndOffset
-                }
-                else {
-                  val flag = ScalaRefactoringUtil.hasNltoken(occurrence)
-                  val newExpr: ScExpression = occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
-                  if (flag) {
-                    if (newExpr.getNextSibling != null) newExpr.getNode.getTreeParent.addChild(ScalaPsiElementFactory.createNewLineNode(newExpr.getManager), newExpr.getNextSibling.getNode)
-                    else newExpr.getNode.getTreeParent.addChild(ScalaPsiElementFactory.createNewLineNode(newExpr.getManager))
-                  }
-                  if (i == mark) offset = newExpr.getTextRange.getEndOffset + 1
-                }
-              }
-            } else {
-              for (occurrence <- occurrences) {
-                val parent = occurrence.getParent.getNode
-                val prev = occurrence.getNode.getTreePrev
-                offset = occurrence.getTextRange.getStartOffset
-                val flag = ScalaRefactoringUtil.hasNltoken(occurrence)
-                parent.removeChild(occurrence.getNode)
-                if (!flag) parent.removeChild(prev)
-              }
-            }
-          }
-          case x: ScExpression => {
-            var ref: PsiElement = null
-            var cl = tempContainer
-            while (cl != null && !cl.isInstanceOf[ScClass] && !cl.isInstanceOf[ScTrait]) cl = cl.getParent
-            if (cl != null) {
-              cl match {
-                case x: ScTypeDefinition => {
-                  for (member <- x.members) {
-                    member match {
-                      case x: ScVariable => for (el <- x.declaredElements if el.name == varName) ref = el
-                      case x: ScValue => for (el <- x.declaredElements if el.name == varName) ref = el
-                      case _ =>
-                    }
-                  }
-                  for (function <- x.functions) {
-                    function match {
-                      case x: ScFunction if x.name == varName && x.parameters.size == 0 => ref = x
-                      case _ =>
-                    }
-                  }
-                }
-              }
-            }
-            if (ref != null) {
-              for (el <- getReferencesTo(ref, tempContainer)) {
-                if (occurrences.contains(el)) {
-                  for (i <- 1 to occurrences.size - 1 if occurrences(i) == el)
-                    occurrences(i) = el.asInstanceOf[ScExpression].replaceExpression(ScalaPsiElementFactory.createExpressionFromText("this." + el.getText, el.getManager), false)
-                } else
-                  el.asInstanceOf[ScExpression].replaceExpression(ScalaPsiElementFactory.createExpressionFromText("this." + el.getText, el.getManager), false)
-              }
-            }
-            val varDecl = ScalaPsiElementFactory.createDeclaration(varType, varName,
-              isVariable, ScalaRefactoringUtil.getExprFrom(occurrences(0)), selectedExpr.getManager)
-            var container = x
-            if (!deleteOccurence || replaceAllOccurrences) {
-              for (occurrence <- occurrences) {
-                if (occurrence == container)
-                  container = if (occurrence.isInstanceOf[ScBlockExpr] && occurrence.getParent.isInstanceOf[ScArgumentExprList])
-                                occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
-                              else
-                                occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
-                else if (occurrence.isInstanceOf[ScBlockExpr] && occurrence.getParent.isInstanceOf[ScArgumentExprList])
-                  occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("(" + varName + ")", occurrence.getManager), true)
-                else {
-                  val flag = ScalaRefactoringUtil.hasNltoken(occurrence)
-                  val newExpr: ScExpression = occurrence.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(varName, occurrence.getManager), true)
-                  if (flag) {
-                    if (newExpr.getNextSibling != null) newExpr.getNode.getTreeParent.addChild(ScalaPsiElementFactory.createNewLineNode(newExpr.getManager), newExpr.getNextSibling.getNode)
-                    else newExpr.getNode.getTreeParent.addChild(ScalaPsiElementFactory.createNewLineNode(newExpr.getManager))
-                  }
-                }
-              }
-            } else {
-              for (occurrence <- occurrences) {
-                val parent = occurrence.getParent.getNode
-                val prev = occurrence.getNode.getTreePrev
-                offset = occurrence.getTextRange.getStartOffset
-                val flag = ScalaRefactoringUtil.hasNltoken(occurrence)
-                parent.removeChild(occurrence.getNode)
-                if (!flag) parent.removeChild(prev)
-              }
-            }
-            val block: ScBlock = container.replaceExpression(ScalaPsiElementFactory.createBlockFromExpr(container, container.getManager), false).asInstanceOf[ScBlock]
-            block.addDefinition(varDecl, block.getFirstChild.getNextSibling.getNextSibling);
-            val declType = varDecl match {case v: ScVariable => v.typeElement case v: ScValue => v.typeElement}
-            declType match {case Some(declType) => ScalaPsiUtil.adjustTypes(declType) case None =>}
-          }
-          case x: ScEnumerators => {
-            //todo: 
-          }
-          case _ => {
-            showErrorMessage(ScalaBundle.message("operation.not.supported.in.current.block"), editor.getProject)
-            return
-          }
-        }
-        if (offset != -1) editor.getCaretModel.moveToOffset(offset - 1)
       }
     }
 
@@ -284,7 +153,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
     //nothing to do
   }
 
-  protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: ScType, occurrences: Array[ScExpression],
+  protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: ScType, occurrences: Array[TextRange],
                           declareVariable: Boolean, validator: ScalaVariableValidator): ScalaIntroduceVariableDialog = {
     // Add occurences highlighting
     val highlighters = new java.util.ArrayList[RangeHighlighter]
@@ -294,7 +163,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       val colorsManager = EditorColorsManager.getInstance
       val attributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
       if (occurrences.length > 1) {
-        highlightManager.addOccurrenceHighlights(editor, occurrences.asInstanceOf[Array[PsiElement]], attributes, true, highlighters)
+        for (occurence <- occurrences)
+          highlightManager.addRangeHighlight(editor, occurence.getStartOffset, occurence.getEndOffset, attributes, true, highlighters)
       }
     }
 

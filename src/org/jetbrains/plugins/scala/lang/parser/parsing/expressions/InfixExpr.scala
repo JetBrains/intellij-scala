@@ -5,6 +5,7 @@ import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import nl.LineTerminator
 
+
 /**
  * @author AlexanderPodkhalyuzin
 * Date: 03.03.2008
@@ -16,6 +17,7 @@ import nl.LineTerminator
  */
 
 object InfixExpr {
+  import util.ParserUtils._
   def parse(builder: PsiBuilder): Boolean = {
     val markerStack = new Stack[PsiBuilder.Marker]
     val opStack = new Stack[String]
@@ -109,21 +111,7 @@ object InfixExpr {
     return true
   }
   //private var assoc: Int = 0  //this mark associativity: left - 1, right - -1
-  //Defines priority
-  private def priority(id: String): Int = {
-    id.charAt(0) match {
-      case '~' | '#' | '@' | '$' | '?' | '\\' => 0
-      case '*' | '/' | '%' => 1
-      case '+' | '-' => 2
-      case ':' => 3
-      case '=' | '!' => 4
-      case '<' | '>' => 5
-      case '&' => 6
-      case '^' => 7
-      case '|' => 8
-      case _ => 9
-    }
-  }
+
   //compares two operators a id2 b id1 c
   private def compar(id1: String, id2: String, builder: PsiBuilder): Boolean = {
     if (priority(id1) < priority(id2)) return true //  a * b + c  =((a * b) + c)

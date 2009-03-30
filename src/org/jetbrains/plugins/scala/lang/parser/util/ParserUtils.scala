@@ -131,4 +131,20 @@ object ParserUtils extends ParserUtilsBase {
     if (parsed) marker.done(t) else marker.rollbackTo
     parsed
   }
+
+  //Defines priority
+  def priority(id: String): Int = {
+    id.charAt(0) match {
+      case '~' | '#' | '@' | '$' | '?' | '\\' => 0
+      case '*' | '/' | '%' => 1
+      case '+' | '-' => 2
+      case ':' => 3
+      case '=' | '!' => 4
+      case '<' | '>' => 5
+      case '&' => 6
+      case '^' => 7
+      case '|' => 8
+      case _ => 9
+    }
+  }
 }

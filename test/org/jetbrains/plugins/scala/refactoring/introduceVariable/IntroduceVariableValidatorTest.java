@@ -1,3 +1,4 @@
+/*
 package org.jetbrains.plugins.scala.refactoring.introduceVariable;
 
 import com.intellij.openapi.editor.Editor;
@@ -23,10 +24,12 @@ import scala.Some;
 
 import java.io.IOException;
 
+*/
 /**
  * User: Alexander Podkhalyuzin
  * Date: 03.07.2008
  */
+/*
 
 
 public class IntroduceVariableValidatorTest extends ActionTestBase {
@@ -124,3 +127,4 @@ public class IntroduceVariableValidatorTest extends ActionTestBase {
   }
 
 }
+*/
