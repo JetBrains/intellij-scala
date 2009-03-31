@@ -123,6 +123,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
         var elseBranch = false
         def checkEnd(prev: PsiElement, parExpr: ScExpression): Boolean = {
           prev match {
+            case _: ScBlock => return true
             case _: ScFunction => needBraces = true
             case memb: ScMember if memb.getParent.isInstanceOf[ScTemplateBody] => needBraces = true
             case memb: ScMember if memb.getParent.isInstanceOf[ScEarlyDefinitions] => needBraces = true
@@ -178,16 +179,16 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
               parExpr = parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager), false)
             }
             val parent = if (needBraces && parExpr.isValid) parExpr else container
-            val createStmt = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable, ScalaRefactoringUtil.unparExpr(expression),
+            var createStmt = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable, ScalaRefactoringUtil.unparExpr(expression),
               file.getManager)
             var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0))
             while (elem != null && elem.getParent != parent) elem = elem.getParent
             if (elem != null) {
               println(parent.getText)
               println(elem.getText)
-              parent.addBefore(createStmt, elem)
+              createStmt = parent.addBefore(createStmt, elem).asInstanceOf[ScMember]
               parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager, "\n").getPsi, elem)
-              documentManager.commitDocument(document)
+              ScalaPsiUtil.adjustTypes(createStmt)
             }
           }
           i = i - 1

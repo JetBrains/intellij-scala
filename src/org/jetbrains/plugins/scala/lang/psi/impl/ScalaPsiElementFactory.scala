@@ -217,8 +217,8 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
               name + (if (typez != null && ScType.canonicalText(typez) != "") ": "  + ScType.canonicalText(typez) else "") + " = " + expr.getText + "}"
     val dummyFile = createScalaFile(text, manager)
     val classDef = dummyFile.typeDefinitions()(0)
-    if (!isVariable) classDef.members()(0).asInstanceOf[ScPatternDefinition]
-    else classDef.members()(0).asInstanceOf[ScVariableDefinition]
+    if (!isVariable) classDef.members()(0).asInstanceOf[ScValue]
+    else classDef.members()(0).asInstanceOf[ScVariable]
   }
 
   def createNewLineNode(manager: PsiManager): ASTNode = createNewLineNode(manager, "\n")
