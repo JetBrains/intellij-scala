@@ -9,4 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScWhileStmt extends ScExpression {
   def condition: Option[ScExpression]
+
+  def expression: Option[ScExpression]
 }

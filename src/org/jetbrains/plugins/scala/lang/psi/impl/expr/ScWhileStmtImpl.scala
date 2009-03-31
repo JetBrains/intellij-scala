@@ -25,6 +25,12 @@ class ScWhileStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScWh
     if (c == null) None else Some(c)
   }
 
+  def expression = {
+    val rpar = findChildByType(ScalaTokenTypes.tRPARENTHESIS)
+    val c = if (rpar != null) PsiTreeUtil.getNextSiblingOfType(rpar, classOf[ScExpression]) else null
+    if (c == null) None else Some(c)
+  }
+
 
   override def getType(): ScType = types.Unit
 }
