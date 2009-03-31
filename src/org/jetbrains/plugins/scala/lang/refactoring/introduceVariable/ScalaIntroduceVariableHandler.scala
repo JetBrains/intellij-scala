@@ -121,7 +121,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
         var i = occurrences.length - 1
         val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq
         val commonParent = PsiTreeUtil.findCommonParent(elemSeq: _*)
-        val container: PsiElement = ScalaPsiUtil.getParentOfType(commonParent, classOf[ScalaFile], classOf[ScBlock], classOf[ScTemplateBody])
+        val container: PsiElement = ScalaPsiUtil.getParentOfType(commonParent, classOf[ScalaFile], classOf[ScBlock],
+          classOf[ScTemplateBody])
         while (i >= 0) {
           val offset = occurrences(i).getStartOffset
           document.replaceString(offset, occurrences(i).getEndOffset, varName)
@@ -140,10 +141,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
             while (elem != null && elem.getParent != container) elem = elem.getParent
             if (elem != null) {
               container.addBefore(createStmt, elem)
+              container.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager, "\n").getPsi, elem)
               documentManager.commitDocument(document)
-              val offset1 = elem.getTextRange.getStartOffset
-              documentManager.doPostponedOperationsAndUnblockDocument(document)
-              document.insertString(offset1, "\n")
             }
           }
           i = i - 1
