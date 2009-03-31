@@ -12,6 +12,7 @@ import com.intellij.refactoring.ui.ConflictsDialog
 import com.intellij.refactoring.util.RefactoringMessageDialog
 import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
 import namesSuggester.NameSuggester
+import psi.api.base.patterns.ScCaseClause
 import psi.api.ScalaFile
 import psi.api.toplevel.templates.ScTemplateBody
 import psi.ScalaPsiUtil
@@ -84,16 +85,16 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
               getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project))
 
       if (expr.isInstanceOf[ScConstrExpr]) showErrorMessage(ScalaBundle.message("cannot.refactor.constr.expression"), project)
+      if (expr.getParent.isInstanceOf[ScGenericCall]) showErrorMessage(ScalaBundle.message("connot.refactor.under.generic.call"), project)
+      val guard: ScGuard = PsiTreeUtil.getParentOfType(expr, classOf[ScGuard])
+      if (guard != null && guard.getParent.isInstanceOf[ScCaseClause]) showErrorMessage(ScalaBundle.message("cannot.refactor.guard"), project)
 
-      var parent: PsiElement = ScalaPsiUtil.getParentOfType(expr, classOf[ScalaFile], classOf[ScGuard])
-      if (parent.isInstanceOf[ScGuard]) showErrorMessage(ScalaBundle.message("refactoring.is.not.supported.in.guard"), project)
+      //val enclosingContainer: PsiElement = ScalaRefactoringUtil.getEnclosingContainer(file, startOffset, endOffset)
+      //if (enclosingContainer == null) showErrorMessage(ScalaBundle.message("wrong.refactoring.context"), project)
 
-      val enclosingContainer: PsiElement = ScalaRefactoringUtil.getEnclosingContainer(file, startOffset, endOffset)
-      if (enclosingContainer == null) showErrorMessage(ScalaBundle.message("wrong.refactoring.context"), project)
-
-      val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), enclosingContainer) //todo:
+      val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), file) //todo:
       // Getting settings
-      var validator = new ScalaVariableValidator(this, project, expr, occurrences, enclosingContainer) //todo:
+      var validator = new ScalaVariableValidator(this, project, expr, occurrences, file) //todo:
       var dialog = getDialog(project, editor, expr, typez, occurrences, false, validator)
       if (!dialog.isOK) return
 
@@ -124,12 +125,13 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
         while (i >= 0) {
           val offset = occurrences(i).getStartOffset
           document.replaceString(offset, occurrences(i).getEndOffset, varName)
-          PsiDocumentManager.getInstance(editor.getProject).commitDocument(document)
+          val documentManager = PsiDocumentManager.getInstance(editor.getProject)
+          documentManager.commitDocument(document)
           val leaf = file.findElementAt(offset)
           if (leaf.getParent != null && leaf.getParent.getParent.isInstanceOf[ScParenthesisedExpr]) {
             val textRange = leaf.getParent.getParent.getTextRange
             document.replaceString(textRange.getStartOffset, textRange.getEndOffset, varName)
-            PsiDocumentManager.getInstance(editor.getProject).commitDocument(document)
+            documentManager.commitDocument(document)
           }
           if (i == 0) {
             val createStmt = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable, ScalaRefactoringUtil.unparExpr(expression),
@@ -138,8 +140,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
             while (elem != null && elem.getParent != container) elem = elem.getParent
             if (elem != null) {
               container.addBefore(createStmt, elem)
-              PsiDocumentManager.getInstance(editor.getProject).commitDocument(document)
+              documentManager.commitDocument(document)
               val offset1 = elem.getTextRange.getStartOffset
+              documentManager.doPostponedOperationsAndUnblockDocument(document)
               document.insertString(offset1, "\n")
             }
           }
