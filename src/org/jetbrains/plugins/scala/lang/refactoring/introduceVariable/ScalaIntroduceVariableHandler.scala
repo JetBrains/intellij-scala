@@ -14,13 +14,12 @@ import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
 import namesSuggester.NameSuggester
 import psi.api.base.patterns.ScCaseClause
 import psi.api.ScalaFile
+import psi.api.statements._
+import psi.api.toplevel.ScEarlyDefinitions
 import psi.api.toplevel.templates.ScTemplateBody
 import psi.ScalaPsiUtil
 import psi.types.{ScType, ScFunctionType}
 import psi.api.expr._
-import psi.api.statements.ScFunction
-import psi.api.statements.ScValue
-import psi.api.statements.ScVariable
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.toplevel.typedef.ScTrait
 import psi.api.toplevel.typedef.ScClass
@@ -89,9 +88,6 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       val guard: ScGuard = PsiTreeUtil.getParentOfType(expr, classOf[ScGuard])
       if (guard != null && guard.getParent.isInstanceOf[ScCaseClause]) showErrorMessage(ScalaBundle.message("cannot.refactor.guard"), project)
 
-      //val enclosingContainer: PsiElement = ScalaRefactoringUtil.getEnclosingContainer(file, startOffset, endOffset)
-      //if (enclosingContainer == null) showErrorMessage(ScalaBundle.message("wrong.refactoring.context"), project)
-
       val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), file) //todo:
       // Getting settings
       var validator = new ScalaVariableValidator(this, project, expr, occurrences, file) //todo:
@@ -123,6 +119,32 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
         val commonParent = PsiTreeUtil.findCommonParent(elemSeq: _*)
         val container: PsiElement = ScalaPsiUtil.getParentOfType(commonParent, classOf[ScalaFile], classOf[ScBlock],
           classOf[ScTemplateBody])
+        var needBraces = false
+        var elseBranch = false
+        def checkEnd(prev: PsiElement, parExpr: ScExpression): Boolean = {
+          prev match {
+            case _: ScFunction => needBraces = true
+            case memb: ScMember if memb.getParent.isInstanceOf[ScTemplateBody] => needBraces = true
+            case memb: ScMember if memb.getParent.isInstanceOf[ScEarlyDefinitions] => needBraces = true
+            case ifSt: ScIfStmt if ifSt.thenBranch.getOrElse(null) == parExpr || ifSt.elseBranch.getOrElse(null) == parExpr => {
+              if (ifSt.elseBranch.getOrElse(null) == parExpr) elseBranch = true
+              needBraces = true
+            }
+            case forSt: ScForStatement if forSt.expression.getOrElse(null) == parExpr => needBraces = true
+            case whSt: ScWhileStmt if whSt.expression.getOrElse(null) == parExpr => needBraces = true
+            case doSt: ScDoStmt if doSt.getExprBody.getOrElse(null) == parExpr => needBraces = true
+            case finBl: ScFinallyBlock if finBl.expression.getOrElse(null) == parExpr => needBraces = true
+            case fE: ScFunctionExpr => needBraces = true
+            case _ =>
+          }
+          needBraces
+        }
+        var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression])
+        var prev: PsiElement =  if (parExpr == null) null else parExpr.getParent
+        while (prev != null && !checkEnd(prev, parExpr) && prev.isInstanceOf[ScExpression]) {
+          parExpr = parExpr.getParent.asInstanceOf[ScExpression]
+          prev = prev.getParent
+        }
         while (i >= 0) {
           val offset = occurrences(i).getStartOffset
           document.replaceString(offset, occurrences(i).getEndOffset, varName)
@@ -135,13 +157,36 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
             documentManager.commitDocument(document)
           }
           if (i == 0) {
+            //from here we must to end changing document, only Psi operations (because document will be locked)
+            if (!parExpr.isValid && prev.isValid) {
+              parExpr = {
+                prev match {
+                  case fun: ScFunctionDefinition => fun.body.getOrElse(null)
+                  case vl: ScPatternDefinition => vl.expr
+                  case vr: ScVariableDefinition => vr.expr
+                  case ifSt: ScIfStmt if elseBranch => ifSt.elseBranch.getOrElse(null)
+                  case ifSt: ScIfStmt => ifSt.thenBranch.getOrElse(null)
+                  case whSt: ScWhileStmt => whSt.expression.getOrElse(null)
+                  case doSt: ScDoStmt => doSt.getExprBody.getOrElse(null)
+                  case fE: ScFunctionExpr => fE.result.getOrElse(null)
+                  case forSt: ScForStatement => forSt.expression.getOrElse(null)
+                  case _ => null
+                }
+              }
+            }
+            if (needBraces && parExpr.isValid) {
+              parExpr = parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager), false)
+            }
+            val parent = if (needBraces && parExpr.isValid) parExpr else container
             val createStmt = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable, ScalaRefactoringUtil.unparExpr(expression),
               file.getManager)
-            var elem = file.findElementAt(occurrences(0).getStartOffset)
-            while (elem != null && elem.getParent != container) elem = elem.getParent
+            var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0))
+            while (elem != null && elem.getParent != parent) elem = elem.getParent
             if (elem != null) {
-              container.addBefore(createStmt, elem)
-              container.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager, "\n").getPsi, elem)
+              println(parent.getText)
+              println(elem.getText)
+              parent.addBefore(createStmt, elem)
+              parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager, "\n").getPsi, elem)
               documentManager.commitDocument(document)
             }
           }

@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScFinallyBlock extends ScalaPsiElement {
-
+  def expression: Option[ScExpression] = findChild(classOf[ScExpression])
 }

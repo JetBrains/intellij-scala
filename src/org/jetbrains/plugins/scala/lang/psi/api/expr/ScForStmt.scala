@@ -15,4 +15,5 @@ trait ScForStatement extends ScExpression {
 
   def patterns: Seq[ScPattern]
 
+  def expression: Option[ScExpression] = findChild(classOf[ScExpression])
 }
