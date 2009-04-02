@@ -1,1 +1,0 @@
-class DefaultScalaToJava extends <ref>DefaultJava
