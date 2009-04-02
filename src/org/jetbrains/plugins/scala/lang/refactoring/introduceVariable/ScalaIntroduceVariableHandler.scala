@@ -113,7 +113,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
     } else occurrences_
     val document = editor.getDocument
     var i = occurrences.length - 1
-    val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq
+    val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq ++
+      (for (occurence <- occurrences) yield file.findElementAt(occurence.getEndOffset - 1)).toSeq
     val commonParent = PsiTreeUtil.findCommonParent(elemSeq: _*)
     val container: PsiElement = ScalaPsiUtil.getParentOfType(commonParent, classOf[ScalaFile], classOf[ScBlock],
       classOf[ScTemplateBody])
@@ -141,10 +142,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
     var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression], false)
     var prev: PsiElement = if (parExpr == null) null else parExpr.getParent
     while (prev != null && !checkEnd(prev, parExpr) && prev.isInstanceOf[ScExpression]) {
-      parExpr = parExpr.getParent.asInstanceOf[ScExpression]
+      parExpr = prev.asInstanceOf[ScExpression]
       prev = prev.getParent
     }
     while (i >= 0) {
+      var parentheses = 0
       val offset = occurrences(i).getStartOffset
       document.replaceString(offset, occurrences(i).getEndOffset, varName)
       val documentManager = PsiDocumentManager.getInstance(editor.getProject)
@@ -154,6 +156,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
         val textRange = leaf.getParent.getParent.getTextRange
         document.replaceString(textRange.getStartOffset, textRange.getEndOffset, varName)
         documentManager.commitDocument(document)
+        parentheses = -2
       }
       if (i == 0) {
         //from here we must to end changing document, only Psi operations (because document will be locked)
@@ -179,7 +182,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
         val parent = if (needBraces && parExpr.isValid) parExpr else container
         var createStmt = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable, ScalaRefactoringUtil.unparExpr(expression),
           file.getManager)
-        var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0))
+        var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0) + parentheses)
         while (elem != null && elem.getParent != parent) elem = elem.getParent
         if (elem != null) {
           println(parent.getText)
