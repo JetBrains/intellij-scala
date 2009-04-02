@@ -166,6 +166,12 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       parExpr = prev.asInstanceOf[ScExpression]
       prev = prev.getParent
     }
+
+    if (introduceEnumerator) {
+      val endoffset =
+        introduceEnumeratorForStmt.enumerators.getOrElse(null).generators.apply(0).getTextRange.getEndOffset
+      if (occurrences(0).getStartOffset < endoffset) introduceEnumerator = false
+    }
     while (i >= 0) {
       var parentheses = 0
       val offset = occurrences(i).getStartOffset
