@@ -105,94 +105,101 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
     }
   }
 
+  def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression: ScExpression,
+                    occurrences_ : Array[TextRange], varName: String, varType: ScType,
+                    replaceAllOccurrences: Boolean, isVariable: Boolean) {
+    val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
+      Array[TextRange](new TextRange(startOffset, endOffset))
+    } else occurrences_
+    val document = editor.getDocument
+    var i = occurrences.length - 1
+    val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq
+    val commonParent = PsiTreeUtil.findCommonParent(elemSeq: _*)
+    val container: PsiElement = ScalaPsiUtil.getParentOfType(commonParent, classOf[ScalaFile], classOf[ScBlock],
+      classOf[ScTemplateBody])
+    var needBraces = false
+    var elseBranch = false
+    def checkEnd(prev: PsiElement, parExpr: ScExpression): Boolean = {
+      prev match {
+        case _: ScBlock => return true
+        case _: ScFunction => needBraces = true
+        case memb: ScMember if memb.getParent.isInstanceOf[ScTemplateBody] => needBraces = true
+        case memb: ScMember if memb.getParent.isInstanceOf[ScEarlyDefinitions] => needBraces = true
+        case ifSt: ScIfStmt if ifSt.thenBranch.getOrElse(null) == parExpr || ifSt.elseBranch.getOrElse(null) == parExpr => {
+          if (ifSt.elseBranch.getOrElse(null) == parExpr) elseBranch = true
+          needBraces = true
+        }
+        case forSt: ScForStatement if forSt.expression.getOrElse(null) == parExpr => needBraces = true
+        case whSt: ScWhileStmt if whSt.expression.getOrElse(null) == parExpr => needBraces = true
+        case doSt: ScDoStmt if doSt.getExprBody.getOrElse(null) == parExpr => needBraces = true
+        case finBl: ScFinallyBlock if finBl.expression.getOrElse(null) == parExpr => needBraces = true
+        case fE: ScFunctionExpr => needBraces = true
+        case _ =>
+      }
+      needBraces
+    }
+    var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression])
+    var prev: PsiElement = if (parExpr == null) null else parExpr.getParent
+    while (prev != null && !checkEnd(prev, parExpr) && prev.isInstanceOf[ScExpression]) {
+      parExpr = parExpr.getParent.asInstanceOf[ScExpression]
+      prev = prev.getParent
+    }
+    while (i >= 0) {
+      val offset = occurrences(i).getStartOffset
+      document.replaceString(offset, occurrences(i).getEndOffset, varName)
+      val documentManager = PsiDocumentManager.getInstance(editor.getProject)
+      documentManager.commitDocument(document)
+      val leaf = file.findElementAt(offset)
+      if (leaf.getParent != null && leaf.getParent.getParent.isInstanceOf[ScParenthesisedExpr]) {
+        val textRange = leaf.getParent.getParent.getTextRange
+        document.replaceString(textRange.getStartOffset, textRange.getEndOffset, varName)
+        documentManager.commitDocument(document)
+      }
+      if (i == 0) {
+        //from here we must to end changing document, only Psi operations (because document will be locked)
+        if (!parExpr.isValid && prev.isValid) {
+          parExpr = {
+            prev match {
+              case fun: ScFunctionDefinition => fun.body.getOrElse(null)
+              case vl: ScPatternDefinition => vl.expr
+              case vr: ScVariableDefinition => vr.expr
+              case ifSt: ScIfStmt if elseBranch => ifSt.elseBranch.getOrElse(null)
+              case ifSt: ScIfStmt => ifSt.thenBranch.getOrElse(null)
+              case whSt: ScWhileStmt => whSt.expression.getOrElse(null)
+              case doSt: ScDoStmt => doSt.getExprBody.getOrElse(null)
+              case fE: ScFunctionExpr => fE.result.getOrElse(null)
+              case forSt: ScForStatement => forSt.expression.getOrElse(null)
+              case _ => null
+            }
+          }
+        }
+        if (needBraces && parExpr != null && parExpr.isValid) {
+          parExpr = parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager), false)
+        }
+        val parent = if (needBraces && parExpr.isValid) parExpr else container
+        var createStmt = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable, ScalaRefactoringUtil.unparExpr(expression),
+          file.getManager)
+        var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0))
+        while (elem != null && elem.getParent != parent) elem = elem.getParent
+        if (elem != null) {
+          println(parent.getText)
+          println(elem.getText)
+          createStmt = parent.addBefore(createStmt, elem).asInstanceOf[ScMember]
+          parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager, "\n").getPsi, elem)
+          ScalaPsiUtil.adjustTypes(createStmt)
+        }
+      }
+      i = i - 1
+    }
+  }
+
   def runRefactoring(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression: ScExpression,
                     occurrences_ : Array[TextRange], varName: String, varType: ScType,
                     replaceAllOccurrences: Boolean, isVariable: Boolean) {
     val runnable = new Runnable() {
       def run() {
-        val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
-          Array[TextRange](new TextRange(startOffset, endOffset))
-        } else occurrences_
-        val document = editor.getDocument
-        var i = occurrences.length - 1
-        val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq
-        val commonParent = PsiTreeUtil.findCommonParent(elemSeq: _*)
-        val container: PsiElement = ScalaPsiUtil.getParentOfType(commonParent, classOf[ScalaFile], classOf[ScBlock],
-          classOf[ScTemplateBody])
-        var needBraces = false
-        var elseBranch = false
-        def checkEnd(prev: PsiElement, parExpr: ScExpression): Boolean = {
-          prev match {
-            case _: ScBlock => return true
-            case _: ScFunction => needBraces = true
-            case memb: ScMember if memb.getParent.isInstanceOf[ScTemplateBody] => needBraces = true
-            case memb: ScMember if memb.getParent.isInstanceOf[ScEarlyDefinitions] => needBraces = true
-            case ifSt: ScIfStmt if ifSt.thenBranch.getOrElse(null) == parExpr || ifSt.elseBranch.getOrElse(null) == parExpr => {
-              if (ifSt.elseBranch.getOrElse(null) == parExpr) elseBranch = true
-              needBraces = true
-            }
-            case forSt: ScForStatement if forSt.expression.getOrElse(null) == parExpr => needBraces = true
-            case whSt: ScWhileStmt if whSt.expression.getOrElse(null) == parExpr => needBraces = true
-            case doSt: ScDoStmt if doSt.getExprBody.getOrElse(null) == parExpr => needBraces = true
-            case finBl: ScFinallyBlock if finBl.expression.getOrElse(null) == parExpr => needBraces = true
-            case fE: ScFunctionExpr => needBraces = true
-            case _ =>
-          }
-          needBraces
-        }
-        var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression])
-        var prev: PsiElement =  if (parExpr == null) null else parExpr.getParent
-        while (prev != null && !checkEnd(prev, parExpr) && prev.isInstanceOf[ScExpression]) {
-          parExpr = parExpr.getParent.asInstanceOf[ScExpression]
-          prev = prev.getParent
-        }
-        while (i >= 0) {
-          val offset = occurrences(i).getStartOffset
-          document.replaceString(offset, occurrences(i).getEndOffset, varName)
-          val documentManager = PsiDocumentManager.getInstance(editor.getProject)
-          documentManager.commitDocument(document)
-          val leaf = file.findElementAt(offset)
-          if (leaf.getParent != null && leaf.getParent.getParent.isInstanceOf[ScParenthesisedExpr]) {
-            val textRange = leaf.getParent.getParent.getTextRange
-            document.replaceString(textRange.getStartOffset, textRange.getEndOffset, varName)
-            documentManager.commitDocument(document)
-          }
-          if (i == 0) {
-            //from here we must to end changing document, only Psi operations (because document will be locked)
-            if (!parExpr.isValid && prev.isValid) {
-              parExpr = {
-                prev match {
-                  case fun: ScFunctionDefinition => fun.body.getOrElse(null)
-                  case vl: ScPatternDefinition => vl.expr
-                  case vr: ScVariableDefinition => vr.expr
-                  case ifSt: ScIfStmt if elseBranch => ifSt.elseBranch.getOrElse(null)
-                  case ifSt: ScIfStmt => ifSt.thenBranch.getOrElse(null)
-                  case whSt: ScWhileStmt => whSt.expression.getOrElse(null)
-                  case doSt: ScDoStmt => doSt.getExprBody.getOrElse(null)
-                  case fE: ScFunctionExpr => fE.result.getOrElse(null)
-                  case forSt: ScForStatement => forSt.expression.getOrElse(null)
-                  case _ => null
-                }
-              }
-            }
-            if (needBraces && parExpr.isValid) {
-              parExpr = parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager), false)
-            }
-            val parent = if (needBraces && parExpr.isValid) parExpr else container
-            var createStmt = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable, ScalaRefactoringUtil.unparExpr(expression),
-              file.getManager)
-            var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0))
-            while (elem != null && elem.getParent != parent) elem = elem.getParent
-            if (elem != null) {
-              println(parent.getText)
-              println(elem.getText)
-              createStmt = parent.addBefore(createStmt, elem).asInstanceOf[ScMember]
-              parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager, "\n").getPsi, elem)
-              ScalaPsiUtil.adjustTypes(createStmt)
-            }
-          }
-          i = i - 1
-        }
+        runRefactoringInside(startOffset, endOffset, file, editor, expression, occurrences_, varName,
+          varType, replaceAllOccurrences, isVariable) //this for better debug
       }
     }
 
