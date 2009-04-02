@@ -80,15 +80,15 @@ public class TestUtils {
     if (TEST_DATA_PATH == null) {
       ClassLoader loader = TestUtils.class.getClassLoader();
       URL resource = loader.getResource("testdata");
-      try {
-        TEST_DATA_PATH = new File(resource.toURI()).getPath().replace(File.separatorChar, '/');
-//        TEST_DATA_PATH = "/home/ilya/work/scala/testdata";
-      } catch (URISyntaxException e) {
-        LOG.error(e);
-        return null;
-      }
+//      try {
+//        TEST_DATA_PATH = new File(resource.toURI()).getPath().replace(File.separatorChar, '/');
+        TEST_DATA_PATH = "/home/ilya/work/scala/testdata";
+//      } catch (URISyntaxException e) {
+//        LOG.error(e);
+//        return null;
+//      }
+//    }
     }
-
     return TEST_DATA_PATH;
   }
 
