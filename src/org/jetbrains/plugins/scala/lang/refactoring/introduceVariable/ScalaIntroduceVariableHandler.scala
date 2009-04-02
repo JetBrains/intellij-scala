@@ -138,7 +138,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       }
       needBraces
     }
-    var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression])
+    var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression], false)
     var prev: PsiElement = if (parExpr == null) null else parExpr.getParent
     while (prev != null && !checkEnd(prev, parExpr) && prev.isInstanceOf[ScExpression]) {
       parExpr = parExpr.getParent.asInstanceOf[ScExpression]
