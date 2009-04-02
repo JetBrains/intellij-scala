@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 
 import com.intellij.codeInsight.highlighting.HighlightManager
+import com.intellij.lang.TokenWrapper
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Editor, VisualPosition}
@@ -11,6 +12,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.ui.ConflictsDialog
 import com.intellij.refactoring.util.RefactoringMessageDialog
 import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
+import lexer.ScalaTokenTypes
 import namesSuggester.NameSuggester
 import psi.api.base.patterns.ScCaseClause
 import psi.api.ScalaFile
@@ -105,9 +107,10 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
     }
   }
 
-  def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression: ScExpression,
+  def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression_ : ScExpression,
                     occurrences_ : Array[TextRange], varName: String, varType: ScType,
                     replaceAllOccurrences: Boolean, isVariable: Boolean) {
+    val expression = expression_.copy.asInstanceOf[ScExpression]
     val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
       Array[TextRange](new TextRange(startOffset, endOffset))
     } else occurrences_
@@ -115,11 +118,17 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
     var i = occurrences.length - 1
     val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq ++
       (for (occurence <- occurrences) yield file.findElementAt(occurence.getEndOffset - 1)).toSeq
-    val commonParent = PsiTreeUtil.findCommonParent(elemSeq: _*)
+    val commonParent: PsiElement = PsiTreeUtil.findCommonParent(elemSeq: _*)
     val container: PsiElement = ScalaPsiUtil.getParentOfType(commonParent, classOf[ScalaFile], classOf[ScBlock],
       classOf[ScTemplateBody])
     var needBraces = false
     var elseBranch = false
+    var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression], false)
+    var prev: PsiElement = if (parExpr == null) null else parExpr.getParent
+    var introduceEnumerator = parExpr.isInstanceOf[ScForStatement]
+    var introduceEnumeratorForStmt: ScForStatement =
+      if (introduceEnumerator) parExpr.asInstanceOf[ScForStatement]
+      else null
     def checkEnd(prev: PsiElement, parExpr: ScExpression): Boolean = {
       prev match {
         case _: ScBlock => return true
@@ -131,16 +140,28 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
           needBraces = true
         }
         case forSt: ScForStatement if forSt.expression.getOrElse(null) == parExpr => needBraces = true
+        case forSt: ScForStatement => {
+          introduceEnumerator = true
+          introduceEnumeratorForStmt = forSt
+          return true
+        }
+        case _: ScEnumerator | _: ScGenerator => {
+          introduceEnumeratorForStmt = prev.getParent.getParent.asInstanceOf[ScForStatement]
+          introduceEnumerator = true
+        }
+        case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => {
+          introduceEnumeratorForStmt = prev.getParent.getParent.asInstanceOf[ScForStatement]
+          introduceEnumerator = true
+        }
         case whSt: ScWhileStmt if whSt.expression.getOrElse(null) == parExpr => needBraces = true
         case doSt: ScDoStmt if doSt.getExprBody.getOrElse(null) == parExpr => needBraces = true
         case finBl: ScFinallyBlock if finBl.expression.getOrElse(null) == parExpr => needBraces = true
         case fE: ScFunctionExpr => needBraces = true
+        case clause: ScCaseClause => needBraces = true
         case _ =>
       }
       needBraces
     }
-    var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression], false)
-    var prev: PsiElement = if (parExpr == null) null else parExpr.getParent
     while (prev != null && !checkEnd(prev, parExpr) && prev.isInstanceOf[ScExpression]) {
       parExpr = prev.asInstanceOf[ScExpression]
       prev = prev.getParent
@@ -160,36 +181,80 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       }
       if (i == 0) {
         //from here we must to end changing document, only Psi operations (because document will be locked)
-        if (!parExpr.isValid && prev.isValid) {
-          parExpr = {
-            prev match {
-              case fun: ScFunctionDefinition => fun.body.getOrElse(null)
-              case vl: ScPatternDefinition => vl.expr
-              case vr: ScVariableDefinition => vr.expr
-              case ifSt: ScIfStmt if elseBranch => ifSt.elseBranch.getOrElse(null)
-              case ifSt: ScIfStmt => ifSt.thenBranch.getOrElse(null)
-              case whSt: ScWhileStmt => whSt.expression.getOrElse(null)
-              case doSt: ScDoStmt => doSt.getExprBody.getOrElse(null)
-              case fE: ScFunctionExpr => fE.result.getOrElse(null)
-              case forSt: ScForStatement => forSt.expression.getOrElse(null)
-              case _ => null
+        if (introduceEnumerator) {
+          val parent: ScEnumerators = introduceEnumeratorForStmt.
+                  enumerators.getOrElse(null)
+          var needSemicolon = false
+          var sibling: PsiElement = parent
+          while (sibling != null) {
+            sibling.getNode.getElementType match {
+              case ScalaTokenTypes.tLBRACE => sibling = null
+              case ScalaTokenTypes.tLPARENTHESIS =>
+                needSemicolon = true
+                sibling = null
+              case _ => sibling = sibling.getPrevSibling
             }
           }
-        }
-        if (needBraces && parExpr != null && parExpr.isValid) {
-          parExpr = parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager), false)
-        }
-        val parent = if (needBraces && parExpr.isValid) parExpr else container
-        var createStmt = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable, ScalaRefactoringUtil.unparExpr(expression),
-          file.getManager)
-        var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0) + parentheses)
-        while (elem != null && elem.getParent != parent) elem = elem.getParent
-        if (elem != null) {
-          println(parent.getText)
-          println(elem.getText)
-          createStmt = parent.addBefore(createStmt, elem).asInstanceOf[ScMember]
-          parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager, "\n").getPsi, elem)
-          ScalaPsiUtil.adjustTypes(createStmt)
+          var createStmt: PsiElement = ScalaPsiElementFactory.createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression),
+            file.getManager)
+          var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0) + parentheses)
+          while (elem != null && elem.getParent != parent) elem = elem.getParent
+          if (elem != null) {
+            if (needSemicolon) {
+              needSemicolon = true
+              sibling = elem.getPrevSibling
+              while (sibling != null && sibling.getText.trim == "") sibling = sibling.getPrevSibling
+              if (sibling != null && sibling.getText.endsWith(";")) needSemicolon = false
+              createStmt = parent.addBefore(createStmt, parent.addBefore(ScalaPsiElementFactory.
+                      createSemicolon(parent.getManager),
+                elem))
+              if (needSemicolon) {
+                parent.addBefore(ScalaPsiElementFactory.
+                        createSemicolon(parent.getManager), createStmt)
+              }
+            } else {
+              needSemicolon = true
+              sibling = elem.getPrevSibling
+              if (sibling.getText.indexOf('\n') != -1) needSemicolon = false
+              createStmt = parent.addBefore(createStmt, elem)
+              parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager).getPsi, elem)
+              if (needSemicolon) {
+                parent.addBefore(ScalaPsiElementFactory.
+                        createNewLineNode(parent.getManager).getPsi, createStmt)
+              }
+            }
+          }
+        } else {
+          if (!parExpr.isValid && prev.isValid) {
+            parExpr = {
+              prev match {
+                case fun: ScFunctionDefinition => fun.body.getOrElse(null)
+                case vl: ScPatternDefinition => vl.expr
+                case vr: ScVariableDefinition => vr.expr
+                case ifSt: ScIfStmt if elseBranch => ifSt.elseBranch.getOrElse(null)
+                case ifSt: ScIfStmt => ifSt.thenBranch.getOrElse(null)
+                case whSt: ScWhileStmt => whSt.expression.getOrElse(null)
+                case doSt: ScDoStmt => doSt.getExprBody.getOrElse(null)
+                case fE: ScFunctionExpr => fE.result.getOrElse(null)
+                case forSt: ScForStatement => forSt.expression.getOrElse(null)
+                case clause: ScCaseClause => clause.expr.getOrElse(null)
+                case _ => null
+              }
+            }
+          }
+          if (needBraces && parExpr != null && parExpr.isValid) {
+            parExpr = parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager), false)
+          }
+          val parent = if (needBraces && parExpr.isValid) parExpr else container
+          var createStmt = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable, ScalaRefactoringUtil.unparExpr(expression),
+            file.getManager)
+          var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0) + parentheses)
+          while (elem != null && elem.getParent != parent) elem = elem.getParent
+          if (elem != null) {
+            createStmt = parent.addBefore(createStmt, elem).asInstanceOf[ScMember]
+            parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager, "\n").getPsi, elem)
+            ScalaPsiUtil.adjustTypes(createStmt)
+          }
         }
       }
       i = i - 1

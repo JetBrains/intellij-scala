@@ -221,6 +221,13 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     else classDef.members()(0).asInstanceOf[ScVariable]
   }
 
+  def createEnumerator(name: String, expr: ScExpression, manager: PsiManager): ScEnumerator = {
+    val text = "for {\n  i <- 1 to 239\n  " + name + " = " + expr.getText + "\n}"
+    val dummyFile = createScalaFile(text, manager)
+    val forStmt: ScForStatement = dummyFile.getFirstChild.asInstanceOf[ScForStatement]
+    forStmt.enumerators.getOrElse(null).enumerators.apply(0)
+  }
+
   def createNewLineNode(manager: PsiManager): ASTNode = createNewLineNode(manager, "\n")
   def createNewLineNode(manager: PsiManager, text: String): ASTNode = {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
@@ -272,6 +279,12 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.typeDefinitions()(0)
     classDef.members()(0) match {case member : ScMember => member}
+  }
+
+  def createSemicolon(manager: PsiManager): PsiElement = {
+    val text = ";"
+    val dummyFile = createScalaFile(text, manager)
+    dummyFile.findElementAt(0)
   }
 
   private def isResolved(name: String, clazz: PsiClass, packageName: String, manager: PsiManager): Boolean = {
