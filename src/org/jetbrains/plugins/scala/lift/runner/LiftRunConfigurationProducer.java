@@ -1,42 +1,32 @@
 package org.jetbrains.plugins.scala.lift.runner;
 
-import com.intellij.execution.junit.RuntimeConfigurationProducer;
-import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl;
 import com.intellij.execution.Location;
-import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.RunManagerEx;
-import com.intellij.execution.RunManager;
-import com.intellij.execution.configurations.ConfigurationTypeUtil;
-import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.execution.actions.ConfigurationContext;
-import com.intellij.psi.*;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.execution.configurations.ConfigurationTypeUtil;
+import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl;
+import com.intellij.execution.junit.RuntimeConfigurationProducer;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ContentEntry;
+import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.SourceFolder;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFileSystem;
-import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.idea.maven.runner.*;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiElement;
+import org.jetbrains.idea.maven.project.MavenArtifact;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProjectModel;
-import org.jetbrains.idea.maven.project.MavenArtifact;
-import org.jetbrains.idea.maven.utils.MavenUtil;
-import org.jetbrains.idea.maven.dom.model.MavenModel;
-import org.jetbrains.idea.maven.dom.model.Dependencies;
-import org.jetbrains.idea.maven.dom.model.Dependency;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.runner.MavenRunConfiguration;
+import org.jetbrains.idea.maven.runner.MavenRunConfigurationType;
+import org.jetbrains.idea.maven.runner.MavenRunnerParameters;
+import org.jetbrains.idea.maven.runner.MavenRunnerSettings;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author ilyas
