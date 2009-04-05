@@ -117,7 +117,19 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
   def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression_ : ScExpression,
                     occurrences_ : Array[TextRange], varName: String, varType: ScType,
                     replaceAllOccurrences: Boolean, isVariable: Boolean) {
-    val expression = expression_.copy.asInstanceOf[ScExpression]
+    val expression = {
+      expression_ match {
+        case ref: ScReferenceExpression => {
+          ref.resolve match {
+            case _: ScFunction => ScalaPsiElementFactory.createExpressionFromText(
+              expression_.getText + " _", expression_.getManager
+              )
+            case _ => expression_.copy.asInstanceOf[ScExpression]
+          }
+        }
+        case _ => expression_.copy.asInstanceOf[ScExpression]
+      }
+    }
     val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
       Array[TextRange](new TextRange(startOffset, endOffset))
     } else occurrences_
