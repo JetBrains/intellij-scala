@@ -69,7 +69,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text.trim).asInstanceOf[ScalaFile]
     val child = dummyFile.getFirstChild
     child match {
-      case expr: ScExpression => if (expr.getNextSibling == null && !PsiTreeUtil.hasErrorElements(expr)) Some(expr) else None
+      case expr: ScExpression => if (expr.getNextSibling == null && !PsiTreeUtil.hasErrorElements(dummyFile)) Some(expr) else None
       case _ => None
     }
   }
