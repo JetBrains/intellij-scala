@@ -7,6 +7,6 @@ class a {
 class a {
   def foo = {
     val value: Int = {22; 33}
-    a (value<caret>)
+    a (value)
   }
 }
