@@ -9,6 +9,6 @@ class a {
   def foo = {
     val value: Int = 2
     value
-    value<caret>
+    value
   }
 }

@@ -8,7 +8,7 @@ class a {
 class a {
   def foo = {
     val value: Int = 2 + 2
-    val t = value<caret>
+    val t = value
     return t
   }
 }
