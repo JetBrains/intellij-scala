@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaratio
  * Date: 11.03.2009
  */
 public class DefaultPackageResolveTest extends ScalaResolveTestCase {
-  protected String getTestDataPath() {
+  /*protected String getTestDataPath() {
     return TestUtils.getTestDataPath() + "/resolve/";
   }
 
@@ -32,5 +32,5 @@ public class DefaultPackageResolveTest extends ScalaResolveTestCase {
   public void testDefaultScalaToJava() throws Exception {
     PsiReference ref = configureByFile("defaultPackage/DefaultScalaToJava.scala");
     assertTrue(ref.resolve() != null);
-  }
+  }*/
 }
