@@ -12,6 +12,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.ui.ConflictsDialog
 import com.intellij.refactoring.util.RefactoringMessageDialog
 import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
+import java.util.regex.{Pattern, Matcher}
+
 import lexer.ScalaTokenTypes
 import namesSuggester.NameSuggester
 import psi.api.base.patterns.ScCaseClause
@@ -124,7 +126,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
     var needBraces = false
     var elseBranch = false
     var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression], false) //todo: PsiFile
-    var prev: PsiElement = if (parExpr == null) null else parExpr.getParent
+    var prev: PsiElement = if (parExpr == null) file else parExpr.getParent
     var introduceEnumerator = parExpr.isInstanceOf[ScForStatement]
     var introduceEnumeratorForStmt: ScForStatement =
       if (introduceEnumerator) parExpr.asInstanceOf[ScForStatement]
@@ -179,7 +181,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       val documentManager = PsiDocumentManager.getInstance(editor.getProject)
       documentManager.commitDocument(document)
       val leaf = file.findElementAt(offset)
-      if (leaf.getParent != null && leaf.getParent.getParent.isInstanceOf[ScParenthesisedExpr]) {
+      if (!(deleteOccurence && replaceAllOccurrences) && leaf.getParent != null && leaf.getParent.getParent.isInstanceOf[ScParenthesisedExpr]) {
         val textRange = leaf.getParent.getParent.getTextRange
         document.replaceString(textRange.getStartOffset, textRange.getEndOffset, varName)
         documentManager.commitDocument(document)
@@ -231,7 +233,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
             }
           }
         } else {
-          if (!parExpr.isValid && prev != null && prev.isValid) {
+          if (needBraces && parExpr != null && !parExpr.isValid && prev != null && prev.isValid) {
             parExpr = {
               prev match {
                 case fun: ScFunctionDefinition => fun.body.getOrElse(null)
@@ -251,7 +253,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
           if (needBraces && parExpr != null && parExpr.isValid) {
             parExpr = parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager), false)
           }
-          val parent = if (needBraces && parExpr.isValid) parExpr else container
+          val parent = if (needBraces && parExpr != null && parExpr.isValid) parExpr
+                       else container
           var createStmt = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable, ScalaRefactoringUtil.unparExpr(expression),
             file.getManager)
           var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0) + parentheses)
@@ -260,6 +263,21 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
             createStmt = parent.addBefore(createStmt, elem).asInstanceOf[ScMember]
             parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager, "\n").getPsi, elem)
             ScalaPsiUtil.adjustTypes(createStmt)
+          }
+          if (deleteOccurence && !replaceAllOccurrences) {
+            elem = createStmt.getNextSibling
+            while (elem != null && elem.getText.trim == "") elem = elem.getNextSibling
+            if (elem != null) {
+              elem.getParent.getNode.removeChild(elem.getNode)
+              val element = createStmt.getNextSibling
+              if (element.getText.trim == "") {
+                val nl = Pattern.compile("\n", Pattern.LITERAL).matcher(element.getText).replaceFirst(Matcher.quoteReplacement(""))
+                if (nl.replace(" ", "") != "") {element.replace(ScalaPsiElementFactory.createNewLineNode(element.getManager, nl).getPsi)} else {
+                  element.getParent.getNode.removeChild(element.getNode)
+                }
+              }
+            }
+            editor.getCaretModel.moveToOffset(createStmt.getTextRange.getEndOffset)
           }
         }
       }
