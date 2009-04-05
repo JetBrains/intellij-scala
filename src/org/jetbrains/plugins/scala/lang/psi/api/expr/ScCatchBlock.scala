@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 */
 
 trait ScCatchBlock extends ScalaPsiElement {
-  def caseClauseList = findChildByClass(classOf[ScCaseClauses])
+  def caseClauseList: Option[ScCaseClauses] = findChild(classOf[ScCaseClauses])
 
-  def caseClauses = caseClauseList.caseClauses
+  def caseClauses: Seq[ScCaseClause] = caseClauseList.getOrElse(return Seq.empty).caseClauses.toSeq
 
   def getBranches: Seq[ScExpression] = caseClauses.map {
     (clause: ScCaseClause) => clause.expr match {
