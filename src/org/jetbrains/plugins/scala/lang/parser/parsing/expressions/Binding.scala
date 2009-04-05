@@ -11,7 +11,7 @@ import types.ParamType
  */
 
 /**
- * Binding ::= (id | ‘_’) [‘:’ Type]
+ * Binding ::= (id | '_') [':' Type]
  */
 
 object Binding {
