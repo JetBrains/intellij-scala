@@ -123,7 +123,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       classOf[ScTemplateBody])
     var needBraces = false
     var elseBranch = false
-    var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression], false)
+    var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression], false) //todo: PsiFile
     var prev: PsiElement = if (parExpr == null) null else parExpr.getParent
     var introduceEnumerator = parExpr.isInstanceOf[ScForStatement]
     var introduceEnumeratorForStmt: ScForStatement =
@@ -231,7 +231,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
             }
           }
         } else {
-          if (!parExpr.isValid && prev.isValid) {
+          if (!parExpr.isValid && prev != null && prev.isValid) {
             parExpr = {
               prev match {
                 case fun: ScFunctionDefinition => fun.body.getOrElse(null)
