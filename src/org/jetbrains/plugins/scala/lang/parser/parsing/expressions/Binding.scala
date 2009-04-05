@@ -1,35 +1,32 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing.params
+package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
+
 
 import com.intellij.lang.PsiBuilder
-import expressions.Annotation
 import lexer.ScalaTokenTypes
 import types.ParamType
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
-/*
- * Param ::= {Annotation} id [':' ParamType]
+ * @author Aleksander Podkhalyuzin
+ * @date 05.04.2009
  */
 
-object Param {
+/**
+ * Binding ::= (id | ‘_’) [‘:’ Type]
+ */
+
+object Binding {
   def parse(builder: PsiBuilder): Boolean = {
     val paramMarker = builder.mark
-    //parse annotations
-    val annotationsMarker = builder.mark
-    while (Annotation.parse(builder)) {}
-    annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+    builder.mark.done(ScalaElementTypes.ANNOTATIONS)
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
-        builder.advanceLexer //Ate id
-      }
+      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER => builder.advanceLexer
       case _ => {
         paramMarker.rollbackTo
+        builder error ScalaBundle.message("wrong.parameter")
         return false
       }
     }
+
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON => {
         builder.advanceLexer //Ate :
@@ -37,6 +34,7 @@ object Param {
       }
       case _ =>
     }
+
     paramMarker.done(ScalaElementTypes.PARAM)
     return true
   }
