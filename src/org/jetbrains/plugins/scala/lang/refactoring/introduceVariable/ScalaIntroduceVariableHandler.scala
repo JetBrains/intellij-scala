@@ -87,14 +87,19 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
               getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project))
 
-      if (expr.isInstanceOf[ScConstrExpr]) showErrorMessage(ScalaBundle.message("cannot.refactor.constr.expression"), project)
-      if (expr.getParent.isInstanceOf[ScGenericCall]) showErrorMessage(ScalaBundle.message("connot.refactor.under.generic.call"), project)
+      expr.getParent match {
+        case inf: ScInfixExpr if inf.operation == expr => showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project)
+        case post: ScPostfixExpr if post.operation == expr => showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project)
+        case _: ScGenericCall => showErrorMessage(ScalaBundle.message("connot.refactor.under.generic.call"), project)
+        case _ if expr.isInstanceOf[ScConstrExpr] => showErrorMessage(ScalaBundle.message("cannot.refactor.constr.expression"), project)
+        case _ =>
+      }
       val guard: ScGuard = PsiTreeUtil.getParentOfType(expr, classOf[ScGuard])
       if (guard != null && guard.getParent.isInstanceOf[ScCaseClause]) showErrorMessage(ScalaBundle.message("cannot.refactor.guard"), project)
 
       val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), file) //todo:
       // Getting settings
-      var validator = new ScalaVariableValidator(this, project, expr, occurrences, file) //todo:
+      var validator = new ScalaVariableValidator(this, project, expr, occurrences, file)
       var dialog = getDialog(project, editor, expr, typez, occurrences, false, validator)
       if (!dialog.isOK) return
 
@@ -116,6 +121,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
     val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
       Array[TextRange](new TextRange(startOffset, endOffset))
     } else occurrences_
+    val cursorOffset = editor.getCaretModel.getOffset
+    val mainOcc = occurrences.findIndexOf((occ: TextRange) =>
+            occ.getStartOffset <= cursorOffset && occ.getEndOffset >= cursorOffset)
     val document = editor.getDocument
     var i = occurrences.length - 1
     val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq ++
@@ -125,7 +133,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       classOf[ScTemplateBody])
     var needBraces = false
     var elseBranch = false
-    var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression], false) //todo: PsiFile
+    var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression], false)
     var prev: PsiElement = if (parExpr == null) file else parExpr.getParent
     var introduceEnumerator = parExpr.isInstanceOf[ScForStatement]
     var introduceEnumeratorForStmt: ScForStatement =
@@ -186,6 +194,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
         document.replaceString(textRange.getStartOffset, textRange.getEndOffset, varName)
         documentManager.commitDocument(document)
         parentheses = -2
+      }
+      if (i == mainOcc) {
+        editor.getCaretModel.moveToOffset(offset + parentheses + varName.length)
       }
       if (i == 0) {
         //from here we must to end changing document, only Psi operations (because document will be locked)
@@ -327,7 +338,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       }
     } else {
       if (editor != null) {
-        import _root_.scala.collection.jcl.Conversions._
+        import collection.jcl.Conversions._
 
         for (highlighter <- highlighters) {
           highlightManager.removeSegmentHighlighter(editor, highlighter);
