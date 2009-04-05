@@ -1,4 +1,3 @@
-/*
 package org.jetbrains.plugins.scala.refactoring.introduceVariable;
 
 import com.intellij.openapi.editor.Editor;
@@ -21,15 +20,15 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntro
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import scala.Some;
+import scala.Tuple2;
+import com.intellij.openapi.util.TextRange;
 
 import java.io.IOException;
 
-*/
 /**
  * User: Alexander Podkhalyuzin
  * Date: 02.07.2008
  */
-/*
 
 
 public class IntroduceVariableTest extends ActionTestBase {
@@ -84,27 +83,24 @@ public class IntroduceVariableTest extends ActionTestBase {
 
       Assert.assertTrue(myFile instanceof ScalaFile);
       ScExpression selectedExpr = null;
+      ScType varType = null;
       if (ScalaRefactoringUtil.getExpression(myProject, myEditor, myFile, startOffset, endOffset) instanceof Some) {
         Some temp = (Some) ScalaRefactoringUtil.getExpression(myProject, myEditor, myFile, startOffset, endOffset);
-        selectedExpr = (ScExpression) temp.get();
+        selectedExpr = (ScExpression) IntroduceVariableTestUtil.extract1((Tuple2<ScExpression, ScType>) temp.get());
+        varType = (ScType) IntroduceVariableTestUtil.extract2((Tuple2<ScExpression, ScType>) temp.get());
       }
-      //findElementInRange(((ScalaFileBase) myFile), startOffset, endOffset, GrExpression.class);
-
       Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
 
-      final PsiElement tempContainer = ScalaRefactoringUtil.getEnclosingContainer(selectedExpr);
-      Assert.assertTrue(tempContainer instanceof ScalaPsiElement);
-
-      ScExpression[] occurences = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(selectedExpr), tempContainer);
+      TextRange[] occurences = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(selectedExpr), myFile);
       String varName = "value";
-      final ScType varType = selectedExpr.getType();
 
-      introduceVariableHandler.runRefactoring(selectedExpr, myEditor, tempContainer, occurences, varName, varType, replaceAllOccurences, false);
+      introduceVariableHandler.runRefactoring(startOffset, endOffset, myFile, myEditor, selectedExpr,
+          occurences, varName, varType, replaceAllOccurences, false);
 
 
       result = myEditor.getDocument().getText();
-      int caretOffset = myEditor.getCaretModel().getOffset();
-      result = result.substring(0, caretOffset) + TestUtils.CARET_MARKER + result.substring(caretOffset);
+      //int caretOffset = myEditor.getCaretModel().getOffset();
+      //result = result.substring(0, caretOffset) + TestUtils.CARET_MARKER + result.substring(caretOffset);
     } finally {
       fileEditorManager.closeFile(myFile.getVirtualFile());
       myEditor = null;
@@ -136,4 +132,4 @@ public class IntroduceVariableTest extends ActionTestBase {
     return text.substring(0, index) + text.substring(index + ALL_MARKER.length());
   }
 
-}*/
+}

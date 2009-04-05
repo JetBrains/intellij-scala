@@ -7,8 +7,8 @@ class a {
 ------
 class a {
   def foo = {
-    val value: Nothing = tre.too()
+    val value: Nothing = tre.too
     value
-    value<caret>
+    value
   }
 }
