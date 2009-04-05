@@ -121,9 +121,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
     val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
       Array[TextRange](new TextRange(startOffset, endOffset))
     } else occurrences_
-    val cursorOffset = editor.getCaretModel.getOffset
+    //val cursorOffset = editor.getCaretModel.getOffset
     val mainOcc = occurrences.findIndexOf((occ: TextRange) =>
-            occ.getStartOffset <= cursorOffset && occ.getEndOffset >= cursorOffset)
+            occ.getStartOffset == startOffset)
     val document = editor.getDocument
     var i = occurrences.length - 1
     val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq ++
@@ -172,10 +172,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       }
       needBraces
     }
-    while (prev != null && !checkEnd(prev, parExpr) && prev.isInstanceOf[ScExpression]) {
-      parExpr = prev.asInstanceOf[ScExpression]
-      prev = prev.getParent
-    }
+    if (!parExpr.isInstanceOf[ScBlock])
+      while (prev != null && !checkEnd(prev, parExpr) && prev.isInstanceOf[ScExpression]) {
+        parExpr = prev.asInstanceOf[ScExpression]
+        prev = prev.getParent
+      }
 
     if (introduceEnumerator) {
       val endoffset =

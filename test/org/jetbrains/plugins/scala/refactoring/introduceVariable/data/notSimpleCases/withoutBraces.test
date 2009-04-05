@@ -2,7 +2,7 @@ class a {
   def foo = <begin>2<end>
 }
 ------
-<caret>class a {
+class a {
   def foo = {
     val value: Int = 2
     value
