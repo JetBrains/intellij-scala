@@ -14,7 +14,7 @@ public class DefaultPackageResolveTest extends ScalaResolveTestCase {
     return TestUtils.getTestDataPath() + "/resolve/";
   }
 
- /* public void testScalaToJava() throws Exception {
+  public void testScalaToJava() throws Exception {
     PsiReference ref = configureByFile("defaultPackage/ScalaToJava.scala");
     assertTrue(ref.resolve() == null);
   }
@@ -32,5 +32,5 @@ public class DefaultPackageResolveTest extends ScalaResolveTestCase {
   public void testDefaultScalaToJava() throws Exception {
     PsiReference ref = configureByFile("defaultPackage/DefaultScalaToJava.scala");
     assertTrue(ref.resolve() != null);
-  }*/
+  }
 }
