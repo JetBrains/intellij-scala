@@ -55,7 +55,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   }
 
   def calcType() = typeElement match {
-    case None => expectedType match {
+    case None => expectedParamType match {
       case Some(t) => t
       case None => lang.psi.types.Nothing
     }
@@ -76,11 +76,13 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   def getModifierList = findChildByClass(classOf[ScModifierList])
 
-  def expectedType: Option[ScType] = getParent match {
-    case cl: ScParameterClause => cl.getParent.getParent match {
+  private def expectedParamType: Option[ScType] = getParent match {
+    case clause: ScParameterClause => clause.getParent.getParent match {
+      // For parameter of anonymous functions to infer parameter's type from an appropriate
+      // an. fun's type
       case f: ScFunctionExpr => f.expectedType.map({
         case ScFunctionType(_, params) =>
-          val i = cl.parameters.indexOf(this)
+          val i = clause.parameters.indexOf(this)
           if (i >= 0 && i < params.length) params(i) else psi.types.Nothing
         case _ => psi.types.Nothing
       })
