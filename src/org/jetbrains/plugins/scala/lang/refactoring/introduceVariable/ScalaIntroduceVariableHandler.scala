@@ -207,6 +207,13 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
         document.replaceString(textRange.getStartOffset, textRange.getEndOffset, varName)
         documentManager.commitDocument(document)
         parentheses = -2
+      } else if (leaf.getParent != null && leaf.getParent.getParent.isInstanceOf[ScPostfixExpr] &&
+              leaf.getParent.getParent.asInstanceOf[ScPostfixExpr].operation == leaf.getParent) {
+        //This case for block argument expression
+        val textRange = leaf.getParent.getTextRange
+        document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + varName + ")")
+        documentManager.commitDocument(document)
+        parentheses = 2
       }
       if (i == mainOcc) {
         editor.getCaretModel.moveToOffset(offset + parentheses + varName.length)
