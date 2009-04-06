@@ -19,9 +19,7 @@ ScalaFile
               SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('bad')
-              PsiWhiteSpace(' ')
-              ArgumentList
-                <empty list>
+      PsiWhiteSpace(' ')
       AccessModifier
         PsiElement(private)('private')
         PsiElement([)('[')

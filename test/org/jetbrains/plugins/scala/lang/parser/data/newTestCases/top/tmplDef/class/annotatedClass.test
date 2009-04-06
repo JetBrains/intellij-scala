@@ -11,8 +11,6 @@ ScalaFile
             SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('Nullable')
-            ArgumentList
-              <empty list>
         PsiElement(newline)('\n')
     Modifiers
       <empty list>

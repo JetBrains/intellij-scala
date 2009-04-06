@@ -101,9 +101,7 @@ ScalaFile
           SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('Greeting')
-          PsiWhiteSpace(' ')
-          ArgumentList
-            <empty list>
+      PsiWhiteSpace(' ')
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')

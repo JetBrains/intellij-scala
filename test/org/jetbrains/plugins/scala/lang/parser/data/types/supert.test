@@ -21,5 +21,3 @@ ScalaFile
                 PsiElement(super)('super')
               PsiElement(.)('.')
               PsiElement(identifier)('MapProjection')
-          ArgumentList
-            <empty list>

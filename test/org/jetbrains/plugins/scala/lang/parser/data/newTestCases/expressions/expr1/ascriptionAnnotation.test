@@ -30,7 +30,5 @@ ScalaFile
                   SimpleTypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('throwable')
-                  PsiWhiteSpace('\n')
-                  ArgumentList
-                    <empty list>
+        PsiWhiteSpace('\n')
         PsiElement(})('}')

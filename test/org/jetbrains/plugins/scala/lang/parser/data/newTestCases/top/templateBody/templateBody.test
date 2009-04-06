@@ -56,8 +56,6 @@ ScalaFile
                   SimpleTypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('a')
-                  ArgumentList
-                    <empty list>
               PsiElement(newline)('\n  ')
           Modifiers
             PsiElement(sealed)('sealed')

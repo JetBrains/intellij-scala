@@ -38,7 +38,5 @@ ScalaFile
                   SimpleTypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('ResolveTargets')
-                  PsiWhiteSpace('\n')
-                  ArgumentList
-                    <empty list>
+        PsiWhiteSpace('\n')
         PsiElement(})('}')

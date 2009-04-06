@@ -38,9 +38,7 @@ ScalaFile
                     SimpleTypeElement
                       CodeReferenceElement
                         PsiElement(identifier)('good')
-                    PsiWhiteSpace(' ')
-                    ArgumentList
-                      <empty list>
+            PsiWhiteSpace(' ')
             Modifiers
               PsiElement(lazy)('lazy')
             PsiWhiteSpace(' ')
