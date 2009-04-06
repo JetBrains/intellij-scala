@@ -16,7 +16,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        PlaceholderExpression
+        UnderscoreSection
           PsiElement(_)('_')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

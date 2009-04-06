@@ -36,7 +36,7 @@ ScalaFile
             CodeReferenceElement
               PsiElement(identifier)('Int')
           PsiElement(=)('=')
-          PlaceholderExpression
+          UnderscoreSection
             PsiElement(_)('_')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

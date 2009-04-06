@@ -35,7 +35,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          PlaceholderExpression
+          UnderscoreSection
             PsiElement(_)('_')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
