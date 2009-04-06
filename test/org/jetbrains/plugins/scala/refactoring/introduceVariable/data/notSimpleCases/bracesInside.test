@@ -1,0 +1,12 @@
+class A {
+  def fii() {
+    <begin>{}<end>
+  }
+}
+-------
+class A {
+  def fii() {
+    val value: Unit = {}
+    value
+  }
+}
