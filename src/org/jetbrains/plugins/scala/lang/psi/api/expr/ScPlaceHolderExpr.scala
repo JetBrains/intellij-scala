@@ -7,6 +7,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 * Date: 06.03.2008
 */
 
-trait ScPlaceholderExpr extends ScExpression {
-  def placeholdedExpr: Option[ScExpression] = findChild(classOf[ScExpression])
+trait ScUnderscoreSection extends ScExpression {
+
+  //todo implement me!
+  def bindingExpr: Option[ScExpression] = None
+
 }

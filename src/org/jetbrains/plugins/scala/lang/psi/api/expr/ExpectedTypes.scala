@@ -69,7 +69,6 @@ object ExpectedTypes {
           }
           case _ => None
         }
-
       }
       case _ => None
     }

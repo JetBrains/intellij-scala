@@ -178,7 +178,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.GENERIC_CALL => new ScGenericCallImpl(node)
 
     case ScalaElementTypes.PREFIX_EXPR => new ScPrefixExprImpl(node)
-    case ScalaElementTypes.PLACEHOLDER_EXPR => new ScPlaceholderExprImpl(node)
+    case ScalaElementTypes.PLACEHOLDER_EXPR => new ScUnderscoreSectionImpl(node)
     case ScalaElementTypes.UNIT_EXPR => new ScUnitExprImpl(node)
     case ScalaElementTypes.INFIX_EXPR => new ScInfixExprImpl(node)
     case ScalaElementTypes.POSTFIX_EXPR => new ScPostfixExprImpl(node)
