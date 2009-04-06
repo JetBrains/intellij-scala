@@ -1,0 +1,6 @@
+if (true) <begin>false<end>
+------
+if (true) {
+  val value: Boolean = false
+  value
+}
