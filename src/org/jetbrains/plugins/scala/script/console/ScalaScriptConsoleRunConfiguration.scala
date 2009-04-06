@@ -3,7 +3,10 @@ package org.jetbrains.plugins.scala.script.console
 import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.execution.configurations._
+import com.intellij.execution.filters.{Filter, TextConsoleBuilder, TextConsoleBuilderImpl, TextConsoleBuilderFactory}
+
 import com.intellij.execution.runners.{ExecutionEnvironment}
+import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.{CantRunException, ExecutionException, Executor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType}
@@ -16,7 +19,6 @@ import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
 import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
-import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.psi.PsiManager
 import com.intellij.vcsUtil.VcsUtil
 import java.io.File
@@ -99,7 +101,20 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
       }
     }
 
-    val consoleBuilder = TextConsoleBuilderFactory.getInstance.createBuilder(getProject)
+    val consoleBuilder = new TextConsoleBuilder {
+      val filters = new ArrayBuffer[Filter]
+      override def getConsole: ConsoleView = {
+        val consoleView = new ScalaConsoleViewImpl(project)
+        for (filter <- filters) {
+          consoleView.addMessageFilter(filter)
+        }
+        return consoleView
+      }
+
+      def addFilter(filter: Filter): Unit = {
+        filters += filter
+      }
+    }
     state.setConsoleBuilder(consoleBuilder);
     return state;
   }
