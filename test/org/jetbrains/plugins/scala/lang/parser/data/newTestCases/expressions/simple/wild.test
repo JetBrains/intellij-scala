@@ -23,7 +23,7 @@ ScalaFile
           ReferenceExpression
             PsiElement(identifier)('+')
           PsiWhiteSpace(' ')
-          PlaceholderExpression
+          UnderscoreSection
             ReferenceExpression
               PsiElement(identifier)('x')
             PsiWhiteSpace(' ')
