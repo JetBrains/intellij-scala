@@ -80,9 +80,7 @@ ScalaFile
                 CodeReferenceElement
                   PsiElement(identifier)('T')
               PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          ArgumentList
-            <empty list>
+      PsiWhiteSpace(' ')
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')

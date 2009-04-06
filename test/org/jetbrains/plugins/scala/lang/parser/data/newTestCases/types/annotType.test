@@ -37,9 +37,7 @@ ScalaFile
                     SimpleTypeElement
                       CodeReferenceElement
                         PsiElement(identifier)('annot')
-                    PsiWhiteSpace(' ')
-                    ArgumentList
-                      <empty list>
+            PsiWhiteSpace(' ')
             TypeProjection
               SimpleTypeElement
                 CodeReferenceElement

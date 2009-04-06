@@ -24,9 +24,7 @@ ScalaFile
                   SimpleTypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('e')
-                  PsiWhiteSpace(' ')
-                  ArgumentList
-                    <empty list>
+          PsiWhiteSpace(' ')
           Modifiers
             <empty list>
           PsiElement(val)('val')
@@ -65,9 +63,7 @@ ScalaFile
           SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('C')
-          PsiWhiteSpace(' ')
-          ArgumentList
-            <empty list>
+      PsiWhiteSpace(' ')
       ScTemplateBody
         PsiElement({)('{')
         PsiElement(})('}')

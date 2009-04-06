@@ -24,7 +24,7 @@ import xml.XmlExpr
  *               | SimpleExpr '.' id
  *               | SimpleExpr TypeArgs
  *               | SimpleExpr1 ArgumentExprs
- *               | XmlExpr //Todo: xmlExpression
+ *               | XmlExpr
  */
 
 object SimpleExpr extends ParserNode with ScalaTokenTypes {

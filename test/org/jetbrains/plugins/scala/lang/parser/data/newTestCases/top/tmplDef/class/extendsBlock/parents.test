@@ -24,9 +24,7 @@ ScalaFile
                     SimpleTypeElement
                       CodeReferenceElement
                         PsiElement(identifier)('t')
-                    PsiWhiteSpace(' ')
-                    ArgumentList
-                      <empty list>
+            PsiWhiteSpace(' ')
             SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('A')

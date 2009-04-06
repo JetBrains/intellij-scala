@@ -23,5 +23,3 @@ ScalaFile
           SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('B')
-          ArgumentList
-            <empty list>

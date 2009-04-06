@@ -20,9 +20,7 @@ ScalaFile
           SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('Object')
-          PsiWhiteSpace(' ')
-          ArgumentList
-            <empty list>
+      PsiWhiteSpace(' ')
       ScTemplateBody
         PsiElement({)('{')
         PsiElement(})('}')
@@ -65,9 +63,7 @@ ScalaFile
           SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('Mixin')
-          PsiWhiteSpace(' ')
-          ArgumentList
-            <empty list>
+      PsiWhiteSpace(' ')
       ScTemplateBody
         PsiElement({)('{')
         PsiElement(})('}')

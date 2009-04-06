@@ -49,9 +49,7 @@ ScalaFile
                         SimpleTypeElement
                           CodeReferenceElement
                             PsiElement(identifier)('annotation')
-                        PsiWhiteSpace(' ')
-                        ArgumentList
-                          <empty list>
+                PsiWhiteSpace(' ')
                 PsiElement(identifier)('b')
               PsiElement())(')')
         PsiWhiteSpace('\n')

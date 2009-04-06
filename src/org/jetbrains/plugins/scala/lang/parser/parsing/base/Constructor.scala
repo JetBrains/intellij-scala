@@ -28,7 +28,6 @@ object Constructor {
         ArgumentExprs parse builder
       }
     }
-    else builder.mark.done(ScalaElementTypes.ARG_EXPRS)
     constrMarker.done(ScalaElementTypes.CONSTRUCTOR)
     return true
   }

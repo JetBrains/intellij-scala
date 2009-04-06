@@ -99,5 +99,3 @@ ScalaFile
                 CodeReferenceElement
                   PsiElement(identifier)('T')
               PsiElement(])(']')
-          ArgumentList
-            <empty list>
