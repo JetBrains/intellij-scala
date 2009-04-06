@@ -17,18 +17,16 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
+* @author Alexander Podkhalyuzin, ilyas
 */
 
-class ScPlaceholderExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPlaceholderExpr {
-  override def toString: String = "PlaceholderExpression"
+class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScUnderscoreSection {
+  //todo change parser in the appropriate way!
+  override def toString: String = "UnderscoreSection"
 
-
-  override def getType(): ScType = {
-   placeholdedExpr match {
-     case Some(x) => x.getType
-     case None => types.Nothing //todo: according to exprected type
-   }
+  //todo implement me according to SLS-6.23
+  override def getType(): ScType = expectedType match {
+    case Some(t) => t
+    case None => psi.types.Nothing
   }
 }

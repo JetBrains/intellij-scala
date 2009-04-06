@@ -48,7 +48,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       var isPlaceholder = false
       val params: Seq[ScExpression] = parent match {
         case call: ScMethodCall => call.args.exprs
-        case placeholder: ScPlaceholderExpr => {
+        case placeholder: ScUnderscoreSection => {
           isPlaceholder = true
           Seq.empty
         }
