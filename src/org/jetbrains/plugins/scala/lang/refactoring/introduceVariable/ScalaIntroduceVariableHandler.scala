@@ -141,7 +141,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
     val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq ++
       (for (occurence <- occurrences) yield file.findElementAt(occurence.getEndOffset - 1)).toSeq
     val commonParent: PsiElement = PsiTreeUtil.findCommonParent(elemSeq: _*)
-    val container: PsiElement = ScalaPsiUtil.getParentOfType(commonParent, classOf[ScalaFile], classOf[ScBlock],
+    val container: PsiElement = ScalaPsiUtil.getParentOfType(commonParent, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
       classOf[ScTemplateBody])
     var needBraces = false
     var elseBranch = false
@@ -184,7 +184,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       }
       needBraces
     }
-    if (!parExpr.isInstanceOf[ScBlock])
+    if (!parExpr.isInstanceOf[ScBlock] || (commonParent.isInstanceOf[ScBlock] && occurrences.length == 1))
       while (prev != null && !checkEnd(prev, parExpr) && prev.isInstanceOf[ScExpression]) {
         parExpr = prev.asInstanceOf[ScExpression]
         prev = prev.getParent
