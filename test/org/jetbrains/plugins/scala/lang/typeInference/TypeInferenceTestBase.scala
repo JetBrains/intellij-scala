@@ -25,6 +25,7 @@ abstract class TypeInferenceTestBase extends ScalaPsiTestCase {
 
   protected def doTest = {
     import _root_.junit.framework.Assert._
+
     val filePath = rootPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
@@ -32,9 +33,11 @@ abstract class TypeInferenceTestBase extends ScalaPsiTestCase {
     val fileText = scalaFile.getText
     val offset = fileText.indexOf(startExprMarker)
     val startOffset = offset + startExprMarker.length
+
     assert(offset != -1, "Not specified start marker in test case. Use /*start*/ in scala file for this.")
     val endOffset = fileText.indexOf(endExprMarker)
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
+
     val addOne = if(PsiTreeUtil.getParentOfType(scalaFile.findElementAt(startOffset),classOf[ScExpression]) != null) 0 else 1 //for xml tests
     val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset + addOne, endOffset, classOf[ScExpression])
     assert(expr != null, "Not specified expression in range to infer type.")

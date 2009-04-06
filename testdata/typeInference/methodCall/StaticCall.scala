@@ -1,4 +1,4 @@
 import test.SourceObject
 
-/*start*/SourceObject.foo()/*end*/
+/*start*/SourceObject.foo/*end*/
 //Int
