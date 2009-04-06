@@ -1,0 +1,20 @@
+class A {
+  def foo() {
+    for {
+      i <- 1 to 10
+      if i != 5
+      j = i / (<begin>i - 5<end>)
+    } yield j
+  }
+}
+------
+class A {
+  def foo() {
+    for {
+      i <- 1 to 10
+      if i != 5
+      value = i - 5
+      j = i / value
+    } yield j
+  }
+}

@@ -1,0 +1,8 @@
+class A {
+  1 + <begin>1 + 1<end>
+}
+------
+class A {
+  val value: Int = 1 + 1
+  1 + value
+}

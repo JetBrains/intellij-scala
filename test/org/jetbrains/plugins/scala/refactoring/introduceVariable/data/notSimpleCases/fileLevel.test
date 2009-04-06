@@ -1,0 +1,6 @@
+val x = 33
+<begin>x<end>
+------
+val x = 33
+val value: Int = x
+value

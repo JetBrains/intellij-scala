@@ -1,0 +1,6 @@
+(x: Int) => <begin>x<end> + 2
+------
+(x: Int) => {
+  val value: Int = x
+  value + 2
+}
