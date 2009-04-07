@@ -67,12 +67,15 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.*;
 import java.util.HashSet;
 import java.io.IOException;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 
 /**
  * @author Aleksander Podkhalyuzin
@@ -530,6 +533,78 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       }
     );
 
+    editor.getContentComponent().addKeyListener(new KeyListener() {
+      private int x = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length;
+      public void keyTyped(KeyEvent e) {
+
+      }
+
+      public void keyPressed(KeyEvent e) {
+        /*if (e.isAltDown() && new Date().getTime() - e.getWhen() > 500) {
+          if (e.getKeyCode() == 38) {
+            x--;
+            if (x < 0) x = 0;
+            replaceString();
+          } else if (e.getKeyCode() == 40) {
+            x++;
+            if (x > ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length) x = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length;
+            replaceString();
+          }
+        }*/
+      }
+
+      public void keyReleased(KeyEvent e) {
+        if (e.isAltDown()) {
+          if (e.getKeyCode() == 38) {
+            x--;
+            if (x < 0) x = 0;
+            replaceString();
+          } else if (e.getKeyCode() == 40) {
+            x++;
+            if (x > ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length) x = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length;
+            replaceString();
+          }
+        } else {
+          x = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length;
+        }
+      }
+
+      private void replaceString() {
+        final Document document = editor.getDocument();
+        final String str;
+        if (ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length == x) str = "";
+        else str = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY[x];
+        synchronized (LOCK) {
+          if (myTokens.isEmpty()) return;
+          final TokenInfo info = myTokens.get(myTokens.size() - 1);
+          if (info.contentType != ConsoleViewContentType.USER_INPUT) {
+            print(str, ConsoleViewContentType.USER_INPUT);
+            flushDeferredText();
+            editor.getCaretModel().moveToOffset(document.getTextLength());
+            editor.getSelectionModel().removeSelection();
+            return;
+          } else {
+            int deleteTokens = myDeferredUserInput.length() - str.length();
+            editor.getSelectionModel().setSelection(info.startOffset, info.endOffset);
+            info.endOffset -= deleteTokens;
+            if (info.startOffset == info.endOffset) {
+              myTokens.remove(myTokens.size() - 1);
+            }
+            myContentSize -= deleteTokens;
+            myDeferredUserInput = new StringBuffer(str);
+          }
+        }
+        ApplicationManager.getApplication().runWriteAction(new Runnable() {
+          public void run() {
+            document.replaceString(editor.getSelectionModel().getSelectionStart(), editor.getSelectionModel().getSelectionEnd(), str);
+            editor.getCaretModel().moveToOffset(document.getTextLength());
+            editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
+            editor.getSelectionModel().removeSelection();
+          }
+        });
+      }
+    });
+
     setEditorUpActions(editor);
 
     return editor;
@@ -832,7 +907,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     }
   };
 
-  private static final DataAccessor<ScalaConsoleViewImpl> RUNNINT_CONSOLE =DataAccessor.createConditionalAccessor(CONSOLE, CONSOLE_IS_RUNNING);
+  private static final DataAccessor<ScalaConsoleViewImpl> RUNNINT_CONSOLE = DataAccessor.createConditionalAccessor(CONSOLE, CONSOLE_IS_RUNNING);
 
   private abstract static class ConsoleAction extends AnAction {
     public void actionPerformed(final AnActionEvent e) {
@@ -850,7 +925,28 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
   }
 
   private static class EnterHandler extends ConsoleAction {
+    private boolean contains(String[] array, String str) {
+      for (String s : array) {
+        if (s.equals(str)) return true;
+      }
+      return false;
+    }
     public void execute(final ScalaConsoleViewImpl consoleView, final DataContext context) {
+      synchronized (consoleView.LOCK) {
+        if (!contains(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY, consoleView.myDeferredUserInput.toString())) {
+          String[] buffer = new String[Math.min(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length + 1, 20)];
+          int i = buffer.length - 1;
+          buffer[i] = consoleView.myDeferredUserInput.toString();
+          i--;
+          int j = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length - 1;
+          while (i >= 0) {
+            buffer[i] = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY[j];
+            i--;
+            j--;
+          }
+          ScalaApplicationSettings.getInstance().CONSOLE_HISTORY = buffer;
+        }
+      }
       consoleView.print("\n", ConsoleViewContentType.USER_INPUT);
       consoleView.flushDeferredText();
       final Editor editor = consoleView.myEditor;
