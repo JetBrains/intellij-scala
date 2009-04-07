@@ -101,7 +101,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
       }
     }
 
-    val consoleBuilder = new TextConsoleBuilder {
+    val consoleBuilder = new TextConsoleBuilderImpl(project) {
       val filters = new ArrayBuffer[Filter]
       override def getConsole: ConsoleView = {
         val consoleView = new ScalaConsoleViewImpl(project)
@@ -111,7 +111,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
         return consoleView
       }
 
-      def addFilter(filter: Filter): Unit = {
+      override def addFilter(filter: Filter): Unit = {
         filters += filter
       }
     }
