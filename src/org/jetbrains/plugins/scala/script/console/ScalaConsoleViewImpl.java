@@ -933,10 +933,11 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     }
     public void execute(final ScalaConsoleViewImpl consoleView, final DataContext context) {
       synchronized (consoleView.LOCK) {
-        if (!contains(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY, consoleView.myDeferredUserInput.toString())) {
+        String str = consoleView.myDeferredUserInput.toString();
+        if (str.startsWith(":") || !contains(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY, str)) {
           String[] buffer = new String[Math.min(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length + 1, 20)];
           int i = buffer.length - 1;
-          buffer[i] = consoleView.myDeferredUserInput.toString();
+          buffer[i] = str;
           i--;
           int j = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length - 1;
           while (i >= 0) {
