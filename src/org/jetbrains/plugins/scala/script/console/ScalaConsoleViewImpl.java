@@ -768,6 +768,8 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
           if (info.contentType != ConsoleViewContentType.USER_INPUT) {
             consoleView.print(s, ConsoleViewContentType.USER_INPUT);
             consoleView.flushDeferredText();
+            editor.getCaretModel().moveToOffset(document.getTextLength());
+            editor.getSelectionModel().removeSelection();
             return;
           }
           int deleteTokens;
@@ -783,12 +785,12 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
             }
             editor.getSelectionModel().setSelection(selectionStart, selectionEnd);
             deleteTokens = selectionEnd - selectionStart - 1;
-            consoleView.myDeferredUserInput.replace(selectionStart - info.startOffset, selectionEnd - info.endOffset, s);
+            consoleView.myDeferredUserInput.replace(selectionStart - info.startOffset, selectionEnd - info.startOffset, s);
           } else {
             int offset = editor.getCaretModel().getOffset();
-            if (offset <= info.startOffset || offset > info.endOffset) editor.getCaretModel().moveToOffset(info.endOffset);
+            if (offset < info.startOffset || offset > info.endOffset) editor.getCaretModel().moveToOffset(info.endOffset);
             deleteTokens = -1;
-            consoleView.myDeferredUserInput.insert(offset - info.startOffset, s);
+            consoleView.myDeferredUserInput.insert(info.endOffset - info.startOffset, s);
           }
 
           info.endOffset -= deleteTokens;
@@ -851,6 +853,9 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     public void execute(final ScalaConsoleViewImpl consoleView, final DataContext context) {
       consoleView.print("\n", ConsoleViewContentType.USER_INPUT);
       consoleView.flushDeferredText();
+      final Editor editor = consoleView.myEditor;
+      editor.getCaretModel().moveToOffset(editor.getDocument().getTextLength());
+      editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
     }
   }
 
