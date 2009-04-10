@@ -118,7 +118,10 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       expression_ match {
         case ref: ScReferenceExpression => {
           ref.resolve match {
-            case _: PsiMethod => ScalaPsiElementFactory.createExpressionFromText(
+            case fun: ScFunction if fun.parameters.length > 0 => ScalaPsiElementFactory.createExpressionFromText(
+              expression_.getText + " _", expression_.getManager
+              )
+            case meth: PsiMethod if meth.getParameterList.getParameters.length > 0 => ScalaPsiElementFactory.createExpressionFromText(
               expression_.getText + " _", expression_.getManager
               )
             case _ => expression_.copy.asInstanceOf[ScExpression]
