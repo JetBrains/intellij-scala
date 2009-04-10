@@ -119,7 +119,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     return state;
   }
 
-  def getModule: Module = getConfigurationModule.getModule
+  def getModule: Module = if (getValidModules.size > 0) getValidModules.get(0) else null
 
   def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
     new ScalaScriptConsoleRunConfiguration(getProject, getFactory, getName)
