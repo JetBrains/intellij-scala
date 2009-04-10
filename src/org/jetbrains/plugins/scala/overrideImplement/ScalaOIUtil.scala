@@ -42,7 +42,7 @@ import settings.ScalaApplicationSettings
 
 object ScalaOIUtil {
   def invokeOverrideImplement(project: Project, editor: Editor, file: PsiFile, isImplement: Boolean) {
-    val elem = file.findElementAt(editor.getCaretModel.getOffset)
+    val elem = file.findElementAt(editor.getCaretModel.getOffset - 1)
     def getParentClass(elem: PsiElement): PsiElement = {
       elem match {
         case _: ScTemplateDefinition | null => return elem
