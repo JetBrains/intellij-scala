@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Editor, VisualPosition}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.wm.WindowManager
+import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.ui.ConflictsDialog
 import com.intellij.refactoring.util.RefactoringMessageDialog
@@ -31,13 +32,9 @@ import psi.api.base.ScReferenceElement
 import collection.mutable.ArrayBuffer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.psi.PsiType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.psi.PsiDocumentManager
-import com.intellij.psi.PsiElement
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.psi.PsiFile
 import com.intellij.openapi.project.Project
 import psi.api.toplevel.typedef.ScMember
 import scala.util.ScalaUtils
@@ -121,7 +118,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       expression_ match {
         case ref: ScReferenceExpression => {
           ref.resolve match {
-            case _: ScFunction => ScalaPsiElementFactory.createExpressionFromText(
+            case _: PsiMethod => ScalaPsiElementFactory.createExpressionFromText(
               expression_.getText + " _", expression_.getManager
               )
             case _ => expression_.copy.asInstanceOf[ScExpression]
