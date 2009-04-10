@@ -540,17 +540,6 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       }
 
       public void keyPressed(KeyEvent e) {
-        /*if (e.isAltDown() && new Date().getTime() - e.getWhen() > 500) {
-          if (e.getKeyCode() == 38) {
-            x--;
-            if (x < 0) x = 0;
-            replaceString();
-          } else if (e.getKeyCode() == 40) {
-            x++;
-            if (x > ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length) x = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length;
-            replaceString();
-          }
-        }*/
       }
 
       public void keyReleased(KeyEvent e) {
@@ -614,6 +603,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     new EnterHandler().registerCustomShortcutSet(CommonShortcuts.ENTER, editor.getContentComponent());
     registerActionHandler(editor, IdeActions.ACTION_EDITOR_PASTE, new PasteHandler());
     registerActionHandler(editor, IdeActions.ACTION_EDITOR_BACKSPACE, new BackSpaceHandler());
+    registerActionHandler(editor, IdeActions.ACTION_EDITOR_DELETE, new DeleteHandler());
   }
 
   private static void registerActionHandler(final Editor editor, final String actionId, final AnAction action) {
@@ -862,9 +852,11 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
             deleteTokens = selectionEnd - selectionStart - 1;
             consoleView.myDeferredUserInput.replace(selectionStart - info.startOffset, selectionEnd - info.startOffset, s);
           } else {
+
             int offset = editor.getCaretModel().getOffset();
             if (offset < info.startOffset || offset > info.endOffset) editor.getCaretModel().moveToOffset(info.endOffset);
             deleteTokens = -1;
+            if (consoleView.myDeferredUserInput.length() < info.endOffset - info.startOffset) return; //user was quick
             consoleView.myDeferredUserInput.insert(info.endOffset - info.startOffset, s);
           }
 
@@ -1048,6 +1040,80 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       return EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_BACKSPACE);
     }
   }
+
+  private static class DeleteHandler extends ConsoleAction {
+    public void execute(final ScalaConsoleViewImpl consoleView, final DataContext context) {
+      final Editor editor = consoleView.myEditor;
+
+      if (IncrementalSearchHandler.isHintVisible(editor)) {
+        getDefaultActionHandler().execute(editor, context);
+        return;
+      }
+
+      final Document document = editor.getDocument();
+      final int length = document.getTextLength();
+      if (length == 0) {
+        return;
+      }
+
+
+      synchronized(consoleView.LOCK) {
+        if (consoleView.myTokens.isEmpty()) return;
+        final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
+        if (info.contentType != ConsoleViewContentType.USER_INPUT) return;
+        if (consoleView.myDeferredUserInput.length() == 0) return;
+        int deleteTokens;
+        if (editor.getSelectionModel().hasSelection()) {
+          int selectionStart = editor.getSelectionModel().getSelectionStart();
+          int selectionEnd = editor.getSelectionModel().getSelectionEnd();
+          if (selectionStart < info.startOffset) selectionStart = info.startOffset;
+          if (selectionEnd > info.endOffset) selectionEnd = info.endOffset;
+          if (selectionStart >= selectionEnd) {
+            editor.getCaretModel().moveToOffset(editor.getSelectionModel().getSelectionStart());
+            editor.getSelectionModel().removeSelection();
+            return;
+          }
+          editor.getSelectionModel().setSelection(selectionStart, selectionEnd);
+          deleteTokens = selectionEnd - selectionStart;
+          consoleView.myDeferredUserInput.delete(selectionStart - info.startOffset, selectionEnd - info.startOffset);
+        } else {
+          int offset = editor.getCaretModel().getOffset();
+          if (offset < info.startOffset) return;
+          if (offset >= info.endOffset)  return;
+          deleteTokens = 1;
+          consoleView.myDeferredUserInput.deleteCharAt(offset - info.startOffset);
+        }
+
+        info.endOffset -= deleteTokens;
+        if (info.startOffset == info.endOffset) {
+          consoleView.myTokens.remove(consoleView.myTokens.size() - 1);
+        }
+        consoleView.myContentSize -= deleteTokens;
+      }
+
+      ApplicationManager.getApplication().runWriteAction(new Runnable() {
+        public void run() {
+          if (editor.getSelectionModel().hasSelection()) {
+            int selectionStart = editor.getSelectionModel().getSelectionStart();
+            int selectionEnd = editor.getSelectionModel().getSelectionEnd();
+            document.deleteString(selectionStart, selectionEnd);
+            editor.getCaretModel().moveToOffset(selectionStart);
+          } else {
+            int offset = editor.getCaretModel().getOffset();
+            document.deleteString(offset, offset + 1);
+            editor.getCaretModel().moveToOffset(offset);
+          }
+          editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
+          editor.getSelectionModel().removeSelection();
+        }
+      });
+    }
+
+    private static EditorActionHandler getDefaultActionHandler() {
+      return EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_BACKSPACE);
+    }
+  }
+
 
   private static class Hyperlinks {
     private static final int NO_INDEX = Integer.MIN_VALUE;
