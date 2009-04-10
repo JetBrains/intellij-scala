@@ -319,7 +319,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       s = StringUtil.convertLineSeparators(s,  "\n");
       myContentSize += s.length();
       myDeferredOutput.append(s);
-      if (contentType == ConsoleViewContentType.USER_INPUT){
+      if (contentType == ConsoleViewContentType.USER_INPUT) {
         myDeferredUserInput.append(s);
       }
 
@@ -1012,7 +1012,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
         }
 
         info.endOffset -= deleteTokens;
-        if (info.startOffset == info.endOffset){
+        if (info.startOffset == info.endOffset) {
           consoleView.myTokens.remove(consoleView.myTokens.size() - 1);
         }
         consoleView.myContentSize -= deleteTokens;

@@ -20,11 +20,10 @@ object ScalaStubsUtil {
     val name: String = clazz.getName()
     if (name == null) return Seq.empty
     val inheritors = new ArrayBuffer[ScTypeDefinition]
-    val extendsBlocks = new ArrayList[ScExtendsBlock](StubIndex.getInstance().get(ScDirectInheritorsIndex.KEY,
-      name, clazz.getProject(), scope));
-    import _root_.scala.collection.jcl.Conversions.convertList
-    for (ext <- extendsBlocks) {
-      ext.getParent match {
+    val iterator: java.util.Iterator[ScExtendsBlock] =
+      StubIndex.getInstance().get(ScDirectInheritorsIndex.KEY, name, clazz.getProject(), scope).iterator
+    while (iterator.hasNext) {
+      iterator.next.getParent match {
         case x: ScTypeDefinition => inheritors += x
         case _ =>
       }
