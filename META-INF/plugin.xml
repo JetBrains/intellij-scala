@@ -62,7 +62,7 @@
     <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider"/>
     <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaMethodProcessor" order="first"/>
     <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaValsProcessor" order="first"/>
-    <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaInplaceRenameHandler"/>
+    <!--<renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaInplaceRenameHandler"/>-->
     <nameSuggestionProvider language="Scala" implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider"/>
     <definitionsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.MethodImplementationsSearch"/>
     <antCustomCompiler implementation="org.jetbrains.plugins.scala.ant.ScalaAntCustomCompilerProvider"/>
