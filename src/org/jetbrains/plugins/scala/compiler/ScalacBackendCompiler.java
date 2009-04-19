@@ -13,6 +13,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkType;
@@ -94,7 +95,8 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     boolean isCompilerSetUp = false;
 
-    for (Module module : modules) {
+    final Module[] allModules = ModuleManager.getInstance(myProject).getModules();
+    for (Module module : allModules) {
       if (ScalaCompilerUtil.isScalaCompilerSetUpForModule(module)) {
         isCompilerSetUp = true;
         break;
@@ -241,13 +243,15 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     String scalaCompilerJarPath = "";
 
     final Module[] modules = chunk.getModules();
-    for (Module module : modules) {
-      if (ScalaCompilerUtil.isScalaCompilerSetUpForModule(module)) {
-        scalaCompilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(module);
-      }
+    final ModuleManager manager = ModuleManager.getInstance(myProject);
+
+    final Module[] allModules = manager.getModules();
+    for (Module module : allModules) {
+      scalaCompilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(module);
+      if (scalaCompilerJarPath.length() > 0) break;
     }
 
-    for (Module module : modules) {
+    for (Module module : allModules) {
       scalaSdkJarPath = ScalaConfigUtils.getScalaSdkJarPath(module);
       if (scalaSdkJarPath.length() > 0) {
         break;
@@ -262,26 +266,26 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     // Special check to compile scala language library
 
-//    if (ScalaCompilerUtil.isJarFileContainsClassFile(scalaCompilerJarPath, ScalaCompilerUtil.LAMP_PATCKAGE_PATH)) {
+    if (ScalaCompilerUtil.isJarFileContainsClassFile(scalaCompilerJarPath, ScalaCompilerUtil.LAMP_PATCKAGE_PATH)) {
       classPathBuilder.append(scalaCompilerJarPath);
       classPathBuilder.append(File.pathSeparator);
-//    } else {
-//      final Module module = ContainerUtil.find(modules, new Condition<Module>() {
-//        public boolean value(Module module) {
-//          return ScalaCompilerUtil.isScalaCompilerSetUpForModule(module);
-//        }
-//      });
-//
-//      assert module != null;
-//
-//      final Library[] libraries = ScalaCompilerUtil.getScalaCompilerLibrariesByModule(module);
-//      if (libraries.length > 0) {
-//        for (VirtualFile file : libraries[0].getFiles(OrderRootType.CLASSES)) {
-//          classPathBuilder.append(StringUtil.trimEnd(file.getPath(), "!/"));
-//          classPathBuilder.append(File.pathSeparator);
-//        }
-//      }
-//    }
+    } else {
+      final Module module = ContainerUtil.find(allModules, new Condition<Module>() {
+        public boolean value(Module module) {
+          return ScalaCompilerUtil.isScalaCompilerSetUpForModule(module);
+        }
+      });
+
+      assert module != null;
+
+      final Library[] libraries = ScalaCompilerUtil.getScalaCompilerLibrariesByModule(module);
+      if (libraries.length > 0) {
+        for (VirtualFile file : libraries[0].getFiles(OrderRootType.CLASSES)) {
+          classPathBuilder.append(StringUtil.trimEnd(file.getPath(), "!/"));
+          classPathBuilder.append(File.pathSeparator);
+        }
+      }
+    }
 
 
     commandLine.add(classPathBuilder.toString());
