@@ -91,11 +91,18 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     }
     if (!hasJava) return false; //this compiler work with only Java modules, so we don't need to continue.
 
+
+    boolean isCompilerSetUp = false;
+
     for (Module module : modules) {
-      if (!(ScalaCompilerUtil.isScalaCompilerSetUpForModule(module) && ScalaUtils.isSuitableModule(module))) {
-        Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.compiler", module.getName()), ScalaBundle.message("cannot.compile"));
-        return false;
+      if (ScalaCompilerUtil.isScalaCompilerSetUpForModule(module)) {
+        isCompilerSetUp = true;
+        break;
       }
+    }
+
+    if (!isCompilerSetUp){
+      Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.compiler"), ScalaBundle.message("cannot.compile"));
     }
 
     Set<Module> nojdkModules = new HashSet<Module>();
