@@ -261,26 +261,27 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     }
 
     // Special check to compile scala language library
-    if (ScalaCompilerUtil.isJarFileContainsClassFile(scalaCompilerJarPath, ScalaCompilerUtil.LAMP_PATCKAGE_PATH)) {
+
+//    if (ScalaCompilerUtil.isJarFileContainsClassFile(scalaCompilerJarPath, ScalaCompilerUtil.LAMP_PATCKAGE_PATH)) {
       classPathBuilder.append(scalaCompilerJarPath);
       classPathBuilder.append(File.pathSeparator);
-    } else {
-      final Module module = ContainerUtil.find(modules, new Condition<Module>() {
-        public boolean value(Module module) {
-          return ScalaCompilerUtil.isScalaCompilerSetUpForModule(module);
-        }
-      });
-
-      assert module != null;
-
-      final Library[] libraries = ScalaCompilerUtil.getScalaCompilerLibrariesByModule(module);
-      if (libraries.length > 0) {
-        for (VirtualFile file : libraries[0].getFiles(OrderRootType.CLASSES)) {
-          classPathBuilder.append(StringUtil.trimEnd(file.getPath(), "!/"));
-          classPathBuilder.append(File.pathSeparator);
-        }
-      }
-    }
+//    } else {
+//      final Module module = ContainerUtil.find(modules, new Condition<Module>() {
+//        public boolean value(Module module) {
+//          return ScalaCompilerUtil.isScalaCompilerSetUpForModule(module);
+//        }
+//      });
+//
+//      assert module != null;
+//
+//      final Library[] libraries = ScalaCompilerUtil.getScalaCompilerLibrariesByModule(module);
+//      if (libraries.length > 0) {
+//        for (VirtualFile file : libraries[0].getFiles(OrderRootType.CLASSES)) {
+//          classPathBuilder.append(StringUtil.trimEnd(file.getPath(), "!/"));
+//          classPathBuilder.append(File.pathSeparator);
+//        }
+//      }
+//    }
 
 
     commandLine.add(classPathBuilder.toString());
