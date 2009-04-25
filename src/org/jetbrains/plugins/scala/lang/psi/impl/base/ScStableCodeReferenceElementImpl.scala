@@ -154,4 +154,6 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case _ => throw new IncorrectOperationException("Cannot bind to anything but class")
     }
   }
+
+  def getSameNameVariants: Array[Object] = _resolve(this, new SameNameCompletionProcessor(getKinds(true), refName)).map(r => r.getElement)  
 }
