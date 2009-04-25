@@ -63,16 +63,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
 
   def getParametersForDocumentation(p: Any, context: ParameterInfoContext): Array[Object] = ArrayUtil.EMPTY_OBJECT_ARRAY
 
-  def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = {
-    val allElements = JavaCompletionUtil.getAllPsiElements(item.asInstanceOf[LookupItem[_]])
-
-    if (allElements != null &&
-        allElements.size > 0 &&
-        allElements.get(0).isInstanceOf[PsiMethod]) {
-      return allElements.toArray(new Array[Object](allElements.size));
-    }
-    return null
-  }
+  def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = null
 
 
   def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
