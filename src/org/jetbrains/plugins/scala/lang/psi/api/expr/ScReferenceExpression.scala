@@ -13,5 +13,4 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
 
   def qualifier: Option[ScExpression] = findChild(classOf[ScExpression])
 
-  def getSameNameVariants: Array[Object]
 }
