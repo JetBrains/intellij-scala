@@ -67,7 +67,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   import com.intellij.psi.impl.PsiManagerEx
 
   def multiResolve(incomplete: Boolean) =
-    getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, false, incomplete)
+    getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, true, incomplete)
 
   def getKinds(incomplete: Boolean) = {
     getParent match {

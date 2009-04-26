@@ -49,15 +49,8 @@ import AnnotatorUtils._
  */
 
 class ScalaAnnotator extends Annotator with CyclicReferencesSearcher {
-  
-  def annotate(psiElement: PsiElement, holder: AnnotationHolder) = {
-    val runnable = new Runnable {
-      def run = {annotateImpl(psiElement, holder)}
-    }
-    ApplicationManager.getApplication.runReadAction(runnable)
-  }
 
-  private def annotateImpl(element: PsiElement, holder: AnnotationHolder) {
+  def annotate(element: PsiElement, holder: AnnotationHolder) {
     val file = element.getContainingFile
     val fType = file.getVirtualFile.getFileType
     if (fType != ScalaFileType.SCALA_FILE_TYPE) return
