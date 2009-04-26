@@ -10,21 +10,19 @@ import org.jetbrains.plugins.scala.ScalaBundle;
  * @author ilyas
  */
 public class ScalaMavenLibraryUtil {
-  @NonNls
-  private static final String[] MAVEN_MIRRORS = {
-      "http://scala-tools.org/repo-releases/",
-    };
-  private static final RemoteRepositoryInfo MAVEN = new RemoteRepositoryInfo("maven", ScalaBundle.message("maven.repository.presentable.name"), MAVEN_MIRRORS);
-
   private ScalaMavenLibraryUtil() {
   }
 
-  public static LibraryInfo createMavenJarInfo(final String jarName, final String version, final String downloadingPrefix,
-                                                final String... requiredClasses) {
-    LibraryDownloadInfo downloadInfo = new LibraryDownloadInfo(MAVEN, downloadingPrefix + "/" + jarName + "/" + version + "/" + jarName + "-" + version + ".jar",
-        jarName, ".jar");
-    return new LibraryInfo(jarName + ".jar", downloadInfo, requiredClasses);
+  @NonNls
+  private static final String SCALA_TOOLS = "http://scala-tools.org/repo-releases/";
+
+
+  public static LibraryInfo createJarDownloadInfo(final String jarName, final String version, final String downloadPrefix,
+                                                  final String... requiredClasses) {
+    return new LibraryInfo(jarName + ".jar", version, SCALA_TOOLS + "/" + downloadPrefix + "/" + jarName + "/" + version + "/" + jarName + "-" + version + ".jar",
+        SCALA_TOOLS, requiredClasses);
   }
+
 
 }
 
