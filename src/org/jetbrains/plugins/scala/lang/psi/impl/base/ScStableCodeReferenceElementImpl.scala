@@ -131,7 +131,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   }
 
   def multiResolve(incomplete: Boolean) = {
-    getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, false, incomplete)
+    getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, true, incomplete)
   }
 
   def nameId: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)

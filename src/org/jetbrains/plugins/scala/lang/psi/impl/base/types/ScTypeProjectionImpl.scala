@@ -35,7 +35,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
   def getKinds(incomplete: Boolean) = StdKinds.stableClass
 
   def multiResolve(incomplete: Boolean) =
-    getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, false, incomplete)
+    getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, true, incomplete)
   def getVariants: Array[Object] = _resolve(new CompletionProcessor(getKinds(true))).map(r => r.getElement)
 
   def bindToElement(p1: PsiElement) = throw new IncorrectOperationException("NYI")
