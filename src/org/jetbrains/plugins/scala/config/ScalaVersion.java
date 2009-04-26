@@ -23,7 +23,14 @@ public enum ScalaVersion {
   Scala2_7_3("2.7.3", new LibraryInfo[]{
       createMavenJarInfo("scala-compiler", "2.7.3", "org/scala-lang", "scala.tools.nsc.CompilerRun"),
       createMavenJarInfo("scala-library", "2.7.3", "org/scala-lang", "scala.Predef"),
-  });
+  })
+//  ,
+//
+//  Scala2_7_4("2.7.4", new LibraryInfo[]{
+//      createMavenJarInfo("scala-compiler", "2.7.4", "org/scala-lang", "scala.tools.nsc.CompilerRun"),
+//      createMavenJarInfo("scala-library", "2.7.4", "org/scala-lang", "scala.Predef"),
+//  })
+  ;
 
   private final String myName;
   private final LibraryInfo[] myJars;
