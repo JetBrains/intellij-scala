@@ -15,20 +15,20 @@ import stubs.elements.wrappers.DummyASTNode
 */
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node) with ScalaPsiElement {
 
-  private val _locked = new ThreadLocal[Int] {
-    override def initialValue: Int = 0
+  private val _locked = new ThreadLocal[Boolean] {
+    override def initialValue: Boolean = false
   }
 
-  override protected def locked = _locked.get > 15
+  override protected def locked = _locked.get
 
   override protected def lock(handler: => Unit) {
     if (!locked) {
-      _locked.set(_locked.get + 1)
+      _locked.set(true)
       handler
     }
   }
 
-  override protected def unlock = _locked.set(0)
+  override protected def unlock = _locked.set(false)
 
   // todo override in more specific cases
   override def replace(newElement: PsiElement): PsiElement = {
