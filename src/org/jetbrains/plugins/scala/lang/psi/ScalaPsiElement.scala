@@ -41,9 +41,5 @@ trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper {
     if (child == null) None else Some(child.asInstanceOf[T])
   }
 
-  protected def locked: Boolean = false
-
   protected def lock(handler: => Unit): Unit = {}
-
-  protected def unlock: Unit = {}
 }
