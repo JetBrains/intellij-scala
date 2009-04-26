@@ -105,6 +105,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
                       false
                     }
                     var paramText = param.getName
+                    if (paramText == "?") paramText = "_"
                     val refTypes = param.getExtendsList.getReferencedTypes
                     if (refTypes.length != 0) {
                       paramText = paramText + refTypes.map((typez: PsiType) => {
