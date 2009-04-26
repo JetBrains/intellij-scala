@@ -229,6 +229,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                         case None => res += ""
                       }
                     }
+                    case _ =>
                   }
                 }
               }
