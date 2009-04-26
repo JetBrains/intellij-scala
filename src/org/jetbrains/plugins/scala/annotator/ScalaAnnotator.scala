@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
@@ -53,7 +54,7 @@ class ScalaAnnotator extends Annotator with CyclicReferencesSearcher {
     val runnable = new Runnable {
       def run = {annotateImpl(psiElement, holder)}
     }
-    new Thread(runnable).start
+    ApplicationManager.getApplication.runReadAction(runnable)
   }
 
   private def annotateImpl(element: PsiElement, holder: AnnotationHolder) {
