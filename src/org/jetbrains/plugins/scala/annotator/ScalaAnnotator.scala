@@ -41,14 +41,22 @@ import quickfix.ImplementMethodsQuickFix
 import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
 import AnnotatorUtils._
+
 /**
  *    User: Alexander Podkhalyuzin
  *    Date: 23.06.2008
  */
 
-class ScalaAnnotator extends Annotator
-        with CyclicReferencesSearcher {
-  def annotate(element: PsiElement, holder: AnnotationHolder) {
+class ScalaAnnotator extends Annotator with CyclicReferencesSearcher {
+  
+  def annotate(psiElement: PsiElement, holder: AnnotationHolder) = {
+    val runnable = new Runnable {
+      def run = {annotateImpl(psiElement, holder)}
+    }
+    new Thread(runnable).start
+  }
+
+  private def annotateImpl(element: PsiElement, holder: AnnotationHolder) {
     val file = element.getContainingFile
     val fType = file.getVirtualFile.getFileType
     if (fType != ScalaFileType.SCALA_FILE_TYPE) return
@@ -58,8 +66,8 @@ class ScalaAnnotator extends Annotator
         //checkOverrideMethods(x, holder)
       }
       case x: ScTemplateDefinition => {
-// todo uncomment when lineariztion problems will be fixed       
-//        checkImplementedMethods(x, holder)
+        // todo uncomment when lineariztion problems will be fixed
+        //        checkImplementedMethods(x, holder)
       }
       case x: ScBlock => {
         checkResultExpression(x, holder)
