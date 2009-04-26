@@ -12,7 +12,6 @@ import types.{ScType, ScFunctionType}
  */
 
 object ExpectedTypes {
-
   def expectedExprType(expr: ScExpression): Option[ScType] = expr.getParent match {
   //see SLS[6.11]
     case b: ScBlockExpr => b.lastExpr match {
@@ -39,6 +38,8 @@ object ExpectedTypes {
     //...
     case args: ScArgumentExprList => args.getParent match {
       case mc: ScMethodCall => {
+        None
+        /*
         val argLists = mc.allArgumentExprLists
 
         def invoked(m: ScMethodCall): ScExpression = m.getInvokedExpr match {
@@ -69,12 +70,12 @@ object ExpectedTypes {
           }
           case _ => None
         }
+*/
       }
       case _ => None
     }
     case _ => None
   }
 
-  
 
 }

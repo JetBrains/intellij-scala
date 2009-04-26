@@ -18,7 +18,7 @@ import statements.ScTypeAlias
 
 trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   def bind(): Option[ScalaResolveResult] = {
-    var res : Option[ScalaResolveResult] = None
+    var res: Option[ScalaResolveResult] = None
     lock {
       val results = multiResolve(false)
       res = results.length match {
