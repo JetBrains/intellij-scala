@@ -25,15 +25,8 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
         case 1 => Some(results(0).asInstanceOf[ScalaResolveResult])
         case _ => None
       }
-      unlock
     }
-
-    if (locked) {
-      unlock
-      None
-    } else {
-      res
-    }
+    res
   }
 
   def resolve(): PsiElement = bind match {
