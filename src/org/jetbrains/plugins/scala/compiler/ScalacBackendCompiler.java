@@ -285,9 +285,12 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     // Special check to compile scala language library
 
     if (ScalaCompilerUtil.isJarFileContainsClassFile(scalaCompilerJarPath, ScalaCompilerUtil.LAMP_PATCKAGE_PATH)) {
+
+      //Normal scala congiguration
       classPathBuilder.append(scalaCompilerJarPath);
       classPathBuilder.append(File.pathSeparator);
     } else {
+      // scala-lang project
       final Module module = ContainerUtil.find(allModules, new Condition<Module>() {
         public boolean value(Module module) {
           return ScalaCompilerUtil.isScalaCompilerSetUpForModule(module);
