@@ -28,6 +28,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PathUtil;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -72,12 +73,13 @@ public class ScalacBackendCompiler extends ExternalCompiler {
   }
 
   public boolean checkCompiler(CompileScope scope) {
-    VirtualFile[] files = scope.getFiles(ScalaFileType.SCALA_FILE_TYPE, true);
-    if (files.length == 0) return true;
+    VirtualFile[] scalaFiles = scope.getFiles(ScalaFileType.SCALA_FILE_TYPE, true);
+    VirtualFile[] javaFiles = scope.getFiles(StdFileTypes.JAVA, true);
+    if (scalaFiles.length == 0 && javaFiles.length == 0) return true;
 
     final ProjectFileIndex index = ProjectRootManager.getInstance(myProject).getFileIndex();
     Set<Module> modules = new HashSet<Module>();
-    for (VirtualFile file : files) {
+    for (VirtualFile file : ArrayUtil.mergeArrays(javaFiles, scalaFiles, VirtualFile.class)) {
       Module module = index.getModuleForFile(file);
       if (module != null) {
         modules.add(module);
@@ -94,8 +96,10 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
 
     boolean isCompilerSetUp = false;
+    boolean isScalaSDKSetUp = false;
 
     final Module[] allModules = ModuleManager.getInstance(myProject).getModules();
+    // Check for compiler existence
     for (Module module : allModules) {
       if (ScalaCompilerUtil.isScalaCompilerSetUpForModule(module)) {
         isCompilerSetUp = true;
@@ -103,8 +107,22 @@ public class ScalacBackendCompiler extends ExternalCompiler {
       }
     }
 
-    if (!isCompilerSetUp){
+    if (!isCompilerSetUp) {
       Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.compiler"), ScalaBundle.message("cannot.compile"));
+      return false;
+    }
+
+    //Check for Scala library existence
+    for (Module module : allModules) {
+      if (ScalaConfigUtils.getScalaSdkJarPath(module).length() > 0) {
+        isScalaSDKSetUp = true;
+        break;
+      }
+    }
+
+    if (!isScalaSDKSetUp) {
+      Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.library"), ScalaBundle.message("cannot.compile"));
+      return false;
     }
 
     Set<Module> nojdkModules = new HashSet<Module>();
@@ -359,11 +377,15 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     }
     printer.println();
 
-    for (VirtualFile file : chunk.getFilesToCompile()) {
+    final HashSet<VirtualFile> filesToCompile = new HashSet<VirtualFile>();
+    filesToCompile.addAll(Arrays.asList(chunk.getFilesToCompile()));
+
+    //Print files to compile, both Java and Scala
+    for (VirtualFile file : filesToCompile) {
       printer.println(file.getPath());
     }
     for (VirtualFile sourceDependency : sourceDependencies) {
-      addJavaSourceFiles(printer, sourceDependency);
+      addJavaSourceFiles(printer, sourceDependency, filesToCompile);
     }
     printer.close();
   }
@@ -383,13 +405,13 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     return isTestChunk;
   }
 
-  private static void addJavaSourceFiles(PrintStream stream, VirtualFile src) {
+  private static void addJavaSourceFiles(PrintStream stream, VirtualFile src, HashSet<VirtualFile> filesToCompile) {
     if (src.getPath().contains("!/")) return;
     if (src.isDirectory()) {
       for (VirtualFile file : src.getChildren()) {
-        addJavaSourceFiles(stream, file);
+        addJavaSourceFiles(stream, file, filesToCompile);
       }
-    } else if (src.getFileType() == StdFileTypes.JAVA) {
+    } else if (src.getFileType() == StdFileTypes.JAVA && !filesToCompile.contains(src)) {
       stream.println(src.getPath());
     }
   }
