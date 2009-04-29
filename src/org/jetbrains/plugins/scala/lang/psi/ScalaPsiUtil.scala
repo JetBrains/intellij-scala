@@ -119,8 +119,8 @@ object ScalaPsiUtil {
 
   def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
-              if n.method.getName == "unapply" &&
-                    (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq
+              if (n.method.getName == "unapply" || n.method.getName == "unapplySeq") &&
+                    (clazz.isInstanceOf[ScObject] || n.method.hasModifierProperty("static"))) yield n).toSeq
   }
 
   def getUpdateMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
