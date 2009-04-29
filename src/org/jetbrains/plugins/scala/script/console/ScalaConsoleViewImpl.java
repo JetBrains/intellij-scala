@@ -857,7 +857,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
             if (offset < info.startOffset || offset > info.endOffset) editor.getCaretModel().moveToOffset(info.endOffset);
             deleteTokens = -1;
             if (consoleView.myDeferredUserInput.length() < info.endOffset - info.startOffset) return; //user was quick
-            consoleView.myDeferredUserInput.insert(info.endOffset - info.startOffset, s);
+            consoleView.myDeferredUserInput.insert(offset - info.startOffset, s);
           }
 
           info.endOffset -= deleteTokens;
