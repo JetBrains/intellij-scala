@@ -4,7 +4,7 @@ package org.jetbrains.plugins.scala.lang.parameterInfo
 import _root_.java.lang.{Class, String}
 import collection.mutable.{ArrayBuffer, HashSet}
 import com.intellij.codeInsight.CodeInsightBundle
-import com.intellij.psi.{PsiParameter, PsiMember, PsiElement, PsiMethod}
+import com.intellij.psi._
 import psi.api.statements.params.{ScParameterClause, ScParameter}
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
@@ -19,12 +19,11 @@ import psi.api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement, ScConst
 import psi.api.expr.{ScGenericCall, ScArgumentExprList, ScMethodCall, ScExpression}
 
 import psi.api.statements.ScFunction
-import psi.api.toplevel.typedef.{ScObject, ScClass}
-
+import psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
 import psi.ScalaPsiUtil
-import psi.types.{ScType, ScSubstitutor, PhysicalSignature}
+import psi.types._
 import scala.editor.documentationProvider.ScalaDocumentationProvider
-import resolve.{ResolveUtils, ScalaResolveResult}
+import lang.resolve.{ResolveUtils, ScalaResolveResult}
 import com.intellij.util.ArrayUtil
 import java.awt.Color
 import lexer.ScalaTokenTypes
@@ -79,64 +78,63 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
           }
           case (sign: PhysicalSignature, i: Int) => { //i  can be -1 (it's update method)
             val subst = sign.substitutor
-            sign.method match {
+            val p = sign.method match {
               case method: ScFunction => {
-                val clauses = method.paramClauses.clauses
-                if (clauses.length <= i || (i == -1 && clauses.length == 0)) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-                else {
-                  val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses(0)
-                  val length = clause.parameters.length
-                  val parameters = if (i != -1) clause.parameters else clause.parameters.subseq(0, length - 1)
-                  if (parameters.length > 0) {
-                    if (clause.isImplicit) buffer.append("implicit ")
-                    buffer.append(parameters.
-                            map((param: ScParameter) => {
-                      val isBold = if (parameters.indexOf(param) == index || (param.isRepeatedParameter && index >= parameters.indexOf(param))) true
-                      else {
-                        //todo: check type
-                        false
-                      }
-                      val paramText = ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)))
-                      if (isBold) "<b>" + paramText + "</b>" else paramText
-                    }).mkString(", "))
-                  } else buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-                }
+                subst.subst(method.returnType)
               }
               case method: PsiMethod => {
-                val p = method.getParameterList
-                if (p.getParameters.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-                else {
-                  buffer.append(p.getParameters.
-                          map((param: PsiParameter) => {
-                    val buffer: StringBuilder = new StringBuilder("")
-                    val list = param.getModifierList
-                    if (list == null) return;
-                    val lastSize = buffer.length
-                    for (a <- list.getAnnotations) {
-                      if (lastSize != buffer.length) buffer.append(" ")
-                      val element = a.getNameReferenceElement();
-                      if (element != null) buffer.append("@").append(element.getText)
-                    }
-                    if (lastSize != buffer.length) buffer.append(" ")
-                    val paramType = param.getType
-
-                    val name = param.getName
-                    if (name != null) {
-                      buffer.append(name)
-                    }
-                    buffer.append(": ")
-                    buffer.append(ScType.presentableText(subst.subst(ScType.create(paramType, method.getProject))))
-
-                    val isBold = if (p.getParameters.indexOf(param) == index || (param.isVarArgs && p.getParameters.indexOf(param) <= index)) true
-                    else {
-                      //todo: check type
-                      false
-                    }
-                    val paramText = buffer.toString
-                    if (isBold) "<b>" + paramText + "</b>" else paramText
-                  }).mkString(", "))
-                }
+                subst.subst(ScType.create(method.getReturnType, method.getProject))
               }
+            }
+            val qual = ScType.extractClassType(p) match {
+              case Some((clazz, substitutor)) => clazz.getQualifiedName
+              case _ => ""
+            }
+            val generics: Array[ScType] = p match {
+              case pt: ScParameterizedType => pt.typeArgs
+              case _ => Array[ScType]()
+            }
+            if (qual != "scala.Option" || generics.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+            else {
+              var o = -1 //index for right search bold parameter
+              val params = for (t <-(generics(0) match {
+                case tuple: ScTupleType => tuple.components
+                case tp => ScType.extractClassType(tp) match {
+                  case Some((clazz, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => {
+                    tp match {
+                      case pt: ScParameterizedType => pt.typeArgs.toSeq
+                      case _ => Seq[ScType](tp)
+                    }
+                  }
+                  case _ => Seq[ScType](tp)
+                }
+              })) yield {
+                o += 1
+                (t, o)
+              }
+              buffer.append(params.
+                      map((paramX: (ScType,Int)) => {
+                val param = paramX._1
+                val o = paramX._2
+                val buffer: StringBuilder = new StringBuilder("")
+                buffer.append(ScType.presentableText(param))
+                val isSeq = sign.method.getName == "unapplySeq" && (ScType.extractClassType(param) match {
+                  case Some((clazz, substitutor)) => clazz.getQualifiedName == "scala.Seq"
+                  case _ => false
+                })
+                if (isSeq) {
+                  buffer.delete(0, buffer.indexOf("[") + 1)
+                  buffer.deleteCharAt(buffer.length - 1)
+                  buffer.append("*")
+                }
+                val isBold = if (o == index || (isSeq && o <= index)) true
+                else {
+                  //todo: check type
+                  false
+                }
+                val paramText = buffer.toString
+                if (isBold) "<b>" + paramText + "</b>" else paramText
+              }).mkString(", "))
             }
           }
           case (constr: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) => {
@@ -227,6 +225,12 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                           res += (constr, ScSubstitutor.empty, 0)
                         }
                         case None => res += ""
+                      }
+                    }
+                    case clazz: PsiClass if !clazz.isInstanceOf[ScTypeDefinition] => {
+                      //unapply method
+                      for (n <- ScalaPsiUtil.getUnapplyMethods(clazz)) {
+                        res += (n, 0)
                       }
                     }
                     case _ =>

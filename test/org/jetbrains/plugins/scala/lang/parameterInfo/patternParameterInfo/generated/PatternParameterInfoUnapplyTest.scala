@@ -5,4 +5,6 @@ class PatternParameterInfoUnapplyTest extends PatternParameterInfoTestBase {
   override def rootPath: String = super.rootPath + "unapply/"
 
   def testUnapply = doTest
+
+  def testUnapplySeq = doTest
 }
