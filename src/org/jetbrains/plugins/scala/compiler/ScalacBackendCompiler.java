@@ -30,6 +30,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PathUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.ContainerUtil;
+import com.intellij.facet.FacetManager;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
@@ -37,6 +38,7 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
 import org.jetbrains.plugins.scala.config.ScalaCompilerUtil;
 import org.jetbrains.plugins.scala.config.ScalaConfigUtils;
+import org.jetbrains.plugins.scala.config.ScalaFacet;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 
 import java.io.*;
@@ -73,6 +75,14 @@ public class ScalacBackendCompiler extends ExternalCompiler {
   }
 
   public boolean checkCompiler(CompileScope scope) {
+    // Do not run compiler for pure Java projects
+    final Module[] allModules = ModuleManager.getInstance(myProject).getModules();
+
+    // Just skip pure Java projects
+    if (!isScalaProject(allModules)) return true;
+
+
+
     VirtualFile[] scalaFiles = scope.getFiles(ScalaFileType.SCALA_FILE_TYPE, true);
     VirtualFile[] javaFiles = scope.getFiles(StdFileTypes.JAVA, true);
     if (scalaFiles.length == 0 && javaFiles.length == 0) return true;
@@ -98,7 +108,6 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     boolean isCompilerSetUp = false;
     boolean isScalaSDKSetUp = false;
 
-    final Module[] allModules = ModuleManager.getInstance(myProject).getModules();
     // Check for compiler existence
     for (Module module : allModules) {
       if (ScalaCompilerUtil.isScalaCompilerSetUpForModule(module)) {
@@ -149,6 +158,18 @@ public class ScalacBackendCompiler extends ExternalCompiler {
       return false;
     }
     return true;
+  }
+
+  private static boolean isScalaProject(Module[] allModules) {
+    boolean isScalaProject = false;
+    for (Module module : allModules) {
+      final FacetManager facetManager = FacetManager.getInstance(module);
+      if (facetManager.getFacetByType(ScalaFacet.ID)  != null) {
+        isScalaProject = true;
+        break;
+      }
+    }
+    return isScalaProject;
   }
 
   @NotNull
