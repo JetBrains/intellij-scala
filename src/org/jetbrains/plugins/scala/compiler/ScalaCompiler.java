@@ -15,6 +15,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.application.ApplicationManager;
@@ -46,6 +47,11 @@ public class ScalaCompiler implements TranslatingCompiler {
     }
 
     public boolean isCompilableFile(final VirtualFile file, CompileContext context) {
+
+      // Do not run compiler for pure Java projects
+      if (!isScalaProject()) return false;
+
+      // Check for compiler existence
       final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
       PsiFile psi = ApplicationManager.getApplication().runReadAction(new Computable<PsiFile>() {
         public PsiFile compute() {
@@ -62,6 +68,18 @@ public class ScalaCompiler implements TranslatingCompiler {
                    ScalaUtils.isSuitableModule(module) &&
                    isScalaModule(module);
     }
+
+  private boolean isScalaProject() {
+    final Module[] allModules = ModuleManager.getInstance(myProject).getModules();
+    boolean isScalaProject = false;
+    for (Module module : allModules) {
+      if (isScalaModule(module)) {
+        isScalaProject = true;
+        break;
+      }
+    }
+    return isScalaProject;
+  }
 
   private static boolean isScalaModule(Module module) {
     final FacetManager facetManager = FacetManager.getInstance(module);
@@ -96,7 +114,7 @@ public class ScalaCompiler implements TranslatingCompiler {
         return new ScalacBackendCompiler(myProject);
     }
 
-    private static class ExitStatusImpl implements ExitStatus {
+  private static class ExitStatusImpl implements ExitStatus {
 
         private OutputItem[] myOuitputItems;
         private VirtualFile[] myMyFilesToRecompile;
