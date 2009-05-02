@@ -35,7 +35,9 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableHandle
                             myProject: Project,
                             selectedExpr: ScExpression,
                             occurrences: Array[TextRange],
-                            enclosingContainer: PsiElement) extends NameValidator {
+                            enclosingContainerAll: PsiElement, enclosingOne: PsiElement) extends NameValidator {
+
+
   def getProject(): Project = {
     myProject
   }
@@ -49,6 +51,7 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableHandle
   }
 
   def isOKImpl(name: String, allOcc: Boolean): Array[String] = {
+    val enclosingContainer: PsiElement = if (allOcc) enclosingContainerAll else enclosingOne
     val buf = new ArrayBuffer[String]
     buf ++= validateDown(enclosingContainer, name, allOcc)
     buf ++= validateUp(enclosingContainer, name)
@@ -120,6 +123,7 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableHandle
   }
 
   private def validateDown(element: PsiElement, name: String, allOcc: Boolean): Array[String] = {
+    val enclosingContainer: PsiElement = if (allOcc) enclosingContainerAll else enclosingOne
     val buf = new ArrayBuffer[String]
     for (child <- element.getChildren) {
       child match {
@@ -191,7 +195,7 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableHandle
   def validateName(name: String, increaseNumber: Boolean): String = {
     if (occurrences.length == 0) return name
     var res = name
-    if (isOKImpl(res, true).length == 0) return res
+    if (isOKImpl(res, false).length == 0) return res
     if (!increaseNumber) return ""
     var i = 1
     res = name + i
