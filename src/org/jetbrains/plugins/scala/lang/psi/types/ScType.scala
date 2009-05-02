@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import api.statements.{ScTypeAliasDefinition, ScTypeAlias}
 import api.toplevel.ScNamedElement
-import api.toplevel.typedef.ScTypeDefinition
+import api.toplevel.typedef.{ScObject, ScTypeDefinition}
+
 import com.intellij.psi.util.PsiTypesUtil
 import decompiler.DecompilerUtil
 import impl.ScalaPsiManager
@@ -259,6 +260,9 @@ object ScType {
       case ScProjectionType(p, ref) => p match {
         case ScSingletonType(path: ScStableCodeReferenceElement) => path.bind match {
           case Some(res) => res match {
+            case r: ScalaResolveResult if r.getElement.isInstanceOf[ScObject] && r.getElement.asInstanceOf[ScObject].getQualifiedName == "scala.Predef" => {
+              buffer.append(ref.refName)
+            }
             case r: ScalaResolveResult if r.getElement.isInstanceOf[PsiPackage] => buffer.append(ref.refName)
             case o if o != null => inner(p); buffer.append("#").append(ref.refName)
             case _ => buffer.append(ref.refName)
