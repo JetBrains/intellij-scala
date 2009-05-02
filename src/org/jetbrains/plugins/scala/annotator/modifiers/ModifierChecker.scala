@@ -29,10 +29,10 @@ private[annotator] object ModifierChecker {
     def checkDublicate(element: PsiElement, text: String, withPrivate: Boolean): Boolean = {
       val illegalCombinations = Array[(String, String)](
         ("final", "sealed"),
-        if (withPrivate)("final", "private") else ("", ""),
+        if (withPrivate) ("final", "private") else ("", ""),
         ("private", "protected"),
         if (withPrivate) ("private", "override") else ("", "")
-      )
+        )
       for ((bad1, bad2) <- illegalCombinations if (bad1 == text && owner.hasModifierProperty(bad2)) ||
               (bad2 == text && owner.hasModifierProperty(bad1))) {
         proccessError(ScalaBundle.message("illegal.modifiers.combination", bad1, bad2), element, holder,
@@ -53,7 +53,7 @@ private[annotator] object ModifierChecker {
       modifierPsi match {
         case am: ScAccessModifier => { //todo: check private with final or sealed combination.
           if (am.isPrivate) {
-            checkDublicates(am,  "private")
+            checkDublicates(am, "private")
           } else if (am.isProtected) {
             checkDublicates(am, "protected")
           }
@@ -97,7 +97,7 @@ private[annotator] object ModifierChecker {
                         new RemoveModifierQuickFix(owner, "final"))
                     }
                   } else {
-                   checkDublicates(modifierPsi, "final")
+                    checkDublicates(modifierPsi, "final")
                   }
                 }
                 case e: ScClassParameter => {
@@ -107,7 +107,7 @@ private[annotator] object ModifierChecker {
                         new RemoveModifierQuickFix(owner, "final"))
                     }
                   } else {
-                   checkDublicates(modifierPsi, "final")
+                    checkDublicates(modifierPsi, "final")
                   }
                 }
                 case _ => {
@@ -130,16 +130,21 @@ private[annotator] object ModifierChecker {
               owner match {
                 case _: ScClass => checkDublicates(modifierPsi, "abstract")
                 case _: ScTrait => if (checkDublicates(modifierPsi, "abstract")) {
-                  proccessWarning(ScalaBundle.message("abstract.modifier.redundant.fot.traits"),modifierPsi, holder,
+                  proccessWarning(ScalaBundle.message("abstract.modifier.redundant.fot.traits"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "abstract"))
                 }
                 case member: ScMember if !member.isInstanceOf[ScTemplateBody] &&
-                        member.getParent.isInstanceOf[ScTemplateBody] &&
-                        member.getContainingClass.isInstanceOf[ScTrait] && owner.hasModifierProperty("override") => {
-                  checkDublicates(owner, "abstract")
+                        member.getParent.isInstanceOf[ScTemplateBody] => {
+                  // 'abstract override' modifier only allowed for members of traits
+                  if (!member.getContainingClass.isInstanceOf[ScTrait] && owner.hasModifierProperty("override")) {
+                    proccessError(ScalaBundle.message("abstract.override.modifier.is.not.allowed"), modifierPsi, holder,
+                      new RemoveModifierQuickFix(owner, "abstract"))
+                  } else {
+                    checkDublicates(owner, "abstract")
+                  }
                 }
                 case _ => {
-                  proccessError(ScalaBundle.message("abstract.modifier.is.not.allowed"),modifierPsi, holder,
+                  proccessError(ScalaBundle.message("abstract.modifier.is.not.allowed"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "abstract"))
                 }
               }
@@ -147,7 +152,7 @@ private[annotator] object ModifierChecker {
             case "override" => {
               owner match {
                 case _: ScTypeDefinition => {
-                  proccessError(ScalaBundle.message("override.modifier.is.not.allowed.for.classes"),modifierPsi, holder,
+                  proccessError(ScalaBundle.message("override.modifier.is.not.allowed.for.classes"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "override"))
                 }
                 case member: ScMember if member.getParent.isInstanceOf[ScTemplateBody] => {
@@ -155,7 +160,7 @@ private[annotator] object ModifierChecker {
                 }
                 case param: ScClassParameter => checkDublicates(owner, "override")
                 case _ => {
-                  proccessError(ScalaBundle.message("override.modifier.is.not.allowed"),modifierPsi, holder,
+                  proccessError(ScalaBundle.message("override.modifier.is.not.allowed"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "override"))
                 }
               }
