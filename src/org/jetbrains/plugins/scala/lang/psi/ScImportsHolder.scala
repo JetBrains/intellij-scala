@@ -4,6 +4,7 @@ import api.base.ScStableCodeReferenceElement
 import api.ScalaFile
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.util.PsiTreeUtil
+import formatting.settings.ScalaCodeStyleSettings
 import lang.resolve.{ResolveProcessor, CompletionProcessor, ScalaResolveResult, StdKinds}
 import lexer.ScalaTokenTypes
 import collection.mutable.ArrayBuffer
@@ -104,7 +105,8 @@ trait ScImportsHolder extends ScalaPsiElement {
     var isPlaceHolderImport = false
     clazz.getName +: selectors
     if (selectors.exists(_ == "_") ||
-            selectors.length >= CodeStyleSettingsManager.getSettings(getProject).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND) {
+            selectors.length >= CodeStyleSettingsManager.getSettings(getProject).
+            getCustomSettings(classOf[ScalaCodeStyleSettings]).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND) {
       selectors.clear
       selectors += "_"
       isPlaceHolderImport = true

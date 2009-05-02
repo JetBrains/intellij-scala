@@ -12,6 +12,7 @@ import api.statements._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import _root_.scala.collection.mutable.HashSet
 import _root_.scala.collection.mutable.ArrayBuffer
+import formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -173,7 +174,8 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     names ++= expr.getNames
     for (expr <- exprs) names ++= expr.getNames
     if ((names("_") ||
-            CodeStyleSettingsManager.getSettings(manager.getProject).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND <= names.size) &&
+            CodeStyleSettingsManager.getSettings(manager.getProject).
+                    getCustomSettings(classOf[ScalaCodeStyleSettings]).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND <= names.size) &&
             names.filter(_.indexOf("=>") != -1).toSeq.size == 0) text = text + "._"
     else {
       text = text + ".{"
