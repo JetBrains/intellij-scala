@@ -40,6 +40,8 @@ ScalaFile
             Modifiers
               <empty list>
             PsiElement(identifier)('c')
+            PsiErrorElement:':' expected
+              <empty list>
           PsiElement())(')')
     ExtendsBlock
       <empty list>
