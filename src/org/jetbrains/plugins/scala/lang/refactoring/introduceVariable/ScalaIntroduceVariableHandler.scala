@@ -96,7 +96,15 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
 
       val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), file) //todo:
       // Getting settings
-      var validator = new ScalaVariableValidator(this, project, expr, occurrences, file)
+      val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq ++
+         (for (occurence <- occurrences) yield file.findElementAt(occurence.getEndOffset - 1)).toSeq
+      val commonParent: PsiElement = PsiTreeUtil.findCommonParent(elemSeq: _*)
+      val container: PsiElement = ScalaPsiUtil.getParentOfType(commonParent, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
+        classOf[ScTemplateBody])
+      val commonParentOne = PsiTreeUtil.findCommonParent(file.findElementAt(startOffset), file.findElementAt(endOffset))
+      val containerOne = ScalaPsiUtil.getParentOfType(commonParentOne, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
+        classOf[ScTemplateBody])
+      var validator = new ScalaVariableValidator(this, project, expr, occurrences, container, containerOne)
       var dialog = getDialog(project, editor, expr, typez, occurrences, false, validator)
       if (!dialog.isOK) return
 
