@@ -45,6 +45,8 @@ ScalaFile
             PsiElement(val)('val')
             PsiWhiteSpace(' ')
             PsiElement(identifier)('c')
+            PsiErrorElement:':' expected
+              <empty list>
           PsiElement())(')')
     ExtendsBlock
       <empty list>

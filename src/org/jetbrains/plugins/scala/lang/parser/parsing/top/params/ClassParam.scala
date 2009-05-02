@@ -12,7 +12,7 @@ import types.ParamType
 */
 
 /*
- * ClassParam ::= {Annotation} [{Modifier} ('val' | 'var')] id [':' ParamType]
+ * ClassParam ::= {Annotation} [{Modifier} ('val' | 'var')] id ':' ParamType
  */
 
 object ClassParam {
@@ -53,20 +53,19 @@ object ClassParam {
     //Try to parse tale
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON => {
-        val taleMarker = builder.mark
         builder.advanceLexer //Ate ':'
         if (ParamType parse builder) {
-          taleMarker.drop
           classParamMarker.done(ScalaElementTypes.CLASS_PARAM)
           return true
         }
         else {
-          taleMarker.rollbackTo
+          builder.error(ScalaBundle.message("parameter.type.expected"))
           classParamMarker.done(ScalaElementTypes.CLASS_PARAM)
           return true
         }
       }
       case _ => {
+        builder.error(ScalaBundle.message("colon.expected"))
         classParamMarker.done(ScalaElementTypes.CLASS_PARAM)
         return true
       }
