@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx
 */
 
 /*
- * ScalaExpr ::= '{' Expr '}'
+ * ScalaExpr ::= '{' Block '}'
  */
 
 object ScalaExpr {
@@ -28,7 +28,7 @@ object ScalaExpr {
       }
       case _ => return false
     }
-    if (!Block.parse(builder)) {
+    if (!Block.parse(builder, false)) {
       builder error ErrMsg("xml.scala.expression.exected")
     }
     while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON ||
