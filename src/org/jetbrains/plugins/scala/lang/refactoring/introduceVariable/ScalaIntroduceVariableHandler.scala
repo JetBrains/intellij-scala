@@ -8,7 +8,7 @@ import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Editor, VisualPosition}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.wm.WindowManager
-import com.intellij.psi._
+import com.intellij.psi.{xml => _, _}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.ui.ConflictsDialog
 import com.intellij.refactoring.util.RefactoringMessageDialog
@@ -39,6 +39,7 @@ import com.intellij.openapi.project.Project
 import psi.api.toplevel.typedef.ScMember
 import scala.util.ScalaUtils
 import refactoring.util.ScalaRefactoringUtil
+import xml.ScXmlExpr
 
 /**
 * User: Alexander Podkhalyuzin
