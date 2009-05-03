@@ -37,9 +37,10 @@ ScalaFile
                 XmlToken:XML_TAG_END('>')
               PsiWhiteSpace(' ')
               PsiElement(ScalaXmlInjectionStart)('{')
-              Literal
-                PsiElement(integer)('42')
-              PsiElement(;)(';')
+              BlockOfExpressions
+                Literal
+                  PsiElement(integer)('42')
+                PsiElement(;)(';')
               PsiElement(ScalaXmlInjection End)('}')
               PsiWhiteSpace(' ')
               XmlEndTag

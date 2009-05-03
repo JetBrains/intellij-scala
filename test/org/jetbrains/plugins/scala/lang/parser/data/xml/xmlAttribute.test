@@ -37,8 +37,9 @@ ScalaFile
               XmlToken:XML_NAME('di')
               XmlToken:XML_EQ('=')
               PsiElement(ScalaXmlInjectionStart)('{')
-              ReferenceExpression
-                PsiElement(identifier)('scala')
+              BlockOfExpressions
+                ReferenceExpression
+                  PsiElement(identifier)('scala')
               PsiElement(ScalaXmlInjection End)('}')
             XmlToken:XML_EMPTY_ELEMENT_END('/>')
         PsiElement(newline)('\n')
