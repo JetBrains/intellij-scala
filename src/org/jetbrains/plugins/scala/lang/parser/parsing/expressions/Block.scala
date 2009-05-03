@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
+import actors.!
+import com.incors.plaf.alloy.bm
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 
@@ -45,7 +47,8 @@ object Block {
     i
   }
 
-  def parse(builder: PsiBuilder, hasBrace: Boolean): Boolean = {
+  def parse(builder: PsiBuilder, hasBrace: Boolean): Boolean = parse(builder, hasBrace, false)
+  def parse(builder: PsiBuilder, hasBrace: Boolean, needNode: Boolean): Boolean = {
     if (hasBrace) {
       val blockMarker = builder.mark
       builder.getTokenType match {
@@ -73,7 +76,7 @@ object Block {
       if (parseImpl(builder) > 1) {
         bm.done(ScalaElementTypes.BLOCK)
       } else {
-        bm.drop
+        if (!needNode) bm.drop else bm.done(ScalaElementTypes.BLOCK)
       }
     }
     return true
