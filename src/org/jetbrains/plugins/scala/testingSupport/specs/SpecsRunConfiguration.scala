@@ -34,8 +34,7 @@ import com.intellij.execution.filters.TextConsoleBuilderFactory
 
 import com.intellij.vcsUtil.VcsUtil
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
-import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import scalaTest.{ScalaTestRunConfigurationEditor, ScalaTestRunConfiguration, ScalaTestRunConfigurationForm}
+import lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import script.ScalaScriptRunConfiguration
 
 /**
@@ -49,9 +48,8 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
-  val MAIN_CLASS = "run"
+  val MAIN_CLASS = "org.jetbrains.plugins.scala.testingSupport.specs.SpecsRunner"
   val SUITE_PATH = "org.specs.Specification"
-  val REPORTER = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter"
   private var testClassPath = ""
   private var testArgs = ""
   private var javaOptions = ""
@@ -88,7 +86,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
       case e => classNotFoundError
     }
     if (clazz == null) classNotFoundError
-    if (!clazz.isInstanceOf[ScObject]) classNotFoundError
+    if (!clazz.isInstanceOf[ScClass]) classNotFoundError
     if (suiteClass == null)
       throw new ExecutionException("Specs not specified.")
     if (!clazz.isInheritor(suiteClass, true)) throw new ExecutionException("Not found suite class.")
@@ -137,11 +135,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
 
         params.setMainClass(MAIN_CLASS)
 
-        params.getProgramParametersList.add("-s")
         params.getProgramParametersList.add(testClassPath)
-        params.getProgramParametersList.add("-rYZTFGUPBISAR")
-        params.getProgramParametersList.add(REPORTER)
-        params.getProgramParametersList.addParametersString(testArgs)
         return params
       }
 
