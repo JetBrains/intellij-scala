@@ -19,12 +19,18 @@ object SpecsRunner {
       println("The first argument should be the specification class name")
       return
     }
-    val spec = Classes.createObject[Specification](args(0), true)
+    var spec = Classes.createObject[Specification](args(0))
     spec match {
       case Some(s) => {
         new NotifierRunner(s, new SpecsNotifier).reportSpecs
       }
-      case None => println("The class " + args(0) + " could not be instantiated")
+      case None => {
+        spec = Classes.createObject[Specification](args(0) + "$")
+        spec match {
+          case Some(s) => new NotifierRunner(s, new SpecsNotifier).reportSpecs
+          case None => println("Scala Plugin internal error: no test class was found")
+        }
+      }
     }
   }
 }

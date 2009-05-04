@@ -48,7 +48,7 @@ object ScalaPsiUtil {
     val clazz = context.asInstanceOf[PsiMember].getContainingClass
     val s = new FullSignature(namedElementSig(x), typed.calcType,
       x.asInstanceOf[NavigatablePsiElement], clazz)
-    val t = TypeDefinitionMembers.getSignatures(clazz).get(s) match {
+    val t = (TypeDefinitionMembers.getSignatures(clazz).get(s): @unchecked) match {
       //partial match
       case Some(x) => x.supers.map{_.info}
     }
