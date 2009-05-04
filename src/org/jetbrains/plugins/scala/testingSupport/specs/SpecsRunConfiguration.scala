@@ -42,7 +42,7 @@ import script.ScalaScriptRunConfiguration
  * Date: 03.05.2009
  */
 
-//todo: add specs runner finctionality then attach to plugin.xml
+
 class SpecsRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
         extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project), configurationFactory) {
   val SCALA_HOME = "-Dscala.home="
@@ -86,7 +86,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
       case e => classNotFoundError
     }
     if (clazz == null) classNotFoundError
-    if (!clazz.isInstanceOf[ScClass]) classNotFoundError
+    //if (!clazz.isInstanceOf[ScClass]) classNotFoundError
     if (suiteClass == null)
       throw new ExecutionException("Specs not specified.")
     if (!clazz.isInheritor(suiteClass, true)) throw new ExecutionException("Not found suite class.")
