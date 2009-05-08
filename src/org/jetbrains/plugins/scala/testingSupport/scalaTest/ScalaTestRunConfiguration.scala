@@ -15,7 +15,7 @@ import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{JDOMExternalizer, JDOMExternalizable}
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{JavaPsiFacade, PsiManager, PsiClass}
+import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiManager, PsiClass}
 import com.intellij.util.PathUtil
 import compiler.rt.ScalacRunner
 import config.{ScalaCompilerUtil, ScalaConfigUtils}
@@ -48,22 +48,32 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
-  val MAIN_CLASS = "org.scalatest.tools.Runner"
+  val MAIN_CLASS = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner"
   val SUITE_PATH = "org.scalatest.Suite"
   val REPORTER = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter"
   private var testClassPath = ""
+  private var testPackagePath = ""
   private var testArgs = ""
   private var javaOptions = ""
 
   def getTestClassPath = testClassPath
+  def getTestPackagePath = testPackagePath
   def getTestArgs = testArgs
   def getJavaOptions = javaOptions
   def setTestClassPath(s: String): Unit = testClassPath = s
+  def setTestPackagePath(s: String): Unit = testPackagePath = s
   def setTestArgs(s: String): Unit = testArgs = s
   def setJavaOptions(s: String): Unit = javaOptions = s
 
   def apply(configuration: ScalaTestRunConfigurationForm) {
-    setTestClassPath(configuration.getTestClassPath)
+    if (configuration.isClassSelected) {
+      setTestClassPath(configuration.getTestClassPath)
+      setTestPackagePath("")
+    }
+    else {
+      setTestClassPath("")
+      setTestPackagePath(configuration.getTestPackagePath)
+    }
     setJavaOptions(configuration.getJavaOptions)
     setTestArgs(configuration.getTestArgs)
   }
@@ -73,23 +83,41 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     facade.findClass(path, GlobalSearchScope.allScope(project))
   }
 
+  def getPackage(path: String): PsiPackage = {
+    val facade = JavaPsiFacade.getInstance(project)
+    facade.findPackage(path)
+  }
+
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
     def classNotFoundError {
       throw new ExecutionException("Test class not found.")
     }
     var clazz: PsiClass = null
     var suiteClass: PsiClass = null
+    var pack: PsiPackage = null
     try {
-      clazz = getClazz(testClassPath)
+      if (testClassPath != "")
+        clazz = getClazz(testClassPath)
+      else
+        pack = getPackage(testPackagePath)
       suiteClass = getClazz(SUITE_PATH)
     }
     catch {
       case e => classNotFoundError
     }
-    if (clazz == null) classNotFoundError
+    if (clazz == null && pack == null) classNotFoundError
     if (suiteClass == null)
       throw new ExecutionException("ScalaTest not specified.")
-    if (!clazz.isInheritor(suiteClass, true)) throw new ExecutionException("Not found suite class.")
+    val classes = new ArrayBuffer[PsiClass]
+    if (clazz != null) {
+      if (clazz.isInheritor(suiteClass, true)) classes += clazz
+    } else {
+      for (cl <- pack.getClasses) {
+        if (cl.isInheritor(suiteClass, true)) classes += cl
+      }
+    }
+
+    if (classes.isEmpty) throw new ExecutionException("Not found suite class.")
 
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
@@ -118,13 +146,6 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
         val jarPathForClass = PathUtil.getJarPathForClass(classOf[ScalaTestRunConfiguration])
         val virtFile = VcsUtil.getVirtualFile(jarPathForClass)
-        /*if (virtFile.getExtension != "jar") { //so it's debug mode, we can free use ScalaTestReporter class
-          val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalaTestReporter])
-          params.getClassPath.add(rtJarPath)
-        } else { //so we must to find jar
-          val rtJarPath = jarPathForClass.substring(0, jarPathForClass.lastIndexOf(File.separator)) + File.separator + "scala-plugin-runners.jar"
-          params.getClassPath.add(rtJarPath)
-        }*/
         val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalacRunner])
         params.getClassPath.add(rtJarPath)
 
@@ -144,7 +165,8 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         params.setMainClass(MAIN_CLASS)
 
         params.getProgramParametersList.add("-s")
-        params.getProgramParametersList.add(testClassPath)
+        for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
+
         params.getProgramParametersList.add("-rYZTFGUPBISAR")
         params.getProgramParametersList.add(REPORTER)
         params.getProgramParametersList.addParametersString(testArgs)
@@ -203,6 +225,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     super.writeExternal(element)
     writeModule(element)
     JDOMExternalizer.write(element, "path", getTestClassPath)
+    JDOMExternalizer.write(element, "package", getTestPackagePath)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
     JDOMExternalizer.write(element, "params", getTestArgs)
   }
@@ -211,6 +234,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     super.readExternal(element)
     readModule(element)
     testClassPath = JDOMExternalizer.readString(element, "path")
+    testPackagePath = JDOMExternalizer.readString(element, "package")
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     testArgs = JDOMExternalizer.readString(element, "params")
   }

@@ -1343,7 +1343,9 @@
         <root url="jar://$PROJECT_DIR$/SDK/lib/scalatest-0.9.5.jar!/" />
       </CLASSES>
       <JAVADOC />
-      <SOURCES />
+      <SOURCES>
+        <root url="file://C:/work/ScalaTest/scalatest-0.9.5/scalatest-0.9.5/src" />
+      </SOURCES>
     </library>
     <library name="scala_lib">
       <CLASSES>
