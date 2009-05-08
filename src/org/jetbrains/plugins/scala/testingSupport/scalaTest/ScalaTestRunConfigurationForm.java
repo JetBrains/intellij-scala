@@ -7,16 +7,22 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.module.Module;
 import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.execution.ExecutionBundle;
+import com.intellij.execution.configuration.BrowseModuleValueActionListener;
 import com.intellij.execution.junit2.configuration.ClassBrowser;
 import com.intellij.execution.configurations.ConfigurationUtil;
 import com.intellij.ide.util.TreeClassChooser;
 import com.intellij.ide.util.TreeClassChooserDialog;
+import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiPackage;
 import org.jetbrains.plugins.scala.script.ScalaScriptRunConfiguration;
 
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
+import java.awt.event.*;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -27,17 +33,76 @@ public class ScalaTestRunConfigurationForm {
   private TextFieldWithBrowseButton testClassTextField;
   private RawCommandLineEditor VMParamsTextField;
   private RawCommandLineEditor testOptionsTextField;
+  private TextFieldWithBrowseButton testPackageTextField;
+  private JRadioButton testClassRadioButton;
+  private JRadioButton testPackageRadioButton;
+  private JLabel testClassLabel;
+  private JLabel testPackageLabel;
 
   public ScalaTestRunConfigurationForm(final Project project, final ScalaTestRunConfiguration configuration) {
     addFileChooser("Choose test class", testClassTextField, project);
+    addPackageChooser(testPackageTextField, project);
     VMParamsTextField.setDialogCaption("VM parameters editor");
     testOptionsTextField.setDialogCaption("Additional options editor");
+    if (configuration.getTestClassPath().equals("") && !configuration.getTestPackagePath().equals("")) {
+      setClassEnabled();
+    } else {
+      setPackageEnabled();
+    }
+    testClassRadioButton.addChangeListener(new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        if (testClassRadioButton.isSelected()) {
+          setClassEnabled();
+        } else {
+          setPackageEnabled();
+        }
+      }
+    });
+    testPackageRadioButton.addChangeListener(new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        if (testPackageRadioButton.isSelected()) {
+          testClassRadioButton.setSelected(false);
+        }
+        else {
+          testClassRadioButton.setSelected(true);
+        }
+      }
+    });
+  }
+
+  private void setPackageEnabled() {
+    testPackageLabel.setVisible(true);
+    testPackageTextField.setVisible(true);
+    testClassLabel.setVisible(false);
+    testClassTextField.setVisible(false);
+    testPackageRadioButton.setSelected(true);
+    testClassRadioButton.setSelected(false);
+  }
+
+  private void setClassEnabled() {
+    testPackageLabel.setVisible(false);
+    testPackageTextField.setVisible(false);
+    testClassLabel.setVisible(true);
+    testClassTextField.setVisible(true);
+    testPackageRadioButton.setSelected(false);
+    testClassRadioButton.setSelected(true);
   }
 
   public void apply(ScalaTestRunConfiguration configuration) {
     setTestClassPath(configuration.getTestClassPath());
     setJavaOptions(configuration.getJavaOptions());
     setTestArgs(configuration.getTestArgs());
+    setTestPackagePath(configuration.getTestPackagePath());
+    if (getTestClassPath().equals("") && !getTestPackagePath().equals("")) {
+      setPackageEnabled();
+    }
+    else {
+      setClassEnabled();
+    }
+  }
+
+  public boolean isClassSelected() {
+    return testClassRadioButton.isSelected();
   }
 
   public String getTestClassPath() {
@@ -52,6 +117,10 @@ public class ScalaTestRunConfigurationForm {
     return VMParamsTextField.getText();
   }
 
+  public String getTestPackagePath() {
+    return testPackageTextField.getText();
+  }
+
   public void setTestClassPath(String s) {
     testClassTextField.setText(s);
   }
@@ -62,6 +131,10 @@ public class ScalaTestRunConfigurationForm {
 
   public void setJavaOptions(String s) {
     VMParamsTextField.setText(s);
+  }
+
+  public void setTestPackagePath(String s) {
+    testPackageTextField.setText(s);
   }
 
   public JPanel getPanel() {
@@ -91,4 +164,22 @@ public class ScalaTestRunConfigurationForm {
 
     browser.setField(textField);
   }
+
+  private void addPackageChooser(final TextFieldWithBrowseButton textField, final Project project) {
+    PackageChooserActionListener browser = new PackageChooserActionListener(project);
+    browser.setField(textField);
+  }
+
+  //todo: copied from JUnitConfigurable
+  private static class PackageChooserActionListener extends BrowseModuleValueActionListener {
+    public PackageChooserActionListener(final Project project) {super(project);}
+
+    protected String showDialog() {
+      final PackageChooserDialog dialog = new PackageChooserDialog(ExecutionBundle.message("choose.package.dialog.title"), getProject());
+      dialog.show();
+      final PsiPackage aPackage = dialog.getSelectedPackage();
+      return aPackage != null ? aPackage.getQualifiedName() : null;
+    }
+  }
+
 }

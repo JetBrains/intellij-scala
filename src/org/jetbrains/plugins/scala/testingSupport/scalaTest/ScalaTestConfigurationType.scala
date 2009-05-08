@@ -8,7 +8,7 @@ import com.intellij.execution.{RunManager, Location, RunnerAndConfigurationSetti
 import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{JavaPsiFacade, PsiElement}
+import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiElement}
 import icons.Icons
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import script.ScalaScriptRunConfigurationFactory
@@ -34,6 +34,12 @@ class ScalaTestConfigurationType extends LocatableConfigurationType {
 
   def createConfigurationByLocation(location: Location[_ <: PsiElement]): RunnerAndConfigurationSettings = {
     val element = location.getPsiElement
+    if (element.isInstanceOf[PsiPackage]) {
+      val pack: PsiPackage = element.asInstanceOf[PsiPackage]
+      val settings = RunManager.getInstance(location.getProject).createRunConfiguration(pack.getQualifiedName, confFactory)
+      settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration].setTestPackagePath(pack.getQualifiedName)
+      return settings
+    }
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (parent == null) return null
     val facade = JavaPsiFacade.getInstance(element.getProject)
@@ -47,6 +53,7 @@ class ScalaTestConfigurationType extends LocatableConfigurationType {
 
   def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
     val element = location.getPsiElement
+    if (element.isInstanceOf[PsiPackage]) return true
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])
     if (parent == null) return false
     val facade = JavaPsiFacade.getInstance(element.getProject)
