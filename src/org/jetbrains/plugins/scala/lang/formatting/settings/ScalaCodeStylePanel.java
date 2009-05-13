@@ -218,6 +218,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.FOLD_PACKAGINGS = packagingsCheckBox.isSelected();
     scalaSettings.FOLD_IMPORT_IN_HEADER = headerImportStatementsCheckBox.isSelected();
     scalaSettings.FOLD_BLOCK_COMMENTS = blockCommentsCheckBox.isSelected();
+
+    updatePreview();
   }
 
   private boolean getBoxValue(JCheckBox checkBox) {
