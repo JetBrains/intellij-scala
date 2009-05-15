@@ -133,34 +133,34 @@ object ScalaPsiUtil {
    * This method try to conform given expression to method's first parameter clause.
    * @return all methods which can by applied to given expressions
    */
-  def getMethodsConforsToMethodCall(methods: Seq[PhysicalSignature], params: Seq[ScExpression], subst: PsiMethod => ScSubstitutor): Seq[PhysicalSignature] = {
+  def getMethodsConformingToMethodCall(methods: Seq[PhysicalSignature], args: Seq[ScExpression], subst: PsiMethod => ScSubstitutor): Seq[PhysicalSignature] = {
     def check(sign: PhysicalSignature): Boolean = {
       val meth = sign.method
       meth match {
         case fun: ScFunction => {
           val clauses: Seq[ScParameterClause] = fun.paramClauses.clauses
           if (clauses.length == 0) {
-            if (params.length == 0) return true
+            if (args.length == 0) return true
             else return false
           } else {
             val clause: ScParameterClause = clauses.apply(0)
             val methodParams: Seq[ScParameter] = clause.parameters
             val length = methodParams.length
             if (length == 0) {
-              if (params.length == 0) return true
+              if (args.length == 0) return true
               else return false
             }
             //so method have not zero params
             //length sould be equal or last parameter should be repeated
-            if (!(length == params.length ||
-                    (length < params.length && methodParams(length - 1).isRepeatedParameter))) return false
-            for (i <- 0 to params.length - 1) {
+            if (!(length == args.length ||
+                    (length < args.length && methodParams(length - 1).isRepeatedParameter))) return false
+            for (i <- 0 to args.length - 1) {
               val parameter: ScParameter = methodParams(Math.min(i, length -1))
               val typez: ScType = parameter.typeElement match {
                 case Some(te) => subst(meth).subst(te.calcType)
                 case None => types.Any
               }
-              if (!(params(i).getType: ScType).conforms(typez)) return false
+              if (!(args(i).getType: ScType).conforms(typez)) return false
             }
             return true
           }
@@ -174,13 +174,13 @@ object ScalaPsiUtil {
           }
           //so method have not zero params
           //length sould be equal or last parameter should be repeated
-          if (!(length == params.length || (
-                  length < params.length && methodParams.apply(length - 1).isVarArgs
+          if (!(length == args.length || (
+                  length < args.length && methodParams.apply(length - 1).isVarArgs
                   ))) return false
-          for (i <- 0 to params.length - 1) {
+          for (i <- 0 to args.length - 1) {
             val parameter: PsiParameter = methodParams(Math.min(i, length - 1))
             val typez: ScType = subst(meth).subst(ScType.create(parameter.getType, meth.getProject))
-            if (!(params(i).getType: ScType).conforms(typez)) return false
+            if (!(args(i).getType: ScType).conforms(typez)) return false
           }
           return true
         }

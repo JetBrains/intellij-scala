@@ -14,14 +14,14 @@ import types.{ScType, Nothing, ScFunctionType}
  * @author ilyas, Alexander Podkhalyuzin
  */
 
-trait ScExpression extends ScBlockStatement /*with ScImplicitlyConvertible*/ {
+trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   self =>
   def getType(): ScType = Nothing //todo
 
   /**
    * Returns all types in respect of implicit conversions (defined and default)
    */
-  def allTypes: Seq[ScType] = getType :: List(Implicits.get(getType) : _*)
+  def allTypes: Seq[ScType] = getType :: collectImplicitTypes
 
   /**
    * Some expression may be replaced only with another one

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
-
 import api.expr.ScExpression
 import api.statements.ScFunctionDefinition
 import collection.mutable.{HashMap, HashSet}
@@ -17,9 +16,13 @@ import types._
  */
 
 trait ScImplicitlyConvertible extends ScalaPsiElement {
-  //  self: ScExpression =>
+  self: ScExpression =>
 
-  def collectImplicitSignatures = {
+  def collectImplicitTypes : List[ScType] = {
+    buildImplicitMap.keySet.toList
+  }
+
+  def buildImplicitMap = {
     val processor = new CollectImplictisProcessor
 
     // Collect implicit conversions from botom to up
@@ -37,11 +40,28 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     }
     treeWalkUp(this, null)
 
-    processor.candidates.map((res: ResolveResult) => res.getElement);
+    val sigsFound = processor.signatures.filter((sig: Signature) => {
+      val types = sig.types
+      types.length == 1 && getType.conforms(types(0))
+    })
 
+    val result = new HashMap[ScType, Set[ScFunctionDefinition]]
 
-    //    val results = getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyImplicitCollector, true, true)
-    ; //todo map results to elements
+    for (signature <- sigsFound) {
+      val set = processor.sig2Method(signature)
+      for (fun <- set) {
+        val rt = fun.returnType
+        val methodSet = result(rt)
+        if (methodSet == null) {
+          result += (rt -> Set(fun))
+        } else {
+          result += (rt -> (methodSet + fun))
+        }
+      }
+    }
+
+    result
+
   }
 
 
@@ -50,6 +70,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     private val signatures2ImplicitMethods = new HashMap[Signature, Set[ScFunctionDefinition]]
 
     def signatures = signatures2ImplicitMethods.keySet.toArray[Signature]
+
+    def sig2Method = signatures2ImplicitMethods
 
     def execute(element: PsiElement, state: ResolveState) = {
       def substitutor: ScSubstitutor = {
@@ -60,7 +82,10 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       }
       element match {
         case named: PsiNamedElement if kindMatches(element) => named match {
-          case f: ScFunctionDefinition if f.hasModifierProperty("implicit") => {
+          case f: ScFunctionDefinition
+            // Collect implicit conversions only
+            if f.hasModifierProperty("implicit") &&
+                    f.getParameterList.getParametersCount == 1 => {
             val sign = new PhysicalSignature(f, substitutor)
             val set = signatures2ImplicitMethods(sign)
             if (set == null) {

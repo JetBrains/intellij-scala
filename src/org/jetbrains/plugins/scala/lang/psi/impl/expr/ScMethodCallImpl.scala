@@ -33,7 +33,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
         subst
       }
       val isUpdate = getParent.isInstanceOf[ScAssignStmt] && getParent.asInstanceOf[ScAssignStmt].getLExpression == this
-      val params: Seq[ScExpression] = this.args.exprs ++ (
+      val args: Seq[ScExpression] = this.args.exprs ++ (
               if (isUpdate) getParent.asInstanceOf[ScAssignStmt].getRExpression match {
                 case Some(x) => Seq[ScExpression](x)
                 case None =>
@@ -42,7 +42,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
               }
               else Seq.empty)
       val applyMethods = if (!isUpdate) ScalaPsiUtil.getApplyMethods(clazz) else ScalaPsiUtil.getUpdateMethods(clazz)
-      val methods = ScalaPsiUtil.getMethodsConforsToMethodCall(applyMethods, params, createSubst(_))
+      val methods = ScalaPsiUtil.getMethodsConformingToMethodCall(applyMethods, args, createSubst(_))
       if (methods.length == 1) {
         val method = methods(0).method
         val typez = method match {
