@@ -114,10 +114,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case None => ref.getParent match {
         case inf: ScInfixExpr if ref == inf.operation => {
           val thisOp = if (ref.rightAssoc) inf.rOp else inf.lOp
-          processor.processType(thisOp.getType, this)
+          processTypes(thisOp)
         }
-        case postf: ScPostfixExpr if ref == postf.operation => processor.processType(postf.operand.getType, this)
-        case pref: ScPrefixExpr if ref == pref.operation => processor.processType(pref.operand.getType, this)
+        case postf: ScPostfixExpr if ref == postf.operation => processTypes(postf.operand)
+        case pref: ScPrefixExpr if ref == pref.operation => processTypes(pref.operand)
         case _ => {
           def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
             place match {
