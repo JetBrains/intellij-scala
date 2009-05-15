@@ -19,7 +19,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   self: ScExpression =>
 
   def collectImplicitTypes : List[ScType] = {
-    buildImplicitMap.keySet.toList
+      buildImplicitMap.keySet.toList
   }
 
   def buildImplicitMap = {
@@ -51,11 +51,10 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       val set = processor.sig2Method(signature)
       for (fun <- set) {
         val rt = fun.returnType
-        val methodSet = result(rt)
-        if (methodSet == null) {
+        if (!result.contains(rt)) {
           result += (rt -> Set(fun))
         } else {
-          result += (rt -> (methodSet + fun))
+          result += (rt -> (result(rt) + fun))
         }
       }
     }
@@ -87,12 +86,11 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             if f.hasModifierProperty("implicit") &&
                     f.getParameterList.getParametersCount == 1 => {
             val sign = new PhysicalSignature(f, substitutor)
-            val set = signatures2ImplicitMethods(sign)
-            if (set == null) {
+            if (!signatures2ImplicitMethods.contains(sign)) {
               val newFSet = Set(f)
               signatures2ImplicitMethods += (sign -> newFSet)
             } else {
-              signatures2ImplicitMethods += (sign -> (set + f))
+              signatures2ImplicitMethods += (sign -> (signatures2ImplicitMethods(sign) + f))
             }
             candidatesSet += new ScalaResolveResult(f)
           }

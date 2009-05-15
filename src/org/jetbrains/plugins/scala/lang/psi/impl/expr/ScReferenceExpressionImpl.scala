@@ -103,7 +103,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
-    ref.qualifier match {
+    def processTypes(e: ScExpression) = {
+      processor.processType(e.getType, this)
+      for (t <- allTypes) {
+        processor.processType(t, this)
+      }
+    }
+
+      ref.qualifier match {
       case None => ref.getParent match {
         case inf: ScInfixExpr if ref == inf.operation => {
           val thisOp = if (ref.rightAssoc) inf.rOp else inf.lOp
@@ -128,7 +135,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
       }
       case Some(superQ : ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
-      case Some(q) => processor.processType(q.getType, this)
+      case Some(q) => processTypes(q)
     }
     processor.candidates
   }
