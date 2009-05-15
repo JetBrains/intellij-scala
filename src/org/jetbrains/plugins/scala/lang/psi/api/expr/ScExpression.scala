@@ -4,6 +4,7 @@ import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import base.patterns.ScCaseClause
 import impl.ScalaPsiElementFactory
 import com.intellij.psi.PsiInvalidElementAccessException
+import implicits.Implicits
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import statements.params.ScArguments
 import statements.ScFunction
@@ -16,6 +17,11 @@ import types.{ScType, Nothing, ScFunctionType}
 trait ScExpression extends ScBlockStatement {
   self =>
   def getType(): ScType = Nothing //todo
+
+  /**
+   * Returns all types in respect of implicit conversions (defined and default)
+   */
+  def allTypes: Seq[ScType] = getType :: List(Implicits.get(getType) : _*)
 
   /**
    * Some expression may be replaced only with another one

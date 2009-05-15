@@ -78,7 +78,7 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
         }
       }
     }
-    val types = clazz.allTypes
+    val types = clazz.allTypeAliases
     val t: TypeDefinitionMembers.TypeNodes.T = null
     for {
       typex <- types
