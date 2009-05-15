@@ -16,10 +16,7 @@ import javax.swing.event.ChangeEvent;
 import java.text.ParseException;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import java.awt.event.*;
 
 /**
  * User: Alexander Podkhalyuzin
