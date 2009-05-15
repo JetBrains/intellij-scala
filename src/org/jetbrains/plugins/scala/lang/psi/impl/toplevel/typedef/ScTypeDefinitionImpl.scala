@@ -11,6 +11,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubIndex}
+import com.intellij.refactoring.listeners.RefactoringElementListener
+import com.intellij.refactoring.rename.{RenameUtil, PsiElementRenameHandler}
 import java.util.ArrayList
 import stubs.index.ScalaIndexKeys
 import stubs.ScTypeDefinitionStub
@@ -170,6 +172,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     res.toArray
   }
 
+  private[typedef] var lockCompanionRename = false
   override def setName(name: String): PsiElement = setName(name, true)
   private[typedef] def setName(name: String, renameCompanion: Boolean): PsiElement = {
     val id = nameId.getNode
@@ -185,10 +188,18 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
       }
     }
 
+    lockCompanionRename = true
     if (renameCompanion) ScalaPsiUtil.getCompanionModule(this) match {
-      case Some(td: ScTypeDefinitionImpl) => td.setName(name, false)
+      case Some(td: ScTypeDefinitionImpl) if !td.lockCompanionRename => RenameUtil.doRename(td, name,
+        RenameUtil.findUsages(td, name, false, false, new _root_.java.util.HashMap[PsiElement, String]()), getProject,
+        new RefactoringElementListener {
+          def elementMoved(newElement: PsiElement): Unit = {}
+
+          def elementRenamed(newElement: PsiElement): Unit = {}
+        })
       case _ =>
     }
+    lockCompanionRename = false
 
     super.setName(name)
   }
