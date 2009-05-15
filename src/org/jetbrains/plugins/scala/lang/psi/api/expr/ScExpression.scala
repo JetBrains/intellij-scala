@@ -4,7 +4,7 @@ import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import base.patterns.ScCaseClause
 import impl.ScalaPsiElementFactory
 import com.intellij.psi.PsiInvalidElementAccessException
-import implicits.Implicits
+import implicits.{ScImplicitlyConvertible, Implicits}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import statements.params.ScArguments
 import statements.ScFunction
@@ -14,7 +14,7 @@ import types.{ScType, Nothing, ScFunctionType}
  * @author ilyas, Alexander Podkhalyuzin
  */
 
-trait ScExpression extends ScBlockStatement {
+trait ScExpression extends ScBlockStatement /*with ScImplicitlyConvertible*/ {
   self =>
   def getType(): ScType = Nothing //todo
 

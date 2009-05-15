@@ -15,7 +15,8 @@ object Conformance {
   def conforms (l : ScType, r : ScType) : Boolean = conforms(l, r, HashSet.empty)
 
   private def conforms (l : ScType, r : ScType, visited : Set[PsiClass]) : Boolean = {
-    if (l equiv r) true
+    if (r == Nothing) true
+    else if (l equiv r) true
     else l match {
       case Any => true
       case Nothing => false
@@ -123,7 +124,7 @@ object Conformance {
   }
 
   private def rightRec(l: ScType, r: ScType, visited : Set[PsiClass]) : Boolean = r match {
-    case sin : ScSingletonType => conforms(l, sin.pathType) 
+    case sin : ScSingletonType => conforms(l, sin.pathType)
 
     case ScDesignatorType(td: ScTypeDefinition) => if (visited.contains(td)) false else td.superTypes.find {t => conforms(l, t, visited + td)}
     case ScDesignatorType(clazz: PsiClass) =>
