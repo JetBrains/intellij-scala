@@ -8,6 +8,8 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
 
   def testCaseClassCall = doTest
 
+  def testMapApply = doTest
+
   def testObjectApplyCall = doTest
 
   def testOverloadedCall = doTest
@@ -19,4 +21,6 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
   def testStaticCall = doTest
 
   def testUpdateCall = doTest
+
+  def testsimpleCall1 = doTest
 }
