@@ -14,23 +14,27 @@ import org.jetbrains.plugins.scala.testingSupport.specs.SpecsConfigurationType;
  * Date: 08.05.2009
  */
 public class ScalaTestConfigurationProducer extends RuntimeConfigurationProducer implements Cloneable {
-    private PsiElement myPsiElement;
+  private PsiElement myPsiElement;
 
-    public ScalaTestConfigurationProducer(final LocatableConfigurationType configurationType) {
-      super(configurationType);
-    }
-
-    public PsiElement getSourceElement() {
-      return myPsiElement;
-    }
-
-    @Nullable
-    protected RunnerAndConfigurationSettingsImpl createConfigurationByElement(final Location location, final ConfigurationContext context) {
-      myPsiElement = location.getPsiElement();
-      return (RunnerAndConfigurationSettingsImpl)(new ScalaTestConfigurationType()).createConfigurationByLocation(location);
-    }
-
-    public int compareTo(final Object o) {
-      return -1;
-    }
+  public ScalaTestConfigurationProducer() {
+    super(new ScalaTestConfigurationType());
   }
+
+  public ScalaTestConfigurationProducer(final LocatableConfigurationType configurationType) {
+    super(new ScalaTestConfigurationType());
+  }
+
+  public PsiElement getSourceElement() {
+    return myPsiElement;
+  }
+
+  @Nullable
+  protected RunnerAndConfigurationSettingsImpl createConfigurationByElement(final Location location, final ConfigurationContext context) {
+    myPsiElement = location.getPsiElement();
+    return (RunnerAndConfigurationSettingsImpl) (new ScalaTestConfigurationType()).createConfigurationByLocation(location);
+  }
+
+  public int compareTo(final Object o) {
+    return -1;
+  }
+}
