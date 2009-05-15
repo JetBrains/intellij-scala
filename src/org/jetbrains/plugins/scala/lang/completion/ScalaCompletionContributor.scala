@@ -39,7 +39,7 @@ class ScalaCompletionContributor extends CompletionContributor {
     val file = context.getFile
     val element = file.findElementAt(offset);
     if (element != null && file.findReferenceAt(offset) != null && specialOperator(element.getParent)) {
-      context.setFileCopyPatcher(new DummyIdentifierPatcher("-"));
+      context.setFileCopyPatcher(new DummyIdentifierPatcher("+"));
     }
     super.beforeCompletion(context)
   }
