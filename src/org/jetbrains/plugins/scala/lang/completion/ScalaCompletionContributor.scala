@@ -48,6 +48,7 @@ class ScalaCompletionContributor extends CompletionContributor {
     case ref: ScReferenceExpression => ref.getParent match {
       case inf: ScInfixExpr if ref eq inf.operation => true
       case pos: ScPostfixExpr if ref eq pos.operation => true
+      case _ => false
     }
     case _ => false
   }) && !Character.isJavaIdentifierPart(elem.getText.charAt(0))
