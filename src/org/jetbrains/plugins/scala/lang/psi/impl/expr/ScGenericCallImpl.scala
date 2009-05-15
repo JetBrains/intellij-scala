@@ -46,7 +46,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       }
       val parent: PsiElement = getParent
       var isPlaceholder = false
-      val params: Seq[ScExpression] = parent match {
+      val args: Seq[ScExpression] = parent match {
         case call: ScMethodCall => call.args.exprs
         case placeholder: ScUnderscoreSection => {
           isPlaceholder = true
@@ -59,7 +59,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         case meth: PsiMethod => meth.getTypeParameters.length == this.typeArgs.typeArgs.length
       })
       val methods = (if (!isPlaceholder)
-        ScalaPsiUtil.getMethodsConforsToMethodCall(applyMethods, params, createSubst(_))
+        ScalaPsiUtil.getMethodsConformingToMethodCall(applyMethods, args, createSubst(_))
       else
         applyMethods)
       if (methods.length == 1) {

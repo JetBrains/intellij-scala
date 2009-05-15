@@ -12,6 +12,11 @@ import _root_.scala.collection.immutable.HashSet
 import com.intellij.psi._
 
 object Conformance {
+
+  /**
+   * Checks, whether the following assignment is correct:
+   * val x: l = (y: r) 
+   */
   def conforms (l : ScType, r : ScType) : Boolean = conforms(l, r, HashSet.empty)
 
   private def conforms (l : ScType, r : ScType, visited : Set[PsiClass]) : Boolean = {
