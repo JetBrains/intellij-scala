@@ -145,7 +145,7 @@ object ScalaOIUtil {
   def getMembersToImplement(clazz: ScTemplateDefinition): Seq[ScalaObject] = {
     val buf = new ArrayBuffer[ScalaObject]
     buf ++= clazz.allSignatures
-    buf ++= clazz.allTypes
+    buf ++= clazz.allTypeAliases
     buf ++= clazz.allVals
     val buf2 = new ArrayBuffer[ScalaObject]
     for (element <- buf) {
@@ -206,7 +206,7 @@ object ScalaOIUtil {
   def getMembersToOverride(clazz: ScTemplateDefinition): Seq[ScalaObject] = {
     val buf = new ArrayBuffer[ScalaObject]
     buf ++= clazz.allMethods
-    buf ++= clazz.allTypes
+    buf ++= clazz.allTypeAliases
     buf ++= clazz.allVals
     val buf2 = new ArrayBuffer[ScalaObject]
     for (element <- buf) {
