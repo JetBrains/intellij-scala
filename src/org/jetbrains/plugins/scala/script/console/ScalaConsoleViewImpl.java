@@ -827,62 +827,13 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       else{
         final String s = String.valueOf(charTyped);
         final Document document = editor.getDocument();
-        synchronized (consoleView.LOCK) {
-          if (consoleView.myTokens.isEmpty()) return;
-          final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
-          if (info.contentType != ConsoleViewContentType.USER_INPUT) {
-            consoleView.print(s, ConsoleViewContentType.USER_INPUT);
-            consoleView.flushDeferredText();
-            editor.getCaretModel().moveToOffset(document.getTextLength());
-            editor.getSelectionModel().removeSelection();
-            return;
-          }
-          int deleteTokens;
-          if (editor.getSelectionModel().hasSelection()) {
-            int selectionStart = editor.getSelectionModel().getSelectionStart();
-            int selectionEnd = editor.getSelectionModel().getSelectionEnd();
-            if (selectionStart < info.startOffset) selectionStart = info.startOffset;
-            if (selectionEnd > info.endOffset) selectionEnd = info.endOffset;
-            if (selectionStart >= selectionEnd) {
-              editor.getCaretModel().moveToOffset(editor.getSelectionModel().getSelectionStart());
-              editor.getSelectionModel().removeSelection();
-              return;
-            }
-            editor.getSelectionModel().setSelection(selectionStart, selectionEnd);
-            deleteTokens = selectionEnd - selectionStart - 1;
-            consoleView.myDeferredUserInput.replace(selectionStart - info.startOffset, selectionEnd - info.startOffset, s);
-          } else {
 
-            int offset = editor.getCaretModel().getOffset();
-            if (offset < info.startOffset || offset > info.endOffset) editor.getCaretModel().moveToOffset(info.endOffset);
-            deleteTokens = -1;
-            if (consoleView.myDeferredUserInput.length() < info.endOffset - info.startOffset) return; //user was quick
-            consoleView.myDeferredUserInput.insert(offset - info.startOffset, s);
-          }
-
-          info.endOffset -= deleteTokens;
-          if (info.startOffset == info.endOffset) {
-            consoleView.myTokens.remove(consoleView.myTokens.size() - 1);
-          }
-          consoleView.myContentSize -= deleteTokens;
+        SelectionModel selectionModel = editor.getSelectionModel();
+        if (selectionModel.hasSelection()) {
+          consoleView.replaceUserText(s, selectionModel.getSelectionStart(), selectionModel.getSelectionEnd());
+        } else {
+          consoleView.insertUserText(s, editor.getCaretModel().getOffset());
         }
-
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-          public void run() {
-            if (editor.getSelectionModel().hasSelection()) {
-              int selectionStart = editor.getSelectionModel().getSelectionStart();
-              int selectionEnd = editor.getSelectionModel().getSelectionEnd();
-              document.replaceString(selectionStart, selectionEnd, s);
-              editor.getCaretModel().moveToOffset(selectionStart + 1);
-            } else {
-              int offset = editor.getCaretModel().getOffset();
-              document.insertString(offset, s);
-              editor.getCaretModel().moveToOffset(offset + 1);
-            }
-            editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
-            editor.getSelectionModel().removeSelection();
-          }
-        });
       }
     }
   }
@@ -960,8 +911,13 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
         consoleView.myEditor.getComponent().getToolkit().beep();
       }
       if (s == null) return;
-      consoleView.print(s, ConsoleViewContentType.USER_INPUT);
-      consoleView.flushDeferredText();
+      Editor editor = consoleView.myEditor;
+      SelectionModel selectionModel = editor.getSelectionModel();
+      if (selectionModel.hasSelection()) {
+        consoleView.replaceUserText(s, selectionModel.getSelectionStart(), selectionModel.getSelectionEnd());
+      } else {
+        consoleView.insertUserText(s, editor.getCaretModel().getOffset());
+      }
     }
   }
 
@@ -980,60 +936,13 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
         return;
       }
 
-
-      synchronized(consoleView.LOCK) {
-        if (consoleView.myTokens.isEmpty()) return;
-        final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
-        if (info.contentType != ConsoleViewContentType.USER_INPUT) return;
-        if (consoleView.myDeferredUserInput.length() == 0) return;
-        int deleteTokens;
-        if (editor.getSelectionModel().hasSelection()) {
-          int selectionStart = editor.getSelectionModel().getSelectionStart();
-          int selectionEnd = editor.getSelectionModel().getSelectionEnd();
-          if (selectionStart < info.startOffset) selectionStart = info.startOffset;
-          if (selectionEnd > info.endOffset) selectionEnd = info.endOffset;
-          if (selectionStart >= selectionEnd) {
-            editor.getCaretModel().moveToOffset(editor.getSelectionModel().getSelectionStart());
-            editor.getSelectionModel().removeSelection();
-            return;
-          }
-          editor.getSelectionModel().setSelection(selectionStart, selectionEnd);
-          deleteTokens = selectionEnd - selectionStart;
-          consoleView.myDeferredUserInput.delete(selectionStart - info.startOffset, selectionEnd - info.startOffset);
-        } else {
-          int offset = editor.getCaretModel().getOffset();
-          if (offset <= info.startOffset) return;
-          if (offset > info.endOffset) {
-            editor.getCaretModel().moveToOffset(offset - 1);
-            return;
-          }
-          deleteTokens = 1;
-          consoleView.myDeferredUserInput.deleteCharAt(offset - info.startOffset - 1);
-        }
-
-        info.endOffset -= deleteTokens;
-        if (info.startOffset == info.endOffset) {
-          consoleView.myTokens.remove(consoleView.myTokens.size() - 1);
-        }
-        consoleView.myContentSize -= deleteTokens;
+      SelectionModel selectionModel = editor.getSelectionModel();
+      if (selectionModel.hasSelection()) {
+        consoleView.deleteUserText(selectionModel.getSelectionStart(),
+            selectionModel.getSelectionEnd() - selectionModel.getSelectionStart());
+      } else if (editor.getCaretModel().getOffset() > 0) {
+        consoleView.deleteUserText(editor.getCaretModel().getOffset() - 1, 1);
       }
-
-      ApplicationManager.getApplication().runWriteAction(new Runnable() {
-        public void run() {
-          if (editor.getSelectionModel().hasSelection()) {
-            int selectionStart = editor.getSelectionModel().getSelectionStart();
-            int selectionEnd = editor.getSelectionModel().getSelectionEnd();
-            document.deleteString(selectionStart, selectionEnd);
-            editor.getCaretModel().moveToOffset(selectionStart);
-          } else {
-            int offset = editor.getCaretModel().getOffset();
-            document.deleteString(offset - 1, offset);
-            editor.getCaretModel().moveToOffset(offset - 1);
-          }
-          editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
-          editor.getSelectionModel().removeSelection();
-        }
-      });
     }
 
     private static EditorActionHandler getDefaultActionHandler() {
@@ -1056,57 +965,13 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
         return;
       }
 
-
-      synchronized(consoleView.LOCK) {
-        if (consoleView.myTokens.isEmpty()) return;
-        final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
-        if (info.contentType != ConsoleViewContentType.USER_INPUT) return;
-        if (consoleView.myDeferredUserInput.length() == 0) return;
-        int deleteTokens;
-        if (editor.getSelectionModel().hasSelection()) {
-          int selectionStart = editor.getSelectionModel().getSelectionStart();
-          int selectionEnd = editor.getSelectionModel().getSelectionEnd();
-          if (selectionStart < info.startOffset) selectionStart = info.startOffset;
-          if (selectionEnd > info.endOffset) selectionEnd = info.endOffset;
-          if (selectionStart >= selectionEnd) {
-            editor.getCaretModel().moveToOffset(editor.getSelectionModel().getSelectionStart());
-            editor.getSelectionModel().removeSelection();
-            return;
-          }
-          editor.getSelectionModel().setSelection(selectionStart, selectionEnd);
-          deleteTokens = selectionEnd - selectionStart;
-          consoleView.myDeferredUserInput.delete(selectionStart - info.startOffset, selectionEnd - info.startOffset);
-        } else {
-          int offset = editor.getCaretModel().getOffset();
-          if (offset < info.startOffset) return;
-          if (offset >= info.endOffset)  return;
-          deleteTokens = 1;
-          consoleView.myDeferredUserInput.deleteCharAt(offset - info.startOffset);
-        }
-
-        info.endOffset -= deleteTokens;
-        if (info.startOffset == info.endOffset) {
-          consoleView.myTokens.remove(consoleView.myTokens.size() - 1);
-        }
-        consoleView.myContentSize -= deleteTokens;
+      SelectionModel selectionModel = editor.getSelectionModel();
+      if (selectionModel.hasSelection()) {
+        consoleView.deleteUserText(selectionModel.getSelectionStart(),
+            selectionModel.getSelectionEnd() - selectionModel.getSelectionStart());
+      } else {
+        consoleView.deleteUserText(editor.getCaretModel().getOffset(), 1);
       }
-
-      ApplicationManager.getApplication().runWriteAction(new Runnable() {
-        public void run() {
-          if (editor.getSelectionModel().hasSelection()) {
-            int selectionStart = editor.getSelectionModel().getSelectionStart();
-            int selectionEnd = editor.getSelectionModel().getSelectionEnd();
-            document.deleteString(selectionStart, selectionEnd);
-            editor.getCaretModel().moveToOffset(selectionStart);
-          } else {
-            int offset = editor.getCaretModel().getOffset();
-            document.deleteString(offset, offset + 1);
-            editor.getCaretModel().moveToOffset(offset);
-          }
-          editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
-          editor.getSelectionModel().removeSelection();
-        }
-      });
     }
 
     private static EditorActionHandler getDefaultActionHandler() {
@@ -1245,6 +1110,166 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     Disposer.register(parent, new Disposable() {
       public void dispose() {
         myListeners.remove(listener);
+      }
+    });
+  }
+
+  private void insertUserText(final String s, int offset) {
+    final ScalaConsoleViewImpl consoleView = this;
+    final Editor editor = consoleView.myEditor;
+    final Document document = editor.getDocument();
+    final int startOffset;
+
+    synchronized (consoleView.LOCK) {
+      if (consoleView.myTokens.isEmpty()) return;
+      final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
+      if (info.contentType != ConsoleViewContentType.USER_INPUT) {
+        consoleView.print(s, ConsoleViewContentType.USER_INPUT);
+        consoleView.flushDeferredText();
+        editor.getCaretModel().moveToOffset(document.getTextLength());
+        editor.getSelectionModel().removeSelection();
+        return;
+      }
+      int addTokens;
+
+
+      if (offset > info.endOffset) startOffset = info.endOffset;
+      else if (offset < info.startOffset) {
+        editor.getCaretModel().moveToOffset(offset + 1);
+        return;
+      } else startOffset = offset;
+      addTokens = s.length();
+
+      if (consoleView.myDeferredUserInput.length() < info.endOffset - info.startOffset) return; //user was quick
+
+      consoleView.myDeferredUserInput.insert(startOffset - info.startOffset, s);
+
+      info.endOffset += addTokens;
+      consoleView.myContentSize += addTokens;
+    }
+
+    ApplicationManager.getApplication().runWriteAction(new Runnable() {
+      public void run() {
+        document.insertString(startOffset, s);
+        editor.getCaretModel().moveToOffset(startOffset + s.length());
+        editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
+      }
+    });
+  }
+
+  private void replaceUserText(final String s, int start, int end) {
+    final ScalaConsoleViewImpl consoleView = this;
+    final Editor editor = consoleView.myEditor;
+    final Document document = editor.getDocument();
+    final int startOffset;
+    final int endOffset;
+
+    synchronized (consoleView.LOCK) {
+      if (consoleView.myTokens.isEmpty()) return;
+      final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
+      if (info.contentType != ConsoleViewContentType.USER_INPUT) return;
+      if (consoleView.myDeferredUserInput.length() == 0) return;
+      int replaceTokens;
+
+      if (start >= info.startOffset && start < info.endOffset) {
+        startOffset = start;
+      } else if (start < info.startOffset) {
+        startOffset = info.startOffset;
+      } else {
+        editor.getSelectionModel().removeSelection();
+        editor.getCaretModel().moveToOffset(start);
+        return;
+      }
+      if (end > info.endOffset) {
+        endOffset = info.endOffset;
+      } else if (end <= info.startOffset) {
+        editor.getSelectionModel().removeSelection();
+        editor.getCaretModel().moveToOffset(start);
+        return;
+      } else {
+        endOffset = end;
+      }
+
+      if (endOffset <= startOffset) {
+        editor.getSelectionModel().removeSelection();
+        editor.getCaretModel().moveToOffset(start);
+        return;
+      }
+      replaceTokens = s.length() - endOffset + startOffset;
+
+      if (consoleView.myDeferredUserInput.length() < info.endOffset - info.startOffset) return; //user was quick
+
+      consoleView.myDeferredUserInput.replace(startOffset - info.startOffset, endOffset - info.startOffset, s);
+
+      info.endOffset += replaceTokens;
+      consoleView.myContentSize += replaceTokens;
+    }
+
+    ApplicationManager.getApplication().runWriteAction(new Runnable() {
+      public void run() {
+        document.replaceString(startOffset, endOffset, s);
+        editor.getCaretModel().moveToOffset(startOffset + s.length());
+        editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
+        editor.getSelectionModel().removeSelection();
+      }
+    });
+  }
+
+  private void deleteUserText(int offset, int length) {
+    ScalaConsoleViewImpl consoleView = this;
+    final Editor editor = consoleView.myEditor;
+    final Document document = editor.getDocument();
+    final int startOffset;
+    final int endOffset;
+
+    synchronized (consoleView.LOCK) {
+      if (consoleView.myTokens.isEmpty()) return;
+      final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
+      if (info.contentType != ConsoleViewContentType.USER_INPUT) return;
+      if (consoleView.myDeferredUserInput.length() == 0) return;
+      int deleteTokens;
+
+      if (offset >=info.startOffset && offset < info.endOffset) {
+        startOffset = offset;
+      } else if (offset < info.startOffset) {
+        startOffset = info.startOffset;
+      } else {
+        editor.getSelectionModel().removeSelection();
+        editor.getCaretModel().moveToOffset(offset);
+        return;
+      }
+      if (offset + length > info.endOffset) {
+        endOffset = info.endOffset;
+      } else if (offset + length <= info.startOffset) {
+        editor.getSelectionModel().removeSelection();
+        editor.getCaretModel().moveToOffset(offset);
+        return;
+      } else {
+        endOffset = offset + length;
+      }
+
+      if (endOffset <= startOffset) {
+        editor.getSelectionModel().removeSelection();
+        editor.getCaretModel().moveToOffset(offset);
+        return;
+      }
+
+      consoleView.myDeferredUserInput.delete(startOffset - info.startOffset, endOffset - info.startOffset);
+      deleteTokens = endOffset - startOffset;
+
+      info.endOffset -= deleteTokens;
+      if (info.startOffset == info.endOffset) {
+        consoleView.myTokens.remove(consoleView.myTokens.size() - 1);
+      }
+      consoleView.myContentSize -= deleteTokens;
+    }
+
+    ApplicationManager.getApplication().runWriteAction(new Runnable() {
+      public void run() {
+        document.deleteString(startOffset, endOffset);
+        editor.getCaretModel().moveToOffset(startOffset);
+        editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
+        editor.getSelectionModel().removeSelection();
       }
     });
   }
