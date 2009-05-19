@@ -169,8 +169,12 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
 
   private final CompositeFilter myMessageFilter = new CompositeFilter();
 
-  private ArrayList<String> history = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY;
+  private ArrayList<String> history = new ArrayList<String>();//ScalaApplicationSettings.getInstance().CONSOLE_HISTORY;
   private static final int HISTORY_SIZE = 20;
+
+  public void setHistory(ArrayList<String> history) {
+    this.history = history;
+  }
 
   public ScalaConsoleViewImpl(final Project project) {
     super(new BorderLayout());
@@ -1152,6 +1156,10 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
    * @param end relativly to all document text
    */
   private void replaceUserText(final String s, int start, int end) {
+    if (start == end) {
+      insertUserText(s, start);
+      return;
+    }
     final ScalaConsoleViewImpl consoleView = this;
     final Editor editor = consoleView.myEditor;
     final Document document = editor.getDocument();
@@ -1161,7 +1169,13 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     synchronized (consoleView.LOCK) {
       if (consoleView.myTokens.isEmpty()) return;
       final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
-      if (info.contentType != ConsoleViewContentType.USER_INPUT) return;
+      if (info.contentType != ConsoleViewContentType.USER_INPUT) {
+        consoleView.print(s, ConsoleViewContentType.USER_INPUT);
+        consoleView.flushDeferredText();
+        editor.getCaretModel().moveToOffset(document.getTextLength());
+        editor.getSelectionModel().removeSelection();
+        return;
+      }
       if (consoleView.myDeferredUserInput.length() == 0) return;
       int replaceTokens;
 
@@ -1196,6 +1210,9 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       consoleView.myDeferredUserInput.replace(startOffset - info.startOffset, endOffset - info.startOffset, s);
 
       info.endOffset += replaceTokens;
+      if (info.startOffset == info.endOffset) {
+        consoleView.myTokens.remove(consoleView.myTokens.size() - 1);
+      }
       consoleView.myContentSize += replaceTokens;
     }
 
