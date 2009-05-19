@@ -54,6 +54,7 @@ import com.intellij.ide.DataAccessors;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.util.Alarm;
 import com.intellij.util.EditorPopupHandler;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.*;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.tree.IElementType;
@@ -167,6 +168,9 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
   };
 
   private final CompositeFilter myMessageFilter = new CompositeFilter();
+
+  private ArrayList<String> history = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY;
+  private static final int HISTORY_SIZE = 20;
 
   public ScalaConsoleViewImpl(final Project project) {
     super(new BorderLayout());
@@ -476,6 +480,8 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     });
   }
 
+
+
   private Editor doCreateEditor() {
     final EditorFactory editorFactory = EditorFactory.getInstance();
     final Document editorDocument = editorFactory.createDocument("");
@@ -533,8 +539,9 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       }
     );
 
+    final ScalaConsoleViewImpl consoleView = this;
     editor.getContentComponent().addKeyListener(new KeyListener() {
-      private int x = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length;
+      private int x = history.size();
       public void keyTyped(KeyEvent e) {
 
       }
@@ -550,47 +557,29 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
             replaceString();
           } else if (e.getKeyCode() == 40) {
             x++;
-            if (x > ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length) x = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length;
+            if (x > history.size()) x = history.size();
             replaceString();
           }
         } else {
-          x = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length;
+          x = history.size();
         }
       }
 
       private void replaceString() {
         final Document document = editor.getDocument();
         final String str;
-        if (ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length == x) str = "";
-        else str = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY[x];
+
+        if (history.size() == x) str = "";
+        else str = history.get(x);
         synchronized (LOCK) {
           if (myTokens.isEmpty()) return;
           final TokenInfo info = myTokens.get(myTokens.size() - 1);
           if (info.contentType != ConsoleViewContentType.USER_INPUT) {
-            print(str, ConsoleViewContentType.USER_INPUT);
-            flushDeferredText();
-            editor.getCaretModel().moveToOffset(document.getTextLength());
-            editor.getSelectionModel().removeSelection();
-            return;
+            consoleView.insertUserText(str, 0);
           } else {
-            int deleteTokens = myDeferredUserInput.length() - str.length();
-            editor.getSelectionModel().setSelection(info.startOffset, info.endOffset);
-            info.endOffset -= deleteTokens;
-            if (info.startOffset == info.endOffset) {
-              myTokens.remove(myTokens.size() - 1);
-            }
-            myContentSize -= deleteTokens;
-            myDeferredUserInput = new StringBuffer(str);
+            consoleView.replaceUserText(str, info.startOffset, info.endOffset);
           }
         }
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-          public void run() {
-            document.replaceString(editor.getSelectionModel().getSelectionStart(), editor.getSelectionModel().getSelectionEnd(), str);
-            editor.getCaretModel().moveToOffset(document.getTextLength());
-            editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
-            editor.getSelectionModel().removeSelection();
-          }
-        });
       }
     });
 
@@ -877,19 +866,13 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     public void execute(final ScalaConsoleViewImpl consoleView, final DataContext context) {
       synchronized (consoleView.LOCK) {
         String str = consoleView.myDeferredUserInput.toString();
-        if (str.startsWith(":") || !contains(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY, str)) {
-          String[] buffer = new String[Math.min(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length + 1, 20)];
-          int i = buffer.length - 1;
-          buffer[i] = str;
-          i--;
-          int j = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY.length - 1;
-          while (i >= 0) {
-            buffer[i] = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY[j];
-            i--;
-            j--;
-          }
-          ScalaApplicationSettings.getInstance().CONSOLE_HISTORY = buffer;
+        if (consoleView.history.contains(str)) {
+          consoleView.history.remove(str);
+          consoleView.history.add(str);
+        } else {
+          consoleView.history.add(str);
         }
+        if (consoleView.history.size() > HISTORY_SIZE) consoleView.history.remove(0);
       }
       consoleView.print("\n", ConsoleViewContentType.USER_INPUT);
       consoleView.flushDeferredText();
@@ -1114,6 +1097,11 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     });
   }
 
+  /**
+   * insert text to document
+   * @param s inserted text
+   * @param offset relativly to all document text
+   */
   private void insertUserText(final String s, int offset) {
     final ScalaConsoleViewImpl consoleView = this;
     final Editor editor = consoleView.myEditor;
@@ -1157,6 +1145,12 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     });
   }
 
+  /**
+   * replace text
+   * @param s text for replace
+   * @param start relativly to all document text
+   * @param end relativly to all document text
+   */
   private void replaceUserText(final String s, int start, int end) {
     final ScalaConsoleViewImpl consoleView = this;
     final Editor editor = consoleView.myEditor;
@@ -1215,6 +1209,11 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     });
   }
 
+  /**
+   * delete text
+   * @param offset relativly to all document text
+   * @param length lenght of deleted text
+   */
   private void deleteUserText(int offset, int length) {
     ScalaConsoleViewImpl consoleView = this;
     final Editor editor = consoleView.myEditor;

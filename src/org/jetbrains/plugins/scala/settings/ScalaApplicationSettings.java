@@ -10,6 +10,8 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 
+import java.util.ArrayList;
+
 @State(
     name = "ScalaApplicationSettings",
     storages = {
@@ -24,7 +26,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public Boolean SPECIFY_TYPE_EXPLICITLY = null;
   public Boolean INTRODUCE_LOCAL_CREATE_VARIABLE = null;
   public Boolean SPECIFY_RETURN_TYPE_EXPLICITLY = null;
-  public String[] CONSOLE_HISTORY = new String[0];
+  public ArrayList<String> CONSOLE_HISTORY = new ArrayList<String>(20);
 
   public ScalaApplicationSettings getState() {
     return this;
