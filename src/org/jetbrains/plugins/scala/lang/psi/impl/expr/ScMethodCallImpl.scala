@@ -46,7 +46,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
       if (methods.length == 1) {
         val method = methods(0).method
         val typez = method match {
-          case fun: ScFunction => fun.returnType
+          case fun: ScFunction => fun.calcType
           case meth: PsiMethod => ScType.create(meth.getReturnType, meth.getProject)
         }
         return createSubst(method).subst(typez)
@@ -78,6 +78,9 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
           //three methods cases
           case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.typeParameters.length == 0 => return tail(true)
           case Some(ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor)) => {
+//            val signature = new PhysicalSignature(fun, subst)
+//            val types = signature.types
+//            val argList = args
             //todo: type erasure to get type params implicitly
             return tail(true)
           }
