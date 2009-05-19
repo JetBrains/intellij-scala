@@ -46,7 +46,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
       if (methods.length == 1) {
         val method = methods(0).method
         val typez = method match {
-          case fun: ScFunction => fun.calcType
+          case fun: ScFunction => fun.returnType  
           case meth: PsiMethod => ScType.create(meth.getReturnType, meth.getProject)
         }
         return createSubst(method).subst(typez)
