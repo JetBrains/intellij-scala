@@ -25,6 +25,7 @@ import java.io.File
 import java.util.Arrays
 import com.intellij.facet.FacetManager
 import lang.psi.api.ScalaFile
+import settings.ScalaApplicationSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -105,6 +106,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
       val filters = new ArrayBuffer[Filter]
       override def getConsole: ConsoleView = {
         val consoleView = new ScalaConsoleViewImpl(project)
+        consoleView.setHistory(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY);
         for (filter <- filters) {
           consoleView.addMessageFilter(filter)
         }
