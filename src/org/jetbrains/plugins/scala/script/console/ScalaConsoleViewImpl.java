@@ -54,8 +54,6 @@ import com.intellij.ide.DataAccessors;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.util.Alarm;
 import com.intellij.util.EditorPopupHandler;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.containers.*;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.codeInsight.navigation.IncrementalSearchHandler;
@@ -63,7 +61,6 @@ import com.intellij.pom.Navigatable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.List;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.MouseEvent;
@@ -76,7 +73,6 @@ import java.util.HashSet;
 import java.io.IOException;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 
 /**
  * @author Aleksander Podkhalyuzin
@@ -172,6 +168,11 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
   private ArrayList<String> history = new ArrayList<String>();//ScalaApplicationSettings.getInstance().CONSOLE_HISTORY;
   private static final int HISTORY_SIZE = 20;
 
+  /**
+   * By default history works for one session. If
+   * you want to save it for next session, set it up here.
+   * @param history where you can save history
+   */
   public void setHistory(ArrayList<String> history) {
     this.history = history;
   }
@@ -494,7 +495,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     editorDocument.setCyclicBufferSize(bufferSize);
 
     final EditorEx editor = (EditorEx) editorFactory.createViewer(editorDocument,myProject);
-    final EditorHighlighter highlighter = new MyHighghlighter();
+    final EditorHighlighter highlighter = new MyHighlighter();
     editor.setHighlighter(highlighter);
     editor.putUserData(CONSOLE_VIEW_IN_EDITOR_VIEW, this);
 
@@ -730,7 +731,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     }
   }
 
-  private class MyHighghlighter extends DocumentAdapter implements EditorHighlighter {
+  private class MyHighlighter extends DocumentAdapter implements EditorHighlighter {
     private boolean myHasEditor;
 
     public HighlighterIterator createIterator(final int startOffset) {
