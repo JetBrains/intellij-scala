@@ -23,7 +23,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   }
 
   def buildImplicitMap = {
-    val processor = new CollectImplictisProcessor
+    val processor = new CollectImplictisProcessor(getType)
 
     // Collect implicit conversions from botom to up
     def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
@@ -49,8 +49,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
     for (signature <- sigsFound) {
       val set = processor.sig2Method(signature)
-      for (fun <- set) {
-        val rt = fun.returnType
+      for (fun <- set) {                                
+        val rt = signature.substitutor.subst(fun.returnType)
         if (!result.contains(rt)) {
           result += (rt -> Set(fun))
         } else {
@@ -65,27 +65,33 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
 
   import ResolveTargets._
-  class CollectImplictisProcessor extends BaseProcessor(Set(METHOD)) {
+  class CollectImplictisProcessor(val eType: ScType) extends BaseProcessor(Set(METHOD)) {
     private val signatures2ImplicitMethods = new HashMap[Signature, Set[ScFunctionDefinition]]
 
     def signatures = signatures2ImplicitMethods.keySet.toArray[Signature]
 
     def sig2Method = signatures2ImplicitMethods
 
+
+
     def execute(element: PsiElement, state: ResolveState) = {
-      def substitutor: ScSubstitutor = {
-        state.get(ScSubstitutor.key) match {
-          case null => ScSubstitutor.empty
-          case x => x
+
+      val implicitSubstitutor = new ScSubstitutor {
+        override def subst(t: ScType): ScType = t match {
+          case tpt: ScTypeParameterType => eType
+          case _ => super.subst(t)
         }
+
+        override def followed(s: ScSubstitutor): ScSubstitutor = s
       }
+
       element match {
         case named: PsiNamedElement if kindMatches(element) => named match {
           case f: ScFunctionDefinition
             // Collect implicit conversions only
             if f.hasModifierProperty("implicit") &&
                     f.getParameterList.getParametersCount == 1 => {
-            val sign = new PhysicalSignature(f, substitutor)
+            val sign = new PhysicalSignature(f, implicitSubstitutor)
             if (!signatures2ImplicitMethods.contains(sign)) {
               val newFSet = Set(f)
               signatures2ImplicitMethods += (sign -> newFSet)
