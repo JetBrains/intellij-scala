@@ -42,8 +42,9 @@ object Conformance {
         case _ => false
       }
 
-      case ScPolymorphicType(_, _, lower, _) => conforms(lower.v, r)
+      case ScTypeParameterType(_, _, lower, upper, ptp) => conforms(upper.v, r) && conforms(r, lower.v)
       case ScSkolemizedType(_, _, lower, _) => conforms(lower, r)
+//      case ScPolymorphicType(_, _, lower, _) => conforms(lower.v, r)  //todo implement me
 
       case ScParameterizedType(ScDesignatorType(owner : PsiClass), args1) => r match {
         case ScParameterizedType(ScDesignatorType(owner1 : PsiClass), args2) if (owner == owner1) =>
