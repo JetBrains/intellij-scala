@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.script.console
+package org.jetbrains.plugins.scala.console
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.collection.mutable.HashSet
