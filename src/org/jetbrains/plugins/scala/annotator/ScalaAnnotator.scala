@@ -209,7 +209,7 @@ class ScalaAnnotator extends Annotator with CyclicReferencesSearcher {
     while (last != null && (last.getElementType == ScalaTokenTypes.tRBRACE ||
             (ScalaTokenTypes.WHITES_SPACES_TOKEN_SET contains last.getElementType) ||
             (ScalaTokenTypes.COMMENTS_TOKEN_SET contains last.getElementType))) last = last.getTreePrev
-    if (last.getElementType == ScalaTokenTypes.tSEMICOLON) return
+    if (last == null || last.getElementType == ScalaTokenTypes.tSEMICOLON) return //last can be null for xml blocks - they can be empty
 
     val stat = block.lastStatement match {case None => return case Some(x) => x}
     stat match {
