@@ -380,7 +380,8 @@ class ScalaEnterHandlerImpl extends EditorWriteActionHandler {
           try {
             myOffset = comment.getFirstChild().getNextSibling().getNextSibling().getTextRange().getEndOffset();
           } catch (Exception e) {
-            myOffset = comment.getTextRange().getStartOffset() + 3;
+            if (comment != null)
+              myOffset = comment.getTextRange().getStartOffset() + 3;
           }
           myDocument.insertString(myOffset, " ");
           myOffset++;
