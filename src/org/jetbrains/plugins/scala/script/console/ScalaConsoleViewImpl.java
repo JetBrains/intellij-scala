@@ -23,41 +23,47 @@ import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.editor.markup.HighlighterTargetArea;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.editor.colors.CodeInsightColors;
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
-import com.intellij.openapi.editor.colors.EditorColors;
+import com.intellij.openapi.editor.colors.*;
 import com.intellij.openapi.editor.*;
+import com.intellij.openapi.editor.impl.EditorFactoryImpl;
 import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.editor.highlighter.HighlighterIterator;
 import com.intellij.openapi.editor.highlighter.HighlighterClient;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.MarkupModelEx;
-import com.intellij.openapi.editor.event.DocumentAdapter;
-import com.intellij.openapi.editor.event.DocumentEvent;
-import com.intellij.openapi.editor.event.EditorMouseEvent;
-import com.intellij.openapi.editor.event.EditorMouseAdapter;
+import com.intellij.openapi.editor.ex.util.LayeredLexerEditorHighlighter;
+import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.keymap.Keymap;
 import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.diff.actions.DiffActions;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.fileTypes.SyntaxHighlighter;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.ide.OccurenceNavigator;
 import com.intellij.ide.DataAccessor;
 import com.intellij.ide.DataAccessors;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.util.Alarm;
 import com.intellij.util.EditorPopupHandler;
+import com.intellij.util.LocalTimeCounter;
 import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiFileFactory;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.codeInsight.navigation.IncrementalSearchHandler;
 import com.intellij.pom.Navigatable;
+import com.intellij.lexer.Lexer;
+import com.intellij.lexer.LexerPosition;
 
 import javax.swing.*;
 import java.awt.*;
@@ -73,6 +79,10 @@ import java.util.HashSet;
 import java.io.IOException;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
+import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
+import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter;
+import org.jetbrains.plugins.scala.ScalaFileType;
 
 /**
  * @author Aleksander Podkhalyuzin
@@ -175,6 +185,17 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
    */
   public void setHistory(ArrayList<String> history) {
     this.history = history;
+  }
+
+  private FileType fileType = null;
+
+  /**
+   * Use it for custom highlighting for user text.
+   * This will be highlighted as appropriate file to this file type.
+   * @param fileType according to which use highlighting
+   */
+  public void setFileType(FileType fileType) {
+    this.fileType = fileType;
   }
 
   public ScalaConsoleViewImpl(final Project project) {
@@ -490,6 +511,16 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
   private Editor doCreateEditor() {
     final EditorFactory editorFactory = EditorFactory.getInstance();
     final Document editorDocument = editorFactory.createDocument("");
+    editorDocument.addDocumentListener(new DocumentListener() {
+      public void beforeDocumentChange(DocumentEvent event) {
+      }
+
+      public void documentChanged(DocumentEvent event) {
+        if (fileType != null) {
+          highlighUserTokens();
+        }
+      }
+    });
 
     final int bufferSize = USE_CYCLIC_BUFFER ? CYCLIC_BUFFER_SIZE : 0;
     editorDocument.setCyclicBufferSize(bufferSize);
@@ -546,7 +577,8 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
 
     final ScalaConsoleViewImpl consoleView = this;
     editor.getContentComponent().addKeyListener(new KeyListener() {
-      private int x = history.size();
+      private int historyPosition = history.size();
+
       public void keyTyped(KeyEvent e) {
 
       }
@@ -557,25 +589,24 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       public void keyReleased(KeyEvent e) {
         if (e.isAltDown()) {
           if (e.getKeyCode() == 38) {
-            x--;
-            if (x < 0) x = 0;
+            historyPosition--;
+            if (historyPosition < 0) historyPosition = 0;
             replaceString();
           } else if (e.getKeyCode() == 40) {
-            x++;
-            if (x > history.size()) x = history.size();
+            historyPosition++;
+            if (historyPosition > history.size()) historyPosition = history.size();
             replaceString();
           }
         } else {
-          x = history.size();
+          historyPosition = history.size();
         }
       }
 
       private void replaceString() {
-        final Document document = editor.getDocument();
         final String str;
 
-        if (history.size() == x) str = "";
-        else str = history.get(x);
+        if (history.size() == historyPosition) str = "";
+        else str = history.get(historyPosition);
         synchronized (LOCK) {
           if (myTokens.isEmpty()) return;
           final TokenInfo info = myTokens.get(myTokens.size() - 1);
@@ -591,6 +622,25 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     setEditorUpActions(editor);
 
     return editor;
+  }
+
+  private void highlighUserTokens() {
+    for (TokenInfo token : myTokens) {
+      if (token.contentType == ConsoleViewContentType.USER_INPUT) {
+        String text = myEditor.getDocument().getText().substring(token.startOffset, token.endOffset);
+        PsiFile file = PsiFileFactory.getInstance(myProject).
+            createFileFromText("dummy", fileType, text, LocalTimeCounter.currentTime(), true);
+        @SuppressWarnings({"ConstantConditions"})
+        Editor editor = new EditorFactoryImpl(ProjectManager.getInstance()).createEditor(
+            FileDocumentManager.getInstance().getDocument(file.getVirtualFile()), myProject, fileType, false
+        );
+        for (int i = 0; i < text.length(); ++i) {
+          myEditor.getMarkupModel().addRangeHighlighter(i + token.startOffset, i + 1 + token.startOffset, 5500,
+              ((EditorEx) editor).getHighlighter().createIterator(i).getTextAttributes(),
+              HighlighterTargetArea.EXACT_RANGE);
+        }
+      }
+    }
   }
 
   private static void setEditorUpActions(final Editor editor) {
@@ -737,10 +787,13 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     public HighlighterIterator createIterator(final int startOffset) {
       final int startIndex = findTokenInfoIndexByOffset(startOffset);
 
-      return new HighlighterIterator(){
+      return new HighlighterIterator() {
         private int myIndex = startIndex;
 
         public TextAttributes getTextAttributes() {
+          if (fileType != null && getTokenInfo().contentType == ConsoleViewContentType.USER_INPUT) {
+            return ConsoleViewContentType.NORMAL_OUTPUT.getAttributes();
+          }
           return getTokenInfo() == null ? null : getTokenInfo().attributes;
         }
 

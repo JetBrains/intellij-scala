@@ -107,6 +107,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
       override def getConsole: ConsoleView = {
         val consoleView = new ScalaConsoleViewImpl(project)
         consoleView.setHistory(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY);
+        consoleView.setFileType(ScalaFileType.SCALA_FILE_TYPE);
         for (filter <- filters) {
           consoleView.addMessageFilter(filter)
         }
