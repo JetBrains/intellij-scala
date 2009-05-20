@@ -139,34 +139,6 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     }
   }
 
-  def getResolveForClassQualifier(file: ScImportsHolder, clazz: PsiClass, manager: PsiManager): PsiElement = {
-    val packageName = file match {
-      case file: ScalaFile => file.packageStatement match {
-        case Some(x) => x.getPackageName
-        case None => "intelliJIDEARulezzz"
-      }
-      case file: ScPackaging => file.getPackageName
-      case _ => {
-        var element: PsiElement = file
-        while (element != null && !element.isInstanceOf[ScalaFile] && !element.isInstanceOf[ScPackaging]) element = element.getParent
-        element match {
-          case file: ScalaFile => file.packageStatement match {
-            case Some(x) => x.getPackageName
-            case None => null
-          }
-          case file: ScPackaging => file.getPackageName
-          case _ => "intelliJIDEARulezzz"
-        }
-      }
-    }
-    val text = "package " + packageName + "\nimport " + getShortName(clazz.getQualifiedName, packageName)
-    val dummyFile: ScalaFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
-    val importStatements = dummyFile.getImportStatements
-    val imp: ScStableCodeReferenceElement = (importStatements.firstOption match {case Some(x) => x}).importExprs(0).qualifier
-    return if (imp == null) null else imp.resolve
-  }
-
   def createBigImportStmt(expr: ScImportExpr, exprs: Array[ScImportExpr], manager: PsiManager): ScImportStmt = {
     val qualifier = expr.qualifier.getText
     var text = "import " + qualifier
