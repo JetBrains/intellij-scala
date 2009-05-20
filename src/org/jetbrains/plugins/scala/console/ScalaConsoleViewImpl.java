@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.script.console;
+package org.jetbrains.plugins.scala.console;
 
 import com.intellij.codeInsight.navigation.IncrementalSearchHandler;
 import com.intellij.execution.ExecutionBundle;

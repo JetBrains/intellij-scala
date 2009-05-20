@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.script.console
+package org.jetbrains.plugins.scala.console
 
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
