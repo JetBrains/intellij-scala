@@ -167,7 +167,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
 
   private final CompositeFilter myMessageFilter = new CompositeFilter();
 
-  private ArrayList<String> history = new ArrayList<String>();//ScalaApplicationSettings.getInstance().CONSOLE_HISTORY;
+  private ArrayList<String> history = new ArrayList<String>();
   private static final int HISTORY_SIZE = 20;
 
   /**
@@ -177,6 +177,12 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
    */
   public void setHistory(ArrayList<String> history) {
     this.history = history;
+  }
+
+  private ArrayList<String> sessionHistory = new ArrayList<String>();
+
+  public ArrayList<String> getSessionHistory() {
+    return sessionHistory;
   }
 
   private FileType fileType = null;
@@ -617,20 +623,20 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
   }
 
   private void highlighUserTokens() {
-    for (TokenInfo token : myTokens) {
-      if (token.contentType == ConsoleViewContentType.USER_INPUT) {
-        String text = myEditor.getDocument().getText().substring(token.startOffset, token.endOffset);
-        PsiFile file = PsiFileFactory.getInstance(myProject).
-            createFileFromText("dummy", fileType, text, LocalTimeCounter.currentTime(), true);
-        @SuppressWarnings({"ConstantConditions"})
-        Editor editor = new EditorFactoryImpl(ProjectManager.getInstance()).createEditor(
-            FileDocumentManager.getInstance().getDocument(file.getVirtualFile()), myProject, fileType, false
-        );
-        for (int i = 0; i < text.length(); ++i) {
-          myEditor.getMarkupModel().addRangeHighlighter(i + token.startOffset, i + 1 + token.startOffset, 5500,
-              ((EditorEx) editor).getHighlighter().createIterator(i).getTextAttributes(),
-              HighlighterTargetArea.EXACT_RANGE);
-        }
+    if (myTokens.isEmpty()) return;
+    final TokenInfo token = myTokens.get(myTokens.size() - 1);
+    if (token.contentType == ConsoleViewContentType.USER_INPUT) {
+      String text = myEditor.getDocument().getText().substring(token.startOffset, token.endOffset);
+      PsiFile file = PsiFileFactory.getInstance(myProject).
+          createFileFromText("dummy", fileType, text, LocalTimeCounter.currentTime(), true);
+      @SuppressWarnings({"ConstantConditions"})
+      Editor editor = new EditorFactoryImpl(ProjectManager.getInstance()).createEditor(
+          FileDocumentManager.getInstance().getDocument(file.getVirtualFile()), myProject, fileType, false
+      );
+      for (int i = 0; i < text.length(); ++i) {
+        myEditor.getMarkupModel().addRangeHighlighter(i + token.startOffset, i + 1 + token.startOffset, 5500,
+            ((EditorEx) editor).getHighlighter().createIterator(i).getTextAttributes(),
+            HighlighterTargetArea.EXACT_RANGE);
       }
     }
   }
@@ -916,13 +922,16 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     public void execute(final ScalaConsoleViewImpl consoleView, final DataContext context) {
       synchronized (consoleView.LOCK) {
         String str = consoleView.myDeferredUserInput.toString();
-        if (consoleView.history.contains(str)) {
-          consoleView.history.remove(str);
-          consoleView.history.add(str);
-        } else {
-          consoleView.history.add(str);
+        if (!str.equals("")) {
+          if (consoleView.history.contains(str)) {
+            consoleView.history.remove(str);
+            consoleView.history.add(str);
+          } else {
+            consoleView.history.add(str);
+          }
+          consoleView.sessionHistory.add(str);
+          if (consoleView.history.size() > HISTORY_SIZE) consoleView.history.remove(0);
         }
-        if (consoleView.history.size() > HISTORY_SIZE) consoleView.history.remove(0);
       }
       consoleView.print("\n", ConsoleViewContentType.USER_INPUT);
       consoleView.flushDeferredText();
