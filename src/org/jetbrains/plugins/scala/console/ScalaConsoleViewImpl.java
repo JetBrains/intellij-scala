@@ -34,20 +34,17 @@ import com.intellij.openapi.editor.ex.MarkupModelEx;
 import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.editor.highlighter.HighlighterClient;
 import com.intellij.openapi.editor.highlighter.HighlighterIterator;
-import com.intellij.openapi.editor.impl.EditorFactoryImpl;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.HighlighterTargetArea;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.extensions.Extensions;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.keymap.Keymap;
 import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.Disposer;
@@ -74,6 +71,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -167,25 +165,41 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
 
   private final CompositeFilter myMessageFilter = new CompositeFilter();
 
-  private ArrayList<String> history = new ArrayList<String>();
-  private static final int HISTORY_SIZE = 20;
+  private ArrayList<String> myHistory = new ArrayList<String>();
+  private int myHistorySize = 20;
+
+  private ArrayList<ConsoleUserInputListener> consoleUserInputListeners = new ArrayList<ConsoleUserInputListener>();
+
+  public void addConsoleUserInputLestener(ConsoleUserInputListener consoleUserInputListener) {
+    consoleUserInputListeners.add(consoleUserInputListener);
+  }
 
   /**
    * By default history works for one session. If
-   * you want to save it for next session, set it up here.
+   * you want to import previous session, set it up here.
    * @param history where you can save history
    */
-  public void setHistory(ArrayList<String> history) {
-    this.history = history;
+  public void importHistory(Collection<String> history) {
+    this.myHistory.clear();
+    this.myHistory.addAll(history);
+    while (this.myHistory.size() > myHistorySize) {
+      this.myHistory.remove(0);
+    }
   }
 
-  private ArrayList<String> sessionHistory = new ArrayList<String>();
-
-  public ArrayList<String> getSessionHistory() {
-    return sessionHistory;
+  public List<String> getHistory() {
+    return Collections.unmodifiableList(myHistory);
   }
 
-  private FileType fileType = null;
+  public void setHistorySize(int historySize) {
+    this.myHistorySize = historySize;
+  }
+
+  public int getHistorySize() {
+    return myHistorySize;
+  }
+
+  private FileType myFileType;
 
   /**
    * Use it for custom highlighting for user text.
@@ -193,13 +207,18 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
    * @param fileType according to which use highlighting
    */
   public void setFileType(FileType fileType) {
-    this.fileType = fileType;
+    myFileType = fileType;
   }
 
   public ScalaConsoleViewImpl(final Project project) {
+    this(project, null);
+  }
+
+  public ScalaConsoleViewImpl(final Project project, FileType fileType) {
     super(new BorderLayout());
     myPsiDisposedCheck = new DisposedPsiManagerCheck(project);
     myProject = project;
+    myFileType = fileType;
 
     final ConsoleFilterProvider[] filterProviders = Extensions.getExtensions(ConsoleFilterProvider.FILTER_PROVIDERS);
     for (ConsoleFilterProvider filterProvider : filterProviders) {
@@ -514,7 +533,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       }
 
       public void documentChanged(DocumentEvent event) {
-        if (fileType != null) {
+        if (myFileType != null) {
           highlighUserTokens();
         }
       }
@@ -575,7 +594,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
 
     final ScalaConsoleViewImpl consoleView = this;
     editor.getContentComponent().addKeyListener(new KeyListener() {
-      private int historyPosition = history.size();
+      private int historyPosition = myHistory.size();
 
       public void keyTyped(KeyEvent e) {
 
@@ -593,20 +612,20 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
             e.consume();
           } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
             historyPosition++;
-            if (historyPosition > history.size()) historyPosition = history.size();
+            if (historyPosition > myHistory.size()) historyPosition = myHistory.size();
             replaceString();
             e.consume();
           }
         } else {
-          historyPosition = history.size();
+          historyPosition = myHistory.size();
         }
       }
 
       private void replaceString() {
         final String str;
 
-        if (history.size() == historyPosition) str = "";
-        else str = history.get(historyPosition);
+        if (myHistory.size() == historyPosition) str = "";
+        else str = myHistory.get(historyPosition);
         synchronized (LOCK) {
           if (myTokens.isEmpty()) return;
           final TokenInfo info = myTokens.get(myTokens.size() - 1);
@@ -630,10 +649,10 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     if (token.contentType == ConsoleViewContentType.USER_INPUT) {
       String text = myEditor.getDocument().getText().substring(token.startOffset, token.endOffset);
       PsiFile file = PsiFileFactory.getInstance(myProject).
-          createFileFromText("dummy", fileType, text, LocalTimeCounter.currentTime(), true);
+          createFileFromText("dummy", myFileType, text, LocalTimeCounter.currentTime(), true);
       Document document = PsiDocumentManager.getInstance(myProject).getDocument(file);
       assert document != null;
-      Editor editor = EditorFactory.getInstance().createEditor(document, myProject, fileType, false);
+      Editor editor = EditorFactory.getInstance().createEditor(document, myProject, myFileType, false);
       HighlighterIterator iterator = ((EditorEx) editor).getHighlighter().createIterator(0);
       while (!iterator.atEnd()) {
         myEditor.getMarkupModel().addRangeHighlighter(iterator.getStart() + token.startOffset, iterator.getEnd() + token.startOffset, HighlighterLayer.SYNTAX,
@@ -792,7 +811,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
         private int myIndex = startIndex;
 
         public TextAttributes getTextAttributes() {
-          if (fileType != null && getTokenInfo().contentType == ConsoleViewContentType.USER_INPUT) {
+          if (myFileType != null && getTokenInfo().contentType == ConsoleViewContentType.USER_INPUT) {
             return ConsoleViewContentType.NORMAL_OUTPUT.getAttributes();
           }
           return getTokenInfo() == null ? null : getTokenInfo().attributes;
@@ -918,10 +937,12 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       synchronized (consoleView.LOCK) {
         String str = consoleView.myDeferredUserInput.toString();
         if (StringUtil.isNotEmpty(str)) {
-          consoleView.history.remove(str);
-          consoleView.history.add(str);
-          consoleView.sessionHistory.add(str);
-          if (consoleView.history.size() > HISTORY_SIZE) consoleView.history.remove(0);
+          consoleView.myHistory.remove(str);
+          consoleView.myHistory.add(str);
+          if (consoleView.myHistory.size() > consoleView.myHistorySize) consoleView.myHistory.remove(0);
+        }
+        for (ConsoleUserInputListener listener : consoleView.consoleUserInputListeners) {
+          listener.userTextPerformed(str);
         }
       }
       consoleView.print("\n", ConsoleViewContentType.USER_INPUT);
