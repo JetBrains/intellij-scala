@@ -13,6 +13,7 @@ import com.intellij.openapi.projectRoots.{JavaSdkType}
 import com.intellij.openapi.project.Project
 import com.intellij.util.PathUtil
 import config.{ScalaCompilerUtil, ScalaConfigUtils}
+import java.lang.String
 import jdom.Element
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
@@ -105,9 +106,18 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     val consoleBuilder = new TextConsoleBuilderImpl(project) {
       val filters = new ArrayBuffer[Filter]
       override def getConsole: ConsoleView = {
-        val consoleView = new ScalaConsoleViewImpl(project)
-        consoleView.setHistory(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY);
-        consoleView.setFileType(ScalaFileType.SCALA_FILE_TYPE);
+        val consoleView = new ScalaConsoleViewImpl(project, ScalaFileType.SCALA_FILE_TYPE)
+        consoleView.importHistory(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY);
+        consoleView.addConsoleUserInputLestener(new ConsoleUserInputListener {
+          def userTextPerformed(userText: String): Unit = {
+            val hist = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY;
+            if (userText != "") {
+              hist.remove(userText)
+              hist.add(userText)
+              if (hist.size > consoleView.getHistorySize) hist.remove(0)
+            }
+          }
+        })
         for (filter <- filters) {
           consoleView.addMessageFilter(filter)
         }
