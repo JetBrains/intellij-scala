@@ -106,7 +106,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     val consoleBuilder = new TextConsoleBuilderImpl(project) {
       val filters = new ArrayBuffer[Filter]
       override def getConsole: ConsoleView = {
-        val consoleView = new ScalaConsoleViewImpl(project, ScalaFileType.SCALA_FILE_TYPE)
+        val consoleView = new ScalaConsoleViewImpl(project, false, ScalaFileType.SCALA_FILE_TYPE)
         consoleView.importHistory(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY);
         consoleView.addConsoleUserInputLestener(new ConsoleUserInputListener {
           def userTextPerformed(userText: String): Unit = {
