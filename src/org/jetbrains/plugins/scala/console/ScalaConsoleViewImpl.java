@@ -59,7 +59,9 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.util.Alarm;
 import com.intellij.util.EditorPopupHandler;
 import com.intellij.util.LocalTimeCounter;
+import com.intellij.util.containers.HashMap;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.TestOnly;
 
 import javax.swing.*;
 import java.awt.*;
@@ -74,13 +76,8 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-/**
- * @author Aleksander Podkhalyuzin
- * @date 06.04.2009
- */
-
 public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, ObservableConsoleView, DataProvider, OccurenceNavigator {
-  private static final Logger LOG = Logger.getInstance("#com.intellij.execution.impl.ScalaConsoleViewImpl");
+  private static final Logger LOG = Logger.getInstance("#com.intellij.execution.impl.ConsoleViewImpl");
 
   private static final int FLUSH_DELAY = 200; //TODO : make it an option
 
@@ -98,6 +95,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
   private final DisposedPsiManagerCheck myPsiDisposedCheck;
   private ConsoleState myState = ConsoleState.NOT_STARTED;
   private final int CYCLIC_BUFFER_SIZE = getCycleBufferSize();
+  private final boolean isViewer;
 
   private static int getCycleBufferSize() {
     final String cycleBufferSizeProperty = System.getProperty("idea.cycle.buffer.size");
@@ -123,6 +121,10 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
   private final CopyOnWriteArraySet<ChangeListener> myListeners = new CopyOnWriteArraySet<ChangeListener>();
   private final Set<ConsoleViewContentType> myDeferredTypes = new HashSet<ConsoleViewContentType>();
 
+  @TestOnly
+  public Editor getEditor() {
+    return myEditor;
+  }
 
   private static class TokenInfo{
     private final ConsoleViewContentType contentType;
@@ -130,7 +132,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     private int endOffset;
     private final TextAttributes attributes;
 
-    public TokenInfo(final ConsoleViewContentType contentType, final int startOffset, final int endOffset) {
+    private TokenInfo(final ConsoleViewContentType contentType, final int startOffset, final int endOffset) {
       this.contentType = contentType;
       this.startOffset = startOffset;
       this.endOffset = endOffset;
@@ -210,12 +212,13 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     myFileType = fileType;
   }
 
-  public ScalaConsoleViewImpl(final Project project) {
-    this(project, null);
+  public ScalaConsoleViewImpl(final Project project, boolean viewer) {
+    this(project, viewer, null);
   }
 
-  public ScalaConsoleViewImpl(final Project project, FileType fileType) {
+  public ScalaConsoleViewImpl(final Project project, boolean viewer, FileType fileType) {
     super(new BorderLayout());
+    isViewer = viewer;
     myPsiDisposedCheck = new DisposedPsiManagerCheck(project);
     myProject = project;
     myFileType = fileType;
@@ -250,28 +253,31 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       myDeferredTypes.clear();
       myDeferredUserInput = new StringBuffer();
       myHyperlinks.clear();
-      myEditor.getMarkupModel().removeAllHighlighters();
       myTokens.clear();
-      document = myEditor == null? null : myEditor.getDocument();
+      if (myEditor == null) return;
+      myEditor.getMarkupModel().removeAllHighlighters();
+      document = myEditor.getDocument();
     }
-    if (document != null){
-      ApplicationManager.getApplication().runWriteAction(new Runnable() {
-        public void run() {
-          CommandProcessor.getInstance().executeCommand(myProject, new Runnable() {
-            public void run() {
-              document.deleteString(0, document.getTextLength());
-            }
-          }, null, document);
-        }
-      });
-    }
+    ApplicationManager.getApplication().runWriteAction(new DocumentRunnable(document, myProject) {
+      public void run() {
+        CommandProcessor.getInstance().executeCommand(myProject, new Runnable() {
+          public void run() {
+            document.deleteString(0, document.getTextLength());
+          }
+        }, null, document);
+      }
+    });
   }
 
   public void scrollTo(final int offset) {
     assertIsDispatchThread();
     flushDeferredText();
     if (myEditor == null) return;
-    myEditor.getCaretModel().moveToOffset(offset);
+    int moveOffset = offset;
+    if (USE_CYCLIC_BUFFER && moveOffset >= myEditor.getDocument().getTextLength()) {
+      moveOffset = 0;
+    }
+    myEditor.getCaretModel().moveToOffset(moveOffset);
     myEditor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE);
   }
 
@@ -363,7 +369,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     synchronized(LOCK){
       myDeferredTypes.add(contentType);
 
-      s = StringUtil.convertLineSeparators(s,  "\n");
+      s = StringUtil.convertLineSeparators(s);
       myContentSize += s.length();
       myDeferredOutput.append(s);
       if (contentType == ConsoleViewContentType.USER_INPUT) {
@@ -429,7 +435,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     final int oldLineCount = document.getLineCount();
     final boolean isAtEndOfDocument = myEditor.getCaretModel().getOffset() == document.getTextLength();
     boolean cycleUsed = USE_CYCLIC_BUFFER && document.getTextLength() + text.length() > CYCLIC_BUFFER_SIZE;
-    ApplicationManager.getApplication().runWriteAction(new Runnable() {
+    ApplicationManager.getApplication().runWriteAction(new DocumentRunnable(document, myProject) {
       public void run() {
         CommandProcessor.getInstance().executeCommand(myProject, new Runnable() {
           public void run() {
@@ -534,7 +540,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
 
       public void documentChanged(DocumentEvent event) {
         if (myFileType != null) {
-          highlighUserTokens();
+          highlightUserTokens();
         }
       }
     });
@@ -643,7 +649,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     return editor;
   }
 
-  private void highlighUserTokens() {
+  private void highlightUserTokens() {
     if (myTokens.isEmpty()) return;
     final TokenInfo token = myTokens.get(myTokens.size() - 1);
     if (token.contentType == ConsoleViewContentType.USER_INPUT) {
@@ -653,6 +659,12 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       Document document = PsiDocumentManager.getInstance(myProject).getDocument(file);
       assert document != null;
       Editor editor = EditorFactory.getInstance().createEditor(document, myProject, myFileType, false);
+      RangeHighlighter[] allHighlighters = myEditor.getMarkupModel().getAllHighlighters();
+      for (RangeHighlighter highlighter : allHighlighters) {
+        if (highlighter.getStartOffset() >= token.startOffset) {
+          myEditor.getMarkupModel().removeHighlighter(highlighter);
+        }
+      }
       HighlighterIterator iterator = ((EditorEx) editor).getHighlighter().createIterator(0);
       while (!iterator.atEnd()) {
         myEditor.getMarkupModel().addRangeHighlighter(iterator.getStart() + token.startOffset, iterator.getEnd() + token.startOffset, HighlighterLayer.SYNTAX,
@@ -774,7 +786,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
   }
 
   private class ClearAllAction extends AnAction{
-    public ClearAllAction(){
+    private ClearAllAction(){
       super(ExecutionBundle.message("clear.all.from.console.action.name"));
     }
 
@@ -784,7 +796,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
   }
 
   private class CopyAction extends AnAction{
-    public CopyAction(){
+    private CopyAction(){
       super(myEditor != null && myEditor.getSelectionModel().hasSelection() ? ExecutionBundle.message("copy.selected.content.action.name") : ExecutionBundle.message("copy.content.action.name"));
     }
 
@@ -882,13 +894,13 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
   private static class MyTypedHandler implements TypedActionHandler {
     private final TypedActionHandler myOriginalHandler;
 
-    public MyTypedHandler(final TypedActionHandler originalAction) {
+    private MyTypedHandler(final TypedActionHandler originalAction) {
       myOriginalHandler = originalAction;
     }
 
     public void execute(final Editor editor, final char charTyped, final DataContext dataContext) {
       final ScalaConsoleViewImpl consoleView = editor.getUserData(CONSOLE_VIEW_IN_EDITOR_VIEW);
-      if (consoleView == null || !consoleView.myState.isRunning()){
+      if (consoleView == null || !consoleView.myState.isRunning() || consoleView.isViewer){
         myOriginalHandler.execute(editor, charTyped, dataContext);
       }
       else{
@@ -1035,7 +1047,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
 
   private static class Hyperlinks {
     private static final int NO_INDEX = Integer.MIN_VALUE;
-    private final Map<RangeHighlighter,HyperlinkInfo> myHighlighterToMessageInfoMap = new com.intellij.util.containers.HashMap<RangeHighlighter, HyperlinkInfo>();
+    private final Map<RangeHighlighter,HyperlinkInfo> myHighlighterToMessageInfoMap = new HashMap<RangeHighlighter, HyperlinkInfo>();
     private int myLastIndex = NO_INDEX;
 
     public void clear() {
@@ -1087,7 +1099,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
   }
 
   private OccurenceInfo next(final int delta, boolean doMove) {
-    java.util.List<RangeHighlighter> ranges = new ArrayList<RangeHighlighter>(myHyperlinks.getRanges().keySet());
+    List<RangeHighlighter> ranges = new ArrayList<RangeHighlighter>(myHyperlinks.getRanges().keySet());
     Collections.sort(ranges, new Comparator<RangeHighlighter>() {
       public int compare(final RangeHighlighter o1, final RangeHighlighter o2) {
         return o1.getStartOffset() - o2.getStartOffset();
@@ -1145,6 +1157,10 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     return new AnAction[]{
       prevAction, nextAction
     };
+  }
+
+  public void setEditorEnabled(boolean enabled) {
+    myEditor.getContentComponent().setEnabled(enabled);
   }
 
   private void fireChange() {
