@@ -585,15 +585,17 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       }
 
       public void keyReleased(KeyEvent e) {
-        if (e.isAltDown()) {
-          if (e.getKeyCode() == 38) {
+        if (e.isAltDown() && !e.isControlDown() && !e.isMetaDown() && !e.isShiftDown()) {
+          if (e.getKeyCode() == KeyEvent.VK_UP) {
             historyPosition--;
             if (historyPosition < 0) historyPosition = 0;
             replaceString();
-          } else if (e.getKeyCode() == 40) {
+            e.consume();
+          } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
             historyPosition++;
             if (historyPosition > history.size()) historyPosition = history.size();
             replaceString();
+            e.consume();
           }
         } else {
           historyPosition = history.size();
@@ -629,14 +631,15 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       String text = myEditor.getDocument().getText().substring(token.startOffset, token.endOffset);
       PsiFile file = PsiFileFactory.getInstance(myProject).
           createFileFromText("dummy", fileType, text, LocalTimeCounter.currentTime(), true);
-      @SuppressWarnings({"ConstantConditions"})
-      Editor editor = new EditorFactoryImpl(ProjectManager.getInstance()).createEditor(
-          FileDocumentManager.getInstance().getDocument(file.getVirtualFile()), myProject, fileType, false
-      );
-      for (int i = 0; i < text.length(); ++i) {
-        myEditor.getMarkupModel().addRangeHighlighter(i + token.startOffset, i + 1 + token.startOffset, 5500,
-            ((EditorEx) editor).getHighlighter().createIterator(i).getTextAttributes(),
+      Document document = PsiDocumentManager.getInstance(myProject).getDocument(file);
+      assert document != null;
+      Editor editor = EditorFactory.getInstance().createEditor(document, myProject, fileType, false);
+      HighlighterIterator iterator = ((EditorEx) editor).getHighlighter().createIterator(0);
+      while (!iterator.atEnd()) {
+        myEditor.getMarkupModel().addRangeHighlighter(iterator.getStart() + token.startOffset, iterator.getEnd() + token.startOffset, HighlighterLayer.SYNTAX,
+            iterator.getTextAttributes(),
             HighlighterTargetArea.EXACT_RANGE);
+        iterator.advance();
       }
     }
   }
@@ -871,8 +874,6 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       }
       else{
         final String s = String.valueOf(charTyped);
-        final Document document = editor.getDocument();
-
         SelectionModel selectionModel = editor.getSelectionModel();
         if (selectionModel.hasSelection()) {
           consoleView.replaceUserText(s, selectionModel.getSelectionStart(), selectionModel.getSelectionEnd());
@@ -913,22 +914,12 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
   }
 
   private static class EnterHandler extends ConsoleAction {
-    private boolean contains(String[] array, String str) {
-      for (String s : array) {
-        if (s.equals(str)) return true;
-      }
-      return false;
-    }
     public void execute(final ScalaConsoleViewImpl consoleView, final DataContext context) {
       synchronized (consoleView.LOCK) {
         String str = consoleView.myDeferredUserInput.toString();
-        if (!str.equals("")) {
-          if (consoleView.history.contains(str)) {
-            consoleView.history.remove(str);
-            consoleView.history.add(str);
-          } else {
-            consoleView.history.add(str);
-          }
+        if (StringUtil.isNotEmpty(str)) {
+          consoleView.history.remove(str);
+          consoleView.history.add(str);
           consoleView.sessionHistory.add(str);
           if (consoleView.history.size() > HISTORY_SIZE) consoleView.history.remove(0);
         }
@@ -1020,7 +1011,6 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       return EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_BACKSPACE);
     }
   }
-
 
   private static class Hyperlinks {
     private static final int NO_INDEX = Integer.MIN_VALUE;
@@ -1170,29 +1160,37 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     synchronized (consoleView.LOCK) {
       if (consoleView.myTokens.isEmpty()) return;
       final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
-      if (info.contentType != ConsoleViewContentType.USER_INPUT) {
+      if (info.contentType != ConsoleViewContentType.USER_INPUT && !s.contains("\n")) {
         consoleView.print(s, ConsoleViewContentType.USER_INPUT);
         consoleView.flushDeferredText();
         editor.getCaretModel().moveToOffset(document.getTextLength());
         editor.getSelectionModel().removeSelection();
         return;
-      }
-      int addTokens;
-
-
-      if (offset > info.endOffset) startOffset = info.endOffset;
-      else if (offset < info.startOffset) {
-        editor.getCaretModel().moveToOffset(offset + 1);
+      } else if (info.contentType != ConsoleViewContentType.USER_INPUT) {
+        insertUserText("temp", offset);
+        final TokenInfo newInfo = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
+        replaceUserText(s, newInfo.startOffset, newInfo.endOffset);
         return;
-      } else startOffset = offset;
-      addTokens = s.length();
+      }
+      int charCountToAdd;
+
+
+      if (offset > info.endOffset) {
+        startOffset = info.endOffset;
+      }
+      else if (offset < info.startOffset) {
+        startOffset = info.startOffset;
+      } else {
+        startOffset = offset;
+      }
+      charCountToAdd = s.length();
 
       if (consoleView.myDeferredUserInput.length() < info.endOffset - info.startOffset) return; //user was quick
 
       consoleView.myDeferredUserInput.insert(startOffset - info.startOffset, s);
 
-      info.endOffset += addTokens;
-      consoleView.myContentSize += addTokens;
+      info.endOffset += charCountToAdd;
+      consoleView.myContentSize += charCountToAdd;
     }
 
     ApplicationManager.getApplication().runWriteAction(new Runnable() {
@@ -1232,43 +1230,29 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
         return;
       }
       if (consoleView.myDeferredUserInput.length() == 0) return;
-      int replaceTokens;
+      int charCountToReplace;
 
-      if (start >= info.startOffset && start < info.endOffset) {
-        startOffset = start;
-      } else if (start < info.startOffset) {
-        startOffset = info.startOffset;
-      } else {
-        editor.getSelectionModel().removeSelection();
-        editor.getCaretModel().moveToOffset(start);
-        return;
-      }
-      if (end > info.endOffset) {
-        endOffset = info.endOffset;
-      } else if (end <= info.startOffset) {
-        editor.getSelectionModel().removeSelection();
-        editor.getCaretModel().moveToOffset(start);
-        return;
-      } else {
-        endOffset = end;
-      }
+      startOffset = getStartOffset(start, info);
+      endOffset = getEndOffset(end, info);
 
-      if (endOffset <= startOffset) {
+      if (startOffset == -1 ||
+          endOffset == -1 ||
+          endOffset <= startOffset) {
         editor.getSelectionModel().removeSelection();
         editor.getCaretModel().moveToOffset(start);
         return;
       }
-      replaceTokens = s.length() - endOffset + startOffset;
+      charCountToReplace = s.length() - endOffset + startOffset;
 
       if (consoleView.myDeferredUserInput.length() < info.endOffset - info.startOffset) return; //user was quick
 
       consoleView.myDeferredUserInput.replace(startOffset - info.startOffset, endOffset - info.startOffset, s);
 
-      info.endOffset += replaceTokens;
+      info.endOffset += charCountToReplace;
       if (info.startOffset == info.endOffset) {
         consoleView.myTokens.remove(consoleView.myTokens.size() - 1);
       }
-      consoleView.myContentSize += replaceTokens;
+      consoleView.myContentSize += charCountToReplace;
     }
 
     ApplicationManager.getApplication().runWriteAction(new Runnable() {
@@ -1298,41 +1282,26 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
       if (info.contentType != ConsoleViewContentType.USER_INPUT) return;
       if (consoleView.myDeferredUserInput.length() == 0) return;
-      int deleteTokens;
+      int charCountToDelete;
 
-      if (offset >=info.startOffset && offset < info.endOffset) {
-        startOffset = offset;
-      } else if (offset < info.startOffset) {
-        startOffset = info.startOffset;
-      } else {
-        editor.getSelectionModel().removeSelection();
-        editor.getCaretModel().moveToOffset(offset);
-        return;
-      }
-      if (offset + length > info.endOffset) {
-        endOffset = info.endOffset;
-      } else if (offset + length <= info.startOffset) {
-        editor.getSelectionModel().removeSelection();
-        editor.getCaretModel().moveToOffset(offset);
-        return;
-      } else {
-        endOffset = offset + length;
-      }
-
-      if (endOffset <= startOffset) {
+      startOffset = getStartOffset(offset, info);
+      endOffset = getEndOffset(offset + length, info);
+      if (startOffset == -1 ||
+          endOffset == -1 ||
+          endOffset <= startOffset) {
         editor.getSelectionModel().removeSelection();
         editor.getCaretModel().moveToOffset(offset);
         return;
       }
 
       consoleView.myDeferredUserInput.delete(startOffset - info.startOffset, endOffset - info.startOffset);
-      deleteTokens = endOffset - startOffset;
+      charCountToDelete = endOffset - startOffset;
 
-      info.endOffset -= deleteTokens;
+      info.endOffset -= charCountToDelete;
       if (info.startOffset == info.endOffset) {
         consoleView.myTokens.remove(consoleView.myTokens.size() - 1);
       }
-      consoleView.myContentSize -= deleteTokens;
+      consoleView.myContentSize -= charCountToDelete;
     }
 
     ApplicationManager.getApplication().runWriteAction(new Runnable() {
@@ -1343,6 +1312,31 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
         editor.getSelectionModel().removeSelection();
       }
     });
+  }
+
+  //util methods for add, replace, delete methods
+  private int getStartOffset(int offset, TokenInfo info) {
+    int startOffset;
+    if (offset >= info.startOffset && offset < info.endOffset) {
+      startOffset = offset;
+    } else if (offset < info.startOffset) {
+      startOffset = info.startOffset;
+    } else {
+      startOffset = -1;
+    }
+    return startOffset;
+  }
+
+  private int getEndOffset(int offset, TokenInfo info) {
+    int endOffset;
+    if (offset > info.endOffset) {
+      endOffset = info.endOffset;
+    } else if (offset <= info.startOffset) {
+      endOffset = -1;
+    } else {
+      endOffset = offset;
+    }
+    return endOffset;
   }
 }
 
