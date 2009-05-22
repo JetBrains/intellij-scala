@@ -6,7 +6,7 @@ import com.intellij.psi._
 
 import _root_.scala.collection.Set
 import _root_.scala.collection.mutable.HashSet
-import psi.api.base.patterns.ScBindingPattern
+import psi.api.base.patterns.{ScPattern, ScReferencePattern, ScBindingPattern}
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value]) extends BaseProcessor(kinds) {
   private val signatures = new HashSet[Signature]
   private val names = new HashSet[String]
@@ -18,31 +18,37 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value]) extends
         case x => x
       }
     }
-    val named = element.asInstanceOf[PsiNamedElement]
-    if (kindMatches(element)) {
-      element match {
-        case method: PsiMethod => {
-          val sign = new PhysicalSignature(method, substitutor)
-          if (!signatures.contains(sign)) {
-            signatures += sign
-            candidatesSet += new ScalaResolveResult(named)
-          }
-        }
-        case patt: ScBindingPattern => {
-          import Suspension._
-          val sign = new Signature(patt.getName, Seq.empty, 0, Seq.empty.toArray, substitutor)
-          if (!signatures.contains(sign)) {
-            signatures += sign
-            candidatesSet += new ScalaResolveResult(named)
-          }
-        }
-        case _ => {
-          if (!names.contains(named.getName)) {
-            candidatesSet += new ScalaResolveResult(named)
-            names += named.getName
+
+    element match {
+      case named: PsiNamedElement => {
+        if (kindMatches(element)) {
+          element match {
+            case method: PsiMethod => {
+              val sign = new PhysicalSignature(method, substitutor)
+              if (!signatures.contains(sign)) {
+                signatures += sign
+                candidatesSet += new ScalaResolveResult(named)
+              }
+            }
+            case patt: ScBindingPattern => {
+              import Suspension._
+              val sign = new Signature(patt.getName, Seq.empty, 0, Seq.empty.toArray, substitutor)
+              if (!signatures.contains(sign)) {
+                signatures += sign
+                candidatesSet += new ScalaResolveResult(named)
+              }
+            }
+            case _ => {
+              if (!names.contains(named.getName)) {
+                candidatesSet += new ScalaResolveResult(named)
+                names += named.getName
+              }
+            }
           }
         }
       }
+      case pat : ScPattern => for (b <- pat.bindings) execute(b, state)
+      case _ => // Is it really a case?
     }
     return true
   }
