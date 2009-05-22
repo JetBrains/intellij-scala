@@ -168,8 +168,9 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     val direct = extendsBlock.supers.toArray
     val res = new ArrayBuffer[PsiClass]
     res ++= direct
-    for (sup <- direct) res ++= sup.getSupers
-    res.toArray
+    for (sup <- direct if !res.contains(sup)) res ++= sup.getSupers
+    // return strict superclasses
+    res.filter(_ != this).toArray
   }
 
   private[typedef] var lockCompanionRename = false
