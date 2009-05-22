@@ -80,7 +80,10 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
       case c: PsiVariable => c.getName
       case c: PsiFile => c.getName
       case c: ScNamedElement => c.getName
-      case _ => element.getText
+      case _ => {
+        val text = element.getText
+        if (text == null) "" else text
+      }
     }
   }
 }
