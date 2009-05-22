@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
 */
 
 trait ScObject extends ScTypeDefinition with ScTyped with ScMember {
-  def calcType() = new ScDesignatorType(this)
 
   override def getContainingClass = null
 }

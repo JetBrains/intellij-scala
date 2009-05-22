@@ -52,7 +52,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           isPlaceholder = true
           Seq.empty
         }
-        case _ => return null
+        case _ => return Nothing
       }
       val applyMethods = ScalaPsiUtil.getApplyMethods(clazz).filter((sign: PhysicalSignature) => sign.method match {
         case fun: ScFunction => fun.typeParameters.length == this.typeArgs.typeArgs.length

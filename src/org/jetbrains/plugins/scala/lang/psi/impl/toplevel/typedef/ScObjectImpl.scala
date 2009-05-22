@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import synthetic.{PsiMethodFake, SyntheticNamedElement}
-import types.{ScSubstitutor, ScFunctionType, ScType}
+import types.{ScDesignatorType, ScSubstitutor, ScFunctionType, ScType}
 import util.MethodSignatureBackedByPsiMethod
 
 /**
@@ -39,6 +39,8 @@ import util.MethodSignatureBackedByPsiMethod
 
 class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDefinition {
   def this(node: ASTNode) = {this (); setNode(node)}
+
+  def calcType() = new ScDesignatorType(this)
 
   def this(stub: ScTypeDefinitionStub) = {this (); setStub(stub); setNode(null)}
 
