@@ -11,12 +11,10 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 
 import javax.swing.*;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
-import java.text.ParseException;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-import java.awt.event.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -92,12 +90,25 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox headerImportStatementsCheckBox;
   private JCheckBox beforeMethodBracesCallCheckBox;
 
+  private final Object LOCK = new Object();
+
+  final private int PREVIEW_PANEL = 6;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-    setSettings(scalaSettings);
     installPreviewPanel(previewPanel);
+    setSettings(scalaSettings);
+    tabbedPane.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if (tabbedPane.isEnabledAt(PREVIEW_PANEL)) {
+          synchronized (LOCK) {
+            updatePreview();
+          }
+        }
+      }
+    });
   }
 
   protected EditorHighlighter createHighlighter(EditorColorsScheme scheme) {
@@ -122,8 +133,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
         "import scala.collection.mutable._\n\n" +
         "" +
         "abstract class R[T](x: Int) extends {val y = x} with R1[T] {\n" +
-        "  def foo(z: Int): R1 = new R[Int](z)\n" +
-        "  def default = foo(0)\n" +
+        "  def foo(z: Int): R1 = new R[Int](z);\n\n" +
+        "  def default = foo(0)\n\n" +
         "  val x: T\n" +
         "}\n\n" +
         "" +
@@ -216,14 +227,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.FOLD_PACKAGINGS = packagingsCheckBox.isSelected();
     scalaSettings.FOLD_IMPORT_IN_HEADER = headerImportStatementsCheckBox.isSelected();
     scalaSettings.FOLD_BLOCK_COMMENTS = blockCommentsCheckBox.isSelected();
-
-    updatePreview();
   }
 
-  private boolean getBoxValue(JCheckBox checkBox) {
-    return checkBox.isSelected();
-  }
-
+  @SuppressWarnings({"ConstantConditions", "RedundantIfStatement"})
   public boolean isModified(CodeStyleSettings settings) {
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
     if (scalaSettings.SPACE_AFTER_COLON != afterColonBox.isSelected()) {
