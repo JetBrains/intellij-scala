@@ -65,10 +65,10 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
         parents.typeElements foreach {typeElement => addType(typeElement.getType)}
       }
     }
-    selfType match {
+    /*selfType match {
       case Some(st) => addType(st)
       case None =>
-    }
+    }*/ //This is wrong. Self type doesn't add new things to inheriting model.
     buffer.toList
   }
 
