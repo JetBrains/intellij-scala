@@ -8,11 +8,17 @@ import com.intellij.execution.filters.{Filter, TextConsoleBuilder, TextConsoleBu
 import com.intellij.execution.runners.{ExecutionEnvironment}
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.{CantRunException, ExecutionException, Executor}
+import com.intellij.ide.CommonActionsManager
+import com.intellij.ide.util.DirectoryChooser
+import com.intellij.openapi.actionSystem.{CustomShortcutSet, ShortcutSet, AnActionEvent, AnAction}
+import java.awt.event.{KeyEvent, InputEvent}
+import javax.swing.KeyStroke
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType}
 import com.intellij.openapi.project.Project
 import com.intellij.util.PathUtil
 import config.{ScalaCompilerUtil, ScalaConfigUtils}
+import icons.Icons
 import java.lang.String
 import jdom.Element
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
@@ -118,6 +124,19 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
             }
           }
         })
+        val saveAction = new AnAction {
+          private val shortcutSet = new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK))
+          setShortcutSet(shortcutSet)
+          registerCustomShortcutSet(shortcutSet, consoleView.getComponent)
+          def actionPerformed(e: AnActionEvent): Unit = {
+
+          }
+        }
+        saveAction.getTemplatePresentation.setIcon(Icons.SCRIPT_FILE_LOGO)
+        saveAction.getTemplatePresentation.setEnabled(true)
+        saveAction.getTemplatePresentation.setText("Save content to Script")
+
+        //consoleView.addAction(saveAction)
         for (filter <- filters) {
           consoleView.addMessageFilter(filter)
         }
