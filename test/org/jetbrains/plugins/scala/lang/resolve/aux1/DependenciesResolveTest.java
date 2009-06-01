@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.resolve.aux;
+package org.jetbrains.plugins.scala.lang.resolve.aux1;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
@@ -18,7 +18,7 @@ import java.io.File;
  */
 public class DependenciesResolveTest extends ScalaResolveTestCase {
   protected String getTestDataPath() {
-    return TestUtils.getTestDataPath() + "/resolve/aux/";
+    return TestUtils.getTestDataPath() + "/resolve/aux1/";
   }
 
   public void testCyclicSelfType() throws Exception {
