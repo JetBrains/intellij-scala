@@ -50,6 +50,8 @@ ScalaFile
             PsiElement({)('{')
             PsiWhiteSpace('\n    ')
             ScVariableDefinition
+              AnnotationsList
+                <empty list>
               Modifiers
                 <empty list>
               PsiElement(var)('var')

@@ -22,6 +22,8 @@ ScalaFile
           PsiElement({)('{')
           PsiWhiteSpace('\n    ')
           ScPatternDefinition
+            AnnotationsList
+              <empty list>
             Modifiers
               PsiElement(lazy)('lazy')
             PsiWhiteSpace(' ')
