@@ -39,6 +39,8 @@ ScalaFile
                 PsiElement(identifier)('c')
           PsiElement(newline)('\n    ')
           ScFunctionDefinition
+            AnnotationsList
+              <empty list>
             Modifiers
               PsiElement(implicit)('implicit')
             PsiWhiteSpace(' ')

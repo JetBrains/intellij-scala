@@ -25,11 +25,9 @@ object Def {
   def parse(builder: PsiBuilder, isMod: Boolean,isImplicit: Boolean): Boolean = {
     val defMarker = builder.mark
     if (isMod || isImplicit) {
-      if (!isImplicit) {
-        val annotationsMarker = builder.mark
-        while (Annotation.parse(builder)) {}
-        annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
-      }
+      val annotationsMarker = builder.mark
+      while (Annotation.parse(builder)) {}
+      annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
       //parse modifiers
       val modifierMarker = builder.mark
       if (isMod) {
