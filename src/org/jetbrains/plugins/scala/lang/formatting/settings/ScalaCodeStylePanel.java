@@ -131,6 +131,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   }
 
   public void apply(CodeStyleSettings settings) {
+    if (!isModified(settings)) return;
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
     scalaSettings.SPACE_AFTER_COLON = afterColonBox.isSelected();
     scalaSettings.SPACE_AFTER_COMMA = afterCommaBox.isSelected();
