@@ -60,13 +60,13 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile) extends Text
     case f: ScFunction => f.getParent match {
       case b: ScBlockExpr => b.getParent.isInstanceOf[ScFunction]
       case tb: ScTemplateBody if (tb.getParent.isInstanceOf[ScExtendsBlock]) => {
-        isSuitableElementImpl(tb.getParent.getParent)
+        isSuitable(tb.getParent.getParent)
       }
       case _ => false
     }
     case m: ScMember => m.getParent match {
       case tb: ScTemplateBody if (tb.getParent.isInstanceOf[ScExtendsBlock]) => {
-        isSuitableElementImpl(tb.getParent.getParent)
+        isSuitable(tb.getParent.getParent)
       }
       case _ => false
     }
