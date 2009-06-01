@@ -62,6 +62,7 @@ import com.intellij.util.LocalTimeCounter;
 import com.intellij.util.containers.HashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.plugins.scala.icons.Icons;
 
 import javax.swing.*;
 import java.awt.*;
@@ -672,6 +673,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
             HighlighterTargetArea.EXACT_RANGE);
         iterator.advance();
       }
+      EditorFactory.getInstance().releaseEditor(editor);
     }
   }
 
@@ -1147,6 +1149,12 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     return ExecutionBundle.message("up.the.stack.trace");
   }
 
+  private ArrayList<AnAction> actions = new ArrayList<AnAction>();
+
+  public void addAction(AnAction action) {
+    actions.add(action);
+  }
+
   @NotNull
   public AnAction[] createUpDownStacktraceActions() {
     CommonActionsManager actionsManager = CommonActionsManager.getInstance();
@@ -1154,9 +1162,13 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     prevAction.getTemplatePresentation().setText(getPreviousOccurenceActionName());
     AnAction nextAction = actionsManager.createNextOccurenceAction(this);
     nextAction.getTemplatePresentation().setText(getNextOccurenceActionName());
-    return new AnAction[]{
-      prevAction, nextAction
-    };
+    AnAction[] consoleActions = new AnAction[2 + actions.size()];
+    consoleActions[0] = prevAction;
+    consoleActions[1] = nextAction;
+    for (int i = 0; i < actions.size(); ++i) {
+      consoleActions[i + 2] = actions.get(i);
+    }
+    return consoleActions;
   }
 
   public void setEditorEnabled(boolean enabled) {
