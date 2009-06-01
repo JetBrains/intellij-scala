@@ -8,11 +8,16 @@ import com.intellij.execution.filters.{Filter, TextConsoleBuilder, TextConsoleBu
 import com.intellij.execution.runners.{ExecutionEnvironment}
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.{CantRunException, ExecutionException, Executor}
-import com.intellij.ide.CommonActionsManager
-import com.intellij.ide.util.DirectoryChooser
+import com.intellij.ide.util.{PropertiesComponent, DirectoryChooser}
+import com.intellij.ide.{IdeBundle, CommonActionsManager}
 import com.intellij.openapi.actionSystem.{CustomShortcutSet, ShortcutSet, AnActionEvent, AnAction}
+import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
+import com.intellij.openapi.fileTypes.{FileTypeManager, FileType}
+
+import com.intellij.openapi.vfs.{LocalFileSystem, JarFileSystem, VirtualFile}
+import com.intellij.openapi.wm.WindowManager
+import com.intellij.psi.{PsiDocumentManager, PsiFileFactory, PsiManager}
 import java.awt.event.{KeyEvent, InputEvent}
-import javax.swing.KeyStroke
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType}
 import com.intellij.openapi.project.Project
@@ -20,19 +25,20 @@ import com.intellij.util.PathUtil
 import config.{ScalaCompilerUtil, ScalaConfigUtils}
 import icons.Icons
 import java.lang.String
+import javax.swing.filechooser.{FileFilter, FileView}
+import javax.swing.{Icon, JFileChooser, KeyStroke}
 import jdom.Element
-import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
 import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
-import com.intellij.psi.PsiManager
 import com.intellij.vcsUtil.VcsUtil
 import java.io.File
 import java.util.Arrays
 import com.intellij.facet.FacetManager
 import lang.psi.api.ScalaFile
 import settings.ScalaApplicationSettings
+import util.ScalaUtils
 
 /**
  * User: Alexander Podkhalyuzin
@@ -114,6 +120,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
       override def getConsole: ConsoleView = {
         val consoleView = new ScalaConsoleViewImpl(project, false, ScalaFileType.SCALA_FILE_TYPE)
         consoleView.importHistory(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY);
+        val builder = new StringBuilder()
         consoleView.addConsoleUserInputLestener(new ConsoleUserInputListener {
           def userTextPerformed(userText: String): Unit = {
             val hist = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY;
@@ -122,21 +129,70 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
               hist.add(userText)
               if (hist.size > consoleView.getHistorySize) hist.remove(0)
             }
+            if (builder.toString != "") builder.append("\n")
+            builder.append(userText)
           }
         })
+
         val saveAction = new AnAction {
           private val shortcutSet = new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK))
           setShortcutSet(shortcutSet)
           registerCustomShortcutSet(shortcutSet, consoleView.getComponent)
           def actionPerformed(e: AnActionEvent): Unit = {
+            val lastFilePath = PropertiesComponent.getInstance(project).getValue("last_opened_file_path")
+            val fileChooser = new JFileChooser(lastFilePath)
+            val fileView = new FileView() {
+              override def getIcon(f: File): Icon = {
+                if (f.isDirectory()) return super.getIcon(f)
+                val fileType = FileTypeManager.getInstance.getFileTypeByFileName(f.getName)
+                return fileType.getIcon();
+              }
+            };
+            fileChooser.setFileView(fileView)
+            fileChooser.setMultiSelectionEnabled(true)
+            fileChooser.setAcceptAllFileFilterUsed(false)
+            fileChooser.setDialogTitle("Choose Scala File or input new Scala File name")
+            val filesFilter = new FileFilter() {
+              def accept(f: File): Boolean = {
+                f.getName.endsWith(".scala") || f.isDirectory
+              }
 
+              def getDescription(): String = {
+                return "Scala File"
+              }
+            };
+
+            fileChooser.addChoosableFileFilter(filesFilter)
+            fileChooser.setFileFilter(filesFilter)
+            if (fileChooser.showOpenDialog(WindowManager.getInstance.suggestParentWindow(project)) !=
+                    JFileChooser.APPROVE_OPTION) {
+              return
+            }
+            val files = fileChooser.getSelectedFiles
+            if (files == null) return
+
+            val choosedFile: File = if (!files(0).getName.endsWith(".scala")) {
+              new File(files(0).getPath + ".scala")
+            } else files(0)
+            PropertiesComponent.getInstance(project).setValue("last_opened_file_path", choosedFile.getParent)
+            if (!choosedFile.exists) {
+              if (!choosedFile.createNewFile) return
+            }
+            val virtualFile = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(choosedFile)
+            val editor = FileEditorManager.getInstance(project).openTextEditor(new OpenFileDescriptor(project, virtualFile), true)
+            ScalaUtils.runWriteAction(new Runnable() {
+              def run() {
+                editor.getDocument.replaceString(0, editor.getDocument.getTextLength, builder.toString)
+                PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+              }
+            }, project, "Save script")
           }
         }
         saveAction.getTemplatePresentation.setIcon(Icons.SCRIPT_FILE_LOGO)
         saveAction.getTemplatePresentation.setEnabled(true)
         saveAction.getTemplatePresentation.setText("Save content to Script")
 
-        //consoleView.addAction(saveAction)
+        consoleView.addAction(saveAction)
         for (filter <- filters) {
           consoleView.addMessageFilter(filter)
         }
