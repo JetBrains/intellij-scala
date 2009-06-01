@@ -52,14 +52,7 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile) extends Text
     return Array[Filter](new ScalaInheritedMembersFilter)
   }
 
-  override def isSuitable(element: PsiElement) = element != null && isSuitableElementImpl(element)
-
-  override def shouldEnterElement(o: Object) = o match {
-    case t : ScTypeDefinition => t.members.length > 0 || t.typeDefinitions.size > 0
-    case _ => false
-  }
-
-  def isSuitableElementImpl(e: PsiElement): Boolean = e match {
+  override def isSuitable(element: PsiElement) = element match {
     case t: ScTypeDefinition => t.getParent match {
       case _: ScalaFile | _: ScPackaging => true
       case _ => false
@@ -80,8 +73,10 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile) extends Text
     case _ => false
   }
 
-
-
+  override def shouldEnterElement(o: Object) = o match {
+    case t : ScTypeDefinition => t.members.length > 0 || t.typeDefinitions.size > 0
+    case _ => false
+  }
 }
 
 class ScalaInheritedMembersFilter extends InheritedMembersFilter {

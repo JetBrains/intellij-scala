@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.lang.structureView.elements
 
 import com.intellij.ide.structureView.impl.common.PsiTreeElementBase
-import com.intellij.ide.structureView.StructureViewTreeElement;
+import com.intellij.ide.structureView.StructureViewTreeElement
+import com.intellij.psi.util.PsiTreeUtil
+import psi.api.statements.{ScVariable, ScValue}
+
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiElement;
 
@@ -13,10 +16,28 @@ import com.intellij.psi.PsiElement;
 abstract class ScalaStructureViewElement(protected val myElement: PsiElement, val inherited: Boolean) extends StructureViewTreeElement {
 
   def getValue(): Object = {
-    return if (myElement.isValid()) 
-      myElement
-    else
+    return if (myElement.isValid()) {
+      /*
+        code for right positioning for caret in case such:
+        val x, y = {
+          33<caret>
+        }
+       */
+      if (PsiTreeUtil.getParentOfType(myElement, classOf[ScValue]) != null) {
+        val v = PsiTreeUtil.getParentOfType(myElement, classOf[ScValue])
+        if (myElement.textMatches(v.declaredElements.apply(0))) v
+        else myElement
+      } else if (PsiTreeUtil.getParentOfType(myElement, classOf[ScVariable]) != null) {
+        val v = PsiTreeUtil.getParentOfType(myElement, classOf[ScVariable])
+        if (myElement.textMatches(v.declaredElements.apply(0))) v
+        else myElement
+      } else {
+        myElement
+      }
+    }
+    else {
       null;
+    }
   }
 
   def navigate(b: Boolean) {
