@@ -22,7 +22,6 @@ object Binding {
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER => builder.advanceLexer
       case _ => {
         paramMarker.rollbackTo
-        builder error ScalaBundle.message("wrong.parameter")
         return false
       }
     }
