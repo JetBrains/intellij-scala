@@ -23,7 +23,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   }
 
   def buildImplicitMap = {
-    val processor = new CollectImplictisProcessor(getType)
+    val processor = new CollectImplicitsProcessor(getType)
 
     // Collect implicit conversions from botom to up
     def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
@@ -65,7 +65,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
 
   import ResolveTargets._
-  class CollectImplictisProcessor(val eType: ScType) extends BaseProcessor(Set(METHOD)) {
+  class CollectImplicitsProcessor(val eType: ScType) extends BaseProcessor(Set(METHOD)) {
     private val signatures2ImplicitMethods = new HashMap[Signature, Set[ScFunctionDefinition]]
 
     def signatures = signatures2ImplicitMethods.keySet.toArray[Signature]
