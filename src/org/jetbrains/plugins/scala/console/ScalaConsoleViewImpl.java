@@ -660,20 +660,23 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       Document document = PsiDocumentManager.getInstance(myProject).getDocument(file);
       assert document != null;
       Editor editor = EditorFactory.getInstance().createEditor(document, myProject, myFileType, false);
-      RangeHighlighter[] allHighlighters = myEditor.getMarkupModel().getAllHighlighters();
-      for (RangeHighlighter highlighter : allHighlighters) {
-        if (highlighter.getStartOffset() >= token.startOffset) {
-          myEditor.getMarkupModel().removeHighlighter(highlighter);
+      try {
+        RangeHighlighter[] allHighlighters = myEditor.getMarkupModel().getAllHighlighters();
+        for (RangeHighlighter highlighter : allHighlighters) {
+          if (highlighter.getStartOffset() >= token.startOffset) {
+            myEditor.getMarkupModel().removeHighlighter(highlighter);
+          }
         }
+        HighlighterIterator iterator = ((EditorEx) editor).getHighlighter().createIterator(0);
+        while (!iterator.atEnd()) {
+          myEditor.getMarkupModel().addRangeHighlighter(iterator.getStart() + token.startOffset, iterator.getEnd() + token.startOffset, HighlighterLayer.SYNTAX,
+              iterator.getTextAttributes(),
+              HighlighterTargetArea.EXACT_RANGE);
+          iterator.advance();
+        }
+      } finally {
+        EditorFactory.getInstance().releaseEditor(editor);
       }
-      HighlighterIterator iterator = ((EditorEx) editor).getHighlighter().createIterator(0);
-      while (!iterator.atEnd()) {
-        myEditor.getMarkupModel().addRangeHighlighter(iterator.getStart() + token.startOffset, iterator.getEnd() + token.startOffset, HighlighterLayer.SYNTAX,
-            iterator.getTextAttributes(),
-            HighlighterTargetArea.EXACT_RANGE);
-        iterator.advance();
-      }
-      EditorFactory.getInstance().releaseEditor(editor);
     }
   }
 
