@@ -6,7 +6,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import com.jniwrapper.A
-import compilerErrors.CyclicReferencesSearcher
 import highlighter.{AnnotatorHighlighter}
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.expr._
@@ -48,7 +47,7 @@ import AnnotatorUtils._
  *    Date: 23.06.2008
  */
 
-class ScalaAnnotator extends Annotator with CyclicReferencesSearcher {
+class ScalaAnnotator extends Annotator {
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     val file = element.getContainingFile
@@ -67,7 +66,6 @@ class ScalaAnnotator extends Annotator with CyclicReferencesSearcher {
         checkResultExpression(x, holder)
       }
       case ref: ScReferenceElement => {
-        checkCyclicReferences(ref, holder)
         ref.qualifier match {
           case None => checkNotQualifiedReferenceElement(ref, holder)
           case Some(_) => checkQualifiedReferenceElement(ref, holder)
@@ -116,13 +114,6 @@ class ScalaAnnotator extends Annotator with CyclicReferencesSearcher {
         AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
       }
     }
-  }
-
-  /**
-   * @see CyclicReferenceSearcher for implementation
-   */
-  def checkCyclicReferences(refElement: ScReferenceElement, holder: AnnotationHolder) = {
-    checkCyclicTypeAliases(refElement, holder)
   }
 
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {

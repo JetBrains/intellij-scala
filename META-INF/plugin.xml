@@ -128,6 +128,9 @@
       <implementation-class>org.jetbrains.plugins.scala.config.ScalaFacetLoader</implementation-class>
       <interface-class>org.jetbrains.plugins.scala.config.ScalaFacetLoader</interface-class>
     </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.codeInspection.ScalaInspectionsProvider</implementation-class>
+    </component>
   </application-components>
 
 
