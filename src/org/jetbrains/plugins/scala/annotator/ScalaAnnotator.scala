@@ -117,10 +117,7 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
-    refElement.bind() match {
-      case None =>
-      case _ => AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
-    }
+    AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
   }
 
   private def registerAddImportFix(refElement: ScReferenceElement, annotation: Annotation, actions: IntentionAction*) {
