@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve._
 import _root_.scala.collection.Set
+import codeInspection.{ScalaElementVisitor}
+
 import impl.ScalaPsiElementFactory
 import impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -67,4 +69,11 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   def getKinds(incomplete: Boolean): Set[ResolveTargets.Value]
 
   def getSameNameVariants: Array[Object]
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case sev: ScalaElementVisitor => sev.visitReference(this)
+      case _ => visitor.visitElement(this)
+    }
+  }
 }
