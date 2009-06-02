@@ -50,6 +50,6 @@ private object ScTypeAliasDefinitionCaches {
 
   class MyProvider[Dom, T](e: Dom, builder: Dom => T) extends CachedValueProvider[T] {
     def compute() = new CachedValueProvider.Result(builder(e),
-      PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
+      PsiModificationTracker.MODIFICATION_COUNT)
   }
 }

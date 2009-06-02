@@ -1,25 +1,24 @@
 package org.jetbrains.plugins.scala.config;
 
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.libraries.LibraryTable;
-import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
-import com.intellij.openapi.roots.impl.libraries.LibraryImpl;
-import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.containers.ContainerUtil;
+import com.intellij.openapi.roots.impl.libraries.LibraryImpl;
+import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
+import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.roots.libraries.LibraryTable;
+import com.intellij.openapi.util.Condition;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.Function;
-import org.jetbrains.plugins.scala.config.ScalaConfigUtils;
-import org.jetbrains.plugins.scala.util.LibrariesUtil;
+import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.util.LibrariesUtil;
 
-import java.util.List;
-import java.util.Collection;
-import java.util.jar.JarFile;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.jar.JarFile;
 
 /**
  * @author ilyas

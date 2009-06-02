@@ -216,7 +216,7 @@ object TypeDefinitionMembers {
   def getMethods(clazz: PsiClass): MMap = get(clazz, methodsKey, new MyProvider(clazz, { clazz : PsiClass => MethodNodes.build(clazz) }))._2
   def getTypes(clazz: PsiClass) = get(clazz, typesKey, new MyProvider(clazz, { clazz : PsiClass => TypeNodes.build(clazz) }))._2
 
-  def getSignatures(c: PsiClass) = get(c, signaturesKey, new MyProvider(c, { c : PsiClass => SignatureNodes.build(c) }))._2
+  def getSignatures(c: PsiClass): SMap = get(c, signaturesKey, new MyProvider(c, { c : PsiClass => SignatureNodes.build(c) }))._2
 
   def getSuperVals(c: PsiClass) = get(c, valsKey, new MyProvider(c, { c : PsiClass => ValueNodes.build(c) }))._1
   def getSuperMethods(c: PsiClass) = get(c, methodsKey, new MyProvider(c, { c : PsiClass => MethodNodes.build(c) }))._1
