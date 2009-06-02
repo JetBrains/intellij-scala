@@ -74,6 +74,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
 
   public boolean SEARCH_ALL_SYMBOLS = false;
+  public boolean CHECK_IMPLICITS = true;
 
   //collapse by default
   public boolean FOLD_FILE_HEADER = true;
