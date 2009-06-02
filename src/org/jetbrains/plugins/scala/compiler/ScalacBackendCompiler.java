@@ -164,7 +164,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     boolean isScalaProject = false;
     for (Module module : allModules) {
       final FacetManager facetManager = FacetManager.getInstance(module);
-      if (facetManager.getFacetByType(ScalaFacet.ID)  != null) {
+      if (facetManager.getFacetByType(ScalaFacet.ID) != null) {
         isScalaProject = true;
         break;
       }
@@ -356,7 +356,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
       printer.println(tokenizer.nextToken());
     }
     printer.println(VERBOSE_PROPERTY);
-    printer.println(DEBUG_PROPERTY);
+//    printer.println(DEBUG_PROPERTY);
     //printer.println(WARNINGS_PROPERTY);
     printer.println(DEBUG_INFO_LEVEL_PROPEERTY);
     printer.println(DESTINATION_COMPILER_PROPERTY);
