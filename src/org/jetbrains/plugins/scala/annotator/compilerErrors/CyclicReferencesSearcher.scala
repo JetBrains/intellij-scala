@@ -19,7 +19,7 @@ trait CyclicReferencesSearcher {
   protected def checkCyclicTypeAliases(ref: ScReferenceElement, holder: AnnotationHolder): Unit =
     ref.bind match {
       case Some(ScalaResolveResult(alias: ScTypeAliasDefinition, _)) => {
-        alias.aliasedType(Set[ScNamedElement]()) match {
+        alias.aliasedType match {
           case ScTypeInferenceResult(_, true, Some(ta)) => {
             val error = ScalaBundle.message("cyclic.reference.type", ta.getName)
             val annotation = holder.createErrorAnnotation(ref.nameId, error)

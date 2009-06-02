@@ -18,6 +18,8 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
     } else aliasedTypeElement.getType(visited + this)
   }
 
+  lazy val aliasedType: ScTypeInferenceResult = aliasedType(Set[ScNamedElement]())
+
   def lowerBound = aliasedType(Set[ScNamedElement]())
   def upperBound = aliasedType(Set[ScNamedElement]())
 }
