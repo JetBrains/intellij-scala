@@ -282,7 +282,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
 
   override def isDeprecated: Boolean = super[ScTypeDefinition].isDeprecated
 
-
+  //Java sources uses this method. Really it's not very useful. Parameter checkBases ignored
   override def findMethodsAndTheirSubstitutorsByName(name: String, checkBases: Boolean): List[Pair[PsiMethod, PsiSubstitutor]] = {
     val functions = functionsByName(name).filter(_.getContainingClass == this)
     val res = new ArrayList[Pair[PsiMethod, PsiSubstitutor]]()

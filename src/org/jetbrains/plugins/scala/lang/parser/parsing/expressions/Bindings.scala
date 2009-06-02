@@ -25,7 +25,7 @@ object Bindings {
         return false
       }
     }
-    Param parse builder
+    Binding parse builder
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
       builder.advanceLexer //Ate ,
       if (!Binding.parse(builder)) {
