@@ -6,6 +6,7 @@ import api.base.types.ScTypeElement
 import api.expr.{ScGenericCall, ScAnnotation, ScExpression}
 import api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
 import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition, ScClass, ScObject}
+import com.intellij.openapi.project.Project
 import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -19,6 +20,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.{CachedValueProvider, CachedValue, PsiFormatUtil}
 import lang.psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
+import search.GlobalSearchScope
 import structureView.ScalaElementPresentation
 /**
  * User: Alexander Podkhalyuzin
@@ -228,5 +230,33 @@ object ScalaPsiUtil {
       }
       case _ => None
     }
+  }
+
+  def getPsiSubstitutor(subst: ScSubstitutor, project: Project): PsiSubstitutor = {
+    case class PseudoPsiSubstitutor(substitutor: ScSubstitutor) extends PsiSubstitutor {
+      def putAll(parentClass: PsiClass, mappings: Array[PsiType]): PsiSubstitutor = PsiSubstitutor.EMPTY
+
+      def isValid: Boolean = true
+
+      def put(classParameter: PsiTypeParameter, mapping: PsiType): PsiSubstitutor = PsiSubstitutor.EMPTY
+
+      def getSubstitutionMap: java.util.Map[PsiTypeParameter, PsiType] = new java.util.HashMap[PsiTypeParameter, PsiType]()
+
+      def substitute(`type` : PsiType): PsiType = {
+        ScType.toPsi(substitutor.subst(ScType.create(`type`, project)), project,
+          GlobalSearchScope.allScope(project))
+      }
+
+      def substitute(typeParameter: PsiTypeParameter): PsiType = {
+        ScType.toPsi(substitutor.subst(new ScTypeParameterType(typeParameter, substitutor)),
+          project, GlobalSearchScope.allScope(project))
+      }
+
+      def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY
+
+      def substituteWithBoundsPromotion(typeParameter: PsiTypeParameter): PsiType = substitute(typeParameter)
+    }
+
+    PseudoPsiSubstitutor(subst)
   }
 }

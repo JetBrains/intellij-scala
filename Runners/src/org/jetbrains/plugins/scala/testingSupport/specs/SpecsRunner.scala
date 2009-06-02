@@ -13,7 +13,8 @@ import org.specs.util.{Classes, SimpleTimer}
  * Date: 03.05.2009
  */
 
-object SpecsRunner {
+object
+SpecsRunner {
   def main(args: Array[String]) { //todo: run more tests then one
     if (args.length == 0) {
       println("The first argument should be the specification class name")

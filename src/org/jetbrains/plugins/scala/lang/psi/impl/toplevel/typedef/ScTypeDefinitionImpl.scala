@@ -4,6 +4,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
  * @author ilyas
  */
 
+import _root_.java.util.{Map, List, ArrayList}
+import com.intellij.openapi.util.{Pair, Iconable}
 import api.ScalaFile
 import api.statements._
 import com.intellij.openapi.editor.Editor
@@ -13,7 +15,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubIndex}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.{RenameUtil, PsiElementRenameHandler}
-import java.util.ArrayList
 import stubs.index.ScalaIndexKeys
 import stubs.ScTypeDefinitionStub
 import _root_.scala.collection.immutable.Set
@@ -45,7 +46,6 @@ import com.intellij.util.IconUtil
 import com.intellij.psi.impl._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.VisibilityIcons
-import com.intellij.openapi.util.Iconable
 import javax.swing.Icon
 import synthetic.JavaIdentifier
 import types.{ScSubstitutor, ScType}
@@ -281,4 +281,19 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
 
 
   override def isDeprecated: Boolean = super[ScTypeDefinition].isDeprecated
+
+
+  override def findMethodsAndTheirSubstitutorsByName(name: String, checkBases: Boolean): List[Pair[PsiMethod, PsiSubstitutor]] = {
+    val functions = functionsByName(name).filter(_.getContainingClass == this)
+    val res = new ArrayList[Pair[PsiMethod, PsiSubstitutor]]()
+    for {(_, n) <- TypeDefinitionMembers.getMethods(this)
+         substitutor = n.info.substitutor
+         method = n.info.method
+         if method.getName == name &&
+                 method.getContainingClass == this
+    } {
+      res.add(new Pair[PsiMethod, PsiSubstitutor](method, ScalaPsiUtil.getPsiSubstitutor(substitutor, getProject)))
+    }
+    res
+  }
 }
