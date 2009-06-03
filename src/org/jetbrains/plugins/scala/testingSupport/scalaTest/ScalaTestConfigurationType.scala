@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalaTest
 
 import _root_.java.lang.String
 import _root_.javax.swing.Icon
-import com.intellij.execution.configurations.{RunConfiguration, ConfigurationType, ConfigurationFactory}
+import com.intellij.execution.configurations.{JavaRunConfigurationModule, RunConfiguration, ConfigurationType, ConfigurationFactory}
+import com.intellij.openapi.module.Module
 import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
 import com.intellij.execution.{RunManager, Location, RunnerAndConfigurationSettings, LocatableConfigurationType}
 import com.intellij.openapi.util.IconLoader
@@ -47,7 +48,18 @@ class ScalaTestConfigurationType extends LocatableConfigurationType {
     if (suiteClazz == null) return null
     if (!parent.isInheritor(suiteClazz, true)) return null
     val settings = RunManager.getInstance(location.getProject).createRunConfiguration(parent.getName, confFactory)
-    settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration].setTestClassPath(parent.getQualifiedName)
+    val testClassPath = parent.getQualifiedName
+    val runConfiguration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
+    runConfiguration.setTestClassPath(testClassPath)
+    try {
+      val module = JavaRunConfigurationModule.getModulesForClass(element.getProject, testClassPath).toArray()(0).asInstanceOf[Module]
+      if (module != null) {
+        runConfiguration.setModule(module)
+      }
+    }
+    catch {
+      case e =>
+    }
     return settings
   }
 
