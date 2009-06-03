@@ -3,12 +3,13 @@ package org.jetbrains.plugins.scala.testingSupport.specs
 import _root_.java.lang.String
 import _root_.javax.swing.Icon
 import com.intellij.execution._
-import com.intellij.execution.configurations.{RunConfiguration, ConfigurationType, ConfigurationFactory}
 import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{JavaPsiFacade, PsiElement}
+import configurations.{JavaRunConfigurationModule, RunConfiguration, ConfigurationType, ConfigurationFactory}
 import icons.Icons
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import script.ScalaScriptRunConfigurationFactory
@@ -46,7 +47,18 @@ class SpecsConfigurationType extends LocatableConfigurationType {
     if (suiteClazz == null) return null
     if (!parent.isInheritor(suiteClazz, true)) return null
     val settings = RunManager.getInstance(location.getProject).createRunConfiguration(parent.getName, confFactory)
-    settings.getConfiguration.asInstanceOf[SpecsRunConfiguration].setTestClassPath(parent.getQualifiedName)
+    val runConfiguration = settings.getConfiguration.asInstanceOf[SpecsRunConfiguration]
+    val testClassPath = parent.getQualifiedName
+    runConfiguration.setTestClassPath(testClassPath)
+    try {
+      val module = JavaRunConfigurationModule.getModulesForClass(element.getProject, testClassPath).toArray()(0).asInstanceOf[Module]
+      if (module != null) {
+        runConfiguration.setModule(module)
+      }
+    }
+    catch {
+      case e =>
+    }
     return settings
   }
 
