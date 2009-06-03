@@ -2,8 +2,12 @@ package org.jetbrains.plugins.scala.testingSupport.specs;
 
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.module.Module;
 import com.intellij.ui.RawCommandLineEditor;
+import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.execution.junit2.configuration.ClassBrowser;
+import com.intellij.execution.junit2.configuration.ConfigurationModuleSelector;
+import com.intellij.execution.configurations.ModuleBasedConfiguration;
 import com.intellij.ide.util.TreeClassChooser;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.PsiClass;
@@ -12,6 +16,10 @@ import com.intellij.psi.JavaPsiFacade;
 import javax.swing.*;
 
 import org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunConfiguration;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,8 +30,14 @@ public class SpecsRunConfigurationForm {
   private TextFieldWithBrowseButton testClassTextField;
   private RawCommandLineEditor VMParamsTextField;
   private RawCommandLineEditor testOptionsTextField;
+  private JComboBox moduleComboBox;
+
+  private ConfigurationModuleSelector myModuleSelector;
 
   public SpecsRunConfigurationForm(final Project project, final SpecsRunConfiguration configuration) {
+    myModuleSelector = new ConfigurationModuleSelector(project, moduleComboBox);
+    myModuleSelector.reset(configuration);
+    moduleComboBox.setEnabled(true);
     addFileChooser("Choose test class", testClassTextField, project);
     VMParamsTextField.setDialogCaption("VM parameters editor");
     testOptionsTextField.setDialogCaption("Additional options editor");
@@ -33,6 +47,7 @@ public class SpecsRunConfigurationForm {
     setTestClassPath(configuration.getTestClassPath());
     setJavaOptions(configuration.getJavaOptions());
     setTestArgs(configuration.getTestArgs());
+    myModuleSelector.applyTo(configuration);
   }
 
   public String getTestClassPath() {
@@ -85,5 +100,9 @@ public class SpecsRunConfigurationForm {
      };
 
     browser.setField(textField);
+  }
+
+  public Module getModule() {
+    return myModuleSelector.getModule();
   }
 }

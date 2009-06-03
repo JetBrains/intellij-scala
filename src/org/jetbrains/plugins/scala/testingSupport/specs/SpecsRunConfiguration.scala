@@ -65,6 +65,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     setTestClassPath(configuration.getTestClassPath)
     setJavaOptions(configuration.getJavaOptions)
     setTestArgs(configuration.getTestArgs)
+    setModule(configuration.getModule)
   }
 
   def getClazz(path: String): PsiClass = {
@@ -158,15 +159,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
   }
 
   def getModule: Module = {
-    var module: Module = null
-    try {
-      module = JavaRunConfigurationModule.getModulesForClass(project, testClassPath).toArray()(0).asInstanceOf[Module]
-    }
-    catch {
-      case e =>
-    }
-    if (module == null) module = getConfigurationModule.getModule
-    return module
+    getConfigurationModule.getModule
   }
 
   def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
