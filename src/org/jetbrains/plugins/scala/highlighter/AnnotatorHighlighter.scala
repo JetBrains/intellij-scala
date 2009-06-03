@@ -102,8 +102,7 @@ object AnnotatorHighlighter {
       case x: ScParameter => {
         annotation.setTextAttributes(DefaultHighlighter.PARAMETER)
       }
-      case _: ScFunctionDefinition | _: ScFunctionDeclaration => {
-        val x = refElement.resolve
+      case x@(_: ScFunctionDefinition | _: ScFunctionDeclaration) => {
         if (x != null) {
           x.getParent match {
             case _: ScTemplateBody | _: ScEarlyDefinitions => {
