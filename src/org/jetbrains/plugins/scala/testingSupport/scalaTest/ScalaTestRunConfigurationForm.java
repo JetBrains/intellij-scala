@@ -9,6 +9,7 @@ import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.configuration.BrowseModuleValueActionListener;
 import com.intellij.execution.junit2.configuration.ClassBrowser;
+import com.intellij.execution.junit2.configuration.ConfigurationModuleSelector;
 import com.intellij.execution.configurations.ConfigurationUtil;
 import com.intellij.ide.util.TreeClassChooser;
 import com.intellij.ide.util.TreeClassChooserDialog;
@@ -38,8 +39,14 @@ public class ScalaTestRunConfigurationForm {
   private JRadioButton testPackageRadioButton;
   private JLabel testClassLabel;
   private JLabel testPackageLabel;
+  private JComboBox moduleComboBox;
+
+  private ConfigurationModuleSelector myModuleSelector;
 
   public ScalaTestRunConfigurationForm(final Project project, final ScalaTestRunConfiguration configuration) {
+    myModuleSelector = new ConfigurationModuleSelector(project, moduleComboBox);
+    myModuleSelector.reset(configuration);
+    moduleComboBox.setEnabled(true);
     addFileChooser("Choose test class", testClassTextField, project);
     addPackageChooser(testPackageTextField, project);
     VMParamsTextField.setDialogCaption("VM parameters editor");
@@ -99,6 +106,7 @@ public class ScalaTestRunConfigurationForm {
     else {
       setClassEnabled();
     }
+    myModuleSelector.applyTo(configuration);
   }
 
   public boolean isClassSelected() {
@@ -182,4 +190,7 @@ public class ScalaTestRunConfigurationForm {
     }
   }
 
+  public Module getModule() {
+    return myModuleSelector.getModule();
+  }
 }
