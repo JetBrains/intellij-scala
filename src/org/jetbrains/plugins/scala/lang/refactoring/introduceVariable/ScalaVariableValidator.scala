@@ -52,6 +52,7 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableHandle
 
   def isOKImpl(name: String, allOcc: Boolean): Array[String] = {
     val enclosingContainer: PsiElement = if (allOcc) enclosingContainerAll else enclosingOne
+    if (enclosingContainer == null) return Array()
     val buf = new ArrayBuffer[String]
     buf ++= validateDown(enclosingContainer, name, allOcc)
     buf ++= validateUp(enclosingContainer, name)
