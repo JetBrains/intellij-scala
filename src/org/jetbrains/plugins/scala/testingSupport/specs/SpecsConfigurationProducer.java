@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.testingSupport.specs;
 
-import com.intellij.execution.junit.RuntimeConfigurationProducer;
 import com.intellij.execution.LocatableConfigurationType;
 import com.intellij.execution.Location;
 import com.intellij.execution.actions.ConfigurationContext;
 import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl;
+import com.intellij.execution.junit.RuntimeConfigurationProducer;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.Nullable;
 
