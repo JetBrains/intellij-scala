@@ -95,7 +95,16 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       val guard: ScGuard = PsiTreeUtil.getParentOfType(expr, classOf[ScGuard])
       if (guard != null && guard.getParent.isInstanceOf[ScCaseClause]) showErrorMessage(ScalaBundle.message("cannot.refactor.guard"), project)
 
-      val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), file) //todo:
+      val fileEncloser = if (file.asInstanceOf[ScalaFile].isScriptFile) file
+      else {
+        var res: PsiElement = file
+        for (child <- file.getChildren) {
+          val textRange: TextRange = child.getTextRange
+          if (textRange.contains(startOffset)) res = child
+        }
+        res
+      }
+      val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
       // Getting settings
       val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq ++
          (for (occurence <- occurrences) yield file.findElementAt(occurence.getEndOffset - 1)).toSeq
