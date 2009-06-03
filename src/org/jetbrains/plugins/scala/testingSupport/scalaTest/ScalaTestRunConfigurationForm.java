@@ -1,29 +1,23 @@
 package org.jetbrains.plugins.scala.testingSupport.scalaTest;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.module.Module;
-import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.configuration.BrowseModuleValueActionListener;
 import com.intellij.execution.junit2.configuration.ClassBrowser;
 import com.intellij.execution.junit2.configuration.ConfigurationModuleSelector;
-import com.intellij.execution.configurations.ConfigurationUtil;
-import com.intellij.ide.util.TreeClassChooser;
-import com.intellij.ide.util.TreeClassChooserDialog;
 import com.intellij.ide.util.PackageChooserDialog;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.PsiClass;
+import com.intellij.ide.util.TreeClassChooser;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiPackage;
-import org.jetbrains.plugins.scala.script.ScalaScriptRunConfiguration;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.ui.RawCommandLineEditor;
 
 import javax.swing.*;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
-import java.awt.event.*;
+import javax.swing.event.ChangeListener;
 
 /**
  * User: Alexander Podkhalyuzin
