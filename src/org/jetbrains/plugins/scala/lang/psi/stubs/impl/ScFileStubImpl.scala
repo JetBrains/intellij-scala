@@ -41,7 +41,5 @@ class ScFileStubImpl(file: ScalaFile) extends PsiFileStubWrapperImpl[ScalaFile](
 
   def isCompiled: Boolean = compiled
 
-  def isScript: Boolean = {
-    script
-  }
+  def isScript: Boolean = script
 }
