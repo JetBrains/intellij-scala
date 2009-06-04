@@ -149,6 +149,10 @@
       <implementation-class>org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider</implementation-class>
     </component>
     <component>
+      <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+      </implementation-class>
+    </component>
+    <component>
       <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager</implementation-class>
     </component>
     <component>
