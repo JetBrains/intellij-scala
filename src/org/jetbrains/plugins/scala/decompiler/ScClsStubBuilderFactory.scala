@@ -5,7 +5,8 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.compiled.ClsStubBuilderFactory
 
-import com.intellij.psi.stubs.PsiFileStub
+import com.intellij.psi.impl.source.PsiFileImpl
+import com.intellij.psi.stubs.{StubTree, PsiFileStub}
 import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.psi.{PsiManager, PsiElement, PsiFile}
 import lang.psi.api.ScalaFile
@@ -26,6 +27,7 @@ class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
 
     val fType = LanguageParserDefinitions.INSTANCE.forLanguage(ScalaFileType.SCALA_LANGUAGE).getFileNodeType()
     val stub = fType.asInstanceOf[IStubFileElementType[PsiFileStub[PsiFile]]].getBuilder().buildStubTree(file)
+    //file.asInstanceOf[PsiFileImpl].calcStubTree//setStubTree(new StubTree(stub.asInstanceOf[PsiFileStub[_ <: PsiFile]]))
     return stub.asInstanceOf[PsiFileStub[ScalaFile]]
   }
 
