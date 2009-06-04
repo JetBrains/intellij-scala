@@ -13,4 +13,6 @@ trait ScFileStub extends PsiClassHolderFileStub[ScalaFile]{
   def getFileName: String
 
   def isCompiled: Boolean
+
+  def isScript: Boolean
 }

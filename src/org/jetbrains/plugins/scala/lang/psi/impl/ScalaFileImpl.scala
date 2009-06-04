@@ -81,14 +81,19 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
 
   def isScriptFile: Boolean = {
-    for (n <- getNode.getChildren(null); child = n.getPsi) {
-      child match {
-        case _: ScPackageStatement | _: ScPackaging => return false
-        case _: ScValue | _: ScVariable | _: ScFunction | _: ScExpression | _: ScTypeAlias => return true
-        case _ => if (n.getElementType == ScalaTokenTypes.tSH_COMMENT) return true
+    val stub = getStub
+    if (stub == null) {
+      for (n <- getNode.getChildren(null); child = n.getPsi) {
+        child match {
+          case _: ScPackageStatement | _: ScPackaging => return false
+          case _: ScValue | _: ScVariable | _: ScFunction | _: ScExpression | _: ScTypeAlias => return true
+          case _ => if (n.getElementType == ScalaTokenTypes.tSH_COMMENT) return true
+        }
       }
+      return false
+    } else {
+      stub.isScript
     }
-    return false
   }
 
   def setPackageName(name: String) {
@@ -108,7 +113,16 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   def packageStatement = findChild(classOf[ScPackageStatement])
 
-  override def getClasses = if (!isScriptFile) typeDefinitions.map(t => t: PsiClass) else PsiClass.EMPTY_ARRAY
+  override def getClasses = {
+    if (!isScriptFile) {
+      val stub = getStub
+      if (stub != null) {
+        stub.getClasses
+      } else {
+        typeDefinitions.map(t => t: PsiClass)
+      }
+    } else PsiClass.EMPTY_ARRAY
+  }
 
   def icon = Icons.FILE_TYPE_LOGO
 
