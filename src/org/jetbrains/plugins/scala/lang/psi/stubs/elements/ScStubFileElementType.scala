@@ -21,13 +21,15 @@ class ScStubFileElementType(lang: Language) extends IStubFileElementWrapper[Scal
   override def getExternalId = "scala.FILE"
 
   override def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScFileStub = {
+    val script = dataStream.readBoolean
     val compiled = dataStream.readBoolean
     val packName = dataStream.readName
     val fileName = dataStream.readName
-    return new ScFileStubImpl(null, packName, fileName, compiled)
+    return new ScFileStubImpl(null, packName, fileName, compiled, script)
   }
 
   override def serialize(stub: ScFileStub, dataStream: StubOutputStream): Unit = {
+    dataStream.writeBoolean(stub.isScript)
     dataStream.writeBoolean(stub.isCompiled)
     dataStream.writeName(stub.packageName)
     dataStream.writeName(stub.getFileName)
