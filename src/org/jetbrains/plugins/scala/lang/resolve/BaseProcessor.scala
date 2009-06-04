@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import com.intellij.openapi.util.Key
 import psi.api.toplevel.ScPolymorphicElement
 import psi.api.expr.{ScSuperReference, ScThisReference}
 import psi.api.base.{ScStableCodeReferenceElement, ScFieldId}
@@ -44,11 +45,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     }
   }
 
-  def getHint[T](hintClass: Class[T]): T = {
-    if (hintClass == classOf[ElementClassHint]) {
+  def getHint[T](hintKey: Key[T]): T = {
+    if (hintKey == ElementClassHint.KEY) {
       return MyElementClassHint.asInstanceOf[T]
+    } else {
+      return null.asInstanceOf[T]
     }
-    return null.asInstanceOf[T]
   }
 
   def handleEvent(event: PsiScopeProcessor.Event, associated: Object) = {

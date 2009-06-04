@@ -30,7 +30,7 @@ object ScalaInplaceVariableRenamer {
             if (stringToSearch != null) {
               TextOccurrencesUtil.addUsagesInStringsAndComments(element, stringToSearch, usages, new TextOccurrencesUtil.UsageInfoFactory {
                 def createUsageInfo(usage: PsiElement, startOffset: Int, endOffset: Int): UsageInfo = new UsageInfo(usage)
-              }, true);
+              });
             }
             return usages.isEmpty
           }

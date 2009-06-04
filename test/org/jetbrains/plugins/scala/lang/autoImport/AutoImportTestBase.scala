@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.autoImport
 
 import _root_.org.jetbrains.plugins.scala.codeInspection.importInspections.ScalaAddImportPass
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheImpl
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCache
 import com.intellij.openapi.command.undo.UndoManager
 import com.intellij.openapi.fileEditor.impl.text.{TextEditorImpl, PsiAwareTextEditorImpl, TextEditorProvider}
 import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
@@ -48,8 +48,8 @@ abstract class AutoImportTestBase extends ScalaPsiTestCase {
       case _ => assert(false, "Reference must be unresolved.")
     }
 
-    val cache = new ScalaShortNamesCacheImpl(myProject)
-    cache.runStartupActivity
+    //val cache = new ScalaShortNamesCache(myProject)
+    //cache.runStartupActivity
 
     val classes = ScalaAddImportPass.getClasses(ref, myProject)
     assert(classes.length > 0, "Haven't classes to import")

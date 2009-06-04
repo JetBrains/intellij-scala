@@ -39,9 +39,10 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: 
     if (subst == null) ScSubstitutor.empty else subst
   }
 
-  override def getHint[T](hintClass: Class[T]): T =
-    if (hintClass == classOf[NameHint] && name != "") ScalaNameHint.asInstanceOf[T]
-    else super.getHint(hintClass)
+  override def getHint[T](hintKey: Key[T]): T = {
+    if (hintKey == NameHint.KEY && name != "") ScalaNameHint.asInstanceOf[T]
+    else super.getHint(hintKey)
+  }
 
   object ScalaNameHint extends NameHint {
     def getName(state : ResolveState) = {

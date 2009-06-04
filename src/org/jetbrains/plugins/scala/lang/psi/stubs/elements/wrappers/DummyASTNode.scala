@@ -2,12 +2,14 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers
 import com.intellij.psi.tree.{TokenSet, IElementType}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.source.tree.{TreeElement, TreeElementVisitor}
+import lexer.ScalaElementType
+import parser.ScalaElementTypes
 
 /**
  * @author ilyas
  */
 
-object DummyASTNode extends TreeElement {
+object DummyASTNode extends TreeElement(ScalaElementTypes.DUMMY_ELEMENT) {
   def getText: String = null
   def removeRange(firstNodeToRemove: ASTNode, firstNodeToKeep: ASTNode): Unit = {
 
@@ -28,7 +30,6 @@ object DummyASTNode extends TreeElement {
   def addChild(child: ASTNode, anchorBefore: ASTNode): Unit = {
 
   }
-  def getElementType: IElementType = null
   def getTextLength: Int = 42
   def getChildren(filter: TokenSet) = Array[ASTNode]()
   def addLeaf(leafType: IElementType, leafText: CharSequence, anchorBefore: ASTNode): Unit = {
@@ -51,4 +52,13 @@ object DummyASTNode extends TreeElement {
   def getPsi = null
   def acceptTree(visitor: TreeElementVisitor) {
   }
+
+  def getCachedLength: Int = 42
+
+  def textMatches(buffer: CharSequence, start: Int): Int = -1
+
+  def getNotCachedLength: Int = 42
+
+
+  def getChars: CharSequence = textToCharArray.mkString
 }

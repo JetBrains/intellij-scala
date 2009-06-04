@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.elements
+import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.io.StringRef
 import impl.ScTypeDefinitionStubImpl
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
 import api.toplevel.typedef.ScTypeDefinition
 import index.{ScFullClassNameIndex, ScalaIndexKeys, ScShortClassNameIndex}
 
@@ -46,7 +46,7 @@ extends ScStubElementType[ScTypeDefinitionStub, ScTypeDefinition](debugName) {
     }
     val fqn = stub.qualName
     if (fqn != null) {
-      sink.occurrence(ScalaIndexKeys.FQN_KEY, fqn.hashCode)
+      sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.FQN_KEY, fqn.hashCode)
     }
     val methodNames = stub.methodNames
     for (name <- methodNames) {

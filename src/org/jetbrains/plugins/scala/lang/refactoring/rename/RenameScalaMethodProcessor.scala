@@ -39,10 +39,6 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
   }
 
 
-  override def findCollisionsAgainstNewName(memberToRename: PsiMember, newName: String, result: List[_ >: MemberHidesStaticImportUsageInfo]): Unit = {
-    //todo
-  }
-
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
     val function: ScFunction = element match {case x: ScFunction => x case _ => return element}

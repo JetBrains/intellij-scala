@@ -6,7 +6,7 @@ import api.toplevel.typedef.ScMember
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.search.searches.AnnotatedMembersSearch
+import com.intellij.psi.search.searches.{AnnotatedElementsSearch, AnnotatedMembersSearch}
 import com.intellij.psi.{PsiMember, PsiElement}
 import com.intellij.util.{QueryExecutor, Processor}
 import stubs.util.ScalaStubsUtil
@@ -15,9 +15,9 @@ import stubs.util.ScalaStubsUtil
  * Date: 10.01.2009
  */
 
-class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedMembersSearch.Parameters] {
+class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedElementsSearch.Parameters] {
 
-  def execute(p: AnnotatedMembersSearch.Parameters, consumer: Processor[PsiMember]): Boolean = {
+  def execute(p: AnnotatedElementsSearch.Parameters, consumer: Processor[PsiMember]): Boolean = {
     val annClass = p.getAnnotationClass
     assert(annClass.isAnnotationType(), "Annotation type should be passed to annotated members search")
     val annotationFQN = annClass.getQualifiedName

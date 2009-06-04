@@ -38,7 +38,7 @@ extends ScStubElementType[ScPackageContainerStub, ScPackageContainer](debugName)
     def append(postfix : String) = if (prefix.length > 0) prefix + "." + postfix else postfix
     var i = 0
     do {
-      sink.occurrence(ScalaIndexKeys.PACKAGE_FQN_KEY, append(ownNamePart).hashCode)
+      sink.occurrence[ScPackageContainer, java.lang.Integer](ScalaIndexKeys.PACKAGE_FQN_KEY, append(ownNamePart).hashCode)
       i = ownNamePart.lastIndexOf(".")
       if (i > 0) {
         ownNamePart = ownNamePart.substring(0, i)

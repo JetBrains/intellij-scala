@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.psi.meta.PsiMetaData
+import java.lang.String
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -48,4 +49,7 @@ class ScAnnotationImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
   def findAttributeValue(attributeName: String): PsiAnnotationMemberValue = null
 
   def getNameReferenceElement: PsiJavaCodeReferenceElement = null
+
+
+  def setDeclaredAttributeValue[T <: PsiAnnotationMemberValue](attributeName: String, value: T): T = null.asInstanceOf[T]
 }

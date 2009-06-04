@@ -29,6 +29,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.config.ScalaFacet;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author ven, ilyas
  */
@@ -88,10 +92,14 @@ public class ScalaCompiler implements TranslatingCompiler {
 
   public ExitStatus compile(CompileContext context, VirtualFile[] files) {
         final BackendCompiler backEndCompiler = getBackEndCompiler();
-        final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(myProject, files, (CompileContextEx) context, backEndCompiler);
+        ArrayList<VirtualFile> filesToCompile = new ArrayList<VirtualFile>(files.length);
+        filesToCompile.addAll(Arrays.asList(files));
+        final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(myProject, filesToCompile,
+            (CompileContextEx) context, backEndCompiler);
         OutputItem[] outputItems;
         try {
-            outputItems = wrapper.compile();
+          List<OutputItem> list = wrapper.compile();
+          outputItems = list.toArray(new OutputItem[list.size()]);
         }
         catch (CompilerException e) {
             outputItems = EMPTY_OUTPUT_ITEM_ARRAY;

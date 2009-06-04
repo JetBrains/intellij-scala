@@ -17,8 +17,8 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.idea.maven.project.MavenArtifact;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.project.MavenProjectModel;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.runner.MavenRunConfiguration;
 import org.jetbrains.idea.maven.runner.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.runner.MavenRunnerParameters;
@@ -35,7 +35,7 @@ public class LiftRunConfigurationProducer extends RuntimeConfigurationProducer i
 
   private PsiElement mySourceElement;
   private static final String GROUP_ID_LIFT = "net.liftweb";
-  private static final String ARTIFACT_ID_LIDT = "lift-webkit";
+  private static final String ARTIFACT_ID_LIFT = "lift-webkit";
 
   private static final String JETTY_RUN = "jetty:run";
 
@@ -55,11 +55,23 @@ public class LiftRunConfigurationProducer extends RuntimeConfigurationProducer i
     if (module == null) return null;
 
     final MavenProjectsManager mavenProjectsManager = MavenProjectsManager.getInstance(project);
-    final MavenProjectModel mavenProjectModel = mavenProjectsManager.findProject(module);
+    final MavenProject mavenProject = mavenProjectsManager.findProject(module);
 
-    if (mavenProjectModel == null) return null;
+    if (mavenProject == null) return null;
 
-    final MavenArtifact artifact = mavenProjectModel.findDependency(GROUP_ID_LIFT, ARTIFACT_ID_LIDT);
+    //todo: check this code
+    final List<MavenArtifact> dependencies = mavenProject.getDependencies();
+    MavenArtifact artifact = null;
+    for (MavenArtifact dependence : dependencies) {
+      if (dependence.getArtifactId().equals(GROUP_ID_LIFT)) {
+        artifact = dependence;
+        break;
+      } else if (dependence.getArtifactId().equals(ARTIFACT_ID_LIFT)) {
+        artifact = dependence;
+        break;
+      }
+    }
+    //final MavenArtifact artifact = mavenProjectModel.findDependency(GROUP_ID_LIFT, ARTIFACT_ID_LIFT);
 
     if (artifact == null) return null;
 

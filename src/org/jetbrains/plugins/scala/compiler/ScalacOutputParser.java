@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.compiler.OutputParser;
+import com.intellij.compiler.impl.javaCompiler.FileObject;
 import com.intellij.openapi.compiler.CompilerMessageCategory;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFileManager;
@@ -57,7 +58,8 @@ class ScalacOutputParser extends OutputParser {
     if (line == null) {
       //ensure that all "written" files are really written
       for (String s : myWrittenList) {
-        callback.fileGenerated(s);
+        File out = new File(s); //todo: Not sure what it means.
+        callback.fileGenerated(new FileObject(out));
       }
       myWrittenList.clear();
       return false;
