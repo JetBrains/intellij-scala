@@ -106,20 +106,10 @@ extends SyntheticNamedElement(manager, name) with ScFun {
   override def toString = "Synthetic method"
 }
 
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 
-class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectComponent {
-  def projectOpened {}
-  def projectClosed {}
-  def getComponentName = "SyntheticClasses"
-  def disposeComponent {}
-
-  def initComponent() {
-    StartupManager.getInstance(project).registerPostStartupActivity(new Runnable {
-      def run = registerClasses
-    })
-  }
+class SyntheticClasses(project: Project) extends PsiElementFinder {
+  registerClasses
 
   def registerClasses = {
     all = new HashMap[String, ScSyntheticClass]
