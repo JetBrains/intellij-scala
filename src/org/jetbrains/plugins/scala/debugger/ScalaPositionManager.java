@@ -175,7 +175,7 @@ public class ScalaPositionManager implements PositionManager {
     final String qName = dollar >= 0 ? originalQName.substring(0, dollar) : originalQName;
     final GlobalSearchScope searchScope = myDebugProcess.getSearchScope();
 
-    final PsiClass[] classes = project.getComponent(ScalaCachesManager.class).getNamesCache().getClassesByFQName(qName, searchScope);
+    final PsiClass[] classes = ScalaCachesManager.getInstance(project).getNamesCache().getClassesByFQName(qName, searchScope);
     PsiClass clazz = classes.length == 1 ? classes[0] : null;
     if (clazz != null && clazz.isValid()) return clazz.getContainingFile();
 

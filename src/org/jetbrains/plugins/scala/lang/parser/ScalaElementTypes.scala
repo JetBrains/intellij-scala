@@ -15,6 +15,9 @@ import psi.stubs.elements.signatures.{ScClassParameterElementType, ScParameterEl
  */
 object ScalaElementTypes {
 
+  val DUMMY_ELEMENT = new ScalaElementType("Dummy Elemnet");
+
+
   //Stub element types
   val FILE: IStubFileElementType[_] = new ScStubFileElementType(ScalaFileType.SCALA_LANGUAGE)
 

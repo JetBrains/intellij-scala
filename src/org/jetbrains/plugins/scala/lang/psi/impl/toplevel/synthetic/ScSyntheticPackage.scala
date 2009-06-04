@@ -121,6 +121,9 @@ object ScSyntheticPackage {
             buff.toArray
           }
           def getSubPackages(scope: GlobalSearchScope) = getSubPackages
+
+
+          def getContainer: PsiQualifiedNamedElement = null
         }
       }
     }

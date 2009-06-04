@@ -77,6 +77,9 @@
     <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro"/>
     <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.SuggestScalaVariableNameMacro"/>
     <testSrcLocator implementation="org.jetbrains.plugins.scala.testingSupport.scalaTest.locationProvider.ScalaTestLocationProvider"/>
+    <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
+    <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaClassFinder"/>
+    <java.shortNamesCache implementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCache"/>
 
     <gotoClassContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToClassContributor"/>
     <gotoSymbolContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToSymbolContributor"/>
@@ -146,9 +149,6 @@
       <implementation-class>org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider</implementation-class>
     </component>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.finder.ScalaClassFinder</implementation-class>
-    </component>
-    <component>
       <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
       </implementation-class>
     </component>
@@ -160,8 +160,7 @@
       </implementation-class>
     </component>
     <component>
-      <interface-class>org.jetbrains.plugins.scala.caches.ScalaCachesManager</interface-class>
-      <implementation-class>org.jetbrains.plugins.scala.caches.ScalaCachesManagerImpl</implementation-class>
+      <implementation-class>org.jetbrains.plugins.scala.caches.ScalaCachesManager</implementation-class>
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.scala.compiler.ScalacSettings</implementation-class>

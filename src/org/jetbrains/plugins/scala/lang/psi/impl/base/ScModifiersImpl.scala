@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import api.expr.ScAnnotations
 import com.intellij.psi.util.PsiUtil
+import java.lang.String
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -115,5 +116,9 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
       }
       case _ => findChildByType(prop) != null
     }
+  }
+
+  def addAnnotation(qualifiedName: String): PsiAnnotation = {
+    null
   }
 }

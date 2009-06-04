@@ -109,7 +109,7 @@ extends SyntheticNamedElement(manager, name) with ScFun {
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 
-class SyntheticClasses(project: Project) extends ProjectComponent with PsiElementFinder {
+class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectComponent {
   def projectOpened {}
   def projectClosed {}
   def getComponentName = "SyntheticClasses"
@@ -239,11 +239,7 @@ class SyntheticClasses(project: Project) extends ProjectComponent with PsiElemen
     if (c == null) PsiClass.EMPTY_ARRAY else Array(c)
   }
 
-  def findPackage(qName : String) = null
-
-  def getSubPackages(p : PsiPackage, scope : GlobalSearchScope) = Array[PsiPackage]()
-
-  def getClasses(p : PsiPackage, scope : GlobalSearchScope) = findClasses(p.getQualifiedName, scope)
+  override def getClasses(p : PsiPackage, scope : GlobalSearchScope) = findClasses(p.getQualifiedName, scope)
 }
 
 object SyntheticClasses {

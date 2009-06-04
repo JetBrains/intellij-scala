@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve.{ResolverEnv, BaseProcessor}
 import api.toplevel.typedef.ScTypeDefinition
+import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.lang.ASTNode
@@ -57,7 +58,7 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
               processor match {
                 case bp: BaseProcessor => {
                   val p1 = new BaseProcessor(bp.kinds) {
-                    override def getHint[T](hintClass: Class[T]): T = processor.getHint(hintClass)
+                    override def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
 
                     override def handleEvent(event: PsiScopeProcessor.Event, associated: Object) =
                       processor.handleEvent(event, associated)

@@ -40,6 +40,14 @@ public class ScalaCommenter implements CodeDocumentationAwareCommenter, ScalaTok
     return "/*";
   }
 
+  public String getCommentedBlockCommentPrefix() {
+    return "/*";
+  }
+
+  public String getCommentedBlockCommentSuffix() {
+    return "*/";
+  }
+
   public String getBlockCommentSuffix() {
     return "*/";
   }

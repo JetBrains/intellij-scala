@@ -10,37 +10,25 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiElementFinder, PsiClass, PsiPackage}
 import lang.psi.api.ScalaFile
 
-class ScalaClassFinder(project: Project) extends ProjectComponent with PsiElementFinder {
-  def projectOpened {}
-  def projectClosed {}
-  def getComponentName = "Scala Class Finder"
-  def initComponent {}
-  def disposeComponent {}
+class ScalaClassFinder(project: Project) extends PsiElementFinder {
 
   def findClass(qName: String, scope: GlobalSearchScope) =
-    project.getComponent(classOf[ScalaCachesManager]).getNamesCache.getClassByFQName(qName, scope)
+    ScalaCachesManager.getInstance(project).getNamesCache.getClassByFQName(qName, scope)
 
   def findClasses(qName: String, scope: GlobalSearchScope) =
-    project.getComponent(classOf[ScalaCachesManager]).getNamesCache.getClassesByFQName(qName, scope).filter {
+    ScalaCachesManager.getInstance(project).getNamesCache.getClassesByFQName(qName, scope).filter {
       c => c.getContainingFile match {
         case s : ScalaFile => !s.isScriptFile
         case _ => true
       }
     }
 
-  def findPackage(qName: String): PsiPackage = ScalaPsiManager.instance(project).syntheticPackage(qName)
+  override def findPackage(qName: String): PsiPackage = ScalaPsiManager.instance(project).syntheticPackage(qName)
   
-  def getSubPackages(p: PsiPackage, scope: GlobalSearchScope) = Array[PsiPackage]() //todo
+  override def getSubPackages(p: PsiPackage, scope: GlobalSearchScope) = Array[PsiPackage]() //todo
 
-  def getClasses(p: PsiPackage, scope: GlobalSearchScope) = p match {
+  override def getClasses(p: PsiPackage, scope: GlobalSearchScope) = p match {
     case synth: ScSyntheticPackage => Array[PsiClass]() //todo
-    case _ => {
-      val buff = new ArrayBuffer[PsiClass]
-      for (dir <- p.getDirectories(scope); file <- dir.getFiles) file match {
-        case scala: ScalaFile if !scala.isScriptFile => buff ++= scala.typeDefinitions
-        case _ =>
-      }
-      buff.toArray
-    }
+    case _ => Array[PsiClass]()
   }
 }
