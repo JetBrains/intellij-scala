@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.annotations.NotNull;
 import com.intellij.psi.tree.IChameleonElementType;
+import com.intellij.psi.tree.ILazyParseableElementType;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.lang.Language;
@@ -23,7 +24,7 @@ public interface ScalaDocElementTypes extends ScalaDocTokenType{
   /**
    * ScalaDoc comment
    */
-  IChameleonElementType SCALA_DOC_COMMENT = new IChameleonElementType("SCALA_DOC_COMMENT", ScalaFileType.SCALA_FILE_TYPE.getLanguage()) {
+  ILazyParseableElementType SCALA_DOC_COMMENT = new ILazyParseableElementType("SCALA_DOC_COMMENT", ScalaFileType.SCALA_FILE_TYPE.getLanguage()) {
 
     public ASTNode parseContents(ASTNode chameleon) {
       final PeerFactory factory = PeerFactory.getInstance();
