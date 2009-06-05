@@ -6,6 +6,7 @@ import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 
 
 import com.intellij.openapi.roots.{OrderEntry, ProjectRootManager, OrderRootType}
+import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.file.PsiPackageImpl
 import lexer.ScalaTokenTypes
 import stubs.ScFileStub
@@ -83,14 +84,23 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   def isScriptFile: Boolean = {
     val stub = getStub
     if (stub == null) {
-      for (n <- getNode.getChildren(null); child = n.getPsi) {
-        child match {
-          case _: ScPackageStatement | _: ScPackaging => return false
-          case _: ScValue | _: ScVariable | _: ScFunction | _: ScExpression | _: ScTypeAlias => return true
-          case _ => if (n.getElementType == ScalaTokenTypes.tSH_COMMENT) return true
+      val res = getUserData(ScalaFileImpl.SCRIPT_KEY)
+      def calcResult(): Boolean = {
+        for (n <- getNode.getChildren(null); child = n.getPsi) {
+          child match {
+            case _: ScPackageStatement | _: ScPackaging => return false
+            case _: ScValue | _: ScVariable | _: ScFunction | _: ScExpression | _: ScTypeAlias => return true
+            case _ => if (n.getElementType == ScalaTokenTypes.tSH_COMMENT) return true
+          }
         }
+        return false
       }
-      return false
+      if (res == null) {
+        val b = calcResult
+        putUserData(ScalaFileImpl.SCRIPT_KEY, new java.lang.Boolean(b))
+        return b
+      }
+      return java.lang.Boolean.TRUE == res
     } else {
       stub.isScript
     }
@@ -189,4 +199,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 object ImplicitlyImported {
   val packages = Array("scala", "java.lang")
   val objects = Array("scala.Predef")
+}
+
+private object ScalaFileImpl {
+  val SCRIPT_KEY = new Key[java.lang.Boolean]("Is Script Key")
 }
