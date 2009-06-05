@@ -12,6 +12,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{VirtualFileWithId, CharsetToolkit, VirtualFile}
 import com.intellij.testFramework.LightVirtualFile
@@ -37,23 +38,32 @@ object DecompilerUtil {
     case e: IOException => false
   }
 
+  private val SCALA_FILE = new Key[java.lang.Boolean]("Is Scala File Key")
+
   def isScalaFile(file: VirtualFile, bytes: => Array[Byte]): Boolean = {
-    if (file.getFileType != StdFileTypes.CLASS) return false
-    if (!file.isInstanceOf[VirtualFileWithId]) return false
-    val read = isScalaCompiledAttribute.readAttribute(file)
-    if (read != null) try {read.readBoolean} finally {read.close} else {
-      val byteCode = ByteCode(bytes)
-      val isScala = try {
-        val classFile = ClassFileParser.parse(byteCode)
-        classFile.attribute("ScalaSig") match {case Some(_) => true; case None => false}
-      } catch {
-        case e => false
+    def inner: Boolean = {
+      if (file.getFileType != StdFileTypes.CLASS) return false
+      if (!file.isInstanceOf[VirtualFileWithId]) return false
+      val read = isScalaCompiledAttribute.readAttribute(file)
+      if (read != null) try {read.readBoolean} finally {read.close} else {
+        val byteCode = ByteCode(bytes)
+        val isScala = try {
+          val classFile = ClassFileParser.parse(byteCode)
+          classFile.attribute("ScalaSig") match {case Some(_) => true; case None => false}
+        } catch {
+          case e => false
+        }
+        val write = isScalaCompiledAttribute.writeAttribute(file)
+        write.writeBoolean(isScala)
+        write.close
+        isScala
       }
-      val write = isScalaCompiledAttribute.writeAttribute(file)
-      write.writeBoolean(isScala)
-      write.close
-      isScala
     }
+    val b = file.getUserData(SCALA_FILE)
+    if (b != null) return java.lang.Boolean.TRUE == b
+    val res = inner
+    file.putUserData(SCALA_FILE, new java.lang.Boolean(res))
+    res
   }
 
   def obtainProject: Project = {
