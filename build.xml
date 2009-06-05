@@ -35,7 +35,7 @@
 
   <property name="0" value="unknown"/>
   <property name="build.vcs.number.scala_svn" value="unknown"/>
-  <property name="plugin.revision" value="${build.vcs.number.scala_svn}"/>
+  <property name="plugin.revision" value="${build.vcs.number}"/>
   <property name="plugin.version" value="${scala.plugin.version}.${plugin.revision}"/>
 
   <property name="scala.jar" value="scala-plugin.jar"/>
