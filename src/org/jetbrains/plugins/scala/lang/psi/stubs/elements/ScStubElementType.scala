@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 import com.intellij.psi.stubs.{StubElement, IndexSink, IStubElementType, PsiFileStub}
 import wrappers.IStubElementTypeWrapper
 import com.intellij.psi.PsiElement
-import eclipse.jdt.internal.compiler.ast.ASTNode
 /**
  * @author ilyas
  */

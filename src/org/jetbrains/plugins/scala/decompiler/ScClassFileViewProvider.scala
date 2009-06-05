@@ -22,18 +22,16 @@ extends SingleRootFileViewProvider(manager, file, physical) {
   def this(manager: PsiManager, file: VirtualFile) = this(manager, file, true);
 
   override def creatFile(project: Project, vFile: VirtualFile, fileType: FileType): PsiFile = {
-    if (ProjectRootManager.getInstance(project).getFileIndex().isInLibraryClasses(vFile)) {
-      val name = vFile.getNameWithoutExtension
-      // skip inners & anonymous
-      if (name.lastIndexOf('$') >= 0) null else {
-        val file = new ScalaFileImpl(this)
-        val adj = file.asInstanceOf[CompiledFileAdjuster]
-        adj.setCompiled(true)
-        adj.setSourceFileName(DecompilerUtil.decompile(vFile.contentsToByteArray, vFile)._2)
-        file
-      }
+    val name = vFile.getNameWithoutExtension
+    // skip inners & anonymous
+    if (name.lastIndexOf('$') >= 0) null
+    else {
+      val file = new ScalaFileImpl(this)
+      val adj = file.asInstanceOf[CompiledFileAdjuster]
+      adj.setCompiled(true)
+      adj.setSourceFileName(DecompilerUtil.decompile(vFile.contentsToByteArray, vFile)._2)
+      file
     }
-    else null
   }
 
   override def getBaseLanguage = ScalaFileType.SCALA_FILE_TYPE.getLanguage
