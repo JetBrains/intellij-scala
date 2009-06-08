@@ -5,6 +5,7 @@ import api.expr.ScExpression
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 
 
+import caches.CashesUtil
 import com.intellij.openapi.roots.{OrderEntry, ProjectRootManager, OrderRootType}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.file.PsiPackageImpl
@@ -35,6 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 
 import _root_.scala.collection.mutable._
+import util.PsiModificationTracker
 
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
@@ -81,29 +83,26 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
 
-  def isScriptFile: Boolean = {
+  private def isScriptFileImpl: Boolean = {
     val stub = getStub
     if (stub == null) {
-      val res = getUserData(ScalaFileImpl.SCRIPT_KEY)
-      def calcResult(): Boolean = {
-        for (n <- getNode.getChildren(null); child = n.getPsi) {
-          child match {
-            case _: ScPackageStatement | _: ScPackaging => return false
-            case _: ScValue | _: ScVariable | _: ScFunction | _: ScExpression | _: ScTypeAlias => return true
-            case _ => if (n.getElementType == ScalaTokenTypes.tSH_COMMENT) return true
-          }
+      for (n <- getNode.getChildren(null); child = n.getPsi) {
+        child match {
+          case _: ScPackageStatement | _: ScPackaging => return false
+          case _: ScValue | _: ScVariable | _: ScFunction | _: ScExpression | _: ScTypeAlias => return true
+          case _ => if (n.getElementType == ScalaTokenTypes.tSH_COMMENT) return true
         }
-        return false
       }
-      if (res == null) {
-        val b = calcResult
-        putUserData(ScalaFileImpl.SCRIPT_KEY, new java.lang.Boolean(b))
-        return b
-      }
-      return java.lang.Boolean.TRUE == res
+      return false
     } else {
       stub.isScript
     }
+  }
+
+  def isScriptFile: Boolean = {
+    import CashesUtil._
+    get[ScalaFileImpl, java.lang.Boolean](this, SCRIPT_KEY,
+      new MyProvider(this, {sf: ScalaFileImpl => new java.lang.Boolean(sf.isScriptFileImpl)})(this)) == java.lang.Boolean.TRUE
   }
 
   def setPackageName(name: String) {

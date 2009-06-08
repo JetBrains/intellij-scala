@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates
 
 import _root_.scala.collection.mutable.ListBuffer
 import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScSelfTypeElement, ScTypeElement}
+import api.ScalaFile
 import api.statements.{ScValue, ScVariable}
 import api.expr.ScNewTemplateDefinition
 import api.toplevel.typedef.{ScTypeDefinition, ScObject}
@@ -16,7 +17,7 @@ import api.toplevel.templates._
 import psi.types._
 import _root_.scala.collection.mutable.ArrayBuffer
 import stubs.elements.wrappers.DummyASTNode
-import stubs.ScExtendsBlockStub
+import stubs.{ScFileStub, ScExtendsBlockStub}
 import typedef.TypeDefinitionMembers
 
 /**
@@ -68,7 +69,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     /*selfType match {
       case Some(st) => addType(st)
       case None =>
-    }*/ //This is wrong. Self type doesn't add new things to inheriting model.
+    }*/ //todo: This is wrong. Self type doesn't add new things to inheriting model.
     buffer.toList
   }
 
