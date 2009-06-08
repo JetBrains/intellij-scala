@@ -65,6 +65,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     }
   }
 
+
   def createOptionExpressionFromText(text: String, manager: PsiManager): Option[ScExpression] = {
     val dummyFile: ScalaFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text.trim).asInstanceOf[ScalaFile]
