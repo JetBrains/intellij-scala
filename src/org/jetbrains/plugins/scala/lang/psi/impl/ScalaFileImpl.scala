@@ -106,7 +106,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
   def setPackageName(name: String) {
-    //todo
+    packageStatement match {
+      case Some(x: ScPackageStatement) =>  x.setPackageName(name)
+      case None =>
+    }
   }
 
   override def getStub: ScFileStub = super[PsiFileBase].getStub.asInstanceOf[ScFileStub]

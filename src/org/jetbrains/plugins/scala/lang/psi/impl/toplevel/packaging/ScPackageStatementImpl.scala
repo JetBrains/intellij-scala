@@ -44,4 +44,9 @@ class ScPackageStatementImpl extends ScalaStubBasedElementImpl[ScPackageContaine
   override def toString = "ScPackageStatement"
 
   def getPackageName = reference.qualName
+
+
+  def setPackageName(name: String) = {
+    reference.replace(ScalaPsiElementFactory.createReferenceFromText(name, getManager))
+  }
 }

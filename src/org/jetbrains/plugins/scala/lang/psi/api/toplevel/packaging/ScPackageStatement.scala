@@ -8,6 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 trait ScPackageStatement extends ScalaPsiElement with ScPackageContainer {
 
+  def setPackageName(name: String)
+
   def getPackageName: String
 
   def reference = findChildByClass(classOf[ScStableCodeReferenceElement])
