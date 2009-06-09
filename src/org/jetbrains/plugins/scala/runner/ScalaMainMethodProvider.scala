@@ -23,7 +23,7 @@ class ScalaMainMethodProvider extends JavaMainMethodProvider {
     case _ => null
   }
 
-  def isMainMethod(m: PsiMethod) =
+  private def isMainMethod(m: PsiMethod) =
     m != null &&
     m.getReturnType == PsiType.VOID &&
     m.hasModifierProperty(PsiModifier.PUBLIC) &&
