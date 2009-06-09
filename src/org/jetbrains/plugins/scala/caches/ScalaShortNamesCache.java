@@ -62,13 +62,13 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
 
   @NotNull
   public String[] getAllClassNames() {
-    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.SHORT_NAME_KEY());
+    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.SHORT_NAME_KEY(), myProject);
     return classNames.toArray(new String[classNames.size()]);
   }
 
 
   public void getAllClassNames(@NotNull HashSet<String> dest) {
-    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.SHORT_NAME_KEY());
+    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.SHORT_NAME_KEY(), myProject);
   }
 
   @NotNull

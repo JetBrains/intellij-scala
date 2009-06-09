@@ -166,14 +166,14 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     }
   };
 
-  private final CompositeFilter myMessageFilter = new CompositeFilter();
+  private final CompositeFilter myMessageFilter;
 
   private ArrayList<String> myHistory = new ArrayList<String>();
   private int myHistorySize = 20;
 
   private ArrayList<ConsoleUserInputListener> consoleUserInputListeners = new ArrayList<ConsoleUserInputListener>();
 
-  public void addConsoleUserInputLestener(ConsoleUserInputListener consoleUserInputListener) {
+  public void addConsoleUserInputListener(ConsoleUserInputListener consoleUserInputListener) {
     consoleUserInputListeners.add(consoleUserInputListener);
   }
 
@@ -222,6 +222,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
     isViewer = viewer;
     myPsiDisposedCheck = new DisposedPsiManagerCheck(project);
     myProject = project;
+    myMessageFilter = new CompositeFilter(myProject);
     myFileType = fileType;
 
     final ConsoleFilterProvider[] filterProviders = Extensions.getExtensions(ConsoleFilterProvider.FILTER_PROVIDERS);
@@ -329,7 +330,7 @@ public final class ScalaConsoleViewImpl extends JPanel implements ConsoleView, O
       myEditor.getDocument().addDocumentListener(new DocumentAdapter() {
         public void documentChanged(DocumentEvent e) {
           if (e.getNewLength() == 0 && e.getOffset() == 0) {
-            // string has beeen removed from the beginning, move tokens down
+            // string has been removed from the beginning, move tokens down
             synchronized (LOCK) {
               int toRemoveLen = e.getOldLength();
               int tIndex = findTokenInfoIndexByOffset(toRemoveLen);

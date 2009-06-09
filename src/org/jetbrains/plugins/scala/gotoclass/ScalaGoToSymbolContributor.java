@@ -29,10 +29,10 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
  */
 public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
   public String[] getNames(Project project, boolean includeNonProjectItems) {
-    final Collection<String> items = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.METHOD_NAME_KEY());
-    items.addAll(StubIndex.getInstance().getAllKeys(ScalaIndexKeys.VALUE_NAME_KEY()));
-    items.addAll(StubIndex.getInstance().getAllKeys(ScalaIndexKeys.VARIABLE_NAME_KEY()));
-    items.addAll(StubIndex.getInstance().getAllKeys(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY()));
+    final Collection<String> items = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.METHOD_NAME_KEY(), project);
+    items.addAll(StubIndex.getInstance().getAllKeys(ScalaIndexKeys.VALUE_NAME_KEY(), project));
+    items.addAll(StubIndex.getInstance().getAllKeys(ScalaIndexKeys.VARIABLE_NAME_KEY(), project));
+    items.addAll(StubIndex.getInstance().getAllKeys(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY(), project));
     return items.toArray(new String[items.size()]);
   }
 

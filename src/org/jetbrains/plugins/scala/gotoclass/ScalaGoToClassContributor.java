@@ -15,7 +15,7 @@ import java.util.Collection;
  */
 public class ScalaGoToClassContributor implements ChooseByNameContributor {
   public String[] getNames(Project project, boolean includeNonProjectItems) {
-    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.SHORT_NAME_KEY());
+    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.SHORT_NAME_KEY(), project);
     return classNames.toArray(new String[classNames.size()]);
   }
 
