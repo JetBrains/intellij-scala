@@ -15,7 +15,7 @@ class ScalaFileStubBuilder extends DefaultStubBuilder {
   override def createStubForFile(file: PsiFile) = {
     implicit def str2ref = StringRef.fromString _
     file match {
-      case s : ScalaFile => new ScFileStubImpl(s, s.getPackageName, s.sourceName, s.isCompiled, s.isScriptFile)
+      case s : ScalaFile => new ScFileStubImpl(s, s.getPackageName, s.sourceName, s.isCompiled, s.isScriptFile(false))
     }
   }
 
