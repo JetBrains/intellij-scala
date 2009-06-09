@@ -99,13 +99,12 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     }
   }
 
-  private val SCRIPT_LOCK = new Object()
-  def isScriptFile: Boolean = {
-    SCRIPT_LOCK synchronized {
-      import CashesUtil._
-      get[ScalaFileImpl, java.lang.Boolean](this, SCRIPT_KEY,
-        new MyProvider(this, {sf: ScalaFileImpl => new java.lang.Boolean(sf.isScriptFileImpl)})(this)) == java.lang.Boolean.TRUE
-    }
+  def isScriptFile: Boolean = isScriptFile(true)
+  def isScriptFile(withCashing: Boolean): Boolean = {
+    if (!withCashing) return isScriptFileImpl
+    import CashesUtil._
+    get[ScalaFileImpl, java.lang.Boolean](this, SCRIPT_KEY,
+      new MyProvider(this, {sf: ScalaFileImpl => new java.lang.Boolean(sf.isScriptFileImpl)})(this)) == java.lang.Boolean.TRUE
   }
 
   def setPackageName(name: String) {
@@ -140,7 +139,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
   def icon = Icons.FILE_TYPE_LOGO
-
+                      S
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,

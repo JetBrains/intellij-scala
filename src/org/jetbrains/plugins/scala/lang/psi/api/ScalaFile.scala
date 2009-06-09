@@ -29,4 +29,6 @@ trait ScalaFile extends ScalaPsiElement with ScToplevelElement with PsiClassOwne
   def sourceName: String
 
   def isScriptFile: Boolean
+
+  def isScriptFile(withCashing: Boolean): Boolean
 }
