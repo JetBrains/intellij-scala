@@ -99,10 +99,13 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     }
   }
 
+  private val SCRIPT_LOCK = new Object()
   def isScriptFile: Boolean = {
-    import CashesUtil._
-    get[ScalaFileImpl, java.lang.Boolean](this, SCRIPT_KEY,
-      new MyProvider(this, {sf: ScalaFileImpl => new java.lang.Boolean(sf.isScriptFileImpl)})(this)) == java.lang.Boolean.TRUE
+    SCRIPT_LOCK synchronized {
+      import CashesUtil._
+      get[ScalaFileImpl, java.lang.Boolean](this, SCRIPT_KEY,
+        new MyProvider(this, {sf: ScalaFileImpl => new java.lang.Boolean(sf.isScriptFileImpl)})(this)) == java.lang.Boolean.TRUE
+    }
   }
 
   def setPackageName(name: String) {
