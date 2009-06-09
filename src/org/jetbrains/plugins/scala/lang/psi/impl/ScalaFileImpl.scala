@@ -139,7 +139,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
   def icon = Icons.FILE_TYPE_LOGO
-                      S
+
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,
