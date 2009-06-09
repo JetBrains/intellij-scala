@@ -354,18 +354,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
 
   protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: ScType, occurrences: Array[TextRange],
                           declareVariable: Boolean, validator: ScalaVariableValidator): ScalaIntroduceVariableDialog = {
-    // Add occurences highlighting
-    val highlighters = new java.util.ArrayList[RangeHighlighter]
-    var highlightManager: HighlightManager = null
-    if (editor != null) {
-      highlightManager = HighlightManager.getInstance(project);
-      val colorsManager = EditorColorsManager.getInstance
-      val attributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
-      if (occurrences.length > 1) {
-        for (occurence <- occurrences)
-          highlightManager.addRangeHighlight(editor, occurence.getStartOffset, occurence.getEndOffset, attributes, true, highlighters)
-      }
-    }
+    // Add occurrences highlighting
+    ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
 
     val possibleNames = NameSuggester.suggestNames(expr, validator)
     val dialog = new ScalaIntroduceVariableDialog(project, typez, occurrences.length, validator, possibleNames)
@@ -373,14 +363,6 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
     if (!dialog.isOK()) {
       if (occurrences.length > 1) {
         WindowManager.getInstance.getStatusBar(project).setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
-      }
-    } else {
-      if (editor != null) {
-        import collection.jcl.Conversions._
-
-        for (highlighter <- highlighters) {
-          highlightManager.removeSegmentHighlighter(editor, highlighter);
-        }
       }
     }
 
