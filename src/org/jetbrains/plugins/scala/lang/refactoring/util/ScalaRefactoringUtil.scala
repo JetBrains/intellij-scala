@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.lang.refactoring.util
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
+import com.intellij.openapi.editor.markup.RangeHighlighter
+import com.intellij.codeInsight.highlighting.HighlightManager
+import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
+
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import java.util.{HashMap, Comparator}
@@ -212,5 +216,23 @@ object ScalaRefactoringUtil {
       }
       return 1
     }
+  }
+
+  def highlightOccurrences(project: Project, occurrences: Array[TextRange], editor: Editor): Unit = {
+    val highlighters = new java.util.ArrayList[RangeHighlighter]
+    var highlightManager: HighlightManager = null
+    if (editor != null) {
+      highlightManager = HighlightManager.getInstance(project);
+      val colorsManager = EditorColorsManager.getInstance
+      val attributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
+      if (occurrences.length > 1) {
+        for (occurence <- occurrences)
+          highlightManager.addRangeHighlight(editor, occurence.getStartOffset, occurence.getEndOffset, attributes, true, highlighters)
+      }
+    }
+  }
+
+  def highlightOccurrences(project: Project, occurrences: Array[PsiElement], editor: Editor): Unit = {
+    highlightOccurrences(project, occurrences.map({el: PsiElement => el.getTextRange}), editor)
   }
 }
