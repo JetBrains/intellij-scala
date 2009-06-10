@@ -355,7 +355,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
   protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: ScType, occurrences: Array[TextRange],
                           declareVariable: Boolean, validator: ScalaVariableValidator): ScalaIntroduceVariableDialog = {
     // Add occurrences highlighting
-    ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
+    if (occurrences.length > 1)
+      ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
 
     val possibleNames = NameSuggester.suggestNames(expr, validator)
     val dialog = new ScalaIntroduceVariableDialog(project, typez, occurrences.length, validator, possibleNames)
