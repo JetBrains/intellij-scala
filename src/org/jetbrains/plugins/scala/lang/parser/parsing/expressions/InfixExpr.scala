@@ -126,7 +126,7 @@ object InfixExpr {
   }
   private def opeq(id1: String, id2: String): Boolean = priority(id1) == priority(id2)
   //Associations of operator
-  private def associate(id: String): Int = {
+  def associate(id: String): Int = {
     id.charAt(id.length - 1) match {
       case ':' => return -1
       // right
