@@ -25,6 +25,9 @@ object BaseProcessor {
 }
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiScopeProcessor {
+  private var currentContext: PsiElement = null
+  def setCurrentContext(elem: PsiElement) {currentContext = elem}
+  def getCurrentContext: PsiElement = currentContext
 
   protected val candidatesSet: HashSet[ScalaResolveResult] = new HashSet[ScalaResolveResult]
 
