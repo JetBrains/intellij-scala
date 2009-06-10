@@ -127,7 +127,7 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def registerUsedImports(refElement: ScReferenceElement, result: ScalaResolveResult) {
-    //todo: add body
+    null
   }
 
   private def checkImplementedMethods(clazz: ScTemplateDefinition, holder: AnnotationHolder) {

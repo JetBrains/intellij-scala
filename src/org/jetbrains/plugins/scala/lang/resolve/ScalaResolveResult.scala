@@ -13,6 +13,15 @@ object ScalaResolveResult {
 class ScalaResolveResult(val element : PsiNamedElement, val substitutor : ScSubstitutor) extends ResolveResult  {
   def this(element : PsiNamedElement) = this(element, ScSubstitutor.empty)
 
+  def this(element: PsiNamedElement, substitutor: ScSubstitutor, context: PsiElement) = {
+    this(element, substitutor)
+    this.context = context
+  }
+
+  def this(element: PsiNamedElement, context: PsiElement) = this(element, ScSubstitutor.empty, context)
+
+  var context: PsiElement = null
+
   def getElement() = element
 
   def isValidResult() = true

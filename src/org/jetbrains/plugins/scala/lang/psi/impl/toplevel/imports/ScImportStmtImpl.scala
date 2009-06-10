@@ -32,52 +32,63 @@ class ScImportStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    for (e <- importExprs) {
-      if (e == lastParent) return true
-      val elems = e.reference match {
-        case Some(ref) => ref.multiResolve(false).map{_.getElement}
-        case _ => Seq.empty
-      }
-      for (elem <- elems) {
-        e.selectorSet match {
-          case None =>
-            if (e.singleWildcard) {
-              if (!elem.processDeclarations(processor, state, this, place)) return false
-            } else {
-              if (!processor.execute(elem, state)) return false
-            }
-          case Some(set) => {
-            val shadowed: HashSet[PsiElement] = HashSet.empty
-            for (selector <- set.selectors) {
-              for (result <- selector.reference.multiResolve(false)) {
-                shadowed += result.getElement
-                if (!processor.execute(result.getElement, state.put(ResolverEnv.nameKey, selector.importedName))) return false
+    processor match {
+      case bp: BaseProcessor => bp.setCurrentContext(this)
+      case _ =>
+    }
+    try {
+      for (e <- importExprs) {
+        if (e == lastParent) return true
+        val elems = e.reference match {
+          case Some(ref) => ref.multiResolve(false).map {_.getElement}
+          case _ => Seq.empty
+        }
+        for (elem <- elems) {
+          e.selectorSet match {
+            case None =>
+              if (e.singleWildcard) {
+                if (!elem.processDeclarations(processor, state, this, place)) return false
+              } else {
+                if (!processor.execute(elem, state)) return false
               }
-            }
-            if (set.hasWildcard) {
-              processor match {
-                case bp: BaseProcessor => {
-                  val p1 = new BaseProcessor(bp.kinds) {
-                    override def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
-
-                    override def handleEvent(event: PsiScopeProcessor.Event, associated: Object) =
-                      processor.handleEvent(event, associated)
-
-                    override def execute(element: PsiElement, state: ResolveState): Boolean = {
-                      if (shadowed.contains(element)) true else processor.execute(element, state)
-                    }
-                  }
-                  if (!elem.processDeclarations(p1, state, this, place)) return false
+            case Some(set) => {
+              val shadowed: HashSet[PsiElement] = HashSet.empty
+              for (selector <- set.selectors) {
+                for (result <- selector.reference.multiResolve(false)) {
+                  shadowed += result.getElement
+                  if (!processor.execute(result.getElement, state.put(ResolverEnv.nameKey, selector.importedName))) return false
                 }
-                case _  => true
               }
+              if (set.hasWildcard) {
+                processor match {
+                  case bp: BaseProcessor => {
+                    val p1 = new BaseProcessor(bp.kinds) {
+                      override def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
 
+                      override def handleEvent(event: PsiScopeProcessor.Event, associated: Object) =
+                        processor.handleEvent(event, associated)
+
+                      override def execute(element: PsiElement, state: ResolveState): Boolean = {
+                        if (shadowed.contains(element)) true else processor.execute(element, state)
+                      }
+                    }
+                    if (!elem.processDeclarations(p1, state, this, place)) return false
+                  }
+                  case _ => return true
+                }
+
+              }
             }
           }
         }
       }
+      return true
     }
-
-    true
+    finally {
+      processor match {
+        case bp: BaseProcessor => bp.setCurrentContext(null)
+        case _ =>
+      }
+    }
   }
 }

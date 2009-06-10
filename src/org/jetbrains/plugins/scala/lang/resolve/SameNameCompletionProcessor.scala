@@ -17,7 +17,7 @@ class SameNameCompletionProcessor(override val kinds: Set[ResolveTargets.Value],
     if (kindMatches(element)) {
       val n = named.getName
       if (n == name) {
-        candidatesSet += new ScalaResolveResult(named)
+        candidatesSet += new ScalaResolveResult(named, getCurrentContext)
       }
     }
     return true

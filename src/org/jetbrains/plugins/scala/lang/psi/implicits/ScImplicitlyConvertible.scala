@@ -98,7 +98,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             } else {
               signatures2ImplicitMethods += (sign -> (signatures2ImplicitMethods(sign) + f))
             }
-            candidatesSet += new ScalaResolveResult(f)
+            candidatesSet += new ScalaResolveResult(f, getCurrentContext)
           }
           //todo add implicit objects
           case _ =>
