@@ -11,5 +11,4 @@ import lang.psi.api.toplevel.typedef.ScTypeDefinition
  * Date: 09.06.2009
  */
 
-class ScalaTypeHierarchyProvider extends JavaTypeHierarchyProvider {
-}
+class ScalaTypeHierarchyProvider extends JavaTypeHierarchyProvider
