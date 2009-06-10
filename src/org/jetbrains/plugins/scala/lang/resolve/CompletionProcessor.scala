@@ -27,7 +27,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value]) extends
               val sign = new PhysicalSignature(method, substitutor)
               if (!signatures.contains(sign)) {
                 signatures += sign
-                candidatesSet += new ScalaResolveResult(named, getCurrentContext)
+                candidatesSet += new ScalaResolveResult(named)
               }
             }
             case patt: ScBindingPattern => {
@@ -35,12 +35,12 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value]) extends
               val sign = new Signature(patt.getName, Seq.empty, 0, Seq.empty.toArray, substitutor)
               if (!signatures.contains(sign)) {
                 signatures += sign
-                candidatesSet += new ScalaResolveResult(named, getCurrentContext)
+                candidatesSet += new ScalaResolveResult(named)
               }
             }
             case _ => {
               if (!names.contains(named.getName)) {
-                candidatesSet += new ScalaResolveResult(named, getCurrentContext)
+                candidatesSet += new ScalaResolveResult(named)
                 names += named.getName
               }
             }

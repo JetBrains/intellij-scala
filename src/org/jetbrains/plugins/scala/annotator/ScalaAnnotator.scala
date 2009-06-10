@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
+import actors.Actor
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.search.GlobalSearchScope
@@ -127,7 +128,7 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def registerUsedImports(refElement: ScReferenceElement, result: ScalaResolveResult) {
-    null
+    //todo: add body
   }
 
   private def checkImplementedMethods(clazz: ScTemplateDefinition, holder: AnnotationHolder) {
