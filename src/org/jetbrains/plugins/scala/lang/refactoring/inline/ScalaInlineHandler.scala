@@ -13,6 +13,7 @@ import com.intellij.psi.{PsiReference, PsiElement, PsiFile}
 import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
 import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
 import com.intellij.psi.util.PsiTreeUtil
+import psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import psi.api.statements.{ScDeclaredElementsHolder, ScVariable, ScValue}
 import psi.api.toplevel.templates.ScTemplateBody
 import psi.ScalaPsiUtil
@@ -26,13 +27,26 @@ import util.ScalaRefactoringUtil
 class ScalaInlineHandler extends InlineHandler {
   def removeDefinition(element: PsiElement): Unit = {
     element match {
-      case v: ScValue if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => v.getParent.getNode.removeChild(v.getNode)
-      case v: ScVariable if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => v.getParent.getNode.removeChild(v.getNode)
+      case rp: ScBindingPattern => {
+        PsiTreeUtil.getParentOfType(rp, classOf[ScDeclaredElementsHolder]) match {
+          case v: ScValue if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
+            v.getParent.getNode.removeChild(v.getNode)
+          }
+          case v: ScVariable if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
+            val buffer = new ArrayBuffer[PsiElement]
+            v.getParent.getNode.removeChild(v.getNode)
+          }
+          case _ => return
+        }
+      }
       case _ => return
     }
   }
 
-  def createInliner(element: PsiElement): InlineHandler.Inliner = null
+  def createInliner(element: PsiElement): InlineHandler.Inliner = {
+    element
+    null
+  }
 
   def prepareInlineElement(element: PsiElement, editor: Editor, invokedOnReference: Boolean): InlineHandler.Settings = {
     def getSettingsForLocal(v: ScDeclaredElementsHolder): InlineHandler.Settings = {
@@ -70,11 +84,16 @@ class ScalaInlineHandler extends InlineHandler {
       }
     }
     element match {
-      case v: ScValue if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1  => {
-        return getSettingsForLocal(v)
-      }
-      case v: ScVariable if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1  => {
-        getSettingsForLocal(v)
+      case rp: ScBindingPattern => {
+        PsiTreeUtil.getParentOfType(rp, classOf[ScDeclaredElementsHolder]) match {
+          case v: ScValue if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
+            return getSettingsForLocal(v)
+          }
+          case v: ScVariable if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
+            getSettingsForLocal(v)
+          }
+          case _ => return null
+        }
       }
       case _ => return null
     }
