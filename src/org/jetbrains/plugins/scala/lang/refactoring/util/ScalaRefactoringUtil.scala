@@ -225,10 +225,8 @@ object ScalaRefactoringUtil {
       highlightManager = HighlightManager.getInstance(project);
       val colorsManager = EditorColorsManager.getInstance
       val attributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
-      if (occurrences.length > 1) {
-        for (occurence <- occurrences)
-          highlightManager.addRangeHighlight(editor, occurence.getStartOffset, occurence.getEndOffset, attributes, true, highlighters)
-      }
+      for (occurence <- occurrences)
+        highlightManager.addRangeHighlight(editor, occurence.getStartOffset, occurence.getEndOffset, attributes, true, highlighters)
     }
   }
 

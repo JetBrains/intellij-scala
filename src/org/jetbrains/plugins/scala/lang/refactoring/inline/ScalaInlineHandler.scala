@@ -6,8 +6,10 @@ import com.intellij.lang.refactoring.InlineHandler
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.WindowManager
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.{PsiReference, PsiElement, PsiFile}
 import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
@@ -82,7 +84,14 @@ class ScalaInlineHandler extends InlineHandler {
     new InlineHandler.Inliner {
       def inlineReference(reference: PsiReference, referenced: PsiElement): Unit = {
         reference match {
-          case expression: ScExpression => expression.replaceExpression(expr, true)
+          case expression: ScExpression => {
+            val ne = expression.replaceExpression(expr, true)
+            val project = ne.getProject
+            val  manager = FileEditorManager.getInstance(project)
+            val editor = manager.getSelectedTextEditor
+            ScalaRefactoringUtil.highlightOccurrences(project, Array[PsiElement](ne), editor)
+            WindowManager.getInstance().getStatusBar(project).setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
+          }
           case _ =>
         }
       }
