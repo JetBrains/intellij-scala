@@ -8,6 +8,4 @@ import com.intellij.ide.hierarchy.method.JavaMethodHierarchyProvider
  * Date: 09.06.2009
  */
 
-class ScalaMethodHierarchyProvider extends JavaMethodHierarchyProvider {
-
-}
+class ScalaMethodHierarchyProvider extends JavaMethodHierarchyProvider
