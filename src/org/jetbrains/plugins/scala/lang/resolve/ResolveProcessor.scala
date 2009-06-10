@@ -22,7 +22,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
-      candidatesSet += new ScalaResolveResult(named, getSubst(state), getCurrentContext)
+      candidatesSet += new ScalaResolveResult(named, getSubst(state))
       return false //todo
     }
     return true
@@ -57,7 +57,7 @@ extends ResolveProcessor(kinds, name)
 {
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
-    if (nameAndKindMatch(named, state)) candidatesSet += new ScalaResolveResult(named, getSubst(state), getCurrentContext)
+    if (nameAndKindMatch(named, state)) candidatesSet += new ScalaResolveResult(named, getSubst(state))
     true
   }
 }
@@ -70,7 +70,7 @@ extends ResolveProcessor(kinds, name) {
       named match {
         case m : PsiMethod if m.getParameterList.getParametersCount > 0 => true
         case fun : ScFun if fun.paramTypes.length > 0 => true
-        case _ => candidatesSet += new ScalaResolveResult(named, getSubst(state), getCurrentContext); false //todo
+        case _ => candidatesSet += new ScalaResolveResult(named, getSubst(state)); false //todo
       }
     } else true
   }
@@ -84,20 +84,20 @@ class MethodResolveProcessor(ref : ScReferenceElement, args : Seq[ScType],
       val s = getSubst(state)
       element match {
         case m : PsiMethod => {
-          candidatesSet += new ScalaResolveResult(m, s.incl(inferMethodTypesArgs(m, s)), getCurrentContext)
+          candidatesSet += new ScalaResolveResult(m, s.incl(inferMethodTypesArgs(m, s)))
           true
         }
         case cc : ScClass if (cc.isCase) => {
-          candidatesSet += new ScalaResolveResult(cc, s, getCurrentContext) //todo add all constructors
+          candidatesSet += new ScalaResolveResult(cc, s) //todo add all constructors
           true
         }
         case o: ScObject => {
           for (m <- o.findMethodsByName("apply", true)) {
-            candidatesSet += new ScalaResolveResult(m, s.incl(inferMethodTypesArgs(m, s)), getCurrentContext)
+            candidatesSet += new ScalaResolveResult(m, s.incl(inferMethodTypesArgs(m, s)))
           }
           true
         }
-        case _ => candidatesSet += new ScalaResolveResult(named, s, getCurrentContext);
+        case _ => candidatesSet += new ScalaResolveResult(named, s);
         true
       }
     }
