@@ -91,6 +91,8 @@ class ScalaInlineHandler extends InlineHandler {
             val editor = manager.getSelectedTextEditor
             ScalaRefactoringUtil.highlightOccurrences(project, Array[PsiElement](ne), editor)
             WindowManager.getInstance().getStatusBar(project).setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
+            CodeStyleManager.getInstance(project).reformatRange(ne.getContainingFile, ne.getTextRange.getStartOffset - 1,
+              ne.getTextRange.getEndOffset + 1) //to prevent situations like this 2 ++2 (+2 was inlined)
           }
           case _ =>
         }
