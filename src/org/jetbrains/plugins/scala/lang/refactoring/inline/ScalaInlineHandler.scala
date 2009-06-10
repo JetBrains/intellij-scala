@@ -13,8 +13,12 @@ import com.intellij.psi.{PsiReference, PsiElement, PsiFile}
 import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
 import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
 import com.intellij.psi.util.PsiTreeUtil
+import java.lang.String
+import java.util.Collection
+import lexer.ScalaTokenTypes
 import psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
-import psi.api.statements.{ScDeclaredElementsHolder, ScVariable, ScValue}
+import psi.api.expr.ScExpression
+import psi.api.statements._
 import psi.api.toplevel.templates.ScTemplateBody
 import psi.ScalaPsiUtil
 import util.ScalaRefactoringUtil
@@ -30,10 +34,27 @@ class ScalaInlineHandler extends InlineHandler {
       case rp: ScBindingPattern => {
         PsiTreeUtil.getParentOfType(rp, classOf[ScDeclaredElementsHolder]) match {
           case v: ScValue if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
+            val children = new ArrayBuffer[PsiElement]
+            var psiElement = v.getNextSibling
+            while (psiElement != null && (psiElement.getNode.getElementType == ScalaTokenTypes.tSEMICOLON || psiElement.getText.trim == "")) {
+              children += psiElement
+              psiElement = psiElement.getNextSibling
+            }
+            for (child <- children) {
+              child.getParent.getNode.removeChild(child.getNode)
+            }
             v.getParent.getNode.removeChild(v.getNode)
           }
           case v: ScVariable if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
-            val buffer = new ArrayBuffer[PsiElement]
+            val children = new ArrayBuffer[PsiElement]
+            var psiElement = v.getNextSibling
+            while (psiElement != null && (psiElement.getNode.getElementType == ScalaTokenTypes.tSEMICOLON || psiElement.getText.trim == "")) {
+              children += psiElement
+              psiElement = psiElement.getNextSibling
+            }
+            for (child <- children) {
+              child.getParent.getNode.removeChild(child.getNode)
+            }
             v.getParent.getNode.removeChild(v.getNode)
           }
           case _ => return
@@ -44,8 +65,30 @@ class ScalaInlineHandler extends InlineHandler {
   }
 
   def createInliner(element: PsiElement): InlineHandler.Inliner = {
-    element
-    null
+    val expr = ScalaRefactoringUtil.unparExpr(element match {
+      case rp: ScBindingPattern => {
+        PsiTreeUtil.getParentOfType(rp, classOf[ScDeclaredElementsHolder]) match {
+          case v: ScPatternDefinition if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
+            v.expr
+          }
+          case v: ScVariableDefinition if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
+            v.expr
+          }
+          case _ => return null
+        }
+      }
+      case _ => return null
+    })
+    new InlineHandler.Inliner {
+      def inlineReference(reference: PsiReference, referenced: PsiElement): Unit = {
+        reference match {
+          case expression: ScExpression => expression.replaceExpression(expr, true)
+          case _ =>
+        }
+      }
+
+      def getConflicts(reference: PsiReference, referenced: PsiElement): Collection[String] = new java.util.ArrayList[String]()
+    }
   }
 
   def prepareInlineElement(element: PsiElement, editor: Editor, invokedOnReference: Boolean): InlineHandler.Settings = {
@@ -89,9 +132,9 @@ class ScalaInlineHandler extends InlineHandler {
           case v: ScValue if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
             return getSettingsForLocal(v)
           }
-          case v: ScVariable if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
+          /*case v: ScVariable if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
             getSettingsForLocal(v)
-          }
+          }*/
           case _ => return null
         }
       }
