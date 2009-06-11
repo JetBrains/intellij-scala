@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import api.statements.{ScTypeAliasDefinition, ScTypeAlias}
 import api.toplevel.ScNamedElement
-import api.toplevel.typedef.{ScObject, ScTypeDefinition}
-
+import api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import com.intellij.psi.util.PsiTypesUtil
 import decompiler.DecompilerUtil
 import impl.ScalaPsiManager
@@ -73,7 +72,14 @@ object ScType {
       }
     }
     case arrayType: PsiArrayType => {
-      val arrayClass = JavaPsiFacade.getInstance(project).findClass("scala.Array", GlobalSearchScope.allScope(project))
+      val arrayClasses = JavaPsiFacade.getInstance(project).findClasses("scala.Array", GlobalSearchScope.allScope(project))
+      var arrayClass: PsiClass = null
+      for (clazz <- arrayClasses) {
+        clazz match {
+          case _: ScClass => arrayClass = clazz
+          case _ =>
+        }
+      }
       if (arrayClass != null) {
         val tps = arrayClass.getTypeParameters
         if (tps.length == 1) {
