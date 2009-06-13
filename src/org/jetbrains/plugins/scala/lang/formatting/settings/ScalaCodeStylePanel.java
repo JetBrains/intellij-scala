@@ -11,8 +11,6 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 
 import javax.swing.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -90,6 +88,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox headerImportStatementsCheckBox;
   private JCheckBox beforeMethodBracesCallCheckBox;
   private JCheckBox implicitTypesCheckBox;
+  private JCheckBox showFilesInProjectViewCheckBox;
 
   private final Object LOCK = new Object();
 
@@ -229,6 +228,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.FOLD_IMPORT_IN_HEADER = headerImportStatementsCheckBox.isSelected();
     scalaSettings.FOLD_BLOCK_COMMENTS = blockCommentsCheckBox.isSelected();
     scalaSettings.CHECK_IMPLICITS = implicitTypesCheckBox.isSelected();
+    scalaSettings.SHOW_FILES_IN_PROJECT_VIEW = showFilesInProjectViewCheckBox.isSelected();
   }
 
   @SuppressWarnings({"ConstantConditions", "RedundantIfStatement"})
@@ -354,6 +354,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
     if (scalaSettings.SEARCH_ALL_SYMBOLS != searchAllSymbolsIncludeCheckBox.isSelected()) return true;
     if (scalaSettings.CHECK_IMPLICITS != implicitTypesCheckBox.isSelected()) return true;
+    if (scalaSettings.SHOW_FILES_IN_PROJECT_VIEW != showFilesInProjectViewCheckBox.isSelected()) return true;
 
     if (scalaSettings.FOLD_BLOCK != blockExpressionsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_BLOCK_COMMENTS != blockCommentsCheckBox.isSelected()) return true;
@@ -435,6 +436,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(classCountSpinner, settings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND);
     setValue(searchAllSymbolsIncludeCheckBox, settings.SEARCH_ALL_SYMBOLS);
     setValue(implicitTypesCheckBox, settings.CHECK_IMPLICITS);
+    setValue(showFilesInProjectViewCheckBox, settings.SHOW_FILES_IN_PROJECT_VIEW);
 
     setValue(blockExpressionsCheckBox, settings.FOLD_BLOCK);
     setValue(blockCommentsCheckBox, settings.FOLD_BLOCK_COMMENTS);

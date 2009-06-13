@@ -75,6 +75,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public boolean SEARCH_ALL_SYMBOLS = false;
   public boolean CHECK_IMPLICITS = true;
+  public boolean SHOW_FILES_IN_PROJECT_VIEW = false;
 
   //collapse by default
   public boolean FOLD_FILE_HEADER = true;
