@@ -1,20 +1,17 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser;
 
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocLexer;
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType;
-import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.annotations.NotNull;
-import com.intellij.psi.tree.IChameleonElementType;
-import com.intellij.psi.tree.ILazyParseableElementType;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.lang.Language;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiParser;
-import com.intellij.peer.PeerFactory;
 import com.intellij.openapi.project.Project;
+import com.intellij.peer.PeerFactory;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.tree.ILazyParseableElementType;
+import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType;
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocLexer;
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 
 /**
  * User: Alexander Podkhalyuzin
