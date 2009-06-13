@@ -743,7 +743,7 @@
               </grid>
             </children>
           </grid>
-          <grid id="daf84" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="daf84" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="Other settings"/>
@@ -766,7 +766,7 @@
               </hspacer>
               <vspacer id="e672">
                 <constraints>
-                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
               <component id="3f0b9" class="javax.swing.JCheckBox" binding="implicitTypesCheckBox">
@@ -776,6 +776,16 @@
                 <properties>
                   <selected value="true"/>
                   <text value="Check implicit conversion for type inference (this may slow down IDE)"/>
+                </properties>
+              </component>
+              <component id="9db29" class="javax.swing.JCheckBox" binding="showFilesInProjectViewCheckBox">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="false"/>
+                  <text value="Show files in Project view"/>
+                  <toolTipText value="If selected, Scala files that contain many types will be shows as an extra layer in the Project view heirachy"/>
                 </properties>
               </component>
             </children>
