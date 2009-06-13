@@ -50,6 +50,10 @@
         <include name="idea*.zip"/>
       </fileset>
     </unzip>
+
+    <!-- Read SINCE and UNTIL properties -->
+    <loadfile property="since.idea.build" srcFile="${idea.home}/build.txt" failonerror="true"/>
+    <loadfile property="until.idea.build" srcFile="${idea.home}/build.txt" failonerror="true"/>
   </target>
 
   <path id="idea.lib.path">
@@ -168,27 +172,11 @@
     <copy file="${base.dir}/src/org/jetbrains/plugins/scala/ScalaBundle.properties"
           tofile="${main.dest}/org/jetbrains/plugins/scala/ScalaBundle.properties"/>
 
+    <!-- Write plugin version, Since and Until attributes -->
     <replace file="${main.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
-    <!--<script language="javascript" classpath="${scala.home}/lib/js.jar"><![CDATA[
-        importClass(java.io.File);
-        ideaHome = project.getProperty("idea.home");
-        fs = project.createDataType("fileset");
-        fs.setDir(new File(ideaHome));
-        ds = fs.getDirectoryScanner(project);
-        files = ds.getIncludedFiles();
-        var res = "10338";
-        for (j = 0; j < files.length; j++) {
-        fstr = files[j].toString();
-          if (fstr.endsWith("-jdk15.zip") && fstr.startsWith("idea")) {
-            res = fstr.substring(4, 9);
-          };
-        };
-        task = project.createTask("replace");
-        task.setDynamicAttribute("file", "${main.dest}/META-INF/plugin.xml");
-        task.setDynamicAttribute("token", "SINCE");
-        task.setDynamicAttribute("value", res);
-        task.perform();
-        ]]>]</script>-->
+    <replace file="${main.dest}/META-INF/plugin.xml" token="SINCE_IDEA" value="${since.idea.build}"/>
+    <replace file="${main.dest}/META-INF/plugin.xml" token="UNTIL_IDEA" value="${until.idea.build}"/>
+
   </target>
 
   <target name="jar.plugin" depends="make.project" description="Makes jar">
