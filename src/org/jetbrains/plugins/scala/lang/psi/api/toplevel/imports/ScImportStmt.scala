@@ -6,8 +6,8 @@ import expr.ScBlockStatement
 import typedef.ScTypeDefinition
 import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-
-/** 
+import usages.{ImportSelectorUsed, ImportExprUsed, ImportUsed}
+/**
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008
 */

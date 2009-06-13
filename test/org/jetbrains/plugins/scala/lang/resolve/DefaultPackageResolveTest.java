@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaratio
  * Date: 11.03.2009
  */
 public class DefaultPackageResolveTest extends ScalaResolveTestCase {
-  protected String getTestDataPath() {
+  public String getTestDataPath() {
     return TestUtils.getTestDataPath() + "/resolve/";
   }
 

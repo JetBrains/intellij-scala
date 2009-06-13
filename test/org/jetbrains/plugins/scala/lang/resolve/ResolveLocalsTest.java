@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.util.TestUtils;
  */
 public class ResolveLocalsTest extends ScalaResolveTestCase{
 
-  protected String getTestDataPath() {
+  public String getTestDataPath() {
     return TestUtils.getTestDataPath() + "/resolve/local/";
   }
 

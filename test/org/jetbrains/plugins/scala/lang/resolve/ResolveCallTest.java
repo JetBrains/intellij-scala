@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.util.TestUtils;
  * @author ven
  */
 public class ResolveCallTest extends ScalaResolveTestCase {
-  protected String getTestDataPath() {
+  public String getTestDataPath() {
     return TestUtils.getTestDataPath() + "/resolve/";
   }
 

@@ -17,7 +17,7 @@ import java.io.File;
  * @author ilyas
  */
 public class DependenciesResolveTest extends ScalaResolveTestCase {
-  protected String getTestDataPath() {
+  public String getTestDataPath() {
     return TestUtils.getTestDataPath() + "/resolve/aux1/";
   }
 

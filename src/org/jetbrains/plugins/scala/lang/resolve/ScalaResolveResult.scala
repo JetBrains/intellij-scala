@@ -3,15 +3,18 @@ package org.jetbrains.plugins.scala.lang.resolve
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import psi.api.toplevel.imports.usages.ImportUsed
 
 object ScalaResolveResult {
-  def empty = new ScalaResolveResult(null, ScSubstitutor.empty)
+  def empty = new ScalaResolveResult(null, ScSubstitutor.empty, Set[ImportUsed]())
 
-  def unapply(r : ScalaResolveResult) = Some(r.element, r.substitutor)
+  def unapply(r: ScalaResolveResult) = Some(r.element, r.substitutor)
 }
 
-class ScalaResolveResult(val element : PsiNamedElement, val substitutor : ScSubstitutor) extends ResolveResult  {
-  def this(element : PsiNamedElement) = this(element, ScSubstitutor.empty)
+class ScalaResolveResult(val element: PsiNamedElement,
+                         val substitutor: ScSubstitutor,
+                         val importsUsed: collection.immutable.Set[ImportUsed]) extends ResolveResult {
+  def this(element: PsiNamedElement) = this (element, ScSubstitutor.empty, Set[ImportUsed]())
 
   def getElement() = element
 
@@ -21,8 +24,8 @@ class ScalaResolveResult(val element : PsiNamedElement, val substitutor : ScSubs
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element
-  override def equals(other : Any): Boolean = other match {
-    case rr : ScalaResolveResult => element eq rr.element
+  override def equals(other: Any): Boolean = other match {
+    case rr: ScalaResolveResult => element eq rr.element
     case _ => false
   }
 
