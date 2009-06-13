@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.util.TestUtils;
  */
 public class ResolveClassTest extends ScalaResolveTestCase {
 
-  protected String getTestDataPath() {
+  public String getTestDataPath() {
     return TestUtils.getTestDataPath() + "/resolve/class/";
   }
 

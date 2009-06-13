@@ -42,7 +42,7 @@ import java.io.IOException;
 public abstract class ScalaResolveTestCase extends ResolveTestCase {
   private static String JDK_HOME = TestUtils.getMockJdk();
 
-  protected abstract String getTestDataPath();
+  public abstract String getTestDataPath();
 
   private void configureFile(final VirtualFile vFile, String exceptName, final VirtualFile newDir) {
     if (vFile.isDirectory()) {

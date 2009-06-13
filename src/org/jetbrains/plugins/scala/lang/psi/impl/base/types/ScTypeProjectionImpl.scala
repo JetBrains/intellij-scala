@@ -54,7 +54,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
     proc.candidates.map {r : ScalaResolveResult =>
       r.element match {
         case mem: PsiMember if mem.getContainingClass != null =>
-          new ScalaResolveResult(mem, r.substitutor.bindO(mem.getContainingClass, projected, this))
+          new ScalaResolveResult(mem, r.substitutor.bindO(mem.getContainingClass, projected, this), r.importsUsed)
         case _ => r : ResolveResult
       }
     }

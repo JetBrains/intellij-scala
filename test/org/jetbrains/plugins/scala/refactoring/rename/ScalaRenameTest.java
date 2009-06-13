@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.util.TestUtils;
  */
 public class ScalaRenameTest extends ScalaResolveTestCase {
 
-  protected String getTestDataPath() {
+  public String getTestDataPath() {
     return TestUtils.getTestDataPath() + "/rename/";
   }
 

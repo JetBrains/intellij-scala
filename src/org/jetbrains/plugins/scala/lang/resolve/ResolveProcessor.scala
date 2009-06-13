@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.resolve
 import psi.api.base.patterns.ScReferencePattern
 import psi.api.base.ScReferenceElement
 import psi.api.statements.{ScFunction, ScVariableDefinition, ScPatternDefinition, ScFun}
+import psi.api.toplevel.imports.usages.ImportUsed
 import psi.api.toplevel.typedef.{ScClass, ScObject}
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.api.statements.params.ScTypeParam
@@ -22,13 +23,13 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
-      candidatesSet += new ScalaResolveResult(named, getSubst(state))
+      candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
       return false //todo
     }
     return true
   }
 
-  protected def nameAndKindMatch (named: PsiNamedElement, state: ResolveState) = {
+  protected def nameAndKindMatch(named: PsiNamedElement, state: ResolveState) = {
     val nameSet = state.get(ResolverEnv.nameKey)
     val elName = if (nameSet == null) named.getName else nameSet
     elName == name && kindMatches(named)
@@ -39,13 +40,18 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: 
     if (subst == null) ScSubstitutor.empty else subst
   }
 
+  protected def getImports(state: ResolveState): collection.immutable.Set[ImportUsed] = {
+    val used = state.get(ImportUsed.key)
+    if (used == null) Set[ImportUsed]() else used
+  }
+
   override def getHint[T](hintKey: Key[T]): T = {
     if (hintKey == NameHint.KEY && name != "") ScalaNameHint.asInstanceOf[T]
     else super.getHint(hintKey)
   }
 
   object ScalaNameHint extends NameHint {
-    def getName(state : ResolveState) = {
+    def getName(state: ResolveState) = {
       val stateName = state.get(ResolverEnv.nameKey)
       if (stateName == null) name else stateName
     }
@@ -53,74 +59,75 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: 
 }
 
 class CollectAllProcessor(override val kinds: Set[ResolveTargets.Value], override val name: String)
-extends ResolveProcessor(kinds, name)
+        extends ResolveProcessor(kinds, name)
 {
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
-    if (nameAndKindMatch(named, state)) candidatesSet += new ScalaResolveResult(named, getSubst(state))
+    if (nameAndKindMatch(named, state)) candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
     true
   }
 }
 
 class RefExprResolveProcessor(kinds: Set[ResolveTargets.Value], name: String)
-extends ResolveProcessor(kinds, name) {
-  override def execute(element: PsiElement, state: ResolveState) : Boolean = {
+        extends ResolveProcessor(kinds, name) {
+  override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
       named match {
-        case m : PsiMethod if m.getParameterList.getParametersCount > 0 => true
-        case fun : ScFun if fun.paramTypes.length > 0 => true
-        case _ => candidatesSet += new ScalaResolveResult(named, getSubst(state)); false //todo
+        case m: PsiMethod if m.getParameterList.getParametersCount > 0 => true
+        case fun: ScFun if fun.paramTypes.length > 0 => true
+        case _ => candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state)); false //todo
       }
     } else true
   }
 }
 
-class MethodResolveProcessor(ref : ScReferenceElement, args : Seq[ScType],
-                             expected : Option[ScType]) extends ResolveProcessor(StdKinds.methodRef, ref.refName) {
-  override def execute(element: PsiElement, state: ResolveState) : Boolean = {
+class MethodResolveProcessor(ref: ScReferenceElement, args: Seq[ScType],
+                             expected: Option[ScType]) extends ResolveProcessor(StdKinds.methodRef, ref.refName) {
+  override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
       val s = getSubst(state)
       element match {
-        case m : PsiMethod => {
-          candidatesSet += new ScalaResolveResult(m, s.incl(inferMethodTypesArgs(m, s)))
+        case m: PsiMethod => {
+          candidatesSet += new ScalaResolveResult(m, s.incl(inferMethodTypesArgs(m, s)), getImports(state))
           true
         }
-        case cc : ScClass if (cc.isCase) => {
-          candidatesSet += new ScalaResolveResult(cc, s) //todo add all constructors
+        case cc: ScClass if (cc.isCase) => {
+          candidatesSet += new ScalaResolveResult(cc, s, getImports(state)) //todo add all constructors
           true
         }
         case o: ScObject => {
           for (m <- o.findMethodsByName("apply", true)) {
-            candidatesSet += new ScalaResolveResult(m, s.incl(inferMethodTypesArgs(m, s)))
+            candidatesSet += new ScalaResolveResult(m, s.incl(inferMethodTypesArgs(m, s)), getImports(state))
           }
           true
         }
-        case _ => candidatesSet += new ScalaResolveResult(named, s);
+        case _ => candidatesSet += new ScalaResolveResult(named, s, getImports(state));
         true
       }
     }
     return true
   }
 
-  override def candidates[T >: ScalaResolveResult] : Array[T] = {
-    val applicable = candidatesSet.filter {c =>
-      val t = getType(c.element)
-      val s = c.substitutor
-      t match {
-        case ScFunctionType(ret, params) => {
-          args.equalsWith(params) {(a,p) => Compatibility.compatible(s.subst(p), a)} && (expected match {
-            case None => true
-            case Some(t) => Compatibility.compatible(s.subst(t), ret)
-          })
-        }
-        case _ => false
-      }
+  override def candidates[T >: ScalaResolveResult]: Array[T] = {
+    val applicable = candidatesSet.filter {
+      c =>
+              val t = getType(c.element)
+              val s = c.substitutor
+              t match {
+                case ScFunctionType(ret, params) => {
+                  args.equalsWith(params) {(a, p) => Compatibility.compatible(s.subst(p), a)} && (expected match {
+                    case None => true
+                    case Some(t) => Compatibility.compatible(s.subst(t), ret)
+                  })
+                }
+                case _ => false
+              }
     }
     if (applicable.isEmpty) candidatesSet.toArray else {
       val buff = new ArrayBuffer[ScalaResolveResult]
-      def existsBetter(r : ScalaResolveResult) : Boolean = {
+      def existsBetter(r: ScalaResolveResult): Boolean = {
         for (r1 <- applicable if r != r1) {
           if (isMoreSpecific(r1.element, r.element)) return true
         }
@@ -131,13 +138,13 @@ class MethodResolveProcessor(ref : ScReferenceElement, args : Seq[ScType],
     }
   }
 
-  def inferMethodTypesArgs(m : PsiMethod, classSubst : ScSubstitutor) = ScSubstitutor.empty //todo
+  def inferMethodTypesArgs(m: PsiMethod, classSubst: ScSubstitutor) = ScSubstitutor.empty //todo
 
-  def isMoreSpecific(e1 : PsiNamedElement, e2 : PsiNamedElement) = {
+  def isMoreSpecific(e1: PsiNamedElement, e2: PsiNamedElement) = {
     val t1 = getType(e1)
     val t2 = getType(e2)
     e1 match {
-      case _ : PsiMethod | _ : ScFun => {
+      case _: PsiMethod | _: ScFun => {
         t1 match {
           case ScFunctionType(ret1, params1) => t2 match {
             case ScFunctionType(ret2, params2) => Compatibility.compatible(ret1, ret2) &&
@@ -146,34 +153,33 @@ class MethodResolveProcessor(ref : ScReferenceElement, args : Seq[ScType],
         }
       }
       case _ => e2 match {
-        case _ : PsiMethod => true
+        case _: PsiMethod => true
         case _ => Compatibility.compatible(t1, t2)
       }
     }
   }
 
 
+  private def getType(e: PsiNamedElement): ScType = e match {
+    case fun: ScFun => new ScFunctionType(fun.retType, fun.paramTypes)
+    case f: ScFunction => if (PsiTreeUtil.isAncestor(f, ref, true))
+      new ScFunctionType(f.declaredType, f.paramTypes)
+    else f.calcType
+    case m: PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty)
 
-  private def getType(e : PsiNamedElement): ScType = e match {
-    case fun : ScFun => new ScFunctionType(fun.retType, fun.paramTypes)
-    case f : ScFunction => if (PsiTreeUtil.isAncestor(f, ref, true))
-                           new ScFunctionType(f.declaredType, f.paramTypes)
-                           else f.calcType
-    case m : PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty)
-
-    case refPatt : ScReferencePattern => refPatt.getParent/*id list*/.getParent match {
-      case pd : ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, ref, true)) =>
+    case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
+      case pd: ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, ref, true)) =>
         pd.declaredType match {case Some(t) => t; case None => Nothing}
-      case vd : ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, ref, true)) =>
+      case vd: ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, ref, true)) =>
         vd.declaredType match {case Some(t) => t; case None => Nothing}
       case _ => refPatt.calcType
     }
 
-    case typed : ScTyped => typed.calcType
+    case typed: ScTyped => typed.calcType
     case _ => Nothing
   }
 
-  override def changedLevel = candidatesSet.isEmpty  //if there are any candidates, do not go upwards
+  override def changedLevel = candidatesSet.isEmpty //if there are any candidates, do not go upwards
 }
 
 import ResolveTargets._
