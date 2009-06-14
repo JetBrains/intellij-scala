@@ -1,0 +1,4 @@
+package object scala {
+  type List = collection.immuteble.List
+}
+-----

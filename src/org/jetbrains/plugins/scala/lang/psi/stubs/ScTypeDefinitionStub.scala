@@ -20,6 +20,8 @@ trait ScTypeDefinitionStub extends PsiClassStub[ScTypeDefinition] {
 
   def getQualifiedName: String = qualName
 
+  def isPackageObject: Boolean
+
   /**
    * Only method names without values and variables.
    * @return method names

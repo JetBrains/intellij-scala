@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
 
 import _root_.scala.collection.mutable.HashSet
+import caches.ScalaCachesManager
 import java.util.ArrayList
 import api.toplevel.packaging.ScPackageContainer
 import com.intellij.openapi.project.Project
@@ -21,7 +22,8 @@ import com.intellij.util.IncorrectOperationException
  */
 
 abstract class ScSyntheticPackage(name: String, manager: PsiManager)
-extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiPackage {
+        extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiPackage {
+
   def handleQualifiedNameChange(newQualifiedName: String) {
   }
   def getDirectories = PsiDirectory.EMPTY_ARRAY
@@ -40,6 +42,12 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiPackage {
   def accept(v: PsiElementVisitor) = throw new IncorrectOperationException("should not call")
   override def getContainingFile = SyntheticClasses.get(manager.getProject).file
   def occursInPackagePrefixes = VirtualFile.EMPTY_ARRAY
+
+  private def getPackageObjects = {
+    val manager = ScalaCachesManager.getInstance(getProject)
+    val cache = manager.getNamesCache
+    cache.getPackageObjectsByName(getQualifiedName, GlobalSearchScope.allScope(getProject))
+  }
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,

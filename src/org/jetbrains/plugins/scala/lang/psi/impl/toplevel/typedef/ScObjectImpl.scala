@@ -44,9 +44,9 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
 
   def this(stub: ScTypeDefinitionStub) = {this (); setStub(stub); setNode(null)}
 
-  override def toString: String = "ScObject"
+  override def toString: String = if (isPackageObject) "ScPackageObject" else "ScObject"
 
-  override def getIconInner = Icons.OBJECT
+  override def getIconInner = if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
 
   //todo refactor
   override def getModifierList = findChildByClass(classOf[ScModifierList])
@@ -63,6 +63,9 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     else false
   }
 
+
+  override def isPackageObject: Boolean = findChildByType(ScalaTokenTypes.kPACKAGE) != null
+
   override def isCase = getModifierList.has(ScalaTokenTypes.kCASE)
 
   override def getContainingClass() = null
@@ -71,9 +74,9 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-      val proceed = super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
-      if (!proceed) return false;
-      true
-    }
+    val proceed = super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
+    if (!proceed) return false;
+    true
+  }
 
 }

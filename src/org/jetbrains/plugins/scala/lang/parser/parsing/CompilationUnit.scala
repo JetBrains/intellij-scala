@@ -29,7 +29,8 @@ object CompilationUnit {
     var parseState = ParserState.EMPTY_STATE
     //look for file package
     builder.getTokenType match {
-      case ScalaTokenTypes.kPACKAGE => {
+      case ScalaTokenTypes.kPACKAGE 
+        if !ParserUtils.lookAhead(builder, ScalaTokenTypes.kPACKAGE, ScalaTokenTypes.kOBJECT) => {
         val packChooseMarker = builder.mark()
         builder.advanceLexer //Ate package
 

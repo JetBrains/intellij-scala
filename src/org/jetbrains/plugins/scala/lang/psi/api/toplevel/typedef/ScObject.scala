@@ -11,4 +11,5 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
 trait ScObject extends ScTypeDefinition with ScTyped with ScMember {
 
   override def getContainingClass = null
+
 }
