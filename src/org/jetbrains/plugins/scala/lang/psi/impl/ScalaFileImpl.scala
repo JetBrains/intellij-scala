@@ -5,10 +5,11 @@ import api.expr.ScExpression
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 
 
-import caches.CashesUtil
+import caches.{ScalaCachesManager, CashesUtil}
 import com.intellij.openapi.roots.{OrderEntry, ProjectRootManager, OrderRootType}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.file.PsiPackageImpl
+import com.intellij.psi.search.GlobalSearchScope
 import lexer.ScalaTokenTypes
 import stubs.ScFileStub
 import _root_.com.intellij.extapi.psi.{PsiFileBase}
@@ -100,6 +101,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
   def isScriptFile: Boolean = isScriptFile(true)
+
   def isScriptFile(withCashing: Boolean): Boolean = {
     if (!withCashing) return isScriptFileImpl
     import CashesUtil._
@@ -109,7 +111,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   def setPackageName(name: String) {
     packageStatement match {
-      case Some(x: ScPackageStatement) =>  x.setPackageName(name)
+      case Some(x: ScPackageStatement) => x.setPackageName(name)
       case None =>
     }
   }
@@ -141,9 +143,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   def icon = Icons.FILE_TYPE_LOGO
 
   override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
+                                   state: ResolveState,
+                                   lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
 
     if (!super[ScDeclarationSequenceHolder].processDeclarations(processor,
@@ -159,10 +161,29 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
         state.put(ResolverEnv.nameKey, null)
       }
       case _ => {
-        var curr = JavaPsiFacade.getInstance(getProject).findPackage(getPackageName)
+        val pName = getPackageName
+
+        // Treat package object first
+        val manager = ScalaCachesManager.getInstance(getProject)
+        val cache = manager.getNamesCache
+
+        val obj = cache.getPackageObjectByName(pName, GlobalSearchScope.allScope(getProject))
+        if (obj != null) {
+          if (!obj.processDeclarations(processor, state, null, place)) return false
+        }
+
+        var curr = JavaPsiFacade.getInstance(getProject).findPackage(pName)
         while (curr != null) {
           if (!curr.processDeclarations(processor, state, null, place)) return false
           curr = curr.getParentPackage
+
+          // Treat parent package object
+          if (curr != null) {
+            val parentObj = cache.getPackageObjectByName(curr.getQualifiedName, GlobalSearchScope.allScope(getProject))
+            if (parentObj != null) {
+              if (!parentObj.processDeclarations(processor, state, null, place)) return false
+            }
+          }
         }
       }
     }
@@ -202,7 +223,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
 object ImplicitlyImported {
   val packages = Array("scala", "java.lang")
-  val objects = Array("scala.Predef")
+  val objects = Array("scala.Predef", "scala" /* package object*/ )
 }
 
 private object ScalaFileImpl {

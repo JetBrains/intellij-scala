@@ -16,6 +16,7 @@ object ScalaIndexKeys {
 
   val SHORT_NAME_KEY: StubIndexKey[String, PsiClass]  = StubIndexKey.createIndexKey("sc.class.shortName")
   val FQN_KEY: StubIndexKey[java.lang.Integer, PsiClass]  = StubIndexKey.createIndexKey("sc.class.fqn")
+  val PACKAGE_OBJECT_KEY: StubIndexKey[java.lang.Integer, PsiClass]  = StubIndexKey.createIndexKey("sc.package.object.fqn")
   val PACKAGE_FQN_KEY: StubIndexKey[java.lang.Integer, ScPackageContainer]  = StubIndexKey.createIndexKey("sc.package.fqn")
   val METHOD_NAME_KEY: StubIndexKey[String, ScFunction] = StubIndexKey.createIndexKey("sc.method.name")
   val METHOD_NAME_TO_CLASS_KEY: StubIndexKey[String, ScTypeDefinition] = StubIndexKey.createIndexKey("sc.method.name.class")

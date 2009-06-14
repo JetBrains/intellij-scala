@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.caches;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
-import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.psi.stubs.StubIndex;
@@ -12,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,6 +60,19 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
     return list.toArray(new PsiClass[list.size()]);
   }
 
+  public ScTypeDefinition getPackageObjectByName(@NotNull @NonNls String fqn, @NotNull GlobalSearchScope scope) {
+    final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.PACKAGE_OBJECT_KEY(), fqn.hashCode(), myProject, scope);
+    ArrayList<ScTypeDefinition> list = new ArrayList<ScTypeDefinition>();
+    for (PsiClass psiClass : classes) {
+      if (fqn.equals(psiClass.getQualifiedName())) {
+        if (psiClass instanceof ScTypeDefinition) {
+          return ((ScTypeDefinition) psiClass);
+        }
+      }
+    }
+    return null;
+  }
+
   @NotNull
   public String[] getAllClassNames() {
     final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.SHORT_NAME_KEY(), myProject);
@@ -73,8 +86,6 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
 
   @NotNull
   public PsiMethod[] getMethodsByName(@NonNls @NotNull String name, @NotNull GlobalSearchScope scope) {
-    /*final Collection<? extends PsiMethod> plainMethods = StubIndex.getInstance().get(ScalaIndexKeys.METHOD_NAME_KEY(), name, myProject, scope);
-    return plainMethods.toArray(new PsiMethod[plainMethods.size()]);*/
     return PsiMethod.EMPTY_ARRAY;
   }
 

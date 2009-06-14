@@ -36,4 +36,6 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
   
 
   def functionsByName(name: String): Iterable[PsiMethod]
+
+  def isPackageObject = false
 }
