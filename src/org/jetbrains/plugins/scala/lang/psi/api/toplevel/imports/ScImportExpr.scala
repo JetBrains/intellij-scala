@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports
 
+import com.intellij.psi.PsiElement
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
@@ -23,6 +24,8 @@ trait ScImportExpr extends ScalaPsiElement {
   }
 
   def singleWildcard: Boolean
+
+  def wildcard: Option[PsiElement]
 
   def qualifier: ScStableCodeReferenceElement
 

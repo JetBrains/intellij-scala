@@ -27,6 +27,14 @@ class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
 
   def singleWildcard = findChildByType(ScalaTokenTypes.tUNDER) != null
 
+  def wildcard: Option[PsiElement] = {
+    if (singleWildcard) {
+      Some(findChildByType(ScalaTokenTypes.tUNDER))
+    } else {
+      None
+    }
+  }
+
   def qualifier: ScStableCodeReferenceElement = if (!singleWildcard &&
       (selectorSet match {
         case None => true

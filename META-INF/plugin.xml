@@ -109,6 +109,9 @@
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScDirectInheritorsIndex"/>
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAnnotatedMemberIndex"/>
 
+    <projectService serviceInterface="org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker"
+                    serviceImplementation="org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker"/>
+
     <!--Extensions for class-files treatment-->
     <clsStubBuilderFactory implementation="org.jetbrains.plugins.scala.decompiler.ScClsStubBuilderFactory"/>
     <contentBasedClassFileProcessor implementation="org.jetbrains.plugins.scala.decompiler.ScContentBasedClassFileProcessor"/>
@@ -162,6 +165,10 @@
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.scala.codeInspection.importInspections.ScalaAddImportPassFactory
+      </implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedImportsPassFactory
       </implementation-class>
     </component>
     <component>

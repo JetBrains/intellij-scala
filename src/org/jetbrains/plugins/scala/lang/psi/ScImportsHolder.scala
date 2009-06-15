@@ -2,18 +2,20 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import api.base.ScStableCodeReferenceElement
 import api.ScalaFile
+import api.toplevel.imports.usages.{ImportSelectorUsed, ImportExprUsed, ImportWildcardSelectorUsed, ImportUsed}
+import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.util.PsiTreeUtil
 import formatting.settings.ScalaCodeStyleSettings
 import lang.resolve.{ResolveProcessor, CompletionProcessor, ScalaResolveResult, StdKinds}
 import lexer.ScalaTokenTypes
-import collection.mutable.ArrayBuffer
 import impl.ScalaPsiElementFactory
 import api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import api.toplevel.packaging.{ScPackageStatement, ScPackaging}
 import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi._
 import psi.impl.toplevel.synthetic.ScSyntheticPackage
+import collection.mutable.Set
 import scope._
 
 trait ScImportsHolder extends ScalaPsiElement {
@@ -37,6 +39,29 @@ trait ScImportsHolder extends ScalaPsiElement {
     true
   }
 
+  def getAllImports: Set[ImportUsed] = {
+    val res: Set[ImportUsed] = new HashSet[ImportUsed]
+    def processChild(element: PsiElement) {
+      for (child <- element.getChildren) {
+        child match {
+          case imp: ScImportExpr => {
+            if (imp.singleWildcard) {
+              res += ImportWildcardSelectorUsed(imp)
+            }
+            if (!imp.singleWildcard && imp.selectorSet == None) {
+              res += ImportExprUsed(imp)
+            }
+            for (selector <- imp.selectors) {
+              res += ImportSelectorUsed(selector)
+            }
+          }
+          case _ => processChild(child)
+        }
+      }
+    }
+    processChild(this)
+    return res
+  }
 
 
   private def importStatementsInHeader: Seq[ScImportStmt] = {
