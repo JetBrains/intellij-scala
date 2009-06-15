@@ -18,7 +18,7 @@ import com.intellij.psi._
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement, ScFieldId}
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScMember, ScTemplateDefinition}
+import lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition, ScMember, ScTemplateDefinition}
 import lang.psi.api.toplevel.{ScModifierListOwner, ScTyped}
 import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import lang.psi.api.base.types.ScSimpleTypeElement
@@ -157,7 +157,7 @@ object ScalaOIUtil {
             case _ if isProductAbstractMethod(m, clazz) =>
             case x if x.getName == "$tag" || x.getName == "$init$" =>
             case x if x.getContainingClass == clazz =>
-            case x if x.getContainingClass.isInterface => {
+            case x if x.getContainingClass.isInterface && !x.getContainingClass.isInstanceOf[ScTrait] => {
               buf2 += sign
             }
             case x if x.hasModifierProperty("abstract") => {
