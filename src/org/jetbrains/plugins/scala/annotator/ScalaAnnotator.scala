@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import actors.Actor
+import collection.mutable.{ImmutableSetAdaptor, HashSet}
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.search.GlobalSearchScope
@@ -16,7 +17,6 @@ import lang.psi.api.statements._
 import lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
 import lang.psi.api.toplevel.imports.ScImportSelector
 import lang.psi.api.toplevel.typedef._
-import _root_.scala.collection.mutable.HashSet
 import lang.psi.api.base.types.ScSimpleTypeElement
 import lang.psi.api.base.patterns.ScBindingPattern
 import lang.psi.api.base.patterns.ScReferencePattern
@@ -28,6 +28,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.lang.annotation._
 
 import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import importsTracker.ImportTracker
 
 
 import lang.psi.ScalaPsiUtil
@@ -42,6 +43,7 @@ import quickfix.ImplementMethodsQuickFix
 import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
 import AnnotatorUtils._
+import scala.lang.psi.api.ScalaFile
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -77,6 +79,9 @@ class ScalaAnnotator extends Annotator {
       }
       case ml: ScModifierList => {
         ModifierChecker.checkModifiers(ml, holder)
+      }
+      case sFile: ScalaFile => {
+        ImportTracker.getInstance(sFile.getProject).removeAnnotatedFile(sFile)
       }
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }
@@ -128,7 +133,10 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def registerUsedImports(refElement: ScReferenceElement, result: ScalaResolveResult) {
-    //todo: add body
+    //todo: possibly filter refElements from Import statements
+    val containingFile = refElement.getContainingFile.asInstanceOf[ScalaFile]
+    ImportTracker.getInstance(refElement.getProject).
+            registerUsedImports(containingFile, new ImmutableSetAdaptor(result.importsUsed))
   }
 
   private def checkImplementedMethods(clazz: ScTemplateDefinition, holder: AnnotationHolder) {
