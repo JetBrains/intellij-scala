@@ -24,4 +24,9 @@ class ScImportSelectorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wit
   override def toString: String = "ImportSelectors"
 
   def hasWildcard = findChildByType(ScalaTokenTypes.tUNDER) != null
+
+  def wildcard: Option[PsiElement] = {
+    if (hasWildcard) Some(findChildByType(ScalaTokenTypes.tUNDER))
+    else None
+  }
 }

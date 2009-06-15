@@ -81,7 +81,7 @@ class ScalaAnnotator extends Annotator {
         ModifierChecker.checkModifiers(ml, holder)
       }
       case sFile: ScalaFile => {
-        ImportTracker.getInstance(sFile.getProject).removeAnnotatedFile(sFile)
+        ImportTracker.getInstance(sFile.getProject).removeAnnotatedFile(sFile) //it must be last annotated element
       }
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }

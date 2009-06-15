@@ -25,13 +25,27 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScImportExpr {
   override def toString: String = "ImportExpression"
 
-  def singleWildcard = findChildByType(ScalaTokenTypes.tUNDER) != null
+  def singleWildcard: Boolean = {
+    if (findChildByType(ScalaTokenTypes.tUNDER) != null) {
+      return true
+    } else {
+      selectorSet match {
+        case Some(set) => set.hasWildcard
+        case None => return false
+      }
+    }
+  }
 
   def wildcard: Option[PsiElement] = {
-    if (singleWildcard) {
+    if (findChildByType(ScalaTokenTypes.tUNDER) != null) {
       Some(findChildByType(ScalaTokenTypes.tUNDER))
     } else {
-      None
+      selectorSet match {
+        case Some(set) => {
+          set.wildcard
+        }
+        case None => None
+      }
     }
   }
 
