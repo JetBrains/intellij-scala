@@ -46,7 +46,7 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
   private def getPackageObjects = {
     val manager = ScalaCachesManager.getInstance(getProject)
     val cache = manager.getNamesCache
-    cache.getPackageObjectsByName(getQualifiedName, GlobalSearchScope.allScope(getProject))
+    cache.getPackageObjectByName(getQualifiedName, GlobalSearchScope.allScope(getProject))
   }
 
   override def processDeclarations(processor: PsiScopeProcessor,
