@@ -1,30 +1,22 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import api.ScalaFile
-import api.statements.params.ScTypeParam
-import api.toplevel.imports.ScImportExpr
 import api.statements._
 import api.base.patterns.ScReferencePattern
 import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
 import com.intellij.util.IncorrectOperationException
 import resolve._
 
-import toplevel.synthetic.ScSyntheticFunction
 import types._
-import api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi._
 import util.PsiTreeUtil
 
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.openapi.util._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTyped
 
