@@ -9,6 +9,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import com.jniwrapper.A
 import highlighter.{AnnotatorHighlighter}
+import importsTracker._
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.expr._
 
@@ -28,9 +29,6 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.lang.annotation._
 
 import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import importsTracker.ImportTracker
-
-
 import lang.psi.ScalaPsiUtil
 import lang.psi.types.{FullSignature, PhysicalSignature, Signature, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -44,7 +42,7 @@ import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
 import AnnotatorUtils._
 import scala.lang.psi.api.ScalaFile
-
+import scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed}
 /**
  *    User: Alexander Podkhalyuzin
  *    Date: 23.06.2008
@@ -134,9 +132,8 @@ class ScalaAnnotator extends Annotator {
 
   private def registerUsedImports(refElement: ScReferenceElement, result: ScalaResolveResult) {
     //todo: possibly filter refElements from Import statements
-    val containingFile = refElement.getContainingFile.asInstanceOf[ScalaFile]
     ImportTracker.getInstance(refElement.getProject).
-            registerUsedImports(containingFile, new ImmutableSetAdaptor(result.importsUsed))
+            registerUsedImports(refElement.getContainingFile.asInstanceOf[ScalaFile], new ImmutableSetAdaptor(result.importsUsed))
   }
 
   private def checkImplementedMethods(clazz: ScTemplateDefinition, holder: AnnotationHolder) {
