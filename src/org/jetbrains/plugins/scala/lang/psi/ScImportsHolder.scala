@@ -45,11 +45,11 @@ trait ScImportsHolder extends ScalaPsiElement {
       for (child <- element.getChildren) {
         child match {
           case imp: ScImportExpr => {
-            if (imp.singleWildcard) {
-              res += ImportWildcardSelectorUsed(imp)
-            }
-            if (!imp.singleWildcard && imp.selectorSet == None) {
+            if (/*!imp.singleWildcard && */imp.selectorSet == None) {
               res += ImportExprUsed(imp)
+            }
+            else if (imp.singleWildcard) {
+              res += ImportWildcardSelectorUsed(imp)
             }
             for (selector <- imp.selectors) {
               res += ImportSelectorUsed(selector)
