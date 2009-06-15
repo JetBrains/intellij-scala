@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import api.base.ScStableCodeReferenceElement
-import api.ScalaFile
 import api.toplevel.imports.usages.{ImportSelectorUsed, ImportExprUsed, ImportWildcardSelectorUsed, ImportUsed}
 import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import com.intellij.psi.util.PsiTreeUtil
 import formatting.settings.ScalaCodeStyleSettings
 import lang.resolve.{ResolveProcessor, CompletionProcessor, ScalaResolveResult, StdKinds}
 import lexer.ScalaTokenTypes
@@ -220,12 +217,12 @@ trait ScImportsHolder extends ScalaPsiElement {
       }
     }
 
-    //looking for td import statemnt to find place which we will use for new import statement
+    //looking for td import statement to find place which we will use for new import statement
     findFirstImportStmt(ref) match {
       case Some(x: ScImportStmt) => {
-        //now we walking throw foward siblings, and seeking appropriate place (lexicografical)
+        //now we walking throw forward siblings, and seeking appropriate place (lexicographical)
         var stmt: PsiElement = x
-        //this is flag to stop walking when we add import before more big lexicografically import statement
+        //this is flag to stop walking when we add import before more big lexicographically import statement
         var added = false
         while (!added && stmt != null && (stmt.isInstanceOf[ScImportStmt]
             || stmt.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR
@@ -248,7 +245,7 @@ trait ScImportsHolder extends ScalaPsiElement {
           }
           stmt = stmt.getNextSibling
         }
-        //if our stmt is the biggest lexicografically import statement we add this to the end
+        //if our stmt is the biggest lexicographically import statement we add this to the end
         if (!added) {
           if (stmt != null) {
             while (!stmt.isInstanceOf[ScImportStmt]) stmt = stmt.getPrevSibling
@@ -271,7 +268,7 @@ trait ScImportsHolder extends ScalaPsiElement {
               addImportBefore(importSt, next)
               addImportBefore(nl, next)
             } else {
-              //unnessecary nl will be removed by formatter
+              //unnecessary nl will be removed by formatter
               val nl1 = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
               val nl2 = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
               addImportAfter(nl1, x)
