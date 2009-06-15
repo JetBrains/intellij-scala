@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /** 
@@ -11,4 +12,6 @@ trait ScImportSelectors extends ScalaPsiElement {
   def selectors = findChildrenByClass(classOf[ScImportSelector])
 
   def hasWildcard : Boolean
+
+  def wildcard: Option[PsiElement]
 }
