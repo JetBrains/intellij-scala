@@ -10,6 +10,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
 import com.intellij.psi.{PsiElement, PsiFile}
 import java.util.ArrayList
 import lang.lexer.ScalaTokenTypes
@@ -26,13 +27,24 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor) extends TextEditorHig
 
   def doApplyInformationToEditor: Unit = {
     val annotationHolder = new AnnotationHolderImpl()
-    val annotations: Seq[Annotation] = unusedImports.map({
+    val annotations: Seq[Annotation] = unusedImports.filter({
+      imp: ImportUsed => {
+        imp match {
+          case expr: ImportExprUsed if !PsiTreeUtil.hasErrorElements(expr.expr)=> true
+          case sel: ImportSelectorUsed => true
+          case wild: ImportWildcardSelectorUsed if wild.e.selectors.length > 0 => true
+          case wild: ImportWildcardSelectorUsed if !PsiTreeUtil.hasErrorElements(wild.e) => true
+          case _ => false
+        }
+      }
+    }).map({
       imp: ImportUsed => {
         //todo: add fix action
         val psi: PsiElement = imp match {
-          case expr: ImportExprUsed => expr.expr
+          case expr: ImportExprUsed if !PsiTreeUtil.hasErrorElements(expr.expr)=> expr.expr.getParent
           case sel: ImportSelectorUsed => sel.sel
-          case wild: ImportWildcardSelectorUsed => wild.e.wildcard match {case Some(p) => p}
+          case wild: ImportWildcardSelectorUsed if wild.e.selectors.length > 0 => wild.e.wildcard match {case Some(p) => p}
+          case wild: ImportWildcardSelectorUsed if !PsiTreeUtil.hasErrorElements(wild.e) => wild.e.getParent
         }
         val annotation: Annotation = annotationHolder.createWarningAnnotation(psi, "Unused import statement")
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
