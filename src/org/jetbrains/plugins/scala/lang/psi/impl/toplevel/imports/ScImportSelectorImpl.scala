@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
 
-import api.toplevel.imports.{ScImportExpr, ScImportSelector}
+import api.toplevel.imports.{ScImportSelectors, ScImportExpr, ScImportSelector}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiDocumentManager}
 import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
@@ -41,6 +42,22 @@ class ScImportSelectorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
         t = node.getElementType
       }
     } while (node != null && !(t == ScalaElementTypes.IMPORT_SELECTOR || t == ScalaTokenTypes.tUNDER))
-    //todo: remove unnecessary braces
+
+    //unnecessary braces removing
+    if (expr.selectors.length + (if (expr.singleWildcard) 1 else 0) == 1) {
+      expr.wildcard match {
+        case Some(elem: PsiElement) => {
+          expr.selectorSet match {
+            case Some(sel: ScImportSelectors) => {
+              sel.getParent.getNode.replaceChild(sel.getNode, ScalaPsiElementFactory.createWildcardNode(getManager))
+            }
+            case None =>
+          }
+        }
+        case _ => {
+
+        }
+      }
+    }
   }
 }

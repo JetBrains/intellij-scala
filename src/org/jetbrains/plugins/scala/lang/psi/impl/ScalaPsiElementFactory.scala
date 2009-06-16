@@ -50,6 +50,14 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
 
   private val DUMMY = "dummy."
 
+  def createWildcardNode(manager: PsiManager): ASTNode = {
+    val text = "import a._"
+
+    val dummyFile: ScalaFile =
+      PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    dummyFile.getLastChild.getLastChild.getLastChild.getNode
+  }
+
   def createExpressionFromText(buffer: String, manager: PsiManager): ScExpression = {
     val text = "class a {val b = (" + buffer + ")}"
 
