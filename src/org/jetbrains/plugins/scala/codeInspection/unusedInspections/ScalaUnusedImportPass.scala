@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.unusedInspections
 
 
 import annotator.importsTracker.ImportTracker
-import collection.mutable.{HashSet, Set}
+import collection.mutable.{Set, HashSet, Set}
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, UpdateHighlightersUtil, HighlightInfoFilter, AnnotationHolderImpl}
@@ -23,10 +23,9 @@ import lang.psi.{ScalaPsiElementImpl, ScalaPsiElement}
  */
 
 class ScalaUnusedImportPass(file: PsiFile, editor: Editor) extends TextEditorHighlightingPass(file.getProject, editor.getDocument) {
-  private var unusedImports: Set[ImportUsed] = new HashSet[ImportUsed]
-
   def doApplyInformationToEditor: Unit = {
     val annotationHolder = new AnnotationHolderImpl()
+    val unusedImports: Set[ImportUsed] = ImportTracker.getInstance(file.getProject).getUnusedImport(sFile)
     val annotations: Seq[Annotation] = unusedImports.filter({
       imp: ImportUsed => {
         imp match {
@@ -61,11 +60,6 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor) extends TextEditorHig
   }
 
   def doCollectInformation(progress: ProgressIndicator): Unit = {
-    file match {
-      case sFile: ScalaFile => {
-        unusedImports = ImportTracker.getInstance(file.getProject).getUnusedImport(sFile)
-      }
-      case _ =>
-    }
+
   }
 }
