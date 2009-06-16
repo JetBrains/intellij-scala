@@ -8,7 +8,6 @@ import com.intellij.openapi.project.Project
 
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.PsiFile
-import lang.psi.api.statements.ScFunction
 import lang.psi.api.toplevel.ScModifierListOwner
 
 /**

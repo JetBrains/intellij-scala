@@ -1,13 +1,8 @@
 package org.jetbrains.plugins.scala.annotator
 
-import actors.Actor
-import collection.mutable.{ImmutableSetAdaptor, HashSet}
+import collection.mutable.{ImmutableSetAdaptor}
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.tree.TokenSet
-import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
-import com.jniwrapper.A
+import com.intellij.psi.util.{PsiTreeUtil}
 import highlighter.{AnnotatorHighlighter}
 import importsTracker._
 import lang.lexer.ScalaTokenTypes
@@ -15,22 +10,15 @@ import lang.psi.api.expr._
 
 
 import lang.psi.api.statements._
-import lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
+import lang.psi.api.statements.params.{ScClassParameter}
 import lang.psi.api.toplevel.imports.ScImportSelector
 import lang.psi.api.toplevel.typedef._
-import lang.psi.api.base.types.ScSimpleTypeElement
-import lang.psi.api.base.patterns.ScBindingPattern
-import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.toplevel.{ScModifierListOwner, ScEarlyDefinitions, ScTyped}
-import lang.psi.impl.search.{ScalaOverridengMemberSearch}
-import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.openapi.util.TextRange
 import com.intellij.lang.annotation._
 
-import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import lang.psi.ScalaPsiUtil
-import lang.psi.types.{FullSignature, PhysicalSignature, Signature, ScSubstitutor}
+import lang.psi.types.{FullSignature}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.psi._
@@ -40,9 +28,8 @@ import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import quickfix.ImplementMethodsQuickFix
 import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
-import AnnotatorUtils._
 import scala.lang.psi.api.ScalaFile
-import scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed}
+import tree.TokenSet
 /**
  *    User: Alexander Podkhalyuzin
  *    Date: 23.06.2008
