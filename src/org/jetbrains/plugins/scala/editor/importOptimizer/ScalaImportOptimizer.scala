@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.editor.importOptimizer
 
 
 import annotator.importsTracker.ImportTracker
+import codeInspection.{ScalaRecursiveElementVisitor, ScalaElementVisitor}
+import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.lang.ImportOptimizer
 import com.intellij.openapi.util.EmptyRunnable
 import com.intellij.psi.util.PsiTreeUtil
@@ -9,7 +11,8 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.base.ScReferenceElement
 import lang.psi.api.ScalaFile
-import lang.psi.api.toplevel.imports.usages.{ImportSelectorUsed, ImportWildcardSelectorUsed, ImportExprUsed}
+import lang.psi.api.toplevel.imports.usages.{ImportUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportExprUsed}
+import lang.resolve.ScalaResolveResult
 /**
  * User: Alexander Podkhalyuzin
  * Date: 16.06.2009
@@ -19,7 +22,22 @@ class ScalaImportOptimizer extends ImportOptimizer {
   def processFile(file: PsiFile): Runnable = {
     if (file.isInstanceOf[ScalaFile]) {
       val scalaFile: ScalaFile = file.asInstanceOf[ScalaFile]
-      val unusedImports = ImportTracker.getInstance(file.getProject).getUnusedImport(scalaFile)
+      val usedImports = new HashSet[ImportUsed]
+      file.accept(new ScalaRecursiveElementVisitor {
+        override def visitReference(ref: ScReferenceElement) = {
+          for {
+            resolveResult <- ref.multiResolve(false)
+            if resolveResult.isInstanceOf[ScalaResolveResult]
+            scalaResult: ScalaResolveResult = resolveResult.asInstanceOf[ScalaResolveResult]
+          } {
+            usedImports ++= scalaResult.importsUsed
+          }
+          super.visitReference(ref)
+        }
+      })
+      val unusedImports = new HashSet[ImportUsed]
+      unusedImports ++= scalaFile.getAllImports
+      unusedImports --= usedImports
       new Runnable {
         def run: Unit = {
           //remove unnecessary imports
