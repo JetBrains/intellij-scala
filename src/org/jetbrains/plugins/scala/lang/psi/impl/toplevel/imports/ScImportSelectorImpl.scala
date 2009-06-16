@@ -1,27 +1,20 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
 
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.tree.IElementType;
+import api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import com.intellij.lang.ASTNode
-
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.lexer._
+import com.intellij.psi.tree.IElementType
+import com.intellij.psi.util.PsiTreeUtil
+import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.annotations._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-
-import org.jetbrains.plugins.scala.icons.Icons
-
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
+import parser.ScalaElementTypes
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008
 */
 
-class ScImportSelectorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScImportSelector{
+class ScImportSelectorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScImportSelector {
   override def toString: String = "ImportSelector"
 
   def importedName () = {
@@ -29,6 +22,25 @@ class ScImportSelectorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     if (id == null) reference.refName else id.getText
   }
 
-
   def reference () : ScStableCodeReferenceElement = findChildByClass(classOf[ScStableCodeReferenceElement])
+
+  def deleteSelector: Unit = {
+    val expr: ScImportExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
+    if (expr.selectors.length + (if (expr.singleWildcard) 1 else 0) == 1) {
+      expr.deleteExpr
+    }
+    val forward: Boolean = expr.selectors.apply(0) == this
+    var node = this.getNode
+    var prev = if (forward) node.getTreeNext else node.getTreePrev
+    var t: IElementType = null
+    do {
+      node.getTreeParent.removeChild(node)
+      node = prev
+      if (node != null) {
+        prev = if (forward) node.getTreeNext else node.getTreePrev
+        t = node.getElementType
+      }
+    } while (node != null && !(t == ScalaElementTypes.IMPORT_SELECTOR || t == ScalaTokenTypes.tUNDER))
+    //todo: remove unnecessary braces
+  }
 }
