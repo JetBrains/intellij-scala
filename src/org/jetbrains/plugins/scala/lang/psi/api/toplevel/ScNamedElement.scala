@@ -11,11 +11,20 @@ import icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import psi.ScalaPsiElement
 import statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
+import stubs.NamedStub
 import typedef._
 
 trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {
 
-  def name() : String = nameId.getText
+  def name() : String = {
+    this match {
+      case st: StubBasedPsiElement[_] =>  st.getStub match {
+        case namedStub: NamedStub[_] => namedStub.getName
+        case _ => nameId.getText
+      }
+      case _ => nameId.getText
+    }
+  }
 
   override def getName = name
 
