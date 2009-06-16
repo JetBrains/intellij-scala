@@ -27,5 +27,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 class ScSelfTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScSelfTypeElement{
   override def toString: String = "SelfType"
 
-  def nameId() = findChildByType(ScalaTokenTypes.kTHIS)
+  def nameId() = findChildByType(TokenSets.SELF_TYPE_ID)
 }

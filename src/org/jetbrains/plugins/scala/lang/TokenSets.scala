@@ -5,6 +5,7 @@ package org.jetbrains.plugins.scala.lang
  */
 
 import com.intellij.psi.tree.TokenSet
+import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 
@@ -93,4 +94,6 @@ object TokenSets {
   val ID_SET = TokenSet.create(tIDENTIFIER, tUNDER)
 
   val TYPE_PARAMS_SET = TokenSet.create(TYPE_PARAM, VARIANT_TYPE_PARAM)
+
+  val SELF_TYPE_ID = TokenSet.create(ScalaTokenTypes.kTHIS, ScalaTokenTypes.tIDENTIFIER)
 }
