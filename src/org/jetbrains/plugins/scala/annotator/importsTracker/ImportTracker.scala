@@ -8,8 +8,7 @@ import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.imports.usages.ImportUsed
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 15.06.2009
+ * @author Ilyas
  */
 
 class ImportTracker {
