@@ -16,9 +16,11 @@ class ImportTracker {
   private val unusedImports: Map[ScalaFile, Set[ImportUsed]] = new HashMap[ScalaFile, Set[ImportUsed]]
 
   def registerUsedImports(file: ScalaFile, used: Set[ImportUsed]) {
-    usedImports.get(file) match {
-      case None => usedImports += Tuple(file, used)
-      case Some(set: Set[ImportUsed]) => set ++= used
+    lock synchronized {
+      usedImports.get(file) match {
+        case None => usedImports += Tuple(file, used)
+        case Some(set: Set[ImportUsed]) => set ++= used
+      }
     }
   }
 

@@ -38,9 +38,6 @@ import tree.TokenSet
 class ScalaAnnotator extends Annotator {
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
-    val file = element.getContainingFile
-    val fType = file.getVirtualFile.getFileType
-    if (fType != ScalaFileType.SCALA_FILE_TYPE) return
     element match {
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         //todo: unhandled case abstract override
