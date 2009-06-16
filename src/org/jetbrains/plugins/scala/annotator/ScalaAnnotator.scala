@@ -101,9 +101,12 @@ class ScalaAnnotator extends Annotator {
           }
         }
       case Some(result) => {
-        registerUsedImports(refElement, result)
         AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
       }
+    }
+    for (result <- refElement.multiResolve(false) if result.isInstanceOf[ScalaResolveResult];
+         scalaResult = result.asInstanceOf[ScalaResolveResult]) {
+      registerUsedImports(refElement, scalaResult)
     }
   }
 
