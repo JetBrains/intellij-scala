@@ -36,7 +36,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
         }
       })
       val unusedImports = new HashSet[ImportUsed]
-      unusedImports ++= scalaFile.getAllImports
+      unusedImports ++= scalaFile.getAllImportUsed
       unusedImports --= usedImports
       new Runnable {
         def run: Unit = {
@@ -57,7 +57,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
                 }
               }
               case ImportWildcardSelectorUsed(expr) => {
-                expr.wildcard match {
+                expr.wildcardElement match {
                   case Some(element: PsiElement) => {
                     if (expr.selectors.length == 0) {
                       expr.deleteExpr

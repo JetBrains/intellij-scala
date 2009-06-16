@@ -27,7 +27,7 @@ class ImportTracker {
   def getUnusedImport(file: ScalaFile): Set[ImportUsed] = {
     lock synchronized {
       def foo = {
-        val res = file.getAllImports
+        val res = file.getAllImportUsed
         usedImports.get(file) match {
           case Some(used: Set[ImportUsed]) => {
             res --= used

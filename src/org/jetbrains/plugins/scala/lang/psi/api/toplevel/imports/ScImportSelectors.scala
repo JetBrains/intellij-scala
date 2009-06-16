@@ -13,5 +13,5 @@ trait ScImportSelectors extends ScalaPsiElement {
 
   def hasWildcard : Boolean
 
-  def wildcard: Option[PsiElement]
+  def wildcardElement: Option[PsiElement]
 }

@@ -43,7 +43,7 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor) extends TextEditorHig
         val psi: PsiElement = imp match {
           case expr: ImportExprUsed if !PsiTreeUtil.hasErrorElements(expr.expr)=> expr.expr.getParent
           case sel: ImportSelectorUsed => sel.sel
-          case wild: ImportWildcardSelectorUsed if wild.e.selectors.length > 0 => wild.e.wildcard match {case Some(p) => p}
+          case wild: ImportWildcardSelectorUsed if wild.e.selectors.length > 0 => wild.e.wildcardElement match {case Some(p) => p}
           case wild: ImportWildcardSelectorUsed if !PsiTreeUtil.hasErrorElements(wild.e) => wild.e.getParent
         }
         val annotation: Annotation = annotationHolder.createWarningAnnotation(psi, "Unused import statement")
