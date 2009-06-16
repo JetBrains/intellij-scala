@@ -4,7 +4,7 @@ import com.intellij.lang.PsiParser
 import com.intellij.lang.ASTNode
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
-import parsing.{ParserState, Program}
+import parsing.Program
 
 
 class ScalaParser extends PsiParser {

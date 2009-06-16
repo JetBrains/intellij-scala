@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.codeInsight.template.util
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve.BaseProcessor
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import com.intellij.psi.scope._
 import com.intellij.psi._
 
 import _root_.scala.collection.Set

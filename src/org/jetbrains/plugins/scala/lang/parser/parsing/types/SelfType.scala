@@ -2,14 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import com.intellij.psi.tree.TokenSet
-import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
-
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 08.02.2008
 */

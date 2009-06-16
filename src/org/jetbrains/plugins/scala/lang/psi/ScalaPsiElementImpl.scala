@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import _root_.com.intellij.extapi.psi.{StubBasedPsiElementBase, ASTWrapperPsiElement}
-import com.intellij.psi.impl.CheckUtil
-import com.intellij.psi.impl.source.SourceTreeToPsiMap
-import com.intellij.psi.impl.source.tree.{ChangeUtil, CompositeElement}
+import com.intellij.psi.impl.source.tree.CompositeElement
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
-import com.intellij.psi.tree.IElementType
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiElement, StubBasedPsiElement}
 import stubs.elements.wrappers.DummyASTNode
