@@ -36,13 +36,13 @@ class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
     }
   }
 
-  def wildcard: Option[PsiElement] = {
+  def wildcardElement: Option[PsiElement] = {
     if (findChildByType(ScalaTokenTypes.tUNDER) != null) {
       Some(findChildByType(ScalaTokenTypes.tUNDER))
     } else {
       selectorSet match {
         case Some(set) => {
-          set.wildcard
+          set.wildcardElement
         }
         case None => None
       }

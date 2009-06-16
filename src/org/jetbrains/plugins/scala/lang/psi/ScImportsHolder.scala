@@ -36,7 +36,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     true
   }
 
-  def getAllImports: Set[ImportUsed] = {
+  def getAllImportUsed: Set[ImportUsed] = {
     val res: Set[ImportUsed] = new HashSet[ImportUsed]
     def processChild(element: PsiElement) {
       for (child <- element.getChildren) {

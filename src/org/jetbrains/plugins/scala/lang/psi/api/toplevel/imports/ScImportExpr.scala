@@ -23,7 +23,7 @@ trait ScImportExpr extends ScalaPsiElement {
 
   def singleWildcard: Boolean
 
-  def wildcard: Option[PsiElement]
+  def wildcardElement: Option[PsiElement]
 
   def qualifier: ScStableCodeReferenceElement
 

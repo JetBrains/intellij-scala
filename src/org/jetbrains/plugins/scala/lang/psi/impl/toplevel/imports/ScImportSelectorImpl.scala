@@ -46,7 +46,7 @@ class ScImportSelectorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
 
     //unnecessary braces removing
     if (expr.selectors.length + (if (expr.singleWildcard) 1 else 0) == 1) {
-      expr.wildcard match {
+      expr.wildcardElement match {
         case Some(elem: PsiElement) => {
           expr.selectorSet match {
             case Some(sel: ScImportSelectors) => {
