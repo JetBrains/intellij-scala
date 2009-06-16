@@ -14,3 +14,9 @@ class ScalaElementVisitor extends PsiElementVisitor {
     visitElement(ref)
   }
 }
+
+class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
+  override def visitElement(element: PsiElement): Unit = {
+    element.acceptChildren(this)
+  }
+}
