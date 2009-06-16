@@ -30,10 +30,10 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor) extends TextEditorHig
     val annotations: Seq[Annotation] = unusedImports.filter({
       imp: ImportUsed => {
         imp match {
-          case expr: ImportExprUsed if !PsiTreeUtil.hasErrorElements(expr.expr)=> true
-          case sel: ImportSelectorUsed => true
-          case wild: ImportWildcardSelectorUsed if wild.e.selectors.length > 0 => true
-          case wild: ImportWildcardSelectorUsed if !PsiTreeUtil.hasErrorElements(wild.e) => true
+          case ImportExprUsed(expr) if !PsiTreeUtil.hasErrorElements(expr)=> true
+          case ImportSelectorUsed(_) => true
+          case ImportWildcardSelectorUsed(e) if e.selectors.length > 0 => true
+          case ImportWildcardSelectorUsed(e) if !PsiTreeUtil.hasErrorElements(e) => true
           case _ => false
         }
       }
@@ -41,10 +41,10 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor) extends TextEditorHig
       imp: ImportUsed => {
         //todo: add fix action
         val psi: PsiElement = imp match {
-          case expr: ImportExprUsed if !PsiTreeUtil.hasErrorElements(expr.expr)=> expr.expr.getParent
-          case sel: ImportSelectorUsed => sel.sel
-          case wild: ImportWildcardSelectorUsed if wild.e.selectors.length > 0 => wild.e.wildcardElement match {case Some(p) => p}
-          case wild: ImportWildcardSelectorUsed if !PsiTreeUtil.hasErrorElements(wild.e) => wild.e.getParent
+          case ImportExprUsed(expr) if !PsiTreeUtil.hasErrorElements(expr)=> expr.getParent
+          case ImportSelectorUsed(sel) => sel
+          case ImportWildcardSelectorUsed(e) if e.selectors.length > 0 => e.wildcardElement match {case Some(p) => p}
+          case ImportWildcardSelectorUsed(e) if !PsiTreeUtil.hasErrorElements(e) => e.getParent
         }
         val annotation: Annotation = annotationHolder.createWarningAnnotation(psi, "Unused import statement")
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
