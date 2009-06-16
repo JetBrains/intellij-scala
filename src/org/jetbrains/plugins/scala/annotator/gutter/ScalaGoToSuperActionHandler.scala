@@ -1,20 +1,17 @@
 package org.jetbrains.plugins.scala.annotator.gutter
 
-import _root_.scala.collection.immutable.HashSet
+import collection.mutable.HashSet
 import com.intellij.codeInsight.navigation.NavigationUtil
-import com.intellij.codeInsight.{CodeInsightActionHandler, CodeInsightBundle}
+import com.intellij.codeInsight.{CodeInsightActionHandler}
 import com.intellij.ide.util.EditSourceUtil
-import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
-import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.statements._
 import lang.psi.api.toplevel.ScTyped
-import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition}
+import lang.psi.api.toplevel.typedef.{ScTemplateDefinition}
 import lang.psi.ScalaPsiUtil
-import lang.psi.types.FullSignature
 import ScalaMarkerType.ScCellRenderer
 
 /**

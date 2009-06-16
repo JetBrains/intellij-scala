@@ -3,9 +3,8 @@ package org.jetbrains.plugins.scala.annotator.gutter
 import _root_.scala.collection.immutable.HashMap
 import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.collection.mutable.HashSet
-import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.daemon.impl.{PsiElementListNavigator}
-import com.intellij.codeInsight.daemon.{GutterIconNavigationHandler, DaemonBundle}
+import com.intellij.codeInsight.daemon.{GutterIconNavigationHandler}
 import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.openapi.util.Iconable
@@ -18,8 +17,7 @@ import com.intellij.util.NullableFunction
 import java.awt.event.MouseEvent
 import lang.psi.api.statements.params.ScClassParameter
 import lang.psi.api.statements.{ScFunction, ScValue, ScDeclaredElementsHolder, ScVariable}
-import lang.psi.api.toplevel.ScTyped
-import lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScMember, ScObject}
+import lang.psi.api.toplevel.typedef.{ScTrait, ScMember, ScObject}
 import lang.psi.impl.search.ScalaOverridengMemberSearch
 import lang.psi.ScalaPsiUtil
 import lang.psi.types.FullSignature

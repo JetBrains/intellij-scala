@@ -3,8 +3,6 @@ package org.jetbrains.plugins.scala.annotator.gutter
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.psi.{PsiElement, PsiReference}
-import lang.psi.api.base.ScReferenceElement
-
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.11.2008

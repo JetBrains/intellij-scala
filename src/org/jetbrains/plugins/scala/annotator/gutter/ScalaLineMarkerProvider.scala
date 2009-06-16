@@ -4,9 +4,7 @@ package org.jetbrains.plugins.scala.annotator.gutter
 import _root_.scala.collection.mutable.HashSet
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.codeHighlighting.Pass
-import com.intellij.codeInsight.daemon.impl.MarkerType
 import com.intellij.codeInsight.daemon.{LineMarkerInfo, LineMarkerProvider}
-import com.intellij.ide.util.EditSourceUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.progress.ProgressManager
@@ -16,8 +14,8 @@ import java.util.{Collection, List}
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.statements._
 import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
-import lang.psi.api.toplevel.{ScNamedElement, ScTyped}
+import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait}
+import lang.psi.api.toplevel.{ScNamedElement}
 import lang.psi.impl.search.ScalaOverridengMemberSearch
 import lang.psi.ScalaPsiUtil
 import lang.psi.types.FullSignature

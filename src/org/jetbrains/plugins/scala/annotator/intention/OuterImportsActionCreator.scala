@@ -1,28 +1,13 @@
 package org.jetbrains.plugins.scala.annotator.intention
 
 import codeInspection.importInspections.ScalaAddImportPass
-import lang.psi._
 import lang.psi.api.ScalaFile
 import lang.resolve.{ResolveUtils}
-import com.intellij.codeInsight.CodeInsightUtilBase
-import com.intellij.codeInsight.hint.HintManager
-import com.intellij.codeInsight.hint.QuestionAction
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.ide.util.FQNameCellRenderer
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.Result
-import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.LogicalPosition
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.PopupChooserBuilder
 import com.intellij.psi.JavaPsiFacade
-import com.intellij.psi.PsiClass
-import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import com.intellij.psi.search.GlobalSearchScope
-
 import lang.psi.api.base.ScReferenceElement
 import _root_.scala.collection.mutable._
 
