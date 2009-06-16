@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports
 
 import com.intellij.psi.PsiElement
-import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
  * @author Alexander Podkhalyuzin

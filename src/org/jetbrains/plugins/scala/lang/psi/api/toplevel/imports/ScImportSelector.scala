@@ -12,4 +12,6 @@ trait ScImportSelector extends ScalaPsiElement {
   def importedName : String
 
   def reference : ScStableCodeReferenceElement
+
+  def deleteSelector: Unit
 }
