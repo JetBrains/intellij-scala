@@ -12,6 +12,7 @@ import lang.psi.api.toplevel.imports.usages.ImportUsed
  */
 
 class ImportTracker {
+  //todo: remove fields, use putUserData instead
   private val usedImports: Map[ScalaFile, Set[ImportUsed]] = new HashMap[ScalaFile, Set[ImportUsed]]
   private val unusedImports: Map[ScalaFile, Set[ImportUsed]] = new HashMap[ScalaFile, Set[ImportUsed]]
 
