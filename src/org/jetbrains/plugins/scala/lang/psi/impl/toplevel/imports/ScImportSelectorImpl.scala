@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
 
+import api.ScalaFile
 import api.toplevel.imports.{ScImportSelectors, ScImportExpr, ScImportSelector}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
@@ -23,7 +24,7 @@ class ScImportSelectorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     if (id == null) reference.refName else id.getText
   }
 
-  def reference () : ScStableCodeReferenceElement = findChildByClass(classOf[ScStableCodeReferenceElement])
+  def reference(): ScStableCodeReferenceElement = findChildByClass(classOf[ScStableCodeReferenceElement])
 
   def deleteSelector: Unit = {
     val expr: ScImportExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
@@ -51,11 +52,16 @@ class ScImportSelectorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
             case Some(sel: ScImportSelectors) => {
               sel.getParent.getNode.replaceChild(sel.getNode, ScalaPsiElementFactory.createWildcardNode(getManager))
             }
-            case None =>
+            case None => //can't be
           }
         }
         case _ => {
-
+          val selector: ScImportSelector = expr.selectors.apply(0)
+          if (selector.importedName == selector.reference.getText) {
+            expr.getParent.getNode.replaceChild(expr.getNode, ScalaPsiElementFactory.createImportExprFromText(
+                expr.qualifier.getText + "." + selector.reference.getText, getManager
+              ).getNode)
+          }
         }
       }
     }
