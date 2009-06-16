@@ -4,7 +4,6 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, S
 import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
 import com.intellij.codeInsight.template._
 import com.intellij.psi.{PsiDocumentManager, PsiNamedElement}
-import java.lang.{UnsupportedOperationException, String}
 import lang.psi.api.toplevel.ScTyped
 import lang.refactoring.namesSuggester.NameSuggester
 /**

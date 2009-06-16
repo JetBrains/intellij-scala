@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import actors.!
-import com.incors.plaf.alloy.bm
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 

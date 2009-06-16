@@ -2,22 +2,14 @@ package org.jetbrains.plugins.scala.lang.parser
 
 import com.intellij.lang.ParserDefinition, com.intellij.lang.PsiParser
 import com.intellij.lang.ASTNode
-import com.intellij.lexer.Lexer
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.IFileElementType
-import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.FileViewProvider
 import com.intellij.psi.tree.TokenSet
-import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
-import org.jetbrains.plugins.scala.lang.lexer.ScalaPlainLexer
-import org.jetbrains.plugins.scala.lang.lexer.core.ScalaCoreLexer
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import psi.api.ScalaFile
 import psi.impl.ScalaFileImpl
 
 /**

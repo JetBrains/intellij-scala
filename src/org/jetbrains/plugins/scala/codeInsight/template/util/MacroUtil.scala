@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.codeInsight.template.util
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState}
-import lang.psi.api.expr.ScBlock
 import lang.resolve.{ScalaResolveResult, StdKinds}
 
 /**

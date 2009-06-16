@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import _root_.scala.collection.mutable.HashSet
-import api.base.types.ScTypeInferenceResult
-import api.toplevel.ScNamedElement
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.{TokenSet, IElementType}
 

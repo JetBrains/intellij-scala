@@ -5,7 +5,7 @@ import com.intellij.openapi.util.Key
 import lang.psi.api.base.types.ScTypeInferenceResult
 import com.intellij.psi.{PsiElement, PsiManager}
 
-import com.intellij.psi.util.{CachedValue, CachedValueProvider, PsiModificationTracker}
+import com.intellij.psi.util.{CachedValue, CachedValueProvider}
 
 /**
  * User: Alexander Podkhalyuzin

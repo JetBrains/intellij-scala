@@ -4,11 +4,6 @@ package org.jetbrains.plugins.scala.lang
  * @author ilyas
  */
 
-import com.intellij.psi.tree.IElementType
-import com.intellij.psi.tree.IFileElementType
-import com.intellij.lang.Language
-import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
-import org.jetbrains.plugins.scala.ScalaLanguage
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._

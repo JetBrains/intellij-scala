@@ -6,8 +6,6 @@ import scaladoc.psi.{ScalaDocPsiCreator}
 import scaladoc.lexer.ScalaDocElementType
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.tree.IElementType
-
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging._
@@ -22,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 object ScalaPsiCreator {
   def createElement(node: ASTNode): PsiElement =
 

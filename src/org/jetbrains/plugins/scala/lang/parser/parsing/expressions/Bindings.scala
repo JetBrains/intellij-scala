@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
-import params.Param
-
 /**
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008

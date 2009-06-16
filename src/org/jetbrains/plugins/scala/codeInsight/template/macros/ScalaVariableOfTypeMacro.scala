@@ -6,12 +6,12 @@ import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
 import com.intellij.codeInsight.template._
 
-import com.intellij.psi.{PsiDocumentManager, PsiType}
+import com.intellij.psi.PsiDocumentManager
 import java.lang.String
 import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.ScTyped
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
-import lang.psi.types.{FullSignature, ScType, PhysicalSignature}
+import lang.psi.types.ScType
 import util.MacroUtil
 
 /**

@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser
 
-import com.intellij.psi.tree.{TokenSet, IElementType, IStubFileElementType, IFileElementType}
-import com.intellij.lang.Language
+import com.intellij.psi.tree.IStubFileElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
-import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import psi.stubs.elements._
 import psi.stubs.elements.signatures.{ScClassParameterElementType, ScParameterElementType, ScParamClauseElementType, ScParamClausesElementType}
 
