@@ -32,7 +32,7 @@ object ScalaElementTypes {
   val CONSTRUCTOR = new ScalaElementType("constructor")
 
   val TEMPLATE = new ScalaElementType("template")
-  val TEMPLATE_BODY = new ScalaElementType("template body")
+  val TEMPLATE_BODY = new ScTemplateBodyElementType
 
 
   val REQUIRES_BLOCK = new ScalaElementType("requires block")
@@ -54,13 +54,13 @@ object ScalaElementTypes {
   /** ***********************************************************************************/
   /************************* TYPE PARAMETERS OF CLASS AND FUNCTIONS *************************/
   /** ***********************************************************************************/
-  val TYPE_PARAM_CLAUSE = new ScalaElementType("type parameter clause")
+  val TYPE_PARAM_CLAUSE = new ScTypeParamClauseElementType
 
   /************ class ***************/
   val VARIANT_TYPE_PARAM = new ScalaElementType("variant parameter of type")
 
   /************ function *************/
-  val TYPE_PARAM = new ScalaElementType("parameter of type")
+  val TYPE_PARAM = new ScTypeParamElementType
   val TYPE_PARAMS = new ScalaElementType("parameters of type")
 
   /** ***********************************************************************************/
@@ -83,7 +83,7 @@ object ScalaElementTypes {
   val ASCRIPTION = new ScalaElementType("ascription")
   val TUPLE_TYPE = new ScalaElementType("tuple type")
   val TYPE_IN_PARENTHESIS = new ScalaElementType("type in parenthesis")
-  val PRIMARY_CONSTRUCTOR = new ScalaElementType("primary constructor")
+  val PRIMARY_CONSTRUCTOR = new ScPrimaryConstructorElementType
   val EXISTENTIAL_TYPE = new ScalaElementType("existential type")
   val TYPE_PROJECTION = new ScalaElementType("type projection")
   val TYPE_GENERIC_CALL = new ScalaElementType("type generic call")
@@ -149,7 +149,7 @@ object ScalaElementTypes {
 
   /******************* modifiers **********************/
   val MODIFIERS = new ScModifiersElementType("moifiers")
-  val ACCESS_MODIFIER = new ScalaElementType("access modifier") //todo: create stub
+  val ACCESS_MODIFIER = new ScAccessModifierElementType
 
   /******************* annotation *********************/
 

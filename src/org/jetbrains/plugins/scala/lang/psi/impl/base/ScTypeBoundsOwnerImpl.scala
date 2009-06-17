@@ -7,10 +7,10 @@ import psi.types.{Nothing, Any}
 import api.base.types.ScTypeElement
 import com.intellij.lang.ASTNode
 
-class ScTypeBoundsOwnerImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeBoundsOwner {
+trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   //todo[CYCLIC]
   def lowerBound = {
-    val tLower = findChildByType(ScalaTokenTypes.tLOWER_BOUND)
+    val tLower = findLastChildByType(ScalaTokenTypes.tLOWER_BOUND)
     if (tLower != null) {
       PsiTreeUtil.getNextSiblingOfType(tLower, classOf[ScTypeElement]) match {
         case null => Nothing
@@ -20,7 +20,7 @@ class ScTypeBoundsOwnerImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wit
   }
 
   def upperBound = {
-    val tUpper = findChildByType(ScalaTokenTypes.tUPPER_BOUND)
+    val tUpper = findLastChildByType(ScalaTokenTypes.tUPPER_BOUND)
     if (tUpper != null) {
       PsiTreeUtil.getNextSiblingOfType(tUpper, classOf[ScTypeElement]) match {
         case null => Any
@@ -30,7 +30,7 @@ class ScTypeBoundsOwnerImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wit
   }
 
   override def viewBound = {
-    val tView = findChildByType(ScalaTokenTypes.tVIEW)
+    val tView = findLastChildByType(ScalaTokenTypes.tVIEW)
     if (tView != null) {
       PsiTreeUtil.getNextSiblingOfType(tView, classOf[ScTypeElement]) match {
         case null => None

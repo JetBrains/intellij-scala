@@ -9,7 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import statements.ScFunction
+import stubs.StubElement
 import templates.{ScExtendsBlock, ScTemplateBody}
+import impl.source.PsiFileImpl
 
 /**
  * @author Alexander Podkhalyuzin
@@ -17,7 +19,16 @@ import templates.{ScExtendsBlock, ScTemplateBody}
  */
 
 trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
-  def getContainingClass: ScTemplateDefinition = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])
+  def getContainingClass: ScTemplateDefinition = {
+    val stub: StubElement[_] = this match {
+      case file: PsiFileImpl => file.getStub
+      case st: StubBasedPsiElement[_] => st.getStub
+      case _ => null
+    }
+    if (stub != null) {
+      stub.getParentStubOfType(classOf[ScTemplateDefinition])
+    } else PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])
+  }
 
   override def hasModifierProperty(name: String) = {
     if (name == PsiModifier.STATIC) {

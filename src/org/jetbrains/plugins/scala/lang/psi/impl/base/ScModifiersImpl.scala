@@ -29,7 +29,11 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
 
   override def toString: String = "Modifiers"
 
-  def hasModifierProperty(name: String) = {
+  def hasModifierProperty(name: String): Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScModifiersStub].getModifiers.exists(_ == name)
+    }
     name match {
       case "override" => has(ScalaTokenTypes.kOVERRIDE)
       case "private" => has(ScalaTokenTypes.kPRIVATE)
