@@ -3,8 +3,11 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState, PsiClass, PsiNamedElement}
+import com.intellij.util.ArrayFactory
+import statements.params.ScTypeParamClause
 import impl.ScalaPsiElementFactory
 import impl.toplevel.typedef.TypeDefinitionMembers
+import parser.ScalaElementTypes
 import statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import templates.ScExtendsBlock
 import types.{ScType, PhysicalSignature, ScSubstitutor}
@@ -13,7 +16,25 @@ import types.{ScType, PhysicalSignature, ScSubstitutor}
  * @author ven
  */
 trait ScTemplateDefinition extends ScNamedElement with PsiClass {
-  def extendsBlock() : ScExtendsBlock = findChildByClass(classOf[ScExtendsBlock])
+  def extendsBlock: ScExtendsBlock = {
+    this match {
+      case st: ScalaStubBasedElementImpl[_] => {
+        val stub = st.getStub
+        if (stub != null) {
+          val array = stub.getChildrenByType(ScalaElementTypes.EXTENDS_BLOCK, new ArrayFactory[ScExtendsBlock] {
+            def create(count: Int): Array[ScExtendsBlock] = new Array[ScExtendsBlock](count)
+          })
+          if (array.length == 0) {
+            return null
+          } else {
+            return array.apply(0)
+          }
+        }
+      }
+      case _ =>
+    }
+    findChildByClass(classOf[ScExtendsBlock])
+  }
 
   def members(): Seq[ScMember] = extendsBlock.members
   def functions(): Seq[ScFunction] = extendsBlock.functions

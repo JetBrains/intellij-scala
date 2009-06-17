@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base
 import _root_.scala.collection.mutable.ArrayBuffer
 import api.base.ScAccessModifier
 import api.ScalaFile
+import api.statements.params.ScTypeParamClause
 import api.toplevel.packaging.ScPackageContainer
 import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.util.TextRange
@@ -12,14 +13,18 @@ import psi.ScalaPsiElementImpl
 import lexer.ScalaTokenTypes
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.util.PsiTreeUtil
+import psi.stubs.ScAccessModifierStub;
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 07.03.2008
 */
 
-class ScAccessModifierImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScAccessModifier{
+class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] with ScAccessModifier {
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScAccessModifierStub) = {this(); setStub(stub); setNode(null)}
+
   override def toString: String = "AccessModifier"
 
   def scope() = getReference match {

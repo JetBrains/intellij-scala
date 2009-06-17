@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates
 
 
 import _root_.scala.collection.mutable.ListBuffer
+import api.base.ScPrimaryConstructor
 import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScSelfTypeElement, ScTypeElement}
 import api.ScalaFile
 import api.statements.{ScValue, ScVariable}
@@ -11,7 +12,8 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{JavaPsiFacade, PsiElement, ResolveState, PsiClass}
-import com.intellij.util.IncorrectOperationException
+import com.intellij.util.{ArrayFactory, IncorrectOperationException}
+import parser.ScalaElementTypes
 import psi.ScalaPsiElementImpl
 import api.toplevel.templates._
 import psi.types._
@@ -32,7 +34,19 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   override def toString: String = "ExtendsBlock"
 
-  def templateBody: Option[ScTemplateBody] = findChild(classOf[ScTemplateBody])
+  def templateBody: Option[ScTemplateBody] = {
+    val stub = getStub
+    if (stub != null) {
+      val array = stub.getChildrenByType(ScalaElementTypes.TEMPLATE_BODY, new ArrayFactory[ScTemplateBody] {
+        def create(count: Int): Array[ScTemplateBody] = new Array[ScTemplateBody](count)
+      })
+      if (array.length == 0) {
+        return None
+      } else {
+        return Some(array.apply(0))
+      }
+    } else findChild(classOf[ScTemplateBody])
+  }
 
   def empty = getNode.getFirstChildNode == null
 
@@ -66,10 +80,6 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
         parents.typeElements foreach {typeElement => addType(typeElement.getType)}
       }
     }
-    /*selfType match {
-      case Some(st) => addType(st)
-      case None =>
-    }*/ //todo: This is wrong. Self type doesn't add new things to inheriting model.
     buffer.toList
   }
 

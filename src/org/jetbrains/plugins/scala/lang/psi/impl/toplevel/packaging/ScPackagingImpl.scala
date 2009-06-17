@@ -54,8 +54,6 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
     parentPackageName(this)
   }
 
-  override def packagings = findChildrenByClass(classOf[ScPackaging])
-
   def typeDefs = findChildrenByClass(classOf[ScTypeDefinition])
 
   def declaredElements = {

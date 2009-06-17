@@ -11,7 +11,7 @@ import statements.params.ScParameters
 */
 
 trait ScClass extends ScTypeDefinition with ScParameterOwner {
-  def constructor = findChild(classOf[ScPrimaryConstructor])
+  def constructor: Option[ScPrimaryConstructor]
 
   def clauses: Option[ScParameters] = constructor match {
     case Some(x: ScPrimaryConstructor) => Some(x.parameterList)

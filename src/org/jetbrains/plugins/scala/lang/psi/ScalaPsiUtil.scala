@@ -10,6 +10,7 @@ import api.expr.xml.ScXmlExpr
 import api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
 import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition, ScClass, ScObject}
 import com.intellij.openapi.project.Project
+import com.intellij.util.ArrayFactory
 import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult

@@ -8,7 +8,9 @@ import api.toplevel.typedef.{ScTypeDefinition, ScMember}
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.{PsiElement, PsiClass}
+import elements.ScTypeDefinitionElementType
 import java.util.ArrayList
+import psi.impl.toplevel.templates.ScExtendsBlockImpl
 
 /**
  * User: Alexander Podkhalyuzin
@@ -23,9 +25,17 @@ object ScalaStubsUtil {
     val iterator: java.util.Iterator[ScExtendsBlock] =
       StubIndex.getInstance().get(ScDirectInheritorsIndex.KEY, name, clazz.getProject(), scope).iterator
     while (iterator.hasNext) {
-      iterator.next.getParent match {
-        case x: ScTypeDefinition => inheritors += x
-        case _ =>
+      val extendsBlock = iterator.next
+      val stub = extendsBlock.asInstanceOf[ScExtendsBlockImpl].getStub
+      if (stub != null) {
+        if (stub.getParentStub.getStubType.isInstanceOf[ScTypeDefinitionElementType[_]]) {
+          inheritors += stub.getParentStub.getPsi.asInstanceOf[ScTypeDefinition]
+        }
+      } else {
+        extendsBlock.getParent match {
+          case tp: ScTypeDefinition => inheritors += tp
+          case _ =>
+        }
       }
     }
     inheritors.toSeq

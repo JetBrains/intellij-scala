@@ -27,10 +27,13 @@ import com.intellij.util.IncorrectOperationException
 import com.intellij.psi.impl._
 import com.intellij.util.VisibilityIcons
 import javax.swing.Icon
+import psi.stubs.ScTypeDefinitionStub
+import stubs.StubElement
 import synthetic.JavaIdentifier
 import types.{ScSubstitutor, ScType}
 import Misc._
 import util.{PsiUtil, PsiTreeUtil}
+import source.PsiFileImpl
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
@@ -95,8 +98,13 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
       case parent => _packageName(parent)
     }
 
-    val packageName = _packageName(this)
-    if (packageName.length > 0) packageName + "." + name else name
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScTypeDefinitionStub].qualName
+    } else {
+      val packageName = _packageName(this)
+      if (packageName.length > 0) packageName + "." + name else name
+    }
   }
 
   override def getPresentation(): ItemPresentation = {

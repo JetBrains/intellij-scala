@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
+import api.base.{ScPrimaryConstructor, ScModifierList}
+import api.statements.params.ScTypeParamClause
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiModifierList}
+import com.intellij.util.ArrayFactory
 import stubs.elements.wrappers.DummyASTNode
 import stubs.ScTypeDefinitionStub
-import api.base.ScModifierList
-
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
 
@@ -34,6 +35,21 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
   override def toString: String = "ScClass"
 
   override def getIconInner = Icons.CLASS
+
+  def constructor: Option[ScPrimaryConstructor] = {
+    val stub = getStub
+    if (stub != null) {
+      val array = stub.getChildrenByType(ScalaElementTypes.PRIMARY_CONSTRUCTOR, new ArrayFactory[ScPrimaryConstructor] {
+        def create(count: Int): Array[ScPrimaryConstructor] = new Array[ScPrimaryConstructor](count)
+      })
+      if (array.length == 0) {
+        return None
+      } else {
+        return Some(array.apply(0))
+      }
+    }
+    findChild(classOf[ScPrimaryConstructor])
+  }
 
   def parameters = constructor match {
     case Some(c) => c.parameters

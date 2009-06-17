@@ -20,7 +20,7 @@ import psi.types.ScExistentialArgument
 * Date: 11.04.2008
 */
 
-class ScWildcardTypeElementImpl(node: ASTNode) extends ScTypeBoundsOwnerImpl(node) with ScWildcardTypeElement {
+class ScWildcardTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeBoundsOwnerImpl with ScWildcardTypeElement {
   override def toString: String = "WildcardType"
 
   override def getType(implicit visited: Set[ScNamedElement]) = new ScExistentialArgument("_", Nil, lowerBound, upperBound)

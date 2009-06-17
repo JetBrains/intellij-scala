@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
 
+import api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement}
 import api.expr.ScExpression
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 
@@ -10,12 +11,12 @@ import com.intellij.openapi.roots.{OrderEntry, ProjectRootManager, OrderRootType
 import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.file.PsiPackageImpl
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.util.{ArrayFactory, IncorrectOperationException}
 import lexer.ScalaTokenTypes
 import stubs.ScFileStub
 import _root_.com.intellij.extapi.psi.{PsiFileBase}
 import api.ScalaFile
 import com.intellij.psi.stubs.StubElement
-import com.intellij.util.IncorrectOperationException
 import api.toplevel.typedef.ScTypeDefinition
 import api.toplevel.imports.ScImportStmt
 import com.intellij.lang.Language
@@ -32,7 +33,6 @@ import psi.api.toplevel._
 import psi.api.toplevel.typedef._
 import psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 
@@ -118,7 +118,14 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   override def getStub: ScFileStub = super[PsiFileBase].getStub.asInstanceOf[ScFileStub]
 
-  def getPackagings = findChildrenByClass(classOf[ScPackaging])
+  def getPackagings = {
+    val stub = getStub
+    if (stub != null) {
+      stub.getChildrenByType(ScalaElementTypes.PACKAGING, new ArrayFactory[ScPackaging] {
+        def create(count: Int): Array[ScPackaging] = new Array[ScPackaging](count)
+      })
+    } else findChildrenByClass(classOf[ScPackaging])
+  }
 
   def getPackageName: String =
     packageStatement match {
@@ -127,7 +134,19 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     }
 
 
-  def packageStatement = findChild(classOf[ScPackageStatement])
+  def packageStatement: Option[ScPackageStatement] = {
+    val stub = getStub
+    if (stub != null) {
+      val array = stub.getChildrenByType(ScalaElementTypes.PACKAGE_STMT, new ArrayFactory[ScPackageStatement] {
+        def create(count: Int): Array[ScPackageStatement] = new Array[ScPackageStatement](count)
+      })
+      if (array.length == 0) {
+        return None
+      } else {
+        return Some(array.apply(0))
+      }
+    } else findChild(classOf[ScPackageStatement])
+  }
 
   override def getClasses = {
     if (!isScriptFile) {
