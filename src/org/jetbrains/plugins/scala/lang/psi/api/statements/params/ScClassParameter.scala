@@ -10,8 +10,6 @@ import toplevel.ScModifierListOwner
 */
 
 trait ScClassParameter extends ScParameter with ScModifierListOwner {
-  override def hasModifierProperty(name: String) = super[ScModifierListOwner].hasModifierProperty(name)
-
   def isVal() : Boolean
   def isVar() : Boolean
 }

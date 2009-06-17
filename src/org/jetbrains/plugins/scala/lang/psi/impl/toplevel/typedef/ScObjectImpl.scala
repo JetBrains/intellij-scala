@@ -48,25 +48,15 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
 
   override def getIconInner = if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
 
-  //todo refactor
-  override def getModifierList = findChildByClass(classOf[ScModifierList])
-
   override def hasModifierProperty(name: String): Boolean = {
-    if (getModifierList != null) {
-      if (name == PsiModifier.PUBLIC) {
-        val list = getModifierList
-        return !list.has(ScalaTokenTypes.kPRIVATE) && !list.has(ScalaTokenTypes.kPROTECTED)
-      }
-      if (name == "final") return true
-      getModifierList.hasModifierProperty(name: String)
-    }
-    else false
+    if (name == "final") return true
+    super[ScTypeDefinitionImpl].hasModifierProperty(name)
   }
 
 
   override def isPackageObject: Boolean = findChildByType(ScalaTokenTypes.kPACKAGE) != null
 
-  override def isCase = getModifierList.has(ScalaTokenTypes.kCASE)
+  override def isCase = hasModifierProperty("case")
 
   override def getContainingClass() = null
 

@@ -17,8 +17,6 @@ import templates.{ScExtendsBlock, ScTemplateBody}
  */
 
 trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
-  def getModifierList = findChildByClass(classOf[ScModifierList])
-
   def getContainingClass: ScTemplateDefinition = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])
 
   override def hasModifierProperty(name: String) = {
@@ -28,8 +26,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
         case _ => false
       }
     } else if (name == PsiModifier.PUBLIC) {
-      val list = getModifierList
-      !list.has(ScalaTokenTypes.kPRIVATE) && !list.has(ScalaTokenTypes.kPROTECTED)
+      !hasModifierProperty("private") && !hasModifierProperty("protected")
     } else super.hasModifierProperty(name)
   }
 

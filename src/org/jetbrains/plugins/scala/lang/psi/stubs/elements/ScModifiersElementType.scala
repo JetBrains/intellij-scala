@@ -7,6 +7,7 @@ import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInp
 
 
 import com.intellij.psi.PsiElement
+import com.intellij.util.io.StringRef
 import impl.ScModifiersStubImpl
 
 /**
@@ -17,8 +18,8 @@ import impl.ScModifiersStubImpl
 class ScModifiersElementType[Func <: ScModifierList](debugName: String)
         extends ScStubElementType[ScModifiersStub, ScModifierList](debugName) {
   def serialize(stub: ScModifiersStub, dataStream: StubOutputStream): Unit = {
-    /*dataStream.writeByte(stub.getModifiers.length)
-    for (modifier <- stub.getModifiers) dataStream.writeName(modifier)*/
+    dataStream.writeByte(stub.getModifiers.length)
+    for (modifier <- stub.getModifiers) dataStream.writeName(modifier)
   }
 
   def createPsi(stub: ScModifiersStub): ScModifierList = {
@@ -26,15 +27,14 @@ class ScModifiersElementType[Func <: ScModifierList](debugName: String)
   }
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScModifierList, parentStub: StubElement[ParentPsi]): ScModifiersStub = {
-    new ScModifiersStubImpl(parentStub, this)
+    new ScModifiersStubImpl(parentStub, this, psi.getModifiersStrings)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScModifiersStub = {
-    /*val num = dataStream.readByte
+    val num = dataStream.readByte
     val modifiers = new Array[String](num)
-    for (i <- 1 to num) modifiers(i-1) = dataStream.readName()
-    new ScModifiersStubImpl(parent, this, modifiers)*/
-    new ScModifiersStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
+    for (i <- 1 to num) modifiers(i-1) = StringRef.toString(dataStream.readName)
+    new ScModifiersStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, modifiers)
   }
 
   def indexStub(stub: ScModifiersStub, sink: IndexSink): Unit = {}

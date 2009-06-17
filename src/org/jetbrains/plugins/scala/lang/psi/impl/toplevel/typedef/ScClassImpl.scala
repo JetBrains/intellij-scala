@@ -35,8 +35,6 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
 
   override def getIconInner = Icons.CLASS
 
-  override def getModifierList: ScModifierList = findChildByClass(classOf[ScModifierList])
-
   def parameters = constructor match {
     case Some(c) => c.parameters
     case None => Seq.empty
@@ -62,5 +60,5 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
   }
 
-  override def isCase = getModifierList.has(ScalaTokenTypes.kCASE)
+  override def isCase = hasModifierProperty("case")
 }

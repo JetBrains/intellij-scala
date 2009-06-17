@@ -45,6 +45,12 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
     }
   }
 
+
+  def getModifiersStrings: Array[String] = {
+    Array("override", "private", "protected", "public", "final", "implicit", "abstract", "sealed", "lazy", "case").
+      filter(hasModifierProperty(_))
+  }
+
   def hasExplicitModifier(name: String) = false
 
   def setModifierProperty(name: String, value: Boolean) {

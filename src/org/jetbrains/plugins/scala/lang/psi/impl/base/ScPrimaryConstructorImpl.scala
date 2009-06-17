@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements._
 * Date: 07.03.2008
 */
 
-class ScPrimaryConstructorImpl(node: ASTNode) extends ScMemberImpl(node) with ScPrimaryConstructor {
+class ScPrimaryConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPrimaryConstructor {
   override def hasAnnotation: Boolean = {
     return !(getNode.getFirstChildNode.getFirstChildNode == null)
   }

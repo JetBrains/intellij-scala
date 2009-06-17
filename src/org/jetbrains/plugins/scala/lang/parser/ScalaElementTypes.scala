@@ -149,7 +149,7 @@ object ScalaElementTypes {
 
   /******************* modifiers **********************/
   val MODIFIERS = new ScModifiersElementType("moifiers")
-  val ACCESS_MODIFIER = new ScalaElementType("access modifier")
+  val ACCESS_MODIFIER = new ScalaElementType("access modifier") //todo: create stub
 
   /******************* annotation *********************/
 
