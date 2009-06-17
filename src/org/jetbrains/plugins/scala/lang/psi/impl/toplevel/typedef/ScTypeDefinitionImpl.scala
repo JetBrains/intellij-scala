@@ -4,52 +4,33 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
  * @author ilyas
  */
 
-import _root_.java.util.{Map, List, ArrayList}
+import _root_.java.util.{List, ArrayList}
+import api.base.ScModifierList
 import com.intellij.openapi.util.{Pair, Iconable}
 import api.ScalaFile
-import api.statements._
-import com.intellij.openapi.editor.Editor
-
-import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.{IStubElementType, StubIndex}
 import com.intellij.refactoring.listeners.RefactoringElementListener
-import com.intellij.refactoring.rename.{RenameUtil, PsiElementRenameHandler}
-import stubs.index.ScalaIndexKeys
-import stubs.ScTypeDefinitionStub
+import com.intellij.refactoring.rename.RenameUtil
 import _root_.scala.collection.immutable.Set
-import api.base.{ScStableCodeReferenceElement, ScPrimaryConstructor}
-import base.ScStableCodeReferenceElementImpl
-import api.base.ScStableCodeReferenceElement
-import api.base.types.ScTypeElement
 import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.collection.mutable.HashSet
-import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import com.intellij.psi.tree._
-import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.editor.colors._
-import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParamClause, ScTypeParam}
 import psi.api.toplevel.packaging._
-import psi.api.toplevel.templates._
-import org.jetbrains.plugins.scala.icons.Icons
 import com.intellij.extapi.psi.ASTWrapperPsiElement
-import com.intellij.lang.ASTNode
 import com.intellij.navigation._
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.util.IncorrectOperationException
-import com.intellij.util.IconUtil
 import com.intellij.psi.impl._
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.VisibilityIcons
 import javax.swing.Icon
 import synthetic.JavaIdentifier
 import types.{ScSubstitutor, ScType}
 import Misc._
+import util.{PsiUtil, PsiTreeUtil}
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
@@ -59,6 +40,9 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     }
   }
 
+  override def getModifierList: ScModifierList = super[ScTypeDefinition].getModifierList
+
+  override def hasModifierProperty(name: String): Boolean = super[ScTypeDefinition].hasModifierProperty(name)
 
   override def getNavigationElement = getContainingFile match {
     case s: ScalaFileImpl if s.isCompiled => getSourceMirrorClass
@@ -92,11 +76,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
 
   def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
-  override def getModifierList = super[ScTypeDefinition].getModifierList
-
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
-
-  override def hasModifierProperty(name: String) = super[ScTypeDefinition].hasModifierProperty(name)
 
   override def getContainingClass = super[ScTypeDefinition].getContainingClass
 
@@ -253,7 +233,12 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     val isLocked = (flags & Iconable.ICON_FLAG_READ_STATUS) != 0 && !isWritable
     val rowIcon = ElementBase.createLayeredIcon(icon, ElementPresentationUtil.getFlags(this, isLocked))
     if ((flags & Iconable.ICON_FLAG_VISIBILITY) != 0) {
-      VisibilityIcons.setVisibilityIcon(getModifierList, rowIcon);
+      val accessLevel = {
+        if (hasModifierProperty("private")) PsiUtil.ACCESS_LEVEL_PRIVATE
+        else if (hasModifierProperty("protected")) PsiUtil.ACCESS_LEVEL_PROTECTED
+        else PsiUtil.ACCESS_LEVEL_PUBLIC
+      }
+      VisibilityIcons.setVisibilityIcon(accessLevel, rowIcon);
     }
     rowIcon
   }

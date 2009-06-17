@@ -64,6 +64,7 @@ object ResolveUtils {
                                                               })
 
   def isAccessible(member: PsiMember, place: PsiElement): Boolean = {
+    if (member.hasModifierProperty("public")) return true
     member match {
       case scMember: ScMember => scMember.getModifierList.accessModifier match {
         case None => true

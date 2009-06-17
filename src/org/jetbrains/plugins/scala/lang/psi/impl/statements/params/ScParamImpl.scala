@@ -74,8 +74,6 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   def getType: PsiType = ScType.toPsi(calcType, getProject, getResolveScope)
 
-  def getModifierList = findChildByClass(classOf[ScModifierList])
-
   private def expectedParamType: Option[ScType] = getParent match {
     case clause: ScParameterClause => clause.getParent.getParent match {
       // For parameter of anonymous functions to infer parameter's type from an appropriate
