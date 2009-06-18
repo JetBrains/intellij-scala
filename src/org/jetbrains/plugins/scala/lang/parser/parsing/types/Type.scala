@@ -21,17 +21,17 @@ object Type {
   def parse(builder: PsiBuilder,star: Boolean,isPattern: Boolean): Boolean = {
     val typeMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tLPARENTHESIS => {
-        val m1 = builder.mark
-        builder.advanceLexer //Ate (
-        val (_, tuple) = Types.parse(builder)
-        if (builder.getTokenType == ScalaTokenTypes.tCOMMA) builder.advanceLexer
-        builder.getTokenType match {
-          case ScalaTokenTypes.tRPARENTHESIS => builder.advanceLexer
-          case _ => builder error ScalaBundle.message("rparenthesis.expected")
-        }
-        m1.done(if (tuple) ScalaElementTypes.TUPLE_TYPE else ScalaElementTypes.TYPE_IN_PARENTHESIS)
-      }
+//      case ScalaTokenTypes.tLPARENTHESIS => {
+//        val m1 = builder.mark
+//        builder.advanceLexer //Ate (
+//        val (_, tuple) = Types.parse(builder)
+//        if (builder.getTokenType == ScalaTokenTypes.tCOMMA) builder.advanceLexer
+//        builder.getTokenType match {
+//          case ScalaTokenTypes.tRPARENTHESIS => builder.advanceLexer
+//          case _ => builder error ScalaBundle.message("rparenthesis.expected")
+//        }
+//        m1.done(if (tuple) ScalaElementTypes.TUPLE_TYPE else ScalaElementTypes.TYPE_IN_PARENTHESIS)
+//      }
       case ScalaTokenTypes.tUNDER => {
         builder.advanceLexer()
         builder.getTokenText match {
