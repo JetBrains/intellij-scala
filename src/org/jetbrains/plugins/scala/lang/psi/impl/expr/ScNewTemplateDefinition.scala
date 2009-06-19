@@ -36,7 +36,7 @@ class ScNewTemplateDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                           lastParent: PsiElement, place: PsiElement): Boolean =
   extendsBlock.templateBody match {
-    case Some(body) if (PsiTreeUtil.isAncestor(body, place, false)) =>
+    case Some(body) if (PsiTreeUtil.isContextAncestor(body, place, false)) =>
       super[ScNewTemplateDefinition].processDeclarations(processor, state, lastParent, place)
     case _ => true
   }

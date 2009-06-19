@@ -34,7 +34,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             ResolveState.initial,
             lastParent, this)) return
           if (!processor.changedLevel) return
-          treeWalkUp(place.getParent, place)
+          treeWalkUp(place.getContext, place)
         }
       }
     }

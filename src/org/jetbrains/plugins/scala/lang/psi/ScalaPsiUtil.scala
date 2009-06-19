@@ -1,26 +1,22 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import annotations.NotNull
 import api.base.patterns.ScCaseClause
 import api.base.types.ScTypeElement
-import api.base.{ScLiteral, ScConstructor, ScStableCodeReferenceElement, ScModifierList}
+import api.base.{ScLiteral, ScStableCodeReferenceElement, ScModifierList}
 import api.expr._
 import api.expr.xml.ScXmlExpr
 
-import api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
+import api.statements.params.{ScParameter, ScParameterClause}
 import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition, ScClass, ScObject}
 import com.intellij.openapi.project.Project
-import com.intellij.util.ArrayFactory
 import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import api.statements._
 import api.toplevel.templates.ScTemplateBody
-import api.toplevel.{ScNamedElement, ScTyped}
-import com.intellij.openapi.util.Key
+import api.toplevel.ScTyped
 import com.intellij.psi._
-import com.intellij.psi.tree.TokenSet
-import com.intellij.psi.util.{CachedValueProvider, CachedValue, PsiFormatUtil}
+import com.intellij.psi.util.PsiFormatUtil
 import lang.psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
 import parser.parsing.expressions.InfixExpr
@@ -33,6 +29,44 @@ import structureView.ScalaElementPresentation
  */
 
 object ScalaPsiUtil {
+  def getPrevStubOrPsiElement(elem: PsiElement): PsiElement = {
+    elem match {
+      case st: ScalaStubBasedElementImpl[_] if st.getStub != null => {
+        val stub = st.getStub
+        val parent = stub.getParentStub
+        val children = parent.getChildrenStubs
+        val index = children.indexOf(stub)
+        if (index == -1) {
+          elem.getPrevSibling
+        } else if (index == 0) {
+          null
+        } else {
+          children.get(index - 1).getPsi
+        }
+      }
+      case _ => elem.getPrevSibling
+    }
+  }
+
+  def getNextStubOrPsiElement(elem: PsiElement): PsiElement = {
+    elem match {
+      case st: ScalaStubBasedElementImpl[_] if st.getStub != null => {
+        val stub = st.getStub
+        val parent = stub.getParentStub
+        val children = parent.getChildrenStubs
+        val index = children.indexOf(stub)
+        if (index == -1) {
+          elem.getNextSibling
+        } else if (index >= children.size - 1) {
+          null
+        } else {
+          children.get(index + 1).getPsi
+        }
+      }
+      case _ => elem.getNextSibling
+    }
+  }
+
   def genericCallSubstitutor(tp: Seq[String], gen: ScGenericCall): ScSubstitutor = {
     val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
     val map = new collection.mutable.HashMap[String, ScType]

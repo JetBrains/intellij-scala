@@ -99,4 +99,24 @@ object TokenSets {
   val SELF_TYPE_ID = TokenSet.create(ScalaTokenTypes.kTHIS, ScalaTokenTypes.tIDENTIFIER)
 
   val ALIASES_SET = TokenSet.create(ScalaElementTypes.TYPE_DECLARATION, ScalaElementTypes.TYPE_DEFINITION)
+
+  val FUNCTIONS = TokenSet.create(ScalaElementTypes.FUNCTION_DECLARATION, ScalaElementTypes.FUNCTION_DEFINITION)
+
+  val VALUES = TokenSet.create(ScalaElementTypes.VALUE_DECLARATION, ScalaElementTypes.PATTERN_DEFINITION)
+
+  val VARIABLES = TokenSet.create(ScalaElementTypes.VARIABLE_DECLARATION, ScalaElementTypes.VARIABLE_DEFINITION)
+
+  val TEMPLATE_PARENTS = TokenSet.create(ScalaElementTypes.CLASS_PARENTS, ScalaElementTypes.TRAIT_PARENTS)
+
+  val MEMBERS = TokenSet.orSet(FUNCTIONS, TokenSet.orSet(
+      ALIASES_SET, TokenSet.orSet(
+        TMPL_DEF_BIT_SET, TokenSet.orSet(
+          VALUES, TokenSet.orSet(
+            VARIABLES, TokenSet.create(ScalaElementTypes.PRIMARY_CONSTRUCTOR)
+          )
+        )
+      )
+    ))
+
+  val DECLARED_ELEMENTS_HOLDER = TokenSet.orSet(FUNCTIONS, TokenSet.orSet(VALUES, VARIABLES))
 }

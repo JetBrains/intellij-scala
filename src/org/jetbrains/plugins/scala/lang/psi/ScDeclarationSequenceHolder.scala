@@ -3,7 +3,9 @@ package org.jetbrains.plugins.scala.lang.psi
 import api.statements.ScDeclaredElementsHolder
 import api.toplevel.ScNamedElement
 import com.intellij.psi._
+import psi.impl.ScalaFileImpl
 import scope._
+import com.intellij.psi.stubs.StubElement
 
 trait ScDeclarationSequenceHolder extends ScalaPsiElement {
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -16,14 +18,14 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
       var run = lastParent
       while (run != null) {
         if (!processElement(run, processor, state)) return false
-        run = run.getPrevSibling
+        run = ScalaPsiUtil.getPrevStubOrPsiElement(run)
       }
 
       //forward references are allowed (e.g. 2 local methods see each other), with highlighting errors in case of var/vals
-      run = lastParent.getNextSibling
+      run = ScalaPsiUtil.getNextStubOrPsiElement(lastParent)
       while (run != null) {
         if (!processElement(run, processor, state)) return false
-        run = run.getNextSibling
+        run = ScalaPsiUtil.getNextStubOrPsiElement(run)
       }
     }
     true

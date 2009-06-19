@@ -27,9 +27,9 @@ trait ScExtendsBlock extends ScalaPsiElement {
    */
   def empty: Boolean
 
-  def templateParents = findChild(classOf[ScTemplateParents])
+  def templateParents: Option[ScTemplateParents]
 
-  def earlyDefinitions = findChild(classOf[ScEarlyDefinitions])
+  def earlyDefinitions: Option[ScEarlyDefinitions]
 
   def typeDefinitions : Seq[ScTypeDefinition]
 

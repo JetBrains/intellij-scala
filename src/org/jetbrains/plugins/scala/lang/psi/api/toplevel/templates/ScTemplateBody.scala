@@ -12,15 +12,15 @@ import api.toplevel.typedef._
 */
 
 trait ScTemplateBody extends ScalaPsiElement {
-  def members = findChildrenByClass(classOf[ScMember])
+  def members: Array[ScMember]
 
-  def holders = findChildrenByClass(classOf[ScDeclaredElementsHolder])
+  def holders: Array[ScDeclaredElementsHolder]
 
-  def functions = findChildrenByClass(classOf[ScFunction])
+  def functions: Array[ScFunction]
 
   def aliases: Array[ScTypeAlias]
 
-  def typeDefinitions: Seq[ScTypeDefinition] = findChildrenByClass(classOf[ScTypeDefinition])
+  def typeDefinitions: Seq[ScTypeDefinition]
 
-  def selfTypeElement() = findChild(classOf[ScSelfTypeElement])
+  def selfTypeElement: Option[ScSelfTypeElement]
 }

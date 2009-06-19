@@ -26,11 +26,11 @@ trait ScImportsHolder extends ScalaPsiElement {
     import org.jetbrains.plugins.scala.lang.resolve._
 
     if (lastParent != null) {
-      var run = lastParent.getPrevSibling
+      var run = ScalaPsiUtil.getPrevStubOrPsiElement(lastParent)
       while (run != null) {
         if (run.isInstanceOf[ScImportStmt] &&
             !run.processDeclarations(processor, state, lastParent, place)) return false
-        run = run.getPrevSibling
+        run = ScalaPsiUtil.getPrevStubOrPsiElement(run)
       }
     }
     true

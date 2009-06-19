@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
 
-import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElement
+import stubs.ScEarlyDefinitionsStub;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
 
@@ -20,6 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 * Date: 22.02.2008
 */
 
-class ScEarlyDefinitionsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEarlyDefinitions {
+class ScEarlyDefinitionsImpl extends ScalaStubBasedElementImpl[ScEarlyDefinitions] with ScEarlyDefinitions {
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScEarlyDefinitionsStub) = {this(); setStub(stub); setNode(null)}
   override def toString: String = "EarlyDefinitions"
 }
