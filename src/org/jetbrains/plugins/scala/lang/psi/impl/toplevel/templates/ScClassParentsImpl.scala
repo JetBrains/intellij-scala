@@ -1,22 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates
 
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.tree.IElementType;
+import stubs.ScTemplateParentsStub
+
+import types.ScType;
 import com.intellij.lang.ASTNode
-
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.lexer._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.annotations._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-
-import org.jetbrains.plugins.scala.icons.Icons
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 
-
-import com.intellij.psi.tree._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -24,6 +14,23 @@ import com.intellij.psi.tree._
 * Time: 9:22:09
 */
 
-class ScClassParentsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScClassParents {
+class ScClassParentsImpl extends ScalaStubBasedElementImpl[ScTemplateParents] with ScClassParents {
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScTemplateParentsStub) = {this(); setStub(stub); setNode(null)}
+
   override def toString: String = "ClassParents"
+
+
+  def superTypes: Seq[ScType] = {
+    val stub = getStub
+    if (stub != null) {
+      stub match {
+        case tp: ScTemplateParentsStub => {
+          return tp.getTemplateParentsTypesTexts.map(ScalaPsiElementFactory.createTypeFromText(_, this)).toSeq
+        }
+        case _ =>
+      }
+    }
+    typeElements.map(_.calcType)
+  }
 }

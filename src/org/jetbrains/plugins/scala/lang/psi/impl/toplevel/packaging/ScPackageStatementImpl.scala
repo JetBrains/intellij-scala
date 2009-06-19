@@ -43,7 +43,12 @@ class ScPackageStatementImpl extends ScalaStubBasedElementImpl[ScPackageContaine
 
   override def toString = "ScPackageStatement"
 
-  def getPackageName = reference.qualName
+  def getPackageName = {
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScPackageContainerStub].ownNamePart
+    } else reference.qualName
+  }
 
 
   def setPackageName(name: String) = {

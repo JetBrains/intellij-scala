@@ -60,7 +60,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                                   place: PsiElement) : Boolean = {
     val eb = extendsBlock
     eb.templateParents match {
-        case Some(p) if (PsiTreeUtil.isAncestor(p, place, true)) => {
+        case Some(p) if (PsiTreeUtil.isContextAncestor(p, place, true)) => {
           eb.earlyDefinitions match {
             case Some(ed) => for (m <- ed.members) {
               m match {
@@ -78,12 +78,12 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         }
         case _ =>
           eb.earlyDefinitions match {
-            case Some(ed) if PsiTreeUtil.isAncestor(ed, place, true) =>
+            case Some(ed) if PsiTreeUtil.isContextAncestor(ed, place, true) =>
             case _ => selfTypeElement match {
-              case Some(ste) if (PsiTreeUtil.isAncestor(ste, place, true)) =>
+              case Some(ste) if (PsiTreeUtil.isContextAncestor(ste, place, true)) =>
               case _ => extendsBlock match {
                 case e : ScExtendsBlock if e != null => {
-                  if (PsiTreeUtil.isAncestor(e, place, true) || !PsiTreeUtil.isAncestor(this, place, true)) {
+                  if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
                     if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
                   }
                 }

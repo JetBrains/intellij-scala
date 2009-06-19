@@ -118,7 +118,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                   ResolveState.initial(),
                   lastParent, ref)) return
                 if (!processor.changedLevel) return
-                treeWalkUp(place.getParent, place)
+                treeWalkUp(place.getContext, place)
               }
             }
           }

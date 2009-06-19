@@ -27,8 +27,8 @@ object ScalaElementTypes {
 
   val EXTENDS_BLOCK = new ScExtendsBlockElementType()
 
-  val CLASS_PARENTS = new ScalaElementType("template parents")
-  val TRAIT_PARENTS = new ScalaElementType("mixin parents")
+  val CLASS_PARENTS = new ScClassParentsElementType
+  val TRAIT_PARENTS = new ScTraitParentsElementType
   val CONSTRUCTOR = new ScalaElementType("constructor")
 
   val TEMPLATE = new ScalaElementType("template")
@@ -77,7 +77,7 @@ object ScalaElementTypes {
   val REFINEMENTS = new ScalaElementType("refinements")
   val TYPE_ARGS = new ScalaElementType("type arguments")
   val ANNOT_TYPE = new ScalaElementType("annotation type")
-  val SELF_TYPE = new ScalaElementType("self type")
+  val SELF_TYPE = new ScSelfTypeElementElementType
   val EXISTENTIAL_CLAUSE = new ScalaElementType("existential clause")
   val WILDCARD_TYPE = new ScalaElementType("wildcard type")
   val ASCRIPTION = new ScalaElementType("ascription")
@@ -107,7 +107,7 @@ object ScalaElementTypes {
   val IMPORT_SELECTOR_LIST = new ScalaElementType("import selector list")
   val IMPORT_SELECTORS = new ScalaElementType("import selectors")
   val IMPORT_EXPR = new ScalaElementType("import expression")
-  val IMPORT_STMT = new ScalaElementType("import statement")
+  val IMPORT_STMT = new ScImportStmtElementType
   val IMPORT = new ScalaElementType("import")
   val STABLE_ID_LIST = new ScalaElementType("stable id list")
 
@@ -131,7 +131,7 @@ object ScalaElementTypes {
   val PATTERN_LIST = new ScalaElementType("List of patterns")
   val VARIABLE_DEFINITION : ScVariableElementType[_] = new ScVariableDefinitionElementType
   val TYPE_DEFINITION = new ScTypeAliasDefinitionElementType
-  val EARLY_DEFINITIONS = new ScalaElementType("early definitions")
+  val EARLY_DEFINITIONS = new ScEarlyDefinitionsElementType
 
   /**************** functions *************************/
   val FUNCTION_DEFINITION = new ScFunctionDefinitionElementType

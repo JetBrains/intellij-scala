@@ -49,6 +49,21 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
     }
   }
 
+  private def prop2String(prop: IElementType): String = {
+    prop match {
+      case ScalaTokenTypes.kOVERRIDE => "override"
+      case ScalaTokenTypes.kPRIVATE => "private"
+      case ScalaTokenTypes.kPROTECTED => "protected"
+      case ScalaTokenTypes.kFINAL => "final"
+      case ScalaTokenTypes.kIMPLICIT => "implicit"
+      case ScalaTokenTypes.kABSTRACT => "abstract"
+      case ScalaTokenTypes.kSEALED => "sealed"
+      case ScalaTokenTypes.kLAZY => "lazy"
+      case ScalaTokenTypes.kCASE => "case"
+      case _ => ""
+    }
+  }
+
 
   def getModifiersStrings: Array[String] = {
     Array("override", "private", "protected", "public", "final", "implicit", "abstract", "sealed", "lazy", "case").
@@ -114,7 +129,7 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
   }
 
   def has(prop: IElementType) = {
-    val access = findChildByClass(classOf[ScAccessModifier])
+    val access = getStubOrPsiChild(ScalaElementTypes.ACCESS_MODIFIER)
     prop match {
       case ScalaTokenTypes.kPRIVATE if access != null => access.access match {
         case access.Access.PRIVATE | access.Access.THIS_PRIVATE => true
@@ -124,7 +139,12 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
         case access.Access.PROTECTED | access.Access.THIS_PROTECTED => true
         case _ => false
       }
-      case _ => findChildByType(prop) != null
+      case _ => {
+        val stub = getStub
+        if (stub != null) {
+          stub.asInstanceOf[ScModifiersStub].getModifiers.exists(_ == prop2String(prop))
+        } else findChildByType(prop) != null
+      }
     }
   }
 

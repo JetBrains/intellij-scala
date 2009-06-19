@@ -7,6 +7,7 @@ import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScSelfTy
 import api.ScalaFile
 import api.statements.{ScValue, ScVariable}
 import api.expr.ScNewTemplateDefinition
+import api.toplevel.ScEarlyDefinitions
 import api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.scope.PsiScopeProcessor
@@ -77,7 +78,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
         }
       }
       case Some(parents) => {
-        parents.typeElements foreach {typeElement => addType(typeElement.getType)}
+        parents.superTypes foreach {t => addType(t)}//typeElements foreach {typeElement => addType(typeElement.getType)}
       }
     }
     buffer.toList
@@ -170,5 +171,28 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   def selfTypeElement() = templateBody match {
     case None => None
     case Some(body) => body.selfTypeElement
+  }
+
+  def templateParents: Option[ScTemplateParents] = {
+    val stub = getStub
+    if (stub != null) {
+
+      val array = stub.getChildrenByType(TokenSets.TEMPLATE_PARENTS, new ArrayFactory[ScTemplateParents] {
+        def create(count: Int): Array[ScTemplateParents] = new Array[ScTemplateParents](count)
+      })
+      if (array.length == 0) None
+      else Some(array.apply(0))
+    } else findChild(classOf[ScTemplateParents])
+  }
+
+  def earlyDefinitions: Option[ScEarlyDefinitions] = {
+    val stub = getStub
+    if (stub != null) {
+      val array = stub.getChildrenByType(ScalaElementTypes.EARLY_DEFINITIONS, new ArrayFactory[ScEarlyDefinitions] {
+        def create(count: Int): Array[ScEarlyDefinitions] = new Array[ScEarlyDefinitions](count)
+      })
+      if (array.length == 0) None
+      else Some(array.apply(0))
+    } else findChild(classOf[ScEarlyDefinitions])
   }
 }
