@@ -9,6 +9,6 @@ import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 trait ParserNode extends ScalaTokenTypes{
 
-  def lookAhead(builder: PsiBuilder, elems: IElementType*) = ParserUtils.lookAhead(builder, elems: _*)
+  def lookAhead(builder: PsiBuilder, elems: IElementType*): Boolean = ParserUtils.lookAhead(builder, elems: _*)
 
 }

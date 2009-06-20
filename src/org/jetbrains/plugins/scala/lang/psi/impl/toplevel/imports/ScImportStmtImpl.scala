@@ -3,10 +3,13 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
 import com.intellij.openapi.util.Key
 import com.intellij.lang.ASTNode
 
+import com.intellij.util.ArrayFactory
 import lang.resolve.{ScalaResolveResult, ResolverEnv, BaseProcessor}
+import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
 import _root_.scala.collection.mutable.HashSet
+import parser.ScalaElementTypes
 import psi.stubs.ScImportStmtStub
 import usages._
 
@@ -22,6 +25,10 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
   override def toString: String = "ScImportStatement"
 
   import scope._
+
+  def importExprs: Array[ScImportExpr] = getStubOrPsiChildren(ScalaElementTypes.IMPORT_EXPR, new ArrayFactory[ScImportExpr] {
+    def create(count: Int): Array[ScImportExpr] = new Array[ScImportExpr](count)
+  })
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,
