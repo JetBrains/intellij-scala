@@ -21,6 +21,4 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
   def testStaticCall = doTest
 
   def testUpdateCall = doTest
-
-  def testsimpleCall1 = doTest
 }

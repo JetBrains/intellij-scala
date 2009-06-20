@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 
 import api.base.ScReferenceElement
-import com.intellij.psi.PsiMember
+import com.intellij.psi.{PsiNamedElement, PsiMember}
 import resolve._
 
 /**
@@ -12,10 +12,7 @@ import resolve._
 case class ScProjectionType(projected: ScType, ref: ScReferenceElement) extends ScType {
   def resolveResult = ref.bind
 
-  lazy val element = resolveResult match {
-    case Some(r) => r.element
-    case None => None
-  }
+  lazy val element: Option[PsiNamedElement] = resolveResult.map(_.element)
   
   override def equiv(t : ScType) = t match {
     case ScProjectionType(p1, ref1) => ref1.refName == ref.refName && (projected equiv p1)
