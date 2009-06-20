@@ -5,13 +5,11 @@ import api.statements.{ScFunction, ScFun}
 import api.toplevel.ScTyped
 import api.toplevel.typedef.{ScClass, ScObject}
 import com.intellij.psi.{PsiMethod, PsiField, PsiElement, PsiClass}
-import types.{ScType, PhysicalSignature, ScFunctionType, ScSubstitutor}
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import api.expr._
-import toplevel.synthetic.ScSyntheticFunction
-import types.Nothing
-
+import toplevel.synthetic.{ScSyntheticClass, ScSyntheticFunction}
+import types._
 /**
  * @author Alexander Podkhalyuzin
  * Date: 06.03.2008
@@ -59,7 +57,13 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
     //method used to convert expression to return type
     def tail(convertType: Boolean): ScType = {
       getInvokedExpr.getType match {
-        case ScFunctionType(r, _) => r
+        case ScFunctionType(r, _) => r        
+        case pt: ScProjectionType if convertType => pt.element match {
+          //todo Should this match be more general? For now, it is just enough to pass the test case:
+          //     ImplicitCallScl1024.scala
+          case Some(synth: ScSyntheticClass) => synth.t
+          case _ => return Nothing            
+        }
         case t if convertType => ScType.extractClassType(t) match {
           case Some((clazz: PsiClass, subst: ScSubstitutor)) => return processClass(clazz, subst)
           case _ => return Nothing

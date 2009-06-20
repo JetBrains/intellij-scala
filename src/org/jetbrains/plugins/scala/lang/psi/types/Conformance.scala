@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import _root_.scala.collection.mutable.HashMap
+import api.base.ScReferenceElement
+import psi.impl.toplevel.synthetic.ScSyntheticClass
 import scala.Misc._
 import api.statements._
 import params._
@@ -131,9 +133,16 @@ object Conformance {
         }
       })
 
-      case ScExistentialArgument(_, Seq.empty, lower, _) => conforms(lower, r)
+      case ScExistentialArgument(_, params, lower, upper) if params.isEmpty => conforms(upper, r)
       case ex@ScExistentialType(q, wilds) => conforms(ex.substitutor.subst(q), r)
-
+      case proj: ScProjectionType => {
+        proj.element match {
+          case Some(clazz: ScSyntheticClass) => conforms(clazz.t, r, visited + clazz)
+          case Some(clazz: PsiClass) if !visited.contains(clazz) => BaseTypes.get(proj).find {t => conforms(l, t, visited + clazz)}
+          //todo should this immediate return false?
+          case _ => rightRec(l, r, visited)
+        }
+      }
       case _ => rightRec(l, r, visited)
     }
   }
@@ -147,7 +156,8 @@ object Conformance {
 
     case proj: ScProjectionType => {
       proj.element match {
-        case clazz: PsiClass if !visited.contains(clazz) => BaseTypes.get(proj).find {t => conforms(l, t, visited + clazz)}
+        case Some(synth: ScSyntheticClass) => conforms(l, synth.t)
+        case Some(clazz: PsiClass) if !visited.contains(clazz) => BaseTypes.get(proj).find {t => conforms(l, t, visited + clazz)}
         case _ => false
       }
     }
@@ -173,7 +183,7 @@ object Conformance {
 
     case ScCompoundType(comps, _, _) => comps.find(l conforms _)
 
-    case ScExistentialArgument(_, Seq.empty, _, upper) => conforms(l, upper)
+    case ScExistentialArgument(_, params, _, upper) if params.isEmpty => conforms(l, upper)
 
     case ex: ScExistentialType => conforms(l, ex.skolem)
 
