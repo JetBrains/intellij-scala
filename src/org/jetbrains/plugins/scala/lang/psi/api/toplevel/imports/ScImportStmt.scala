@@ -13,5 +13,5 @@ import usages.{ImportSelectorUsed, ImportExprUsed, ImportUsed}
 */
 
 trait ScImportStmt extends ScBlockStatement {
-  def importExprs = findChildrenByClass(classOf[ScImportExpr])
+  def importExprs: Array[ScImportExpr]
 }

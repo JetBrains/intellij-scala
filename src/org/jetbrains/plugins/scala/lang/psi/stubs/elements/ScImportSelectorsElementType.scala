@@ -1,0 +1,33 @@
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
+
+
+import api.toplevel.imports.{ScImportSelectors, ScImportSelector}
+import impl.{ScImportSelectorsStubImpl, ScImportSelectorStubImpl}
+import com.intellij.psi.stubs.{IndexSink, StubInputStream, StubElement, StubOutputStream}
+
+import com.intellij.psi.PsiElement
+import psi.impl.toplevel.imports.{ScImportSelectorsImpl, ScImportSelectorImpl}
+/**
+ * User: Alexander Podkhalyuzin
+ * Date: 20.06.2009
+ */
+
+class ScImportSelectorsElementType[Func <: ScImportSelectors]
+        extends ScStubElementType[ScImportSelectorsStub, ScImportSelectors]("import selectors") {
+  def serialize(stub: ScImportSelectorsStub, dataStream: StubOutputStream): Unit = {
+  }
+
+  def createStubImpl[ParentPsi <: PsiElement](psi: ScImportSelectors, parentStub: StubElement[ParentPsi]): ScImportSelectorsStub = {
+    new ScImportSelectorsStubImpl(parentStub, this)
+  }
+
+  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScImportSelectorsStub = {
+    new ScImportSelectorsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
+  }
+
+  def indexStub(stub: ScImportSelectorsStub, sink: IndexSink): Unit = {}
+
+  def createPsi(stub: ScImportSelectorsStub): ScImportSelectors = {
+    new ScImportSelectorsImpl(stub)
+  }
+}

@@ -10,9 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElemen
  */
 
 trait ScImportExpr extends ScalaPsiElement {
-  def reference = findChild(classOf[ScStableCodeReferenceElement])
+  def reference: Option[ScStableCodeReferenceElement] = findChild(classOf[ScStableCodeReferenceElement])
 
-  def selectorSet = findChild(classOf[ScImportSelectors])
+  def selectorSet: Option[ScImportSelectors]
 
   def selectors: Seq[ScImportSelector] = {
     selectorSet match {
@@ -27,7 +27,7 @@ trait ScImportExpr extends ScalaPsiElement {
 
   def qualifier: ScStableCodeReferenceElement
 
-  def deleteExpr
+  def deleteExpr: Unit
 
   def getNames: Array[String] = getLastChild match {
     case s: ScImportSelectors => (for (selector <- selectors) yield selector.getText).toArray

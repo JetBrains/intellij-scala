@@ -45,10 +45,7 @@ trait ScExtendsBlock extends ScalaPsiElement {
 
   def selfType() : Option[ScType]
   
-  def isUnderCaseClass = getParent match {
-    case td: ScTypeDefinition if td.isCase => true
-    case _ => false
-  }
+  def isUnderCaseClass: Boolean
 
 
 }

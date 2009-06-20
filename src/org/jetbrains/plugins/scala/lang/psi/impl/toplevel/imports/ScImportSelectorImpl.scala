@@ -1,22 +1,24 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
 
-import api.ScalaFile
 import api.toplevel.imports.{ScImportSelectors, ScImportExpr, ScImportSelector}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiDocumentManager}
+import com.intellij.psi.PsiElement
 import lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import parser.ScalaElementTypes
+import stubs.ScImportSelectorStub
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008
 */
 
-class ScImportSelectorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScImportSelector {
+class ScImportSelectorImpl extends ScalaStubBasedElementImpl[ScImportSelector] with ScImportSelector {
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScImportSelectorStub) = {this(); setStub(stub); setNode(null)}
+
   override def toString: String = "ImportSelector"
 
   def importedName () = {

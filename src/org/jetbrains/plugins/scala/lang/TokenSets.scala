@@ -12,6 +12,10 @@ import parser.ScalaElementTypes
 
 object TokenSets {
 
+  val MODIFIERS = TokenSet.create(ScalaTokenTypes.kCASE, ScalaTokenTypes.kABSTRACT, ScalaTokenTypes.kLAZY,
+    ScalaTokenTypes.kIMPLICIT, ScalaTokenTypes.kFINAL, ScalaTokenTypes.kOVERRIDE, ScalaTokenTypes.kPROTECTED,
+    ScalaTokenTypes.kPRIVATE, ScalaTokenTypes.kSEALED)
+
   val PROPERTY_NAMES = TokenSet.create(tIDENTIFIER)
 
   val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF, FUNCTION_DEFINITION)

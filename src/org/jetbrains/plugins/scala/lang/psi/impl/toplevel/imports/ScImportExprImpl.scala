@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
 
 import com.intellij.util.IncorrectOperationException
 import api.base.ScStableCodeReferenceElement
-import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElement
+import stubs.{ScImportExprStub, ScImportSelectorStub}
+
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
 
@@ -22,7 +24,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 * Date: 20.02.2008
  */
 
-class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScImportExpr {
+class ScImportExprImpl extends ScalaStubBasedElementImpl[ScImportExpr] with ScImportExpr {
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScImportExprStub) = {this(); setStub(stub); setNode(null)}
+
   override def toString: String = "ImportExpression"
 
   def singleWildcard: Boolean = {
@@ -64,7 +69,7 @@ class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
     case _ => throw new IncorrectOperationException
   }
 
-  def deleteExpr {
+  def deleteExpr: Unit = {
     val parent = getParent.asInstanceOf[ScImportStmt]
     if (parent.importExprs.size == 1) {
       parent.getParent match {
@@ -109,5 +114,12 @@ class ScImportExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScI
       }
       remove(getNode)
     }
+  }
+
+
+  def selectorSet: Option[ScImportSelectors] = {
+    val psi: ScImportSelectors = getStubOrPsiChild(ScalaElementTypes.IMPORT_SELECTORS)
+    if (psi == null) None
+    else Some(psi)
   }
 }

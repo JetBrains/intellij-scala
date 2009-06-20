@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScImportSelectors extends ScalaPsiElement {
-  def selectors = findChildrenByClass(classOf[ScImportSelector])
+  def selectors: Array[ScImportSelector]
 
   def hasWildcard : Boolean
 

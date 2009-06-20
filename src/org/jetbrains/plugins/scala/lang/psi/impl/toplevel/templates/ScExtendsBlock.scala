@@ -66,7 +66,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
       case _ => buffer += t
     }
     templateParents match {
-      case None => getParent match {
+      case None => getParentByStub match {
         case obj: ScObject => buffer += AnyRef
         case _ => {
           val so = scalaObject()
@@ -194,5 +194,11 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
       if (array.length == 0) None
       else Some(array.apply(0))
     } else findChild(classOf[ScEarlyDefinitions])
+  }
+
+
+  def isUnderCaseClass: Boolean = getParentByStub match {
+    case td: ScTypeDefinition if td.isCase => true
+    case _ => false
   }
 }
