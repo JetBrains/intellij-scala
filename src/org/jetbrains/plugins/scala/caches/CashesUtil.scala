@@ -13,8 +13,8 @@ import com.intellij.psi.util.{CachedValue, CachedValueProvider}
  */
 //todo: copy from TypeDefinitionMembers, rewrite or remove duplicates
 object CashesUtil {
-  val ALIASED_KEY: Key[CachedValue[ScTypeInferenceResult]] = Key.create("alised type key")
-  val SCRIPT_KEY: Key[CachedValue[java.lang.Boolean]] = Key.create("is script key")
+  val ALIASED_KEY: Key[CachedValue[ScTypeInferenceResult]] = Key.create("alised.type.key")
+  val SCRIPT_KEY: Key[CachedValue[java.lang.Boolean]] = Key.create("is.script.key")
 
   def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]): T = {
     var computed: CachedValue[T] = e.getUserData(key)
